@@ -116,19 +116,18 @@ namespace TrenchBroom {
          * See ModEditor::createGui
          */
         void DirectoryTextureCollectionEditor::createGui() {
-            auto* availableCollectionsContainer = new TitledPanel("Available");
+            auto* availableCollectionsContainer = new TitledPanel("Available", false, false);
 
             m_availableCollectionsList = new QListWidget();
             m_availableCollectionsList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-            auto* availableModContainerLayout = new QVBoxLayout();
-            availableModContainerLayout->setContentsMargins(0, 0, 0, 0);
-            availableModContainerLayout->setSpacing(0);
-            availableModContainerLayout->addWidget(m_availableCollectionsList);
-            availableCollectionsContainer->getPanel()->setLayout(availableModContainerLayout);
+            auto* availableCollectionsContainerLayout = new QVBoxLayout();
+            availableCollectionsContainerLayout->setContentsMargins(0, 0, 0, 0);
+            availableCollectionsContainerLayout->setSpacing(0);
+            availableCollectionsContainerLayout->addWidget(m_availableCollectionsList);
+            availableCollectionsContainer->getPanel()->setLayout(availableCollectionsContainerLayout);
 
-            auto* enabledCollectionsContainer = new TitledPanel("Enabled");
-//            enabledCollectionsContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
+            auto* enabledCollectionsContainer = new TitledPanel("Enabled", false, false);
             m_enabledCollectionsList = new QListWidget();
             m_enabledCollectionsList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
@@ -142,12 +141,11 @@ namespace TrenchBroom {
             m_removeCollectionsButton = createBitmapButton("Remove.png", tr("Disable the selected texture collections"), this);
             m_reloadCollectionsButton = createBitmapButton("Refresh.png", tr("Reload all enabled texture collections"), this);
 
-            auto* buttonSizer = new QHBoxLayout();
-            buttonSizer->addWidget(m_addCollectionsButton); //, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
-            buttonSizer->addWidget(m_removeCollectionsButton); //, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
-            buttonSizer->addSpacing(LayoutConstants::WideHMargin);
-            buttonSizer->addWidget(m_reloadCollectionsButton); //, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
-            buttonSizer->addStretch(1);
+            auto* toolBar = createMiniToolBarLayout(
+                m_addCollectionsButton,
+                m_removeCollectionsButton,
+                LayoutConstants::WideHMargin,
+                m_reloadCollectionsButton);
 
             auto* layout = new QGridLayout();
             layout->setContentsMargins(0, 0, 0, 0);
@@ -157,19 +155,10 @@ namespace TrenchBroom {
             layout->addWidget(new BorderLine(BorderLine::Direction_Vertical),   0, 1, 3, 1);
             layout->addWidget(enabledCollectionsContainer,                      0, 2);
             layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 1, 0, 1, 3);
-            layout->addLayout(buttonSizer,                                      2, 2);
-//            layout->SetItemMinSize(availableCollectionsContainer, 100, 100);
-//            layout->SetItemMinSize(enabledCollectionsContainer, 100, 100);
-//            layout->AddGrowableCol(0);
-//            layout->AddGrowableCol(2);
-//            layout->AddGrowableRow(1);
+            layout->addLayout(toolBar,                                     2, 2);
 
             setLayout(layout);
 
-            // Unnecessary, Qt can automatically drop unused args
-//            connect(m_availableCollectionsList, &QListWidget::itemDoubleClicked, this, [=](QListWidgetItem *item){
-//                addSelectedTextureCollections();
-//            });
             connect(m_availableCollectionsList, &QListWidget::itemSelectionChanged, this,
                 &DirectoryTextureCollectionEditor::availableTextureCollectionSelectionChanged);
             connect(m_enabledCollectionsList, &QListWidget::itemSelectionChanged, this,
@@ -244,6 +233,11 @@ namespace TrenchBroom {
         }
 
         void DirectoryTextureCollectionEditor::updateListBox(QListWidget* box, const IO::Path::List& paths) {
+            // We need to block QListWidget::itemSelectionChanged from firing while clearing and rebuilding the list
+            // because it will cause debugUIConsistency() to fail, as the number of list items in the UI won't match
+            // the document's texture collections lists.
+            QSignalBlocker blocker(box);
+
             box->clear();
             for (const auto& path : paths) {
                 box->addItem(path.asQString());

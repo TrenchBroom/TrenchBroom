@@ -50,7 +50,6 @@ namespace TrenchBroom {
             createGui();
             bindObservers();
             updateControls();
-            updateButtons();
         }
 
         FileTextureCollectionEditor::~FileTextureCollectionEditor() {
@@ -133,7 +132,7 @@ namespace TrenchBroom {
             return m_collections->count() != 0;
         }
 
-        void FileTextureCollectionEditor::OnAddTextureCollectionsClicked() {
+        void FileTextureCollectionEditor::addTextureCollections() {
             const QString pathQStr = QFileDialog::getOpenFileName(nullptr, "Load Texture Collection", "", "");
             if (pathQStr.isEmpty()) {
                 return;
@@ -142,7 +141,7 @@ namespace TrenchBroom {
             loadTextureCollection(m_document, this, pathQStr);
         }
 
-        void FileTextureCollectionEditor::OnRemoveTextureCollectionsClicked() {
+        void FileTextureCollectionEditor::removeSelectedTextureCollections() {
             if (!canRemoveTextureCollections()) {
                 return;
             }
@@ -162,7 +161,7 @@ namespace TrenchBroom {
             document->setEnabledTextureCollections(collections);
         }
 
-        void FileTextureCollectionEditor::OnMoveTextureCollectionUpClicked() {
+        void FileTextureCollectionEditor::moveSelectedTextureCollectionsUp() {
             if (!canMoveTextureCollectionsUp()) {
                 return;
             }
@@ -180,7 +179,7 @@ namespace TrenchBroom {
             m_collections->setCurrentRow(static_cast<int>(index - 1));
         }
 
-        void FileTextureCollectionEditor::OnMoveTextureCollectionDownClicked() {
+        void FileTextureCollectionEditor::moveSelectedTextureCollectionsDown() {
             if (!canMoveTextureCollectionsDown()) {
                 return;
             }
@@ -198,7 +197,7 @@ namespace TrenchBroom {
             m_collections->setCurrentRow(static_cast<int>(index + 1));
         }
 
-        void FileTextureCollectionEditor::OnReloadTextureCollectionsClicked() {
+        void FileTextureCollectionEditor::reloadTextureCollections() {
             auto document = lock(m_document);
             document->reloadTextureCollections();
         }
@@ -207,39 +206,42 @@ namespace TrenchBroom {
             m_collections = new QListWidget();
             m_collections->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-            m_addTextureCollectionsButton = createBitmapButton("Add.png", "Add texture collections from the file system", this);
-            m_removeTextureCollectionsButton = createBitmapButton("Remove.png", "Remove the selected texture collections", this);
-            m_moveTextureCollectionUpButton = createBitmapButton("Up.png", "Move the selected texture collection up", this);
-            m_moveTextureCollectionDownButton = createBitmapButton("Down.png", "Move the selected texture collection down", this);
-            m_reloadTextureCollectionsButton = createBitmapButton("Refresh.png", "Reload all texture collections", this);
+            m_addTextureCollectionsButton = createBitmapButton("Add.png", "Add texture collections from the file system");
+            m_removeTextureCollectionsButton = createBitmapButton("Remove.png", "Remove the selected texture collections");
+            m_moveTextureCollectionUpButton = createBitmapButton("Up.png", "Move the selected texture collection up");
+            m_moveTextureCollectionDownButton = createBitmapButton("Down.png", "Move the selected texture collection down");
+            m_reloadTextureCollectionsButton = createBitmapButton("Refresh.png", "Reload all texture collections");
 
-            connect(m_addTextureCollectionsButton, &QAbstractButton::clicked, this, &FileTextureCollectionEditor::OnAddTextureCollectionsClicked);
-            connect(m_removeTextureCollectionsButton, &QAbstractButton::clicked, this, &FileTextureCollectionEditor::OnRemoveTextureCollectionsClicked);
-            connect(m_moveTextureCollectionUpButton, &QAbstractButton::clicked, this, &FileTextureCollectionEditor::OnMoveTextureCollectionUpClicked);
-            connect(m_moveTextureCollectionDownButton, &QAbstractButton::clicked, this, &FileTextureCollectionEditor::OnMoveTextureCollectionDownClicked);
-            connect(m_reloadTextureCollectionsButton, &QAbstractButton::clicked, this, &FileTextureCollectionEditor::OnReloadTextureCollectionsClicked);
+            auto* toolBar = createMiniToolBarLayout(
+                m_addTextureCollectionsButton,
+                m_removeTextureCollectionsButton,
+                LayoutConstants::WideHMargin,
+                m_moveTextureCollectionUpButton,
+                m_moveTextureCollectionDownButton,
+                LayoutConstants::WideHMargin,
+                m_reloadTextureCollectionsButton);
+
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(m_collections, 1);
+            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
+            layout->addLayout(toolBar, 0);
+
+            setLayout(layout);
 
             connect(m_collections, &QListWidget::itemSelectionChanged, this, &FileTextureCollectionEditor::updateButtons);
 
-            auto* buttonSizer = new QHBoxLayout();
-            buttonSizer->setSpacing(0);
-            buttonSizer->addWidget(m_addTextureCollectionsButton, 0, Qt::AlignVCenter);
-            buttonSizer->addWidget(m_removeTextureCollectionsButton, 0, Qt::AlignVCenter);
-            buttonSizer->addSpacing(LayoutConstants::WideHMargin);
-            buttonSizer->addWidget(m_moveTextureCollectionUpButton, 0, Qt::AlignVCenter);
-            buttonSizer->addWidget(m_moveTextureCollectionDownButton, 0, Qt::AlignVCenter);
-            buttonSizer->addSpacing(LayoutConstants::WideHMargin);
-            buttonSizer->addWidget(m_reloadTextureCollectionsButton, 0, Qt::AlignVCenter);
-            buttonSizer->addStretch(1);
-
-            auto* sizer = new QVBoxLayout();
-            sizer->setContentsMargins(0, 0, 0, 0);
-            sizer->setSpacing(0);
-            sizer->addWidget(m_collections, 1);
-            sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
-            sizer->addLayout(buttonSizer, 0);
-
-            setLayout(sizer);
+            connect(m_addTextureCollectionsButton, &QAbstractButton::clicked, this,
+                &FileTextureCollectionEditor::addTextureCollections);
+            connect(m_removeTextureCollectionsButton, &QAbstractButton::clicked, this,
+                &FileTextureCollectionEditor::removeSelectedTextureCollections);
+            connect(m_moveTextureCollectionUpButton, &QAbstractButton::clicked, this,
+                &FileTextureCollectionEditor::moveSelectedTextureCollectionsUp);
+            connect(m_moveTextureCollectionDownButton, &QAbstractButton::clicked, this,
+                &FileTextureCollectionEditor::moveSelectedTextureCollectionsDown);
+            connect(m_reloadTextureCollectionsButton, &QAbstractButton::clicked, this,
+                &FileTextureCollectionEditor::reloadTextureCollections);
         }
 
         void FileTextureCollectionEditor::updateButtons() {

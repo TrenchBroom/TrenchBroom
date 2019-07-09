@@ -35,7 +35,7 @@ namespace TrenchBroom {
         private:
             QLabel* m_stateText;
         public:
-            CollapsibleTitleBar(QWidget* parent, const QString& title, const QString& stateText);
+            CollapsibleTitleBar(const QString& title, const QString& stateText, QWidget* parent = nullptr);
 
             void setStateText(const QString& stateText);
         signals:
@@ -53,6 +53,7 @@ namespace TrenchBroom {
             bool m_expanded;
         public:
             CollapsibleTitledPanel(QWidget* parent, const QString& title, bool initiallyExpanded = true);
+            explicit CollapsibleTitledPanel(const QString& title, bool initiallyExpanded = true);
 
             QWidget* getPanel() const;
 

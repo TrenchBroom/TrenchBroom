@@ -100,13 +100,13 @@ namespace TrenchBroom {
         }
 
         QWidget* FaceInspector::createTextureCollectionEditor(QWidget* parent, MapDocumentWPtr document) {
-            CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(parent, "Texture Collections", false);
-            QWidget* collectionEditor = new TextureCollectionEditor(panel->getPanel(), document);
+            auto* panel = new CollapsibleTitledPanel(parent, "Texture Collections", false);
+            auto* collectionEditor = new TextureCollectionEditor(panel->getPanel(), std::move(document));
 
-            auto* sizer = new QVBoxLayout();
-            sizer->setContentsMargins(0, 0, 0, 0);
-            sizer->addWidget(collectionEditor, 1);
-            panel->getPanel()->setLayout(sizer);
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->addWidget(collectionEditor, 1);
+            panel->getPanel()->setLayout(layout);
 
             return panel;
         }

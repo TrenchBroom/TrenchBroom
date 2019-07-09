@@ -21,6 +21,7 @@
 
 #include "View/BorderLine.h"
 #include "View/ViewConstants.h"
+#include "View/wxUtils.h"
 
 #include <QLabel>
 #include <QLayout>
@@ -29,15 +30,11 @@ namespace TrenchBroom {
     namespace View {
         // CollapsibleTitleBar
 
-        CollapsibleTitleBar::CollapsibleTitleBar(QWidget* parent, const QString& title, const QString& stateText) :
-        TitleBar(title, parent, LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin, false),
+        CollapsibleTitleBar::CollapsibleTitleBar(const QString& title, const QString& stateText, QWidget* parent) :
+        TitleBar(title, parent, LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin, true),
         m_stateText(new QLabel(stateText)) {
             m_stateText->setFont(m_titleText->font());
-
-            QPalette lightText;
-            QColor lightColor = lightText.color(QPalette::Disabled, QPalette::WindowText);
-            lightText.setColor(QPalette::WindowText, lightColor);
-            m_stateText->setPalette(lightText);
+            makeInfo(m_stateText);
 
             layout()->addWidget(m_stateText);
         }
@@ -54,7 +51,7 @@ namespace TrenchBroom {
 
         CollapsibleTitledPanel::CollapsibleTitledPanel(QWidget* parent, const QString& title, const bool initiallyExpanded) :
         QWidget(parent),
-        m_titleBar(new CollapsibleTitleBar(nullptr, title, "hide")),
+        m_titleBar(new CollapsibleTitleBar(title, "hide")),
         m_divider(new BorderLine(BorderLine::Direction_Horizontal)),
         m_panel(new QWidget()),
         m_expanded(initiallyExpanded) {
@@ -73,6 +70,9 @@ namespace TrenchBroom {
             updateExpanded();
         }
 
+        CollapsibleTitledPanel::CollapsibleTitledPanel(const QString& title, const bool initiallyExpanded) :
+        CollapsibleTitledPanel(nullptr, title, initiallyExpanded) {}
+
         QWidget* CollapsibleTitledPanel::getPanel() const {
             return m_panel;
         }
@@ -90,8 +90,9 @@ namespace TrenchBroom {
         }
 
         void CollapsibleTitledPanel::setExpanded(const bool expanded) {
-            if (expanded == m_expanded)
+            if (expanded == m_expanded) {
                 return;
+            }
 
             m_expanded = expanded;
             updateExpanded();

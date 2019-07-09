@@ -55,7 +55,7 @@ namespace TrenchBroom {
 
             StringList m_availableMods;
         public:
-            ModEditor(QWidget* parent, MapDocumentWPtr document);
+            ModEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~ModEditor() override;
 
             void OnAddModClicked();

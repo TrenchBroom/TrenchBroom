@@ -123,7 +123,7 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::createGui() {
-            TitledPanel* builtinContainer = new TitledPanel(tr("Builtin"));
+            TitledPanel* builtinContainer = new TitledPanel(tr("Builtin"), false, false);
             //builtinContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_builtin = new SingleSelectionListWidget(); //builtinContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxBORDER_NONE);
             m_builtin->setAllowDeselectAll(false);
@@ -134,7 +134,7 @@ namespace TrenchBroom {
 
             builtinContainer->getPanel()->setLayout(builtinSizer);
 
-            TitledPanel* externalContainer = new TitledPanel(tr("External"));
+            TitledPanel* externalContainer = new TitledPanel(tr("External"), false, false);
             m_external = new QLabel(tr("use builtin"));
             m_chooseExternal = new QPushButton(tr("Browse..."));
             m_chooseExternal->setToolTip(tr("Click to browse for an entity definition file"));

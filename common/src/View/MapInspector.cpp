@@ -60,7 +60,7 @@ namespace TrenchBroom {
 
         QWidget* MapInspector::createModEditor(QWidget* parent, MapDocumentWPtr document) {
             CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(parent, tr("Mods"), false);
-            ModEditor* modEditor = new ModEditor(titledPanel->getPanel(), document);
+            ModEditor* modEditor = new ModEditor(document, titledPanel->getPanel());
 
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);

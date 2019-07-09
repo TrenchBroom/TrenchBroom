@@ -349,6 +349,8 @@ namespace TrenchBroom {
             return outerLayout;
         }
 
+        void addToMiniToolBarLayout(QBoxLayout*) {}
+
 #if 0
         QWidget* createDefaultPage(QWidget* parent, const QString& message) {
             QWidget* containerPanel = new QWidget(parent);

@@ -44,7 +44,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        ModEditor::ModEditor(QWidget* parent, MapDocumentWPtr document) :
+        ModEditor::ModEditor(MapDocumentWPtr document, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_availableModList(nullptr),
@@ -148,7 +148,7 @@ namespace TrenchBroom {
         }
 
         void ModEditor::createGui() {
-            auto* availableModContainer = new TitledPanel("Available");
+            auto* availableModContainer = new TitledPanel("Available", false, false);
 //            availableModContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_availableModList = new QListWidget(); //(availableModContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
             m_availableModList->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -168,7 +168,7 @@ namespace TrenchBroom {
             filterBoxSizer->addWidget(m_filterBox, 1);
 //            filterBoxSizer->addSpacing(LayoutConstants::NarrowVMargin);
 
-            auto* enabledModContainer = new TitledPanel("Enabled");
+            auto* enabledModContainer = new TitledPanel("Enabled", false, false);
 //            enabledModContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_enabledModList = new QListWidget(); //enabledModContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
             m_enabledModList->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -183,31 +183,24 @@ namespace TrenchBroom {
             m_moveModUpButton = createBitmapButton("Up.png", "Move the selected mod up", this);
             m_moveModDownButton = createBitmapButton("Down.png", "Move the selected mod down", this);
 
-            auto* buttonSizer = new QHBoxLayout();
-            buttonSizer->addWidget(m_addModsButton);//, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
-            buttonSizer->addWidget(m_removeModsButton);//, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
-            buttonSizer->addSpacing(LayoutConstants::WideHMargin);
-            buttonSizer->addWidget(m_moveModUpButton);//, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
-            buttonSizer->addWidget(m_moveModDownButton);//, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
-            buttonSizer->addStretch(1);
+            auto* toolBar = createMiniToolBarLayout(
+                m_addModsButton,
+                m_removeModsButton,
+                LayoutConstants::WideHMargin,
+                m_moveModUpButton,
+                m_moveModDownButton);
 
-            auto* sizer = new QGridLayout();
-            sizer->setContentsMargins(0, 0, 0, 0);
-            sizer->setSpacing(0);
-            sizer->addWidget(availableModContainer,                                   0, 0);
-            sizer->addWidget(new BorderLine(BorderLine::Direction_Vertical),    0, 1, 3, 1);
-            sizer->addWidget(enabledModContainer,                                     0, 2);
-            sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal),  1, 0, 1, 3);
-            sizer->addLayout(filterBoxSizer,                                          2, 0);
-            sizer->addLayout(buttonSizer,                                             2, 2);
+            auto* layout = new QGridLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(availableModContainer,                                   0, 0);
+            layout->addWidget(new BorderLine(BorderLine::Direction_Vertical),    0, 1, 3, 1);
+            layout->addWidget(enabledModContainer,                                     0, 2);
+            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal),  1, 0, 1, 3);
+            layout->addLayout(filterBoxSizer,                                          2, 0);
+            layout->addLayout(toolBar,                                             2, 2);
 
-//            sizer->SetItemMinSize(availableModContainer, 100, 100);
-//            sizer->SetItemMinSize(enabledModContainer, 100, 100);
-//            sizer->AddGrowableCol(0);
-//            sizer->AddGrowableCol(2);
-//            sizer->AddGrowableRow(1);
-
-            setLayout(sizer);
+            setLayout(layout);
 
             connect(m_availableModList, &QListWidget::itemDoubleClicked, this, &ModEditor::OnAddModClicked);
             connect(m_enabledModList, &QListWidget::itemDoubleClicked, this, &ModEditor::OnRemoveModClicked);

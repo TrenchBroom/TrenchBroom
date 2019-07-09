@@ -31,6 +31,7 @@
 #include <QBoxLayout>
 #include <QColor>
 #include <QSettings>
+#include <QWidget>
 
 #include <vector>
 
@@ -109,23 +110,29 @@ namespace TrenchBroom {
         QLayout* wrapDialogButtonBox(QWidget* buttonBox);
         QLayout* wrapDialogButtonBox(QLayout* buttonBox);
 
-        template <typename Button>
-        void addToMiniToolBarLayout(QBoxLayout* layout, Button* button) {
-            layout->addWidget(button);
-        }
+        void addToMiniToolBarLayout(QBoxLayout* layout);
 
-        template <typename Button, typename... Rest>
-        void addToMiniToolBarLayout(QBoxLayout* layout, Button* first, Rest... buttons) {
+        template <typename... Rest>
+        void addToMiniToolBarLayout(QBoxLayout* layout, int first, Rest... rest);
+
+        template <typename... Rest>
+        void addToMiniToolBarLayout(QBoxLayout* layout, QWidget* first, Rest... rest) {
             layout->addWidget(first);
-            addToMiniToolBarLayout(layout, buttons...);
+            addToMiniToolBarLayout(layout, rest...);
         }
 
-        template <typename Button, typename... Rest>
-        QLayout* createMiniToolBarLayout(Button* first, Rest... buttons) {
+        template <typename... Rest>
+        void addToMiniToolBarLayout(QBoxLayout* layout, int first, Rest... rest) {
+            layout->addSpacing(first - LayoutConstants::NarrowHMargin);
+            addToMiniToolBarLayout(layout, rest...);
+        }
+
+        template <typename... Rest>
+        QLayout* createMiniToolBarLayout(QWidget* first, Rest... rest) {
             auto* layout = new QHBoxLayout();
             layout->setContentsMargins(LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
             layout->setSpacing(LayoutConstants::NarrowHMargin);
-            addToMiniToolBarLayout(layout, first, buttons...);
+            addToMiniToolBarLayout(layout, first, rest...);
             layout->addStretch(1);
             return layout;
         }

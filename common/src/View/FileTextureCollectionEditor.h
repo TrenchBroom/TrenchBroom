@@ -55,11 +55,11 @@ namespace TrenchBroom {
             bool canMoveTextureCollectionsDown() const;
             bool canReloadTextureCollections() const;
 
-            void OnAddTextureCollectionsClicked();
-            void OnRemoveTextureCollectionsClicked();
-            void OnMoveTextureCollectionUpClicked();
-            void OnMoveTextureCollectionDownClicked();
-            void OnReloadTextureCollectionsClicked();
+            void addTextureCollections();
+            void removeSelectedTextureCollections();
+            void moveSelectedTextureCollectionsUp();
+            void moveSelectedTextureCollectionsDown();
+            void reloadTextureCollections();
         private:
             void createGui();
         private slots:

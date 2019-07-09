@@ -44,9 +44,10 @@ namespace TrenchBroom {
                 makeEmphasized(m_titleText);
             }
 
-            auto* layout = new QVBoxLayout();
+            auto* layout = new QHBoxLayout();
             layout->setContentsMargins(hMargin, vMargin, hMargin, vMargin);
-            layout->addWidget(m_titleText);
+            layout->setSpacing(LayoutConstants::WideHMargin);
+            layout->addWidget(m_titleText, 1);
             setLayout(layout);
         }
 
