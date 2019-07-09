@@ -156,6 +156,22 @@ namespace TrenchBroom {
             return result;
         }
 
+        String AttributeRow::newAttributeNameForAttributableNodes(const Model::AttributableNodeList& attributables) {
+            const std::map<String, AttributeRow> rows = rowsForAttributableNodes(attributables);
+
+            for (int i = 1; ; ++i) {
+                StringStream ss;
+                ss << "property " << i;
+
+                const String newName = ss.str();
+                if (rows.find(newName) == rows.end()) {
+                    return newName;
+                }
+            }
+            // unreachable
+            return "";
+        }
+
         // EntityAttributeGridTable
 
         EntityAttributeGridTable::EntityAttributeGridTable(MapDocumentWPtr document, QObject* parent) :
@@ -249,6 +265,17 @@ namespace TrenchBroom {
                 return nullptr;
             }
             return &m_rows.at(static_cast<size_t>(index.row()));
+        }
+
+        const int EntityAttributeGridTable::rowForAttributeName(const String& name) const {
+            for (int i = 0; i < m_rows.size(); ++i) {
+                auto& row = m_rows.at(static_cast<size_t>(i));
+
+                if (row.name() == name) {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         void EntityAttributeGridTable::updateFromMapDocument() {

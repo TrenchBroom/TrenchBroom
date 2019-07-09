@@ -83,6 +83,10 @@ namespace TrenchBroom {
 
         public:
             static std::map<String, AttributeRow> rowsForAttributableNodes(const Model::AttributableNodeList& attributables);
+            /**
+             * Suggests a new, unused attribute name of the form "property X".
+             */
+            static String newAttributeNameForAttributableNodes(const Model::AttributableNodeList& attributables);
         };
 
         /**
@@ -109,6 +113,7 @@ namespace TrenchBroom {
             void setRows(const std::map<String, AttributeRow>& newRows);
 
             const AttributeRow* dataForModelIndex(const QModelIndex& index) const;
+            const int rowForAttributeName(const String& name) const;
 
         public slots:
             void updateFromMapDocument();
