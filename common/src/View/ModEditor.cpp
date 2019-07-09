@@ -126,11 +126,11 @@ namespace TrenchBroom {
         }
 
         bool ModEditor::canEnableAddButton() const {
-            return m_availableModList->selectedItems().size() > 0;
+            return !m_availableModList->selectedItems().empty();
         }
 
         bool ModEditor::canEnableRemoveButton() const {
-            return m_enabledModList->selectedItems().size() > 0;
+            return !m_enabledModList->selectedItems().empty();
         }
 
         bool ModEditor::canEnableMoveUpButton() const {
@@ -148,47 +148,45 @@ namespace TrenchBroom {
         }
 
         void ModEditor::createGui() {
-            auto* availableModContainer = new TitledPanel("Available");
-//            availableModContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            m_availableModList = new QListWidget(); //(availableModContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
+            auto* availableModContainer = new TitledPanel(tr("Available"));
+            m_availableModList = new QListWidget();
             m_availableModList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
             auto* availableModContainerSizer = new QVBoxLayout();
             availableModContainerSizer->setContentsMargins(0, 0, 0, 0);
-            availableModContainerSizer->addWidget(m_availableModList, 1);// wxSizerFlags().Expand().Proportion(1));
+            availableModContainerSizer->setSpacing(0);
+            availableModContainerSizer->addWidget(m_availableModList, 1);
             availableModContainer->getPanel()->setLayout(availableModContainerSizer);
 
             m_filterBox = createSearchBox();
             m_filterBox->setToolTip(tr("Filter the list of available mods"));
-//            m_filterBox->setFont(m_availableModList->font());
 
             auto* filterBoxSizer = new QVBoxLayout();
             filterBoxSizer->setContentsMargins(0, 0, 0, 0);
-//            filterBoxSizer->addSpacing(LayoutConstants::NarrowVMargin);
+            filterBoxSizer->setSpacing(0);
             filterBoxSizer->addWidget(m_filterBox, 1);
-//            filterBoxSizer->addSpacing(LayoutConstants::NarrowVMargin);
 
-            auto* enabledModContainer = new TitledPanel("Enabled");
-//            enabledModContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            m_enabledModList = new QListWidget(); //enabledModContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
+            auto* enabledModContainer = new TitledPanel(tr("Enabled"));
+            m_enabledModList = new QListWidget();
             m_enabledModList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
             auto* enabledModContainerSizer = new QVBoxLayout();
             enabledModContainerSizer->setContentsMargins(0, 0, 0, 0);
-            enabledModContainerSizer->addWidget(m_enabledModList, 1);//wxSizerFlags().Expand().Proportion(1));
+            enabledModContainerSizer->setSpacing(0);
+            enabledModContainerSizer->addWidget(m_enabledModList, 1);
             enabledModContainer->getPanel()->setLayout(enabledModContainerSizer);
 
-            m_addModsButton = createBitmapButton("Add.png", "Enable the selected mods", this);
-            m_removeModsButton = createBitmapButton("Remove.png", "Disable the selected mods", this);
-            m_moveModUpButton = createBitmapButton("Up.png", "Move the selected mod up", this);
-            m_moveModDownButton = createBitmapButton("Down.png", "Move the selected mod down", this);
+            m_addModsButton = createBitmapButton("Add.png", tr("Enable the selected mods"));
+            m_removeModsButton = createBitmapButton("Remove.png", tr("Disable the selected mods"));
+            m_moveModUpButton = createBitmapButton("Up.png", tr("Move the selected mod up"));
+            m_moveModDownButton = createBitmapButton("Down.png", tr("Move the selected mod down"));
 
             auto* buttonSizer = new QHBoxLayout();
-            buttonSizer->addWidget(m_addModsButton);//, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
-            buttonSizer->addWidget(m_removeModsButton);//, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
+            buttonSizer->addWidget(m_addModsButton);
+            buttonSizer->addWidget(m_removeModsButton);
             buttonSizer->addSpacing(LayoutConstants::WideHMargin);
-            buttonSizer->addWidget(m_moveModUpButton);//, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
-            buttonSizer->addWidget(m_moveModDownButton);//, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
+            buttonSizer->addWidget(m_moveModUpButton);
+            buttonSizer->addWidget(m_moveModDownButton);
             buttonSizer->addStretch(1);
 
             auto* sizer = new QGridLayout();
@@ -201,12 +199,6 @@ namespace TrenchBroom {
             sizer->addLayout(filterBoxSizer,                                          2, 0);
             sizer->addLayout(buttonSizer,                                             2, 2);
 
-//            sizer->SetItemMinSize(availableModContainer, 100, 100);
-//            sizer->SetItemMinSize(enabledModContainer, 100, 100);
-//            sizer->AddGrowableCol(0);
-//            sizer->AddGrowableCol(2);
-//            sizer->AddGrowableRow(1);
-
             setLayout(sizer);
 
             connect(m_availableModList, &QListWidget::itemDoubleClicked, this, &ModEditor::OnAddModClicked);
@@ -217,7 +209,8 @@ namespace TrenchBroom {
             connect(m_moveModUpButton, &QAbstractButton::clicked, this, &ModEditor::OnMoveModUpClicked);
             connect(m_moveModDownButton, &QAbstractButton::clicked, this, &ModEditor::OnMoveModDownClicked);
 
-            //connect(m_availableModList, )
+            connect(m_availableModList, &QListWidget::itemSelectionChanged, this, &ModEditor::updateButtons);
+            connect(m_enabledModList, &QListWidget::itemSelectionChanged, this, &ModEditor::updateButtons);
 
             updateButtons();
         }

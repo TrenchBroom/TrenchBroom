@@ -69,8 +69,9 @@ namespace TrenchBroom {
             void OnFilterBoxChanged();
         private:
             void createGui();
+        private slots:
             void updateButtons();
-
+        private:
             void bindObservers();
             void unbindObservers();
 
