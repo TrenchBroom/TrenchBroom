@@ -56,20 +56,22 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeGrid::addAttribute() {
-            qDebug("FIXME: addAttribute");
-//            m_grid->InsertRows(m_table->GetNumberAttributeRows());
-//            m_grid->SetFocus();
-//            const int row = m_table->GetNumberAttributeRows() - 1;
-//            m_grid->SelectRow(row);
-//            m_grid->GoToCell(row, 0);
-//            m_grid->ShowCellEditControl();
-
-
-
-            m_grid->setFocus();
             MapDocumentSPtr document = lock(m_document);
+            const String newAttributeName = AttributeRow::newAttributeNameForAttributableNodes(document->allSelectedAttributableNodes());
 
-            document->setAttribute("new attribute", "");
+            document->setAttribute(newAttributeName, "");
+
+            // Force an immediate update to the table rows (by default, updates are delayed - see EntityAttributeGrid::updateControls),
+            // so we can select the new row.
+            m_table->updateFromMapDocument();
+
+            const int row = m_table->rowForAttributeName(newAttributeName);
+            ensure(row != -1, "row should have been inserted");
+
+            // Select the newly inserted attribute name
+            QModelIndex mi = m_table->index(row, 0);
+            m_grid->setCurrentIndex(mi);
+            m_grid->setFocus();
         }
 
         void EntityAttributeGrid::removeSelectedAttributes() {
