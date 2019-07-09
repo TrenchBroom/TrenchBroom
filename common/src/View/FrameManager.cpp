@@ -70,7 +70,13 @@ namespace TrenchBroom {
             auto* frame = dynamic_cast<MapFrame*>(now->window());
             if (frame != nullptr) {
                 auto it = std::find(std::begin(m_frames), std::end(m_frames), frame);
-                assert(it != std::end(m_frames));
+                
+                // Focus can switch to a frame after FrameManager::removeFrame is called,
+                // in that case just ignore the focus change.
+                if (it == std::end(m_frames)) {
+                    return;
+                }
+                
                 if (it != std::begin(m_frames)) {
                     assert(topFrame() != frame);
                     m_frames.erase(it);
@@ -110,7 +116,7 @@ namespace TrenchBroom {
         }
 
         void FrameManager::removeFrame(MapFrame* frame) {
-            // this is called from MapFrame::~MapFrame
+            // This is called from MapFrame::closeEvent
 
             auto it = std::find(std::begin(m_frames), std::end(m_frames), frame);
             if (it == std::end(m_frames)) {
