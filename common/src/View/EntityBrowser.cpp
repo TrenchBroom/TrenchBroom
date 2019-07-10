@@ -36,7 +36,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityBrowser::EntityBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
+        EntityBrowser::EntityBrowser(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)),
         m_sortOrderChoice(nullptr),

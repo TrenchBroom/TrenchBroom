@@ -51,7 +51,7 @@ namespace TrenchBroom {
             EntityBrowserView* m_view;
             QWidget* m_windowContainer;
         public:
-            EntityBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            EntityBrowser(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~EntityBrowser() override;
 
             void reload();

@@ -267,7 +267,7 @@ namespace TrenchBroom {
             return &m_rows.at(static_cast<size_t>(index.row()));
         }
 
-        const int EntityAttributeGridTable::rowForAttributeName(const String& name) const {
+        int EntityAttributeGridTable::rowForAttributeName(const String& name) const {
             for (int i = 0; i < m_rows.size(); ++i) {
                 auto& row = m_rows.at(static_cast<size_t>(i));
 

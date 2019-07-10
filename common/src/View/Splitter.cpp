@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010-2014 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,26 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BorderLine.h"
+#include "Splitter.h"
 
 #include "View/ViewConstants.h"
 
-#include <iostream>
+#include <QPainter>
+#include <QPaintEvent>
 
 namespace TrenchBroom {
     namespace View {
-        BorderLine::BorderLine(const Direction direction, const int thickness, QWidget* parent) :
-        QFrame(parent) {
-            setFrameShadow(QFrame::Plain);
-            setStyleSheet(" BorderLine { color: " + Colors::borderColor().name() + "; }");
-            setLineWidth(thickness);
-            if (direction == Direction_Horizontal) {
-                setFrameShape(QFrame::HLine);
-                setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed));
-            } else {
-                setFrameShape(QFrame::VLine);
-                setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Ignored));
-            }
+        void SplitterHandle::paintEvent(QPaintEvent* event) {
+            QPainter painter(this);
+            painter.fillRect(event->rect(), QBrush(Colors::borderColor()));
+        }
+
+        QSize SplitterHandle::sizeHint() const {
+            return QSize(3, 3);
+        }
+
+        QSplitterHandle* Splitter::createHandle() {
+            return new SplitterHandle(orientation(), this);
         }
     }
 }

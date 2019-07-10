@@ -25,9 +25,9 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapView3D.h"
+#include "View/Splitter.h"
 #include "View/wxUtils.h"
 
-#include <QSplitter>
 #include <QHBoxLayout>
 #include <QSettings>
 
@@ -52,7 +52,7 @@ namespace TrenchBroom {
         void TwoPaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
 
             // See comment in CyclingMapView::createGui
-            m_splitter = new QSplitter();
+            m_splitter = new Splitter();
             m_splitter->setObjectName("TwoPaneMapView_Splitter");
 
             auto* layout = new QHBoxLayout();

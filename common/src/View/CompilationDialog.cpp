@@ -27,6 +27,7 @@
 #include "View/LaunchGameEngineDialog.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
+#include "View/Splitter.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
@@ -36,7 +37,6 @@
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QPushButton>
-#include <QSplitter>
 #include <QTextEdit>
 #include <QtWidgets/QMessageBox>
 
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             outputLayout->addWidget(m_output);
             outputPanel->getPanel()->setLayout(outputLayout);
 
-            auto* splitter = new QSplitter(Qt::Vertical);
+            auto* splitter = new Splitter(Qt::Vertical);
             splitter->addWidget(m_profileManager);
             splitter->addWidget(m_output);
             splitter->setSizes({2, 1});

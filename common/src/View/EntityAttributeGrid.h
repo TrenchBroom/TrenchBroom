@@ -53,7 +53,7 @@ namespace TrenchBroom {
 
             bool m_ignoreSelection;
         public:
-            EntityAttributeGrid(QWidget* parent, MapDocumentWPtr document);
+            explicit EntityAttributeGrid(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~EntityAttributeGrid() override;
         private:
 //            void OnAttributeGridSize(wxSizeEvent& event);

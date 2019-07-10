@@ -113,7 +113,7 @@ namespace TrenchBroom {
             void setRows(const std::map<String, AttributeRow>& newRows);
 
             const AttributeRow* dataForModelIndex(const QModelIndex& index) const;
-            const int rowForAttributeName(const String& name) const;
+            int rowForAttributeName(const String& name) const;
 
         public slots:
             void updateFromMapDocument();

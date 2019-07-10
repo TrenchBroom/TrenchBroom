@@ -55,6 +55,7 @@
 #include "View/MapDocument.h"
 #include "View/RenderView.h"
 #include "View/ReplaceTextureDialog.h"
+#include "View/Splitter.h"
 #include "View/SwitchableMapViewContainer.h"
 #include "View/VertexTool.h"
 #include "View/ViewUtils.h"
@@ -80,7 +81,6 @@
 #include <QShortcut>
 #include <QToolBar>
 #include <QComboBox>
-#include <QSplitter>
 #include <QVBoxLayout>
 #include <QDropEvent>
 #include <QMimeData>
@@ -387,11 +387,11 @@ namespace TrenchBroom {
             setWindowIconTB(this);
             setWindowTitle("TrenchBroom");
 
-            m_hSplitter = new QSplitter(Qt::Horizontal);
+            m_hSplitter = new Splitter(Qt::Horizontal);
             m_hSplitter->setChildrenCollapsible(false);
             m_hSplitter->setObjectName("MapFrame_HorizontalSplitter");
 
-            m_vSplitter = new QSplitter(Qt::Vertical);
+            m_vSplitter = new Splitter(Qt::Vertical);
             m_vSplitter->setChildrenCollapsible(false);
             m_vSplitter->setObjectName("MapFrame_VerticalSplitterSplitter");
 

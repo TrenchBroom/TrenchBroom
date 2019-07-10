@@ -25,13 +25,13 @@
 #include "View/EntityBrowser.h"
 #include "View/EntityDefinitionFileChooser.h"
 #include "View/EntityAttributeEditor.h"
-#include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
+#include "View/Splitter.h"
+#include "View/TitledPanel.h"
 #include "View/wxUtils.h"
 
 #include <QVBoxLayout>
-#include <QSplitter>
 
 namespace TrenchBroom {
     namespace View {
@@ -49,7 +49,7 @@ namespace TrenchBroom {
         }
 
         void EntityInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
-            m_splitter = new QSplitter(Qt::Vertical);
+            m_splitter = new Splitter(Qt::Vertical);
             m_splitter->setObjectName("EntityInspector_Splitter");
 
             m_splitter->addWidget(createAttributeEditor(m_splitter, document));
@@ -74,13 +74,13 @@ namespace TrenchBroom {
         }
 
         QWidget* EntityInspector::createAttributeEditor(QWidget* parent, MapDocumentWPtr document) {
-            m_attributeEditor = new EntityAttributeEditor(parent, document);
+            m_attributeEditor = new EntityAttributeEditor(parent, std::move(document));
             return m_attributeEditor;
         }
 
         QWidget* EntityInspector::createEntityBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
             auto* panel = new TitledPanel(tr("Entity Browser"), parent);
-            m_entityBrowser = new EntityBrowser(nullptr, document, contextManager);
+            m_entityBrowser = new EntityBrowser(std::move(document), contextManager);
 
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);

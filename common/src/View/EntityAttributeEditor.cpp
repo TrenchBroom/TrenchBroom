@@ -25,10 +25,10 @@
 #include "View/EntityAttributeGrid.h"
 #include "View/MapDocument.h"
 #include "View/SmartAttributeEditorManager.h"
+#include "View/Splitter.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
-#include <QSplitter>
 #include <QVBoxLayout>
 #include <QChar>
 #include <QStringBuilder>
@@ -231,11 +231,11 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeEditor::createGui(QWidget* parent, MapDocumentWPtr document) {
-            m_splitter = new QSplitter(Qt::Vertical);
+            m_splitter = new Splitter(Qt::Vertical);
             m_splitter->setObjectName("EntityAttributeEditor_Splitter");
 
-            m_attributeGrid = new EntityAttributeGrid(nullptr, document);
-            m_smartEditorManager = new SmartAttributeEditorManager(nullptr, document);
+            m_attributeGrid = new EntityAttributeGrid(document);
+            m_smartEditorManager = new SmartAttributeEditorManager(document);
             m_documentationText = new QTextEdit();
             m_documentationText->setReadOnly(true);
 
@@ -255,10 +255,10 @@ namespace TrenchBroom {
             // give most space to the attribute grid
             m_splitter->setSizes(QList<int>{1'000'000, 1, 1});
 
-            auto* sizer = new QVBoxLayout();
-            sizer->setContentsMargins(0, 0, 0, 0);
-            sizer->addWidget(m_splitter, 1);
-            setLayout(sizer);
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->addWidget(m_splitter, 1);
+            setLayout(layout);
 
             connect(m_attributeGrid, &EntityAttributeGrid::selectedRow, this, &EntityAttributeEditor::OnCurrentRowChanged);
 

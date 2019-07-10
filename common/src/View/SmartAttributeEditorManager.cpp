@@ -35,7 +35,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        SmartAttributeEditorManager::SmartAttributeEditorManager(QWidget* parent, View::MapDocumentWPtr document) :
+        SmartAttributeEditorManager::SmartAttributeEditorManager(View::MapDocumentWPtr document, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_name(""),

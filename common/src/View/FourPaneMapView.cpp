@@ -24,9 +24,9 @@
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
+#include "View/Splitter.h"
 #include "View/wxUtils.h"
 
-#include <QSplitter>
 #include <QHBoxLayout>
 #include <QSettings>
 
@@ -55,13 +55,13 @@ namespace TrenchBroom {
         }
 
         void FourPaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
-            m_hSplitter = new QSplitter();
+            m_hSplitter = new Splitter();
             m_hSplitter->setObjectName("FourPaneMapView_HorizontalSplitter");
 
-            m_leftVSplitter = new QSplitter(Qt::Vertical);
+            m_leftVSplitter = new Splitter(Qt::Vertical);
             m_leftVSplitter->setObjectName("FourPaneMapView_LeftVerticalSplitter");
 
-            m_rightVSplitter = new QSplitter(Qt::Vertical);
+            m_rightVSplitter = new Splitter(Qt::Vertical);
             m_rightVSplitter->setObjectName("FourPaneMapView_RightVerticalSplitter");
 
             m_mapView3D = new MapView3D(m_document, toolBox, mapRenderer, contextManager, m_logger);

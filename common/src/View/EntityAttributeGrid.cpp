@@ -41,7 +41,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityAttributeGrid::EntityAttributeGrid(QWidget* parent, MapDocumentWPtr document) :
+        EntityAttributeGrid::EntityAttributeGrid(MapDocumentWPtr document, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_ignoreSelection(false) {
@@ -311,6 +311,7 @@ namespace TrenchBroom {
             m_table = new EntityAttributeGridTable(document, this);
 
             m_grid = new MyTable();
+            m_grid->setStyleSheet("QTableView { border: none; }");
             m_grid->setModel(m_table);
             m_grid->verticalHeader()->setVisible(false);
             m_grid->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
@@ -343,19 +344,19 @@ namespace TrenchBroom {
 
             // Shortcuts
 
-            auto* buttonSizer = new QHBoxLayout();
-            buttonSizer->addWidget(m_addAttributeButton, 0, Qt::AlignVCenter);
-            buttonSizer->addWidget(m_removePropertiesButton, 0, Qt::AlignVCenter);
-            buttonSizer->addSpacing(LayoutConstants::WideHMargin);
-            buttonSizer->addWidget(m_showDefaultPropertiesCheckBox, 0, Qt::AlignVCenter);
-            buttonSizer->addStretch(1);
+            auto* toolBar = createMiniToolBarLayout(
+                m_addAttributeButton,
+                m_removePropertiesButton,
+                LayoutConstants::WideHMargin,
+                m_showDefaultPropertiesCheckBox);
 
-            auto* sizer = new QVBoxLayout();
-            sizer->setContentsMargins(0, 0, 0, 0);
-            sizer->addWidget(m_grid, 1);
-            sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
-            sizer->addLayout(buttonSizer, 0);
-            setLayout(sizer);
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(m_grid, 1);
+            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
+            layout->addLayout(toolBar, 0);
+            setLayout(layout);
 
             printf("et: %d\n", m_grid->editTriggers());
 

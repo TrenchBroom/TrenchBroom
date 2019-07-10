@@ -21,8 +21,6 @@
 
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
-//#include "View/BitmapStaticButton.h"
-//#include "View/BitmapToggleButton.h"
 #include "View/BorderLine.h"
 #include "View/MapFrame.h"
 #include "View/ViewConstants.h"
@@ -41,7 +39,6 @@
 #include <QSettings>
 #include <QSizePolicy>
 #include <QSlider>
-#include <QSplitter>
 #include <QStandardPaths>
 #include <QString>
 #include <QStringBuilder>

@@ -26,12 +26,12 @@
 #include "View/CollapsibleTitledPanel.h"
 #include "View/FaceAttribsEditor.h"
 #include "View/MapDocument.h"
+#include "View/Splitter.h"
 #include "View/TextureBrowser.h"
 #include "View/TextureCollectionEditor.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 
-#include <QSplitter>
 #include <QVBoxLayout>
 
 namespace TrenchBroom {
@@ -60,7 +60,7 @@ namespace TrenchBroom {
         }
 
         void FaceInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
-            m_splitter = new QSplitter(Qt::Vertical);
+            m_splitter = new Splitter(Qt::Vertical);
             m_splitter->setObjectName("FaceInspector_Splitter");
 
             m_splitter->addWidget(createFaceAttribsEditor(m_splitter, document, contextManager));
@@ -90,11 +90,11 @@ namespace TrenchBroom {
             TitledPanel* panel = new TitledPanel("Texture Browser", parent);
             m_textureBrowser = new TextureBrowser(panel->getPanel(), std::move(document), contextManager);
 
-            auto* sizer = new QVBoxLayout();
-            sizer->setContentsMargins(0, 0, 0, 0);
-            sizer->setSpacing(0);
-            sizer->addWidget(m_textureBrowser, 1);
-            panel->getPanel()->setLayout(sizer);
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(m_textureBrowser, 1);
+            panel->getPanel()->setLayout(layout);
 
             return panel;
         }

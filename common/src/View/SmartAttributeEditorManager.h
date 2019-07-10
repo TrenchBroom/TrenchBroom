@@ -49,7 +49,7 @@ namespace TrenchBroom {
             Model::AttributeName m_name;
             QStackedLayout* m_stackedLayout;
         public:
-            SmartAttributeEditorManager(QWidget* parent, View::MapDocumentWPtr document);
+            explicit SmartAttributeEditorManager(View::MapDocumentWPtr document, QWidget* parent = nullptr);
             ~SmartAttributeEditorManager();
 
             void switchEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables);
