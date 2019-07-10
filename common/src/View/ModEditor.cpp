@@ -150,6 +150,7 @@ namespace TrenchBroom {
         void ModEditor::createGui() {
             auto* availableModContainer = new TitledPanel("Available", false, false);
             m_availableModList = new QListWidget();
+            m_availableModList->setStyleSheet("QListWidget { border: none; }");
             m_availableModList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
             auto* availableModContainerSizer = new QVBoxLayout();
@@ -168,6 +169,7 @@ namespace TrenchBroom {
 
             auto* enabledModContainer = new TitledPanel("Enabled", false, false);
             m_enabledModList = new QListWidget();
+            m_enabledModList->setStyleSheet("QListWidget { border: none; }");
             m_enabledModList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
             auto* enabledModContainerSizer = new QVBoxLayout();
