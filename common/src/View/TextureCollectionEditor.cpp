@@ -33,12 +33,14 @@ namespace TrenchBroom {
         m_document(std::move(document)) {
             auto doc = lock(m_document);
             doc->documentWasNewedNotifier.addObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
+            doc->documentWasLoadedNotifier.addObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
         }
 
         TextureCollectionEditor::~TextureCollectionEditor() {
             if (!expired(m_document)) {
                 auto document = lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
+                document->documentWasLoadedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
             }
         }
 
