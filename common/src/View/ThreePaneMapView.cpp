@@ -60,11 +60,10 @@ namespace TrenchBroom {
             m_vSplitter = new Splitter(Qt::Vertical);
             m_vSplitter->setObjectName("ThreePaneMapView_VerticalSplitter");
 
-            m_mapView3D = new MapView3D(m_document, toolBox, mapRenderer, contextManager, m_logger, nullptr);
-            m_mapViewXY = new MapView2D(m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY,
-                m_logger, nullptr);
+            m_mapView3D = new MapView3D(m_document, toolBox, mapRenderer, contextManager, m_logger);
+            m_mapViewXY = new MapView2D(m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY, m_logger);
             m_mapViewZZ = new CyclingMapView(m_document, toolBox, mapRenderer, contextManager,
-                CyclingMapView::View_ZZ, m_logger, nullptr);
+                CyclingMapView::View_ZZ, m_logger);
 
             m_mapView3D->linkCamera(m_linkHelper);
             m_mapViewXY->linkCamera(m_linkHelper);

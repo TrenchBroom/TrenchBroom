@@ -61,9 +61,9 @@ namespace TrenchBroom {
             setLayout(layout);
             layout->addWidget(m_splitter);
 
-            m_mapView3D = new MapView3D(m_document, toolBox, mapRenderer, contextManager, m_logger, nullptr);
+            m_mapView3D = new MapView3D(m_document, toolBox, mapRenderer, contextManager, m_logger);
             m_mapView2D = new CyclingMapView(m_document, toolBox, mapRenderer, contextManager,
-                CyclingMapView::View_2D, m_logger, nullptr);
+                CyclingMapView::View_2D, m_logger);
 
             m_mapView3D->linkCamera(m_linkHelper);
             m_mapView2D->linkCamera(m_linkHelper);

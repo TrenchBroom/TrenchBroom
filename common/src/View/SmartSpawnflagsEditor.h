@@ -49,7 +49,7 @@ namespace TrenchBroom {
             FlagsEditor* m_flagsEditor;
             bool m_ignoreUpdates;
         public:
-            SmartSpawnflagsEditor(QWidget* parent, View::MapDocumentWPtr document);
+            explicit SmartSpawnflagsEditor(View::MapDocumentWPtr document, QWidget* parent = nullptr);
 
             void OnFlagChanged(size_t index, int setFlag, int mixedFlag);
         private:

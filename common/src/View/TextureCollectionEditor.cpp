@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        TextureCollectionEditor::TextureCollectionEditor(QWidget* parent, MapDocumentWPtr document) :
+        TextureCollectionEditor::TextureCollectionEditor(MapDocumentWPtr document, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)) {
             auto doc = lock(m_document);

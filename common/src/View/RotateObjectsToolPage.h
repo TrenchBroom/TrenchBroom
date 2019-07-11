@@ -50,7 +50,7 @@ namespace TrenchBroom {
             QComboBox* m_axis;
             QAbstractButton* m_rotateButton;
         public:
-            RotateObjectsToolPage(QWidget* parent, MapDocumentWPtr document, RotateObjectsTool* tool);
+            RotateObjectsToolPage(MapDocumentWPtr document, RotateObjectsTool* tool, QWidget* parent = nullptr);
             ~RotateObjectsToolPage() override;
 
             void setAxis(vm::axis::type axis);

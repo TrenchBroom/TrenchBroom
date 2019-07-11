@@ -72,7 +72,7 @@ namespace TrenchBroom {
 
         // EntityDefinitionFileChooser
 
-        EntityDefinitionFileChooser::EntityDefinitionFileChooser(QWidget* parent, MapDocumentWPtr document) :
+        EntityDefinitionFileChooser::EntityDefinitionFileChooser(MapDocumentWPtr document, QWidget* parent) :
         QWidget(parent),
         m_document(document) {
             createGui();

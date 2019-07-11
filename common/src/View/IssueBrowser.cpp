@@ -39,10 +39,10 @@
 
 namespace TrenchBroom {
     namespace View {
-        IssueBrowser::IssueBrowser(QWidget* parent, MapDocumentWPtr document) :
+        IssueBrowser::IssueBrowser(MapDocumentWPtr document, QWidget* parent) :
         TabBookPage(parent),
         m_document(document),
-        m_view(new IssueBrowserView(this, m_document)),
+        m_view(new IssueBrowserView(m_document)),
         m_showHiddenIssuesCheckBox(nullptr),
         m_filterEditor(nullptr) {
             auto* sizer = new QVBoxLayout();

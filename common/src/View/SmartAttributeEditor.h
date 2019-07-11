@@ -36,7 +36,7 @@ namespace TrenchBroom {
             Model::AttributableNodeList m_attributables;
             bool m_active;
         public:
-            SmartAttributeEditor(QWidget* parent, View::MapDocumentWPtr document);
+            explicit SmartAttributeEditor(View::MapDocumentWPtr document, QWidget* parent = nullptr);
             virtual ~SmartAttributeEditor();
 
             bool usesName(const Model::AttributeName& name) const;

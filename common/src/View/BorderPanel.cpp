@@ -25,12 +25,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        BorderPanel::BorderPanel() :
-        QWidget(),
-        m_borders(0),
-        m_thickness(1) {}
-
-        BorderPanel::BorderPanel(QWidget* parent, const Sides borders, const int thickness) :
+        BorderPanel::BorderPanel(const Sides borders, const int thickness, QWidget* parent) :
         QWidget(parent) {
             Create(parent, borders, thickness);
         }

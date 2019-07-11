@@ -43,7 +43,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        LayerEditor::LayerEditor(QWidget* parent, MapDocumentWPtr document) :
+        LayerEditor::LayerEditor(MapDocumentWPtr document, QWidget *parent) :
         QWidget(parent),
         m_document(document),
         m_layerList(nullptr) {

@@ -40,8 +40,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        SmartColorEditor::SmartColorEditor(QWidget* parent, View::MapDocumentWPtr document) :
-        SmartAttributeEditor(parent, document),
+        SmartColorEditor::SmartColorEditor(View::MapDocumentWPtr document, QWidget* parent) :
+        SmartAttributeEditor(document, parent),
         m_floatRadio(nullptr),
         m_byteRadio(nullptr),
         m_colorPicker(nullptr),
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             m_floatRadio = new QRadioButton(tr("Float [0,1]"));
             m_byteRadio = new QRadioButton(tr("Byte [0,255]"));
             m_colorPicker = new ColorButton();
-            m_colorHistory = new ColorTable(nullptr, ColorHistoryCellSize);
+            m_colorHistory = new ColorTable(ColorHistoryCellSize);
 
             auto* leftSizer = new QVBoxLayout();
             leftSizer->setContentsMargins(0, 0, 0, 0);

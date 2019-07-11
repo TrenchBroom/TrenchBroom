@@ -55,8 +55,8 @@ namespace TrenchBroom {
             void doVisit(Model::Brush* brush) override   {}
         };
 
-        SmartSpawnflagsEditor::SmartSpawnflagsEditor(QWidget* parent, View::MapDocumentWPtr document) :
-        SmartAttributeEditor(parent, document),
+        SmartSpawnflagsEditor::SmartSpawnflagsEditor(View::MapDocumentWPtr document, QWidget* parent) :
+        SmartAttributeEditor(document, parent),
         m_scrolledWindow(nullptr),
         m_flagsEditor(nullptr),
         m_ignoreUpdates(false) {

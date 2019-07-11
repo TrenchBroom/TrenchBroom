@@ -38,8 +38,7 @@ namespace TrenchBroom {
             int m_borders;
             int m_thickness;
         public:
-            BorderPanel();
-            explicit BorderPanel(QWidget* parent = nullptr, Sides borders = AllSides, int thickness = 1);
+            explicit BorderPanel(Sides borders = AllSides, int thickness = 1, QWidget* parent = nullptr);
             ~BorderPanel() override;
 
             void Create(QWidget* parent, Sides borders = AllSides, int thickness = 1);

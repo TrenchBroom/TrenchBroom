@@ -96,7 +96,7 @@ namespace TrenchBroom {
         private: // shortcuts
             std::vector<std::pair<std::unique_ptr<QShortcut>, const Action*>> m_shortcuts;
         protected:
-            MapViewBase(QWidget* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
+            MapViewBase(Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
 
             void setCompass(Renderer::Compass* compass);
         public:

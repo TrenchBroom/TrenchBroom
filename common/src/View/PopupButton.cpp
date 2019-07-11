@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        PopupButton::PopupButton(QWidget* parent, const QString& caption) :
+        PopupButton::PopupButton(const QString& caption, QWidget* parent) :
         QWidget(parent) {
             m_button = new QToolButton();
             m_button->setText(caption);

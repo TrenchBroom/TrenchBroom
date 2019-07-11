@@ -42,7 +42,7 @@ namespace TrenchBroom {
             QAbstractButton* m_removeLayerButton;
             QAbstractButton* m_showAllLayersButton;
         public:
-            LayerEditor(QWidget* parent, MapDocumentWPtr document);
+            LayerEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
         private:
             void onSetCurrentLayer(Model::Layer* layer);
             void onLayerRightClick(Model::Layer* layer);

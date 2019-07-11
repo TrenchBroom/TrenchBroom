@@ -50,7 +50,7 @@ namespace TrenchBroom {
             QAbstractButton* m_rotateTextureCCWButton;
             QAbstractButton* m_rotateTextureCWButton;
         public:
-            UVEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            explicit UVEditor(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~UVEditor() override;
 
             bool cancelMouseDrag();

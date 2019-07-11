@@ -41,7 +41,7 @@ namespace TrenchBroom {
             QComboBox* m_comboBox;
             bool m_ignoreEditTextChanged;
         public:
-            SmartChoiceEditor(QWidget* parent, View::MapDocumentWPtr document);
+            explicit SmartChoiceEditor(View::MapDocumentWPtr document, QWidget* parent = nullptr);
 
             void comboBoxActivated(int index);
             void comboBoxEditTextChanged(const QString& text);

@@ -49,7 +49,7 @@ namespace TrenchBroom {
             QComboBox* m_scaleFactorsOrSize;
             QAbstractButton* m_button;
         public:
-            ScaleObjectsToolPage(QWidget* parent, MapDocumentWPtr document);
+            explicit ScaleObjectsToolPage(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~ScaleObjectsToolPage() override;
             void activate();
         private:

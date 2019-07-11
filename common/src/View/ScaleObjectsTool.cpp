@@ -923,7 +923,7 @@ namespace TrenchBroom {
 
         QWidget* ScaleObjectsTool::doCreatePage(QWidget* parent) {
             assert(m_toolPage == nullptr);
-            m_toolPage = new ScaleObjectsToolPage(parent, m_document);
+            m_toolPage = new ScaleObjectsToolPage(m_document, parent);
             return m_toolPage;
         }
     }

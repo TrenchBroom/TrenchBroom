@@ -67,13 +67,13 @@ namespace TrenchBroom {
             assert(m_editors.empty());
 
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher("spawnflags")),
-                                                  new SmartSpawnflagsEditor(nullptr, m_document)));
+                                                  new SmartSpawnflagsEditor(m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher({ "*_color", "*_color2", "*_colour" })),
-                                                  new SmartColorEditor(nullptr, m_document)));
+                                                  new SmartColorEditor(m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartChoiceEditorMatcher()),
-                                                  new SmartChoiceEditor(nullptr, m_document)));
+                                                  new SmartChoiceEditor(m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorDefaultMatcher()),
-                                                  new SmartDefaultAttributeEditor(nullptr, m_document)));
+                                                  new SmartDefaultAttributeEditor(m_document)));
 
             m_stackedLayout = new QStackedLayout();
             for (auto& [matcherPtr, editor] : m_editors) {

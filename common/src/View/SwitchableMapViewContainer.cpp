@@ -47,7 +47,7 @@ namespace TrenchBroom {
         m_logger(logger),
         m_document(std::move(document)),
         m_contextManager(contextManager),
-        m_mapViewBar(new MapViewBar(this, m_document)),
+        m_mapViewBar(new MapViewBar(m_document)),
         m_toolBox(new MapViewToolBox(m_document, m_mapViewBar->toolBook())),
         m_mapRenderer(new Renderer::MapRenderer(m_document)),
         m_mapView(nullptr) {

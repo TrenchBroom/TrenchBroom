@@ -52,8 +52,7 @@ namespace TrenchBroom {
             QWidget* m_panel;
             bool m_expanded;
         public:
-            CollapsibleTitledPanel(QWidget* parent, const QString& title, bool initiallyExpanded = true);
-            explicit CollapsibleTitledPanel(const QString& title, bool initiallyExpanded = true);
+            explicit CollapsibleTitledPanel(const QString& title, bool initiallyExpanded = true, QWidget* parent = nullptr);
 
             QWidget* getPanel() const;
 

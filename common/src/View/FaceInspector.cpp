@@ -36,7 +36,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        FaceInspector::FaceInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
+        FaceInspector::FaceInspector(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
         TabBookPage(parent),
         m_document(document),
         m_splitter(nullptr),
@@ -82,13 +82,13 @@ namespace TrenchBroom {
         }
 
         QWidget* FaceInspector::createFaceAttribsEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
-            m_faceAttribsEditor = new FaceAttribsEditor(parent, std::move(document), contextManager);
+            m_faceAttribsEditor = new FaceAttribsEditor(std::move(document), contextManager, parent);
             return m_faceAttribsEditor;
         }
 
         QWidget* FaceInspector::createTextureBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
-            TitledPanel* panel = new TitledPanel("Texture Browser", parent);
-            m_textureBrowser = new TextureBrowser(panel->getPanel(), std::move(document), contextManager);
+            TitledPanel* panel = new TitledPanel(tr("Texture Browser"), parent);
+            m_textureBrowser = new TextureBrowser(std::move(document), contextManager);
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
@@ -100,8 +100,8 @@ namespace TrenchBroom {
         }
 
         QWidget* FaceInspector::createTextureCollectionEditor(QWidget* parent, MapDocumentWPtr document) {
-            auto* panel = new CollapsibleTitledPanel(parent, "Texture Collections", false);
-            auto* collectionEditor = new TextureCollectionEditor(panel->getPanel(), std::move(document));
+            auto* panel = new CollapsibleTitledPanel(tr("Texture Collections"), false, parent);
+            auto* collectionEditor = new TextureCollectionEditor(std::move(document));
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);

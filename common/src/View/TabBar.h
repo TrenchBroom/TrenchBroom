@@ -39,7 +39,7 @@ namespace TrenchBroom {
         private:
             bool m_pressed;
         public:
-            explicit TabBarButton(QWidget* parent = nullptr, const QString& label = "");
+            explicit TabBarButton(const QString& label = "", QWidget* parent = nullptr);
             /**
              * Update the label color
              */

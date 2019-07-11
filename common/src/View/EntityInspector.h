@@ -40,7 +40,7 @@ namespace TrenchBroom {
             EntityBrowser* m_entityBrowser;
             EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
         public:
-            EntityInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            EntityInspector(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~EntityInspector() override;
         private:
             void createGui(MapDocumentWPtr document, GLContextManager& contextManager);

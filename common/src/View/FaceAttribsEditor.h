@@ -64,7 +64,7 @@ namespace TrenchBroom {
             QLabel* m_colorLabel;
             QLineEdit* m_colorEditor;
         public:
-            FaceAttribsEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            FaceAttribsEditor(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~FaceAttribsEditor();
 
             bool cancelMouseDrag();

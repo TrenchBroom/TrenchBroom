@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class SmartDefaultAttributeEditor : public SmartAttributeEditor {
             Q_OBJECT
         public:
-            SmartDefaultAttributeEditor(QWidget* parent, View::MapDocumentWPtr document);
+            explicit SmartDefaultAttributeEditor(View::MapDocumentWPtr document, QWidget* parent = nullptr);
         private:
             void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
         };

@@ -49,7 +49,7 @@ namespace TrenchBroom {
     namespace View {
         // EntityDefinitionCheckBoxList
 
-        EntityDefinitionCheckBoxList::EntityDefinitionCheckBoxList(QWidget* parent, Assets::EntityDefinitionManager& entityDefinitionManager, Model::EditorContext& editorContext) :
+        EntityDefinitionCheckBoxList::EntityDefinitionCheckBoxList(Assets::EntityDefinitionManager& entityDefinitionManager, Model::EditorContext& editorContext, QWidget* parent) :
         QWidget(parent),
         m_entityDefinitionManager(entityDefinitionManager),
         m_editorContext(editorContext) {
@@ -197,7 +197,7 @@ namespace TrenchBroom {
 
         // ViewEditor
 
-        ViewEditor::ViewEditor(QWidget* parent, MapDocumentWPtr document) :
+        ViewEditor::ViewEditor(MapDocumentWPtr document, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)),
         m_showEntityClassnamesCheckBox(nullptr),
@@ -402,7 +402,7 @@ namespace TrenchBroom {
             Assets::EntityDefinitionManager& entityDefinitionManager = document->entityDefinitionManager();
 
             Model::EditorContext& editorContext = document->editorContext();
-            m_entityDefinitionCheckBoxList = new EntityDefinitionCheckBoxList(panel->getPanel(), entityDefinitionManager, editorContext);
+            m_entityDefinitionCheckBoxList = new EntityDefinitionCheckBoxList(entityDefinitionManager, editorContext);
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
@@ -612,15 +612,15 @@ namespace TrenchBroom {
             checkButtonInGroup(m_entityLinkRadioGroup, static_cast<int>(editorContext.entityLinkMode()), true);
         }
 
-        ViewPopupEditor::ViewPopupEditor(QWidget* parent, MapDocumentWPtr document) :
+        ViewPopupEditor::ViewPopupEditor(MapDocumentWPtr document, QWidget* parent) :
         QWidget(parent),
         m_button(nullptr),
         m_editor(nullptr) {
-            m_button = new PopupButton(nullptr, tr("View"));
+            m_button = new PopupButton(tr("View"));
             m_button->setToolTip(tr("Click to edit view settings"));
 
-            auto* editorContainer = new BorderPanel(m_button->GetPopupWindow());
-            m_editor = new ViewEditor(editorContainer, document);
+            auto* editorContainer = new BorderPanel();
+            m_editor = new ViewEditor(document);
 
             auto* containerSizer = new QVBoxLayout();
             containerSizer->setContentsMargins(0, 0, 0, 0);

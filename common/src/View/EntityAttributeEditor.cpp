@@ -37,7 +37,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityAttributeEditor::EntityAttributeEditor(QWidget* parent, MapDocumentWPtr document) :
+        EntityAttributeEditor::EntityAttributeEditor(MapDocumentWPtr document, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_splitter(nullptr),

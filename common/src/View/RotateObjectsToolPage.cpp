@@ -40,7 +40,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        RotateObjectsToolPage::RotateObjectsToolPage(QWidget* parent, MapDocumentWPtr document, RotateObjectsTool* tool) :
+        RotateObjectsToolPage::RotateObjectsToolPage(MapDocumentWPtr document, RotateObjectsTool* tool, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_tool(tool) {

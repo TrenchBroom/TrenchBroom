@@ -57,7 +57,7 @@ namespace TrenchBroom {
             TextureBrowserView* m_view;
             QWidget* m_windowContainer;
         public:
-            TextureBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            TextureBrowser(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~TextureBrowser() override;
 
             Assets::Texture* selectedTexture() const;

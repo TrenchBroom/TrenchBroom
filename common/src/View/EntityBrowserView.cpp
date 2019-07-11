@@ -62,8 +62,7 @@ namespace TrenchBroom {
         fontDescriptor(i_fontDescriptor),
         bounds(i_bounds) {}
 
-        EntityBrowserView::EntityBrowserView(QWidget* parent,
-                                             QScrollBar* scrollBar,
+        EntityBrowserView::EntityBrowserView(QScrollBar* scrollBar,
                                              GLContextManager& contextManager,
                                              Assets::EntityDefinitionManager& entityDefinitionManager,
                                              Assets::EntityModelManager& entityModelManager,

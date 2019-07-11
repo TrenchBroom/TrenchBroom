@@ -91,7 +91,7 @@ namespace TrenchBroom {
         }
 
         QWidget* MoveObjectsTool::doCreatePage(QWidget* parent) {
-            return new MoveObjectsToolPage(parent, m_document);
+            return new MoveObjectsToolPage(m_document, parent);
         }
     }
 }

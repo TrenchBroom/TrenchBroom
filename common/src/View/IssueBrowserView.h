@@ -50,7 +50,7 @@ namespace TrenchBroom {
             QTableView* m_tableView;
             IssueBrowserModel* m_tableModel;
         public:
-            IssueBrowserView(QWidget* parent, MapDocumentWPtr document);
+            explicit IssueBrowserView(MapDocumentWPtr document, QWidget* parent = nullptr);
 
         private:
             void createGui();

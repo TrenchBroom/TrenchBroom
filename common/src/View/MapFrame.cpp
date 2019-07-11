@@ -395,14 +395,14 @@ namespace TrenchBroom {
             m_vSplitter->setChildrenCollapsible(false);
             m_vSplitter->setObjectName("MapFrame_VerticalSplitterSplitter");
 
-            m_infoPanel = new InfoPanel(nullptr, m_document);
+            m_infoPanel = new InfoPanel(m_document);
             m_console = m_infoPanel->console();
 
             m_mapView = new SwitchableMapViewContainer(m_console, m_document, *m_contextManager);
             m_currentMapView = m_mapView->firstMapViewBase();
             ensure(m_currentMapView != nullptr, "SwitchableMapViewContainer should have constructed a MapViewBase");
 
-            m_inspector = new Inspector(nullptr, m_document, *m_contextManager);
+            m_inspector = new Inspector(m_document, *m_contextManager);
 
             m_mapView->connectTopWidgets(m_inspector);
 

@@ -39,7 +39,7 @@ namespace TrenchBroom {
             QLineEdit* m_offset;
             QAbstractButton* m_button;
         public:
-            MoveObjectsToolPage(QWidget* parent, MapDocumentWPtr document);
+            explicit MoveObjectsToolPage(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~MoveObjectsToolPage() override;
         private:
             void bindObservers();

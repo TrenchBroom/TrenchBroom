@@ -35,7 +35,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityInspector::EntityInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
+        EntityInspector::EntityInspector(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
         TabBookPage(parent),
         m_splitter(nullptr),
         m_attributeEditor(nullptr),
@@ -74,7 +74,7 @@ namespace TrenchBroom {
         }
 
         QWidget* EntityInspector::createAttributeEditor(QWidget* parent, MapDocumentWPtr document) {
-            m_attributeEditor = new EntityAttributeEditor(parent, std::move(document));
+            m_attributeEditor = new EntityAttributeEditor(std::move(document), parent);
             return m_attributeEditor;
         }
 
@@ -91,8 +91,8 @@ namespace TrenchBroom {
         }
 
         QWidget* EntityInspector::createEntityDefinitionFileChooser(QWidget* parent, MapDocumentWPtr document) {
-            CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(parent, tr("Entity Definitions"), false);
-            m_entityDefinitionFileChooser = new EntityDefinitionFileChooser(nullptr, document);
+            CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(tr("Entity Definitions"), false, parent);
+            m_entityDefinitionFileChooser = new EntityDefinitionFileChooser(document);
 
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);

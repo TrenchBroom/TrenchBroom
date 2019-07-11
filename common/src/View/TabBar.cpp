@@ -33,7 +33,7 @@ namespace TrenchBroom {
     namespace View {
         // TabBarButton
 
-        TabBarButton::TabBarButton(QWidget* parent, const QString& label) :
+        TabBarButton::TabBarButton(const QString& label, QWidget* parent) :
         QLabel(label, parent),
         m_pressed(false) {
             QFont boldFont = font();
@@ -64,7 +64,7 @@ namespace TrenchBroom {
         // TabBar
 
         TabBar::TabBar(TabBook* tabBook) :
-        ContainerBar(tabBook, BorderPanel::BottomSide),
+        ContainerBar(BorderPanel::BottomSide, tabBook),
         m_tabBook(tabBook),
         m_barBook(new QStackedLayout()) {
             ensure(m_tabBook != nullptr, "tabBook is null");
@@ -84,7 +84,7 @@ namespace TrenchBroom {
         void TabBar::addTab(TabBookPage* bookPage, const QString& title) {
             ensure(bookPage != nullptr, "bookPage is null");
 
-            TabBarButton* button = new TabBarButton(this, title);
+            auto* button = new TabBarButton(title);
             connect(button, &TabBarButton::clicked, this, &TabBar::OnButtonClicked);
             button->setPressed(m_buttons.empty());
             m_buttons.push_back(button);
@@ -98,7 +98,7 @@ namespace TrenchBroom {
         }
 
         void TabBar::OnButtonClicked() {
-            QWidget* button = dynamic_cast<QWidget*>(QObject::sender());
+            auto* button = dynamic_cast<QWidget*>(QObject::sender());
             const size_t index = findButtonIndex(button);
             ensure(index < m_buttons.size(), "index out of range");
             m_tabBook->switchToPage(static_cast<int>(index));

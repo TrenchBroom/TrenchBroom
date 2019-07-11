@@ -49,7 +49,7 @@ namespace TrenchBroom {
 
         // CollapsibleTitledPanel
 
-        CollapsibleTitledPanel::CollapsibleTitledPanel(QWidget* parent, const QString& title, const bool initiallyExpanded) :
+        CollapsibleTitledPanel::CollapsibleTitledPanel(const QString& title, const bool initiallyExpanded, QWidget* parent) :
         QWidget(parent),
         m_titleBar(new CollapsibleTitleBar(title, "hide")),
         m_divider(new BorderLine(BorderLine::Direction_Horizontal)),
@@ -69,9 +69,6 @@ namespace TrenchBroom {
 
             updateExpanded();
         }
-
-        CollapsibleTitledPanel::CollapsibleTitledPanel(const QString& title, const bool initiallyExpanded) :
-        CollapsibleTitledPanel(nullptr, title, initiallyExpanded) {}
 
         QWidget* CollapsibleTitledPanel::getPanel() const {
             return m_panel;

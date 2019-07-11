@@ -43,8 +43,7 @@ Q_DECLARE_METATYPE(std::shared_ptr<TrenchBroom::View::TextureCellData>)
 
 namespace TrenchBroom {
     namespace View {
-        TextureBrowserView::TextureBrowserView(QWidget* parent,
-                                               QScrollBar* scrollBar,
+        TextureBrowserView::TextureBrowserView(QScrollBar* scrollBar,
                                                GLContextManager& contextManager,
                                                MapDocumentWPtr document) :
         CellView(contextManager, scrollBar),

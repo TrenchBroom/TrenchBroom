@@ -70,8 +70,8 @@
 namespace TrenchBroom {
     namespace View {
         MapView2D::MapView2D(MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
-                             GLContextManager& contextManager, ViewPlane viewPlane, Logger* logger, QWidget* parent) :
-        MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
+                             GLContextManager& contextManager, ViewPlane viewPlane, Logger* logger) :
+        MapViewBase(logger, document, toolBox, renderer, contextManager),
         m_camera(){
             bindObservers();
             initializeCamera(viewPlane);

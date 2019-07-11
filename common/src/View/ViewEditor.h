@@ -56,7 +56,7 @@ namespace TrenchBroom {
             CheckBoxList m_groupCheckBoxes;
             CheckBoxList m_defCheckBoxes;
         public:
-            EntityDefinitionCheckBoxList(QWidget* parent, Assets::EntityDefinitionManager& entityDefinitionManager, Model::EditorContext& editorContext);
+            EntityDefinitionCheckBoxList(Assets::EntityDefinitionManager& entityDefinitionManager, Model::EditorContext& editorContext, QWidget* parent = nullptr);
 
             void refresh();
 
@@ -98,7 +98,7 @@ namespace TrenchBroom {
 
             QButtonGroup* m_entityLinkRadioGroup;
         public:
-            ViewEditor(QWidget* parent, MapDocumentWPtr document);
+            explicit ViewEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~ViewEditor() override;
 
             // FIXME: turn into slots, rename to camelCase, remove "on" prefix
@@ -148,7 +148,7 @@ namespace TrenchBroom {
             PopupButton* m_button;
             ViewEditor* m_editor;
         public:
-            ViewPopupEditor(QWidget* parent, MapDocumentWPtr document);
+            explicit ViewPopupEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
         };
     }
 }

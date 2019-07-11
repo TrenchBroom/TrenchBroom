@@ -37,6 +37,7 @@ namespace TrenchBroom {
         class TabBook;
 
         class Inspector : public QWidget {
+            Q_OBJECT
         public:
             typedef enum {
                 InspectorPage_Map = 0,
@@ -52,7 +53,7 @@ namespace TrenchBroom {
 
             QWidget* m_topWidgetMaster;
         public:
-            Inspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            Inspector(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
             void connectTopWidgets(QWidget* master);
             void switchToPage(InspectorPage page);
             bool cancelMouseDrag();

@@ -49,7 +49,7 @@ namespace TrenchBroom {
             ColorButton* m_colorPicker;
             ColorTable* m_colorHistory;
         public:
-            SmartColorEditor(QWidget* parent, View::MapDocumentWPtr document);
+            explicit SmartColorEditor(View::MapDocumentWPtr document, QWidget* parent = nullptr);
 
             void OnFloatRangeRadioButton();
             void OnByteRangeRadioButton();

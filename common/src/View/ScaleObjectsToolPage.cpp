@@ -40,7 +40,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        ScaleObjectsToolPage::ScaleObjectsToolPage(QWidget* parent, MapDocumentWPtr document) :
+        ScaleObjectsToolPage::ScaleObjectsToolPage(MapDocumentWPtr document, QWidget* parent) :
         QWidget(parent),
         m_document(document) {
             createGui();

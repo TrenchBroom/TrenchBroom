@@ -54,7 +54,7 @@ namespace TrenchBroom {
             QTextEdit* m_documentationText;
             const Assets::EntityDefinition* m_currentDefinition;
         public:
-            EntityAttributeEditor(QWidget* parent, MapDocumentWPtr document);
+            explicit EntityAttributeEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~EntityAttributeEditor() override;
         private:
             void OnCurrentRowChanged();

@@ -59,7 +59,7 @@ namespace TrenchBroom {
             const Model::BrushFaceList faces = getApplicableFaces();
 
             if (faces.empty()) {
-                QMessageBox::warning(this, "Replace Failed", "None of the selected faces has the selected texture");
+                QMessageBox::warning(this, tr("Replace Failed"), tr("None of the selected faces has the selected texture"));
                 return;
             }
 
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             StringStream msg;
             msg << "Replaced texture '" << subject->name() << "' with '" << replacement->name() << "' on " << faces.size() << " faces.";
 
-            QMessageBox::information(this, "Replace Succeeded", QString::fromStdString(msg.str()));
+            QMessageBox::information(this, tr("Replace Succeeded"), QString::fromStdString(msg.str()));
         }
 
         Model::BrushFaceList ReplaceTextureDialog::getApplicableFaces() const {
@@ -92,10 +92,10 @@ namespace TrenchBroom {
 
         void ReplaceTextureDialog::createGui(GLContextManager& contextManager) {
             setWindowIconTB(this);
-            setWindowTitle("Replace Texture");
+            setWindowTitle(tr("Replace Texture"));
 
-            auto* subjectPanel = new TitledPanel("Find");
-            m_subjectBrowser = new TextureBrowser(subjectPanel->getPanel(), m_document, contextManager);
+            auto* subjectPanel = new TitledPanel(tr("Find"));
+            m_subjectBrowser = new TextureBrowser(m_document, contextManager);
             m_subjectBrowser->setHideUnused(true);
             connect(m_subjectBrowser, &TextureBrowser::textureSelected, this, &ReplaceTextureDialog::subjectSelected);
 
@@ -105,8 +105,8 @@ namespace TrenchBroom {
             subjectPanelLayout->addWidget(m_subjectBrowser);
             subjectPanel->getPanel()->setLayout(subjectPanelLayout);
 
-            auto* replacementPanel = new TitledPanel("Replace with");
-            m_replacementBrowser = new TextureBrowser(replacementPanel->getPanel(), m_document, contextManager);
+            auto* replacementPanel = new TitledPanel(tr("Replace with"));
+            m_replacementBrowser = new TextureBrowser(m_document, contextManager);
             m_replacementBrowser->setSelectedTexture(nullptr); // Override the current texture.
             connect(m_replacementBrowser, &TextureBrowser::textureSelected, this, &ReplaceTextureDialog::replacementSelected);
 
@@ -124,11 +124,11 @@ namespace TrenchBroom {
             upperLayout->addWidget(replacementPanel, 1);
 
             auto* buttonBox = new QDialogButtonBox(this);
-            m_replaceButton = buttonBox->addButton("Replace", QDialogButtonBox::AcceptRole);
-            m_replaceButton->setToolTip("Perform replacement on all selected faces");
+            m_replaceButton = buttonBox->addButton(tr("Replace"), QDialogButtonBox::AcceptRole);
+            m_replaceButton->setToolTip(tr("Perform replacement on all selected faces"));
             m_replaceButton->setEnabled(false);
-            auto* closeButton = buttonBox->addButton("Close", QDialogButtonBox::RejectRole);
-            closeButton->setToolTip("Close this window");
+            auto* closeButton = buttonBox->addButton(tr("Close"), QDialogButtonBox::RejectRole);
+            closeButton->setToolTip(tr("Close this window"));
 
             connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
             connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);

@@ -31,19 +31,18 @@
 
 namespace TrenchBroom {
     namespace View {
-        Inspector::Inspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
+        Inspector::Inspector(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
         QWidget(parent),
         m_tabBook(nullptr),
         m_mapInspector(nullptr),
         m_entityInspector(nullptr),
         m_faceInspector(nullptr),
         m_topWidgetMaster(nullptr) {
+            m_tabBook = new TabBook();
 
-            m_tabBook = new TabBook(this);
-
-            m_mapInspector = new MapInspector(m_tabBook, document, contextManager);
-            m_entityInspector = new EntityInspector(m_tabBook, document, contextManager);
-            m_faceInspector = new FaceInspector(m_tabBook, document, contextManager);
+            m_mapInspector = new MapInspector(document, contextManager);
+            m_entityInspector = new EntityInspector(document, contextManager);
+            m_faceInspector = new FaceInspector(document, contextManager);
 
             m_tabBook->addPage(m_mapInspector, "Map");
             m_tabBook->addPage(m_entityInspector, "Entity");

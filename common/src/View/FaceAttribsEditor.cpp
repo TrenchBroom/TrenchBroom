@@ -47,7 +47,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        FaceAttribsEditor::FaceAttribsEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
+        FaceAttribsEditor::FaceAttribsEditor(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_uvEditor(nullptr),
@@ -226,7 +226,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::createGui(GLContextManager& contextManager) {
-            m_uvEditor = new UVEditor(this, m_document, contextManager);
+            m_uvEditor = new UVEditor(m_document, contextManager);
 
             auto* textureNameLabel = new QLabel("Texture");
             makeEmphasized(textureNameLabel);

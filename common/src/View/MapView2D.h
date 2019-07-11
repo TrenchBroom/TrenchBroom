@@ -53,7 +53,7 @@ namespace TrenchBroom {
             Renderer::OrthographicCamera m_camera;
         public:
             MapView2D(MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
-                      GLContextManager& contextManager, ViewPlane viewPlane, Logger* logger, QWidget* parent = nullptr);
+                      GLContextManager& contextManager, ViewPlane viewPlane, Logger* logger);
             ~MapView2D() override;
         private:
             void initializeCamera(ViewPlane viewPlane);

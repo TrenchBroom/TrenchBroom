@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MoveObjectsToolPage::MoveObjectsToolPage(QWidget* parent, MapDocumentWPtr document) :
+        MoveObjectsToolPage::MoveObjectsToolPage(MapDocumentWPtr document, QWidget* parent) :
         QWidget(parent),
         m_document(document) {
             createGui();

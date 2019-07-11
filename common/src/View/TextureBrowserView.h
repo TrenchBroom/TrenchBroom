@@ -72,8 +72,7 @@ namespace TrenchBroom {
 
             Assets::Texture* m_selectedTexture;
         public:
-            TextureBrowserView(QWidget* parent,
-                               QScrollBar* scrollBar,
+            TextureBrowserView(QScrollBar* scrollBar,
                                GLContextManager& contextManager,
                                MapDocumentWPtr document);
             ~TextureBrowserView() override;

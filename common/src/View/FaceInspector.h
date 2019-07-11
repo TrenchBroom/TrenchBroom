@@ -51,7 +51,7 @@ namespace TrenchBroom {
             FaceAttribsEditor* m_faceAttribsEditor;
             TextureBrowser* m_textureBrowser;
         public:
-            FaceInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            FaceInspector(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~FaceInspector() override;
 
             bool cancelMouseDrag();

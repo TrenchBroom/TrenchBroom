@@ -49,7 +49,7 @@ namespace TrenchBroom {
                 flagsFrame->setLayout(layout);
             }
 
-            m_button = new PopupButton(this, buttonLabel);
+            m_button = new PopupButton(buttonLabel);
             m_button->setToolTip("Click to edit flags");
 
             auto* editorContainer = new QWidget();

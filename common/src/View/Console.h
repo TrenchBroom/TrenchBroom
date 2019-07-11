@@ -35,7 +35,7 @@ namespace TrenchBroom {
         private:
             QTextEdit* m_textView;
         public:
-            explicit Console(QWidget* parent);
+            explicit Console(QWidget* parent = nullptr);
         private:
             void doLog(LogLevel level, const String& message) override;
             void doLog(LogLevel level, const QString& message) override;

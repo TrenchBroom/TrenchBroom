@@ -34,8 +34,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapViewBar::MapViewBar(QWidget* parent, MapDocumentWPtr document) :
-        ContainerBar(parent, Sides::BottomSide),
+        MapViewBar::MapViewBar(MapDocumentWPtr document, QWidget* parent) :
+        ContainerBar(Sides::BottomSide, parent),
         m_document(document),
         m_toolBook(nullptr),
         m_viewEditor(nullptr) {
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             m_toolBook = new QStackedLayout();
             m_toolBook->setContentsMargins(0, 0, 0, 0);
 
-            m_viewEditor = new ViewPopupEditor(this, document);
+            m_viewEditor = new ViewPopupEditor(document);
 
             auto* hSizer = new QHBoxLayout();
             hSizer->setContentsMargins(LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin, LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin);

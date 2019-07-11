@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapInspector::MapInspector(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
+        MapInspector::MapInspector(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
         TabBookPage(parent) {
             createGui(document, contextManager);
         }
@@ -48,7 +48,7 @@ namespace TrenchBroom {
 
         QWidget* MapInspector::createLayerEditor(QWidget* parent, MapDocumentWPtr document) {
             TitledPanel* titledPanel = new TitledPanel(tr("Layers"), parent);
-            LayerEditor* layerEditor = new LayerEditor(titledPanel->getPanel(), document);
+            LayerEditor* layerEditor = new LayerEditor(document);
 
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);
@@ -59,8 +59,8 @@ namespace TrenchBroom {
         }
 
         QWidget* MapInspector::createModEditor(QWidget* parent, MapDocumentWPtr document) {
-            CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(parent, tr("Mods"), false);
-            ModEditor* modEditor = new ModEditor(document, titledPanel->getPanel());
+            CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(tr("Mods"), false, parent);
+            ModEditor* modEditor = new ModEditor(document);
 
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);

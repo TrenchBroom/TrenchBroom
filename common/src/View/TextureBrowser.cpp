@@ -36,7 +36,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        TextureBrowser::TextureBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
+        TextureBrowser::TextureBrowser(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)),
         m_sortOrderChoice(nullptr),
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             m_scrollBar = new QScrollBar(Qt::Vertical);
 
             MapDocumentSPtr document = lock(m_document);
-            m_view = new TextureBrowserView(nullptr, m_scrollBar, contextManager, document);
+            m_view = new TextureBrowserView(m_scrollBar, contextManager, document);
             m_windowContainer = m_view->widgetContainer();
 
             auto* browserPanelSizer = new QHBoxLayout();
@@ -122,14 +122,14 @@ namespace TrenchBroom {
             });
 
             m_groupButton = new QPushButton(tr("Group"));
-            m_groupButton->setToolTip("Group textures by texture collection");
+            m_groupButton->setToolTip(tr("Group textures by texture collection"));
             m_groupButton->setCheckable(true);
             connect(m_groupButton, &QAbstractButton::clicked, this, [=](){
                 m_view->setGroup(m_groupButton->isChecked());
             });
 
             m_usedButton = new QPushButton(tr("Used"));
-            m_usedButton->setToolTip("Only show textures currently in use");
+            m_usedButton->setToolTip(tr("Only show textures currently in use"));
             m_usedButton->setCheckable(true);
             connect(m_usedButton, &QAbstractButton::clicked, this, [=](){
                 m_view->setHideUnused(m_usedButton->isChecked());

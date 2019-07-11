@@ -51,7 +51,7 @@ namespace TrenchBroom {
             QCheckBox* m_showHiddenIssuesCheckBox;
             FlagsPopupEditor* m_filterEditor;
         public:
-            IssueBrowser(QWidget* parent, MapDocumentWPtr document);
+            explicit IssueBrowser(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~IssueBrowser() override;
 
             QWidget* createTabBarPage(QWidget* parent) override;

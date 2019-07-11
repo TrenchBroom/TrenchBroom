@@ -33,15 +33,15 @@
 
 namespace TrenchBroom {
     namespace View {
-        InfoPanel::InfoPanel(QWidget* parent, MapDocumentWPtr document) :
+        InfoPanel::InfoPanel(MapDocumentWPtr document, QWidget* parent) :
         QWidget(parent),
         m_tabBook(nullptr),
         m_console(nullptr),
         m_issueBrowser(nullptr) {
             m_tabBook = new TabBook(this);
 
-            m_console = new Console(nullptr);
-            m_issueBrowser = new IssueBrowser(nullptr, document);
+            m_console = new Console();
+            m_issueBrowser = new IssueBrowser(document);
 
             m_tabBook->addPage(m_console, tr("Console"));
             m_tabBook->addPage(m_issueBrowser, tr("Issues"));

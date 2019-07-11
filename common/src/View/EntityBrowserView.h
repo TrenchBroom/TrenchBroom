@@ -77,8 +77,7 @@ namespace TrenchBroom {
             Assets::EntityDefinition::SortOrder m_sortOrder;
             String m_filterText;
         public:
-            EntityBrowserView(QWidget* parent,
-                              QScrollBar* scrollBar,
+            EntityBrowserView(QScrollBar* scrollBar,
                               GLContextManager& contextManager,
                               Assets::EntityDefinitionManager& entityDefinitionManager,
                               Assets::EntityModelManager& entityModelManager,

@@ -67,7 +67,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             // FIXME: Ownership: EntityBrowserView should be made a child
             // QObject of `this`, right?
-            m_view = new EntityBrowserView(nullptr, m_scrollBar,
+            m_view = new EntityBrowserView(m_scrollBar,
                                            contextManager,
                                            document->entityDefinitionManager(),
                                            document->entityModelManager(),

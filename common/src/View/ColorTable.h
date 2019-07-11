@@ -37,7 +37,7 @@ namespace TrenchBroom {
             ColorList m_colors;
             ColorList m_selectedColors;
         public:
-            ColorTable(QWidget* parent, int cellSize);
+            explicit ColorTable(int cellSize, QWidget* parent = nullptr);
 
             void setColors(const ColorList& colors);
             void setSelection(const ColorList& colors);

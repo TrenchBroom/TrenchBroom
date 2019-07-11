@@ -154,7 +154,7 @@ namespace TrenchBroom {
         QWidget* RotateObjectsTool::doCreatePage(QWidget* parent) {
             assert(m_toolPage == nullptr);
 
-            m_toolPage = new RotateObjectsToolPage(parent, m_document, this);
+            m_toolPage = new RotateObjectsToolPage(m_document, this, parent);
             return m_toolPage;
         }
     }

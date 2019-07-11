@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        ColorTable::ColorTable(QWidget* parent, int cellSize) :
+        ColorTable::ColorTable(int cellSize, QWidget* parent) :
         QWidget(parent),
         m_cellSize(cellSize),
         m_margin(2) {

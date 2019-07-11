@@ -23,9 +23,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        ContainerBar::ContainerBar(QWidget* parent, const Sides borders) :
-        BorderPanel(parent, borders) {}
+        ContainerBar::ContainerBar(const Sides borders, QWidget* parent) :
+        BorderPanel(borders, 1, parent) {}
 
-        ContainerBar::~ContainerBar() {}
+        ContainerBar::~ContainerBar() = default;
     }
 }
