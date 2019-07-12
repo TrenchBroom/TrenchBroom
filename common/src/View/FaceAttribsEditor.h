@@ -65,19 +65,19 @@ namespace TrenchBroom {
             QLineEdit* m_colorEditor;
         public:
             FaceAttribsEditor(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
-            ~FaceAttribsEditor();
+            ~FaceAttribsEditor() override;
 
             bool cancelMouseDrag();
         private:
-            void OnXOffsetChanged(double value);
-            void OnYOffsetChanged(double value);
-            void OnRotationChanged(double value);
-            void OnXScaleChanged(double value);
-            void OnYScaleChanged(double value);
-            void OnSurfaceFlagChanged(size_t index, int setFlag, int mixedFlag);
-            void OnContentFlagChanged(size_t index, int setFlag, int mixedFlag);
-            void OnSurfaceValueChanged(double value);
-            void OnColorValueChanged(const QString& text);
+            void xOffsetChanged(double value);
+            void yOffsetChanged(double value);
+            void rotationChanged(double value);
+            void xScaleChanged(double value);
+            void yScaleChanged(double value);
+            void surfaceFlagChanged(size_t index, int setFlag, int mixedFlag);
+            void contentFlagChanged(size_t index, int setFlag, int mixedFlag);
+            void surfaceValueChanged(double value);
+            void colorValueChanged(const QString& text);
             void gridDidChange();
         private:
             void createGui(GLContextManager& contextManager);

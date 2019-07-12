@@ -49,8 +49,10 @@ namespace TrenchBroom {
     namespace View {
         FaceAttribsEditor::FaceAttribsEditor(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
         QWidget(parent),
-        m_document(document),
+        m_document(std::move(document)),
         m_uvEditor(nullptr),
+        m_textureName(nullptr),
+        m_textureSize(nullptr),
         m_xOffsetEditor(nullptr),
         m_yOffsetEditor(nullptr),
         m_xScaleEditor(nullptr),
@@ -78,125 +80,119 @@ namespace TrenchBroom {
             return m_uvEditor->cancelMouseDrag();
         }
 
-        void FaceAttribsEditor::OnXOffsetChanged(double value) {
+        void FaceAttribsEditor::xOffsetChanged(const double value) {
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->hasSelectedBrushFaces()) {
+                return;
+            }
+
             Model::ChangeBrushFaceAttributesRequest request;
             request.setXOffset(static_cast<float>(value));
+            if (!document->setFaceAttributes(request)) {
+                updateControls();
+            }
+        }
 
+        void FaceAttribsEditor::yOffsetChanged(const double value) {
             MapDocumentSPtr document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
             }
 
-            if (!document->setFaceAttributes(request)) {
-                //event.Veto(); // FIXME: What to do?
-            }
-        }
-
-        void FaceAttribsEditor::OnYOffsetChanged(double value) {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setYOffset(static_cast<float>(value));
+            if (!document->setFaceAttributes(request)) {
+                updateControls();
+            }
+        }
 
+        void FaceAttribsEditor::rotationChanged(const double value) {
             MapDocumentSPtr document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
             }
 
-            if (!document->setFaceAttributes(request)) {
-                //event.Veto(); // FIXME: What to do?
-            }
-        }
-
-        void FaceAttribsEditor::OnRotationChanged(double value) {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setRotation(static_cast<float>(value));
+            if (!document->setFaceAttributes(request)) {
+                updateControls();
+            }
+        }
 
+        void FaceAttribsEditor::xScaleChanged(const double value) {
             MapDocumentSPtr document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
             }
 
-            if (!document->setFaceAttributes(request)) {
-                //event.Veto(); // FIXME: What to do?
-            }
-        }
-
-        void FaceAttribsEditor::OnXScaleChanged(double value) {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setXScale(static_cast<float>(value));
+            if (!document->setFaceAttributes(request)) {
+                updateControls();
+            }
+        }
 
+        void FaceAttribsEditor::yScaleChanged(const double value) {
             MapDocumentSPtr document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
             }
 
-            if (!document->setFaceAttributes(request)) {
-                //event.Veto(); // FIXME: What to do?
-            }
-        }
-
-        void FaceAttribsEditor::OnYScaleChanged(double value) {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setYScale(static_cast<float>(value));
+            if (!document->setFaceAttributes(request)) {
+                updateControls();
+            }
+        }
 
+        void FaceAttribsEditor::surfaceFlagChanged(const size_t index, const int setFlag, const int mixedFlag) {
             MapDocumentSPtr document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
             }
 
-            if (!document->setFaceAttributes(request)) {
-                //event.Veto(); // FIXME: What to do?
-            }
-        }
-
-        void FaceAttribsEditor::OnSurfaceFlagChanged(size_t index, int setFlag, int mixedFlag) {
             Model::ChangeBrushFaceAttributesRequest request;
-            if (setFlag)
+            if (setFlag) {
                 request.setSurfaceFlag(index);
-            else
+            } else {
                 request.unsetSurfaceFlag(index);
+            }
+            if (!document->setFaceAttributes(request)) {
+                updateControls();
+            }
+        }
 
+        void FaceAttribsEditor::contentFlagChanged(const size_t index, const int setFlag, const int mixedFlag) {
             MapDocumentSPtr document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
             }
 
-            if (!document->setFaceAttributes(request)) {
-                //event.Veto(); // FIXME: What to do?
-            }
-        }
-
-        void FaceAttribsEditor::OnContentFlagChanged(size_t index, int setFlag, int mixedFlag) {
             Model::ChangeBrushFaceAttributesRequest request;
-            if (setFlag)
+            if (setFlag) {
                 request.setContentFlag(index);
-            else
+            } else {
                 request.unsetContentFlag(index);
+            }
+            if (!document->setFaceAttributes(request)) {
+                updateControls();
+            }
+        }
 
+        void FaceAttribsEditor::surfaceValueChanged(const double value) {
             MapDocumentSPtr document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
             }
 
-            if (!document->setFaceAttributes(request)) {
-                //event.Veto(); // FIXME: What to do?
-            }
-        }
-
-        void FaceAttribsEditor::OnSurfaceValueChanged(double value) {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setSurfaceValue(static_cast<float>(value));
-
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
-                return;
-            }
-
             if (!document->setFaceAttributes(request)) {
-                //event.Veto(); // FIXME: What to do?
+                updateControls();
             }
         }
 
-        void FaceAttribsEditor::OnColorValueChanged(const QString& text) {
+        void FaceAttribsEditor::colorValueChanged(const QString& text) {
             MapDocumentSPtr document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
@@ -207,12 +203,16 @@ namespace TrenchBroom {
                 if (Color::canParse(str)) {
                     Model::ChangeBrushFaceAttributesRequest request;
                     request.setColor(Color::parse(str));
-                    document->setFaceAttributes(request);
+                    if (!document->setFaceAttributes(request)) {
+                        updateControls();
+                    }
                 }
             } else {
                 Model::ChangeBrushFaceAttributesRequest request;
                 request.setColor(Color());
-                document->setFaceAttributes(request);
+                if (!document->setFaceAttributes(request)) {
+                    updateControls();
+                }
             }
         }
 
@@ -352,15 +352,21 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::bindEvents() {
-            connect(m_xOffsetEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &FaceAttribsEditor::OnXOffsetChanged);
-            connect(m_yOffsetEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &FaceAttribsEditor::OnYOffsetChanged);
-            connect(m_xScaleEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &FaceAttribsEditor::OnXScaleChanged);
-            connect(m_yScaleEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &FaceAttribsEditor::OnYScaleChanged);
-            connect(m_rotationEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &FaceAttribsEditor::OnRotationChanged);
-            connect(m_surfaceValueEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &FaceAttribsEditor::OnSurfaceValueChanged);
-            connect(m_surfaceFlagsEditor, &FlagsPopupEditor::flagChanged, this, &FaceAttribsEditor::OnSurfaceFlagChanged);
-            connect(m_contentFlagsEditor, &FlagsPopupEditor::flagChanged, this, &FaceAttribsEditor::OnContentFlagChanged);
-            connect(m_colorEditor, &QLineEdit::textEdited, this, &FaceAttribsEditor::OnColorValueChanged);
+            connect(m_xOffsetEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+                &FaceAttribsEditor::xOffsetChanged);
+            connect(m_yOffsetEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+                &FaceAttribsEditor::yOffsetChanged);
+            connect(m_xScaleEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+                &FaceAttribsEditor::xScaleChanged);
+            connect(m_yScaleEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+                &FaceAttribsEditor::yScaleChanged);
+            connect(m_rotationEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+                &FaceAttribsEditor::rotationChanged);
+            connect(m_surfaceValueEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+                &FaceAttribsEditor::surfaceValueChanged);
+            connect(m_surfaceFlagsEditor, &FlagsPopupEditor::flagChanged, this, &FaceAttribsEditor::surfaceFlagChanged);
+            connect(m_contentFlagsEditor, &FlagsPopupEditor::flagChanged, this, &FaceAttribsEditor::contentFlagChanged);
+            connect(m_colorEditor, &QLineEdit::textEdited, this, &FaceAttribsEditor::colorValueChanged);
         }
 
         void FaceAttribsEditor::bindObservers() {
@@ -428,6 +434,17 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::updateControls() {
+            // block signals emitted when updating the editor values
+            const QSignalBlocker blockXOffsetEditor(m_xOffsetEditor);
+            const QSignalBlocker blockYOffsetEditor(m_yOffsetEditor);
+            const QSignalBlocker blockRotationEditor(m_rotationEditor);
+            const QSignalBlocker blockXScaleEditor(m_xScaleEditor);
+            const QSignalBlocker blockYScaleEditor(m_yScaleEditor);
+            const QSignalBlocker blockSurfaceValueEditor(m_surfaceValueEditor);
+            const QSignalBlocker blockSurfaceFlagsEditor(m_surfaceFlagsEditor);
+            const QSignalBlocker blockContentFlagsEditor(m_contentFlagsEditor);
+            const QSignalBlocker blockColorEditor(m_colorEditor);
+
             if (hasSurfaceAttribs()) {
                 showSurfaceAttribEditors();
                 QStringList surfaceFlagLabels, surfaceFlagTooltips, contentFlagLabels, contentFlagTooltips;
