@@ -54,7 +54,6 @@ namespace TrenchBroom {
             SpinControl* m_rotationEditor;
             QLabel* m_surfaceValueLabel;
             SpinControl* m_surfaceValueEditor;
-            QGridLayout* m_faceAttribsLayout;
 
             QLabel* m_surfaceFlagsLabel;
             FlagsPopupEditor* m_surfaceFlagsEditor;

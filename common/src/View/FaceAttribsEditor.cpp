@@ -60,7 +60,6 @@ namespace TrenchBroom {
         m_rotationEditor(nullptr),
         m_surfaceValueLabel(nullptr),
         m_surfaceValueEditor(nullptr),
-        m_faceAttribsLayout(nullptr),
         m_surfaceFlagsLabel(nullptr),
         m_surfaceFlagsEditor(nullptr),
         m_contentFlagsLabel(nullptr),
@@ -295,60 +294,65 @@ namespace TrenchBroom {
             const Qt::Alignment Editor1Flags = 0;
             const Qt::Alignment Editor2Flags = 0;
 
+            auto* faceAttribsLayout = new QGridLayout();
+            faceAttribsLayout->setContentsMargins(
+                LayoutConstants::NarrowHMargin,
+                LayoutConstants::NarrowVMargin,
+                LayoutConstants::NarrowHMargin,
+                LayoutConstants::NarrowVMargin);
+            faceAttribsLayout->setHorizontalSpacing(LayoutConstants::NarrowHMargin);
+            faceAttribsLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+
             int r = 0;
             int c = 0;
 
-            m_faceAttribsLayout = new QGridLayout();
-            m_faceAttribsLayout->setContentsMargins(0, 0, 0, 0);
-            m_faceAttribsLayout->setHorizontalSpacing(LayoutConstants::NarrowHMargin);
-            m_faceAttribsLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
-
-            m_faceAttribsLayout->addWidget(m_uvEditor,           r,c,1,4);
+            faceAttribsLayout->addWidget(textureNameLabel,     r,c++, LabelFlags);
+            faceAttribsLayout->addWidget(m_textureName,        r,c++, ValueFlags);
+            faceAttribsLayout->addWidget(textureSizeLabel,     r,c++, LabelFlags);
+            faceAttribsLayout->addWidget(m_textureSize,        r,c++, ValueFlags);
             ++r; c = 0;
 
-            m_faceAttribsLayout->addWidget(new BorderLine(),     r,c,1,4);
+            faceAttribsLayout->addWidget(xOffsetLabel,         r,c++, LabelFlags);
+            faceAttribsLayout->addWidget(m_xOffsetEditor,      r,c++, Editor1Flags);
+            faceAttribsLayout->addWidget(yOffsetLabel,         r,c++, LabelFlags);
+            faceAttribsLayout->addWidget(m_yOffsetEditor,      r,c++, Editor2Flags);
             ++r; c = 0;
 
-            m_faceAttribsLayout->addWidget(textureNameLabel,     r,c++, LabelFlags);
-            m_faceAttribsLayout->addWidget(m_textureName,        r,c++, ValueFlags);
-            m_faceAttribsLayout->addWidget(textureSizeLabel,     r,c++, LabelFlags);
-            m_faceAttribsLayout->addWidget(m_textureSize,        r,c++, ValueFlags);
+            faceAttribsLayout->addWidget(xScaleLabel,          r,c++, LabelFlags);
+            faceAttribsLayout->addWidget(m_xScaleEditor,       r,c++, Editor1Flags);
+            faceAttribsLayout->addWidget(yScaleLabel,          r,c++, LabelFlags);
+            faceAttribsLayout->addWidget(m_yScaleEditor,       r,c++, Editor2Flags);
             ++r; c = 0;
 
-            m_faceAttribsLayout->addWidget(xOffsetLabel,         r,c++, LabelFlags);
-            m_faceAttribsLayout->addWidget(m_xOffsetEditor,      r,c++, Editor1Flags);
-            m_faceAttribsLayout->addWidget(yOffsetLabel,         r,c++, LabelFlags);
-            m_faceAttribsLayout->addWidget(m_yOffsetEditor,      r,c++, Editor2Flags);
+            faceAttribsLayout->addWidget(rotationLabel,        r,c++, LabelFlags);
+            faceAttribsLayout->addWidget(m_rotationEditor,     r,c++, Editor1Flags);
+            faceAttribsLayout->addWidget(m_surfaceValueLabel,  r,c++, LabelFlags);
+            faceAttribsLayout->addWidget(m_surfaceValueEditor, r,c++, Editor2Flags);
             ++r; c = 0;
 
-            m_faceAttribsLayout->addWidget(xScaleLabel,          r,c++, LabelFlags);
-            m_faceAttribsLayout->addWidget(m_xScaleEditor,       r,c++, Editor1Flags);
-            m_faceAttribsLayout->addWidget(yScaleLabel,          r,c++, LabelFlags);
-            m_faceAttribsLayout->addWidget(m_yScaleEditor,       r,c++, Editor2Flags);
+            faceAttribsLayout->addWidget(m_surfaceFlagsLabel,  r,c++, LabelFlags);
+            faceAttribsLayout->addWidget(m_surfaceFlagsEditor, r,c++, 1,3, Editor2Flags);
             ++r; c = 0;
 
-            m_faceAttribsLayout->addWidget(rotationLabel,        r,c++, LabelFlags);
-            m_faceAttribsLayout->addWidget(m_rotationEditor,     r,c++, Editor1Flags);
-            m_faceAttribsLayout->addWidget(m_surfaceValueLabel,  r,c++, LabelFlags);
-            m_faceAttribsLayout->addWidget(m_surfaceValueEditor, r,c++, Editor2Flags);
+            faceAttribsLayout->addWidget(m_contentFlagsLabel,  r,c++, LabelFlags);
+            faceAttribsLayout->addWidget(m_contentFlagsEditor, r,c++, 1,3, Editor2Flags);
             ++r; c = 0;
 
-            m_faceAttribsLayout->addWidget(m_surfaceFlagsLabel,  r,c++, LabelFlags);
-            m_faceAttribsLayout->addWidget(m_surfaceFlagsEditor, r,c++, 1,3, Editor2Flags);
+            faceAttribsLayout->addWidget(m_colorLabel,         r,c++, LabelFlags);
+            faceAttribsLayout->addWidget(m_colorEditor,        r,c++, 1,3, Editor2Flags);
             ++r; c = 0;
 
-            m_faceAttribsLayout->addWidget(m_contentFlagsLabel,  r,c++, LabelFlags);
-            m_faceAttribsLayout->addWidget(m_contentFlagsEditor, r,c++, 1,3, Editor2Flags);
-            ++r; c = 0;
+            faceAttribsLayout->setColumnStretch(1, 1);
+            faceAttribsLayout->setColumnStretch(3, 1);
 
-            m_faceAttribsLayout->addWidget(m_colorLabel,         r,c++, LabelFlags);
-            m_faceAttribsLayout->addWidget(m_colorEditor,        r,c++, 1,3, Editor2Flags);
-            ++r; c = 0;
+            auto* outerLayout = new QVBoxLayout();
+            outerLayout->setContentsMargins(0, 0, 0, 0);
+            outerLayout->setSpacing(LayoutConstants::NarrowVMargin);
+            outerLayout->addWidget(m_uvEditor, 1);
+            outerLayout->addWidget(new BorderLine());
+            outerLayout->addLayout(faceAttribsLayout);
 
-            m_faceAttribsLayout->setColumnStretch(1, 1);
-            m_faceAttribsLayout->setColumnStretch(3, 1);
-
-            setLayout(m_faceAttribsLayout);
+            setLayout(outerLayout);
         }
 
         void FaceAttribsEditor::bindEvents() {
