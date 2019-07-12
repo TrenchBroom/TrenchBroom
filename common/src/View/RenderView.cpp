@@ -29,12 +29,14 @@
 #include "View/InputEvent.h"
 #include "View/wxUtils.h"
 
-#include <QPalette>
-#include <QTimer>
 #include <QDateTime>
 #include <QGridLayout>
-#include <QWidget>
 #include <QGuiApplication>
+#include <QOpenGLContext>
+#include <QPalette>
+#include <QSurfaceFormat>
+#include <QTimer>
+#include <QWidget>
 
 #ifdef _WIN32
 #include <GL/wglew.h>
@@ -162,17 +164,17 @@ namespace TrenchBroom {
         }
 
         int RenderView::depthBits() const {
-            // FIXME: implement for Qt
-            return -1;
+            const auto format = this->context()->format();
+            return format.depthBufferSize();
         }
 
         bool RenderView::multisample() const {
-            // FIXME: implement for Qt
-            return false;
+            const auto format = this->context()->format();
+            return format.samples() != -1;
         }
 
         void RenderView::initializeGL() {
-            m_glContext->initialize();
+            doInitializeGL();
         }
 
         void RenderView::resizeGL(int w, int h) {
@@ -249,6 +251,10 @@ namespace TrenchBroom {
             array.prepare(vertexVbo());
             array.render(GL_QUADS);
             glAssert(glEnable(GL_DEPTH_TEST));
+        }
+
+        bool RenderView::doInitializeGL() {
+            return m_glContext->initialize();
         }
 
         void RenderView::doUpdateViewport(const int x, const int y, const int width, const int height) {}

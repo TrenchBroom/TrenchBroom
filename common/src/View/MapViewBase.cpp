@@ -78,26 +78,12 @@
 
 namespace TrenchBroom {
     namespace View {
-        static QString GLVendor, GLRenderer, GLVersion;
-
-        const QString &MapViewBase::glRendererString() {
-            return GLRenderer;
-        }
-
-        const QString &MapViewBase::glVendorString() {
-            return GLVendor;
-        }
-
-        const QString &MapViewBase::glVersionString() {
-            return GLVersion;
-        }
-
         const int MapViewBase::DefaultCameraAnimationDuration = 250;
 
         MapViewBase::MapViewBase(Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
         RenderView(contextManager),
         m_logger(logger),
-        m_document(document),
+        m_document(std::move(document)),
         m_toolBox(toolBox),
         m_animationManager(new AnimationManager(this)),
         m_renderer(renderer),
@@ -825,22 +811,15 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::initializeGL() {
-            RenderView::initializeGL();
-            GLVendor   = QString::fromUtf8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
-            GLRenderer = QString::fromUtf8(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
-            GLVersion  = QString::fromUtf8(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+            if (doInitializeGL()) {
+                const auto* vendor   = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+                const auto* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+                const auto* version  = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 
-            m_logger->info(tr("Renderer info: %1 version %2 from %3").arg(GLRenderer).arg(GLVersion).arg(GLVendor));
-        // FIXME: use Qt
-#if 0
-            m_logger->info("Depth buffer bits: %d", depthBits());
-
-            if (multisample())
-                m_logger->info("Multisampling enabled");
-            else
-                m_logger->info("Multisampling disabled");
-#endif
-
+                m_logger->info() << "Renderer info: " << renderer << " version " << version << " from " << vendor;
+                m_logger->info() << "Depth buffer bits: " << depthBits();
+                m_logger->info() << "Multisampling " << StringUtils::choose(multisample(), "enabled", "disabled");
+            }
         }
 
         bool MapViewBase::doShouldRenderFocusIndicator() const {

@@ -115,7 +115,6 @@ namespace TrenchBroom {
 
             int depthBits() const;
             bool multisample() const;
-
         protected: // QOpenGLWindow overrides
             void initializeGL() override;
             void paintGL() override;
@@ -125,6 +124,9 @@ namespace TrenchBroom {
             void processInput();
             void clearBackground();
             void renderFocusIndicator();
+        protected:
+            // called by initializeGL by default
+            virtual bool doInitializeGL();
         private:
             virtual void doUpdateViewport(int x, int y, int width, int height);
             virtual bool doShouldRenderFocusIndicator() const = 0;

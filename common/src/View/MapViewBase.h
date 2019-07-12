@@ -78,10 +78,6 @@ namespace TrenchBroom {
         class MapViewBase : public RenderView, public MapView, public ToolBoxConnector, public CameraLinkableView {
             Q_OBJECT
         public:
-            static const QString& glRendererString();
-            static const QString& glVendorString();
-            static const QString& glVersionString();
-        protected:
             static const int DefaultCameraAnimationDuration;
 
             Logger* m_logger;
