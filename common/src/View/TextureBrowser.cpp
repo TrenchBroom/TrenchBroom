@@ -231,17 +231,18 @@ namespace TrenchBroom {
         void TextureBrowser::preferenceDidChange(const IO::Path& path) {
             MapDocumentSPtr document = lock(m_document);
             if (path == Preferences::TextureBrowserIconSize.path() ||
-                document->isGamePathPreference(path))
+                document->isGamePathPreference(path)) {
                 reload();
-            else
-                m_view->Refresh();
+            } else {
+                m_view->requestUpdate();
+            }
         }
 
         void TextureBrowser::reload() {
             if (m_view != nullptr) {
                 updateSelectedTexture();
                 m_view->invalidate();
-                m_view->Refresh();
+                m_view->requestUpdate();
             }
         }
 

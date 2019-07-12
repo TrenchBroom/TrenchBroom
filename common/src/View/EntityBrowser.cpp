@@ -57,7 +57,7 @@ namespace TrenchBroom {
         void EntityBrowser::reload() {
             if (m_view != nullptr) {
                 m_view->invalidate();
-                m_view->Refresh();
+                m_view->requestUpdate();
             }
         }
 
@@ -171,10 +171,11 @@ namespace TrenchBroom {
 
         void EntityBrowser::preferenceDidChange(const IO::Path& path) {
             MapDocumentSPtr document = lock(m_document);
-            if (document->isGamePathPreference(path))
+            if (document->isGamePathPreference(path)) {
                 reload();
-            else
-                m_view->Refresh();
+            } else {
+                m_view->requestUpdate();
+            }
         }
     }
 }

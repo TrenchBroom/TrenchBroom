@@ -65,35 +65,39 @@ namespace TrenchBroom {
         }
 
         void TextureBrowserView::setSortOrder(const SortOrder sortOrder) {
-            if (sortOrder == m_sortOrder)
+            if (sortOrder == m_sortOrder) {
                 return;
+            }
             m_sortOrder = sortOrder;
             invalidate();
-            Refresh();
+            requestUpdate();
         }
 
         void TextureBrowserView::setGroup(const bool group) {
-            if (group == m_group)
+            if (group == m_group) {
                 return;
+            }
             m_group = group;
             invalidate();
-            Refresh();
+            requestUpdate();
         }
 
         void TextureBrowserView::setHideUnused(const bool hideUnused) {
-            if (hideUnused == m_hideUnused)
+            if (hideUnused == m_hideUnused) {
                 return;
+            }
             m_hideUnused = hideUnused;
             invalidate();
-            Refresh();
+            requestUpdate();
         }
 
         void TextureBrowserView::setFilterText(const String& filterText) {
-            if (filterText == m_filterText)
+            if (filterText == m_filterText) {
                 return;
+            }
             m_filterText = filterText;
             invalidate();
-            Refresh();
+            requestUpdate();
         }
 
         Assets::Texture* TextureBrowserView::selectedTexture() const {
@@ -101,15 +105,16 @@ namespace TrenchBroom {
         }
 
         void TextureBrowserView::setSelectedTexture(Assets::Texture* selectedTexture) {
-            if (m_selectedTexture == selectedTexture)
+            if (m_selectedTexture == selectedTexture) {
                 return;
+            }
             m_selectedTexture = selectedTexture;
-            Refresh();
+            requestUpdate();
         }
 
         void TextureBrowserView::usageCountDidChange() {
             invalidate();
-            Refresh();
+            requestUpdate();
         }
 
         void TextureBrowserView::doInitLayout(Layout& layout) {
@@ -518,7 +523,7 @@ namespace TrenchBroom {
 
                     emit textureSelected(texture);
 
-                    Refresh();
+                    requestUpdate();
                 }
             }
         }

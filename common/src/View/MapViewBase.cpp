@@ -196,25 +196,25 @@ namespace TrenchBroom {
 
         void MapViewBase::nodesDidChange(const Model::NodeList& nodes) {
             updatePickResult();
-            update();
+            requestUpdate();
         }
 
         void MapViewBase::toolChanged(Tool* tool) {
             updatePickResult();
             updateActionStates();
-            update();
+            requestUpdate();
         }
 
         void MapViewBase::commandDone(Command::Ptr command) {
             updateActionStates();
             updatePickResult();
-            update();
+            requestUpdate();
         }
 
         void MapViewBase::commandUndone(UndoableCommand::Ptr command) {
             updateActionStates();
             updatePickResult();
-            update();
+            requestUpdate();
         }
 
         void MapViewBase::selectionDidChange(const Selection& selection) {
@@ -222,38 +222,38 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::textureCollectionsDidChange() {
-            update();
+            requestUpdate();
         }
 
         void MapViewBase::entityDefinitionsDidChange() {
             createActions();
             updateActionStates();
-            update();
+            requestUpdate();
         }
 
         void MapViewBase::modsDidChange() {
-            update();
+            requestUpdate();
         }
 
         void MapViewBase::editorContextDidChange() {
-            update();
+            requestUpdate();
         }
 
         void MapViewBase::mapViewConfigDidChange() {
-            update();
+            requestUpdate();
         }
 
         void MapViewBase::gridDidChange() {
-            update();
+            requestUpdate();
         }
 
         void MapViewBase::pointFileDidChange() {
-            update();
+            requestUpdate();
         }
 
         void MapViewBase::portalFileDidChange() {
             invalidatePortalFileRenderer();
-            update();
+            requestUpdate();
         }
 
         void MapViewBase::preferenceDidChange(const IO::Path& path) {
@@ -262,14 +262,14 @@ namespace TrenchBroom {
             }
 
             updateActionBindings();
-            update();
+            requestUpdate();
         }
 
         void MapViewBase::documentDidChange(MapDocument* document) {
             createActions();
             updateActionStates();
             updatePickResult();
-            update();
+            requestUpdate();
         }
 
         void MapViewBase::bindEvents() {
@@ -336,7 +336,7 @@ namespace TrenchBroom {
             const Grid& grid = document->grid();
             const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
             m_toolBox.moveRotationCenter(delta);
-            update();
+            requestUpdate();
         }
 
         void MapViewBase::moveVertices(const vm::direction direction) {

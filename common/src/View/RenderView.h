@@ -107,9 +107,6 @@ namespace TrenchBroom {
             QWidget* widgetContainer() const;
         public: // wxWidgets compat
             bool hasFocus() const;
-            bool IsBeingDeleted() const;
-            void Refresh();
-            void update();
         protected:
             Renderer::Vbo& vertexVbo();
             Renderer::Vbo& indexVbo();

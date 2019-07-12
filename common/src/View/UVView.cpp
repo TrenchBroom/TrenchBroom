@@ -70,7 +70,7 @@ namespace TrenchBroom {
 
         void UVView::setSubDivisions(const vm::vec2i& subDivisions) {
             m_helper.setSubDivisions(subDivisions);
-            Refresh();
+            requestUpdate();
         }
 
         void UVView::createTools() {
@@ -115,42 +115,45 @@ namespace TrenchBroom {
         void UVView::selectionDidChange(const Selection& selection) {
             MapDocumentSPtr document = lock(m_document);
             const Model::BrushFaceList& faces = document->selectedBrushFaces();
-            if (faces.size() != 1)
+            if (faces.size() != 1) {
                 m_helper.setFace(nullptr);
-            else
+            } else {
                 m_helper.setFace(faces.back());
+            }
 
-            if (m_helper.valid())
+            if (m_helper.valid()) {
                 m_toolBox.enable();
-            else
+            } else {
                 m_toolBox.disable();
-            Refresh();
+            }
+
+            requestUpdate();
         }
 
         void UVView::documentWasCleared(MapDocument* document) {
             m_helper.setFace(nullptr);
             m_toolBox.disable();
-            Refresh();
+            requestUpdate();
         }
 
         void UVView::nodesDidChange(const Model::NodeList& nodes) {
-            Refresh();
+            requestUpdate();
         }
 
         void UVView::brushFacesDidChange(const Model::BrushFaceList& faces) {
-            Refresh();
+            requestUpdate();
         }
 
         void UVView::gridDidChange() {
-            Refresh();
+            requestUpdate();
         }
 
         void UVView::preferenceDidChange(const IO::Path& path) {
-            Refresh();
+            requestUpdate();
         }
 
         void UVView::cameraDidChange(const Renderer::Camera* camera) {
-            Refresh();
+            requestUpdate();
         }
 
         void UVView::doUpdateViewport(int x, int y, int width, int height) {

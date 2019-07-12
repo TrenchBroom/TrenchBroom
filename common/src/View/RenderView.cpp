@@ -126,17 +126,6 @@ namespace TrenchBroom {
             return QGuiApplication::focusWindow() == this;
         }
 
-        bool RenderView::IsBeingDeleted() const {
-            // FIXME: remove this
-            return false;
-        }
-
-        void RenderView::Refresh() {
-            // FIXME: remove this
-            // Schedules a repaint with Qt
-            requestUpdate();
-        }
-
         void RenderView::paintGL() {
             // FIXME: crash
 #if 0
@@ -154,10 +143,6 @@ namespace TrenchBroom {
             } else {
                 m_timeSinceLastFrame.start();
             }
-        }
-
-        void RenderView::update() {
-            Refresh();
         }
 
         Renderer::Vbo& RenderView::vertexVbo() {
