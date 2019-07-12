@@ -239,8 +239,9 @@ namespace TrenchBroom {
 
         void CellView::doRender() {
             validate();
-            if (!m_layoutInitialized)
+            if (!m_layoutInitialized) {
                 initLayout();
+            }
 
             // FIXME: check DPI awareness
             const int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;

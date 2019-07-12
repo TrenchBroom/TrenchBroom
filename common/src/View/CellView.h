@@ -60,7 +60,7 @@ namespace TrenchBroom {
             void reloadLayout();
             void validate();
         public:
-            CellView(GLContextManager& contextManager, QScrollBar* scrollBar = nullptr);
+            explicit CellView(GLContextManager& contextManager, QScrollBar* scrollBar = nullptr);
             void invalidate();
             void clear();
             void resizeEvent(QResizeEvent* event) override;
