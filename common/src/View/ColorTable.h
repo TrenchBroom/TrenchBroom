@@ -41,10 +41,6 @@ namespace TrenchBroom {
 
             void setColors(const ColorList& colors);
             void setSelection(const ColorList& colors);
-
-        signals:
-            void colorTableSelected(QColor color);
-
         protected: // QWidget overrides
             void paintEvent(QPaintEvent* event) override;
             void mouseReleaseEvent(QMouseEvent* event) override;
@@ -57,6 +53,9 @@ namespace TrenchBroom {
             int computeCols(int width) const;
             int computeRows(int cols) const;
             int computeHeight(int rows) const;
+
+        signals:
+            void colorTableSelected(QColor color);
         };
     }
 }

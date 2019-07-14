@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        ColorTable::ColorTable(int cellSize, QWidget* parent) :
+        ColorTable::ColorTable(const int cellSize, QWidget* parent) :
         QWidget(parent),
         m_cellSize(cellSize),
         m_margin(2) {
@@ -41,7 +41,6 @@ namespace TrenchBroom {
             m_colors = colors;
             m_selectedColors.clear();
 
-            // FIXME: Double check that this is working
             updateGeometry();
         }
 
@@ -60,10 +59,6 @@ namespace TrenchBroom {
             int y = m_margin;
 
             QPainter dc(this);
-            // FIXME: what about this?
-//            dc.setPen(QColor(Qt::transparent));
-//            dc.setBrush(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX)));
-//            dc.drawRect(0, 0, virtualSize.x, virtualSize.y);
 
             auto it = std::begin(m_colors);
             for (int row = 0; row < rows; ++row) {
@@ -110,10 +105,10 @@ namespace TrenchBroom {
             return true;
         }
 
-        int ColorTable::heightForWidth(int w) const {
-            int cols = computeCols(w);
-            int rows = computeRows(cols);
-            int height = computeHeight(rows);
+        int ColorTable::heightForWidth(const int w) const {
+            const int cols = computeCols(w);
+            const int rows = computeRows(cols);
+            const int height = computeHeight(rows);
             return height;
         }
 
@@ -122,9 +117,11 @@ namespace TrenchBroom {
         }
 
         int ColorTable::computeRows(const int cols) const {
-            if (cols == 0)
+            if (cols == 0) {
                 return 0;
-            return (static_cast<int>(m_colors.size()) + cols - 1) / cols;
+            } else {
+                return (static_cast<int>(m_colors.size()) + cols - 1) / cols;
+            }
         }
 
         int ColorTable::computeHeight(const int rows) const {

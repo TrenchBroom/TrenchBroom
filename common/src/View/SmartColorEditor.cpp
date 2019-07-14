@@ -30,11 +30,12 @@
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
-#include <QRadioButton>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <QLabel>
+#include <QHBoxLayout>
 #include <QPushButton>
+#include <QRadioButton>
+#include <QScrollArea>
+#include <QVBoxLayout>
 
 #include <iomanip>
 
@@ -79,22 +80,28 @@ namespace TrenchBroom {
             m_colorPicker = new ColorButton();
             m_colorHistory = new ColorTable(ColorHistoryCellSize);
 
-            auto* leftSizer = new QVBoxLayout();
-            leftSizer->setContentsMargins(0, 0, 0, 0);
-            leftSizer->addWidget(rangeTxt);
-            leftSizer->addWidget(m_floatRadio);
-            leftSizer->addWidget(m_byteRadio);
-            leftSizer->addWidget(m_colorPicker);
-            leftSizer->addStretch(1);
+            // FIXME: not yet working, scrollbar does not show up
+            auto* colorHistoryScroller = new QScrollArea();
+            colorHistoryScroller->setWidget(m_colorHistory);
+            colorHistoryScroller->setWidgetResizable(true);
 
-            auto* outerSizer = new QHBoxLayout();
-            outerSizer->setContentsMargins(0, 0, 0, 0);
-            outerSizer->addSpacing(LayoutConstants::WideHMargin);
-            outerSizer->addLayout(leftSizer);
-            outerSizer->addSpacing(LayoutConstants::WideHMargin);
-            outerSizer->addWidget(new BorderLine(BorderLine::Direction_Vertical), 0);
-            outerSizer->addWidget(m_colorHistory, 1);
-            setLayout(outerSizer);
+            auto* leftLayout = new QVBoxLayout();
+            leftLayout->setContentsMargins(0, 0, 0, 0);
+            leftLayout->setSpacing(LayoutConstants::NarrowVMargin);
+            leftLayout->addWidget(rangeTxt);
+            leftLayout->addWidget(m_floatRadio);
+            leftLayout->addWidget(m_byteRadio);
+            leftLayout->addWidget(m_colorPicker);
+            leftLayout->addStretch(1);
+
+            auto* outerLayout = new QHBoxLayout();
+            outerLayout->setContentsMargins(LayoutConstants::WideHMargin, 0, 0, 0);
+            outerLayout->setSpacing(0);
+            outerLayout->addLayout(leftLayout);
+            outerLayout->addSpacing(LayoutConstants::WideHMargin);
+            outerLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical));
+            outerLayout->addWidget(colorHistoryScroller, 1);
+            setLayout(outerLayout);
 
             connect(m_floatRadio, &QAbstractButton::clicked, this, &SmartColorEditor::OnFloatRangeRadioButton);
             connect(m_byteRadio, &QAbstractButton::clicked, this, &SmartColorEditor::OnByteRangeRadioButton);
