@@ -42,8 +42,13 @@ namespace TrenchBroom {
     namespace View {
         RotateObjectsToolPage::RotateObjectsToolPage(MapDocumentWPtr document, RotateObjectsTool* tool, QWidget* parent) :
         QWidget(parent),
-        m_document(document),
-        m_tool(tool) {
+        m_document(std::move(document)),
+        m_tool(tool),
+        m_recentlyUsedCentersList(nullptr),
+        m_resetCenterButton(nullptr),
+        m_angle(nullptr),
+        m_axis(nullptr),
+        m_rotateButton(nullptr) {
             createGui();
             bindObservers();
             m_angle->setValue(vm::toDegrees(m_tool->angle()));
@@ -114,34 +119,32 @@ namespace TrenchBroom {
             connect(m_angle, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &RotateObjectsToolPage::OnAngleChanged);
             connect(m_rotateButton, &QAbstractButton::clicked, this, &RotateObjectsToolPage::OnRotate);
 
-            auto* separator = new BorderLine(BorderLine::Direction_Vertical);
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
 
-            auto* sizer = new QHBoxLayout();
-            sizer->setContentsMargins(0, 0, 0, 0);
-            sizer->setSpacing(0);
+            layout->addWidget(centerText, 0, Qt::AlignVCenter);
+            layout->addSpacing(LayoutConstants::NarrowHMargin);
+            layout->addWidget(m_recentlyUsedCentersList, 0, Qt::AlignVCenter);
+            layout->addSpacing(LayoutConstants::NarrowHMargin);
+            layout->addWidget(m_resetCenterButton, 0, Qt::AlignVCenter);
+            layout->addSpacing(LayoutConstants::WideHMargin);
+            layout->addWidget(new BorderLine(BorderLine::Direction_Vertical), 0);
+            layout->addSpacing(LayoutConstants::WideHMargin);
+            layout->addWidget(text1, 0, Qt::AlignVCenter);
+            layout->addSpacing(LayoutConstants::NarrowHMargin);
+            layout->addWidget(m_angle, 0, Qt::AlignVCenter);
+            layout->addSpacing(LayoutConstants::NarrowHMargin);
+            layout->addWidget(text2, 0, Qt::AlignVCenter);
+            layout->addSpacing(LayoutConstants::NarrowHMargin);
+            layout->addWidget(m_axis, 0);
+            layout->addSpacing(LayoutConstants::NarrowHMargin);
+            layout->addWidget(text3, 0, Qt::AlignVCenter);
+            layout->addSpacing(LayoutConstants::NarrowHMargin);
+            layout->addWidget(m_rotateButton, 0, Qt::AlignVCenter);
+            layout->addStretch(1);
 
-            sizer->addWidget(centerText, 0, Qt::AlignVCenter);
-            sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(m_recentlyUsedCentersList, 0, Qt::AlignVCenter);
-            sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(m_resetCenterButton, 0, Qt::AlignVCenter);
-            sizer->addSpacing(LayoutConstants::MediumHMargin);
-            sizer->addWidget(separator, 0);
-            sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(text1, 0, Qt::AlignVCenter);
-            sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(m_angle, 0, Qt::AlignVCenter);
-            sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(text2, 0, Qt::AlignVCenter);
-            sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(m_axis, 0);
-            sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(text3, 0, Qt::AlignVCenter);
-            sizer->addSpacing(LayoutConstants::NarrowHMargin);
-            sizer->addWidget(m_rotateButton, 0, Qt::AlignVCenter);
-            sizer->addStretch(1);
-
-            setLayout(sizer);
+            setLayout(layout);
 
             updateGui();
         }

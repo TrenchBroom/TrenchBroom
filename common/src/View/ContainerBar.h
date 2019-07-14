@@ -28,7 +28,6 @@ namespace TrenchBroom {
             Q_OBJECT
         public:
             explicit ContainerBar(Sides borders, QWidget* parent = nullptr);
-            virtual ~ContainerBar();
         };
     }
 }

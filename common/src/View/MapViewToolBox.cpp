@@ -208,18 +208,18 @@ namespace TrenchBroom {
         }
 
         void MapViewToolBox::createTools(MapDocumentWPtr document, QStackedLayout* bookCtrl) {
-            m_clipTool.reset(new ClipTool(document));
-            m_createComplexBrushTool.reset(new CreateComplexBrushTool(document));
-            m_createEntityTool.reset(new CreateEntityTool(document));
-            m_createSimpleBrushTool.reset(new CreateSimpleBrushTool(document));
-            m_moveObjectsTool.reset(new MoveObjectsTool(document));
-            m_resizeBrushesTool.reset(new ResizeBrushesTool(document));
-            m_rotateObjectsTool.reset(new RotateObjectsTool(document));
-            m_scaleObjectsTool.reset(new ScaleObjectsTool(document));
-            m_shearObjectsTool.reset(new ShearObjectsTool(document));
-            m_vertexTool.reset(new VertexTool(document));
-            m_edgeTool.reset(new EdgeTool(document));
-            m_faceTool.reset(new FaceTool(document));
+            m_clipTool = std::make_unique<ClipTool>(document);
+            m_createComplexBrushTool = std::make_unique<CreateComplexBrushTool>(document);
+            m_createEntityTool = std::make_unique<CreateEntityTool>(document);
+            m_createSimpleBrushTool = std::make_unique<CreateSimpleBrushTool>(document);
+            m_moveObjectsTool = std::make_unique<MoveObjectsTool>(document);
+            m_resizeBrushesTool = std::make_unique<ResizeBrushesTool>(document);
+            m_rotateObjectsTool = std::make_unique<RotateObjectsTool>(document);
+            m_scaleObjectsTool = std::make_unique<ScaleObjectsTool>(document);
+            m_shearObjectsTool = std::make_unique<ShearObjectsTool>(document);
+            m_vertexTool = std::make_unique<VertexTool>(document);
+            m_edgeTool = std::make_unique<EdgeTool>(document);
+            m_faceTool = std::make_unique<FaceTool>(document);
 
             deactivateWhen(createComplexBrushTool(), moveObjectsTool());
             deactivateWhen(createComplexBrushTool(), resizeBrushesTool());

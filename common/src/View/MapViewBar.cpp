@@ -50,14 +50,19 @@ namespace TrenchBroom {
             m_toolBook = new QStackedLayout();
             m_toolBook->setContentsMargins(0, 0, 0, 0);
 
-            m_viewEditor = new ViewPopupEditor(document);
+            m_viewEditor = new ViewPopupEditor(std::move(document));
 
-            auto* hSizer = new QHBoxLayout();
-            hSizer->setContentsMargins(LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin, LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin);
-            hSizer->addLayout(m_toolBook, 1);
-            hSizer->addWidget(m_viewEditor, 0, Qt::AlignVCenter);
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(
+                LayoutConstants::WideHMargin,
+                0,
+                LayoutConstants::WideHMargin,
+                0);
+            layout->setSpacing(LayoutConstants::WideHMargin);
+            layout->addLayout(m_toolBook, 1);
+            layout->addWidget(m_viewEditor, 0, Qt::AlignVCenter);
 
-            setLayout(hSizer);
+            setLayout(layout);
         }
     }
 }

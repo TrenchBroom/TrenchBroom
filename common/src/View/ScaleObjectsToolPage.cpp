@@ -42,7 +42,12 @@ namespace TrenchBroom {
     namespace View {
         ScaleObjectsToolPage::ScaleObjectsToolPage(MapDocumentWPtr document, QWidget* parent) :
         QWidget(parent),
-        m_document(document) {
+        m_document(std::move(document)),
+        m_book(nullptr),
+        m_sizeTextBox(nullptr),
+        m_factorsTextBox(nullptr),
+        m_scaleFactorsOrSize(nullptr),
+        m_button(nullptr) {
             createGui();
             bindObservers();
             updateGui();
@@ -63,7 +68,7 @@ namespace TrenchBroom {
                 document->selectionDidChangeNotifier.removeObserver(this, &ScaleObjectsToolPage::selectionDidChange);
             }
         }
-        
+
         void ScaleObjectsToolPage::activate() {
             const auto document = lock(m_document);
             const auto suggestedSize = document->hasSelectedNodes() ? document->selectionBounds().size() : vm::vec3::zero;
@@ -96,17 +101,17 @@ namespace TrenchBroom {
             m_button = new QPushButton(tr("Apply"));
             connect(m_button, &QAbstractButton::clicked, this, &ScaleObjectsToolPage::OnApply);
 
-            auto* sizer = new QHBoxLayout();
-            sizer->setContentsMargins(0, 0, 0, 0);
-            sizer->setSpacing(LayoutConstants::NarrowHMargin);
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(LayoutConstants::NarrowHMargin);
 
-            sizer->addWidget(text, 0, Qt::AlignVCenter);
-            sizer->addWidget(m_scaleFactorsOrSize, 0, Qt::AlignVCenter);
-            sizer->addLayout(m_book, 0);
-            sizer->addWidget(m_button, 0, Qt::AlignVCenter);
-            sizer->addStretch(1);
+            layout->addWidget(text, 0, Qt::AlignVCenter);
+            layout->addWidget(m_scaleFactorsOrSize, 0, Qt::AlignVCenter);
+            layout->addLayout(m_book, 0);
+            layout->addWidget(m_button, 0, Qt::AlignVCenter);
+            layout->addStretch(1);
 
-            setLayout(sizer);
+            setLayout(layout);
         }
 
         void ScaleObjectsToolPage::updateGui() {

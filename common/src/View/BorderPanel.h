@@ -39,10 +39,6 @@ namespace TrenchBroom {
             int m_thickness;
         public:
             explicit BorderPanel(Sides borders = AllSides, int thickness = 1, QWidget* parent = nullptr);
-            ~BorderPanel() override;
-
-            void Create(QWidget* parent, Sides borders = AllSides, int thickness = 1);
-
         protected:
             void paintEvent(QPaintEvent *event) override;
         };

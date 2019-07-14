@@ -26,16 +26,9 @@
 namespace TrenchBroom {
     namespace View {
         BorderPanel::BorderPanel(const Sides borders, const int thickness, QWidget* parent) :
-        QWidget(parent) {
-            Create(parent, borders, thickness);
-        }
-
-        BorderPanel::~BorderPanel() {}
-
-        void BorderPanel::Create(QWidget* parent, Sides borders, int thickness) {
-            m_borders = borders;
-            m_thickness = thickness;
-        }
+        QWidget(parent),
+        m_borders(borders),
+        m_thickness(thickness) {}
 
         void BorderPanel::paintEvent(QPaintEvent* /*event*/) {
             QPainter painter(this);
@@ -44,14 +37,18 @@ namespace TrenchBroom {
             painter.setPen(Colors::borderColor());
 
             QRect r = rect();
-            if ((m_borders & LeftSide) != 0)
+            if ((m_borders & LeftSide) != 0) {
                 painter.drawLine(r.left(), r.top(), r.left(), r.bottom());
-            if ((m_borders & TopSide) != 0)
+            }
+            if ((m_borders & TopSide) != 0) {
                 painter.drawLine(r.left(), r.top(), r.right(), r.top());
-            if ((m_borders & RightSide) != 0)
+            }
+            if ((m_borders & RightSide) != 0) {
                 painter.drawLine(r.right(), r.top(), r.right(), r.bottom());
-            if ((m_borders & BottomSide) != 0)
+            }
+            if ((m_borders & BottomSide) != 0) {
                 painter.drawLine(r.left(), r.bottom(), r.right(), r.bottom());
+            }
         }
     }
 }

@@ -32,7 +32,9 @@ namespace TrenchBroom {
     namespace View {
         MoveObjectsToolPage::MoveObjectsToolPage(MapDocumentWPtr document, QWidget* parent) :
         QWidget(parent),
-        m_document(document) {
+        m_document(document),
+        m_offset(nullptr),
+        m_button(nullptr) {
             createGui();
             bindObservers();
             updateGui();
@@ -62,16 +64,16 @@ namespace TrenchBroom {
             connect(m_button, &QAbstractButton::clicked, this, &MoveObjectsToolPage::OnApply);
             connect(m_offset, &QLineEdit::returnPressed, this, &MoveObjectsToolPage::OnApply);
 
-            auto* sizer = new QHBoxLayout();
-            sizer->setContentsMargins(0, 0, 0, 0);
-            sizer->setSpacing(LayoutConstants::NarrowHMargin);
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(LayoutConstants::NarrowHMargin);
 
-            sizer->addWidget(text, 0, Qt::AlignVCenter);
-            sizer->addWidget(m_offset, 0, Qt::AlignVCenter);
-            sizer->addWidget(m_button, 0, Qt::AlignVCenter);
-            sizer->addStretch(1);
+            layout->addWidget(text, 0, Qt::AlignVCenter);
+            layout->addWidget(m_offset, 0, Qt::AlignVCenter);
+            layout->addWidget(m_button, 0, Qt::AlignVCenter);
+            layout->addStretch(1);
 
-            setLayout(sizer);
+            setLayout(layout);
         }
 
         void MoveObjectsToolPage::updateGui() {

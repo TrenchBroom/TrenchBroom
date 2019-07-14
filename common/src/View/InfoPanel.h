@@ -40,7 +40,7 @@ namespace TrenchBroom {
             Console* m_console;
             IssueBrowser* m_issueBrowser;
         public:
-            InfoPanel(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit InfoPanel(MapDocumentWPtr document, QWidget* parent = nullptr);
             Console* console() const;
         };
     }
