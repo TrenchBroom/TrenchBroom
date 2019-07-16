@@ -33,7 +33,7 @@ namespace TrenchBroom {
             using ColorList = std::vector<QColor>;
         private:
             int m_cellSize;
-            int m_margin;
+            int m_cellSpacing;
             ColorList m_colors;
             ColorList m_selectedColors;
         public:

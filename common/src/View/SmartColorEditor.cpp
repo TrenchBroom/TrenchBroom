@@ -62,7 +62,7 @@ namespace TrenchBroom {
             setColor(color);
         }
 
-        void SmartColorEditor::OnColorTableSelected(QColor color) {
+        void SmartColorEditor::OnColorTableSelected(const QColor color) {
             setColor(color);
         }
 
@@ -84,6 +84,7 @@ namespace TrenchBroom {
             auto* colorHistoryScroller = new QScrollArea();
             colorHistoryScroller->setWidget(m_colorHistory);
             colorHistoryScroller->setWidgetResizable(true);
+            colorHistoryScroller->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
 
             auto* leftLayout = new QVBoxLayout();
             leftLayout->setContentsMargins(0, 0, 0, 0);

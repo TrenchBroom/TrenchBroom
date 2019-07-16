@@ -22,6 +22,7 @@
 #include <QPainter>
 #include <QColor>
 #include <QMouseEvent>
+#include <QSizePolicy>
 
 #include <algorithm>
 #include <cassert>
@@ -31,10 +32,12 @@ namespace TrenchBroom {
         ColorTable::ColorTable(const int cellSize, QWidget* parent) :
         QWidget(parent),
         m_cellSize(cellSize),
-        m_margin(2) {
+        m_cellSpacing(2) {
             assert(m_cellSize > 0);
 
-            //SetScrollRate(0, m_cellSize + m_margin);
+            auto sizePolicy = QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+            sizePolicy.setHeightForWidth(true);
+            setSizePolicy(sizePolicy);
         }
 
         void ColorTable::setColors(const ColorList& colors) {
@@ -50,13 +53,13 @@ namespace TrenchBroom {
         }
 
         void ColorTable::paintEvent(QPaintEvent* event) {
-            const QSize virtualSize = size();
-            const int cols = computeCols(virtualSize.width());
-            const int rows = computeRows(cols);
+            const auto virtualSize = size();
+            const auto cols = computeCols(virtualSize.width());
+            const auto rows = computeRows(cols);
 
-            const int startX = m_margin;
-            int x = startX;
-            int y = m_margin;
+            const auto startX = m_cellSpacing;
+            auto x = startX;
+            auto y = m_cellSpacing;
 
             QPainter dc(this);
 
@@ -64,7 +67,7 @@ namespace TrenchBroom {
             for (int row = 0; row < rows; ++row) {
                 for (int col = 0; col < cols; ++col) {
                     if (it != std::end(m_colors)) {
-                        const QColor& color = *it;
+                        const auto& color = *it;
 
                         if (std::find(std::begin(m_selectedColors), std::end(m_selectedColors), color) != std::end(m_selectedColors)) {
                             dc.setPen(QColor(Qt::red));
@@ -78,25 +81,24 @@ namespace TrenchBroom {
 
                         ++it;
                     }
-                    x += m_cellSize + m_margin;
+                    x += m_cellSize + m_cellSpacing;
                 }
-                y += m_cellSize + m_margin;
+                y += m_cellSize + m_cellSpacing;
                 x = startX;
             }
         }
 
         void ColorTable::mouseReleaseEvent(QMouseEvent* event) {
-            const QSize virtualSize = size();
-            const int cols = computeCols(virtualSize.width());
+            const auto virtualSize = size();
+            const auto cols = computeCols(virtualSize.width());
 
-            const QPoint pos = event->pos();
-            const int col = (pos.x() - m_margin) / (m_cellSize + m_margin);
-            const int row = (pos.y() - m_margin) / (m_cellSize + m_margin);
+            const auto pos = event->pos();
+            const auto col = (pos.x() - m_cellSpacing) / (m_cellSize + m_cellSpacing);
+            const auto row = (pos.y() - m_cellSpacing) / (m_cellSize + m_cellSpacing);
 
-            const size_t index = static_cast<size_t>(row * cols + col);
+            const auto index = static_cast<size_t>(row * cols + col);
             if (index < m_colors.size()) {
-                const QColor& color = m_colors[index];
-
+                const auto& color = m_colors[index];
                 emit colorTableSelected(color);
             }
         }
@@ -106,14 +108,14 @@ namespace TrenchBroom {
         }
 
         int ColorTable::heightForWidth(const int w) const {
-            const int cols = computeCols(w);
-            const int rows = computeRows(cols);
-            const int height = computeHeight(rows);
+            const auto cols = computeCols(w);
+            const auto rows = computeRows(cols);
+            const auto height = computeHeight(rows);
             return height;
         }
 
         int ColorTable::computeCols(const int width) const {
-            return (width - m_margin) / (m_cellSize + m_margin);
+            return (width - m_cellSpacing) / (m_cellSize + m_cellSpacing);
         }
 
         int ColorTable::computeRows(const int cols) const {
@@ -125,7 +127,7 @@ namespace TrenchBroom {
         }
 
         int ColorTable::computeHeight(const int rows) const {
-            return m_margin + rows * (m_cellSize + m_margin) - 1; // no idea why the -1 is necessary, but it is
+            return m_cellSpacing + rows * (m_cellSize + m_cellSpacing);
         }
     }
 }
