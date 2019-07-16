@@ -21,6 +21,7 @@
 
 #include "View/ViewConstants.h"
 
+#include <QDebug>
 #include <QPainter>
 #include <QPaintEvent>
 
@@ -35,8 +36,27 @@ namespace TrenchBroom {
             return QSize(3, 3);
         }
 
+        Splitter::Splitter(const Qt::Orientation orientation, QWidget* parent) :
+        QSplitter(orientation, parent){
+            connect(this, &QSplitter::splitterMoved, this, &Splitter::doSplitterMoved);
+        }
+
+        Splitter::Splitter(QWidget* parent) :
+        QSplitter(parent) {
+            connect(this, &QSplitter::splitterMoved, this, &Splitter::doSplitterMoved);
+        }
+
         QSplitterHandle* Splitter::createHandle() {
             return new SplitterHandle(orientation(), this);
         }
+
+#ifdef __APPLE__
+        void Splitter::doSplitterMoved() {
+            for (int i = 0; i < count(); ++i) {
+                auto* widget = this->widget(i);
+                widget->repaint();
+            }
+        }
+#endif
     }
 }

@@ -39,10 +39,17 @@ namespace TrenchBroom {
         class Splitter : public QSplitter {
             Q_OBJECT
         public:
-            using QSplitter::QSplitter;
+            explicit Splitter(Qt::Orientation orientation, QWidget *parent = nullptr);
+            Splitter(QWidget* parent = nullptr);
         protected:
             QSplitterHandle* createHandle() override;
+
+#ifdef __APPLE__
+        // on macOS, the widgets are not repainted properly when the splitter moves, so we force them to repaint
+        private slots:
+            void doSplitterMoved();
         };
+#endif
     }
 }
 
