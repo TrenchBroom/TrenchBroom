@@ -48,8 +48,8 @@ namespace TrenchBroom {
         // on macOS, the widgets are not repainted properly when the splitter moves, so we force them to repaint
         private slots:
             void doSplitterMoved();
-        };
 #endif
+        };
     }
 }
 
