@@ -479,10 +479,14 @@ namespace TrenchBroom {
                 frame->newDocument(game, mapFormat);
                 return true;
             } catch (const RecoverableException& e) {
-                frame->close();
+                if (frame != nullptr) {
+                    frame->close();
+                }
                 return recoverFromException(e, [this](){ return this->newDocument(); });
             } catch (const Exception& e) {
-                frame->close();
+                if (frame != nullptr) {
+                    frame->close();
+                }
                 QMessageBox::critical(nullptr, "", e.what());
                 return false;
             }
