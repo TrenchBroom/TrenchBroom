@@ -67,7 +67,8 @@ namespace TrenchBroom {
         TrenchBroomApp::TrenchBroomApp(int& argc, char** argv) :
         QApplication(argc, argv),
         m_frameManager(nullptr),
-        m_recentDocuments(nullptr) {
+        m_recentDocuments(nullptr),
+        m_welcomeWindow(nullptr) {
             // Set OpenGL defaults
             QSurfaceFormat format;
             format.setDepthBufferSize(24);
@@ -113,6 +114,9 @@ namespace TrenchBroom {
 
             m_recentDocuments = std::make_unique<RecentDocuments>(10);
             connect(m_recentDocuments.get(), &RecentDocuments::loadDocument, this, [this](const IO::Path& path) { openDocument(path); });
+
+            // must be initialized after m_recentDocuments!
+            m_welcomeWindow = std::make_unique<WelcomeWindow>();
 
             // FIXME: add apple only for Qt
 #if 0
@@ -191,8 +195,6 @@ namespace TrenchBroom {
             m_recentDocuments->updatePath(path);
         }
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCDFAInspection"
         bool TrenchBroomApp::openDocument(const IO::Path& path) {
             MapFrame* frame = nullptr;
             try {
@@ -241,7 +243,6 @@ namespace TrenchBroom {
                 return false;
             }
         }
-#pragma clang diagnostic pop
 
         bool TrenchBroomApp::recoverFromException(const RecoverableException &e, const std::function<bool()>& op) {
             // Guard against recursion. It's ok to use a static here since the functions calling this are not reentrant.
@@ -465,8 +466,6 @@ namespace TrenchBroom {
             }
         }
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCDFAInspection"
         bool TrenchBroomApp::newDocument() {
             MapFrame* frame = nullptr;
             try {
@@ -497,7 +496,6 @@ namespace TrenchBroom {
                 return false;
             }
         }
-#pragma clang diagnostic pop
 
         void TrenchBroomApp::openDocument() {
             const auto pathStr = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
@@ -543,46 +541,23 @@ namespace TrenchBroom {
         }
 #endif
 
-// FIXME: add apple only for Qt
-#if 0
-        void TrenchBroomApp::OnFileExit() {
-            if (m_frameManager->closeAllFrames())
-                ExitMainLoop();
-        }
-
-        void TrenchBroomApp::OnUpdateUI() {
-            switch (event.GetId()) {
-                case wxID_PREFERENCES:
-                case wxID_ABOUT:
-                case wxID_NEW:
-                case wxID_OPEN:
-                case wxID_EXIT:
-                case wxID_HELP:
-                case CommandIds::Menu::FileOpenRecent:
-                    event.Enable(true);
-                    break;
-                case CommandIds::Menu::DebugCrashReportDialog:
-                    event.Enable(true);
-                    break;
-                default:
-                    if (event.GetId() >= CommandIds::Menu::FileRecentDocuments &&
-                        event.GetId() <= CommandIds::Menu::FileRecentDocumentsLast)
-                        event.Enable(true);
-                    else if (m_frameManager->allFramesClosed())
-                        event.Enable(false);
-                    break;
+#ifdef __APPLE__
+        bool TrenchBroomApp::event(QEvent* event) {
+            if (event->type() == QEvent::FileOpen) {
+                const auto* openEvent = static_cast<QFileOpenEvent*>(event);
+                const auto pathStr = openEvent->file().toStdString();
+                const auto path = IO::Path(pathStr);
+                if (openDocument(path)) {
+                    hideWelcomeWindow();
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return QApplication::event(event);
             }
         }
-
-        void TrenchBroomApp::MacNewFile() {
-            showWelcomeFrame();
-        }
-
-        void TrenchBroomApp::MacOpenFiles(const QStringList& filenames) {
-            for (const QString& filename : filenames)
-                openDocument(filename.ToStdString());
-        }
-#else
+#endif
 
         bool TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames) {
             if (!fileNames.isEmpty()) {
@@ -598,11 +573,10 @@ namespace TrenchBroom {
                     }
                 }
             } else {
-                showWelcomeFrame();
+                showWelcomeWindow();
             }
             return true;
         }
-#endif
 
         bool TrenchBroomApp::useSDI() {
 #ifdef _WIN32
@@ -612,9 +586,12 @@ namespace TrenchBroom {
 #endif
         }
 
-        void TrenchBroomApp::showWelcomeFrame() {
-            auto* welcomeFrame = new WelcomeWindow();
-            welcomeFrame->show();
+        void TrenchBroomApp::showWelcomeWindow() {
+            m_welcomeWindow->show();
+        }
+
+        void TrenchBroomApp::hideWelcomeWindow() {
+            m_welcomeWindow->hide();
         }
     }
 }

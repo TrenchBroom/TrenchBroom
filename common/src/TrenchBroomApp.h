@@ -24,6 +24,7 @@
 #include "IO/Path.h"
 #include "View/FrameManager.h"
 #include "View/RecentDocuments.h"
+#include "View/WelcomeWindow.h"
 
 #include <memory>
 
@@ -43,6 +44,7 @@ namespace TrenchBroom {
         private:
             std::unique_ptr<FrameManager> m_frameManager;
             std::unique_ptr<RecentDocuments> m_recentDocuments;
+            std::unique_ptr<WelcomeWindow> m_welcomeWindow; // must be destroyed before recent documents!
         public:
             Notifier<> recentDocumentsDidChangeNotifier;
         public:
@@ -83,19 +85,14 @@ namespace TrenchBroom {
 
 //            void OnExecutableEvent(ExecutableEvent& event);
 
-// FIXME: add apple only for Qt
-#if 0
-            void OnFileExit();
-            void OnUpdateUI();
-
-            void MacNewFile() override;
-            void MacOpenFiles(const QStringList& filenames) override;
-#else
-            bool openFilesOrWelcomeFrame(const QStringList& fileNames);
+#ifdef __APPLE__
+            bool event(QEvent* event) override;
 #endif
+            bool openFilesOrWelcomeFrame(const QStringList& fileNames);
         private:
             static bool useSDI();
-            void showWelcomeFrame();
+            void showWelcomeWindow();
+            void hideWelcomeWindow();
         };
 
         void setCrashReportGUIEnbled(bool guiEnabled);

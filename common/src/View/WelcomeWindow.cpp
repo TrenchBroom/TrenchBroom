@@ -26,6 +26,8 @@
 #include "View/RecentDocumentListBox.h"
 #include "View/wxUtils.h"
 
+#include <memory>
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -113,7 +115,7 @@ namespace TrenchBroom {
             hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
             if (app.newDocument()) {
-                close();
+                hide();
             } else {
                 show();
             }
@@ -132,7 +134,7 @@ namespace TrenchBroom {
             hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
             if (app.openDocument(path)) {
-                close();
+                hide();
             } else {
                 show();
             }
