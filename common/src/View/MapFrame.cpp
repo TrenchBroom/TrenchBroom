@@ -373,13 +373,14 @@ namespace TrenchBroom {
         }
 
         void MapFrame::removeRecentDocumentsMenu() {
-            TrenchBroomApp& app = TrenchBroomApp::instance();
+            auto& app = TrenchBroomApp::instance();
             app.removeRecentDocumentMenu(m_recentDocumentsMenu);
         }
 
         void MapFrame::updateRecentDocumentsMenu() {
             if (m_document->path().isAbsolute()) {
-                View::TrenchBroomApp::instance().updateRecentDocument(m_document->path());
+                auto& app = TrenchBroomApp::instance();
+                app.updateRecentDocument(m_document->path());
             }
         }
 

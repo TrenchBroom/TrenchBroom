@@ -118,9 +118,12 @@ namespace TrenchBroom {
             // must be initialized after m_recentDocuments!
             m_welcomeWindow = std::make_unique<WelcomeWindow>();
 
+#ifdef __APPLE__
+            setQuitOnLastWindowClosed(false);
+#endif
+
             // FIXME: add apple only for Qt
 #if 0
-            SetExitOnFrameDelete(false);
             const ActionManager& actionManager = ActionManager::instance();
             wxMenuBar* menuBar = actionManager.createMenuBar(false);
             wxMenuBar::MacSetCommonMenuBar(menuBar);
@@ -553,9 +556,12 @@ namespace TrenchBroom {
                 } else {
                     return false;
                 }
-            } else {
-                return QApplication::event(event);
+            } else if (event->type() == QEvent::ApplicationActivate) {
+                if (m_frameManager->allFramesClosed()) {
+                    showWelcomeWindow();
+                }
             }
+            return QApplication::event(event);
         }
 #endif
 

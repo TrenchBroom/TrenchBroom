@@ -24,8 +24,6 @@
 
 #include <QDialog>
 
-class wxCloseEvent;
-
 namespace TrenchBroom {
     namespace View {
         class GameEngineProfileManager;

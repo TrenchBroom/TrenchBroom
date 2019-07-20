@@ -28,10 +28,11 @@
 
 #include <memory>
 
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QPushButton>
+#include <QCloseEvent>
 #include <QFileDialog>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QPushButton>
 
 namespace TrenchBroom {
     namespace View {
@@ -42,6 +43,11 @@ namespace TrenchBroom {
         m_openOtherDocumentButton(nullptr) {
             createGui();
             centerOnScreen(this);
+        }
+
+        void WelcomeWindow::closeEvent(QCloseEvent* event) {
+            event->ignore();
+            hide();
         }
 
         void WelcomeWindow::createGui() {

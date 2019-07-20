@@ -41,6 +41,10 @@ namespace TrenchBroom {
             QPushButton* m_openOtherDocumentButton;
         public:
             WelcomeWindow();
+
+        protected:
+            void closeEvent(QCloseEvent* event) override;
+
         private:
             void createGui();
             QWidget* createAppPanel();
