@@ -36,9 +36,17 @@ namespace TrenchBroom {
         path(i_path),
         action(i_action) {}
 
-        KeyboardShortcutModel::KeyboardShortcutModel(MapDocument* document) {
-            initializeActions(document);
+        KeyboardShortcutModel::KeyboardShortcutModel(MapDocument* document) :
+        m_document(document) {
+            initializeActions();
             updateConflicts();
+        }
+
+        void KeyboardShortcutModel::reset() {
+            m_actions.clear();
+            initializeActions();
+            updateConflicts();
+            emit dataChanged(createIndex(0, 0), createIndex(totalActionCount(), 3));
         }
 
         int KeyboardShortcutModel::rowCount(const QModelIndex& parent) const {
@@ -120,12 +128,12 @@ namespace TrenchBroom {
             return VectorUtils::setContains(m_conflicts, index.row());
         }
 
-        void KeyboardShortcutModel::initializeActions(MapDocument* document) {
+        void KeyboardShortcutModel::initializeActions() {
             initializeMenuActions();
             initializeViewActions();
-            if (document != nullptr) {
-                initializeTagActions(document);
-                initializeEntityDefinitionActions(document);
+            if (m_document != nullptr) {
+                initializeTagActions();
+                initializeEntityDefinitionActions();
             }
         }
 
@@ -164,16 +172,16 @@ namespace TrenchBroom {
             });
         }
 
-        void KeyboardShortcutModel::initializeTagActions(MapDocument* document) {
-            assert(document != nullptr);
-            document->visitTagActions([this](const Action& action) {
+        void KeyboardShortcutModel::initializeTagActions() {
+            assert(m_document != nullptr);
+            m_document->visitTagActions([this](const Action& action) {
                 m_actions.emplace_back(IO::Path("Tags") + IO::Path(action.name()), action);
             });
         }
 
-        void KeyboardShortcutModel::initializeEntityDefinitionActions(MapDocument* document) {
-            assert(document != nullptr);
-            document->visitEntityDefinitionActions([this](const Action& action) {
+        void KeyboardShortcutModel::initializeEntityDefinitionActions() {
+            assert(m_document != nullptr);
+            m_document->visitEntityDefinitionActions([this](const Action& action) {
                 m_actions.emplace_back(IO::Path("Entity Definitions") + IO::Path(action.name()), action);
             });
         }

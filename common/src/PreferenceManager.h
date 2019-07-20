@@ -90,8 +90,9 @@ namespace TrenchBroom {
             ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
 
             const T previousValue = preference.value();
-            if (previousValue == value)
+            if (previousValue == value) {
                 return false;
+            }
 
             preference.setValue(value);
             if (saveInstantly()) {

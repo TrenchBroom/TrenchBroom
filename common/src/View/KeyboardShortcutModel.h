@@ -41,10 +41,13 @@ namespace TrenchBroom {
                 ActionInfo(const IO::Path& i_path, const Action& i_action);
             };
 
+            MapDocument* m_document;
             std::vector<ActionInfo> m_actions;
             std::vector<int> m_conflicts;
         public:
             explicit KeyboardShortcutModel(MapDocument* document);
+
+            void reset();
 
             int rowCount(const QModelIndex& parent) const override;
             int columnCount(const QModelIndex& parent) const override;
@@ -58,13 +61,13 @@ namespace TrenchBroom {
             bool hasConflicts() const;
             bool hasConflicts(const QModelIndex& index) const;
         private:
-            void initializeActions(MapDocument* document);
+            void initializeActions();
 
             class MenuActionVisitor;
             void initializeMenuActions();
             void initializeViewActions();
-            void initializeTagActions(MapDocument* document);
-            void initializeEntityDefinitionActions(MapDocument* document);
+            void initializeTagActions();
+            void initializeEntityDefinitionActions();
 
             void updateConflicts();
 

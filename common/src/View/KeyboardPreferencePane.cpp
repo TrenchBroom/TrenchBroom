@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Tag.h"
+#include "View/Actions.h"
 #include "View/BorderLine.h"
 #include "View/KeyboardShortcutItemDelegate.h"
 #include "View/KeyboardShortcutModel.h"
@@ -79,10 +80,9 @@ namespace TrenchBroom {
         }
 
         void KeyboardPreferencePane::doResetToDefaults() {
-            /* FIXME
-            ActionManager& actionManager = ActionManager::instance();
-            actionManager.resetShortcutsToDefaults();
-             */
+            auto& actionManager = ActionManager::instance();
+            actionManager.resetAllKeySequences();
+            m_model->reset();
         }
 
         void KeyboardPreferencePane::doUpdateControls() {

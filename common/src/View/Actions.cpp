@@ -129,6 +129,10 @@ namespace TrenchBroom {
             prefs.set(pref, KeyboardShortcut(keySequence));
         }
 
+        void Action::resetKeySequence() const {
+            setKeySequence(m_defaultShortcut.keySequence());
+        }
+
         void Action::execute(ActionExecutionContext& context) const {
             if (enabled(context)) {
                 m_execute(context);
@@ -316,6 +320,25 @@ namespace TrenchBroom {
             for (const auto* action : m_mapViewActions) {
                 visitor(*action);
             }
+        }
+
+        class ActionManager::ResetMenuVisitor : public MenuVisitor {
+            void visit(const Menu& menu) override {
+                menu.visitEntries(*this);
+            }
+            void visit(const MenuSeparatorItem& item) override {}
+            void visit(const MenuActionItem& item) override {
+                item.action().resetKeySequence();
+            }
+        };
+
+        void ActionManager::resetAllKeySequences() const {
+            ResetMenuVisitor menuVisitor;
+            visitMainMenu(menuVisitor);
+            visitToolBarActions(menuVisitor);
+
+            auto actionVisitor = [](const Action& action) { action.resetKeySequence(); };
+            visitMapViewActions(actionVisitor);
         }
 
         void ActionManager::initialize() {

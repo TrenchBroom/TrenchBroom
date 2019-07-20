@@ -92,6 +92,7 @@ namespace TrenchBroom {
             ActionContext::Type actionContext() const;
             QKeySequence keySequence() const;
             void setKeySequence(const QKeySequence& keySequence) const;
+            void resetKeySequence() const;
 
             void execute(ActionExecutionContext& context) const;
             bool enabled(ActionExecutionContext& context) const;
@@ -217,6 +218,9 @@ namespace TrenchBroom {
             void visitMainMenu(MenuVisitor& visitor) const;
             void visitToolBarActions(MenuVisitor& visitor) const;
             void visitMapViewActions(const ActionVisitor& visitor) const;
+
+            class ResetMenuVisitor;
+            void resetAllKeySequences() const;
         private:
             void initialize();
             void createViewActions();
