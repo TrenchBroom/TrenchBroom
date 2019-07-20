@@ -31,7 +31,7 @@ namespace TrenchBroom {
         private:
             NodeSerializer& m_serializer;
         public:
-            BrushSerializer(NodeSerializer& serializer) : m_serializer(serializer) {}
+            explicit BrushSerializer(NodeSerializer& serializer) : m_serializer(serializer) {}
 
             void doVisit(Model::World* world) override   {}
             void doVisit(Model::Layer* layer) override   {}

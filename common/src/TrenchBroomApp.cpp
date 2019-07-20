@@ -100,7 +100,7 @@ namespace TrenchBroom {
             setApplicationName("TrenchBroom");
             // Needs to be "" otherwise Qt adds this to the paths returned by QStandardPaths
             // which would cause preferences to move from where they were with wx
-            setOrganizationName(""); 
+            setOrganizationName("");
             setOrganizationDomain("com.kristianduske");
 
             if (!initializeGameFactory()) {
@@ -191,6 +191,8 @@ namespace TrenchBroom {
             m_recentDocuments->updatePath(path);
         }
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCDFAInspection"
         bool TrenchBroomApp::openDocument(const IO::Path& path) {
             MapFrame* frame = nullptr;
             try {
@@ -239,6 +241,7 @@ namespace TrenchBroom {
                 return false;
             }
         }
+#pragma clang diagnostic pop
 
         bool TrenchBroomApp::recoverFromException(const RecoverableException &e, const std::function<bool()>& op) {
             // Guard against recursion. It's ok to use a static here since the functions calling this are not reentrant.
@@ -462,13 +465,16 @@ namespace TrenchBroom {
             }
         }
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCDFAInspection"
         bool TrenchBroomApp::newDocument() {
             MapFrame* frame = nullptr;
             try {
                 String gameName;
                 Model::MapFormat mapFormat = Model::MapFormat::Unknown;
-                if (!GameDialog::showNewDocumentDialog(nullptr, gameName, mapFormat))
+                if (!GameDialog::showNewDocumentDialog(nullptr, gameName, mapFormat)) {
                     return false;
+                }
 
                 frame = m_frameManager->newFrame();
 
@@ -479,14 +485,19 @@ namespace TrenchBroom {
                 frame->newDocument(game, mapFormat);
                 return true;
             } catch (const RecoverableException& e) {
-                frame->close();
+                if (frame != nullptr) {
+                    frame->close();
+                }
                 return recoverFromException(e, [this](){ return this->newDocument(); });
             } catch (const Exception& e) {
-                frame->close();
+                if (frame != nullptr) {
+                    frame->close();
+                }
                 QMessageBox::critical(nullptr, "", e.what());
                 return false;
             }
         }
+#pragma clang diagnostic pop
 
         void TrenchBroomApp::openDocument() {
             const auto pathStr = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
@@ -602,7 +613,7 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::showWelcomeFrame() {
-            WelcomeWindow* welcomeFrame = new WelcomeWindow();
+            auto* welcomeFrame = new WelcomeWindow();
             welcomeFrame->show();
         }
     }

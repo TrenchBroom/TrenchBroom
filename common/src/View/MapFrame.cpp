@@ -438,10 +438,6 @@ namespace TrenchBroom {
 #endif
             frameLayout->addWidget(m_hSplitter);
 
-            // FIXME:
-//            wxPersistenceManager::Get().RegisterAndRestore(m_hSplitter);
-//            wxPersistenceManager::Get().RegisterAndRestore(m_vSplitter);
-
             // NOTE: you can't set the layout of a QMainWindow, so make another widget to wrap this layout in
             auto* layoutWrapper = new QWidget();
             layoutWrapper->setLayout(frameLayout);
