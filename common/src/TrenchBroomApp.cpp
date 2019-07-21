@@ -115,9 +115,6 @@ namespace TrenchBroom {
             m_recentDocuments = std::make_unique<RecentDocuments>(10);
             connect(m_recentDocuments.get(), &RecentDocuments::loadDocument, this, [this](const IO::Path& path) { openDocument(path); });
 
-            // must be initialized after m_recentDocuments!
-            m_welcomeWindow = std::make_unique<WelcomeWindow>();
-
 #ifdef __APPLE__
             setQuitOnLastWindowClosed(false);
 #endif
@@ -593,6 +590,10 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::showWelcomeWindow() {
+            if (m_welcomeWindow == nullptr) {
+                // must be initialized after m_recentDocuments!
+                m_welcomeWindow = std::make_unique<WelcomeWindow>();
+            }
             m_welcomeWindow->show();
         }
 
