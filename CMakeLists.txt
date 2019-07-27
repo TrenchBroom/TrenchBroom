@@ -83,6 +83,11 @@ ELSEIF(COMPILER_IS_MSVC)
     # Generate debug symbols even for Release; we build a stripped pdb in Release mode, see TrenchBroomApp.cmake
     SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /Zi")
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi")
+
+    # Request 8MB stack on Windows.
+    # Default is 1MB and we need more for our current AABB builder on large maps (https://github.com/kduske/TrenchBroom/issues/2803)
+    SET(TB_STACK_SIZE 8388608)
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:${TB_STACK_SIZE}")
 ELSE()
     MESSAGE(FATAL_ERROR "Unsupported compiler detected.")
 ENDIF()
