@@ -28,10 +28,13 @@
 
 #include <QApplication>
 #include <QThread>
+#include <QString>
 
 #include <map>
 #include <memory>
 #include <set>
+
+class QTextStream;
 
 namespace TrenchBroom {
     namespace IO {
@@ -119,6 +122,8 @@ namespace TrenchBroom {
         const PreferenceManager& prefs = PreferenceManager::instance();
         return prefs.get(preference);
     }
+
+    std::map<QString, std::map<QString, QString>> parseINI(QTextStream* iniStream);
 }
 
 #endif /* defined(TrenchBroom_PreferenceManager) */

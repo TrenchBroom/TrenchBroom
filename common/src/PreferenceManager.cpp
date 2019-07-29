@@ -64,4 +64,43 @@ namespace TrenchBroom {
         m_saveInstantly = false;
 #endif
     }
+
+    std::map<QString, std::map<QString, QString>> parseINI(QTextStream* iniStream) {
+        QString section;
+        std::map<QString, std::map<QString, QString>> result;
+
+        while (!iniStream->atEnd()) {
+            QString line = iniStream->readLine();
+
+            // Trim leading/trailing whitespace
+            line = line.trimmed();
+
+            // Unescape escape sequences
+            line.replace("\\ ", " ");
+
+            // TODO: Handle comments, if we want to.
+
+            const bool sqBracketAtStart = line.startsWith('[');
+            const bool sqBracketAtEnd = line.endsWith(']');
+
+            const bool heading = sqBracketAtStart && sqBracketAtEnd;
+            if (heading) {
+                section = line.mid(1, line.length() - 2);
+                continue;
+            }
+
+            //  Not a heading, see if it's a key=value entry
+            const int eqIndex = line.indexOf('=');
+            if (eqIndex != -1) {
+                QString key = line.left(eqIndex);
+                QString value = line.mid(eqIndex + 1);
+
+                result[section][key] = value;
+                continue;
+            }
+
+            // Line was ignored
+        }
+        return result;
+    }
 }
