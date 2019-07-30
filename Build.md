@@ -6,9 +6,8 @@
 
 ## Windows
 
-- Generally, the cmake scripts don't handle paths with spaces very well, so make sure that you check out the TrenchBroom source repository somewhere on a path without any spaces.
-- For Visual Studio:
-    - VS2017 is required. The community edition works fine.
+- Visual Studio 2017 or 2019 can be used for development. Code needs to compile with VS 2017 (that's what our releases are built with). 
+- For Visual Studio 2017:
     - In the Visual Studio Installer, you'll need to install:
       - Workloads 
         - **Desktop development with C++**
@@ -16,29 +15,29 @@
         - **VC++ 2017 version 15.9 v14.16 latest v141 tools**
         - **Windows Universal CRT SDK**
         - **Windows XP support for C++**
+  - For Visual Studio 2019:
+    - In the Visual Studio Installer, you'll need to install:
+        - Workloads
+          - **Desktop development with C++**
   - Download and install [Qt](https://www.qt.io/download) for MSVC 2017 32-bit
   - Download and install [CMake](http://www.cmake.org) for Windows
   - Open a command prompt and change into the directory where you unpacked the TrenchBroom sources.
   - Create a new directory, e.g. "build", and change into it.
-  - To generate a VS solution (if you want to work on TrenchBroom), run the following command:
+  - For Visual Studio 2017, run:
 
     ```
     cmake .. -T v141 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=C:\Qt\5.13.0\msvc2017
     ```
 
+  - For Visual Studio 2019, run:
+
+    ```
+    cmake .. -G "Visual Studio 16 2019" -A Win32 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=C:\Qt\5.13.0\msvc2017
+    ```
+
     Finally, open `build\TrenchBroom.sln`.
 
-    The `-T` option selects the "platform toolset" for the Visual Studio generator, which determines which C++ compiler and runtime the project will use. `v141` is the _Visual Studio 2017_ runtime. 
-    TrenchBroom releases and CI builds use `v141`; earlier versions won't be able to compile TrenchBroom.
-
-  - For a release build, instead run:
-
-    ```
-    cmake .. -T v141 -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=C:\Qt\5.13.0\msvc2017
-    cmake --build . --config Release --target TrenchBroom
-    ```
-
-  - **Note:** due to current limitations of the TrenchBroom build system, you must specify CMAKE_BUILD_TYPE when invoking cmake, and can't change between Release and Debug from Visual Studio
+  - **Note:** specifying CMAKE_BUILD_TYPE is required when running cmake; you can't change between Release and Debug from Visual Studio
 
 ## Linux
 ### Dependencies
