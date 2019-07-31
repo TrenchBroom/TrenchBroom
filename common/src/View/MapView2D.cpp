@@ -77,17 +77,15 @@ namespace TrenchBroom {
             initializeCamera(viewPlane);
             initializeToolChain(toolBox);
 
-            // FIXME: Not sure if QWidget::SetName() maps to QWidget::setWhatsThis()?
-            // FIXME: Actually, was SetName used for persistence?
             switch (viewPlane) {
             case ViewPlane_XY:
-                widgetContainer()->setWhatsThis("XY View");
+                widgetContainer()->setObjectName("XY View");
                 break;
             case ViewPlane_YZ:
-                widgetContainer()->setWhatsThis("YZ View");
+                widgetContainer()->setObjectName("YZ View");
                 break;
             case ViewPlane_XZ:
-                widgetContainer()->setWhatsThis("XZ View");
+                widgetContainer()->setObjectName("XZ View");
                 break;
             switchDefault()
             }
