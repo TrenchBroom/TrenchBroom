@@ -28,9 +28,11 @@
 #include "Model/GameFactory.h"
 #include "Model/MapFormat.h"
 #include "View/AboutDialog.h"
+#include "View/Actions.h"
 // FIXME:
 //#include "View/CrashDialog.h"
 #include "View/GameDialog.h"
+#include "View/MainMenuBuilder.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/PreferenceDialog.h"
@@ -40,14 +42,15 @@
 #include "View/wxUtils.h"
 
 #include <QCommandLineParser>
-#include <QUrl>
+#include <QtDebug>
 #include <QDesktopServices>
 #include <QFileDialog>
+#include <QMenuBar>
 #include <QMessageBox>
 #include <QFile>
 #include <QStandardPaths>
 #include <QSysInfo>
-#include <QtDebug>
+#include <QUrl>
 
 #include <clocale>
 #include <cstdlib>
@@ -117,51 +120,32 @@ namespace TrenchBroom {
 
 #ifdef __APPLE__
             setQuitOnLastWindowClosed(false);
+
+            auto* menuBar = new QMenuBar();
+            using ActionMap = std::map<const Action*, QAction*>;
+            ActionMap actionMap;
+
+            MainMenuBuilder menuBuilder(*menuBar, actionMap, [this](const Action& action) {
+                ActionExecutionContext context(nullptr, nullptr);
+                action.execute(context);
+            });
+
+            const auto& actionManager = ActionManager::instance();
+            actionManager.visitMainMenu(menuBuilder);
+
+            addRecentDocumentMenu(menuBuilder.recentDocumentsMenu);
+
+            ActionExecutionContext context(nullptr, nullptr);
+            for (auto [tAction, qAction] : actionMap) {
+                qAction->setEnabled(tAction->enabled(context));
+                if (qAction->isCheckable()) {
+                    qAction->setChecked(tAction->checked(context));
+                }
+            }
+
 #endif
-
-            // FIXME: add apple only for Qt
-#if 0
-            const ActionManager& actionManager = ActionManager::instance();
-            wxMenuBar* menuBar = actionManager.createMenuBar(false);
-            wxMenuBar::MacSetCommonMenuBar(menuBar);
-
-            wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
-            ensure(recentDocumentsMenu != nullptr, "recentDocumentsMenu is null");
-            addRecentDocumentMenu(recentDocumentsMenu);
-
-            Bind(wxEVT_MENU, &TrenchBroomApp::OnFileExit, this, wxID_EXIT);
-
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_NEW);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_OPEN);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_SAVE);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_SAVEAS);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_CLOSE);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_UNDO);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_REDO);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_CUT);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_COPY);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_PASTE);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_DELETE);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_PREFERENCES);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_ABOUT);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_HELP);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
-#endif
-
-            // FIXME: Implement these
-#if 0
-            Bind(wxEVT_MENU, &TrenchBroomApp::OnFileNew, this, wxID_NEW);
-            Bind(wxEVT_MENU, &TrenchBroomApp::OnFileOpen, this, wxID_OPEN);
-            Bind(wxEVT_MENU, &TrenchBroomApp::OnHelpShowManual, this, wxID_HELP);
-            Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenPreferences, this, wxID_PREFERENCES);
-            Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenAbout, this, wxID_ABOUT);
-            Bind(wxEVT_MENU, &TrenchBroomApp::OnDebugShowCrashReportDialog, this, CommandIds::Menu::DebugCrashReportDialog);
-
-            Bind(EXECUTABLE_EVENT, &TrenchBroomApp::OnExecutableEvent, this);
 
             m_recentDocuments->didChangeNotifier.addObserver(recentDocumentsDidChangeNotifier);
-
-#endif
         }
 
         void TrenchBroomApp::parseCommandLineAndShowFrame() {
@@ -215,6 +199,7 @@ namespace TrenchBroom {
                 Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
                 ensure(game.get() != nullptr, "game is null");
 
+                hideWelcomeWindow();
                 frame->openDocument(game, mapFormat, path);
                 return true;
             } catch (const FileNotFoundException& e) {
@@ -481,6 +466,7 @@ namespace TrenchBroom {
                 Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
                 ensure(game.get() != nullptr, "game is null");
 
+                hideWelcomeWindow();
                 frame->newDocument(game, mapFormat);
                 return true;
             } catch (const RecoverableException& e) {
@@ -492,6 +478,7 @@ namespace TrenchBroom {
                 if (frame != nullptr) {
                     frame->close();
                 }
+
                 QMessageBox::critical(nullptr, "", e.what());
                 return false;
             }
@@ -589,16 +576,20 @@ namespace TrenchBroom {
 #endif
         }
 
-        void TrenchBroomApp::showWelcomeWindow() {
+        bool TrenchBroomApp::showWelcomeWindow() {
             if (m_welcomeWindow == nullptr) {
                 // must be initialized after m_recentDocuments!
                 m_welcomeWindow = std::make_unique<WelcomeWindow>();
             }
+            const auto wasVisible = m_welcomeWindow->isVisible();
             m_welcomeWindow->show();
+            return !wasVisible;
         }
 
-        void TrenchBroomApp::hideWelcomeWindow() {
+        bool TrenchBroomApp::hideWelcomeWindow() {
+            const auto wasVisible = m_welcomeWindow->isVisible();
             m_welcomeWindow->hide();
+            return wasVisible;
         }
     }
 }

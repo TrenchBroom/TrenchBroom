@@ -52,6 +52,7 @@
 #include "View/InfoPanel.h"
 #include "View/Inspector.h"
 #include "View/LaunchGameEngineDialog.h"
+#include "View/MainMenuBuilder.h"
 #include "View/MapDocument.h"
 #include "View/RenderView.h"
 #include "View/ReplaceTextureDialog.h"
@@ -225,87 +226,20 @@ namespace TrenchBroom {
             setWindowFilePath(QString::fromStdString(m_document->path().asString()));
         }
 
-        QAction* MapFrame::findOrCreateQAction(const Action* tAction) {
-            // Check if it already exists
-            {
-                auto it = m_actionMap.find(tAction);
-                if (it != m_actionMap.end()) {
-                    return it->second;
-                }
-            }
-
-            QAction* qAction = new QAction(QString::fromStdString(tAction->name()), this);
-            qAction->setCheckable(tAction->checkable());
-            if (tAction->hasIcon()) {
-                qAction->setIcon(IO::loadIconResourceQt(tAction->iconPath()));
-            }
-
-            connect(qAction, &QAction::triggered, this, [this, tAction](){
-                this->triggerAction(*tAction);
+        void MapFrame::createMenus() {
+            MainMenuBuilder menuBuilder(*menuBar(), m_actionMap, [this](const Action& action) {
+                ActionExecutionContext context(this, currentMapViewBase());
+                action.execute(context);
             });
 
-            m_actionMap[tAction] = qAction;
-            return qAction;
-        }
-
-        class MapFrame::MenuBuilder : public MenuVisitor {
-        private:
-            MapFrame* m_frame;
-            QMenuBar* m_menuBar;
-            QMenu* m_currentMenu;
-        public:
-            explicit MenuBuilder(MapFrame* frame) :
-            m_frame(frame),
-            m_menuBar(m_frame->menuBar()),
-            m_currentMenu(nullptr) {
-                assert(m_frame != nullptr);
-                assert(m_menuBar != nullptr);
-            }
-
-            void visit(const Menu& menu) override {
-                auto* parentMenu = m_currentMenu;
-                if (m_currentMenu == nullptr) {
-                    // top level menu
-                    m_currentMenu = m_menuBar->addMenu(QString::fromStdString(menu.name()));
-                } else {
-                    m_currentMenu = m_currentMenu->addMenu(QString::fromStdString(menu.name()));
-                }
-
-                if (menu.entryType() == MenuEntryType::Menu_RecentDocuments) {
-                    m_frame->m_recentDocumentsMenu = m_currentMenu;
-                }
-
-                menu.visitEntries(*this);
-                m_currentMenu = parentMenu;
-            }
-
-            void visit(const MenuSeparatorItem& item) override {
-                assert(m_currentMenu != nullptr);
-                m_currentMenu->addSeparator();
-            }
-
-            void visit(const MenuActionItem& item) override {
-                assert(m_currentMenu != nullptr);
-                const auto& tAction = item.action();
-                QAction* qAction = m_frame->findOrCreateQAction(&tAction);
-                m_currentMenu->addAction(qAction);
-
-                if (item.entryType() == MenuEntryType::Menu_Undo) {
-                    m_frame->m_undoAction = qAction;
-                } else if (item.entryType() == MenuEntryType::Menu_Redo) {
-                    m_frame->m_redoAction = qAction;
-                } else if (item.entryType() == MenuEntryType::Menu_Paste) {
-                    m_frame->m_pasteAction = qAction;
-                } else if (item.entryType() == MenuEntryType::Menu_PasteAtOriginalPosition) {
-                    m_frame->m_pasteAtOriginalPositionAction = qAction;
-                }
-            }
-        };
-
-        void MapFrame::createMenus() {
-            MenuBuilder menuBuilder(this);
             const auto& actionManager = ActionManager::instance();
             actionManager.visitMainMenu(menuBuilder);
+
+            m_recentDocumentsMenu = menuBuilder.recentDocumentsMenu;
+            m_undoAction = menuBuilder.undoAction;
+            m_redoAction = menuBuilder.redoAction;
+            m_pasteAction = menuBuilder.pasteAction;
+            m_pasteAtOriginalPositionAction = menuBuilder.pasteAtOriginalPositionAction;
 
             addRecentDocumentsMenu();
         }
@@ -449,30 +383,26 @@ namespace TrenchBroom {
             restoreWindowState(m_vSplitter);
         }
 
-        class MapFrame::ToolBarBuilder : public MenuVisitor {
+        class MapFrame::ToolBarBuilder : public MenuBuilderBase, public MenuVisitor {
         private:
-            MapFrame* m_frame;
-            QToolBar* m_toolBar;
+            QToolBar& m_toolBar;
         public:
-            explicit ToolBarBuilder(MapFrame* frame, QToolBar* toolBar) :
-                m_frame(frame),
-                m_toolBar(toolBar) {
-                assert(m_frame != nullptr);
-                assert(m_toolBar != nullptr);
-            }
+            explicit ToolBarBuilder(QToolBar& toolBar, ActionMap& actions, const TriggerFn& triggerFn) :
+            MenuBuilderBase(actions, triggerFn),
+            m_toolBar(toolBar) {}
 
             void visit(const Menu& menu) override {
                 menu.visitEntries(*this);
             }
 
             void visit(const MenuSeparatorItem& item) override {
-                m_toolBar->addSeparator();
+                m_toolBar.addSeparator();
             }
 
             void visit(const MenuActionItem& item) override {
                 const auto& tAction = item.action();
-                QAction* qAction = m_frame->findOrCreateQAction(&tAction);
-                m_toolBar->addAction(qAction);
+                QAction* qAction = findOrCreateQAction(&tAction);
+                m_toolBar.addAction(qAction);
             }
         };
 
@@ -482,7 +412,11 @@ namespace TrenchBroom {
             toolBar->setFloatable(false);
             toolBar->setMovable(false);
 
-            ToolBarBuilder builder(this, toolBar);
+            ToolBarBuilder builder(*toolBar, m_actionMap, [this](const Action& action) {
+                ActionExecutionContext context(this, currentMapViewBase());
+                action.execute(context);
+            });
+
             auto& actionManager = ActionManager::instance();
             actionManager.visitToolBarActions(builder);
 
@@ -738,11 +672,6 @@ namespace TrenchBroom {
             connect(m_gridChoice, QOverload<int>::of(&QComboBox::activated), this, [this](const int index) { setGridSize(index + Grid::MinSize); });
 
             connect(QApplication::clipboard(), &QClipboard::dataChanged, this, &MapFrame::updatePasteActions);
-        }
-
-        void MapFrame::triggerAction(const Action& action) {
-            ActionExecutionContext context(this, currentMapViewBase());
-            action.execute(context);
         }
 
         bool MapFrame::newDocument(Model::GameSPtr game, const Model::MapFormat mapFormat) {

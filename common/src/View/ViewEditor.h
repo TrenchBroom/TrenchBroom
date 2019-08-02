@@ -59,12 +59,11 @@ namespace TrenchBroom {
             EntityDefinitionCheckBoxList(Assets::EntityDefinitionManager& entityDefinitionManager, Model::EditorContext& editorContext, QWidget* parent = nullptr);
 
             void refresh();
-
-            // FIXME: turn into slots, rename to camelCase, remove "on" prefix
-            void OnGroupCheckBoxChanged(size_t groupIndex, bool checked);
-            void OnDefCheckBoxChanged(const Assets::EntityDefinition* definition, bool checked);
-            void OnShowAllClicked();
-            void OnHideAllClicked();
+        private slots:
+            void groupCheckBoxChanged(size_t groupIndex, bool checked);
+            void defCheckBoxChanged(const Assets::EntityDefinition* definition, bool checked);
+            void showAllClicked();
+            void hideAllClicked();
         private:
             void hideAll(bool hidden);
             void createGui();

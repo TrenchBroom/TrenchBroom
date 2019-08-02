@@ -117,13 +117,8 @@ namespace TrenchBroom {
         }
 
         void WelcomeWindow::createNewDocument() {
-            hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
-            if (app.newDocument()) {
-                hide();
-            } else {
-                show();
-            }
+            app.newDocument();
         }
 
         void WelcomeWindow::openOtherDocument() {
@@ -136,13 +131,8 @@ namespace TrenchBroom {
         }
 
         void WelcomeWindow::openDocument(const IO::Path& path) {
-            hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
-            if (app.openDocument(path)) {
-                hide();
-            } else {
-                show();
-            }
+            app.openDocument(path);
         }
     }
 }

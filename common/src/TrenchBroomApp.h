@@ -91,8 +91,8 @@ namespace TrenchBroom {
             bool openFilesOrWelcomeFrame(const QStringList& fileNames);
         private:
             static bool useSDI();
-            void showWelcomeWindow();
-            void hideWelcomeWindow();
+            bool showWelcomeWindow();
+            bool hideWelcomeWindow();
         };
 
         void setCrashReportGUIEnbled(bool guiEnabled);

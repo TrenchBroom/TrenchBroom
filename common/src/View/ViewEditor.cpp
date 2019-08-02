@@ -85,7 +85,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityDefinitionCheckBoxList::OnGroupCheckBoxChanged(const size_t groupIndex, const bool checked) {
+        void EntityDefinitionCheckBoxList::groupCheckBoxChanged(size_t groupIndex, bool checked) {
             const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
             ensure(groupIndex < m_entityDefinitionManager.groups().size(), "index out of range");
             const Assets::EntityDefinitionGroup& group = groups[groupIndex];
@@ -99,16 +99,16 @@ namespace TrenchBroom {
             refresh();
         }
 
-        void EntityDefinitionCheckBoxList::OnDefCheckBoxChanged(const Assets::EntityDefinition* definition, const bool checked) {
+        void EntityDefinitionCheckBoxList::defCheckBoxChanged(const Assets::EntityDefinition* definition, bool checked) {
             m_editorContext.setEntityDefinitionHidden(definition, !checked);
             refresh();
         }
 
-        void EntityDefinitionCheckBoxList::OnShowAllClicked() {
+        void EntityDefinitionCheckBoxList::showAllClicked() {
             hideAll(false);
         }
 
-        void EntityDefinitionCheckBoxList::OnHideAllClicked() {
+        void EntityDefinitionCheckBoxList::hideAllClicked() {
             hideAll(true);
         }
 
@@ -140,7 +140,7 @@ namespace TrenchBroom {
                 auto* groupCB = new QCheckBox(QString::fromStdString(groupName));
                 makeEmphasized(groupCB);
                 connect(groupCB, &QAbstractButton::clicked, this, [this, i](bool checked){
-                    this->OnGroupCheckBoxChanged(i, checked);
+                    this->groupCheckBoxChanged(i, checked);
                 });
                 m_groupCheckBoxes.push_back(groupCB);
 
@@ -155,7 +155,7 @@ namespace TrenchBroom {
                     defCB->setStyleSheet("margin-left: 11px");
 
                     connect(defCB, &QAbstractButton::clicked, this, [this, definition](bool checked){
-                        this->OnDefCheckBoxChanged(definition, checked);
+                        this->defCheckBoxChanged(definition, checked);
                     });
 
                     m_defCheckBoxes.push_back(defCB);
@@ -176,8 +176,8 @@ namespace TrenchBroom {
             auto* hideAllButton = new QPushButton(tr("Hide all"));
             makeEmphasized(hideAllButton);
 
-            connect(showAllButton, &QAbstractButton::clicked, this, &EntityDefinitionCheckBoxList::OnShowAllClicked);
-            connect(hideAllButton, &QAbstractButton::clicked, this, &EntityDefinitionCheckBoxList::OnHideAllClicked);
+            connect(showAllButton, &QAbstractButton::clicked, this, &EntityDefinitionCheckBoxList::showAllClicked);
+            connect(hideAllButton, &QAbstractButton::clicked, this, &EntityDefinitionCheckBoxList::hideAllClicked);
 
             auto* buttonLayout = new QHBoxLayout();
             buttonLayout->setContentsMargins(0, 0, 0, 0);
