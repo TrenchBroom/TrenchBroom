@@ -568,28 +568,34 @@ namespace TrenchBroom {
             return true;
         }
 
+        void TrenchBroomApp::showWelcomeWindow() {
+            if (m_welcomeWindow == nullptr) {
+                // must be initialized after m_recentDocuments!
+                m_welcomeWindow = std::make_unique<WelcomeWindow>();
+            }
+            m_welcomeWindow->show();
+        }
+
+        void TrenchBroomApp::hideWelcomeWindow() {
+            m_welcomeWindow->hide();
+            if (quitOnLastWindowClosed() && m_frameManager->allFramesClosed()) {
+                closeWelcomeWindow();
+            }
+        }
+
+        void TrenchBroomApp::closeWelcomeWindow() {
+            if (m_welcomeWindow != nullptr) {
+                m_welcomeWindow->close();
+                m_welcomeWindow = nullptr;
+            }
+        }
+
         bool TrenchBroomApp::useSDI() {
 #ifdef _WIN32
             return true;
 #else
             return false;
 #endif
-        }
-
-        bool TrenchBroomApp::showWelcomeWindow() {
-            if (m_welcomeWindow == nullptr) {
-                // must be initialized after m_recentDocuments!
-                m_welcomeWindow = std::make_unique<WelcomeWindow>();
-            }
-            const auto wasVisible = m_welcomeWindow->isVisible();
-            m_welcomeWindow->show();
-            return !wasVisible;
-        }
-
-        bool TrenchBroomApp::hideWelcomeWindow() {
-            const auto wasVisible = m_welcomeWindow->isVisible();
-            m_welcomeWindow->hide();
-            return wasVisible;
         }
     }
 }

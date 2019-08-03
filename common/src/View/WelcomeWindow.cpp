@@ -47,7 +47,9 @@ namespace TrenchBroom {
 
         void WelcomeWindow::closeEvent(QCloseEvent* event) {
             event->ignore();
-            hide();
+
+            auto& app = TrenchBroomApp::instance();
+            app.hideWelcomeWindow();
         }
 
         void WelcomeWindow::createGui() {

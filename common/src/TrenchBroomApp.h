@@ -89,10 +89,12 @@ namespace TrenchBroom {
             bool event(QEvent* event) override;
 #endif
             bool openFilesOrWelcomeFrame(const QStringList& fileNames);
+        public:
+            void showWelcomeWindow();
+            void hideWelcomeWindow();
+            void closeWelcomeWindow();
         private:
             static bool useSDI();
-            bool showWelcomeWindow();
-            bool hideWelcomeWindow();
         };
 
         void setCrashReportGUIEnbled(bool guiEnabled);

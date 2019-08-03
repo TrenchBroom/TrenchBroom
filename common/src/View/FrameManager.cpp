@@ -21,6 +21,7 @@
 
 #include "Exceptions.h"
 #include "Macros.h"
+#include "TrenchBroomApp.h"
 #include "View/AboutDialog.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
@@ -70,13 +71,13 @@ namespace TrenchBroom {
             auto* frame = dynamic_cast<MapFrame*>(now->window());
             if (frame != nullptr) {
                 auto it = std::find(std::begin(m_frames), std::end(m_frames), frame);
-                
+
                 // Focus can switch to a frame after FrameManager::removeFrame is called,
                 // in that case just ignore the focus change.
                 if (it == std::end(m_frames)) {
                     return;
                 }
-                
+
                 if (it != std::begin(m_frames)) {
                     assert(topFrame() != frame);
                     m_frames.erase(it);
@@ -127,6 +128,7 @@ namespace TrenchBroom {
             m_frames.erase(it);
             if (m_frames.empty() || qApp->quitOnLastWindowClosed()) {
                 AboutDialog::closeAboutDialog();
+                TrenchBroomApp::instance().closeWelcomeWindow();
             }
 
             // MapFrame uses Qt::WA_DeleteOnClose so we don't need to delete it here
