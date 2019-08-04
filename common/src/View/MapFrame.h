@@ -103,9 +103,6 @@ namespace TrenchBroom {
             MapDocumentSPtr document() const;
         public: // getters and such
             Logger& logger() const;
-        protected:
-            void dragEnterEvent(QDragEnterEvent* event) override;
-            void dropEvent(QDropEvent* event) override;
         private: // title bar contents
             void updateTitle();
         private: // menu bar

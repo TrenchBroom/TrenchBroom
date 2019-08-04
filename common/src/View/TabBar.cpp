@@ -22,6 +22,7 @@
 #include "Macros.h"
 #include "View/TabBook.h"
 #include "View/ViewConstants.h"
+#include "View/wxUtils.h"
 
 #include <QHBoxLayout>
 #include <QStackedLayout>
@@ -36,10 +37,7 @@ namespace TrenchBroom {
         TabBarButton::TabBarButton(const QString& label, QWidget* parent) :
         QLabel(label, parent),
         m_pressed(false) {
-            QFont boldFont = font();
-            boldFont.setBold(true);
-
-            setFont(boldFont);
+            makeEmphasized(this);
         }
 
         void TabBarButton::setPressed(const bool pressed) {
@@ -59,6 +57,7 @@ namespace TrenchBroom {
                 pal.setColor(QPalette::WindowText, Colors::defaultText());
             }
             setPalette(pal);
+            repaint(); // on macOS, the label's don't repaint automatically for some reason
         }
 
         // TabBar

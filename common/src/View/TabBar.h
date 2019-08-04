@@ -34,7 +34,6 @@ namespace TrenchBroom {
         class TabBook;
         class TabBookPage;
 
-        // FIXME: current tab button is not updated properly on macOS
         class TabBarButton : public QLabel {
             Q_OBJECT
         private:

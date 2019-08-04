@@ -200,26 +200,6 @@ namespace TrenchBroom {
             return *m_console;
         }
 
-        void MapFrame::dragEnterEvent(QDragEnterEvent* event) {
-            // FIXME: Also need this for MapViewBase, and the texture / entity browser too maybe.
-            // See if it can be factored out into an event filter object?
-            if (event->mimeData()->hasUrls()) {
-                event->acceptProposedAction();
-            }
-        }
-
-        void MapFrame::dropEvent(QDropEvent* event) {
-            const QMimeData* mimeData = event->mimeData();
-
-            for (const QUrl& url : mimeData->urls()) {
-               const QString qString = url.toLocalFile();
-
-               loadTextureCollection(m_document, this, qString);
-               loadEntityDefinitionFile(m_document, this, qString);
-            }
-            event->acceptProposedAction();
-        }
-
         void MapFrame::updateTitle() {
             setWindowModified(m_document->modified());
             setWindowTitle(QString::fromStdString(m_document->filename()) + QString("[*] - TrenchBroom"));
@@ -251,8 +231,6 @@ namespace TrenchBroom {
         }
 
         void MapFrame::updateActionState() {
-            // FIXME: Do we need to do this more fine grained? Right now we just update all actions whenever anything
-            // changes.
             ActionExecutionContext context(this, currentMapViewBase());
             for (auto [tAction, qAction] : m_actionMap) {
                 if (qAction == m_undoAction || qAction == m_redoAction ||

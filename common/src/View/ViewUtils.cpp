@@ -45,14 +45,12 @@ namespace TrenchBroom {
             }
         }
 
-        bool loadTextureCollection(MapDocumentWPtr document, QWidget* parent, const QString& wxPath) {
-            QStringList wxPaths;
-            wxPaths.append(wxPath);
-            return loadTextureCollections(document, parent, wxPaths) == 1;
+        bool loadTextureCollection(MapDocumentWPtr document, QWidget* parent, const QString& path) {
+            return loadTextureCollections(document, parent, { path }) == 1;
         }
 
-        size_t loadTextureCollections(MapDocumentWPtr i_document, QWidget* parent, const QStringList& wxPaths) {
-            if (wxPaths.empty()) {
+        size_t loadTextureCollections(MapDocumentWPtr i_document, QWidget* parent, const QStringList& pathStrs) {
+            if (pathStrs.empty()) {
                 return 0;
             }
 
@@ -66,9 +64,9 @@ namespace TrenchBroom {
             const IO::Path gamePath = gameFactory.gamePath(game->gameName());
             const IO::Path docPath = document->path();
 
-            for (int i = 0; i < wxPaths.size(); ++i) {
-                const QString& wxPath = wxPaths[i];
-                const IO::Path absPath(wxPath.toStdString());
+            for (int i = 0; i < pathStrs.size(); ++i) {
+                const QString& pathStr = pathStrs[i];
+                const IO::Path absPath(pathStr.toStdString());
                 if (game->isTextureCollection(absPath)) {
                     ChoosePathTypeDialog pathDialog(parent->window(), absPath, docPath, gamePath);
                     const int result = pathDialog.exec();
@@ -86,15 +84,14 @@ namespace TrenchBroom {
             return count;
         }
 
-        bool loadEntityDefinitionFile(MapDocumentWPtr document, QWidget* parent, const QString& wxPath) {
-            QStringList wxPaths;
-            wxPaths.append(wxPath);
-            return loadEntityDefinitionFile(document, parent, wxPaths) == 0;
+        bool loadEntityDefinitionFile(MapDocumentWPtr document, QWidget* parent, const QString& path) {
+            return loadEntityDefinitionFile(document, parent, { path }) == 0;
         }
 
-        size_t loadEntityDefinitionFile(MapDocumentWPtr i_document, QWidget* parent, const QStringList& wxPaths) {
-            if (wxPaths.empty())
+        size_t loadEntityDefinitionFile(MapDocumentWPtr i_document, QWidget* parent, const QStringList& pathStrs) {
+            if (pathStrs.empty()) {
                 return 0;
+            }
 
             MapDocumentSPtr document = lock(i_document);
             Model::GameSPtr game = document->game();
@@ -103,9 +100,9 @@ namespace TrenchBroom {
             const IO::Path docPath = document->path();
 
             try {
-                for (int i = 0; i < wxPaths.size(); ++i) {
-                    const QString& wxPath = wxPaths[i];
-                    const IO::Path absPath(wxPath.toStdString());
+                for (int i = 0; i < pathStrs.size(); ++i) {
+                    const QString& pathStr = pathStrs[i];
+                    const IO::Path absPath(pathStr.toStdString());
                     if (game->isEntityDefinitionFile(absPath)) {
                         ChoosePathTypeDialog pathDialog(parent->window(), absPath, docPath, gamePath);
                         if (pathDialog.exec() == QDialog::Accepted) {
@@ -119,7 +116,7 @@ namespace TrenchBroom {
                 throw;
             }
 
-            return static_cast<size_t>(wxPaths.size());
+            return static_cast<size_t>(pathStrs.size());
         }
 
         String queryGroupName(QWidget* parent) {
