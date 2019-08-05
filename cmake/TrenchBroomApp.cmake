@@ -3,8 +3,7 @@ INCLUDE(cmake/GenerateManual.cmake)
 SET(APP_DIR "${CMAKE_SOURCE_DIR}/app")
 SET(APP_SOURCE_DIR "${APP_DIR}/src")
 
-# Collect the source files for compilation.
-FILE(GLOB_RECURSE APP_SOURCE
+SET(APP_SOURCE
     "${APP_SOURCE_DIR}/Main.cpp"
 )
 

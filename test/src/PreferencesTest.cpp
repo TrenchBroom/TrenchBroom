@@ -26,6 +26,7 @@
 #include <optional-lite/optional.hpp>
 
 #include "PreferenceManager.h"
+#include "QtPrettyPrinters.h"
 
 namespace TrenchBroom {
     static QString getValue(const std::map<QString, std::map<QString, QString>>& map,
@@ -77,8 +78,6 @@ namespace TrenchBroom {
     static void testSerializedDeserializedPair(const QString& str, const PrimitiveType& value) {
         const PrimitiveType testDeserialize = maybeDeserialize<PreferenceSerializerV1, PrimitiveType>(str).value();
         const QString testSerialize = serialize<Serializer, PrimitiveType>(value);
-
-        qDebug() << testSerialize;
         
         EXPECT_EQ(value, testDeserialize);
         EXPECT_EQ(str, testSerialize);
@@ -111,7 +110,17 @@ namespace TrenchBroom {
     }
 
     TEST(PreferencesTest, serializeV1Path) {
+#ifdef _WIN32
         testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral("c:\\foo\\bar"), IO::Path("c:\\foo\\bar"));
+        testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral("c:\\foo\\bar"), IO::Path("c:/foo/bar"));
+        testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral("\\home\\foo\\bar"), IO::Path("/home/foo/bar"));
+        testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral("\\home\\foo\\bar"), IO::Path("\\home\\foo\\bar"));
+#else
+        testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral("c:/foo/bar"), IO::Path("c:\\foo\\bar"));
+        testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral("c:/foo/bar"), IO::Path("c:/foo/bar"));
+        testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral("/home/foo/bar"), IO::Path("/home/foo/bar"));
+        testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral("/home/foo/bar"), IO::Path("\\home\\foo\\bar"));
+#endif
         testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral(""), IO::Path());
     }
 
