@@ -41,6 +41,30 @@ namespace TrenchBroom {
         class Path;
     }
 
+    /**
+     * Used by wxWidgets versions of TB
+     */
+    class PreferenceSerializerV1 {
+    public:
+        virtual bool readFromString(const QString& in, bool* out);
+        virtual bool readFromString(const QString& in, Color* out);
+        virtual bool readFromString(const QString& in, float* out);
+        virtual bool readFromString(const QString& in, int* out);
+        virtual bool readFromString(const QString& in, IO::Path* out);
+        virtual bool readFromString(const QString& in, View::KeyboardShortcut* out);
+
+        virtual void writeToString(QTextStream& stream, const bool in);
+        virtual void writeToString(QTextStream& stream, const Color& in);
+        virtual void writeToString(QTextStream& stream, const float in);
+        virtual void writeToString(QTextStream& stream, const int in);
+        virtual void writeToString(QTextStream& stream, const IO::Path& in);
+        virtual void writeToString(QTextStream& stream, const View::KeyboardShortcut& in);
+    };
+
+    class PreferenceSerializerV2 : public PreferenceSerializerV1 {
+        
+    };
+
     class PreferenceManager {
     private:
         using UnsavedPreferences = std::set<PreferenceBase*>;

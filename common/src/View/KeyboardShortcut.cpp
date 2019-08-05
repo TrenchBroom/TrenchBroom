@@ -20,6 +20,14 @@
 #include "KeyboardShortcut.h"
 
 #include <QKeyEvent>
+#include <QTextStream>
+#include <QString>
+#include <QThread>
+#include <QGuiApplication>
+
+#include "Ensure.h"
+
+#include <unordered_map>
 
 namespace TrenchBroom {
     namespace View {
@@ -38,152 +46,125 @@ namespace TrenchBroom {
             return QKeySequence(m_qtKey);
         }
 
-        int wxModifierToQt(const int wxMod) {
-            const auto wxMOD_ALT         = 0x0001;
-            const auto wxMOD_CONTROL     = 0x0002; // Command key on macOS
-            const auto wxMOD_SHIFT       = 0x0004;
-            const auto wxMOD_META        = 0x0008;
-            const auto wxMOD_RAW_CONTROL = 0x0010; // Control key on macOS
-
-            int result = 0;
-
-            if (wxMod & wxMOD_ALT) {
-                result |= Qt::AltModifier;
-            }
-            if (wxMod & wxMOD_CONTROL) {
-                result |= Qt::ControlModifier;
-            }
-            if (wxMod & wxMOD_SHIFT) {
-                result |= Qt::ShiftModifier;
-            }
-            // Both wxMOD_META and wxMOD_RAW_CONTROL map to Qt::MetaModifier, because wx uses wxMOD_RAW_CONTROL
-            // for the Control key on macOS, and Qt uses Qt::MetaModifier
-            if (wxMod & (wxMOD_META | wxMOD_RAW_CONTROL)) {
-                result |= Qt::MetaModifier;
-            }
-
-            return result;
-        }
+        static constexpr int WXK_BACK = 8;
+        static constexpr int WXK_TAB = 9;
+        static constexpr int WXK_RETURN = 13;
+        static constexpr int WXK_ESCAPE = 27;
+        static constexpr int WXK_SPACE = 32;
+        static constexpr int WXK_DELETE = 127;
+        static constexpr int WXK_START = 300;
+        static constexpr int WXK_LBUTTON = 301;
+        static constexpr int WXK_RBUTTON = 302;
+        static constexpr int WXK_CANCEL = 303;
+        static constexpr int WXK_MBUTTON = 304;
+        static constexpr int WXK_CLEAR = 305;
+        static constexpr int WXK_SHIFT = 306;
+        static constexpr int WXK_ALT = 307;
+        static constexpr int WXK_CONTROL = 308;
+        static constexpr int WXK_MENU = 309;
+        static constexpr int WXK_PAUSE = 310;
+        static constexpr int WXK_CAPITAL = 311;
+        static constexpr int WXK_END = 312;
+        static constexpr int WXK_HOME = 313;
+        static constexpr int WXK_LEFT = 314;
+        static constexpr int WXK_UP = 315;
+        static constexpr int WXK_RIGHT = 316;
+        static constexpr int WXK_DOWN = 317;
+        static constexpr int WXK_SELECT = 318;
+        static constexpr int WXK_PRINT = 319;
+        static constexpr int WXK_EXECUTE = 320;
+        static constexpr int WXK_SNAPSHOT = 321;
+        static constexpr int WXK_INSERT = 322;
+        static constexpr int WXK_HELP = 323;
+        static constexpr int WXK_NUMPAD0 = 324;
+        static constexpr int WXK_NUMPAD1 = 325;
+        static constexpr int WXK_NUMPAD2 = 326;
+        static constexpr int WXK_NUMPAD3 = 327;
+        static constexpr int WXK_NUMPAD4 = 328;
+        static constexpr int WXK_NUMPAD5 = 329;
+        static constexpr int WXK_NUMPAD6 = 330;
+        static constexpr int WXK_NUMPAD7 = 331;
+        static constexpr int WXK_NUMPAD8 = 332;
+        static constexpr int WXK_NUMPAD9 = 333;
+        static constexpr int WXK_MULTIPLY = 334;
+        static constexpr int WXK_ADD = 335;
+        static constexpr int WXK_SEPARATOR = 336;
+        static constexpr int WXK_SUBTRACT = 337;
+        static constexpr int WXK_DECIMAL = 338;
+        static constexpr int WXK_DIVIDE = 339;
+        static constexpr int WXK_F1 = 340;
+        static constexpr int WXK_F2 = 341;
+        static constexpr int WXK_F3 = 342;
+        static constexpr int WXK_F4 = 343;
+        static constexpr int WXK_F5 = 344;
+        static constexpr int WXK_F6 = 345;
+        static constexpr int WXK_F7 = 346;
+        static constexpr int WXK_F8 = 347;
+        static constexpr int WXK_F9 = 348;
+        static constexpr int WXK_F10 = 349;
+        static constexpr int WXK_F11 = 350;
+        static constexpr int WXK_F12 = 351;
+        static constexpr int WXK_F13 = 352;
+        static constexpr int WXK_F14 = 353;
+        static constexpr int WXK_F15 = 354;
+        static constexpr int WXK_F16 = 355;
+        static constexpr int WXK_F17 = 356;
+        static constexpr int WXK_F18 = 357;
+        static constexpr int WXK_F19 = 358;
+        static constexpr int WXK_F20 = 359;
+        static constexpr int WXK_F21 = 360;
+        static constexpr int WXK_F22 = 361;
+        static constexpr int WXK_F23 = 362;
+        static constexpr int WXK_F24 = 363;
+        static constexpr int WXK_NUMLOCK = 364;
+        static constexpr int WXK_SCROLL = 365;
+        static constexpr int WXK_PAGEUP = 366;
+        static constexpr int WXK_PAGEDOWN = 367;
+        static constexpr int WXK_NUMPAD_SPACE = 368;
+        static constexpr int WXK_NUMPAD_TAB = 369;
+        static constexpr int WXK_NUMPAD_ENTER = 370;
+        static constexpr int WXK_NUMPAD_F1 = 371;
+        static constexpr int WXK_NUMPAD_F2 = 372;
+        static constexpr int WXK_NUMPAD_F3 = 373;
+        static constexpr int WXK_NUMPAD_F4 = 374;
+        static constexpr int WXK_NUMPAD_HOME = 375;
+        static constexpr int WXK_NUMPAD_LEFT = 376;
+        static constexpr int WXK_NUMPAD_UP = 377;
+        static constexpr int WXK_NUMPAD_RIGHT = 378;
+        static constexpr int WXK_NUMPAD_DOWN = 379;
+        static constexpr int WXK_NUMPAD_PAGEUP = 380;
+        static constexpr int WXK_NUMPAD_PAGEDOWN = 381;
+        static constexpr int WXK_NUMPAD_END = 382;
+        static constexpr int WXK_NUMPAD_BEGIN = 383;
+        static constexpr int WXK_NUMPAD_INSERT = 384;
+        static constexpr int WXK_NUMPAD_DELETE = 385;
+        static constexpr int WXK_NUMPAD_EQUAL = 386;
+        static constexpr int WXK_NUMPAD_MULTIPLY = 387;
+        static constexpr int WXK_NUMPAD_ADD = 388;
+        static constexpr int WXK_NUMPAD_SEPARATOR = 389;
+        static constexpr int WXK_NUMPAD_SUBTRACT = 390;
+        static constexpr int WXK_NUMPAD_DECIMAL = 391;
+        static constexpr int WXK_NUMPAD_DIVIDE = 392;
+        static constexpr int WXK_WINDOWS_LEFT = 393;
+        static constexpr int WXK_WINDOWS_RIGHT = 394;
+        static constexpr int WXK_WINDOWS_MENU = 395;
+        static constexpr int WXK_BROWSER_BACK = 417;
+        static constexpr int WXK_BROWSER_FORWARD = 418;
+        static constexpr int WXK_BROWSER_REFRESH = 419;
+        static constexpr int WXK_BROWSER_STOP = 420;
+        static constexpr int WXK_BROWSER_SEARCH = 421;
+        static constexpr int WXK_BROWSER_FAVORITES = 422;
+        static constexpr int WXK_BROWSER_HOME = 423;
+        static constexpr int WXK_VOLUME_MUTE = 424;
+        static constexpr int WXK_VOLUME_DOWN = 425;
+        static constexpr int WXK_VOLUME_UP = 426;
+        static constexpr int WXK_MEDIA_NEXT_TRACK = 427;
+        static constexpr int WXK_MEDIA_PREV_TRACK = 428;
+        static constexpr int WXK_MEDIA_STOP = 429;
+        static constexpr int WXK_MEDIA_PLAY_PAUSE = 430;
+        static constexpr int WXK_LAUNCH_MAIL = 431;
 
         int wxKeyToQt(const int wxKey) {
-            const auto WXK_BACK = 8;
-            const auto WXK_TAB = 9;
-            const auto WXK_RETURN = 13;
-            const auto WXK_ESCAPE = 27;
-            const auto WXK_SPACE = 32;
-            const auto WXK_DELETE = 127;
-            const auto WXK_START = 300;
-            const auto WXK_LBUTTON = 301;
-            const auto WXK_RBUTTON = 302;
-            const auto WXK_CANCEL = 303;
-            const auto WXK_MBUTTON = 304;
-            const auto WXK_CLEAR = 305;
-            const auto WXK_SHIFT = 306;
-            const auto WXK_ALT = 307;
-            const auto WXK_CONTROL = 308;
-            const auto WXK_MENU = 309;
-            const auto WXK_PAUSE = 310;
-            const auto WXK_CAPITAL = 311;
-            const auto WXK_END = 312;
-            const auto WXK_HOME = 313;
-            const auto WXK_LEFT = 314;
-            const auto WXK_UP = 315;
-            const auto WXK_RIGHT = 316;
-            const auto WXK_DOWN = 317;
-            const auto WXK_SELECT = 318;
-            const auto WXK_PRINT = 319;
-            const auto WXK_EXECUTE = 320;
-            const auto WXK_SNAPSHOT = 321;
-            const auto WXK_INSERT = 322;
-            const auto WXK_HELP = 323;
-            const auto WXK_NUMPAD0 = 324;
-            const auto WXK_NUMPAD1 = 325;
-            const auto WXK_NUMPAD2 = 326;
-            const auto WXK_NUMPAD3 = 327;
-            const auto WXK_NUMPAD4 = 328;
-            const auto WXK_NUMPAD5 = 329;
-            const auto WXK_NUMPAD6 = 330;
-            const auto WXK_NUMPAD7 = 331;
-            const auto WXK_NUMPAD8 = 332;
-            const auto WXK_NUMPAD9 = 333;
-            const auto WXK_MULTIPLY = 334;
-            const auto WXK_ADD = 335;
-            const auto WXK_SEPARATOR = 336;
-            const auto WXK_SUBTRACT = 337;
-            const auto WXK_DECIMAL = 338;
-            const auto WXK_DIVIDE = 339;
-            const auto WXK_F1 = 340;
-            const auto WXK_F2 = 341;
-            const auto WXK_F3 = 342;
-            const auto WXK_F4 = 343;
-            const auto WXK_F5 = 344;
-            const auto WXK_F6 = 345;
-            const auto WXK_F7 = 346;
-            const auto WXK_F8 = 347;
-            const auto WXK_F9 = 348;
-            const auto WXK_F10 = 349;
-            const auto WXK_F11 = 350;
-            const auto WXK_F12 = 351;
-            const auto WXK_F13 = 352;
-            const auto WXK_F14 = 353;
-            const auto WXK_F15 = 354;
-            const auto WXK_F16 = 355;
-            const auto WXK_F17 = 356;
-            const auto WXK_F18 = 357;
-            const auto WXK_F19 = 358;
-            const auto WXK_F20 = 359;
-            const auto WXK_F21 = 360;
-            const auto WXK_F22 = 361;
-            const auto WXK_F23 = 362;
-            const auto WXK_F24 = 363;
-            const auto WXK_NUMLOCK = 364;
-            const auto WXK_SCROLL = 365;
-            const auto WXK_PAGEUP = 366;
-            const auto WXK_PAGEDOWN = 367;
-            const auto WXK_NUMPAD_SPACE = 368;
-            const auto WXK_NUMPAD_TAB = 369;
-            const auto WXK_NUMPAD_ENTER = 370;
-            const auto WXK_NUMPAD_F1 = 371;
-            const auto WXK_NUMPAD_F2 = 372;
-            const auto WXK_NUMPAD_F3 = 373;
-            const auto WXK_NUMPAD_F4 = 374;
-            const auto WXK_NUMPAD_HOME = 375;
-            const auto WXK_NUMPAD_LEFT = 376;
-            const auto WXK_NUMPAD_UP = 377;
-            const auto WXK_NUMPAD_RIGHT = 378;
-            const auto WXK_NUMPAD_DOWN = 379;
-            const auto WXK_NUMPAD_PAGEUP = 380;
-            const auto WXK_NUMPAD_PAGEDOWN = 381;
-            const auto WXK_NUMPAD_END = 382;
-            const auto WXK_NUMPAD_BEGIN = 383;
-            const auto WXK_NUMPAD_INSERT = 384;
-            const auto WXK_NUMPAD_DELETE = 385;
-            const auto WXK_NUMPAD_EQUAL = 386;
-            const auto WXK_NUMPAD_MULTIPLY = 387;
-            const auto WXK_NUMPAD_ADD = 388;
-            const auto WXK_NUMPAD_SEPARATOR = 389;
-            const auto WXK_NUMPAD_SUBTRACT = 390;
-            const auto WXK_NUMPAD_DECIMAL = 391;
-            const auto WXK_NUMPAD_DIVIDE = 392;
-            const auto WXK_WINDOWS_LEFT = 393;
-            const auto WXK_WINDOWS_RIGHT = 394;
-            const auto WXK_WINDOWS_MENU = 395;
-            const auto WXK_BROWSER_BACK = 417;
-            const auto WXK_BROWSER_FORWARD = 418;
-            const auto WXK_BROWSER_REFRESH = 419;
-            const auto WXK_BROWSER_STOP = 420;
-            const auto WXK_BROWSER_SEARCH = 421;
-            const auto WXK_BROWSER_FAVORITES = 422;
-            const auto WXK_BROWSER_HOME = 423;
-            const auto WXK_VOLUME_MUTE = 424;
-            const auto WXK_VOLUME_DOWN = 425;
-            const auto WXK_VOLUME_UP = 426;
-            const auto WXK_MEDIA_NEXT_TRACK = 427;
-            const auto WXK_MEDIA_PREV_TRACK = 428;
-            const auto WXK_MEDIA_STOP = 429;
-            const auto WXK_MEDIA_PLAY_PAUSE = 430;
-            const auto WXK_LAUNCH_MAIL = 431;
-
             // special cases
             switch (wxKey) {
                 case WXK_BACK: return Qt::Key_Backspace;
@@ -306,17 +287,112 @@ namespace TrenchBroom {
                 default: break;
             }
 
-            // Map lowercase letters to uppercase
-            if (wxKey >= 'a' && wxKey <= 'z') {
-                return 'A' + (wxKey - 'a');
-            }
-
             // Pass through ASCII
             if (wxKey >= 0 && wxKey <= 127) {
                 return wxKey;
             }
 
             return 0;
+        }
+
+        static std::unordered_map<int, int> qtKeyToWxMap() {
+            std::unordered_map<int, int> qtToWx;
+
+            // invert wxKeyToQt()
+            for (int wxKey = 1; wxKey <= WXK_LAUNCH_MAIL; ++wxKey) {
+                const int qtKey = wxKeyToQt(wxKey);
+
+                if (qtKey != 0) {
+                    qtToWx[qtKey] = wxKey;
+                }
+            }
+
+            return qtToWx;
+        }
+
+        int qtKeyToWx(const int qtKey) {
+            ensure(qApp->thread() == QThread::currentThread(), "qtKeyToWx() can only be used on the main thread");
+
+            static std::unordered_map<int, int> qtToWx;
+            if (qtToWx.empty()) {
+                qtToWx = qtKeyToWxMap();
+            }
+
+            auto it = qtToWx.find(qtKey);
+            if (it != qtToWx.end()) {
+                return it->second;
+            }
+            return 0;
+        }
+
+
+        nonstd::optional<KeyboardShortcut> KeyboardShortcut::fromV1Settings(const QString& string) {
+            auto inCopy = QString(string);
+            auto inStream = QTextStream(&inCopy);
+
+            int wxKey, mod1, mod2, mod3;
+            char sep1, sep2, sep3;
+
+            inStream >> wxKey
+                >> sep1
+                >> mod1
+                >> sep2
+                >> mod2
+                >> sep3
+                >> mod3;
+
+            if (sep1 != ':' || sep2 != ':' || sep3 != ':') {
+                return {};
+            }
+            if (inStream.status() != QTextStream::Ok) {
+                return {};
+            }
+
+            auto wxModToQt = [](const int wxMod) {
+                switch (wxMod) {
+                case WXK_SHIFT: return Qt::ShiftModifier;
+                case WXK_CONTROL: return Qt::ControlModifier;
+                case WXK_ALT: return Qt::AltModifier;
+                default: return Qt::NoModifier;
+                }
+            };
+
+            int qtKey = wxKeyToQt(wxKey);
+            qtKey |= wxModToQt(mod1);
+            qtKey |= wxModToQt(mod2);
+            qtKey |= wxModToQt(mod3);
+
+            return { KeyboardShortcut(QKeySequence(qtKey)) };
+        }
+
+        QString KeyboardShortcut::toV1Settings() const {
+            const int qtKeyWithoutModifier = m_qtKey & ~(Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier);
+
+            const int wxKey = qtKeyToWx(qtKeyWithoutModifier);
+
+            std::vector<int> modifiers;
+            if (m_qtKey & Qt::ControlModifier) {
+                modifiers.push_back(WXK_CONTROL);
+            }
+            if (m_qtKey & Qt::AltModifier) {
+                modifiers.push_back(WXK_ALT);
+            }
+            if (m_qtKey & Qt::ShiftModifier) {
+                modifiers.push_back(WXK_SHIFT);
+            }
+            while (modifiers.size() < 3) {
+                modifiers.push_back(0);
+            }
+
+            QString result;
+            QTextStream stream(&result);
+
+            stream << wxKey << ':'
+                << modifiers[0] << ':'
+                << modifiers[1] << ':'
+                << modifiers[2];
+
+            return result;
         }
     }
 }

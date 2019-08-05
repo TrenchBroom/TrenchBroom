@@ -21,6 +21,7 @@
 #define TrenchBroom_KeyboardShortcut
 
 #include <QKeySequence>
+#include <optional-lite/optional.hpp>
 
 class QKeyEvent;
 
@@ -36,10 +37,13 @@ namespace TrenchBroom {
             friend bool operator==(const KeyboardShortcut& lhs, const KeyboardShortcut& rhs);
 
             QKeySequence keySequence() const;
+
+            static nonstd::optional<KeyboardShortcut> fromV1Settings(const QString& string);
+            QString toV1Settings() const;
         };
 
-        int wxModifierToQt(int wxMod);
         int wxKeyToQt(int wxKey);
+        int qtKeyToWx(int qtKey);
     }
 }
 

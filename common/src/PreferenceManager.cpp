@@ -20,6 +20,100 @@
 #include "PreferenceManager.h"
 
 namespace TrenchBroom {
+    // PreferenceSerializerV1
+
+    bool PreferenceSerializerV1::readFromString(const QString& in, bool* out) {
+        if (in == QStringLiteral("1")) {
+            *out = true;
+            return true;
+        } else if (in == QStringLiteral("0")) {
+            *out = false;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool PreferenceSerializerV1::readFromString(const QString& in, Color* out) {
+        const std::string inStdString = in.toStdString();
+
+        if (!Color::canParse(inStdString)) {
+            return false;
+        }
+        
+        *out = Color::parse(inStdString);
+        return true;
+    }
+
+    bool PreferenceSerializerV1::readFromString(const QString& in, float* out) {
+        auto inCopy = QString(in);
+        auto inStream = QTextStream(&inCopy);
+
+        inStream >> *out;
+
+        return (inStream.status() == QTextStream::Ok);
+    }
+
+    bool PreferenceSerializerV1::readFromString(const QString& in, int* out) {
+        auto inCopy = QString(in);
+        auto inStream = QTextStream(&inCopy);
+
+        inStream >> *out;
+
+        return (inStream.status() == QTextStream::Ok);
+    }
+
+    bool PreferenceSerializerV1::readFromString(const QString& in, IO::Path* out) {
+        *out = IO::Path::fromQString(in);
+        return true;
+    }
+
+    bool PreferenceSerializerV1::readFromString(const QString& in, View::KeyboardShortcut* out) {
+        nonstd::optional<View::KeyboardShortcut> result = 
+            View::KeyboardShortcut::fromV1Settings(in);
+        
+        if (!result.has_value()) {
+            return false;
+        }
+        *out = result.value();
+        return true;
+    }
+
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const bool in) {
+        if (in) {
+            stream << "1";
+        } else {
+            stream << "0";
+        }
+    }
+
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const Color& in) {
+        // NOTE: QTextStream's default locale is C, unlike QString::arg()
+        stream << in.r() << " "
+               << in.g() << " "
+               << in.b() << " "
+               << in.a();
+    }
+
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const float in) {
+        stream << in;
+    }
+
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const int in) {
+        stream << in;
+    }
+
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const IO::Path& in) {
+        // NOTE: this serializes with "\" separators on Windows and "/" elsewhere!
+        stream << in.asQString();
+    }
+
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const View::KeyboardShortcut& in) {
+        stream << in.toV1Settings();
+    }
+
+    // PreferenceManager
+
     void PreferenceManager::markAsUnsaved(PreferenceBase* preference) {
         m_unsavedPreferences.insert(preference);
     }
