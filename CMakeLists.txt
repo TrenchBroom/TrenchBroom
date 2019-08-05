@@ -47,6 +47,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # We are using deployment target 10.12 because recent Qt versions (e.g. 5.12) have this as
 # their minimum, see: https://doc.qt.io/qt-5.12/macos.html
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.12)
+IF(APPLE)
+    # macOS includes a broken <optional> header unless the deployment taret is >= 10.14.
+    # This prevents optional-lite from using the system's broken <optional> header.
+    ADD_DEFINITIONS(-Doptional_CONFIG_SELECT_OPTIONAL=optional_OPTIONAL_NONSTD)
+ENDIF()
 
 # Library configuration
 SET(LIB_DIR "${CMAKE_SOURCE_DIR}/lib")
