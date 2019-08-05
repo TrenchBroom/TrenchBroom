@@ -112,6 +112,17 @@ namespace TrenchBroom {
         stream << in.toV1Settings();
     }
 
+    // PreferenceSerializerV2
+
+    bool PreferenceSerializerV2::readFromString(const QString& in, View::KeyboardShortcut* out) {
+        *out = View::KeyboardShortcut(QKeySequence(in, QKeySequence::PortableText));
+        return true;
+    }
+
+    void PreferenceSerializerV2::writeToString(QTextStream& stream, const View::KeyboardShortcut& in) {
+        stream << in.keySequence().toString(QKeySequence::PortableText);
+    }
+
     // PreferenceManager
 
     void PreferenceManager::markAsUnsaved(PreferenceBase* preference) {

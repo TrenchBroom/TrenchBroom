@@ -46,6 +46,8 @@ namespace TrenchBroom {
      */
     class PreferenceSerializerV1 {
     public:
+        virtual ~PreferenceSerializerV1() = default;
+
         virtual bool readFromString(const QString& in, bool* out);
         virtual bool readFromString(const QString& in, Color* out);
         virtual bool readFromString(const QString& in, float* out);
@@ -62,7 +64,9 @@ namespace TrenchBroom {
     };
 
     class PreferenceSerializerV2 : public PreferenceSerializerV1 {
-        
+    public:
+        bool readFromString(const QString& in, View::KeyboardShortcut* out) override;
+        void writeToString(QTextStream& stream, const View::KeyboardShortcut& in) override;
     };
 
     class PreferenceManager {
