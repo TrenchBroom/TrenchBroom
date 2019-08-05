@@ -125,7 +125,7 @@ namespace TrenchBroom {
 
         void WelcomeWindow::openOtherDocument() {
             const auto pathStr = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
-            const auto path = IO::Path(pathStr.toStdString());
+            const auto path = IO::Path::fromQString(pathStr);
 
             if (!path.isEmpty()) {
                 openDocument(path);

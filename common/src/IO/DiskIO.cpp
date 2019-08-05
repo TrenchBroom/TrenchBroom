@@ -129,7 +129,7 @@ namespace TrenchBroom {
 
                 Path::List result;
                 for (QString& entry : dir.entryList()) {
-                    result.push_back(Path(entry.toStdString()));
+                    result.push_back(Path::fromQString(entry));
                 }
                 return result;
             }
@@ -144,7 +144,7 @@ namespace TrenchBroom {
             }
 
             Path getCurrentWorkingDir() {
-                return Path(QDir::currentPath().toStdString());
+                return Path::fromQString(QDir::currentPath());
             }
 
             Path::List findItems(const Path& path) {

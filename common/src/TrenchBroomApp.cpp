@@ -486,7 +486,7 @@ namespace TrenchBroom {
 
         void TrenchBroomApp::openDocument() {
             const auto pathStr = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
-            const auto path = IO::Path(pathStr.toStdString());
+            const auto path = IO::Path::fromQString(pathStr);
 
             if (!path.isEmpty()) {
                 openDocument(path);
@@ -552,13 +552,13 @@ namespace TrenchBroom {
         bool TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames) {
             if (!fileNames.isEmpty()) {
                 if (useSDI()) {
-                    const auto path = IO::Path(fileNames.at(0).toStdString());
+                    const auto path = IO::Path::fromQString(fileNames.at(0));
                     if (!path.isEmpty()) {
                         openDocument(path);
                     }
                 } else {
                     for (const auto& fileName : fileNames) {
-                        const auto path = IO::Path(fileName.toStdString());
+                        const auto path = IO::Path::fromQString(fileName);
                         openDocument(path);
                     }
                 }

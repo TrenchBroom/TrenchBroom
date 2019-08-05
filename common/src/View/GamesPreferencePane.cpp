@@ -125,7 +125,7 @@ namespace TrenchBroom {
         }
 
         void GamesPreferencePane::updateGamePath(const QString& str) {
-            const auto gamePath = IO::Path(str.toStdString());
+            const auto gamePath = IO::Path::fromQString(str);
             const auto gameName = m_gameListBox->selectedGameName();
             auto& gameFactory = Model::GameFactory::instance();
             if (gameFactory.setGamePath(gameName, gamePath)) {

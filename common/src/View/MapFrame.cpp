@@ -697,7 +697,7 @@ namespace TrenchBroom {
                     return false;
                 }
 
-                const IO::Path path(newFileName.toStdString());
+                const IO::Path path = IO::Path::fromQString(newFileName);
                 m_document->saveDocumentAs(path);
                 logger().info() << "Saved " << m_document->path();
                 return true;
@@ -718,7 +718,7 @@ namespace TrenchBroom {
             if (newFileName.isEmpty())
                 return false;
 
-            return exportDocument(Model::WavefrontObj, IO::Path(newFileName.toStdString()));
+            return exportDocument(Model::WavefrontObj, IO::Path::fromQString(newFileName));
         }
 
         bool MapFrame::exportDocument(const Model::ExportFormat format, const IO::Path& path) {
@@ -761,7 +761,7 @@ namespace TrenchBroom {
             const QString fileName = QFileDialog::getOpenFileName(this, "Load Point File", defaultDir, "Point files (*.pts);;Any files (*.*)");
 
             if (!fileName.isEmpty()) {
-                m_document->loadPointFile(IO::Path(fileName.toStdString()));
+                m_document->loadPointFile(IO::Path::fromQString(fileName));
             }
         }
 
@@ -794,7 +794,7 @@ namespace TrenchBroom {
             const QString fileName = QFileDialog::getOpenFileName(this, "Load Portal File", defaultDir, "Portal files (*.prt);;Any files (*.*)");
 
             if (!fileName.isEmpty()) {
-                m_document->loadPortalFile(IO::Path(fileName.toStdString()));
+                m_document->loadPortalFile(IO::Path::fromQString(fileName));
             }
         }
 

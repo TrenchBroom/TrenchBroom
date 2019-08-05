@@ -168,7 +168,7 @@ namespace TrenchBroom {
             if (!value.isValid()) {
                 return false;
             }
-            result = IO::Path(value.toString().toStdString());
+            result = IO::Path::fromQString(value.toString());
             return true;
         }
 
