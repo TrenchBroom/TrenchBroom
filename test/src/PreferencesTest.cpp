@@ -75,7 +75,7 @@ namespace TrenchBroom {
     }
 
     template <class Serializer, class PrimitiveType>
-    static void testSerializedDeserializedPair(const QString& str, const PrimitiveType& value) {
+    static void testSerialize(const QString& str, const PrimitiveType& value) {
         const auto testDeserializeOption = maybeDeserialize<Serializer, PrimitiveType>(str);
         const QString testSerialize = serialize<Serializer, PrimitiveType>(value);
         
@@ -89,53 +89,57 @@ namespace TrenchBroom {
         EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV1, bool>("").has_value()));
         EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV1, bool>("-1").has_value()));
 
-        testSerializedDeserializedPair<PreferenceSerializerV1, bool>(QStringLiteral("0"), false);
-        testSerializedDeserializedPair<PreferenceSerializerV1, bool>(QStringLiteral("1"), true);
+        testSerialize<PreferenceSerializerV1, bool>("0", false);
+        testSerialize<PreferenceSerializerV1, bool>("1", true);
     }
 
     TEST(PreferencesTest, serializeV1Color) {
         EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV1, Color>("0.921569 0.666667").has_value())); // must give 3 or 4 components
         
-        testSerializedDeserializedPair<PreferenceSerializerV1, Color>(
-            QStringLiteral("0.921569 0.666667 0.45098 0.5"), 
+        testSerialize<PreferenceSerializerV1, Color>(
+            "0.921569 0.666667 0.45098 0.5", 
             Color(0.921569f, 0.666667f, 0.45098f, 0.5f));
     }
 
     TEST(PreferencesTest, serializeV1float) {
-        testSerializedDeserializedPair<PreferenceSerializerV1, float>(QStringLiteral("0.921569"), 0.921569f);
+        testSerialize<PreferenceSerializerV1, float>("0.921569", 0.921569f);
     }
 
     TEST(PreferencesTest, serializeV1int) {
-        testSerializedDeserializedPair<PreferenceSerializerV1, int>(QStringLiteral("0"), 0);
-        testSerializedDeserializedPair<PreferenceSerializerV1, int>(QStringLiteral("-1"), -1);
-        testSerializedDeserializedPair<PreferenceSerializerV1, int>(QStringLiteral("1000"), 1000);
+        testSerialize<PreferenceSerializerV1, int>("0", 0);
+        testSerialize<PreferenceSerializerV1, int>("-1", -1);
+        testSerialize<PreferenceSerializerV1, int>("1000", 1000);
     }
 
     TEST(PreferencesTest, serializeV1Path) {
 #ifdef _WIN32
-        testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral("c:\\foo\\bar"), IO::Path("c:\\foo\\bar"));
-        testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral("c:\\foo\\bar"), IO::Path("c:/foo/bar"));
-        testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral("\\home\\foo\\bar"), IO::Path("/home/foo/bar"));
-        testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral("\\home\\foo\\bar"), IO::Path("\\home\\foo\\bar"));
+        testSerialize<PreferenceSerializerV1, IO::Path>("c:\\foo\\bar", IO::Path("c:\\foo\\bar"));
+        testSerialize<PreferenceSerializerV1, IO::Path>("c:\\foo\\bar", IO::Path("c:/foo/bar"));
+        testSerialize<PreferenceSerializerV1, IO::Path>("\\home\\foo\\bar", IO::Path("/home/foo/bar"));
+        testSerialize<PreferenceSerializerV1, IO::Path>("\\home\\foo\\bar", IO::Path("\\home\\foo\\bar"));
 #else
-        testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral("c:/foo/bar"), IO::Path("c:\\foo\\bar"));
-        testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral("c:/foo/bar"), IO::Path("c:/foo/bar"));
-        testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral("/home/foo/bar"), IO::Path("/home/foo/bar"));
+        testSerialize<PreferenceSerializerV1, IO::Path>("c:/foo/bar", IO::Path("c:\\foo\\bar"));
+        testSerialize<PreferenceSerializerV1, IO::Path>("c:/foo/bar", IO::Path("c:/foo/bar"));
+        testSerialize<PreferenceSerializerV1, IO::Path>("/home/foo/bar", IO::Path("/home/foo/bar"));
         // FIXME: Is this what we want or is it a bug in Path?
-        testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral("home/foo/bar"), IO::Path("\\home\\foo\\bar"));
+        testSerialize<PreferenceSerializerV1, IO::Path>("home/foo/bar", IO::Path("\\home\\foo\\bar"));
 #endif
-        testSerializedDeserializedPair<PreferenceSerializerV1, IO::Path>(QStringLiteral(""), IO::Path());
+        testSerialize<PreferenceSerializerV1, IO::Path>("", IO::Path());
     }
 
     TEST(PreferencesTest, serializeV1KeyboardShortcut) {
-        testSerializedDeserializedPair<PreferenceSerializerV1, View::KeyboardShortcut>(
-            QStringLiteral("87:307:306:0"), 
-            View::KeyboardShortcut(QKeySequence("Alt+Shift+W", QKeySequence::PortableText)));
+        // These come from wxWidgets TrenchBroom 2019.6, on Windows
+
+        testSerialize<PreferenceSerializerV1, View::KeyboardShortcut>("87:307:306:0",   View::KeyboardShortcut("Alt+Shift+W"));
+        testSerialize<PreferenceSerializerV1, View::KeyboardShortcut>("87:307:0:0",     View::KeyboardShortcut("Alt+W"));
+        testSerialize<PreferenceSerializerV1, View::KeyboardShortcut>("87:308:307:0",   View::KeyboardShortcut("Ctrl+Alt+W"));
+        testSerialize<PreferenceSerializerV1, View::KeyboardShortcut>("87:306:0:0",     View::KeyboardShortcut("Shift+W"));
+        testSerialize<PreferenceSerializerV1, View::KeyboardShortcut>("77:308:0:0",     View::KeyboardShortcut("Ctrl+M"));
+        testSerialize<PreferenceSerializerV1, View::KeyboardShortcut>("65:308:307:306", View::KeyboardShortcut("Ctrl+Alt+Shift+A"));
+        testSerialize<PreferenceSerializerV1, View::KeyboardShortcut>("348:306:0:0",    View::KeyboardShortcut("Shift+F9"));
     }
 
     TEST(PreferencesTest, serializeV2KeyboardShortcut) {
-        testSerializedDeserializedPair<PreferenceSerializerV2, View::KeyboardShortcut>(
-            QStringLiteral("Alt+Shift+W"),
-            View::KeyboardShortcut(QKeySequence("Alt+Shift+W", QKeySequence::PortableText)));
+        testSerialize<PreferenceSerializerV2, View::KeyboardShortcut>("Alt+Shift+W",    View::KeyboardShortcut("Alt+Shift+W"));
     }
 }

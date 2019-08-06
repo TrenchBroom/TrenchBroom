@@ -38,6 +38,16 @@ namespace TrenchBroom {
         KeyboardShortcut::KeyboardShortcut(const QKeySequence& keySequence) :
         m_qtKey(keySequence[0]) {}
 
+        // FIXME: instead, store the string
+        KeyboardShortcut::KeyboardShortcut(const QString& portableKeySequenceString) {
+            auto tempKey = QKeySequence(portableKeySequenceString, QKeySequence::PortableText);
+            if (tempKey.isEmpty()) {
+                m_qtKey = 0;
+            } else {
+                m_qtKey = tempKey[0];
+            }
+        }
+
         bool operator==(const KeyboardShortcut& lhs, const KeyboardShortcut& rhs) {
             return lhs.keySequence() == rhs.keySequence();
         }
