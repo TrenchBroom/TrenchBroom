@@ -129,7 +129,6 @@ namespace TrenchBroom {
 
     TEST(PreferencesTest, serializeV1KeyboardShortcut) {
         // These come from wxWidgets TrenchBroom 2019.6, on Windows
-
         testSerialize<PreferenceSerializerV1, View::KeyboardShortcut>("87:307:306:0",   View::KeyboardShortcut("Alt+Shift+W"));
         testSerialize<PreferenceSerializerV1, View::KeyboardShortcut>("87:307:0:0",     View::KeyboardShortcut("Alt+W"));
         testSerialize<PreferenceSerializerV1, View::KeyboardShortcut>("87:308:307:0",   View::KeyboardShortcut("Ctrl+Alt+W"));
@@ -137,9 +136,14 @@ namespace TrenchBroom {
         testSerialize<PreferenceSerializerV1, View::KeyboardShortcut>("77:308:0:0",     View::KeyboardShortcut("Ctrl+M"));
         testSerialize<PreferenceSerializerV1, View::KeyboardShortcut>("65:308:307:306", View::KeyboardShortcut("Ctrl+Alt+Shift+A"));
         testSerialize<PreferenceSerializerV1, View::KeyboardShortcut>("348:306:0:0",    View::KeyboardShortcut("Shift+F9"));
+
+        // From macOS
+        testSerialize<PreferenceSerializerV1, View::KeyboardShortcut>("80:308:0:0",     View::KeyboardShortcut("Ctrl+P")); // "Ctrl" in Qt = Command in macOS
+        testSerialize<PreferenceSerializerV1, View::KeyboardShortcut>("80:307:0:0",     View::KeyboardShortcut("Alt+P")); // "Alt" in Qt = Alt in macOS
     }
 
     TEST(PreferencesTest, serializeV2KeyboardShortcut) {
         testSerialize<PreferenceSerializerV2, View::KeyboardShortcut>("Alt+Shift+W",    View::KeyboardShortcut("Alt+Shift+W"));
+        testSerialize<PreferenceSerializerV2, View::KeyboardShortcut>("Meta+W",         View::KeyboardShortcut("Meta+W")); // "Meta" in Qt = Control in macOS
     }
 }
