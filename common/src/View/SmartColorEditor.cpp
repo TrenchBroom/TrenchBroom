@@ -50,22 +50,6 @@ namespace TrenchBroom {
             createGui();
         }
 
-        void SmartColorEditor::OnFloatRangeRadioButton() {
-            document()->convertEntityColorRange(name(), Assets::ColorRange::Float);
-        }
-
-        void SmartColorEditor::OnByteRangeRadioButton() {
-            document()->convertEntityColorRange(name(), Assets::ColorRange::Byte);
-        }
-
-        void SmartColorEditor::OnColorPickerChanged(const QColor& color) {
-            setColor(color);
-        }
-
-        void SmartColorEditor::OnColorTableSelected(const QColor color) {
-            setColor(color);
-        }
-
         void SmartColorEditor::createGui() {
             assert(m_floatRadio == nullptr);
             assert(m_byteRadio == nullptr);
@@ -104,10 +88,10 @@ namespace TrenchBroom {
             outerLayout->addWidget(colorHistoryScroller, 1);
             setLayout(outerLayout);
 
-            connect(m_floatRadio, &QAbstractButton::clicked, this, &SmartColorEditor::OnFloatRangeRadioButton);
-            connect(m_byteRadio, &QAbstractButton::clicked, this, &SmartColorEditor::OnByteRangeRadioButton);
-            connect(m_colorPicker, &ColorButton::colorChanged, this, &SmartColorEditor::OnColorPickerChanged);
-            connect(m_colorHistory, &ColorTable::colorTableSelected, this, &SmartColorEditor::OnColorTableSelected);
+            connect(m_floatRadio, &QAbstractButton::clicked, this, &SmartColorEditor::floatRangeRadioButtonClicked);
+            connect(m_byteRadio, &QAbstractButton::clicked, this, &SmartColorEditor::byteRangeRadioButtonClicked);
+            connect(m_colorPicker, &ColorButton::colorChanged, this, &SmartColorEditor::colorPickerChanged);
+            connect(m_colorHistory, &ColorTable::colorTableSelected, this, &SmartColorEditor::colorTableSelected);
         }
 
         void SmartColorEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
@@ -168,7 +152,8 @@ namespace TrenchBroom {
             const Model::AttributeName& m_name;
             std::vector<QColor> m_colors;
         public:
-            CollectColorsVisitor(const Model::AttributeName& name) : m_name(name) {}
+            explicit CollectColorsVisitor(const Model::AttributeName& name) :
+            m_name(name) {}
 
             const std::vector<QColor>& colors() const { return m_colors; }
         private:
@@ -210,6 +195,21 @@ namespace TrenchBroom {
             const auto colorRange = m_floatRadio->isChecked() ? Assets::ColorRange::Float : Assets::ColorRange::Byte;
             const auto value = Model::entityColorAsString(color, colorRange);
             document()->setAttribute(name(), value);
+        }
+        void SmartColorEditor::floatRangeRadioButtonClicked() {
+            document()->convertEntityColorRange(name(), Assets::ColorRange::Float);
+        }
+
+        void SmartColorEditor::byteRangeRadioButtonClicked() {
+            document()->convertEntityColorRange(name(), Assets::ColorRange::Byte);
+        }
+
+        void SmartColorEditor::colorPickerChanged(const QColor& color) {
+            setColor(color);
+        }
+
+        void SmartColorEditor::colorTableSelected(QColor color) {
+            setColor(color);
         }
     }
 }

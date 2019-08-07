@@ -114,10 +114,12 @@ namespace TrenchBroom {
 
             m_rotateButton = new QPushButton(tr("Apply"));
 
-            connect(m_recentlyUsedCentersList, QOverload<const QString &>::of(&QComboBox::activated), this, &RotateObjectsToolPage::OnCenterChanged);
-            connect(m_resetCenterButton, &QAbstractButton::clicked, this, &RotateObjectsToolPage::OnResetCenter);
-            connect(m_angle, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &RotateObjectsToolPage::OnAngleChanged);
-            connect(m_rotateButton, &QAbstractButton::clicked, this, &RotateObjectsToolPage::OnRotate);
+            connect(m_recentlyUsedCentersList, QOverload<const QString &>::of(&QComboBox::activated), this,
+                &RotateObjectsToolPage::centerChanged);
+            connect(m_resetCenterButton, &QAbstractButton::clicked, this, &RotateObjectsToolPage::resetCenterClicked);
+            connect(m_angle, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+                &RotateObjectsToolPage::angleChanged);
+            connect(m_rotateButton, &QAbstractButton::clicked, this, &RotateObjectsToolPage::rotateClicked);
 
             auto* layout = new QHBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
@@ -157,22 +159,26 @@ namespace TrenchBroom {
             m_rotateButton->setEnabled(document->hasSelectedNodes());
         }
 
-        void RotateObjectsToolPage::OnCenterChanged() {
+        void RotateObjectsToolPage::selectionDidChange(const Selection& selection) {
+            updateGui();
+        }
+
+        void RotateObjectsToolPage::centerChanged() {
             const auto center = vm::vec3::parse(m_recentlyUsedCentersList->currentText().toStdString());
             m_tool->setRotationCenter(center);
         }
 
-        void RotateObjectsToolPage::OnResetCenter() {
+        void RotateObjectsToolPage::resetCenterClicked() {
             m_tool->resetRotationCenter();
         }
 
-        void RotateObjectsToolPage::OnAngleChanged(double value) {
+        void RotateObjectsToolPage::angleChanged(double value) {
             const double newAngleDegs = vm::correct(value);
             m_angle->setValue(newAngleDegs);
             m_tool->setAngle(vm::toRadians(newAngleDegs));
         }
 
-        void RotateObjectsToolPage::OnRotate() {
+        void RotateObjectsToolPage::rotateClicked() {
             const auto center = m_tool->rotationCenter();
             const auto axis = getAxis();
             const auto angle = vm::toRadians(m_angle->value());
@@ -190,10 +196,6 @@ namespace TrenchBroom {
                 default:
                     return vm::vec3::pos_z;
             }
-        }
-
-        void RotateObjectsToolPage::selectionDidChange(const Selection& selection) {
-            updateGui();
         }
     }
 }

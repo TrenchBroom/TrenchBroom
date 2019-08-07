@@ -55,15 +55,7 @@ namespace TrenchBroom {
 
             bool cancelMouseDrag();
         private:
-            void OnResetTexture();
-            void OnFlipTextureH();
-            void OnFlipTextureV();
-            void OnRotateTextureCCW();
-            void OnRotateTextureCW();
-
             void updateButtons();
-
-            void OnSubDivisionChanged();
         private:
             void createGui(GLContextManager& contextManager);
 
@@ -71,6 +63,13 @@ namespace TrenchBroom {
 
             void bindObservers();
             void unbindObservers();
+
+            void resetTextureClicked();
+            void flipTextureHClicked();
+            void flipTextureVClicked();
+            void rotateTextureCCWClicked();
+            void rotateTextureCWClicked();
+            void subDivisionChanged();
         };
     }
 }

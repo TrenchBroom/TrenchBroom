@@ -32,7 +32,7 @@ namespace TrenchBroom {
         private:
             void createGui();
 
-            void OnClickVersionInfo();
+            void versionInfoClicked();
         };
 
         class ClickableLabel : public QLabel {

@@ -67,7 +67,7 @@ namespace TrenchBroom {
         m_tabBook(tabBook),
         m_barBook(new QStackedLayout()) {
             ensure(m_tabBook != nullptr, "tabBook is null");
-            connect(m_tabBook, &TabBook::pageChanged, this, &TabBar::OnTabBookPageChanged);
+            connect(m_tabBook, &TabBook::pageChanged, this, &TabBar::tabBookPageChanged);
 
             m_controlLayout = new QHBoxLayout();
             m_controlLayout->setContentsMargins(0, LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin);
@@ -84,7 +84,7 @@ namespace TrenchBroom {
             ensure(bookPage != nullptr, "bookPage is null");
 
             auto* button = new TabBarButton(title);
-            connect(button, &TabBarButton::clicked, this, &TabBar::OnButtonClicked);
+            connect(button, &TabBarButton::clicked, this, &TabBar::buttonClicked);
             button->setPressed(m_buttons.empty());
             m_buttons.push_back(button);
 
@@ -96,32 +96,34 @@ namespace TrenchBroom {
             m_barBook->addWidget(barPage);
         }
 
-        void TabBar::OnButtonClicked() {
-            auto* button = dynamic_cast<QWidget*>(QObject::sender());
-            const size_t index = findButtonIndex(button);
-            ensure(index < m_buttons.size(), "index out of range");
-            m_tabBook->switchToPage(static_cast<int>(index));
-        }
-
-        void TabBar::OnTabBookPageChanged(const int newIndex) {
-            for (TabBarButton* button : m_buttons) {
-                button->setPressed(false);
-            }
-
-            setButtonActive(newIndex);
-            m_barBook->setCurrentIndex(newIndex);
-        }
-
         size_t TabBar::findButtonIndex(QWidget* button) const {
+
             for (size_t i = 0; i < m_buttons.size(); ++i) {
-                if (m_buttons[i] == button)
+                if (m_buttons[i] == button) {
                     return i;
+                }
             }
             return m_buttons.size();
         }
 
         void TabBar::setButtonActive(const int index) {
             m_buttons.at(static_cast<size_t>(index))->setPressed(true);
+        }
+
+        void TabBar::buttonClicked() {
+            auto* button = dynamic_cast<QWidget*>(QObject::sender());
+            const size_t index = findButtonIndex(button);
+            ensure(index < m_buttons.size(), "index out of range");
+            m_tabBook->switchToPage(static_cast<int>(index));
+        }
+
+        void TabBar::tabBookPageChanged(const int newIndex) {
+            for (TabBarButton* button : m_buttons) {
+                button->setPressed(false);
+            }
+
+            setButtonActive(newIndex);
+            m_barBook->setCurrentIndex(newIndex);
         }
     }
 }

@@ -52,13 +52,13 @@ namespace TrenchBroom {
 
             switch (ev->type()) {
                 case QEvent::FocusIn:
-                    OnSetFocus(static_cast<QFocusEvent*>(ev));
+                    setFocusEvent(static_cast<QFocusEvent*>(ev));
                     break;
                 case QEvent::FocusOut:
-                    OnKillFocus(static_cast<QFocusEvent*>(ev));
+                    killFocusEvent(static_cast<QFocusEvent*>(ev));
                     break;
                 case QEvent::MouseMove:
-                    OnMouseMove(static_cast<QMouseEvent*>(ev), observedWidget);
+                    mouseMoveEvent(static_cast<QMouseEvent*>(ev), observedWidget);
                     break;
                 // FIXME: handle ToolBoxConnector::OnMouseCaptureLost?
                 default:
@@ -81,14 +81,14 @@ namespace TrenchBroom {
             VectorUtils::erase(m_focusGroup, window);
         }
 
-        void ToolBox::OnSetFocus(QFocusEvent* /*event*/) {
+        void ToolBox::setFocusEvent(QFocusEvent* event /*event*/) {
             if ((QDateTime::currentMSecsSinceEpoch() - m_lastActivation) < 100) {
                 m_ignoreNextClick = false;
             }
             clearFocusCursor();
         }
 
-        void ToolBox::OnKillFocus(QFocusEvent* /*event*/) {
+        void ToolBox::killFocusEvent(QFocusEvent* event /*event*/) {
             if (m_clickToActivate) {
                 // FIXME: Check that this returns the right thing, since we're in a state when we're being notified of a widget losing focus.
                 const QWindow* focusedWindow = QGuiApplication::focusWindow();
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ToolBox::OnMouseMove(QMouseEvent* /*event*/, QWindow* enteredWidget) {
+        void ToolBox::mouseMoveEvent(QMouseEvent* event /*event*/, QWindow* enteredWidget) {
             QWindow* newFocus = enteredWidget;
             QWindow* currentFocus = QGuiApplication::focusWindow();
 

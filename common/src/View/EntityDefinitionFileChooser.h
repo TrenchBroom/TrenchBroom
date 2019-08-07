@@ -54,12 +54,8 @@ namespace TrenchBroom {
             QPushButton* m_chooseExternal;
             QPushButton* m_reloadExternal;
         public:
-            EntityDefinitionFileChooser(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit EntityDefinitionFileChooser(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~EntityDefinitionFileChooser() override;
-
-            void OnBuiltinSelectionChanged();
-            void OnChooseExternalClicked();
-            void OnReloadExternalClicked();
         private:
             void createGui();
             void bindEvents();
@@ -72,6 +68,10 @@ namespace TrenchBroom {
             void entityDefinitionsDidChange();
 
             void updateControls();
+
+            void builtinSelectionChanged();
+            void chooseExternalClicked();
+            void reloadExternalClicked();
         };
     }
 }

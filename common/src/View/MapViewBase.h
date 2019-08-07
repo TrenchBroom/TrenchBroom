@@ -257,7 +257,7 @@ namespace TrenchBroom {
         private: // implement ToolBoxConnector
             void doShowPopupMenu() override;
         public slots:
-            void OnShowPopupMenu();
+            void showPopupMenuLater();
         public: // QWindow overrides
             bool event(QEvent* event) override;
         private:

@@ -56,14 +56,12 @@ namespace TrenchBroom {
 
             bool cancelMouseDrag();
         private:
-            void OnTextureSelected(Assets::Texture* texture);
-        private:
             void createGui(MapDocumentWPtr document, GLContextManager& contextManager);
             QWidget* createFaceAttribsEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             QWidget* createTextureBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             QWidget* createTextureCollectionEditor(QWidget* parent, MapDocumentWPtr document);
 
-            void bindEvents();
+            void textureSelected(Assets::Texture* texture);
         };
     }
 }

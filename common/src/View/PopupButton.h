@@ -37,10 +37,9 @@ namespace TrenchBroom {
             explicit PopupButton(const QString& caption = "", QWidget* parent = nullptr);
 
             QWidget* GetPopupWindow() const;
-
         private:
-            void OnButtonToggled(bool checked);
-            void OnPopupVisibilityChanged(bool visible);
+            void buttonClicked(bool checked);
+            void popupVisibilityChanged(bool visible);
         };
     }
 }

@@ -99,21 +99,6 @@ namespace TrenchBroom {
         public:
             explicit ViewEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~ViewEditor() override;
-
-            // FIXME: turn into slots, rename to camelCase, remove "on" prefix
-            void OnShowEntityClassnamesChanged(bool checked);
-            void OnShowGroupBoundsChanged(bool checked);
-            void OnShowBrushEntityBoundsChanged(bool checked);
-            void OnShowPointEntityBoundsChanged(bool checked);
-            void OnShowPointEntitiesChanged(bool checked);
-            void OnShowPointEntityModelsChanged(bool checked);
-            void OnShowBrushesChanged(bool checked);
-            void OnShowTagChanged(bool checked);
-            void OnFaceRenderModeChanged(int id);
-            void OnShadeFacesChanged(bool checked);
-            void OnShowFogChanged(bool checked);
-            void OnShowEdgesChanged(bool checked);
-            void OnEntityLinkModeChanged(int id);
         private:
             void bindObservers();
             void unbindObservers();
@@ -139,6 +124,20 @@ namespace TrenchBroom {
             void refreshEntitiesPanel();
             void refreshBrushesPanel();
             void refreshRendererPanel();
+
+            void showEntityClassnamesChanged(bool checked);
+            void showGroupBoundsChanged(bool checked);
+            void showBrushEntityBoundsChanged(bool checked);
+            void showPointEntityBoundsChanged(bool checked);
+            void showPointEntitiesChanged(bool checked);
+            void showPointEntityModelsChanged(bool checked);
+            void showBrushesChanged(bool checked);
+            void showTagChanged(bool checked);
+            void faceRenderModeChanged(int id);
+            void shadeFacesChanged(bool checked);
+            void showFogChanged(bool checked);
+            void showEdgesChanged(bool checked);
+            void entityLinkModeChanged(int id);
         };
 
         class ViewPopupEditor : public QWidget {

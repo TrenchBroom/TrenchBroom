@@ -55,18 +55,8 @@ namespace TrenchBroom {
 
             StringList m_availableMods;
         public:
-            ModEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit ModEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~ModEditor() override;
-
-            void OnAddModClicked();
-            void OnRemoveModClicked();
-            void OnMoveModUpClicked();
-            void OnMoveModDownClicked();
-            bool canEnableAddButton() const;
-            bool canEnableRemoveButton() const;
-            bool canEnableMoveUpButton() const;
-            bool canEnableMoveDownButton() const;
-            void OnFilterBoxChanged();
         private:
             void createGui();
         private slots:
@@ -82,6 +72,16 @@ namespace TrenchBroom {
 
             void updateAvailableMods();
             void updateMods();
+
+            void addModClicked();
+            void removeModClicked();
+            void moveModUpClicked();
+            void moveModDownClicked();
+            bool canEnableAddButton() const;
+            bool canEnableRemoveButton() const;
+            bool canEnableMoveUpButton() const;
+            bool canEnableMoveDownButton() const;
+            void filterBoxChanged();
         };
     }
 }

@@ -220,124 +220,6 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        void ViewEditor::OnShowEntityClassnamesChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowEntityClassnames(checked);
-        }
-
-        void ViewEditor::OnShowGroupBoundsChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowGroupBounds(checked);
-        }
-
-        void ViewEditor::OnShowBrushEntityBoundsChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowBrushEntityBounds(checked);
-        }
-
-        void ViewEditor::OnShowPointEntityBoundsChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowPointEntityBounds(checked);
-        }
-
-        void ViewEditor::OnShowPointEntitiesChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setShowPointEntities(checked);
-        }
-
-        void ViewEditor::OnShowPointEntityModelsChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowPointEntityModels(checked);
-        }
-
-        void ViewEditor::OnShowBrushesChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setShowBrushes(checked);
-        }
-
-        void ViewEditor::OnShowTagChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
-
-            Model::Tag::TagType hiddenTags = 0;
-            const auto& tags = document->smartTags();
-
-            auto tagIt = std::begin(tags);
-            auto boxIt = std::begin(m_tagCheckBoxes);
-            while (tagIt != std::end(tags) && boxIt != std::end(m_tagCheckBoxes)) {
-                const auto& tag = *tagIt;
-                QCheckBox* checkBox = *boxIt;
-                if (!checkBox->isChecked()) {
-                    hiddenTags |= tag.type();
-                }
-                ++tagIt; ++boxIt;
-            }
-
-            auto& editorContext = document->editorContext();
-            editorContext.setHiddenTags(hiddenTags);
-        }
-
-        void ViewEditor::OnFaceRenderModeChanged(const int id) {
-            MapDocumentSPtr document = lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-
-            switch (id) {
-                case 1:
-                    config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Flat);
-                    break;
-                case 2:
-                    config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Skip);
-                    break;
-                default:
-                    config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Textured);
-                    break;
-            }
-        }
-
-        void ViewEditor::OnShadeFacesChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShadeFaces(checked);
-        }
-
-        void ViewEditor::OnShowFogChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowFog(checked);
-        }
-
-        void ViewEditor::OnShowEdgesChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowEdges(checked);
-        }
-
-        void ViewEditor::OnEntityLinkModeChanged(const int id) {
-            MapDocumentSPtr document = lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-
-            switch (id) {
-                case 0:
-                    editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_All);
-                    break;
-                case 1:
-                    editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Transitive);
-                    break;
-                case 2:
-                    editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Direct);
-                    break;
-                default:
-                    editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_None);
-                    break;
-            }
-        }
-
         void ViewEditor::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &ViewEditor::documentWasNewedOrLoaded);
@@ -425,12 +307,16 @@ namespace TrenchBroom {
             m_showPointEntitiesCheckBox = new QCheckBox(tr("Show point entities"));
             m_showPointEntityModelsCheckBox = new QCheckBox(tr("Show point entity models"));
 
-            connect(m_showEntityClassnamesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowEntityClassnamesChanged);
-            connect(m_showGroupBoundsCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowGroupBoundsChanged);
-            connect(m_showBrushEntityBoundsCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowBrushEntityBoundsChanged);
-            connect(m_showPointEntityBoundsCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowPointEntityBoundsChanged);
-            connect(m_showPointEntitiesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowPointEntitiesChanged);
-            connect(m_showPointEntityModelsCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowPointEntityModelsChanged);
+            connect(m_showEntityClassnamesCheckBox, &QAbstractButton::clicked, this,
+                &ViewEditor::showEntityClassnamesChanged);
+            connect(m_showGroupBoundsCheckBox, &QAbstractButton::clicked, this, &ViewEditor::showGroupBoundsChanged);
+            connect(m_showBrushEntityBoundsCheckBox, &QAbstractButton::clicked, this,
+                &ViewEditor::showBrushEntityBoundsChanged);
+            connect(m_showPointEntityBoundsCheckBox, &QAbstractButton::clicked, this,
+                &ViewEditor::showPointEntityBoundsChanged);
+            connect(m_showPointEntitiesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::showPointEntitiesChanged);
+            connect(m_showPointEntityModelsCheckBox, &QAbstractButton::clicked, this,
+                &ViewEditor::showPointEntityModelsChanged);
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
@@ -452,7 +338,7 @@ namespace TrenchBroom {
             createTagFilter(inner);
 
             m_showBrushesCheckBox = new QCheckBox(tr("Show brushes"));
-            connect(m_showBrushesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowBrushesChanged);
+            connect(m_showBrushesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::showBrushesChanged);
 
             auto* innerLayout = qobject_cast<QBoxLayout*>(inner->layout());
             ensure(innerLayout != nullptr, "inner sizer is null");
@@ -499,7 +385,7 @@ namespace TrenchBroom {
                 m_tagCheckBoxes.push_back(checkBox);
 
                 layout->addWidget(checkBox);
-                connect(checkBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowTagChanged);
+                connect(checkBox, &QAbstractButton::clicked, this, &ViewEditor::showTagChanged);
             }
             parent->setLayout(layout);
         }
@@ -530,12 +416,14 @@ namespace TrenchBroom {
                 m_entityLinkRadioGroup->addButton(radio, i);
             }
 
-            connect(m_shadeFacesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShadeFacesChanged);
-            connect(m_showFogCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowFogChanged);
-            connect(m_showEdgesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::OnShowEdgesChanged);
+            connect(m_shadeFacesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::shadeFacesChanged);
+            connect(m_showFogCheckBox, &QAbstractButton::clicked, this, &ViewEditor::showFogChanged);
+            connect(m_showEdgesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::showEdgesChanged);
 
-            connect(m_renderModeRadioGroup, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &ViewEditor::OnFaceRenderModeChanged);
-            connect(m_entityLinkRadioGroup, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &ViewEditor::OnEntityLinkModeChanged);
+            connect(m_renderModeRadioGroup, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this,
+                &ViewEditor::faceRenderModeChanged);
+            connect(m_entityLinkRadioGroup, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this,
+                &ViewEditor::entityLinkModeChanged);
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
@@ -610,6 +498,124 @@ namespace TrenchBroom {
             m_showFogCheckBox->setChecked(config.showFog());
             m_showEdgesCheckBox->setChecked(config.showEdges());
             checkButtonInGroup(m_entityLinkRadioGroup, static_cast<int>(editorContext.entityLinkMode()), true);
+        }
+
+        void ViewEditor::showEntityClassnamesChanged(const bool checked) {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowEntityClassnames(checked);
+        }
+
+        void ViewEditor::showGroupBoundsChanged(const bool checked) {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowGroupBounds(checked);
+        }
+
+        void ViewEditor::showBrushEntityBoundsChanged(const bool checked) {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowBrushEntityBounds(checked);
+        }
+
+        void ViewEditor::showPointEntityBoundsChanged(const bool checked) {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowPointEntityBounds(checked);
+        }
+
+        void ViewEditor::showPointEntitiesChanged(const bool checked) {
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setShowPointEntities(checked);
+        }
+
+        void ViewEditor::showPointEntityModelsChanged(const bool checked) {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowPointEntityModels(checked);
+        }
+
+        void ViewEditor::showBrushesChanged(const bool checked) {
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setShowBrushes(checked);
+        }
+
+        void ViewEditor::showTagChanged(const bool checked) {
+            MapDocumentSPtr document = lock(m_document);
+
+            Model::Tag::TagType hiddenTags = 0;
+            const auto& tags = document->smartTags();
+
+            auto tagIt = std::begin(tags);
+            auto boxIt = std::begin(m_tagCheckBoxes);
+            while (tagIt != std::end(tags) && boxIt != std::end(m_tagCheckBoxes)) {
+                const auto& tag = *tagIt;
+                QCheckBox* checkBox = *boxIt;
+                if (!checkBox->isChecked()) {
+                    hiddenTags |= tag.type();
+                }
+                ++tagIt; ++boxIt;
+            }
+
+            auto& editorContext = document->editorContext();
+            editorContext.setHiddenTags(hiddenTags);
+        }
+
+        void ViewEditor::faceRenderModeChanged(const int id) {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+
+            switch (id) {
+                case 1:
+                    config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Flat);
+                    break;
+                case 2:
+                    config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Skip);
+                    break;
+                default:
+                    config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Textured);
+                    break;
+            }
+        }
+
+        void ViewEditor::shadeFacesChanged(const bool checked) {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShadeFaces(checked);
+        }
+
+        void ViewEditor::showFogChanged(const bool checked) {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowFog(checked);
+        }
+
+        void ViewEditor::showEdgesChanged(const bool checked) {
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowEdges(checked);
+        }
+
+        void ViewEditor::entityLinkModeChanged(const int id) {
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+
+            switch (id) {
+                case 0:
+                    editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_All);
+                    break;
+                case 1:
+                    editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Transitive);
+                    break;
+                case 2:
+                    editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Direct);
+                    break;
+                default:
+                    editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_None);
+                    break;
+            }
         }
 
         ViewPopupEditor::ViewPopupEditor(MapDocumentWPtr document, QWidget* parent) :

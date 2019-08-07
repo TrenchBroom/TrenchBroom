@@ -55,9 +55,6 @@ namespace TrenchBroom {
             ~IssueBrowser() override;
 
             QWidget* createTabBarPage(QWidget* parent) override;
-
-            void OnShowHiddenIssuesChanged();
-            void OnFilterChanged(size_t index, int setFlag, int mixedFlag);
         private:
             void bindObservers();
             void unbindObservers();
@@ -70,6 +67,9 @@ namespace TrenchBroom {
             void issueIgnoreChanged(Model::Issue* issue);
 
             void updateFilterFlags();
+
+            void showHiddenIssuesChanged();
+            void filterChanged(size_t index, int setFlag, int mixedFlag);
         };
     }
 }

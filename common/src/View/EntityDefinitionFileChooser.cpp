@@ -84,44 +84,6 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        void EntityDefinitionFileChooser::OnBuiltinSelectionChanged() {
-            qDebug("OnBuiltinSelectionChanged");
-
-            if (m_builtin->selectedItems().isEmpty()) {
-                return;
-            }
-
-            QListWidgetItem* item = m_builtin->selectedItems().first();
-            auto spec = item->data(Qt::UserRole).value<Assets::EntityDefinitionFileSpec>();
-
-            MapDocumentSPtr document = lock(m_document);
-            if (document->entityDefinitionFile() == spec) {
-                qDebug("OnBuiltinSelectionChanged: already on correct file");
-                return;
-            }
-
-            qDebug() << "OnBuiltinSelectionChanged: setting to " << QString::fromStdString(spec.asString());
-            document->setEntityDefinitionFile(spec);
-        }
-
-        void EntityDefinitionFileChooser::OnChooseExternalClicked() {
-            const QString fileName = QFileDialog::getOpenFileName(nullptr, "Load Entity Definition File", "",
-                                                        "All supported entity definition files (*.fgd *.def *.ent);;"
-                                                        "Worldcraft / Hammer files (*.fgd);;"
-                                                        "QuakeC files (*.def);;"
-                                                        "Radiant XML files (*.ent)");
-            if (fileName.isEmpty())
-                return;
-
-            loadEntityDefinitionFile(m_document, this, fileName);
-        }
-
-        void EntityDefinitionFileChooser::OnReloadExternalClicked() {
-            MapDocumentSPtr document = lock(m_document);
-            const Assets::EntityDefinitionFileSpec& spec = document->entityDefinitionFile();
-            document->setEntityDefinitionFile(spec);
-        }
-
         void EntityDefinitionFileChooser::createGui() {
             TitledPanel* builtinContainer = new TitledPanel(tr("Builtin"), false, false);
             //builtinContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
@@ -164,9 +126,12 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::bindEvents() {
-            connect(m_builtin, &QListWidget::itemSelectionChanged, this, &EntityDefinitionFileChooser::OnBuiltinSelectionChanged);
-            connect(m_chooseExternal, &QAbstractButton::clicked, this, &EntityDefinitionFileChooser::OnChooseExternalClicked);
-            connect(m_reloadExternal, &QAbstractButton::clicked, this, &EntityDefinitionFileChooser::OnReloadExternalClicked);
+            connect(m_builtin, &QListWidget::itemSelectionChanged, this,
+                &EntityDefinitionFileChooser::builtinSelectionChanged);
+            connect(m_chooseExternal, &QAbstractButton::clicked, this,
+                &EntityDefinitionFileChooser::chooseExternalClicked);
+            connect(m_reloadExternal, &QAbstractButton::clicked, this,
+                &EntityDefinitionFileChooser::reloadExternalClicked);
         }
 
         void EntityDefinitionFileChooser::bindObservers() {
@@ -245,6 +210,44 @@ namespace TrenchBroom {
             }
 
             m_reloadExternal->setEnabled(document->entityDefinitionFile().external());
+        }
+
+        void EntityDefinitionFileChooser::builtinSelectionChanged() {
+            qDebug("builtinSelectionChanged");
+
+            if (m_builtin->selectedItems().isEmpty()) {
+                return;
+            }
+
+            QListWidgetItem* item = m_builtin->selectedItems().first();
+            auto spec = item->data(Qt::UserRole).value<Assets::EntityDefinitionFileSpec>();
+
+            MapDocumentSPtr document = lock(m_document);
+            if (document->entityDefinitionFile() == spec) {
+                qDebug("builtinSelectionChanged: already on correct file");
+                return;
+            }
+
+            qDebug() << "builtinSelectionChanged: setting to " << QString::fromStdString(spec.asString());
+            document->setEntityDefinitionFile(spec);
+        }
+
+        void EntityDefinitionFileChooser::chooseExternalClicked() {
+            const QString fileName = QFileDialog::getOpenFileName(nullptr, "Load Entity Definition File", "",
+                "All supported entity definition files (*.fgd *.def *.ent);;"
+                "Worldcraft / Hammer files (*.fgd);;"
+                "QuakeC files (*.def);;"
+                "Radiant XML files (*.ent)");
+            if (fileName.isEmpty())
+                return;
+
+            loadEntityDefinitionFile(m_document, this, fileName);
+        }
+
+        void EntityDefinitionFileChooser::reloadExternalClicked() {
+            MapDocumentSPtr document = lock(m_document);
+            const Assets::EntityDefinitionFileSpec& spec = document->entityDefinitionFile();
+            document->setEntityDefinitionFile(spec);
         }
     }
 }

@@ -61,12 +61,6 @@ namespace TrenchBroom {
             void setShowHiddenIssues(bool show);
             void reload();
             void deselectAll();
-
-            void OnItemRightClick(const QPoint& pos);
-            void OnItemSelectionChanged();
-            void OnShowIssues();
-            void OnHideIssues();
-            void OnApplyQuickFix(const Model::IssueQuickFix* quickFix);
         private:
             class IssueVisible;
             class IssueCmp;
@@ -82,6 +76,12 @@ namespace TrenchBroom {
             QList<QModelIndex> getSelection() const;
             void updateSelection();
             void bindEvents();
+
+            void itemRightClicked(const QPoint& pos);
+            void itemSelectionChanged();
+            void showIssues();
+            void hideIssues();
+            void applyQuickFix(const Model::IssueQuickFix* quickFix);
         private:
             void invalidate();
         public slots:

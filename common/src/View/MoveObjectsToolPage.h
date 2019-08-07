@@ -49,7 +49,8 @@ namespace TrenchBroom {
             void updateGui();
 
             void selectionDidChange(const Selection& selection);
-            void OnApply();
+
+            void applyMove();
         };
     }
 }

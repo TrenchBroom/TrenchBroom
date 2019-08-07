@@ -59,13 +59,12 @@ namespace TrenchBroom {
             void createGui();
             void updateGui();
 
-            void OnUpdateButton();
-            void OnApply();
-
             bool canScale() const;
             vm::vec3 getScaleFactors() const;
 
             void selectionDidChange(const Selection& selection);
+
+            void applyScale();
         };
     }
 }

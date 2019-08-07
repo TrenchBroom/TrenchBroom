@@ -88,8 +88,8 @@ namespace TrenchBroom {
             m_book->addWidget(m_sizeTextBox);
             m_book->addWidget(m_factorsTextBox);
 
-            connect(m_sizeTextBox, &QLineEdit::returnPressed, this, &ScaleObjectsToolPage::OnApply);
-            connect(m_factorsTextBox, &QLineEdit::returnPressed, this, &ScaleObjectsToolPage::OnApply);
+            connect(m_sizeTextBox, &QLineEdit::returnPressed, this, &ScaleObjectsToolPage::applyScale);
+            connect(m_factorsTextBox, &QLineEdit::returnPressed, this, &ScaleObjectsToolPage::applyScale);
 
             m_scaleFactorsOrSize = new QComboBox();
             m_scaleFactorsOrSize->addItem(tr("to size"));
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             connect(m_scaleFactorsOrSize, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), m_book, &QStackedLayout::setCurrentIndex);
 
             m_button = new QPushButton(tr("Apply"));
-            connect(m_button, &QAbstractButton::clicked, this, &ScaleObjectsToolPage::OnApply);
+            connect(m_button, &QAbstractButton::clicked, this, &ScaleObjectsToolPage::applyScale);
 
             auto* layout = new QHBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
@@ -136,7 +136,11 @@ namespace TrenchBroom {
             }
         }
 
-        void ScaleObjectsToolPage::OnApply() {
+        void ScaleObjectsToolPage::selectionDidChange(const Selection& selection) {
+            updateGui();
+        }
+
+        void ScaleObjectsToolPage::applyScale() {
             if (!canScale()) {
                 return;
             }
@@ -146,10 +150,6 @@ namespace TrenchBroom {
             const auto scaleFactors = getScaleFactors();
 
             document->scaleObjects(box.center(), scaleFactors);
-        }
-
-        void ScaleObjectsToolPage::selectionDidChange(const Selection& selection) {
-            updateGui();
         }
     }
 }
