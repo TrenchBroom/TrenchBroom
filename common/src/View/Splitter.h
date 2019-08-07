@@ -43,6 +43,12 @@ namespace TrenchBroom {
             Splitter(QWidget* parent = nullptr);
         protected:
             QSplitterHandle* createHandle() override;
+
+#ifdef __APPLE__
+        // on macOS, the widgets are not repainted properly when the splitter moves, so we force them to repaint
+        private slots:
+            void doSplitterMoved();
+#endif
         };
     }
 }
