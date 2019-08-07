@@ -577,9 +577,11 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::hideWelcomeWindow() {
-            m_welcomeWindow->hide();
-            if (quitOnLastWindowClosed() && m_frameManager->allFramesClosed()) {
-                closeWelcomeWindow();
+            if (m_welcomeWindow != nullptr) {
+                m_welcomeWindow->hide();
+                if (quitOnLastWindowClosed() && m_frameManager->allFramesClosed()) {
+                    closeWelcomeWindow();
+                }
             }
         }
 
