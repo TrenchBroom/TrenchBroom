@@ -37,30 +37,13 @@ namespace TrenchBroom {
         }
 
         Splitter::Splitter(const Qt::Orientation orientation, QWidget* parent) :
-        QSplitter(orientation, parent){
-#ifdef __APPLE__
-            connect(this, &QSplitter::splitterMoved, this, &Splitter::doSplitterMoved);
-#endif
-        }
+        QSplitter(orientation, parent) {}
 
         Splitter::Splitter(QWidget* parent) :
-        QSplitter(parent) {
-#ifdef __APPLE__
-            connect(this, &QSplitter::splitterMoved, this, &Splitter::doSplitterMoved);
-#endif
-        }
+        QSplitter(parent) {}
 
         QSplitterHandle* Splitter::createHandle() {
             return new SplitterHandle(orientation(), this);
         }
-
-#ifdef __APPLE__
-        void Splitter::doSplitterMoved() {
-            for (int i = 0; i < count(); ++i) {
-                auto* widget = this->widget(i);
-                widget->repaint();
-            }
-        }
-#endif
     }
 }

@@ -57,7 +57,6 @@ namespace TrenchBroom {
                 pal.setColor(QPalette::WindowText, Colors::defaultText());
             }
             setPalette(pal);
-            repaint(); // on macOS, the label's don't repaint automatically for some reason
         }
 
         // TabBar
