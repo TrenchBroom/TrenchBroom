@@ -36,7 +36,31 @@
 #include <QDebug>
 #include <QVariant>
 
+#include <optional-lite/optional.hpp>
+
+class QString;
+class QTextStream;
+
 namespace TrenchBroom {
+    class PrefSerializer {
+    public:
+        virtual ~PrefSerializer() = default;
+
+        virtual bool readFromString(const QString& in, bool* out) = 0;
+        virtual bool readFromString(const QString& in, Color* out) = 0;
+        virtual bool readFromString(const QString& in, float* out) = 0;
+        virtual bool readFromString(const QString& in, int* out) = 0;
+        virtual bool readFromString(const QString& in, IO::Path* out) = 0;
+        virtual bool readFromString(const QString& in, View::KeyboardShortcut* out) = 0;
+
+        virtual void writeToString(QTextStream& stream, const bool in) = 0;
+        virtual void writeToString(QTextStream& stream, const Color& in) = 0;
+        virtual void writeToString(QTextStream& stream, const float in) = 0;
+        virtual void writeToString(QTextStream& stream, const int in) = 0;
+        virtual void writeToString(QTextStream& stream, const IO::Path& in) = 0;
+        virtual void writeToString(QTextStream& stream, const View::KeyboardShortcut& in) = 0;
+    };
+
     template <typename T>
     class PreferenceSerializer {
     public:
@@ -197,6 +221,11 @@ namespace TrenchBroom {
         }
 
         virtual const IO::Path& path() const = 0;
+
+        // new API
+        virtual nonstd::optional<QString> migratePreference(PrefSerializer& from, 
+            PrefSerializer& to, const QString& input) const = 0;
+        virtual bool loadFromString(PrefSerializer* format, const QString& value) = 0;
     };
 
 
@@ -298,6 +327,27 @@ namespace TrenchBroom {
 
         const T& value() const {
             return m_value;
+        }
+
+        nonstd::optional<QString> migratePreference(PrefSerializer& from, PrefSerializer& to, const QString& input) const override {
+            T result;
+            if (!from.readFromString(input, &result)) {
+                return {};
+            }
+
+            QString string;
+            QTextStream stream(&string);
+            to.writeToString(stream, result);
+            return string;
+        }
+
+        bool loadFromString(PrefSerializer* format, const QString& value) override {
+            T res;
+            bool ok = format->readFromString(value, &res);
+            if (ok) {
+                m_value = res;
+            }
+            return ok;
         }
     };
 }

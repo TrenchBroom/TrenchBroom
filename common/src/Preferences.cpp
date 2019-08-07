@@ -163,5 +163,119 @@ namespace TrenchBroom {
         Preference<View::KeyboardShortcut> CameraFlyRight(IO::Path("Controls/Camera/Move right"), View::KeyboardShortcut('D'));
         Preference<View::KeyboardShortcut> CameraFlyUp(IO::Path("Controls/Camera/Move up"), View::KeyboardShortcut('Q'));
         Preference<View::KeyboardShortcut> CameraFlyDown(IO::Path("Controls/Camera/Move down"), View::KeyboardShortcut('X'));
+
+        const std::vector<PreferenceBase*>& staticPreferences() {
+            static const std::vector<PreferenceBase*> list {
+                &MapViewLayout,
+                &ShowAxes,
+                &BackgroundColor,
+                &AxisLength,
+                &XAxisColor,
+                &YAxisColor,
+                &ZAxisColor,
+                &PointFileColor,
+                &PortalFileBorderColor,
+                &PortalFileFillColor,
+                &CompassBackgroundColor,
+                &CompassBackgroundOutlineColor,
+                &CompassAxisOutlineColor,
+                &CameraFrustumColor,
+                &DefaultGroupColor,
+                &TutorialOverlayTextColor,
+                &TutorialOverlayBackgroundColor,
+                &FaceColor,
+                &SelectedFaceColor,
+                &LockedFaceColor,
+                &TransparentFaceAlpha,
+                &EdgeColor,
+                &SelectedEdgeColor,
+                &OccludedSelectedEdgeColor,
+                &LockedEdgeColor,
+                &UndefinedEntityColor,
+                &SelectionBoundsColor,
+                &InfoOverlayTextColor,
+                &GroupInfoOverlayTextColor,
+                &InfoOverlayBackgroundColor,
+                &WeakInfoOverlayBackgroundColor,
+                &SelectedInfoOverlayTextColor,
+                &SelectedInfoOverlayBackgroundColor,
+                &LockedInfoOverlayTextColor,
+                &LockedInfoOverlayBackgroundColor,
+                &HandleRadius,
+                &MaximumHandleDistance,
+                &HandleColor,
+                &OccludedHandleColor,
+                &SelectedHandleColor,
+                &OccludedSelectedHandleColor,
+                &ClipHandleColor,
+                &ClipFaceColor,
+                &ResizeHandleColor,
+                &RotateHandleRadius,
+                &RotateHandleColor,
+                &ScaleHandleColor,
+                &ScaleFillColor,
+                &ScaleOutlineColor,
+                &ScaleOutlineDimColor,
+                &ShearFillColor,
+                &ShearOutlineColor,
+                &MoveTraceColor,
+                &OccludedMoveTraceColor,
+                &MoveIndicatorOutlineColor,
+                &MoveIndicatorFillColor,
+                &AngleIndicatorColor,
+                &TextureSeamColor,
+                &Brightness,
+                &GridAlpha,
+                &GridColor2D,
+                &TextureMinFilter,
+                &TextureMagFilter,
+                &TextureLock,
+                &UVLock,
+                &RendererFontPath(),
+                &RendererFontSize,
+                &BrowserFontSize,
+                &BrowserTextColor,
+                &BrowserSubTextColor,
+                &BrowserGroupBackgroundColor,
+                &TextureBrowserIconSize,
+                &TextureBrowserDefaultColor,
+                &TextureBrowserSelectedColor,
+                &TextureBrowserUsedColor,
+                &CameraLookSpeed,
+                &CameraLookInvertH,
+                &CameraLookInvertV,
+                &CameraPanSpeed,
+                &CameraPanInvertH,
+                &CameraPanInvertV,
+                &CameraMouseWheelInvert,
+                &CameraMoveSpeed,
+                &CameraEnableAltMove,
+                &CameraAltMoveInvert,
+                &CameraMoveInCursorDir,
+                &CameraFov,
+                &CameraFlyMoveSpeed,
+                &Link2DCameras,
+                &CameraFlyForward,
+                &CameraFlyBackward,
+                &CameraFlyLeft,
+                &CameraFlyRight,
+                &CameraFlyUp,
+                &CameraFlyDown
+            };
+
+            return list;
+        }
+
+        const std::map<IO::Path, PreferenceBase*>& staticPreferencesMap() {
+            static std::map<IO::Path, PreferenceBase*> map;
+            
+            if (map.empty()) {
+                for (PreferenceBase* pref : staticPreferences()) {
+                    map[pref->path()] = pref;
+                }
+            }
+
+            return map;
+        }
     }
 }

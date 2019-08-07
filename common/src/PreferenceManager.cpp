@@ -170,9 +170,9 @@ namespace TrenchBroom {
 #endif
     }
 
-    std::map<QString, std::map<QString, QString>> parseINI(QTextStream* iniStream) {
-        QString section;
-        std::map<QString, std::map<QString, QString>> result;
+    std::map<IO::Path, QString> parseINI(QTextStream* iniStream) {
+        IO::Path section;
+        std::map<IO::Path, QString> result;
 
         while (!iniStream->atEnd()) {
             QString line = iniStream->readLine();
@@ -190,7 +190,9 @@ namespace TrenchBroom {
 
             const bool heading = sqBracketAtStart && sqBracketAtEnd;
             if (heading) {
-                section = line.mid(1, line.length() - 2);
+                const QString sectionString = line.mid(1, line.length() - 2);
+                // NOTE: This parses the section
+                section = IO::Path::fromQString(sectionString);
                 continue;
             }
 
@@ -200,12 +202,37 @@ namespace TrenchBroom {
                 QString key = line.left(eqIndex);
                 QString value = line.mid(eqIndex + 1);
 
-                result[section][key] = value;
+                result[section + IO::Path::fromQString(key)] = value;
                 continue;
             }
 
             // Line was ignored
         }
+        return result;
+    }
+
+    static void visitNode(std::map<IO::Path, QString>* result, QSettings* settings, const IO::Path& currentPath) {
+        // Process key/value pairs at this node
+        for (const QString& key : settings->childKeys()) {
+            const QString value = settings->value(key).toString();
+            const IO::Path keyPath = currentPath + IO::Path::fromQString(key);
+            (*result)[keyPath] = value;
+        }
+
+        // Vist children
+        for (const QString& childGroup : settings->childGroups()) {
+            settings->beginGroup(childGroup);
+            visitNode(result, settings, currentPath + IO::Path::fromQString(childGroup));
+            settings->endGroup();
+        }
+    }
+
+    std::map<IO::Path, QString> getRegistrySettingsV1() {
+        std::map<IO::Path, QString> result;
+
+        QSettings s("HKEY_CURRENT_USER\\Software\\Kristian Duske\\TrenchBroom", QSettings::Registry32Format);
+        visitNode(&result, &s, IO::Path());
+
         return result;
     }
 }

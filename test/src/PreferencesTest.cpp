@@ -29,10 +29,16 @@
 #include "QtPrettyPrinters.h"
 
 namespace TrenchBroom {
-    static QString getValue(const std::map<QString, std::map<QString, QString>>& map,
-        const QString& section,
-        const QString& key) {
-        return map.at(section).at(key);
+    static QString getValue(const std::map<IO::Path, QString>& map, const IO::Path& key) {
+        return map.at(key);
+    }
+
+    TEST(PreferencesTest, parseReg) {
+        std::map<IO::Path, QString> reg = getRegistrySettingsV1();
+
+        for (auto [key, val] : reg) {
+            qDebug() << key.asQString() << "=" << val;
+        }
     }
 
     TEST(PreferencesTest, parseV1) {
@@ -40,14 +46,14 @@ namespace TrenchBroom {
         ASSERT_TRUE(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
         QTextStream in(&file);
-        std::map<QString, std::map<QString, QString>> parsed = parseINI(&in);
+        std::map<IO::Path, QString> parsed = parseINI(&in);
 
         // This is not a complete test but just some that are potentially problematic for ini parsers
-        EXPECT_EQ("108.000000", getValue(parsed, "Controls/Camera", "Field of vision"));
-        EXPECT_EQ("82:0:0:0", getValue(parsed, "Controls/Camera", "Move down"));
-        EXPECT_EQ("1.500000", getValue(parsed, "Texture Browser", "Icon size"));
-        EXPECT_EQ("/home/ericwa/Quake 3 Arena", getValue(parsed, "Games/Quake 3", "Path"));
-        EXPECT_EQ("/home/ericwa/foo=bar", getValue(parsed, "Games/Generic", "Path"));
+        EXPECT_EQ("108.000000", getValue(parsed, IO::Path("Controls/Camera/Field of vision")));
+        EXPECT_EQ("82:0:0:0", getValue(parsed, IO::Path("Controls/Camera/Move down")));
+        EXPECT_EQ("1.500000", getValue(parsed, IO::Path("Texture Browser/Icon size")));
+        EXPECT_EQ("/home/ericwa/Quake 3 Arena", getValue(parsed, IO::Path("Games/Quake 3/Path")));
+        EXPECT_EQ("/home/ericwa/foo=bar", getValue(parsed, IO::Path("Games/Generic/Path")));
     }
 
     /**
