@@ -36,7 +36,7 @@ namespace TrenchBroom {
                 setFixedHeight(thickness); // necessary to remove extra space around the horizontal line
             } else {
                 setFrameShape(QFrame::VLine);
-#if !defined __APPLE
+#if !defined __APPLE__
                 setFixedWidth(thickness); // this makes the vertical line disappear on macOS
 #endif
             }
