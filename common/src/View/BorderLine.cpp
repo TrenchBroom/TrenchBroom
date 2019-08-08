@@ -33,8 +33,10 @@ namespace TrenchBroom {
             setLineWidth(thickness - 1);
             if (direction == Direction_Horizontal) {
                 setFrameShape(QFrame::HLine);
+                setFixedHeight(thickness); // necessary to remove extra space around the horizontal line
             } else {
                 setFrameShape(QFrame::VLine);
+                // setFixedWidth(thickness); // this makes the vertical line disappear on macOS
             }
         }
     }
