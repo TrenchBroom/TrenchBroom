@@ -66,6 +66,12 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
 
+            m_view = new EntityBrowserView(
+                m_scrollBar,
+                contextManager,
+                document->entityDefinitionManager(),
+                document->entityModelManager(),
+                *document);
             m_windowContainer = m_view->widgetContainer();
 
             auto* browserPanelSizer = new QHBoxLayout();
