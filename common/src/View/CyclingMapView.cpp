@@ -156,6 +156,12 @@ namespace TrenchBroom {
             }
         }
 
+        void CyclingMapView::doUpdateLastActivation(const bool active) {
+            for (size_t i = 0; i < m_mapViews.size(); ++i) {
+                m_mapViews[i]->MapView::updateLastActivation(active);
+            }
+        }
+
         bool CyclingMapView::doCancelMouseDrag() {
             auto result = false;
             for (size_t i = 0; i < m_mapViews.size(); ++i) {

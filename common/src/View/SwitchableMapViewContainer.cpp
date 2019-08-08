@@ -345,6 +345,10 @@ namespace TrenchBroom {
             return m_mapView->cancelMouseDrag();
         }
 
+        void SwitchableMapViewContainer::doUpdateLastActivation(bool active) {
+            return m_mapView->updateLastActivation(active);
+        }
+
         void SwitchableMapViewContainer::doRefreshViews() {
             m_mapView->refreshViews();
         }

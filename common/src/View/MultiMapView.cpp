@@ -116,6 +116,12 @@ namespace TrenchBroom {
             return result;
         }
 
+        void MultiMapView::doUpdateLastActivation(const bool active) {
+            for (MapView* mapView : m_mapViews) {
+                mapView->updateLastActivation(active);
+            }
+        }
+
         void MultiMapView::doRefreshViews() {
             for (MapView* mapView : m_mapViews) {
                 mapView->refreshViews();

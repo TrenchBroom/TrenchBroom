@@ -644,11 +644,8 @@ namespace TrenchBroom {
 
         void MapFrame::bindEvents() {
             connect(m_autosaveTimer, &QTimer::timeout, this, &MapFrame::triggerAutosave);
-
             connect(qGuiApp, &QGuiApplication::focusWindowChanged, this, &MapFrame::focusChange);
-
             connect(m_gridChoice, QOverload<int>::of(&QComboBox::activated), this, [this](const int index) { setGridSize(index + Grid::MinSize); });
-
             connect(QApplication::clipboard(), &QClipboard::dataChanged, this, &MapFrame::updatePasteActions);
         }
 
@@ -1575,6 +1572,12 @@ namespace TrenchBroom {
 
         bool MapFrame::canLaunch() const {
             return m_document->persistent();
+        }
+
+        void MapFrame::changeEvent(QEvent* event) {
+            if (m_mapView != nullptr) {
+                m_mapView->updateLastActivation(isActiveWindow());
+            }
         }
 
         void MapFrame::closeEvent(QCloseEvent* event) {

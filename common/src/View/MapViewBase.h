@@ -79,12 +79,12 @@ namespace TrenchBroom {
             Q_OBJECT
         public:
             static const int DefaultCameraAnimationDuration;
-
+        protected:
             Logger* m_logger;
             MapDocumentWPtr m_document;
             MapViewToolBox& m_toolBox;
 
-            AnimationManager* m_animationManager;
+            std::unique_ptr<AnimationManager> m_animationManager;
         private:
             Renderer::MapRenderer& m_renderer;
             Renderer::Compass* m_compass;
@@ -120,8 +120,6 @@ namespace TrenchBroom {
             void createActions();
             void updateActionBindings();
             void updateActionStates();
-        private: // interaction events
-            void bindEvents();
         public:
             void triggerAction(const Action& action);
             void triggerAmbiguousAction(const String& name);
@@ -223,8 +221,9 @@ namespace TrenchBroom {
             void showTransitivelySelectedEntityLinks();
             void showDirectlySelectedEntityLinks();
             void hideAllEntityLinks();
-        private: // other events
-            void onActiveChanged();
+        protected:
+            void focusInEvent(QFocusEvent* event) override;
+            void focusOutEvent(QFocusEvent* event) override;
         public:
             ActionContext::Type actionContext() const;
         private: // implement ViewEffectsService interface
@@ -233,6 +232,7 @@ namespace TrenchBroom {
             bool doGetIsCurrent() const override;
             MapViewBase* doGetFirstMapViewBase() override;
             bool doCancelMouseDrag() override;
+            void doUpdateLastActivation(bool active) override;
             void doRefreshViews() override;
         protected: // RenderView overrides
             void initializeGL() override;

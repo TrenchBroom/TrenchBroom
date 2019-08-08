@@ -48,9 +48,9 @@ namespace TrenchBroom {
             };
             Mode m_mode;
         protected:
-            ResizeBrushesToolController(ResizeBrushesTool* tool);
+            explicit ResizeBrushesToolController(ResizeBrushesTool* tool);
         public:
-            virtual ~ResizeBrushesToolController() override;
+            ~ResizeBrushesToolController() override;
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
@@ -80,7 +80,7 @@ namespace TrenchBroom {
 
         class ResizeBrushesToolController2D : public ResizeBrushesToolController {
         public:
-            ResizeBrushesToolController2D(ResizeBrushesTool* tool);
+            explicit ResizeBrushesToolController2D(ResizeBrushesTool* tool);
         private:
             Model::Hit doPick(const vm::ray3& pickRay, const Model::PickResult& pickResult) override;
             bool doHandleInput(const InputState& inputState) const override;
@@ -88,7 +88,7 @@ namespace TrenchBroom {
 
         class ResizeBrushesToolController3D : public ResizeBrushesToolController {
         public:
-            ResizeBrushesToolController3D(ResizeBrushesTool* tool);
+            explicit ResizeBrushesToolController3D(ResizeBrushesTool* tool);
         private:
             Model::Hit doPick(const vm::ray3& pickRay, const Model::PickResult& pickResult) override;
             bool doHandleInput(const InputState& inputState) const override;

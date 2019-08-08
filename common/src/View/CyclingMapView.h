@@ -84,6 +84,7 @@ namespace TrenchBroom {
             void doToggleMaximizeCurrentView() override;
 
             bool doCancelMouseDrag() override;
+            void doUpdateLastActivation(bool active) override;
             void doCycleMapView() override;
             void doRefreshViews() override;
         private: // implement MapViewContainer interface

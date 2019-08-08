@@ -75,6 +75,10 @@ namespace TrenchBroom {
             doCycleMapView();
         }
 
+        void MapView::updateLastActivation(const bool active) {
+            doUpdateLastActivation(active);
+        }
+
         void MapView::refreshViews() {
             doRefreshViews();
         }

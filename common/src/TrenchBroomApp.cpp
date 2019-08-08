@@ -125,7 +125,7 @@ namespace TrenchBroom {
             using ActionMap = std::map<const Action*, QAction*>;
             ActionMap actionMap;
 
-            MainMenuBuilder menuBuilder(*menuBar, actionMap, [this](const Action& action) {
+            MainMenuBuilder menuBuilder(*menuBar, actionMap, [](const Action& action) {
                 ActionExecutionContext context(nullptr, nullptr);
                 action.execute(context);
             });

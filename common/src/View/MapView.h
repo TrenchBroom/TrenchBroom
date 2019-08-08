@@ -57,6 +57,8 @@ namespace TrenchBroom {
 
             void cycleMapView();
 
+            void updateLastActivation(bool active);
+
             /**
              * Requests repaint of the managed map views. Note, this must be used instead of QWidget::update()
              */
@@ -78,6 +80,8 @@ namespace TrenchBroom {
             virtual bool doCancelMouseDrag() = 0;
 
             virtual void doCycleMapView();
+
+            virtual void doUpdateLastActivation(bool active) = 0;
 
             virtual void doRefreshViews() = 0;
         };

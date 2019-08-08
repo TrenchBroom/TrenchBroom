@@ -42,7 +42,7 @@ namespace TrenchBroom {
             ensure(m_tool != nullptr, "tool is null");
         }
 
-        ResizeBrushesToolController::~ResizeBrushesToolController() {}
+        ResizeBrushesToolController::~ResizeBrushesToolController() = default;
 
         Tool* ResizeBrushesToolController::doGetTool() {
             return m_tool;
@@ -55,24 +55,28 @@ namespace TrenchBroom {
         void ResizeBrushesToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (handleInput(inputState)) {
                 const Model::Hit hit = doPick(inputState.pickRay(), pickResult);
-                if (hit.isMatch())
+                if (hit.isMatch()) {
                     pickResult.addHit(hit);
+                }
             }
         }
 
         void ResizeBrushesToolController::doModifierKeyChange(const InputState& inputState) {
-            if (!anyToolDragging(inputState))
+            if (!anyToolDragging(inputState)) {
                 m_tool->updateDragFaces(inputState.pickResult());
+            }
         }
 
         void ResizeBrushesToolController::doMouseMove(const InputState& inputState) {
-            if (handleInput(inputState) && !anyToolDragging(inputState))
+            if (handleInput(inputState) && !anyToolDragging(inputState)) {
                 m_tool->updateDragFaces(inputState.pickResult());
+            }
         }
 
         bool ResizeBrushesToolController::doStartMouseDrag(const InputState& inputState) {
-            if (!handleInput(inputState))
+            if (!handleInput(inputState)) {
                 return false;
+            }
 
             m_tool->updateDragFaces(inputState.pickResult());
             m_mode = inputState.modifierKeysDown(ModifierKeys::MKAlt) ? Mode::MoveFace : Mode::Resize;
@@ -109,8 +113,9 @@ namespace TrenchBroom {
         }
 
         void ResizeBrushesToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            if (thisToolDragging())
+            if (thisToolDragging()) {
                 renderContext.setForceShowSelectionGuide();
+            }
             // TODO: force rendering of all other map views if the input applies and the tool has drag faces
         }
 

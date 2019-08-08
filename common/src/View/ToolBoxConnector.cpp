@@ -124,12 +124,15 @@ namespace TrenchBroom {
             const Qt::KeyboardModifiers mouseState = QGuiApplication::queryKeyboardModifiers();
 
             ModifierKeyState state = ModifierKeys::MKNone;
-            if (mouseState & Qt::ControlModifier)
+            if (mouseState & Qt::ControlModifier) {
                 state |= ModifierKeys::MKCtrlCmd;
-            if (mouseState & Qt::ShiftModifier)
+            }
+            if (mouseState & Qt::ShiftModifier) {
                 state |= ModifierKeys::MKShift;
-            if (mouseState & Qt::AltModifier)
+            }
+            if (mouseState & Qt::AltModifier) {
                 state |= ModifierKeys::MKAlt;
+            }
             return state;
         }
 
@@ -142,16 +145,20 @@ namespace TrenchBroom {
             if (keys != m_inputState.modifierKeys()) {
                 m_inputState.setModifierKeys(keys);
                 return true;
+            } else {
+                return false;
             }
-            return false;
         }
 
         bool ToolBoxConnector::clearModifierKeys() {
             if (m_inputState.modifierKeys() != ModifierKeys::MKNone) {
                 m_inputState.setModifierKeys(ModifierKeys::MKNone);
+                updatePickResult();
+                m_toolBox->modifierKeyChange(m_toolChain, m_inputState);
                 return true;
-                }
-            return false;
+            } else {
+                return false;
+            }
         }
 
         void ToolBoxConnector::updateModifierKeys() {

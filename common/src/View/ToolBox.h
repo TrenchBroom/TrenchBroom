@@ -57,7 +57,6 @@ namespace TrenchBroom {
         private:
             ToolController* m_dragReceiver;
             ToolController* m_dropReceiver;
-            ToolController* m_savedDropReceiver;
             Tool* m_modalTool;
 
             using ToolList = std::vector<Tool*>;

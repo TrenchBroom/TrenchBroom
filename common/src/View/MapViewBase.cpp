@@ -85,13 +85,12 @@ namespace TrenchBroom {
         m_logger(logger),
         m_document(std::move(document)),
         m_toolBox(toolBox),
-        m_animationManager(new AnimationManager(this)),
+        m_animationManager(std::make_unique<AnimationManager>(this)),
         m_renderer(renderer),
         m_compass(nullptr),
         m_portalFileRenderer(nullptr) {
             setToolBox(toolBox);
             toolBox.addWindow(this);
-            bindEvents();
             bindObservers();
         }
 
@@ -103,12 +102,13 @@ namespace TrenchBroom {
         }
 
         MapViewBase::~MapViewBase() {
+            unbindObservers();
+
             // Deleting m_compass will access the VBO so we need to be current
             // see: http://doc.qt.io/qt-5/qopenglwidget.html#resource-initialization-and-cleanup
             makeCurrent();
 
             m_toolBox.removeWindow(this);
-            unbindObservers();
             delete m_compass;
         }
 
@@ -258,10 +258,6 @@ namespace TrenchBroom {
             requestUpdate();
         }
 
-        void MapViewBase::bindEvents() {
-            connect(this, &QWindow::activeChanged, this, &MapViewBase::onActiveChanged);
-        }
-
         void MapViewBase::createActions() {
             m_shortcuts.clear();
 
@@ -297,7 +293,6 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::triggerAction(const Action& action) {
-            qDebug() << "Action triggered: " << QString::fromStdString(action.name());
             auto* mapFrame = findMapFrame(widgetContainer());
             ActionExecutionContext context(mapFrame, this);
             action.execute(context);
@@ -750,15 +745,17 @@ namespace TrenchBroom {
             editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_None);
         }
 
-        void MapViewBase::onActiveChanged() {
-            requestUpdate(); // show/hide focus rectangle
+        void MapViewBase::focusInEvent(QFocusEvent* event) {
             updateActionStates();  // enable/disable QShortcut's to reflect whether we have focus (needed because of QOpenGLWindow; see comment in createAndRegisterShortcut)
+            updateModifierKeys();
+            requestUpdate();
+            QWindow::focusInEvent(event);
+        }
 
-            // FIXME: wx called these on focus in/out
-            //updateModifierKeys();
-            //clearModifierKeys();
-            // FIXME: wx called this when the actual window (ie MapFrame) became active:
-            // updateLastActivation();
+        void MapViewBase::focusOutEvent(QFocusEvent* event) {
+            clearModifierKeys();
+            requestUpdate();
+            QWindow::focusOutEvent(event);
         }
 
         ActionContext::Type MapViewBase::actionContext() const {
@@ -804,6 +801,12 @@ namespace TrenchBroom {
 
         bool MapViewBase::doCancelMouseDrag() {
             return ToolBoxConnector::cancelDrag();
+        }
+
+        void MapViewBase::doUpdateLastActivation(const bool active) {
+            if (active) {
+                m_toolBox.updateLastActivation();
+            }
         }
 
         void MapViewBase::doRefreshViews() {
@@ -940,8 +943,9 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::renderCompass(Renderer::RenderBatch& renderBatch) {
-            if (m_compass != nullptr)
+            if (m_compass != nullptr) {
                 m_compass->render(renderBatch);
+            }
         }
 
         void MapViewBase::renderFPS(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -1049,13 +1053,6 @@ namespace TrenchBroom {
             const auto localPos  = mapFromGlobal(screenPos);
             auto mouseEvent = QMouseEvent(QEvent::MouseMove, localPos, windowPos, screenPos, Qt::NoButton, Qt::NoButton, Qt::NoModifier, Qt::MouseEventSynthesizedByApplication);
             mouseMoveEvent(&mouseEvent);
-
-            // FIXME: needed with Qt?
-#if 0
-            wxMouseEvent mouseEvent(wxEVT_MOTION);
-            mouseEvent.SetPosition(ScreenToClient(wxGetMousePosition()));
-            OnMouse(mouseEvent);
-#endif
 
             doAfterPopupMenu();
         }
