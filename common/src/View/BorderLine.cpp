@@ -27,15 +27,14 @@ namespace TrenchBroom {
     namespace View {
         BorderLine::BorderLine(const Direction direction, const int thickness, QWidget* parent) :
         QFrame(parent) {
+            setContentsMargins(0, 0, 0, 0);
             setFrameShadow(QFrame::Plain);
             setStyleSheet(" BorderLine { color: " + Colors::borderColor().name() + "; }");
-            setLineWidth(thickness);
+            setLineWidth(thickness - 1);
             if (direction == Direction_Horizontal) {
                 setFrameShape(QFrame::HLine);
-                setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed));
             } else {
                 setFrameShape(QFrame::VLine);
-                setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Ignored));
             }
         }
     }
