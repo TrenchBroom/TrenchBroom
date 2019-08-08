@@ -1044,6 +1044,12 @@ namespace TrenchBroom {
             menu.exec(QCursor::pos());
 
             // Generate a synthetic mouse move event to update the mouse position after the popup menu closes.
+            const auto screenPos = QCursor::pos();
+            const auto windowPos = widgetContainer()->window()->mapFromGlobal(screenPos);
+            const auto localPos  = mapFromGlobal(screenPos);
+            auto mouseEvent = QMouseEvent(QEvent::MouseMove, localPos, windowPos, screenPos, Qt::NoButton, Qt::NoButton, Qt::NoModifier, Qt::MouseEventSynthesizedByApplication);
+            mouseMoveEvent(&mouseEvent);
+
             // FIXME: needed with Qt?
 #if 0
             wxMouseEvent mouseEvent(wxEVT_MOTION);
