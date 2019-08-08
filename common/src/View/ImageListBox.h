@@ -43,7 +43,7 @@ namespace TrenchBroom {
         class ImageListBox : public ControlListBox {
             Q_OBJECT
         public:
-            explicit ImageListBox(const QString& emptyText, QWidget* parent = nullptr);
+            explicit ImageListBox(const QString& emptyText, bool showSeparator, QWidget* parent = nullptr);
         private:
             ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
         private:

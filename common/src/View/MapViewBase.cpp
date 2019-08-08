@@ -980,10 +980,10 @@ namespace TrenchBroom {
         void MapViewBase::doShowPopupMenu() {
             // We process input events during paint event processing, but we cannot show a popup menu
             // during paint processing, so we enqueue an event for later.
-            QMetaObject::invokeMethod(this, "OnShowPopupMenu", Qt::QueuedConnection);
+            QMetaObject::invokeMethod(this, "showPopupMenuLater", Qt::QueuedConnection);
         }
 
-        void MapViewBase::OnShowPopupMenu() {
+        void MapViewBase::showPopupMenuLater() {
             if (!doBeforePopupMenu()) {
                 return;
             }

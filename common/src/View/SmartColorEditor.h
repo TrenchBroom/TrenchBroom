@@ -50,11 +50,6 @@ namespace TrenchBroom {
             ColorTable* m_colorHistory;
         public:
             explicit SmartColorEditor(View::MapDocumentWPtr document, QWidget* parent = nullptr);
-
-            void OnFloatRangeRadioButton();
-            void OnByteRangeRadioButton();
-            void OnColorPickerChanged(const QColor& color);
-            void OnColorTableSelected(QColor color);
         private:
             void createGui();
             void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
@@ -65,6 +60,11 @@ namespace TrenchBroom {
             void updateColorHistory();
 
             void setColor(const QColor& wxColor) const;
+
+            void floatRangeRadioButtonClicked();
+            void byteRangeRadioButtonClicked();
+            void colorPickerChanged(const QColor& color);
+            void colorTableSelected(QColor color);
         };
     }
 }

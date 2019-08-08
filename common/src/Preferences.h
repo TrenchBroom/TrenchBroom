@@ -26,6 +26,8 @@
 #include "IO/Path.h"
 #include "View/KeyboardShortcut.h"
 
+#include <vector>
+
 #include <vecmath/util.h>
 
 namespace TrenchBroom {
@@ -153,6 +155,13 @@ namespace TrenchBroom {
         extern Preference<View::KeyboardShortcut> CameraFlyRight;
         extern Preference<View::KeyboardShortcut> CameraFlyUp;
         extern Preference<View::KeyboardShortcut> CameraFlyDown;
+
+        /**
+         * Returns all Preferences declared in this file. Needed for migrating preference formats
+         * or if we wanted to do a Path to Preference lookup.
+         */
+        const std::vector<PreferenceBase*>& staticPreferences();
+        const std::map<IO::Path, PreferenceBase*>& staticPreferencesMap();
     }
 }
 

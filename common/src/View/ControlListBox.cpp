@@ -19,6 +19,7 @@
 
 #include "ControlListBox.h"
 
+#include "View/BorderLine.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
@@ -69,14 +70,40 @@ namespace TrenchBroom {
             }
         }
 
+        // ControlListBoxItemRendererWrapper
+
+        ControlListBoxItemRendererWrapper::ControlListBoxItemRendererWrapper(ControlListBoxItemRenderer* renderer, const bool showSeparator, QWidget* parent) :
+        QWidget(parent),
+        m_renderer(renderer) {
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(m_renderer);
+
+            if (showSeparator) {
+                layout->addWidget(new BorderLine());
+            }
+
+            setLayout(layout);
+        }
+
+        ControlListBoxItemRenderer* ControlListBoxItemRendererWrapper::renderer() {
+            return m_renderer;
+        }
+
+        const ControlListBoxItemRenderer* ControlListBoxItemRendererWrapper::renderer() const {
+            return m_renderer;
+        }
+
         // ControlListBox
 
-        ControlListBox::ControlListBox(const QString& emptyText, const QMargins& itemMargins, QWidget* parent) :
+        ControlListBox::ControlListBox(const QString& emptyText, const QMargins& itemMargins, const bool showSeparator, QWidget* parent) :
         QWidget(parent),
         m_listWidget(new QListWidget()),
         m_emptyTextContainer(new QWidget()),
         m_emptyTextLabel(new QLabel(emptyText)),
-        m_itemMargins(itemMargins) {
+        m_itemMargins(itemMargins),
+        m_showSeparator(showSeparator) {
             m_listWidget->setObjectName("controlListBox_listWidget");
             m_listWidget->hide();
             m_listWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
@@ -103,8 +130,8 @@ namespace TrenchBroom {
             setStyleSheet("QListWidget#controlListBox_listWidget { border: none; }");
         }
 
-        ControlListBox::ControlListBox(const QString& emptyText, QWidget* parent) :
-        ControlListBox(emptyText, QMargins(LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin, LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin), parent) {}
+        ControlListBox::ControlListBox(const QString& emptyText, const bool showSeparator, QWidget* parent) :
+        ControlListBox(emptyText, QMargins(LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin, LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin), showSeparator, parent) {}
 
         void ControlListBox::setEmptyText(const QString& emptyText) {
             m_emptyTextLabel->setText(emptyText);
@@ -159,37 +186,59 @@ namespace TrenchBroom {
         void ControlListBox::updateItems() {
             DisableWindowUpdates disableUpdates(this);
             for (int i = 0; i < m_listWidget->count(); ++i) {
-                auto* widgetItem = m_listWidget->item(i);
-                auto* renderer = static_cast<ControlListBoxItemRenderer*>(m_listWidget->itemWidget(widgetItem));
+                auto* renderer = this->renderer(i);
                 renderer->updateItem();
             }
         }
 
         const ControlListBoxItemRenderer* ControlListBox::renderer(const int i) const {
+            auto* wrapper = this->wrapper(i);
+            if (wrapper == nullptr) {
+                return nullptr;
+            }
+            return wrapper->renderer();
+        }
+
+        ControlListBoxItemRenderer* ControlListBox::renderer(const int i) {
+            auto* wrapper = this->wrapper(i);
+            if (wrapper == nullptr) {
+                return nullptr;
+            }
+            return wrapper->renderer();
+        }
+
+        ControlListBoxItemRendererWrapper* ControlListBox::wrapper(int i) const {
             if (i < 0 || i >= count()) {
                 return nullptr;
             }
             auto* widgetItem = m_listWidget->item(i);
-            return static_cast<ControlListBoxItemRenderer*>(m_listWidget->itemWidget(widgetItem));
+            return static_cast<ControlListBoxItemRendererWrapper*>(m_listWidget->itemWidget(widgetItem));
+        }
+
+        ControlListBoxItemRendererWrapper* ControlListBox::wrapper(const int i) {
+            if (i < 0 || i >= count()) {
+                return nullptr;
+            }
+            auto* widgetItem = m_listWidget->item(i);
+            return static_cast<ControlListBoxItemRendererWrapper*>(m_listWidget->itemWidget(widgetItem));
         }
 
         void ControlListBox::addItemRenderer(ControlListBoxItemRenderer* renderer) {
-            const auto index = static_cast<size_t>(count());
-            renderer->setIndex(index);
+            const auto index = count();
+            renderer->setIndex(static_cast<size_t>(index));
             renderer->setContentsMargins(m_itemMargins);
             connect(renderer, &ControlListBoxItemRenderer::doubleClicked, this, &ControlListBox::doubleClicked);
 
             auto* widgetItem = new QListWidgetItem(m_listWidget);
             m_listWidget->addItem(widgetItem);
-            setItemRenderer(widgetItem, renderer);
-        }
 
-        void ControlListBox::setItemRenderer(QListWidgetItem* widgetItem, ControlListBoxItemRenderer* renderer) {
             if (m_listWidget->itemWidget(widgetItem) != nullptr) {
                 m_listWidget->removeItemWidget(widgetItem);
             }
 
-            m_listWidget->setItemWidget(widgetItem, renderer);
+            auto* wrapper = new ControlListBoxItemRendererWrapper(renderer, m_showSeparator);
+
+            m_listWidget->setItemWidget(widgetItem, wrapper);
             widgetItem->setSizeHint(renderer->minimumSizeHint());
             renderer->setSelected(m_listWidget->currentItem() == widgetItem);
         }
@@ -201,7 +250,7 @@ namespace TrenchBroom {
         void ControlListBox::listItemSelectionChanged() {
             for (int row = 0; row < count(); ++row) {
                 auto* listItem = m_listWidget->item(row);
-                auto* renderer = static_cast<ControlListBoxItemRenderer*>(m_listWidget->itemWidget(listItem));
+                auto* renderer = this->renderer(row);
                 renderer->setSelected(listItem->isSelected());
                 if (listItem->isSelected()) {
                     selectedRowChanged(row);

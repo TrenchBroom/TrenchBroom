@@ -31,7 +31,7 @@
 namespace TrenchBroom {
     namespace View {
         RecentDocumentListBox::RecentDocumentListBox(QWidget* parent) :
-        ImageListBox("No Recent Documents", parent),
+        ImageListBox("No Recent Documents", true, parent),
         m_documentIcon(IO::loadPixmapResource("DocIcon.png")) {
             assert(!m_documentIcon.isNull());
             TrenchBroomApp& app = View::TrenchBroomApp::instance();

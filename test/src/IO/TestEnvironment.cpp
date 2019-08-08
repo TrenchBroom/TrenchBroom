@@ -29,7 +29,7 @@
 namespace TrenchBroom {
     namespace IO {
         TestEnvironment::TestEnvironment(const String& dir) :
-            m_dir(Path(QDir::current().path().toStdString()) + Path(dir)) {
+            m_dir(Path::fromQString(QDir::current().path()) + Path(dir)) {
             createTestEnvironment();
         }
 

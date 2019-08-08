@@ -41,6 +41,32 @@ namespace TrenchBroom {
         class Path;
     }
 
+    /**
+     * Used by wxWidgets versions of TB
+     */
+    class PreferenceSerializerV1 : public PrefSerializer {
+    public:
+        bool readFromString(const QString& in, bool* out) override;
+        bool readFromString(const QString& in, Color* out) override;
+        bool readFromString(const QString& in, float* out) override;
+        bool readFromString(const QString& in, int* out) override;
+        bool readFromString(const QString& in, IO::Path* out) override;
+        bool readFromString(const QString& in, View::KeyboardShortcut* out) override;
+
+        void writeToString(QTextStream& stream, const bool in) override;
+        void writeToString(QTextStream& stream, const Color& in) override;
+        void writeToString(QTextStream& stream, const float in) override;
+        void writeToString(QTextStream& stream, const int in) override;
+        void writeToString(QTextStream& stream, const IO::Path& in) override;
+        void writeToString(QTextStream& stream, const View::KeyboardShortcut& in) override;
+    };
+
+    class PreferenceSerializerV2 : public PreferenceSerializerV1 {
+    public:
+        bool readFromString(const QString& in, View::KeyboardShortcut* out) override;
+        void writeToString(QTextStream& stream, const View::KeyboardShortcut& in) override;
+    };
+
     class PreferenceManager {
     private:
         using UnsavedPreferences = std::set<PreferenceBase*>;
@@ -123,7 +149,8 @@ namespace TrenchBroom {
         return prefs.get(preference);
     }
 
-    std::map<QString, std::map<QString, QString>> parseINI(QTextStream* iniStream);
+    std::map<IO::Path, QString> parseINI(QTextStream* iniStream);
+    std::map<IO::Path, QString> getRegistrySettingsV1();
 }
 
 #endif /* defined(TrenchBroom_PreferenceManager) */

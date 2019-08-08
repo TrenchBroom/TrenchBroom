@@ -17,31 +17,17 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_PopupButton
-#define TrenchBroom_PopupButton
+#ifndef TrenchBroom_QtPrettyPrinters_h
+#define TrenchBroom_QtPrettyPrinters_h
 
-#include <QWidget>
+#include <QString>
 
-class QToolButton;
+#include <ostream>
 
-namespace TrenchBroom {
-    namespace View {
-        class PopupWindow;
+// These are so Google Test can print Qt types
 
-        class PopupButton : public QWidget {
-            Q_OBJECT
-        private:
-            QToolButton* m_button;
-            PopupWindow* m_window;
-        public:
-            explicit PopupButton(const QString& caption = "", QWidget* parent = nullptr);
-
-            QWidget* GetPopupWindow() const;
-        private:
-            void buttonClicked(bool checked);
-            void popupVisibilityChanged(bool visible);
-        };
-    }
+inline void PrintTo(const QString& string, std::ostream* ostream) {
+    *ostream << qUtf8Printable(string);
 }
 
-#endif /* defined(TrenchBroom_PopupButton) */
+#endif

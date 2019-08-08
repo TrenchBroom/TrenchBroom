@@ -61,8 +61,8 @@ namespace TrenchBroom {
             m_offset = new QLineEdit("0.0 0.0 0.0");
             m_button = new QPushButton(tr("Apply"));
 
-            connect(m_button, &QAbstractButton::clicked, this, &MoveObjectsToolPage::OnApply);
-            connect(m_offset, &QLineEdit::returnPressed, this, &MoveObjectsToolPage::OnApply);
+            connect(m_button, &QAbstractButton::clicked, this, &MoveObjectsToolPage::applyMove);
+            connect(m_offset, &QLineEdit::returnPressed, this, &MoveObjectsToolPage::applyMove);
 
             auto* layout = new QHBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
@@ -85,7 +85,7 @@ namespace TrenchBroom {
             updateGui();
         }
 
-        void MoveObjectsToolPage::OnApply() {
+        void MoveObjectsToolPage::applyMove() {
             const vm::vec3 delta = vm::vec3::parse(m_offset->text().toStdString());
 
             MapDocumentSPtr document = lock(m_document);

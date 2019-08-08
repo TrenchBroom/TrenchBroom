@@ -30,7 +30,7 @@
 namespace TrenchBroom {
     namespace View {
         GameListBox::GameListBox(QWidget* parent) :
-        ImageListBox("No Games Found", parent) {
+        ImageListBox("No Games Found", true, parent) {
             reloadGameInfos();
         }
 

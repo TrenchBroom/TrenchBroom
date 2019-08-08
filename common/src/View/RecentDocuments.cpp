@@ -82,7 +82,7 @@ namespace TrenchBroom {
                 const auto key = QString::fromStdString(std::string("RecentDocuments/") + std::to_string(i));
                 const QVariant value = settings.value(key);
                 if (value.isValid()) {
-                    m_recentDocuments.push_back(IO::Path(value.toString().toStdString()));
+                    m_recentDocuments.push_back(IO::Path::fromQString(value.toString()));
                 } else {
                     break;
                 }

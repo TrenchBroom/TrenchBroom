@@ -268,11 +268,11 @@ namespace TrenchBroom {
         }
 
         int EntityAttributeGridTable::rowForAttributeName(const String& name) const {
-            for (int i = 0; i < m_rows.size(); ++i) {
-                auto& row = m_rows.at(static_cast<size_t>(i));
+            for (size_t i = 0; i < m_rows.size(); ++i) {
+                auto& row = m_rows.at(i);
 
                 if (row.name() == name) {
-                    return i;
+                    return static_cast<int>(i);
                 }
             }
             return -1;

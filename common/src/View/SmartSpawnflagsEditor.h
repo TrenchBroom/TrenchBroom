@@ -50,8 +50,6 @@ namespace TrenchBroom {
             bool m_ignoreUpdates;
         public:
             explicit SmartSpawnflagsEditor(View::MapDocumentWPtr document, QWidget* parent = nullptr);
-
-            void OnFlagChanged(size_t index, int setFlag, int mixedFlag);
         private:
             void createGui();
             void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
@@ -60,6 +58,8 @@ namespace TrenchBroom {
             void getFlags(const Model::AttributableNodeList& attributables, QStringList& labels, QStringList& tooltips) const;
             void getFlagValues(const Model::AttributableNodeList& attributables, int& setFlags, int& mixedFlags) const;
             int getFlagValue(const Model::AttributableNode* attributable) const;
+
+            void flagChanged(size_t index, int setFlag, int mixedFlag);
         };
     }
 }

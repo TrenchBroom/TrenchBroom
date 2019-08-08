@@ -83,9 +83,9 @@ namespace TrenchBroom {
         protected: // QObject overrides
             bool eventFilter(QObject *obj, QEvent *ev) override;
         private:
-            void OnSetFocus(QFocusEvent* event);
-            void OnKillFocus(QFocusEvent* event);
-            void OnMouseMove(QMouseEvent* event, QWindow* enteredWidget);
+            void setFocusEvent(QFocusEvent* event);
+            void killFocusEvent(QFocusEvent* event);
+            void mouseMoveEvent(QMouseEvent* event, QWindow* enteredWidget);
             void setFocusCursor();
             void clearFocusCursor();
         protected:

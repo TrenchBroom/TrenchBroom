@@ -20,6 +20,111 @@
 #include "PreferenceManager.h"
 
 namespace TrenchBroom {
+    // PreferenceSerializerV1
+
+    bool PreferenceSerializerV1::readFromString(const QString& in, bool* out) {
+        if (in == QStringLiteral("1")) {
+            *out = true;
+            return true;
+        } else if (in == QStringLiteral("0")) {
+            *out = false;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool PreferenceSerializerV1::readFromString(const QString& in, Color* out) {
+        const std::string inStdString = in.toStdString();
+
+        if (!Color::canParse(inStdString)) {
+            return false;
+        }
+        
+        *out = Color::parse(inStdString);
+        return true;
+    }
+
+    bool PreferenceSerializerV1::readFromString(const QString& in, float* out) {
+        auto inCopy = QString(in);
+        auto inStream = QTextStream(&inCopy);
+
+        inStream >> *out;
+
+        return (inStream.status() == QTextStream::Ok);
+    }
+
+    bool PreferenceSerializerV1::readFromString(const QString& in, int* out) {
+        auto inCopy = QString(in);
+        auto inStream = QTextStream(&inCopy);
+
+        inStream >> *out;
+
+        return (inStream.status() == QTextStream::Ok);
+    }
+
+    bool PreferenceSerializerV1::readFromString(const QString& in, IO::Path* out) {
+        *out = IO::Path::fromQString(in);
+        return true;
+    }
+
+    bool PreferenceSerializerV1::readFromString(const QString& in, View::KeyboardShortcut* out) {
+        nonstd::optional<View::KeyboardShortcut> result = 
+            View::KeyboardShortcut::fromV1Settings(in);
+        
+        if (!result.has_value()) {
+            return false;
+        }
+        *out = result.value();
+        return true;
+    }
+
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const bool in) {
+        if (in) {
+            stream << "1";
+        } else {
+            stream << "0";
+        }
+    }
+
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const Color& in) {
+        // NOTE: QTextStream's default locale is C, unlike QString::arg()
+        stream << in.r() << " "
+               << in.g() << " "
+               << in.b() << " "
+               << in.a();
+    }
+
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const float in) {
+        stream << in;
+    }
+
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const int in) {
+        stream << in;
+    }
+
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const IO::Path& in) {
+        // NOTE: this serializes with "\" separators on Windows and "/" elsewhere!
+        stream << in.asQString();
+    }
+
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const View::KeyboardShortcut& in) {
+        stream << in.toV1Settings();
+    }
+
+    // PreferenceSerializerV2
+
+    bool PreferenceSerializerV2::readFromString(const QString& in, View::KeyboardShortcut* out) {
+        *out = View::KeyboardShortcut(QKeySequence(in, QKeySequence::PortableText));
+        return true;
+    }
+
+    void PreferenceSerializerV2::writeToString(QTextStream& stream, const View::KeyboardShortcut& in) {
+        stream << in.keySequence().toString(QKeySequence::PortableText);
+    }
+
+    // PreferenceManager
+
     void PreferenceManager::markAsUnsaved(PreferenceBase* preference) {
         m_unsavedPreferences.insert(preference);
     }
@@ -65,9 +170,9 @@ namespace TrenchBroom {
 #endif
     }
 
-    std::map<QString, std::map<QString, QString>> parseINI(QTextStream* iniStream) {
-        QString section;
-        std::map<QString, std::map<QString, QString>> result;
+    std::map<IO::Path, QString> parseINI(QTextStream* iniStream) {
+        IO::Path section;
+        std::map<IO::Path, QString> result;
 
         while (!iniStream->atEnd()) {
             QString line = iniStream->readLine();
@@ -85,7 +190,9 @@ namespace TrenchBroom {
 
             const bool heading = sqBracketAtStart && sqBracketAtEnd;
             if (heading) {
-                section = line.mid(1, line.length() - 2);
+                const QString sectionString = line.mid(1, line.length() - 2);
+                // NOTE: This parses the section
+                section = IO::Path::fromQString(sectionString);
                 continue;
             }
 
@@ -95,12 +202,37 @@ namespace TrenchBroom {
                 QString key = line.left(eqIndex);
                 QString value = line.mid(eqIndex + 1);
 
-                result[section][key] = value;
+                result[section + IO::Path::fromQString(key)] = value;
                 continue;
             }
 
             // Line was ignored
         }
+        return result;
+    }
+
+    static void visitNode(std::map<IO::Path, QString>* result, QSettings* settings, const IO::Path& currentPath) {
+        // Process key/value pairs at this node
+        for (const QString& key : settings->childKeys()) {
+            const QString value = settings->value(key).toString();
+            const IO::Path keyPath = currentPath + IO::Path::fromQString(key);
+            (*result)[keyPath] = value;
+        }
+
+        // Vist children
+        for (const QString& childGroup : settings->childGroups()) {
+            settings->beginGroup(childGroup);
+            visitNode(result, settings, currentPath + IO::Path::fromQString(childGroup));
+            settings->endGroup();
+        }
+    }
+
+    std::map<IO::Path, QString> getRegistrySettingsV1() {
+        std::map<IO::Path, QString> result;
+
+        QSettings s("HKEY_CURRENT_USER\\Software\\Kristian Duske\\TrenchBroom", QSettings::Registry32Format);
+        visitNode(&result, &s, IO::Path());
+
         return result;
     }
 }

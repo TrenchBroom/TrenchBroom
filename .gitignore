@@ -7,6 +7,7 @@ Thumbs.db
 /cmake-build-release
 /build-debug
 /build-release
+/build
 /codeblocks
 /Xcode*
 /vs2010

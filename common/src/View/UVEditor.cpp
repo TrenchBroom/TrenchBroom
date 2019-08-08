@@ -51,46 +51,6 @@ namespace TrenchBroom {
             return m_uvView->cancelDrag();
         }
 
-        void UVEditor::OnResetTexture() {
-            Model::ChangeBrushFaceAttributesRequest request;
-            request.resetAll();
-
-            MapDocumentSPtr document = lock(m_document);
-            document->setFaceAttributes(request);
-        }
-
-        void UVEditor::OnFlipTextureH() {
-            Model::ChangeBrushFaceAttributesRequest request;
-            request.mulXScale(-1.0f);
-
-            MapDocumentSPtr document = lock(m_document);
-            document->setFaceAttributes(request);
-        }
-
-        void UVEditor::OnFlipTextureV() {
-            Model::ChangeBrushFaceAttributesRequest request;
-            request.mulYScale(-1.0f);
-
-            MapDocumentSPtr document = lock(m_document);
-            document->setFaceAttributes(request);
-        }
-
-        void UVEditor::OnRotateTextureCCW() {
-            Model::ChangeBrushFaceAttributesRequest request;
-            request.addRotation(90.0f);
-
-            MapDocumentSPtr document = lock(m_document);
-            document->setFaceAttributes(request);
-        }
-
-        void UVEditor::OnRotateTextureCW() {
-            Model::ChangeBrushFaceAttributesRequest request;
-            request.addRotation(-90.0f);
-
-            MapDocumentSPtr document = lock(m_document);
-            document->setFaceAttributes(request);
-        }
-
         void UVEditor::updateButtons() {
             MapDocumentSPtr document = lock(m_document);
             const bool enabled = !document->allSelectedBrushFaces().empty();
@@ -100,12 +60,6 @@ namespace TrenchBroom {
             m_flipTextureVButton->setEnabled(enabled);
             m_rotateTextureCCWButton->setEnabled(enabled);
             m_rotateTextureCWButton->setEnabled(enabled);
-        }
-
-        void UVEditor::OnSubDivisionChanged() {
-            const int x = m_xSubDivisionEditor->value();
-            const int y = m_ySubDivisionEditor->value();
-            m_uvView->setSubDivisions(vm::vec2i(x, y));
         }
 
         void UVEditor::createGui(GLContextManager& contextManager) {
@@ -120,12 +74,12 @@ namespace TrenchBroom {
             m_rotateTextureCWButton = createBitmapButton("RotateTextureCW.png", tr("Rotate texture 90° clockwise"),
                                                          this);
 
-            connect(m_resetTextureButton, &QAbstractButton::clicked, this, &UVEditor::OnResetTexture);
+            connect(m_resetTextureButton, &QAbstractButton::clicked, this, &UVEditor::resetTextureClicked);
 
-            connect(m_flipTextureHButton, &QAbstractButton::clicked, this, &UVEditor::OnFlipTextureH);
-            connect(m_flipTextureVButton, &QAbstractButton::clicked, this, &UVEditor::OnFlipTextureV);
-            connect(m_rotateTextureCCWButton, &QAbstractButton::clicked, this, &UVEditor::OnRotateTextureCCW);
-            connect(m_rotateTextureCWButton, &QAbstractButton::clicked, this, &UVEditor::OnRotateTextureCW);
+            connect(m_flipTextureHButton, &QAbstractButton::clicked, this, &UVEditor::flipTextureHClicked);
+            connect(m_flipTextureVButton, &QAbstractButton::clicked, this, &UVEditor::flipTextureVClicked);
+            connect(m_rotateTextureCCWButton, &QAbstractButton::clicked, this, &UVEditor::rotateTextureCCWClicked);
+            connect(m_rotateTextureCWButton, &QAbstractButton::clicked, this, &UVEditor::rotateTextureCWClicked);
 
             auto* gridLabel = new QLabel("Grid ");
             makeEmphasized(gridLabel);
@@ -137,8 +91,10 @@ namespace TrenchBroom {
             m_ySubDivisionEditor->setRange(1, 16);
             m_ySubDivisionEditor->setValue(1);
 
-            connect(m_xSubDivisionEditor, QOverload<int>::of(&QSpinBox::valueChanged), this, &UVEditor::OnSubDivisionChanged);
-            connect(m_ySubDivisionEditor, QOverload<int>::of(&QSpinBox::valueChanged), this, &UVEditor::OnSubDivisionChanged);
+            connect(m_xSubDivisionEditor, QOverload<int>::of(&QSpinBox::valueChanged), this,
+                &UVEditor::subDivisionChanged);
+            connect(m_ySubDivisionEditor, QOverload<int>::of(&QSpinBox::valueChanged), this,
+                &UVEditor::subDivisionChanged);
 
             auto* bottomLayout = new QHBoxLayout();
             bottomLayout->setContentsMargins(LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
@@ -180,6 +136,53 @@ namespace TrenchBroom {
                 MapDocumentSPtr document = lock(m_document);
                 document->selectionDidChangeNotifier.removeObserver(this, &UVEditor::selectionDidChange);
             }
+        }
+
+
+        void UVEditor::resetTextureClicked() {
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.resetAll();
+
+            MapDocumentSPtr document = lock(m_document);
+            document->setFaceAttributes(request);
+        }
+
+        void UVEditor::flipTextureHClicked() {
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.mulXScale(-1.0f);
+
+            MapDocumentSPtr document = lock(m_document);
+            document->setFaceAttributes(request);
+        }
+
+        void UVEditor::flipTextureVClicked() {
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.mulYScale(-1.0f);
+
+            MapDocumentSPtr document = lock(m_document);
+            document->setFaceAttributes(request);
+        }
+
+        void UVEditor::rotateTextureCCWClicked() {
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.addRotation(90.0f);
+
+            MapDocumentSPtr document = lock(m_document);
+            document->setFaceAttributes(request);
+        }
+
+        void UVEditor::rotateTextureCWClicked() {
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.addRotation(-90.0f);
+
+            MapDocumentSPtr document = lock(m_document);
+            document->setFaceAttributes(request);
+        }
+
+        void UVEditor::subDivisionChanged() {
+            const int x = m_xSubDivisionEditor->value();
+            const int y = m_ySubDivisionEditor->value();
+            m_uvView->setSubDivisions(vm::vec2i(x, y));
         }
     }
 }

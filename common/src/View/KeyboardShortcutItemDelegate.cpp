@@ -27,8 +27,6 @@
 namespace TrenchBroom {
     namespace View {
         KeyboardShortcutItemDelegate::KeyboardShortcutItemDelegate() {
-            // FIXME: there is currently no way to delete a shortcut; we need to add a clear button to the editor
-            // which means writing our own editor class that uses QKeySequenceEdit internally
             auto* itemEditorFactory = new QItemEditorFactory();
             itemEditorFactory->registerEditor(QVariant::KeySequence, new QStandardItemEditorCreator<KeySequenceEdit>());
             setItemEditorFactory(itemEditorFactory);

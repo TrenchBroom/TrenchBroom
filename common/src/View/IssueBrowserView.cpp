@@ -85,47 +85,6 @@ namespace TrenchBroom {
             m_tableView->clearSelection();
         }
 
-        void IssueBrowserView::OnItemRightClick(const QPoint& pos) {
-            const QList<QModelIndex> selectedIndexes = m_tableView->selectionModel()->selectedIndexes();
-            if (selectedIndexes.empty()) {
-                return;
-            }
-
-            auto* popupMenu = new QMenu(this);
-            popupMenu->addAction(tr("Show"), this, &IssueBrowserView::OnShowIssues);
-            popupMenu->addAction(tr("Hide"), this, &IssueBrowserView::OnHideIssues);
-
-            const Model::IssueQuickFixList quickFixes = collectQuickFixes(selectedIndexes);
-            if (!quickFixes.empty()) {
-                auto* quickFixMenu = new QMenu();
-                quickFixMenu->setTitle(tr("Fix"));
-
-                for (Model::IssueQuickFix* quickFix : quickFixes) {
-                    quickFixMenu->addAction(QString::fromStdString(quickFix->description()), this, [=]() {
-                        this->OnApplyQuickFix(quickFix);
-                    });
-                }
-
-                popupMenu->addSeparator();
-                popupMenu->addMenu(quickFixMenu);
-            }
-
-            // `pos` is in m_tableView->viewport() coordinates as per: http://doc.qt.io/qt-5/qwidget.html#customContextMenuRequested
-            popupMenu->popup(m_tableView->viewport()->mapToGlobal(pos));
-        }
-
-        void IssueBrowserView::OnItemSelectionChanged() {
-            updateSelection();
-        }
-
-        void IssueBrowserView::OnShowIssues() {
-            setIssueVisibility(true);
-        }
-
-        void IssueBrowserView::OnHideIssues() {
-            setIssueVisibility(false);
-        }
-
         class IssueBrowserView::IssueVisible {
             int m_hiddenTypes;
             bool m_showHiddenIssues;
@@ -178,7 +137,7 @@ namespace TrenchBroom {
             }
         }
 
-        void IssueBrowserView::OnApplyQuickFix(const Model::IssueQuickFix* quickFix) {
+        void IssueBrowserView::applyQuickFix(const Model::IssueQuickFix* quickFix) {
             ensure(quickFix != nullptr, "quickFix is null");
 
             MapDocumentSPtr document = lock(m_document);
@@ -242,9 +201,51 @@ namespace TrenchBroom {
 
         void IssueBrowserView::bindEvents() {
             m_tableView->setContextMenuPolicy(Qt::CustomContextMenu);
-            connect(m_tableView, &QWidget::customContextMenuRequested, this, &IssueBrowserView::OnItemRightClick);
+            connect(m_tableView, &QWidget::customContextMenuRequested, this, &IssueBrowserView::itemRightClicked);
 
-            connect(m_tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &IssueBrowserView::OnItemSelectionChanged);
+            connect(m_tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+                &IssueBrowserView::itemSelectionChanged);
+        }
+
+        void IssueBrowserView::itemRightClicked(const QPoint& pos) {
+            const QList<QModelIndex> selectedIndexes = m_tableView->selectionModel()->selectedIndexes();
+            if (selectedIndexes.empty()) {
+                return;
+            }
+
+            auto* popupMenu = new QMenu(this);
+            popupMenu->addAction(tr("Show"), this, &IssueBrowserView::showIssues);
+            popupMenu->addAction(tr("Hide"), this, &IssueBrowserView::hideIssues);
+
+            const Model::IssueQuickFixList quickFixes = collectQuickFixes(selectedIndexes);
+            if (!quickFixes.empty()) {
+                auto* quickFixMenu = new QMenu();
+                quickFixMenu->setTitle(tr("Fix"));
+
+                for (Model::IssueQuickFix* quickFix : quickFixes) {
+                    quickFixMenu->addAction(QString::fromStdString(quickFix->description()), this, [=]() {
+                        this->applyQuickFix(quickFix);
+                    });
+                }
+
+                popupMenu->addSeparator();
+                popupMenu->addMenu(quickFixMenu);
+            }
+
+            // `pos` is in m_tableView->viewport() coordinates as per: http://doc.qt.io/qt-5/qwidget.html#customContextMenuRequested
+            popupMenu->popup(m_tableView->viewport()->mapToGlobal(pos));
+        }
+
+        void IssueBrowserView::itemSelectionChanged() {
+            updateSelection();
+        }
+
+        void IssueBrowserView::showIssues() {
+            setIssueVisibility(true);
+        }
+
+        void IssueBrowserView::hideIssues() {
+            setIssueVisibility(false);
         }
 
         void IssueBrowserView::invalidate() {

@@ -62,10 +62,10 @@ namespace TrenchBroom {
 
             auto* barPage = new QWidget(parent);
             m_showHiddenIssuesCheckBox = new QCheckBox("Show hidden issues");
-            connect(m_showHiddenIssuesCheckBox, &QCheckBox::stateChanged, this, &IssueBrowser::OnShowHiddenIssuesChanged);
+            connect(m_showHiddenIssuesCheckBox, &QCheckBox::stateChanged, this, &IssueBrowser::showHiddenIssuesChanged);
 
             m_filterEditor = new FlagsPopupEditor(1, nullptr, "Filter", false);
-            connect(m_filterEditor, &FlagsPopupEditor::flagChanged, this, &IssueBrowser::OnFilterChanged);
+            connect(m_filterEditor, &FlagsPopupEditor::flagChanged, this, &IssueBrowser::filterChanged);
 
             auto* barPageSizer = new QHBoxLayout();
             barPageSizer->setContentsMargins(0, 0, 0, 0);
@@ -74,14 +74,6 @@ namespace TrenchBroom {
             barPage->setLayout(barPageSizer);
 
             return barPage;
-        }
-
-        void IssueBrowser::OnShowHiddenIssuesChanged() {
-            m_view->setShowHiddenIssues(m_showHiddenIssuesCheckBox->isChecked());
-        }
-
-        void IssueBrowser::OnFilterChanged(size_t index, int setFlag, int mixedFlag) {
-            m_view->setHiddenGenerators(~setFlag);
         }
 
         void IssueBrowser::bindObservers() {
@@ -156,6 +148,14 @@ namespace TrenchBroom {
             m_filterEditor->setFlags(flags, labels);
             m_view->setHiddenGenerators(0);
             m_filterEditor->setFlagValue(~0);
+        }
+
+        void IssueBrowser::showHiddenIssuesChanged() {
+            m_view->setShowHiddenIssues(m_showHiddenIssuesCheckBox->isChecked());
+        }
+
+        void IssueBrowser::filterChanged(size_t index, int setFlag, int mixedFlag) {
+            m_view->setHiddenGenerators(~setFlag);
         }
     }
 }

@@ -34,7 +34,6 @@ namespace TrenchBroom {
         class TabBook;
         class TabBookPage;
 
-        // FIXME: current tab button is not updated properly on macOS
         class TabBarButton : public QLabel {
             Q_OBJECT
         private:
@@ -70,11 +69,11 @@ namespace TrenchBroom {
 
             void addTab(TabBookPage* bookPage, const QString& title);
         private:
-            void OnButtonClicked();
-            void OnTabBookPageChanged(int newIndex);
-        private:
             size_t findButtonIndex(QWidget* button) const;
             void setButtonActive(int index);
+
+            void buttonClicked();
+            void tabBookPageChanged(int newIndex);
         };
     }
 }

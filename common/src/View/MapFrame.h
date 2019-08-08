@@ -103,14 +103,9 @@ namespace TrenchBroom {
             MapDocumentSPtr document() const;
         public: // getters and such
             Logger& logger() const;
-        protected:
-            void dragEnterEvent(QDragEnterEvent* event) override;
-            void dropEvent(QDropEvent* event) override;
         private: // title bar contents
             void updateTitle();
         private: // menu bar
-            QAction* findOrCreateQAction(const Action* tAction);
-            class MenuBuilder;
             void createMenus();
             void updateShortcuts();
             void updateActionState();
@@ -149,8 +144,6 @@ namespace TrenchBroom {
             void groupWasClosed(Model::Group* group);
         private: // menu event handlers
             void bindEvents();
-        private slots:
-            void triggerAction(const Action& action);
         public:
             bool newDocument(Model::GameSPtr game, Model::MapFormat mapFormat);
             bool openDocument(Model::GameSPtr game, Model::MapFormat mapFormat, const IO::Path& path);

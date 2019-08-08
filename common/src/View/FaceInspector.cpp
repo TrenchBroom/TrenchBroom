@@ -43,7 +43,6 @@ namespace TrenchBroom {
         m_faceAttribsEditor(nullptr),
         m_textureBrowser(nullptr) {
             createGui(document, contextManager);
-            bindEvents();
         }
 
         FaceInspector::~FaceInspector() {
@@ -52,11 +51,6 @@ namespace TrenchBroom {
 
         bool FaceInspector::cancelMouseDrag() {
             return m_faceAttribsEditor->cancelMouseDrag();
-        }
-
-        void FaceInspector::OnTextureSelected(Assets::Texture* texture) {
-            MapDocumentSPtr document = lock(m_document);
-            document->setTexture(texture);
         }
 
         void FaceInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
@@ -77,6 +71,8 @@ namespace TrenchBroom {
             layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
             layout->addWidget(createTextureCollectionEditor(this, document));
             setLayout(layout);
+
+            connect(m_textureBrowser, &TextureBrowser::textureSelected, this, &FaceInspector::textureSelected);
 
             restoreWindowState(m_splitter);
         }
@@ -111,8 +107,9 @@ namespace TrenchBroom {
             return panel;
         }
 
-        void FaceInspector::bindEvents() {
-            connect(m_textureBrowser, &TextureBrowser::textureSelected, this, &FaceInspector::OnTextureSelected);
+        void FaceInspector::textureSelected(Assets::Texture* texture) {
+            MapDocumentSPtr document = lock(m_document);
+            document->setTexture(texture);
         }
     }
 }

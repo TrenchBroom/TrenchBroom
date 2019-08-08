@@ -22136,7 +22136,7 @@
 							"_parent": {
 								"$ref": "AAAAAAFKdi1rpPrI4cs="
 							},
-							"name": "OnSetFocus",
+							"name": "setFocusEvent",
 							"visibility": "private",
 							"isStatic": false,
 							"isLeaf": false,
@@ -22183,7 +22183,7 @@
 							"_parent": {
 								"$ref": "AAAAAAFKdi1rpPrI4cs="
 							},
-							"name": "OnKillFocus",
+							"name": "killFocusEvent",
 							"visibility": "private",
 							"isStatic": false,
 							"isLeaf": false,

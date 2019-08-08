@@ -94,7 +94,7 @@ namespace TrenchBroom {
         void GameEngineProfileEditor::updatePath(const QString& str) {
             const auto valid = isValidEnginePath(str);
             if (valid) {
-                const auto path = IO::Path(str.toStdString());
+                const auto path = IO::Path::fromQString(str);
                 m_profile->setPath(path);
                 if (m_profile->name().empty()) {
                     m_profile->setName(path.lastComponent().deleteExtension().asString());
@@ -142,7 +142,7 @@ namespace TrenchBroom {
 
         bool GameEngineProfileEditor::isValidEnginePath(const QString& str) const {
             try {
-                const auto path = IO::Path(str.toStdString());
+                const auto path = IO::Path::fromQString(str);
                 return IO::Disk::fileExists(path)
 #ifdef __APPLE__
                 || (IO::Disk::directoryExists(path) && StringUtils::caseInsensitiveEqual(path.extension(), "app"))

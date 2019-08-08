@@ -47,7 +47,9 @@ namespace TrenchBroom {
 
         void WelcomeWindow::closeEvent(QCloseEvent* event) {
             event->ignore();
-            hide();
+
+            auto& app = TrenchBroomApp::instance();
+            app.hideWelcomeWindow();
         }
 
         void WelcomeWindow::createGui() {
@@ -117,18 +119,13 @@ namespace TrenchBroom {
         }
 
         void WelcomeWindow::createNewDocument() {
-            hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
-            if (app.newDocument()) {
-                hide();
-            } else {
-                show();
-            }
+            app.newDocument();
         }
 
         void WelcomeWindow::openOtherDocument() {
             const auto pathStr = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
-            const auto path = IO::Path(pathStr.toStdString());
+            const auto path = IO::Path::fromQString(pathStr);
 
             if (!path.isEmpty()) {
                 openDocument(path);
@@ -136,13 +133,8 @@ namespace TrenchBroom {
         }
 
         void WelcomeWindow::openDocument(const IO::Path& path) {
-            hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
-            if (app.openDocument(path)) {
-                hide();
-            } else {
-                show();
-            }
+            app.openDocument(path);
         }
     }
 }

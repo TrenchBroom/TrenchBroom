@@ -65,9 +65,9 @@ namespace TrenchBroom {
             build->setToolTip(tooltip);
             qtVersion->setToolTip(tooltip);
 
-            connect(version, &ClickableLabel::clicked, this, &AppInfoPanel::OnClickVersionInfo);
-            connect(build, &ClickableLabel::clicked, this, &AppInfoPanel::OnClickVersionInfo);
-            connect(qtVersion, &ClickableLabel::clicked, this, &AppInfoPanel::OnClickVersionInfo);
+            connect(version, &ClickableLabel::clicked, this, &AppInfoPanel::versionInfoClicked);
+            connect(build, &ClickableLabel::clicked, this, &AppInfoPanel::versionInfoClicked);
+            connect(qtVersion, &ClickableLabel::clicked, this, &AppInfoPanel::versionInfoClicked);
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(20, 20, 20, 20);
@@ -85,7 +85,7 @@ namespace TrenchBroom {
             setLayout(layout);
         }
 
-        void AppInfoPanel::OnClickVersionInfo() {
+        void AppInfoPanel::versionInfoClicked() {
             QClipboard *clipboard = QApplication::clipboard();
             const QString str = QString("TrenchBroom ") % getBuildVersion() % QString(" Build ") % getBuildIdStr();
             clipboard->setText(str);

@@ -92,7 +92,7 @@ namespace TrenchBroom {
         }
 
         CompilationProfileListBox::CompilationProfileListBox(const Model::CompilationConfig& config, QWidget* parent) :
-        ControlListBox("Click the '+' button to create a compilation profile.", parent),
+        ControlListBox("Click the '+' button to create a compilation profile.", true, parent),
         m_config(config) {
             m_config.profilesDidChange.addObserver(this, &CompilationProfileListBox::profilesDidChange);
             reload();

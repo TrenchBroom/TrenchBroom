@@ -137,7 +137,7 @@ namespace TrenchBroom {
         // LayerListBox
 
         LayerListBox::LayerListBox(MapDocumentWPtr document, QWidget* parent) :
-        ControlListBox("", parent),
+        ControlListBox("", true, parent),
         m_document(std::move(document)) {
             bindObservers();
         }

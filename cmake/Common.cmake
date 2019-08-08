@@ -368,6 +368,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/LayerListBox.cpp
 	${COMMON_SOURCE_DIR}/View/LimitedKeySequenceEdit.cpp
 	${COMMON_SOURCE_DIR}/View/KeySequenceEdit.cpp
+	${COMMON_SOURCE_DIR}/View/MainMenuBuilder.cpp
 	${COMMON_SOURCE_DIR}/View/MapDocumentCommandFacade.cpp
 	${COMMON_SOURCE_DIR}/View/MapDocument.cpp
 	${COMMON_SOURCE_DIR}/View/MapFrame.cpp
@@ -918,6 +919,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/LayerListBox.h
 	${COMMON_SOURCE_DIR}/View/LimitedKeySequenceEdit.h
 	${COMMON_SOURCE_DIR}/View/KeySequenceEdit.h
+	${COMMON_SOURCE_DIR}/View/MainMenuBuilder.h
 	${COMMON_SOURCE_DIR}/View/MapDocumentCommandFacade.h
 	${COMMON_SOURCE_DIR}/View/MapDocument.h
 	${COMMON_SOURCE_DIR}/View/MapFrame.h

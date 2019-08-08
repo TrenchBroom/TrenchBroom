@@ -63,13 +63,13 @@ namespace TrenchBroom {
             void createGui();
             void updateGui();
 
-            void OnCenterChanged();
-            void OnResetCenter();
-            void OnAngleChanged(double value);
-            void OnRotate();
-            vm::vec3 getAxis() const;
-
             void selectionDidChange(const Selection& selection);
+
+            void centerChanged();
+            void resetCenterClicked();
+            void angleChanged(double value);
+            void rotateClicked();
+            vm::vec3 getAxis() const;
         };
     }
 }

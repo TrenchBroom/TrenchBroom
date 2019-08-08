@@ -304,7 +304,7 @@ namespace TrenchBroom {
         }
 
         CompilationTaskListBox::CompilationTaskListBox(MapDocumentWPtr document, QWidget* parent) :
-        ControlListBox("Click the '+' button to create a task.", QMargins(), parent),
+        ControlListBox("Click the '+' button to create a task.", QMargins(), false, parent),
         m_document(std::move(document)),
         m_profile(nullptr) {}
 

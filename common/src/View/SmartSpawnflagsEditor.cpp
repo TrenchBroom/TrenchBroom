@@ -63,20 +63,6 @@ namespace TrenchBroom {
             createGui();
         }
 
-        void SmartSpawnflagsEditor::OnFlagChanged(size_t index, int setFlag, int mixedFlag) {
-            const Model::AttributableNodeList& toUpdate = attributables();
-            if (toUpdate.empty())
-                return;
-
-            const bool set = m_flagsEditor->isFlagSet(index);
-
-            const TemporarilySetBool ignoreUpdates(m_ignoreUpdates);
-
-            const Transaction transaction(document(), "Set Spawnflags");
-            UpdateSpawnflag visitor(document(), name(), index, set);
-            Model::Node::accept(std::begin(toUpdate), std::end(toUpdate), visitor);
-        }
-
         void SmartSpawnflagsEditor::createGui() {
             assert(m_scrolledWindow == nullptr);
 
@@ -84,7 +70,7 @@ namespace TrenchBroom {
             //m_scrolledWindow->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 
             m_flagsEditor = new FlagsEditor(NumCols, nullptr);
-            connect(m_flagsEditor, &FlagsEditor::flagChanged, this, &SmartSpawnflagsEditor::OnFlagChanged);
+            connect(m_flagsEditor, &FlagsEditor::flagChanged, this, &SmartSpawnflagsEditor::flagChanged);
 
             m_scrolledWindow->setWidget(m_flagsEditor);
 
@@ -183,6 +169,20 @@ namespace TrenchBroom {
 
             const Model::AttributeValue& value = attributable->attribute(name());
             return std::atoi(value.c_str());
+        }
+
+        void SmartSpawnflagsEditor::flagChanged(size_t index, int setFlag, int mixedFlag) {
+            const Model::AttributableNodeList& toUpdate = attributables();
+            if (toUpdate.empty())
+                return;
+
+            const bool set = m_flagsEditor->isFlagSet(index);
+
+            const TemporarilySetBool ignoreUpdates(m_ignoreUpdates);
+
+            const Transaction transaction(document(), "Set Spawnflags");
+            UpdateSpawnflag visitor(document(), name(), index, set);
+            Model::Node::accept(std::begin(toUpdate), std::end(toUpdate), visitor);
         }
     }
 }

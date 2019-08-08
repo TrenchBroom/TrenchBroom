@@ -21,6 +21,7 @@
 #define TrenchBroom_KeyboardShortcut
 
 #include <QKeySequence>
+#include <optional-lite/optional.hpp>
 
 class QKeyEvent;
 
@@ -32,14 +33,18 @@ namespace TrenchBroom {
         public:
             explicit KeyboardShortcut(int qtKey = 0);
             explicit KeyboardShortcut(const QKeySequence& keySequence);
+            explicit KeyboardShortcut(const QString& portableKeySequenceString);
 
             friend bool operator==(const KeyboardShortcut& lhs, const KeyboardShortcut& rhs);
 
             QKeySequence keySequence() const;
+
+            static nonstd::optional<KeyboardShortcut> fromV1Settings(const QString& string);
+            QString toV1Settings() const;
         };
 
-        int wxModifierToQt(int wxMod);
         int wxKeyToQt(int wxKey);
+        int qtKeyToWx(int qtKey);
     }
 }
 

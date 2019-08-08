@@ -58,95 +58,6 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        void ModEditor::OnAddModClicked() {
-            const QList<QListWidgetItem*> selections = m_availableModList->selectedItems();
-            if (selections.empty()) {
-                return;
-            }
-
-            auto document = lock(m_document);
-
-            StringList mods = document->mods();
-            for (QListWidgetItem* item : selections) {
-                mods.push_back(item->text().toStdString());
-            }
-            document->setMods(mods);
-        }
-
-        void ModEditor::OnRemoveModClicked() {
-            const QList<QListWidgetItem*> selections = m_enabledModList->selectedItems();
-            if (selections.empty()) {
-                return;
-            }
-
-            auto document = lock(m_document);
-
-            StringList mods = document->mods();
-            for (QListWidgetItem* item : selections) {
-                const std::string mod = item->text().toStdString();
-                VectorUtils::erase(mods, mod);
-            }
-            document->setMods(mods);
-        }
-
-        void ModEditor::OnMoveModUpClicked() {
-            const QList<QListWidgetItem*> selections = m_enabledModList->selectedItems();
-            assert(selections.size() == 1);
-
-            auto document = lock(m_document);
-            auto mods = document->mods();
-
-            const size_t index = static_cast<size_t>(m_enabledModList->row(selections.first()));
-            ensure(index < mods.size(), "index out of range");
-
-            using std::swap;
-            swap(mods[index - 1], mods[index]);
-            document->setMods(mods);
-
-            m_enabledModList->clearSelection();
-            m_enabledModList->setItemSelected(m_enabledModList->item(static_cast<int>(index - 1)), true);
-        }
-
-        void ModEditor::OnMoveModDownClicked() {
-            const QList<QListWidgetItem*> selections = m_enabledModList->selectedItems();
-            assert(selections.size() == 1);
-
-            auto document = lock(m_document);
-            auto mods = document->mods();
-
-            const auto index = static_cast<size_t>(m_enabledModList->row(selections.first()));
-            ensure(index < mods.size() - 1, "index out of range");
-
-            using std::swap;
-            swap(mods[index + 1], mods[index]);
-            document->setMods(mods);
-
-            m_enabledModList->clearSelection();
-            m_enabledModList->setItemSelected(m_enabledModList->item(static_cast<int>(index + 1)), true);
-        }
-
-        bool ModEditor::canEnableAddButton() const {
-            return !m_availableModList->selectedItems().empty();
-        }
-
-        bool ModEditor::canEnableRemoveButton() const {
-            return !m_enabledModList->selectedItems().empty();
-        }
-
-        bool ModEditor::canEnableMoveUpButton() const {
-            return m_enabledModList->selectedItems().size() == 1 && m_enabledModList->row(m_enabledModList->selectedItems().front()) > 0;
-        }
-
-        bool ModEditor::canEnableMoveDownButton() const {
-            const auto enabledModCount = m_enabledModList->count();
-
-            return m_enabledModList->selectedItems().size() == 1 && m_enabledModList->row(m_enabledModList->selectedItems().front()) < enabledModCount - 1;
-        }
-
-        void ModEditor::OnFilterBoxChanged() {
-            updateMods();
-        }
-
         void ModEditor::createGui() {
             auto* availableModContainer = new TitledPanel("Available", false, false);
             m_availableModList = new QListWidget();
@@ -202,13 +113,13 @@ namespace TrenchBroom {
 
             setLayout(layout);
 
-            connect(m_availableModList, &QListWidget::itemDoubleClicked, this, &ModEditor::OnAddModClicked);
-            connect(m_enabledModList, &QListWidget::itemDoubleClicked, this, &ModEditor::OnRemoveModClicked);
-            connect(m_filterBox, &QLineEdit::textEdited, this, &ModEditor::OnFilterBoxChanged);
-            connect(m_addModsButton, &QAbstractButton::clicked, this, &ModEditor::OnAddModClicked);
-            connect(m_removeModsButton, &QAbstractButton::clicked, this, &ModEditor::OnRemoveModClicked);
-            connect(m_moveModUpButton, &QAbstractButton::clicked, this, &ModEditor::OnMoveModUpClicked);
-            connect(m_moveModDownButton, &QAbstractButton::clicked, this, &ModEditor::OnMoveModDownClicked);
+            connect(m_availableModList, &QListWidget::itemDoubleClicked, this, &ModEditor::addModClicked);
+            connect(m_enabledModList, &QListWidget::itemDoubleClicked, this, &ModEditor::removeModClicked);
+            connect(m_filterBox, &QLineEdit::textEdited, this, &ModEditor::filterBoxChanged);
+            connect(m_addModsButton, &QAbstractButton::clicked, this, &ModEditor::addModClicked);
+            connect(m_removeModsButton, &QAbstractButton::clicked, this, &ModEditor::removeModClicked);
+            connect(m_moveModUpButton, &QAbstractButton::clicked, this, &ModEditor::moveModUpClicked);
+            connect(m_moveModDownButton, &QAbstractButton::clicked, this, &ModEditor::moveModDownClicked);
 
             connect(m_availableModList, &QListWidget::itemSelectionChanged, this, &ModEditor::updateButtons);
             connect(m_enabledModList, &QListWidget::itemSelectionChanged, this, &ModEditor::updateButtons);
@@ -303,6 +214,95 @@ namespace TrenchBroom {
                     m_enabledModList->addItem(QString::fromStdString(enabledMods[i]));
                 }
             }
+        }
+
+        void ModEditor::addModClicked() {
+            const QList<QListWidgetItem*> selections = m_availableModList->selectedItems();
+            if (selections.empty()) {
+                return;
+            }
+
+            auto document = lock(m_document);
+
+            StringList mods = document->mods();
+            for (QListWidgetItem* item : selections) {
+                mods.push_back(item->text().toStdString());
+            }
+            document->setMods(mods);
+        }
+
+        void ModEditor::removeModClicked() {
+            const QList<QListWidgetItem*> selections = m_enabledModList->selectedItems();
+            if (selections.empty()) {
+                return;
+            }
+
+            auto document = lock(m_document);
+
+            StringList mods = document->mods();
+            for (QListWidgetItem* item : selections) {
+                const std::string mod = item->text().toStdString();
+                VectorUtils::erase(mods, mod);
+            }
+            document->setMods(mods);
+        }
+
+        void ModEditor::moveModUpClicked() {
+            const QList<QListWidgetItem*> selections = m_enabledModList->selectedItems();
+            assert(selections.size() == 1);
+
+            auto document = lock(m_document);
+            auto mods = document->mods();
+
+            const size_t index = static_cast<size_t>(m_enabledModList->row(selections.first()));
+            ensure(index < mods.size(), "index out of range");
+
+            using std::swap;
+            swap(mods[index - 1], mods[index]);
+            document->setMods(mods);
+
+            m_enabledModList->clearSelection();
+            m_enabledModList->setItemSelected(m_enabledModList->item(static_cast<int>(index - 1)), true);
+        }
+
+        void ModEditor::moveModDownClicked() {
+            const QList<QListWidgetItem*> selections = m_enabledModList->selectedItems();
+            assert(selections.size() == 1);
+
+            auto document = lock(m_document);
+            auto mods = document->mods();
+
+            const auto index = static_cast<size_t>(m_enabledModList->row(selections.first()));
+            ensure(index < mods.size() - 1, "index out of range");
+
+            using std::swap;
+            swap(mods[index + 1], mods[index]);
+            document->setMods(mods);
+
+            m_enabledModList->clearSelection();
+            m_enabledModList->setItemSelected(m_enabledModList->item(static_cast<int>(index + 1)), true);
+        }
+
+        bool ModEditor::canEnableAddButton() const {
+            return !m_availableModList->selectedItems().empty();
+        }
+
+        bool ModEditor::canEnableRemoveButton() const {
+            return !m_enabledModList->selectedItems().empty();
+        }
+
+        bool ModEditor::canEnableMoveUpButton() const {
+            return m_enabledModList->selectedItems().size() == 1 && m_enabledModList->row(m_enabledModList->selectedItems().front()) > 0;
+        }
+
+        bool ModEditor::canEnableMoveDownButton() const {
+            const auto enabledModCount = m_enabledModList->count();
+
+            return m_enabledModList->selectedItems().size() == 1 && m_enabledModList->row(m_enabledModList->selectedItems().front()) < enabledModCount - 1;
+        }
+
+        void ModEditor::filterBoxChanged() {
+            updateMods();
         }
     }
 }
