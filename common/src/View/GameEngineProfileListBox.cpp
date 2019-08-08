@@ -99,7 +99,7 @@ namespace TrenchBroom {
         }
 
         GameEngineProfileListBox::GameEngineProfileListBox(const Model::GameEngineConfig& config, QWidget* parent)  :
-        ControlListBox("Click the '+' button to create a game engine profile.", parent),
+        ControlListBox("Click the '+' button to create a game engine profile.", true, parent),
         m_config(config) {
             m_config.profilesDidChange.addObserver(this, &GameEngineProfileListBox::profilesDidChange);
             reload();

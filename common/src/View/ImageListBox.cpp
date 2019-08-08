@@ -74,8 +74,8 @@ namespace TrenchBroom {
             }
         }
 
-        ImageListBox::ImageListBox(const QString& emptyText, QWidget* parent) :
-        ControlListBox(emptyText, parent) {}
+        ImageListBox::ImageListBox(const QString& emptyText, bool showSeparator, QWidget* parent) :
+        ControlListBox(emptyText, showSeparator, parent) {}
 
         ControlListBoxItemRenderer* ImageListBox::createItemRenderer(QWidget* parent, const size_t index) {
             return new ImageListBoxItemRenderer(title(index), subtitle(index), image(index), parent);
