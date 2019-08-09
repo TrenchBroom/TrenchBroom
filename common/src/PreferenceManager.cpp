@@ -230,8 +230,10 @@ namespace TrenchBroom {
     std::map<IO::Path, QString> getRegistrySettingsV1() {
         std::map<IO::Path, QString> result;
 
+#if defined(Q_OS_WIN)
         QSettings s("HKEY_CURRENT_USER\\Software\\Kristian Duske\\TrenchBroom", QSettings::Registry32Format);
         visitNode(&result, &s, IO::Path());
+#endif
 
         return result;
     }
