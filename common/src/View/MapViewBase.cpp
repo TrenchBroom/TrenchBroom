@@ -266,7 +266,7 @@ namespace TrenchBroom {
                 auto shortcut = std::make_unique<QShortcut>(widgetContainer());
                 shortcut->setKey(keySequence);
                 connect(shortcut.get(), &QShortcut::activated, this, [this, &action]() { triggerAction(action); });
-                connect(shortcut.get(), &QShortcut::activatedAmbiguously, this, [this, &action]() { triggerAmbiguousAction(action.name()); });
+                connect(shortcut.get(), &QShortcut::activatedAmbiguously, this, [this, &action]() { triggerAmbiguousAction(action.label()); });
                 m_shortcuts.emplace_back(std::move(shortcut), &action);
             };
 
@@ -298,8 +298,8 @@ namespace TrenchBroom {
             action.execute(context);
         }
 
-        void MapViewBase::triggerAmbiguousAction(const String& name) {
-            qDebug() << "Ambiguous action triggered: " << QString::fromStdString(name);
+        void MapViewBase::triggerAmbiguousAction(const QString& label) {
+            qDebug() << "Ambiguous action triggered: " << label;
         }
 
         void MapViewBase::move(const vm::direction direction) {

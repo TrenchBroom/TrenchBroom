@@ -122,7 +122,7 @@ namespace TrenchBroom {
             void updateActionStates();
         public:
             void triggerAction(const Action& action);
-            void triggerAmbiguousAction(const String& name);
+            void triggerAmbiguousAction(const QString& label);
         public: // move, rotate, flip actions
             void move(vm::direction direction);
             void moveVertices(vm::direction direction);

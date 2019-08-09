@@ -35,10 +35,13 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             struct ActionInfo {
-                const IO::Path path;
+                /**
+                 * Path displayed to the user, unrelated to the preference path.
+                 */
+                const IO::Path displayPath;
                 const Action& action;
 
-                ActionInfo(const IO::Path& i_path, const Action& i_action);
+                ActionInfo(const IO::Path& i_displayPath, const Action& i_action);
             };
 
             MapDocument* m_document;

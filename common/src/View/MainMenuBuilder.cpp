@@ -43,7 +43,7 @@ namespace TrenchBroom {
                 }
             }
 
-            auto* qAction = new QAction(QString::fromStdString(tAction->name()));
+            auto* qAction = new QAction(tAction->label());
             qAction->setCheckable(tAction->checkable());
             if (tAction->hasIcon()) {
                 qAction->setIcon(IO::loadIconResourceQt(tAction->iconPath()));

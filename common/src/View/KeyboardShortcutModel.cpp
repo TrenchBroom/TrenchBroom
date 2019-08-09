@@ -32,8 +32,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        KeyboardShortcutModel::ActionInfo::ActionInfo(const IO::Path& i_path, const Action& i_action) :
-        path(i_path),
+        KeyboardShortcutModel::ActionInfo::ActionInfo(const IO::Path& i_displayPath, const Action& i_action) :
+        displayPath(i_displayPath),
         action(i_action) {}
 
         KeyboardShortcutModel::KeyboardShortcutModel(MapDocument* document) :
@@ -83,7 +83,7 @@ namespace TrenchBroom {
                 } else if (index.column() == 1) {
                     return QString::fromStdString(actionContextName(actionInfo.action.actionContext()));
                 } else {
-                    return QString::fromStdString(actionInfo.path.asString(" > "));
+                    return QString::fromStdString(actionInfo.displayPath.asString(" > "));
                 }
             } else {
                 return QVariant();
@@ -154,7 +154,7 @@ namespace TrenchBroom {
             void visit(const MenuSeparatorItem& item) override {}
 
             void visit(const MenuActionItem& item) override {
-                m_actions.emplace_back(m_currentPath + IO::Path(item.name()), item.action());
+                m_actions.emplace_back(m_currentPath + IO::Path::fromQString(item.label()), item.action());
             }
 
         };
@@ -168,21 +168,21 @@ namespace TrenchBroom {
         void KeyboardShortcutModel::initializeViewActions() {
             const auto& actionManager = ActionManager::instance();
             actionManager.visitMapViewActions([this](const Action& action) {
-                m_actions.emplace_back(IO::Path("Map View") + IO::Path(action.name()), action);
+                m_actions.emplace_back(IO::Path("Map View") + IO::Path::fromQString(action.label()), action);
             });
         }
 
         void KeyboardShortcutModel::initializeTagActions() {
             assert(m_document != nullptr);
             m_document->visitTagActions([this](const Action& action) {
-                m_actions.emplace_back(IO::Path("Tags") + IO::Path(action.name()), action);
+                m_actions.emplace_back(IO::Path("Tags") + IO::Path::fromQString(action.label()), action);
             });
         }
 
         void KeyboardShortcutModel::initializeEntityDefinitionActions() {
             assert(m_document != nullptr);
             m_document->visitEntityDefinitionActions([this](const Action& action) {
-                m_actions.emplace_back(IO::Path("Entity Definitions") + IO::Path(action.name()), action);
+                m_actions.emplace_back(IO::Path("Entity Definitions") + IO::Path::fromQString(action.label()), action);
             });
         }
 
