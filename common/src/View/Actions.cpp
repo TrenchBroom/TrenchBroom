@@ -327,6 +327,10 @@ namespace TrenchBroom {
             }
         }
 
+        const std::map<IO::Path, std::unique_ptr<Action>>& ActionManager::actionsMap() const {
+            return m_actions;
+        }
+
         class ActionManager::ResetMenuVisitor : public MenuVisitor {
             void visit(const Menu& menu) override {
                 menu.visitEntries(*this);

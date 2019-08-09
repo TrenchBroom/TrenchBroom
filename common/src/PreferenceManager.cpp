@@ -19,6 +19,10 @@
 
 #include "PreferenceManager.h"
 
+#include "Preferences.h"
+#include "View/Actions.h"
+#include "View/KeyboardShortcut.h"
+
 namespace TrenchBroom {
     // PreferenceSerializerV1
 
@@ -234,6 +238,52 @@ namespace TrenchBroom {
         QSettings s("HKEY_CURRENT_USER\\Software\\Kristian Duske\\TrenchBroom", QSettings::Registry32Format);
         visitNode(&result, &s, IO::Path());
 #endif
+
+        return result;
+    }
+
+    std::map<IO::Path, QString> migrateV1ToV2(const std::map<IO::Path, QString>& v1Prefs) {
+        auto& map = Preferences::staticPreferencesMap();
+        auto& actionsMap = View::ActionManager::instance().actionsMap();
+        
+        PreferenceSerializerV1 v1;
+        PreferenceSerializerV2 v2;
+
+        std::map<IO::Path, QString> result;
+
+        for (auto [key, val] : v1Prefs) {
+            qDebug() << key.asQString() << "=" << val;
+
+            if (auto it = map.find(key); it != map.end()) {
+                PreferenceBase* prefBase = it->second;
+
+                auto strMaybe = prefBase->migratePreferenceForThisType(v1, v2, val);
+
+                if (!strMaybe.has_value()) {
+                    qDebug() << " failed to migrate pref for " << key.asQString();
+                } else {
+                    result[key] = *strMaybe;
+                }
+            } else if (auto it = actionsMap.find(key); it != actionsMap.end()) {
+                // assume it's a View::KeyboardShortcut
+
+                auto strMaybe = migratePreference<View::KeyboardShortcut>(v1, v2, val);
+
+                if (!strMaybe.has_value()) {
+                    qDebug() << " failed to migrate pref for " << key.asQString();
+                } else {
+                    result[key] = *strMaybe;
+                }
+            } else {
+                qDebug() << "   did not find migration for " << key.asQString();
+
+                // TODO: 
+                // - Games (copy as strings)
+                // - dynamic key bindings (tags/entity definitions etc.) - assume View::KeyboardShortcut
+                // - anything else? 
+                // - Drop unrecgonized folders so we don't bring over wx splitter positions, etc.
+            }
+        }
 
         return result;
     }

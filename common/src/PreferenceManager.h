@@ -151,6 +151,7 @@ namespace TrenchBroom {
 
     std::map<IO::Path, QString> parseINI(QTextStream* iniStream);
     std::map<IO::Path, QString> getRegistrySettingsV1();
+    std::map<IO::Path, QString> migrateV1ToV2(const std::map<IO::Path, QString>& v1Prefs);
 }
 
 #endif /* defined(TrenchBroom_PreferenceManager) */

@@ -27,6 +27,8 @@
 
 #include "PreferenceManager.h"
 #include "QtPrettyPrinters.h"
+#include "Preferences.h"
+#include "View/Actions.h"
 
 namespace TrenchBroom {
     static QString getValue(const std::map<IO::Path, QString>& map, const IO::Path& key) {
@@ -36,9 +38,7 @@ namespace TrenchBroom {
     TEST(PreferencesTest, parseReg) {
         std::map<IO::Path, QString> reg = getRegistrySettingsV1();
 
-        for (auto [key, val] : reg) {
-            qDebug() << key.asQString() << "=" << val;
-        }
+        auto migrated = migrateV1ToV2(reg);
     }
 
     TEST(PreferencesTest, parseV1) {

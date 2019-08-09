@@ -217,6 +217,7 @@ namespace TrenchBroom {
             void visitMainMenu(MenuVisitor& visitor) const;
             void visitToolBarActions(MenuVisitor& visitor) const;
             void visitMapViewActions(const ActionVisitor& visitor) const;
+            const std::map<IO::Path, std::unique_ptr<Action>>& actionsMap() const;
 
             class ResetMenuVisitor;
             void resetAllKeySequences() const;

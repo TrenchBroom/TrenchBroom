@@ -61,6 +61,19 @@ namespace TrenchBroom {
         virtual void writeToString(QTextStream& stream, const View::KeyboardShortcut& in) = 0;
     };
 
+    template <class T>
+    nonstd::optional<QString> migratePreference(PrefSerializer& from, PrefSerializer& to, const QString& input) {
+        T result;
+        if (!from.readFromString(input, &result)) {
+            return {};
+        }
+
+        QString string;
+        QTextStream stream(&string);
+        to.writeToString(stream, result);
+        return string;
+    }
+
     template <typename T>
     class PreferenceSerializer {
     public:
@@ -223,7 +236,7 @@ namespace TrenchBroom {
         virtual const IO::Path& path() const = 0;
 
         // new API
-        virtual nonstd::optional<QString> migratePreference(PrefSerializer& from, 
+        virtual nonstd::optional<QString> migratePreferenceForThisType(PrefSerializer& from,
             PrefSerializer& to, const QString& input) const = 0;
         virtual bool loadFromString(PrefSerializer* format, const QString& value) = 0;
     };
@@ -329,16 +342,8 @@ namespace TrenchBroom {
             return m_value;
         }
 
-        nonstd::optional<QString> migratePreference(PrefSerializer& from, PrefSerializer& to, const QString& input) const override {
-            T result;
-            if (!from.readFromString(input, &result)) {
-                return {};
-            }
-
-            QString string;
-            QTextStream stream(&string);
-            to.writeToString(stream, result);
-            return string;
+        nonstd::optional<QString> migratePreferenceForThisType(PrefSerializer& from, PrefSerializer& to, const QString& input) const override {
+            return migratePreference<T>(from, to, input);
         }
 
         bool loadFromString(PrefSerializer* format, const QString& value) override {
