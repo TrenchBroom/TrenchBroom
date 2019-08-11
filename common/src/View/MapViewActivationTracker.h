@@ -82,15 +82,17 @@ namespace TrenchBroom {
              * Called when a map view has received focus.
              *
              * @param event the focus event
+             * @param window the window that received the event
              */
-            void setFocusEvent(QFocusEvent* event);
+            void setFocusEvent(QFocusEvent* event, QWindow* window);
 
             /**
              * Called when a map view has lost focus.
              *
              * @param event the focus event
+             * @param window the window that received the event
              */
-            void killFocusEvent(QFocusEvent* event);
+            void killFocusEvent(QFocusEvent* event, QWindow* window);
 
             /**
              * Called when a map view has received a mouse down event.
@@ -99,7 +101,7 @@ namespace TrenchBroom {
              * Otherwise, the event will be processed as usual
              *
              * @param event the mouse event
-             * @param window the widget that received the event
+             * @param window the window that received the event
              * @return true if the event should be discarded and false otherwise
              */
             bool mouseDownEvent(QMouseEvent* event, QWindow* window);
@@ -111,7 +113,7 @@ namespace TrenchBroom {
              * Otherwise, the event will be processed as usual
              *
              * @param event the mouse event
-             * @param window the widget that received the event
+             * @param window the window that received the event
              * @return true if the event should be discarded and false otherwise
              */
             bool mouseUpEvent(QMouseEvent* event, QWindow* window);
@@ -121,7 +123,7 @@ namespace TrenchBroom {
              * not have focus, it will receive the focus.
              *
              * @param event the mouse move event
-             * @param window the widget that received the event
+             * @param window the window that received the event
              */
             void mouseMoveEvent(QMouseEvent* event, QWindow* window);
 

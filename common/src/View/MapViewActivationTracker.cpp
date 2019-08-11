@@ -58,16 +58,8 @@ namespace TrenchBroom {
 
         void MapViewActivationTracker::windowActivationChanged(const bool active) {
             if (!active) {
-                qDebug() << "window deactivated";
                 // window has lost activation, deactivate the group
                 deactivate();
-            } else {
-                qDebug() << "window activated";
-                auto* focusWindow = QGuiApplication::focusWindow();
-                qDebug() << "focus window is " << focusWindow;
-                if (VectorUtils::contains(m_mapViews, focusWindow)) {
-                    qDebug() << "Activated with a map view as focus";
-                }
             }
         }
 
@@ -77,10 +69,10 @@ namespace TrenchBroom {
 
             switch (event->type()) {
                 case QEvent::FocusIn:
-                    setFocusEvent(static_cast<QFocusEvent*>(event));
+                    setFocusEvent(static_cast<QFocusEvent*>(event), window);
                     break;
                 case QEvent::FocusOut:
-                    killFocusEvent(static_cast<QFocusEvent*>(event));
+                    killFocusEvent(static_cast<QFocusEvent*>(event), window);
                     break;
                 case QEvent::MouseButtonPress:
                     if (mouseDownEvent(static_cast<QMouseEvent*>(event), window)) {
@@ -103,9 +95,9 @@ namespace TrenchBroom {
             return QObject::eventFilter(object, event);
         }
 
-        void MapViewActivationTracker::setFocusEvent(QFocusEvent* event) {}
+        void MapViewActivationTracker::setFocusEvent(QFocusEvent* event, QWindow* window) {}
 
-        void MapViewActivationTracker::killFocusEvent(QFocusEvent* event) {
+        void MapViewActivationTracker::killFocusEvent(QFocusEvent* event, QWindow* window) {
             const auto* focusedWindow = QGuiApplication::focusWindow();
             if (!VectorUtils::contains(m_mapViews, focusedWindow)) {
                 deactivate();
@@ -118,11 +110,6 @@ namespace TrenchBroom {
                 return false;
             }
 
-            auto* focusWindow = QGuiApplication::focusWindow();
-            qDebug() << "focus window on mouse down is " << focusWindow;
-            qDebug() << "event window on mouse down is " << window;
-
-            window->requestActivate();
             if (event->button() != Qt::LeftButton) {
                 activate();
                 return false;
@@ -138,11 +125,6 @@ namespace TrenchBroom {
                 return false;
             }
 
-            auto* focusWindow = QGuiApplication::focusWindow();
-            qDebug() << "focus window on mouse up is " << focusWindow;
-            qDebug() << "event window on mouse up is " << window;
-
-            window->requestActivate();
             activate();
 
             // at this point, it must be a left button event, otherwise we would have been active already
@@ -171,7 +153,6 @@ namespace TrenchBroom {
 
         void MapViewActivationTracker::activate() {
             if (!m_active) {
-                qDebug() << "Map view group activated";
                 m_active = true;
                 clearFocusCursor();
             }
@@ -179,7 +160,6 @@ namespace TrenchBroom {
 
         void MapViewActivationTracker::deactivate() {
             if (m_active) {
-                qDebug() << "Map view group deactivated";
                 setFocusCursor();
                 m_active = false;
             }

@@ -1551,7 +1551,7 @@ namespace TrenchBroom {
                 m_currentMapView = newMapView;
                 qDebug() << "Current map view changed to " << m_currentMapView;
             } else {
-                ; // leave the current map view as-is
+                // leave the current map view as-is
             }
 
             updateActionState();
