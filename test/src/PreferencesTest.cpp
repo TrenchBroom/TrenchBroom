@@ -32,11 +32,15 @@
 
 namespace TrenchBroom {
     static QString getValue(const std::map<IO::Path, QString>& map, const IO::Path& key) {
-        return map.at(key);
+        auto it = map.find(key);
+        if (it == map.end()) {
+            return "";
+        }
+        return it->second;
     }
 
     TEST(PreferencesTest, parseReg) {
-        std::map<IO::Path, QString> reg = getRegistrySettingsV1();
+        const std::map<IO::Path, QString> reg = getRegistrySettingsV1();
 
         auto migrated = migrateV1ToV2(reg);
     }
@@ -46,14 +50,72 @@ namespace TrenchBroom {
         ASSERT_TRUE(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
         QTextStream in(&file);
-        std::map<IO::Path, QString> parsed = parseINI(&in);
+        const std::map<IO::Path, QString> parsed = parseINI(&in);
 
-        // This is not a complete test but just some that are potentially problematic for ini parsers
         EXPECT_EQ("108.000000", getValue(parsed, IO::Path("Controls/Camera/Field of vision")));
         EXPECT_EQ("82:0:0:0", getValue(parsed, IO::Path("Controls/Camera/Move down")));
+        EXPECT_EQ("87:0:0:0", getValue(parsed, IO::Path("Controls/Camera/Move up")));
+        EXPECT_EQ("70:0:0:0", getValue(parsed, IO::Path("Controls/Camera/Move right")));
+        EXPECT_EQ("83:0:0:0", getValue(parsed, IO::Path("Controls/Camera/Move left")));
+        EXPECT_EQ("68:0:0:0", getValue(parsed, IO::Path("Controls/Camera/Move backward")));
+        EXPECT_EQ("69:0:0:0", getValue(parsed, IO::Path("Controls/Camera/Move forward")));
+        EXPECT_EQ("0.425781", getValue(parsed, IO::Path("Controls/Camera/Fly move speed")));
+        EXPECT_EQ("1", getValue(parsed, IO::Path("Controls/Camera/Move camera in cursor dir")));
+        EXPECT_EQ("1", getValue(parsed, IO::Path("Controls/Camera/Use alt to move")));
+        EXPECT_EQ("0.350000", getValue(parsed, IO::Path("Controls/Camera/Move speed")));
+        EXPECT_EQ("1", getValue(parsed, IO::Path("Controls/Camera/Invert mouse wheel")));
+        EXPECT_EQ("1", getValue(parsed, IO::Path("Controls/Camera/Invert vertical pan")));
+        EXPECT_EQ("1", getValue(parsed, IO::Path("Controls/Camera/Invert horizontal pan")));
+        EXPECT_EQ("0.550000", getValue(parsed, IO::Path("Controls/Camera/Pan speed")));
+        EXPECT_EQ("1", getValue(parsed, IO::Path("Controls/Camera/Invert vertical look")));
+        EXPECT_EQ("1", getValue(parsed, IO::Path("Controls/Camera/Invert horizontal look")));
+        EXPECT_EQ("0.440000", getValue(parsed, IO::Path("Controls/Camera/Look speed")));
         EXPECT_EQ("1.500000", getValue(parsed, IO::Path("Texture Browser/Icon size")));
-        EXPECT_EQ("/home/ericwa/Quake 3 Arena", getValue(parsed, IO::Path("Games/Quake 3/Path")));
+        EXPECT_EQ("14", getValue(parsed, IO::Path("Renderer/Font size")));
+        EXPECT_EQ("9729", getValue(parsed, IO::Path("Renderer/Texture mode mag filter")));
+        EXPECT_EQ("9987", getValue(parsed, IO::Path("Renderer/Texture mode min filter")));
+        EXPECT_EQ("0.925000", getValue(parsed, IO::Path("Renderer/Brightness")));
+        EXPECT_EQ("0", getValue(parsed, IO::Path("Renderer/Show axes")));
+        EXPECT_EQ("0.220000", getValue(parsed, IO::Path("Renderer/Grid/Alpha")));
+        EXPECT_EQ("0.921569 0.666667 0.45098 1", getValue(parsed, IO::Path("Renderer/Colors/Edges")));
+        EXPECT_EQ("0.321569 0.0470588 0.141176 1", getValue(parsed, IO::Path("Renderer/Colors/Background")));
+        EXPECT_EQ("0.290196 0.643137 0.486275 1", getValue(parsed, IO::Path("Rendere/Grid/Color2D")));
+        EXPECT_EQ("2", getValue(parsed, IO::Path("Views/Map view layout")));
+        EXPECT_EQ("/home/ericwa/Quake Dev", getValue(parsed, IO::Path("Games/Quake/Path")));
         EXPECT_EQ("/home/ericwa/foo=bar", getValue(parsed, IO::Path("Games/Generic/Path")));
+        EXPECT_EQ("/home/ericwa/Quake 3 Arena", getValue(parsed, IO::Path("Games/Quake 3/Path")));
+        EXPECT_EQ("87:308:307:0", getValue(parsed, IO::Path("Menu/File/Export/Wavefront OBJ...")));
+        EXPECT_EQ("50:308:307:0", getValue(parsed, IO::Path("Menu/View/Grid/Set Grid Size 0.125")));
+        EXPECT_EQ("859", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/x")));
+        EXPECT_EQ("473", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/y")));
+        EXPECT_EQ("1024", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/w")));
+        EXPECT_EQ("768", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/h")));
+        EXPECT_EQ("0", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/Maximized")));
+        EXPECT_EQ("0", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/Iconized")));
+        EXPECT_EQ("0", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/decor_l")));
+        EXPECT_EQ("0", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/decor_r")));
+        EXPECT_EQ("37", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/decor_t")));
+        EXPECT_EQ("0", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/decor_b")));
+        EXPECT_EQ("6533", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/MapFrameHSplitter/SplitRatio")));
+        EXPECT_EQ("8306", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/MapFrameVSplitter/SplitRatio")));
+        EXPECT_EQ("4857", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/3PaneMapViewHSplitter/SplitRatio")));
+        EXPECT_EQ("4850", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/3PaneMapViewVSplitter/SplitRatio")));
+        EXPECT_EQ("2742", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/EntityInspectorSplitter/SplitRatio")));
+        EXPECT_EQ("3333", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/EntityAttributeEditorSplitter/SplitRatio")));
+        EXPECT_EQ("-10000", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/EntityDocumentationSplitter/SplitRatio")));
+        EXPECT_EQ("3656", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/FaceInspectorSplitter/SplitRatio")));
+        EXPECT_EQ("/home/ericwa/unnamed.map", getValue(parsed, IO::Path("RecentDocuments/0")));
+    }
+
+    TEST(PreferencesTest, migrateV1) {
+        QFile file("fixture/test/preferences-v1.ini");
+        ASSERT_TRUE(file.open(QIODevice::ReadOnly | QIODevice::Text));
+
+        QTextStream in(&file);
+        const std::map<IO::Path, QString> v1 = parseINI(&in);
+        const std::map<IO::Path, QString> v2 = migrateV1ToV2(v1);
+
+
     }
 
     /**
