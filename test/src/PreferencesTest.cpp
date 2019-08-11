@@ -115,7 +115,61 @@ namespace TrenchBroom {
         const std::map<IO::Path, QString> v1 = parseINI(&in);
         const std::map<IO::Path, QString> v2 = migrateV1ToV2(v1);
 
+        EXPECT_EQ("108", getValue(v2, IO::Path("Controls/Camera/Field of vision")));
+        EXPECT_EQ("R", getValue(v2, IO::Path("Controls/Camera/Move down")));
+        EXPECT_EQ("W", getValue(v2, IO::Path("Controls/Camera/Move up")));
+        EXPECT_EQ("F", getValue(v2, IO::Path("Controls/Camera/Move right")));
+        EXPECT_EQ("S", getValue(v2, IO::Path("Controls/Camera/Move left")));
+        EXPECT_EQ("D", getValue(v2, IO::Path("Controls/Camera/Move backward")));
+        EXPECT_EQ("E", getValue(v2, IO::Path("Controls/Camera/Move forward")));
+        EXPECT_EQ("0.425781", getValue(v2, IO::Path("Controls/Camera/Fly move speed")));
+        EXPECT_EQ("1", getValue(v2, IO::Path("Controls/Camera/Move camera in cursor dir")));
+        EXPECT_EQ("1", getValue(v2, IO::Path("Controls/Camera/Use alt to move")));
+        EXPECT_EQ("0.35", getValue(v2, IO::Path("Controls/Camera/Move speed")));
+        EXPECT_EQ("1", getValue(v2, IO::Path("Controls/Camera/Invert mouse wheel")));
+        EXPECT_EQ("1", getValue(v2, IO::Path("Controls/Camera/Invert vertical pan")));
+        EXPECT_EQ("1", getValue(v2, IO::Path("Controls/Camera/Invert horizontal pan")));
+        EXPECT_EQ("0.55", getValue(v2, IO::Path("Controls/Camera/Pan speed")));
+        EXPECT_EQ("1", getValue(v2, IO::Path("Controls/Camera/Invert vertical look")));
+        EXPECT_EQ("1", getValue(v2, IO::Path("Controls/Camera/Invert horizontal look")));
+        EXPECT_EQ("0.44", getValue(v2, IO::Path("Controls/Camera/Look speed")));
+        EXPECT_EQ("1.5", getValue(v2, IO::Path("Texture Browser/Icon size")));
+        EXPECT_EQ("14", getValue(v2, IO::Path("Renderer/Font size")));
+        EXPECT_EQ("9729", getValue(v2, IO::Path("Renderer/Texture mode mag filter")));
+        EXPECT_EQ("9987", getValue(v2, IO::Path("Renderer/Texture mode min filter")));
+        EXPECT_EQ("0.925", getValue(v2, IO::Path("Renderer/Brightness")));
+        EXPECT_EQ("0", getValue(v2, IO::Path("Renderer/Show axes")));
+        EXPECT_EQ("0.22", getValue(v2, IO::Path("Renderer/Grid/Alpha")));
+        EXPECT_EQ("0.921569 0.666667 0.45098 1", getValue(v2, IO::Path("Renderer/Colors/Edges")));
+        EXPECT_EQ("0.321569 0.0470588 0.141176 1", getValue(v2, IO::Path("Renderer/Colors/Background")));
+        EXPECT_EQ("0.290196 0.643137 0.486275 1", getValue(v2, IO::Path("Rendere/Grid/Color2D")));
+        EXPECT_EQ("2", getValue(v2, IO::Path("Views/Map view layout")));
+        EXPECT_EQ("/home/ericwa/Quake Dev", getValue(v2, IO::Path("Games/Quake/Path")));
+        EXPECT_EQ("/home/ericwa/foo=bar", getValue(v2, IO::Path("Games/Generic/Path")));
+        EXPECT_EQ("/home/ericwa/Quake 3 Arena", getValue(v2, IO::Path("Games/Quake 3/Path")));
+        EXPECT_EQ("Ctrl+Alt+W", getValue(v2, IO::Path("Menu/File/Export/Wavefront OBJ...")));
+        EXPECT_EQ("Ctrl+Alt+2", getValue(v2, IO::Path("Menu/View/Grid/Set Grid Size 0.125")));
 
+        // We don't bother migrating these ones
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/x")));
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/y")));
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/w")));
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/h")));
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/Maximized")));
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/Iconized")));
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/decor_l")));
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/decor_r")));
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/decor_t")));
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/decor_b")));
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/MapFrameHSplitter/SplitRatio")));
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/MapFrameVSplitter/SplitRatio")));
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/3PaneMapViewHSplitter/SplitRatio")));
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/3PaneMapViewVSplitter/SplitRatio")));
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/EntityInspectorSplitter/SplitRatio")));
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/EntityAttributeEditorSplitter/SplitRatio")));
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/EntityDocumentationSplitter/SplitRatio")));
+        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/FaceInspectorSplitter/SplitRatio")));
+        EXPECT_EQ("", getValue(v2, IO::Path("RecentDocuments/0")));
     }
 
     /**
