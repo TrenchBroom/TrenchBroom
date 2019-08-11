@@ -60,6 +60,7 @@ namespace TrenchBroom {
             unbindObservers();
 
             // we must destroy our children before we destroy our resources because they might still use them in their destructors
+            m_activationTracker.clear();
             delete m_mapView;
         }
 
@@ -76,6 +77,8 @@ namespace TrenchBroom {
         }
 
         void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId) {
+            m_activationTracker.clear();
+
             if (m_mapView != nullptr) {
                 delete m_mapView;
                 m_mapView = nullptr;
@@ -306,7 +309,6 @@ namespace TrenchBroom {
         }
 
         void SwitchableMapViewContainer::doInstallActivationTracker(MapViewActivationTracker& activationTracker) {
-            activationTracker.clear();
             m_mapView->installActivationTracker(activationTracker);
         }
 
