@@ -1576,7 +1576,7 @@ namespace TrenchBroom {
 
         void MapFrame::changeEvent(QEvent* event) {
             if (m_mapView != nullptr) {
-                m_mapView->updateLastActivation(isActiveWindow());
+                m_mapView->windowActivationStateChanged(isActiveWindow());
             }
         }
 

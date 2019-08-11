@@ -42,6 +42,12 @@ namespace TrenchBroom {
                 mapView->flashSelection();
         }
 
+        void MultiMapView::doInstallActivationTracker(MapViewActivationTracker& activationTracker) {
+            for (auto* mapView : m_mapViews) {
+                mapView->installActivationTracker(activationTracker);
+            }
+        }
+
         bool MultiMapView::doGetIsCurrent() const {
             for (MapView* mapView : m_mapViews) {
                 if (mapView->isCurrent())
@@ -103,23 +109,19 @@ namespace TrenchBroom {
 
         MapView* MultiMapView::doGetCurrentMapView() const {
             for (MapView* mapView : m_mapViews) {
-                if (mapView->isCurrent())
+                if (mapView->isCurrent()) {
                     return mapView;
+                }
             }
             return nullptr;
         }
 
         bool MultiMapView::doCancelMouseDrag() {
             bool result = false;
-            for (MapView* mapView : m_mapViews)
-                result |= mapView->cancelMouseDrag();
-            return result;
-        }
-
-        void MultiMapView::doUpdateLastActivation(const bool active) {
             for (MapView* mapView : m_mapViews) {
-                mapView->updateLastActivation(active);
+                result |= mapView->cancelMouseDrag();
             }
+            return result;
         }
 
         void MultiMapView::doRefreshViews() {

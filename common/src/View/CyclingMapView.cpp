@@ -26,6 +26,7 @@
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
+#include "View/MapViewActivationTracker.h"
 
 #include <vecmath/scalar.h>
 
@@ -66,8 +67,8 @@ namespace TrenchBroom {
             // which breaks multisampling
             setLayout(m_layout);
 
-            for (size_t i = 0; i < m_mapViews.size(); ++i) {
-                m_layout->addWidget(m_mapViews[i]->widgetContainer());
+            for (auto* mapView : m_mapViews) {
+                m_layout->addWidget(mapView->widgetContainer());
             }
 
             assert(!m_mapViews.empty());
@@ -77,6 +78,7 @@ namespace TrenchBroom {
         void CyclingMapView::addMapView(MapViewBase* mapView) {
             m_mapViews.push_back(mapView);
             mapView->setContainer(this);
+
         }
 
         void CyclingMapView::switchToMapView(MapViewBase* mapView) {
@@ -115,8 +117,8 @@ namespace TrenchBroom {
         }
 
         void CyclingMapView::doMoveCameraToCurrentTracePoint() {
-            for (size_t i = 0; i < m_mapViews.size(); ++i) {
-                m_mapViews[i]->moveCameraToCurrentTracePoint();
+            for (auto* mapView : m_mapViews) {
+                mapView->moveCameraToCurrentTracePoint();
             }
         }
 
@@ -130,19 +132,25 @@ namespace TrenchBroom {
 
         void CyclingMapView::doToggleMaximizeCurrentView() {}
 
+        void CyclingMapView::doInstallActivationTracker(MapViewActivationTracker& activationTracker) {
+            for (auto* mapView : m_mapViews) {
+                activationTracker.addWindow(mapView);
+            }
+        }
+
         MapView* CyclingMapView::doGetCurrentMapView() const {
             return m_currentMapView;
         }
 
         void CyclingMapView::doRefreshViews() {
-            for (MapView* mapView : m_mapViews) {
+            for (auto* mapView : m_mapViews) {
                 mapView->refreshViews();
             }
         }
 
         void CyclingMapView::doLinkCamera(CameraLinkHelper& helper) {
-            for (size_t i = 0; i < m_mapViews.size(); ++i) {
-                m_mapViews[i]->linkCamera(helper);
+            for (auto* mapView : m_mapViews) {
+                mapView->linkCamera(helper);
             }
         }
 
@@ -156,16 +164,10 @@ namespace TrenchBroom {
             }
         }
 
-        void CyclingMapView::doUpdateLastActivation(const bool active) {
-            for (size_t i = 0; i < m_mapViews.size(); ++i) {
-                m_mapViews[i]->MapView::updateLastActivation(active);
-            }
-        }
-
         bool CyclingMapView::doCancelMouseDrag() {
             auto result = false;
-            for (size_t i = 0; i < m_mapViews.size(); ++i) {
-                result |= m_mapViews[i]->cancelMouseDrag();
+            for (auto* mapView : m_mapViews) {
+                result |= mapView->cancelMouseDrag();
             }
             return result;
         }

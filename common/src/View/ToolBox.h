@@ -63,12 +63,6 @@ namespace TrenchBroom {
             using ToolMap = std::map<Tool*, ToolList>;
             ToolMap m_deactivateWhen;
 
-            std::vector<QWindow*> m_focusGroup;
-
-            bool m_clickToActivate;
-            bool m_ignoreNextClick;
-            int64_t m_lastActivation;
-
             bool m_enabled;
         public:
             Notifier<Tool*> toolActivatedNotifier;
@@ -76,29 +70,11 @@ namespace TrenchBroom {
             Notifier<Tool*> refreshViewsNotifier;
         public:
             ToolBox();
-        public: // focus window management
-            void addWindow(QWindow* window);
-            void removeWindow(QWindow* window);
-        protected: // QObject overrides
-            bool eventFilter(QObject *obj, QEvent *ev) override;
-        private:
-            void setFocusEvent(QFocusEvent* event);
-            void killFocusEvent(QFocusEvent* event);
-            void mouseMoveEvent(QMouseEvent* event, QWindow* enteredWidget);
-            void setFocusCursor();
-            void clearFocusCursor();
         protected:
             void addTool(Tool* tool);
         public: // picking
             void pick(ToolChain* chain, const InputState& inputState, Model::PickResult& pickResult);
         public: // event handling
-            bool clickToActivate() const;
-            void setClickToActivate(bool clickToActivate);
-            void updateLastActivation();
-
-            bool ignoreNextClick() const;
-            void clearIgnoreNextClick();
-
             bool dragEnter(ToolChain* chain, const InputState& inputState, const String& text);
             bool dragMove(ToolChain* chain, const InputState& inputState, const String& text);
             void dragLeave(ToolChain* chain, const InputState& inputState);

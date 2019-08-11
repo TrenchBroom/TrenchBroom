@@ -89,8 +89,8 @@ namespace TrenchBroom {
         Action::Action(const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext, const KeyboardShortcut& defaultShortcut,
             const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const Action::CheckedFn& checked,
             const IO::Path& iconPath) :
-        m_preferencePath(preferencePath),
         m_label(label),
+        m_preferencePath(preferencePath),
         m_actionContext(actionContext),
         m_defaultShortcut(defaultShortcut),
         m_execute(execute),
@@ -243,7 +243,7 @@ namespace TrenchBroom {
 
             const auto actionContext = ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool;
             for (const auto& tag : tags) {
-                result.emplace_back(IO::Path("Tags/Toggle/" + tag.name()), 
+                result.emplace_back(IO::Path("Tags/Toggle/" + tag.name()),
                     QObject::tr("Toggle Tag %1").arg(QString::fromStdString(tag.name())),
                     actionContext, KeyboardShortcut(),
                     [&tag](ActionExecutionContext& context) {

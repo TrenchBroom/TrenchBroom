@@ -60,7 +60,6 @@ namespace TrenchBroom {
             const Model::PickResult& pickResult() const;
 
             void updatePickResult();
-            void updateLastActivation();
         protected:
             void setToolBox(ToolBox& toolBox);
             void addTool(ToolController* tool);

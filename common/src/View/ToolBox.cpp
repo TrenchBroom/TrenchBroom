@@ -19,18 +19,17 @@
 
 #include "CollectionUtils.h"
 #include "ToolBox.h"
-#include "TemporarilySetAny.h"
 #include "View/InputState.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
 #include "View/ToolChain.h"
 
 #include <QApplication>
+#include <QDateTime>
+#include <QDebug>
 #include <QEvent>
-#include <QFocusEvent>
 #include <QEnterEvent>
 #include <QWindow>
-#include <QDateTime>
 
 #include <cassert>
 
@@ -40,93 +39,7 @@ namespace TrenchBroom {
         m_dragReceiver(nullptr),
         m_dropReceiver(nullptr),
         m_modalTool(nullptr),
-        m_clickToActivate(true),
-        m_ignoreNextClick(false),
-        m_lastActivation(QDateTime::currentMSecsSinceEpoch()),
         m_enabled(true) {}
-
-        bool ToolBox::eventFilter(QObject *obj, QEvent *ev) {
-            auto* observedWidget = dynamic_cast<QWindow*>(obj);
-            ensure(observedWidget != nullptr, "expected a QWindow");
-
-            switch (ev->type()) {
-                case QEvent::FocusIn:
-                    setFocusEvent(static_cast<QFocusEvent*>(ev));
-                    break;
-                case QEvent::FocusOut:
-                    killFocusEvent(static_cast<QFocusEvent*>(ev));
-                    break;
-                case QEvent::MouseMove:
-                    mouseMoveEvent(static_cast<QMouseEvent*>(ev), observedWidget);
-                    break;
-                default:
-                    break;
-            }
-
-            // NOTE: In all cases, we don't consume the event but let Qt continue processing it
-            return QObject::eventFilter(obj, ev);
-        }
-
-        void ToolBox::addWindow(QWindow* window) {
-            ensure(window != nullptr, "window is null");
-
-            window->installEventFilter(this);
-            m_focusGroup.push_back(window);
-        }
-
-        void ToolBox::removeWindow(QWindow* window) {
-            window->removeEventFilter(this);
-            VectorUtils::erase(m_focusGroup, window);
-        }
-
-        void ToolBox::setFocusEvent(QFocusEvent* event /*event*/) {
-            // FIXME: this is not working correctly (on macOS) - click outside of the window and click back inside into the
-            // current map view, it will not activate properly and the cursor will be wrong
-            if ((QDateTime::currentMSecsSinceEpoch() - m_lastActivation) < 100) {
-                m_ignoreNextClick = false;
-            }
-            clearFocusCursor();
-        }
-
-        void ToolBox::killFocusEvent(QFocusEvent* event /*event*/) {
-            // FIXME: this is not working correctly (on macOS) - click outside of the window and click back inside into the
-            // current map view, it will not activate properly and the cursor will be wrong
-            if (m_clickToActivate) {
-                // FIXME: Check that this returns the right thing, since we're in a state when we're being notified of a widget losing focus.
-                const auto* focusedWindow = QGuiApplication::focusWindow();
-                if (!VectorUtils::contains(m_focusGroup, focusedWindow)) {
-                    m_ignoreNextClick = true;
-                    setFocusCursor();
-                }
-            }
-        }
-
-        void ToolBox::mouseMoveEvent(QMouseEvent* event /*event*/, QWindow* enteredWidget) {
-            auto* newFocus = enteredWidget;
-            auto* currentFocus = QGuiApplication::focusWindow();
-
-            // If this was QWidget we could use https://doc.qt.io/qt-5/qwidget.html#enterEvent to get notified when the mouse enters
-            // a widget. There's no equivalent for QWindow so we need to do it ourselves by listening to every mouse move event.
-            if (currentFocus == newFocus) {
-                return;
-            }
-
-            if (VectorUtils::contains(m_focusGroup, currentFocus)) {
-                newFocus->requestActivate();
-            }
-        }
-
-        void ToolBox::setFocusCursor() {
-            for (size_t i = 0; i < m_focusGroup.size(); ++i) {
-                m_focusGroup[i]->setCursor(Qt::PointingHandCursor);
-            }
-        }
-
-        void ToolBox::clearFocusCursor() {
-            for (size_t i = 0; i < m_focusGroup.size(); ++i) {
-                m_focusGroup[i]->setCursor(Qt::ArrowCursor);
-            }
-        }
 
         void ToolBox::addTool(Tool* tool) {
             ensure(tool != nullptr, "tool is null");
@@ -135,29 +48,6 @@ namespace TrenchBroom {
 
         void ToolBox::pick(ToolChain* chain, const InputState& inputState, Model::PickResult& pickResult) {
             chain->pick(inputState, pickResult);
-        }
-
-        bool ToolBox::clickToActivate() const {
-            return m_clickToActivate;
-        }
-
-        void ToolBox::setClickToActivate(const bool clickToActivate) {
-            m_clickToActivate = clickToActivate;
-            if (!m_clickToActivate) {
-                m_ignoreNextClick = false;
-            }
-        }
-
-        void ToolBox::updateLastActivation() {
-            m_lastActivation = QDateTime::currentMSecsSinceEpoch();
-        }
-
-        bool ToolBox::ignoreNextClick() const {
-            return m_ignoreNextClick;
-        }
-
-        void ToolBox::clearIgnoreNextClick() {
-            m_ignoreNextClick = false;
         }
 
         bool ToolBox::dragEnter(ToolChain* chain, const InputState& inputState, const String& text) {

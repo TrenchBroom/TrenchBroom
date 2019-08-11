@@ -229,10 +229,10 @@ namespace TrenchBroom {
         private: // implement ViewEffectsService interface
             void doFlashSelection() override;
         private: // implement MapView interface
+            void doInstallActivationTracker(MapViewActivationTracker& activationTracker) override;
             bool doGetIsCurrent() const override;
             MapViewBase* doGetFirstMapViewBase() override;
             bool doCancelMouseDrag() override;
-            void doUpdateLastActivation(bool active) override;
             void doRefreshViews() override;
         protected: // RenderView overrides
             void initializeGL() override;

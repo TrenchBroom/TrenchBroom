@@ -45,6 +45,7 @@ namespace TrenchBroom {
         private: // implement ViewEffectsService interface
             void doFlashSelection() override;
         private: // implement MapView interface
+            void doInstallActivationTracker(MapViewActivationTracker& activationTracker) override;
             bool doGetIsCurrent() const override;
             MapViewBase* doGetFirstMapViewBase() override;
             bool doCanSelectTall() override;
@@ -53,7 +54,6 @@ namespace TrenchBroom {
             void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
             void doMoveCameraToCurrentTracePoint() override;
             bool doCancelMouseDrag() override;
-            void doUpdateLastActivation(bool active) override;
             void doRefreshViews() override;
         private: // implement MapViewContainer interface
             bool doCanMaximizeCurrentView() const override;

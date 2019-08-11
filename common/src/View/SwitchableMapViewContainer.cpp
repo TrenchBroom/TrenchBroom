@@ -48,8 +48,8 @@ namespace TrenchBroom {
         m_document(std::move(document)),
         m_contextManager(contextManager),
         m_mapViewBar(new MapViewBar(m_document)),
-        m_toolBox(new MapViewToolBox(m_document, m_mapViewBar->toolBook())),
-        m_mapRenderer(new Renderer::MapRenderer(m_document)),
+        m_toolBox(std::make_unique<MapViewToolBox>(m_document, m_mapViewBar->toolBook())),
+        m_mapRenderer(std::make_unique<Renderer::MapRenderer>(m_document)),
         m_mapView(nullptr) {
             setObjectName("SwitchableMapViewContainer");
             switchToMapView(static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));
@@ -61,16 +61,14 @@ namespace TrenchBroom {
 
             // we must destroy our children before we destroy our resources because they might still use them in their destructors
             delete m_mapView;
-
-            delete m_toolBox;
-            m_toolBox = nullptr;
-
-            delete m_mapRenderer;
-            m_mapRenderer = nullptr;
         }
 
         void SwitchableMapViewContainer::connectTopWidgets(Inspector* inspector) {
             inspector->connectTopWidgets(m_mapViewBar);
+        }
+
+        void SwitchableMapViewContainer::windowActivationStateChanged(const bool active) {
+            m_activationTracker.windowActivationChanged(active);
         }
 
         bool SwitchableMapViewContainer::viewportHasFocus() const {
@@ -101,6 +99,8 @@ namespace TrenchBroom {
                     m_mapView = new FourPaneMapView(m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger);
                     break;
             }
+
+            installActivationTracker(m_activationTracker);
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
@@ -238,7 +238,7 @@ namespace TrenchBroom {
         }
 
         MapViewToolBox* SwitchableMapViewContainer::mapViewToolBox() {
-            return m_toolBox;
+            return m_toolBox.get();
         }
 
         bool SwitchableMapViewContainer::canMoveCameraToNextTracePoint() const {
@@ -305,6 +305,11 @@ namespace TrenchBroom {
             m_mapView->refreshViews();
         }
 
+        void SwitchableMapViewContainer::doInstallActivationTracker(MapViewActivationTracker& activationTracker) {
+            activationTracker.clear();
+            m_mapView->installActivationTracker(activationTracker);
+        }
+
         bool SwitchableMapViewContainer::doGetIsCurrent() const {
             return m_mapView->isCurrent();
         }
@@ -343,10 +348,6 @@ namespace TrenchBroom {
 
         bool SwitchableMapViewContainer::doCancelMouseDrag() {
             return m_mapView->cancelMouseDrag();
-        }
-
-        void SwitchableMapViewContainer::doUpdateLastActivation(bool active) {
-            return m_mapView->updateLastActivation(active);
         }
 
         void SwitchableMapViewContainer::doRefreshViews() {

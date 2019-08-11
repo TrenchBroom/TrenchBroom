@@ -28,6 +28,7 @@
 namespace TrenchBroom {
     namespace View {
         class CameraLinkHelper;
+        class MapViewActivationTracker;
         class MapViewContainer;
         class MapViewBase;
 
@@ -39,6 +40,7 @@ namespace TrenchBroom {
             ~MapView() override;
 
             void setContainer(MapViewContainer* container);
+            void installActivationTracker(MapViewActivationTracker& activationTracker);
 
             bool isCurrent() const;
             MapViewBase* firstMapViewBase();
@@ -57,13 +59,13 @@ namespace TrenchBroom {
 
             void cycleMapView();
 
-            void updateLastActivation(bool active);
-
             /**
              * Requests repaint of the managed map views. Note, this must be used instead of QWidget::update()
              */
             void refreshViews();
         private:
+            virtual void doInstallActivationTracker(MapViewActivationTracker& activationTracker) = 0;
+
             virtual bool doGetIsCurrent() const = 0;
             virtual MapViewBase* doGetFirstMapViewBase() = 0;
 
@@ -80,8 +82,6 @@ namespace TrenchBroom {
             virtual bool doCancelMouseDrag() = 0;
 
             virtual void doCycleMapView();
-
-            virtual void doUpdateLastActivation(bool active) = 0;
 
             virtual void doRefreshViews() = 0;
         };

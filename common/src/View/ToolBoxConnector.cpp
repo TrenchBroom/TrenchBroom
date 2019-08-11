@@ -54,11 +54,6 @@ namespace TrenchBroom {
             m_inputState.setPickResult(pickResult);
         }
 
-        void ToolBoxConnector::updateLastActivation() {
-            ensure(m_toolBox != nullptr, "toolBox is null");
-            m_toolBox->updateLastActivation();
-        }
-
         void ToolBoxConnector::setToolBox(ToolBox& toolBox) {
             assert(m_toolBox == nullptr);
             m_toolBox = &toolBox;
@@ -216,10 +211,6 @@ namespace TrenchBroom {
         }
 
         void ToolBoxConnector::processMouseButtonDown(const MouseEvent& event) {
-            if (m_toolBox->ignoreNextClick() && event.button == MouseEvent::Button::Left) {
-                return;
-            }
-
             updateModifierKeys();
             m_inputState.mouseDown(mouseButton(event));
             m_toolBox->mouseDown(m_toolChain, m_inputState);
@@ -229,13 +220,6 @@ namespace TrenchBroom {
         }
 
         void ToolBoxConnector::processMouseButtonUp(const MouseEvent& event) {
-            if (m_toolBox->ignoreNextClick() && event.button == MouseEvent::Button::Left) {
-                m_toolBox->clearIgnoreNextClick();
-                return;
-            } else {
-                m_toolBox->clearIgnoreNextClick();
-            }
-
             updateModifierKeys();
             m_toolBox->mouseUp(m_toolChain, m_inputState);
             m_inputState.mouseUp(mouseButton(event));
@@ -256,8 +240,6 @@ namespace TrenchBroom {
         }
 
         void ToolBoxConnector::processMouseDoubleClick(const MouseEvent& event) {
-            m_toolBox->clearIgnoreNextClick();
-
             updateModifierKeys();
             m_inputState.mouseDown(mouseButton(event));
             m_toolBox->mouseDoubleClick(m_toolChain, m_inputState);

@@ -58,6 +58,7 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
+#include "View/MapViewActivationTracker.h"
 #include "View/MapViewConfig.h"
 #include "View/MapViewToolBox.h"
 #include "View/SelectionTool.h"
@@ -90,7 +91,6 @@ namespace TrenchBroom {
         m_compass(nullptr),
         m_portalFileRenderer(nullptr) {
             setToolBox(toolBox);
-            toolBox.addWindow(this);
             bindObservers();
         }
 
@@ -108,7 +108,6 @@ namespace TrenchBroom {
             // see: http://doc.qt.io/qt-5/qopenglwidget.html#resource-initialization-and-cleanup
             makeCurrent();
 
-            m_toolBox.removeWindow(this);
             delete m_compass;
         }
 
@@ -789,6 +788,10 @@ namespace TrenchBroom {
             m_animationManager->runAnimation(animation, true);
         }
 
+        void MapViewBase::doInstallActivationTracker(MapViewActivationTracker& activationTracker) {
+            activationTracker.addWindow(this);
+        }
+
         bool MapViewBase::doGetIsCurrent() const {
             // FIXME: This should probably be removed and tracked by MapFrame?
             // "Current" should mean "last focused", and MapFrame should always have a non-null "current" map view.
@@ -801,12 +804,6 @@ namespace TrenchBroom {
 
         bool MapViewBase::doCancelMouseDrag() {
             return ToolBoxConnector::cancelDrag();
-        }
-
-        void MapViewBase::doUpdateLastActivation(const bool active) {
-            if (active) {
-                m_toolBox.updateLastActivation();
-            }
         }
 
         void MapViewBase::doRefreshViews() {

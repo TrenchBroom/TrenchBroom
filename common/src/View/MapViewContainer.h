@@ -26,6 +26,7 @@
 
 namespace TrenchBroom {
     namespace View {
+        class MapViewActivationTracker;
         class MapViewBase;
 
         class MapViewContainer : public QWidget, public MapView {

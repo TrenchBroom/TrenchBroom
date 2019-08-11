@@ -58,7 +58,6 @@ namespace TrenchBroom {
         m_document(document),
         m_helper(m_camera) {
             setToolBox(m_toolBox);
-            m_toolBox.setClickToActivate(false);
             createTools();
             m_toolBox.disable();
             bindObservers();

@@ -35,6 +35,10 @@ namespace TrenchBroom {
             m_container = container;
         }
 
+        void MapView::installActivationTracker(MapViewActivationTracker& activationTracker) {
+            doInstallActivationTracker(activationTracker);
+        }
+
         bool MapView::isCurrent() const {
             return doGetIsCurrent();
         }
@@ -73,10 +77,6 @@ namespace TrenchBroom {
 
         void MapView::cycleMapView() {
             doCycleMapView();
-        }
-
-        void MapView::updateLastActivation(const bool active) {
-            doUpdateLastActivation(active);
         }
 
         void MapView::refreshViews() {

@@ -60,6 +60,7 @@ namespace TrenchBroom {
             using MapViewList = std::vector<MapViewBase*>;
             MapViewList m_mapViews;
             MapViewBase* m_currentMapView;
+
             QStackedLayout* m_layout;
         public:
             CyclingMapView(MapDocumentWPtr document, MapViewToolBox& toolBox,
@@ -84,10 +85,10 @@ namespace TrenchBroom {
             void doToggleMaximizeCurrentView() override;
 
             bool doCancelMouseDrag() override;
-            void doUpdateLastActivation(bool active) override;
             void doCycleMapView() override;
             void doRefreshViews() override;
         private: // implement MapViewContainer interface
+            void doInstallActivationTracker(MapViewActivationTracker& activationTracker) override;
             MapView* doGetCurrentMapView() const override;
             MapViewBase* doGetFirstMapViewBase() override;
         private: // implement CameraLinkableView interface

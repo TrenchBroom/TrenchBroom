@@ -23,11 +23,14 @@
 #include <QWidget>
 
 #include "TrenchBroom.h"
-#include "View/MapViewLayout.h"
 #include "View/MapView.h"
+#include "View/MapViewActivationTracker.h"
+#include "View/MapViewLayout.h"
 #include "View/ViewTypes.h"
 
 #include <vecmath/scalar.h>
+
+#include <memory>
 
 namespace TrenchBroom {
     class Logger;
@@ -61,16 +64,19 @@ namespace TrenchBroom {
             GLContextManager& m_contextManager;
 
             MapViewBar* m_mapViewBar;
-            MapViewToolBox* m_toolBox;
+            std::unique_ptr<MapViewToolBox> m_toolBox;
 
-            Renderer::MapRenderer* m_mapRenderer;
+            std::unique_ptr<Renderer::MapRenderer> m_mapRenderer;
 
             MapViewContainer* m_mapView;
+            MapViewActivationTracker m_activationTracker;
         public:
             SwitchableMapViewContainer(Logger* logger, MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~SwitchableMapViewContainer() override;
 
             void connectTopWidgets(Inspector* inspector);
+
+            void windowActivationStateChanged(bool active);
 
             bool viewportHasFocus() const;
             void switchToMapView(MapViewLayout viewId);
@@ -125,6 +131,7 @@ namespace TrenchBroom {
             void unbindObservers();
             void refreshViews(Tool* tool);
         private: // implement MapView interface
+            void doInstallActivationTracker(MapViewActivationTracker& activationTracker) override;
             bool doGetIsCurrent() const override;
             MapViewBase* doGetFirstMapViewBase() override;
             bool doCanSelectTall() override;
@@ -134,7 +141,6 @@ namespace TrenchBroom {
             void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
             void doMoveCameraToCurrentTracePoint() override;
             bool doCancelMouseDrag() override;
-            void doUpdateLastActivation(bool active) override;
             void doRefreshViews() override;
         private: // implement ViewEffectsService interface
             void doFlashSelection() override;

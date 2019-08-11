@@ -375,6 +375,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/MapInspector.cpp
 	${COMMON_SOURCE_DIR}/View/MapView2D.cpp
 	${COMMON_SOURCE_DIR}/View/MapView3D.cpp
+	${COMMON_SOURCE_DIR}/View/MapViewActivationTracker.cpp
 	${COMMON_SOURCE_DIR}/View/MapViewBar.cpp
 	${COMMON_SOURCE_DIR}/View/MapViewBase.cpp
 	${COMMON_SOURCE_DIR}/View/MapViewConfig.cpp
@@ -926,6 +927,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/View/MapInspector.h
 	${COMMON_SOURCE_DIR}/View/MapView2D.h
 	${COMMON_SOURCE_DIR}/View/MapView3D.h
+	${COMMON_SOURCE_DIR}/View/MapViewActivationTracker.h
 	${COMMON_SOURCE_DIR}/View/MapViewBar.h
 	${COMMON_SOURCE_DIR}/View/MapViewBase.h
 	${COMMON_SOURCE_DIR}/View/MapViewConfig.h
