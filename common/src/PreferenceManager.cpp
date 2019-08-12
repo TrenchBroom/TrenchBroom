@@ -26,6 +26,7 @@
 #include <QFile>
 #include <QDir>
 #include <QStandardPaths>
+#include <QStringBuilder>
 
 namespace TrenchBroom {
     // PreferenceSerializerV1
@@ -271,14 +272,19 @@ namespace TrenchBroom {
     }
 
     std::map<IO::Path, QString> readV1Settings() {
+        [[maybe_unused]]
+        const QString linuxPath = QDir::homePath() % QLatin1String("/.TrenchBroom/.preferences");
+        [[maybe_unused]]
+        const QString macOSPath = QStandardPaths::locate(QStandardPaths::ConfigLocation,
+            QString::fromLocal8Bit("TrenchBroom Preferences"),
+            QStandardPaths::LocateOption::LocateFile);
+
 #if defined(Q_OS_WIN)
         return getRegistrySettingsV1();
 #elif defined __linux__ || defined __FreeBSD__
-        return getINISettingsV1(QDir::homePath() % QString::fromLocal8Bit("/.TrenchBroom/.preferences");
+        return getINISettingsV1(linuxPath);
 #elif defined __APPLE__
-        return getINISettingsV1(QStandardPaths::locate(QStandardPaths::ConfigLocation,
-            QString::fromLocal8Bit("TrenchBroom Preferences"),
-            QStandardPaths::LocateOption::LocateFile));
+        return getINISettingsV1(macOSPath);
 #else
         return {};
 #endif
