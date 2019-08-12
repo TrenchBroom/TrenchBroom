@@ -20,6 +20,7 @@
 #include "PreferenceManager.h"
 
 #include "Preferences.h"
+#include "IO/SystemPaths.h"
 #include "View/Actions.h"
 #include "View/KeyboardShortcut.h"
 
@@ -27,6 +28,10 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QStringBuilder>
+#include <QJSONDocument>
+#include <QJSONObject>
+#include <QJSONValue>
+#include <QSaveFile>
 
 namespace TrenchBroom {
     // PreferenceSerializerV1
@@ -394,5 +399,75 @@ namespace TrenchBroom {
         }
 
         return result;
+    }
+
+    QString v2SettingsPath() {
+        return (IO::SystemPaths::userDataDirectory() + IO::Path("preferences.json")).asQString();
+    }
+
+    std::map<IO::Path, QString> readV2SettingsFromPath(const QString& path) {
+        QFile file(path);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            return {};
+        }
+
+        auto result = parseV2SettingsFromJSON(file.readAll());
+        return result;
+    }
+
+    bool writeV2SettingsToPath(const QString& path, const std::map<IO::Path, QString>& v2Prefs) {
+        const QByteArray serialized = writeV2SettingsToJSON(v2Prefs);
+        
+        QSaveFile saveFile(path);
+        if (!saveFile.open(QIODevice::WriteOnly)) {
+            return false;
+        }
+         
+        const qint64 written = saveFile.write(serialized);
+        if (written != static_cast<qint64>(serialized.size())) {
+            return false;
+        }
+
+        const bool ok = saveFile.commit();
+        return ok;
+    }
+
+    std::map<IO::Path, QString> readV2Settings() {
+        const QString path = v2SettingsPath();
+        return readV2SettingsFromPath(path);
+    }
+
+    std::map<IO::Path, QString> parseV2SettingsFromJSON(const QByteArray& jsonData) {
+        QJsonParseError error;
+        const QJsonDocument document = QJsonDocument::fromJson(jsonData, &error);
+        
+        if (error.error != QJsonParseError::NoError) {
+            qWarning() << "Error parsing settings: " << error.errorString();
+            return {};
+        }
+        if (!document.isObject()) {
+            qWarning() << "Error parsing settings: expected object";
+            return {};
+        }
+        
+        const QJsonObject object = document.object();        
+        std::map<IO::Path, QString> result;
+        for (auto it = object.constBegin(); it != object.constEnd(); ++it) {
+            const QString key = it.key();
+            const QJsonValue value = it.value();
+           
+            result[IO::Path::fromQString(key)] = value.toString();
+        }
+        return result;
+    }
+
+    QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QString>& v2Prefs) {
+        QJsonObject rootObject;
+        for (auto [key, val] : v2Prefs) {
+            rootObject[key.asQString('/')] = val;
+        }
+
+        QJsonDocument document(rootObject);
+        return document.toJson(QJsonDocument::Indented);
     }
 }

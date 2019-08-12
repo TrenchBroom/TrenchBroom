@@ -107,10 +107,7 @@ namespace TrenchBroom {
         EXPECT_EQ("/home/ericwa/unnamed.map", getValue(parsed, IO::Path("RecentDocuments/0")));
     }
 
-    TEST(PreferencesTest, migrateV1) {
-        const std::map<IO::Path, QString> v1 = getINISettingsV1("fixture/test/preferences-v1.ini");
-        const std::map<IO::Path, QString> v2 = migrateV1ToV2(v1);
-
+    static void testV2Prefs(const std::map<IO::Path, QString>& v2) {
         EXPECT_EQ("108", getValue(v2, IO::Path("Controls/Camera/Field of vision")));
         EXPECT_EQ("R", getValue(v2, IO::Path("Controls/Camera/Move down")));
         EXPECT_EQ("W", getValue(v2, IO::Path("Controls/Camera/Move up")));
@@ -166,6 +163,20 @@ namespace TrenchBroom {
         EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/EntityDocumentationSplitter/SplitRatio")));
         EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/FaceInspectorSplitter/SplitRatio")));
         EXPECT_EQ("", getValue(v2, IO::Path("RecentDocuments/0")));
+    }
+
+    TEST(PreferencesTest, migrateV1) {
+        const std::map<IO::Path, QString> v1 = getINISettingsV1("fixture/test/preferences-v1.ini");
+        const std::map<IO::Path, QString> v2 = migrateV1ToV2(v1);
+
+        testV2Prefs(v2);
+
+        //EXPECT_TRUE(writeV2SettingsToPath("C:\\Users\\Eric\\Desktop\\preferences.json", v2));
+    }
+
+    TEST(PreferencesTest, readV2) {
+        const std::map<IO::Path, QString> v2 = readV2SettingsFromPath("fixture/test/preferences-v2.json");
+        testV2Prefs(v2);
     }
 
     /**

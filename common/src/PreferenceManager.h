@@ -29,6 +29,7 @@
 #include <QApplication>
 #include <QThread>
 #include <QString>
+#include <QByteArray>
 
 #include <map>
 #include <memory>
@@ -155,6 +156,16 @@ namespace TrenchBroom {
     std::map<IO::Path, QString> getINISettingsV1(const QString& path);
     std::map<IO::Path, QString> readV1Settings();
     std::map<IO::Path, QString> migrateV1ToV2(const std::map<IO::Path, QString>& v1Prefs);
+
+    // V2 settings
+    QString v2SettingsPath();
+    std::map<IO::Path, QString> readV2SettingsFromPath(const QString& path);
+    std::map<IO::Path, QString> readV2Settings();
+
+    bool writeV2SettingsToPath(const QString& path, const std::map<IO::Path, QString>& v2Prefs);
+
+    std::map<IO::Path, QString> parseV2SettingsFromJSON(const QByteArray& jsonData);
+    QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QString>& v2Prefs);
 }
 
 #endif /* defined(TrenchBroom_PreferenceManager) */
