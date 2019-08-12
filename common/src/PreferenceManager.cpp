@@ -23,10 +23,14 @@
 #include "View/Actions.h"
 #include "View/KeyboardShortcut.h"
 
+#include <QFile>
+#include <QDir>
+#include <QStandardPaths>
+
 namespace TrenchBroom {
     // PreferenceSerializerV1
 
-    bool PreferenceSerializerV1::readFromString(const QString& in, bool* out) {
+    bool PreferenceSerializerV1::readFromString(const QString& in, bool* out) const {
         if (in == QStringLiteral("1")) {
             *out = true;
             return true;
@@ -38,7 +42,7 @@ namespace TrenchBroom {
         }
     }
 
-    bool PreferenceSerializerV1::readFromString(const QString& in, Color* out) {
+    bool PreferenceSerializerV1::readFromString(const QString& in, Color* out) const {
         const std::string inStdString = in.toStdString();
 
         if (!Color::canParse(inStdString)) {
@@ -49,7 +53,7 @@ namespace TrenchBroom {
         return true;
     }
 
-    bool PreferenceSerializerV1::readFromString(const QString& in, float* out) {
+    bool PreferenceSerializerV1::readFromString(const QString& in, float* out) const {
         auto inCopy = QString(in);
         auto inStream = QTextStream(&inCopy);
 
@@ -58,7 +62,7 @@ namespace TrenchBroom {
         return (inStream.status() == QTextStream::Ok);
     }
 
-    bool PreferenceSerializerV1::readFromString(const QString& in, int* out) {
+    bool PreferenceSerializerV1::readFromString(const QString& in, int* out) const {
         auto inCopy = QString(in);
         auto inStream = QTextStream(&inCopy);
 
@@ -67,12 +71,12 @@ namespace TrenchBroom {
         return (inStream.status() == QTextStream::Ok);
     }
 
-    bool PreferenceSerializerV1::readFromString(const QString& in, IO::Path* out) {
+    bool PreferenceSerializerV1::readFromString(const QString& in, IO::Path* out) const {
         *out = IO::Path::fromQString(in);
         return true;
     }
 
-    bool PreferenceSerializerV1::readFromString(const QString& in, View::KeyboardShortcut* out) {
+    bool PreferenceSerializerV1::readFromString(const QString& in, View::KeyboardShortcut* out) const {
         nonstd::optional<View::KeyboardShortcut> result = 
             View::KeyboardShortcut::fromV1Settings(in);
         
@@ -83,12 +87,12 @@ namespace TrenchBroom {
         return true;
     }
 
-    bool PreferenceSerializerV1::readFromString(const QString& in, QString* out) {
+    bool PreferenceSerializerV1::readFromString(const QString& in, QString* out) const {
         *out = in;
         return true;
     }
 
-    void PreferenceSerializerV1::writeToString(QTextStream& stream, const bool in) {
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const bool in) const {
         if (in) {
             stream << "1";
         } else {
@@ -96,7 +100,7 @@ namespace TrenchBroom {
         }
     }
 
-    void PreferenceSerializerV1::writeToString(QTextStream& stream, const Color& in) {
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const Color& in) const {
         // NOTE: QTextStream's default locale is C, unlike QString::arg()
         stream << in.r() << " "
                << in.g() << " "
@@ -104,35 +108,35 @@ namespace TrenchBroom {
                << in.a();
     }
 
-    void PreferenceSerializerV1::writeToString(QTextStream& stream, const float in) {
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const float in) const {
         stream << in;
     }
 
-    void PreferenceSerializerV1::writeToString(QTextStream& stream, const int in) {
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const int in) const {
         stream << in;
     }
 
-    void PreferenceSerializerV1::writeToString(QTextStream& stream, const IO::Path& in) {
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const IO::Path& in) const {
         // NOTE: this serializes with "\" separators on Windows and "/" elsewhere!
         stream << in.asQString();
     }
 
-    void PreferenceSerializerV1::writeToString(QTextStream& stream, const View::KeyboardShortcut& in) {
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const View::KeyboardShortcut& in) const {
         stream << in.toV1Settings();
     }
     
-    void PreferenceSerializerV1::writeToString(QTextStream& stream, const QString& in) {
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const QString& in) const {
         stream << in;
     }
 
     // PreferenceSerializerV2
 
-    bool PreferenceSerializerV2::readFromString(const QString& in, View::KeyboardShortcut* out) {
+    bool PreferenceSerializerV2::readFromString(const QString& in, View::KeyboardShortcut* out) const {
         *out = View::KeyboardShortcut(QKeySequence(in, QKeySequence::PortableText));
         return true;
     }
 
-    void PreferenceSerializerV2::writeToString(QTextStream& stream, const View::KeyboardShortcut& in) {
+    void PreferenceSerializerV2::writeToString(QTextStream& stream, const View::KeyboardShortcut& in) const {
         stream << in.keySequence().toString(QKeySequence::PortableText);
     }
 
@@ -224,6 +228,9 @@ namespace TrenchBroom {
         return result;
     }
 
+    /**
+     * Helper for reading the Windows registry QSettings into a std::map<IO::Path, QString>
+     */
     static void visitNode(std::map<IO::Path, QString>* result, QSettings* settings, const IO::Path& currentPath) {
         // Process key/value pairs at this node
         for (const QString& key : settings->childKeys()) {
@@ -240,15 +247,41 @@ namespace TrenchBroom {
         }
     }
 
-    std::map<IO::Path, QString> getRegistrySettingsV1() {
+#if defined(Q_OS_WIN)
+    static std::map<IO::Path, QString> getRegistrySettingsV1() {
         std::map<IO::Path, QString> result;
 
-#if defined(Q_OS_WIN)
         QSettings s("HKEY_CURRENT_USER\\Software\\Kristian Duske\\TrenchBroom", QSettings::Registry32Format);
         visitNode(&result, &s, IO::Path());
-#endif
 
         return result;
+    }
+#endif
+
+    std::map<IO::Path, QString> getINISettingsV1(const QString& path) {
+        QFile file(path);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            return {};
+        }
+
+        QTextStream in(&file);
+        const std::map<IO::Path, QString> result = parseINI(&in);
+
+        return result;
+    }
+
+    std::map<IO::Path, QString> readV1Settings() {
+#if defined(Q_OS_WIN)
+        return getRegistrySettingsV1();
+#elif defined __linux__ || defined __FreeBSD__
+        return getINISettingsV1(QDir::homePath() % QString::fromLocal8Bit("/.TrenchBroom/.preferences");
+#elif defined __APPLE__
+        return getINISettingsV1(QStandardPaths::locate(QStandardPaths::ConfigLocation,
+            QString::fromLocal8Bit("TrenchBroom Preferences"),
+            QStandardPaths::LocateOption::LocateFile));
+#else
+        return {};
+#endif
     }
 
     static bool matches(const IO::Path& path, const IO::Path& glob) {
@@ -280,36 +313,51 @@ namespace TrenchBroom {
         auto& actionsMap = View::ActionManager::instance().actionsMap();
         auto& dynaimcPrefPatterns = Preferences::dynaimcPreferencePatterns();
 
-        PreferenceSerializerV1 v1;
-        PreferenceSerializerV2 v2;
+        const PreferenceSerializerV1 v1;
+        const PreferenceSerializerV2 v2;
 
         std::map<IO::Path, QString> result;
 
         for (auto [key, val] : v1Prefs) {
-            qDebug() << key.asQString() << "=" << val;
 
-            if (auto it = map.find(key); it != map.end()) {
-                PreferenceBase* prefBase = it->second;
+            // try Preferences::staticPreferencesMap()
+            {
+                auto it = map.find(key);
+                if (it != map.end()) {
+                    PreferenceBase* prefBase = it->second;
 
-                auto strMaybe = prefBase->migratePreferenceForThisType(v1, v2, val);
+                    auto strMaybe = prefBase->migratePreferenceForThisType(v1, v2, val);
 
-                if (!strMaybe.has_value()) {
-                    qDebug() << " failed to migrate pref for " << key.asQString();
-                } else {
-                    result[key] = *strMaybe;
+                    if (!strMaybe.has_value()) {
+                        qDebug() << " failed to migrate pref for " << key.asQString();
+                    }
+                    else {
+                        result[key] = *strMaybe;
+                    }
+                    continue;
+                } 
+            }
+            
+            // try ActionManager::actionsMap()
+            {
+                auto it = actionsMap.find(key);
+                if (it != actionsMap.end()) {
+                    // assume it's a View::KeyboardShortcut
+
+                    auto strMaybe = migratePreference<View::KeyboardShortcut>(v1, v2, val);
+
+                    if (!strMaybe.has_value()) {
+                        qDebug() << " failed to migrate pref for " << key.asQString();
+                    }
+                    else {
+                        result[key] = *strMaybe;
+                    }
+                    continue;
                 }
-            } else if (auto it = actionsMap.find(key); it != actionsMap.end()) {
-                // assume it's a View::KeyboardShortcut
-
-                auto strMaybe = migratePreference<View::KeyboardShortcut>(v1, v2, val);
-
-                if (!strMaybe.has_value()) {
-                    qDebug() << " failed to migrate pref for " << key.asQString();
-                } else {
-                    result[key] = *strMaybe;
-                }
-            } else {
-                // check dynamic patters
+            }
+             
+            // try Preferences::dynaimcPreferencePatterns()
+            {
                 bool found = false;
 
                 for (DynamicPreferencePatternBase* dynPref : dynaimcPrefPatterns) {
@@ -331,9 +379,12 @@ namespace TrenchBroom {
                     }
                 }
                 
-                if (!found)
-                    qDebug() << "   did not find migration for " << key.asQString();
-            }            
+                if (found) {
+                    continue;
+                }
+            }    
+
+            qDebug() << "Couldn't find migration for " << key.asQString();
         }
 
         return result;

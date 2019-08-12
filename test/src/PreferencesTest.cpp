@@ -39,18 +39,18 @@ namespace TrenchBroom {
         return it->second;
     }
 
-    TEST(PreferencesTest, parseReg) {
-        const std::map<IO::Path, QString> reg = getRegistrySettingsV1();
+    TEST(PreferencesTest, migrateLocalV1Settings) {
+        const std::map<IO::Path, QString> reg = readV1Settings();
+        
+        [[maybe_unused]]
+        const auto migrated = migrateV1ToV2(reg);
 
-        auto migrated = migrateV1ToV2(reg);
+        // Can't really test anything because we can't assume the test system
+        // has any settings on it.
     }
 
     TEST(PreferencesTest, parseV1) {
-        QFile file("fixture/test/preferences-v1.ini");
-        ASSERT_TRUE(file.open(QIODevice::ReadOnly | QIODevice::Text));
-
-        QTextStream in(&file);
-        const std::map<IO::Path, QString> parsed = parseINI(&in);
+        const std::map<IO::Path, QString> parsed = getINISettingsV1("fixture/test/preferences-v1.ini");
 
         EXPECT_EQ("108.000000", getValue(parsed, IO::Path("Controls/Camera/Field of vision")));
         EXPECT_EQ("82:0:0:0", getValue(parsed, IO::Path("Controls/Camera/Move down")));
@@ -108,11 +108,7 @@ namespace TrenchBroom {
     }
 
     TEST(PreferencesTest, migrateV1) {
-        QFile file("fixture/test/preferences-v1.ini");
-        ASSERT_TRUE(file.open(QIODevice::ReadOnly | QIODevice::Text));
-
-        QTextStream in(&file);
-        const std::map<IO::Path, QString> v1 = parseINI(&in);
+        const std::map<IO::Path, QString> v1 = getINISettingsV1("fixture/test/preferences-v1.ini");
         const std::map<IO::Path, QString> v2 = migrateV1ToV2(v1);
 
         EXPECT_EQ("108", getValue(v2, IO::Path("Controls/Camera/Field of vision")));
@@ -177,7 +173,7 @@ namespace TrenchBroom {
      */
     template <class Serializer, class PrimitiveType>
     static nonstd::optional<PrimitiveType> maybeDeserialize(const QString& string) {
-        Serializer s;
+        const Serializer s;
         PrimitiveType result;
         if (s.readFromString(string, &result)) {
             return { result };
@@ -187,7 +183,7 @@ namespace TrenchBroom {
 
     template <class Serializer, class PrimitiveType>
     static QString serialize(const PrimitiveType& value) {
-        Serializer s;
+        const Serializer s;
         QString result;
         QTextStream stream(&result);
 
