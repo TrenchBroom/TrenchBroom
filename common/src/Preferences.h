@@ -162,6 +162,16 @@ namespace TrenchBroom {
          */
         const std::vector<PreferenceBase*>& staticPreferences();
         const std::map<IO::Path, PreferenceBase*>& staticPreferencesMap();
+
+        extern DynamicPreferencePattern<QString> GamesPath;
+        extern DynamicPreferencePattern<QString> GamesDefaultEngine;
+        extern DynamicPreferencePattern<View::KeyboardShortcut> FiltersTagsToggle;
+        extern DynamicPreferencePattern<View::KeyboardShortcut> TagsEnable;
+        extern DynamicPreferencePattern<View::KeyboardShortcut> TagsDisable;
+        extern DynamicPreferencePattern<View::KeyboardShortcut> FiltersEntitiesToggleVisible;
+        extern DynamicPreferencePattern<View::KeyboardShortcut> EntitiesCreate;
+
+        const std::vector<DynamicPreferencePatternBase*>& dynaimcPreferencePatterns();
     }
 }
 

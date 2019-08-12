@@ -83,6 +83,11 @@ namespace TrenchBroom {
         return true;
     }
 
+    bool PreferenceSerializerV1::readFromString(const QString& in, QString* out) {
+        *out = in;
+        return true;
+    }
+
     void PreferenceSerializerV1::writeToString(QTextStream& stream, const bool in) {
         if (in) {
             stream << "1";
@@ -114,6 +119,10 @@ namespace TrenchBroom {
 
     void PreferenceSerializerV1::writeToString(QTextStream& stream, const View::KeyboardShortcut& in) {
         stream << in.toV1Settings();
+    }
+    
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const QString& in) {
+        stream << in;
     }
 
     // PreferenceSerializerV2
@@ -242,10 +251,35 @@ namespace TrenchBroom {
         return result;
     }
 
+    static bool matches(const IO::Path& path, const IO::Path& glob) {
+        const size_t pathLen = path.length();
+        const size_t globLen = glob.length();
+
+        if (pathLen != globLen) {
+            return false;
+        }
+
+        const StringList& pathComps = path.components();
+        const StringList& globComps = glob.components();
+
+        for (size_t i = 0; i < globLen; ++i) {
+            if (globComps[i] == "*") {
+                // Wildcard, so we don't care what pathComps[i] is
+                continue;
+            }
+            if (globComps[i] != pathComps[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     std::map<IO::Path, QString> migrateV1ToV2(const std::map<IO::Path, QString>& v1Prefs) {
         auto& map = Preferences::staticPreferencesMap();
         auto& actionsMap = View::ActionManager::instance().actionsMap();
-        
+        auto& dynaimcPrefPatterns = Preferences::dynaimcPreferencePatterns();
+
         PreferenceSerializerV1 v1;
         PreferenceSerializerV2 v2;
 
@@ -275,14 +309,31 @@ namespace TrenchBroom {
                     result[key] = *strMaybe;
                 }
             } else {
-                qDebug() << "   did not find migration for " << key.asQString();
+                // check dynamic patters
+                bool found = false;
 
-                // TODO: 
-                // - Games (copy as strings)
-                // - dynamic key bindings (tags/entity definitions etc.) - assume View::KeyboardShortcut
-                // - anything else? 
-                // - Drop unrecgonized folders so we don't bring over wx splitter positions, etc.
-            }
+                for (DynamicPreferencePatternBase* dynPref : dynaimcPrefPatterns) {
+                    if (matches(key, dynPref->pathPattern())) {
+                        found = true;
+
+                        qDebug() << "   " << key.asQString() << " matches pattern " << dynPref->pathPattern().asQString();
+
+                        auto strMaybe = dynPref->migratePreferenceForThisType(v1, v2, val);
+                        
+                        if (!strMaybe.has_value()) {
+                            qDebug() << " failed to migrate pref for " << key.asQString();
+                        }
+                        else {
+                            result[key] = *strMaybe;
+                        }
+
+                        break;
+                    }
+                }
+                
+                if (!found)
+                    qDebug() << "   did not find migration for " << key.asQString();
+            }            
         }
 
         return result;

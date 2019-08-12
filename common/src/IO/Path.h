@@ -89,6 +89,7 @@ namespace TrenchBroom {
             Path prefix(size_t count) const;
             Path suffix(size_t count) const;
             Path subPath(size_t index, size_t count) const;
+            const StringList& components() const;
 
             String filename() const;
             String basename() const;

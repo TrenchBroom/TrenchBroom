@@ -52,6 +52,7 @@ namespace TrenchBroom {
         bool readFromString(const QString& in, int* out) override;
         bool readFromString(const QString& in, IO::Path* out) override;
         bool readFromString(const QString& in, View::KeyboardShortcut* out) override;
+        bool readFromString(const QString& in, QString* out) override;
 
         void writeToString(QTextStream& stream, const bool in) override;
         void writeToString(QTextStream& stream, const Color& in) override;
@@ -59,6 +60,7 @@ namespace TrenchBroom {
         void writeToString(QTextStream& stream, const int in) override;
         void writeToString(QTextStream& stream, const IO::Path& in) override;
         void writeToString(QTextStream& stream, const View::KeyboardShortcut& in) override;
+        void writeToString(QTextStream& stream, const QString& in) override;
     };
 
     class PreferenceSerializerV2 : public PreferenceSerializerV1 {

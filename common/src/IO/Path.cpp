@@ -274,6 +274,10 @@ namespace TrenchBroom {
             return Path(m_absolute && index == 0, newComponents);
         }
 
+        const StringList& Path::components() const {
+            return m_components;
+        }
+
         String Path::filename() const {
             if (isEmpty()) {
                 throw PathException("Cannot get filename of empty path");

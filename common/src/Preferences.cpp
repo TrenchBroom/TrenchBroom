@@ -277,5 +277,26 @@ namespace TrenchBroom {
 
             return map;
         }
+
+        DynamicPreferencePattern<QString>                GamesPath(IO::Path("Games/*/Path"));
+        DynamicPreferencePattern<QString>                GamesDefaultEngine(IO::Path("Games/*/Default Engine"));
+        DynamicPreferencePattern<View::KeyboardShortcut> FiltersTagsToggle(IO::Path("Filters/Tags/*/Toggle Visible"));
+        DynamicPreferencePattern<View::KeyboardShortcut> TagsEnable(IO::Path("Tags/*/Enable"));
+        DynamicPreferencePattern<View::KeyboardShortcut> TagsDisable(IO::Path("Tags/*/Disable"));
+        DynamicPreferencePattern<View::KeyboardShortcut> FiltersEntitiesToggleVisible(IO::Path("Filters/Entities/*/Toggle Visible"));
+        DynamicPreferencePattern<View::KeyboardShortcut> EntitiesCreate(IO::Path("Entities/*/Create"));
+
+        const std::vector<DynamicPreferencePatternBase*>& dynaimcPreferencePatterns() {
+            static const std::vector<DynamicPreferencePatternBase*> list {
+                &GamesPath,
+                &GamesDefaultEngine,
+                &FiltersTagsToggle,
+                &TagsEnable,
+                &TagsDisable,
+                &FiltersEntitiesToggleVisible,
+                &EntitiesCreate
+            };
+            return list;
+        }
     }
 }

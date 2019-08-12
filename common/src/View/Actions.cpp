@@ -702,7 +702,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) { return context.hasDocument(); }));
 
             auto& exportMenu = fileMenu.addMenu("Export");
-            exportMenu.addItem(createMenuAction(IO::Path("Menu/File/Export/Wavefront OBJ"), QObject::tr("Wavefront OBJ..."), 0,
+            exportMenu.addItem(createMenuAction(IO::Path("Menu/File/Export/Wavefront OBJ..."), QObject::tr("Wavefront OBJ..."), 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->exportDocumentAsObj();
                 },
@@ -710,7 +710,7 @@ namespace TrenchBroom {
 
             /* ========== File Menu (Associated Resources) ========== */
             fileMenu.addSeparator();
-            fileMenu.addItem(createMenuAction(IO::Path("Menu/File/Load Point File"), QObject::tr("Load Point File..."), 0,
+            fileMenu.addItem(createMenuAction(IO::Path("Menu/File/Load Point File..."), QObject::tr("Load Point File..."), 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->loadPointFile();
                 },
@@ -730,7 +730,7 @@ namespace TrenchBroom {
                     return context.hasDocument() && context.frame()->canUnloadPointFile();
                 }));
             fileMenu.addSeparator();
-            fileMenu.addItem(createMenuAction(IO::Path("Menu/File/Load Portal File"), QObject::tr("Load Portal File..."), 0,
+            fileMenu.addItem(createMenuAction(IO::Path("Menu/File/Load Portal File..."), QObject::tr("Load Portal File..."), 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->loadPortalFile();
                 },
@@ -1078,7 +1078,7 @@ namespace TrenchBroom {
                 },
                 IO::Path("UVLock.png")));
             editMenu.addSeparator();
-            editMenu.addItem(createMenuAction(IO::Path("Menu/Edit/Replace Texture"), QObject::tr("Replace Texture..."), 0,
+            editMenu.addItem(createMenuAction(IO::Path("Menu/Edit/Replace Texture..."), QObject::tr("Replace Texture..."), 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->replaceTexture();
                 },
@@ -1262,7 +1262,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canFocusCamera();
                 }));
-            cameraMenu.addItem(createMenuAction(IO::Path("Menu/View/Camera/Move Camera to"), QObject::tr("Move Camera to..."), 0,
+            cameraMenu.addItem(createMenuAction(IO::Path("Menu/View/Camera/Move Camera to..."), QObject::tr("Move Camera to..."), 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->moveCameraToPosition();
                 },

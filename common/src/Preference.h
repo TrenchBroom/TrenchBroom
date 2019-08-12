@@ -52,6 +52,7 @@ namespace TrenchBroom {
         virtual bool readFromString(const QString& in, int* out) = 0;
         virtual bool readFromString(const QString& in, IO::Path* out) = 0;
         virtual bool readFromString(const QString& in, View::KeyboardShortcut* out) = 0;
+        virtual bool readFromString(const QString& in, QString* out) = 0;
 
         virtual void writeToString(QTextStream& stream, const bool in) = 0;
         virtual void writeToString(QTextStream& stream, const Color& in) = 0;
@@ -59,6 +60,7 @@ namespace TrenchBroom {
         virtual void writeToString(QTextStream& stream, const int in) = 0;
         virtual void writeToString(QTextStream& stream, const IO::Path& in) = 0;
         virtual void writeToString(QTextStream& stream, const View::KeyboardShortcut& in) = 0;
+        virtual void writeToString(QTextStream& stream, const QString& in) = 0;
     };
 
     template <class T>
@@ -241,6 +243,28 @@ namespace TrenchBroom {
         virtual bool loadFromString(PrefSerializer* format, const QString& value) = 0;
     };
 
+    class DynamicPreferencePatternBase {
+    public:
+        virtual const IO::Path& pathPattern() const = 0;
+        virtual nonstd::optional<QString> migratePreferenceForThisType(PrefSerializer& from, PrefSerializer& to, const QString& input) const = 0;
+    };
+
+    template <typename T>
+    class DynamicPreferencePattern : public DynamicPreferencePatternBase {
+    private:
+        IO::Path m_pathPattern;
+    public:
+        explicit DynamicPreferencePattern(const IO::Path& pathPattern) :
+            m_pathPattern(pathPattern) {}
+
+        const IO::Path& pathPattern() const override {
+            return m_pathPattern;
+        }
+
+        nonstd::optional<QString> migratePreferenceForThisType(PrefSerializer& from, PrefSerializer& to, const QString& input) const override {
+            return migratePreference<T>(from, to, input);
+        }
+    };
 
     template <typename T>
     class Preference : public PreferenceBase {
