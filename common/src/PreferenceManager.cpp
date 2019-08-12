@@ -28,9 +28,9 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QStringBuilder>
-#include <QJSONDocument>
-#include <QJSONObject>
-#include <QJSONValue>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QSaveFile>
 
 namespace TrenchBroom {
@@ -54,7 +54,7 @@ namespace TrenchBroom {
         if (!Color::canParse(inStdString)) {
             return false;
         }
-        
+
         *out = Color::parse(inStdString);
         return true;
     }
@@ -83,9 +83,9 @@ namespace TrenchBroom {
     }
 
     bool PreferenceSerializerV1::readFromString(const QString& in, View::KeyboardShortcut* out) const {
-        nonstd::optional<View::KeyboardShortcut> result = 
+        nonstd::optional<View::KeyboardShortcut> result =
             View::KeyboardShortcut::fromV1Settings(in);
-        
+
         if (!result.has_value()) {
             return false;
         }
@@ -130,7 +130,7 @@ namespace TrenchBroom {
     void PreferenceSerializerV1::writeToString(QTextStream& stream, const View::KeyboardShortcut& in) const {
         stream << in.toV1Settings();
     }
-    
+
     void PreferenceSerializerV1::writeToString(QTextStream& stream, const QString& in) const {
         stream << in;
     }
@@ -346,9 +346,9 @@ namespace TrenchBroom {
                         result[key] = *strMaybe;
                     }
                     continue;
-                } 
+                }
             }
-            
+
             // try ActionManager::actionsMap()
             {
                 auto it = actionsMap.find(key);
@@ -366,7 +366,7 @@ namespace TrenchBroom {
                     continue;
                 }
             }
-             
+
             // try Preferences::dynaimcPreferencePatterns()
             {
                 bool found = false;
@@ -378,7 +378,7 @@ namespace TrenchBroom {
                         qDebug() << "   " << key.asQString() << " matches pattern " << dynPref->pathPattern().asQString();
 
                         auto strMaybe = dynPref->migratePreferenceForThisType(v1, v2, val);
-                        
+
                         if (!strMaybe.has_value()) {
                             qDebug() << " failed to migrate pref for " << key.asQString();
                         }
@@ -389,11 +389,11 @@ namespace TrenchBroom {
                         break;
                     }
                 }
-                
+
                 if (found) {
                     continue;
                 }
-            }    
+            }
 
             qDebug() << "Couldn't find migration for " << key.asQString();
         }
@@ -417,12 +417,12 @@ namespace TrenchBroom {
 
     bool writeV2SettingsToPath(const QString& path, const std::map<IO::Path, QString>& v2Prefs) {
         const QByteArray serialized = writeV2SettingsToJSON(v2Prefs);
-        
+
         QSaveFile saveFile(path);
         if (!saveFile.open(QIODevice::WriteOnly)) {
             return false;
         }
-         
+
         const qint64 written = saveFile.write(serialized);
         if (written != static_cast<qint64>(serialized.size())) {
             return false;
@@ -440,7 +440,7 @@ namespace TrenchBroom {
     std::map<IO::Path, QString> parseV2SettingsFromJSON(const QByteArray& jsonData) {
         QJsonParseError error;
         const QJsonDocument document = QJsonDocument::fromJson(jsonData, &error);
-        
+
         if (error.error != QJsonParseError::NoError) {
             qWarning() << "Error parsing settings: " << error.errorString();
             return {};
@@ -449,13 +449,13 @@ namespace TrenchBroom {
             qWarning() << "Error parsing settings: expected object";
             return {};
         }
-        
-        const QJsonObject object = document.object();        
+
+        const QJsonObject object = document.object();
         std::map<IO::Path, QString> result;
         for (auto it = object.constBegin(); it != object.constEnd(); ++it) {
             const QString key = it.key();
             const QJsonValue value = it.value();
-           
+
             result[IO::Path::fromQString(key)] = value.toString();
         }
         return result;
