@@ -64,7 +64,6 @@ namespace TrenchBroom {
             m_colorPicker = new ColorButton();
             m_colorHistory = new ColorTable(ColorHistoryCellSize);
 
-            // FIXME: not yet working, scrollbar does not show up
             auto* colorHistoryScroller = new QScrollArea();
             colorHistoryScroller->setWidget(m_colorHistory);
             colorHistoryScroller->setWidgetResizable(true);
