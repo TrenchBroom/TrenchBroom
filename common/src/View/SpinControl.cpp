@@ -19,8 +19,9 @@
 
 #include "SpinControl.h"
 
-#include <QDebug>
 #include <QGuiApplication>
+
+#include <cassert>
 
 namespace TrenchBroom {
     namespace View {
@@ -41,8 +42,6 @@ namespace TrenchBroom {
             } else {
                 setSingleStep(m_regularIncrement);
             }
-
-            qDebug() << "stepping by " << steps << " with step value " << singleStep();
 
             QDoubleSpinBox::stepBy(steps);
         }
