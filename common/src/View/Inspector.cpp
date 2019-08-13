@@ -69,7 +69,7 @@ namespace TrenchBroom {
         }
 
         bool Inspector::cancelMouseDrag() {
-            return false; // FIXME: m_faceInspector->cancelMouseDrag();
+            return m_faceInspector->cancelMouseDrag();
         }
 
         bool Inspector::eventFilter(QObject* target, QEvent* event) {

@@ -39,7 +39,6 @@ namespace TrenchBroom {
         m_scrollX(0.0f),
         m_scrollY(0.0f),
         m_anyToolDragging(false) {
-            // FIXME: Confirm coordinate system matches the wx code
             const QPoint mouseState = QCursor::pos();
             m_mouseX = mouseState.x();
             m_mouseY = mouseState.y();

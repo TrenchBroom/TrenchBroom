@@ -200,14 +200,13 @@ namespace TrenchBroom {
 
                     const QString dropData = dndData(*cell);
 
-                    QMimeData* mimeData = new QMimeData();
+                    auto* mimeData = new QMimeData();
                     mimeData->setText(dropData);
 
-                    QDrag* drag = new QDrag(this);
+                    auto* drag = new QDrag(this);
                     drag->setMimeData(mimeData);
 
-                    // FIXME: is this complete and working?
-                    /* Qt::DropAction dropAction = */ drag->exec(Qt::CopyAction);
+                    drag->exec(Qt::CopyAction);
                 }
             }
         }
