@@ -58,6 +58,13 @@ namespace TrenchBroom {
             MapViewActivationTracker();
         public:
             /**
+             * Indicates whether the map views are in an active state.
+             *
+             * @return true if the map views are active and false otherwise
+             */
+            bool active() const;
+        public:
+            /**
              * Adds the given window to the activation group.
              *
              * @param mapView the map view to add

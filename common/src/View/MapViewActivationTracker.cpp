@@ -34,6 +34,10 @@ namespace TrenchBroom {
         MapViewActivationTracker::MapViewActivationTracker() :
         m_active(false) {}
 
+        bool MapViewActivationTracker::active() const {
+            return m_active;
+        }
+
         void MapViewActivationTracker::addWindow(MapViewBase* mapView) {
             ensure(mapView != nullptr, "map view is null");
 
@@ -95,7 +99,11 @@ namespace TrenchBroom {
             return QObject::eventFilter(object, event);
         }
 
-        void MapViewActivationTracker::setFocusEvent(QFocusEvent* event, QWindow* window) {}
+        void MapViewActivationTracker::setFocusEvent(QFocusEvent* event, QWindow* window) {
+            for (auto* mapView : m_mapViews) {
+                mapView->setIsCurrent(mapView == window);
+            }
+        }
 
         void MapViewActivationTracker::killFocusEvent(QFocusEvent* event, QWindow* window) {
             const auto* focusedWindow = QGuiApplication::focusWindow();

@@ -89,7 +89,8 @@ namespace TrenchBroom {
         m_animationManager(std::make_unique<AnimationManager>(this)),
         m_renderer(renderer),
         m_compass(nullptr),
-        m_portalFileRenderer(nullptr) {
+        m_portalFileRenderer(nullptr),
+        m_isCurrent(false) {
             setToolBox(toolBox);
             bindObservers();
         }
@@ -109,6 +110,10 @@ namespace TrenchBroom {
             makeCurrent();
 
             delete m_compass;
+        }
+
+        void MapViewBase::setIsCurrent(const bool isCurrent) {
+            m_isCurrent = isCurrent;
         }
 
         void MapViewBase::bindObservers() {
@@ -793,9 +798,7 @@ namespace TrenchBroom {
         }
 
         bool MapViewBase::doGetIsCurrent() const {
-            // FIXME: This should probably be removed and tracked by MapFrame?
-            // "Current" should mean "last focused", and MapFrame should always have a non-null "current" map view.
-            return hasFocus();
+            return m_isCurrent;
         }
 
         MapViewBase* MapViewBase::doGetFirstMapViewBase() {

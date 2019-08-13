@@ -39,6 +39,11 @@ namespace TrenchBroom {
             bool currentViewMaximized() const;
             void toggleMaximizeCurrentView();
         protected:
+            /**
+             * Returns the current map view. This is the map view which had last received focus.
+             *
+             * @return the current map view
+             */
             MapView* currentMapView() const;
         private: // implement MapView interface
             vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;

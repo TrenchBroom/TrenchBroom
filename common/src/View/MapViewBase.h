@@ -89,6 +89,12 @@ namespace TrenchBroom {
             Renderer::MapRenderer& m_renderer;
             Renderer::Compass* m_compass;
             std::unique_ptr<Renderer::PrimitiveRenderer> m_portalFileRenderer;
+
+            /**
+             * Tracks whether this map view has most recently gotten the focus. This is tracked and updated by a
+             * MapViewActivationTracker instance.
+             */
+            bool m_isCurrent;
         private: // shortcuts
             std::vector<std::pair<std::unique_ptr<QShortcut>, const Action*>> m_shortcuts;
         protected:
@@ -97,6 +103,8 @@ namespace TrenchBroom {
             void setCompass(Renderer::Compass* compass);
         public:
             ~MapViewBase() override;
+        public:
+            void setIsCurrent(bool isCurrent);
         private:
             void bindObservers();
             void unbindObservers();

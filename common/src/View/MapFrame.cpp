@@ -939,7 +939,7 @@ namespace TrenchBroom {
          * This is relatively expensive so only call it when the clipboard changes or e.g. the user tries to paste.
          */
         bool MapFrame::canPaste() const {
-            if (!m_mapView->isCurrent()) {
+            if (!m_mapView->active()) {
                 return false;
             }
 

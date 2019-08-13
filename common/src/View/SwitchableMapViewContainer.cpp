@@ -72,8 +72,8 @@ namespace TrenchBroom {
             m_activationTracker.windowActivationChanged(active);
         }
 
-        bool SwitchableMapViewContainer::viewportHasFocus() const {
-            return m_mapView != nullptr && m_mapView->isCurrent();
+        bool SwitchableMapViewContainer::active() const {
+            return m_activationTracker.active();
         }
 
         void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId) {

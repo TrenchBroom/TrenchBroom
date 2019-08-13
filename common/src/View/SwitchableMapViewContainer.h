@@ -78,7 +78,7 @@ namespace TrenchBroom {
 
             void windowActivationStateChanged(bool active);
 
-            bool viewportHasFocus() const;
+            bool active() const;
             void switchToMapView(MapViewLayout viewId);
 
             bool anyToolActive() const;
