@@ -30,8 +30,8 @@ namespace TrenchBroom {
             double m_regularIncrement;
             double m_shiftIncrement;
             double m_ctrlIncrement;
-            double m_minDigits;
-            double m_maxDigits;
+            int m_minDigits;
+            int m_maxDigits;
         public:
             explicit SpinControl(QWidget* parent = nullptr);
 
@@ -42,7 +42,7 @@ namespace TrenchBroom {
 
         public:
             void setIncrements(double regularIncrement, double shiftIncrement, double ctrlIncrement);
-            void setDigits(unsigned int minDigits, unsigned int maxDigits);
+            void setDigits(int minDigits, int maxDigits);
         };
     }
 }

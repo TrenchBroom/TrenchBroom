@@ -52,11 +52,11 @@ namespace TrenchBroom {
 
             if (m_minDigits < m_maxDigits) {
                 const auto zero = locale().zeroDigit();
-                while (str.length() > m_minDigits && str.back() == zero) {
+                while (str.length() > m_minDigits && str[str.length()-1] == zero) {
                     str.chop(1);
                 }
                 const auto dec = locale().decimalPoint();
-                if (str.back() == dec) {
+                if (!str.isEmpty() && str[str.length()-1] == dec) {
                     assert(m_minDigits == 0);
                     str.chop(1);
                 }
@@ -65,13 +65,13 @@ namespace TrenchBroom {
             return str;
         }
 
-        void SpinControl::setIncrements(double regularIncrement, double shiftIncrement, double ctrlIncrement) {
+        void SpinControl::setIncrements(const double regularIncrement, const double shiftIncrement, const double ctrlIncrement) {
             m_regularIncrement = regularIncrement;
             m_shiftIncrement = shiftIncrement;
             m_ctrlIncrement = ctrlIncrement;
         }
 
-        void SpinControl::setDigits(unsigned int minDigits, unsigned int maxDigits) {
+        void SpinControl::setDigits(const int minDigits, const int maxDigits) {
             setDecimals(maxDigits);
         }
     }
