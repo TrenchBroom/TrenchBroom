@@ -38,8 +38,6 @@ namespace TrenchBroom {
             bool directoryExists(const Path& path);
             bool fileExists(const Path& path);
 
-            String replaceForbiddenChars(const String& name);
-
             Path::List getDirectoryContents(const Path& path);
             std::shared_ptr<File> openFile(const Path& path);
             Path getCurrentWorkingDir();

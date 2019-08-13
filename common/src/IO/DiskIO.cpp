@@ -111,13 +111,6 @@ namespace TrenchBroom {
                 return fileInfo.exists() && fileInfo.isFile();
             }
 
-            String replaceForbiddenChars(const String& name) {
-                // FIXME: Remove function, it is unused, and not available in Qt
-                return name;
-//                static const String forbidden = wxFileName::GetForbiddenChars().ToStdString();
-//                return StringUtils::replaceChars(name, forbidden, "_");
-            }
-
             Path::List getDirectoryContents(const Path& path) {
                 const Path fixedPath = fixPath(path);
                 QDir dir(fixedPath.asQString());
