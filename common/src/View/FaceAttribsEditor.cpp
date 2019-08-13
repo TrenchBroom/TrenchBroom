@@ -219,9 +219,9 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             Grid& grid = document->grid();
 
-            m_xOffsetEditor->SetIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
-            m_yOffsetEditor->SetIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
-            m_rotationEditor->SetIncrements(vm::toDegrees(grid.angle()), 90.0, 1.0);
+            m_xOffsetEditor->setIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
+            m_yOffsetEditor->setIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
+            m_rotationEditor->setIncrements(vm::toDegrees(grid.angle()), 90.0, 1.0);
         }
 
         void FaceAttribsEditor::createGui(GLContextManager& contextManager) {
@@ -241,41 +241,41 @@ namespace TrenchBroom {
             auto* xOffsetLabel = new QLabel("X Offset");
             makeEmphasized(xOffsetLabel);
             m_xOffsetEditor = new SpinControl();
-            m_xOffsetEditor->SetRange(min, max);
-            m_xOffsetEditor->SetDigits(0, 6);
+            m_xOffsetEditor->setRange(min, max);
+            m_xOffsetEditor->setDigits(0, 6);
 
             auto* yOffsetLabel = new QLabel("Y Offset");
             makeEmphasized(yOffsetLabel);
             m_yOffsetEditor = new SpinControl();
-            m_yOffsetEditor->SetRange(min, max);
-            m_yOffsetEditor->SetDigits(0, 6);
+            m_yOffsetEditor->setRange(min, max);
+            m_yOffsetEditor->setDigits(0, 6);
 
             auto* xScaleLabel = new QLabel("X Scale");
             makeEmphasized(xScaleLabel);
             m_xScaleEditor = new SpinControl();
-            m_xScaleEditor->SetRange(min, max);
-            m_xScaleEditor->SetIncrements(0.1, 0.25, 0.01);
-            m_xScaleEditor->SetDigits(0, 6);
+            m_xScaleEditor->setRange(min, max);
+            m_xScaleEditor->setIncrements(0.1, 0.25, 0.01);
+            m_xScaleEditor->setDigits(0, 6);
 
             auto* yScaleLabel = new QLabel("Y Scale");
             makeEmphasized(yScaleLabel);
             m_yScaleEditor = new SpinControl();
-            m_yScaleEditor->SetRange(min, max);
-            m_yScaleEditor->SetIncrements(0.1, 0.25, 0.01);
-            m_yScaleEditor->SetDigits(0, 6);
+            m_yScaleEditor->setRange(min, max);
+            m_yScaleEditor->setIncrements(0.1, 0.25, 0.01);
+            m_yScaleEditor->setDigits(0, 6);
 
             auto* rotationLabel = new QLabel("Angle");
             makeEmphasized(rotationLabel);
             m_rotationEditor = new SpinControl();
-            m_rotationEditor->SetRange(min, max);
-            m_rotationEditor->SetDigits(0, 6);
+            m_rotationEditor->setRange(min, max);
+            m_rotationEditor->setDigits(0, 6);
 
             m_surfaceValueLabel = new QLabel("Value");
             makeEmphasized(m_surfaceValueLabel);
             m_surfaceValueEditor = new SpinControl();
-            m_surfaceValueEditor->SetRange(min, max);
-            m_surfaceValueEditor->SetIncrements(1.0, 10.0, 100.0);
-            m_surfaceValueEditor->SetDigits(0, 6);
+            m_surfaceValueEditor->setRange(min, max);
+            m_surfaceValueEditor->setIncrements(1.0, 10.0, 100.0);
+            m_surfaceValueEditor->setDigits(0, 6);
 
             m_surfaceFlagsLabel = new QLabel("Surface");
             makeEmphasized(m_surfaceFlagsLabel);

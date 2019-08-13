@@ -153,7 +153,7 @@ namespace TrenchBroom {
 
         void RotateObjectsToolPage::updateGui() {
             const auto& grid = lock(m_document)->grid();
-            m_angle->SetIncrements(vm::toDegrees(grid.angle()), 90.0, 1.0);
+            m_angle->setIncrements(vm::toDegrees(grid.angle()), 90.0, 1.0);
 
             auto document = lock(m_document);
             m_rotateButton->setEnabled(document->hasSelectedNodes());

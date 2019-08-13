@@ -26,16 +26,23 @@ namespace TrenchBroom {
     namespace View {
         class SpinControl : public QDoubleSpinBox {
             Q_OBJECT
+        private:
+            double m_regularIncrement;
+            double m_shiftIncrement;
+            double m_ctrlIncrement;
+            double m_minDigits;
+            double m_maxDigits;
         public:
-            explicit SpinControl(QWidget* parent);
-            SpinControl();
+            explicit SpinControl(QWidget* parent = nullptr);
 
         public: // QDoubleSpinBox overrides
             void stepBy(int steps) override;
+
+            QString textFromValue(double val) const override;
+
         public:
-            void SetRange(double min, double max);
-            void SetIncrements(double regularIncrement, double shiftIncrement, double ctrlIncrement);
-            void SetDigits(unsigned int minDigits, unsigned int maxDigits);
+            void setIncrements(double regularIncrement, double shiftIncrement, double ctrlIncrement);
+            void setDigits(unsigned int minDigits, unsigned int maxDigits);
         };
     }
 }
