@@ -179,6 +179,16 @@ namespace TrenchBroom {
         testV2Prefs(v2);
     }
 
+    TEST(PreferencesTest, testWriteReadV2) {
+        const std::map<IO::Path, QString> v1 = getINISettingsV1("fixture/test/preferences-v1.ini");
+        const std::map<IO::Path, QString> v2 = migrateV1ToV2(v1);
+
+        const QByteArray v2Serialized = writeV2SettingsToJSON(v2);
+        const auto v2Deserialized = parseV2SettingsFromJSON(v2Serialized);
+
+        EXPECT_EQ(v2, v2Deserialized);
+    }
+
     /**
      * Helper template so we don't need to use out parameters in the tests
      */
