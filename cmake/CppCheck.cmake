@@ -24,7 +24,7 @@ ELSE()
         2> ./cppcheck-errors.txt
     )
 
-    MESSAGE(STATUS "Using cppcheck found at ${CPPCHECK_EXE}")
+    MESSAGE(STATUS "Found cppcheck: ${CPPCHECK_EXE}")
     STRING (REPLACE ";" " " CPPCHECK_ARGS_STR "${CPPCHECK_ARGS}")
     ADD_CUSTOM_TARGET(
         cppcheck
@@ -57,7 +57,7 @@ ELSE()
             --source-dir=${CMAKE_SOURCE_DIR}
         )
 
-        MESSAGE(STATUS "Using cppcheck-htmlreport found at ${CPPCHECK_HTMLREPORT_EXE}")
+        MESSAGE(STATUS "Found cppcheck-htmlreport: ${CPPCHECK_HTMLREPORT_EXE}")
         STRING (REPLACE ";" " " CPPCHECK_HTMLREPORT_ARGS_STR "${CPPCHECK_HTMLREPORT_ARGS}")
         ADD_CUSTOM_TARGET(
             cppcheck-report
