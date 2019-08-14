@@ -48,10 +48,6 @@ namespace TrenchBroom {
         class ToolController;
         class ToolChain;
 
-        /**
-         * This uses a Qt event filter to implement focus-follows-mouse for MapViewBase when used in a multi-pane layout.
-         * FIXME: Describe the other purposes of this class.
-         */
         class ToolBox : public QObject {
             Q_OBJECT
         private:
