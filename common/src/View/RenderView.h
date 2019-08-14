@@ -49,7 +49,7 @@
     #pragma GCC diagnostic ignored "-Wcpp"
 #endif
 
-#include <QOpenGLWindow>
+#include <QOpenGLWidget>
 
 #if defined(__clang__)
 #pragma clang diagnostic pop
@@ -73,7 +73,7 @@ namespace TrenchBroom {
     namespace View {
         class GLContextManager;
 
-        class RenderView : public QOpenGLWindow, public InputEventProcessor {
+        class RenderView : public QOpenGLWidget, public InputEventProcessor {
             Q_OBJECT
         private:
             Color m_focusColor;
@@ -88,11 +88,8 @@ namespace TrenchBroom {
             QElapsedTimer m_timeSinceLastFrame;
         protected:
             String m_currentFPS;
-
-        private:
-            QWidget* m_windowContainer;
         protected:
-            explicit RenderView(GLContextManager& contextManager);
+            explicit RenderView(GLContextManager& contextManager, QWidget* parent = nullptr);
         public:
             ~RenderView() override;
         protected: // QWindow overrides
@@ -103,10 +100,9 @@ namespace TrenchBroom {
             void mousePressEvent(QMouseEvent* event) override;
             void mouseReleaseEvent(QMouseEvent* event) override;
             void wheelEvent(QWheelEvent* event) override;
-        public:
-            QWidget* widgetContainer() const;
-        public: // wxWidgets compat
-            bool hasFocus() const;
+        public: // migration from QOpenGLWindow compatibility
+            void requestUpdate();
+            QWidget* widgetContainer();
         protected:
             Renderer::Vbo& vertexVbo();
             Renderer::Vbo& indexVbo();
@@ -115,7 +111,7 @@ namespace TrenchBroom {
 
             int depthBits() const;
             bool multisample() const;
-        protected: // QOpenGLWindow overrides
+        protected: // QOpenGLWidget overrides
             void initializeGL() override;
             void paintGL() override;
             void resizeGL(int w, int h) override;

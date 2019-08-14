@@ -25,7 +25,7 @@
 
 #include <QDateTime>
 #include <QDebug>
-#include <QGuiApplication>
+#include <QApplication>
 #include <QMouseEvent>
 #include <QWindow>
 
@@ -68,28 +68,28 @@ namespace TrenchBroom {
         }
 
         bool MapViewActivationTracker::eventFilter(QObject* object, QEvent* event) {
-            auto* window = dynamic_cast<QWindow*>(object);
-            ensure(window != nullptr, "expected a QWindow");
+            auto* widget = dynamic_cast<QWidget*>(object);
+            ensure(widget != nullptr, "expected a QWidget");
 
             switch (event->type()) {
                 case QEvent::FocusIn:
-                    setFocusEvent(static_cast<QFocusEvent*>(event), window);
+                    setFocusEvent(static_cast<QFocusEvent*>(event), widget);
                     break;
                 case QEvent::FocusOut:
-                    killFocusEvent(static_cast<QFocusEvent*>(event), window);
+                    killFocusEvent(static_cast<QFocusEvent*>(event), widget);
                     break;
                 case QEvent::MouseButtonPress:
-                    if (mouseDownEvent(static_cast<QMouseEvent*>(event), window)) {
+                    if (mouseDownEvent(static_cast<QMouseEvent*>(event), widget)) {
                         return true;
                     }
                     break;
                 case QEvent::MouseButtonRelease:
-                    if (mouseUpEvent(static_cast<QMouseEvent*>(event), window)) {
+                    if (mouseUpEvent(static_cast<QMouseEvent*>(event), widget)) {
                         return true;
                     }
                     break;
-                case QEvent::MouseMove:
-                    mouseMoveEvent(static_cast<QMouseEvent*>(event), window);
+                case QEvent::Enter:
+                    enterEvent(event, widget);
                     break;
                 default:
                     break;
@@ -99,20 +99,20 @@ namespace TrenchBroom {
             return QObject::eventFilter(object, event);
         }
 
-        void MapViewActivationTracker::setFocusEvent(QFocusEvent* event, QWindow* window) {
+        void MapViewActivationTracker::setFocusEvent(QFocusEvent* event, QWidget* widget) {
             for (auto* mapView : m_mapViews) {
-                mapView->setIsCurrent(mapView == window);
+                mapView->setIsCurrent(mapView == widget);
             }
         }
 
-        void MapViewActivationTracker::killFocusEvent(QFocusEvent* event, QWindow* window) {
-            const auto* focusedWindow = QGuiApplication::focusWindow();
-            if (!VectorUtils::contains(m_mapViews, focusedWindow)) {
+        void MapViewActivationTracker::killFocusEvent(QFocusEvent* event, QWidget* widget) {
+            const auto* focusedWidget = QApplication::focusWidget();
+            if (!VectorUtils::contains(m_mapViews, focusedWidget)) {
                 deactivate();
             }
         }
 
-        bool MapViewActivationTracker::mouseDownEvent(QMouseEvent* event, QWindow* window) {
+        bool MapViewActivationTracker::mouseDownEvent(QMouseEvent* event, QWidget* widget) {
             if (m_active) {
                 // process the event normally
                 return false;
@@ -127,7 +127,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MapViewActivationTracker::mouseUpEvent(QMouseEvent* event, QWindow* window) {
+        bool MapViewActivationTracker::mouseUpEvent(QMouseEvent* event, QWidget* widget) {
             if (m_active) {
                 // process the event normally
                 return false;
@@ -142,20 +142,9 @@ namespace TrenchBroom {
             return true;
         }
 
-        void MapViewActivationTracker::mouseMoveEvent(QMouseEvent* event, QWindow* window) {
+        void MapViewActivationTracker::enterEvent(QEvent* event, QWidget* widget) {
             if (m_active) {
-                auto* newFocus = window;
-                auto* currentFocus = QGuiApplication::focusWindow();
-
-                // If this was QWidget we could use https://doc.qt.io/qt-5/qwidget.html#enterEvent to get notified when the mouse enters
-                // a widget. There's no equivalent for QWindow so we need to do it ourselves by listening to every mouse move event.
-                if (currentFocus == newFocus) {
-                    return;
-                }
-
-                if (VectorUtils::contains(m_mapViews, currentFocus)) {
-                    newFocus->requestActivate();
-                }
+                widget->setFocus();
             }
         }
 

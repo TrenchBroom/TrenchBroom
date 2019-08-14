@@ -89,17 +89,17 @@ namespace TrenchBroom {
              * Called when a map view has received focus.
              *
              * @param event the focus event
-             * @param window the window that received the event
+             * @param widget the window that received the event
              */
-            void setFocusEvent(QFocusEvent* event, QWindow* window);
+            void setFocusEvent(QFocusEvent* event, QWidget* widget);
 
             /**
              * Called when a map view has lost focus.
              *
              * @param event the focus event
-             * @param window the window that received the event
+             * @param widget the window that received the event
              */
-            void killFocusEvent(QFocusEvent* event, QWindow* window);
+            void killFocusEvent(QFocusEvent* event, QWidget* widget);
 
             /**
              * Called when a map view has received a mouse down event.
@@ -108,10 +108,10 @@ namespace TrenchBroom {
              * Otherwise, the event will be processed as usual
              *
              * @param event the mouse event
-             * @param window the window that received the event
+             * @param widget the window that received the event
              * @return true if the event should be discarded and false otherwise
              */
-            bool mouseDownEvent(QMouseEvent* event, QWindow* window);
+            bool mouseDownEvent(QMouseEvent* event, QWidget* widget);
 
             /**
              * Called when a map view has received a mouse up event.
@@ -120,19 +120,19 @@ namespace TrenchBroom {
              * Otherwise, the event will be processed as usual
              *
              * @param event the mouse event
-             * @param window the window that received the event
+             * @param widget the window that received the event
              * @return true if the event should be discarded and false otherwise
              */
-            bool mouseUpEvent(QMouseEvent* event, QWindow* window);
+            bool mouseUpEvent(QMouseEvent* event, QWidget* widget);
 
             /**
-             * Called when a map view receives a mouse move event. If the group is in the active state and the map view does
+             * Called when the mouse enters a map view. If the group is in the active state and the map view does
              * not have focus, it will receive the focus.
              *
-             * @param event the mouse move event
-             * @param window the window that received the event
+             * @param event the enter event
+             * @param widget the window that received the event
              */
-            void mouseMoveEvent(QMouseEvent* event, QWindow* window);
+            void enterEvent(QEvent* event, QWidget* widget);
 
             /**
              * Called when the group is activated.

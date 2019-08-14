@@ -85,7 +85,7 @@ namespace TrenchBroom {
             m_currentMapView = mapView;
 
             m_layout->setCurrentWidget(m_currentMapView->widgetContainer());
-            m_currentMapView->requestActivate();
+            m_currentMapView->setFocus();
         }
 
         void CyclingMapView::doFlashSelection() {

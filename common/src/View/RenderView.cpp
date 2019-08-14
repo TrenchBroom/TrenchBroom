@@ -50,8 +50,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        RenderView::RenderView(GLContextManager& contextManager) :
-        QOpenGLWindow(),
+        RenderView::RenderView(GLContextManager& contextManager, QWidget* parent) :
+        QOpenGLWidget(parent),
         m_glContext(&contextManager),
         m_framesRendered(0),
         m_maxFrameTimeMsecs(0),
@@ -80,7 +80,8 @@ namespace TrenchBroom {
 
             fpsCounter->start(1000);
 
-            m_windowContainer = QWidget::createWindowContainer(this);
+            setMouseTracking(true); // request mouse move events even when no button is held down
+            setFocusPolicy(Qt::StrongFocus); // accept focus by clicking or tab
         }
 
         RenderView::~RenderView() = default;
@@ -120,12 +121,14 @@ namespace TrenchBroom {
             requestUpdate();
         }
 
-        QWidget* RenderView::widgetContainer() const {
-            return m_windowContainer;
+        void RenderView::requestUpdate() {
+            // TODO: remove this compatibility wrapper
+            update();
         }
 
-        bool RenderView::hasFocus() const {
-            return QGuiApplication::focusWindow() == this;
+        QWidget* RenderView::widgetContainer() {
+            // TODO: remove this compatibility wrapper
+            return this;
         }
 
         void RenderView::paintGL() {

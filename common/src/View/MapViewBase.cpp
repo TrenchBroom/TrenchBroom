@@ -753,13 +753,13 @@ namespace TrenchBroom {
             updateActionStates();  // enable/disable QShortcut's to reflect whether we have focus (needed because of QOpenGLWindow; see comment in createAndRegisterShortcut)
             updateModifierKeys();
             requestUpdate();
-            QWindow::focusInEvent(event);
+            RenderView::focusInEvent(event);
         }
 
         void MapViewBase::focusOutEvent(QFocusEvent* event) {
             clearModifierKeys();
             requestUpdate();
-            QWindow::focusOutEvent(event);
+            RenderView::focusOutEvent(event);
         }
 
         ActionContext::Type MapViewBase::actionContext() const {

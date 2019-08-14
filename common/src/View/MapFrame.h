@@ -330,7 +330,7 @@ namespace TrenchBroom {
             void debugThrowExceptionDuringCommand();
             void debugSetWindowSize();
 
-            void focusChange(QWindow* newFocus);
+            void focusChange(QWidget* oldFocus, QWidget* newFocus);
 
             MapViewBase* currentMapViewBase();
         private:

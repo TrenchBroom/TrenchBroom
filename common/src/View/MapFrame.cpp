@@ -644,7 +644,7 @@ namespace TrenchBroom {
 
         void MapFrame::bindEvents() {
             connect(m_autosaveTimer, &QTimer::timeout, this, &MapFrame::triggerAutosave);
-            connect(qGuiApp, &QGuiApplication::focusWindowChanged, this, &MapFrame::focusChange);
+            connect(qApp, &QApplication::focusChanged, this, &MapFrame::focusChange);
             connect(m_gridChoice, QOverload<int>::of(&QComboBox::activated), this, [this](const int index) { setGridSize(index + Grid::MinSize); });
             connect(QApplication::clipboard(), &QClipboard::dataChanged, this, &MapFrame::updatePasteActions);
         }
@@ -1545,7 +1545,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::focusChange(QWindow* newFocus) {
+        void MapFrame::focusChange(QWidget* oldFocus, QWidget* newFocus) {
             auto newMapView = dynamic_cast<MapViewBase*>(newFocus);
             if (newMapView != nullptr) {
                 m_currentMapView = newMapView;
