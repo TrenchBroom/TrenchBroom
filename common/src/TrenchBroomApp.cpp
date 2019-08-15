@@ -72,12 +72,6 @@ namespace TrenchBroom {
         m_frameManager(nullptr),
         m_recentDocuments(nullptr),
         m_welcomeWindow(nullptr) {
-            // Set OpenGL defaults
-            QSurfaceFormat format;
-            format.setDepthBufferSize(24);
-            format.setSamples(4);
-            QSurfaceFormat::setDefaultFormat(format);
-
             // When this flag is enabled, font and palette changes propagate as though the user had manually called the corresponding QWidget methods.
             setAttribute(Qt::AA_UseStyleSheetPropagationInWidgetStyles);
 

@@ -31,6 +31,14 @@ extern void qt_set_sequence_auto_mnemonic(bool b);
 
 int main(int argc, char *argv[])
 {
+    // Set OpenGL defaults
+    // Needs to be done here before QApplication is created
+    // (see: https://doc.qt.io/qt-5/qsurfaceformat.html#setDefaultFormat)
+    QSurfaceFormat format;
+    format.setDepthBufferSize(24);
+    format.setSamples(4);
+    QSurfaceFormat::setDefaultFormat(format);
+
     // Makes all QOpenGLWidget in the application share a single context
     // (default behaviour would be for QOpenGLWidget's in a single top-level window to share a context.)
     // see: http://doc.qt.io/qt-5/qopenglwidget.html#context-sharing
