@@ -203,7 +203,7 @@ namespace TrenchBroom {
         void MapFrame::updateTitle() {
             setWindowModified(m_document->modified());
             setWindowTitle(QString::fromStdString(m_document->filename()) + QString("[*] - TrenchBroom"));
-            setWindowFilePath(QString::fromStdString(m_document->path().asString()));
+            setWindowFilePath(m_document->path().asQString());
         }
 
         void MapFrame::createMenus() {
@@ -689,7 +689,7 @@ namespace TrenchBroom {
                 const IO::Path directory = originalPath.deleteLastComponent();
                 const IO::Path fileName = originalPath.lastComponent();
 
-                const QString newFileName = QFileDialog::getSaveFileName(this, "Save map file", QString::fromStdString(originalPath.asString()), "Map files (*.map)");
+                const QString newFileName = QFileDialog::getSaveFileName(this, "Save map file", originalPath.asQString(), "Map files (*.map)");
                 if (newFileName.isEmpty()) {
                     return false;
                 }
@@ -711,7 +711,7 @@ namespace TrenchBroom {
             const IO::Path& originalPath = m_document->path();
             const IO::Path objPath = originalPath.replaceExtension("obj");
 
-            const QString newFileName = QFileDialog::getSaveFileName(this, "Export Wavefront OBJ file", QString::fromStdString(objPath.asString()), "Wavefront OBJ files (*.obj)");
+            const QString newFileName = QFileDialog::getSaveFileName(this, "Export Wavefront OBJ file", objPath.asQString(), "Wavefront OBJ files (*.obj)");
             if (newFileName.isEmpty())
                 return false;
 
@@ -752,7 +752,7 @@ namespace TrenchBroom {
         void MapFrame::loadPointFile() {
             QString defaultDir;
             if (!m_document->path().isEmpty()) {
-                defaultDir = QString::fromStdString(m_document->path().deleteLastComponent().asString());
+                defaultDir = m_document->path().deleteLastComponent().asQString();
             }
 
             const QString fileName = QFileDialog::getOpenFileName(this, "Load Point File", defaultDir, "Point files (*.pts);;Any files (*.*)");
@@ -785,7 +785,7 @@ namespace TrenchBroom {
         void MapFrame::loadPortalFile() {
             QString defaultDir;
             if (!m_document->path().isEmpty()) {
-                defaultDir = QString::fromStdString(m_document->path().deleteLastComponent().asString());
+                defaultDir = m_document->path().deleteLastComponent().asQString();
             }
 
             const QString fileName = QFileDialog::getOpenFileName(this, "Load Portal File", defaultDir, "Portal files (*.prt);;Any files (*.*)");

@@ -136,7 +136,7 @@ namespace TrenchBroom {
         void GameEngineProfileEditor::refresh() {
             if (m_profile != nullptr && !m_ignoreNotifications) {
                 m_nameEdit->setText(QString::fromStdString(m_profile->name()));
-                m_pathEdit->setText(QString::fromStdString(m_profile->path().asString()));
+                m_pathEdit->setText(m_profile->path().asQString());
             }
         }
 

@@ -197,14 +197,14 @@ namespace TrenchBroom {
                 // We have to launch apps via the 'open' command so that we can properly pass parameters.
                 program = "/usr/bin/open";
                 arguments.append("-a");
-                arguments.append(QString::fromStdString(executablePath.asString()));
-                arguments.append(QString::fromStdString("--args"));
+                arguments.append(executablePath.asQString());
+                arguments.append("--args");
 #else
-                program = QString::fromStdString(executablePath.asString());
+                program = executablePath.asQString();
 #endif
                 arguments.append(QString::fromStdString(parameters));
 
-                const auto workDir = QString::fromStdString(executablePath.deleteLastComponent().asString());
+                const auto workDir = executablePath.deleteLastComponent().asQString();
 
                 if (!QProcess::startDetached(program, arguments, workDir)) {
                     throw Exception("Unknown error");

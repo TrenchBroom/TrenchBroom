@@ -153,7 +153,7 @@ namespace TrenchBroom {
                 const auto gameName = m_gameListBox->selectedGameName();
                 auto& gameFactory = Model::GameFactory::instance();
                 const auto gamePath = gameFactory.gamePath(gameName);
-                m_gamePathText->setText(QString::fromStdString(gamePath.asString()));
+                m_gamePathText->setText(gamePath.asQString());
                 m_gameListBox->updateGameInfos();
             }
         }

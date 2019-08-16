@@ -62,14 +62,14 @@ namespace TrenchBroom {
             const auto& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
             ensure(index < recentDocuments.size(), "index out of range");
-            return QString::fromStdString(recentDocuments[index].lastComponent().asString());
+            return recentDocuments[index].lastComponent().asQString();
         }
 
         QString RecentDocumentListBox::subtitle(const size_t index) const {
             const auto& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
             ensure(index < recentDocuments.size(), "index out of range");
-            return QString::fromStdString(recentDocuments[index].asString());
+            return recentDocuments[index].asQString();
         }
 
         void RecentDocumentListBox::doubleClicked(const size_t index) {

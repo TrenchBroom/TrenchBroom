@@ -70,7 +70,7 @@ namespace TrenchBroom {
                 m_pathLabel->setText("");
             } else {
                 m_nameLabel->setText(QString::fromStdString(m_profile->name()));
-                m_pathLabel->setText(QString::fromStdString(m_profile->path().asString()));
+                m_pathLabel->setText(m_profile->path().asQString());
             }
             if (m_nameLabel->text().isEmpty()) {
                 m_nameLabel->setText("not set");

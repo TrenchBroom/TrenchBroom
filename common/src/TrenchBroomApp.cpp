@@ -218,7 +218,7 @@ namespace TrenchBroom {
                 if (frame != nullptr) {
                     frame->close();
                 }
-                QMessageBox::critical(nullptr, "TrenchBroom", QString::fromStdString(path.asString()) + " could not be opened.", QMessageBox::Ok);
+                QMessageBox::critical(nullptr, "TrenchBroom", path.asQString() + " could not be opened.", QMessageBox::Ok);
                 return false;
             }
         }
@@ -387,7 +387,7 @@ namespace TrenchBroom {
             }
 
             // Copy the log file
-            if (!QFile::copy(QString::fromStdString(IO::SystemPaths::logFilePath().asString()), QString::fromStdString(logPath.asString())))
+            if (!QFile::copy(IO::SystemPaths::logFilePath().asQString(), QString::fromStdString(logPath.asString())))
                 logPath = IO::Path();
 
             // write the crash log to stdout

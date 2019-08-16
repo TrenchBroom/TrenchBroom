@@ -212,7 +212,7 @@ namespace TrenchBroom {
         }
 
         void write(QSettings& settings, const QString& path, const IO::Path& value) const {
-            settings.setValue(path, QVariant(QString::fromStdString(value.asString())));
+            settings.setValue(path, QVariant(value.asQString()));
         }
     };
 

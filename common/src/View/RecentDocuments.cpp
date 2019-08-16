@@ -94,7 +94,7 @@ namespace TrenchBroom {
             settings.remove("RecentDocuments");
             for (size_t i = 0; i < m_recentDocuments.size(); ++i) {
                 const QString key = QString::fromStdString(std::string("RecentDocuments/") + std::to_string(i));
-                const QVariant value = QVariant(QString::fromStdString(m_recentDocuments[i].asString()));
+                const QVariant value = QVariant(m_recentDocuments[i].asQString());
                 settings.setValue(key, value);
             }
         }
@@ -124,7 +124,7 @@ namespace TrenchBroom {
 
         void RecentDocuments::createMenuItems(QMenu* menu) {
             for (const auto& path : m_recentDocuments) {
-                menu->addAction(QString::fromStdString(path.lastComponent().asString()), [this, path]() { loadDocument(path); });
+                menu->addAction(path.lastComponent().asQString(), [this, path]() { loadDocument(path); });
             }
         }
     }
