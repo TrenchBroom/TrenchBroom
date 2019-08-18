@@ -20,6 +20,7 @@
 #include "DirectoryTextureCollectionEditor.h"
 
 #include "PreferenceManager.h"
+#include "IO/PathQt.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/TitledPanel.h"
@@ -242,7 +243,7 @@ namespace TrenchBroom {
 
             box->clear();
             for (const auto& path : paths) {
-                box->addItem(path.asQString());
+                box->addItem(IO::pathAsQString(path));
             }
         }
 

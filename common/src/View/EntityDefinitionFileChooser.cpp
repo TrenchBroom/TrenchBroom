@@ -23,6 +23,7 @@
 #include "Notifier.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/Path.h"
+#include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/BorderLine.h"
@@ -175,7 +176,7 @@ namespace TrenchBroom {
                 const IO::Path& path = spec.path();
 
                 QListWidgetItem* item = new QListWidgetItem();
-                item->setData(Qt::DisplayRole, path.lastComponent().asQString());
+                item->setData(Qt::DisplayRole, IO::pathAsQString(path.lastComponent()));
                 item->setData(Qt::UserRole, QVariant::fromValue(spec));
 
                 m_builtin->addItem(item);
@@ -199,7 +200,7 @@ namespace TrenchBroom {
                 m_external->setFont(font);
             } else {
                 m_builtin->clearSelection();
-                m_external->setText(spec.path().asQString());
+                m_external->setText(IO::pathAsQString(spec.path()));
 
                 QPalette normalPal;
                 m_external->setPalette(normalPal);

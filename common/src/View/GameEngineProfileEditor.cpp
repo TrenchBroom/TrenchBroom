@@ -21,6 +21,7 @@
 
 #include "Model/GameEngineProfile.h"
 #include "IO/DiskIO.h"
+#include "IO/PathQt.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 #include "TemporarilySetAny.h"
@@ -94,7 +95,7 @@ namespace TrenchBroom {
         void GameEngineProfileEditor::updatePath(const QString& str) {
             const auto valid = isValidEnginePath(str);
             if (valid) {
-                const auto path = IO::Path::fromQString(str);
+                const auto path = IO::pathFromQString(str);
                 m_profile->setPath(path);
                 if (m_profile->name().empty()) {
                     m_profile->setName(path.lastComponent().deleteExtension().asString());
@@ -136,13 +137,13 @@ namespace TrenchBroom {
         void GameEngineProfileEditor::refresh() {
             if (m_profile != nullptr && !m_ignoreNotifications) {
                 m_nameEdit->setText(QString::fromStdString(m_profile->name()));
-                m_pathEdit->setText(m_profile->path().asQString());
+                m_pathEdit->setText(IO::pathAsQString(m_profile->path()));
             }
         }
 
         bool GameEngineProfileEditor::isValidEnginePath(const QString& str) const {
             try {
-                const auto path = IO::Path::fromQString(str);
+                const auto path = IO::pathFromQString(str);
                 return IO::Disk::fileExists(path)
 #ifdef __APPLE__
                 || (IO::Disk::directoryExists(path) && StringUtils::caseInsensitiveEqual(path.extension(), "app"))

@@ -19,6 +19,7 @@
 
 #include "GameEngineProfileListBox.h"
 
+#include "IO/PathQt.h"
 #include "Model/GameEngineConfig.h"
 #include "Model/GameEngineProfile.h"
 #include "View/ElidedLabel.h"
@@ -70,7 +71,7 @@ namespace TrenchBroom {
                 m_pathLabel->setText("");
             } else {
                 m_nameLabel->setText(QString::fromStdString(m_profile->name()));
-                m_pathLabel->setText(m_profile->path().asQString());
+                m_pathLabel->setText(IO::pathAsQString(m_profile->path()));
             }
             if (m_nameLabel->text().isEmpty()) {
                 m_nameLabel->setText("not set");

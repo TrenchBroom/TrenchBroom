@@ -20,6 +20,7 @@
 #include "DiskIO.h"
 
 #include "IO/File.h"
+#include "IO/PathQt.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -63,7 +64,7 @@ namespace TrenchBroom {
 
                     if (path.isEmpty() || !isCaseSensitive())
                         return path;
-                    if (QFileInfo::exists(path.asQString()))
+                    if (QFileInfo::exists(pathAsQString(path)))
                         return path;
 
                     Path result(path.firstComponent());
@@ -72,7 +73,7 @@ namespace TrenchBroom {
                         return result;
 
                     while (!remainder.isEmpty()) {
-                        const QString nextPathStr = (result + remainder.firstComponent()).asQString();
+                        const QString nextPathStr = pathAsQString(result + remainder.firstComponent());
                         if (!QFileInfo::exists(nextPathStr)) {
                             const Path::List content = getDirectoryContents(result);
                             const Path part = findCaseSensitivePath(content, remainder.firstComponent());
@@ -102,18 +103,18 @@ namespace TrenchBroom {
 
             bool directoryExists(const Path& path) {
                 const Path fixedPath = fixPath(path);
-                return QDir(fixedPath.asQString()).exists();
+                return QDir(pathAsQString(fixedPath)).exists();
             }
 
             bool fileExists(const Path& path) {
                 const Path fixedPath = fixPath(path);
-                QFileInfo fileInfo = QFileInfo(fixedPath.asQString());
+                QFileInfo fileInfo = QFileInfo(pathAsQString(fixedPath));
                 return fileInfo.exists() && fileInfo.isFile();
             }
 
             Path::List getDirectoryContents(const Path& path) {
                 const Path fixedPath = fixPath(path);
-                QDir dir(fixedPath.asQString());
+                QDir dir(pathAsQString(fixedPath));
                 if (!dir.exists()) {
                     throw FileSystemException("Cannot open directory: '" + fixedPath.asString() + "'");
                 }
@@ -122,7 +123,7 @@ namespace TrenchBroom {
 
                 Path::List result;
                 for (QString& entry : dir.entryList()) {
-                    result.push_back(Path::fromQString(entry));
+                    result.push_back(pathFromQString(entry));
                 }
                 return result;
             }
@@ -137,7 +138,7 @@ namespace TrenchBroom {
             }
 
             Path getCurrentWorkingDir() {
-                return Path::fromQString(QDir::currentPath());
+                return pathFromQString(QDir::currentPath());
             }
 
             Path::List findItems(const Path& path) {
@@ -179,9 +180,9 @@ namespace TrenchBroom {
                 if (path.isEmpty())
                     return false;
                 const IO::Path parent = path.deleteLastComponent();
-                if (!QDir(parent.asQString()).exists() && !createDirectoryHelper(parent))
+                if (!QDir(pathAsQString(parent)).exists() && !createDirectoryHelper(parent))
                     return false;
-                return QDir().mkdir(path.asQString());
+                return QDir().mkdir(pathAsQString(path));
             }
 
             void ensureDirectoryExists(const Path& path) {
@@ -196,7 +197,7 @@ namespace TrenchBroom {
                 const Path fixedPath = fixPath(path);
                 if (!fileExists(fixedPath))
                     throw FileSystemException("Could not delete file '" + fixedPath.asString() + "': File does not exist.");
-                if (!QFile::remove(fixedPath.asQString()))
+                if (!QFile::remove(pathAsQString(fixedPath)))
                     throw FileSystemException("Could not delete file '" + path.asString() + "'");
             }
 
@@ -210,12 +211,12 @@ namespace TrenchBroom {
                 if (!overwrite && exists)
                     throw FileSystemException("Could not copy file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "': file already exists");
                 if (overwrite && exists) {
-                    if (!QFile::remove(fixedDestPath.asQString())) {
+                    if (!QFile::remove(pathAsQString(fixedDestPath))) {
                         throw FileSystemException("Could not copy file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "': couldn't remove destination");
                     }
                 }
                 // NOTE: QFile::copy will not overwrite the dest
-                if (!QFile::copy(fixedSourcePath.asQString(), fixedDestPath.asQString()))
+                if (!QFile::copy(pathAsQString(fixedSourcePath), pathAsQString(fixedDestPath)))
                     throw FileSystemException("Could not copy file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "'");
             }
 
@@ -226,13 +227,13 @@ namespace TrenchBroom {
                 if (!overwrite && exists)
                     throw FileSystemException("Could not move file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "': file already exists");
                 if (overwrite && exists) {
-                    if (!QFile::remove(fixedDestPath.asQString())) {
+                    if (!QFile::remove(pathAsQString(fixedDestPath))) {
                         throw FileSystemException("Could not move file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "': couldn't remove destination");
                     }
                 }
                 if (directoryExists(fixedDestPath))
                     fixedDestPath = fixedDestPath + sourcePath.lastComponent();
-                if (!QFile::rename(fixedSourcePath.asQString(), fixedDestPath.asQString()))
+                if (!QFile::rename(pathAsQString(fixedSourcePath), pathAsQString(fixedDestPath)))
                     throw FileSystemException("Could not move file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "'");
             }
 

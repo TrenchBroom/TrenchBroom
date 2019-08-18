@@ -19,6 +19,7 @@
 
 #include "ChoosePathTypeDialog.h"
 
+#include "IO/PathQt.h"
 #include "IO/SystemPaths.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
@@ -61,25 +62,25 @@ namespace TrenchBroom {
             boldFont.setBold(true);
             m_absRadio->setFont(boldFont);
             m_absRadio->setChecked(true);
-            QLabel* absolutePathText = new QLabel(m_absPath.asQString());
+            QLabel* absolutePathText = new QLabel(IO::pathAsQString(m_absPath));
 
             m_docRelativeRadio = new QRadioButton(tr("Relative to map file"));
             m_docRelativeRadio->setFont(boldFont);
             if (m_docRelativePath.isEmpty())
                 m_docRelativeRadio->setEnabled(false);
-            QLabel* mapRelativePathText = new QLabel(m_docRelativePath.isEmpty() ? tr("Could not build a path.") : m_docRelativePath.asQString());
+            QLabel* mapRelativePathText = new QLabel(m_docRelativePath.isEmpty() ? tr("Could not build a path.") : IO::pathAsQString(m_docRelativePath));
 
             m_appRelativeRadio = new QRadioButton(tr("Relative to application executable"));
             m_appRelativeRadio->setFont(boldFont);
             if (m_appRelativePath.isEmpty())
                 m_appRelativeRadio->setEnabled(false);
-            QLabel* appRelativePathText = new QLabel(m_appRelativePath.isEmpty() ? tr("Could not build a path.") : m_appRelativePath.asQString());
+            QLabel* appRelativePathText = new QLabel(m_appRelativePath.isEmpty() ? tr("Could not build a path.") : IO::pathAsQString(m_appRelativePath));
 
             m_gameRelativeRadio = new QRadioButton(tr("Relative to game directory"));
             if (m_gameRelativePath.isEmpty())
                 m_gameRelativeRadio->setEnabled(false);
             m_gameRelativeRadio->setFont(boldFont);
-            QLabel* gameRelativePathText = new QLabel(m_gameRelativePath.isEmpty() ? tr("Could not build a path.") : m_gameRelativePath.asQString());
+            QLabel* gameRelativePathText = new QLabel(m_gameRelativePath.isEmpty() ? tr("Could not build a path.") : IO::pathAsQString(m_gameRelativePath));
 
             auto* innerSizer = new QVBoxLayout();
 

@@ -24,6 +24,7 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/FileMatcher.h"
 #include "IO/Path.h"
+#include "IO/PathQt.h"
 #include "IO/TestEnvironment.h"
 
 #include <algorithm>
@@ -74,8 +75,8 @@ namespace TrenchBroom {
             ASSERT_THROW(Disk::fixPath(Path("/../../test")), FileSystemException);
 
             // on case sensitive file systems, this should also work
-            ASSERT_TRUE(QFileInfo::exists(Disk::fixPath(env.dir() + Path("TEST.txt")).asQString()));
-            ASSERT_TRUE(QFileInfo::exists(Disk::fixPath(env.dir() + Path("anotHERDIR/./SUBdirTEST/../SubdirTesT/TesT2.MAP")).asQString()));
+            ASSERT_TRUE(QFileInfo::exists(IO::pathAsQString(Disk::fixPath(env.dir() + Path("TEST.txt")))));
+            ASSERT_TRUE(QFileInfo::exists(IO::pathAsQString(Disk::fixPath(env.dir() + Path("anotHERDIR/./SUBdirTEST/../SubdirTesT/TesT2.MAP")))));
         }
 
         TEST(DiskTest, directoryExists) {

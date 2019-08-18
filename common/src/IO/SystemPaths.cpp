@@ -20,6 +20,7 @@
 #include "SystemPaths.h"
 
 #include "IO/DiskIO.h"
+#include "IO/PathQt.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -31,15 +32,15 @@ namespace TrenchBroom {
     namespace IO {
         namespace SystemPaths {
             Path appDirectory() {
-                return IO::Path::fromQString(QCoreApplication::applicationDirPath());
+                return IO::pathFromQString(QCoreApplication::applicationDirPath());
             }
 
             Path userDataDirectory() {
 #if defined __linux__ || defined __FreeBSD__
                 // Compatibility with wxWidgets
-                return IO::Path::fromQString(QDir::homePath()) + IO::Path(".TrenchBroom");
+                return IO::pathFromQString(QDir::homePath()) + IO::Path(".TrenchBroom");
 #else
-                return IO::Path::fromQString(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+                return IO::pathFromQString(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
 #endif
             }
 
@@ -61,9 +62,9 @@ namespace TrenchBroom {
                     return inUserDataDir;
                 }
 
-                return IO::Path::fromQString(QStandardPaths::locate(QStandardPaths::AppDataLocation,
-                                                                    file.asQString(),
-                                                                    QStandardPaths::LocateOption::LocateFile));
+                return IO::pathFromQString(QStandardPaths::locate(QStandardPaths::AppDataLocation,
+                                                                  IO::pathAsQString(file),
+                                                                  QStandardPaths::LocateOption::LocateFile));
             }
 
             std::vector<Path> findResourceDirectories(const Path& directory) {
@@ -75,9 +76,9 @@ namespace TrenchBroom {
                 // Compatibility with wxWidgets
                 result.push_back(userDataDirectory() + directory);
 
-                const QStringList dirs = QStandardPaths::locateAll(QStandardPaths::AppDataLocation, directory.asQString(), QStandardPaths::LocateOption::LocateDirectory);
+                const QStringList dirs = QStandardPaths::locateAll(QStandardPaths::AppDataLocation, IO::pathAsQString(directory), QStandardPaths::LocateOption::LocateDirectory);
                 for (const QString& dir : dirs) {
-                    result.push_back(IO::Path::fromQString(dir));
+                    result.push_back(IO::pathFromQString(dir));
                 }
                 return result;
             }

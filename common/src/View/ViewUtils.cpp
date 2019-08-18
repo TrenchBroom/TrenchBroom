@@ -66,7 +66,7 @@ namespace TrenchBroom {
 
             for (int i = 0; i < pathStrs.size(); ++i) {
                 const QString& pathStr = pathStrs[i];
-                const IO::Path absPath = IO::Path::fromQString(pathStr);
+                const IO::Path absPath = IO::pathFromQString(pathStr);
                 if (game->isTextureCollection(absPath)) {
                     ChoosePathTypeDialog pathDialog(parent->window(), absPath, docPath, gamePath);
                     const int result = pathDialog.exec();
@@ -102,7 +102,7 @@ namespace TrenchBroom {
             try {
                 for (int i = 0; i < pathStrs.size(); ++i) {
                     const QString& pathStr = pathStrs[i];
-                    const IO::Path absPath = IO::Path::fromQString(pathStr);
+                    const IO::Path absPath = IO::pathFromQString(pathStr);
                     if (game->isEntityDefinitionFile(absPath)) {
                         ChoosePathTypeDialog pathDialog(parent->window(), absPath, docPath, gamePath);
                         if (pathDialog.exec() == QDialog::Accepted) {

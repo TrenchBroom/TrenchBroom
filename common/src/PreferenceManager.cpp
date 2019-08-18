@@ -20,6 +20,7 @@
 #include "PreferenceManager.h"
 
 #include "Preferences.h"
+#include "IO/PathQt.h"
 #include "IO/SystemPaths.h"
 #include "View/Actions.h"
 #include "View/KeyboardShortcut.h"
@@ -78,7 +79,7 @@ namespace TrenchBroom {
     }
 
     bool PreferenceSerializerV1::readFromString(const QString& in, IO::Path* out) const {
-        *out = IO::Path::fromQString(in);
+        *out = IO::pathFromQString(in);
         return true;
     }
 
@@ -124,7 +125,7 @@ namespace TrenchBroom {
 
     void PreferenceSerializerV1::writeToString(QTextStream& stream, const IO::Path& in) const {
         // NOTE: this serializes with "\" separators on Windows and "/" elsewhere!
-        stream << in.asQString();
+        stream << IO::pathAsQString(in);
     }
 
     void PreferenceSerializerV1::writeToString(QTextStream& stream, const View::KeyboardShortcut& in) const {
@@ -215,7 +216,7 @@ namespace TrenchBroom {
             if (heading) {
                 const QString sectionString = line.mid(1, line.length() - 2);
                 // NOTE: This parses the section
-                section = IO::Path::fromQString(sectionString);
+                section = IO::pathFromQString(sectionString);
                 continue;
             }
 
@@ -225,7 +226,7 @@ namespace TrenchBroom {
                 QString key = line.left(eqIndex);
                 QString value = line.mid(eqIndex + 1);
 
-                result[section + IO::Path::fromQString(key)] = value;
+                result[section + IO::pathFromQString(key)] = value;
                 continue;
             }
 
@@ -242,14 +243,14 @@ namespace TrenchBroom {
         // Process key/value pairs at this node
         for (const QString& key : settings.childKeys()) {
             const QString value = settings.value(key).toString();
-            const IO::Path keyPath = currentPath + IO::Path::fromQString(key);
+            const IO::Path keyPath = currentPath + IO::pathFromQString(key);
             result[keyPath] = value;
         }
 
         // Vist children
         for (const QString& childGroup : settings.childGroups()) {
             settings.beginGroup(childGroup);
-            visitNode(result, settings, currentPath + IO::Path::fromQString(childGroup));
+            visitNode(result, settings, currentPath + IO::pathFromQString(childGroup));
             settings.endGroup();
         }
     }
@@ -340,7 +341,7 @@ namespace TrenchBroom {
                     auto strMaybe = prefBase->migratePreferenceForThisType(v1, v2, val);
 
                     if (!strMaybe.has_value()) {
-                        qDebug() << " failed to migrate pref for " << key.asQString();
+                        qDebug() << " failed to migrate pref for " << IO::pathAsQString(key);
                     } else {
                         result[key] = *strMaybe;
                     }
@@ -357,7 +358,7 @@ namespace TrenchBroom {
                     auto strMaybe = migratePreference<View::KeyboardShortcut>(v1, v2, val);
 
                     if (!strMaybe.has_value()) {
-                        qDebug() << " failed to migrate pref for " << key.asQString();
+                        qDebug() << " failed to migrate pref for " << IO::pathAsQString(key);
                     } else {
                         result[key] = *strMaybe;
                     }
@@ -373,12 +374,12 @@ namespace TrenchBroom {
                     if (matches(key, dynPref->pathPattern())) {
                         found = true;
 
-                        qDebug() << "   " << key.asQString() << " matches pattern " << dynPref->pathPattern().asQString();
+                        qDebug() << "   " << IO::pathAsQString(key) << " matches pattern " << IO::pathAsQString( dynPref->pathPattern());
 
                         auto strMaybe = dynPref->migratePreferenceForThisType(v1, v2, val);
 
                         if (!strMaybe.has_value()) {
-                            qDebug() << " failed to migrate pref for " << key.asQString();
+                            qDebug() << " failed to migrate pref for " << IO::pathAsQString(key);
                         } else {
                             result[key] = *strMaybe;
                         }
@@ -392,14 +393,14 @@ namespace TrenchBroom {
                 }
             }
 
-            qDebug() << "Couldn't find migration for " << key.asQString();
+            qDebug() << "Couldn't find migration for " << IO::pathAsQString(key);
         }
 
         return result;
     }
 
     QString v2SettingsPath() {
-        return (IO::SystemPaths::userDataDirectory() + IO::Path("preferences.json")).asQString();
+        return IO::pathAsQString(IO::SystemPaths::userDataDirectory() + IO::Path("preferences.json"));
     }
 
     std::map<IO::Path, QString> readV2SettingsFromPath(const QString& path) {
@@ -453,7 +454,7 @@ namespace TrenchBroom {
             const QString key = it.key();
             const QJsonValue value = it.value();
 
-            result[IO::Path::fromQString(key)] = value.toString();
+            result[IO::pathFromQString(key)] = value.toString();
         }
         return result;
     }
@@ -461,7 +462,7 @@ namespace TrenchBroom {
     QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QString>& v2Prefs) {
         QJsonObject rootObject;
         for (auto [key, val] : v2Prefs) {
-            rootObject[key.asQString('/')] = val;
+            rootObject[IO::pathAsQString(key, '/')] = val;
         }
 
         QJsonDocument document(rootObject);

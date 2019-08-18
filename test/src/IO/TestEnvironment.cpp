@@ -20,6 +20,7 @@
 #include "TestEnvironment.h"
 
 #include "Macros.h"
+#include "IO/PathQt.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -29,7 +30,7 @@
 namespace TrenchBroom {
     namespace IO {
         TestEnvironment::TestEnvironment(const String& dir) :
-            m_dir(Path::fromQString(QDir::current().path()) + Path(dir)) {
+            m_dir(IO::pathFromQString(QDir::current().path()) + Path(dir)) {
             createTestEnvironment();
         }
 
@@ -48,12 +49,12 @@ namespace TrenchBroom {
         }
 
         void TestEnvironment::createDirectory(const Path& path) {
-            auto dir = QDir((m_dir + path).asQString());
+            auto dir = QDir(IO::pathAsQString(m_dir + path));
             assertResult(dir.mkpath("."));
         }
 
         void TestEnvironment::createFile(const Path& path, const String& contents) {
-            auto file = QFile((m_dir + path).asQString());
+            auto file = QFile(IO::pathAsQString(m_dir + path));
             assertResult(file.open(QIODevice::ReadWrite));
 
             auto stream = QTextStream(&file);
@@ -63,7 +64,7 @@ namespace TrenchBroom {
         }
 
         bool TestEnvironment::deleteDirectoryAbsolute(const Path& absolutePath) {
-            auto dir = QDir(absolutePath.asQString());
+            auto dir = QDir(IO::pathAsQString(absolutePath));
             if (!dir.exists()) {
                 return true;
             }
@@ -76,13 +77,13 @@ namespace TrenchBroom {
         }
 
         bool TestEnvironment::directoryExists(const Path& path) const {
-            auto file = QFileInfo((m_dir + path).asQString());
+            auto file = QFileInfo(IO::pathAsQString(m_dir + path));
 
             return file.exists() && file.isDir();
         }
 
         bool TestEnvironment::fileExists(const Path& path) const {
-            auto file = QFileInfo((m_dir + path).asQString());
+            auto file = QFileInfo(IO::pathAsQString(m_dir + path));
 
             return file.exists() && file.isFile();
         }

@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Assets/TextureManager.h"
 #include "Assets/TextureCollection.h"
+#include "IO/PathQt.h"
 #include "View/BorderLine.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
@@ -293,7 +294,7 @@ namespace TrenchBroom {
 
             auto document = lock(m_document);
             for (const auto& path : document->enabledTextureCollections()) {
-                m_collections->addItem(path.asQString());
+                m_collections->addItem(IO::pathAsQString(path));
             }
 
             // Manually update the button states, since QSignalBlocker is blocking the automatic updates

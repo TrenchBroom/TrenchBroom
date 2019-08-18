@@ -23,6 +23,7 @@
 #include "RecoverableExceptions.h"
 #include "TrenchBroomStackWalker.h"
 #include "IO/Path.h"
+#include "IO/PathQt.h"
 #include "IO/DiskIO.h"
 #include "IO/SystemPaths.h"
 #include "Model/GameFactory.h"
@@ -218,7 +219,7 @@ namespace TrenchBroom {
                 if (frame != nullptr) {
                     frame->close();
                 }
-                QMessageBox::critical(nullptr, "TrenchBroom", path.asQString() + " could not be opened.", QMessageBox::Ok);
+                QMessageBox::critical(nullptr, "TrenchBroom", IO::pathAsQString(path) + " could not be opened.", QMessageBox::Ok);
                 return false;
             }
         }
@@ -387,7 +388,7 @@ namespace TrenchBroom {
             }
 
             // Copy the log file
-            if (!QFile::copy(IO::SystemPaths::logFilePath().asQString(), QString::fromStdString(logPath.asString())))
+            if (!QFile::copy(IO::pathAsQString(IO::SystemPaths::logFilePath()), QString::fromStdString(logPath.asString())))
                 logPath = IO::Path();
 
             // write the crash log to stdout
@@ -480,7 +481,7 @@ namespace TrenchBroom {
 
         void TrenchBroomApp::openDocument() {
             const auto pathStr = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
-            const auto path = IO::Path::fromQString(pathStr);
+            const auto path = IO::pathFromQString(pathStr);
 
             if (!path.isEmpty()) {
                 openDocument(path);
@@ -546,13 +547,13 @@ namespace TrenchBroom {
         bool TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames) {
             if (!fileNames.isEmpty()) {
                 if (useSDI()) {
-                    const auto path = IO::Path::fromQString(fileNames.at(0));
+                    const auto path = IO::pathFromQString(fileNames.at(0));
                     if (!path.isEmpty()) {
                         openDocument(path);
                     }
                 } else {
                     for (const auto& fileName : fileNames) {
-                        const auto path = IO::Path::fromQString(fileName);
+                        const auto path = IO::pathFromQString(fileName);
                         openDocument(path);
                     }
                 }

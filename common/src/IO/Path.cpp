@@ -60,10 +60,6 @@ namespace TrenchBroom {
 #endif
         }
 
-        Path Path::fromQString(const QString& path) {
-            return Path(path.toStdString());
-        }
-
         Path Path::operator+(const Path& rhs) const {
             if (rhs.isAbsolute()) {
                 throw PathException("Cannot concatenate absolute path");
@@ -133,10 +129,6 @@ namespace TrenchBroom {
 #endif
             }
             return StringUtils::join(m_components, separator);
-        }
-
-        QString Path::asQString(const char separator) const {
-            return QString::fromStdString(asString(separator));
         }
 
         String Path::asString(const String& separator) const {

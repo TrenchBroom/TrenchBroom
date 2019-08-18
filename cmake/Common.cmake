@@ -73,6 +73,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/IO/ObjSerializer.cpp
 	${COMMON_SOURCE_DIR}/IO/ParserStatus.cpp
 	${COMMON_SOURCE_DIR}/IO/Path.cpp
+	${COMMON_SOURCE_DIR}/IO/PathQt.cpp
 	${COMMON_SOURCE_DIR}/IO/ResourceUtils.cpp
 	${COMMON_SOURCE_DIR}/IO/SimpleParserStatus.cpp
 	${COMMON_SOURCE_DIR}/IO/SkinLoader.cpp
@@ -583,6 +584,7 @@ SET(COMMON_HEADER
 	${COMMON_SOURCE_DIR}/IO/Parser.h
 	${COMMON_SOURCE_DIR}/IO/ParserStatus.h
 	${COMMON_SOURCE_DIR}/IO/Path.h
+	${COMMON_SOURCE_DIR}/IO/PathQt.h
 	${COMMON_SOURCE_DIR}/IO/ResourceUtils.h
 	${COMMON_SOURCE_DIR}/IO/SimpleParserStatus.h
 	${COMMON_SOURCE_DIR}/IO/SkinLoader.h

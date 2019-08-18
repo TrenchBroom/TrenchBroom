@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "IO/Path.h"
+#include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/BorderLine.h"
@@ -125,7 +126,7 @@ namespace TrenchBroom {
         }
 
         void GamesPreferencePane::updateGamePath(const QString& str) {
-            const auto gamePath = IO::Path::fromQString(str);
+            const auto gamePath = IO::pathFromQString(str);
             const auto gameName = m_gameListBox->selectedGameName();
             auto& gameFactory = Model::GameFactory::instance();
             if (gameFactory.setGamePath(gameName, gamePath)) {
@@ -153,7 +154,7 @@ namespace TrenchBroom {
                 const auto gameName = m_gameListBox->selectedGameName();
                 auto& gameFactory = Model::GameFactory::instance();
                 const auto gamePath = gameFactory.gamePath(gameName);
-                m_gamePathText->setText(gamePath.asQString());
+                m_gamePathText->setText(IO::pathAsQString(gamePath));
                 m_gameListBox->updateGameInfos();
             }
         }

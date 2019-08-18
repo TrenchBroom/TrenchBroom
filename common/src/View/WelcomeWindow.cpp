@@ -20,6 +20,7 @@
 #include "WelcomeWindow.h"
 
 #include "TrenchBroomApp.h"
+#include "IO/PathQt.h"
 #include "View/AppInfoPanel.h"
 #include "View/BorderLine.h"
 #include "View/ViewConstants.h"
@@ -125,7 +126,7 @@ namespace TrenchBroom {
 
         void WelcomeWindow::openOtherDocument() {
             const auto pathStr = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
-            const auto path = IO::Path::fromQString(pathStr);
+            const auto path = IO::pathFromQString(pathStr);
 
             if (!path.isEmpty()) {
                 openDocument(path);

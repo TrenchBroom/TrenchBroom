@@ -24,6 +24,7 @@
 #include "PreferenceManager.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/ResourceUtils.h"
+#include "IO/PathQt.h"
 #include "Model/AttributableNode.h"
 #include "Model/Brush.h"
 #include "Model/EditorContext.h"
@@ -203,7 +204,7 @@ namespace TrenchBroom {
         void MapFrame::updateTitle() {
             setWindowModified(m_document->modified());
             setWindowTitle(QString::fromStdString(m_document->filename()) + QString("[*] - TrenchBroom"));
-            setWindowFilePath(m_document->path().asQString());
+            setWindowFilePath(IO::pathAsQString(m_document->path()));
         }
 
         void MapFrame::createMenus() {
@@ -689,12 +690,12 @@ namespace TrenchBroom {
                 const IO::Path directory = originalPath.deleteLastComponent();
                 const IO::Path fileName = originalPath.lastComponent();
 
-                const QString newFileName = QFileDialog::getSaveFileName(this, "Save map file", originalPath.asQString(), "Map files (*.map)");
+                const QString newFileName = QFileDialog::getSaveFileName(this, "Save map file", IO::pathAsQString(originalPath), "Map files (*.map)");
                 if (newFileName.isEmpty()) {
                     return false;
                 }
 
-                const IO::Path path = IO::Path::fromQString(newFileName);
+                const IO::Path path = IO::pathFromQString(newFileName);
                 m_document->saveDocumentAs(path);
                 logger().info() << "Saved " << m_document->path();
                 return true;
@@ -711,11 +712,11 @@ namespace TrenchBroom {
             const IO::Path& originalPath = m_document->path();
             const IO::Path objPath = originalPath.replaceExtension("obj");
 
-            const QString newFileName = QFileDialog::getSaveFileName(this, "Export Wavefront OBJ file", objPath.asQString(), "Wavefront OBJ files (*.obj)");
+            const QString newFileName = QFileDialog::getSaveFileName(this, "Export Wavefront OBJ file", IO::pathAsQString(objPath), "Wavefront OBJ files (*.obj)");
             if (newFileName.isEmpty())
                 return false;
 
-            return exportDocument(Model::WavefrontObj, IO::Path::fromQString(newFileName));
+            return exportDocument(Model::WavefrontObj, IO::pathFromQString(newFileName));
         }
 
         bool MapFrame::exportDocument(const Model::ExportFormat format, const IO::Path& path) {
@@ -752,13 +753,13 @@ namespace TrenchBroom {
         void MapFrame::loadPointFile() {
             QString defaultDir;
             if (!m_document->path().isEmpty()) {
-                defaultDir = m_document->path().deleteLastComponent().asQString();
+                defaultDir = IO::pathAsQString(m_document->path().deleteLastComponent());
             }
 
             const QString fileName = QFileDialog::getOpenFileName(this, "Load Point File", defaultDir, "Point files (*.pts);;Any files (*.*)");
 
             if (!fileName.isEmpty()) {
-                m_document->loadPointFile(IO::Path::fromQString(fileName));
+                m_document->loadPointFile(IO::pathFromQString(fileName));
             }
         }
 
@@ -785,13 +786,13 @@ namespace TrenchBroom {
         void MapFrame::loadPortalFile() {
             QString defaultDir;
             if (!m_document->path().isEmpty()) {
-                defaultDir = m_document->path().deleteLastComponent().asQString();
+                defaultDir = IO::pathAsQString(m_document->path().deleteLastComponent());
             }
 
             const QString fileName = QFileDialog::getOpenFileName(this, "Load Portal File", defaultDir, "Portal files (*.prt);;Any files (*.*)");
 
             if (!fileName.isEmpty()) {
-                m_document->loadPortalFile(IO::Path::fromQString(fileName));
+                m_document->loadPortalFile(IO::pathFromQString(fileName));
             }
         }
 

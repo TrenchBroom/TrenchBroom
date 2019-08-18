@@ -20,6 +20,7 @@
 #include "ResourceUtils.h"
 
 #include "IO/Path.h"
+#include "IO/PathQt.h"
 #include "IO/SystemPaths.h"
 
 #include <QApplication>
@@ -32,7 +33,7 @@ namespace TrenchBroom {
     namespace IO {
         static QString imagePathToString(const IO::Path& imagePath) {
             const IO::Path fullPath = imagePath.isAbsolute() ? imagePath : IO::SystemPaths::findResourceFile(IO::Path("images") + imagePath);
-            return fullPath.asQString();
+            return IO::pathAsQString(fullPath);
         }
 
         QPixmap loadPixmapResource(const String& name) {
@@ -73,7 +74,7 @@ namespace TrenchBroom {
                     const auto imagePathString = imagePathToString(imagePath);
 
                     if (imagePathString.isEmpty()) {
-                        qWarning() << "Couldn't find image for path: " << imagePath.asQString();
+                        qWarning() << "Couldn't find image for path: " << IO::pathAsQString(imagePath);
                     }
 
                     result.addFile(imagePathString, QSize(), QIcon::Normal);

@@ -22,6 +22,7 @@
 #include "CollectionUtils.h"
 #include "Notifier.h"
 #include "IO/Path.h"
+#include "IO/PathQt.h"
 #include "View/wxUtils.h"
 
 #include <vector>
@@ -82,7 +83,7 @@ namespace TrenchBroom {
                 const auto key = QString::fromStdString(std::string("RecentDocuments/") + std::to_string(i));
                 const QVariant value = settings.value(key);
                 if (value.isValid()) {
-                    m_recentDocuments.push_back(IO::Path::fromQString(value.toString()));
+                    m_recentDocuments.push_back(IO::pathFromQString(value.toString()));
                 } else {
                     break;
                 }
@@ -94,7 +95,7 @@ namespace TrenchBroom {
             settings.remove("RecentDocuments");
             for (size_t i = 0; i < m_recentDocuments.size(); ++i) {
                 const QString key = QString::fromStdString(std::string("RecentDocuments/") + std::to_string(i));
-                const QVariant value = QVariant(m_recentDocuments[i].asQString());
+                const QVariant value = QVariant(IO::pathAsQString(m_recentDocuments[i]));
                 settings.setValue(key, value);
             }
         }
@@ -124,7 +125,7 @@ namespace TrenchBroom {
 
         void RecentDocuments::createMenuItems(QMenu* menu) {
             for (const auto& path : m_recentDocuments) {
-                menu->addAction(path.lastComponent().asQString(), [this, path]() { loadDocument(path); });
+                menu->addAction(IO::pathAsQString(path.lastComponent()), [this, path]() { loadDocument(path); });
             }
         }
     }

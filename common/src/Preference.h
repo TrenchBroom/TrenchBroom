@@ -25,6 +25,7 @@
 #include "Macros.h"
 #include "StringUtils.h"
 #include "IO/Path.h"
+#include "IO/PathQt.h"
 #include "View/KeyboardShortcut.h"
 #include "View/wxUtils.h"
 
@@ -207,12 +208,12 @@ namespace TrenchBroom {
             if (!value.isValid()) {
                 return false;
             }
-            result = IO::Path::fromQString(value.toString());
+            result = IO::pathFromQString(value.toString());
             return true;
         }
 
         void write(QSettings& settings, const QString& path, const IO::Path& value) const {
-            settings.setValue(path, QVariant(value.asQString()));
+            settings.setValue(path, QVariant(IO::pathAsQString(value)));
         }
     };
 
@@ -314,7 +315,7 @@ namespace TrenchBroom {
 
             using std::swap;
             T temp;
-            if (m_serializer.read(settings, m_path.asQString('/'), temp)) {
+            if (m_serializer.read(settings, IO::pathAsQString(m_path, '/'), temp)) {
                 std::swap(m_value, temp);
                 m_previousValue = m_value;
             }
@@ -327,7 +328,7 @@ namespace TrenchBroom {
             if (m_modified) {
                 QSettings& settings = getSettings();
 
-                m_serializer.write(settings, m_path.asQString('/'), m_value);
+                m_serializer.write(settings, IO::pathAsQString(m_path, '/'), m_value);
                 m_modified = false;
                 m_previousValue = m_value;
             }

@@ -20,6 +20,7 @@
 #include "FileMatcher.h"
 
 #include "IO/Path.h"
+#include "IO/PathQt.h"
 
 #include <QFileInfo>
 
@@ -73,7 +74,7 @@ namespace TrenchBroom {
             if (directory && StringUtils::caseInsensitiveEqual(path.extension(), "app"))
                 return true;
 #endif
-            return QFileInfo(path.asQString()).isExecutable();
+            return QFileInfo(pathAsQString(path)).isExecutable();
         }
     }
 }

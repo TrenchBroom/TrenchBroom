@@ -22,6 +22,7 @@
 #include "StringUtils.h"
 #include "TrenchBroomApp.h"
 #include "IO/Path.h"
+#include "IO/PathQt.h"
 #include "IO/ResourceUtils.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
@@ -62,14 +63,14 @@ namespace TrenchBroom {
             const auto& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
             ensure(index < recentDocuments.size(), "index out of range");
-            return recentDocuments[index].lastComponent().asQString();
+            return IO::pathAsQString(recentDocuments[index].lastComponent());
         }
 
         QString RecentDocumentListBox::subtitle(const size_t index) const {
             const auto& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
             ensure(index < recentDocuments.size(), "index out of range");
-            return recentDocuments[index].asQString();
+            return IO::pathAsQString(recentDocuments[index]);
         }
 
         void RecentDocumentListBox::doubleClicked(const size_t index) {

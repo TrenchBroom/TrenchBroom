@@ -20,6 +20,7 @@
 #include "LaunchGameEngineDialog.h"
 
 #include "EL/Interpolator.h"
+#include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/BorderLine.h"
@@ -197,14 +198,14 @@ namespace TrenchBroom {
                 // We have to launch apps via the 'open' command so that we can properly pass parameters.
                 program = "/usr/bin/open";
                 arguments.append("-a");
-                arguments.append(executablePath.asQString());
+                arguments.append(IO::pathAsQString(executablePath));
                 arguments.append("--args");
 #else
-                program = executablePath.asQString();
+                program = IO::pathAsQString(executablePath);
 #endif
                 arguments.append(QString::fromStdString(parameters));
 
-                const auto workDir = executablePath.deleteLastComponent().asQString();
+                const auto workDir = IO::pathAsQString(executablePath.deleteLastComponent());
 
                 if (!QProcess::startDetached(program, arguments, workDir)) {
                     throw Exception("Unknown error");

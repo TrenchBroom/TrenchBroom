@@ -22,8 +22,6 @@
 
 #include "StringUtils.h"
 
-#include <QString>
-
 #include <iostream>
 #include <vector>
 
@@ -65,7 +63,6 @@ namespace TrenchBroom {
             Path(bool absolute, const StringList& components);
         public:
             explicit Path(const String& path = "");
-            static Path fromQString(const QString& path);
 
             Path operator+(const Path& rhs) const;
             int compare(const Path& rhs, bool caseSensitive = true) const;
@@ -75,7 +72,6 @@ namespace TrenchBroom {
             bool operator>(const Path& rhs) const;
 
             String asString(char sep = separator()) const;
-            QString asQString(char sep = separator()) const;
             String asString(const String& sep) const;
             static StringList asStrings(const Path::List& paths, char sep = separator());
             static List asPaths(const StringList& strs);
