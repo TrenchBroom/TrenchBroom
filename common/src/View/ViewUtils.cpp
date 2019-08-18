@@ -46,7 +46,7 @@ namespace TrenchBroom {
         }
 
         bool loadTextureCollection(MapDocumentWPtr document, QWidget* parent, const QString& path) {
-            return loadTextureCollections(document, parent, { path }) == 1;
+            return loadTextureCollections(document, parent, QStringList { path }) == 1;
         }
 
         size_t loadTextureCollections(MapDocumentWPtr i_document, QWidget* parent, const QStringList& pathStrs) {
@@ -85,7 +85,7 @@ namespace TrenchBroom {
         }
 
         bool loadEntityDefinitionFile(MapDocumentWPtr document, QWidget* parent, const QString& path) {
-            return loadEntityDefinitionFile(document, parent, { path }) == 0;
+            return loadEntityDefinitionFile(document, parent, QStringList { path }) == 0;
         }
 
         size_t loadEntityDefinitionFile(MapDocumentWPtr i_document, QWidget* parent, const QStringList& pathStrs) {

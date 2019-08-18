@@ -258,7 +258,7 @@ namespace TrenchBroom {
         std::map<IO::Path, QString> result;
 
         QSettings settings("HKEY_CURRENT_USER\\Software\\Kristian Duske\\TrenchBroom", QSettings::Registry32Format);
-        visitNode(result, &settings, IO::Path());
+        visitNode(result, settings, IO::Path());
 
         return result;
     }
