@@ -242,20 +242,20 @@ namespace TrenchBroom {
                 initLayout();
             }
 
-            // FIXME: check DPI awareness
-            const int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
-            const QRect visibleRect = QRect(QPoint(0, top), size());
-
-            const float y = static_cast<float>(visibleRect.y());
-            const float h = static_cast<float>(visibleRect.height());
-
-            const GLint viewLeft      = 0; //static_cast<GLint>(GetClientRect().GetLeft());
-            const GLint viewTop       = 0; //static_cast<GLint>(GetClientRect().GetBottom());
-            const GLint viewRight     = width(); //static_cast<GLint>(GetClientRect().GetRight());
-            const GLint viewBottom    = height(); //static_cast<GLint>(GetClientRect().GetTop());
-            glViewport(viewLeft, viewBottom, viewRight - viewLeft, viewTop - viewBottom);
+            const qreal r = devicePixelRatioF();
+            const auto viewportWidth = static_cast<int>(width() * r);
+            const auto viewportHeight = static_cast<int>(height() * r);
+            glAssert(glViewport(0, 0, viewportWidth, viewportHeight));
 
             setupGL();
+            
+            // NOTE: These are in points, while the glViewport call above is
+            // in pixels
+            const int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
+            const QRect visibleRect = QRect(QPoint(0, top), size());
+            
+            const float y = static_cast<float>(visibleRect.y());
+            const float h = static_cast<float>(visibleRect.height());
             doRender(m_layout, y, h);
         }
 
