@@ -53,5 +53,5 @@ int main(int argc, char *argv[])
 
     TrenchBroom::View::TrenchBroomApp app(argc, argv);
     app.parseCommandLineAndShowFrame();
-    app.exec();
+    return app.exec();
 }
