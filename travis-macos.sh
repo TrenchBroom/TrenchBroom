@@ -11,6 +11,7 @@ brew upgrade cmake
 # Check versions
 qmake -v
 cmake --version
+cppcheck --version
 
 # Build TB
 
@@ -34,7 +35,7 @@ if [[ $? -ne 0 ]] ; then
     echo
     echo "cppcheck detected issues, see below"
     echo
-    
+
     cat cppcheck-errors.txt
     echo
 

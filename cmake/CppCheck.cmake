@@ -10,7 +10,7 @@ ELSE()
     LIST(APPEND CPPCHECK_COMMON_ARGS
         --enable=warning,performance,portability
         --inline-suppr
-        --std=c++11
+        --std=c++17
         --language=c++
         -DMAIN=main
         -I ${VECMATH_INCLUDE_DIR}

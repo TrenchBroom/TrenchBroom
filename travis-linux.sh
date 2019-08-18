@@ -18,6 +18,9 @@ export PATH=/opt/qt59/bin:${PATH}
 qmake -v
 cmake --version
 
+# Ubuntu's cppcheck is too old
+#cppcheck --version
+
 # Build TB
 
 mkdir build

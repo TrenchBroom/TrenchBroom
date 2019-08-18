@@ -1,5 +1,10 @@
 PATH=%PATH%;C:\Program Files (x86)\Pandoc;C:\Program Files\Cppcheck
 
+REM Check versions
+qmake -v
+cmake --version
+cppcheck --version
+
 mkdir cmakebuild
 cd cmakebuild
 
