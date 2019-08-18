@@ -234,31 +234,31 @@ namespace TrenchBroom {
         return result;
     }
 
+#if defined(Q_OS_WIN)
     /**
      * Helper for reading the Windows registry QSettings into a std::map<IO::Path, QString>
      */
-    static void visitNode(std::map<IO::Path, QString>* result, QSettings* settings, const IO::Path& currentPath) {
+    static void visitNode(std::map<IO::Path, QString>& result, QSettings& settings, const IO::Path& currentPath) {
         // Process key/value pairs at this node
-        for (const QString& key : settings->childKeys()) {
-            const QString value = settings->value(key).toString();
+        for (const QString& key : settings.childKeys()) {
+            const QString value = settings.value(key).toString();
             const IO::Path keyPath = currentPath + IO::Path::fromQString(key);
-            (*result)[keyPath] = value;
+            result[keyPath] = value;
         }
 
         // Vist children
-        for (const QString& childGroup : settings->childGroups()) {
-            settings->beginGroup(childGroup);
+        for (const QString& childGroup : settings.childGroups()) {
+            settings.beginGroup(childGroup);
             visitNode(result, settings, currentPath + IO::Path::fromQString(childGroup));
-            settings->endGroup();
+            settings.endGroup();
         }
     }
 
-#if defined(Q_OS_WIN)
     static std::map<IO::Path, QString> getRegistrySettingsV1() {
         std::map<IO::Path, QString> result;
 
-        QSettings s("HKEY_CURRENT_USER\\Software\\Kristian Duske\\TrenchBroom", QSettings::Registry32Format);
-        visitNode(&result, &s, IO::Path());
+        QSettings settings("HKEY_CURRENT_USER\\Software\\Kristian Duske\\TrenchBroom", QSettings::Registry32Format);
+        visitNode(result, &settings, IO::Path());
 
         return result;
     }
@@ -341,8 +341,7 @@ namespace TrenchBroom {
 
                     if (!strMaybe.has_value()) {
                         qDebug() << " failed to migrate pref for " << key.asQString();
-                    }
-                    else {
+                    } else {
                         result[key] = *strMaybe;
                     }
                     continue;
@@ -359,8 +358,7 @@ namespace TrenchBroom {
 
                     if (!strMaybe.has_value()) {
                         qDebug() << " failed to migrate pref for " << key.asQString();
-                    }
-                    else {
+                    } else {
                         result[key] = *strMaybe;
                     }
                     continue;
@@ -381,8 +379,7 @@ namespace TrenchBroom {
 
                         if (!strMaybe.has_value()) {
                             qDebug() << " failed to migrate pref for " << key.asQString();
-                        }
-                        else {
+                        } else {
                             result[key] = *strMaybe;
                         }
 
