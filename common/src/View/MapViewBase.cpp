@@ -864,6 +864,7 @@ namespace TrenchBroom {
             doRenderMap(m_renderer, renderContext, renderBatch);
             doRenderTools(m_toolBox, renderContext, renderBatch);
             doRenderExtras(renderContext, renderBatch);
+
             renderCoordinateSystem(renderContext, renderBatch);
             renderPointFile(renderContext, renderBatch);
             renderPortalFile(renderContext, renderBatch);

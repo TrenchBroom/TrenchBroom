@@ -60,7 +60,7 @@ namespace TrenchBroom {
             } else if (refWidgetRectOnScreen.left() + ourSize.width() <= screenGeom.right()) { // fits right?
                 x = refWidgetRectOnScreen.left();
             } else { // otherwise put it as far to the left as possible, but make sure the left is visible
-                y = std::max(refWidgetRectOnScreen.left() - ourSize.width(), 0);
+                x = std::max(refWidgetRectOnScreen.left() - ourSize.width(), 0);
             }
 
             // Now map x, y from global to our parent's coordinates

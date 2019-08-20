@@ -202,10 +202,10 @@ namespace TrenchBroom {
         class SetupGL : public Renderable {
         private:
             void doRender(RenderContext& renderContext) override {
-                glAssert(glFrontFace(GL_CW));
-                glAssert(glEnable(GL_CULL_FACE));
-                glAssert(glEnable(GL_DEPTH_TEST));
-                glAssert(glDepthFunc(GL_LEQUAL));
+                glAssert(glFrontFace(GL_CW))
+                glAssert(glEnable(GL_CULL_FACE))
+                glAssert(glEnable(GL_DEPTH_TEST))
+                glAssert(glDepthFunc(GL_LEQUAL))
                 glResetEdgeOffset();
             }
         };
