@@ -30,11 +30,8 @@
 #include "View/wxUtils.h"
 
 #include <QDateTime>
-#include <QGridLayout>
-#include <QGuiApplication>
 #include <QOpenGLContext>
 #include <QPalette>
-#include <QSurfaceFormat>
 #include <QTimer>
 #include <QWidget>
 
@@ -42,7 +39,6 @@
 #include <GL/wglew.h>
 #endif
 
-#include <vecmath/vec.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 
