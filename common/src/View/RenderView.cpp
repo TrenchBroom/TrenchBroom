@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Renderer/Vbo.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/GLVertexType.h"
@@ -78,6 +79,11 @@ namespace TrenchBroom {
 
             setMouseTracking(true); // request mouse move events even when no button is held down
             setFocusPolicy(Qt::StrongFocus); // accept focus by clicking or tab
+            
+            connect(this, &QOpenGLWidget::frameSwapped, [this](){
+                this->vertexVbo().freePendingBlocks();
+                this->indexVbo().freePendingBlocks();
+            });
         }
 
         RenderView::~RenderView() = default;
@@ -186,8 +192,6 @@ namespace TrenchBroom {
             clearBackground();
             doRender();
             renderFocusIndicator();
-
-            glAssert(glFinish())
         }
 
         void RenderView::processInput() {

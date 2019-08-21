@@ -55,7 +55,7 @@ namespace TrenchBroom {
         }
 
         void VboBlock::free() {
-            m_vbo.freeBlock(this);
+            m_vbo.enqueueBlockForFreeing(this);
         }
 
         bool VboBlock::mapped() const {

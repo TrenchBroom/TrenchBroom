@@ -149,6 +149,17 @@ namespace TrenchBroom {
             }
         }
 
+        void Vbo::enqueueBlockForFreeing(VboBlock* block) {
+            m_blocksPendingFree.push_back(block);
+        }
+        
+        void Vbo::freePendingBlocks() {
+            for (VboBlock* block : m_blocksPendingFree) {
+                freeBlock(block);
+            }
+            m_blocksPendingFree.clear();
+        }
+        
         void Vbo::freeBlock(VboBlock* block) {
             ensure(block != nullptr, "block is null");
             assert(!block->isFree());
