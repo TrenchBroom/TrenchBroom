@@ -278,6 +278,10 @@ namespace TrenchBroom {
              * The time at which the last mouse down event was recorded.
              */
             std::chrono::time_point<std::chrono::high_resolution_clock> m_lastClickTime;
+            /**
+             * Used in implementing the macOS behaviour where Ctrl+Click is RMB.
+             */
+            bool m_nextMouseUpIsRMB;
         public:
             /**
              * Creates a new event handler.

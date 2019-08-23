@@ -26,6 +26,7 @@
 #include <QApplication>
 #include <QSurfaceFormat>
 #include <QSettings>
+#include <QtGlobal>
 
 extern void qt_set_sequence_auto_mnemonic(bool b);
 
@@ -51,6 +52,12 @@ int main(int argc, char *argv[])
     // shortcuts randomly activating.
     qt_set_sequence_auto_mnemonic(false);
 
+    // Workaround bug in Qt's Ctrl+Click = RMB emulation (a macOS feature.)
+    // In Qt 5.13.0 / macOS 10.14.6, Ctrl+trackpad click+Drag produces no mouse events at all, but
+    // it should produce RMB down/move events.
+    // This environment variable disables Qt's emulation so we can implement it ourselves in InputEventRecorder::recordEvent
+    qputenv("QT_MAC_DONT_OVERRIDE_CTRL_LMB", "1");
+    
     TrenchBroom::View::TrenchBroomApp app(argc, argv);
     app.parseCommandLineAndShowFrame();
     return app.exec();

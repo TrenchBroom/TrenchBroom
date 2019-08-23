@@ -94,7 +94,8 @@ namespace TrenchBroom {
         m_anyMouseButtonDown(false),
         m_lastClickX(0),
         m_lastClickY(0),
-        m_lastClickTime(std::chrono::high_resolution_clock::now()) {}
+        m_lastClickTime(std::chrono::high_resolution_clock::now()),
+        m_nextMouseUpIsRMB(false) {}
 
 
         void InputEventRecorder::recordEvent(const QKeyEvent* wxEvent) {
@@ -103,7 +104,7 @@ namespace TrenchBroom {
 
         void InputEventRecorder::recordEvent(const QMouseEvent* wxEvent) {
                   auto type = getEventType(wxEvent);
-            const auto button = getButton(wxEvent);
+                  auto button = getButton(wxEvent);
             const auto posX = wxEvent->x();
             const auto posY = wxEvent->y();
 
@@ -111,12 +112,27 @@ namespace TrenchBroom {
             const float scrollDistance = 0.0f;
 
             if (type == MouseEvent::Type::Down) {
+                // macOS: apply Ctrl+click = right click emulation
+                // (Implemented ourselves rather than using Qt's implementation to work around Qt bug, see Main.cpp)
+                if (wxEvent->modifiers() & Qt::MetaModifier) {
+                    button = MouseEvent::Button::Right;
+                    m_nextMouseUpIsRMB = true;
+                }
+                
                 m_lastClickX = posX;
                 m_lastClickY = posY;
                 m_lastClickTime = std::chrono::high_resolution_clock::now();
                 m_anyMouseButtonDown = true;
                 m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Down, button, wheelAxis, posX, posY, scrollDistance));
             } else if (type == MouseEvent::Type::Up) {
+                // macOS: apply Ctrl+click = right click
+                if (m_nextMouseUpIsRMB) {
+                    m_nextMouseUpIsRMB = false;
+                    if (button == MouseEvent::Button::Left) {
+                        button = MouseEvent::Button::Right;
+                    }
+                }
+                    
                 if (m_dragging) {
                     const auto now = std::chrono::high_resolution_clock::now();
                     const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_lastClickTime);
