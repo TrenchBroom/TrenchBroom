@@ -102,13 +102,13 @@ namespace TrenchBroom {
          * All edits to the table flow this way; the EntityAttributeGridTable is never modified in response to
          * a UI action.
          */
-        class EntityAttributeGridTable : public QAbstractTableModel {
+        class EntityAttributeModel : public QAbstractTableModel {
             Q_OBJECT
         private:
             std::vector<AttributeRow> m_rows;
             MapDocumentWPtr m_document;
         public:
-            explicit EntityAttributeGridTable(MapDocumentWPtr document, QObject* parent);
+            explicit EntityAttributeModel(MapDocumentWPtr document, QObject* parent);
 
             void setRows(const std::map<String, AttributeRow>& newRows);
 
@@ -130,7 +130,7 @@ namespace TrenchBroom {
 
         // Begin old code
 #if 0
-        class EntityAttributeGridTable : public QAbstractItemModel {
+        class EntityAttributeModel : public QAbstractItemModel {
         private:
             class AttributeRow {
             public:
@@ -205,7 +205,7 @@ namespace TrenchBroom {
             bool m_ignoreUpdates;
             bool m_showDefaultRows;
         public:
-            EntityAttributeGridTable(MapDocumentWPtr document);
+            EntityAttributeModel(MapDocumentWPtr document);
 
             int GetNumberRows() override;
             int GetNumberAttributeRows() const;

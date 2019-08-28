@@ -32,7 +32,7 @@ class QShortcut;
 
 namespace TrenchBroom {
     namespace View {
-        class EntityAttributeGridTable;
+        class EntityAttributeModel;
         class Selection;
 
         class EntityAttributeGrid : public QWidget {
@@ -40,8 +40,8 @@ namespace TrenchBroom {
         private:
             MapDocumentWPtr m_document;
 
-            EntityAttributeGridTable* m_table;
-            QTableView* m_grid;
+            EntityAttributeModel* m_model;
+            QTableView* m_table;
             QAbstractButton* m_addAttributeButton;
             QAbstractButton* m_removePropertiesButton;
             QCheckBox* m_showDefaultPropertiesCheckBox;

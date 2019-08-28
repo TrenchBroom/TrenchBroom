@@ -22,7 +22,7 @@
 #include "Model/EntityAttributes.h"
 #include "Model/Object.h"
 #include "View/BorderLine.h"
-#include "View/EntityAttributeGridTable.h"
+#include "View/EntityAttributeModel.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 #include "View/wxUtils.h"
@@ -63,21 +63,21 @@ namespace TrenchBroom {
 
             // Force an immediate update to the table rows (by default, updates are delayed - see EntityAttributeGrid::updateControls),
             // so we can select the new row.
-            m_table->updateFromMapDocument();
+            m_model->updateFromMapDocument();
 
-            const int row = m_table->rowForAttributeName(newAttributeName);
+            const int row = m_model->rowForAttributeName(newAttributeName);
             ensure(row != -1, "row should have been inserted");
 
             // Select the newly inserted attribute name
-            QModelIndex mi = m_table->index(row, 0);
-            m_grid->setCurrentIndex(mi);
-            m_grid->setFocus();
+            QModelIndex mi = m_model->index(row, 0);
+            m_table->setCurrentIndex(mi);
+            m_table->setFocus();
         }
 
         void EntityAttributeGrid::removeSelectedAttributes() {
             qDebug("FIXME: removeSelectedAttributes");
 
-            QItemSelectionModel *s = m_grid->selectionModel();
+            QItemSelectionModel *s = m_table->selectionModel();
             if (!s->hasSelection()) {
                 return;
             }
@@ -88,7 +88,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            const AttributeRow* temp = m_table->dataForModelIndex(current);
+            const AttributeRow* temp = m_model->dataForModelIndex(current);
             String name = temp->name();
 
             MapDocumentSPtr document = lock(m_document);
@@ -103,7 +103,7 @@ namespace TrenchBroom {
 //
 //            StringList attributes;
 //            for (const int row : selectedRows) {
-//                attributes.push_back(m_table->attributeName(row));
+//                attributes.push_back(m_model->attributeName(row));
 //            }
 //
 //            for (const String& key : attributes) {
@@ -122,16 +122,16 @@ namespace TrenchBroom {
 
 
 
-//            const int row = m_table->rowForName(key);
+//            const int row = m_model->rowForName(key);
 //            if (row == -1)
 //                return;
 //
-//            m_grid->DeleteRows(row, 1);
-//            m_grid->ClearSelection();
+//            m_table->DeleteRows(row, 1);
+//            m_table->ClearSelection();
 //
-//            const int newRow = m_table->rowForName(key);
+//            const int newRow = m_model->rowForName(key);
 //            if (newRow != -1) {
-//                m_grid->SetGridCursor(newRow, m_grid->GetGridCursorCol());
+//                m_table->SetGridCursor(newRow, m_table->GetGridCursorCol());
 //            }
         }
 
@@ -143,7 +143,7 @@ namespace TrenchBroom {
                 return false;
 
             for (const int row : rows) {
-                if (!m_table->canRemove(row))
+                if (!m_model->canRemove(row))
                     return false;
             }
             return true;
@@ -154,12 +154,12 @@ namespace TrenchBroom {
             std::set<int> result;
 
             // FIXME:
-//            if (m_grid->GetGridCursorCol() != -1
-//                && m_grid->GetGridCursorRow() != -1) {
-//                result.insert(m_grid->GetGridCursorRow());
+//            if (m_table->GetGridCursorCol() != -1
+//                && m_table->GetGridCursorRow() != -1) {
+//                result.insert(m_table->GetGridCursorRow());
 //            }
 //
-//            for (const int row : m_grid->GetSelectedRows()) {
+//            for (const int row : m_table->GetSelectedRows()) {
 //                result.insert(row);
 //            }
             return result;
@@ -172,16 +172,16 @@ namespace TrenchBroom {
         class EntityAttributeCellEditor : public wxGridCellTextEditor
         {
         private:
-            EntityAttributeGrid* m_grid;
-            EntityAttributeGridTable* m_table;
+            EntityAttributeGrid* m_table;
+            EntityAttributeModel* m_model;
             int m_row, m_col;
             bool m_forceChange;
             String m_forceChangeAttribute;
 
         public:
-            EntityAttributeCellEditor(EntityAttributeGrid* grid, EntityAttributeGridTable* table)
-            : m_grid(grid),
-            m_table(table),
+            EntityAttributeCellEditor(EntityAttributeGrid* grid, EntityAttributeModel* table)
+            : m_table(grid),
+            m_model(table),
             m_row(-1),
             m_col(-1),
             m_forceChange(false),
@@ -194,21 +194,21 @@ namespace TrenchBroom {
                     // Otherwise, wxTextCtrl::AutoComplete uses it for cycling between completions (on Windows)
 
                     // First, close the cell editor
-                    m_grid->gridWindow()->DisableCellEditControl();
+                    m_table->gridWindow()->DisableCellEditControl();
 
                     // Closing the editor might reorder the cells (#2094), so m_row/m_col are no longer valid.
                     // Ask the wxGrid for the cursor row/column.
-                    m_grid->tabNavigate(m_grid->gridWindow()->GetGridCursorRow(), m_grid->gridWindow()->GetGridCursorCol(), !event.ShiftDown());
+                    m_table->tabNavigate(m_table->gridWindow()->GetGridCursorRow(), m_table->gridWindow()->GetGridCursorCol(), !event.ShiftDown());
                 } else if (event.GetKeyCode() == WXK_RETURN && m_col == 1) {
                     // HACK: (#1976) Make the next call to EndEdit return true unconditionally
                     // so it's possible to press enter to apply a value to all entites in a selection
                     // even though the grid editor hasn't changed.
 
                     const TemporarilySetBool forceChange{m_forceChange};
-                    const TemporarilySetAny<String> forceChangeAttribute{m_forceChangeAttribute, m_table->attributeName(m_row)};
+                    const TemporarilySetAny<String> forceChangeAttribute{m_forceChangeAttribute, m_model->attributeName(m_row)};
 
-                    m_grid->gridWindow()->SaveEditControlValue();
-                    m_grid->gridWindow()->HideCellEditControl();
+                    m_table->gridWindow()->SaveEditControlValue();
+                    m_table->gridWindow()->HideCellEditControl();
                 } else {
                     event.Skip();
                 }
@@ -217,7 +217,7 @@ namespace TrenchBroom {
         public:
             void BeginEdit(int row, int col, wxGrid* grid) override {
                 wxGridCellTextEditor::BeginEdit(row, col, grid);
-                assert(grid == m_grid->gridWindow());
+                assert(grid == m_table->gridWindow());
 
                 m_row = row;
                 m_col = col;
@@ -225,14 +225,14 @@ namespace TrenchBroom {
                 wxTextCtrl *textCtrl = Text();
                 ensure(textCtrl != nullptr, "wxGridCellTextEditor::Create should have created control");
 
-                const QStringList completions = m_table->getCompletions(row, col);
+                const QStringList completions = m_model->getCompletions(row, col);
                 textCtrl->AutoComplete(completions);
 
                 textCtrl->Bind(wxEVT_CHAR_HOOK, &EntityAttributeCellEditor::OnCharHook, this);
             }
 
             bool EndEdit(int row, int col, const wxGrid* grid, const QString& oldval, QString *newval) override {
-                assert(grid == m_grid->gridWindow());
+                assert(grid == m_table->gridWindow());
 
                 wxTextCtrl *textCtrl = Text();
                 ensure(textCtrl != nullptr, "wxGridCellTextEditor::Create should have created control");
@@ -241,7 +241,7 @@ namespace TrenchBroom {
 
                 const bool superclassDidChange = wxGridCellTextEditor::EndEdit(row, col, grid, oldval, newval);
 
-                const String changedAttribute = m_table->attributeName(row);
+                const String changedAttribute = m_model->attributeName(row);
 
                 if (m_forceChange
                     && col == 1
@@ -256,14 +256,14 @@ namespace TrenchBroom {
                 if (col == 0) {
                     // Hack to preserve selection when renaming a key (#2094)
                     const auto newName = GetValue().ToStdString();
-                    m_grid->setLastSelectedNameAndColumn(newName, col);
+                    m_table->setLastSelectedNameAndColumn(newName, col);
                 }
                 wxGridCellTextEditor::ApplyEdit(row, col, grid);
             }
         };
 #endif
 
-        class MyTable : public QTableView {
+        class EntityAttributeTable : public QTableView {
         protected:
             bool event(QEvent *event) override {
                 if (event->type() == QEvent::ShortcutOverride) {
@@ -308,20 +308,19 @@ namespace TrenchBroom {
         };
 
         void EntityAttributeGrid::createGui(MapDocumentWPtr document) {
-            m_table = new EntityAttributeGridTable(document, this);
+            m_table = new EntityAttributeTable();
+            m_model = new EntityAttributeModel(document, this);
+            m_model->setParent(m_table); // ensure the table takes ownership of the model in setModel
+            m_table->setModel(m_model);
 
-            m_grid = new MyTable();
-            m_grid->setStyleSheet("QTableView { border: none; }");
-            m_grid->setModel(m_table);
-            m_grid->verticalHeader()->setVisible(false);
-            m_grid->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-            m_grid->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-            m_grid->horizontalHeader()->setSectionsClickable(false);
-            m_grid->setSelectionBehavior(QAbstractItemView::SelectItems);
+            m_table->setStyleSheet("QTableView { border: none; }");
+            m_table->verticalHeader()->setVisible(false);
+            m_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+            m_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+            m_table->horizontalHeader()->setSectionsClickable(false);
+            m_table->setSelectionBehavior(QAbstractItemView::SelectItems);
 
-
-
-//            m_grid->Bind(wxEVT_GRID_SELECT_CELL, &EntityAttributeGrid::OnAttributeGridSelectCell, this);
+//            m_table->Bind(wxEVT_GRID_SELECT_CELL, &EntityAttributeGrid::OnAttributeGridSelectCell, this);
 
             m_addAttributeButton = createBitmapButton("Add.png", tr("Add a new property"), this);
             connect(m_addAttributeButton, &QAbstractButton::clicked, this, [=](bool checked){
@@ -335,10 +334,10 @@ namespace TrenchBroom {
 
             m_showDefaultPropertiesCheckBox = new QCheckBox(tr("Show default properties"));
             connect(m_showDefaultPropertiesCheckBox, &QCheckBox::stateChanged, this, [=](int state){
-                //m_table->setShowDefaultRows(state == Qt::Checked);
+                //m_model->setShowDefaultRows(state == Qt::Checked);
             });
 
-            connect(m_grid->selectionModel(), &QItemSelectionModel::currentChanged, this, [=](const QModelIndex& current, const QModelIndex& previous){
+            connect(m_table->selectionModel(), &QItemSelectionModel::currentChanged, this, [=](const QModelIndex& current, const QModelIndex& previous){
                 emit selectedRow();
             });
 
@@ -353,14 +352,14 @@ namespace TrenchBroom {
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
-            layout->addWidget(m_grid, 1);
+            layout->addWidget(m_table, 1);
             layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
             layout->addLayout(toolBar, 0);
             setLayout(layout);
 
-            printf("et: %d\n", m_grid->editTriggers());
+            printf("et: %d\n", m_table->editTriggers());
 
-            //m_grid->setEditTriggers(QAbstractItemView::SelectedClicked | QAbstractItemView::AnyKeyPressed);
+            //m_table->setEditTriggers(QAbstractItemView::SelectedClicked | QAbstractItemView::AnyKeyPressed);
         }
 
         void EntityAttributeGrid::createShortcuts() {
@@ -382,21 +381,21 @@ namespace TrenchBroom {
                 removeSelectedAttributes();
             });
 
-//            m_openCellEditorShortcut = new QShortcut(QKeySequence(Qt::Key_Return), m_grid);// "Enter"), this);
+//            m_openCellEditorShortcut = new QShortcut(QKeySequence(Qt::Key_Return), m_table);// "Enter"), this);
 //            //m_openCellEditorShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 //            connect(m_openCellEditorShortcut, &QShortcut::activated, this, [=](){
-//                bool open = m_grid->isPersistentEditorOpen(m_grid->currentIndex());
+//                bool open = m_table->isPersistentEditorOpen(m_table->currentIndex());
 //
 //
 //                qDebug("enter activated unambiguously, open? %d", (int)open);
 //                if (!open) {
-//                    m_grid->edit(m_grid->currentIndex());
+//                    m_table->edit(m_table->currentIndex());
 //                }
 //            });
 
 //            connect(m_openCellEditorShortcut, &QShortcut::activatedAmbiguously, this, [=](){
 //                qDebug("enter activated ambiguously");
-//                m_grid->edit(m_grid->currentIndex());
+//                m_table->edit(m_table->currentIndex());
 //            });
        }
 
@@ -405,7 +404,7 @@ namespace TrenchBroom {
            m_removeRowShortcut->setEnabled(canRemoveSelectedAttributes());
            m_removeRowAlternateShortcut->setEnabled(canRemoveSelectedAttributes());
            // FIXME:
-           //m_openCellEditorShortcut->setEnabled(m_grid->CanEnableCellControl() && !m_grid->IsCellEditControlShown());
+           //m_openCellEditorShortcut->setEnabled(m_table->CanEnableCellControl() && !m_table->IsCellEditControlShown());
         }
 
         void EntityAttributeGrid::bindObservers() {
@@ -442,8 +441,8 @@ namespace TrenchBroom {
 
         void EntityAttributeGrid::selectionWillChange() {
             // FIXME: Needed?
-//            m_grid->SaveEditControlValue();
-//            m_grid->HideCellEditControl();
+//            m_table->SaveEditControlValue();
+//            m_table->HideCellEditControl();
         }
 
         void EntityAttributeGrid::selectionDidChange(const Selection& selection) {
@@ -456,22 +455,22 @@ namespace TrenchBroom {
             // is selected. If we call this directly, it'll cause the table to be rebuilt based on that intermediate
             // state. Everything is fine except you lose the selected row in the table, unless it's a key
             // name that exists in worldspawn. To avoid that problem, make a delayed call to update the table.
-            QMetaObject::invokeMethod(m_table, "updateFromMapDocument", Qt::QueuedConnection);
+            QMetaObject::invokeMethod(m_model, "updateFromMapDocument", Qt::QueuedConnection);
 
             // Update buttons/checkboxes
             MapDocumentSPtr document = lock(m_document);
-            m_grid->setEnabled(!document->allSelectedAttributableNodes().empty());
+            m_table->setEnabled(!document->allSelectedAttributableNodes().empty());
             m_addAttributeButton->setEnabled(!document->allSelectedAttributableNodes().empty());
             m_removePropertiesButton->setEnabled(canRemoveSelectedAttributes());
-            //m_showDefaultPropertiesCheckBox->setChecked(m_table->showDefaultRows());
+            //m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
 
             // Update shortcuts
             updateShortcuts();
         }
 
         Model::AttributeName EntityAttributeGrid::selectedRowName() const {
-            QModelIndex current = m_grid->currentIndex();
-            const AttributeRow* rowModel = m_table->dataForModelIndex(current);
+            QModelIndex current = m_table->currentIndex();
+            const AttributeRow* rowModel = m_model->dataForModelIndex(current);
             if (rowModel == nullptr) {
                 return "";
             }
