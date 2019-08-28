@@ -43,10 +43,13 @@ namespace TrenchBroom {
         m_table(nullptr),
         m_model(nullptr) {
             m_model = new KeyboardShortcutModel(document);
-
             m_table = new QTableView();
-            m_table->setStyleSheet("QTableView { border: none; }");
+            m_model->setParent(m_table); // so that the table takes ownership in setModel
             m_table->setModel(m_model);
+
+            autoResizeRows(m_table);
+
+            m_table->setStyleSheet("QTableView { border: none; }");
             m_table->setHorizontalHeader(new QHeaderView(Qt::Horizontal));
             m_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::ResizeToContents);
             m_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::ResizeToContents);

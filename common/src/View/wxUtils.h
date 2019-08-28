@@ -30,6 +30,7 @@
 
 #include <QBoxLayout>
 #include <QColor>
+#include <QObject>
 #include <QSettings>
 #include <QWidget>
 
@@ -48,6 +49,7 @@ class QSlider;
 class QSplitter;
 class QWidget;
 class QButtonGroup;
+class QTableView;
 
 namespace TrenchBroom {
     namespace View {
@@ -168,6 +170,17 @@ namespace TrenchBroom {
         QLineEdit* createSearchBox();
 
         void checkButtonInGroup(QButtonGroup* group, int id, bool checked);
+
+        class AutoResizeRowsEventFilter : public QObject {
+            Q_OBJECT
+        private:
+            QTableView* m_tableView;
+        public:
+            explicit AutoResizeRowsEventFilter(QTableView* tableView);
+
+            bool eventFilter(QObject* watched, QEvent* event) override;
+        };
+        void autoResizeRows(QTableView* tableView);
     }
 }
 

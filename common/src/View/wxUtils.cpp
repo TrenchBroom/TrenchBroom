@@ -46,6 +46,7 @@
 #include <QToolButton>
 #include <QAbstractButton>
 #include <QButtonGroup>
+#include <QTableView>
 
 #include <list>
 #include <cstdlib>
@@ -455,6 +456,44 @@ namespace TrenchBroom {
                 return;
             }
             button->setChecked(checked);
+        }
+
+        AutoResizeRowsEventFilter::AutoResizeRowsEventFilter(QTableView* tableView) :
+        QObject(tableView),
+        m_tableView(tableView) {
+            m_tableView->installEventFilter(this);
+        }
+
+        bool AutoResizeRowsEventFilter::eventFilter(QObject* watched, QEvent* event) {
+            if (watched == m_tableView && (event->type() == QEvent::Resize || event->type() == QEvent::Show)) {
+                m_tableView->resizeRowsToContents();
+            }
+            return QObject::eventFilter(watched, event);
+        }
+
+        void autoResizeRows(QTableView* tableView) {
+            auto* model = tableView->model();
+            if (model != nullptr) {
+                auto updateFn = [tableView](const QModelIndex &parent, int first, int last){
+                    DisableWindowUpdates disableUpdates(tableView);
+                    for (auto row = first; row <= last; ++row) {
+                        tableView->resizeRowToContents(row);
+                    }
+                };
+                QObject::connect(model, &QAbstractItemModel::rowsInserted, tableView, updateFn);
+                QObject::connect(model, &QAbstractItemModel::dataChanged, tableView, [tableView, updateFn](const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles) {
+                    const auto firstRow = topLeft.row();
+                    const auto lastRow = bottomRight.row();
+                    updateFn(tableView->rootIndex(), firstRow, lastRow);
+                });
+                QObject::connect(model, &QAbstractItemModel::modelReset, tableView, [tableView, updateFn]() {
+                    const auto firstRow = 0;
+                    const auto lastRow = tableView->model()->rowCount(tableView->rootIndex()) - 1;
+                    updateFn(tableView->rootIndex(), firstRow, lastRow);
+                });
+                tableView->installEventFilter(new AutoResizeRowsEventFilter(tableView));
+                tableView->resizeRowsToContents();
+            }
         }
     }
 }
