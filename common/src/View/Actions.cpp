@@ -389,43 +389,44 @@ namespace TrenchBroom {
 
             /* ========== Translation ========== */
             // applies to objects, vertices, handles (e.g. rotation center)
+            // these preference paths are structured like "action in 2D view; action in 3D view"
             m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Move forward"), QObject::tr("Move Forward"),
+                createAction(IO::Path("Controls/Map view/Move objects up; Move objects forward"), QObject::tr("Move Forward"),
                     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_Up),
                     [](ActionExecutionContext& context) {
                         context.view()->move(vm::direction::forward);
                     },
                     [](ActionExecutionContext& context) { return context.hasDocument(); }));
             m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Move backward"), QObject::tr("Move Backward"),
+                createAction(IO::Path("Controls/Map view/Move objects down; Move objects backward"), QObject::tr("Move Backward"),
                     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_Down),
                     [](ActionExecutionContext& context) {
                         context.view()->move(vm::direction::backward);
                     },
                     [](ActionExecutionContext& context) { return context.hasDocument(); }));
             m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Move left"), QObject::tr("Move Left"),
+                createAction(IO::Path("Controls/Map view/Move objects left"), QObject::tr("Move Left"),
                     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_Left),
                     [](ActionExecutionContext& context) {
                         context.view()->move(vm::direction::left);
                     },
                     [](ActionExecutionContext& context) { return context.hasDocument(); }));
             m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Move right"), QObject::tr("Move Right"),
+                createAction(IO::Path("Controls/Map view/Move objects right"), QObject::tr("Move Right"),
                     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_Right),
                     [](ActionExecutionContext& context) {
                         context.view()->move(vm::direction::right);
                     },
                     [](ActionExecutionContext& context) { return context.hasDocument(); }));
             m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Move up"), QObject::tr("Move Up"),
+                createAction(IO::Path("Controls/Map view/Move objects backward; Move objects up"), QObject::tr("Move Up"),
                     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_PageUp),
                     [](ActionExecutionContext& context) {
                         context.view()->move(vm::direction::up);
                     },
                     [](ActionExecutionContext& context) { return context.hasDocument(); }));
             m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Move down"), QObject::tr("Move Down"),
+                createAction(IO::Path("Controls/Map view/Move objects forward; Move objects down"), QObject::tr("Move Down"),
                     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_PageDown),
                     [](ActionExecutionContext& context) {
                         context.view()->move(vm::direction::down);
@@ -433,15 +434,18 @@ namespace TrenchBroom {
                     [](ActionExecutionContext& context) { return context.hasDocument(); }));
 
             /* ========== Duplication ========== */
+            // these preference paths are structured like "action in 2D view; action in 3D view"
             m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Duplicate and move objects forward"), QObject::tr("Duplicate and Move Forward"),
+                createAction(IO::Path("Controls/Map view/Duplicate and move objects up; Duplicate and move objects forward"),
+                    QObject::tr("Duplicate and Move Forward"),
                     ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_Up),
                     [](ActionExecutionContext& context) {
                         context.view()->duplicateAndMoveObjects(vm::direction::forward);
                     },
                     [](ActionExecutionContext& context) { return context.hasDocument(); }));
             m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Duplicate and move objects backward"), QObject::tr("Duplicate and Move Backward"),
+                createAction(IO::Path("Controls/Map view/Duplicate and move objects down; Duplicate and move objects backward"),
+                    QObject::tr("Duplicate and Move Backward"),
                     ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_Down),
                     [](ActionExecutionContext& context) {
                         context.view()->duplicateAndMoveObjects(vm::direction::backward);
@@ -462,14 +466,16 @@ namespace TrenchBroom {
                     },
                     [](ActionExecutionContext& context) { return context.hasDocument(); }));
             m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Duplicate and move objects up"), QObject::tr("Duplicate and Move Up"),
+                createAction(IO::Path("Controls/Map view/Duplicate and move objects backward; Duplicate and move objects up"),
+                    QObject::tr("Duplicate and Move Up"),
                     ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_PageUp),
                     [](ActionExecutionContext& context) {
                         context.view()->duplicateAndMoveObjects(vm::direction::up);
                     },
                     [](ActionExecutionContext& context) { return context.hasDocument(); }));
             m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Duplicate and move objects down"), QObject::tr("Duplicate and Move Down"),
+                createAction(IO::Path("Controls/Map view/Duplicate and move objects forward; Duplicate and move objects down"),
+                    QObject::tr("Duplicate and Move Down"),
                     ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_PageDown),
                     [](ActionExecutionContext& context) {
                         context.view()->duplicateAndMoveObjects(vm::direction::down);
@@ -547,7 +553,6 @@ namespace TrenchBroom {
                         context.view()->moveTextures(vm::direction::up);
                     },
                     [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            // FIXME: Did we lose the fine/coarse (Ctrl/Shift) variants?
             m_mapViewActions.push_back(
                 createAction(IO::Path("Controls/Map view/Move textures down"), QObject::tr("Move Textures Down"),
                     ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_Down),
@@ -682,7 +687,7 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) { return true; }));
             fileMenu.addSeparator();
-            fileMenu.addItem(createMenuAction(IO::Path("Menu/File/Open"), QObject::tr("Open Document..."), QKeySequence::Open,
+            fileMenu.addItem(createMenuAction(IO::Path("Menu/File/Open..."), QObject::tr("Open Document..."), QKeySequence::Open,
                 [](ActionExecutionContext& context) {
                     auto& app = TrenchBroomApp::instance();
                     app.openDocument();
@@ -695,7 +700,7 @@ namespace TrenchBroom {
                     context.frame()->saveDocument();
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            fileMenu.addItem(createMenuAction(IO::Path("Menu/File/Save as"), QObject::tr("Save Document as..."), QKeySequence::SaveAs,
+            fileMenu.addItem(createMenuAction(IO::Path("Menu/File/Save as..."), QObject::tr("Save Document as..."), QKeySequence::SaveAs,
                 [](ActionExecutionContext& context) {
                     context.frame()->saveDocumentAs();
                 },
@@ -1346,7 +1351,7 @@ namespace TrenchBroom {
                     return context.hasDocument() && context.frame()->currentViewMaximized();
                 }));
             viewMenu.addSeparator();
-            viewMenu.addItem(createMenuAction(IO::Path("Menu/View/Preferences"), QObject::tr("Preferences..."), QKeySequence::Preferences,
+            viewMenu.addItem(createMenuAction(IO::Path("Menu/File/Preferences..."), QObject::tr("Preferences..."), QKeySequence::Preferences,
                 [](ActionExecutionContext& context) {
                     auto& app = TrenchBroomApp::instance();
                     app.showPreferences();
@@ -1358,14 +1363,14 @@ namespace TrenchBroom {
 
         void ActionManager::createRunMenu() {
             auto& runMenu = createMainMenu("Run");
-            runMenu.addItem(createMenuAction(IO::Path("Menu/Run/Compile"), QObject::tr("Compile Map..."), 0,
+            runMenu.addItem(createMenuAction(IO::Path("Menu/Run/Compile..."), QObject::tr("Compile Map..."), 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->showCompileDialog();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
                 }));
-            runMenu.addItem(createMenuAction(IO::Path("Menu/Run/Launch"), QObject::tr("Launch Engine..."), 0,
+            runMenu.addItem(createMenuAction(IO::Path("Menu/Run/Launch..."), QObject::tr("Launch Engine..."), 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->showLaunchEngineDialog();
                 },
@@ -1384,21 +1389,21 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
                 }));
-            debugMenu.addItem(createMenuAction(IO::Path("Menu/Debug/Create Brush"), QObject::tr("Create Brush..."), 0,
+            debugMenu.addItem(createMenuAction(IO::Path("Menu/Debug/Create Brush..."), QObject::tr("Create Brush..."), 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->debugCreateBrush();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
                 }));
-            debugMenu.addItem(createMenuAction(IO::Path("Menu/Debug/Create Cube"), QObject::tr("Create Cube..."), 0,
+            debugMenu.addItem(createMenuAction(IO::Path("Menu/Debug/Create Cube..."), QObject::tr("Create Cube..."), 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->debugCreateCube();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
                 }));
-            debugMenu.addItem(createMenuAction(IO::Path("Menu/Debug/Clip Brush"), QObject::tr("Clip Brush..."), 0,
+            debugMenu.addItem(createMenuAction(IO::Path("Menu/Debug/Clip Brush..."), QObject::tr("Clip Brush..."), 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->debugClipBrush();
                 },
@@ -1412,7 +1417,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
                 }));
-            debugMenu.addItem(createMenuAction(IO::Path("Menu/Debug/Crash"), QObject::tr("Crash..."), 0,
+            debugMenu.addItem(createMenuAction(IO::Path("Menu/Debug/Crash..."), QObject::tr("Crash..."), 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->debugCrash();
                 },
@@ -1434,7 +1439,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return true;
                 }));
-            debugMenu.addItem(createMenuAction(IO::Path("Menu/Debug/Set Window Size"), QObject::tr("Set Window Size..."), 0,
+            debugMenu.addItem(createMenuAction(IO::Path("Menu/Debug/Set Window Size..."), QObject::tr("Set Window Size..."), 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->debugSetWindowSize();
                 },
@@ -1455,7 +1460,7 @@ namespace TrenchBroom {
                     [](ActionExecutionContext& context) {
                         return true;
                     }));
-            helpMenu.addItem(createMenuAction(IO::Path("Menu/Help/About TrenchBroom"), QObject::tr("About TrenchBroom"), 0,
+            helpMenu.addItem(createMenuAction(IO::Path("Menu/File/About TrenchBroom"), QObject::tr("About TrenchBroom"), 0,
                 [](ActionExecutionContext& context) {
                     auto& app = TrenchBroomApp::instance();
                     app.showAboutDialog();

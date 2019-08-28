@@ -30,8 +30,7 @@
 #include "Model/MapFormat.h"
 #include "View/AboutDialog.h"
 #include "View/Actions.h"
-// FIXME:
-//#include "View/CrashDialog.h"
+#include "View/CrashDialog.h"
 #include "View/GameDialog.h"
 #include "View/MainMenuBuilder.h"
 #include "View/MapDocument.h"
@@ -292,14 +291,14 @@ namespace TrenchBroom {
             return true;
         }
 
-        /* FIXME: crash reporting
         static String makeCrashReport(const String &stacktrace, const String &reason) {
             StringStream ss;
             ss << "OS:\t" << QSysInfo::prettyProductName().toStdString() << std::endl;
             ss << "Qt:\t" << qVersion() << std::endl;
-            ss << "GL_VENDOR:\t" << MapViewBase::glVendorString().toStdString() << std::endl;
-            ss << "GL_RENDERER:\t" << MapViewBase::glRendererString().toStdString() << std::endl;
-            ss << "GL_VERSION:\t" << MapViewBase::glVersionString().toStdString() << std::endl;
+            // FIXME:
+//            ss << "GL_VENDOR:\t" << MapViewBase::glVendorString().toStdString() << std::endl;
+//            ss << "GL_RENDERER:\t" << MapViewBase::glRendererString().toStdString() << std::endl;
+//            ss << "GL_VERSION:\t" << MapViewBase::glVersionString().toStdString() << std::endl;
             ss << "TrenchBroom Version:\t" << getBuildVersion().toStdString() << std::endl;
             ss << "TrenchBroom Build:\t" << getBuildIdStr().toStdString() << std::endl;
             ss << "Reason:\t" << reason << std::endl;
@@ -347,7 +346,6 @@ namespace TrenchBroom {
             }
             return testCrashLogPath.deleteExtension();
         }
-         */
 
         static bool inReportCrashAndExit = false;
         static bool crashReportGuiEnabled = true;
@@ -357,10 +355,9 @@ namespace TrenchBroom {
         }
 
         void reportCrashAndExit(const String &stacktrace, const String &reason) {
-#if 0
             // just abort if we reenter reportCrashAndExit (i.e. if it crashes)
             if (inReportCrashAndExit)
-                wxAbort();
+                std::abort();
 
             inReportCrashAndExit = true;
 
@@ -391,17 +388,15 @@ namespace TrenchBroom {
             if (!QFile::copy(IO::pathAsQString(IO::SystemPaths::logFilePath()), QString::fromStdString(logPath.asString())))
                 logPath = IO::Path();
 
-            // write the crash log to stdout
+            // write the crash log to stderr
             std::cerr << "crash log:" << std::endl;
             std::cerr << report << std::endl;
 
             if (crashReportGuiEnabled) {
-                CrashDialog dialog;
-                dialog.Create(reportPath, mapPath, logPath);
-                dialog.ShowModal();
+                CrashDialog dialog(reportPath, mapPath, logPath);
+                dialog.exec();
             }
-#endif
-            // FIXME:
+            
             std::abort();
         }
 
@@ -409,8 +404,6 @@ namespace TrenchBroom {
             return inReportCrashAndExit;
         }
 
-        // FIXME: exception handling
-#if 0
         void TrenchBroomApp::OnUnhandledException() {
             handleException();
         }
@@ -423,7 +416,6 @@ namespace TrenchBroom {
         void TrenchBroomApp::OnFatalException() {
             reportCrashAndExit(TrenchBroomStackWalker::getStackTrace(), "OnFatalException");
         }
-#endif
 
 #if defined(_WIN32) && defined(_MSC_VER)
         LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs) {
@@ -508,12 +500,8 @@ namespace TrenchBroom {
             const IO::Path mapPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.map"));
             const IO::Path logPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.log"));
 
-            // FIXME:
-#if 0
-            CrashDialog dialog;
-            dialog.Create(reportPath, mapPath, logPath);
-            dialog.ShowModal();
-#endif
+            CrashDialog dialog(reportPath, mapPath, logPath);
+            dialog.exec();
         }
 
         // FIXME: Probably not needed with Qt?

@@ -302,7 +302,7 @@ SET(COMMON_SOURCE
 	${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
 	${COMMON_SOURCE_DIR}/View/ConvertEntityColorCommand.cpp
 	${COMMON_SOURCE_DIR}/View/CopyTexCoordSystemFromFaceCommand.cpp
-#	${COMMON_SOURCE_DIR}/View/CrashDialog.cpp
+	${COMMON_SOURCE_DIR}/View/CrashDialog.cpp
 	${COMMON_SOURCE_DIR}/View/CreateBrushToolBase.cpp
 	${COMMON_SOURCE_DIR}/View/CreateComplexBrushToolController3D.cpp
 	${COMMON_SOURCE_DIR}/View/CreateComplexBrushTool.cpp

@@ -24,107 +24,90 @@
 #include "View/GetVersion.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
+#include "IO/PathQt.h"
 
-#include <wx/button.h>
-#include <wx/gbsizer.h>
-#include <wx/panel.h>
-#include <wx/settings.h>
-#include <wx/sizer.h>
+#include <QGridLayout>
 #include <QLabel>
-
+#include <QUrl>
+#include <QDesktopServices>
+#include <QPushButton>
+#include <QDialogButtonBox>
 
 namespace TrenchBroom {
     namespace View {
-        wxIMPLEMENT_DYNAMIC_CLASS(CrashDialog, wxDialog)
+        CrashDialog::CrashDialog(const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath) :
+        QDialog() {
+            createGui(reportPath, mapPath, logPath);
+        }
+        
+        void CrashDialog::createGui(const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath) {
+            setWindowTitle(tr("Crash"));
 
-        CrashDialog::CrashDialog() {}
+            auto* header = new QLabel(tr("Crash Report"));
+            makeHeader(header);
 
-        void CrashDialog::Create(const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath) {
-            wxDialog::Create(nullptr, wxID_ANY, "Crash");
+            auto* text1 = new QLabel(tr("TrenchBroom has crashed, but was able to save a crash report,\n"
+                                        "a log file and the current state of the map to the following locations.\n\n"
+                                        "Please create an issue report and upload all three files."));
 
-            QWidget* containerPanel = new QWidget(this);
-            QWidget* headerPanel = new QWidget(containerPanel);
-            QWidget* reportPanel = new QWidget(containerPanel);
-            reportPanel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            reportPanel->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
+            auto* reportLabel = new QLabel(tr("Report"));
+            makeEmphasized(reportLabel);
+            auto* reportPathText = new QLabel(IO::pathAsQString(reportPath));
 
-            QLabel* header = new QLabel(headerPanel, wxID_ANY, "Crash Report");
-            header->SetFont(header->GetFont().Scale(1.5).Bold());
+            auto* mapLabel = new QLabel(tr("Map"));
+            makeEmphasized(mapLabel);
+            auto* mapPathText = new QLabel(IO::pathAsQString(mapPath));
 
-            auto* headerPanelSizer = new QVBoxLayout();
-            headerPanelSizer->addSpacing(LayoutConstants::DialogOuterMargin);
-            headerPanelSizer->addWidget(header, wxSizerFlags().Border(wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin));
-            headerPanelSizer->addSpacing(LayoutConstants::DialogOuterMargin);
-            headerPanel->setLayout(headerPanelSizer);
+            auto* logLabel = new QLabel(tr("Log"));
+            makeEmphasized(logLabel);
+            auto* logPathText = new QLabel(IO::pathAsQString(logPath));
 
-            QLabel* text1 = new QLabel(reportPanel, wxID_ANY,
-                                                   "TrenchBroom has crashed, but was able to save a crash report,\n"
-                                                   "a log file and the current state of the map to the following locations.\n\n"
-                                                   "Please create an issue report and upload all three files.");
+            auto* versionLabel = new QLabel(tr("Version"));
+            makeEmphasized(versionLabel);
+            auto* versionText = new QLabel(getBuildVersion());
 
-            QLabel* reportLabel = new QLabel(reportPanel, wxID_ANY, "Report");
-            reportLabel->SetFont(reportLabel->GetFont().Bold());
-            QLabel* reportPathText = new QLabel(reportPanel, wxID_ANY, reportPath.asString());
+            auto* buildLabel = new QLabel(tr("Build"));
+            makeEmphasized(buildLabel);
+            auto* buildText = new QLabel(getBuildIdStr());
 
-            QLabel* mapLabel = new QLabel(reportPanel, wxID_ANY, "Map");
-            mapLabel->SetFont(mapLabel->GetFont().Bold());
-            QLabel* mapPathText = new QLabel(reportPanel, wxID_ANY, mapPath.asString());
+            auto* reportPanelSizer = new QGridLayout();
+            reportPanelSizer->addWidget(text1,           0, 0, 1, 2);
+            reportPanelSizer->setRowMinimumHeight(       1, 20);
+            reportPanelSizer->addWidget(reportLabel,     2, 0, 1, 1, Qt::AlignVCenter);
+            reportPanelSizer->addWidget(reportPathText,  2, 1, 1, 1, Qt::AlignVCenter);
+            reportPanelSizer->addWidget(mapLabel,        3, 0, 1, 1, Qt::AlignVCenter);
+            reportPanelSizer->addWidget(mapPathText,     3, 1, 1, 1, Qt::AlignVCenter);
+            reportPanelSizer->addWidget(logLabel,        4, 0, 1, 1, Qt::AlignVCenter);
+            reportPanelSizer->addWidget(logPathText,     4, 1, 1, 1, Qt::AlignVCenter);
+            reportPanelSizer->setRowMinimumHeight(       5, 20);
+            reportPanelSizer->addWidget(versionLabel,    6, 0, 1, 1, Qt::AlignVCenter);
+            reportPanelSizer->addWidget(versionText,     6, 1, 1, 1, Qt::AlignVCenter);
+            reportPanelSizer->addWidget(buildLabel,      7, 0, 1, 1, Qt::AlignVCenter);
+            reportPanelSizer->addWidget(buildText,       7, 1, 1, 1, Qt::AlignVCenter);
 
-            QLabel* logLabel = new QLabel(reportPanel, wxID_ANY, "Log");
-            logLabel->SetFont(logLabel->GetFont().Bold());
-            QLabel* logPathText = new QLabel(reportPanel, wxID_ANY, logPath.asString());
+            auto* reportPanel = new QWidget();
+            setBaseWindowColor(reportPanel);
+            reportPanel->setLayout(reportPanelSizer);
 
-            QLabel* versionLabel = new QLabel(reportPanel, wxID_ANY, "Version");
-            versionLabel->SetFont(versionLabel->GetFont().Bold());
-            QLabel* versionText = new QLabel(reportPanel, wxID_ANY, "");// FIXME: getBuildVersion());
-
-            QLabel* buildLabel = new QLabel(reportPanel, wxID_ANY, "Build");
-            buildLabel->SetFont(buildLabel->GetFont().Bold());
-            QLabel* buildText = new QLabel(reportPanel, wxID_ANY,  "");// FIXME: getBuildIdStr());
-
-            wxGridBagSizer* reportPanelSizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin);
-            reportPanelSizer->addWidget(text1,           wxGBPosition(0, 0), wxGBSpan(1, 2));
-            reportPanelSizer->addWidget(1, 20,           wxGBPosition(1, 0), wxGBSpan(1, 2));
-            reportPanelSizer->addWidget(reportLabel,     wxGBPosition(2, 0), wxGBSpan(1, 1), Qt::AlignVCenter);
-            reportPanelSizer->addWidget(reportPathText,  wxGBPosition(2, 1), wxGBSpan(1, 1), Qt::AlignVCenter);
-            reportPanelSizer->addWidget(mapLabel,        wxGBPosition(3, 0), wxGBSpan(1, 1), Qt::AlignVCenter);
-            reportPanelSizer->addWidget(mapPathText,     wxGBPosition(3, 1), wxGBSpan(1, 1), Qt::AlignVCenter);
-            reportPanelSizer->addWidget(logLabel,        wxGBPosition(4, 0), wxGBSpan(1, 1), Qt::AlignVCenter);
-            reportPanelSizer->addWidget(logPathText,     wxGBPosition(4, 1), wxGBSpan(1, 1), Qt::AlignVCenter);
-            reportPanelSizer->addWidget(1, 20,           wxGBPosition(5, 0), wxGBSpan(1, 2));
-            reportPanelSizer->addWidget(versionLabel,    wxGBPosition(6, 0), wxGBSpan(1, 1), Qt::AlignVCenter);
-            reportPanelSizer->addWidget(versionText,     wxGBPosition(6, 1), wxGBSpan(1, 1), Qt::AlignVCenter);
-            reportPanelSizer->addWidget(buildLabel,      wxGBPosition(7, 0), wxGBSpan(1, 1), Qt::AlignVCenter);
-            reportPanelSizer->addWidget(buildText,       wxGBPosition(7, 1), wxGBSpan(1, 1), Qt::AlignVCenter);
-
-            auto* reportPanelOuterSizer = new QVBoxLayout();
-            reportPanelOuterSizer->addWidget(new BorderLine(reportPanel), wxSizerFlags().Expand());
-            reportPanelOuterSizer->addWidget(reportPanelSizer, wxSizerFlags().Border(wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin));
-            reportPanelOuterSizer->addSpacing(LayoutConstants::DialogOuterMargin);
-            reportPanel->setLayout(reportPanelOuterSizer);
-
-            auto* containerPanelSizer = new QVBoxLayout();
-            containerPanelSizer->addWidget(headerPanel, wxSizerFlags().Expand());
-            containerPanelSizer->addWidget(reportPanel, wxSizerFlags().Expand());
-            containerPanel->setLayout(containerPanelSizer);
-
-            wxButton* reportButton = new wxButton(this, wxID_APPLY, "Report");
-            reportButton->Bind(&QAbstractButton::clicked, &CrashDialog::OnReport, this);
-
-            auto* buttonSizer = new QHBoxLayout();
-            buttonSizer->addStretch(1);
-            buttonSizer->addWidget(reportButton, wxSizerFlags().CenterVertical().Border(wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin));
-            buttonSizer->addWidget(CreateButtonSizer(wxCLOSE));
+            auto* buttonBox = new QDialogButtonBox();
+            buttonBox->addButton(QDialogButtonBox::Close);
+            auto* reportButton = buttonBox->addButton(tr("Report"), QDialogButtonBox::AcceptRole);
+            
+            connect(reportButton, &QAbstractButton::clicked, this, [](){
+                QDesktopServices::openUrl(QUrl("https://github.com/kduske/TrenchBroom/issues/new"));
+            });
+            connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
             auto* outerSizer = new QVBoxLayout();
-            outerSizer->addWidget(containerPanel, wxSizerFlags().Expand());
-            outerSizer->addWidget(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
+            outerSizer->setSizeConstraint(QLayout::SetFixedSize);
+            outerSizer->setContentsMargins(0, 0, 0, 0);
+            outerSizer->addWidget(header);
+            outerSizer->addWidget(reportPanel, 1);
+            outerSizer->addWidget(buttonBox);
 
             setLayout(outerSizer);
-        }
-
-        void CrashDialog::OnReport() {
-            wxLaunchDefaultBrowser("https://github.com/kduske/TrenchBroom/issues/new");
+            
+            // TODO: needs spacing tweaks
         }
     }
 }
