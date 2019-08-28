@@ -68,11 +68,9 @@ namespace TrenchBroom {
             void openAbout();
             bool initializeGameFactory();
 
-#if 0
-            bool OnExceptionInMainLoop() override;
-            void OnUnhandledException() override;
-            void OnFatalException() override;
-#endif
+            bool OnExceptionInMainLoop();
+            void OnUnhandledException();
+            void OnFatalException();
         private:
             void handleException();
         public:
