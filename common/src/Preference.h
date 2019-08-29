@@ -41,6 +41,7 @@
 
 class QString;
 class QTextStream;
+class QKeySequence;
 
 namespace TrenchBroom {
     class PrefSerializer {
@@ -52,7 +53,7 @@ namespace TrenchBroom {
         virtual bool readFromString(const QString& in, float* out) const = 0;
         virtual bool readFromString(const QString& in, int* out) const = 0;
         virtual bool readFromString(const QString& in, IO::Path* out) const = 0;
-        virtual bool readFromString(const QString& in, View::KeyboardShortcut* out) const = 0;
+        virtual bool readFromString(const QString& in, QKeySequence* out) const = 0;
         virtual bool readFromString(const QString& in, QString* out) const = 0;
 
         virtual void writeToString(QTextStream& stream, const bool in) const = 0;
@@ -60,7 +61,7 @@ namespace TrenchBroom {
         virtual void writeToString(QTextStream& stream, const float in) const = 0;
         virtual void writeToString(QTextStream& stream, const int in) const = 0;
         virtual void writeToString(QTextStream& stream, const IO::Path& in) const = 0;
-        virtual void writeToString(QTextStream& stream, const View::KeyboardShortcut& in) const = 0;
+        virtual void writeToString(QTextStream& stream, const QKeySequence& in) const = 0;
         virtual void writeToString(QTextStream& stream, const QString& in) const = 0;
     };
 
@@ -181,21 +182,21 @@ namespace TrenchBroom {
     };
 
     template<>
-    class PreferenceSerializer<View::KeyboardShortcut> {
+    class PreferenceSerializer<QKeySequence> {
     public:
-        bool read(QSettings& settings, const QString& path, View::KeyboardShortcut& result) const {
+        bool read(QSettings& settings, const QString& path, QKeySequence& result) const {
             const QVariant value = settings.value(path);
             if (!value.isValid()) {
                 return false;
             }
             // FIXME: Parse the old wxWidgets format too
             const auto keySequence = QKeySequence::fromString(value.toString(), QKeySequence::PortableText);
-            result = View::KeyboardShortcut(keySequence);
+            result = keySequence;
             return true;
         }
 
-        void write(QSettings& settings, const QString& path, const View::KeyboardShortcut& value) const {
-            const auto keySequence = value.keySequence();
+        void write(QSettings& settings, const QString& path, const QKeySequence& value) const {
+            const auto keySequence = value;
             settings.setValue(path, QVariant(keySequence.toString(QKeySequence::PortableText)));
         }
     };

@@ -174,12 +174,12 @@ namespace TrenchBroom {
             prefs.resetToDefault(Preferences::CameraAltMoveInvert);
             prefs.resetToDefault(Preferences::CameraMoveInCursorDir);
 
-            prefs.resetToDefault(Preferences::CameraFlyForward);
-            prefs.resetToDefault(Preferences::CameraFlyBackward);
-            prefs.resetToDefault(Preferences::CameraFlyLeft);
-            prefs.resetToDefault(Preferences::CameraFlyRight);
-            prefs.resetToDefault(Preferences::CameraFlyUp);
-            prefs.resetToDefault(Preferences::CameraFlyDown);
+            prefs.resetToDefault(Preferences::CameraFlyForward());
+            prefs.resetToDefault(Preferences::CameraFlyBackward());
+            prefs.resetToDefault(Preferences::CameraFlyLeft());
+            prefs.resetToDefault(Preferences::CameraFlyRight());
+            prefs.resetToDefault(Preferences::CameraFlyUp());
+            prefs.resetToDefault(Preferences::CameraFlyDown());
 
             prefs.resetToDefault(Preferences::CameraFlyMoveSpeed);
         }
@@ -199,12 +199,12 @@ namespace TrenchBroom {
             m_invertAltMoveAxisCheckBox->setChecked(pref(Preferences::CameraAltMoveInvert));
             m_moveInCursorDirCheckBox->setChecked(pref(Preferences::CameraMoveInCursorDir));
 
-            m_forwardKeyEditor->setKeySequence(pref(Preferences::CameraFlyForward).keySequence());
-            m_backwardKeyEditor->setKeySequence(pref(Preferences::CameraFlyBackward).keySequence());
-            m_leftKeyEditor->setKeySequence(pref(Preferences::CameraFlyLeft).keySequence());
-            m_rightKeyEditor->setKeySequence(pref(Preferences::CameraFlyRight).keySequence());
-            m_upKeyEditor->setKeySequence(pref(Preferences::CameraFlyUp).keySequence());
-            m_downKeyEditor->setKeySequence(pref(Preferences::CameraFlyDown).keySequence());
+            m_forwardKeyEditor->setKeySequence(pref(Preferences::CameraFlyForward()));
+            m_backwardKeyEditor->setKeySequence(pref(Preferences::CameraFlyBackward()));
+            m_leftKeyEditor->setKeySequence(pref(Preferences::CameraFlyLeft()));
+            m_rightKeyEditor->setKeySequence(pref(Preferences::CameraFlyRight()));
+            m_upKeyEditor->setKeySequence(pref(Preferences::CameraFlyUp()));
+            m_downKeyEditor->setKeySequence(pref(Preferences::CameraFlyDown()));
 
             m_flyMoveSpeedSlider->setRatio(pref(Preferences::CameraFlyMoveSpeed));
         }
@@ -280,27 +280,27 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::forwardKeyChanged() {
-            setKeySequence(m_forwardKeyEditor, Preferences::CameraFlyForward);
+            setKeySequence(m_forwardKeyEditor, Preferences::CameraFlyForward());
         }
 
         void MousePreferencePane::backwardKeyChanged() {
-            setKeySequence(m_backwardKeyEditor, Preferences::CameraFlyBackward);
+            setKeySequence(m_backwardKeyEditor, Preferences::CameraFlyBackward());
         }
 
         void MousePreferencePane::leftKeyChanged() {
-            setKeySequence(m_leftKeyEditor, Preferences::CameraFlyLeft);
+            setKeySequence(m_leftKeyEditor, Preferences::CameraFlyLeft());
         }
 
         void MousePreferencePane::rightKeyChanged() {
-            setKeySequence(m_rightKeyEditor, Preferences::CameraFlyRight);
+            setKeySequence(m_rightKeyEditor, Preferences::CameraFlyRight());
         }
 
         void MousePreferencePane::upKeyChanged() {
-            setKeySequence(m_upKeyEditor, Preferences::CameraFlyUp);
+            setKeySequence(m_upKeyEditor, Preferences::CameraFlyUp());
         }
 
         void MousePreferencePane::downKeyChanged() {
-            setKeySequence(m_downKeyEditor, Preferences::CameraFlyDown);
+            setKeySequence(m_downKeyEditor, Preferences::CameraFlyDown());
         }
 
         void MousePreferencePane::flyMoveSpeedChanged(const int value) {
@@ -309,28 +309,28 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraFlyMoveSpeed, ratio);
         }
 
-        void MousePreferencePane::setKeySequence(KeySequenceEdit* editor, Preference<KeyboardShortcut>& preference) {
+        void MousePreferencePane::setKeySequence(KeySequenceEdit* editor, Preference<QKeySequence>& preference) {
             const auto keySequence = editor->keySequence();
             PreferenceManager& prefs = PreferenceManager::instance();
             if (!hasConflict(keySequence, preference)) {
-                prefs.set(preference, KeyboardShortcut(keySequence));
+                prefs.set(preference, keySequence);
             } else {
-                editor->setKeySequence(prefs.get(preference).keySequence());
+                editor->setKeySequence(prefs.get(preference));
             }
         }
 
-        bool MousePreferencePane::hasConflict(const QKeySequence& keySequence, const Preference<KeyboardShortcut>& preference) const {
-            const auto prefs = std::vector<Preference<KeyboardShortcut>*>{
-                &Preferences::CameraFlyForward,
-                &Preferences::CameraFlyBackward,
-                &Preferences::CameraFlyLeft,
-                &Preferences::CameraFlyRight,
-                &Preferences::CameraFlyUp,
-                &Preferences::CameraFlyDown
+        bool MousePreferencePane::hasConflict(const QKeySequence& keySequence, const Preference<QKeySequence>& preference) const {
+            const auto prefs = std::vector<Preference<QKeySequence>*>{
+                &Preferences::CameraFlyForward(),
+                &Preferences::CameraFlyBackward(),
+                &Preferences::CameraFlyLeft(),
+                &Preferences::CameraFlyRight(),
+                &Preferences::CameraFlyUp(),
+                &Preferences::CameraFlyDown()
             };
 
             return std::any_of(std::begin(prefs), std::end(prefs), [&keySequence, &preference](const auto* other){
-                return preference.path() != other->path() && pref(*other).keySequence() == keySequence;
+                return preference.path() != other->path() && pref(*other) == keySequence;
             });
         }
     }

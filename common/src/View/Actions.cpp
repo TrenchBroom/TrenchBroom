@@ -86,7 +86,7 @@ namespace TrenchBroom {
 
         // Action
 
-        Action::Action(const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext, const KeyboardShortcut& defaultShortcut,
+        Action::Action(const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext, const QKeySequence& defaultShortcut,
             const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const Action::CheckedFn& checked,
             const IO::Path& iconPath) :
         m_label(label),
@@ -109,18 +109,18 @@ namespace TrenchBroom {
 
         QKeySequence Action::keySequence() const {
             auto& prefs = PreferenceManager::instance();
-            const auto& pref = prefs.dynamicPreference(m_preferencePath, KeyboardShortcut(m_defaultShortcut));
-            return prefs.get(pref).keySequence();
+            const auto& pref = prefs.dynamicPreference(m_preferencePath, QKeySequence(m_defaultShortcut));
+            return prefs.get(pref);
         }
 
         void Action::setKeySequence(const QKeySequence& keySequence) const {
             auto& prefs = PreferenceManager::instance();
-            auto& pref = prefs.dynamicPreference(m_preferencePath, KeyboardShortcut(m_defaultShortcut));
-            prefs.set(pref, KeyboardShortcut(keySequence));
+            auto& pref = prefs.dynamicPreference(m_preferencePath, QKeySequence(m_defaultShortcut));
+            prefs.set(pref, keySequence);
         }
 
         void Action::resetKeySequence() const {
-            setKeySequence(m_defaultShortcut.keySequence());
+            setKeySequence(m_defaultShortcut);
         }
 
         void Action::execute(ActionExecutionContext& context) const {
@@ -245,7 +245,7 @@ namespace TrenchBroom {
             for (const auto& tag : tags) {
                 result.emplace_back(IO::Path("Tags/Toggle/" + tag.name()),
                     QObject::tr("Toggle Tag %1").arg(QString::fromStdString(tag.name())),
-                    actionContext, KeyboardShortcut(),
+                    actionContext, QKeySequence(),
                     [&tag](ActionExecutionContext& context) {
                         context.view()->toggleTagVisible(tag);
                     },
@@ -255,7 +255,7 @@ namespace TrenchBroom {
                 if (tag.canEnable()) {
                     result.emplace_back(IO::Path("Tags/Enable/" + tag.name()),
                         QObject::tr("Enable Tag %1").arg(QString::fromStdString(tag.name())),
-                        actionContext, KeyboardShortcut(),
+                        actionContext, QKeySequence(),
                         [&tag](ActionExecutionContext& context) {
                             context.view()->enableTag(tag);
                         },
@@ -266,7 +266,7 @@ namespace TrenchBroom {
                 if (tag.canDisable()) {
                     result.emplace_back(IO::Path("Tags/Disable/" + tag.name()),
                         QObject::tr("Disable Tag %1").arg(QString::fromStdString(tag.name())),
-                        actionContext, KeyboardShortcut(),
+                        actionContext, QKeySequence(),
                         [&tag](ActionExecutionContext& context) {
                             context.view()->disableTag(tag);
                         },
@@ -286,7 +286,7 @@ namespace TrenchBroom {
             for (const auto* definition : entityDefinitions) {
                 result.emplace_back(IO::Path("Entity Definitions/Toggle/" + definition->name()),
                     QObject::tr("Toggle Entity %1").arg(QString::fromStdString(definition->name())),
-                    actionContext, KeyboardShortcut(),
+                    actionContext, QKeySequence(),
                     [definition](ActionExecutionContext& context) {
                         context.view()->toggleEntityDefinitionVisible(definition);
                     },
@@ -296,7 +296,7 @@ namespace TrenchBroom {
                 if (definition->name() != Model::AttributeValues::WorldspawnClassname) {
                     result.emplace_back(IO::Path("Entity Definitions/Create/" + definition->name()),
                         QObject::tr("Create Entity %1").arg(QString::fromStdString(definition->name())),
-                        actionContext, KeyboardShortcut(),
+                        actionContext, QKeySequence(),
                         [definition](ActionExecutionContext& context) {
                             context.view()->createEntity(definition);
                         },
@@ -1526,7 +1526,7 @@ namespace TrenchBroom {
                 preferencePath,
                 label,
                 actionContext,
-                KeyboardShortcut(defaultShortcut),
+                defaultShortcut,
                 execute,
                 enabled,
                 Action::CheckedFn(),
@@ -1544,7 +1544,7 @@ namespace TrenchBroom {
                 preferencePath,
                 label,
                 actionContext,
-                KeyboardShortcut(defaultShortcut),
+                defaultShortcut,
                 execute,
                 enabled,
                 checked,

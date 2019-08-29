@@ -32,6 +32,9 @@
 
 namespace TrenchBroom {
     namespace Preferences {
+        // NOTE: any QKeySequence preferences must be functions like CameraFly*
+        // because QKeySequence docs specify that you can't create an instance before QApplication
+
         extern Preference<int> MapViewLayout;
 
         extern Preference<bool>  ShowAxes;
@@ -149,12 +152,12 @@ namespace TrenchBroom {
 
         extern Preference<bool> Link2DCameras;
 
-        extern Preference<View::KeyboardShortcut> CameraFlyForward;
-        extern Preference<View::KeyboardShortcut> CameraFlyBackward;
-        extern Preference<View::KeyboardShortcut> CameraFlyLeft;
-        extern Preference<View::KeyboardShortcut> CameraFlyRight;
-        extern Preference<View::KeyboardShortcut> CameraFlyUp;
-        extern Preference<View::KeyboardShortcut> CameraFlyDown;
+        extern Preference<QKeySequence>& CameraFlyForward();
+        extern Preference<QKeySequence>& CameraFlyBackward();
+        extern Preference<QKeySequence>& CameraFlyLeft();
+        extern Preference<QKeySequence>& CameraFlyRight();
+        extern Preference<QKeySequence>& CameraFlyUp();
+        extern Preference<QKeySequence>& CameraFlyDown();
 
         /**
          * Returns all Preferences declared in this file. Needed for migrating preference formats
@@ -165,11 +168,11 @@ namespace TrenchBroom {
 
         extern DynamicPreferencePattern<QString> GamesPath;
         extern DynamicPreferencePattern<QString> GamesDefaultEngine;
-        extern DynamicPreferencePattern<View::KeyboardShortcut> FiltersTagsToggle;
-        extern DynamicPreferencePattern<View::KeyboardShortcut> TagsEnable;
-        extern DynamicPreferencePattern<View::KeyboardShortcut> TagsDisable;
-        extern DynamicPreferencePattern<View::KeyboardShortcut> FiltersEntitiesToggleVisible;
-        extern DynamicPreferencePattern<View::KeyboardShortcut> EntitiesCreate;
+        extern DynamicPreferencePattern<QKeySequence> FiltersTagsToggle;
+        extern DynamicPreferencePattern<QKeySequence> TagsEnable;
+        extern DynamicPreferencePattern<QKeySequence> TagsDisable;
+        extern DynamicPreferencePattern<QKeySequence> FiltersEntitiesToggleVisible;
+        extern DynamicPreferencePattern<QKeySequence> EntitiesCreate;
 
         const std::vector<DynamicPreferencePatternBase*>& dynaimcPreferencePatterns();
     }

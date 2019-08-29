@@ -157,12 +157,30 @@ namespace TrenchBroom {
 
         Preference<bool> Link2DCameras(IO::Path("Controls/Camera/Link 2D cameras"), true);
 
-        Preference<View::KeyboardShortcut> CameraFlyForward(IO::Path("Controls/Camera/Move forward"), View::KeyboardShortcut('W'));
-        Preference<View::KeyboardShortcut> CameraFlyBackward(IO::Path("Controls/Camera/Move backward"), View::KeyboardShortcut('S'));
-        Preference<View::KeyboardShortcut> CameraFlyLeft(IO::Path("Controls/Camera/Move left"), View::KeyboardShortcut('A'));
-        Preference<View::KeyboardShortcut> CameraFlyRight(IO::Path("Controls/Camera/Move right"), View::KeyboardShortcut('D'));
-        Preference<View::KeyboardShortcut> CameraFlyUp(IO::Path("Controls/Camera/Move up"), View::KeyboardShortcut('Q'));
-        Preference<View::KeyboardShortcut> CameraFlyDown(IO::Path("Controls/Camera/Move down"), View::KeyboardShortcut('X'));
+        Preference<QKeySequence>& CameraFlyForward() {
+            static Preference<QKeySequence> pref(IO::Path("Controls/Camera/Move forward"), QKeySequence('W'));
+            return pref;
+        }
+        Preference<QKeySequence>& CameraFlyBackward() {
+            static Preference<QKeySequence> pref(IO::Path("Controls/Camera/Move backward"), QKeySequence('S'));
+            return pref;
+        }
+        Preference<QKeySequence>& CameraFlyLeft() {
+            static Preference<QKeySequence> pref(IO::Path("Controls/Camera/Move left"), QKeySequence('A'));
+            return pref;
+        }
+        Preference<QKeySequence>& CameraFlyRight() {
+            static Preference<QKeySequence> pref(IO::Path("Controls/Camera/Move right"), QKeySequence('D'));
+            return pref;
+        }
+        Preference<QKeySequence>& CameraFlyUp() {
+            static Preference<QKeySequence> pref(IO::Path("Controls/Camera/Move up"), QKeySequence('Q'));
+            return pref;
+        }
+        Preference<QKeySequence>& CameraFlyDown() {
+            static Preference<QKeySequence> pref(IO::Path("Controls/Camera/Move down"), QKeySequence('X'));
+            return pref;
+        }
 
         const std::vector<PreferenceBase*>& staticPreferences() {
             static const std::vector<PreferenceBase*> list {
@@ -255,12 +273,12 @@ namespace TrenchBroom {
                 &CameraFov,
                 &CameraFlyMoveSpeed,
                 &Link2DCameras,
-                &CameraFlyForward,
-                &CameraFlyBackward,
-                &CameraFlyLeft,
-                &CameraFlyRight,
-                &CameraFlyUp,
-                &CameraFlyDown
+                &CameraFlyForward(),
+                &CameraFlyBackward(),
+                &CameraFlyLeft(),
+                &CameraFlyRight(),
+                &CameraFlyUp(),
+                &CameraFlyDown()
             };
 
             return list;
@@ -278,13 +296,13 @@ namespace TrenchBroom {
             return map;
         }
 
-        DynamicPreferencePattern<QString>                GamesPath(IO::Path("Games/*/Path"));
-        DynamicPreferencePattern<QString>                GamesDefaultEngine(IO::Path("Games/*/Default Engine"));
-        DynamicPreferencePattern<View::KeyboardShortcut> FiltersTagsToggle(IO::Path("Filters/Tags/*/Toggle Visible"));
-        DynamicPreferencePattern<View::KeyboardShortcut> TagsEnable(IO::Path("Tags/*/Enable"));
-        DynamicPreferencePattern<View::KeyboardShortcut> TagsDisable(IO::Path("Tags/*/Disable"));
-        DynamicPreferencePattern<View::KeyboardShortcut> FiltersEntitiesToggleVisible(IO::Path("Filters/Entities/*/Toggle Visible"));
-        DynamicPreferencePattern<View::KeyboardShortcut> EntitiesCreate(IO::Path("Entities/*/Create"));
+        DynamicPreferencePattern<QString>      GamesPath(IO::Path("Games/*/Path"));
+        DynamicPreferencePattern<QString>      GamesDefaultEngine(IO::Path("Games/*/Default Engine"));
+        DynamicPreferencePattern<QKeySequence> FiltersTagsToggle(IO::Path("Filters/Tags/*/Toggle Visible"));
+        DynamicPreferencePattern<QKeySequence> TagsEnable(IO::Path("Tags/*/Enable"));
+        DynamicPreferencePattern<QKeySequence> TagsDisable(IO::Path("Tags/*/Disable"));
+        DynamicPreferencePattern<QKeySequence> FiltersEntitiesToggleVisible(IO::Path("Filters/Entities/*/Toggle Visible"));
+        DynamicPreferencePattern<QKeySequence> EntitiesCreate(IO::Path("Entities/*/Create"));
 
         const std::vector<DynamicPreferencePatternBase*>& dynaimcPreferencePatterns() {
             static const std::vector<DynamicPreferencePatternBase*> list {

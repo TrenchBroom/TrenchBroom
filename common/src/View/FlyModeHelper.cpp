@@ -65,25 +65,25 @@ namespace TrenchBroom {
             }
         }
 
-        static bool eventMatchesShortcut(const KeyboardShortcut& shortcut, QKeyEvent* event) {
-            if (shortcut.keySequence().isEmpty()) {
+        static bool eventMatchesShortcut(const QKeySequence& shortcut, QKeyEvent* event) {
+            if (shortcut.isEmpty()) {
                 return false;
             }
 
             // NOTE: For triggering fly mode we only support single keys.
             // e.g. you can't bind Shift+W to fly forward, only Shift or W.
-            const int ourKey = shortcut.keySequence()[0];
+            const int ourKey = shortcut[0];
             const int theirKey = event->key();
             return ourKey == theirKey;
         }
 
         void FlyModeHelper::keyDown(QKeyEvent* event) {
-            const KeyboardShortcut& forward = pref(Preferences::CameraFlyForward);
-            const KeyboardShortcut& backward = pref(Preferences::CameraFlyBackward);
-            const KeyboardShortcut& left = pref(Preferences::CameraFlyLeft);
-            const KeyboardShortcut& right = pref(Preferences::CameraFlyRight);
-            const KeyboardShortcut& up = pref(Preferences::CameraFlyUp);
-            const KeyboardShortcut& down = pref(Preferences::CameraFlyDown);
+            const QKeySequence& forward = pref(Preferences::CameraFlyForward());
+            const QKeySequence& backward = pref(Preferences::CameraFlyBackward());
+            const QKeySequence& left = pref(Preferences::CameraFlyLeft());
+            const QKeySequence& right = pref(Preferences::CameraFlyRight());
+            const QKeySequence& up = pref(Preferences::CameraFlyUp());
+            const QKeySequence& down = pref(Preferences::CameraFlyDown());
 
             const auto wasAnyKeyDown = anyKeyDown();
 
@@ -113,12 +113,12 @@ namespace TrenchBroom {
         }
 
         void FlyModeHelper::keyUp(QKeyEvent* event) {
-            const KeyboardShortcut& forward = pref(Preferences::CameraFlyForward);
-            const KeyboardShortcut& backward = pref(Preferences::CameraFlyBackward);
-            const KeyboardShortcut& left = pref(Preferences::CameraFlyLeft);
-            const KeyboardShortcut& right = pref(Preferences::CameraFlyRight);
-            const KeyboardShortcut& up = pref(Preferences::CameraFlyUp);
-            const KeyboardShortcut& down = pref(Preferences::CameraFlyDown);
+            const QKeySequence& forward = pref(Preferences::CameraFlyForward());
+            const QKeySequence& backward = pref(Preferences::CameraFlyBackward());
+            const QKeySequence& left = pref(Preferences::CameraFlyLeft());
+            const QKeySequence& right = pref(Preferences::CameraFlyRight());
+            const QKeySequence& up = pref(Preferences::CameraFlyUp());
+            const QKeySequence& down = pref(Preferences::CameraFlyDown());
 
             if (event->isAutoRepeat()) {
                 // If it's an auto-repeat event, exit early without clearing the key down state.

@@ -83,9 +83,9 @@ namespace TrenchBroom {
         return true;
     }
 
-    bool PreferenceSerializerV1::readFromString(const QString& in, View::KeyboardShortcut* out) const {
-        nonstd::optional<View::KeyboardShortcut> result =
-            View::KeyboardShortcut::fromV1Settings(in);
+    bool PreferenceSerializerV1::readFromString(const QString& in, QKeySequence* out) const {
+        nonstd::optional<QKeySequence> result =
+            View::keySequenceFromV1Settings(in);
 
         if (!result.has_value()) {
             return false;
@@ -128,8 +128,8 @@ namespace TrenchBroom {
         stream << IO::pathAsQString(in);
     }
 
-    void PreferenceSerializerV1::writeToString(QTextStream& stream, const View::KeyboardShortcut& in) const {
-        stream << in.toV1Settings();
+    void PreferenceSerializerV1::writeToString(QTextStream& stream, const QKeySequence& in) const {
+        stream << View::keySequenceToV1Settings(in);
     }
 
     void PreferenceSerializerV1::writeToString(QTextStream& stream, const QString& in) const {
@@ -138,13 +138,13 @@ namespace TrenchBroom {
 
     // PreferenceSerializerV2
 
-    bool PreferenceSerializerV2::readFromString(const QString& in, View::KeyboardShortcut* out) const {
-        *out = View::KeyboardShortcut(QKeySequence(in, QKeySequence::PortableText));
+    bool PreferenceSerializerV2::readFromString(const QString& in, QKeySequence* out) const {
+        *out = QKeySequence(in, QKeySequence::PortableText);
         return true;
     }
 
-    void PreferenceSerializerV2::writeToString(QTextStream& stream, const View::KeyboardShortcut& in) const {
-        stream << in.keySequence().toString(QKeySequence::PortableText);
+    void PreferenceSerializerV2::writeToString(QTextStream& stream, const QKeySequence& in) const {
+        stream << in.toString(QKeySequence::PortableText);
     }
 
     // PreferenceManager
@@ -353,9 +353,9 @@ namespace TrenchBroom {
             {
                 auto it = actionsMap.find(key);
                 if (it != actionsMap.end()) {
-                    // assume it's a View::KeyboardShortcut
+                    // assume it's a QKeySequence
 
-                    auto strMaybe = migratePreference<View::KeyboardShortcut>(v1, v2, val);
+                    auto strMaybe = migratePreference<QKeySequence>(v1, v2, val);
 
                     if (!strMaybe.has_value()) {
                         qDebug() << " failed to migrate pref for " << IO::pathAsQString(key);

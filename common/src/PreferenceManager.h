@@ -52,7 +52,7 @@ namespace TrenchBroom {
         bool readFromString(const QString& in, float* out) const override;
         bool readFromString(const QString& in, int* out) const override;
         bool readFromString(const QString& in, IO::Path* out) const override;
-        bool readFromString(const QString& in, View::KeyboardShortcut* out) const override;
+        bool readFromString(const QString& in, QKeySequence* out) const override;
         bool readFromString(const QString& in, QString* out) const override;
 
         void writeToString(QTextStream& stream, const bool in) const override;
@@ -60,14 +60,14 @@ namespace TrenchBroom {
         void writeToString(QTextStream& stream, const float in) const override;
         void writeToString(QTextStream& stream, const int in) const override;
         void writeToString(QTextStream& stream, const IO::Path& in) const override;
-        void writeToString(QTextStream& stream, const View::KeyboardShortcut& in) const override;
+        void writeToString(QTextStream& stream, const QKeySequence& in) const override;
         void writeToString(QTextStream& stream, const QString& in) const override;
     };
 
     class PreferenceSerializerV2 : public PreferenceSerializerV1 {
     public:
-        bool readFromString(const QString& in, View::KeyboardShortcut* out) const override;
-        void writeToString(QTextStream& stream, const View::KeyboardShortcut& in) const override;
+        bool readFromString(const QString& in, QKeySequence* out) const override;
+        void writeToString(QTextStream& stream, const QKeySequence& in) const override;
     };
 
     class PreferenceManager {

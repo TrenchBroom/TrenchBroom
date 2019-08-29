@@ -88,8 +88,8 @@ namespace TrenchBroom {
 
             void flyMoveSpeedChanged(int value);
         private:
-            void setKeySequence(KeySequenceEdit* editor, Preference<KeyboardShortcut>& preference);
-            bool hasConflict(const QKeySequence& keySequence, const Preference<KeyboardShortcut>& preference) const;
+            void setKeySequence(KeySequenceEdit* editor, Preference<QKeySequence>& preference);
+            bool hasConflict(const QKeySequence& keySequence, const Preference<QKeySequence>& preference) const;
         };
     }
 }

@@ -31,31 +31,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        KeyboardShortcut::KeyboardShortcut(int qtKey) :
-        m_qtKey(qtKey) {}
-
-        // FIXME: support multi-stroke shortcuts
-        KeyboardShortcut::KeyboardShortcut(const QKeySequence& keySequence) :
-        m_qtKey(keySequence[0]) {}
-
-        // FIXME: instead, store the string
-        KeyboardShortcut::KeyboardShortcut(const QString& portableKeySequenceString) {
-            auto tempKey = QKeySequence(portableKeySequenceString, QKeySequence::PortableText);
-            if (tempKey.isEmpty()) {
-                m_qtKey = 0;
-            } else {
-                m_qtKey = tempKey[0];
-            }
-        }
-
-        bool operator==(const KeyboardShortcut& lhs, const KeyboardShortcut& rhs) {
-            return lhs.keySequence() == rhs.keySequence();
-        }
-
-        QKeySequence KeyboardShortcut::keySequence() const {
-            return QKeySequence(m_qtKey);
-        }
-
         static constexpr int WXK_BACK = 8;
         static constexpr int WXK_TAB = 9;
         static constexpr int WXK_RETURN = 13;
@@ -335,8 +310,7 @@ namespace TrenchBroom {
             return 0;
         }
 
-
-        nonstd::optional<KeyboardShortcut> KeyboardShortcut::fromV1Settings(const QString& string) {
+        nonstd::optional<QKeySequence> keySequenceFromV1Settings(const QString& string) {
             auto inCopy = QString(string);
             auto inStream = QTextStream(&inCopy);
 
@@ -372,22 +346,27 @@ namespace TrenchBroom {
             qtKey |= wxModToQt(mod2);
             qtKey |= wxModToQt(mod3);
 
-            return { KeyboardShortcut(QKeySequence(qtKey)) };
+            return { QKeySequence(qtKey) };
         }
 
-        QString KeyboardShortcut::toV1Settings() const {
-            const int qtKeyWithoutModifier = m_qtKey & ~(Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier);
+        QString keySequenceToV1Settings(const QKeySequence& ks) {
+            if (ks.count() != 1) {
+                return "";
+            }
+
+            const int qtKey = ks[0];
+            const int qtKeyWithoutModifier = qtKey & ~(Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier);
 
             const int wxKey = qtKeyToWx(qtKeyWithoutModifier);
 
             std::vector<int> modifiers;
-            if (m_qtKey & Qt::ControlModifier) {
+            if (qtKey & Qt::ControlModifier) {
                 modifiers.push_back(WXK_CONTROL);
             }
-            if (m_qtKey & Qt::AltModifier) {
+            if (qtKey & Qt::AltModifier) {
                 modifiers.push_back(WXK_ALT);
             }
-            if (m_qtKey & Qt::ShiftModifier) {
+            if (qtKey & Qt::ShiftModifier) {
                 modifiers.push_back(WXK_SHIFT);
             }
             while (modifiers.size() < 3) {

@@ -47,7 +47,6 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class KeyboardShortcut;
         class MapDocument;
         class MapFrame;
         class MapViewBase;
@@ -76,14 +75,14 @@ namespace TrenchBroom {
             QString m_label;
             IO::Path m_preferencePath;
             ActionContext::Type m_actionContext;
-            KeyboardShortcut m_defaultShortcut;
+            QKeySequence m_defaultShortcut;
             ExecuteFn m_execute;
             EnabledFn m_enabled;
             bool m_checkable;
             CheckedFn m_checked;
             IO::Path m_iconPath;
         public:
-            Action(const IO::Path& preferencePath, const QString& label, ActionContext::Type actionContext, const KeyboardShortcut& defaultShortcut,
+            Action(const IO::Path& preferencePath, const QString& label, ActionContext::Type actionContext, const QKeySequence& defaultShortcut,
                 const ExecuteFn& execute, const EnabledFn& enabled, const CheckedFn& checked, const IO::Path& iconPath);
 
             const QString& label() const;
