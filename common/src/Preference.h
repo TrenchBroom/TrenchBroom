@@ -36,6 +36,7 @@
 #include <QThread>
 #include <QDebug>
 #include <QVariant>
+#include <QKeySequence>
 
 #include <optional-lite/optional.hpp>
 
@@ -56,10 +57,10 @@ namespace TrenchBroom {
         virtual bool readFromString(const QString& in, QKeySequence* out) const = 0;
         virtual bool readFromString(const QString& in, QString* out) const = 0;
 
-        virtual void writeToString(QTextStream& stream, const bool in) const = 0;
+        virtual void writeToString(QTextStream& stream, bool in) const = 0;
         virtual void writeToString(QTextStream& stream, const Color& in) const = 0;
-        virtual void writeToString(QTextStream& stream, const float in) const = 0;
-        virtual void writeToString(QTextStream& stream, const int in) const = 0;
+        virtual void writeToString(QTextStream& stream, float in) const = 0;
+        virtual void writeToString(QTextStream& stream, int in) const = 0;
         virtual void writeToString(QTextStream& stream, const IO::Path& in) const = 0;
         virtual void writeToString(QTextStream& stream, const QKeySequence& in) const = 0;
         virtual void writeToString(QTextStream& stream, const QString& in) const = 0;
@@ -75,7 +76,7 @@ namespace TrenchBroom {
         QString string;
         QTextStream stream(&string);
         to.writeToString(stream, result);
-        return string;
+        return std::move(string);
     }
 
     template <typename T>
@@ -196,8 +197,7 @@ namespace TrenchBroom {
         }
 
         void write(QSettings& settings, const QString& path, const QKeySequence& value) const {
-            const auto keySequence = value;
-            settings.setValue(path, QVariant(keySequence.toString(QKeySequence::PortableText)));
+            settings.setValue(path, QVariant(value.toString(QKeySequence::PortableText)));
         }
     };
 
@@ -274,7 +274,7 @@ namespace TrenchBroom {
     class Preference : public PreferenceBase {
     protected:
         friend class PreferenceManager;
-
+    private:
         PreferenceSerializer<T> m_serializer;
         IO::Path m_path;
         T m_defaultValue;
@@ -353,7 +353,7 @@ namespace TrenchBroom {
         }
 
         Preference(const Preference& other) = default;
-        Preference(Preference&& other) noexcept = default;
+        Preference(Preference&& other) = default; // cannot be noexcept because it will call QKeySequence's copy constructor
 
         Preference& operator=(const Preference& other) = default;
         Preference& operator=(Preference&& other) = default;

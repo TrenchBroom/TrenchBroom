@@ -100,7 +100,9 @@ namespace TrenchBroom {
             const IO::Path& iconPath() const;
 
             deleteCopy(Action)
-            defineMove(Action)
+
+            Action(Action&& other) = default; // cannot be noexcept because it will call QKeySequence's copy constructor
+            Action& operator=(Action&& other) = default;
         };
 
         class Menu;

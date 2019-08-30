@@ -325,6 +325,9 @@ namespace TrenchBroom {
                 >> sep3
                 >> mod3;
 
+            if (mod1 < 0 || mod2 < 0 || mod3 < 0) {
+                return {};
+            }
             if (sep1 != ':' || sep2 != ':' || sep3 != ':') {
                 return {};
             }
@@ -341,7 +344,11 @@ namespace TrenchBroom {
                 }
             };
 
-            int qtKey = wxKeyToQt(wxKey);
+            auto qtKey = wxKeyToQt(wxKey);
+            if (qtKey < 0) {
+                return {};
+            }
+
             qtKey |= wxModToQt(mod1);
             qtKey |= wxModToQt(mod2);
             qtKey |= wxModToQt(mod3);
@@ -354,10 +361,17 @@ namespace TrenchBroom {
                 return "";
             }
 
-            const int qtKey = ks[0];
-            const int qtKeyWithoutModifier = qtKey & ~(Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier);
+            if (ks[0] < 0) {
+                return "";
+            }
 
-            const int wxKey = qtKeyToWx(qtKeyWithoutModifier);
+            const auto qtKey   = static_cast<unsigned int>(ks[0]);
+            const auto QtShift = static_cast<unsigned int>(Qt::ShiftModifier);
+            const auto QtCtrl  = static_cast<unsigned int>(Qt::ControlModifier);
+            const auto QtAlt   = static_cast<unsigned int>(Qt::AltModifier);
+
+            const auto qtKeyWithoutModifier = qtKey & ~(QtShift | QtCtrl | QtAlt);
+            const int wxKey = qtKeyToWx(static_cast<int>(qtKeyWithoutModifier));
 
             std::vector<int> modifiers;
             if (qtKey & Qt::ControlModifier) {
