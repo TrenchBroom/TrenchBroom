@@ -169,8 +169,6 @@ namespace TrenchBroom {
                 }
             }
             // unreachable
-            // FIXME: warning on clang
-            return "";
         }
 
         // EntityAttributeModel
