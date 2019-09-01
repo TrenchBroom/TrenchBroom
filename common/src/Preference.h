@@ -76,7 +76,7 @@ namespace TrenchBroom {
         QString string;
         QTextStream stream(&string);
         to.writeToString(stream, result);
-        return std::move(string);
+        return {string};
     }
 
     template <typename T>
