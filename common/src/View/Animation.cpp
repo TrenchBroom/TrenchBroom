@@ -73,8 +73,8 @@ namespace TrenchBroom {
         const int AnimationManager::AnimationUpdateRateHz = 60;
 
         AnimationManager::AnimationManager(QObject* parent) :
-        QObject(parent) {
-            m_timer = new QTimer(this);
+        QObject(parent),
+        m_timer(new QTimer(this)) {
             connect(m_timer, &QTimer::timeout, this, &AnimationManager::onTimerTick);
         }
 
