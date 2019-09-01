@@ -95,11 +95,8 @@ namespace TrenchBroom {
             bindObservers();
         }
 
-        void MapViewBase::setCompass(Renderer::Compass* compass) {
-            if (m_compass != nullptr) {
-                delete m_compass;
-            }
-            m_compass = compass;
+        void MapViewBase::setCompass(std::unique_ptr<Renderer::Compass> compass) {
+            m_compass = std::move(compass);
         }
 
         MapViewBase::~MapViewBase() {
@@ -108,8 +105,6 @@ namespace TrenchBroom {
             // Deleting m_compass will access the VBO so we need to be current
             // see: http://doc.qt.io/qt-5/qopenglwidget.html#resource-initialization-and-cleanup
             makeCurrent();
-
-            delete m_compass;
         }
 
         void MapViewBase::setIsCurrent(const bool isCurrent) {

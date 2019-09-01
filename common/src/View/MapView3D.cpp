@@ -164,7 +164,7 @@ namespace TrenchBroom {
 
         void MapView3D::initializeGL() {
             MapViewBase::initializeGL();
-            setCompass(new Renderer::Compass3D());
+            setCompass(std::make_unique<Renderer::Compass3D>());
         }
 
         void MapView3D::bindEvents() {

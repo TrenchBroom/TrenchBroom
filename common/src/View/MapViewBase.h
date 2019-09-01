@@ -87,7 +87,7 @@ namespace TrenchBroom {
             std::unique_ptr<AnimationManager> m_animationManager;
         private:
             Renderer::MapRenderer& m_renderer;
-            Renderer::Compass* m_compass;
+            std::unique_ptr<Renderer::Compass> m_compass;
             std::unique_ptr<Renderer::PrimitiveRenderer> m_portalFileRenderer;
 
             /**
@@ -100,7 +100,7 @@ namespace TrenchBroom {
         protected:
             MapViewBase(Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
 
-            void setCompass(Renderer::Compass* compass);
+            void setCompass(std::unique_ptr<Renderer::Compass> compass);
         public:
             ~MapViewBase() override;
         public:

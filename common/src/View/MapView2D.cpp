@@ -160,7 +160,7 @@ namespace TrenchBroom {
 
         void MapView2D::initializeGL() {
             MapViewBase::initializeGL();
-            setCompass(new Renderer::Compass2D());
+            setCompass(std::make_unique<Renderer::Compass2D>());
         }
 
         void MapView2D::doUpdateViewport(const int x, const int y, const int width, const int height) {
