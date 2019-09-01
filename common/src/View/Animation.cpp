@@ -35,25 +35,14 @@ namespace TrenchBroom {
 
         Animation::Animation(const Type type, const Curve curve, const double duration) :
         m_type(type),
-        m_curve(nullptr),
+        m_curve(createAnimationCurve(curve, duration)),
         m_duration(duration),
         m_elapsed(0),
         m_progress(0.0) {
             assert(m_duration > 0);
-            switch (curve) {
-                case Curve_EaseInEaseOut:
-                    m_curve = new EaseInEaseOutAnimationCurve(m_duration);
-                    break;
-                case Curve_Flat:
-                    m_curve = new FlatAnimationCurve();
-                    break;
-            }
         }
 
-        Animation::~Animation() {
-            delete m_curve;
-            m_curve = nullptr;
-        }
+        Animation::~Animation() = default;
 
         Animation::Type Animation::type() const {
             return m_type;
@@ -67,6 +56,16 @@ namespace TrenchBroom {
 
         void Animation::update() {
             doUpdate(m_progress);
+        }
+
+        std::unique_ptr<AnimationCurve> Animation::createAnimationCurve(const Curve curve, const double duration) {
+            switch (curve) {
+                case Curve_EaseInEaseOut:
+                    return std::make_unique<EaseInEaseOutAnimationCurve>(duration);
+                case Curve_Flat:
+                    return std::make_unique<FlatAnimationCurve>();
+            }
+            return { nullptr };
         }
 
         // AnimationManager
@@ -83,8 +82,9 @@ namespace TrenchBroom {
             ensure(animation != nullptr, "animation is null");
 
             Animation::List& list = m_animations[animation->type()];
-            if (replace)
+            if (replace) {
                 list.clear();
+            }
             list.push_back(Animation::Ptr(animation));
 
             // start the ticks if needed
@@ -109,18 +109,21 @@ namespace TrenchBroom {
                     auto listIt = std::begin(list);
                     while (listIt != std::end(list)) {
                         Animation::Ptr animation = *listIt;
-                        if (animation->step(msElapsed))
+                        if (animation->step(msElapsed)) {
                             listIt = list.erase(listIt);
+                        }
                         animation->update();
                         updateAnimations.push_back(animation);
-                        if (listIt != std::end(list))
+                        if (listIt != std::end(list)) {
                             ++listIt;
+                        }
                     }
 
-                    if (list.empty())
+                    if (list.empty()) {
                         m_animations.erase(mapIt++);
-                    else
+                    } else {
                         ++mapIt;
+                    }
                 }
             }
 

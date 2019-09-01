@@ -23,6 +23,7 @@
 #include "SharedPointer.h"
 
 #include <map>
+#include <memory>
 #include <vector>
 
 #include <QTimer>
@@ -47,7 +48,7 @@ namespace TrenchBroom {
 
         private:
             const Type m_type;
-            const AnimationCurve* m_curve;
+            std::unique_ptr<AnimationCurve> m_curve;
 
             const double m_duration;
             double m_elapsed;
@@ -66,6 +67,7 @@ namespace TrenchBroom {
             bool step(double deltaMilliseconds);
             void update();
         private:
+            static std::unique_ptr<AnimationCurve> createAnimationCurve(Curve curve, double duration);
             virtual void doUpdate(double progress) = 0;
         };
 
