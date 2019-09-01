@@ -169,6 +169,7 @@ namespace TrenchBroom {
                 }
             }
             // unreachable
+            // FIXME: warning on clang
             return "";
         }
 
@@ -176,7 +177,7 @@ namespace TrenchBroom {
 
         EntityAttributeModel::EntityAttributeModel(MapDocumentWPtr document, QObject* parent) :
         QAbstractTableModel(parent),
-        m_document(document) {
+        m_document(std::move(document)) {
             updateFromMapDocument();
         }
 

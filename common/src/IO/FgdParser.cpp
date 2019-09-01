@@ -539,7 +539,7 @@ namespace TrenchBroom {
 
                 definition->addOption(value, shortDescription, longDescription, defaultValue);
             }
-            return definition;
+            return { definition };
         }
 
         Assets::AttributeDefinitionPtr FgdParser::parseUnknownAttribute(ParserStatus& status, const String& name) {
