@@ -169,20 +169,7 @@ namespace TrenchBroom {
 
         void MapView3D::bindEvents() {
             // Fly mode animation
-            QTimer* timer = new QTimer(this);
-            timer->start(15);
-            connect(timer, &QTimer::timeout, this, &MapView3D::updateFlyMode);
-
-            // FIXME:
-            // the QOpenGLWindow version was using:
-            //     connect(this, &QOpenGLWindow::frameSwapped, this, &MapView3D::updateFlyMode);
-            // See if we can do the QOpenGLWidget version of that?
-            // I forget if there was a reason I was using the timer, may have had issues with
-            // the view refreshing faster than vsync on macOS?
-            //
-            // Otherwise if we stick with the timer, should probably make it a member variable,
-            // and shut it off when the fly keys aren't held down? (also tick it at e.g. 300Hz, for smooth
-            // flying on high-refresh rate monitors)
+            connect(this, &QOpenGLWidget::frameSwapped, this, &MapView3D::updateFlyMode);
         }
 
         void MapView3D::updateFlyMode() {
