@@ -21,10 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "TemporarilySetAny.h"
 #include "Renderer/Camera.h"
-#include "View/KeyboardShortcut.h"
-#include "IO/Path.h"
 
 #include <vecmath/vec.h>
 
@@ -40,17 +37,14 @@ namespace TrenchBroom {
         }
 
         FlyModeHelper::FlyModeHelper(Renderer::Camera& camera) :
-        m_camera(camera) {
-            resetKeys();
-            m_lastPollTime = msecsSinceReference();
-        }
-
-        FlyModeHelper::~FlyModeHelper() {
-            /* Since the window is already deleted when this destructor is called, we omit the cleanup.
-            if (enabled())
-                disable();
-             */
-        }
+        m_camera(camera),
+        m_forward(false),
+        m_backward(false),
+        m_left(false),
+        m_right(false),
+        m_up(false),
+        m_down(false),
+        m_lastPollTime(msecsSinceReference()) {}
 
         void FlyModeHelper::pollAndUpdate() {
             const auto currentTime = msecsSinceReference();

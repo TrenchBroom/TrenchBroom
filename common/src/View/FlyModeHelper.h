@@ -49,8 +49,7 @@ namespace TrenchBroom {
 
             int64_t m_lastPollTime;
         public:
-            FlyModeHelper(Renderer::Camera& camera);
-            ~FlyModeHelper();
+            explicit FlyModeHelper(Renderer::Camera& camera);
 
             void pollAndUpdate();
         public:
