@@ -168,14 +168,14 @@ namespace TrenchBroom {
             m_builtin->clear();
             m_builtin->setAllowDeselectAll(false);
 
-            MapDocumentSPtr document = lock(m_document);
-            Assets::EntityDefinitionFileSpec::List specs = document->allEntityDefinitionFiles();
+            auto document = lock(m_document);
+            auto specs = document->allEntityDefinitionFiles();
             VectorUtils::sort(specs);
 
-            for (const Assets::EntityDefinitionFileSpec& spec : specs) {
-                const IO::Path& path = spec.path();
+            for (const auto& spec : specs) {
+                const auto& path = spec.path();
 
-                QListWidgetItem* item = new QListWidgetItem();
+                auto* item = new QListWidgetItem();
                 item->setData(Qt::DisplayRole, IO::pathAsQString(path.lastComponent()));
                 item->setData(Qt::UserRole, QVariant::fromValue(spec));
 
@@ -184,9 +184,10 @@ namespace TrenchBroom {
 
             const Assets::EntityDefinitionFileSpec spec = document->entityDefinitionFile();
             if (spec.builtin()) {
-                const size_t index = VectorUtils::indexOf(specs, spec);
+                const auto index = VectorUtils::indexOf(specs, spec);
                 if (index < specs.size()) {
-                    // FIXME: Why would this not be the case?
+                    // the chosen builtin entity definition file might not be in the game config anymore if the config
+                    // has changed after the definition file was chosen
                     m_builtin->setCurrentRow(static_cast<int>(index));
                 }
                 m_external->setText(tr("use builtin"));
