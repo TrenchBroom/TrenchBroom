@@ -325,7 +325,7 @@ namespace TrenchBroom {
                 >> sep3
                 >> mod3;
 
-            if (mod1 < 0 || mod2 < 0 || mod3 < 0) {
+            if (wxKey < 0 || mod1 < 0 || mod2 < 0 || mod3 < 0) {
                 return {};
             }
             if (sep1 != ':' || sep2 != ':' || sep3 != ':') {
@@ -335,7 +335,7 @@ namespace TrenchBroom {
                 return {};
             }
 
-            auto wxModToQt = [](const int wxMod) {
+            auto wxModToQt = [](const int wxMod) -> Qt::KeyboardModifier {
                 switch (wxMod) {
                 case WXK_SHIFT: return Qt::ShiftModifier;
                 case WXK_CONTROL: return Qt::ControlModifier;
@@ -344,7 +344,7 @@ namespace TrenchBroom {
                 }
             };
 
-            auto qtKey = wxKeyToQt(wxKey);
+            int qtKey = wxKeyToQt(wxKey);
             if (qtKey < 0) {
                 return {};
             }
