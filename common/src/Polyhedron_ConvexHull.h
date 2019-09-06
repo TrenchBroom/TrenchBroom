@@ -131,8 +131,9 @@ public:
 
         VertexSet visitedVertices;
         for (const Edge* edge : m_edges) {
-            if (!visitedVertices.insert(edge->secondVertex()).second)
+            if (!visitedVertices.insert(edge->secondVertex()).second) {
                 return true;
+            }
         }
         return false;
     }
@@ -140,12 +141,12 @@ private:
     // Check whether the given edge is connected to the last edge
     // of the current seam with a vertex.
     bool checkEdge(Edge* edge) const {
-        if (m_edges.empty())
+        if (m_edges.empty()) {
             return true;
+        }
+
         Edge* last = m_edges.back();
-        if (last->firstVertex() == edge->secondVertex())
-            return true;
-        return false;
+        return last->firstVertex() == edge->secondVertex();
     }
 
 
@@ -154,8 +155,9 @@ private:
 
         const Edge* last = m_edges.back();
         for (const Edge* edge : m_edges) {
-            if (last->firstVertex() != edge->secondVertex())
+            if (last->firstVertex() != edge->secondVertex()) {
                 return false;
+            }
 
             last = edge;
         }
@@ -519,8 +521,9 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::makePolyhedron(const 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolyhedron(const V& position, Callback& callback) {
     assert(polyhedron());
-    if (contains(position, callback))
+    if (contains(position, callback)) {
         return nullptr;
+    }
 
     const Seam seam = createSeam(SplitByVisibilityCriterion(position));
 
@@ -528,8 +531,9 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPoly
     // If the seam has multiple loops, this indicates that the point to be added is very close to
     // another vertex and no correct seam can be computed due to imprecision. In that case, we just
     // assume that the vertex is inside the polyhedron and skip it.
-    if (seam.empty() || seam.hasMultipleLoops())
+    if (seam.empty() || seam.hasMultipleLoops()) {
         return nullptr;
+    }
 
     assert(checkFaceBoundaries());
     split(seam, callback);
@@ -725,7 +729,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
 
     if (polygon()) {
         // When adding a vertex to a large polygon, it can happen that the vertex is so close to the
-        // polygon's plane that most woven faces are considered coplanar and less then three faces
+        // polygon's plane that most woven faces are considered coplanar and fewer than three faces
         // would be created. In this case, we reject and return null.
         size_t faceCount = 0;
         auto it = std::begin(seam);
@@ -795,7 +799,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
                 h = new HalfEdge(v);
                 boundary.append(h, 1);
 
-				if (++it != std::end(seam)) {
+                if (++it != std::end(seam)) {
                     next = *it;
                 }
             }
@@ -868,25 +872,29 @@ public:
             result = matches(next);
         }
 
-        if (result != MatchResult_First && result != MatchResult_Second)
+        if (result != MatchResult_First && result != MatchResult_Second) {
             return nullptr;
+        }
 
-        if (result == MatchResult_Second)
+        if (result == MatchResult_Second) {
             next->flip();
+        }
+
         return next;
     }
 private:
     MatchResult matches(const Edge* edge) const {
         const bool firstResult = matches(edge->firstFace());
         const bool secondResult = matches(edge->secondFace());
-        if (firstResult) {
-            if (secondResult)
-                return MatchResult_Both;
+        if (firstResult && secondResult) {
+            return MatchResult_Both;
+        } else if (firstResult) {
             return MatchResult_First;
-        }
-        if (secondResult)
+        } else if (secondResult) {
             return MatchResult_Second;
-        return MatchResult_Neither;
+        } else {
+            return MatchResult_Neither;
+        }
     }
 public:
     bool matches(const Face* face) const {
