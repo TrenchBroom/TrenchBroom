@@ -19,7 +19,6 @@
 
 #include "Actions.h"
 
-#include "Preference.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
