@@ -354,9 +354,11 @@ namespace TrenchBroom {
             const auto* strValue = element.Attribute(attributeName.c_str());
             if (strValue != nullptr) {
                 char* end;
-                const auto intValue = std::strtol(strValue, &end, 10);
-                if (*end == '\0' && errno != ERANGE) {
-                    return intValue;
+                const auto longValue = std::strtol(strValue, &end, 10);
+                if (*end == '\0' && errno != ERANGE &&
+                    longValue >= std::numeric_limits<int>::min() &&
+                    longValue <= std::numeric_limits<int>::max()) {
+                    return { static_cast<int>(longValue) };
                 }
             }
             return nonstd::nullopt;
