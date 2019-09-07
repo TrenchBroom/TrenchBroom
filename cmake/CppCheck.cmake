@@ -2,7 +2,7 @@ FIND_PROGRAM(CPPCHECK_EXE cppcheck)
 
 IF (CPPCHECK_EXE STREQUAL "CPPCHECK_EXE-NOTFOUND")
     MESSAGE(STATUS "Could not find cppcheck, skipping checks")
-    ADD_CUSTOM_COMMAND(
+    ADD_CUSTOM_TARGET(
         cppcheck
         COMMENT "skipping cppcheck"
     )
