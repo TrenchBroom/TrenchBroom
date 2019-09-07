@@ -48,6 +48,7 @@ namespace TrenchBroom {
             void profileDidChange();
         private:
             void updateItem() override;
+            void doUpdateItem();
         };
 
         class CompilationProfileListBox : public ControlListBox {

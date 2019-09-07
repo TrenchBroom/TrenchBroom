@@ -2,7 +2,7 @@ FIND_PROGRAM(CPPCHECK_EXE cppcheck)
 
 IF (CPPCHECK_EXE STREQUAL "CPPCHECK_EXE-NOTFOUND")
     MESSAGE(STATUS "Could not find cppcheck, skipping checks")
-    ADD_CUSTOM_TARGET(
+    ADD_CUSTOM_COMMAND(
         cppcheck
         COMMENT "skipping cppcheck"
     )
@@ -44,8 +44,8 @@ ELSE()
         )
 
         STRING (REPLACE ";" " " CPPCHECK_XML_ARGS_STR "${CPPCHECK_XML_ARGS}")
-        ADD_CUSTOM_TARGET(
-            cppcheck-xml
+        ADD_CUSTOM_COMMAND(
+            OUTPUT cppcheck-errors.xml
             COMMAND ${CPPCHECK_EXE} "--version"
             COMMAND ${CPPCHECK_EXE} ${CPPCHECK_XML_ARGS}
             COMMENT "running ${CPPCHECK_EXE} ${CPPCHECK_XML_ARGS_STR}"
@@ -62,9 +62,8 @@ ELSE()
         ADD_CUSTOM_TARGET(
             cppcheck-report
             COMMAND ${CPPCHECK_HTMLREPORT_EXE} ${CPPCHECK_HTMLREPORT_ARGS}
+            DEPENDS cppcheck-errors.xml
             COMMENT "running ${CPPCHECK_HTMLREPORT_EXE} ${CPPCHECK_HTMLREPORT_ARGS_STR}"
         )
-
-        ADD_DEPENDENCIES(cppcheck-report cppcheck-xml)
     ENDIF()
 ENDIF()

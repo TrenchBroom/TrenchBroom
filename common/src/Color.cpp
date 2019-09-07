@@ -29,11 +29,11 @@ bool Color::canParse(const std::string& str) {
 
 Color Color::parse(const std::string& str) {
     if (vm::vec4f::canParse(str)) {
-        const vm::vec4f vec = vm::vec4f::parse(str);
-        return Color(vec.x(), vec.y(), vec.z(), vec.w());
+        const auto v = vm::vec4f::parse(str);
+        return Color(v.x(), v.y(), v.z(), v.w());
     } else {
-        const vm::vec3f vec = vm::vec3f::parse(str);
-        return Color(vec.x(), vec.y(), vec.z());
+        const auto v = vm::vec3f::parse(str);
+        return Color(v.x(), v.y(), v.z());
     }
 }
 

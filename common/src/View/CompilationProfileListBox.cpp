@@ -48,7 +48,7 @@ namespace TrenchBroom {
 
             setLayout(layout);
 
-            updateItem();
+            doUpdateItem();
             addObservers();
         }
 
@@ -76,10 +76,14 @@ namespace TrenchBroom {
         }
 
         void CompilationProfileItemRenderer::profileDidChange() {
-            updateItem();
+            doUpdateItem();
         }
 
         void CompilationProfileItemRenderer::updateItem() {
+            doUpdateItem();
+        }
+
+        void CompilationProfileItemRenderer::doUpdateItem() {
             if (m_profile == nullptr) {
                 m_nameText->setText("");
                 m_taskCountText->setText("");

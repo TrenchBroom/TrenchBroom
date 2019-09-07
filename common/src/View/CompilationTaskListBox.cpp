@@ -149,10 +149,14 @@ namespace TrenchBroom {
 
             connect(m_targetEditor, &QLineEdit::textChanged, this, &CompilationExportMapTaskEditor::targetSpecChanged);
 
-            updateItem();
+            doUpdateItem();
         }
 
         void CompilationExportMapTaskEditor::updateItem() {
+            doUpdateItem();
+        }
+
+        void CompilationExportMapTaskEditor::doUpdateItem() {
             const auto targetSpec = QString::fromStdString(task().targetSpec());
             if (m_targetEditor->text() != targetSpec) {
                 m_targetEditor->setText(targetSpec);
@@ -193,10 +197,14 @@ namespace TrenchBroom {
             connect(m_sourceEditor, &QLineEdit::textChanged, this, &CompilationCopyFilesTaskEditor::sourceSpecChanged);
             connect(m_targetEditor, &QLineEdit::textChanged, this, &CompilationCopyFilesTaskEditor::targetSpecChanged);
 
-            updateItem();
+            doUpdateItem();
         }
 
         void CompilationCopyFilesTaskEditor::updateItem() {
+            doUpdateItem();
+        }
+
+        void CompilationCopyFilesTaskEditor::doUpdateItem() {
             const auto sourceSpec = QString::fromStdString(task().sourceSpec());
             if (m_sourceEditor->text() != sourceSpec) {
                 m_sourceEditor->setText(sourceSpec);
@@ -260,10 +268,14 @@ namespace TrenchBroom {
             connect(browseToolButton, &QPushButton::clicked, this, &CompilationRunToolTaskEditor::browseTool);
             connect(m_parametersEditor, &QLineEdit::textChanged, this, &CompilationRunToolTaskEditor::parameterSpecChanged);
 
-            updateItem();
+            doUpdateItem();
         }
 
         void CompilationRunToolTaskEditor::updateItem() {
+            doUpdateItem();
+        }
+
+        void CompilationRunToolTaskEditor::doUpdateItem() {
             const auto toolSpec = QString::fromStdString(task().toolSpec());
             if (m_toolEditor->text() != toolSpec) {
                 m_toolEditor->setText(toolSpec);
