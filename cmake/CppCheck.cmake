@@ -30,6 +30,7 @@ ELSE()
         cppcheck
         COMMAND ${CPPCHECK_EXE} "--version"
         COMMAND ${CPPCHECK_EXE} ${CPPCHECK_ARGS}
+        DEPENDS common
         COMMENT "running ${CPPCHECK_EXE} ${CPPCHECK_ARGS_STR}"
     )
 
@@ -48,6 +49,7 @@ ELSE()
             OUTPUT cppcheck-errors.xml
             COMMAND ${CPPCHECK_EXE} "--version"
             COMMAND ${CPPCHECK_EXE} ${CPPCHECK_XML_ARGS}
+            DEPENDS common
             COMMENT "running ${CPPCHECK_EXE} ${CPPCHECK_XML_ARGS_STR}"
         )
 

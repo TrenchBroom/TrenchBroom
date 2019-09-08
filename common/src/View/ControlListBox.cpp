@@ -240,6 +240,7 @@ namespace TrenchBroom {
 
             m_listWidget->setItemWidget(widgetItem, wrapper);
             widgetItem->setSizeHint(renderer->minimumSizeHint());
+            renderer->updateItem();
             renderer->setSelected(m_listWidget->currentItem() == widgetItem);
         }
 
