@@ -25,7 +25,9 @@
 #include "View/Actions.h"
 #include "View/KeyboardShortcut.h"
 
+#include <QDebug>
 #include <QFile>
+#include <QFileInfo>
 #include <QDir>
 #include <QStandardPaths>
 #include <QStringBuilder>
@@ -33,6 +35,7 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QSaveFile>
+#include <QFileSystemWatcher>
 
 namespace TrenchBroom {
     // PreferenceSerializerV1
@@ -152,8 +155,34 @@ namespace TrenchBroom {
     void PreferenceManager::markAsUnsaved(PreferenceBase* preference) {
         m_unsavedPreferences.insert(preference);
     }
+    
+    PreferenceManager::PreferenceManager()
+    : QObject(),
+    m_preferencesFilePath(v2SettingsPath()),
+    m_fileSystemWatcher(nullptr) {
+#if defined __APPLE__
+        m_saveInstantly = true;
+#else
+        m_saveInstantly = false;
+#endif
+        
+        migrateSettingsFromV1IfPathDoesNotExist(m_preferencesFilePath);
+
+        this->loadCacheFromDisk();
+        
+        m_fileSystemWatcher = new QFileSystemWatcher(this);
+        if (!m_fileSystemWatcher->addPath(m_preferencesFilePath)) {
+            qDebug() << "Couldn't start file system watcher for: " << m_preferencesFilePath;
+        }
+        connect(m_fileSystemWatcher, &QFileSystemWatcher::QFileSystemWatcher::fileChanged, this, [this](){
+            qDebug() << "Detected settings change";
+            this->loadCacheFromDisk();
+        });
+    }
 
     PreferenceManager& PreferenceManager::instance() {
+        ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
+        
         static PreferenceManager prefs;
         return prefs;
     }
@@ -162,38 +191,124 @@ namespace TrenchBroom {
         return m_saveInstantly;
     }
 
-    PreferenceBase::Set PreferenceManager::saveChanges() {
-        PreferenceBase::Set changedPreferences;
+    void PreferenceManager::saveChanges() {
+        qDebug() << "saveChanges";
+        
         for (auto* pref : m_unsavedPreferences) {
-            pref->save();
+            savePreferenceToCache(pref);
             preferenceDidChangeNotifier(pref->path());
-
-            changedPreferences.insert(pref);
         }
-
         m_unsavedPreferences.clear();
-        return changedPreferences;
-    }
-
-    PreferenceBase::Set PreferenceManager::discardChanges() {
-        PreferenceBase::Set changedPreferences;
-        for (auto* pref : m_unsavedPreferences) {
-            pref->resetToPrevious();
-            changedPreferences.insert(pref);
+        
+        if (!writeV2SettingsToPath(m_preferencesFilePath, m_cache)) {
+            qDebug() << "error saving";
         }
+    }
 
+    void PreferenceManager::discardChanges() {
+        qDebug() << "discardChanges";
+        
         m_unsavedPreferences.clear();
-        return changedPreferences;
+        invalidatePreferences();
     }
 
-    PreferenceManager::PreferenceManager() {
-#if defined __APPLE__
-        m_saveInstantly = true;
-#else
-        m_saveInstantly = false;
-#endif
+    static std::set<IO::Path>
+    changedKeysForMapDiff(const std::map<IO::Path, QString>& before,
+                          const std::map<IO::Path, QString>& after) {
+        std::set<IO::Path> result;
+        
+        // removes
+        for (auto& [k, v] : before) {
+            if (after.find(k) == after.end()) {
+                // removal
+                result.insert(k);
+            }
+        }
+        
+        // adds/updates
+        for (auto& [k, v] : after) {
+            auto beforeIt = before.find(k);
+            if (beforeIt == before.end()) {
+                // add
+                result.insert(k);
+            } else {
+                // check for update?
+                if (beforeIt->second != v) {
+                    result.insert(k);
+                }
+            }
+        }
+        
+        return result;
     }
+    
+    /**
+     * Reloads m_cache from the .json file,
+     * marks all Preference<T> objects as needing deserialization next time they're accessed, and emits
+     * preferenceDidChangeNotifier as needed.
+     */
+    void PreferenceManager::loadCacheFromDisk() {
+        const std::map<IO::Path, QString> oldPrefs = m_cache;
+        
+        // Reload m_cache
+        m_cache = readV2SettingsFromPath(m_preferencesFilePath);
+        qDebug() << "Read " << m_cache.size() << " preferences from " << m_preferencesFilePath;
+        
+        invalidatePreferences();
 
+        // Emit preferenceDidChangeNotifier for any changed preferences
+        const std::set<IO::Path> changedKeys = changedKeysForMapDiff(oldPrefs, m_cache);
+        for (const auto& changedPath : changedKeys) {
+            preferenceDidChangeNotifier(changedPath);
+        }
+    }
+    
+    void PreferenceManager::invalidatePreferences() {
+        // Force all currently known Preference<T> objects to deserialize from m_cache next time they are accessed
+        // Note, because new Preference<T> objects can be created at runtime,
+        // we need this sort of lazy loading system.
+        for (auto* pref : Preferences::staticPreferences()) {
+            pref->setValid(false);
+        }
+        for (auto& [path, prefPtr] : m_dynamicPreferences) {
+            prefPtr->setValid(false);
+        }
+    }
+    
+    /**
+     * Updates the given PreferenceBase from m_cache.
+     */
+    void PreferenceManager::loadPreferenceFromCache(PreferenceBase* pref) {
+        PreferenceSerializerV2 format;
+        
+        auto it = m_cache.find(pref->path());
+        if (it == m_cache.end()) {
+            // no value set, use the default value
+            pref->resetToDefault();
+            pref->setValid(true);
+            return;
+        }
+        
+        const QString stringValue = it->second;
+        if (!pref->loadFromString(format, stringValue)) {
+            qDebug() << "Error deserializing";
+        } else {
+            qDebug() << "Deserialized " << IO::pathAsQString(pref->path()) << " from '" << stringValue << "'";
+        }
+        pref->setValid(true);
+    }
+    
+    void PreferenceManager::savePreferenceToCache(PreferenceBase* pref) {
+        PreferenceSerializerV2 format;
+        const QString stringValue = pref->writeToString(format);
+        
+        m_cache[pref->path()] = stringValue;
+        
+        qDebug() << "Saved to cache " << IO::pathAsQString(pref->path()) << " as '" << stringValue << "'";
+    }
+    
+    // V1 settings
+    
     std::map<IO::Path, QString> parseINI(QTextStream* iniStream) {
         IO::Path section;
         std::map<IO::Path, QString> result;
@@ -400,7 +515,7 @@ namespace TrenchBroom {
     }
 
     QString v2SettingsPath() {
-        return IO::pathAsQString(IO::SystemPaths::userDataDirectory() + IO::Path("preferences.json"));
+        return IO::pathAsQString(IO::SystemPaths::userDataDirectory() + IO::Path("Preferences.json"));
     }
 
     std::map<IO::Path, QString> readV2SettingsFromPath(const QString& path) {
@@ -467,5 +582,24 @@ namespace TrenchBroom {
 
         QJsonDocument document(rootObject);
         return document.toJson(QJsonDocument::Indented);
+    }
+    
+    void migrateSettingsFromV1IfPathDoesNotExist(const QString& destinationPath) {
+        // Check if the Preferences.json exists, migrate if not
+        
+        QFileInfo prefsFileInfo(destinationPath);
+        if (prefsFileInfo.exists()) {
+            qDebug() << destinationPath << " already exists; skipping settings migration.";
+            return;
+        }
+        
+        const std::map<IO::Path, QString> v2Prefs = migrateV1ToV2(readV1Settings());
+        const bool ok = writeV2SettingsToPath(destinationPath, v2Prefs);
+        
+        if (ok) {
+            qDebug() << "Successfully migrated " << v2Prefs.size() << " settings to " << destinationPath;
+        } else {
+            qDebug() << "Error migrating settings to " << destinationPath;
+        }
     }
 }

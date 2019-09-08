@@ -171,7 +171,7 @@ namespace TrenchBroom {
 
         testV2Prefs(v2);
 
-        //EXPECT_TRUE(writeV2SettingsToPath("C:\\Users\\Eric\\Desktop\\preferences.json", v2));
+        //EXPECT_TRUE(writeV2SettingsToPath("C:\\Users\\Eric\\Desktop\\Preferences.json", v2));
     }
 
     TEST(PreferencesTest, readV2) {

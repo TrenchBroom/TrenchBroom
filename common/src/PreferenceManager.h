@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_PreferenceManager
 #define TrenchBroom_PreferenceManager
 
-#include "Color.h"
 #include "Notifier.h"
 #include "Preference.h"
 #include "StringUtils.h"
@@ -36,6 +35,9 @@
 #include <set>
 
 class QTextStream;
+class QFileSystemWatcher;
+
+class Color;
 
 namespace TrenchBroom {
     namespace IO {
@@ -64,31 +66,48 @@ namespace TrenchBroom {
         void writeToString(QTextStream& stream, const QString& in) const override;
     };
 
+    /**
+     * Used by Qt version of TrenchBroom
+     */
     class PreferenceSerializerV2 : public PreferenceSerializerV1 {
     public:
         bool readFromString(const QString& in, QKeySequence* out) const override;
         void writeToString(QTextStream& stream, const QKeySequence& in) const override;
     };
 
-    class PreferenceManager {
+    class PreferenceManager : public QObject {
+        Q_OBJECT
     private:
         using UnsavedPreferences = std::set<PreferenceBase*>;
         using DynamicPreferences = std::map<IO::Path, std::unique_ptr<PreferenceBase>>;
-
+        
+        QString m_preferencesFilePath;
         bool m_saveInstantly;
         UnsavedPreferences m_unsavedPreferences;
         DynamicPreferences m_dynamicPreferences;
-
+        /**
+         * This should always be in sync with what is on disk.
+         * Preference objects may have different values if there are unsaved changes.
+         * There may also be values in here we don't know how to deserialize; we write them back to disk.
+         */
+        std::map<IO::Path, QString> m_cache;
+        QFileSystemWatcher* m_fileSystemWatcher;
+        
         void markAsUnsaved(PreferenceBase* preference);
     public:
         static PreferenceManager& instance();
 
         Notifier<const IO::Path&> preferenceDidChangeNotifier;
-
+    
         bool saveInstantly() const;
-        PreferenceBase::Set saveChanges();
-        PreferenceBase::Set discardChanges();
-
+        void saveChanges();
+        void discardChanges();
+    private:
+        void loadCacheFromDisk();
+        void invalidatePreferences();
+        void loadPreferenceFromCache(PreferenceBase* pref);
+        void savePreferenceToCache(PreferenceBase* pref);
+    public:
         template <typename T>
         Preference<T>& dynamicPreference(const IO::Path& path, T&& defaultValue) {
             auto it = m_dynamicPreferences.find(path);
@@ -105,33 +124,40 @@ namespace TrenchBroom {
             return *pref;
         }
 
+        /**
+         * Public API for getting the value of a preference.
+         */
         template <typename T>
-        const T& get(const Preference<T>& preference) const {
+        const T& get(Preference<T>& preference) {
             ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
 
             // Only load from disk the first time it's accessed
-            if (!preference.initialized()) {
-                preference.load();
+            if (!preference.valid()) {
+                loadPreferenceFromCache(&preference);
             }
 
             return preference.value();
         }
 
+        /**
+         * Public API for setting the value of a preference.
+         */
         template <typename T>
         bool set(Preference<T>& preference, const T& value) {
             ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
 
-            const T previousValue = preference.value();
+            const T previousValue = get(preference);
             if (previousValue == value) {
                 return false;
             }
 
             preference.setValue(value);
+            preference.setValid(true);
+            markAsUnsaved(&preference);
+            
             if (saveInstantly()) {
-                preference.save();
+                saveChanges();
                 preferenceDidChangeNotifier(preference.path());
-            } else {
-                markAsUnsaved(&preference);
             }
 
             return true;
@@ -147,11 +173,12 @@ namespace TrenchBroom {
     };
 
     template <typename T>
-    const T& pref(const Preference<T>& preference) {
-        const PreferenceManager& prefs = PreferenceManager::instance();
+    const T& pref(Preference<T>& preference) {
+        PreferenceManager& prefs = PreferenceManager::instance();
         return prefs.get(preference);
     }
-
+    
+    // V1 settings
     std::map<IO::Path, QString> parseINI(QTextStream* iniStream);
     std::map<IO::Path, QString> getINISettingsV1(const QString& path);
     std::map<IO::Path, QString> readV1Settings();
@@ -166,6 +193,9 @@ namespace TrenchBroom {
 
     std::map<IO::Path, QString> parseV2SettingsFromJSON(const QByteArray& jsonData);
     QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QString>& v2Prefs);
+    
+    // Migration
+    void migrateSettingsFromV1IfPathDoesNotExist(const QString& destinationPath);
 }
 
 #endif /* defined(TrenchBroom_PreferenceManager) */
