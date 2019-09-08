@@ -262,7 +262,7 @@ namespace TrenchBroom {
             document->setMods(mods);
 
             m_enabledModList->clearSelection();
-            m_enabledModList->setItemSelected(m_enabledModList->item(static_cast<int>(index - 1)), true);
+            m_enabledModList->setCurrentRow(static_cast<int>(index - 1));
         }
 
         void ModEditor::moveModDownClicked() {
@@ -280,7 +280,7 @@ namespace TrenchBroom {
             document->setMods(mods);
 
             m_enabledModList->clearSelection();
-            m_enabledModList->setItemSelected(m_enabledModList->item(static_cast<int>(index + 1)), true);
+            m_enabledModList->setCurrentRow(static_cast<int>(index + 1));
         }
 
         bool ModEditor::canEnableAddButton() const {
