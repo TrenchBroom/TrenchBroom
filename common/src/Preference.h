@@ -79,148 +79,8 @@ namespace TrenchBroom {
         return {string};
     }
 
-    template <typename T>
-    class PreferenceSerializer {
-    public:
-        bool read(QSettings& settings, const QString& path, T& result) const { return false; }
-        void write(QSettings& settings, const QString& path, const T& value) const {}
-    };
-
-    template <>
-    class PreferenceSerializer<bool> {
-    public:
-        bool read(QSettings& settings, const QString& path, bool& result) const {
-            const QVariant value = settings.value(path);
-            if (!value.isValid()) {
-                return false;
-            }
-            result = value.toBool();
-            return true;
-        }
-
-        void write(QSettings& settings, const QString& path, const bool& value) const {
-            settings.setValue(path, QVariant(value));
-        }
-    };
-
-    template <>
-    class PreferenceSerializer<int> {
-    public:
-        bool read(QSettings& settings, const QString& path, int& result) const {
-            const QVariant value = settings.value(path);
-            bool ok = false;
-            result = value.toInt(&ok);
-            return ok;
-        }
-
-        void write(QSettings& settings, const QString& path, const int& value) const {
-            settings.setValue(path, QVariant(value));
-        }
-    };
-
-    template <>
-    class PreferenceSerializer<float> {
-    public:
-        bool read(QSettings& settings, const QString& path, float& result) const {
-            const QVariant value = settings.value(path);
-            bool ok = false;
-            result = value.toFloat(&ok);
-            return ok;
-        }
-
-        void write(QSettings& settings, const QString& path, const float& value) const {
-            settings.setValue(path, QVariant(value));
-        }
-    };
-
-    template <>
-    class PreferenceSerializer<double> {
-    public:
-        bool read(QSettings& settings, const QString& path, double& result) const {
-            const QVariant value = settings.value(path);
-            bool ok = false;
-            result = value.toDouble(&ok);
-            return ok;
-        }
-
-        void write(QSettings& settings, const QString& path, const double& value) const {
-            settings.setValue(path, QVariant(value));
-        }
-    };
-
-    template <>
-    class PreferenceSerializer<String> {
-    public:
-        bool read(QSettings& settings, const QString& path, String& result) const {
-            const QVariant value = settings.value(path);
-            if (!value.isValid()) {
-                return false;
-            }
-            result = value.toString().toStdString();
-            return true;
-        }
-
-        void write(QSettings& settings, const QString& path, const String& value) const {
-            settings.setValue(path, QVariant(QString::fromStdString(value)));
-        }
-    };
-
-    template <>
-    class PreferenceSerializer<Color> {
-    public:
-        bool read(QSettings& settings, const QString& path, Color& result) const {
-            const QVariant value = settings.value(path);
-            if (!value.isValid()) {
-                return false;
-            }
-            result = Color::parse(value.toString().toStdString());
-            return true;
-        }
-
-        void write(QSettings& settings, const QString& path, const Color& value) const {
-            settings.setValue(path, QVariant(QString::fromStdString(StringUtils::toString(value))));
-        }
-    };
-
-    template<>
-    class PreferenceSerializer<QKeySequence> {
-    public:
-        bool read(QSettings& settings, const QString& path, QKeySequence& result) const {
-            const QVariant value = settings.value(path);
-            if (!value.isValid()) {
-                return false;
-            }
-            // FIXME: Parse the old wxWidgets format too
-            const auto keySequence = QKeySequence::fromString(value.toString(), QKeySequence::PortableText);
-            result = keySequence;
-            return true;
-        }
-
-        void write(QSettings& settings, const QString& path, const QKeySequence& value) const {
-            settings.setValue(path, QVariant(value.toString(QKeySequence::PortableText)));
-        }
-    };
-
-    template<>
-    class PreferenceSerializer<IO::Path> {
-    public:
-        bool read(QSettings& settings, const QString& path, IO::Path& result) const {
-            const QVariant value = settings.value(path);
-            if (!value.isValid()) {
-                return false;
-            }
-            result = IO::pathFromQString(value.toString());
-            return true;
-        }
-
-        void write(QSettings& settings, const QString& path, const IO::Path& value) const {
-            settings.setValue(path, QVariant(IO::pathAsQString(value)));
-        }
-    };
-
     class PreferenceBase {
     public:
-        using Set = std::set<const PreferenceBase*>;
         PreferenceBase() = default;
         virtual ~PreferenceBase() = default;
 
@@ -229,17 +89,15 @@ namespace TrenchBroom {
         PreferenceBase& operator=(const PreferenceBase& other) = default;
         PreferenceBase& operator=(PreferenceBase&& other) = default;
 
-        virtual void load() const = 0;
-        virtual void save() = 0;
-        virtual void resetToPrevious() = 0;
-
         bool operator==(const PreferenceBase& other) const {
             return this == &other;
         }
 
         virtual const IO::Path& path() const = 0;
-
-        // new API
+    public: // private to PreferenceManager
+        virtual void resetToDefault() = 0;
+        virtual bool valid() const = 0;
+        virtual void setValid(bool _valid) = 0;
         virtual nonstd::optional<QString> migratePreferenceForThisType(const PrefSerializer& from,
             const PrefSerializer& to, const QString& input) const = 0;
         virtual bool loadFromString(const PrefSerializer& format, const QString& value) = 0;
@@ -270,87 +128,23 @@ namespace TrenchBroom {
         }
     };
 
+    /**
+     * Stores the current value and default value of a preference, in deserialized form.
+     * No public API for reading/writing the value, use PreferenceManager instead.
+     */
     template <typename T>
     class Preference : public PreferenceBase {
-    protected:
-        friend class PreferenceManager;
     private:
-        PreferenceSerializer<T> m_serializer;
         IO::Path m_path;
         T m_defaultValue;
-        mutable T m_value;
-        mutable T m_previousValue;
-        mutable bool m_initialized;
-        bool m_modified;
-
-        void setValue(const T& value) {
-            if (!m_modified) {
-                m_modified = true;
-                m_previousValue = m_value;
-            }
-            m_value = value;
-        }
-
-        bool initialized() const {
-            return m_initialized;
-        }
-
-        static QSettings& getSettings() {
-            return View::getSettings();
-        }
-
-        void load() const override {
-            ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
-
-            QSettings& settings = getSettings();
-
-            static bool tested = false;
-            if (!tested) {
-                tested = true;
-
-                for (auto s : settings.allKeys()) {
-                    std::cout << s.toStdString() << " is " << settings.value(s).toString().toStdString() << "\n";
-                }
-
-            }
-
-            using std::swap;
-            T temp;
-            if (m_serializer.read(settings, IO::pathAsQString(m_path, '/'), temp)) {
-                std::swap(m_value, temp);
-                m_previousValue = m_value;
-            }
-            m_initialized = true;
-        }
-
-        void save() override {
-            ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
-
-            if (m_modified) {
-                QSettings& settings = getSettings();
-
-                m_serializer.write(settings, IO::pathAsQString(m_path, '/'), m_value);
-                m_modified = false;
-                m_previousValue = m_value;
-            }
-        }
-
-        void resetToPrevious() override {
-            if (m_modified) {
-                m_value = m_previousValue;
-                m_modified = false;
-            }
-        }
+        T m_value;
+        bool m_valid;
     public:
         Preference(const IO::Path& path, const T& defaultValue) :
         m_path(path),
         m_defaultValue(defaultValue),
         m_value(m_defaultValue),
-        m_previousValue(m_value),
-        m_initialized(false),
-        m_modified(false) {
-            m_modified = m_initialized;
-        }
+        m_valid(false) {}
 
         Preference(const Preference& other) = default;
         Preference(Preference&& other) = default; // cannot be noexcept because it will call QKeySequence's copy constructor
@@ -366,7 +160,25 @@ namespace TrenchBroom {
             return m_defaultValue;
         }
 
+    public: // PreferenceManager private
+        void setValue(const T& value) {
+            m_value = value;
+        }
+        
+        void resetToDefault() override {
+            m_value = m_defaultValue;
+        }
+        
+        bool valid() const override {
+            return m_valid;
+        }
+        
+        void setValid(const bool _valid) override {
+            m_valid = _valid;
+        }
+
         const T& value() const {
+            assert(m_valid);
             return m_value;
         }
 

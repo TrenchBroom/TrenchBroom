@@ -108,7 +108,7 @@ namespace TrenchBroom {
 
         QKeySequence Action::keySequence() const {
             auto& prefs = PreferenceManager::instance();
-            const auto& pref = prefs.dynamicPreference(m_preferencePath, QKeySequence(m_defaultShortcut));
+            auto& pref = prefs.dynamicPreference(m_preferencePath, QKeySequence(m_defaultShortcut));
             return prefs.get(pref);
         }
 
