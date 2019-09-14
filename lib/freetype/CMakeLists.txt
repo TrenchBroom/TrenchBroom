@@ -1,0 +1,67 @@
+#
+# Try to find the FreeType library and include path.
+# Once done this will define
+#
+# FREETYPE_FOUND
+# FREETYPE_INCLUDE_PATH
+# FREETYPE_LIBRARY
+#
+
+set(LIB_FREETYPE_BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bin")
+set(LIB_FREETYPE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+if(APPLE)
+    # Must set the path manually because otherwise it will find a 64bit only freetype lib that comes with OS X
+    find_path(FREETYPE_INCLUDE_PATH ft2build.h "${LIB_FREETYPE_INCLUDE_DIR}" DOC "Freetype includes")
+    set(FREETYPE_LIBRARY "${LIB_FREETYPE_BINARY_DIR}/osx/libfreetype.a")
+
+    set(FREETYPE_LIBRARIES
+            ${FREETYPE_LIBRARY}
+            "${LIB_FREETYPE_BINARY_DIR}/osx/libbz2.a"
+            "${LIB_FREETYPE_BINARY_DIR}/osx/libz.a")
+elseif(MSVC)
+    find_path(FREETYPE_INCLUDE_PATH ft2build.h "${LIB_FREETYPE_INCLUDE_DIR}" DOC "Freetype includes")
+    set(FREETYPE_LIBRARY "${LIB_FREETYPE_BINARY_DIR}/win32/freetype.lib")
+
+    set(FREETYPE_LIBRARIES ${FREETYPE_LIBRARY})
+elseif(MINGW)
+    find_path(FREETYPE_INCLUDE_PATH ft2build.h "${LIB_FREETYPE_INCLUDE_DIR}" DOC "Freetype includes")
+    set(FREETYPE_LIBRARY "${LIB_FREETYPE_BINARY_DIR}/win32/libfreetype.a")
+
+    set(FREETYPE_LIBRARIES
+            ${FREETYPE_LIBRARY}
+            "${LIB_FREETYPE_BINARY_DIR}/win32/libz.a")
+else()
+    find_path( FREETYPE_INCLUDE_PATH ft2build.h
+            /usr/include
+            /usr/include/freetype2
+            /usr/local/include
+            /sw/include
+            /opt/local/include
+            DOC "The directory where ft2build.h resides")
+    find_library( FREETYPE_LIBRARY
+            NAMES FreeType freetype
+            PATHS
+            /usr/lib64
+            /usr/lib
+            /usr/local/lib64
+            /usr/local/lib
+            /sw/lib
+            /opt/local/lib
+            DOC "The FreeType library")
+    set(FREETYPE_LIBRARIES ${FREETYPE_LIBRARY})
+ENDIF()
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(FREETYPE  DEFAULT_MSG  FREETYPE_LIBRARY  FREETYPE_INCLUDE_PATH)
+mark_as_advanced(
+        FREETYPE_FOUND
+        FREETYPE_LIBRARY
+        FREETYPE_LIBRARIES
+        FREETYPE_INCLUDE_PATH)
+
+
+if(FREETYPE_FOUND)
+    add_library(freetype INTERFACE IMPORTED GLOBAL)
+    target_include_directories(freetype INTERFACE ${FREETYPE_INCLUDE_PATH})
+endif()
