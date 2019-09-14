@@ -132,6 +132,7 @@ namespace TrenchBroom {
             updateShortcuts();
             updateActionState();
             updateUndoRedoActions();
+            updateToolBarWidgets();
 
             m_document->setParentLogger(m_console);
             m_document->setViewEffectsService(m_mapView);
@@ -410,6 +411,12 @@ namespace TrenchBroom {
             toolBar->addWidget(m_gridChoice);
         }
 
+        void MapFrame::updateToolBarWidgets() {
+            const Grid& grid = m_document->grid();
+            const int sizeIndex = grid.size() - Grid::MinSize;
+            m_gridChoice->setCurrentIndex(sizeIndex);
+        }
+
         void MapFrame::createStatusBar() {
             m_statusBarLabel = new QLabel();
             statusBar()->addWidget(m_statusBarLabel);
@@ -616,6 +623,7 @@ namespace TrenchBroom {
 
         void MapFrame::gridDidChange() {
             updateActionState();
+            updateToolBarWidgets();
         }
 
         void MapFrame::toolActivated(Tool* tool) {

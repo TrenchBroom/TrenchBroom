@@ -118,6 +118,7 @@ namespace TrenchBroom {
         private: // tool bar
             class ToolBarBuilder;
             void createToolBar();
+            void updateToolBarWidgets();
         private: // status bar
             void createStatusBar();
             void updateStatusBar();
