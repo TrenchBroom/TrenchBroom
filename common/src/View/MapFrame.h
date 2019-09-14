@@ -40,6 +40,7 @@ class QMenuBar;
 class QLabel;
 class QSplitter;
 class QTimer;
+class QToolBar;
 
 namespace TrenchBroom {
     class Logger;
@@ -68,6 +69,8 @@ namespace TrenchBroom {
 
             Autosaver* m_autosaver;
             QTimer* m_autosaveTimer;
+
+            QToolBar* m_toolBar;
 
             QSplitter* m_hSplitter;
             QSplitter* m_vSplitter;
@@ -307,6 +310,9 @@ namespace TrenchBroom {
             void showAll();
 
             void switchToInspectorPage(Inspector::InspectorPage page);
+
+            void toggleToolbar();
+            bool toolbarVisible() const;
 
             void toggleInfoPanel();
             bool infoPanelVisible() const;

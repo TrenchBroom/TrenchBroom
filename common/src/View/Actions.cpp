@@ -1319,6 +1319,16 @@ namespace TrenchBroom {
                     return context.hasDocument();
                 }));
             viewMenu.addSeparator();
+            viewMenu.addItem(createMenuAction(IO::Path("Menu/View/Toggle Toolbar"), QObject::tr("Toggle Toolbar"), Qt::CTRL + Qt::ALT + Qt::Key_T,
+                [](ActionExecutionContext& context) {
+                    context.frame()->toggleToolbar();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->toolbarVisible();
+                }));
             viewMenu.addItem(createMenuAction(IO::Path("Menu/View/Toggle Info Panel"), QObject::tr("Toggle Info Panel"), Qt::CTRL + Qt::Key_4,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleInfoPanel();
