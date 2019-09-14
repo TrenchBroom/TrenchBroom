@@ -1349,7 +1349,13 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->inspectorVisible();
                 }));
-            viewMenu.addItem(createMenuAction(IO::Path("Menu/View/Maximize Current View"), QObject::tr("Maximize Current View"), Qt::CTRL + Qt::Key_Space,
+            viewMenu.addItem(createMenuAction(IO::Path("Menu/View/Maximize Current View"), QObject::tr("Maximize Current View"),
+#ifdef Q_OS_MACOS
+                // Command + Space opens Spotlight so we can't use it, so use Ctrl + Space instead.
+                Qt::META + Qt::Key_Space,
+#else
+                Qt::CTRL + Qt::Key_Space,
+#endif
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleMaximizeCurrentView();
                 },
