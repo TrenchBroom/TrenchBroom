@@ -84,7 +84,6 @@
 #include <QToolBar>
 #include <QComboBox>
 #include <QVBoxLayout>
-#include <QDropEvent>
 #include <QMimeData>
 #include <QUrl>
 
@@ -143,8 +142,6 @@ namespace TrenchBroom {
 
             bindObservers();
             bindEvents();
-
-            setAcceptDrops(true);
 
             restoreWindowGeometry(this);
             restoreWindowState(this);

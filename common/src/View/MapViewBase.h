@@ -266,8 +266,11 @@ namespace TrenchBroom {
             void doShowPopupMenu() override;
         public slots:
             void showPopupMenuLater();
-        public: // QWindow overrides
-            bool event(QEvent* event) override;
+        protected: // QWidget overrides
+            void dragEnterEvent(QDragEnterEvent* event) override;
+            void dragLeaveEvent(QDragLeaveEvent* event) override;
+            void dragMoveEvent(QDragMoveEvent* event) override;
+            void dropEvent(QDropEvent* event) override;
         private:
             QMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type);
 
