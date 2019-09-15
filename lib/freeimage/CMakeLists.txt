@@ -51,6 +51,7 @@ mark_as_advanced(
         FREEIMAGE_INCLUDE_PATH)
 
 if(FREEIMAGE_FOUND)
-    add_library(freeimage INTERFACE IMPORTED GLOBAL)
+    add_library(freeimage STATIC IMPORTED GLOBAL)
+    set_target_properties(freeimage PROPERTIES IMPORTED_LOCATION ${FREEIMAGE_LIBRARY})
     target_include_directories(freeimage INTERFACE ${FREEIMAGE_INCLUDE_PATH})
 endif()

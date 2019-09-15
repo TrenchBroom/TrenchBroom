@@ -37,7 +37,7 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(FgdParserTest, parseIncludedFgdFiles) {
-            const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/games/");
+            const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
             const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("fgd"));
 
             for (const Path& path : cfgFiles) {

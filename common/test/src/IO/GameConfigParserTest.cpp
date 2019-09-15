@@ -31,7 +31,7 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(GameConfigParserTest, parseIncludedGameConfigs) {
-            const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/games/");
+            const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
             const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("cfg"));
 
             for (const Path& path : cfgFiles) {

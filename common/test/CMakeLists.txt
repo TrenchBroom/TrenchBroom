@@ -1,5 +1,5 @@
 set(COMMON_TEST_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
-set(COMMON_TEST_TEST_SOURCE
+set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Assets/EntityDefinitionTestUtils.h"
         "${COMMON_TEST_SOURCE_DIR}/IO/TestEnvironment.h"
         "${COMMON_TEST_SOURCE_DIR}/IO/TestParserStatus.h"
@@ -88,6 +88,27 @@ set(COMMON_TEST_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/View/TagManagementTest.cpp"
 )
 
-add_executable(common-test ${COMMON_TEST_TEST_SOURCE})
+add_executable(common-test ${COMMON_TEST_SOURCE})
 target_include_directories(common-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
 target_link_libraries(common-test common gtest gmock)
+
+set(TEST_FIXTURE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fixture")
+
+set(TEST_RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:common-test>")
+set(TEST_FIXTURE_DEST_DIR "${TEST_RESOURCE_DEST_DIR}/fixture")
+
+# Clear all fixtures
+ADD_CUSTOM_COMMAND(TARGET common-test POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "${TEST_FIXTURE_DEST_DIR}")
+
+# Copy test fixtures
+ADD_CUSTOM_COMMAND(TARGET common-test POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${TEST_FIXTURE_SOURCE_DIR}" "${TEST_FIXTURE_DEST_DIR}/test")
+
+# Copy game config files
+ADD_CUSTOM_COMMAND(TARGET common-test POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/games" "${TEST_FIXTURE_DEST_DIR}/games")
+
+ADD_CUSTOM_COMMAND(TARGET common-test POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/games-testing" "${TEST_FIXTURE_DEST_DIR}/games")
+

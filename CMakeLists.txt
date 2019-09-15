@@ -34,6 +34,9 @@ endif()
 
 include(cmake/Utils.cmake)
 
+set(APP_DIR "${CMAKE_SOURCE_DIR}/app")
+set(APP_RESOURCE_DIR "${APP_DIR}/resources")
+
 add_subdirectory(lib/googletest)
 add_subdirectory(lib/googlemock)
 

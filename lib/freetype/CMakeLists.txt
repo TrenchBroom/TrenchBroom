@@ -15,10 +15,15 @@ if(APPLE)
     find_path(FREETYPE_INCLUDE_PATH ft2build.h "${LIB_FREETYPE_INCLUDE_DIR}" DOC "Freetype includes")
     set(FREETYPE_LIBRARY "${LIB_FREETYPE_BINARY_DIR}/osx/libfreetype.a")
 
-    set(FREETYPE_LIBRARIES
-            ${FREETYPE_LIBRARY}
-            "${LIB_FREETYPE_BINARY_DIR}/osx/libbz2.a"
-            "${LIB_FREETYPE_BINARY_DIR}/osx/libz.a")
+    set(BZ2_LIBRARY "${LIB_FREETYPE_BINARY_DIR}/osx/libbz2.a")
+    add_library(bz2 STATIC IMPORTED)
+    set_target_properties(bz2 PROPERTIES IMPORTED_LOCATION ${BZ2_LIBRARY})
+
+    set(Z_LIBRARY "${LIB_FREETYPE_BINARY_DIR}/osx/libz.a")
+    add_library(z STATIC IMPORTED)
+    set_target_properties(z PROPERTIES IMPORTED_LOCATION ${Z_LIBRARY})
+
+    set(FREETYPE_LIBRARIES ${FREETYPE_LIBRARY} ${BZ2_LIBRARY} ${Z_LIBRARY})
 elseif(MSVC)
     find_path(FREETYPE_INCLUDE_PATH ft2build.h "${LIB_FREETYPE_INCLUDE_DIR}" DOC "Freetype includes")
     set(FREETYPE_LIBRARY "${LIB_FREETYPE_BINARY_DIR}/win32/freetype.lib")
@@ -28,9 +33,11 @@ elseif(MINGW)
     find_path(FREETYPE_INCLUDE_PATH ft2build.h "${LIB_FREETYPE_INCLUDE_DIR}" DOC "Freetype includes")
     set(FREETYPE_LIBRARY "${LIB_FREETYPE_BINARY_DIR}/win32/libfreetype.a")
 
-    set(FREETYPE_LIBRARIES
-            ${FREETYPE_LIBRARY}
-            "${LIB_FREETYPE_BINARY_DIR}/win32/libz.a")
+    set(Z_LIBRARY "${LIB_FREETYPE_BINARY_DIR}/osx/libz.a")
+    add_library(z STATIC IMPORTED)
+    set_target_properties(z PROPERTIES IMPORTED_LOCATION ${Z_LIBRARY})
+
+    set(FREETYPE_LIBRARIES ${FREETYPE_LIBRARY} ${Z_LIBRARY})
 else()
     find_path( FREETYPE_INCLUDE_PATH ft2build.h
             /usr/include
@@ -60,8 +67,15 @@ mark_as_advanced(
         FREETYPE_LIBRARIES
         FREETYPE_INCLUDE_PATH)
 
-
 if(FREETYPE_FOUND)
-    add_library(freetype INTERFACE IMPORTED GLOBAL)
+    add_library(freetype STATIC IMPORTED GLOBAL)
+    set_target_properties(freetype PROPERTIES IMPORTED_LOCATION ${FREETYPE_LIBRARY})
     target_include_directories(freetype INTERFACE ${FREETYPE_INCLUDE_PATH})
+
+    if(APPLE OR MINGW)
+        target_link_libraries(freetype INTERFACE z)
+    endif()
+    if(APPLE)
+        target_link_libraries(freetype INTERFACE bz2)
+    endif()
 endif()

@@ -1062,15 +1062,14 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/StepIterator.h
 )
 
+find_package(OpenGL REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 set(CMAKE_AUTOMOC ON)
 
 add_library(common ${COMMON_SOURCE} ${COMMON_HEADER})
 target_compile_features(common PRIVATE cxx_std_17)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
-target_link_libraries(common PRIVATE tinyxml2 freeimage freetype)
-target_link_libraries(common PUBLIC vecmath optlite glew miniz)
-target_link_libraries(common PUBLIC Qt5::Widgets)
+target_link_libraries(common PUBLIC tinyxml2 vecmath optlite glew miniz freeimage freetype OpenGL::GL Qt5::Widgets)
 
 if(COMPILER_IS_CLANG)
     target_compile_options(common PRIVATE -Wall -Wextra -Weverything -pedantic -Wno-format -Wno-variadic-macros -Wno-c99-extensions -Wno-padded -Wno-unused-parameter -Wno-global-constructors -Wno-exit-time-destructors -Wno-weak-vtables -Wno-weak-template-vtables -Wno-float-equal -Wno-used-but-marked-unused -Wno-format-nonliteral -Wno-missing-noreturn -Wno-unused-local-typedef -Wno-double-promotion -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-implicit-fallthrough -Wno-zero-as-null-pointer-constant -Wno-switch-enum)
@@ -1118,3 +1117,4 @@ add_custom_target(generate_version ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_D
 add_dependencies(common generate_version)
 
 add_subdirectory(test)
+add_subdirectory(benchmark)

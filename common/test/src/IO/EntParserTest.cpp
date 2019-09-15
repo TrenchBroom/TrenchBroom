@@ -38,7 +38,7 @@ namespace TrenchBroom {
         void assertAttributeDefinition(const String& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition);
 
         TEST(EntParserTest, parseIncludedEntFiles) {
-            const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/games/");
+            const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
             const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("ent"));
 
             for (const Path& path : cfgFiles) {
