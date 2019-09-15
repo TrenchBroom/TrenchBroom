@@ -47,12 +47,13 @@ namespace TrenchBroom {
             MapView* currentMapView() const;
         private: // implement MapView interface
             vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;
-            void doCycleMapView() override;
         private: // subclassing interface
             virtual bool doCanMaximizeCurrentView() const = 0;
             virtual bool doCurrentViewMaximized() const = 0;
             virtual void doToggleMaximizeCurrentView() = 0;
             virtual MapView* doGetCurrentMapView() const = 0;
+        public:
+            virtual void cycleChildMapView(MapView* after) = 0;
         };
     }
 }

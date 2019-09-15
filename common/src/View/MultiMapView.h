@@ -60,6 +60,8 @@ namespace TrenchBroom {
             bool doCurrentViewMaximized() const override;
             void doToggleMaximizeCurrentView() override;
             MapView* doGetCurrentMapView() const override;
+        public:
+            void cycleChildMapView(MapView* after) override;
         private: // subclassing interface
             virtual void doMaximizeView(MapView* view) = 0;
             virtual void doRestoreViews() = 0;

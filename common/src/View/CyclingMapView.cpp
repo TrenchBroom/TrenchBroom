@@ -153,10 +153,10 @@ namespace TrenchBroom {
                 mapView->linkCamera(helper);
             }
         }
-
-        void CyclingMapView::doCycleMapView() {
+        
+        void CyclingMapView::cycleChildMapView(MapView* after) {
             for (size_t i = 0; i < m_mapViews.size(); ++i) {
-                if (m_currentMapView == m_mapViews[i]) {
+                if (after == m_mapViews[i]) {
                     switchToMapView(m_mapViews[vm::succ(i, m_mapViews.size())]);
                     focusCameraOnSelection(false);
                     break;

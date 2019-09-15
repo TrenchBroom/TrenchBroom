@@ -50,9 +50,5 @@ namespace TrenchBroom {
             ensure(current != nullptr, "current is nullptr");
             return current->pasteObjectsDelta(bounds, referenceBounds);
         }
-
-        void MapViewContainer::doCycleMapView() {
-            currentMapView()->cycleMapView();
-        }
     }
 }

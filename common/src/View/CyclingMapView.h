@@ -85,12 +85,13 @@ namespace TrenchBroom {
             void doToggleMaximizeCurrentView() override;
 
             bool doCancelMouseDrag() override;
-            void doCycleMapView() override;
             void doRefreshViews() override;
         private: // implement MapViewContainer interface
             void doInstallActivationTracker(MapViewActivationTracker& activationTracker) override;
             MapView* doGetCurrentMapView() const override;
             MapViewBase* doGetFirstMapViewBase() override;
+        public:
+            void cycleChildMapView(MapView* after) override;
         private: // implement CameraLinkableView interface
             void doLinkCamera(CameraLinkHelper& linkHelper) override;
         };
