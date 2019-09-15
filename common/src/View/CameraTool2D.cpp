@@ -45,10 +45,13 @@ namespace TrenchBroom {
         void CameraTool2D::doMouseScroll(const InputState& inputState) {
             if (zoom(inputState)) {
                 if (inputState.scrollY() != 0.0f) {
-                    const auto speed = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
-                    const auto factor = 1.0f + inputState.scrollY() / 50.0f * speed;
+                    const float speed = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
+                    const float factor = 1.0f + inputState.scrollY() / 50.0f * speed;
                     const auto mousePos = vm::vec2f(float(inputState.mouseX()), float(inputState.mouseY()));
-                    zoom(inputState, mousePos, factor);
+                    
+                    if (factor > 0.0f) {
+                        zoom(inputState, mousePos, factor);
+                    }
                 }
             }
         }
