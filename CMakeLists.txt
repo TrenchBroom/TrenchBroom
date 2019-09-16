@@ -34,18 +34,34 @@ endif()
 
 include(cmake/Utils.cmake)
 
+# Find Git
+find_package(Git)
+if(NOT GIT_FOUND)
+    message(FATAL_ERROR "Could not find git")
+endif()
+
+# Find Pandoc
+if (NOT PANDOC_PATH AND NOT PANDOC_PATH-NOTFOUND)
+    find_program(PANDOC_PATH NAMES "pandoc" DOC "Pandoc program location")
+    if(PANDOC_PATH-NOTFOUND)
+        message(FATAL_ERROR "Could not find pandoc")
+    else()
+        message(STATUS "Found Pandoc: ${PANDOC_PATH}")
+    endif()
+endif()
+
+# Find Qt and OpenGL
+find_package(OpenGL REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+
+# Populate version variables using git
+get_git_describe("${GIT_EXECUTABLE}" "${CMAKE_SOURCE_DIR}" GIT_DESCRIBE)
+get_app_version(GIT_DESCRIBE APP_VERSION_YEAR APP_VERSION_NUMBER)
+set(APP_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
+
 set(APP_DIR "${CMAKE_SOURCE_DIR}/app")
 set(APP_RESOURCE_DIR "${APP_DIR}/resources")
 
-add_subdirectory(lib/googletest)
-add_subdirectory(lib/googlemock)
-
-add_subdirectory(lib/optional-lite)
-add_subdirectory(lib/glew)
-add_subdirectory(lib/freeimage)
-add_subdirectory(lib/freetype)
-add_subdirectory(lib/tinyxml2)
-add_subdirectory(lib/miniz)
-add_subdirectory(lib/vecmath)
-
+add_subdirectory(lib)
 add_subdirectory(common)
+add_subdirectory(app)

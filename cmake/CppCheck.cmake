@@ -1,13 +1,13 @@
-FIND_PROGRAM(CPPCHECK_EXE cppcheck)
+find_program(CPPCHECK_EXE cppcheck)
 
-IF (CPPCHECK_EXE STREQUAL "CPPCHECK_EXE-NOTFOUND")
-    MESSAGE(STATUS "Could not find cppcheck, skipping checks")
-    ADD_CUSTOM_TARGET(
+if(CPPCHECK_EXE STREQUAL "CPPCHECK_EXE-NOTFOUND")
+    message(STATUS "Could not find cppcheck, skipping checks")
+    add_custom_target(
         cppcheck
         COMMENT "skipping cppcheck"
     )
-ELSE()
-    LIST(APPEND CPPCHECK_COMMON_ARGS
+else()
+    list(APPEND CPPCHECK_COMMON_ARGS
         --enable=warning,performance,portability
         --inline-suppr
         --std=c++17
@@ -16,7 +16,7 @@ ELSE()
         -I ${VECMATH_INCLUDE_DIR}
     )
 
-    LIST(APPEND CPPCHECK_ARGS
+    list(APPEND CPPCHECK_ARGS
         ${CPPCHECK_COMMON_ARGS}
         --verbose
         --error-exitcode=1
@@ -24,9 +24,9 @@ ELSE()
         2> ./cppcheck-errors.txt
     )
 
-    MESSAGE(STATUS "Found cppcheck: ${CPPCHECK_EXE}")
-    STRING (REPLACE ";" " " CPPCHECK_ARGS_STR "${CPPCHECK_ARGS}")
-    ADD_CUSTOM_TARGET(
+    message(STATUS "Found cppcheck: ${CPPCHECK_EXE}")
+    string(REPLACE ";" " " CPPCHECK_ARGS_STR "${CPPCHECK_ARGS}")
+    add_custom_target(
         cppcheck
         COMMAND ${CPPCHECK_EXE} "--version"
         COMMAND ${CPPCHECK_EXE} ${CPPCHECK_ARGS}
@@ -34,9 +34,9 @@ ELSE()
         COMMENT "running ${CPPCHECK_EXE} ${CPPCHECK_ARGS_STR}"
     )
 
-    FIND_PROGRAM(CPPCHECK_HTMLREPORT_EXE cppcheck-htmlreport)
-    IF (NOT CPPCHECK_HTMLREPORT_EXE STREQUAL "CPPCHECK_HTMLREPORT_EXE-NOTFOUND")
-        LIST(APPEND CPPCHECK_XML_ARGS
+    find_program(CPPCHECK_HTMLREPORT_EXE cppcheck-htmlreport)
+    if(NOT CPPCHECK_HTMLREPORT_EXE STREQUAL "CPPCHECK_HTMLREPORT_EXE-NOTFOUND")
+        list(APPEND CPPCHECK_XML_ARGS
             ${CPPCHECK_COMMON_ARGS}
             --error-exitcode=0
             --xml
@@ -44,8 +44,8 @@ ELSE()
             2> ./cppcheck-errors.xml
         )
 
-        STRING (REPLACE ";" " " CPPCHECK_XML_ARGS_STR "${CPPCHECK_XML_ARGS}")
-        ADD_CUSTOM_COMMAND(
+        string(REPLACE ";" " " CPPCHECK_XML_ARGS_STR "${CPPCHECK_XML_ARGS}")
+        add_custom_command(
             OUTPUT cppcheck-errors.xml
             COMMAND ${CPPCHECK_EXE} "--version"
             COMMAND ${CPPCHECK_EXE} ${CPPCHECK_XML_ARGS}
@@ -53,19 +53,19 @@ ELSE()
             COMMENT "running ${CPPCHECK_EXE} ${CPPCHECK_XML_ARGS_STR}"
         )
 
-        LIST(APPEND CPPCHECK_HTMLREPORT_ARGS
+        list(APPEND CPPCHECK_HTMLREPORT_ARGS
             --file cppcheck-errors.xml
             --report-dir=cppcheck_report
             --source-dir=${CMAKE_SOURCE_DIR}
         )
 
-        MESSAGE(STATUS "Found cppcheck-htmlreport: ${CPPCHECK_HTMLREPORT_EXE}")
-        STRING (REPLACE ";" " " CPPCHECK_HTMLREPORT_ARGS_STR "${CPPCHECK_HTMLREPORT_ARGS}")
-        ADD_CUSTOM_TARGET(
+        message(STATUS "Found cppcheck-htmlreport: ${CPPCHECK_HTMLREPORT_EXE}")
+        string(REPLACE ";" " " CPPCHECK_HTMLREPORT_ARGS_STR "${CPPCHECK_HTMLREPORT_ARGS}")
+        add_custom_target(
             cppcheck-report
             COMMAND ${CPPCHECK_HTMLREPORT_EXE} ${CPPCHECK_HTMLREPORT_ARGS}
             DEPENDS cppcheck-errors.xml
             COMMENT "running ${CPPCHECK_HTMLREPORT_EXE} ${CPPCHECK_HTMLREPORT_ARGS_STR}"
         )
-    ENDIF()
-ENDIF()
+    endif()
+endif()

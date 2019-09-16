@@ -1062,14 +1062,16 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/StepIterator.h
 )
 
-find_package(OpenGL REQUIRED)
-find_package(Qt5Widgets REQUIRED)
 set(CMAKE_AUTOMOC ON)
 
-add_library(common ${COMMON_SOURCE} ${COMMON_HEADER})
+add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 target_compile_features(common PRIVATE cxx_std_17)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common PUBLIC tinyxml2 vecmath optlite glew miniz freeimage freetype OpenGL::GL Qt5::Widgets)
+
+if(WIN32)
+    target_link_libraries(common stackwalker)
+endif()
 
 if(COMPILER_IS_CLANG)
     target_compile_options(common PRIVATE -Wall -Wextra -Weverything -pedantic -Wno-format -Wno-variadic-macros -Wno-c99-extensions -Wno-padded -Wno-unused-parameter -Wno-global-constructors -Wno-exit-time-destructors -Wno-weak-vtables -Wno-weak-template-vtables -Wno-float-equal -Wno-used-but-marked-unused -Wno-format-nonliteral -Wno-missing-noreturn -Wno-unused-local-typedef -Wno-double-promotion -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-implicit-fallthrough -Wno-zero-as-null-pointer-constant -Wno-switch-enum)
@@ -1103,12 +1105,6 @@ endif()
 
 
 # Create the cmake script for generating the version information
-
-# Need to find git first because GenerateVersion.cmake.in accesses the GIT_EXECUTABLE variable it populates.
-find_package(Git)
-if(NOT GIT_FOUND)
-    message(WARNING "Could not find git")
-endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateVersion.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake" @ONLY)
 target_include_directories(common PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
