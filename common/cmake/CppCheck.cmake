@@ -13,7 +13,7 @@ else()
         --std=c++17
         --language=c++
         -DMAIN=main
-        -I ${VECMATH_INCLUDE_DIR}
+        "-I$<JOIN:$<TARGET_PROPERTY:common,INTERFACE_INCLUDE_DIRECTORIES>, -I>"
     )
 
     list(APPEND CPPCHECK_ARGS
@@ -28,7 +28,7 @@ else()
     string(REPLACE ";" " " CPPCHECK_ARGS_STR "${CPPCHECK_ARGS}")
     add_custom_target(
         cppcheck
-        COMMAND ${CPPCHECK_EXE} "--version"
+        COMMAND ${CPPCHECK_EXE} --version
         COMMAND ${CPPCHECK_EXE} ${CPPCHECK_ARGS}
         DEPENDS common
         COMMENT "running ${CPPCHECK_EXE} ${CPPCHECK_ARGS_STR}"
