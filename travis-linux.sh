@@ -52,4 +52,4 @@ cd "$BUILD_DIR"
 echo "Shared libraries used:"
 ldd --verbose ./app/trenchbroom
 
-./print_linux_package_info.sh
+./app/print_linux_package_info.sh
