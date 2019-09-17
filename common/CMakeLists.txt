@@ -1070,7 +1070,7 @@ target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common PUBLIC tinyxml2 vecmath optlite glew miniz freeimage freetype OpenGL::GL Qt5::Widgets)
 
 if(WIN32)
-    target_link_libraries(common stackwalker)
+    target_link_libraries(common PRIVATE stackwalker)
 endif()
 
 if(COMPILER_IS_CLANG)
