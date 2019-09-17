@@ -65,7 +65,12 @@ endif()
 
 # Set up resource compilation for Windows
 if(WIN32)
-    # configure_file("${APP_SOURCE_DIR}/TrenchBroom.rc.in" "${CMAKE_CURRENT_BINARY_DIR}/TrenchBroom.rc" @ONLY)
+    # Create the cmake script for generating the version information
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateResourceFile.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/GenerateResourceFile.cmake" @ONLY)
+
+    add_custom_target(generate_resource_file ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/GenerateResourceFile.cmake")
+    add_dependencies(common generate_resource_file)
+
     if(COMPILER_IS_MSVC)
         set(APP_SOURCE ${APP_SOURCE} "${APP_SOURCE_DIR}/TrenchBroom.rc")
     elseif(MINGW)

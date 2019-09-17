@@ -1,11 +1,9 @@
-#include "Version.h"
-
 AAAAAAAA                ICON                    "../resources/win32/icons/AppIcon.ico"
 APPICON                 ICON                    "../resources/win32/icons/DocIcon.ico"
 
 1 VERSIONINFO
- FILEVERSION VERSION_RC
- PRODUCTVERSION VERSION_RC
+ FILEVERSION @APP_VERSION_YEAR@,@APP_VERSION_NUMBER@
+ PRODUCTVERSION @APP_VERSION_YEAR@,@APP_VERSION_NUMBER@
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -22,12 +20,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Kristian Duske"
             VALUE "FileDescription", "TrenchBroom Level Editor"
-            VALUE "FileVersion", VERSION_RC
+            VALUE "FileVersion", @APP_VERSION_YEAR@,@APP_VERSION_NUMBER@
             VALUE "InternalName", "TrenchBroom.exe"
             VALUE "LegalCopyright", "Copyright (C) 2010-2018"
             VALUE "OriginalFilename", "TrenchBroom.exe"
             VALUE "ProductName", "TrenchBroom"
-            VALUE "ProductVersion", VERSION_STR
+            VALUE "ProductVersion", "@APP_VERSION_YEAR@.@APP_VERSION_NUMBER@"
         END
     END
     BLOCK "VarFileInfo"
