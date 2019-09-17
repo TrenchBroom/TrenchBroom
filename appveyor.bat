@@ -28,12 +28,13 @@ IF ERRORLEVEL 1 GOTO ERROR
 
 call generate_checksum.bat
 
-Release\TrenchBroom-Test.exe
-
+Release\vecmath\test\vecmath-test.exe
 IF ERRORLEVEL 1 GOTO ERROR
 
-Release\TrenchBroom-Benchmark.exe
+Release\common\test\common-test.exe
+IF ERRORLEVEL 1 GOTO ERROR
 
+Release\common\benchmark\common-benchmark.exe
 IF ERRORLEVEL 1 GOTO ERROR
 
 GOTO END

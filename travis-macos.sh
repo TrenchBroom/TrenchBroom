@@ -48,8 +48,10 @@ cpack -C $BUILD_TYPE_VALUE || exit 1
 ./generate_checksum.sh
 
 cd "$BUILD_TYPE_VALUE"
-./TrenchBroom-Test || exit 1
-./TrenchBroom-Benchmark || exit 1
+
+./lib/vecmath/test/vecmath-test || exit 1
+./common/test/common-test || exit 1
+./common/benchmark/common-benchmark || exit 1
 
 echo "Shared libraries used:"
 otool -L ./TrenchBroom.app/Contents/MacOS/TrenchBroom

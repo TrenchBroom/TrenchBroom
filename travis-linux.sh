@@ -35,9 +35,9 @@ cpack || exit 1
 ./generate_checksum_rpm.sh
 
 # Run tests (wxgtk needs an X server running for the app to initialize)
-
-xvfb-run -a ./TrenchBroom-Test || exit 1
-xvfb-run -a ./TrenchBroom-Benchmark || exit 1
+./lib/vecmath/test/vecmath-test || exit 1
+xvfb-run -a ./common/test/common-test || exit 1
+xvfb-run -a ./common/benchmark/common-benchmark || exit 1
 
 echo "Shared libraries used:"
 ldd --verbose ./trenchbroom
