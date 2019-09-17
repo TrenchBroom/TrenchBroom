@@ -28,7 +28,7 @@ echo "TB_ENABLE_ASAN: $TB_ENABLE_ASAN_VALUE"
 
 mkdir build
 cd build
-cmake .. -GXcode -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DTB_RUN_MACDEPLOYQT=1 -DCMAKE_PREFIX_PATH="$(brew --prefix qt5)" || exit 1 # FIXME: Restore -DCMAKE_CXX_FLAGS="-Werror"
+cmake .. -GXcode -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DTB_RUN_MACDEPLOYQT=1 -DCMAKE_PREFIX_PATH="$(brew --prefix qt5)" || exit 1 # FIXME: Restore -DCMAKE_CXX_FLAGS="-Werror"
 
 cmake --build . --target cppcheck
 if [[ $? -ne 0 ]] ; then
@@ -47,17 +47,15 @@ cpack -C $BUILD_TYPE_VALUE || exit 1
 
 ./app/generate_checksum.sh
 
-cd "$BUILD_TYPE_VALUE"
-
 BUILD_DIR=$(pwd)
 
-cd "$BUILD_DIR/lib/vecmath/test"
+cd "$BUILD_DIR/lib/vecmath/test/$BUILD_TYPE_VALUE"
 ./vecmath-test || exit 1
 
-cd "$BUILD_DIR/common/test"
+cd "$BUILD_DIR/common/test/$BUILD_TYPE_VALUE"
 ./common-test || exit 1
 
-cd "$BUILD_DIR/common/benchmark"
+cd "$BUILD_DIR/common/benchmark/$BUILD_TYPE_VALUE"
 ./common-benchmark || exit 1
 
 cd "$BUILD_DIR"

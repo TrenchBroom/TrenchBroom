@@ -62,8 +62,6 @@ namespace TrenchBroom {
             TextureMode(GL_LINEAR_MIPMAP_LINEAR,    GL_LINEAR,  "Linear (mipmapped, interpolated")
         };
 
-        static const size_t NumFrameLayouts = 4;
-
         ViewPreferencePane::ViewPreferencePane(QWidget* parent) :
         PreferencePane(parent) {
             createGui();
