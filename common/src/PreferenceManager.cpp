@@ -155,7 +155,7 @@ namespace TrenchBroom {
     void PreferenceManager::markAsUnsaved(PreferenceBase* preference) {
         m_unsavedPreferences.insert(preference);
     }
-    
+
     PreferenceManager::PreferenceManager()
     : QObject(),
     m_preferencesFilePath(v2SettingsPath()),
@@ -165,11 +165,11 @@ namespace TrenchBroom {
 #else
         m_saveInstantly = false;
 #endif
-        
+
         migrateSettingsFromV1IfPathDoesNotExist(m_preferencesFilePath);
 
         this->loadCacheFromDisk();
-        
+
         m_fileSystemWatcher = new QFileSystemWatcher(this);
         if (!m_fileSystemWatcher->addPath(m_preferencesFilePath)) {
             qDebug() << "Couldn't start file system watcher for: " << m_preferencesFilePath;
@@ -182,7 +182,7 @@ namespace TrenchBroom {
 
     PreferenceManager& PreferenceManager::instance() {
         ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
-        
+
         static PreferenceManager prefs;
         return prefs;
     }
@@ -193,13 +193,13 @@ namespace TrenchBroom {
 
     void PreferenceManager::saveChanges() {
         qDebug() << "saveChanges";
-        
+
         for (auto* pref : m_unsavedPreferences) {
             savePreferenceToCache(pref);
             preferenceDidChangeNotifier(pref->path());
         }
         m_unsavedPreferences.clear();
-        
+
         if (!writeV2SettingsToPath(m_preferencesFilePath, m_cache)) {
             qDebug() << "error saving";
         }
@@ -207,7 +207,7 @@ namespace TrenchBroom {
 
     void PreferenceManager::discardChanges() {
         qDebug() << "discardChanges";
-        
+
         m_unsavedPreferences.clear();
         invalidatePreferences();
     }
@@ -216,15 +216,16 @@ namespace TrenchBroom {
     changedKeysForMapDiff(const std::map<IO::Path, QString>& before,
                           const std::map<IO::Path, QString>& after) {
         std::set<IO::Path> result;
-        
+
         // removes
         for (auto& [k, v] : before) {
+            unused(v);
             if (after.find(k) == after.end()) {
                 // removal
                 result.insert(k);
             }
         }
-        
+
         // adds/updates
         for (auto& [k, v] : after) {
             auto beforeIt = before.find(k);
@@ -238,10 +239,10 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         return result;
     }
-    
+
     /**
      * Reloads m_cache from the .json file,
      * marks all Preference<T> objects as needing deserialization next time they're accessed, and emits
@@ -249,11 +250,11 @@ namespace TrenchBroom {
      */
     void PreferenceManager::loadCacheFromDisk() {
         const std::map<IO::Path, QString> oldPrefs = m_cache;
-        
+
         // Reload m_cache
         m_cache = readV2SettingsFromPath(m_preferencesFilePath);
         qDebug() << "Read " << m_cache.size() << " preferences from " << m_preferencesFilePath;
-        
+
         invalidatePreferences();
 
         // Emit preferenceDidChangeNotifier for any changed preferences
@@ -262,7 +263,7 @@ namespace TrenchBroom {
             preferenceDidChangeNotifier(changedPath);
         }
     }
-    
+
     void PreferenceManager::invalidatePreferences() {
         // Force all currently known Preference<T> objects to deserialize from m_cache next time they are accessed
         // Note, because new Preference<T> objects can be created at runtime,
@@ -271,16 +272,17 @@ namespace TrenchBroom {
             pref->setValid(false);
         }
         for (auto& [path, prefPtr] : m_dynamicPreferences) {
+            unused(path);
             prefPtr->setValid(false);
         }
     }
-    
+
     /**
      * Updates the given PreferenceBase from m_cache.
      */
     void PreferenceManager::loadPreferenceFromCache(PreferenceBase* pref) {
         PreferenceSerializerV2 format;
-        
+
         auto it = m_cache.find(pref->path());
         if (it == m_cache.end()) {
             // no value set, use the default value
@@ -288,7 +290,7 @@ namespace TrenchBroom {
             pref->setValid(true);
             return;
         }
-        
+
         const QString stringValue = it->second;
         if (!pref->loadFromString(format, stringValue)) {
             qDebug() << "Error deserializing";
@@ -297,18 +299,18 @@ namespace TrenchBroom {
         }
         pref->setValid(true);
     }
-    
+
     void PreferenceManager::savePreferenceToCache(PreferenceBase* pref) {
         PreferenceSerializerV2 format;
         const QString stringValue = pref->writeToString(format);
-        
+
         m_cache[pref->path()] = stringValue;
-        
+
         qDebug() << "Saved to cache " << IO::pathAsQString(pref->path()) << " as '" << stringValue << "'";
     }
-    
+
     // V1 settings
-    
+
     std::map<IO::Path, QString> parseINI(QTextStream* iniStream) {
         IO::Path section;
         std::map<IO::Path, QString> result;
@@ -583,19 +585,19 @@ namespace TrenchBroom {
         QJsonDocument document(rootObject);
         return document.toJson(QJsonDocument::Indented);
     }
-    
+
     void migrateSettingsFromV1IfPathDoesNotExist(const QString& destinationPath) {
         // Check if the Preferences.json exists, migrate if not
-        
+
         QFileInfo prefsFileInfo(destinationPath);
         if (prefsFileInfo.exists()) {
             qDebug() << destinationPath << " already exists; skipping settings migration.";
             return;
         }
-        
+
         const std::map<IO::Path, QString> v2Prefs = migrateV1ToV2(readV1Settings());
         const bool ok = writeV2SettingsToPath(destinationPath, v2Prefs);
-        
+
         if (ok) {
             qDebug() << "Successfully migrated " << v2Prefs.size() << " settings to " << destinationPath;
         } else {

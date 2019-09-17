@@ -77,6 +77,7 @@ namespace TrenchBroom {
 
             m_stackedLayout = new QStackedLayout();
             for (auto& [matcherPtr, editor] : m_editors) {
+                unused(matcherPtr);
                 m_stackedLayout->addWidget(editor);
             }
             setLayout(m_stackedLayout);
