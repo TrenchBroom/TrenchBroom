@@ -1089,7 +1089,8 @@ elseif(COMPILER_IS_GNU)
     # FIXME: enable -Wcpp once we found a workaround for glew / QOpenGLWindow problem, see RenderView.h
     target_compile_options(common PRIVATE -Wno-cpp)
 elseif(COMPILER_IS_MSVC)
-    target_compile_options(common PRIVATE /W3 /EHsc /MP /D _CRT_SECURE_NO_DEPRECATE /D _CRT_NONSTDC_NO_DEPRECATE)
+    target_compile_definitions(common PRIVATE _CRT_SECURE_NO_DEPRECATE _CRT_NONSTDC_NO_DEPRECATE)
+    target_compile_options(common PRIVATE /W3 /EHsc /MP)
     target_compile_options(common PRIVATE "$<$<CONFIG:RELEASE>:/Ox>")
 
     # Generate debug symbols even for Release; we build a stripped pdb in Release mode, see TrenchBroomApp.cmake
