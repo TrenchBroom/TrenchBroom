@@ -54,6 +54,10 @@ endif()
 find_package(OpenGL REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 
+# Find threads lib, needed to work around a gtest bug, see: https://stackoverflow.com/questions/21116622/undefined-reference-to-pthread-key-create-linker-error
+# Both common-test and common-benchmark applications link to this library
+find_package(Threads)
+
 # Populate version variables using git
 get_git_describe("${GIT_EXECUTABLE}" "${CMAKE_SOURCE_DIR}" GIT_DESCRIBE)
 get_app_version(GIT_DESCRIBE APP_VERSION_YEAR APP_VERSION_NUMBER)

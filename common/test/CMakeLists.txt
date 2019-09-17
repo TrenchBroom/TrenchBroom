@@ -90,7 +90,10 @@ set(COMMON_TEST_SOURCE
 
 add_executable(common-test ${COMMON_TEST_SOURCE})
 target_include_directories(common-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
-target_link_libraries(common-test common gtest gmock)
+target_link_libraries(common-test PRIVATE common gtest gmock)
+
+# Work around for gtest bug, see: https://stackoverflow.com/questions/21116622/undefined-reference-to-pthread-key-create-linker-error
+target_link_libraries(common-test PRIVATE Threads::Threads)
 
 set(TEST_FIXTURE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fixture")
 
