@@ -12,9 +12,6 @@ add_executable(common-benchmark ${COMMON_BENCHMARK_SOURCE})
 target_include_directories(common-benchmark PRIVATE ${COMMON_BENCHMARK_SOURCE_DIR})
 target_link_libraries(common-benchmark PRIVATE common gtest)
 
-# Work around for gtest bug, see: https://stackoverflow.com/questions/21116622/undefined-reference-to-pthread-key-create-linker-error
-target_link_libraries(common-benchmark PRIVATE Threads::Threads)
-
 set(BENCHMARK_FIXTURE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fixture")
 
 set(BENCHMARK_RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:common-benchmark>")
