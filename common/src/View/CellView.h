@@ -67,15 +67,17 @@ namespace TrenchBroom {
         private:
             void onScrollBarValueChanged();
             void onScrollBarActionTriggered(int action);
-        public:
+        public: // QWidget overrides
             void mousePressEvent(QMouseEvent* event) override;
             void mouseReleaseEvent(QMouseEvent* event) override;
             void mouseMoveEvent(QMouseEvent* event) override;
             void wheelEvent(QWheelEvent* event) override;
-
+            bool event(QEvent* event) override;
+        public:
             void startDrag(const QMouseEvent* event);
             void scroll(const QMouseEvent* event);
-            void updateTooltip(const QMouseEvent* event);
+        private:
+            bool updateTooltip(QHelpEvent* event);
         private:
             void doRender() override;
             void setupGL();

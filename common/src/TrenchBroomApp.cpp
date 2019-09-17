@@ -65,6 +65,8 @@ namespace TrenchBroom {
 
 #if defined(_WIN32) && defined(_MSC_VER)
         LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs);
+#else
+        static void CrashHandler(int signum);
 #endif
 
         TrenchBroomApp::TrenchBroomApp(int& argc, char** argv) :
@@ -88,8 +90,7 @@ namespace TrenchBroom {
             // see also: http://crashrpt.sourceforge.net/docs/html/exception_handling.html
             SetUnhandledExceptionFilter(TrenchBroomUnhandledExceptionFilter);
 #else
-            // FIXME: add signal handler for this
-            // enable having TrenchBroomApp::OnFatalException called on segfaults
+            signal(SIGSEGV, CrashHandler);
 #endif
 
             // always set this locale so that we can properly parse floats from text files regardless of the platforms locale
@@ -404,39 +405,16 @@ namespace TrenchBroom {
             return inReportCrashAndExit;
         }
 
-        void TrenchBroomApp::OnUnhandledException() {
-            handleException();
-        }
-
-        bool TrenchBroomApp::OnExceptionInMainLoop() {
-            handleException();
-            return false;
-        }
-
-        void TrenchBroomApp::OnFatalException() {
-            reportCrashAndExit(TrenchBroomStackWalker::getStackTrace(), "OnFatalException");
-        }
-
 #if defined(_WIN32) && defined(_MSC_VER)
         LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs) {
             reportCrashAndExit(TrenchBroomStackWalker::getStackTraceFromContext(pExceptionPtrs->ContextRecord), "TrenchBroomUnhandledExceptionFilter");
             return EXCEPTION_EXECUTE_HANDLER;
         }
-#endif
-
-        void TrenchBroomApp::handleException() {
-            try {
-                throw;
-            } catch (Exception& e) {
-                const String reason = String("Exception: ") + e.what();
-                reportCrashAndExit("", reason);
-            } catch (std::exception& e) {
-                const String reason = String("std::exception: ") + e.what();
-                reportCrashAndExit("", reason);
-            } catch (...) {
-                reportCrashAndExit("", "Unknown exception");
-            }
+#else
+        static void CrashHandler(int signum) {
+            TrenchBroom::View::reportCrashAndExit(TrenchBroom::TrenchBroomStackWalker::getStackTrace(), "SIGSEGV");
         }
+#endif
 
         bool TrenchBroomApp::newDocument() {
             MapFrame* frame = nullptr;
@@ -502,6 +480,20 @@ namespace TrenchBroom {
 
             CrashDialog dialog(reportPath, mapPath, logPath);
             dialog.exec();
+        }
+        
+        /**
+         * If we catch exceptions in main() that are otherwise uncaught, Qt prints a warning to override QCoreApplication::notify()
+         * and catch exceptions there instead.
+         */
+        bool TrenchBroomApp::notify(QObject* receiver, QEvent* event) {
+            try {
+                return QApplication::notify(receiver, event);
+            } catch (const std::exception& e) {
+                // Unfortunately we can't portably get the stack trace of the exception itself
+                TrenchBroom::View::reportCrashAndExit("<uncaught exception>", e.what());
+                return false;
+            }
         }
 
         // FIXME: Probably not needed with Qt?

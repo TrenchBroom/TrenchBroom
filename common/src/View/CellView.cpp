@@ -160,8 +160,6 @@ namespace TrenchBroom {
                 }
             } else if ((event->buttons() & Qt::RightButton) && (event->modifiers() & Qt::AltModifier)) {
                 scroll(event);
-            } else {
-                updateTooltip(event);
             }
 
             m_lastMousePos = event->pos();
@@ -182,6 +180,13 @@ namespace TrenchBroom {
                 m_scrollBar->setValue(newTop);
                 requestUpdate();
             }
+        }
+
+        bool CellView::event(QEvent* event) {
+            if (event->type() == QEvent::ToolTip) {
+                return updateTooltip(static_cast<QHelpEvent*>(event));
+            }
+            return QWidget::event(event);
         }
 
         void CellView::startDrag(const QMouseEvent* event) {
@@ -222,18 +227,21 @@ namespace TrenchBroom {
             }
         }
 
-        void CellView::updateTooltip(const QMouseEvent* event) {
+        bool CellView::updateTooltip(QHelpEvent* event) {
             validate();
-            // TODO: Need to implement our own tooltip timer. QEvent::ToolTip is not delivered to QWindow
             int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
             float x = static_cast<float>(event->pos().x());
             float y = static_cast<float>(event->pos().y() + top);
             const LayoutCell* cell = nullptr;
+
+            // see: https://doc.qt.io/qt-5/qtwidgets-widgets-tooltips-example.html
             if (m_layout.cellAt(x, y, &cell)) {
                 QToolTip::showText(event->globalPos(), tooltip(*cell));
             } else {
                 QToolTip::hideText();
+                event->ignore();
             }
+            return true;
         }
 
         void CellView::doRender() {

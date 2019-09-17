@@ -93,6 +93,8 @@ namespace TrenchBroom {
         m_isCurrent(false) {
             setToolBox(toolBox);
             bindObservers();
+            
+            setAcceptDrops(true);
         }
 
         void MapViewBase::setCompass(std::unique_ptr<Renderer::Compass> compass) {
@@ -1054,40 +1056,25 @@ namespace TrenchBroom {
         }
 
         /**
-         * Forward drag and drop events from QOpenGLWindow to ToolBoxConnector
+         * Forward drag and drop events from QWidget to ToolBoxConnector
          */
-        bool MapViewBase::event(QEvent* ev) {
-            switch (ev->type()) {
-                case QEvent::DragEnter: {
-                    auto* dragEnterEvent = static_cast<QDragEnterEvent *>(ev);
-                    dragEnter(dragEnterEvent->pos().x(), dragEnterEvent->pos().y(), dragEnterEvent->mimeData()->text().toStdString());
-                    dragEnterEvent->accept();
-                    dragEnterEvent->acceptProposedAction();
-                    return true;
-                }
-                case QEvent::DragLeave: {
-                    dragLeave();
-                    ev->accept();
-                    return true;
-                }
-                case QEvent::DragMove: {
-                    auto* dragMoveEvent = static_cast<QDragMoveEvent *>(ev);
-                    dragMove(dragMoveEvent->pos().x(), dragMoveEvent->pos().y(), dragMoveEvent->mimeData()->text().toStdString());
-                    dragMoveEvent->accept();
-                    dragMoveEvent->acceptProposedAction();
-                    return true;
-                }
-                case QEvent::Drop: {
-                    auto* dropEvent = static_cast<QDropEvent *>(ev);
-                    dragDrop(dropEvent->pos().x(), dropEvent->pos().y(), dropEvent->mimeData()->text().toStdString());
-                    dropEvent->accept();
-                    dropEvent->acceptProposedAction();
-                    return true;
-                }
-                default:
-                    break;
-            }
-            return RenderView::event(ev);
+        void MapViewBase::dragEnterEvent(QDragEnterEvent* dragEnterEvent) {
+            dragEnter(dragEnterEvent->pos().x(), dragEnterEvent->pos().y(), dragEnterEvent->mimeData()->text().toStdString());
+            dragEnterEvent->acceptProposedAction();
+        }
+        
+        void MapViewBase::dragLeaveEvent(QDragLeaveEvent* event) {
+            dragLeave();
+        }
+        
+        void MapViewBase::dragMoveEvent(QDragMoveEvent* dragMoveEvent) {
+            dragMove(dragMoveEvent->pos().x(), dragMoveEvent->pos().y(), dragMoveEvent->mimeData()->text().toStdString());
+            dragMoveEvent->acceptProposedAction();
+        }
+        
+        void MapViewBase::dropEvent(QDropEvent* dropEvent) {
+            dragDrop(dropEvent->pos().x(), dropEvent->pos().y(), dropEvent->mimeData()->text().toStdString());
+            dropEvent->acceptProposedAction();
         }
 
         QMenu* MapViewBase::makeEntityGroupsMenu(const Assets::EntityDefinition::Type type) {

@@ -61,6 +61,7 @@ namespace TrenchBroom {
         };
 
         class EntityBrowserView : public CellView {
+            Q_OBJECT
         private:
             using EntityRenderer = Renderer::TexturedRenderer;
 

@@ -84,7 +84,6 @@
 #include <QToolBar>
 #include <QComboBox>
 #include <QVBoxLayout>
-#include <QDropEvent>
 #include <QMimeData>
 #include <QUrl>
 
@@ -99,6 +98,7 @@ namespace TrenchBroom {
         m_document(std::move(document)),
         m_autosaver(nullptr),
         m_autosaveTimer(nullptr),
+        m_toolBar(nullptr),
         m_hSplitter(nullptr),
         m_vSplitter(nullptr),
         m_contextManager(nullptr),
@@ -132,6 +132,7 @@ namespace TrenchBroom {
             updateShortcuts();
             updateActionState();
             updateUndoRedoActions();
+            updateToolBarWidgets();
 
             m_document->setParentLogger(m_console);
             m_document->setViewEffectsService(m_mapView);
@@ -141,8 +142,6 @@ namespace TrenchBroom {
 
             bindObservers();
             bindEvents();
-
-            setAcceptDrops(true);
 
             restoreWindowGeometry(this);
             restoreWindowState(this);
@@ -386,12 +385,12 @@ namespace TrenchBroom {
         };
 
         void MapFrame::createToolBar() {
-            QToolBar* toolBar = addToolBar("Toolbar");
-            toolBar->setObjectName("MapFrameToolBar");
-            toolBar->setFloatable(false);
-            toolBar->setMovable(false);
+            m_toolBar = addToolBar("Toolbar");
+            m_toolBar->setObjectName("MapFrameToolBar");
+            m_toolBar->setFloatable(false);
+            m_toolBar->setMovable(false);
 
-            ToolBarBuilder builder(*toolBar, m_actionMap, [this](const Action& action) {
+            ToolBarBuilder builder(*m_toolBar, m_actionMap, [this](const Action& action) {
                 ActionExecutionContext context(this, currentMapViewBase());
                 action.execute(context);
             });
@@ -406,8 +405,13 @@ namespace TrenchBroom {
                 m_gridChoice->addItem(gridSizeStr, QVariant(i));
             }
 
-            toolBar->addSeparator();
-            toolBar->addWidget(m_gridChoice);
+            m_toolBar->addWidget(m_gridChoice);
+        }
+
+        void MapFrame::updateToolBarWidgets() {
+            const Grid& grid = m_document->grid();
+            const int sizeIndex = grid.size() - Grid::MinSize;
+            m_gridChoice->setCurrentIndex(sizeIndex);
         }
 
         void MapFrame::createStatusBar() {
@@ -616,6 +620,7 @@ namespace TrenchBroom {
 
         void MapFrame::gridDidChange() {
             updateActionState();
+            updateToolBarWidgets();
         }
 
         void MapFrame::toolActivated(Tool* tool) {
@@ -648,6 +653,10 @@ namespace TrenchBroom {
             connect(qApp, &QApplication::focusChanged, this, &MapFrame::focusChange);
             connect(m_gridChoice, QOverload<int>::of(&QComboBox::activated), this, [this](const int index) { setGridSize(index + Grid::MinSize); });
             connect(QApplication::clipboard(), &QClipboard::dataChanged, this, &MapFrame::updatePasteActions);
+            connect(m_toolBar, &QToolBar::visibilityChanged, this, [this](const bool visible) {
+                // update the "Toggle Toolbar" menu item
+                this->updateActionState();
+            });
         }
 
         bool MapFrame::newDocument(Model::GameSPtr game, const Model::MapFormat mapFormat) {
@@ -1402,6 +1411,14 @@ namespace TrenchBroom {
         void MapFrame::switchToInspectorPage(const Inspector::InspectorPage page) {
             m_inspector->show();
             m_inspector->switchToPage(page);
+        }
+        
+        void MapFrame::toggleToolbar() {
+            m_toolBar->setVisible(!m_toolBar->isVisible());
+        }
+
+        bool MapFrame::toolbarVisible() const {
+            return m_toolBar->isVisible();
         }
 
         void MapFrame::toggleInfoPanel() {

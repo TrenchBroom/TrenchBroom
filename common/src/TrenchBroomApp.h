@@ -41,6 +41,7 @@ namespace TrenchBroom {
         class ExecutableEvent;
 
         class TrenchBroomApp : public QApplication {
+            Q_OBJECT
         private:
             std::unique_ptr<FrameManager> m_frameManager;
             std::unique_ptr<RecentDocuments> m_recentDocuments;
@@ -67,12 +68,6 @@ namespace TrenchBroom {
             void openPreferences();
             void openAbout();
             bool initializeGameFactory();
-
-            bool OnExceptionInMainLoop();
-            void OnUnhandledException();
-            void OnFatalException();
-        private:
-            void handleException();
         public:
             bool newDocument();
             void openDocument();
@@ -83,6 +78,8 @@ namespace TrenchBroom {
 
 //            void OnExecutableEvent(ExecutableEvent& event);
 
+            bool notify(QObject* receiver, QEvent* event) override;
+            
 #ifdef __APPLE__
             bool event(QEvent* event) override;
 #endif

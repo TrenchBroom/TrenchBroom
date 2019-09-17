@@ -57,6 +57,10 @@ namespace TrenchBroom {
 
             bool cancelMouseDrag();
 
+            /**
+             * If the parent of this view is a CyclingMapView, cycle to the
+             * next child, otherwise do nothing.
+             */
             void cycleMapView();
 
             /**
@@ -80,8 +84,6 @@ namespace TrenchBroom {
             virtual void doMoveCameraToCurrentTracePoint() = 0;
 
             virtual bool doCancelMouseDrag() = 0;
-
-            virtual void doCycleMapView();
 
             virtual void doRefreshViews() = 0;
         };

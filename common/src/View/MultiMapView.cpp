@@ -116,6 +116,10 @@ namespace TrenchBroom {
             return nullptr;
         }
 
+        void MultiMapView::cycleChildMapView(MapView* after) {
+            // only CyclingMapView support cycling
+        }
+        
         bool MultiMapView::doCancelMouseDrag() {
             bool result = false;
             for (MapView* mapView : m_mapViews) {

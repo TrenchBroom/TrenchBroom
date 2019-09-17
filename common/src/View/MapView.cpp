@@ -76,17 +76,13 @@ namespace TrenchBroom {
         }
 
         void MapView::cycleMapView() {
-            doCycleMapView();
+            if (m_container != nullptr) {
+                m_container->cycleChildMapView(this);
+            }
         }
 
         void MapView::refreshViews() {
             doRefreshViews();
-        }
-
-        void MapView::doCycleMapView() {
-            if (m_container != nullptr) {
-                m_container->cycleMapView();
-            }
         }
     }
 }

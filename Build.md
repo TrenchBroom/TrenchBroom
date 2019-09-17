@@ -1,8 +1,8 @@
 # Building TrenchBroom
 
-## All Platforms
+Follow these instructions if you want to get started developing on TrenchBroom.
 
-- We use [pandoc](http://www.pandoc.org) to generate the documentation. Install a binary distribution from the website and make sure that it is in your `PATH`, otherwise your builds will fail.
+To see how releases of TB are packaged, consult our CI scripts instead.
 
 ## Windows
 
@@ -21,8 +21,8 @@
           - **Desktop development with C++**
   - Download and install [Qt](https://www.qt.io/download) for MSVC 2017 32-bit
   - Download and install [CMake](http://www.cmake.org) for Windows
-  - Open a command prompt and change into the directory where you unpacked the TrenchBroom sources.
-  - Create a new directory, e.g. "build", and change into it.
+  - Download and install [pandoc](http://www.pandoc.org)
+  - Create a subdirectory of the TrenchBroom directory, e.g. "build", and open a command prompt there
   - For Visual Studio 2017, run:
 
     ```
@@ -41,9 +41,9 @@
 
 ## Linux
 ### Dependencies
-Compiling wxWidgets 3 requires the following dependencies. You should install them using the packager of your Linux distribution.
-- g++ GNU c++ compiler
-- Qt
+TrenchBroom depends on:
+- g++ >= 7
+- Qt >= 5.9
 - FreeImage: libfreeimage-dev
 - OpenGL and GLU development headers (Mesa OpenGL development packages)
   freeglut3, freeglut3-dev, mesa-common-dev
@@ -51,10 +51,10 @@ Compiling wxWidgets 3 requires the following dependencies. You should install th
 - If you have a debian-based distribution, install them with this command:
 
   ```
-  sudo apt-get install libgtk2.0-dev freeglut3 freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc
+  sudo apt-get install g++-7 qt59base freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build
   ```
 
-Compiling and linking TrenchBroom requires a working OpenGL installation. [This page](http://www.wikihow.com/Install-Mesa-%28OpenGL%29-on-Linux-Mint) may help you if you see linker errors about missing GL libraries.
+  (adjust `qt59base` as needed)
 
 ### Build TrenchBroom
 - Open a terminal and change into the directory where you unpacked the TrenchBroom sources
@@ -62,62 +62,33 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
 - Run the following two commands
 
   ```
-  cmake .. -DCMAKE_BUILD_TYPE=Release
+  cmake .. -DCMAKE_BUILD_TYPE=Debug
   cmake --build . --target TrenchBroom
   ```
 
-- You can replace "Release" with "Debug" if you want to create a debug build.
-
-- Unless you install TrenchBroom system-wide (see Packaging below), you'll need to set the `TB_DEV_MODE` environment variable to `1` when launching TrenchBroom:
-
-  ```
-  TB_DEV_MODE=1 ./trenchbroom
-  ```
-
-  This is necessary to tell TrenchBroom to look for resources in the current directory, instead of a system-wide location (in `/usr/`).
-
-### Packaging
-- If you want to create packages for Linux (deb or rpm), then you'll need to install these packages: devscripts, debhelper, rpm
-
-  ```
-  sudo apt-get install devscripts debhelper rpm
-  ```
+- You can replace "Debug" with "Release" if you want to create a release build.
 
 ## Mac OS X
 ### Build environment
 1. Get Xcode from the App Store
 
 2. Dependencies
-    - Install cmake (required) and ninja (optional). For example, with homebrew:
 
       ```
-      brew install cmake ninja
+      brew install cmake qt pandoc
       ```
 
-3. Install Qt
-
-4. Build
-    - For a release build:
-
-      ```
-      mkdir build-ninja
-      cd build-ninja
-      cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DwxWidgets_PREFIX=/your/wxWidgets/directory/build-release/install
-      ninja
-      ```
-
-    - To generate an Xcode project for developing with:
+3. Build
 
       ```
       mkdir build-xcode
       cd build-xcode
-      cmake .. -GXcode -DCMAKE_BUILD_TYPE=Debug -DwxWidgets_PREFIX=/your/wxWidgets/directory/build-debug/install
+      cmake .. -GXcode -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$(brew --prefix qt)"
       open TrenchBroom.xcodeproj
       ```
 
       Don't enable *Address Sanitizer* in Xcode; it breaks rebuilding of the project (see [#1373](https://github.com/kduske/TrenchBroom/issues/1373)).
 
 ### Notes
-- You can install your preferred wxWidgets configuration using `make install`. If you wish to do this, then you can omit specifying the `wxWidgets_PREFIX` variable when generating the build configs with Cmake.
 - The changelog is generated with `git log --oneline --decorate <LAST_REL_TAG>..HEAD`, where <LAST_REL_TAG> is replaced by whatever tag marks the last release. The generated log is then manually cleaned up.
 - To create a release, push the appropriate tag, e.g. `git tag -a v2019.1 -m "This tag marks TrenchBroom 2019.1."`, then `git push origin v2019.1`.
