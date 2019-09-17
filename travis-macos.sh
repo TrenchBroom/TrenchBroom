@@ -63,4 +63,4 @@ cd "$BUILD_DIR/common/benchmark"
 cd "$BUILD_DIR"
 
 echo "Shared libraries used:"
-otool -L ./TrenchBroom.app/Contents/MacOS/TrenchBroom
+otool -L ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom

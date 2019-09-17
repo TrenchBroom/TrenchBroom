@@ -50,6 +50,6 @@ xvfb-run -a ./common-benchmark || exit 1
 cd "$BUILD_DIR"
 
 echo "Shared libraries used:"
-ldd --verbose ./trenchbroom
+ldd --verbose ./app/trenchbroom
 
 ./print_linux_package_info.sh

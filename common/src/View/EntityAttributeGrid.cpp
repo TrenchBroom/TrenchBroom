@@ -359,6 +359,7 @@ namespace TrenchBroom {
             layout->addLayout(toolBar, 0);
             setLayout(layout);
 
+            // FIXME: warning in MSVC
             printf("et: %d\n", m_table->editTriggers());
 
             //m_table->setEditTriggers(QAbstractItemView::SelectedClicked | QAbstractItemView::AnyKeyPressed);
