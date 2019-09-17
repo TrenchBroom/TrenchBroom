@@ -53,6 +53,7 @@
 #include <QUrl>
 
 #include <clocale>
+#include <csignal>
 #include <cstdlib>
 #include <fstream>
 
@@ -397,7 +398,7 @@ namespace TrenchBroom {
                 CrashDialog dialog(reportPath, mapPath, logPath);
                 dialog.exec();
             }
-            
+
             std::abort();
         }
 
@@ -481,7 +482,7 @@ namespace TrenchBroom {
             CrashDialog dialog(reportPath, mapPath, logPath);
             dialog.exec();
         }
-        
+
         /**
          * If we catch exceptions in main() that are otherwise uncaught, Qt prints a warning to override QCoreApplication::notify()
          * and catch exceptions there instead.
