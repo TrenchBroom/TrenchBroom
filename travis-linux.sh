@@ -38,7 +38,7 @@ cpack || exit 1
 
 BUILD_DIR=$(pwd)
 
-cd "$BUILD_DIR/lib/vecmath/test "
+cd "$BUILD_DIR/lib/vecmath/test"
 ./vecmath-test || exit 1
 
 cd "$BUILD_DIR/common/test"
