@@ -45,13 +45,22 @@ fi
 cmake --build . --config "$BUILD_TYPE_VALUE" || exit 1
 cpack -C $BUILD_TYPE_VALUE || exit 1
 
-./generate_checksum.sh
+./app/generate_checksum.sh
 
 cd "$BUILD_TYPE_VALUE"
 
-./lib/vecmath/test/vecmath-test || exit 1
-./common/test/common-test || exit 1
-./common/benchmark/common-benchmark || exit 1
+BUILD_DIR=$(pwd)
+
+cd "$BUILD_DIR/lib/vecmath/test "
+./vecmath-test || exit 1
+
+cd "$BUILD_DIR/common/test"
+./common-test || exit 1
+
+cd "$BUILD_DIR/common/benchmark"
+./common-benchmark || exit 1
+
+cd "$BUILD_DIR"
 
 echo "Shared libraries used:"
 otool -L ./TrenchBroom.app/Contents/MacOS/TrenchBroom

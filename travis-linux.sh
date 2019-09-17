@@ -31,13 +31,23 @@ cmake .. -GNinja -DCMAKE_PREFIX_PATH=/opt/qt59 -DCMAKE_BUILD_TYPE=Release || exi
 cmake --build . --config Release || exit 1
 cpack || exit 1
 
-./generate_checksum_deb.sh
-./generate_checksum_rpm.sh
+./app/generate_checksum_deb.sh
+./app/generate_checksum_rpm.sh
 
 # Run tests (wxgtk needs an X server running for the app to initialize)
-./lib/vecmath/test/vecmath-test || exit 1
-xvfb-run -a ./common/test/common-test || exit 1
-xvfb-run -a ./common/benchmark/common-benchmark || exit 1
+
+BUILD_DIR=$(pwd)
+
+cd "$BUILD_DIR/lib/vecmath/test "
+./vecmath-test || exit 1
+
+cd "$BUILD_DIR/common/test"
+xvfb-run -a ./common-test || exit 1
+
+cd "$BUILD_DIR/common/benchmark"
+xvfb-run -a ./common-benchmark || exit 1
+
+cd "$BUILD_DIR"
 
 echo "Shared libraries used:"
 ldd --verbose ./trenchbroom
