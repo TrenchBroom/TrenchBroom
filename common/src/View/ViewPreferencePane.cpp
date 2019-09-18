@@ -252,7 +252,7 @@ namespace TrenchBroom {
 
 
         void ViewPreferencePane::layoutChanged(const int index) {
-            assert(index >= 0 && index < static_cast<int>(NumFrameLayouts));
+            assert(index >= 0 && index < 4);
 
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::MapViewLayout, index);

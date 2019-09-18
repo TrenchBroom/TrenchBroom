@@ -1,4 +1,4 @@
-include(../../cmake/Utils.cmake)
+include(@CMAKE_SOURCE_DIR@/cmake/Utils.cmake)
 
 get_git_describe("@GIT_EXECUTABLE@" "@CMAKE_SOURCE_DIR@" GIT_DESCRIBE)
 get_app_version(GIT_DESCRIBE APP_VERSION_YEAR APP_VERSION_NUMBER)

@@ -1,5 +1,6 @@
 # Using TARGET_LINK_LIBRARY to link an object library to qt requires 3.12
-cmake_minimum_required(VERSION 3.12)
+# Using target_link_options requires Cmake 3.13
+cmake_minimum_required(VERSION 3.13)
 
 # Configure CCache if available
 find_program(CCACHE_FOUND ccache)
@@ -63,6 +64,7 @@ get_git_describe("${GIT_EXECUTABLE}" "${CMAKE_SOURCE_DIR}" GIT_DESCRIBE)
 get_app_version(GIT_DESCRIBE APP_VERSION_YEAR APP_VERSION_NUMBER)
 set(APP_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
 
+# Some global variables used in several targets
 set(APP_DIR "${CMAKE_SOURCE_DIR}/app")
 set(APP_RESOURCE_DIR "${APP_DIR}/resources")
 
