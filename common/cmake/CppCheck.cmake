@@ -1,10 +1,24 @@
-find_program(CPPCHECK_EXE cppcheck)
+if(NOT CPPCHECK_EXE AND NOT CPPCHECK_EXE-NOTFOUND)
+    find_program(CPPCHECK_EXE cppcheck)
+    if(CPPCHECK_EXE-NOTFOUND)
+        message(STATUS "Could not find cppcheck, skipping checks")
+    else()
+        message(STATUS "Found cppcheck: ${CPPCHECK_EXE}")
 
-if(CPPCHECK_EXE STREQUAL "CPPCHECK_EXE-NOTFOUND")
+        find_program(CPPCHECK_HTMLREPORT_EXE cppcheck-htmlreport)
+        if(CPPCHECK_HTMLREPORT_EXE-NOTFOUND)
+            message(STATUS "Could not find cppcheck-htmlreport")
+        else()
+            message(STATUS "Found cppcheck-htmlreport: ${CPPCHECK_HTMLREPORT_EXE}")
+        endif()
+    endif()
+endif()
+
+if(CPPCHECK_EXE-NOTFOUND)
     message(STATUS "Could not find cppcheck, skipping checks")
     add_custom_target(
-        cppcheck
-        COMMENT "skipping cppcheck"
+            cppcheck
+            COMMENT "skipping cppcheck"
     )
 else()
     list(APPEND CPPCHECK_COMMON_ARGS
@@ -24,7 +38,6 @@ else()
         2> ./cppcheck-errors.txt
     )
 
-    message(STATUS "Found cppcheck: ${CPPCHECK_EXE}")
     string(REPLACE ";" " " CPPCHECK_ARGS_STR "${CPPCHECK_ARGS}")
     add_custom_target(
         cppcheck
@@ -34,8 +47,7 @@ else()
         COMMENT "running ${CPPCHECK_EXE} ${CPPCHECK_ARGS_STR}"
     )
 
-    find_program(CPPCHECK_HTMLREPORT_EXE cppcheck-htmlreport)
-    if(NOT CPPCHECK_HTMLREPORT_EXE STREQUAL "CPPCHECK_HTMLREPORT_EXE-NOTFOUND")
+    if(NOT CPPCHECK_HTMLREPORT_EXE-NOTFOUND)
         list(APPEND CPPCHECK_XML_ARGS
             ${CPPCHECK_COMMON_ARGS}
             --error-exitcode=0
@@ -59,7 +71,6 @@ else()
             --source-dir=${CMAKE_SOURCE_DIR}
         )
 
-        message(STATUS "Found cppcheck-htmlreport: ${CPPCHECK_HTMLREPORT_EXE}")
         string(REPLACE ";" " " CPPCHECK_HTMLREPORT_ARGS_STR "${CPPCHECK_HTMLREPORT_ARGS}")
         add_custom_target(
             cppcheck-report
