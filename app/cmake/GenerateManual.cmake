@@ -62,8 +62,7 @@ foreach(MANUAL_FILE ${DOC_MANUAL_SOURCE_FILES})
     )
 endforeach(MANUAL_FILE)
 
-# Copy the images as well
-
+# Collect images and copy them to the correct locations
 file(GLOB DOC_MANUAL_SOURCE_IMAGE_FILES
     "${DOC_MANUAL_IMAGES_SOURCE_DIR}/*.png"
     "${DOC_MANUAL_IMAGES_SOURCE_DIR}/*.gif"
@@ -82,4 +81,4 @@ foreach(IMAGE_FILE ${DOC_MANUAL_SOURCE_IMAGE_FILES})
     )
 endforeach(IMAGE_FILE)
 
-add_custom_target(GenerateManual DEPENDS ${DOC_MANUAL_TARGET_FILES} ${DOC_MANUAL_IMAGES_TARGET_FILES})
+add_custom_target(GenerateManual DEPENDS ${DOC_MANUAL_SOURCE_FILES} ${DOC_MANUAL_SOURCE_IMAGE_FILES})
