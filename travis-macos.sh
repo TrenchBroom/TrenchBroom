@@ -43,9 +43,6 @@ if [[ $? -ne 0 ]] ; then
 fi
 
 cmake --build . --config "$BUILD_TYPE_VALUE" -- -quiet || exit 1
-cpack -C $BUILD_TYPE_VALUE || exit 1
-
-./app/generate_checksum.sh
 
 BUILD_DIR=$(pwd)
 
@@ -59,6 +56,9 @@ cd "$BUILD_DIR/common/benchmark/$BUILD_TYPE_VALUE"
 ./common-benchmark || exit 1
 
 cd "$BUILD_DIR"
+
+cpack -C $BUILD_TYPE_VALUE || exit 1
+./app/generate_checksum.sh
 
 echo "Shared libraries used:"
 otool -L ./app/$BUILD_TYPE_VALUE/TrenchBroom.app/Contents/MacOS/TrenchBroom

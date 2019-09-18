@@ -29,10 +29,6 @@ cmake .. -GNinja -DCMAKE_PREFIX_PATH=/opt/qt59 -DCMAKE_BUILD_TYPE=Release || exi
 # Ubuntu's cppcheck is too old
 #cmake --build . --target cppcheck || exit 1
 cmake --build . --config Release || exit 1
-cpack || exit 1
-
-./app/generate_checksum_deb.sh
-./app/generate_checksum_rpm.sh
 
 # Run tests (wxgtk needs an X server running for the app to initialize)
 
@@ -48,6 +44,11 @@ cd "$BUILD_DIR/common/benchmark"
 xvfb-run -a ./common-benchmark || exit 1
 
 cd "$BUILD_DIR"
+
+cpack || exit 1
+
+./app/generate_checksum_deb.sh
+./app/generate_checksum_rpm.sh
 
 echo "Shared libraries used:"
 ldd --verbose ./app/trenchbroom
