@@ -6,6 +6,4 @@ add_library(glew STATIC ${LIB_GLEW_SOURCE})
 target_compile_options(glew PRIVATE -w) # supress all warnings
 target_compile_definitions(glew PUBLIC GLEW_STATIC)
 target_include_directories(glew
-        SYSTEM PUBLIC
-        $<BUILD_INTERFACE:${LIB_GLEW_INCLUDE_DIR}>
-        $<INSTALL_INTERFACE:glew/include/GL>)
+        SYSTEM PUBLIC ${LIB_GLEW_INCLUDE_DIR})

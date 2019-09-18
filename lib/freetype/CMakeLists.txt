@@ -81,7 +81,7 @@ if(FREETYPE_FOUND)
         add_library(freetype STATIC IMPORTED GLOBAL)
     endif()
     set_target_properties(freetype PROPERTIES IMPORTED_LOCATION ${FREETYPE_LIBRARY})
-    target_include_directories(freetype INTERFACE ${FREETYPE_INCLUDE_PATH})
+    target_include_directories(freetype SYSTEM INTERFACE ${FREETYPE_INCLUDE_PATH})
 
     if(APPLE OR MINGW)
         target_link_libraries(freetype INTERFACE z)

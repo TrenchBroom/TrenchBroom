@@ -1073,6 +1073,11 @@ if(WIN32)
     target_link_libraries(common PRIVATE stackwalker)
 endif()
 
+if(APPLE)
+    # Silence macOS OpenGL deprecation warnings
+    target_compile_definitions(common PUBLIC GL_SILENCE_DEPRECATION)
+endif()
+
 if(COMPILER_IS_CLANG)
     target_compile_options(common PRIVATE -Wall -Wextra -Weverything -pedantic -Wno-format -Wno-variadic-macros -Wno-c99-extensions -Wno-padded -Wno-unused-parameter -Wno-global-constructors -Wno-exit-time-destructors -Wno-weak-vtables -Wno-weak-template-vtables -Wno-float-equal -Wno-used-but-marked-unused -Wno-format-nonliteral -Wno-missing-noreturn -Wno-unused-local-typedef -Wno-double-promotion -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-implicit-fallthrough -Wno-zero-as-null-pointer-constant -Wno-switch-enum)
     target_compile_options(common PRIVATE "$<$<CONFIG:RELEASE>:-O3>")

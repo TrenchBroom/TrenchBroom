@@ -9,7 +9,4 @@ target_compile_options(gtest PRIVATE -w) # supress all warnings
 target_link_libraries(gtest PUBLIC Threads::Threads)
 
 target_include_directories(gtest
-        PRIVATE ${LIB_GTEST_INCLUDE_DIR}
-        SYSTEM PUBLIC
-        $<BUILD_INTERFACE:${LIB_GTEST_INCLUDE_DIR}>
-        $<INSTALL_INTERFACE:gtest/include/gtest>)
+        SYSTEM PUBLIC ${LIB_GTEST_INCLUDE_DIR})
