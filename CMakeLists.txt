@@ -1,6 +1,6 @@
-# Using TARGET_LINK_LIBRARY to link an object library to qt requires 3.12
-# Using target_link_options requires Cmake 3.13
-cmake_minimum_required(VERSION 3.13)
+# Using target_link_library to link an object library to qt requires 3.12
+# 3.12.4 is the maximum version supported on travis / linux out of the box
+cmake_minimum_required(VERSION 3.12)
 
 # Configure CCache if available
 find_program(CCACHE_FOUND ccache)

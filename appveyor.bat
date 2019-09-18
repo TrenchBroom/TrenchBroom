@@ -22,12 +22,6 @@ cmake --build . --config Release
 
 IF ERRORLEVEL 1 GOTO ERROR
 
-cpack
-
-IF ERRORLEVEL 1 GOTO ERROR
-
-call generate_checksum.bat
-
 Release\vecmath\test\vecmath-test.exe
 IF ERRORLEVEL 1 GOTO ERROR
 
@@ -36,6 +30,12 @@ IF ERRORLEVEL 1 GOTO ERROR
 
 Release\common\benchmark\common-benchmark.exe
 IF ERRORLEVEL 1 GOTO ERROR
+
+cpack
+
+IF ERRORLEVEL 1 GOTO ERROR
+
+call generate_checksum.bat
 
 GOTO END
 

@@ -138,6 +138,7 @@ if(WIN32)
     add_custom_command(TARGET TrenchBroom POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freeimage>" "$<TARGET_FILE_DIR:TrenchBroom>"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freetype>" "$<TARGET_FILE_DIR:TrenchBroom>"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:z>" "$<TARGET_FILE_DIR:TrenchBroom>"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Widgets>" "$<TARGET_FILE_DIR:TrenchBroom>"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Gui>" "$<TARGET_FILE_DIR:TrenchBroom>"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Core>" "$<TARGET_FILE_DIR:TrenchBroom>")
@@ -235,12 +236,11 @@ if(WIN32)
     install(FILES
             $<TARGET_FILE:freeimage>
             $<TARGET_FILE:freetype>
+            $<TARGET_FILE:z>
             $<TARGET_FILE:Qt5::Widgets>
             $<TARGET_FILE:Qt5::Gui>
             $<TARGET_FILE:Qt5::Core>
             DESTINATION . COMPONENT TrenchBroom)
-
-    # file(GLOB WIN_LIBS "${LIB_BIN_DIR}/win32/*.dll")
 
     #Qt plugins
     install(FILES
@@ -250,9 +250,6 @@ if(WIN32)
             $<TARGET_FILE:Qt5::QWindowsVistaStylePlugin>
             DESTINATION styles COMPONENT TrenchBroom)
 
-    # install(FILES
-    #         ${WIN_LIBS}
-    #         DESTINATION . COMPONENT TrenchBroom)
     install(FILES
             ${DOC_MANUAL_TARGET_FILES}
             DESTINATION manual COMPONENT TrenchBroom)
@@ -269,7 +266,7 @@ if(WIN32)
     set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY FALSE)
 
     set(CPACK_PACKAGE_FILE_EXT "7z")
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateChecksum.bat.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum.bat" @ONLY)
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateChecksum.bat.in" "${CMAKE_BINARY_DIR}/generate_checksum.bat" @ONLY)
 elseif(APPLE)
     install(TARGETS TrenchBroom BUNDLE DESTINATION . COMPONENT TrenchBroom)
     set(CPACK_GENERATOR "DragNDrop")

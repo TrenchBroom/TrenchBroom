@@ -1099,7 +1099,10 @@ elseif(COMPILER_IS_MSVC)
     # Request 8MB stack on Windows.
     # Default is 1MB and we need more for our current AABB builder on large maps (https://github.com/kduske/TrenchBroom/issues/2803)
     set(TB_STACK_SIZE 8388608)
-    target_link_options(common PUBLIC "/STACK:${TB_STACK_SIZE}")
+    set_target_properties(common PROPERTIES LINK_FLAGS "/STACK:${TB_STACK_SIZE}")
+
+    # target_link_options was added to CMake 3.13, but we are on 3.12 for now
+    # target_link_options(common PUBLIC "/STACK:${TB_STACK_SIZE}")
 else()
     message(FATAL_ERROR "Cannot set compile options for target common")
 endif()
