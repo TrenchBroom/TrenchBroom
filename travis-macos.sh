@@ -61,4 +61,4 @@ cd "$BUILD_DIR/common/benchmark/$BUILD_TYPE_VALUE"
 cd "$BUILD_DIR"
 
 echo "Shared libraries used:"
-otool -L ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom
+otool -L ./app/$BUILD_TYPE_VALUE/TrenchBroom.app/Contents/MacOS/TrenchBroom
