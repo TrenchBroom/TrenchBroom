@@ -22,14 +22,22 @@ cmake --build . --config Release
 
 IF ERRORLEVEL 1 GOTO ERROR
 
-Release\vecmath\test\vecmath-test.exe
-IF ERRORLEVEL 1 GOTO ERROR
+set BUILD_DIR="%cd%"
 
-Release\common\test\common-test.exe
+cd lib\vecmath\test\Release
+vecmath-test.exe
 IF ERRORLEVEL 1 GOTO ERROR
+cd "%BUILD_DIR%"
 
-Release\common\benchmark\common-benchmark.exe
+cd common\test\Release
+common-test.exe
 IF ERRORLEVEL 1 GOTO ERROR
+cd "%BUILD_DIR%"
+
+cd common\benchmark\Release
+common-benchmark.exe
+IF ERRORLEVEL 1 GOTO ERROR
+cd "%BUILD_DIR%"
 
 cpack
 

@@ -17,10 +17,19 @@ set(BENCHMARK_FIXTURE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fixture")
 set(BENCHMARK_RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:common-benchmark>")
 set(BENCHMARK_FIXTURE_DEST_DIR "${BENCHMARK_RESOURCE_DEST_DIR}/fixture")
 
+# Copy DLLs to app directory
+add_custom_command(TARGET common-benchmark POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freeimage>" "$<TARGET_FILE_DIR:common-benchmark>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freetype>" "$<TARGET_FILE_DIR:common-benchmark>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:z>" "$<TARGET_FILE_DIR:common-benchmark>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Widgets>" "$<TARGET_FILE_DIR:common-benchmark>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Gui>" "$<TARGET_FILE_DIR:common-benchmark>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Core>" "$<TARGET_FILE_DIR:common-benchmark>")
+
 # Clear all fixtures
-ADD_CUSTOM_COMMAND(TARGET common-benchmark POST_BUILD
+add_custom_command(TARGET common-benchmark POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E remove_directory "${BENCHMARK_FIXTURE_DEST_DIR}")
 
 # Copy test fixtures
-ADD_CUSTOM_COMMAND(TARGET common-benchmark POST_BUILD
+add_custom_command(TARGET common-benchmark POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${BENCHMARK_FIXTURE_SOURCE_DIR}" "${BENCHMARK_FIXTURE_DEST_DIR}/benchmark")
