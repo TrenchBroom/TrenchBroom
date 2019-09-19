@@ -36,9 +36,9 @@
 #include <QCloseEvent>
 #include <QDialogButtonBox>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QTextEdit>
-#include <QtWidgets/QMessageBox>
 
 namespace TrenchBroom {
     namespace View {

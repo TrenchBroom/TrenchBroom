@@ -17,8 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TrenchBroomApp.h"
 #include "RenderView.h"
+
+#include "TrenchBroomApp.h"
 #include "Exceptions.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -30,8 +31,39 @@
 #include "View/InputEvent.h"
 #include "View/wxUtils.h"
 
-#include <QDateTime>
+/*
+ * - glew requires it is included before <OpenGL/gl.h>
+ *
+ * - Qt requires that glew is included after <qopengl.h> and <QOpenGLFunctions>
+ * - QOpenGLWidget includes <qopengl.h>
+ * - qopengl.h includes OpenGL/gl.h
+ *
+ * therefore
+ * - glew wants to be included first
+ * - and so does QOpenGLWidget
+ *
+ * Since including glew before QOpenGLWidget only generates a warning and does not seem to incur any ill effects,
+ * we silence the warning here.
+ *
+ * Note that GCC does not let us silence this warning using diagnostic pragmas, so it is disabled in the CXX_FLAGS!
+ */
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcpp"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcpp"
+#endif
+
 #include <QOpenGLContext>
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
+#include <QDateTime>
 #include <QPalette>
 #include <QTimer>
 #include <QWidget>
