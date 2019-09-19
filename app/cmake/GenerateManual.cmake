@@ -84,7 +84,7 @@ add_custom_command(OUTPUT ${DOC_MANUAL_TARGET_FILES_ABSOLUTE}
 
 # Collect images and copy them to the correct locations
 # DOC_MANUAL_SOURCE_IMAGE_FILES_ABSOLUTE contains the absolute paths to all source image files
-# DOC_MANUAL_SOURCE_IMAGE_FILES_ABSOLUTE_RELATIVE contains the relative paths to all source image files, relative to DOC_MANUAL_IMAGES_SOURCE_DIR
+# DOC_MANUAL_SOURCE_IMAGE_FILES_RELATIVE contains the relative paths to all source image files, relative to DOC_MANUAL_IMAGES_SOURCE_DIR
 # DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE contains the absolute paths to all target image files (used for dependency tracking)
 
 # Collect images
@@ -99,8 +99,8 @@ foreach(IMAGE_SOURCE_FILE_ABSOLUTE ${DOC_MANUAL_SOURCE_IMAGE_FILES_ABSOLUTE})
     set(IMAGE_TARGET_FILE "${DOC_MANUAL_IMAGES_TARGET_DIR}/${IMAGE_FILE_NAME}")
 
     file(RELATIVE_PATH IMAGE_SOURCE_FILE_RELATIVE "${DOC_MANUAL_IMAGES_SOURCE_DIR}" "${IMAGE_SOURCE_FILE_ABSOLUTE}")
-    set(DOC_MANUAL_SOURCE_IMAGE_FILES_ABSOLUTE_RELATIVE
-        ${DOC_MANUAL_SOURCE_IMAGE_FILES_ABSOLUTE_RELATIVE}
+    set(DOC_MANUAL_SOURCE_IMAGE_FILES_RELATIVE
+        ${DOC_MANUAL_SOURCE_IMAGE_FILES_RELATIVE}
         "${IMAGE_SOURCE_FILE_RELATIVE}")
 
     set(DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE
@@ -111,7 +111,7 @@ endforeach(IMAGE_SOURCE_FILE_ABSOLUTE)
 
 # Copy the images using the relative paths (absolute paths would yield very long command lines which are then truncated by MSVC)
 add_custom_command(OUTPUT ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE}
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DOC_MANUAL_SOURCE_IMAGE_FILES_ABSOLUTE_RELATIVE} "${DOC_MANUAL_IMAGES_TARGET_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DOC_MANUAL_SOURCE_IMAGE_FILES_RELATIVE} "${DOC_MANUAL_IMAGES_TARGET_DIR}"
     DEPENDS "${DOC_MANUAL_IMAGES_TARGET_DIR}" ${DOC_MANUAL_SOURCE_IMAGE_FILES_ABSOLUTE}
     WORKING_DIRECTORY "${DOC_MANUAL_IMAGES_SOURCE_DIR}"
     COMMENT "Copying image files to ${DOC_MANUAL_IMAGES_TARGET_DIR}"
