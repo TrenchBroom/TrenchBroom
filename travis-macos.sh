@@ -3,7 +3,7 @@
 set -o verbose
 
 brew update
-brew install cmake p7zip pandoc cppcheck qt5
+brew install cmake p7zip pandoc cppcheck qt5 ninja
 
 # Sometimes homebrew complains that cmake is already installed, but we need the latest version.
 brew upgrade cmake
@@ -28,7 +28,7 @@ echo "TB_ENABLE_ASAN: $TB_ENABLE_ASAN_VALUE"
 
 mkdir build
 cd build
-cmake .. -GXcode -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DTB_RUN_MACDEPLOYQT=1 -DCMAKE_PREFIX_PATH="$(brew --prefix qt5)" || exit 1 # FIXME: Restore -DCMAKE_CXX_FLAGS="-Werror"
+cmake .. -GNinja -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DTB_RUN_MACDEPLOYQT=1 -DCMAKE_PREFIX_PATH="$(brew --prefix qt5)" || exit 1 # FIXME: Restore -DCMAKE_CXX_FLAGS="-Werror"
 
 cmake --build . --target cppcheck
 if [[ $? -ne 0 ]] ; then
