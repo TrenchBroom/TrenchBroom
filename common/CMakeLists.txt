@@ -1116,7 +1116,6 @@ endif()
 # Create the cmake script for generating the version information
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateVersion.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake" @ONLY)
 target_include_directories(common PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-
 add_custom_target(generate_version ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake")
 add_dependencies(common generate_version)
 
