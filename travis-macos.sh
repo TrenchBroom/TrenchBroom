@@ -28,7 +28,7 @@ echo "TB_ENABLE_ASAN: $TB_ENABLE_ASAN_VALUE"
 
 mkdir build
 cd build
-cmake .. -GNinja -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DTB_RUN_MACDEPLOYQT=1 -DCMAKE_PREFIX_PATH="$(brew --prefix qt5)" || exit 1 # FIXME: Restore -DCMAKE_CXX_FLAGS="-Werror"
+cmake .. -GNinja -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DTB_RUN_MACDEPLOYQT=1 -DCMAKE_PREFIX_PATH="$(brew --prefix qt5)" || exit 1 # FIXME: Restore -DCMAKE_CXX_FLAGS="-Werror"
 
 cmake --build . --target cppcheck
 if [[ $? -ne 0 ]] ; then
@@ -46,19 +46,19 @@ cmake --build . --config "$BUILD_TYPE_VALUE" || exit 1
 
 BUILD_DIR=$(pwd)
 
-cd "$BUILD_DIR/lib/vecmath/test/$BUILD_TYPE_VALUE"
+cd "$BUILD_DIR/lib/vecmath/test"
 ./vecmath-test || exit 1
 
-cd "$BUILD_DIR/common/test/$BUILD_TYPE_VALUE"
+cd "$BUILD_DIR/common/test"
 ./common-test || exit 1
 
-cd "$BUILD_DIR/common/benchmark/$BUILD_TYPE_VALUE"
+cd "$BUILD_DIR/common/benchmark"
 ./common-benchmark || exit 1
 
 cd "$BUILD_DIR"
 
-cpack -C $BUILD_TYPE_VALUE || exit 1
+cpack || exit 1
 ./app/generate_checksum.sh
 
 echo "Shared libraries used:"
-otool -L ./app/$BUILD_TYPE_VALUE/TrenchBroom.app/Contents/MacOS/TrenchBroom
+otool -L ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom
