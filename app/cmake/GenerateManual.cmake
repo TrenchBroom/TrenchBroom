@@ -36,7 +36,7 @@ add_custom_command(OUTPUT "${DOC_MANUAL_IMAGES_TARGET_DIR}"
 # 2. Run AddVersionToManual.cmake on the temporary HTML file
 # 3. Run TransformKeyboardShortcuts.cmake on the temporary HTML file
 # 4. Copy the temporary HTML file to its target
-# 4. Remove the temporary HTML file
+# 5. Remove the temporary HTML file
 add_custom_command(OUTPUT "${INDEX_OUTPUT_PATH}"
     COMMAND pandoc --standalone --toc --toc-depth=2 --template "${PANDOC_TEMPLATE_PATH}" --from=markdown --to=html5 -o "${PANDOC_OUTPUT_PATH}" "${PANDOC_INPUT_PATH}"
     COMMAND ${CMAKE_COMMAND} -DINPUT="${PANDOC_OUTPUT_PATH}" -DOUTPUT="${PANDOC_OUTPUT_PATH}" -P "${CMAKE_CURRENT_BINARY_DIR}/AddVersionToManual.cmake"

@@ -42,7 +42,7 @@ if [[ $? -ne 0 ]] ; then
     exit 1
 fi
 
-cmake --build . --config "$BUILD_TYPE_VALUE" -- -quiet || exit 1
+cmake --build . --config "$BUILD_TYPE_VALUE" || exit 1
 
 BUILD_DIR=$(pwd)
 
