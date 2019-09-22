@@ -80,7 +80,6 @@ endif()
 # Create the executable target and link with libraries
 add_executable(TrenchBroom WIN32 MACOSX_BUNDLE ${APP_SOURCE})
 target_link_libraries(TrenchBroom common) # common already comes with all its dependencies, no need to repeat them here
-set_target_properties(TrenchBroom PROPERTIES AUTOMOC TRUE)
 
 # Add dependency to generate the manual during build
 add_dependencies(TrenchBroom GenerateManual)

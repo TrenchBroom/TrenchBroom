@@ -1062,9 +1062,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/StepIterator.h
 )
 
-set(CMAKE_AUTOMOC ON)
-
 add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
+set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_compile_features(common PRIVATE cxx_std_17)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common PUBLIC tinyxml2 vecmath optlite glew miniz freeimage freetype OpenGL::GL Qt5::Widgets)
