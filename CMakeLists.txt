@@ -15,6 +15,9 @@ if(POLICY CMP0058)
     cmake_policy(SET CMP0058 NEW)
 endif()
 
+# Enable the source_group command for creating IDE folders
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 # Using C and CXX because GLEW is C
 project(TrenchBroom C CXX)
 

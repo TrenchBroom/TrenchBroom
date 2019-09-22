@@ -92,6 +92,9 @@ add_executable(common-test ${COMMON_TEST_SOURCE})
 target_include_directories(common-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
 target_link_libraries(common-test PRIVATE common gtest gmock)
 
+# Organize files into IDE folders
+source_group(TREE "${COMMON_TEST_SOURCE_DIR}" FILES ${COMMON_TEST_SOURCE})
+
 set(TEST_FIXTURE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fixture")
 
 set(TEST_RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:common-test>")

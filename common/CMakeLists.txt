@@ -1068,6 +1068,9 @@ target_compile_features(common PRIVATE cxx_std_17)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common PUBLIC tinyxml2 vecmath optlite glew miniz freeimage freetype OpenGL::GL Qt5::Widgets)
 
+# Organize files into IDE folders
+source_group(TREE "${COMMON_SOURCE_DIR}" FILES ${COMMON_SOURCE} ${COMMON_HEADER})
+
 if(WIN32)
     target_link_libraries(common PRIVATE stackwalker)
 endif()
