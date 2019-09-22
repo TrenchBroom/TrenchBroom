@@ -18,6 +18,12 @@ endif()
 # Using C and CXX because GLEW is C
 project(TrenchBroom C CXX)
 
+# Mac OS X specific configuration. In theory must be done before the PROJECT directive, but that doesn't actually work.
+# These settings are ignored on other platforms
+# We are using deployment target 10.12 because recent Qt versions (e.g. 5.12) have this as
+# their minimum, see: https://doc.qt.io/qt-5.12/macos.html
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.12)
+
 # Compiler detection
 set(COMPILER_IS_CLANG FALSE)
 set(COMPILER_IS_GNU FALSE)
