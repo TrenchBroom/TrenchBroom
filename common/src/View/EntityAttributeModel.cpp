@@ -42,22 +42,56 @@ namespace TrenchBroom {
         // AttributeRow
 
         AttributeRow::AttributeRow() :
-        m_nameMutable(false),
-        m_valueMutable(false),
-        m_default(false),
-        m_numEntitiesWithValueSet(0),
-        m_multi(false) {}
+        m_valueType(ValueType::Unset),
+        m_nameMutable(true),
+        m_valueMutable(true) {}
 
-        AttributeRow::AttributeRow(const String& name, const String& value, const bool nameMutable, const bool valueMutable, const String& tooltip, const bool isDefault) :
-                m_name(name),
-                m_value(value),
-                m_nameMutable(nameMutable),
-                m_valueMutable(valueMutable),
-                m_tooltip(tooltip),
-                m_default(isDefault),
-                m_numEntitiesWithValueSet(1),
-                m_multi(false) {
-            ensure(!m_default || m_valueMutable, "attribute row cannot be default and immutable");
+        AttributeRow::AttributeRow(const String& name, const Model::AttributableNode* node) :
+        m_name(name) {
+            const Assets::AttributeDefinition* definition = node->attributeDefinition(name);
+
+            if (node->hasAttribute(name)) {
+                m_value = node->attribute(name);
+                m_valueType = ValueType::SingleValue;
+            } else if (definition != nullptr) {
+                m_value = Assets::AttributeDefinition::defaultValue(*definition);
+                m_valueType = ValueType::Unset;
+            } else {
+                // this is the case when the name is coming from another entity
+                m_valueType = ValueType::Unset;
+            }
+
+            m_nameMutable = node->isAttributeNameMutable(name);
+            m_valueMutable = node->isAttributeValueMutable(name);
+            m_tooltip = (definition != nullptr ? definition->shortDescription() : "");
+        }
+
+        void AttributeRow::merge(const Model::AttributableNode* other) {
+            const bool otherHasAttribute = other->hasAttribute(m_name);
+            const String otherValue = other->attribute(m_name);
+
+            // State transitions 
+            if (m_valueType == ValueType::Unset) {
+                if (otherHasAttribute) {
+                     m_valueType = ValueType::SingleValueAndUnset;
+                     m_value = otherValue;
+                }
+            } else if (m_valueType == ValueType::SingleValue) {
+                if (!otherHasAttribute) {
+                    m_valueType = ValueType::SingleValueAndUnset;
+                } else if (otherValue != m_value) {
+                    m_valueType = ValueType::MultipleValues;
+                    m_value = "";
+                }
+            } else if (m_valueType == ValueType::SingleValueAndUnset) {
+                if (otherHasAttribute && otherValue != m_value) {
+                    m_valueType = ValueType::MultipleValues;
+                    m_value = "";
+                }
+            }
+
+            m_nameMutable = (m_nameMutable && other->isAttributeNameMutable(m_name));
+            m_valueMutable = (m_valueMutable && other->isAttributeValueMutable(m_name));
         }
 
         const String& AttributeRow::name() const {
@@ -81,78 +115,64 @@ namespace TrenchBroom {
         }
 
         bool AttributeRow::isDefault() const {
-            return m_default;
-        }
-
-        void AttributeRow::merge(const String& i_value, const bool nameMutable, const bool valueMutable) {
-            m_multi |= (m_value != i_value);
-            m_nameMutable &= nameMutable;
-            m_valueMutable &= valueMutable;
-            m_default = false;
-            ++m_numEntitiesWithValueSet;
+            return m_valueType == ValueType::Unset;
         }
 
         bool AttributeRow::multi() const {
-            return m_multi;
+            return m_valueType == ValueType::MultipleValues;
         }
 
-        void AttributeRow::mergeRowInToMap(std::map<String, AttributeRow>* rows,
-                                    const Model::AttributeName& name, const Model::AttributeValue& value,
-                                    const Assets::AttributeDefinition* definition,
-                                    const bool nameMutable, const bool valueMutable, const bool isDefault) {
-            auto it = rows->find(name);
-            if (it == rows->end()) {
-                const String tooltip = definition != nullptr ? definition->shortDescription() : "";
+        bool AttributeRow::subset() const {
+            return m_valueType == ValueType::SingleValueAndUnset;
+        }
 
-                (*rows)[name] = AttributeRow(name, value, nameMutable, valueMutable, tooltip, isDefault);
-                return;
+        AttributeRow AttributeRow::rowForAttributableNodes(const String& key, const Model::AttributableNodeList& attributables) {
+            ensure(attributables.size() > 0, "rowForAttributableNodes requries a non-empty node list");
+
+            std::unique_ptr<AttributeRow> result;
+            for (const Model::AttributableNode* node : attributables) {
+                // this happens at startup when the world is still null
+                if (node == nullptr) {
+                    continue;
+                }
+
+                if (result == nullptr) {
+                    result = std::make_unique<AttributeRow>(key, node);
+                }  else {
+                    result->merge(node);
+                }
             }
+            return *result;
+        }
 
-            it->second.merge(value, nameMutable, valueMutable);
+        std::set<String> AttributeRow::allKeys(const Model::AttributableNodeList& attributables) {
+            std::set<String> result;
+            for (const Model::AttributableNode* node : attributables) {
+                // this happens at startup when the world is still null
+                if (node == nullptr) {
+                    continue;
+                }
+
+                // Add explicitly set attributes 
+                for (const Model::EntityAttribute& attribute : node->attributes()) {
+                    result.insert(attribute.name());
+                }
+                // Add default attributes from the entity definition 
+                const Assets::EntityDefinition* entityDefinition = node->definition();
+                if (entityDefinition != nullptr) {
+                   for (Assets::AttributeDefinitionPtr attributeDefinition : entityDefinition->attributeDefinitions()) {
+                       result.insert(attributeDefinition->name());
+                   }
+                }
+            }
+            return result;
         }
 
         std::map<String, AttributeRow> AttributeRow::rowsForAttributableNodes(const Model::AttributableNodeList& attributables) {
             std::map<String, AttributeRow> result;
-
-            // First, add the real key/value pairs
-            for (const Model::AttributableNode* attributable : attributables) {
-                // this happens at startup when the world is still null
-                if (attributable == nullptr) {
-                    continue;
-                }
-                for (const Model::EntityAttribute& attribute : attributable->attributes()) {
-                    const Model::AttributeName& name = attribute.name();
-                    const Model::AttributeValue& value = attribute.value();
-                    const Assets::AttributeDefinition* definition = attribute.definition();
-
-                    const bool nameMutable = attributable->isAttributeNameMutable(name);
-                    const bool valueMutable = attributable->isAttributeValueMutable(value);
-
-                    mergeRowInToMap(&result, name, value, definition, nameMutable, valueMutable, false);
-                }
+            for (const String& key : allKeys(attributables)) {
+                result[key] = rowForAttributableNodes(key, attributables);
             }
-
-            // Default attributes need to be added in a second pass, because they're skipped if a real
-            // user-set attribute is present
-            for (const Model::AttributableNode* attributable : attributables) {
-                // this happens at startup when the world is still null
-                if (attributable == nullptr) {
-                    continue;
-                }
-                const Assets::EntityDefinition* entityDefinition = attributable->definition();
-                if (entityDefinition != nullptr) {
-                    for (Assets::AttributeDefinitionPtr attributeDefinition : entityDefinition->attributeDefinitions()) {
-                        const String& name = attributeDefinition->name();
-                        if (result.find(name) != result.end()) {
-                            continue;
-                        }
-
-                        const String value = Assets::AttributeDefinition::defaultValue(*attributeDefinition.get());
-                        mergeRowInToMap(&result, name, value, attributeDefinition.get(), false, true, true);
-                    }
-                }
-            }
-
             return result;
         }
 
@@ -178,16 +198,6 @@ namespace TrenchBroom {
         m_document(std::move(document)) {
             updateFromMapDocument();
         }
-
-        /* FIXME: remove if unused
-        static auto buildMap(const std::vector<AttributeRow>& rows) {
-            std::map<String, AttributeRow> result;
-            for (auto& row : rows) {
-                result[row.name()] = row;
-            }
-            return result;
-        }
-         */
 
         static auto buildVec(const std::map<String, AttributeRow>& rows) {
             std::vector<AttributeRow> result;
@@ -328,25 +338,30 @@ namespace TrenchBroom {
                 return QVariant();
             }
 
-            const auto& row = m_rows.at(static_cast<size_t>(index.row()));
+            const AttributeRow& row = m_rows.at(static_cast<size_t>(index.row()));
 
             if (role == Qt::DecorationRole) {
-                if ((index.column() == 0 && !row.nameMutable())
-                    || (index.column() == 1 && !row.valueMutable())) {
-                    // return a lock icon
-
-                    QIcon icon = IO::loadIconResourceQt(IO::Path("Locked_small.png"));
-
-                    return QVariant(icon);
+                // lock icon
+                if (index.column() == 0) {
+                    if (!row.nameMutable()) {
+                        return QVariant(IO::loadIconResourceQt(IO::Path("Locked_small.png")));
+                    }
+                } else if (index.column() == 1) {
+                    if (!row.valueMutable()) {
+                        return QVariant(IO::loadIconResourceQt(IO::Path("Locked_small.png")));
+                    }
                 }
-            }
-
+                return QVariant();
+            } 
+            
+            
             if (role == Qt::ForegroundRole) {
-                // return a QBrush for the text color
-                if (row.isDefault()) {
+                if (row.isDefault() || row.subset()) {
                     return QVariant(QBrush(Colors::disabledText()));
                 }
+                return QVariant();
             }
+
             if (role == Qt::FontRole) {
                 if (row.isDefault()) {
                     QFont italicFont;
@@ -362,7 +377,6 @@ namespace TrenchBroom {
                     return QVariant(QString::fromStdString(row.value()));
                 }
             }
-
 
             return QVariant();
         }

@@ -38,6 +38,25 @@ namespace TrenchBroom {
     namespace View {
         using AttribRow = std::tuple<QString, QString>;
         using RowList = std::vector<AttribRow>;
+        
+        enum class ValueType {
+            /**
+             * No entities have this key set; the provided value is the default from the entity definition
+             */
+            Unset,
+            /**
+             * All entities have the same value set for this key
+             */
+            SingleValue,
+            /**
+             * 1+ entities have this key unset, the rest have the same value set
+             */
+            SingleValueAndUnset,
+            /**
+             * Two or more entities have different values for this key
+             */
+            MultipleValues
+        };
 
         /**
          * Viewmodel (as in MVVM) for a single row in the table
@@ -46,25 +65,15 @@ namespace TrenchBroom {
         private:
             String m_name;
             String m_value;
+            ValueType m_valueType;
+
             bool m_nameMutable;
             bool m_valueMutable;
             String m_tooltip;
-            /**
-             * If this is a default value from the FGD that the user hasn't explicitly set
-             */
-            bool m_default;
-
-            /**
-             * How many entities have this key set?
-             */
-            size_t m_numEntitiesWithValueSet;
-            /**
-             * Whether
-             */
-            bool m_multi;
         public:
             AttributeRow();
-            AttributeRow(const String& name, const String& value, bool nameMutable, bool valueMutable, const String& tooltip, bool isDefault);
+            AttributeRow(const String& name, const Model::AttributableNode* node);
+            void merge(const Model::AttributableNode* other);
 
             const String& name() const;
             const String& value() const;
@@ -73,15 +82,10 @@ namespace TrenchBroom {
             const String& tooltip() const;
             bool isDefault() const;
             bool multi() const;
-
-        private:
-            void merge(const String& i_valuec, bool nameMutable, bool valueMutable);
-            static void mergeRowInToMap(std::map<String, AttributeRow>* rows,
-                                        const Model::AttributeName& name, const Model::AttributeValue& value,
-                                        const Assets::AttributeDefinition* definition,
-                                        bool nameMutable, bool valueMutable, bool isDefault);
-
-        public:
+            bool subset() const;
+        
+            static AttributeRow rowForAttributableNodes(const String& key, const Model::AttributableNodeList& attributables);
+            static std::set<String> allKeys(const Model::AttributableNodeList& attributables);
             static std::map<String, AttributeRow> rowsForAttributableNodes(const Model::AttributableNodeList& attributables);
             /**
              * Suggests a new, unused attribute name of the form "property X".
