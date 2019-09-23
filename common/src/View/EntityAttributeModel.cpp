@@ -64,6 +64,9 @@ namespace TrenchBroom {
             m_nameMutable = node->isAttributeNameMutable(name);
             m_valueMutable = node->isAttributeValueMutable(name);
             m_tooltip = (definition != nullptr ? definition->shortDescription() : "");
+            if (m_tooltip.empty()) {
+                m_tooltip = "No description found";
+            }
         }
 
         void AttributeRow::merge(const Model::AttributableNode* other) {
@@ -81,12 +84,10 @@ namespace TrenchBroom {
                     m_valueType = ValueType::SingleValueAndUnset;
                 } else if (otherValue != m_value) {
                     m_valueType = ValueType::MultipleValues;
-                    m_value = "";
                 }
             } else if (m_valueType == ValueType::SingleValueAndUnset) {
                 if (otherHasAttribute && otherValue != m_value) {
                     m_valueType = ValueType::MultipleValues;
-                    m_value = "";
                 }
             }
 
@@ -98,7 +99,10 @@ namespace TrenchBroom {
             return m_name;
         }
 
-        const String& AttributeRow::value() const {
+        String AttributeRow::value() const {
+            if (m_valueType == ValueType::MultipleValues) {
+                return "multi";
+            }
             return m_value;
         }
 
@@ -359,6 +363,11 @@ namespace TrenchBroom {
                 if (row.isDefault() || row.subset()) {
                     return QVariant(QBrush(Colors::disabledText()));
                 }
+                if (index.column() == 1) {
+                    if (row.multi()) {
+                        return QVariant(QBrush(Colors::disabledText()));
+                    }
+                }
                 return QVariant();
             }
 
@@ -368,6 +377,14 @@ namespace TrenchBroom {
                     italicFont.setItalic(true);
                     return QVariant(italicFont);
                 }
+                if (index.column() == 1) {
+                    if (row.multi()) {
+                        QFont italicFont;
+                        italicFont.setItalic(true);
+                        return QVariant(italicFont);
+                    }
+                }
+                return QVariant();
             }
 
             if (role == Qt::DisplayRole || role == Qt::EditRole) {
@@ -375,6 +392,12 @@ namespace TrenchBroom {
                     return QVariant(QString::fromStdString(row.name()));
                 } else {
                     return QVariant(QString::fromStdString(row.value()));
+                }
+            }
+
+            if (role == Qt::ToolTipRole) {
+                if (!row.tooltip().empty()) {
+                    return QVariant(QString::fromStdString(row.tooltip()));
                 }
             }
 
@@ -430,311 +453,6 @@ namespace TrenchBroom {
         // Begin old code
 
 #if 0
-        EntityAttributeModel::AttributeRow::AttributeRow() :
-        m_nameMutable(false),
-        m_valueMutable(false),
-        m_default(false),
-        m_maxCount(0),
-        m_count(0),
-        m_multi(false) {}
-
-        EntityAttributeModel::AttributeRow::AttributeRow(const String& name, const String& value, const bool nameMutable, const bool valueMutable, const String& tooltip, const bool i_default, const size_t maxCount) :
-        m_name(name),
-        m_value(value),
-        m_nameMutable(nameMutable),
-        m_valueMutable(valueMutable),
-        m_tooltip(tooltip),
-        m_default(i_default),
-        m_maxCount(maxCount),
-        m_count(1),
-        m_multi(false) {
-            ensure(!m_default || m_valueMutable, "attribute row cannot be default and immutable");
-        }
-
-        const String& EntityAttributeModel::AttributeRow::name() const {
-            return m_name;
-        }
-
-        const String& EntityAttributeModel::AttributeRow::value() const {
-            return m_value;
-        }
-
-        bool EntityAttributeModel::AttributeRow::nameMutable() const {
-            return m_nameMutable;
-        }
-
-        bool EntityAttributeModel::AttributeRow::valueMutable() const {
-            return m_valueMutable;
-        }
-
-        const String& EntityAttributeModel::AttributeRow::tooltip() const {
-            return m_multi ? EmptyString : m_tooltip;
-        }
-
-        bool EntityAttributeModel::AttributeRow::isDefault() const {
-            return m_default;
-        }
-
-        void EntityAttributeModel::AttributeRow::merge(const String& i_value, const bool nameMutable, const bool valueMutable) {
-            m_multi |= (m_value != i_value);
-            m_nameMutable &= nameMutable;
-            m_valueMutable &= valueMutable;
-            m_default = false;
-            ++m_count;
-        }
-
-        bool EntityAttributeModel::AttributeRow::multi() const {
-            return m_multi;
-        }
-
-        bool EntityAttributeModel::AttributeRow::subset() const {
-            return m_count < m_maxCount;
-        }
-
-        void EntityAttributeModel::AttributeRow::reset() {
-            m_count = m_maxCount;
-            m_multi = false;
-        }
-
-        size_t EntityAttributeModel::RowManager::totalRowCount() const {
-            return m_rows.size();
-        }
-
-        size_t EntityAttributeModel::RowManager::defaultRowCount() const {
-            return m_defaultRowCount;
-        }
-
-        size_t EntityAttributeModel::RowManager::attributeRowCount() const {
-            return totalRowCount() - defaultRowCount();
-        }
-
-        bool EntityAttributeModel::RowManager::isAttributeRow(const size_t rowIndex) const {
-            return !isDefaultRow(rowIndex);
-        }
-
-        bool EntityAttributeModel::RowManager::isDefaultRow(const size_t rowIndex) const {
-            ensure(rowIndex < totalRowCount(), "row index out of bounds");
-            return m_rows[rowIndex].isDefault();
-        }
-
-        size_t EntityAttributeModel::RowManager::indexOf(const String& name) const {
-            AttributeRow::List::const_iterator propIt = findRow(m_rows, name);
-            if (propIt != std::end(m_rows))
-                return static_cast<size_t>(std::distance(std::begin(m_rows), propIt));
-            return totalRowCount();
-        }
-
-        const String& EntityAttributeModel::RowManager::name(const size_t rowIndex) const {
-            ensure(rowIndex < totalRowCount(), "row index out of bounds");
-            return m_rows[rowIndex].name();
-        }
-
-        const String& EntityAttributeModel::RowManager::value(const size_t rowIndex) const {
-            ensure(rowIndex < totalRowCount(), "row index out of bounds");
-            const AttributeRow& row = m_rows[rowIndex];
-            return row.multi() ? EmptyString : row.value();
-        }
-
-        bool EntityAttributeModel::RowManager::nameMutable(const size_t rowIndex) const {
-            ensure(rowIndex < totalRowCount(), "row index out of bounds");
-            return m_rows[rowIndex].nameMutable();
-        }
-
-        bool EntityAttributeModel::RowManager::valueMutable(const size_t rowIndex) const {
-            ensure(rowIndex < totalRowCount(), "row index out of bounds");
-            return m_rows[rowIndex].valueMutable();
-        }
-
-        const String& EntityAttributeModel::RowManager::tooltip(const size_t rowIndex) const {
-            ensure(rowIndex < totalRowCount(), "row index out of bounds");
-            return m_rows[rowIndex].tooltip();
-        }
-
-        bool EntityAttributeModel::RowManager::multi(const size_t rowIndex) const {
-            ensure(rowIndex < totalRowCount(), "row index out of bounds");
-            return m_rows[rowIndex].multi();
-        }
-
-        bool EntityAttributeModel::RowManager::subset(const size_t rowIndex) const {
-            ensure(rowIndex < totalRowCount(), "row index out of bounds");
-            return m_rows[rowIndex].subset();
-        }
-
-        StringList EntityAttributeModel::RowManager::names(const size_t rowIndex, const size_t count) const {
-            ensure(rowIndex + count <= totalRowCount(), "row range exceeds row count");
-
-            StringList result(count);
-            for (size_t i = 0; i < count; ++i)
-                result[i] = m_rows[rowIndex + i].name();
-            return result;
-        }
-
-        bool EntityAttributeModel::RowManager::hasRowWithName(const String& name) const {
-            for (size_t i = 0; i < attributeRowCount(); ++i) {
-                const auto& row = m_rows[i];
-                if (row.name() == name)
-                    return true;
-            }
-            return false;
-        }
-
-        void EntityAttributeModel::RowManager::updateRows(const Model::AttributableNodeList& attributables, const bool showDefaultRows) {
-            m_rows.clear();
-            m_defaultRowCount = 0;
-
-            for (const Model::AttributableNode* attributable : attributables) {
-                for (const Model::EntityAttribute& attribute : attributable->attributes()) {
-                    const Model::AttributeName& name = attribute.name();
-                    const Model::AttributeValue& value = attribute.value();
-                    const Assets::AttributeDefinition* definition = attribute.definition();
-
-                    const bool nameMutable = attributable->isAttributeNameMutable(attribute.name());
-                    const bool valueMutable = attributable->isAttributeValueMutable(attribute.value());
-
-                    addAttribute(name, value, definition, nameMutable, valueMutable, false, attributables.size());
-                }
-            }
-
-            if (showDefaultRows) {
-                for (const Model::AttributableNode* attributable : attributables) {
-                    const Assets::EntityDefinition* entityDefinition = attributable->definition();
-                    if (entityDefinition != nullptr) {
-                        for (Assets::AttributeDefinitionPtr attributeDefinition : entityDefinition->attributeDefinitions()) {
-                            const String& name = attributeDefinition->name();
-                            if (findRow(m_rows, name) != std::end(m_rows))
-                                continue;
-
-                            const String value = Assets::AttributeDefinition::defaultValue(*attributeDefinition.get());
-                            addAttribute(name, value, attributeDefinition.get(), false, true, true, attributables.size());
-                            ++m_defaultRowCount;
-                        }
-                    }
-                }
-            }
-        }
-
-        void EntityAttributeModel::RowManager::addAttribute(const Model::AttributeName& name, const Model::AttributeValue& value, const Assets::AttributeDefinition* definition, const bool nameMutable, const bool valueMutable, const bool isDefault, const size_t index) {
-            AttributeRow::List::iterator rowIt = findRow(m_rows, name);
-            if (rowIt != std::end(m_rows)) {
-                rowIt->merge(value, nameMutable, valueMutable);
-            } else {
-                String tooltip = definition != nullptr ? definition->shortDescription() : "";
-                if (tooltip.empty()) {
-                    tooltip = "No description found";
-                }
-                m_rows.push_back(AttributeRow(name, value, nameMutable, valueMutable, tooltip, isDefault, index));
-            }
-        }
-
-        StringList EntityAttributeModel::RowManager::insertRows(const size_t rowIndex, const size_t count, const Model::AttributableNodeList& attributables) {
-            ensure(rowIndex <= attributeRowCount(), "row index out of bounds");
-
-            const StringList attributeNames = newAttributeNames(count, attributables);
-            ensure(attributeNames.size() == count, "invalid number of new attribute names");
-
-            AttributeRow::List::iterator entryIt = std::begin(m_rows);
-            std::advance(entryIt, static_cast<AttributeRow::List::iterator::difference_type>(rowIndex));
-            for (size_t i = 0; i < count; i++) {
-                entryIt = m_rows.insert(entryIt, AttributeRow(attributeNames[i], "", true, true, "", false, attributables.size()));
-                entryIt->reset();
-                std::advance(entryIt, 1);
-            }
-
-            return attributeNames;
-        }
-
-        void EntityAttributeModel::RowManager::deleteRows(const size_t rowIndex, const size_t count) {
-            ensure(rowIndex + count <= attributeRowCount(), "row range exceeds row count");
-
-            AttributeRow::List::iterator first = std::begin(m_rows);
-            AttributeRow::List::iterator last = first;
-            std::advance(first, static_cast<AttributeRow::List::iterator::difference_type>(rowIndex));
-            std::advance(last, static_cast<AttributeRow::List::iterator::difference_type>(rowIndex + count));
-            m_rows.erase(first, last);
-        }
-
-        EntityAttributeModel::AttributeRow::List::iterator EntityAttributeModel::RowManager::findRow(AttributeRow::List& rows, const String& name) {
-            for (auto it = std::begin(rows), end = std::end(rows); it != end; ++it) {
-                const AttributeRow& row = *it;
-                if (row.name() == name)
-                    return it;
-            }
-            return std::end(rows);
-        }
-
-        EntityAttributeModel::AttributeRow::List::const_iterator EntityAttributeModel::RowManager::findRow(const AttributeRow::List& rows, const String& name) {
-            for (auto it = std::begin(rows), end = std::end(rows); it != end; ++it) {
-                const AttributeRow& row = *it;
-                if (row.name() == name)
-                    return it;
-            }
-            return std::end(rows);
-        }
-
-        StringList EntityAttributeModel::RowManager::newAttributeNames(const size_t count, const Model::AttributableNodeList& attributables) const {
-            StringList result;
-            result.reserve(count);
-
-            size_t index = 1;
-            for (size_t i = 0; i < count; ++i) {
-                while (true) {
-                    StringStream nameStream;
-                    nameStream << "property " << index;
-
-                    bool indexIsFree = true;
-                    for (auto it = std::begin(attributables), end = std::end(attributables); it != end && indexIsFree; ++it) {
-                        const Model::AttributableNode& attributable = **it;
-                        indexIsFree = !attributable.hasAttribute(nameStream.str());
-                    }
-
-                    if (indexIsFree) {
-                        result.push_back(nameStream.str());
-                        break;
-                    }
-
-                    ++index;
-                }
-            }
-            return result;
-        }
-
-        EntityAttributeModel::EntityAttributeModel(MapDocumentWPtr document) :
-        m_document(document),
-        m_rows(),
-        m_ignoreUpdates(false),
-        m_showDefaultRows(true) {}
-
-        int EntityAttributeModel::GetNumberRows() {
-            return static_cast<int>(m_rows.totalRowCount());
-        }
-
-        int EntityAttributeModel::GetNumberAttributeRows() const {
-            return static_cast<int>(m_rows.attributeRowCount());
-        }
-
-        int EntityAttributeModel::GetNumberCols() {
-            return 2;
-        }
-
-        QString EntityAttributeModel::GetValue(const int row, const int col) {
-            // Fixes a problem when the user deselects everything while editing an entity property.
-            if (row < 0 || col < 0) {
-                return wxEmptyString;
-            }
-
-            ensure(row < GetRowsCount(), "row index out of bounds");
-            ensure(col < GetColsCount(), "column index out of bounds");
-
-            const size_t rowIndex = static_cast<size_t>(row);
-            if (col == 0) {
-                return m_rows.name(rowIndex);
-            } else if (m_rows.multi(rowIndex)) {
-                return "multi";
-            } else {
-            return m_rows.value(rowIndex);
-        }
-        }
-
         void EntityAttributeModel::SetValue(const int row, const int col, const QString& value) {
             ensure(row >= 0 && row < GetRowsCount(), "row index out of bounds");
             ensure(col >= 0 && col < GetColsCount(), "column index out of bounds");
