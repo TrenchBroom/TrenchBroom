@@ -336,8 +336,9 @@ namespace TrenchBroom {
 
             m_showDefaultPropertiesCheckBox = new QCheckBox(tr("Show default properties"));
             connect(m_showDefaultPropertiesCheckBox, &QCheckBox::stateChanged, this, [=](int state){
-                //m_model->setShowDefaultRows(state == Qt::Checked);
+                m_model->setShowDefaultRows(state == Qt::Checked);
             });
+            m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
 
             connect(m_table->selectionModel(), &QItemSelectionModel::currentChanged, this, [=](const QModelIndex& current, const QModelIndex& previous){
                 emit selectedRow();

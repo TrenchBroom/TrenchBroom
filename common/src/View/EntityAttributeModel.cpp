@@ -149,7 +149,7 @@ namespace TrenchBroom {
             return *result;
         }
 
-        std::set<String> AttributeRow::allKeys(const Model::AttributableNodeList& attributables) {
+        std::set<String> AttributeRow::allKeys(const Model::AttributableNodeList& attributables, const bool showDefaultRows) {
             std::set<String> result;
             for (const Model::AttributableNode* node : attributables) {
                 // this happens at startup when the world is still null
@@ -161,27 +161,30 @@ namespace TrenchBroom {
                 for (const Model::EntityAttribute& attribute : node->attributes()) {
                     result.insert(attribute.name());
                 }
-                // Add default attributes from the entity definition 
-                const Assets::EntityDefinition* entityDefinition = node->definition();
-                if (entityDefinition != nullptr) {
-                   for (Assets::AttributeDefinitionPtr attributeDefinition : entityDefinition->attributeDefinitions()) {
-                       result.insert(attributeDefinition->name());
-                   }
+
+                // Add default attributes from the entity definition
+                if (showDefaultRows) {
+                    const Assets::EntityDefinition* entityDefinition = node->definition();
+                    if (entityDefinition != nullptr) {
+                       for (Assets::AttributeDefinitionPtr attributeDefinition : entityDefinition->attributeDefinitions()) {
+                           result.insert(attributeDefinition->name());
+                       }
+                    }
                 }
             }
             return result;
         }
 
-        std::map<String, AttributeRow> AttributeRow::rowsForAttributableNodes(const Model::AttributableNodeList& attributables) {
+        std::map<String, AttributeRow> AttributeRow::rowsForAttributableNodes(const Model::AttributableNodeList& attributables, const bool showDefaultRows) {
             std::map<String, AttributeRow> result;
-            for (const String& key : allKeys(attributables)) {
+            for (const String& key : allKeys(attributables, showDefaultRows)) {
                 result[key] = rowForAttributableNodes(key, attributables);
             }
             return result;
         }
 
         String AttributeRow::newAttributeNameForAttributableNodes(const Model::AttributableNodeList& attributables) {
-            const std::map<String, AttributeRow> rows = rowsForAttributableNodes(attributables);
+            const std::map<String, AttributeRow> rows = rowsForAttributableNodes(attributables, true);
 
             for (int i = 1; ; ++i) {
                 StringStream ss;
@@ -199,6 +202,7 @@ namespace TrenchBroom {
 
         EntityAttributeModel::EntityAttributeModel(MapDocumentWPtr document, QObject* parent) :
         QAbstractTableModel(parent),
+        m_showDefaultRows(true),
         m_document(std::move(document)) {
             updateFromMapDocument();
         }
@@ -219,6 +223,18 @@ namespace TrenchBroom {
                 result[row.name()] = static_cast<int>(i);
             }
             return result;
+        }
+
+        bool EntityAttributeModel::showDefaultRows() const {
+            return m_showDefaultRows;
+        }
+
+        void EntityAttributeModel::setShowDefaultRows(const bool showDefaultRows) {
+            if (showDefaultRows == m_showDefaultRows) {
+                return;
+            }
+            m_showDefaultRows = showDefaultRows;
+            updateFromMapDocument();
         }
 
         void EntityAttributeModel::setRows(const std::map<String, AttributeRow>& newRowsKeyMap) {
@@ -296,7 +312,8 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
 
-            const auto rowsMap = AttributeRow::rowsForAttributableNodes(document->allSelectedAttributableNodes());
+            const std::map<String, AttributeRow> rowsMap = 
+                AttributeRow::rowsForAttributableNodes(document->allSelectedAttributableNodes(), m_showDefaultRows);
 
             setRows(rowsMap);
         }
@@ -631,16 +648,7 @@ namespace TrenchBroom {
             return m_rows.nameMutable(index) && m_rows.valueMutable(index);
         }
 
-        bool EntityAttributeModel::showDefaultRows() const {
-            return m_showDefaultRows;
-        }
-
-        void EntityAttributeModel::setShowDefaultRows(const bool showDefaultRows) {
-            if (showDefaultRows == m_showDefaultRows)
-                return;
-            m_showDefaultRows = showDefaultRows;
-            update();
-        }
+        
 
         QStringList EntityAttributeModel::getCompletions(int row, int col) const {
             const Model::AttributeName name = attributeName(row);

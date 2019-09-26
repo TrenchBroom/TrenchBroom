@@ -85,8 +85,8 @@ namespace TrenchBroom {
             bool subset() const;
         
             static AttributeRow rowForAttributableNodes(const String& key, const Model::AttributableNodeList& attributables);
-            static std::set<String> allKeys(const Model::AttributableNodeList& attributables);
-            static std::map<String, AttributeRow> rowsForAttributableNodes(const Model::AttributableNodeList& attributables);
+            static std::set<String> allKeys(const Model::AttributableNodeList& attributables, bool showDefaultRows);
+            static std::map<String, AttributeRow> rowsForAttributableNodes(const Model::AttributableNodeList& attributables, bool showDefaultRows);
             /**
              * Suggests a new, unused attribute name of the form "property X".
              */
@@ -110,9 +110,13 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             std::vector<AttributeRow> m_rows;
+            bool m_showDefaultRows;
             MapDocumentWPtr m_document;
         public:
             explicit EntityAttributeModel(MapDocumentWPtr document, QObject* parent);
+
+            bool showDefaultRows() const;
+            void setShowDefaultRows(bool showDefaultRows);
 
             void setRows(const std::map<String, AttributeRow>& newRows);
 
