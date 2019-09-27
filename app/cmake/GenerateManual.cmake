@@ -49,11 +49,20 @@ add_custom_command(OUTPUT "${INDEX_OUTPUT_PATH}"
 
 # Dump the keyboard shortcuts
 set(DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE "${DOC_MANUAL_TARGET_DIR}/shortcuts.js")
-add_custom_command(
-        OUTPUT "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
-        COMMAND dump-shortcuts ARGS "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
-        DEPENDS "${DOC_MANUAL_TARGET_DIR}"
-        VERBATIM)
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
+    add_custom_command(
+            OUTPUT "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
+            COMMAND "xvfb-run -a $<TARGET_FILE:dump-shortcuts>" ARGS "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
+            DEPENDS "${DOC_MANUAL_TARGET_DIR}" dump-shortcuts
+            VERBATIM)
+else()
+    add_custom_command(
+            OUTPUT "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
+            COMMAND dump-shortcuts ARGS "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
+            DEPENDS "${DOC_MANUAL_TARGET_DIR}"
+            VERBATIM)
+endif()
 
 # Collect resources and copy them to the correct locations
 # DOC_MANUAL_SOURCE_FILES_ABSOLUTE contains the absolute paths to all source resource files
