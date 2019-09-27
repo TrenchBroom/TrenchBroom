@@ -38,13 +38,15 @@ namespace TrenchBroom {
 
             out << "const keys = {\n";
             for (const auto& [key, str] : keyStrings) {
+                out << "    " << key << ": ";
                 if (str == "'") {
-                    out << "    " << key << ": '\'',\n";
+                    out << "'\\''";
                 } else if (str == "\\") {
-                    out << "    " << key << ": '\\',\n";
+                    out << "'\\\\'";
                 } else {
-                    out << "    " << key << ": '" << str << "',\n";
+                    out << str;
                 }
+                out << "',\n";
             }
             out << "};\n";
         }
