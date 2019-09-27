@@ -49,11 +49,22 @@ add_custom_command(OUTPUT "${INDEX_OUTPUT_PATH}"
 
 # Dump the keyboard shortcuts
 set(DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE "${DOC_MANUAL_TARGET_DIR}/shortcuts.js")
-add_custom_command(
-        OUTPUT "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
-        COMMAND dump-shortcuts ARGS "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
-        DEPENDS "${DOC_MANUAL_TARGET_DIR}"
-        VERBATIM)
+if(NOT XVFB_EXE)
+    find_program(XVFB_EXE xvfb-run)
+endif()
+if(XVFB_EXE STREQUAL "XVFB_EXE-NOTFOUND")
+    add_custom_command(
+            OUTPUT "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
+            COMMAND dump-shortcuts ARGS "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
+            DEPENDS "${DOC_MANUAL_TARGET_DIR}"
+            VERBATIM)
+else()
+    add_custom_command(
+            OUTPUT "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
+            COMMAND "${XVFB_EXE}" ARGS "-a" "$<TARGET_FILE:dump-shortcuts>" "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
+            DEPENDS "${DOC_MANUAL_TARGET_DIR}" dump-shortcuts
+            VERBATIM)
+endif()
 
 # Collect resources and copy them to the correct locations
 # DOC_MANUAL_SOURCE_FILES_ABSOLUTE contains the absolute paths to all source resource files
