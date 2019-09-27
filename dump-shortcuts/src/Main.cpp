@@ -37,13 +37,14 @@ namespace TrenchBroom {
             const auto keyStrings = KeyStrings();
 
             out << "const keys = {\n";
-            for (auto [key, str] : keyStrings) {
+            for (const auto& [key, str] : keyStrings) {
                 if (str == "'") {
-                    str = "\\'";
+                    out << "    " << key << ": '\'',\n";
                 } else if (str == "\\") {
-                    str = "\\\\";
+                    out << "    " << key << ": '\\',\n";
+                } else {
+                    out << "    " << key << ": '" << str << "',\n";
                 }
-                out << "    " << key << ": '" << str << "',\n";
             }
             out << "};\n";
         }
