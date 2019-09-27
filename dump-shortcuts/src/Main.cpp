@@ -106,9 +106,8 @@ namespace TrenchBroom {
 
             void visit(const MenuActionItem& item) override {
                 m_out << "    '" << QString::fromStdString(item.action().preferencePath().asString('/')) << "': ";
-                m_out << "{ path: " << toString(m_path, item.label()) << ", shortcut: " << toString(item.action().keySequence()) << ",\n";
+                m_out << "{ path: " << toString(m_path, item.label()) << ", shortcut: " << toString(item.action().keySequence()) << " },\n";
             }
-
         };
 
         void printMenuShortcuts(QTextStream& out) {
@@ -156,7 +155,7 @@ int main(int argc, char *argv[]) {
     const auto fileInfo = QFileInfo(file.fileName());
     const auto absPath = fileInfo.absoluteFilePath().toStdString();
 
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) { // implies truncate, which we want
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) { // QIODevice::WriteOnly implies truncate, which we want
         std::cout << "Could not open output file for writing: " << absPath << "\n";
         return 1;
     }
