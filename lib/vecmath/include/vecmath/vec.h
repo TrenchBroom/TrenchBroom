@@ -166,11 +166,7 @@ namespace vm {
         /**
          * Creates a new vector with all components initialized to 0.
          */
-        vec() {
-            for (size_t i = 0; i < S; ++i) {
-                v[i] = static_cast<T>(0.0);
-            }
-        }
+        vec() : v {} {}
 
         // Copy and move constructors
         vec(const vec<T,S>& other) = default;
