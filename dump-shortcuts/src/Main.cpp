@@ -20,7 +20,6 @@
 #include "View/Actions.h"
 
 #include "KeyStrings.h"
-#include "TrenchBroomApp.h"
 #include "IO/Path.h"
 
 #include <QFile>
@@ -168,7 +167,12 @@ int main(int argc, char *argv[]) {
     QTextStream out(&file);
 
     // QKeySequence requires that an application instance is created!
-    TrenchBroom::View::TrenchBroomApp app(argc, argv);
+    QApplication app(argc, argv);
+    app.setApplicationName("TrenchBroom");
+    // Needs to be "" otherwise Qt adds this to the paths returned by QStandardPaths
+    // which would cause preferences to move from where they were with wx
+    app.setOrganizationName("");
+    app.setOrganizationDomain("com.kristianduske");
 
     TrenchBroom::View::printKeys(out);
     TrenchBroom::View::printMenuShortcuts(out);
