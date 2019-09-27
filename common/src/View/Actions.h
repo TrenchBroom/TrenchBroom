@@ -86,6 +86,7 @@ namespace TrenchBroom {
                 const ExecuteFn& execute, const EnabledFn& enabled, const CheckedFn& checked, const IO::Path& iconPath);
 
             const QString& label() const;
+            const IO::Path& preferencePath() const;
             ActionContext::Type actionContext() const;
             QKeySequence keySequence() const;
             void setKeySequence(const QKeySequence& keySequence) const;
@@ -210,6 +211,8 @@ namespace TrenchBroom {
         private:
             ActionManager();
         public:
+            deleteCopyAndMove(ActionManager)
+
             static const ActionManager& instance();
 
             std::list<Action> createTagActions(const std::list<Model::SmartTag>& tags) const;
@@ -243,8 +246,6 @@ namespace TrenchBroom {
             Menu& createMainMenu(const String& name);
 
             const Action* existingAction(const IO::Path& preferencePath) const;
-
-            deleteCopyAndMove(ActionManager)
 
             void createEditMenu();
 

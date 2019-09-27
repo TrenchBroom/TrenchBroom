@@ -102,6 +102,10 @@ namespace TrenchBroom {
             return m_label;
         }
 
+        const IO::Path& Action::preferencePath() const {
+            return m_preferencePath;
+        }
+
         ActionContext::Type Action::actionContext() const {
             return m_actionContext;
         }
