@@ -24,6 +24,7 @@
 
 class QWidget;
 class QTableView;
+class QSortFilterProxyModel;
 
 namespace TrenchBroom {
     namespace View {
@@ -35,6 +36,7 @@ namespace TrenchBroom {
         private:
             QTableView* m_table;
             KeyboardShortcutModel* m_model;
+            QSortFilterProxyModel* m_proxy;
         public:
             explicit KeyboardPreferencePane(MapDocument* document, QWidget* parent = nullptr);
         private:

@@ -27,6 +27,8 @@
 
 #include <vector>
 
+class QObject;
+
 namespace TrenchBroom {
     namespace View {
         class Action;
@@ -48,7 +50,7 @@ namespace TrenchBroom {
             std::vector<ActionInfo> m_actions;
             std::vector<int> m_conflicts;
         public:
-            explicit KeyboardShortcutModel(MapDocument* document);
+            KeyboardShortcutModel(MapDocument* document, QObject* parent = nullptr);
 
             void reset();
 

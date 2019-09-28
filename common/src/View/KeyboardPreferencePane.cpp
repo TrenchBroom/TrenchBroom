@@ -35,17 +35,24 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QTableView>
+#include <QSortFilterProxyModel>
+#include <QLineEdit>
 
 namespace TrenchBroom {
     namespace View {
         KeyboardPreferencePane::KeyboardPreferencePane(MapDocument* document, QWidget* parent) :
         PreferencePane(parent),
         m_table(nullptr),
-        m_model(nullptr) {
-            m_model = new KeyboardShortcutModel(document);
+        m_model(nullptr),
+        m_proxy(nullptr) {
+            m_model = new KeyboardShortcutModel(document, this);
+            m_proxy = new QSortFilterProxyModel(this);
+            m_proxy->setSourceModel(m_model);
+            m_proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
+            m_proxy->setFilterKeyColumn(2); // Filter based on the text in the Description column
+
             m_table = new QTableView();
-            m_model->setParent(m_table); // so that the table takes ownership in setModel
-            m_table->setModel(m_model);
+            m_table->setModel(m_proxy);
 
             autoResizeRows(m_table);
 
@@ -57,7 +64,17 @@ namespace TrenchBroom {
 
             m_table->setItemDelegate(new KeyboardShortcutItemDelegate());
 
-            auto* infoLabel = new QLabel("Doubleclick on a key combination, then click into the shortcut editor to edit the shortcut.");
+            QLineEdit* searchBox = createSearchBox();
+
+            auto* searchLayout = new QHBoxLayout();
+            searchLayout->setContentsMargins(LayoutConstants::WideHMargin,
+                                             LayoutConstants::WideVMargin,
+                                             LayoutConstants::WideHMargin,
+                                             LayoutConstants::WideVMargin);
+            searchLayout->addStretch();
+            searchLayout->addWidget(searchBox);
+
+            auto* infoLabel = new QLabel(tr("Double-click on a key combination, then click into the shortcut editor to edit the shortcut."));
             makeInfo(infoLabel);
 
             auto* infoLabelLayout = new QHBoxLayout();
@@ -71,11 +88,16 @@ namespace TrenchBroom {
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
+            layout->addLayout(searchLayout);
             layout->addWidget(m_table, 1);
             layout->addLayout(infoLabelLayout);
             setLayout(layout);
 
             setMinimumSize(900, 550);
+
+            connect(searchBox, &QLineEdit::textChanged, this, [=](const QString& newText){
+                m_proxy->setFilterFixedString(newText);
+            });
         }
 
         bool KeyboardPreferencePane::doCanResetToDefaults() {

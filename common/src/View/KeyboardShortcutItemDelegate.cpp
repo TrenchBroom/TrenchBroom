@@ -31,16 +31,5 @@ namespace TrenchBroom {
             itemEditorFactory->registerEditor(QVariant::KeySequence, new QStandardItemEditorCreator<KeySequenceEdit>());
             setItemEditorFactory(itemEditorFactory);
         }
-
-        void KeyboardShortcutItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
-            const auto* model = dynamic_cast<const KeyboardShortcutModel*>(index.model());
-            if (model != nullptr && model->hasConflicts(index)) {
-                QStyleOptionViewItem itemOption(option);
-                itemOption.palette.setColor(QPalette::Normal, QPalette::Text, Qt::red);
-                QStyledItemDelegate::paint(painter, itemOption, index);
-            } else {
-                QStyledItemDelegate::paint(painter, option, index);
-            }
-        }
     }
 }

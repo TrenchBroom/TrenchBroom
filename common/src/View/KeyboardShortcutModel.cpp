@@ -36,7 +36,8 @@ namespace TrenchBroom {
         displayPath(i_displayPath),
         action(i_action) {}
 
-        KeyboardShortcutModel::KeyboardShortcutModel(MapDocument* document) :
+        KeyboardShortcutModel::KeyboardShortcutModel(MapDocument* document, QObject* parent) :
+        QAbstractTableModel(parent),
         m_document(document) {
             initializeActions();
             updateConflicts();
@@ -85,6 +86,11 @@ namespace TrenchBroom {
                 } else {
                     return QString::fromStdString(actionInfo.displayPath.asString(" > "));
                 }
+            } else if (role == Qt::ForegroundRole) {
+                if (hasConflicts(index)) {
+                    return QBrush(Qt::red);
+                }
+                return QVariant();
             } else {
                 return QVariant();
             }
