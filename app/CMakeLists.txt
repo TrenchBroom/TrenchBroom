@@ -140,7 +140,11 @@ if(WIN32)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:z>" "$<TARGET_FILE_DIR:TrenchBroom>"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Widgets>" "$<TARGET_FILE_DIR:TrenchBroom>"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Gui>" "$<TARGET_FILE_DIR:TrenchBroom>"
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Core>" "$<TARGET_FILE_DIR:TrenchBroom>")
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Core>" "$<TARGET_FILE_DIR:TrenchBroom>"
+            COMMAND ${CMAKE_COMMAND} -E make_directory    "$<TARGET_FILE_DIR:TrenchBroom>/platforms"
+            COMMAND ${CMAKE_COMMAND} -E make_directory    "$<TARGET_FILE_DIR:TrenchBroom>/styles"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::QWindowsIntegrationPlugin>" "$<TARGET_FILE_DIR:TrenchBroom>/platforms"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::QWindowsVistaStylePlugin>" "$<TARGET_FILE_DIR:TrenchBroom>/styles")
 
     # Copy icons to resources directory
     add_custom_command(TARGET TrenchBroom POST_BUILD
