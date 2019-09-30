@@ -42,6 +42,7 @@
 #include "Model/CollectNodesVisitor.h"
 #include "Model/CollectNodesByVisibilityVisitor.h"
 #include "Model/CollectSelectableNodesVisitor.h"
+#include "Model/CollectSelectableBrushFacesVisitor.h"
 #include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
 #include "Model/CollectSelectedNodesVisitor.h"
 #include "Model/CollectTouchingNodesVisitor.h"
@@ -121,6 +122,7 @@
 #include <cassert>
 #include <numeric>
 #include <type_traits>
+#include "Model/CollectSelectableBrushFacesVisitor.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -628,6 +630,21 @@ namespace TrenchBroom {
 
         void MapDocument::convertToFaceSelection() {
             submitAndStore(SelectionCommand::convertToFaces());
+        }
+
+        void MapDocument::selectFacesWithTexture(const Assets::Texture* texture) {
+            Model::CollectSelectableBrushFacesVisitor visitor(*m_editorContext, [=](const Model::BrushFace* face) {
+                // FIXME: we shouldn't need this extra check here to prevent hidden brushes from being included; fix it in EditorContext
+                if (face->brush()->hidden()) {
+                    return false;
+                }
+                return face->texture() == texture;
+            });
+            m_world->acceptAndRecurse(visitor);
+
+            Transaction transaction(this, "Select Faces with Texture");
+            deselectAll();
+            select(visitor.faces());
         }
 
         void MapDocument::deselectAll() {

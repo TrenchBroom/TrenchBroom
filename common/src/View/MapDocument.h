@@ -261,6 +261,7 @@ namespace TrenchBroom {
             void select(const Model::BrushFaceList& faces) override;
             void select(Model::BrushFace* face) override;
             void convertToFaceSelection() override;
+            void selectFacesWithTexture(const Assets::Texture* texture);
 
             void deselectAll() override;
             void deselect(Model::Node* node) override;

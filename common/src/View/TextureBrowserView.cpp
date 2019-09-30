@@ -543,9 +543,12 @@ namespace TrenchBroom {
                 if (!cellData(*result).texture->overridden()) {
                     auto* texture = cellData(*result).texture;
 
-                    // TODO: implement https://github.com/kduske/TrenchBroom/issues/2812
-                    //QMenu menu(this);
-                    //menu.exec(event->globalPos());
+                    QMenu menu(this);
+                    menu.addAction(tr("Select Faces"), this, [=]() {
+                        MapDocumentSPtr doc = lock(m_document);
+                        doc->selectFacesWithTexture(texture);
+                    });
+                    menu.exec(event->globalPos());
                 }
             }
         }

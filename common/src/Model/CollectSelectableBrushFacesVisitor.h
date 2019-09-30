@@ -22,22 +22,29 @@
 
 #include "Model/CollectMatchingBrushFacesVisitor.h"
 
+#include <functional>
+
 namespace TrenchBroom {
     namespace Model {
         class BrushFace;
         class EditorContext;
 
+        using FacePredicate = std::function<bool(const BrushFace*)>;
+
         class MatchSelectableBrushFaces {
         private:
             const EditorContext& m_editorContext;
+            FacePredicate m_predicate;
+        private:
+            bool testPredicate(const BrushFace* face) const;
         public:
-            MatchSelectableBrushFaces(const EditorContext& editorContext);
+            MatchSelectableBrushFaces(const EditorContext& editorContext, FacePredicate predicate);
             bool operator()(const BrushFace* face) const;
         };
 
         class CollectSelectableBrushFacesVisitor : public CollectMatchingBrushFacesVisitor<MatchSelectableBrushFaces> {
         public:
-            CollectSelectableBrushFacesVisitor(const EditorContext& editorContext);
+            CollectSelectableBrushFacesVisitor(const EditorContext& editorContext, FacePredicate predicate = FacePredicate());
         };
     }
 }
