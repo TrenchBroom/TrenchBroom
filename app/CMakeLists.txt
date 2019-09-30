@@ -158,42 +158,44 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
 endif()
 
 # Set up the resources and DLLs for the executable
+set(APP_RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:TrenchBroom>")
+
 if(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     # Copy button images to resources directory
     add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/graphics/images" "$<TARGET_FILE_DIR:TrenchBroom>/images")
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/graphics/images" "${APP_RESOURCE_DEST_DIR}/images")
 
     # Copy fonts to resources directory
     add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/fonts" "$<TARGET_FILE_DIR:TrenchBroom>/fonts")
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/fonts" "${APP_RESOURCE_DEST_DIR}/fonts")
 
     # Copy game files to resources directory
     add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/games/" "$<TARGET_FILE_DIR:TrenchBroom>/games")
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/games/" "${APP_RESOURCE_DEST_DIR}/games")
 
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         # Copy untested game files to resources directory
         add_custom_command(TARGET TrenchBroom POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/games-testing/" "$<TARGET_FILE_DIR:TrenchBroom>/games")
+                COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/games-testing/" "${APP_RESOURCE_DEST_DIR}/games")
     endif()
 
     # Copy shader files to resources directory
     add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/shader" "$<TARGET_FILE_DIR:TrenchBroom>/shader")
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/shader" "${APP_RESOURCE_DEST_DIR}/shader")
 
     # Copy manual files to resource directory
     add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:TrenchBroom>/manual/"
-            COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:TrenchBroom>/manual/images")
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/manual/"
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/manual/images")
 
     foreach(MANUAL_FILE ${DOC_MANUAL_TARGET_FILES})
         add_custom_command(TARGET TrenchBroom POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy ${MANUAL_FILE} "$<TARGET_FILE_DIR:TrenchBroom>/manual/")
+                COMMAND ${CMAKE_COMMAND} -E copy ${MANUAL_FILE} "${APP_RESOURCE_DEST_DIR}/manual/")
     endforeach(MANUAL_FILE)
 
     foreach(MANUAL_IMAGE_FILE ${DOC_MANUAL_IMAGES_TARGET_FILES})
         add_custom_command(TARGET TrenchBroom POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy ${MANUAL_IMAGE_FILE} "$<TARGET_FILE_DIR:TrenchBroom>/manual/images/")
+                COMMAND ${CMAKE_COMMAND} -E copy ${MANUAL_IMAGE_FILE} "${APP_RESOURCE_DEST_DIR}/manual/images/")
     endforeach(MANUAL_IMAGE_FILE)
 endif()
 
