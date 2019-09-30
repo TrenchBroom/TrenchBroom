@@ -73,6 +73,7 @@ namespace TrenchBroom {
             void mouseMoveEvent(QMouseEvent* event) override;
             void wheelEvent(QWheelEvent* event) override;
             bool event(QEvent* event) override;
+            void contextMenuEvent(QContextMenuEvent *event) override;
         public:
             void startDrag(const QMouseEvent* event);
             void scroll(const QMouseEvent* event);
@@ -87,6 +88,7 @@ namespace TrenchBroom {
             virtual void doClear();
             virtual void doRender(Layout& layout, float y, float height) = 0;
             virtual void doLeftClick(Layout& layout, float x, float y);
+            virtual void doContextMenu(Layout& layout, float x, float y, QContextMenuEvent* event);
 
             virtual bool dndEnabled();
             virtual QPixmap dndImage(const Cell& cell);

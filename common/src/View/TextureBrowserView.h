@@ -117,6 +117,7 @@ namespace TrenchBroom {
 
             void doLeftClick(Layout& layout, float x, float y) override;
             QString tooltip(const Cell& cell) override;
+            void doContextMenu(Layout& layout, float x, float y, QContextMenuEvent* event) override;
 
             const TextureCellData& cellData(const Cell& cell) const;
         signals:

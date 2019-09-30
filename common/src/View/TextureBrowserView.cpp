@@ -37,6 +37,7 @@
 #include <vecmath/mat_ext.h>
 
 #include <QTextStream>
+#include <QMenu>
 
 // allow storing std::shared_ptr in QVariant
 Q_DECLARE_METATYPE(std::shared_ptr<TrenchBroom::View::TextureCellData>)
@@ -534,6 +535,19 @@ namespace TrenchBroom {
             ss << QString::fromStdString(cellData(cell).texture->name()) << "\n";
             ss << cellData(cell).texture->width() << "x" << cellData(cell).texture->height();
             return tooltip;
+        }
+
+        void TextureBrowserView::doContextMenu(Layout& layout, float x, float y, QContextMenuEvent* event) {
+            const Cell* result = nullptr;
+            if (layout.cellAt(x, y, &result)) {
+                if (!cellData(*result).texture->overridden()) {
+                    auto* texture = cellData(*result).texture;
+
+                    // TODO: implement https://github.com/kduske/TrenchBroom/issues/2812
+                    //QMenu menu(this);
+                    //menu.exec(event->globalPos());
+                }
+            }
         }
 
         const TextureCellData& TextureBrowserView::cellData(const Cell& cell) const {

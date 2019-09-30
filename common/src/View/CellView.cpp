@@ -189,6 +189,14 @@ namespace TrenchBroom {
             return QWidget::event(event);
         }
 
+        void CellView::contextMenuEvent(QContextMenuEvent *event) {
+            validate();
+            const int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
+            const float x = static_cast<float>(event->pos().x());
+            const float y = static_cast<float>(event->pos().y() + top);
+            doContextMenu(m_layout, x, y, event);
+        }
+
         void CellView::startDrag(const QMouseEvent* event) {
             validate();
             if (dndEnabled()) {
@@ -279,6 +287,7 @@ namespace TrenchBroom {
 
         void CellView::doClear() {}
         void CellView::doLeftClick(Layout& layout, float x, float y) {}
+        void CellView::doContextMenu(Layout& layout, float x, float y, QContextMenuEvent* event) {}
 
         bool CellView::dndEnabled() { return false; }
         QPixmap CellView::dndImage(const Cell& cell) { assert(false); return QPixmap(); }
