@@ -145,11 +145,6 @@ if(WIN32)
             COMMAND ${CMAKE_COMMAND} -E make_directory    "$<TARGET_FILE_DIR:TrenchBroom>/styles"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::QWindowsIntegrationPlugin>" "$<TARGET_FILE_DIR:TrenchBroom>/platforms"
             COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::QWindowsVistaStylePlugin>" "$<TARGET_FILE_DIR:TrenchBroom>/styles")
-
-    # Copy icons to resources directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy "${APP_RESOURCE_DIR}/win32/icons/AppIcon.ico"    "$<TARGET_FILE_DIR:TrenchBroom>/Resources/AppIcon.ico"
-            COMMAND ${CMAKE_COMMAND} -E copy "${APP_RESOURCE_DIR}/win32/icons/WindowIcon.ico" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/WindowIcon.ico")
 endif()
 
 # Generate a small stripped PDB for release builds so we get stack traces with symbols
