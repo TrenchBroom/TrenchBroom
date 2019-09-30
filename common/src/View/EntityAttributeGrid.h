@@ -35,6 +35,10 @@ namespace TrenchBroom {
         class EntityAttributeModel;
         class Selection;
 
+        /**
+         * Panel with the entity attribute table, and the toolbar below it (add/remove icons,
+         * "show default properties" checkbox, etc.)
+         */
         class EntityAttributeGrid : public QWidget {
             Q_OBJECT
         private:
