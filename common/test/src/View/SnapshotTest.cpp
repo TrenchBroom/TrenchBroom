@@ -44,6 +44,7 @@ namespace TrenchBroom {
             document->addNode(brush, document->currentParent());
 
             const Assets::Texture* texture = document->textureManager().texture("coffin1");
+            ASSERT_NE(nullptr, texture);
             ASSERT_EQ(6u, texture->usageCount());
 
             for (Model::BrushFace* face : brush->faces())
