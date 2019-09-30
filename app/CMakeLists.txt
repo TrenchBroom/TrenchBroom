@@ -4,7 +4,9 @@ set(APP_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(APP_RESOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/resources")
 
 set(APP_SOURCE "${APP_SOURCE_DIR}/Main.cpp")
-set(APP_SOURCE ${APP_SOURCE} ${DOC_MANUAL_TARGET_FILES} ${DOC_MANUAL_IMAGES_TARGET_FILES})
+
+# Add manual files (FIXME: this is redundant with the add_dependencies() below, isn't it?)
+set(APP_SOURCE ${APP_SOURCE} ${INDEX_OUTPUT_PATH} ${DOC_MANUAL_TARGET_FILES_ABSOLUTE} ${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE} ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE})
 
 # OS X app bundle configuration, must happen before the executable is added
 if(APPLE)
@@ -59,8 +61,10 @@ if(APPLE)
     set(APP_SOURCE ${APP_SOURCE} ${MACOSX_SHADER_FILES})
 
     # Configure manual files
-    set_source_files_properties(${DOC_MANUAL_TARGET_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/manual)
-    set_source_files_properties(${DOC_MANUAL_IMAGES_TARGET_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/manual/images)
+    set_source_files_properties(${INDEX_OUTPUT_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/manual)
+    set_source_files_properties(${DOC_MANUAL_TARGET_FILES_ABSOLUTE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/manual)
+    set_source_files_properties(${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/manual)
+    set_source_files_properties(${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/manual/images)
 endif()
 
 # Set up resource compilation for Windows
@@ -186,14 +190,16 @@ if(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
     # Copy manual files to resource directory
     add_custom_command(TARGET TrenchBroom POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/manual/"
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/manual/images")
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/manual/images"
+            COMMAND ${CMAKE_COMMAND} -E copy "${INDEX_OUTPUT_PATH}" "${APP_RESOURCE_DEST_DIR}/manual/"
+            COMMAND ${CMAKE_COMMAND} -E copy "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}" "${APP_RESOURCE_DEST_DIR}/manual/")
 
-    foreach(MANUAL_FILE ${DOC_MANUAL_TARGET_FILES})
+    foreach(MANUAL_FILE ${DOC_MANUAL_TARGET_FILES_ABSOLUTE})
         add_custom_command(TARGET TrenchBroom POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy ${MANUAL_FILE} "${APP_RESOURCE_DEST_DIR}/manual/")
     endforeach(MANUAL_FILE)
 
-    foreach(MANUAL_IMAGE_FILE ${DOC_MANUAL_IMAGES_TARGET_FILES})
+    foreach(MANUAL_IMAGE_FILE ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE})
         add_custom_command(TARGET TrenchBroom POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy ${MANUAL_IMAGE_FILE} "${APP_RESOURCE_DEST_DIR}/manual/images/")
     endforeach(MANUAL_IMAGE_FILE)
@@ -250,11 +256,14 @@ if(WIN32)
             $<TARGET_FILE:Qt5::QWindowsVistaStylePlugin>
             DESTINATION styles COMPONENT TrenchBroom)
 
+    #Manual
+    install(FILES ${INDEX_OUTPUT_PATH} DESTINATION manual COMPONENT TrenchBroom)
+    install(FILES ${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE} DESTINATION manual COMPONENT TrenchBroom)
     install(FILES
-            ${DOC_MANUAL_TARGET_FILES}
+            ${DOC_MANUAL_TARGET_FILES_ABSOLUTE}
             DESTINATION manual COMPONENT TrenchBroom)
     install(FILES
-            ${DOC_MANUAL_IMAGES_TARGET_FILES}
+            ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE}
             DESTINATION manual/images COMPONENT TrenchBroom)
     install(DIRECTORY
             "${APP_DIR}/resources/graphics/images"
