@@ -149,7 +149,7 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < m_numPoints; ++i) {
                     const auto& point = m_points[i].point;
                     const auto distance = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
-                    if (!vm::isnan(distance)) {
+                    if (!vm::is_nan(distance)) {
                         const auto hitPoint = pickRay.pointAtDistance(distance);
                         pickResult.addHit(Model::Hit(PointHit, distance, hitPoint, i));
                     }
@@ -196,10 +196,10 @@ namespace TrenchBroom {
                     // two counts are equal
                     if (firstIndex % 3 == 2 || nextIndex % 3 == 2) {
                         // prefer the Z axis if possible:
-                        return vm::vec3::pos_z;
+                        return vm::vec3::pos_z();
                     } else {
                         // Z axis cannot win, so X and Y axis are a tie, prefer the X axis:
-                        return vm::vec3::pos_x;
+                        return vm::vec3::pos_x();
                     }
                 }
             }
@@ -238,7 +238,7 @@ namespace TrenchBroom {
                 } else {
                     // Don't allow to place a point onto another point!
                     for (size_t i = 0; i < m_numPoints; ++i) {
-                        if (vm::isEqual(m_points[i].point, point, vm::C::almostZero())) {
+                        if (vm::is_equal(m_points[i].point, point, vm::C::almostZero())) {
                             return false;
                         }
                     }
@@ -289,7 +289,7 @@ namespace TrenchBroom {
 
                 // Don't allow to drag a point onto another point!
                 for (size_t i = 0; i < m_numPoints; ++i) {
-                    if (m_dragIndex != i && vm::isEqual(m_points[i].point, newPosition, vm::C::almostZero())) {
+                    if (m_dragIndex != i && vm::is_equal(m_points[i].point, newPosition, vm::C::almostZero())) {
                         return false;
                     }
                 }
@@ -445,7 +445,7 @@ namespace TrenchBroom {
 
             void doRenderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& point) const override {}
 
-            vm::vec3 doGetHelpVector() const { return vm::vec3::zero; }
+            vm::vec3 doGetHelpVector() const { return vm::vec3::zero(); }
 
             bool doComputeThirdPoint(vm::vec3& point) const override { return false; }
 

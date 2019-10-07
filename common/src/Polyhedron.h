@@ -26,6 +26,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/bbox.h>
+#include <vecmath/util.h>
 
 #include <limits>
 #include <list>
@@ -202,7 +203,7 @@ public:
             return stream;
         }
     private:
-        vm::point_status pointStatus(const V& faceNormal, const V& point) const;
+        vm::plane_status pointStatus(const V& faceNormal, const V& point) const;
         bool isLeavingEdge() const;
         bool colinear(const HalfEdge* other) const;
         void setOrigin(Vertex* origin);
@@ -243,7 +244,7 @@ public:
         V normal() const;
         V center() const;
         T intersectWithRay(const vm::ray<T,3>& ray, const vm::side side) const;
-        vm::point_status pointStatus(const V& point, T epsilon = vm::constants<T>::pointStatusEpsilon()) const;
+        vm::plane_status pointStatus(const V& point, T epsilon = vm::constants<T>::pointStatusEpsilon()) const;
 
         friend std::ostream& operator<<(std::ostream& stream, const Face& face) {
             const auto* firstEdge = face.boundary().front();
@@ -552,7 +553,7 @@ private:
     static bool polyhedronIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
 
     static bool separate(const Face* faces, const Vertex* vertices, const Callback& callback);
-    static vm::point_status pointStatus(const vm::plane<T,3>& plane, const Vertex* vertices);
+    static vm::plane_status pointStatus(const vm::plane<T,3>& plane, const Vertex* vertices);
 };
 
 #endif

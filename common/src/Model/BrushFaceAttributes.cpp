@@ -28,7 +28,7 @@ namespace TrenchBroom {
         BrushFaceAttributes::BrushFaceAttributes(const String& textureName) :
         m_textureName(textureName),
         m_texture(nullptr),
-        m_offset(vm::vec2f::zero),
+        m_offset(vm::vec2f::zero()),
         m_scale(vm::vec2f(1.0f, 1.0f)),
         m_rotation(0.0f),
         m_surfaceContents(0),
@@ -97,7 +97,7 @@ namespace TrenchBroom {
 
         vm::vec2f BrushFaceAttributes::textureSize() const {
             if (m_texture == nullptr) {
-                return vm::vec2f::one;
+                return vm::vec2f::one();
             }
             const float w = m_texture->width()  == 0 ? 1.0f : static_cast<float>(m_texture->width());
             const float h = m_texture->height() == 0 ? 1.0f : static_cast<float>(m_texture->height());
@@ -168,7 +168,7 @@ namespace TrenchBroom {
         }
 
         bool BrushFaceAttributes::valid() const {
-            return !vm::isZero(m_scale.x(), vm::Cf::almostZero()) && !vm::isZero(m_scale.y(), vm::Cf::almostZero());
+            return !vm::is_zero(m_scale.x(), vm::Cf::almostZero()) && !vm::is_zero(m_scale.y(), vm::Cf::almostZero());
         }
 
         void BrushFaceAttributes::setOffset(const vm::vec2f& offset) {

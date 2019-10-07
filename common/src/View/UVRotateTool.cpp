@@ -76,11 +76,11 @@ namespace TrenchBroom {
 
             const auto& pickRay = inputState.pickRay();
             const auto distanceToFace = vm::intersectRayAndPlane(pickRay, boundary);
-            if (!vm::isnan(distanceToFace)) {
+            if (!vm::is_nan(distanceToFace)) {
                 const auto hitPoint = pickRay.pointAtDistance(distanceToFace);
 
-                const auto fromFace = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-                const auto toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
+                const auto fromFace = face->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+                const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
 
                 const auto originOnPlane   = toPlane * fromFace * vm::vec3(m_helper.originInFaceCoords());
                 const auto hitPointOnPlane = toPlane * hitPoint;
@@ -113,7 +113,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            const auto toFace = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const auto toFace = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
             const auto hitPointInFaceCoords(toFace * angleHandleHit.hitPoint());
             m_initalAngle = measureAngle(vm::vec2f(hitPointInFaceCoords)) - face->rotation();
@@ -133,8 +133,8 @@ namespace TrenchBroom {
             const auto curPointDistance = vm::intersectRayAndPlane(pickRay, boundary);
             const auto curPoint = pickRay.pointAtDistance(curPointDistance);
 
-            const auto toFaceOld = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-            const auto toWorld = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const auto toFaceOld = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+            const auto toWorld = face->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
             const auto curPointInFaceCoords = vm::vec2f(toFaceOld * curPoint);
             const auto curAngle = measureAngle(curPointInFaceCoords);
@@ -152,7 +152,7 @@ namespace TrenchBroom {
             document->setFaceAttributes(request);
 
             // Correct the offsets.
-            const auto toFaceNew = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const auto toFaceNew = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             const auto newCenterInFaceCoords = vm::vec2f(toFaceNew * oldCenterInWorldCoords);
 
             const auto delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->scale();
@@ -182,7 +182,7 @@ namespace TrenchBroom {
             };
             auto minDelta = std::numeric_limits<float>::max();
 
-            const auto toFace = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const auto toFace = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             for (const auto* edge : face->edges()) {
                 const auto startInFaceCoords = vm::vec2f(toFace * edge->firstVertex()->position());
                 const auto endInFaceCoords   = vm::vec2f(toFace * edge->secondVertex()->position());
@@ -236,10 +236,10 @@ namespace TrenchBroom {
 
             void doRender(Renderer::RenderContext& renderContext) override {
                 const auto* face = m_helper.face();
-                const auto fromFace = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+                const auto fromFace = face->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
                 const auto& boundary = face->boundary();
-                const auto toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
+                const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
                 const auto [invertible, fromPlane] = invert(toPlane);
                 assert(invertible); unused(invertible);
 
@@ -252,7 +252,7 @@ namespace TrenchBroom {
                 Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
                 const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), vm::mat4x4f(fromPlane));
                 {
-                    const auto translation = vm::translationMatrix(vm::vec3(originPosition));
+                    const auto translation = vm::translation_matrix(vm::vec3(originPosition));
                     const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), vm::mat4x4f(translation));
                     if (m_highlight) {
                         shader.set("Color", highlightColor);
@@ -263,7 +263,7 @@ namespace TrenchBroom {
                 }
 
                 {
-                    const auto translation = translationMatrix(vm::vec3(faceCenterPosition));
+                    const auto translation =vm::translation_matrix(vm::vec3(faceCenterPosition));
                     const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), vm::mat4x4f(translation));
                     shader.set("Color", highlightColor);
                     m_center.render();

@@ -24,7 +24,7 @@
 namespace TrenchBroom {
     namespace Assets {
         const String Quake3ShaderStage::BlendFunc::One = "GL_ONE";
-        const String Quake3ShaderStage::BlendFunc::Zero = "GL_ZERO";
+        const String Quake3ShaderStage::BlendFunc::zero() = "GL_ZERO";
         const String Quake3ShaderStage::BlendFunc::SrcColor = "GL_SRC_COLOR";
         const String Quake3ShaderStage::BlendFunc::DestColor = "GL_DST_COLOR";
         const String Quake3ShaderStage::BlendFunc::OneMinusSrcColor = "GL_ONE_MINUS_SRC_COLOR";

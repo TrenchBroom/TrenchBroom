@@ -28,17 +28,16 @@
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/TagVisitor.h"
-#include "Renderer/IndexRangeMap.h"
-#include "Renderer/TexturedIndexArrayMapBuilder.h"
 
-#include <vecmath/vec.h>
+#include <vecmath/abstract_line.h>
+#include <vecmath/bbox.h>
+#include <vecmath/intersection.h>
 #include <vecmath/mat.h>
 #include <vecmath/plane.h>
-#include <vecmath/bbox.h>
 #include <vecmath/polygon.h>
 #include <vecmath/scalar.h>
 #include <vecmath/util.h>
-#include <vecmath/intersection.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -98,7 +97,7 @@ namespace TrenchBroom {
 
         BrushFace::~BrushFace() {
             for (size_t i = 0; i < 3; ++i) {
-                m_points[i] = vm::vec3::zero;
+                m_points[i] = vm::vec3::zero();
             }
             m_brush = nullptr;
             m_lineNumber = 0;
@@ -132,8 +131,8 @@ namespace TrenchBroom {
 
         void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot& coordSystemSnapshot, const BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const WrapStyle wrapStyle) {
             // Get a line, and a reference point, that are on both the source face's plane and our plane
-            const auto seam = vm::intersectPlaneAndPlane(sourceFacePlane, m_boundary);
-            const auto refPoint = seam.projectPoint(center());
+            const auto seam = vm::intersect_plane_plane(sourceFacePlane, m_boundary);
+            const auto refPoint = vm::project_point(seam, center());
 
             coordSystemSnapshot.restore(*m_texCoordSystem);
 
@@ -143,7 +142,7 @@ namespace TrenchBroom {
             m_texCoordSystem->updateNormal(sourceFacePlane.normal, m_boundary.normal, m_attribs, wrapStyle);
 
             // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
-            if (!isZero(seam.direction, vm::C::almostZero())) {
+            if (!vm::is_zero(seam.direction, vm::C::almostZero())) {
                 const auto currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
                 const auto offsetChange = desriedCoords - currentCoords;
                 m_attribs.setOffset(correct(m_attribs.modOffset(m_attribs.offset() + offsetChange), 4));
@@ -167,7 +166,7 @@ namespace TrenchBroom {
 
         bool BrushFace::arePointsOnPlane(const vm::plane3& plane) const {
             for (size_t i = 0; i < 3; i++)
-                if (plane.pointStatus(m_points[i]) != vm::point_status::inside)
+                if (plane.point_status(m_points[i]) != vm::plane_status::inside)
                     return false;
             return true;
         }
@@ -189,7 +188,7 @@ namespace TrenchBroom {
         vm::vec3 BrushFace::boundsCenter() const {
             ensure(m_geometry != nullptr, "geometry is null");
 
-            const auto toPlane = planeProjectionMatrix(m_boundary.distance, m_boundary.normal);
+            const auto toPlane = vm::plane_projection_matrix(m_boundary.distance, m_boundary.normal);
             const auto [invertible, fromPlane] = vm::invert(toPlane);
             assert(invertible); unused(invertible);
 
@@ -523,9 +522,9 @@ namespace TrenchBroom {
 
             // Get a line, and a reference point, that are on both the old plane
             // (before moving the face) and after moving the face.
-            const auto seam = vm::intersectPlaneAndPlane(oldPlane, m_boundary);
-            if (!isZero(seam.direction, vm::C::almostZero())) {
-                const auto refPoint = seam.projectPoint(center());
+            const auto seam = vm::intersect_plane_plane(oldPlane, m_boundary);
+            if (!vm::is_zero(seam.direction, vm::C::almostZero())) {
+                const auto refPoint = project_point(seam, center());
 
                 // Get the texcoords at the refPoint using the old face's attribs and tex coord system
                 const auto desriedCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
@@ -552,15 +551,15 @@ namespace TrenchBroom {
         }
 
         vm::mat4x4 BrushFace::projectToBoundaryMatrix() const {
-            const auto texZAxis = m_texCoordSystem->fromMatrix(vm::vec2f::zero, vm::vec2f::one) * vm::vec3::pos_z;
-            const auto worldToPlaneMatrix = planeProjectionMatrix(m_boundary.distance, m_boundary.normal, texZAxis);
+            const auto texZAxis = m_texCoordSystem->fromMatrix(vm::vec2f::zero(), vm::vec2f::one()) * vm::vec3::pos_z();
+            const auto worldToPlaneMatrix = vm::plane_projection_matrix(m_boundary.distance, m_boundary.normal, texZAxis);
             const auto [invertible, planeToWorldMatrix] = vm::invert(worldToPlaneMatrix); assert(invertible); unused(invertible);
-            return planeToWorldMatrix * vm::mat4x4::zero_z * worldToPlaneMatrix;
+            return planeToWorldMatrix * vm::mat4x4::zero() * worldToPlaneMatrix;
         }
 
         vm::mat4x4 BrushFace::toTexCoordSystemMatrix(const vm::vec2f& offset, const vm::vec2f& scale, const bool project) const {
             if (project) {
-                return vm::mat4x4::zero_z * m_texCoordSystem->toMatrix(offset, scale);
+                return vm::mat4x4::zero() * m_texCoordSystem->toMatrix(offset, scale);
             } else {
                 return m_texCoordSystem->toMatrix(offset, scale);
             }
@@ -667,7 +666,7 @@ namespace TrenchBroom {
             if (cos >= FloatType(0.0)) {
                 return vm::nan<FloatType>();
             } else {
-                return vm::intersectRayAndPolygon(ray, m_boundary, m_geometry->boundary().begin(), m_geometry->boundary().end(), BrushGeometry::GetVertexPosition());
+                return vm::intersect_ray_polygon(ray, m_boundary, m_geometry->boundary().begin(), m_geometry->boundary().end(), BrushGeometry::GetVertexPosition());
             }
         }
 
@@ -682,7 +681,7 @@ namespace TrenchBroom {
             m_points[2] = point2;
             correctPoints();
 
-            const auto [result, plane] = vm::fromPoints(m_points[0], m_points[1], m_points[2]);
+            const auto [result, plane] = vm::from_points(m_points[0], m_points[1], m_points[2]);
             if (!result) {
                 GeometryException e;
                 e << "Colinear face points: (" <<

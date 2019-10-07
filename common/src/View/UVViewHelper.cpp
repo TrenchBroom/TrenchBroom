@@ -85,7 +85,7 @@ namespace TrenchBroom {
 
             const Assets::Texture* texture = m_face->texture();
             if (texture == nullptr)
-                return vm::vec2::zero;
+                return vm::vec2::zero();
             const FloatType width  = static_cast<FloatType>(texture->width())  / static_cast<FloatType>(m_subDivisions.x());
             const FloatType height = static_cast<FloatType>(texture->height()) / static_cast<FloatType>(m_subDivisions.y());
             return vm::vec2(width, height);
@@ -102,7 +102,7 @@ namespace TrenchBroom {
         }
 
         const vm::vec2f UVViewHelper::originInFaceCoords() const {
-            const vm::mat4x4 toFace = m_face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const vm::mat4x4 toFace = m_face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             return vm::vec2f(toFace * origin());
         }
 
@@ -114,7 +114,7 @@ namespace TrenchBroom {
         }
 
         void UVViewHelper::setOriginInFaceCoords(const vm::vec2f& originInFaceCoords) {
-            const vm::mat4x4 fromFace = m_face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const vm::mat4x4 fromFace = m_face->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             m_origin = fromFace * vm::vec3(originInFaceCoords);
         }
 
@@ -175,8 +175,8 @@ namespace TrenchBroom {
         void UVViewHelper::computeOriginHandleVertices(vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const {
             assert(valid());
 
-            const auto toTex   = m_face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-            const auto toWorld = m_face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const auto toTex   = m_face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+            const auto toWorld = m_face->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             computeLineVertices(vm::vec2(originInFaceCoords()), x1, x2, y1, y2, toTex, toWorld);
         }
 
@@ -203,7 +203,7 @@ namespace TrenchBroom {
         void UVViewHelper::resetOrigin() {
             assert(valid());
 
-            const auto toTex = m_face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const auto toTex = m_face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             const auto texVertices = toTex * m_face->vertexPositions();
 
             const auto toCam = vm::mat4x4(m_camera.viewMatrix());
@@ -231,10 +231,10 @@ namespace TrenchBroom {
             const auto& normal = m_face->boundary().normal;
             vm::vec3 right;
 
-            if (vm::abs(dot(vm::vec3::pos_z, normal)) < FloatType(1.0)) {
-                right = normalize(cross(vm::vec3::pos_z, normal));
+            if (vm::abs(dot(vm::vec3::pos_z(), normal)) < FloatType(1.0)) {
+                right = normalize(cross(vm::vec3::pos_z(), normal));
             } else {
-                right = vm::vec3::pos_x;
+                right = vm::vec3::pos_x();
             }
             const auto up = normalize(cross(normal, right));
 

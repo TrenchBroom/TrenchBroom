@@ -32,20 +32,20 @@ namespace TrenchBroom {
             const auto exp1 = vm::bbox3(vm::vec3(-100,-100,-100),
                                     vm::vec3( 125, 100, 100));
 
-            EXPECT_EQ(exp1, moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x), vm::vec3(25, 0, 0), ProportionalAxes::None(),
+            EXPECT_EQ(exp1, moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x()), vm::vec3(25, 0, 0), ProportionalAxes::None(),
                                          AnchorPos::Opposite));
 
             // attempting to collapse the bbox returns an empty box
-            EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x), vm::vec3(-200, 0, 0), ProportionalAxes::None(), AnchorPos::Opposite).empty());
-            EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x), vm::vec3(-225, 0, 0), ProportionalAxes::None(), AnchorPos::Opposite).empty());
+            EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x()), vm::vec3(-200, 0, 0), ProportionalAxes::None(), AnchorPos::Opposite).empty());
+            EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x()), vm::vec3(-225, 0, 0), ProportionalAxes::None(), AnchorPos::Opposite).empty());
 
             // test with center anchor
             const auto exp2 = vm::bbox3(vm::vec3(-125,-100,-100),
                                     vm::vec3( 125, 100, 100));
 
-            EXPECT_EQ(exp2, moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x), vm::vec3(25, 0, 0), ProportionalAxes::None(), AnchorPos::Center));
-            EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x), vm::vec3(-100, 0, 0), ProportionalAxes::None(), AnchorPos::Center).empty());
-            EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x), vm::vec3(-125, 0, 0), ProportionalAxes::None(), AnchorPos::Center).empty());
+            EXPECT_EQ(exp2, moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x()), vm::vec3(25, 0, 0), ProportionalAxes::None(), AnchorPos::Center));
+            EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x()), vm::vec3(-100, 0, 0), ProportionalAxes::None(), AnchorPos::Center).empty());
+            EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x()), vm::vec3(-125, 0, 0), ProportionalAxes::None(), AnchorPos::Center).empty());
         }
 
         TEST(ScaleObjectsToolTest, moveBBoxFace_Proportional) {
@@ -56,20 +56,20 @@ namespace TrenchBroom {
                                     vm::vec3( 125, 112.5, 112.5));
 
             EXPECT_EQ(vm::vec3(225,225,225), exp1.size());
-            EXPECT_EQ(exp1, moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x), vm::vec3(25, 0, 0), ProportionalAxes::All(),
+            EXPECT_EQ(exp1, moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x()), vm::vec3(25, 0, 0), ProportionalAxes::All(),
                                          AnchorPos::Opposite));
 
             // attempting to collapse the bbox returns an empty box
-            EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x), vm::vec3(-200, 0, 0), ProportionalAxes::All(), AnchorPos::Opposite).empty());
-            EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x), vm::vec3(-225, 0, 0), ProportionalAxes::All(), AnchorPos::Opposite).empty());
+            EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x()), vm::vec3(-200, 0, 0), ProportionalAxes::All(), AnchorPos::Opposite).empty());
+            EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x()), vm::vec3(-225, 0, 0), ProportionalAxes::All(), AnchorPos::Opposite).empty());
 
             // test with center anchor
             const auto exp2 = vm::bbox3(vm::vec3(-125,-125,-125),
                                     vm::vec3( 125, 125, 125));
 
-            EXPECT_EQ(exp2, moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x), vm::vec3(25, 0, 0), ProportionalAxes::All(), AnchorPos::Center));
-            EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x), vm::vec3(-100, 0, 0), ProportionalAxes::All(), AnchorPos::Center).empty());
-            EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x), vm::vec3(-125, 0, 0), ProportionalAxes::All(), AnchorPos::Center).empty());
+            EXPECT_EQ(exp2, moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x()), vm::vec3(25, 0, 0), ProportionalAxes::All(), AnchorPos::Center));
+            EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x()), vm::vec3(-100, 0, 0), ProportionalAxes::All(), AnchorPos::Center).empty());
+            EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x()), vm::vec3(-125, 0, 0), ProportionalAxes::All(), AnchorPos::Center).empty());
         }
 
         TEST(ScaleObjectsToolTest, moveBBoxCorner) {

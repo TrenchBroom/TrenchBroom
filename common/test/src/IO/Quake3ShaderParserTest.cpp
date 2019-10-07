@@ -455,7 +455,7 @@ waterBubble
 
             // filter
             ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::DestColor, stages[1].blendFunc.srcFactor);
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::Zero, stages[1].blendFunc.destFactor);
+            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::zero(), stages[1].blendFunc.destFactor);
 
             // blend
             ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::SrcAlpha, stages[2].blendFunc.srcFactor);
@@ -466,8 +466,8 @@ waterBubble
             ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::One, stages[3].blendFunc.destFactor);
 
             // GL_ZERO GL_ZERO
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::Zero, stages[4].blendFunc.srcFactor);
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::Zero, stages[4].blendFunc.destFactor);
+            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::zero(), stages[4].blendFunc.srcFactor);
+            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::zero(), stages[4].blendFunc.destFactor);
 
             // GL_DST_COLOR GL_SRC_ALPHA
             ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::DestColor, stages[5].blendFunc.srcFactor);

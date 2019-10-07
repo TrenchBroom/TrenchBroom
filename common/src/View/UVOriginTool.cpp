@@ -71,7 +71,7 @@ namespace TrenchBroom {
                 computeOriginHandles(xHandle, yHandle);
 
                 const auto* face = m_helper.face();
-                const auto fromTex = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+                const auto fromTex = face->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
                 const auto origin = fromTex * vm::vec3(m_helper.originInFaceCoords());
 
                 const auto& pickRay = inputState.pickRay();
@@ -103,13 +103,13 @@ namespace TrenchBroom {
 
         void UVOriginTool::computeOriginHandles(vm::line3& xHandle, vm::line3& yHandle) const {
             const auto* face = m_helper.face();
-            const auto toWorld = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const auto toWorld = face->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
             const auto origin = vm::vec3(m_helper.originInFaceCoords());
             xHandle.point = yHandle.point = toWorld * origin;
 
-            xHandle.direction = normalize(toWorld * (origin + vm::vec3::pos_y) - xHandle.point);
-            yHandle.direction = (toWorld * (origin + vm::vec3::pos_x) - yHandle.point);
+            xHandle.direction = normalize(toWorld * (origin + vm::vec3::pos_y()) - xHandle.point);
+            yHandle.direction = (toWorld * (origin + vm::vec3::pos_x()) - yHandle.point);
         }
 
         bool UVOriginTool::doStartMouseDrag(const InputState& inputState) {
@@ -166,7 +166,7 @@ namespace TrenchBroom {
             const auto distance = vm::intersectRayAndPlane(ray, boundary);
             const auto hitPoint = ray.pointAtDistance(distance);
 
-            const auto transform = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const auto transform = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             return vm::vec2f(transform * hitPoint);
         }
 
@@ -184,9 +184,9 @@ namespace TrenchBroom {
             // Finally, we will convert the distance back to non-translated and non-scaled texture coordinates and
             // snap the delta to the distance.
 
-            const auto w2fTransform = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const auto w2fTransform = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             const auto w2tTransform = face->toTexCoordSystemMatrix(face->offset(), face->scale(), true);
-            const auto f2wTransform = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const auto f2wTransform = face->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             const auto t2wTransform = face->fromTexCoordSystemMatrix(face->offset(), face->scale(), true);
             const auto f2tTransform = w2tTransform * f2wTransform;
             const auto t2fTransform = w2fTransform * t2wTransform;
@@ -279,10 +279,10 @@ namespace TrenchBroom {
 
             void doRender(Renderer::RenderContext& renderContext) override {
                 const auto* face = m_helper.face();
-                const auto fromFace = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+                const auto fromFace = face->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
                 const auto& boundary = face->boundary();
-                const auto toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
+                const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
                 const auto [invertible, fromPlane] = invert(toPlane);
                 const auto originPosition(toPlane * fromFace * vm::vec3(m_helper.originInFaceCoords()));
                 assert(invertible); unused(invertible);
@@ -291,7 +291,7 @@ namespace TrenchBroom {
                 const auto& highlightColor = pref(Preferences::SelectedHandleColor);
 
                 const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), vm::mat4x4f(fromPlane));
-                const auto translation = vm::translationMatrix(vm::vec3(originPosition));
+                const auto translation = vm::translation_matrix(vm::vec3(originPosition));
                 const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), vm::mat4x4f(translation));
 
                 Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);

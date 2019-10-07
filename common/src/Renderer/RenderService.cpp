@@ -190,7 +190,7 @@ namespace TrenchBroom {
 
             if (m_renderContext.render2D()) {
                 const Camera& camera = m_renderContext.camera();
-                switch (firstComponent(camera.direction())) {
+                switch (vm::find_abs_max_component(camera.direction())) {
                     case vm::axis::x:
                         m_primitiveRenderer->renderCoordinateSystemYZ(y, z, m_lineWidth, m_occlusionPolicy, bounds);
                         break;

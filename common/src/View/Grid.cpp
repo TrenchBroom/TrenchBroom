@@ -77,7 +77,7 @@ namespace TrenchBroom {
         }
 
         FloatType Grid::angle() const {
-            return vm::toRadians(static_cast<FloatType>(15.0));
+            return vm::to_radians(static_cast<FloatType>(15.0));
         }
 
         bool Grid::visible() const {
@@ -105,15 +105,15 @@ namespace TrenchBroom {
                 planeAnchor[i] = ray.direction[i] > 0.0 ? snapUp(ray.origin[i], true) + skip * actualSize() : snapDown(ray.origin[i], true) - skip * actualSize();
             }
 
-            const auto distX = vm::intersectRayAndPlane(ray, vm::plane3(planeAnchor, vm::vec3::pos_x));
-            const auto distY = vm::intersectRayAndPlane(ray, vm::plane3(planeAnchor, vm::vec3::pos_y));
-            const auto distZ = vm::intersectRayAndPlane(ray, vm::plane3(planeAnchor, vm::vec3::pos_z));
+            const auto distX = vm::intersectRayAndPlane(ray, vm::plane3(planeAnchor, vm::vec3::pos_x()));
+            const auto distY = vm::intersectRayAndPlane(ray, vm::plane3(planeAnchor, vm::vec3::pos_y()));
+            const auto distZ = vm::intersectRayAndPlane(ray, vm::plane3(planeAnchor, vm::vec3::pos_z()));
 
             auto dist = distX;
-            if (!vm::isnan(distY) && (vm::isnan(dist) || std::abs(distY) < std::abs(dist))) {
+            if (!vm::is_nan(distY) && (vm::is_nan(dist) || std::abs(distY) < std::abs(dist))) {
                 dist = distY;
             }
-            if (!vm::isnan(distZ) && (vm::isnan(dist) || std::abs(distZ) < std::abs(dist))) {
+            if (!vm::is_nan(distZ) && (vm::is_nan(dist) || std::abs(distZ) < std::abs(dist))) {
                 dist = distZ;
             }
             return dist;
@@ -144,7 +144,7 @@ namespace TrenchBroom {
 
             auto newMinPos = newPos;
             for (size_t i = 0; i < 3; ++i) {
-                if (vm::isZero(offset[i], vm::C::almostZero())) {
+                if (vm::is_zero(offset[i], vm::C::almostZero())) {
                     if (normal[i] < 0.0) {
                         newMinPos[i] -= size[i];
                     }
@@ -159,9 +159,9 @@ namespace TrenchBroom {
         }
 
         vm::vec3 Grid::moveDelta(const vm::bbox3& bounds, const vm::bbox3& worldBounds, const vm::vec3& delta) const {
-            auto actualDelta = vm::vec3::zero;
+            auto actualDelta = vm::vec3::zero();
             for (size_t i = 0; i < 3; ++i) {
-                if (!vm::isZero(delta[i], vm::C::almostZero())) {
+                if (!vm::is_zero(delta[i], vm::C::almostZero())) {
                     const auto low  = snap(bounds.min[i] + delta[i]) - bounds.min[i];
                     const auto high = snap(bounds.max[i] + delta[i]) - bounds.max[i];
 
@@ -178,36 +178,36 @@ namespace TrenchBroom {
             }
 
             if (squaredLength(delta) < squaredLength(delta - actualDelta)) {
-                actualDelta = vm::vec3::zero;
+                actualDelta = vm::vec3::zero();
             }
             return actualDelta;
         }
 
         vm::vec3 Grid::moveDelta(const vm::vec3& point, const vm::bbox3& worldBounds, const vm::vec3& delta) const {
-            auto actualDelta = vm::vec3::zero;
+            auto actualDelta = vm::vec3::zero();
             for (size_t i = 0; i < 3; ++i) {
-                if (!vm::isZero(delta[i], vm::C::almostZero())) {
+                if (!vm::is_zero(delta[i], vm::C::almostZero())) {
                     actualDelta[i] = snap(point[i] + delta[i]) - point[i];
                 }
             }
 
             if (squaredLength(delta) < squaredLength(delta - actualDelta)) {
-                actualDelta = vm::vec3::zero;
+                actualDelta = vm::vec3::zero();
             }
 
             return actualDelta;
         }
 
         vm::vec3 Grid::moveDelta(const vm::vec3& delta) const {
-            auto actualDelta = vm::vec3::zero;
+            auto actualDelta = vm::vec3::zero();
             for (unsigned int i = 0; i < 3; i++) {
-                if (!vm::isZero(delta[i], vm::C::almostZero())) {
+                if (!vm::is_zero(delta[i], vm::C::almostZero())) {
                     actualDelta[i] = snap(delta[i]);
                 }
             }
 
             if (squaredLength(delta) < squaredLength(delta - actualDelta)) {
-                actualDelta = vm::vec3::zero;
+                actualDelta = vm::vec3::zero();
             }
 
             return actualDelta;
@@ -215,8 +215,8 @@ namespace TrenchBroom {
 
         vm::vec3 Grid::moveDelta(const Model::BrushFace* face, const vm::vec3& delta) const {
             const auto dist = dot(delta, face->boundary().normal);
-            if (vm::isZero(dist, vm::C::almostZero())) {
-                return vm::vec3::zero;
+            if (vm::is_zero(dist, vm::C::almostZero())) {
+                return vm::vec3::zero();
             }
 
             const auto* brush = face->brush();

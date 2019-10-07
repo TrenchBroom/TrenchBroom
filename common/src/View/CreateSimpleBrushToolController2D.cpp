@@ -65,7 +65,7 @@ namespace TrenchBroom {
             const vm::plane3 plane(bounds.min, vm::vec3(firstAxis(camera.direction())));
 
             const auto distance = vm::intersectRayAndPlane(inputState.pickRay(), plane);
-            if (vm::isnan(distance)) {
+            if (vm::is_nan(distance)) {
                 return DragInfo();
             }
 

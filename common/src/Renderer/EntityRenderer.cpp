@@ -248,7 +248,7 @@ namespace TrenchBroom {
                 }
 
                 const auto rotation = vm::mat4x4f(entity->rotation());
-                const auto direction = rotation * vm::vec3f::pos_x;
+                const auto direction = rotation * vm::vec3f::pos_x();
                 const auto center = vm::vec3f(entity->logicalBounds().center());
 
                 const auto toCam = renderContext.camera().position() - center;
@@ -258,15 +258,15 @@ namespace TrenchBroom {
                 }
 
                 auto onPlane = toCam - dot(toCam, direction) * direction;
-                if (vm::isZero(onPlane, vm::Cf::almostZero())) {
+                if (vm::is_zero(onPlane, vm::Cf::almostZero())) {
                     continue;
                 }
 
                 onPlane = normalize(onPlane);
 
-                const auto rotZ = rotation * vm::vec3f::pos_z;
+                const auto rotZ = rotation * vm::vec3f::pos_z();
                 const auto angle = -measureAngle(rotZ, onPlane, direction);
-                const auto matrix = vm::translationMatrix(center) * vm::rotationMatrix(direction, angle) * rotation * vm::translationMatrix(16.0f * vm::vec3f::pos_x);
+                const auto matrix = vm::translation_matrix(center) * vm::rotation_matrix(direction, angle) * rotation * vm::translation_matrix(16.0f * vm::vec3f::pos_x());
 
                 for (size_t i = 0; i < 3; ++i) {
                     vertices[i] = matrix * arrow[i];

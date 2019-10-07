@@ -109,7 +109,7 @@ namespace TrenchBroom {
                 const auto rotationCenter = m_tool->rotationCenter();
                 const auto rotationAxis = m_tool->rotationAxis(handleArea);
                 const auto startPointDistance = vm::intersectRayAndPlane(inputState.pickRay(), vm::plane3(rotationCenter, rotationAxis));
-                if (vm::isnan(startPointDistance)) {
+                if (vm::is_nan(startPointDistance)) {
                     return DragInfo();
                 }
 
@@ -175,7 +175,7 @@ namespace TrenchBroom {
                     glAssert(glDisable(GL_CULL_FACE));
                     glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
 
-                    Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(vm::vec3f(m_position)));
+                    Renderer::MultiplyModelMatrix translation(renderContext.transformation(),vm::translation_matrix(vm::vec3f(m_position)));
                     Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
                     shader.set("Color", Color(1.0f, 1.0f, 1.0f, 0.2f));
                     m_circle.render();
@@ -198,7 +198,7 @@ namespace TrenchBroom {
 
                 renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
                 renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-                renderService.renderString(angleString(vm::toDegrees(m_angle)), vm::vec3f(m_center));
+                renderService.renderString(angleString(vm::to_degrees(m_angle)), vm::vec3f(m_center));
             }
 
             String angleString(const FloatType angle) const {

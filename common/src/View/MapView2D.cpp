@@ -98,15 +98,15 @@ namespace TrenchBroom {
         void MapView2D::initializeCamera(const ViewPlane viewPlane) {
             switch (viewPlane) {
                 case MapView2D::ViewPlane_XY:
-                    m_camera.setDirection(vm::vec3f::neg_z, vm::vec3f::pos_y);
+                    m_camera.setDirection(vm::vec3f::neg_z(), vm::vec3f::pos_y());
                     m_camera.moveTo(vm::vec3f(0.0f, 0.0f, 16384.0f));
                     break;
                 case MapView2D::ViewPlane_XZ:
-                    m_camera.setDirection(vm::vec3f::pos_y, vm::vec3f::pos_z);
+                    m_camera.setDirection(vm::vec3f::pos_y(), vm::vec3f::pos_z());
                     m_camera.moveTo(vm::vec3f(0.0f, -16384.0f, 0.0f));
                     break;
                 case MapView2D::ViewPlane_YZ:
-                    m_camera.setDirection(vm::vec3f::neg_x, vm::vec3f::pos_z);
+                    m_camera.setDirection(vm::vec3f::neg_x(), vm::vec3f::pos_z());
                     m_camera.moveTo(vm::vec3f(16384.0f, 0.0f, 0.0f));
                     break;
             }
@@ -180,8 +180,8 @@ namespace TrenchBroom {
             const auto dragPlane = vm::plane3(anchor, -pickRay.direction);
 
             const auto distance = vm::intersectRayAndPlane(pickRay, dragPlane);;
-            if (vm::isnan(distance)) {
-                return vm::vec3::zero;
+            if (vm::is_nan(distance)) {
+                return vm::vec3::zero();
             } else {
                 const auto hitPoint = pickRay.pointAtDistance(distance);
                 return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
@@ -307,8 +307,8 @@ namespace TrenchBroom {
                 const auto dragPlane = vm::plane3(anchor, -pickRay.direction);
 
                 const auto distance = vm::intersectRayAndPlane(pickRay, dragPlane);
-                if (vm::isnan(distance)) {
-                    return vm::vec3::zero;
+                if (vm::is_nan(distance)) {
+                    return vm::vec3::zero();
                 } else {
                     const auto hitPoint = pickRay.pointAtDistance(distance);
                     return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);

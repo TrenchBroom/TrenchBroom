@@ -22,17 +22,18 @@
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
+#include <vecmath/vec_ext.h>
 
 bool Color::canParse(const std::string& str) {
-    return vm::vec4f::canParse(str) || vm::vec3f::canParse(str);
+    return vm::can_parse<float, 4>(str) || vm::can_parse<float, 3>(str);
 }
 
 Color Color::parse(const std::string& str) {
-    if (vm::vec4f::canParse(str)) {
-        const auto v = vm::vec4f::parse(str);
+    if (vm::can_parse<float, 4>(str)) {
+        const auto v = vm::parse<float, 4>(str);
         return Color(v.x(), v.y(), v.z(), v.w());
     } else {
-        const auto v = vm::vec3f::parse(str);
+        const auto v = vm::parse<float, 3>(str);
         return Color(v.x(), v.y(), v.z());
     }
 }
@@ -40,8 +41,8 @@ Color Color::parse(const std::string& str) {
 Color::Color() :
 vec<float, 4>(0.0f, 0.0f, 0.0f, 0.0f) {}
 
-Color::Color(const vec<float,4>& v) :
-vec<float, 4>(v) {}
+Color::Color(const vec<float,4>& i_v) :
+vec<float, 4>(i_v) {}
 
 Color::Color(const float r, const float g, const float b, const float a) :
 vec<float, 4>(r, g, b, a) {}

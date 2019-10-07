@@ -451,7 +451,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
 
             const auto* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
-            ASSERT_TRUE(vm::isEqual(Color(5, 6, 7), brush->findFace("rtz/c_mf_v3cw")->color(), 0.1f));
+            ASSERT_TRUE(vm::is_equal(Color(5, 6, 7), brush->findFace("rtz/c_mf_v3cw")->color(), 0.1f));
             ASSERT_EQ(1, brush->findFace("rtz/b_rc_v16w")->surfaceContents());
             ASSERT_EQ(2, brush->findFace("rtz/b_rc_v16w")->surfaceFlags());
             ASSERT_FLOAT_EQ(3.0, brush->findFace("rtz/b_rc_v16w")->surfaceValue());

@@ -40,7 +40,7 @@ namespace TrenchBroom {
             const auto h = float(viewport.height) / 2.0f;
 
             const auto& p = camera.position();
-            switch (firstComponent(camera.direction())) {
+            switch (vm::find_abs_max_component(camera.direction())) {
                 case vm::axis::x:
                     return {
                         Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() - w, p.z() - h)),

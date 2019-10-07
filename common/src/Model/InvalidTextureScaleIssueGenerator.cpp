@@ -69,7 +69,7 @@ namespace TrenchBroom {
                 }
 
                 ChangeBrushFaceAttributesRequest request;
-                request.setScale(vm::vec2f::one);
+                request.setScale(vm::vec2f::one());
 
                 facade->deselectAll();
                 facade->select(faces);

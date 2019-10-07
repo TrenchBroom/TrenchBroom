@@ -81,8 +81,8 @@ namespace TrenchBroom {
 
             // #1350: Don't allow shearing if the shear would result in very large changes. This happens if
             // the shear handle to be dragged is very close to one of the texture axes.
-            if (vm::isZero(m_initialHit.x(), 6.0f) ||
-                vm::isZero(m_initialHit.y(), 6.0f))
+            if (vm::is_zero(m_initialHit.x(), 6.0f) ||
+                vm::is_zero(m_initialHit.y(), 6.0f))
                 return false;
 
             MapDocumentSPtr document = lock(m_document);
@@ -96,7 +96,7 @@ namespace TrenchBroom {
 
             auto* face = m_helper.face();
             const auto origin = m_helper.origin();
-            const auto oldCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero, face->scale(), true) * origin);
+            const auto oldCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->scale(), true) * origin);
 
             auto document = lock(m_document);
             if (m_selector[0]) {
@@ -111,7 +111,7 @@ namespace TrenchBroom {
                 }
             }
 
-            const auto newCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero, face->scale(), true) * origin);
+            const auto newCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->scale(), true) * origin);
             const auto newOffset = face->offset() + oldCoords - newCoords;
 
             Model::ChangeBrushFaceAttributesRequest request;

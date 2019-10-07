@@ -24,6 +24,7 @@
 #include "TrenchBroom.h"
 #include "Notifier.h"
 
+#include <vecmath/abstract_line.h>
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
@@ -118,7 +119,7 @@ namespace TrenchBroom {
 
             template <typename T>
             static vm::vec<T,3> defaultPoint(const vm::ray<T,3>& ray, const T distance = T(DefaultPointDistance)) {
-                return ray.pointAtDistance(float(distance));
+                return point_at_distance(ray, float(distance));
             }
 
             float perspectiveScalingFactor(const vm::vec3f& position) const;

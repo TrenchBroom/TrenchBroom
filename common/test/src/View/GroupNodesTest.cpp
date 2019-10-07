@@ -189,7 +189,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(group->selected());
 
             EXPECT_FALSE(entity->hasAttribute("origin"));
-            ASSERT_TRUE(document->rotateObjects(vm::vec3::zero, vm::vec3::pos_z, 10.0f));
+            ASSERT_TRUE(document->rotateObjects(vm::vec3::zero(), vm::vec3::pos_z(), 10.0f));
             EXPECT_FALSE(entity->hasAttribute("origin"));
 
             document->undoLastCommand();

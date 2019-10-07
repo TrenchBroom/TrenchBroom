@@ -326,8 +326,8 @@ namespace TrenchBroom {
             frame.offset = reader.readVec<float,3>();
             frame.name = reader.readString(DkmLayout::FrameNameLength);
 
-            assert(!vm::isNaN(frame.scale));
-            assert(!vm::isNaN(frame.offset));
+            assert(!vm::is_nan(frame.scale));
+            assert(!vm::is_nan(frame.offset));
 
             if (version == 1) {
                 for (size_t i = 0; i < vertexCount; ++i) {

@@ -123,7 +123,7 @@ namespace TrenchBroom {
             if (angleDelta == 0.0f)
                 return;
 
-            const FloatType angle = static_cast<FloatType>(vm::toRadians(angleDelta));
+            const FloatType angle = static_cast<FloatType>(vm::to_radians(angleDelta));
             applyRotation(getZAxis(), angle);
         }
 
@@ -152,13 +152,13 @@ namespace TrenchBroom {
 
             // determine the rotation by which the texture coordinate system will be rotated about its normal
             const auto angleDelta = computeTextureAngle(oldBoundary, effectiveTransformation);
-            const auto newAngle = vm::correct(vm::normalizeDegrees(attribs.rotation() + angleDelta), 4);
-            assert(!vm::isnan(newAngle));
+            const auto newAngle = vm::correct(vm::normalize_degrees(attribs.rotation() + angleDelta), 4);
+            assert(!vm::is_nan(newAngle));
             attribs.setRotation(newAngle);
 
             // calculate the current texture coordinates of the face's center
             const auto oldInvariantTechCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
-            assert(!isNaN(oldInvariantTechCoords));
+            assert(!vm::is_nan(oldInvariantTechCoords));
 
             // compute the new texture axes
             const auto worldToTexSpace = toMatrix(vm::vec2f(0, 0), vm::vec2f(1, 1));
@@ -184,8 +184,8 @@ namespace TrenchBroom {
                 m_xAxis[i] = newWorldToTexSpace[i][0];
                 m_yAxis[i] = newWorldToTexSpace[i][1];
             }
-            assert(!isNaN(m_xAxis));
-            assert(!isNaN(m_yAxis));
+            assert(!vm::is_nan(m_xAxis));
+            assert(!vm::is_nan(m_yAxis));
 
             // determine the new texture coordinates of the transformed center of the face, sans offsets
             const auto newInvariant = effectiveTransformation * oldInvariant;
@@ -194,19 +194,19 @@ namespace TrenchBroom {
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center
             const auto newOffset = correct(attribs.modOffset(oldInvariantTechCoords - newInvariantTexCoords), 4);
-            assert(!isNaN(newOffset));
+            assert(!vm::is_nan(newOffset));
             attribs.setOffset(newOffset);
         }
 
         float ParallelTexCoordSystem::computeTextureAngle(const vm::plane3& oldBoundary, const vm::mat4x4& transformation) const {
-            const vm::mat4x4& rotationScale = vm::stripTranslation(transformation);
+            const vm::mat4x4& rotationScale = vm::strip_translation(transformation);
             const vm::vec3& oldNormal = oldBoundary.normal;
             const vm::vec3  newNormal = vm::normalize(rotationScale * oldNormal);
 
             const auto nonTextureRotation = vm::quatd(oldNormal, newNormal);
             const vm::vec3 newXAxis = vm::normalize(rotationScale * m_xAxis);
             const vm::vec3 nonXAxis = vm::normalize(nonTextureRotation * m_xAxis);
-            const FloatType angle = vm::toDegrees(vm::measureAngle(nonXAxis, newXAxis, newNormal));
+            const FloatType angle = vm::to_degrees(vm::measure_angle(nonXAxis, newXAxis, newNormal));
             return static_cast<float>(angle);
         }
 
@@ -225,10 +225,10 @@ namespace TrenchBroom {
             possibleTexAxes.push_back({m_xAxis, m_yAxis}); // possibleTexAxes[0] = front
             possibleTexAxes.push_back({m_yAxis, m_xAxis}); // possibleTexAxes[1] = back
             const std::vector<vm::quat3> rotations {
-                vm::quat3(normalize(m_xAxis), vm::toRadians(90.0)),  // possibleTexAxes[2]= bottom (90 degrees CCW about m_xAxis)
-                vm::quat3(normalize(m_xAxis), vm::toRadians(-90.0)), // possibleTexAxes[3] = top
-                vm::quat3(normalize(m_yAxis), vm::toRadians(90.0)),  // possibleTexAxes[4] = left
-                vm::quat3(normalize(m_yAxis), vm::toRadians(-90.0)), // possibleTexAxes[5] = right
+                vm::quat3(normalize(m_xAxis), vm::to_radians(90.0)),  // possibleTexAxes[2]= bottom (90 degrees CCW about m_xAxis)
+                vm::quat3(normalize(m_xAxis), vm::to_radians(-90.0)), // possibleTexAxes[3] = top
+                vm::quat3(normalize(m_yAxis), vm::to_radians(90.0)),  // possibleTexAxes[4] = left
+                vm::quat3(normalize(m_yAxis), vm::to_radians(-90.0)), // possibleTexAxes[5] = right
             };
             for (const vm::quat3& rotation : rotations) {
                 possibleTexAxes.push_back({rotation * m_xAxis, rotation * m_yAxis});
@@ -266,7 +266,7 @@ namespace TrenchBroom {
         void ParallelTexCoordSystem::doUpdateNormalWithRotation(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) {
             vm::quat3 rotation;
             auto axis = vm::cross(oldNormal, newNormal);
-            if (axis == vm::vec3::zero) {
+            if (axis == vm::vec3::zero()) {
                 // oldNormal and newNormal are either the same or opposite.
                 // in this case, no need to update the texture axes.
                 return;
@@ -274,7 +274,7 @@ namespace TrenchBroom {
                 axis = vm::normalize(axis);
             }
 
-            const auto angle = vm::measureAngle(newNormal, oldNormal, axis);
+            const auto angle = vm::measure_angle(newNormal, oldNormal, axis);
             rotation = vm::quat3(axis, angle);
 
             m_xAxis = rotation * m_xAxis;
@@ -287,7 +287,7 @@ namespace TrenchBroom {
                                 0.0,  0.0, 1.0, 0.0,
                                 0.0,  0.0, 0.0, 1.0);
 
-            const auto toMatrix = vm::coordinateSystemMatrix(m_xAxis, m_yAxis, getZAxis(), vm::vec3::zero);
+            const auto toMatrix = vm::coordinate_system_matrix(m_xAxis, m_yAxis, getZAxis(), vm::vec3::zero());
             const auto [invertible, fromMatrix] = vm::invert(toMatrix);
             assert(invertible); unused(invertible);
 
@@ -303,18 +303,18 @@ namespace TrenchBroom {
          */
         float ParallelTexCoordSystem::doMeasureAngle(const float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const {
             const vm::vec3 vec(point - center);
-            const auto angleInRadians = vm::measureAngle(vm::normalize(vec), vm::vec3::pos_x, vm::vec3::pos_z);
-            return static_cast<float>(currentAngle + vm::toDegrees(angleInRadians));
+            const auto angleInRadians = vm::measure_angle(vm::normalize(vec), vm::vec3::pos_x(), vm::vec3::pos_z());
+            return static_cast<float>(currentAngle + vm::to_degrees(angleInRadians));
         }
 
         void ParallelTexCoordSystem::computeInitialAxes(const vm::vec3& normal, vm::vec3& xAxis, vm::vec3& yAxis) const {
-            switch (firstComponent(normal)) {
+            switch (vm::find_abs_max_component(normal)) {
                 case vm::axis::x:
                 case vm::axis::y:
-                    xAxis = vm::normalize(vm::cross(vm::vec3::pos_z, normal));
+                    xAxis = vm::normalize(vm::cross(vm::vec3::pos_z(), normal));
                     break;
                 case vm::axis::z:
-                    xAxis = vm::normalize(vm::cross(vm::vec3::pos_y, normal));
+                    xAxis = vm::normalize(vm::cross(vm::vec3::pos_y(), normal));
                     break;
             }
 

@@ -58,12 +58,13 @@ namespace TrenchBroom {
         void PointHandleRenderer::doRender(RenderContext& renderContext) {
             const Camera& camera = renderContext.camera();
             const Camera::Viewport& viewport = camera.viewport();
-            const vm::mat4x4f projection = vm::orthoMatrix(0.0f, 1.0f,
-                                                           static_cast<float>(viewport.x),
-                                                           static_cast<float>(viewport.height),
-                                                           static_cast<float>(viewport.width),
-                                                           static_cast<float>(viewport.y));
-            const vm::mat4x4f view = vm::viewMatrix(vm::vec3f::neg_z, vm::vec3f::pos_y);
+            const vm::mat4x4f projection = vm::ortho_matrix(
+                0.0f, 1.0f,
+                static_cast<float>(viewport.x),
+                static_cast<float>(viewport.height),
+                static_cast<float>(viewport.width),
+                static_cast<float>(viewport.y));
+            const vm::mat4x4f view = vm::view_matrix(vm::vec3f::neg_z(), vm::vec3f::pos_y());
             ReplaceTransformation ortho(renderContext.transformation(), projection, view);
 
             // Un-occluded handles: use depth test, draw fully opaque
@@ -92,7 +93,7 @@ namespace TrenchBroom {
                     const vm::vec3f nudgeTowardsCamera = vm::normalize(camera.position() - position) * pref(Preferences::HandleRadius);
 
                     const vm::vec3f offset = camera.project(position + nudgeTowardsCamera) * vm::vec3f(1.0f, 1.0f, -1.0f);
-                    MultiplyModelMatrix translate(renderContext.transformation(), vm::translationMatrix(offset));
+                    MultiplyModelMatrix translate(renderContext.transformation(), vm::translation_matrix(offset));
                     circle.render();
                 }
             }

@@ -89,7 +89,7 @@ namespace TrenchBroom {
 
         void MapView3D::initializeCamera() {
             m_camera.moveTo(vm::vec3f(-80.0f, -128.0f, 96.0f));
-            m_camera.lookAt(vm::vec3f::zero, vm::vec3f::pos_z);
+            m_camera.lookAt(vm::vec3f::zero(), vm::vec3f::pos_z());
         }
 
         void MapView3D::initializeToolChain(MapViewToolBox& toolBox) {
@@ -337,7 +337,7 @@ namespace TrenchBroom {
                 const auto ray = vm::ray3f(m_cameraPosition, -m_cameraDirection);
                 const auto newPlane = vm::plane3f(point + 64.0f * plane.normal, plane.normal);
                 const auto dist = vm::intersectRayAndPlane(ray, newPlane);;
-                if (!vm::isnan(dist) && dist > 0.0f) {
+                if (!vm::is_nan(dist) && dist > 0.0f) {
                     m_offset = std::max(m_offset, dist);
                 }
             }
@@ -386,13 +386,13 @@ namespace TrenchBroom {
 
             const vm::vec3f position = pointFile->currentPoint() + vm::vec3f(0.0f, 0.0f, 16.0f);
             const vm::vec3f direction = pointFile->currentDirection();
-            animateCamera(position, direction, vm::vec3f::pos_z);
+            animateCamera(position, direction, vm::vec3f::pos_z());
         }
 
         vm::vec3 MapView3D::doGetMoveDirection(const vm::direction direction) const {
             switch (direction) {
                 case vm::direction::forward: {
-                    const auto plane = vm::plane3(vm::vec3(m_camera.position()), vm::vec3::pos_z);
+                    const auto plane = vm::plane3(vm::vec3(m_camera.position()), vm::vec3::pos_z());
                     const auto projectedDirection = plane.projectVector(vm::vec3(m_camera.direction()));
                     if (isZero(projectedDirection, vm::C::almostZero())) {
                         // camera is looking straight down or up
@@ -411,14 +411,14 @@ namespace TrenchBroom {
                 case vm::direction::right: {
                     auto dir = vm::vec3(firstAxis(m_camera.right()));
                     if (dir == doGetMoveDirection(vm::direction::forward)) {
-                        dir = cross(dir, vm::vec3::pos_z);
+                        dir = cross(dir, vm::vec3::pos_z());
                     }
                     return dir;
                 }
                 case vm::direction::up:
-                    return vm::vec3::pos_z;
+                    return vm::vec3::pos_z();
                 case vm::direction::down:
-                    return vm::vec3::neg_z;
+                    return vm::vec3::neg_z();
                 switchDefault()
             }
         }

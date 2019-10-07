@@ -75,7 +75,7 @@ namespace TrenchBroom {
 
         std::vector<vm::vec2f> circle2D(const float radius, const size_t segments) {
             std::vector<vm::vec2f> vertices = circle2D(radius, 0.0f, vm::Cf::twoPi(), segments);
-            vertices.push_back(vm::vec2f::zero);
+            vertices.push_back(vm::vec2f::zero());
             return vertices;
         }
 
@@ -135,25 +135,25 @@ namespace TrenchBroom {
             float angle1, angle2, angleLength;
             switch (axis) {
                 case vm::axis::x:
-                    angle1 = measureAngle(startAxis, vm::vec3f::pos_y, vm::vec3f::pos_x);
-                    angle2 = measureAngle(endAxis, vm::vec3f::pos_y, vm::vec3f::pos_x);
-                    angleLength = std::min(measureAngle(startAxis, endAxis, vm::vec3f::pos_x),
-                                           measureAngle(endAxis, startAxis, vm::vec3f::pos_x));
+                    angle1 = vm::measure_angle(startAxis, vm::vec3f::pos_y(), vm::vec3f::pos_x());
+                    angle2 = vm::measure_angle(endAxis, vm::vec3f::pos_y(), vm::vec3f::pos_x());
+                    angleLength = vm::min(vm::measure_angle(startAxis, endAxis, vm::vec3f::pos_x()),
+                                          vm::measure_angle(endAxis, startAxis, vm::vec3f::pos_x()));
                     break;
                 case vm::axis::y:
-                    angle1 = measureAngle(startAxis, vm::vec3f::pos_z, vm::vec3f::pos_y);
-                    angle2 = measureAngle(endAxis, vm::vec3f::pos_z, vm::vec3f::pos_y);
-                    angleLength = std::min(measureAngle(startAxis, endAxis, vm::vec3f::pos_y),
-                                           measureAngle(endAxis, startAxis, vm::vec3f::pos_y));
+                    angle1 = vm::measure_angle(startAxis, vm::vec3f::pos_z(), vm::vec3f::pos_y());
+                    angle2 = vm::measure_angle(endAxis, vm::vec3f::pos_z(), vm::vec3f::pos_y());
+                    angleLength = vm::min(vm::measure_angle(startAxis, endAxis, vm::vec3f::pos_y()),
+                                          vm::measure_angle(endAxis, startAxis, vm::vec3f::pos_y()));
                     break;
                 default:
-                    angle1 = measureAngle(startAxis, vm::vec3f::pos_x, vm::vec3f::pos_z);
-                    angle2 = measureAngle(endAxis, vm::vec3f::pos_x, vm::vec3f::pos_z);
-                    angleLength = std::min(measureAngle(startAxis, endAxis, vm::vec3f::pos_z),
-                                           measureAngle(endAxis, startAxis, vm::vec3f::pos_z));
+                    angle1 = vm::measure_angle(startAxis, vm::vec3f::pos_x(), vm::vec3f::pos_z());
+                    angle2 = vm::measure_angle(endAxis, vm::vec3f::pos_x(), vm::vec3f::pos_z());
+                    angleLength = vm::min(vm::measure_angle(startAxis, endAxis, vm::vec3f::pos_z()),
+                                          vm::measure_angle(endAxis, startAxis, vm::vec3f::pos_z()));
                     break;
             }
-            const float minAngle = std::min(angle1, angle2);
+            const float minAngle = vm::min(angle1, angle2);
             const float maxAngle = std::max(angle1, angle2);
             const float startAngle = (maxAngle - minAngle <= vm::Cf::pi() ? minAngle : maxAngle);
             return std::make_pair(startAngle, angleLength);
@@ -408,7 +408,7 @@ namespace TrenchBroom {
             const float d = 2.0f * vm::Cf::pi() / static_cast<float>(segments);
             for (size_t i = 0; i < segments; i++) {
                 result.vertices[i] = vm::vec3f(radius * std::sin(a), radius * std::cos(a), 0.0f);
-                result.normals[i] = vm::vec3f::pos_z;
+                result.normals[i] = vm::vec3f::pos_z();
                 a += d;
             }
             return result;

@@ -77,12 +77,12 @@ namespace TrenchBroom {
             const auto viewWidth = viewport.width;
             const auto viewHeight = viewport.height;
 
-            const auto projection = vm::orthoMatrix(0.0f, 1000.0f, -viewWidth / 2.0f, viewHeight / 2.0f, viewWidth / 2.0f, -viewHeight / 2.0f);
-            const auto view = vm::viewMatrix(vm::vec3f::pos_y, vm::vec3f::pos_z) * translationMatrix(500.0f * vm::vec3f::pos_y);
+            const auto projection = vm::ortho_matrix(0.0f, 1000.0f, -viewWidth / 2.0f, viewHeight / 2.0f, viewWidth / 2.0f, -viewHeight / 2.0f);
+            const auto view = vm::view_matrix(vm::vec3f::pos_y(), vm::vec3f::pos_z()) *vm::translation_matrix(500.0f * vm::vec3f::pos_y());
             const ReplaceTransformation ortho(renderContext.transformation(), projection, view);
 
-            const auto translation = vm::translationMatrix(vm::vec3f(-viewWidth / 2.0f + 55.0f, 0.0f, -viewHeight / 2.0f + 55.0f));
-            const auto scaling = vm::scalingMatrix(vm::vec3f::fill(2.0f));
+            const auto translation = vm::translation_matrix(vm::vec3f(-viewWidth / 2.0f + 55.0f, 0.0f, -viewHeight / 2.0f + 55.0f));
+            const auto scaling = vm::scaling_matrix(vm::vec3f::fill(2.0f));
             const auto compassTransformation = translation * scaling;
             const MultiplyModelMatrix compass(renderContext.transformation(), compassTransformation);
             const auto cameraTransformation = cameraRotationMatrix(camera);
@@ -109,14 +109,14 @@ namespace TrenchBroom {
 
             VertsAndNormals shaftCap = circle3D(m_shaftRadius, m_segments);
             for (size_t i = 0; i < shaftCap.vertices.size(); ++i) {
-                shaftCap.vertices[i] = vm::mat4x4f::rot_180_x * shaftCap.vertices[i] + shaftOffset;
-                shaftCap.normals[i] = vm::mat4x4f::rot_180_x * shaftCap.normals[i];
+                shaftCap.vertices[i] = vm::mat4x4f::rot_180_x() * shaftCap.vertices[i] + shaftOffset;
+                shaftCap.normals[i] = vm::mat4x4f::rot_180_x() * shaftCap.normals[i];
             }
 
             VertsAndNormals headCap = circle3D(m_headRadius, m_segments);
             for (size_t i = 0; i < headCap.vertices.size(); ++i) {
-                headCap.vertices[i] = vm::mat4x4f::rot_180_x * headCap.vertices[i] + headOffset;
-                headCap.normals[i] = vm::mat4x4f::rot_180_x * headCap.normals[i];
+                headCap.vertices[i] = vm::mat4x4f::rot_180_x() * headCap.vertices[i] + headOffset;
+                headCap.normals[i] = vm::mat4x4f::rot_180_x() * headCap.normals[i];
             }
 
             using Vertex = GLVertexTypes::P3N::Vertex;
@@ -176,7 +176,7 @@ namespace TrenchBroom {
         void Compass::renderBackground(RenderContext& renderContext) {
             PreferenceManager& prefs = PreferenceManager::instance();
 
-            const MultiplyModelMatrix rotate(renderContext.transformation(), vm::mat4x4f::rot_90_x_ccw);
+            const MultiplyModelMatrix rotate(renderContext.transformation(), vm::mat4x4f::rot_90_x_ccw());
             ActiveShader shader(renderContext.shaderManager(), Shaders::CompassBackgroundShader);
             shader.set("Color", prefs.get(Preferences::CompassBackgroundColor));
             m_backgroundRenderer.render();

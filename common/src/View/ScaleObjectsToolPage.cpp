@@ -71,7 +71,7 @@ namespace TrenchBroom {
 
         void ScaleObjectsToolPage::activate() {
             const auto document = lock(m_document);
-            const auto suggestedSize = document->hasSelectedNodes() ? document->selectionBounds().size() : vm::vec3::zero;
+            const auto suggestedSize = document->hasSelectedNodes() ? document->selectionBounds().size() : vm::vec3::zero();
 
             m_sizeTextBox->setText(QString::fromStdString(StringUtils::toString(suggestedSize)));
             m_factorsTextBox->setText("1.0 1.0 1.0");
@@ -127,12 +127,12 @@ namespace TrenchBroom {
             switch (m_scaleFactorsOrSize->currentIndex()) {
                 case 0: {
                     auto document = lock(m_document);
-                    const auto desiredSize = vm::vec3::parse(m_sizeTextBox->text().toStdString());
+                    const auto desiredSize = vm::parse<FloatType, 3>(m_sizeTextBox->text().toStdString());
 
                     return desiredSize / document->selectionBounds().size();
                 }
                 default:
-                    return vm::vec3::parse(m_factorsTextBox->text().toStdString());
+                    return vm::parse<FloatType, 3>(m_factorsTextBox->text().toStdString());
             }
         }
 

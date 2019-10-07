@@ -50,7 +50,7 @@ namespace TrenchBroom {
 
         bool BBoxSide::validSideNormal(const vm::vec3& n) {
             for (size_t i = 0; i < 3; ++i) {
-                vm::vec3 expected = vm::vec3::zero;
+                vm::vec3 expected = vm::vec3::zero();
                 expected[i] = 1.0;
                 if (n == expected || n == -expected) {
                     return true;
@@ -473,7 +473,7 @@ namespace TrenchBroom {
         m_anchorPos(AnchorPos::Opposite),
         m_bboxAtDragStart(),
         m_dragStartHit(Model::Hit::NoHit),
-        m_dragCumulativeDelta(vm::vec3::zero),
+        m_dragCumulativeDelta(vm::vec3::zero()),
         m_proportionalAxes(ProportionalAxes::None()) {}
 
         ScaleObjectsTool::~ScaleObjectsTool() = default;
@@ -508,7 +508,7 @@ namespace TrenchBroom {
                     const vm::vec3 points[] = {p0, p1, p2, p3};
                     for (size_t i = 0; i < 4; i++) {
                         const auto result = vm::distance(pickRay, vm::segment3(points[i], points[(i + 1) % 4]));
-                        if (!vm::isnan(result.distance) && result.distance < closestDistToRay) {
+                        if (!vm::is_nan(result.distance) && result.distance < closestDistToRay) {
                             closestDistToRay = result.distance;
                             bestNormal = n;
                             bestDistAlongRay = result.position1;
@@ -520,7 +520,7 @@ namespace TrenchBroom {
 
             // The hit point is the closest point on the pick ray to one of the edges of the face.
             // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
-            assert(bestNormal != vm::vec3::zero);
+            assert(bestNormal != vm::vec3::zero());
 
             BackSide result;
             result.distAlongRay = bestDistAlongRay;
@@ -535,7 +535,7 @@ namespace TrenchBroom {
 
                 // The hit point is the closest point on the pick ray to one of the edges of the face.
                 // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
-                assert(result.pickedSideNormal != vm::vec3::zero);
+                assert(result.pickedSideNormal != vm::vec3::zero());
                 pickResult.addHit(Model::Hit(ScaleToolSideHit, result.distAlongRay, pickRay.pointAtDistance(result.distAlongRay), BBoxSide{result.pickedSideNormal}));
             }
         }
@@ -560,7 +560,7 @@ namespace TrenchBroom {
                     // could figure out which endpoint is closer to camera, or just test both.
                     for (const vm::vec3& point : std::vector<vm::vec3>{points.start(), points.end()}) {
                         const FloatType dist = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
-                        if (!vm::isnan(dist)) {
+                        if (!vm::is_nan(dist)) {
                             localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, pickRay.pointAtDistance(dist), edge));
                         }
                     }
@@ -597,7 +597,7 @@ namespace TrenchBroom {
                 // cylinders of the edge handles, so they take priority where they overlap.
                 const auto cornerRadius = pref(Preferences::HandleRadius) * 2.0;
                 const auto dist = camera.pickPointHandle(pickRay, point, cornerRadius);
-                if (!vm::isnan(dist)) {
+                if (!vm::is_nan(dist)) {
                     localPickResult.addHit(Model::Hit(ScaleToolCornerHit, dist, pickRay.pointAtDistance(dist), corner));
                 }
             }
@@ -607,7 +607,7 @@ namespace TrenchBroom {
                 const vm::segment3 points = pointsForBBoxEdge(myBounds, edge);
 
                 const auto dist = camera.pickLineSegmentHandle(pickRay, points, pref(Preferences::HandleRadius));
-                if (!vm::isnan(dist)) {
+                if (!vm::is_nan(dist)) {
                     localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, pickRay.pointAtDistance(dist), edge));
                 }
             }
@@ -616,8 +616,8 @@ namespace TrenchBroom {
             for (const auto& side : allSides()) {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
-                const auto dist = vm::intersectRayAndPolygon(pickRay, std::begin(poly), std::end(poly));
-                if (!vm::isnan(dist)) {
+                const auto dist = vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly));
+                if (!vm::is_nan(dist)) {
                     localPickResult.addHit(Model::Hit(ScaleToolSideHit, dist, pickRay.pointAtDistance(dist), side));
                 }
             }
@@ -645,7 +645,7 @@ namespace TrenchBroom {
         static std::vector<BBoxSide> sidesForCornerSelection(const BBoxCorner& corner) {
             std::vector<BBoxSide> result;
             for (size_t i = 0; i < 3; ++i) {
-                vm::vec3 sideNormal = vm::vec3::zero;
+                vm::vec3 sideNormal = vm::vec3::zero();
                 sideNormal[i] = corner.corner[i];
 
                 result.push_back(BBoxSide(sideNormal));
@@ -812,7 +812,7 @@ namespace TrenchBroom {
             }
 
             assert(0);
-            return vm::vec3f::zero;
+            return vm::vec3f::zero();
         }
 
         vm::bbox3 ScaleObjectsTool::bboxAtDragStart() const {
@@ -883,7 +883,7 @@ namespace TrenchBroom {
 
             m_bboxAtDragStart = bounds();
             m_dragStartHit = hit;
-            m_dragCumulativeDelta = vm::vec3::zero;
+            m_dragCumulativeDelta = vm::vec3::zero();
 
             MapDocumentSPtr document = lock(m_document);
             document->beginTransaction("Scale Objects");

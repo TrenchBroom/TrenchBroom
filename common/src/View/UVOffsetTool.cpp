@@ -104,7 +104,7 @@ namespace TrenchBroom {
             const auto distance = vm::intersectRayAndPlane(ray, boundary);
             const auto hitPoint = ray.pointAtDistance(distance);
 
-            const auto transform = face->toTexCoordSystemMatrix(vm::vec2f::zero, face->scale(), true);
+            const auto transform = face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->scale(), true);
             return vm::vec2f(transform * hitPoint);
         }
 

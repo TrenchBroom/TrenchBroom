@@ -59,7 +59,7 @@ namespace TrenchBroom {
         }
 
         vm::vec2f TextAnchor3D::extraOffsets(const TextAlignment::Type a, const vm::vec2f& size) const {
-            return vm::vec2f::zero;
+            return vm::vec2f::zero();
         }
 
         vm::vec3f SimpleTextAnchor::basePosition() const {

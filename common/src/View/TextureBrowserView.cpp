@@ -280,7 +280,7 @@ namespace TrenchBroom {
             const float viewBottom    = static_cast<float>(0);
 
             const vm::mat4x4f projection = vm::orthoMatrix(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom);
-            const vm::mat4x4f view = vm::viewMatrix(vm::vec3f::neg_z, vm::vec3f::pos_y) * translationMatrix(vm::vec3f(0.0f, 0.0f, 0.1f));
+            const vm::mat4x4f view = vm::viewMatrix(vm::vec3f::neg_z(), vm::vec3f::pos_y()) *vm::translation_matrix(vm::vec3f(0.0f, 0.0f, 0.1f));
             const Renderer::Transformation transformation(projection, view);
 
             Renderer::ActivateVbo activate(vertexVbo());

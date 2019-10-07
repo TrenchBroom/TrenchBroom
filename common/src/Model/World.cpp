@@ -348,11 +348,11 @@ namespace TrenchBroom {
         }
 
         vm::vec3 World::doGetLinkSourceAnchor() const {
-            return vm::vec3::zero;
+            return vm::vec3::zero();
         }
 
         vm::vec3 World::doGetLinkTargetAnchor() const {
-            return vm::vec3::zero;
+            return vm::vec3::zero();
         }
 
         MapFormat World::doGetFormat() const {

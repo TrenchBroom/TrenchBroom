@@ -36,16 +36,16 @@ namespace TrenchBroom {
 
         TEST_F(SelectionCommandTest, faceSelectionUndoAfterTranslationUndo) {
             Model::Brush* brush = createBrush();
-            ASSERT_EQ(vm::vec3::zero, brush->logicalBounds().center());
+            ASSERT_EQ(vm::vec3::zero(), brush->logicalBounds().center());
 
             document->addNode(brush, document->currentParent());
 
             // select the top face
-            document->select(brush->findFace(vm::vec3::pos_z));
-            ASSERT_EQ(Model::BrushFaceList{brush->findFace(vm::vec3::pos_z)}, document->selectedBrushFaces());
+            document->select(brush->findFace(vm::vec3::pos_z()));
+            ASSERT_EQ(Model::BrushFaceList{brush->findFace(vm::vec3::pos_z())}, document->selectedBrushFaces());
 
             // deselect it
-            document->deselect(brush->findFace(vm::vec3::pos_z));
+            document->deselect(brush->findFace(vm::vec3::pos_z()));
             ASSERT_EQ(Model::BrushFaceList{}, document->selectedBrushFaces());
 
             // select the brush
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             // Start undoing changes
 
             document->undoLastCommand();
-            ASSERT_EQ(vm::vec3::zero, brush->logicalBounds().center());
+            ASSERT_EQ(vm::vec3::zero(), brush->logicalBounds().center());
             ASSERT_EQ(Model::BrushList{brush}, document->selectedNodes().brushes());
             ASSERT_EQ(Model::BrushFaceList{}, document->selectedBrushFaces());
 
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Model::BrushFaceList{}, document->selectedBrushFaces());
 
             document->undoLastCommand();
-            ASSERT_EQ(Model::BrushFaceList{brush->findFace(vm::vec3::pos_z)}, document->selectedBrushFaces());
+            ASSERT_EQ(Model::BrushFaceList{brush->findFace(vm::vec3::pos_z())}, document->selectedBrushFaces());
         }
     }
 }

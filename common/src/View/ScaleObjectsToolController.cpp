@@ -92,7 +92,7 @@ namespace TrenchBroom {
             const vm::vec3 initialPoint = [&]() {
                 vm::vec3 p = dragStartHit.hitPoint();
                 restricter->hitPoint(inputState, p);
-                snapper->snap(inputState, vm::vec3::zero, vm::vec3::zero, p);
+                snapper->snap(inputState, vm::vec3::zero(), vm::vec3::zero(), p);
                 return p;
             }();
 

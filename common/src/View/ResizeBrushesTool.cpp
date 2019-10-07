@@ -118,14 +118,14 @@ namespace TrenchBroom {
 
                 if ((leftDot > 0.0) != (rightDot > 0.0)) {
                     const auto result = vm::distance(m_pickRay, vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
-                    if (!vm::isnan(result.distance) && result.distance < m_closest) {
+                    if (!vm::is_nan(result.distance) && result.distance < m_closest) {
                         m_closest = result.distance;
                         const auto hitPoint = m_pickRay.pointAtDistance(result.position1);
                         if (m_hitType == ResizeBrushesTool::ResizeHit2D) {
                             Model::BrushFaceList faces;
-                            if (vm::isZero(leftDot, vm::C::almostZero())) {
+                            if (vm::is_zero(leftDot, vm::C::almostZero())) {
                                 faces.push_back(left);
-                            } else if (vm::isZero(rightDot, vm::C::almostZero())) {
+                            } else if (vm::is_zero(rightDot, vm::C::almostZero())) {
                                 faces.push_back(right);
                             } else {
                                 if (vm::abs(leftDot) < 1.0) {
@@ -254,7 +254,7 @@ namespace TrenchBroom {
             }
 
             m_dragOrigin = hit.hitPoint();
-            m_totalDelta = vm::vec3::zero;
+            m_totalDelta = vm::vec3::zero();
             m_splitBrushes = split;
 
             auto document = lock(m_document);
@@ -318,7 +318,7 @@ namespace TrenchBroom {
             }
 
             m_dragOrigin = m_lastPoint = hit.hitPoint();
-            m_totalDelta = vm::vec3::zero;
+            m_totalDelta = vm::vec3::zero();
             m_splitBrushes = false;
 
             auto document = lock(m_document);
@@ -330,7 +330,7 @@ namespace TrenchBroom {
         bool ResizeBrushesTool::move(const vm::ray3& pickRay, const Renderer::Camera& camera) {
             const auto dragPlane = vm::plane3(m_dragOrigin, vm::vec3(camera.direction()));
             const auto hitDist = vm::intersectRayAndPlane(pickRay, dragPlane);
-            if (vm::isnan(hitDist)) {
+            if (vm::is_nan(hitDist)) {
                 return true;
             }
 
@@ -339,7 +339,7 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             const auto& grid = document->grid();
             const auto delta = grid.snap(hitPoint - m_lastPoint);
-            if (vm::isZero(delta, vm::C::almostZero())) {
+            if (vm::is_zero(delta, vm::C::almostZero())) {
                 return true;
             }
 

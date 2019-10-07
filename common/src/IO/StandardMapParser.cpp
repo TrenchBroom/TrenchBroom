@@ -437,7 +437,7 @@ namespace TrenchBroom {
             attribs.setYScale(parseFloat());
 
             if (checkFacePoints(status, p1, p2, p3, line)) {
-                brushFace(line, p1, p2, p3, attribs, vm::vec3::zero, vm::vec3::zero, status);
+                brushFace(line, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
             }
         }
 
@@ -462,7 +462,7 @@ namespace TrenchBroom {
             }
 
             if (checkFacePoints(status, p1, p2, p3, line)) {
-                brushFace(line, p1, p2, p3, attribs, vm::vec3::zero, vm::vec3::zero, status);
+                brushFace(line, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
             }
         }
 
@@ -485,7 +485,7 @@ namespace TrenchBroom {
             }
 
             if (checkFacePoints(status, p1, p2, p3, line)) {
-                brushFace(line, p1, p2, p3, attribs, vm::vec3::zero, vm::vec3::zero, status);
+                brushFace(line, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
             }
         }
 
@@ -516,7 +516,7 @@ namespace TrenchBroom {
             }
 
             if (checkFacePoints(status, p1, p2, p3, line)) {
-                brushFace(line, p1, p2, p3, attribs, vm::vec3::zero, vm::vec3::zero, status);
+                brushFace(line, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
             }
         }
 
@@ -569,7 +569,7 @@ namespace TrenchBroom {
         }
 
         bool StandardMapParser::checkFacePoints(ParserStatus& status, const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const size_t line) const {
-            const auto [result, plane] = vm::fromPoints(p1, p2, p3); // use the same test as in the brush face initializer
+            const auto [result, plane] = vm::from_points(p1, p2, p3); // use the same test as in the brush face initializer
             unused(plane); // [[maybe_unused]] doesn't seem to work well with structured bindings
             if (!result) {
                 status.error(line, "Skipping face: face points are colinear");

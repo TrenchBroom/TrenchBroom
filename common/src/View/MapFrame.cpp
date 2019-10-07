@@ -1379,7 +1379,7 @@ namespace TrenchBroom {
             bool ok = false;
             const QString str = QInputDialog::getText(this, "Move Camera", "Enter a position (x y z) for the camera.", QLineEdit::Normal, "0.0 0.0 0.0", &ok);
             if (ok) {
-                const vm::vec3 position = vm::vec3::parse(str.toStdString());
+                const vm::vec3 position = vm::parse<FloatType, 3>(str.toStdString());
                 m_mapView->moveCameraToPosition(position, true);
             }
         }
@@ -1412,7 +1412,7 @@ namespace TrenchBroom {
             m_inspector->show();
             m_inspector->switchToPage(page);
         }
-        
+
         void MapFrame::toggleToolbar() {
             m_toolBar->setVisible(!m_toolBar->isVisible());
         }
@@ -1480,7 +1480,7 @@ namespace TrenchBroom {
             const QString str = QInputDialog::getText(this, "Create Brush", "Enter a list of at least 4 points (x y z) (x y z) ...", QLineEdit::Normal, "", &ok);
             if (ok) {
                 std::vector<vm::vec3> positions;
-                vm::vec3::parseAll(str.toStdString(), std::back_inserter(positions));
+                vm::parse<FloatType, 3>All(str.toStdString(), std::back_inserter(positions));
                 m_document->createBrush(positions);
             }
         }
@@ -1502,7 +1502,7 @@ namespace TrenchBroom {
             const QString str = QInputDialog::getText(this, "Clip Brush", "Enter face points ( x y z ) ( x y z ) ( x y z )", QLineEdit::Normal, "", &ok);
             if (ok) {
                 std::vector<vm::vec3> points;
-                vm::vec3::parseAll(str.toStdString(), std::back_inserter(points));
+                vm::parse<FloatType, 3>All(str.toStdString(), std::back_inserter(points));
                 assert(points.size() == 3);
                 m_document->clipBrushes(points[0], points[1], points[2]);
             }

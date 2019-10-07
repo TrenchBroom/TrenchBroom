@@ -75,7 +75,7 @@ namespace TrenchBroom {
             const InSequence inSequence;
 
             const Renderer::Camera::Viewport viewport(-200, -200, 400, 400);
-            Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, vm::vec3f(0.0f, 0.0f, 100.0f), vm::vec3f::neg_z, vm::vec3f::pos_y);
+            Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, vm::vec3f(0.0f, 0.0f, 100.0f), vm::vec3f::neg_z(), vm::vec3f::pos_y());
 
             const Grid grid(4); // Grid size 16
             MockMoveToolController controller(grid);
@@ -84,9 +84,9 @@ namespace TrenchBroom {
             inputState.mouseDown(MouseButtons::MBLeft);
 
             const vm::vec3 origin = vm::vec3(camera.position());
-            inputState.setPickRequest(PickRequest(vm::ray3(origin, vm::vec3::neg_z), camera));
+            inputState.setPickRequest(PickRequest(vm::ray3(origin, vm::vec3::neg_z()), camera));
 
-            EXPECT_CALL(controller, mockDoStartMove(Ref(inputState))).Times(1).WillOnce(Return(MockMoveToolController::MoveInfo(vm::vec3::zero)));
+            EXPECT_CALL(controller, mockDoStartMove(Ref(inputState))).Times(1).WillOnce(Return(MockMoveToolController::MoveInfo(vm::vec3::zero())));
             controller.startMouseDrag(inputState);
 
             inputState.mouseMove(9, 0, 9, 0);
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             const InSequence inSequence;
 
             const Renderer::Camera::Viewport viewport(-200, -200, 400, 400);
-            Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, vm::vec3f(0.0f, 0.0f, 100.0f), vm::vec3f::neg_z, vm::vec3f::pos_y);
+            Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, vm::vec3f(0.0f, 0.0f, 100.0f), vm::vec3f::neg_z(), vm::vec3f::pos_y());
 
             const Grid grid(4); // Grid size 16
             MockMoveToolController controller(grid);
@@ -117,9 +117,9 @@ namespace TrenchBroom {
             inputState.mouseDown(MouseButtons::MBLeft);
 
             const vm::vec3 origin = vm::vec3(camera.position());
-            inputState.setPickRequest(PickRequest(vm::ray3(origin, vm::vec3::neg_z), camera));
+            inputState.setPickRequest(PickRequest(vm::ray3(origin, vm::vec3::neg_z()), camera));
 
-            EXPECT_CALL(controller, mockDoStartMove(Ref(inputState))).Times(1).WillOnce(Return(MockMoveToolController::MoveInfo(vm::vec3::zero)));
+            EXPECT_CALL(controller, mockDoStartMove(Ref(inputState))).Times(1).WillOnce(Return(MockMoveToolController::MoveInfo(vm::vec3::zero())));
             controller.startMouseDrag(inputState);
 
             // nothing will happen due to grid snapping
@@ -156,8 +156,8 @@ namespace TrenchBroom {
 
             const Renderer::Camera::Viewport viewport(0, 0, 400, 400);
             Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, vm::vec3f(0.0f, 0.0f, 100.0f),
-                                               normalize(vm::vec3f::neg_x + vm::vec3f::neg_y + vm::vec3f::neg_z),
-                                               normalize(vm::vec3f::neg_x + vm::vec3f::neg_y + vm::vec3f::pos_z));
+                                               normalize(vm::vec3f::neg_x() + vm::vec3f::neg_y() + vm::vec3f::neg_z()),
+                                               normalize(vm::vec3f::neg_x() + vm::vec3f::neg_y() + vm::vec3f::pos_z()));
 
             const Grid grid(4); // Grid size 16
             MockMoveToolController controller(grid);
@@ -168,7 +168,7 @@ namespace TrenchBroom {
             const vm::ray3 initialPickRay(camera.pickRay(200, 200));
             inputState.setPickRequest(PickRequest(initialPickRay, camera));
 
-            const FloatType initialHitDistance = vm::intersectRayAndPlane(initialPickRay, vm::plane3(vm::vec3::zero, vm::vec3::pos_z));
+            const FloatType initialHitDistance = vm::intersectRayAndPlane(initialPickRay, vm::plane3(vm::vec3::zero(), vm::vec3::pos_z()));
             const vm::vec3 initialHitPoint = initialPickRay.pointAtDistance(initialHitDistance);
 
             EXPECT_CALL(controller, mockDoStartMove(Ref(inputState))).Times(1).WillOnce(Return(MockMoveToolController::MoveInfo(initialHitPoint)));

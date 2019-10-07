@@ -58,8 +58,8 @@ namespace TrenchBroom {
         };
 
         TEST_F(EntityTest, defaults) {
-            EXPECT_EQ(vm::vec3::zero, m_entity->origin());
-            EXPECT_EQ(vm::mat4x4::identity, m_entity->rotation());
+            EXPECT_EQ(vm::vec3::zero(), m_entity->origin());
+            EXPECT_EQ(vm::mat4x4::identity(), m_entity->rotation());
             EXPECT_TRUE(m_entity->pointEntity());
             EXPECT_EQ(Entity::DefaultBounds, m_entity->logicalBounds());
         }
@@ -101,36 +101,36 @@ namespace TrenchBroom {
             m_world->defaultLayer()->addChild(m_entity);
             m_entity->removeAttribute(AttributeNames::Classname);
 
-            EXPECT_EQ(vm::mat4x4::identity, m_entity->rotation());
+            EXPECT_EQ(vm::mat4x4::identity(), m_entity->rotation());
 
-            const auto rotMat = vm::rotationMatrix(0.0, 0.0, vm::toRadians(90.0));
+            const auto rotMat = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
             m_entity->transform(rotMat, true, m_worldBounds);
 
             // rotation had no effect
-            EXPECT_EQ(vm::mat4x4::identity, m_entity->rotation());
+            EXPECT_EQ(vm::mat4x4::identity(), m_entity->rotation());
         }
 
         TEST_F(EntityTest, rotateAndTranslate) {
             m_world->defaultLayer()->addChild(m_entity);
 
-            const auto rotMat = vm::rotationMatrix(0.0, 0.0, vm::toRadians(90.0));
+            const auto rotMat = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
 
-            EXPECT_EQ(vm::mat4x4::identity, m_entity->rotation());
+            EXPECT_EQ(vm::mat4x4::identity(), m_entity->rotation());
             m_entity->transform(rotMat, true, m_worldBounds);
             EXPECT_EQ(rotMat, m_entity->rotation());
 
-            m_entity->transform(vm::translationMatrix(vm::vec3d(100.0, 0.0, 0.0)), true, m_worldBounds);
+            m_entity->transform(vm::translation_matrix(vm::vec3d(100.0, 0.0, 0.0)), true, m_worldBounds);
             EXPECT_EQ(rotMat, m_entity->rotation());
         }
 
         TEST_F(EntityTest, rotationMatrixToEulerAngles) {
-            const auto roll  = vm::toRadians(12.0);
-            const auto pitch = vm::toRadians(13.0);
-            const auto yaw   = vm::toRadians(14.0);
+            const auto roll  = vm::to_radians(12.0);
+            const auto pitch = vm::to_radians(13.0);
+            const auto yaw   = vm::to_radians(14.0);
 
-            const auto rotMat = vm::rotationMatrix(roll, pitch, yaw);
+            const auto rotMat = vm::rotation_matrix(roll, pitch, yaw);
 
-            const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(vm::mat4x4::identity, rotMat);
+            const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(vm::mat4x4::identity(), rotMat);
 
             EXPECT_DOUBLE_EQ(12.0, yawPitchRoll.z());
             EXPECT_DOUBLE_EQ(13.0, yawPitchRoll.y());
@@ -138,12 +138,12 @@ namespace TrenchBroom {
         }
 
         TEST_F(EntityTest, rotationMatrixToEulerAngles_uniformScale) {
-            const auto roll = vm::toRadians(12.0);
-            const auto pitch = vm::toRadians(13.0);
-            const auto yaw = vm::toRadians(14.0);
+            const auto roll = vm::to_radians(12.0);
+            const auto pitch = vm::to_radians(13.0);
+            const auto yaw = vm::to_radians(14.0);
 
             const auto scaleMat = vm::scalingMatrix(vm::vec3(2.0, 2.0, 2.0));
-            const auto rotMat = vm::rotationMatrix(roll, pitch, yaw);
+            const auto rotMat = vm::rotation_matrix(roll, pitch, yaw);
 
             const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
 
@@ -154,16 +154,16 @@ namespace TrenchBroom {
         }
 
         TEST_F(EntityTest, rotationMatrixToEulerAngles_nonUniformScale) {
-            const auto roll = vm::toRadians(0.0);
-            const auto pitch = vm::toRadians(45.0);
-            const auto yaw = vm::toRadians(0.0);
+            const auto roll = vm::to_radians(0.0);
+            const auto pitch = vm::to_radians(45.0);
+            const auto yaw = vm::to_radians(0.0);
 
             const auto scaleMat = vm::scalingMatrix(vm::vec3(2.0, 1.0, 1.0));
-            const auto rotMat = vm::rotationMatrix(roll, pitch, yaw);
+            const auto rotMat = vm::rotation_matrix(roll, pitch, yaw);
 
             const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
 
-            const auto expectedPitch = vm::toDegrees(std::atan(0.5)); // ~= 26.57 degrees
+            const auto expectedPitch = vm::to_degrees(std::atan(0.5)); // ~= 26.57 degrees
 
             EXPECT_DOUBLE_EQ(0.0, yawPitchRoll.z());
             EXPECT_DOUBLE_EQ(expectedPitch, yawPitchRoll.y());
@@ -171,12 +171,12 @@ namespace TrenchBroom {
         }
 
         TEST_F(EntityTest, rotationMatrixToEulerAngles_flip) {
-            const auto roll = vm::toRadians(10.0);
-            const auto pitch = vm::toRadians(45.0);
-            const auto yaw = vm::toRadians(0.0);
+            const auto roll = vm::to_radians(10.0);
+            const auto pitch = vm::to_radians(45.0);
+            const auto yaw = vm::to_radians(0.0);
 
             const auto scaleMat = vm::scalingMatrix(vm::vec3(-1.0, 1.0, 1.0));
-            const auto rotMat = vm::rotationMatrix(roll, pitch, yaw);
+            const auto rotMat = vm::rotation_matrix(roll, pitch, yaw);
 
             const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
 

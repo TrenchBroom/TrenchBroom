@@ -74,8 +74,8 @@ namespace TrenchBroom {
         m_group(false),
         m_hideUnused(false),
         m_sortOrder(Assets::EntityDefinition::Name) {
-            const vm::quatf hRotation = vm::quatf(vm::vec3f::pos_z, vm::toRadians(-30.0f));
-            const vm::quatf vRotation = vm::quatf(vm::vec3f::pos_y, vm::toRadians(20.0f));
+            const vm::quatf hRotation = vm::quatf(vm::vec3f::pos_z(), vm::to_radians(-30.0f));
+            const vm::quatf vRotation = vm::quatf(vm::vec3f::pos_y(), vm::to_radians(20.0f));
             m_rotation = vRotation * hRotation;
 
             m_entityDefinitionManager.usageCountDidChangeNotifier.addObserver(this, &EntityBrowserView::usageCountDidChange);
@@ -192,13 +192,13 @@ namespace TrenchBroom {
                 if (frame != nullptr) {
                     const auto bounds = frame->bounds();
                     const auto center = bounds.center();
-                    const auto transform = translationMatrix(center) * rotationMatrix(m_rotation) * translationMatrix(-center);
+                    const auto transform =vm::translation_matrix(center) * rotationMatrix(m_rotation) *vm::translation_matrix(-center);
                     rotatedBounds = bounds.transform(transform);
                     modelRenderer = m_entityModelManager.renderer(spec);
                 } else {
                     rotatedBounds = vm::bbox3f(definition->bounds());
                     const auto center = rotatedBounds.center();
-                    const auto transform = translationMatrix(-center) * rotationMatrix(m_rotation) * translationMatrix(center);
+                    const auto transform =vm::translation_matrix(-center) * rotationMatrix(m_rotation) *vm::translation_matrix(center);
                     rotatedBounds = rotatedBounds.transform(transform);
                 }
 
@@ -220,7 +220,7 @@ namespace TrenchBroom {
             const float viewBottom    = static_cast<float>(0);
 
             const vm::mat4x4f projection = vm::orthoMatrix(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
-            const vm::mat4x4f view = vm::viewMatrix(vm::vec3f::neg_x, vm::vec3f::pos_z) * translationMatrix(vm::vec3f(256.0f, 0.0f, 0.0f));
+            const vm::mat4x4f view = vm::viewMatrix(vm::vec3f::neg_x(), vm::vec3f::pos_z()) *vm::translation_matrix(vm::vec3f(256.0f, 0.0f, 0.0f));
             Renderer::Transformation transformation(projection, view);
 
             renderBounds(layout, y, height);
@@ -318,7 +318,7 @@ namespace TrenchBroom {
         }
 
         void EntityBrowserView::renderNames(Layout& layout, const float y, const float height, const vm::mat4x4f& projection) {
-            Renderer::Transformation transformation(projection, viewMatrix(vm::vec3f::neg_z, vm::vec3f::pos_y) * translationMatrix(vm::vec3f(0.0f, 0.0f, -1.0f)));
+            Renderer::Transformation transformation(projection, viewMatrix(vm::vec3f::neg_z(), vm::vec3f::pos_y()) *vm::translation_matrix(vm::vec3f(0.0f, 0.0f, -1.0f)));
 
             Renderer::ActivateVbo activate(vertexVbo());
 
@@ -442,12 +442,12 @@ namespace TrenchBroom {
             const auto rotationOffset = vm::vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
             const auto boundsCenter = vm::vec3f(definition->bounds().center());
 
-            return (vm::translationMatrix(offset) *
+            return (vm::translation_matrix(offset) *
                     vm::scalingMatrix(vm::vec3f::fill(scaling)) *
-                    vm::translationMatrix(rotationOffset) *
-                    vm::translationMatrix(boundsCenter) *
-                    vm::rotationMatrix(m_rotation) *
-                    vm::translationMatrix(-boundsCenter));
+                    vm::translation_matrix(rotationOffset) *
+                    vm::translation_matrix(boundsCenter) *
+                    vm::rotation_matrix(m_rotation) *
+                    vm::translation_matrix(-boundsCenter));
         }
 
         QString EntityBrowserView::tooltip(const Cell& cell) {

@@ -72,7 +72,7 @@ namespace TrenchBroom {
 
                 // The hit point is the closest point on the pick ray to one of the edges of the face.
                 // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
-                assert(result.pickedSideNormal != vm::vec3::zero);
+                assert(result.pickedSideNormal != vm::vec3::zero());
                 pickResult.addHit(Model::Hit(ShearToolSideHit, result.distAlongRay, pickRay.pointAtDistance(result.distAlongRay), BBoxSide{result.pickedSideNormal}));
             }
         }
@@ -113,8 +113,8 @@ namespace TrenchBroom {
             for (const auto& side : allSides()) {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
-                const auto dist = vm::intersectRayAndPolygon(pickRay, std::begin(poly), std::end(poly));
-                if (!vm::isnan(dist)) {
+                const auto dist = vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly));
+                if (!vm::is_nan(dist)) {
                     localPickResult.addHit(Model::Hit(ShearToolSideHit, dist, pickRay.pointAtDistance(dist), side));
                 }
             }
@@ -165,7 +165,7 @@ namespace TrenchBroom {
 
             m_bboxAtDragStart = bounds();
             m_dragStartHit = hit;
-            m_dragCumulativeDelta = vm::vec3::zero;
+            m_dragCumulativeDelta = vm::vec3::zero();
 
             MapDocumentSPtr document = lock(m_document);
             document->beginTransaction("Shear Objects");
@@ -215,12 +215,12 @@ namespace TrenchBroom {
 
         vm::mat4x4 ShearObjectsTool::bboxShearMatrix() const {
             if (!m_resizing) {
-                return vm::mat4x4::identity;
+                return vm::mat4x4::identity();
             }
 
             // happens if you cmd+drag on an edge or corner
             if (m_dragStartHit.type() != ShearToolSideHit) {
-                return vm::mat4x4::identity;
+                return vm::mat4x4::identity();
             }
 
             const BBoxSide side = m_dragStartHit.target<BBoxSide>();

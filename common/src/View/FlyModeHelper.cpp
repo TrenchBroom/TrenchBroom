@@ -165,10 +165,10 @@ namespace TrenchBroom {
                 delta = delta + m_camera.right() * dist;
             }
             if (m_up) {
-                delta = delta + vm::vec3f::pos_z * dist;
+                delta = delta + vm::vec3f::pos_z() * dist;
             }
             if (m_down) {
-                delta = delta - vm::vec3f::pos_z * dist;
+                delta = delta - vm::vec3f::pos_z() * dist;
             }
             return delta;
         }

@@ -38,9 +38,9 @@ namespace TrenchBroom {
             for (const auto& entry : m_handles) {
                 const auto& position = entry.first;
                 const auto distance = camera.pickPointHandle(pickRay, position, pref(Preferences::HandleRadius));
-                if (!vm::isnan(distance)) {
+                if (!vm::is_nan(distance)) {
                     const auto hitPoint = pickRay.pointAtDistance(distance);
-                    const auto error = vm::squaredDistance(pickRay, position).distance;
+                    const auto error = vm::squared_distance(pickRay, position).distance;
                     pickResult.addHit(Model::Hit::hit(HandleHit, distance, hitPoint, position, error));
                 }
             }
@@ -72,10 +72,10 @@ namespace TrenchBroom {
             for (const HandleEntry& entry : m_handles) {
                 const vm::segment3& position = entry.first;
                 const FloatType edgeDist = camera.pickLineSegmentHandle(pickRay, position, pref(Preferences::HandleRadius));
-                if (!vm::isnan(edgeDist)) {
+                if (!vm::is_nan(edgeDist)) {
                     const vm::vec3 pointHandle = grid.snap(pickRay.pointAtDistance(edgeDist), position);
                     const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
-                    if (!vm::isnan(pointDist)) {
+                    if (!vm::is_nan(pointDist)) {
                         const vm::vec3 hitPoint = pickRay.pointAtDistance(pointDist);
                         pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, HitType(position, pointHandle)));
                     }
@@ -89,7 +89,7 @@ namespace TrenchBroom {
                 const vm::vec3 pointHandle = position.center();
 
                 const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
-                if (!vm::isnan(pointDist)) {
+                if (!vm::is_nan(pointDist)) {
                     const vm::vec3 hitPoint = pickRay.pointAtDistance(pointDist);
                     pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, position));
                 }
@@ -122,17 +122,17 @@ namespace TrenchBroom {
             for (const auto& entry : m_handles) {
                 const auto& position = entry.first;
 
-                const auto [valid, plane] = vm::fromPoints(std::begin(position), std::end(position));
+                const auto [valid, plane] = vm::from_points(std::begin(position), std::end(position));
                 if (!valid) {
                     continue;
                 }
 
-                const auto distance = vm::intersectRayAndPolygon(pickRay, plane, std::begin(position), std::end(position));
-                if (!vm::isnan(distance)) {
+                const auto distance = vm::intersect_ray_polygon(pickRay, plane, std::begin(position), std::end(position));
+                if (!vm::is_nan(distance)) {
                     const auto pointHandle = grid.snap(pickRay.pointAtDistance(distance), plane);
 
                     const auto pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
-                    if (!vm::isnan(pointDist)) {
+                    if (!vm::is_nan(pointDist)) {
                         const auto hitPoint = pickRay.pointAtDistance(pointDist);
                         pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, HitType(position, pointHandle)));
                     }
@@ -146,7 +146,7 @@ namespace TrenchBroom {
                 const auto pointHandle = position.center();
 
                 const auto pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
-                if (!vm::isnan(pointDist)) {
+                if (!vm::is_nan(pointDist)) {
                     const auto hitPoint = pickRay.pointAtDistance(pointDist);
                     pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, position));
                 }

@@ -1435,7 +1435,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlane) {
 
     Polyhedron3d p(positions);
 
-    const vm::plane3d plane(vm::vec3d::zero, vm::vec3d::pos_z);
+    const vm::plane3d plane(vm::vec3d::zero(), vm::vec3d::pos_z());
     ClipCallback callback;
 
     ASSERT_TRUE(p.clip(plane, callback).success());
@@ -1485,7 +1485,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAtTop) {
 
     Polyhedron3d p(positions);
 
-    const vm::plane3d plane(vm::vec3d(0.0, 0.0, 64.0), vm::vec3d::pos_z);
+    const vm::plane3d plane(vm::vec3d(0.0, 0.0, 64.0), vm::vec3d::pos_z());
     ClipCallback callback;
 
     ASSERT_TRUE(p.clip(plane, callback).unchanged());
@@ -1534,7 +1534,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAboveTop) {
 
     Polyhedron3d p(positions);
 
-    const vm::plane3d plane(vm::vec3d(0.0, 0.0, 72.0), vm::vec3d::pos_z);
+    const vm::plane3d plane(vm::vec3d(0.0, 0.0, 72.0), vm::vec3d::pos_z());
     ClipCallback callback;
 
     ASSERT_TRUE(p.clip(plane, callback).unchanged());
@@ -1583,7 +1583,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAtBottom) {
 
     Polyhedron3d p(positions);
 
-    const vm::plane3d plane(vm::vec3d(0.0, 0.0, -64.0), vm::vec3d::pos_z);
+    const vm::plane3d plane(vm::vec3d(0.0, 0.0, -64.0), vm::vec3d::pos_z());
     ClipCallback callback;
 
     ASSERT_TRUE(p.clip(plane, callback).empty());
@@ -1650,7 +1650,7 @@ TEST(PolyhedronTest, clipCubeWithSlantedPlane) {
 TEST(PolyhedronTest, clipCubeDiagonally) {
     Polyhedron3d p(vm::bbox3d(64.0));
 
-    const vm::plane3d plane(vm::vec3d::zero, normalize(vm::vec3d(1.0, 1.0, 0.0)));
+    const vm::plane3d plane(vm::vec3d::zero(), normalize(vm::vec3d(1.0, 1.0, 0.0)));
     ClipCallback callback;
 
     ASSERT_TRUE(p.clip(plane, callback).success());
@@ -2114,7 +2114,7 @@ TEST(PolyhedronTest, intersection_edge_edge) {
     assertIntersects(edge, Polyhedron3d { vm::vec3d( 0.0, 0.0, 0.0), vm::vec3d(2.0, 0.0, 0.0) } );
     assertIntersects(edge, Polyhedron3d { vm::vec3d(-2.0, 0.0, 0.0), vm::vec3d(2.0, 0.0, 0.0) } );
 
-    assertNotIntersects(edge, Polyhedron3d { point1 + vm::vec3d::pos_z, point2 + vm::vec3d::pos_z } );
+    assertNotIntersects(edge, Polyhedron3d { point1 + vm::vec3d::pos_z(), point2 + vm::vec3d::pos_z() } );
 }
 
 TEST(PolyhedronTest, intersection_edge_polygon_same_plane) {

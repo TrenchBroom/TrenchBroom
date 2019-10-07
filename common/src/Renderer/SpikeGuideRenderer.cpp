@@ -28,6 +28,7 @@
 #include "Renderer/Vbo.h"
 #include "View/MapDocument.h"
 
+#include <vecmath/abstract_line.h>
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/ray.h>
@@ -49,7 +50,7 @@ namespace TrenchBroom {
             const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().minDistance(1.0).first();
             if (hit.isMatch()) {
                 if (hit.distance() <= length)
-                    addPoint(ray.pointAtDistance(hit.distance() - 0.01));
+                    addPoint(vm::point_at_distance(ray, hit.distance() - 0.01));
                 addSpike(ray, vm::min(length, hit.distance()), length);
             } else {
                 addSpike(ray, length, length);
@@ -89,7 +90,7 @@ namespace TrenchBroom {
             const auto mix = static_cast<float>(maxLength / length / 2.0);
 
             m_spikeVertices.emplace_back(vm::vec3f(ray.origin), m_color);
-            m_spikeVertices.emplace_back(vm::vec3f(ray.pointAtDistance(length)),
+            m_spikeVertices.emplace_back(vm::vec3f(vm::point_at_distance(ray, length)),
                                       Color(m_color, m_color.a() * mix));
         }
 

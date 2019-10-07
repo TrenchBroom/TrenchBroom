@@ -580,7 +580,7 @@ namespace TrenchBroom {
             Brush brush(worldBounds, faces);
 
             PickResult hits1;
-            brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::pos_y), hits1);
+            brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::pos_y()), hits1);
             ASSERT_EQ(1u, hits1.size());
 
             Hit hit1 = hits1.all().front();
@@ -589,7 +589,7 @@ namespace TrenchBroom {
             ASSERT_EQ(front, face1);
 
             PickResult hits2;
-            brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::neg_y), hits2);
+            brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::neg_y()), hits2);
             ASSERT_TRUE(hits2.empty());
         }
 
@@ -1032,14 +1032,14 @@ namespace TrenchBroom {
             auto changedWithUVLock = std::shared_ptr<Brush>(brush->clone(worldBounds));
 
             const auto delta = vm::vec3(+8.0, 0.0, 0.0);
-            const auto polygonToMove = vm::polygon3(brush->findFace(vm::vec3::pos_z)->vertexPositions());
+            const auto polygonToMove = vm::polygon3(brush->findFace(vm::vec3::pos_z())->vertexPositions());
             ASSERT_TRUE(changedWithUVLock->canMoveFaces(worldBounds, {polygonToMove}, delta));
 
             [[maybe_unused]] auto result1 = changed->moveFaces(worldBounds, {polygonToMove}, delta, false);
             [[maybe_unused]] auto result2 = changedWithUVLock->moveFaces(worldBounds, {polygonToMove}, delta, true);
 
             // The move should be equivalent to shearing by this matrix
-            const auto M = shearBBoxMatrix(brush->logicalBounds(), vm::vec3::pos_z, delta);
+            const auto M = shearBBoxMatrix(brush->logicalBounds(), vm::vec3::pos_z(), delta);
 
             for (auto* oldFace : brush->faces()) {
                 const auto oldTexCoords = VectorUtils::map(oldFace->vertexPositions(), [&](auto x){ return oldFace->textureCoords(x); });
@@ -1054,9 +1054,9 @@ namespace TrenchBroom {
                     ASSERT_NE(nullptr, newFace);
                     const auto newTexCoords = VectorUtils::map(shearedVertexPositions,
                                                                [&](auto x) { return newFace->textureCoords(x); });
-                    if (normal == vm::vec3::pos_z
-                        || normal == vm::vec3::pos_y
-                        || normal == vm::vec3::neg_y) {
+                    if (normal == vm::vec3::pos_z()
+                        || normal == vm::vec3::pos_y()
+                        || normal == vm::vec3::neg_y()) {
                         EXPECT_FALSE(UVListsEqual(oldTexCoords, newTexCoords));
                         // TODO: actually check the UV's
                     } else {
@@ -1072,7 +1072,7 @@ namespace TrenchBroom {
                     const auto newTexCoordsWithUVLock = VectorUtils::map(shearedVertexPositions, [&](auto x) {
                         return newFaceWithUVLock->textureCoords(x);
                     });
-                    if (normal == vm::vec3d::pos_z || (GetParam() == MapFormat::Valve)) {
+                    if (normal == vm::vec3d::pos_z() || (GetParam() == MapFormat::Valve)) {
                         EXPECT_TRUE(UVListsEqual(oldTexCoords, newTexCoordsWithUVLock));
                     }
                 }
@@ -1162,11 +1162,11 @@ namespace TrenchBroom {
         }
 
         static void assertCanMoveTopFace(const Brush* brush, const vm::vec3 delta) {
-            assertCanMoveFace(brush, brush->findFace(vm::vec3::pos_z), delta);
+            assertCanMoveFace(brush, brush->findFace(vm::vec3::pos_z()), delta);
         }
 
         static void assertCanNotMoveTopFace(const Brush* brush, const vm::vec3 delta) {
-            assertCanNotMoveFace(brush, brush->findFace(vm::vec3::pos_z), delta);
+            assertCanNotMoveFace(brush, brush->findFace(vm::vec3::pos_z()), delta);
         }
 
         static void assertCanNotMoveTopFaceBeyond127UnitsDown(Brush* brush) {
@@ -1260,8 +1260,8 @@ namespace TrenchBroom {
                 ASSERT_EQ(5u, brushClone->faceCount());
                 ASSERT_TRUE(brushClone->findFace(vm::polygon3(baseQuadVertexPositions)));
                 ASSERT_FALSE(brushClone->findFace(vm::polygon3(flippedBaseQuadVertexPositions)));
-                ASSERT_NE(nullptr, brushClone->findFace(vm::vec3::neg_z));
-                ASSERT_EQ(nullptr, brushClone->findFace(vm::vec3::pos_z));
+                ASSERT_NE(nullptr, brushClone->findFace(vm::vec3::neg_z()));
+                ASSERT_EQ(nullptr, brushClone->findFace(vm::vec3::pos_z()));
 
                 ASSERT_TRUE(brushClone->canMoveVertices(worldBounds, std::vector<vm::vec3>{peakPosition}, delta));
                 ASSERT_EQ(std::vector<vm::vec3>{peakPosition + delta}, brushClone->moveVertices(worldBounds, std::vector<vm::vec3>{peakPosition}, delta));
@@ -1269,8 +1269,8 @@ namespace TrenchBroom {
                 ASSERT_EQ(5u, brushClone->faceCount());
                 ASSERT_FALSE(brushClone->findFace(vm::polygon3(baseQuadVertexPositions)));
                 ASSERT_TRUE(brushClone->findFace(vm::polygon3(flippedBaseQuadVertexPositions)));
-                ASSERT_EQ(nullptr, brushClone->findFace(vm::vec3::neg_z));
-                ASSERT_NE(nullptr, brushClone->findFace(vm::vec3::pos_z));
+                ASSERT_EQ(nullptr, brushClone->findFace(vm::vec3::neg_z()));
+                ASSERT_NE(nullptr, brushClone->findFace(vm::vec3::pos_z()));
 
                 delete brushClone;
             }
@@ -1608,12 +1608,12 @@ namespace TrenchBroom {
 
             ASSERT_EQ(10u, brush->vertexCount());
 
-            BrushFace* cubeTop = brush->findFace(vm::vec3::pos_z);
-            BrushFace* cubeBottom = brush->findFace(vm::vec3::neg_z);
-            BrushFace* cubeRight = brush->findFace(vm::vec3::pos_x);
-            BrushFace* cubeLeft = brush->findFace(vm::vec3::neg_x);
-            BrushFace* cubeBack = brush->findFace(vm::vec3::pos_y);
-            BrushFace* cubeFront = brush->findFace(vm::vec3::neg_y);
+            BrushFace* cubeTop = brush->findFace(vm::vec3::pos_z());
+            BrushFace* cubeBottom = brush->findFace(vm::vec3::neg_z());
+            BrushFace* cubeRight = brush->findFace(vm::vec3::pos_x());
+            BrushFace* cubeLeft = brush->findFace(vm::vec3::neg_x());
+            BrushFace* cubeBack = brush->findFace(vm::vec3::pos_y());
+            BrushFace* cubeFront = brush->findFace(vm::vec3::neg_y());
 
             ASSERT_NE(nullptr, cubeTop);
             ASSERT_EQ(nullptr, cubeBottom); // no face here, part of the wedge connecting to `edge`
@@ -1725,7 +1725,7 @@ namespace TrenchBroom {
 
             Brush* brush = static_cast<Brush*>(nodes.front());
             const vm::vec3 p(192.0, 128.0, 352.0);
-            const vm::vec3 d = 4.0 * 16.0 * vm::vec3::neg_y;
+            const vm::vec3 d = 4.0 * 16.0 * vm::vec3::neg_y();
             const std::vector<vm::vec3> newPositions = brush->moveVertices(worldBounds, std::vector<vm::vec3>(1, p), d);
             ASSERT_EQ(1u, newPositions.size());
             ASSERT_VEC_EQ(p + d, newPositions.front());
@@ -2641,11 +2641,11 @@ namespace TrenchBroom {
             Brush* right = nullptr;
 
             for (Brush* brush : result) {
-                if (brush->findFace(vm::plane3(32.0, vm::vec3::neg_x)) != nullptr)
+                if (brush->findFace(vm::plane3(32.0, vm::vec3::neg_x())) != nullptr)
                     left = brush;
-                else if (brush->findFace(vm::plane3(32.0, vm::vec3::pos_x)) != nullptr)
+                else if (brush->findFace(vm::plane3(32.0, vm::vec3::pos_x())) != nullptr)
                     right = brush;
-                else if (brush->findFace(vm::plane3(16.0, vm::vec3::neg_x)) != nullptr)
+                else if (brush->findFace(vm::plane3(16.0, vm::vec3::neg_x())) != nullptr)
                     top = brush;
             }
 
@@ -2653,54 +2653,54 @@ namespace TrenchBroom {
 
             // left brush faces
             ASSERT_EQ(6u, left->faceCount());
-            ASSERT_TRUE(left->findFace(vm::plane3(-16.0, vm::vec3::pos_x)) != nullptr);
-            ASSERT_TRUE(left->findFace(vm::plane3(+32.0, vm::vec3::neg_x)) != nullptr);
-            ASSERT_TRUE(left->findFace(vm::plane3(+16.0, vm::vec3::pos_y)) != nullptr);
-            ASSERT_TRUE(left->findFace(vm::plane3(+16.0, vm::vec3::neg_y)) != nullptr);
-            ASSERT_TRUE(left->findFace(vm::plane3(+32.0, vm::vec3::pos_z)) != nullptr);
-            ASSERT_TRUE(left->findFace(vm::plane3(+32.0, vm::vec3::neg_z)) != nullptr);
+            ASSERT_TRUE(left->findFace(vm::plane3(-16.0, vm::vec3::pos_x())) != nullptr);
+            ASSERT_TRUE(left->findFace(vm::plane3(+32.0, vm::vec3::neg_x())) != nullptr);
+            ASSERT_TRUE(left->findFace(vm::plane3(+16.0, vm::vec3::pos_y())) != nullptr);
+            ASSERT_TRUE(left->findFace(vm::plane3(+16.0, vm::vec3::neg_y())) != nullptr);
+            ASSERT_TRUE(left->findFace(vm::plane3(+32.0, vm::vec3::pos_z())) != nullptr);
+            ASSERT_TRUE(left->findFace(vm::plane3(+32.0, vm::vec3::neg_z())) != nullptr);
 
             // left brush textures
-            ASSERT_EQ(subtrahendTexture, left->findFace(vm::vec3::pos_x)->textureName());
-            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_x)->textureName());
-            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::pos_y)->textureName());
-            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_y)->textureName());
-            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::pos_z)->textureName());
-            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_z)->textureName());
+            ASSERT_EQ(subtrahendTexture, left->findFace(vm::vec3::pos_x())->textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_x())->textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::pos_y())->textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_y())->textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::pos_z())->textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_z())->textureName());
 
             // top brush faces
             ASSERT_EQ(6u, top->faceCount());
-            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::pos_x)) != nullptr);
-            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::neg_x)) != nullptr);
-            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::pos_y)) != nullptr);
-            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::neg_y)) != nullptr);
-            ASSERT_TRUE(top->findFace(vm::plane3(+32.0, vm::vec3::pos_z)) != nullptr);
-            ASSERT_TRUE(top->findFace(vm::plane3(0.0, vm::vec3::neg_z)) != nullptr);
+            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::pos_x())) != nullptr);
+            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::neg_x())) != nullptr);
+            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::pos_y())) != nullptr);
+            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::neg_y())) != nullptr);
+            ASSERT_TRUE(top->findFace(vm::plane3(+32.0, vm::vec3::pos_z())) != nullptr);
+            ASSERT_TRUE(top->findFace(vm::plane3(0.0, vm::vec3::neg_z())) != nullptr);
 
             // top brush textures
-            ASSERT_EQ(defaultTexture, top->findFace(vm::vec3::pos_x)->textureName());
-            ASSERT_EQ(defaultTexture, top->findFace(vm::vec3::neg_x)->textureName());
-            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::pos_y)->textureName());
-            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::neg_y)->textureName());
-            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::pos_z)->textureName());
-            ASSERT_EQ(subtrahendTexture, top->findFace(vm::vec3::neg_z)->textureName());
+            ASSERT_EQ(defaultTexture, top->findFace(vm::vec3::pos_x())->textureName());
+            ASSERT_EQ(defaultTexture, top->findFace(vm::vec3::neg_x())->textureName());
+            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::pos_y())->textureName());
+            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::neg_y())->textureName());
+            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::pos_z())->textureName());
+            ASSERT_EQ(subtrahendTexture, top->findFace(vm::vec3::neg_z())->textureName());
 
             // right brush faces
             ASSERT_EQ(6u, right->faceCount());
-            ASSERT_TRUE(right->findFace(vm::plane3(+32.0, vm::vec3::pos_x)) != nullptr);
-            ASSERT_TRUE(right->findFace(vm::plane3(-16.0, vm::vec3::neg_x)) != nullptr);
-            ASSERT_TRUE(right->findFace(vm::plane3(+16.0, vm::vec3::pos_y)) != nullptr);
-            ASSERT_TRUE(right->findFace(vm::plane3(+16.0, vm::vec3::neg_y)) != nullptr);
-            ASSERT_TRUE(right->findFace(vm::plane3(+32.0, vm::vec3::pos_z)) != nullptr);
-            ASSERT_TRUE(right->findFace(vm::plane3(+32.0, vm::vec3::neg_z)) != nullptr);
+            ASSERT_TRUE(right->findFace(vm::plane3(+32.0, vm::vec3::pos_x())) != nullptr);
+            ASSERT_TRUE(right->findFace(vm::plane3(-16.0, vm::vec3::neg_x())) != nullptr);
+            ASSERT_TRUE(right->findFace(vm::plane3(+16.0, vm::vec3::pos_y())) != nullptr);
+            ASSERT_TRUE(right->findFace(vm::plane3(+16.0, vm::vec3::neg_y())) != nullptr);
+            ASSERT_TRUE(right->findFace(vm::plane3(+32.0, vm::vec3::pos_z())) != nullptr);
+            ASSERT_TRUE(right->findFace(vm::plane3(+32.0, vm::vec3::neg_z())) != nullptr);
 
             // right brush textures
-            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_x)->textureName());
-            ASSERT_EQ(subtrahendTexture, right->findFace(vm::vec3::neg_x)->textureName());
-            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_y)->textureName());
-            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::neg_y)->textureName());
-            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_z)->textureName());
-            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::neg_z)->textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_x())->textureName());
+            ASSERT_EQ(subtrahendTexture, right->findFace(vm::vec3::neg_x())->textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_y())->textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::neg_y())->textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_z())->textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::neg_z())->textureName());
 
             delete minuend;
             delete subtrahend;
@@ -3952,7 +3952,7 @@ namespace TrenchBroom {
 
         std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges) {
             std::vector<vm::vec3> result;
-            vm::segment3::getVertices(std::begin(edges), std::end(edges), std::back_inserter(result));
+            vm::segment3::get_vertices(std::begin(edges), std::end(edges), std::back_inserter(result));
             return result;
         }
 

@@ -93,7 +93,7 @@ namespace TrenchBroom {
         m_isCurrent(false) {
             setToolBox(toolBox);
             bindObservers();
-            
+
             setAcceptDrops(true);
         }
 
@@ -459,7 +459,7 @@ namespace TrenchBroom {
 
         float MapViewBase::rotateTextureAngle(const bool clockwise) const {
             const auto& grid = lock(m_document)->grid();
-            const auto gridAngle = static_cast<float>(vm::toDegrees(grid.angle()));
+            const auto gridAngle = static_cast<float>(vm::to_degrees(grid.angle()));
             float angle;
 
             const Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
@@ -1062,16 +1062,16 @@ namespace TrenchBroom {
             dragEnter(dragEnterEvent->pos().x(), dragEnterEvent->pos().y(), dragEnterEvent->mimeData()->text().toStdString());
             dragEnterEvent->acceptProposedAction();
         }
-        
+
         void MapViewBase::dragLeaveEvent(QDragLeaveEvent* event) {
             dragLeave();
         }
-        
+
         void MapViewBase::dragMoveEvent(QDragMoveEvent* dragMoveEvent) {
             dragMove(dragMoveEvent->pos().x(), dragMoveEvent->pos().y(), dragMoveEvent->mimeData()->text().toStdString());
             dragMoveEvent->acceptProposedAction();
         }
-        
+
         void MapViewBase::dropEvent(QDropEvent* dropEvent) {
             dragDrop(dropEvent->pos().x(), dropEvent->pos().y(), dropEvent->mimeData()->text().toStdString());
             dropEvent->acceptProposedAction();

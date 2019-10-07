@@ -253,7 +253,7 @@ namespace TrenchBroom {
             const auto t = 1.0f;
 
             const auto projection = vm::orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, static_cast<float>(w), static_cast<float>(h));
-            Renderer::Transformation transformation(projection, vm::mat4x4f::identity);
+            Renderer::Transformation transformation(projection, vm::mat4x4f::identity());
 
             glAssert(glDisable(GL_DEPTH_TEST));
 

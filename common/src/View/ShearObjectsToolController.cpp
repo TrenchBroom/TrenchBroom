@@ -68,16 +68,16 @@ namespace TrenchBroom {
             const vm::vec3 sideCenter = centerForBBoxSide(bboxAtDragStart, side);
 
             if (camera.perspectiveProjection()) {
-                if (side.normal == vm::vec3::pos_z || side.normal == vm::vec3::neg_z) {
+                if (side.normal == vm::vec3::pos_z() || side.normal == vm::vec3::neg_z()) {
                     restricter = new PlaneDragRestricter(vm::plane3(sideCenter, side.normal));
                     snapper = new DeltaDragSnapper(grid);
                 } else if (!vertical) {
-                    const vm::line3 sideways(sideCenter, normalize(cross(side.normal, vm::vec3::pos_z)));
+                    const vm::line3 sideways(sideCenter, normalize(cross(side.normal, vm::vec3::pos_z())));
 
                     restricter = new LineDragRestricter(sideways);
                     snapper = new LineDragSnapper(grid, sideways);
                 } else {
-                    const vm::line3 verticalLine(sideCenter, vm::vec3::pos_z);
+                    const vm::line3 verticalLine(sideCenter, vm::vec3::pos_z());
 
                     restricter = new LineDragRestricter(verticalLine);
                     snapper = new LineDragSnapper(grid, verticalLine);
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             const BBoxSide side = m_tool->dragStartHit().target<BBoxSide>();
 
             // Can't do vertical restraint on these
-            if (side.normal == vm::vec3::pos_z || side.normal == vm::vec3::neg_z) {
+            if (side.normal == vm::vec3::pos_z() || side.normal == vm::vec3::neg_z()) {
                 return;
             }
 
@@ -172,7 +172,7 @@ namespace TrenchBroom {
             const vm::vec3 initialPoint = [&]() {
                 vm::vec3 p = hit.hitPoint();
                 restricter->hitPoint(inputState, p);
-                snapper->snap(inputState, vm::vec3::zero, vm::vec3::zero, p);
+                snapper->snap(inputState, vm::vec3::zero(), vm::vec3::zero(), p);
                 return p;
             }();
 

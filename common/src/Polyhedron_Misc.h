@@ -40,13 +40,15 @@ public:
     m_anchor(anchor) {}
 
     bool operator()(const Vertex* lhs, const Vertex* rhs) const {
-        const T lDist = squaredDistance(m_anchor, lhs->position());
-        const T rDist = squaredDistance(m_anchor, rhs->position());
-        if (lDist < rDist)
+        const T lDist = vm::squared_distance(m_anchor, lhs->position());
+        const T rDist = vm::squared_distance(m_anchor, rhs->position());
+        if (lDist < rDist) {
             return true;
-        if (lDist > rDist)
+        } else if (lDist > rDist) {
             return false;
-        return lhs->position() < rhs->position();
+        } else {
+            return lhs->position() < rhs->position();
+        }
     }
 };
 
@@ -92,7 +94,7 @@ vm::plane<T,3> Polyhedron<T,FP,VP>::Callback::getPlane(const Face* face) const {
         const auto& p2 = e2->origin()->position();
         const auto& p3 = e3->origin()->position();
 
-        const auto [valid, result] = fromPoints(p2, p1, p3);
+        const auto [valid, result] = vm::from_points(p2, p1, p3);
         if (valid) {
             return result;
         }
@@ -640,7 +642,7 @@ typename Polyhedron<T,FP,VP>::FaceHit Polyhedron<T,FP,VP>::pickFace(const vm::ra
     auto* currentFace = firstFace;
     do {
         const auto distance = currentFace->intersectWithRay(ray, side);
-        if (!vm::isnan(distance)) {
+        if (!vm::is_nan(distance)) {
             return FaceHit(currentFace, distance);
         }
         currentFace = currentFace->next();
@@ -653,7 +655,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findVertexByPosition(
     auto* firstVertex = m_vertices.front();
     auto* currentVertex = firstVertex;
     do {
-        if (currentVertex != except && isEqual(position, currentVertex->position(), epsilon)) {
+        if (currentVertex != except && vm::is_equal(position, currentVertex->position(), epsilon)) {
             return currentVertex;
         }
         currentVertex = currentVertex->next();
@@ -669,7 +671,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findClosestVertex(con
     auto* firstVertex = m_vertices.front();
     auto* currentVertex = firstVertex;
     do {
-        const T currentDistance2 = squaredDistance(position, currentVertex->position());
+        const T currentDistance2 = vm::squared_distance(position, currentVertex->position());
         if (currentDistance2 < closestDistance2) {
             closestDistance2 = currentDistance2;
             closestVertex = currentVertex;
@@ -932,7 +934,7 @@ bool Polyhedron<T,FP,VP>::checkConvex() const {
         const Vertex* firstVertex = m_vertices.front();
         const Vertex* currentVertex = firstVertex;
         do {
-            if (currentFace->pointStatus(currentVertex->position()) == vm::point_status::above)
+            if (currentFace->pointStatus(currentVertex->position()) == vm::plane_status::above)
                 return false;
             currentVertex = currentVertex->next();
         } while (currentVertex != firstVertex);
@@ -1077,9 +1079,10 @@ bool Polyhedron<T,FP,VP>::checkEdgeLengths(const T minLength) const {
     const Edge* firstEdge = m_edges.front();
     const Edge* currentEdge = firstEdge;
     do {
-        const T length2 = squaredLength(currentEdge->vector());
-        if (length2 < minLength2)
+        const T length2 = vm::squared_length(currentEdge->vector());
+        if (length2 < minLength2) {
             return false;
+        }
         currentEdge = currentEdge->next();
     } while (currentEdge != firstEdge);
     return true;
@@ -1095,8 +1098,9 @@ bool Polyhedron<T,FP,VP>::checkLeavingEdges(const Vertex* v) const {
     do {
         const HalfEdge* nextEdge = curEdge->nextIncident();
         do {
-            if (curEdge->destination() == nextEdge->destination())
+            if (curEdge->destination() == nextEdge->destination()) {
                 return false;
+            }
             nextEdge = nextEdge->nextIncident();
         } while (nextEdge != firstEdge);
 
@@ -1144,7 +1148,7 @@ bool Polyhedron<T,FP,VP>::healEdges(Callback& callback, const T minLength) {
     while (examined < static_cast<long>(m_edges.size()) && polyhedron()) {
         const size_t oldSize = m_edges.size();
 
-        const T length2 = vm::squaredLength(currentEdge->vector());
+        const T length2 = vm::squared_length(currentEdge->vector());
         if (length2 < minLength2) {
             currentEdge = removeEdge(currentEdge, callback);
         } else {
@@ -1365,7 +1369,7 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdg
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::updateBounds() {
     if (m_vertices.size() == 0) {
-        m_bounds.min = m_bounds.max = vm::vec<T,3>::NaN;
+        m_bounds.min = m_bounds.max = vm::vec<T,3>::nan();
     } else {
         Vertex* first = m_vertices.front();
         Vertex* current = first;
