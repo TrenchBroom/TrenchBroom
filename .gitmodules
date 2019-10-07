@@ -1,0 +1,6 @@
+[submodule "lib/googletest"]
+	path = lib/googletest
+	url = https://github.com/google/googletest.git
+[submodule "lib/vecmath"]
+	path = lib/vecmath
+	url = https://github.com/kduske/vecmath.git
