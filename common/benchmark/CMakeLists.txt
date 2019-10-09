@@ -12,6 +12,8 @@ add_executable(common-benchmark ${COMMON_BENCHMARK_SOURCE})
 target_include_directories(common-benchmark PRIVATE ${COMMON_BENCHMARK_SOURCE_DIR})
 target_link_libraries(common-benchmark PRIVATE common gtest)
 
+set_compiler_config(common-benchmark)
+
 # By default VS launches with a CWD one level up from the .exe (which is in a "Debug" subdirectory)
 # but we copy resources into the .exe's directory, and the tests expect the CWD to be the .exe's directory.
 set_target_properties(common-benchmark PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:common-benchmark>")

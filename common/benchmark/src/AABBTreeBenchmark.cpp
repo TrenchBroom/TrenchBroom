@@ -70,7 +70,7 @@ namespace TrenchBroom {
         IO::TestParserStatus status;
         IO::WorldReader worldReader(std::begin(fileReader), std::end(fileReader));
 
-        const vm::bbox3 worldBounds(8192);
+        const vm::bbox3 worldBounds(8192.0);
         auto world = worldReader.read(Model::MapFormat::Standard, worldBounds, status);
 
         std::vector<AABB> trees(100);

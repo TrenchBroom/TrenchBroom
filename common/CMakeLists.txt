@@ -1080,7 +1080,7 @@ if(APPLE)
     target_compile_definitions(common PUBLIC GL_SILENCE_DEPRECATION)
 endif()
 
-SET_COMPILER_CONFIG(common)
+set_compiler_config(common)
 
 # Create the cmake script for generating the version information
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateVersion.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake" @ONLY)

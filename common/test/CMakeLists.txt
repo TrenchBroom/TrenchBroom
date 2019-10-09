@@ -92,7 +92,7 @@ add_executable(common-test ${COMMON_TEST_SOURCE})
 target_include_directories(common-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
 target_link_libraries(common-test PRIVATE common gtest gmock)
 
-SET_COMPILER_CONFIG(common-test)
+set_compiler_config(common-test)
 
 # By default VS launches with a CWD one level up from the .exe (which is in a "Debug" subdirectory)
 # but we copy resources into the .exe's directory, and the tests expect the CWD to be the .exe's directory.
