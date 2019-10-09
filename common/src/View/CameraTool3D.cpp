@@ -99,7 +99,7 @@ namespace TrenchBroom {
 
             if (m_orbit) {
                 const auto orbitPlane = vm::plane3f(m_orbitCenter, m_camera.direction());
-                const auto maxDistance = std::max(vm::intersectRayAndPlane(m_camera.viewRay(), orbitPlane) - 32.0f, 0.0f);
+                const auto maxDistance = std::max(vm::intersect_ray_plane(m_camera.viewRay(), orbitPlane) - 32.0f, 0.0f);
                 const auto distance = std::min(factor * scrollDist * moveSpeed(false), maxDistance);
                 m_camera.moveBy(distance * m_camera.direction());
             } else if (move(inputState)) {

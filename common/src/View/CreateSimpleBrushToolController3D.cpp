@@ -64,7 +64,7 @@ namespace TrenchBroom {
                 if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
                     setRestricter(inputState, new LineDragRestricter(vm::line3(currentHandlePosition(), vm::vec3::pos_z())), true);
                 } else {
-                    setRestricter(inputState, new PlaneDragRestricter(horizontalPlane(currentHandlePosition())), true);
+                    setRestricter(inputState, new PlaneDragRestricter(vm::horizontal_plane(currentHandlePosition())), true);
                 }
             }
         }
@@ -149,7 +149,7 @@ namespace TrenchBroom {
             }
 
             bounds = intersect(bounds, document->worldBounds());
-            if (!bounds.empty()) {
+            if (!bounds.is_empty()) {
                 m_tool->update(bounds);
             }
         }

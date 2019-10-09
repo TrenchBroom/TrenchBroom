@@ -133,8 +133,8 @@ namespace TrenchBroom {
             if (texture != nullptr) {
 
                 const auto& boundary = m_face->boundary();
-                const auto distance = vm::intersectRayAndPlane(ray, boundary);
-                const auto hitPointInWorldCoords = ray.pointAtDistance(distance);
+                const auto distance = vm::intersect_ray_plane(ray, boundary);
+                const auto hitPointInWorldCoords = vm::point_at_distance(ray, distance);
                 const auto hitPointInTexCoords = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * hitPointInWorldCoords;
 
                 const auto maxDistance = 5.0 / cameraZoom();
@@ -190,7 +190,7 @@ namespace TrenchBroom {
 
         void UVViewHelper::computeLineVertices(const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2, const vm::mat4x4& toTex, const vm::mat4x4& toWorld) const {
             const auto viewportVertices = toTex * m_camera.viewportVertices();
-            const auto viewportBounds = vm::bbox3::mergeAll(std::begin(viewportVertices), std::end(viewportVertices));
+            const auto viewportBounds = vm::bbox3::merge_all(std::begin(viewportVertices), std::end(viewportVertices));
             const auto& min = viewportBounds.min;
             const auto& max = viewportBounds.max;
 
@@ -279,7 +279,7 @@ namespace TrenchBroom {
         vm::bbox3 UVViewHelper::computeFaceBoundsInCameraCoords() const {
             assert(valid());
 
-            const auto transform = vm::coordinateSystemMatrix(vm::vec3(m_camera.right()), vm::vec3(m_camera.up()), vm::vec3(-m_camera.direction()), vm::vec3(m_camera.position()));
+            const auto transform = vm::coordinate_system_matrix(vm::vec3(m_camera.right()), vm::vec3(m_camera.up()), vm::vec3(-m_camera.direction()), vm::vec3(m_camera.position()));
 
             vm::bbox3 result;
             const auto vertices = m_face->vertices();

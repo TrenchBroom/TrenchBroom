@@ -118,7 +118,7 @@ public:
 
         HalfEdge* findConnectingEdge(const Vertex* vertex) const;
         HalfEdge* findColinearEdge(const HalfEdge* arriving) const;
-        void correctPosition(const size_t decimals = 0, const T epsilon = vm::constants<T>::correctEpsilon());
+        void correctPosition(const size_t decimals = 0, const T epsilon = vm::constants<T>::correct_epsilon());
         void setPosition(const V& position);
         void setLeaving(HalfEdge* edge);
     };
@@ -244,7 +244,7 @@ public:
         V normal() const;
         V center() const;
         T intersectWithRay(const vm::ray<T,3>& ray, const vm::side side) const;
-        vm::plane_status pointStatus(const V& point, T epsilon = vm::constants<T>::pointStatusEpsilon()) const;
+        vm::plane_status pointStatus(const V& point, T epsilon = vm::constants<T>::point_status_epsilon()) const;
 
         friend std::ostream& operator<<(std::ostream& stream, const Face& face) {
             const auto* firstEdge = face.boundary().front();
@@ -419,7 +419,7 @@ private:
 
     void updateBounds();
 public: // Vertex correction and edge healing
-    void correctVertexPositions(const size_t decimals = 0, const T epsilon = vm::constants<T>::correctEpsilon());
+    void correctVertexPositions(const size_t decimals = 0, const T epsilon = vm::constants<T>::correct_epsilon());
     bool healEdges(const T minLength = MinEdgeLength);
     bool healEdges(Callback& callback, const T minLength = MinEdgeLength);
 private:

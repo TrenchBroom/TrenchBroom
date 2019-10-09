@@ -222,7 +222,7 @@ namespace TrenchBroom {
                         stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::One;
                     } else if (StringUtils::caseInsensitiveEqual(param1, "filter")) {
                         stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::DestColor;
-                        stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::zero();
+                        stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::Zero;
                     } else if (StringUtils::caseInsensitiveEqual(param1, "blend")) {
                         stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::SrcAlpha;
                         stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha;

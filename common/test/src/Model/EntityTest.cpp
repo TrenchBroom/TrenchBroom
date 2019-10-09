@@ -142,7 +142,7 @@ namespace TrenchBroom {
             const auto pitch = vm::to_radians(13.0);
             const auto yaw = vm::to_radians(14.0);
 
-            const auto scaleMat = vm::scalingMatrix(vm::vec3(2.0, 2.0, 2.0));
+            const auto scaleMat = vm::scaling_matrix(vm::vec3(2.0, 2.0, 2.0));
             const auto rotMat = vm::rotation_matrix(roll, pitch, yaw);
 
             const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
@@ -158,7 +158,7 @@ namespace TrenchBroom {
             const auto pitch = vm::to_radians(45.0);
             const auto yaw = vm::to_radians(0.0);
 
-            const auto scaleMat = vm::scalingMatrix(vm::vec3(2.0, 1.0, 1.0));
+            const auto scaleMat = vm::scaling_matrix(vm::vec3(2.0, 1.0, 1.0));
             const auto rotMat = vm::rotation_matrix(roll, pitch, yaw);
 
             const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
@@ -175,7 +175,7 @@ namespace TrenchBroom {
             const auto pitch = vm::to_radians(45.0);
             const auto yaw = vm::to_radians(0.0);
 
-            const auto scaleMat = vm::scalingMatrix(vm::vec3(-1.0, 1.0, 1.0));
+            const auto scaleMat = vm::scaling_matrix(vm::vec3(-1.0, 1.0, 1.0));
             const auto rotMat = vm::rotation_matrix(roll, pitch, yaw);
 
             const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);

@@ -24,7 +24,6 @@
 #include "TrenchBroom.h"
 #include "Notifier.h"
 
-#include <vecmath/abstract_line.h>
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>

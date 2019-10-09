@@ -71,13 +71,15 @@ namespace TrenchBroom {
             const Tool* doGetTool() const override { return m_tool; }
 
             DragInfo doStartDrag(const InputState& inputState) override {
-                if (inputState.modifierKeysDown(ModifierKeys::MKShift))
+                if (inputState.modifierKeysDown(ModifierKeys::MKShift)) {
                     return DragInfo();
+                }
 
                 const Model::PickResult& pickResult = inputState.pickResult();
                 const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
-                if (!hit.isMatch())
+                if (!hit.isMatch()) {
                     return DragInfo();
+                }
 
                 m_oldPolyhedron = m_tool->polyhedron();
 
@@ -110,7 +112,7 @@ namespace TrenchBroom {
             void updatePolyhedron(const vm::vec3& current) {
                 const auto& grid = m_tool->grid();
 
-                const auto axis = firstComponent(m_plane.normal);
+                const auto axis = vm::find_abs_max_component(m_plane.normal);
                 const vm::plane3 swizzledPlane(swizzle(m_plane.anchor(), axis), swizzle(m_plane.normal, axis));
                 const auto theMin = swizzle(grid.snapDown(min(m_initialPoint, current)), axis);
                 const auto theMax = swizzle(grid.snapUp  (max(m_initialPoint, current)), axis);
@@ -157,7 +159,7 @@ namespace TrenchBroom {
                 if (!hit.isMatch())
                     return DragInfo();
 
-                const vm::vec3 origin    = inputState.pickRay().pointAtDistance(hit.distance);
+                const vm::vec3 origin    = vm::point_at_distance(inputState.pickRay(), hit.distance);
                 const vm::vec3 direction = hit.face->normal();
 
                 const vm::line3 line(origin, direction);
@@ -173,10 +175,10 @@ namespace TrenchBroom {
                 const auto& grid = m_tool->grid();
 
                 const auto rayDelta        = nextHandlePosition - initialHandlePosition();
-                const auto rayAxis         = firstAxis(m_dragDir);
-                const auto axisDistance    = dot(rayDelta, rayAxis);
+                const auto rayAxis         = vm::get_abs_max_component_axis(m_dragDir);
+                const auto axisDistance    = vm::dot(rayDelta, rayAxis);
                 const auto snappedDistance = grid.snap(axisDistance);
-                const auto snappedRayDist  = dot(m_dragDir, rayAxis * snappedDistance);
+                const auto snappedRayDist  = vm::dot(m_dragDir, rayAxis * snappedDistance);
                 const auto snappedRayDelta = snappedRayDist * m_dragDir;
 
                 const auto* face = m_oldPolyhedron.faces().front();

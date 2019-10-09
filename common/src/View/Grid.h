@@ -70,9 +70,11 @@ namespace TrenchBroom {
 
             template <typename T>
             T snapAngle(const T a, const T snapAngle) const {
-                if (!snap())
+                if (!snap()) {
                     return a;
-                return snapAngle * vm::round(a / snapAngle);
+                } else {
+                    return snapAngle * vm::round(a / snapAngle);
+                }
             }
         public: // Snap scalars.
             template <typename T>
@@ -82,9 +84,11 @@ namespace TrenchBroom {
 
             template <typename T>
             T offset(const T f) const {
-                if (!snap())
+                if (!snap()) {
                     return static_cast<T>(0.0);
-                return f - snap(f);
+                } else {
+                    return f - snap(f);
+                }
             }
 
             template <typename T>
@@ -105,8 +109,9 @@ namespace TrenchBroom {
 
             template <typename T>
             T snap(const T f, const SnapDir snapDir, const bool skip = false) const {
-                if (!snap())
+                if (!snap()) {
                     return f;
+                }
 
                 const T actSize = static_cast<T>(actualSize());
                 switch (snapDir) {
@@ -114,13 +119,13 @@ namespace TrenchBroom {
                         return vm::snap(f, actSize);
                     case SnapDir_Up: {
                         const T s = actSize * std::ceil(f / actSize);
-                        return (skip && vm::is_equal(s, f, vm::constants<T>::almostZero())) ? s + static_cast<T>(actualSize()) : s;
+                        return (skip && vm::is_equal(s, f, vm::constants<T>::almost_zero())) ? s + static_cast<T>(actualSize()) : s;
                     }
                     case SnapDir_Down: {
                         const T s = actSize * std::floor(f / actSize);
-                        return (skip && vm::is_equal(s, f, vm::constants<T>::almostZero())) ? s - static_cast<T>(actualSize()) : s;
+                        return (skip && vm::is_equal(s, f, vm::constants<T>::almost_zero())) ? s - static_cast<T>(actualSize()) : s;
                     }
-					switchDefault()
+                    switchDefault()
                 }
             }
         public: // Snap vectors.
@@ -131,9 +136,11 @@ namespace TrenchBroom {
 
             template <typename T, size_t S>
             vm::vec<T,S> offset(const vm::vec<T,S>& p) const {
-                if (!snap())
-                    return vm::vec<T,S>::zero();
-                return p - snap(p);
+                if (!snap()) {
+                    return vm::vec<T, S>::zero();
+                } else {
+                    return p - snap(p);
+                }
             }
 
             template <typename T, size_t S>
@@ -216,7 +223,7 @@ namespace TrenchBroom {
             vm::vec<T,S> snap(const vm::vec<T,S>& p, const vm::plane<T,3>& onPlane, const SnapDir snapDirs[], const bool skip = false) const {
 
                 vm::vec<T,3> result;
-                switch(firstComponent(onPlane.normal)) {
+                switch(vm::find_abs_max_component(onPlane.normal)) {
                     case vm::axis::x:
                         result[1] = snap(p.y(), snapDirs[1], skip);
                         result[2] = snap(p.z(), snapDirs[2], skip);
@@ -241,8 +248,8 @@ namespace TrenchBroom {
             template <typename T>
             vm::vec<T,3> snap(const vm::vec<T,3>& p, const vm::line<T,3> line) const {
                 // Project the point onto the line.
-                const auto pr = line.projectPoint(p);
-                const auto prDist = line.distanceToProjectedPoint(pr);
+                const auto pr = vm::project_point(line, p);
+                const auto prDist = vm::distance_to_projected_point(line, pr);
 
                 auto result = pr;
                 auto bestDiff = std::numeric_limits<T>::max();
@@ -251,9 +258,9 @@ namespace TrenchBroom {
                         const std::array<T,2> v = { {snapDown(pr[i], false) - line.point[i], snapUp(pr[i], false) - line.point[i]} };
                         for (size_t j = 0; j < 2; ++j) {
                             const auto s = v[j] / line.direction[i];
-                            const auto diff = vm::absDifference(s, prDist);
+                            const auto diff = vm::abs_difference(s, prDist);
                             if (diff < bestDiff) {
-                                result = line.pointAtDistance(s);
+                                result = vm::point_at_distance(line, s);
                                 bestDiff = diff;
                             }
                         }
@@ -272,10 +279,10 @@ namespace TrenchBroom {
                 const auto dir = v / len;
 
                 const auto snapped = snap(p, vm::line<T,3>(orig, dir));
-                const auto dist = dot(dir, snapped - orig);
+                const auto dist = vm::dot(dir, snapped - orig);
 
                 if (dist < 0.0 || dist > len) {
-                    return vm::vec<T,3>::NaN;
+                    return vm::vec<T,3>::nan();
                 } else {
                     return snapped;
                 }
@@ -287,10 +294,10 @@ namespace TrenchBroom {
 
                 const auto plane = vm::plane<T,3>(polygon.vertices().front(), normal);
                 auto ps = snap(p, plane);
-                auto err = squaredLength(p - ps);
+                auto err = vm::squared_length(p - ps);
 
-                if (!vm::polygonContainsPoint(ps, plane.normal, std::begin(polygon), std::end(polygon))) {
-                    ps = vm::vec<T,3>::NaN;
+                if (!vm::polygon_contains_point(ps, plane.normal, std::begin(polygon), std::end(polygon))) {
+                    ps = vm::vec<T,3>::nan();
                     err = std::numeric_limits<T>::max();
                 }
 
@@ -300,8 +307,8 @@ namespace TrenchBroom {
 
                 while (cur != end) {
                     const auto cand = snap(p, vm::segment<T,3>(*last, *cur));
-                    if (!isNaN(cand)) {
-                        const auto cerr = squaredLength(p - cand);
+                    if (!vm::is_nan(cand)) {
+                        const auto cerr = vm::squared_length(p - cand);
                         if (cerr < err) {
                             err = cerr;
                             ps = cand;

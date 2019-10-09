@@ -114,7 +114,7 @@ namespace TrenchBroom {
                 const std::vector<vm::polygon3>& faceList = entry.second;
 
                 std::vector<vm::vec3> vertices;
-                vm::polygon3::getVertices(std::begin(faceList), std::end(faceList), std::back_inserter(vertices));
+                vm::polygon3::get_vertices(std::begin(faceList), std::end(faceList), std::back_inserter(vertices));
                 VectorUtils::sortAndRemoveDuplicates(vertices);
                 result.insert(std::make_pair(brush, vertices));
             }

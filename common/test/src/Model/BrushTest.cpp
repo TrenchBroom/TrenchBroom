@@ -1039,7 +1039,7 @@ namespace TrenchBroom {
             [[maybe_unused]] auto result2 = changedWithUVLock->moveFaces(worldBounds, {polygonToMove}, delta, true);
 
             // The move should be equivalent to shearing by this matrix
-            const auto M = shearBBoxMatrix(brush->logicalBounds(), vm::vec3::pos_z(), delta);
+            const auto M = vm::shear_bbox_matrix(brush->logicalBounds(), vm::vec3::pos_z(), delta);
 
             for (auto* oldFace : brush->faces()) {
                 const auto oldTexCoords = VectorUtils::map(oldFace->vertexPositions(), [&](auto x){ return oldFace->textureCoords(x); });
@@ -2957,7 +2957,7 @@ namespace TrenchBroom {
             {
                 for (const Model::BrushVertex* vertex : brush->vertices()) {
                     const vm::vec3& pos = vertex->position();
-                    ASSERT_TRUE(isIntegral(pos, 0.001));
+                    ASSERT_TRUE(vm::is_integral(pos, 0.001));
                 }
             }
         }
@@ -3958,7 +3958,7 @@ namespace TrenchBroom {
 
         std::vector<vm::vec3> asVertexList(const std::vector<vm::polygon3>& faces) {
             std::vector<vm::vec3> result;
-            vm::polygon3::getVertices(std::begin(faces), std::end(faces), std::back_inserter(result));
+            vm::polygon3::get_vertices(std::begin(faces), std::end(faces), std::back_inserter(result));
             return result;
         }
     }

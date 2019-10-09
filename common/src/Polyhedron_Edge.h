@@ -208,8 +208,8 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::split(const vm::p
     const T endDist = plane.point_distance(endPos);
 
     // Check what's implied by the precondition:
-    assert(vm::abs(startDist) > vm::constants<T>::pointStatusEpsilon());
-    assert(vm::abs(endDist)   > vm::constants<T>::pointStatusEpsilon());
+    assert(vm::abs(startDist) > vm::constants<T>::point_status_epsilon());
+    assert(vm::abs(endDist)   > vm::constants<T>::point_status_epsilon());
     assert(vm::sign(startDist) != vm::sign(endDist));
     assert(startDist != endDist); // implied by the above
 

@@ -136,8 +136,8 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(vm::vec3d::zero(), Grid(2u).snap(vm::vec3(1.0, 0.0, 0.0), E));
             ASSERT_VEC_EQ(vm::vec3d(2.0, 4.0, 0.0), Grid(2u).snap(vm::vec3(10.0, 0.0, 0.0), E));
             ASSERT_VEC_EQ(vm::vec3d(2.0, 4.0, 0.0), Grid(2u).snap(vm::vec3(7.5, 0.0, 0.0), E));
-            ASSERT_TRUE(isNaN(Grid(2u).snap(vm::vec3(20.0, 0.0, 0.0), E)));
-            ASSERT_TRUE(isNaN(Grid(2u).snap(vm::vec3(-10.0, 0.0, 0.0), E)));
+            ASSERT_TRUE(vm::is_nan(Grid(2u).snap(vm::vec3(20.0, 0.0, 0.0), E)));
+            ASSERT_TRUE(vm::is_nan(Grid(2u).snap(vm::vec3(-10.0, 0.0, 0.0), E)));
         }
 
         TEST(GridTest, snapOnQuad) {

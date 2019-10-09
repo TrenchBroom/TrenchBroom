@@ -28,7 +28,6 @@
 #include "Renderer/Vbo.h"
 #include "View/MapDocument.h"
 
-#include <vecmath/abstract_line.h>
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/ray.h>

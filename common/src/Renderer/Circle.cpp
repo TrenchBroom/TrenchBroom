@@ -36,7 +36,7 @@ namespace TrenchBroom {
         m_filled(filled) {
             assert(radius > 0.0f);
             assert(segments > 0);
-            init2D(radius, segments, 0.0f, vm::Cf::twoPi());
+            init2D(radius, segments, 0.0f, vm::Cf::two_pi());
         }
 
         Circle::Circle(const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength) :

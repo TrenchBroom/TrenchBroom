@@ -74,7 +74,7 @@ namespace TrenchBroom {
         }
 
         std::vector<vm::vec2f> circle2D(const float radius, const size_t segments) {
-            std::vector<vm::vec2f> vertices = circle2D(radius, 0.0f, vm::Cf::twoPi(), segments);
+            std::vector<vm::vec2f> vertices = circle2D(radius, 0.0f, vm::Cf::two_pi(), segments);
             vertices.push_back(vm::vec2f::zero());
             return vertices;
         }
@@ -176,7 +176,7 @@ namespace TrenchBroom {
             vertices.resize(roundedRect2DVertexCount(cornerSegments));
             size_t vertexIndex = 0;
 
-            const float angle = vm::Cf::piOverTwo() / cornerSegments;
+            const float angle = vm::Cf::half_pi() / cornerSegments;
             vm::vec2f center(0.0f, 0.0f);
             vm::vec2f translation;
 
@@ -444,7 +444,7 @@ namespace TrenchBroom {
             VertsAndNormals result(3 * (segments + 1));
 
             const float t = std::atan(length / radius);
-            const float n = std::cos(vm::Cf::piOverTwo() - t);
+            const float n = std::cos(vm::Cf::half_pi() - t);
 
             float a = 0.0f;
             const float d = 2.0f * vm::Cf::pi() / static_cast<float>(segments);

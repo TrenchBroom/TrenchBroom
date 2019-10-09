@@ -297,16 +297,16 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addColinearThirdPoint
     auto* v2 = v1->next();
     assert(vm::is_colinear(v1->position(), v2->position(), position));
 
-    if (vm::segment<T,3>(v1->position(), v2->position()).contains(position, vm::constants<T>::almostZero())) {
+    if (vm::segment<T,3>(v1->position(), v2->position()).contains(position, vm::constants<T>::almost_zero())) {
         return nullptr;
     }
 
-    if (vm::segment<T,3>(position, v2->position()).contains(v1->position(), vm::constants<T>::almostZero())) {
+    if (vm::segment<T,3>(position, v2->position()).contains(v1->position(), vm::constants<T>::almost_zero())) {
         v1->setPosition(position);
         return v1;
     }
 
-    assert((vm::segment<T,3>(position, v1->position()).contains(v2->position(), vm::constants<T>::almostZero())));
+    assert((vm::segment<T,3>(position, v1->position()).contains(v2->position(), vm::constants<T>::almost_zero())));
     v2->setPosition(position);
     return v2;
 }
@@ -408,7 +408,8 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
 
         // If the current edge contains the point, it will not be added anyway.
         if (curStatus == vm::plane_status::inside &&
-            vm::segment<T,3>(curEdge->origin()->position(), curEdge->destination()->position()).contains(position, vm::constants<T>::almostZero())) {
+            vm::segment<T,3>(curEdge->origin()->position(), curEdge->destination()->position()).contains(position,
+                vm::constants<T>::almost_zero())) {
             return nullptr;
         }
 

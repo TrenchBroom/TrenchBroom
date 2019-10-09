@@ -128,7 +128,7 @@ namespace TrenchBroom {
             const vm::vec3 offset     = transformation * vm::vec3::zero();
             const vm::vec3& oldNormal = oldBoundary.normal;
                   vm::vec3 newNormal  = newBoundary.normal;
-            assert(vm::is_unit(newNormal, vm::C::almostZero()));
+            assert(vm::is_unit(newNormal, vm::C::almost_zero()));
 
             // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
             if (vm::is_equal(newNormal, oldNormal, 0.01)) {
@@ -220,8 +220,8 @@ namespace TrenchBroom {
             assert(!vm::is_nan(newOffset));
             assert(!vm::is_nan(newScale));
             assert(!vm::is_nan(newRotation));
-            assert(!vm::is_zero(newScale.x(), vm::Cf::almostZero()));
-            assert(!vm::is_zero(newScale.y(), vm::Cf::almostZero()));
+            assert(!vm::is_zero(newScale.x(), vm::Cf::almost_zero()));
+            assert(!vm::is_zero(newScale.y(), vm::Cf::almost_zero()));
 
             attribs.setOffset(newOffset);
             attribs.setScale(newScale);
@@ -245,7 +245,8 @@ namespace TrenchBroom {
             const auto rot = vm::quat3(vm::vec3::pos_z(), -vm::to_radians(currentAngle));
             const auto vec = rot * vm::vec3(point - center);
 
-            const auto angleInRadians = vm::C::twoPi() - vm::measure_angle(vm::normalize(vec), vm::vec3::pos_x(), vm::vec3::pos_z());
+            const auto angleInRadians =
+                vm::C::two_pi() - vm::measure_angle(vm::normalize(vec), vm::vec3::pos_x(), vm::vec3::pos_z());
             return float(vm::to_degrees(angleInRadians));
         }
 

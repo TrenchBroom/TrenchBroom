@@ -53,7 +53,7 @@ namespace TrenchBroom {
 
             if (anyKeyDown()) {
                 const auto delta = moveDelta(time);
-                if (!isZero(delta, vm::Cf::almostZero())) {
+                if (!vm::is_zero(delta, vm::Cf::almost_zero())) {
                     m_camera.moveBy(delta);
                 }
             }

@@ -358,7 +358,7 @@ namespace TrenchBroom {
                 return;
 
             const vm::vec3 axis = rotationAxis(axisSpec, clockwise);
-            const double angle = m_toolBox.rotateObjectsToolActive() ? std::abs(m_toolBox.rotateToolAngle()) : vm::C::piOverTwo();
+            const double angle = m_toolBox.rotateObjectsToolActive() ? std::abs(m_toolBox.rotateToolAngle()) : vm::C::half_pi();
 
             const Grid& grid = document->grid();
             const vm::vec3 center = m_toolBox.rotateObjectsToolActive() ? m_toolBox.rotateToolCenter() : grid.referencePoint(document->selectionBounds());
@@ -398,7 +398,7 @@ namespace TrenchBroom {
                 halfGrid.decSize();
 
                 const auto center = halfGrid.referencePoint(document->selectionBounds());
-                const auto axis = firstComponent(moveDirection(direction));
+                const auto axis = vm::find_abs_max_component(moveDirection(direction));
 
                 document->flipObjects(center, axis);
             }

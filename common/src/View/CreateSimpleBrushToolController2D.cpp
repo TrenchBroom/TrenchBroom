@@ -62,14 +62,14 @@ namespace TrenchBroom {
 
             const auto& bounds = document->referenceBounds();
             const auto& camera = inputState.camera();
-            const vm::plane3 plane(bounds.min, vm::vec3(firstAxis(camera.direction())));
+            const vm::plane3 plane(bounds.min, vm::vec3(vm::get_abs_max_component_axis(camera.direction())));
 
-            const auto distance = vm::intersectRayAndPlane(inputState.pickRay(), plane);
+            const auto distance = vm::intersect_ray_plane(inputState.pickRay(), plane);
             if (vm::is_nan(distance)) {
                 return DragInfo();
             }
 
-            m_initialPoint = inputState.pickRay().pointAtDistance(distance);
+            m_initialPoint = vm::point_at_distance(inputState.pickRay(), distance);
             if (updateBounds(inputState, m_initialPoint)) {
                 m_tool->refreshViews();
             }
@@ -86,7 +86,7 @@ namespace TrenchBroom {
         }
 
         void CreateSimpleBrushToolController2D::doEndDrag(const InputState& inputState) {
-            if (!m_bounds.empty())
+            if (!m_bounds.is_empty())
                 m_tool->createBrush();
         }
 
@@ -112,7 +112,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             bounds = vm::intersect(bounds, document->worldBounds());
 
-            if (bounds.empty() || bounds == m_bounds)
+            if (bounds.is_empty() || bounds == m_bounds)
                 return false;
 
             using std::swap;
@@ -130,7 +130,7 @@ namespace TrenchBroom {
 
             const auto& camera = inputState.camera();
             const auto& refBounds = document->referenceBounds();
-            const auto factors = vm::vec3(abs(firstAxis(camera.direction())));
+            const auto factors = vm::vec3(abs(vm::get_abs_max_component_axis(camera.direction())));
             min = vm::mix(min, refBounds.min, factors);
             max = vm::mix(max, refBounds.max, factors);
 

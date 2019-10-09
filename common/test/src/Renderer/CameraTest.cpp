@@ -29,9 +29,9 @@ namespace TrenchBroom {
             PerspectiveCamera c;
             c.setDirection(vm::vec3f(0,0,1), vm::vec3f(0,0,1));
 
-            ASSERT_FALSE(isNaN(c.direction()));
-            ASSERT_FALSE(isNaN(c.right()));
-            ASSERT_FALSE(isNaN(c.up()));
+            ASSERT_FALSE(vm::is_nan(c.direction()));
+            ASSERT_FALSE(vm::is_nan(c.right()));
+            ASSERT_FALSE(vm::is_nan(c.up()));
         }
 
         TEST(CameraTest, testOrbitDown) {
@@ -40,9 +40,9 @@ namespace TrenchBroom {
 
             c.orbit(vm::vec3f::zero(), 0.0f, vm::constants<float>::pi());
 
-            ASSERT_FALSE(isNaN(c.direction()));
-            ASSERT_FALSE(isNaN(c.right()));
-            ASSERT_FALSE(isNaN(c.up()));
+            ASSERT_FALSE(vm::is_nan(c.direction()));
+            ASSERT_FALSE(vm::is_nan(c.right()));
+            ASSERT_FALSE(vm::is_nan(c.up()));
         }
 
         TEST(CameraTest, testOrbitWhileInverted) {
@@ -51,9 +51,9 @@ namespace TrenchBroom {
 
             c.orbit(vm::vec3f::zero(), vm::constants<float>::pi(), 0.0f);
 
-            ASSERT_FALSE(isNaN(c.direction()));
-            ASSERT_FALSE(isNaN(c.right()));
-            ASSERT_FALSE(isNaN(c.up()));
+            ASSERT_FALSE(vm::is_nan(c.direction()));
+            ASSERT_FALSE(vm::is_nan(c.right()));
+            ASSERT_FALSE(vm::is_nan(c.up()));
         }
 
         TEST(CameraTest, testYawWhenPitchedDown) {
@@ -62,9 +62,9 @@ namespace TrenchBroom {
 
             c.rotate(0.1f, 0.0f);
 
-            ASSERT_FALSE(isNaN(c.direction()));
-            ASSERT_FALSE(isNaN(c.right()));
-            ASSERT_FALSE(isNaN(c.up()));
+            ASSERT_FALSE(vm::is_nan(c.direction()));
+            ASSERT_FALSE(vm::is_nan(c.right()));
+            ASSERT_FALSE(vm::is_nan(c.up()));
         }
     }
 }

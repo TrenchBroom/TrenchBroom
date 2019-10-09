@@ -24,10 +24,8 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/ModelTypes.h"
 #include "Model/PickResult.h"
 #include "Renderer/EdgeRenderer.h"
-#include "Renderer/Renderable.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/GLVertexType.h"
@@ -77,8 +75,8 @@ namespace TrenchBroom {
         vm::vec2f UVScaleTool::getHitPoint(const vm::ray3& pickRay) const {
             const auto* face = m_helper.face();
             const auto& boundary = face->boundary();
-            const auto facePointDist = vm::intersectRayAndPlane(pickRay, boundary);
-            const auto facePoint = pickRay.pointAtDistance(facePointDist);
+            const auto facePointDist = vm::intersect_ray_plane(pickRay, boundary);
+            const auto facePoint = vm::point_at_distance(pickRay, facePointDist);
 
             const auto toTex = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             return vm::vec2f(toTex * facePoint);
@@ -184,10 +182,10 @@ namespace TrenchBroom {
             const auto toTex = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
             const auto vertices = face->vertices();
-            auto distance = std::accumulate(std::begin(vertices), std::end(vertices), vm::vec2f::max,
+            auto distance = std::accumulate(std::begin(vertices), std::end(vertices), vm::vec2f::max(),
                                              [&toTex, &position](const vm::vec2f& current, const Model::BrushVertex* vertex) {
                                                  const vm::vec2f vertex2(toTex * vertex->position());
-                                                 return absMin(current, position - vertex2);
+                                                 return vm::abs_min(current, position - vertex2);
                                              });
 
             for (size_t i = 0; i < 2; ++i) {

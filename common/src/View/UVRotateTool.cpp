@@ -24,7 +24,6 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/Circle.h"
 #include "Renderer/Renderable.h"
@@ -34,7 +33,6 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/Vbo.h"
-#include "Renderer/VertexArray.h"
 #include "View/MapDocument.h"
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
@@ -75,9 +73,9 @@ namespace TrenchBroom {
             const auto& boundary = face->boundary();
 
             const auto& pickRay = inputState.pickRay();
-            const auto distanceToFace = vm::intersectRayAndPlane(pickRay, boundary);
+            const auto distanceToFace = vm::intersect_ray_plane(pickRay, boundary);
             if (!vm::is_nan(distanceToFace)) {
-                const auto hitPoint = pickRay.pointAtDistance(distanceToFace);
+                const auto hitPoint = vm::point_at_distance(pickRay, distanceToFace);
 
                 const auto fromFace = face->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
                 const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
@@ -130,8 +128,8 @@ namespace TrenchBroom {
             auto* face = m_helper.face();
             const auto& boundary = face->boundary();
             const auto& pickRay = inputState.pickRay();
-            const auto curPointDistance = vm::intersectRayAndPlane(pickRay, boundary);
-            const auto curPoint = pickRay.pointAtDistance(curPointDistance);
+            const auto curPointDistance = vm::intersect_ray_plane(pickRay, boundary);
+            const auto curPoint = vm::point_at_distance(pickRay, curPointDistance);
 
             const auto toFaceOld = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             const auto toWorld = face->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);

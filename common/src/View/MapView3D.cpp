@@ -217,11 +217,11 @@ namespace TrenchBroom {
 
                 if (hit.isMatch()) {
                     const auto* face = Model::hitToFace(hit);
-                    const auto dragPlane = alignedOrthogonalPlane(hit.hitPoint(), face->boundary().normal);
+                    const auto dragPlane = vm::aligned_orthogonal_plane(hit.hitPoint(), face->boundary().normal);
                     return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, hit.hitPoint());
                 } else {
                     const auto point = vm::vec3(grid.snap(m_camera.defaultPoint(pickRay)));
-                    const auto dragPlane = alignedOrthogonalPlane(point, -vm::vec3(firstAxis(m_camera.direction())));
+                    const auto dragPlane = vm::aligned_orthogonal_plane(point, -vm::vec3(vm::get_abs_max_component_axis(m_camera.direction())));
                     return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, point);
                 }
             } else {
@@ -273,7 +273,7 @@ namespace TrenchBroom {
             void doVisit(const Model::Entity* entity) override {
                 if (!entity->hasChildren()) {
                     const auto& bounds = entity->logicalBounds();
-                    bounds.forEachVertex([&](const vm::vec3& v) { addPoint(v); });
+                    bounds.for_each_vertex([&](const vm::vec3& v) { addPoint(v); });
                 }
             }
 
@@ -317,7 +317,7 @@ namespace TrenchBroom {
             void doVisit(const Model::Entity* entity) override {
                 if (!entity->hasChildren()) {
                     const auto& bounds = entity->logicalBounds();
-                    bounds.forEachVertex([&](const vm::vec3& v) {
+                    bounds.for_each_vertex([&](const vm::vec3& v) {
                         for (size_t j = 0; j < 4; ++j) {
                             addPoint(vm::vec3f(v), m_frustumPlanes[j]);
                         }
@@ -336,7 +336,7 @@ namespace TrenchBroom {
             void addPoint(const vm::vec3f& point, const vm::plane3f& plane) {
                 const auto ray = vm::ray3f(m_cameraPosition, -m_cameraDirection);
                 const auto newPlane = vm::plane3f(point + 64.0f * plane.normal, plane.normal);
-                const auto dist = vm::intersectRayAndPlane(ray, newPlane);;
+                const auto dist = vm::intersect_ray_plane(ray, newPlane);;
                 if (!vm::is_nan(dist) && dist > 0.0f) {
                     m_offset = std::max(m_offset, dist);
                 }
@@ -393,23 +393,23 @@ namespace TrenchBroom {
             switch (direction) {
                 case vm::direction::forward: {
                     const auto plane = vm::plane3(vm::vec3(m_camera.position()), vm::vec3::pos_z());
-                    const auto projectedDirection = plane.projectVector(vm::vec3(m_camera.direction()));
-                    if (isZero(projectedDirection, vm::C::almostZero())) {
+                    const auto projectedDirection = plane.project_vector(vm::vec3(m_camera.direction()));
+                    if (vm::is_zero(projectedDirection, vm::C::almost_zero())) {
                         // camera is looking straight down or up
                         if (m_camera.direction().z() < 0.0) {
-                            return vm::vec3(firstAxis(m_camera.up()));
+                            return vm::vec3(vm::get_abs_max_component_axis(m_camera.up()));
                         } else {
-                            return vm::vec3(-firstAxis(m_camera.up()));
+                            return vm::vec3(-vm::get_abs_max_component_axis(m_camera.up()));
                         }
                     }
-                    return firstAxis(projectedDirection);
+                    return vm::get_abs_max_component_axis(projectedDirection);
                 }
                 case vm::direction::backward:
                     return -doGetMoveDirection(vm::direction::forward);
                 case vm::direction::left:
                     return -doGetMoveDirection(vm::direction::right);
                 case vm::direction::right: {
-                    auto dir = vm::vec3(firstAxis(m_camera.right()));
+                    auto dir = vm::vec3(vm::get_abs_max_component_axis(m_camera.right()));
                     if (dir == doGetMoveDirection(vm::direction::forward)) {
                         dir = cross(dir, vm::vec3::pos_z());
                     }
@@ -426,9 +426,7 @@ namespace TrenchBroom {
         vm::vec3 MapView3D::doComputePointEntityPosition(const vm::bbox3& bounds) const {
             auto document = lock(m_document);
 
-            vm::vec3 delta;
             auto& grid = document->grid();
-
             const auto& worldBounds = document->worldBounds();
 
             const auto& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();

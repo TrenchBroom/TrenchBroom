@@ -19,7 +19,6 @@
 
 #include "Camera.h"
 
-#include <vecmath/abstract_line.h>
 #include <vecmath/ray.h>
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>
@@ -133,7 +132,7 @@ namespace TrenchBroom {
             vm::vec3f bbLook, bbUp, bbRight;
             bbLook = -m_direction;
             bbLook[2] = 0.0f;
-            if (vm::is_zero(bbLook, vm::Cf::almostZero())) {
+            if (vm::is_zero(bbLook, vm::Cf::almost_zero())) {
                 bbLook = -m_up;
                 bbLook[2] = 0.0f;
             }
@@ -253,7 +252,7 @@ namespace TrenchBroom {
         }
 
         void Camera::moveBy(const vm::vec3f& delta) {
-            if (vm::is_zero(delta, vm::Cf::almostZero())) {
+            if (vm::is_zero(delta, vm::Cf::almost_zero())) {
                 return;
             }
             m_position = m_position + delta;
@@ -272,7 +271,7 @@ namespace TrenchBroom {
             m_direction = direction;
 
             const vm::vec3f rightUnnormalized = vm::cross(m_direction, up);
-            if (vm::is_zero(rightUnnormalized, vm::Cf::almostZero())) {
+            if (vm::is_zero(rightUnnormalized, vm::Cf::almost_zero())) {
                 // `direction` and `up` were colinear.
                 const auto axis = vm::get_abs_max_component_axis(m_direction, 2u);
                 m_right = vm::normalize(cross(m_direction, axis));
@@ -386,8 +385,8 @@ namespace TrenchBroom {
         m_valid(false) {
             assert(m_nearPlane >= 0.0f);
             assert(m_farPlane > m_nearPlane);
-            assert(vm::is_unit(direction, vm::Cf::almostZero()));
-            assert(vm::is_unit(up, vm::Cf::almostZero()));
+            assert(vm::is_unit(direction, vm::Cf::almost_zero()));
+            assert(vm::is_unit(up, vm::Cf::almost_zero()));
             setDirection(direction, up);
         }
 

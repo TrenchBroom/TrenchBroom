@@ -46,27 +46,27 @@ namespace TrenchBroom {
 
 template <typename T, size_t S>
 void ASSERT_VEC_EQ(const vm::vec<T,S>& lhs, const vm::vec<T,S>& rhs) {
-    ASSERT_TRUE(isEqual(lhs, rhs, static_cast<T>(0.001)));
+    ASSERT_TRUE(is_equal(lhs, rhs, static_cast<T>(0.001)));
 }
 
 template <typename T, size_t S>
 void EXPECT_VEC_EQ(const vm::vec<T,S>& lhs, const vm::vec<T,S>& rhs) {
-    EXPECT_TRUE(isEqual(lhs, rhs, static_cast<T>(0.001)));
+    EXPECT_TRUE(is_equal(lhs, rhs, static_cast<T>(0.001)));
 }
 
 template <typename T, size_t S>
 void ASSERT_VEC_NE(const vm::vec<T,S>& lhs, const vm::vec<T,S>& rhs) {
-    ASSERT_FALSE(isEqual(lhs, rhs, static_cast<T>(0.001)));
+    ASSERT_FALSE(is_equal(lhs, rhs, static_cast<T>(0.001)));
 }
 
 template <typename T, size_t C, size_t R>
 void ASSERT_MAT_EQ(const vm::mat<T,R,C>& lhs, const vm::mat<T,R,C>& rhs) {
-    ASSERT_TRUE(isEqual(lhs, rhs, static_cast<T>(0.001)));
+    ASSERT_TRUE(is_equal(lhs, rhs, static_cast<T>(0.001)));
 }
 
 template <typename T, size_t C, size_t R>
 void ASSERT_MAT_NE(const vm::mat<T,R,C>& lhs, const vm::mat<T,R,C>& rhs) {
-    ASSERT_FALSE(isEqual(lhs, rhs, static_cast<T>(0.001)));
+    ASSERT_FALSE(is_equal(lhs, rhs, static_cast<T>(0.001)));
 }
 
 #define ASSERT_WXSTR_EQ(str1, str2) ASSERT_TRUE((str1).IsSameAs((str2)))

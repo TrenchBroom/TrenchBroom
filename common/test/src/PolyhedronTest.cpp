@@ -1135,17 +1135,10 @@ TEST(PolyhedronTest, crashWhileAddingPoints1) {
 
 TEST(PolyhedronTest, crashWhileAddingPoints2) {
     const vm::vec3d  p1(256, 39, 160);
-    const vm::vec3d  p2(256, 0, 160);
-    const vm::vec3d  p3(256,  0, 64);
     const vm::vec3d  p4(256, 39, 64);
-    const vm::vec3d  p5(  0,  0, 160);
     const vm::vec3d  p6(  0, 32, 160);
-    const vm::vec3d  p7(  0,  0, 64);
-    const vm::vec3d  p8(  0, 32, 64);
     const vm::vec3d  p9(  0,  0, 0);
     const vm::vec3d p10(  0, 32, 0);
-    const vm::vec3d p11(256, 32, 0);
-    const vm::vec3d p12(256,  0, 0);
     const vm::vec3d p13(  0, 39, 64);
     const vm::vec3d p14(  0, 39, 160);
     const vm::vec3d p15(  0, 39, 0);
@@ -1156,8 +1149,6 @@ TEST(PolyhedronTest, crashWhileAddingPoints2) {
     ASSERT_TRUE(p.point());
     ASSERT_TRUE(p.hasVertex(p1));
 
-    //p.addPoint(p2);
-    //p.addPoint(p3);
     p.addPoint(p4);
     ASSERT_TRUE(p.edge());
     ASSERT_EQ(2u, p.vertexCount());
@@ -1166,7 +1157,6 @@ TEST(PolyhedronTest, crashWhileAddingPoints2) {
     ASSERT_EQ(1u, p.edgeCount());
     ASSERT_TRUE(p.hasEdge(p1, p4));
 
-    //p.addPoint(p5);
     p.addPoint(p6);
     ASSERT_TRUE(p.polygon());
     ASSERT_EQ(3u, p.vertexCount());
@@ -1178,8 +1168,6 @@ TEST(PolyhedronTest, crashWhileAddingPoints2) {
     ASSERT_TRUE(p.hasEdge(p1, p6));
     ASSERT_TRUE(p.hasEdge(p4, p6));
 
-    //p.addPoint(p7);
-    //p.addPoint(p8);
     p.addPoint(p9);
     ASSERT_TRUE(p.polyhedron());
     ASSERT_EQ(4u, p.vertexCount());
@@ -1224,8 +1212,6 @@ TEST(PolyhedronTest, crashWhileAddingPoints2) {
     ASSERT_TRUE(hasTriangleOf(p, p6, p10, p9));
     ASSERT_TRUE(hasQuadOf(p, p1, p4, p10, p6));
 
-    //p.addPoint(p11);
-    //p.addPoint(p12);
     p.addPoint(p13);
     ASSERT_TRUE(p.polyhedron());
     ASSERT_EQ(6u, p.vertexCount());
@@ -1733,7 +1719,7 @@ TEST(PolyhedronTest, clipCubeWithVerticalSlantedPlane) {
 
 TEST(PolyhedronTest, badClip) {
     std::vector<vm::vec3d> polyVertices;
-    vm::vec3d::parseAll("(42.343111906757798 -24.90770936530231 48) (-5.6569680341747599 2.8051472462014218 -48) (-5.6567586128027614 -49.450466294904317 -48) (19.543884272280891 -64 2.4012022379983975) (64 -37.411190147253905 48) (64 -37.411184396581227 46.058241521600749) (16.970735645328752 -10.25882837570019 -48) (-15.996232760046849 -43.48119425295382 -48) (19.543373293787141 -64 32.936432269212482) (8.4017750903182601 -31.43996828352385 48) (-39.598145767921849 -3.7271836202911599 -48) (-28.284087977216849 -36.386647152659414 -48) (19.543509018008759 -64 47.655300195644266) (19.681387204653735 -64 48) (11.313359105885354 -46.184610213813635 -48) (42.170501479615339 -64 13.71441369506833) (64 -64 46.458506734897242) (64 -64 48) (64 -40.963243586214006 42.982066058285824) (64 -50.475344214694601 34.745773336493968) (22.627205203363062 -26.588725604065875 -48) (19.915358366079595 -18.759196710165369 -48) (16.82318198217952 -36.641571668509357 -48) (30.54114372047146 -27.178907257955132 48) (-13.006693391918915 1.3907491999939996 -48)", std::back_inserter(polyVertices));
+    vm::parse_all<double, 3>("(42.343111906757798 -24.90770936530231 48) (-5.6569680341747599 2.8051472462014218 -48) (-5.6567586128027614 -49.450466294904317 -48) (19.543884272280891 -64 2.4012022379983975) (64 -37.411190147253905 48) (64 -37.411184396581227 46.058241521600749) (16.970735645328752 -10.25882837570019 -48) (-15.996232760046849 -43.48119425295382 -48) (19.543373293787141 -64 32.936432269212482) (8.4017750903182601 -31.43996828352385 48) (-39.598145767921849 -3.7271836202911599 -48) (-28.284087977216849 -36.386647152659414 -48) (19.543509018008759 -64 47.655300195644266) (19.681387204653735 -64 48) (11.313359105885354 -46.184610213813635 -48) (42.170501479615339 -64 13.71441369506833) (64 -64 46.458506734897242) (64 -64 48) (64 -40.963243586214006 42.982066058285824) (64 -50.475344214694601 34.745773336493968) (22.627205203363062 -26.588725604065875 -48) (19.915358366079595 -18.759196710165369 -48) (16.82318198217952 -36.641571668509357 -48) (30.54114372047146 -27.178907257955132 48) (-13.006693391918915 1.3907491999939996 -48)", std::back_inserter(polyVertices));
 
     Polyhedron3d poly(polyVertices);
     const vm::plane3d plane(-19.170582845718307, vm::vec3d(0.88388309419256438, 0.30618844562885328, -0.35355241699635576));
@@ -1756,15 +1742,15 @@ TEST(PolyhedronTest, clipWithInvalidSeam) {
         8192.0 * vm::vec3d(+1.0, +1.0, +1.0),
     };
 
-    poly.clip(std::get<1>(fromPoints(vm::vec3d(-459.0, 1579.0, -115.0), vm::vec3d(-483.0, 1371.0, 131.0),  vm::vec3d(-184.0, 1428.0, 237.0))));
-    poly.clip(std::get<1>(fromPoints(vm::vec3d(-184.0, 1428.0, 237.0),  vm::vec3d(-184.0, 1513.0, 396.0),  vm::vec3d(-184.0, 1777.0, 254.0))));
-    poly.clip(std::get<1>(fromPoints(vm::vec3d(-484.0, 1513.0, 395.0),  vm::vec3d(-483.0, 1371.0, 131.0),  vm::vec3d(-483.0, 1777.0, 253.0))));
-    poly.clip(std::get<1>(fromPoints(vm::vec3d(-483.0, 1371.0, 131.0),  vm::vec3d(-459.0, 1579.0, -115.0), vm::vec3d(-483.0, 1777.0, 253.0))));
-    poly.clip(std::get<1>(fromPoints(vm::vec3d(-184.0, 1513.0, 396.0),  vm::vec3d(-484.0, 1513.0, 395.0),  vm::vec3d(-184.0, 1777.0, 254.0))));
-    poly.clip(std::get<1>(fromPoints(vm::vec3d(-184.0, 1777.0, 254.0),  vm::vec3d(-483.0, 1777.0, 253.0),  vm::vec3d(-183.0, 1692.0,  95.0))));
-    poly.clip(std::get<1>(fromPoints(vm::vec3d(-483.0, 1777.0, 253.0),  vm::vec3d(-459.0, 1579.0, -115.0), vm::vec3d(-183.0, 1692.0,  95.0)))); //  Assertion failure here!
-    poly.clip(std::get<1>(fromPoints(vm::vec3d(-483.0, 1371.0, 131.0),  vm::vec3d(-484.0, 1513.0, 395.0),  vm::vec3d(-184.0, 1513.0, 396.0))));
-    poly.clip(std::get<1>(fromPoints(vm::vec3d(-483.0, 1371.0, 131.0),  vm::vec3d(-184.0, 1513.0, 396.0),  vm::vec3d(-184.0, 1428.0, 237.0))));
+    poly.clip(std::get<1>(vm::from_points(vm::vec3d(-459.0, 1579.0, -115.0), vm::vec3d(-483.0, 1371.0, 131.0),  vm::vec3d(-184.0, 1428.0, 237.0))));
+    poly.clip(std::get<1>(vm::from_points(vm::vec3d(-184.0, 1428.0, 237.0),  vm::vec3d(-184.0, 1513.0, 396.0),  vm::vec3d(-184.0, 1777.0, 254.0))));
+    poly.clip(std::get<1>(vm::from_points(vm::vec3d(-484.0, 1513.0, 395.0),  vm::vec3d(-483.0, 1371.0, 131.0),  vm::vec3d(-483.0, 1777.0, 253.0))));
+    poly.clip(std::get<1>(vm::from_points(vm::vec3d(-483.0, 1371.0, 131.0),  vm::vec3d(-459.0, 1579.0, -115.0), vm::vec3d(-483.0, 1777.0, 253.0))));
+    poly.clip(std::get<1>(vm::from_points(vm::vec3d(-184.0, 1513.0, 396.0),  vm::vec3d(-484.0, 1513.0, 395.0),  vm::vec3d(-184.0, 1777.0, 254.0))));
+    poly.clip(std::get<1>(vm::from_points(vm::vec3d(-184.0, 1777.0, 254.0),  vm::vec3d(-483.0, 1777.0, 253.0),  vm::vec3d(-183.0, 1692.0,  95.0))));
+    poly.clip(std::get<1>(vm::from_points(vm::vec3d(-483.0, 1777.0, 253.0),  vm::vec3d(-459.0, 1579.0, -115.0), vm::vec3d(-183.0, 1692.0,  95.0)))); //  Assertion failure here!
+    poly.clip(std::get<1>(vm::from_points(vm::vec3d(-483.0, 1371.0, 131.0),  vm::vec3d(-484.0, 1513.0, 395.0),  vm::vec3d(-184.0, 1513.0, 396.0))));
+    poly.clip(std::get<1>(vm::from_points(vm::vec3d(-483.0, 1371.0, 131.0),  vm::vec3d(-184.0, 1513.0, 396.0),  vm::vec3d(-184.0, 1428.0, 237.0))));
 }
 
 bool findAndRemove(Polyhedron3d::SubtractResult& result, const std::vector<vm::vec3d>& vertices);
@@ -1788,14 +1774,14 @@ TEST(PolyhedronTest, subtractInnerCuboidFromCuboid) {
 
     std::vector<vm::vec3d> leftVertices, rightVertices, frontVertices, backVertices, topVertices, bottomVertices;
 
-    vm::vec3d::parseAll("(-32 -32 -32) (-32 32 -32) (-32 -32 32) (-32 32 32) (-16 -32 -32) (-16 32 -32) (-16 32 32) (-16 -32 32)", std::back_inserter(leftVertices));
-    vm::vec3d::parseAll("(32 -32 32) (32 32 32) (16 -32 -32) (16 -32 32) (16 32 32) (16 32 -32) (32 32 -32) (32 -32 -32)", std::back_inserter(rightVertices));
+    vm::parse_all<double, 3>("(-32 -32 -32) (-32 32 -32) (-32 -32 32) (-32 32 32) (-16 -32 -32) (-16 32 -32) (-16 32 32) (-16 -32 32)", std::back_inserter(leftVertices));
+    vm::parse_all<double, 3>("(32 -32 32) (32 32 32) (16 -32 -32) (16 -32 32) (16 32 32) (16 32 -32) (32 32 -32) (32 -32 -32)", std::back_inserter(rightVertices));
 
-    vm::vec3d::parseAll("(16 -32 32) (16 -32 -32) (-16 -32 32) (-16 -32 -32) (-16 -16 32) (16 -16 32) (16 -16 -32) (-16 -16 -32)", std::back_inserter(frontVertices));
-    vm::vec3d::parseAll("(16 32 -32) (16 32 32) (-16 16 -32) (16 16 -32) (16 16 32) (-16 16 32) (-16 32 32) (-16 32 -32)", std::back_inserter(backVertices));
+    vm::parse_all<double, 3>("(16 -32 32) (16 -32 -32) (-16 -32 32) (-16 -32 -32) (-16 -16 32) (16 -16 32) (16 -16 -32) (-16 -16 -32)", std::back_inserter(frontVertices));
+    vm::parse_all<double, 3>("(16 32 -32) (16 32 32) (-16 16 -32) (16 16 -32) (16 16 32) (-16 16 32) (-16 32 32) (-16 32 -32)", std::back_inserter(backVertices));
 
-    vm::vec3d::parseAll("(-16 16 32) (16 16 32) (16 -16 32) (-16 -16 32) (-16 -16 16) (-16 16 16) (16 16 16) (16 -16 16)", std::back_inserter(topVertices));
-    vm::vec3d::parseAll("(-16 -16 -32) (16 -16 -32) (-16 16 -32) (16 16 -32) (-16 -16 -16) (16 -16 -16) (16 16 -16) (-16 16 -16)", std::back_inserter(bottomVertices));
+    vm::parse_all<double, 3>("(-16 16 32) (16 16 32) (16 -16 32) (-16 -16 32) (-16 -16 16) (-16 16 16) (16 16 16) (16 -16 16)", std::back_inserter(topVertices));
+    vm::parse_all<double, 3>("(-16 -16 -32) (16 -16 -32) (-16 16 -32) (16 16 -32) (-16 -16 -16) (16 -16 -16) (16 16 -16) (-16 16 -16)", std::back_inserter(bottomVertices));
 
     ASSERT_TRUE(findAndRemove(result, leftVertices));
     ASSERT_TRUE(findAndRemove(result, rightVertices));
@@ -1960,9 +1946,9 @@ TEST(PolyhedronTest, subtractCuboidFromCuboidWithCutCorners) {
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
 
     std::vector<vm::vec3d> left, right, top;
-    vm::vec3d::parseAll("(-16 8 -0) (-16 8 48) (-16 -8 48) (-16 -8 -0) (-32 -8 -0) (-32 -8 32) (-32 8 -0) (-32 8 32)", std::back_inserter(left));
-    vm::vec3d::parseAll("(32 -8 32) (32 8 32) (32 8 -0) (32 -8 -0) (16 8 48) (16 8 -0) (16 -8 -0) (16 -8 48)", std::back_inserter(right));
-    vm::vec3d::parseAll("(16 8 32) (16 -8 32) (-16 -8 32) (-16 8 32) (-16 -8 48) (-16 8 48) (16 8 48) (16 -8 48)", std::back_inserter(top));
+    vm::parse_all<double, 3>("(-16 8 -0) (-16 8 48) (-16 -8 48) (-16 -8 -0) (-32 -8 -0) (-32 -8 32) (-32 8 -0) (-32 8 32)", std::back_inserter(left));
+    vm::parse_all<double, 3>("(32 -8 32) (32 8 32) (32 8 -0) (32 -8 -0) (16 8 48) (16 8 -0) (16 -8 -0) (16 -8 48)", std::back_inserter(right));
+    vm::parse_all<double, 3>("(16 8 32) (16 -8 32) (-16 -8 32) (-16 8 32) (-16 -8 48) (-16 8 48) (16 8 48) (16 -8 48)", std::back_inserter(top));
 
     ASSERT_TRUE(findAndRemove(result, left));
     ASSERT_TRUE(findAndRemove(result, right));
@@ -1983,7 +1969,7 @@ TEST(PolyhedronTest, subtractRhombusFromCuboid) {
      */
 
     std::vector<vm::vec3d> subtrahendVertices;
-    vm::vec3d::parseAll("(-32.0 0.0 +96.0) (0.0 -32.0 +96.0) (+32.0 0.0 +96.0) (0.0 +32.0 +96.0) (-32.0 0.0 -96.0) (0.0 -32.0 -96.0) (+32.0 0.0 -96.0) (0.0 +32.0 -96.0)", std::back_inserter(subtrahendVertices));
+    vm::parse_all<double, 3>("(-32.0 0.0 +96.0) (0.0 -32.0 +96.0) (+32.0 0.0 +96.0) (0.0 +32.0 +96.0) (-32.0 0.0 -96.0) (0.0 -32.0 -96.0) (+32.0 0.0 -96.0) (0.0 +32.0 -96.0)", std::back_inserter(subtrahendVertices));
 
     const Polyhedron3d minuend(vm::bbox3d(64.0));
     const Polyhedron3d subtrahend(subtrahendVertices);
@@ -1991,10 +1977,10 @@ TEST(PolyhedronTest, subtractRhombusFromCuboid) {
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
 
     std::vector<vm::vec3d> f1, f2, f3, f4;
-    vm::vec3d::parseAll("(64 64 64) (-32 64 -64) (64 -32 -64) (64 -32 64) (-32 64 64) (64 64 -64)", std::back_inserter(f1));
-    vm::vec3d::parseAll("(-64 32 64) (-64 32 -64) (-32 -0 64) (-32 -0 -64) (-0 32 -64) (-0 32 64) (-64 64 64) (-32 64 -64) (-32 64 64) (-64 64 -64)", std::back_inserter(f2));
-    vm::vec3d::parseAll("(64 -32 64) (64 -32 -64) (64 -64 64) (64 -64 -64) (-0 -32 64) (32 -0 64) (32 -0 -64) (-0 -32 -64) (32 -64 -64) (32 -64 64)", std::back_inserter(f3));
-    vm::vec3d::parseAll("(-64 -64 64) (-64 -64 -64) (-64 32 -64) (-64 32 64) (32 -64 64) (32 -64 -64)", std::back_inserter(f4));
+    vm::parse_all<double, 3>("(64 64 64) (-32 64 -64) (64 -32 -64) (64 -32 64) (-32 64 64) (64 64 -64)", std::back_inserter(f1));
+    vm::parse_all<double, 3>("(-64 32 64) (-64 32 -64) (-32 -0 64) (-32 -0 -64) (-0 32 -64) (-0 32 64) (-64 64 64) (-32 64 -64) (-32 64 64) (-64 64 -64)", std::back_inserter(f2));
+    vm::parse_all<double, 3>("(64 -32 64) (64 -32 -64) (64 -64 64) (64 -64 -64) (-0 -32 64) (32 -0 64) (32 -0 -64) (-0 -32 -64) (32 -64 -64) (32 -64 64)", std::back_inserter(f3));
+    vm::parse_all<double, 3>("(-64 -64 64) (-64 -64 -64) (-64 32 -64) (-64 32 64) (32 -64 64) (32 -64 -64)", std::back_inserter(f4));
     ASSERT_TRUE(findAndRemove(result, f1));
     ASSERT_TRUE(findAndRemove(result, f2));
     ASSERT_TRUE(findAndRemove(result, f3));
@@ -2038,8 +2024,8 @@ TEST(PolyhedronTest, subtractTetrahedronFromCubeWithOverlappingFragments) {
     // merge creates overlapping fragments
 
     std::vector<vm::vec3d> minuendVertices, subtrahendVertices;
-    vm::vec3d::parseAll("(-32 -32 32) (32 -32 32) (32 32 32) (-32 32 32) (32 32 -32) (32 -32 -32) (-32 -32 -32) (-32 32 -32)", std::back_inserter(minuendVertices));
-    vm::vec3d::parseAll("(-0 -16 -32) (-0 16 -32) (32 16 -32) (16 16 -0)", std::back_inserter(subtrahendVertices));
+    vm::parse_all<double, 3>("(-32 -32 32) (32 -32 32) (32 32 32) (-32 32 32) (32 32 -32) (32 -32 -32) (-32 -32 -32) (-32 32 -32)", std::back_inserter(minuendVertices));
+    vm::parse_all<double, 3>("(-0 -16 -32) (-0 16 -32) (32 16 -32) (16 16 -0)", std::back_inserter(subtrahendVertices));
 
 
     const Polyhedron3d minuend(minuendVertices);

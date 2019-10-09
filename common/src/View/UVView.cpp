@@ -46,7 +46,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include <iostream>
 #include <iterator>
 
 namespace TrenchBroom {
@@ -185,13 +184,13 @@ namespace TrenchBroom {
 
         void UVView::setupGL(Renderer::RenderContext& renderContext) {
             const Renderer::Camera::Viewport& viewport = renderContext.camera().viewport();
-            glAssert(glViewport(viewport.x, viewport.y, viewport.width, viewport.height));
+            glAssert(glViewport(viewport.x, viewport.y, viewport.width, viewport.height))
 
-            glAssert(glEnable(GL_MULTISAMPLE));
-            glAssert(glEnable(GL_BLEND));
-            glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-            glAssert(glShadeModel(GL_SMOOTH));
-            glAssert(glDisable(GL_DEPTH_TEST));
+            glAssert(glEnable(GL_MULTISAMPLE))
+            glAssert(glEnable(GL_BLEND))
+            glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA))
+            glAssert(glShadeModel(GL_SMOOTH))
+            glAssert(glDisable(GL_DEPTH_TEST))
         }
 
         class UVView::RenderTexture : public Renderer::DirectRenderable {
@@ -343,7 +342,7 @@ namespace TrenchBroom {
             Model::BrushFace* face = m_helper.face();
             const FloatType distance = face->intersectWithRay(pickRay);
             if (!vm::is_nan(distance)) {
-                const vm::vec3 hitPoint = pickRay.pointAtDistance(distance);
+                const vm::vec3 hitPoint = vm::point_at_distance(pickRay, distance);
                 pickResult.addHit(Model::Hit(UVView::FaceHit, distance, hitPoint, face));
             }
             return pickResult;

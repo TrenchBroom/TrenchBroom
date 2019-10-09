@@ -101,8 +101,8 @@ namespace TrenchBroom {
         vm::vec2f UVOffsetTool::computeHitPoint(const vm::ray3& ray) const {
             const auto* face = m_helper.face();
             const auto& boundary = face->boundary();
-            const auto distance = vm::intersectRayAndPlane(ray, boundary);
-            const auto hitPoint = ray.pointAtDistance(distance);
+            const auto distance = vm::intersect_ray_plane(ray, boundary);
+            const auto hitPoint = vm::point_at_distance(ray, distance);
 
             const auto transform = face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->scale(), true);
             return vm::vec2f(transform * hitPoint);
@@ -119,10 +119,10 @@ namespace TrenchBroom {
 
             const auto transform = face->toTexCoordSystemMatrix(face->offset() - delta, face->scale(), true);
 
-            auto distance = vm::vec2f::max;
+            auto distance = vm::vec2f::max();
             for (const Model::BrushVertex* vertex : face->vertices()) {
                 const auto temp = m_helper.computeDistanceFromTextureGrid(transform * vertex->position());
-                distance = absMin(distance, temp);
+                distance = vm::abs_min(distance, temp);
             }
 
             return m_helper.snapDelta(delta, -distance);

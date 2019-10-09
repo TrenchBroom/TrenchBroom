@@ -120,12 +120,12 @@ namespace TrenchBroom {
                     const auto result = vm::distance(m_pickRay, vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
                     if (!vm::is_nan(result.distance) && result.distance < m_closest) {
                         m_closest = result.distance;
-                        const auto hitPoint = m_pickRay.pointAtDistance(result.position1);
+                        const auto hitPoint = vm::point_at_distance(m_pickRay, result.position1);
                         if (m_hitType == ResizeBrushesTool::ResizeHit2D) {
                             Model::BrushFaceList faces;
-                            if (vm::is_zero(leftDot, vm::C::almostZero())) {
+                            if (vm::is_zero(leftDot, vm::C::almost_zero())) {
                                 faces.push_back(left);
-                            } else if (vm::is_zero(rightDot, vm::C::almostZero())) {
+                            } else if (vm::is_zero(rightDot, vm::C::almost_zero())) {
                                 faces.push_back(right);
                             } else {
                                 if (vm::abs(leftDot) < 1.0) {
@@ -204,7 +204,8 @@ namespace TrenchBroom {
             }
 
             bool operator()(Model::BrushFace* face) const {
-                return face != m_reference && isEqual(face->boundary(), m_reference->boundary(), vm::C::almostZero());
+                return face != m_reference && vm::is_equal(face->boundary(), m_reference->boundary(),
+                    vm::C::almost_zero());
             }
         };
 
@@ -282,7 +283,7 @@ namespace TrenchBroom {
             const auto absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
 
             const auto faceDelta = selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
-            if (isZero(faceDelta, vm::C::almostZero())) {
+            if (vm::is_zero(faceDelta, vm::C::almost_zero())) {
                 return true;
             }
 
@@ -305,8 +306,8 @@ namespace TrenchBroom {
         vm::vec3 ResizeBrushesTool::selectDelta(const vm::vec3& relativeDelta, const vm::vec3& absoluteDelta, const FloatType mouseDistance) const {
             // select the delta that is closest to the actual delta indicated by the mouse cursor
             const auto mouseDistance2 = mouseDistance * mouseDistance;
-            return (vm::abs(squaredLength(relativeDelta) - mouseDistance2) <
-                    vm::abs(squaredLength(absoluteDelta) - mouseDistance2) ?
+            return (vm::abs(vm::squared_length(relativeDelta) - mouseDistance2) <
+                    vm::abs(vm::squared_length(absoluteDelta) - mouseDistance2) ?
                     relativeDelta :
                     absoluteDelta);
         }
@@ -329,17 +330,17 @@ namespace TrenchBroom {
 
         bool ResizeBrushesTool::move(const vm::ray3& pickRay, const Renderer::Camera& camera) {
             const auto dragPlane = vm::plane3(m_dragOrigin, vm::vec3(camera.direction()));
-            const auto hitDist = vm::intersectRayAndPlane(pickRay, dragPlane);
+            const auto hitDist = vm::intersect_ray_plane(pickRay, dragPlane);
             if (vm::is_nan(hitDist)) {
                 return true;
             }
 
-            const auto hitPoint = pickRay.pointAtDistance(hitDist);
+            const auto hitPoint = vm::point_at_distance(pickRay, hitDist);
 
             auto document = lock(m_document);
             const auto& grid = document->grid();
             const auto delta = grid.snap(hitPoint - m_lastPoint);
-            if (vm::is_zero(delta, vm::C::almostZero())) {
+            if (vm::is_zero(delta, vm::C::almost_zero())) {
                 return true;
             }
 
@@ -358,7 +359,7 @@ namespace TrenchBroom {
 
         void ResizeBrushesTool::commit() {
             auto document = lock(m_document);
-            if (isZero(m_totalDelta, vm::C::almostZero())) {
+            if (vm::is_zero(m_totalDelta, vm::C::almost_zero())) {
                 document->cancelTransaction();
             } else {
                 document->commitTransaction();

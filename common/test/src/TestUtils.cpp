@@ -33,7 +33,8 @@ namespace TrenchBroom {
             const float dist = vm::abs(tc1[i] - tc2[i]);
             const float distRemainder = dist - vm::floor(dist);
 
-            if (!(vm::is_equal(distRemainder, 0.0f, vm::Cf::almostZero()) || vm::is_equal(distRemainder, 1.0f, vm::Cf::almostZero())))
+            if (!(vm::is_equal(distRemainder, 0.0f, vm::Cf::almost_zero()) || vm::is_equal(distRemainder, 1.0f,
+                vm::Cf::almost_zero())))
                 return false;
         }
         return true;
@@ -70,7 +71,7 @@ namespace TrenchBroom {
             // would be too lenient.
             const vm::vec2f expected = uvs[i] - uvs[0];
             const vm::vec2f actual = transformedVertUVs[i] - transformedVertUVs[0];
-            if (!vm::is_equal(expected, actual, vm::Cf::almostZero())) {
+            if (!vm::is_equal(expected, actual, vm::Cf::almost_zero())) {
                 return false;
             }
         }

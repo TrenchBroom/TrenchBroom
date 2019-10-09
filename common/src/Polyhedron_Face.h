@@ -230,7 +230,7 @@ typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::normal() const {
         const auto& p2 = current->next()->origin()->position();
         const auto& p3 = current->next()->next()->origin()->position();
         normal = vm::cross(p2 - p1, p3 - p1);
-        if (!vm::is_zero(normal, vm::constants<T>::almostZero())) {
+        if (!vm::is_zero(normal, vm::constants<T>::almost_zero())) {
             return vm::normalize(normal);
         }
         current = current->next();
@@ -301,7 +301,7 @@ bool Polyhedron<T,FP,VP>::Face::coplanar(const Face* other) const {
     ensure(other != nullptr, "other is null");
 
     // Test if the normals are colinear by checking their enclosed angle.
-    if (1.0 - dot(normal(), other->normal()) >= vm::constants<T>::colinearEpsilon()) {
+    if (1.0 - dot(normal(), other->normal()) >= vm::constants<T>::colinear_epsilon()) {
         return false;
     }
 
@@ -523,7 +523,7 @@ typename Polyhedron<T,FP,VP>::Face::RayIntersection Polyhedron<T,FP,VP>::Face::i
     const vm::plane<T,3> plane(origin(), normal());
     const auto cos = dot(plane.normal, ray.direction);
 
-    if (vm::is_zero(cos, vm::constants<T>::almostZero())) {
+    if (vm::is_zero(cos, vm::constants<T>::almost_zero())) {
         return RayIntersection::None();
     }
 

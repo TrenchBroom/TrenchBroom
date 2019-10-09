@@ -346,13 +346,13 @@ namespace TrenchBroom {
         }
 
         static void checkTextureLockWithScale(const BrushFace *origFace, const vm::vec3& scaleFactors) {
-            vm::mat4x4 xform = vm::scalingMatrix(scaleFactors);
+            vm::mat4x4 xform = vm::scaling_matrix(scaleFactors);
             checkTextureLockOnWithTransform(xform, origFace);
         }
 
         static void checkTextureLockWithShear(const BrushFace *origFace) {
             // shear the x axis towards the y axis
-            vm::mat4x4 xform = vm::shearMatrix(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+            vm::mat4x4 xform = vm::shear_matrix(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             checkTextureLockOnWithTransform(xform, origFace);
         }
 
@@ -379,7 +379,7 @@ namespace TrenchBroom {
          * when texture lock is off.
          */
         static void checkTextureLockOffWithVerticalFlip(const Brush* cube) {
-            const vm::mat4x4 transform = vm::mirrorMatrix<double>(vm::axis::z);
+            const vm::mat4x4 transform = vm::mirror_matrix<double>(vm::axis::z);
             const BrushFace* origFace = cube->findFace(vm::vec3::pos_x());
 
             // transform the face (texture lock off)
@@ -405,7 +405,7 @@ namespace TrenchBroom {
             const vm::vec3 mins(cube->logicalBounds().min);
 
             // translate the cube mins to the origin, scale by 2 in the X axis, then translate back
-            const vm::mat4x4 transform = vm::translation_matrix(mins) * vm::scalingMatrix(vm::vec3(2.0, 1.0, 1.0)) * vm::translation_matrix(-1.0 * mins);
+            const vm::mat4x4 transform = vm::translation_matrix(mins) * vm::scaling_matrix(vm::vec3(2.0, 1.0, 1.0)) * vm::translation_matrix(-1.0 * mins);
             const BrushFace* origFace = cube->findFace(vm::vec3::neg_y());
 
             // transform the face (texture lock off)
@@ -539,7 +539,7 @@ namespace TrenchBroom {
             // find the faces
             BrushFace* negXFace = nullptr;
             for (BrushFace* face : pyramidLight->faces()) {
-                if (firstAxis(face->boundary().normal) == vm::vec3::neg_x()) {
+                if (vm::get_abs_max_component_axis(face->boundary().normal) == vm::vec3::neg_x()) {
                     ASSERT_EQ(negXFace, nullptr);
                     negXFace = face;
                 }
@@ -596,10 +596,10 @@ namespace TrenchBroom {
             BrushFace* negYFace = nullptr;
             BrushFace* posXFace = nullptr;
             for (BrushFace* face : pyramidLight->faces()) {
-                if (firstAxis(face->boundary().normal) == vm::vec3::neg_y()) {
+                if (vm::get_abs_max_component_axis(face->boundary().normal) == vm::vec3::neg_y()) {
                     ASSERT_EQ(negYFace, nullptr);
                     negYFace = face;
-                } else if (firstAxis(face->boundary().normal) == vm::vec3::pos_x()) {
+                } else if (vm::get_abs_max_component_axis(face->boundary().normal) == vm::vec3::pos_x()) {
                     ASSERT_EQ(posXFace, nullptr);
                     posXFace = face;
                 }

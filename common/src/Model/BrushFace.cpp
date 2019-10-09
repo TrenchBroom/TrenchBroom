@@ -29,7 +29,6 @@
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/TagVisitor.h"
 
-#include <vecmath/abstract_line.h>
 #include <vecmath/bbox.h>
 #include <vecmath/intersection.h>
 #include <vecmath/mat.h>
@@ -142,7 +141,7 @@ namespace TrenchBroom {
             m_texCoordSystem->updateNormal(sourceFacePlane.normal, m_boundary.normal, m_attribs, wrapStyle);
 
             // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
-            if (!vm::is_zero(seam.direction, vm::C::almostZero())) {
+            if (!vm::is_zero(seam.direction, vm::C::almost_zero())) {
                 const auto currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
                 const auto offsetChange = desriedCoords - currentCoords;
                 m_attribs.setOffset(correct(m_attribs.modOffset(m_attribs.offset() + offsetChange), 4));
@@ -523,7 +522,7 @@ namespace TrenchBroom {
             // Get a line, and a reference point, that are on both the old plane
             // (before moving the face) and after moving the face.
             const auto seam = vm::intersect_plane_plane(oldPlane, m_boundary);
-            if (!vm::is_zero(seam.direction, vm::C::almostZero())) {
+            if (!vm::is_zero(seam.direction, vm::C::almost_zero())) {
                 const auto refPoint = project_point(seam, center());
 
                 // Get the texcoords at the refPoint using the old face's attribs and tex coord system

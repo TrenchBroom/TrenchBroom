@@ -142,7 +142,7 @@ namespace TrenchBroom {
 
         void Compass::makeBackground() {
             using Vertex = GLVertexTypes::P2::Vertex;
-            std::vector<vm::vec2f> circ = circle2D((m_shaftLength + m_headLength) / 2.0f + 5.0f, 0.0f, vm::Cf::twoPi(), m_segments);
+            std::vector<vm::vec2f> circ = circle2D((m_shaftLength + m_headLength) / 2.0f + 5.0f, 0.0f, vm::Cf::two_pi(), m_segments);
             Vertex::List verts = Vertex::toList(circ.size(), std::begin(circ));
 
             IndexRangeMap::Size backgroundSize;

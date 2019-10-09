@@ -57,7 +57,7 @@ namespace TrenchBroom {
                 return token;
             }
 
-            void expect(ParserStatus& status, const String& typeName, const Token& token) const {
+            void expect(ParserStatus& /* status */, const String& typeName, const Token& token) const {
                 const String msg = expectString(typeName, token);
                 throw ParserException(token.line(), token.column(), msg);
             }

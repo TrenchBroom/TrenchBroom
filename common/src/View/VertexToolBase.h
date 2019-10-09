@@ -243,7 +243,7 @@ namespace TrenchBroom {
             void csgConvexMerge() {
                 std::vector<vm::vec3> vertices;
                 const auto handles = handleManager().selectedHandles();
-                H::getVertices(std::begin(handles), std::end(handles), std::back_inserter(vertices));
+                H::get_vertices(std::begin(handles), std::end(handles), std::back_inserter(vertices));
 
                 const Polyhedron3 polyhedron(vertices);
                 if (!polyhedron.polyhedron() || !polyhedron.closed()) {

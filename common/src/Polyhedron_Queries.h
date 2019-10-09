@@ -20,7 +20,6 @@
 #ifndef Polyhedron_Queries_h
 #define Polyhedron_Queries_h
 
-#include <vecmath/abstract_line.h>
 #include <vecmath/segment.h>
 #include <vecmath/ray.h>
 #include <vecmath/plane.h>
@@ -142,7 +141,7 @@ bool Polyhedron<T,FP,VP>::pointIntersectsEdge(const Polyhedron& lhs, const Polyh
     const V& rhsStart = rhsEdge->firstVertex()->position();
     const V& rhsEnd = rhsEdge->secondVertex()->position();
 
-    return vm::segment<T,3>(rhsStart, rhsEnd).contains(lhsPos, vm::constants<T>::almostZero());
+    return vm::segment<T,3>(rhsStart, rhsEnd).contains(lhsPos, vm::constants<T>::almost_zero());
 }
 
 template <typename T, typename FP, typename VP>
@@ -206,7 +205,7 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsEdge(const Polyhedron& lhs, const Polyhe
         }
     }
 
-    static const auto epsilon2 = vm::constants<T>::almostZero() * vm::constants<T>::almostZero();
+    static const auto epsilon2 = vm::constants<T>::almost_zero() * vm::constants<T>::almost_zero();
     return dist.distance < epsilon2 && dist.position1 <= rayLen;
 }
 
@@ -268,10 +267,10 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsFace(const Edge* lhsEdge, const Face* rh
     if (vm::is_nan(dist)) {
         const auto& edgeDir = lhsRay.direction;
         const auto faceNorm = rhsFace->normal();
-        if (vm::is_zero(dot(faceNorm, edgeDir), vm::constants<T>::almostZero())) {
+        if (vm::is_zero(dot(faceNorm, edgeDir), vm::constants<T>::almost_zero())) {
             // ray and face are parallel, intersect with edges
 
-            static const auto MaxDistance = vm::constants<T>::almostZero() * vm::constants<T>::almostZero();
+            static const auto MaxDistance = vm::constants<T>::almost_zero() * vm::constants<T>::almost_zero();
 
             const auto* rhsFirstEdge = rhsFace->boundary().front();
             const auto* rhsCurEdge = rhsFirstEdge;
@@ -399,7 +398,7 @@ bool Polyhedron<T,FP,VP>::polyhedronIntersectsPolyhedron(const Polyhedron& lhs, 
             const auto rhsEdgeVec = rhsCurrentEdge->vector();
             const auto direction = cross(lhsEdgeVec, rhsEdgeVec);
 
-            if (!vm::is_zero(direction, vm::constants<T>::almostZero())) {
+            if (!vm::is_zero(direction, vm::constants<T>::almost_zero())) {
                 const auto plane = vm::plane<T,3>(lhsEdgeOrigin, direction);
 
                 const auto lhsStatus = pointStatus(plane, lhs.m_vertices.front());

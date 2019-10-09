@@ -253,19 +253,19 @@ namespace TrenchBroom {
 
                 const auto toCam = renderContext.camera().position() - center;
                 // only distance cull for perspective camera, since the 2D one is always very far from the level
-                if (renderContext.camera().perspectiveProjection() && squaredLength(toCam) > maxDistance2) {
+                if (renderContext.camera().perspectiveProjection() && vm::squared_length(toCam) > maxDistance2) {
                     continue;
                 }
 
                 auto onPlane = toCam - dot(toCam, direction) * direction;
-                if (vm::is_zero(onPlane, vm::Cf::almostZero())) {
+                if (vm::is_zero(onPlane, vm::Cf::almost_zero())) {
                     continue;
                 }
 
-                onPlane = normalize(onPlane);
+                onPlane = vm::normalize(onPlane);
 
                 const auto rotZ = rotation * vm::vec3f::pos_z();
-                const auto angle = -measureAngle(rotZ, onPlane, direction);
+                const auto angle = -vm::measure_angle(rotZ, onPlane, direction);
                 const auto matrix = vm::translation_matrix(center) * vm::rotation_matrix(direction, angle) * rotation * vm::translation_matrix(16.0f * vm::vec3f::pos_x());
 
                 for (size_t i = 0; i < 3; ++i) {
@@ -348,14 +348,14 @@ namespace TrenchBroom {
                     if (m_editorContext.visible(entity)) {
                         const bool pointEntity = !entity->hasChildren();
                         if (pointEntity) {
-                            entity->definitionBounds().forEachEdge(pointEntityWireframeBoundsBuilder);
+                            entity->definitionBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
                         } else {
-                            entity->logicalBounds().forEachEdge(brushEntityWireframeBoundsBuilder);
+                            entity->logicalBounds().for_each_edge(brushEntityWireframeBoundsBuilder);
                         }
 
                         if (pointEntity && !entity->hasPointEntityModel()) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
-                            entity->logicalBounds().forEachFace(solidBoundsBuilder);
+                            entity->logicalBounds().for_each_face(solidBoundsBuilder);
                         }
                     }
                 }
@@ -375,15 +375,15 @@ namespace TrenchBroom {
 
                         if (pointEntity && !entity->hasPointEntityModel()) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
-                            entity->definitionBounds().forEachFace(solidBoundsBuilder);
+                            entity->definitionBounds().for_each_face(solidBoundsBuilder);
                         } else {
                             BuildColoredWireframeBoundsVertices pointEntityWireframeBoundsBuilder(pointEntityWireframeVertices, boundsColor(entity));
                             BuildColoredWireframeBoundsVertices brushEntityWireframeBoundsBuilder(brushEntityWireframeVertices, boundsColor(entity));
 
                             if (pointEntity) {
-                                entity->definitionBounds().forEachEdge(pointEntityWireframeBoundsBuilder);
+                                entity->definitionBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
                             } else {
-                                entity->logicalBounds().forEachEdge(brushEntityWireframeBoundsBuilder);
+                                entity->logicalBounds().for_each_edge(brushEntityWireframeBoundsBuilder);
                             }
                         }
                     }

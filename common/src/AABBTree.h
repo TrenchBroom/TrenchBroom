@@ -589,7 +589,7 @@ public:
      * @return the bounds of all nodes in this tree, or a bounding box made up of NaN values if this tree is empty
      */
     const Box& bounds() const {
-        static const auto EmptyBox = Box(vm::vec<T,S>::NaN, vm::vec<T,S>::NaN);
+        static constexpr auto EmptyBox = Box(vm::vec<T,S>::nan(), vm::vec<T,S>::nan());
 
         assert(!empty());
         if (empty()) {

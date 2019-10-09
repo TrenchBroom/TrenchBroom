@@ -192,13 +192,13 @@ namespace TrenchBroom {
                 if (frame != nullptr) {
                     const auto bounds = frame->bounds();
                     const auto center = bounds.center();
-                    const auto transform =vm::translation_matrix(center) * rotationMatrix(m_rotation) *vm::translation_matrix(-center);
+                    const auto transform =vm::translation_matrix(center) * vm::rotation_matrix(m_rotation) *vm::translation_matrix(-center);
                     rotatedBounds = bounds.transform(transform);
                     modelRenderer = m_entityModelManager.renderer(spec);
                 } else {
                     rotatedBounds = vm::bbox3f(definition->bounds());
                     const auto center = rotatedBounds.center();
-                    const auto transform =vm::translation_matrix(-center) * rotationMatrix(m_rotation) *vm::translation_matrix(center);
+                    const auto transform =vm::translation_matrix(-center) * vm::rotation_matrix(m_rotation) *vm::translation_matrix(center);
                     rotatedBounds = rotatedBounds.transform(transform);
                 }
 
@@ -219,8 +219,8 @@ namespace TrenchBroom {
             const float viewRight     = static_cast<float>(size().width());
             const float viewBottom    = static_cast<float>(0);
 
-            const vm::mat4x4f projection = vm::orthoMatrix(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
-            const vm::mat4x4f view = vm::viewMatrix(vm::vec3f::neg_x(), vm::vec3f::pos_z()) *vm::translation_matrix(vm::vec3f(256.0f, 0.0f, 0.0f));
+            const vm::mat4x4f projection = vm::ortho_matrix(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
+            const vm::mat4x4f view = vm::view_matrix(vm::vec3f::neg_x(), vm::vec3f::pos_z()) *vm::translation_matrix(vm::vec3f(256.0f, 0.0f, 0.0f));
             Renderer::Transformation transformation(projection, view);
 
             renderBounds(layout, y, height);
@@ -268,7 +268,7 @@ namespace TrenchBroom {
                                     const auto itemTrans = itemTransformation(cell, y, height);
                                     const auto& color = definition->color();
                                     CollectBoundsVertices<BoundsVertex> collect(itemTrans, color, vertices);
-                                    vm::bbox3f(definition->bounds()).forEachEdge(collect);
+                                    vm::bbox3f(definition->bounds()).for_each_edge(collect);
                                 }
                             }
                         }
@@ -318,7 +318,7 @@ namespace TrenchBroom {
         }
 
         void EntityBrowserView::renderNames(Layout& layout, const float y, const float height, const vm::mat4x4f& projection) {
-            Renderer::Transformation transformation(projection, viewMatrix(vm::vec3f::neg_z(), vm::vec3f::pos_y()) *vm::translation_matrix(vm::vec3f(0.0f, 0.0f, -1.0f)));
+            Renderer::Transformation transformation(projection, vm::view_matrix(vm::vec3f::neg_z(), vm::vec3f::pos_y()) *vm::translation_matrix(vm::vec3f(0.0f, 0.0f, -1.0f)));
 
             Renderer::ActivateVbo activate(vertexVbo());
 
@@ -443,7 +443,7 @@ namespace TrenchBroom {
             const auto boundsCenter = vm::vec3f(definition->bounds().center());
 
             return (vm::translation_matrix(offset) *
-                    vm::scalingMatrix(vm::vec3f::fill(scaling)) *
+                    vm::scaling_matrix(vm::vec3f::fill(scaling)) *
                     vm::translation_matrix(rotationOffset) *
                     vm::translation_matrix(boundsCenter) *
                     vm::rotation_matrix(m_rotation) *

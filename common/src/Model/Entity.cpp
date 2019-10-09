@@ -34,7 +34,6 @@
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
 
-#include <vecmath/abstract_line.h>
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/bbox.h>

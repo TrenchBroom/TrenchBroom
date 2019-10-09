@@ -101,12 +101,12 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             if (m_selector[0]) {
                 const vm::vec2f factors = vm::vec2f(-delta.y() / m_initialHit.x(), 0.0f);
-                if (!isZero(factors, vm::Cf::almostZero())) {
+                if (!vm::is_zero(factors, vm::Cf::almost_zero())) {
                     document->shearTextures(factors);
                 }
             } else if (m_selector[1]) {
                 const vm::vec2f factors = vm::vec2f(0.0f, -delta.x() / m_initialHit.y());
-                if (!isZero(factors, vm::Cf::almostZero())) {
+                if (!vm::is_zero(factors, vm::Cf::almost_zero())) {
                     document->shearTextures(factors);
                 }
             }
@@ -135,12 +135,11 @@ namespace TrenchBroom {
         vm::vec2f UVShearTool::getHit(const vm::ray3& pickRay) const {
             const auto* face = m_helper.face();
             const auto& boundary = face->boundary();
-            const auto hitPointDist = vm::intersectRayAndPlane(pickRay, boundary);
-            const auto hitPoint = pickRay.pointAtDistance(hitPointDist);
+            const auto hitPointDist = vm::intersect_ray_plane(pickRay, boundary);
+            const auto hitPoint = vm::point_at_distance(pickRay, hitPointDist);
             const auto hitVec = hitPoint - m_helper.origin();
 
-            return vm::vec2f(dot(hitVec, m_xAxis),
-                         dot(hitVec, m_yAxis));
+            return vm::vec2f(vm::dot(hitVec, m_xAxis), vm::dot(hitVec, m_yAxis));
         }
 
         bool UVShearTool::doCancel() {
