@@ -23,6 +23,8 @@
 
 #include <vecmath/util.h>
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace Model {
         class PickResult::CompareWrapper {
