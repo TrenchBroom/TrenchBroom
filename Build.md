@@ -4,6 +4,22 @@ Follow these instructions if you want to get started developing on TrenchBroom.
 
 To see how releases of TB are packaged, consult our CI scripts instead.
 
+## All Platforms
+
+First, clone the TrenchBroom repository. If you are using the official repository and not a fork, you can clone the
+repository by running
+
+```
+git clone https://github.com/kduske/TrenchBroom.git
+```
+
+TrenchBroom uses a few git submodules for some of its dependencies. To initialize the submodules, issue the following command:
+
+```
+cd TrenchBroom
+git submodule update --init --recursive
+```
+
 ## Windows
 
 - Visual Studio 2017 or 2019 can be used for development. Code needs to compile with VS 2017 (that's what our releases are built with). 
