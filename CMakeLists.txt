@@ -70,6 +70,10 @@ if (NOT PANDOC_PATH AND NOT PANDOC_PATH-NOTFOUND)
     endif()
 endif()
 
+# Prevent overriding the parent project's compiler/linker
+# settings on Windows
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
 # Find Qt and OpenGL
 find_package(OpenGL REQUIRED)
 find_package(Qt5Widgets REQUIRED)
