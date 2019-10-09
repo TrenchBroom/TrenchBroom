@@ -1,5 +1,8 @@
 PATH=%PATH%;C:\Program Files (x86)\Pandoc;C:\Program Files\Cppcheck
 
+REM Init submodules
+git submodule update --init --recursive
+
 REM Check versions
 qmake -v
 cmake --version
