@@ -96,8 +96,8 @@ namespace TrenchBroom {
 
         void PerspectiveCamera::doValidateMatrices(vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const {
             const Viewport& viewport = this->viewport();
-            projectionMatrix = vm::perspectiveMatrix(zoomedFov(), nearPlane(), farPlane(), viewport.width, viewport.height);
-            viewMatrix = vm::viewMatrix(direction(), up()) * translationMatrix(-position());
+            projectionMatrix = vm::perspective_matrix(zoomedFov(), nearPlane(), farPlane(), viewport.width, viewport.height);
+            viewMatrix = vm::view_matrix(direction(), up()) *vm::translation_matrix(-position());
         }
 
         void PerspectiveCamera::doComputeFrustumPlanes(vm::plane3f& topPlane, vm::plane3f& rightPlane, vm::plane3f& bottomPlane, vm::plane3f& leftPlane) const {
@@ -161,8 +161,8 @@ namespace TrenchBroom {
 
             auto minDistance = std::numeric_limits<float>::max();
             for (size_t i = 0; i < 4; ++i) {
-                const auto distance = vm::intersectRayAndTriangle(ray, position(), verts[i], verts[vm::succ(i, 4)]);
-                if (!vm::isnan(distance)) {
+                const auto distance = vm::intersect_ray_triangle(ray, position(), verts[i], verts[vm::succ(i, 4)]);
+                if (!vm::is_nan(distance)) {
                     minDistance = vm::min(distance, minDistance);
                 }
             }
@@ -180,7 +180,7 @@ namespace TrenchBroom {
 
         vm::vec2f PerspectiveCamera::getFrustum() const {
             const auto& viewport = this->viewport();
-            const auto v = std::tan(vm::toRadians(zoomedFov()) / 2.0f) * 0.75f * nearPlane();
+            const auto v = std::tan(vm::to_radians(zoomedFov()) / 2.0f) * 0.75f * nearPlane();
             const auto h = v * static_cast<float>(viewport.width) / static_cast<float>(viewport.height);
             return vm::vec2f(h, v);
         }
@@ -192,7 +192,7 @@ namespace TrenchBroom {
 
         float PerspectiveCamera::viewportFrustumDistance() const {
             const auto height = static_cast<float>(viewport().height);
-            return (height / 2.0f) / std::tan(vm::toRadians(zoomedFov()) / 2.0f);
+            return (height / 2.0f) / std::tan(vm::to_radians(zoomedFov()) / 2.0f);
         }
 
         bool PerspectiveCamera::isValidZoom(const float zoom) const {

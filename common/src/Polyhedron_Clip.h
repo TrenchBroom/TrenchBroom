@@ -81,13 +81,13 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const vm::pla
 
         auto it = std::max_element(std::begin(m_vertices), std::end(m_vertices),
                                    [&plane](const Vertex* lhs, const Vertex* rhs) {
-            const T lhsDist = vm::abs(plane.pointDistance(lhs->position()));
-            const T rhsDist = vm::abs(plane.pointDistance(rhs->position()));
+            const T lhsDist = vm::abs(plane.point_distance(lhs->position()));
+            const T rhsDist = vm::abs(plane.point_distance(rhs->position()));
             return lhsDist < rhsDist;
         });
 
         assert(it != std::end(m_vertices));
-        if (plane.pointStatus((*it)->position()) == vm::point_status::below) {
+        if (plane.point_status((*it)->position()) == vm::plane_status::below) {
             // The furthest point is below the plane.
             return ClipResult(ClipResult::Type_ClipUnchanged);
         } else {
@@ -126,15 +126,15 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::checkIntersects(co
     const Vertex* firstVertex = m_vertices.front();
     const Vertex* currentVertex = firstVertex;
     do {
-        const vm::point_status status = plane.pointStatus(currentVertex->position());
+        const vm::plane_status status = plane.point_status(currentVertex->position());
         switch (status) {
-            case vm::point_status::above:
+            case vm::plane_status::above:
                 ++above;
                 break;
-            case vm::point_status::below:
+            case vm::plane_status::below:
                 ++below;
                 break;
-            case vm::point_status::inside:
+            case vm::plane_status::inside:
                 ++inside;
                 break;
             switchDefault()
@@ -205,41 +205,41 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::findInitialIntersec
     Edge* currentEdge = firstEdge;
     do {
         HalfEdge* halfEdge = currentEdge->firstEdge();
-        const vm::point_status os = plane.pointStatus(halfEdge->origin()->position());
-        const vm::point_status ds = plane.pointStatus(halfEdge->destination()->position());
+        const vm::plane_status os = plane.point_status(halfEdge->origin()->position());
+        const vm::plane_status ds = plane.point_status(halfEdge->destination()->position());
 
 
-        if ((os == vm::point_status::inside && ds == vm::point_status::above) ||
-            (os == vm::point_status::below  && ds == vm::point_status::above)) {
+        if ((os == vm::plane_status::inside && ds == vm::plane_status::above) ||
+            (os == vm::plane_status::below  && ds == vm::plane_status::above)) {
             return halfEdge->twin();
         }
-        if ((os == vm::point_status::above  && ds == vm::point_status::inside) ||
-            (os == vm::point_status::above  && ds == vm::point_status::below)) {
+        if ((os == vm::plane_status::above  && ds == vm::plane_status::inside) ||
+            (os == vm::plane_status::above  && ds == vm::plane_status::below)) {
             return halfEdge;
         }
-        
-        if (os == vm::point_status::inside && ds == vm::point_status::inside) {
+
+        if (os == vm::plane_status::inside && ds == vm::plane_status::inside) {
             // If both ends of the edge are inside the plane, we must ensure that we return the correct
             // half edge, which is either the current one or its twin. Since the returned half edge is supposed
             // to be clipped away, we must examine the destination of its successor(s). If that is below the plane,
             // we return the twin, otherwise we return the half edge.
             HalfEdge* nextEdge = halfEdge->next();
-            vm::point_status ss = plane.pointStatus(nextEdge->destination()->position());
-            
-            while (ss == vm::point_status::inside && nextEdge != halfEdge) {
+            vm::plane_status ss = plane.point_status(nextEdge->destination()->position());
+
+            while (ss == vm::plane_status::inside && nextEdge != halfEdge) {
                 // Due to floating point imprecision, we might run into the case where the successor's destination is
                 // still considered "inside" the plane. In this case, we consider the successor's successor and so on
                 // until we find an edge whose destination is not inside the plane.
                 nextEdge = nextEdge->next();
-                ss = plane.pointStatus(nextEdge->destination()->position());
+                ss = plane.point_status(nextEdge->destination()->position());
             }
-            
-            if (ss == vm::point_status::inside) {
+
+            if (ss == vm::plane_status::inside) {
                 // We couldn't find a successor whose destination is inside the plane, so we must give up.
                 return nullptr;
             }
-            
-            if (ss == vm::point_status::below) {
+
+            if (ss == vm::plane_status::below) {
                 return halfEdge->twin();
             } else {
                 return halfEdge;
@@ -268,18 +268,18 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(
 
     HalfEdge* currentBoundaryEdge = firstBoundaryEdge;
     do {
-        const vm::point_status os = plane.pointStatus(currentBoundaryEdge->origin()->position());
-        const vm::point_status ds = plane.pointStatus(currentBoundaryEdge->destination()->position());
+        const vm::plane_status os = plane.point_status(currentBoundaryEdge->origin()->position());
+        const vm::plane_status ds = plane.point_status(currentBoundaryEdge->destination()->position());
 
-        if (os == vm::point_status::inside) {
+        if (os == vm::plane_status::inside) {
             if (seamOrigin == nullptr) {
                 seamOrigin = currentBoundaryEdge;
             } else {
                 seamDestination = currentBoundaryEdge;
             }
             currentBoundaryEdge = currentBoundaryEdge->next();
-        } else if ((os == vm::point_status::below && ds == vm::point_status::above) ||
-                   (os == vm::point_status::above && ds == vm::point_status::below)) {
+        } else if ((os == vm::plane_status::below && ds == vm::plane_status::above) ||
+                   (os == vm::plane_status::above && ds == vm::plane_status::below)) {
             // We have to split the edge and insert a new vertex, which will become the origin or destination of the new seam edge.
             Edge* currentEdge = currentBoundaryEdge->edge();
             Edge* newEdge = currentEdge->split(plane);
@@ -287,7 +287,7 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(
 
             currentBoundaryEdge = currentBoundaryEdge->next();
             Vertex* newVertex = currentBoundaryEdge->origin();
-            assert(plane.pointStatus(newVertex->position()) == vm::point_status::inside);
+            assert(plane.point_status(newVertex->position()) == vm::plane_status::inside);
 
             m_vertices.append(newVertex, 1);
             callback.vertexWasCreated(newVertex);
@@ -311,9 +311,9 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(
         // between them.
         // The newly created faces are supposed to be above the given plane, so we have to consider whether the destination of the
         // seam origin edge is above or below the plane.
-        const vm::point_status os = plane.pointStatus(seamOrigin->destination()->position());
-        assert(os != vm::point_status::inside);
-        if (os == vm::point_status::below) {
+        const vm::plane_status os = plane.point_status(seamOrigin->destination()->position());
+        assert(os != vm::plane_status::inside);
+        if (os == vm::plane_status::below) {
             intersectWithPlane(seamOrigin, seamDestination, callback);
         } else {
             intersectWithPlane(seamDestination, seamOrigin, callback);
@@ -362,12 +362,12 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::findNextIntersectin
 
         Vertex* cd = currentEdge->destination();
         Vertex* po = currentEdge->previous()->origin();
-        const vm::point_status cds = plane.pointStatus(cd->position());
-        const vm::point_status pos = plane.pointStatus(po->position());
+        const vm::plane_status cds = plane.point_status(cd->position());
+        const vm::plane_status pos = plane.point_status(po->position());
 
-        if ((cds == vm::point_status::inside) ||
-            (cds == vm::point_status::below && pos == vm::point_status::above) ||
-            (cds == vm::point_status::above && pos == vm::point_status::below)) {
+        if ((cds == vm::plane_status::inside) ||
+            (cds == vm::plane_status::below && pos == vm::plane_status::above) ||
+            (cds == vm::plane_status::above && pos == vm::plane_status::below)) {
             return currentEdge;
         }
 

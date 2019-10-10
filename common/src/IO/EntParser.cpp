@@ -341,8 +341,8 @@ namespace TrenchBroom {
 
             const auto it = std::begin(parts);
             vm::bbox3 result;
-            result.min = vm::vec3::parse(StringUtils::join(it, std::next(it, 3), " ", " ", " ", StringUtils::StringToString()));
-            result.max = vm::vec3::parse(StringUtils::join(std::next(it, 3), std::end(parts), " ", " ", " ", StringUtils::StringToString()));
+            result.min = vm::parse<FloatType, 3>(StringUtils::join(it, std::next(it, 3), " ", " ", " ", StringUtils::StringToString()));
+            result.max = vm::parse<FloatType, 3>(StringUtils::join(std::next(it, 3), std::end(parts), " ", " ", " ", StringUtils::StringToString()));
             return result;
         }
 

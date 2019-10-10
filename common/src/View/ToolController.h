@@ -213,7 +213,7 @@ namespace TrenchBroom {
             const Grid& m_grid;
             vm::vec3 m_offset;
         public:
-            explicit AbsoluteDragSnapper(const Grid& grid, const vm::vec3& offset = vm::vec3::zero);
+            explicit AbsoluteDragSnapper(const Grid& grid, const vm::vec3& offset = vm::vec3::zero());
         private:
             bool doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const override;
         };

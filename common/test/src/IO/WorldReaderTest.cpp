@@ -58,7 +58,7 @@ namespace TrenchBroom {
 }
 })");
 
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -69,7 +69,7 @@ namespace TrenchBroom {
 
         TEST(WorldReaderTest, parseEmptyMap) {
             const String data("");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -83,7 +83,7 @@ namespace TrenchBroom {
 
         TEST(WorldReaderTest, parseMapWithEmptyEntity) {
             const String data("{}");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -103,7 +103,7 @@ namespace TrenchBroom {
 }
 )");
 
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -131,7 +131,7 @@ namespace TrenchBroom {
 }
 )");
 
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -168,7 +168,7 @@ namespace TrenchBroom {
 ( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) tex6 0 0 0 1 1
 }
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -218,7 +218,7 @@ namespace TrenchBroom {
 ( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) none 0 0 0 1 1
 }
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -256,7 +256,7 @@ namespace TrenchBroom {
 ( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) none 0 0 0 1 1
 }
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -298,7 +298,7 @@ namespace TrenchBroom {
 ( 287 152 208 ) ( 287 152 176 ) ( 323 116 176 ) mt_sr_v13 -65 -111 -180 1 1
 }
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -339,7 +339,7 @@ namespace TrenchBroom {
 ( -559 1090 96 ) ( -598 1090 96 ) ( -598 1055 96 ) mt_sr_v13 -16 0 0 1 1
 }
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -364,7 +364,7 @@ namespace TrenchBroom {
 ( -32 1136 32 ) ( -32 1152 -96 ) ( -32 1120 -96 ) b_rc_v4 0 32 90 1 1
 }
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -389,7 +389,7 @@ namespace TrenchBroom {
 ( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) METAL4_5 [ 1 0 0 64 ] [ 0 -1 0 0 ] 0 1 1
 }
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -414,7 +414,7 @@ namespace TrenchBroom {
 ( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0
 }
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -439,7 +439,7 @@ namespace TrenchBroom {
 ( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0
 }
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -451,11 +451,11 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
 
             const auto* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
-            ASSERT_TRUE(vm::isEqual(Color(5, 6, 7), brush->findFace("rtz/c_mf_v3cw")->color(), 0.1f));
+            ASSERT_TRUE(vm::is_equal(Color(5, 6, 7), brush->findFace("rtz/c_mf_v3cw")->color(), 0.1f));
             ASSERT_EQ(1, brush->findFace("rtz/b_rc_v16w")->surfaceContents());
             ASSERT_EQ(2, brush->findFace("rtz/b_rc_v16w")->surfaceFlags());
             ASSERT_FLOAT_EQ(3.0, brush->findFace("rtz/b_rc_v16w")->surfaceValue());
-            ASSERT_TRUE(isEqual(Color(8, 9, 10), brush->findFace("rtz/b_rc_v16w")->color(), 0.1f));
+            ASSERT_TRUE(vm::is_equal(Color(8, 9, 10), brush->findFace("rtz/b_rc_v16w")->color(), 0.1f));
             ASSERT_FALSE(brush->findFace("rtz/c_mf_v3cww")->hasColor());
         }
 
@@ -488,7 +488,7 @@ namespace TrenchBroom {
 }
 )");
 
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -513,7 +513,7 @@ namespace TrenchBroom {
 ( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) c_mf_v3c 16 96 0 1 1
 }
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -560,7 +560,7 @@ namespace TrenchBroom {
 ( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
 }
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -619,7 +619,7 @@ namespace TrenchBroom {
 ( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
 }
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -694,7 +694,7 @@ namespace TrenchBroom {
 ( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
 }
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -730,7 +730,7 @@ namespace TrenchBroom {
                 }
             })");
 
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -766,7 +766,7 @@ brushDef
 }
 })");
 
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -794,7 +794,7 @@ common/caulk
 }
 }
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -814,7 +814,7 @@ common/caulk
 "classname" "worldspawn"
 })");
 
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -828,7 +828,7 @@ common/caulk
 "classname" "worldspawn"
 "message" "yay \"Mr. Robot!\""
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -849,7 +849,7 @@ common/caulk
 "classname" "worldspawn"
 "path" "c:\a\b\c\"
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -870,7 +870,7 @@ common/caulk
 "classname" "worldspawn"
 "path" "c:\\a\\b\\c\\"
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -892,7 +892,7 @@ common/caulk
 "message" "test\\"
 })"
             );
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);
@@ -914,7 +914,7 @@ common/caulk
 "classname" "worldspawn"
 "message" "vm::line1\nvm::line2"
 })");
-            vm::bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
             WorldReader reader(data);

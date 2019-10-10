@@ -10,6 +10,8 @@ add_executable(dump-shortcuts ${DUMP_SHORTCUTS_SOURCE})
 target_include_directories(dump-shortcuts PRIVATE ${DUMP_SHORTCUTS_SOURCE_DIR})
 target_link_libraries(dump-shortcuts PRIVATE common)
 
+set_compiler_config(dump-shortcuts)
+
 # Organize files into IDE folders
 source_group(TREE "${COMMON_TEST_SOURCE_DIR}" FILES ${COMMON_TEST_SOURCE})
 

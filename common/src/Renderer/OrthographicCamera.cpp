@@ -60,8 +60,8 @@ namespace TrenchBroom {
             const auto w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
             const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
 
-            projectionMatrix = vm::orthoMatrix(nearPlane(), farPlane(), -w2, h2, w2, -h2);
-            viewMatrix = vm::viewMatrix(direction(), up()) * vm::translationMatrix(-position());
+            projectionMatrix = vm::ortho_matrix(nearPlane(), farPlane(), -w2, h2, w2, -h2);
+            viewMatrix = vm::view_matrix(direction(), up()) * vm::translation_matrix(-position());
         }
 
         vm::ray3f OrthographicCamera::doGetPickRay(const vm::vec3f& point) const {

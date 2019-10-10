@@ -20,15 +20,14 @@
 #include "ToolController.h"
 
 #include "TrenchBroom.h"
-#include "Model/Brush.h"
 #include "View/Grid.h"
 #include "View/Tool.h"
 
-#include <vecmath/vec.h>
-#include <vecmath/line.h>
-#include <vecmath/plane.h>
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>
+#include <vecmath/line.h>
+#include <vecmath/plane.h>
+#include <vecmath/vec.h>
 
 
 namespace TrenchBroom {
@@ -71,11 +70,11 @@ namespace TrenchBroom {
         m_plane(plane) {}
 
         bool PlaneDragRestricter::doComputeHitPoint(const InputState& inputState, vm::vec3& point) const {
-            const auto distance = vm::intersectRayAndPlane(inputState.pickRay(), m_plane);
-            if (vm::isnan(distance)) {
+            const auto distance = vm::intersect_ray_plane(inputState.pickRay(), m_plane);
+            if (vm::is_nan(distance)) {
                 return false;
             } else {
-                point = inputState.pickRay().pointAtDistance(distance);
+                point = vm::point_at_distance(inputState.pickRay(), distance);
                 return true;
             }
         }
@@ -102,11 +101,11 @@ namespace TrenchBroom {
 
         bool CircleDragRestricter::doComputeHitPoint(const InputState& inputState, vm::vec3& point) const {
             const auto plane = vm::plane3(m_center, m_normal);
-            const auto distance = vm::intersectRayAndPlane(inputState.pickRay(), plane);
-            if (vm::isnan(distance)) {
+            const auto distance = vm::intersect_ray_plane(inputState.pickRay(), plane);
+            if (vm::is_nan(distance)) {
                 return false;
             } else {
-                const auto hitPoint = inputState.pickRay().pointAtDistance(distance);
+                const auto hitPoint = vm::point_at_distance(inputState.pickRay(), distance);
                 const auto direction = normalize(hitPoint - m_center);
                 point = m_center + m_radius * direction;
                 return true;
@@ -189,7 +188,7 @@ namespace TrenchBroom {
                 vm::vec3 curPoint = originalCurPoint;
                 if (delegate->snap(inputState, initialPoint, lastPoint, curPoint)) {
                     if (anySnapped) {
-                        if (squaredDistance(curPoint, originalCurPoint) < squaredDistance(bestPoint, originalCurPoint)) {
+                        if (vm::squared_distance(curPoint, originalCurPoint) < vm::squared_distance(bestPoint, originalCurPoint)) {
                             bestPoint = curPoint;
                         }
                     } else {
@@ -243,19 +242,20 @@ namespace TrenchBroom {
         m_normal(normal),
         m_radius(radius) {
             assert(m_start != m_center);
-            assert(isUnit(m_normal, vm::C::almostZero()));
+            assert(vm::is_unit(m_normal, vm::C::almost_zero()));
             assert(m_radius > 0.0);
         }
 
         bool CircleDragSnapper::doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const {
-            if (curPoint == m_center)
+            if (curPoint == m_center) {
                 return false;
+            }
 
-            const vm::vec3 ref = normalize(m_start - m_center);
-            const vm::vec3 vec = normalize(curPoint - m_center);
-            const FloatType angle = measureAngle(vec, ref, m_normal);
+            const vm::vec3 ref = vm::normalize(m_start - m_center);
+            const vm::vec3 vec = vm::normalize(curPoint - m_center);
+            const FloatType angle = vm::measure_angle(vec, ref, m_normal);
             const FloatType snapped = m_grid.snapAngle(angle, vm::abs(m_snapAngle));
-            const FloatType canonical = snapped - vm::snapDown(snapped, vm::C::twoPi());
+            const FloatType canonical = snapped - vm::snapDown(snapped, vm::C::two_pi());
             const vm::quat3 rotation(m_normal, canonical);
             const vm::vec3 rot = rotation * ref;
             curPoint = m_center + m_radius * rot;
@@ -267,8 +267,9 @@ namespace TrenchBroom {
 
         bool SurfaceDragSnapper::doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const {
             const Model::Hit& hit = query(inputState).first();
-            if (!hit.isMatch())
+            if (!hit.isMatch()) {
                 return false;
+            }
 
             const vm::plane3& plane = doGetPlane(inputState, hit);
             curPoint = m_grid.snap(hit.hitPoint(), plane);
@@ -445,10 +446,10 @@ namespace TrenchBroom {
         }
 
         void RestrictedDragPolicy::resetInitialPoint(const InputState& inputState) {
-            assertResult(hitPoint(inputState, m_initialMousePosition));
+            assertResult(hitPoint(inputState, m_initialMousePosition))
             m_currentMousePosition = m_initialHandlePosition = m_initialMousePosition;
 
-            assertResult(snapPoint(inputState, m_initialHandlePosition));
+            assertResult(snapPoint(inputState, m_initialHandlePosition))
             m_currentHandlePosition = m_initialHandlePosition;
         }
 

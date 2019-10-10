@@ -57,34 +57,34 @@ namespace TrenchBroom {
         Brush* BrushBuilder::createCuboid(const vm::bbox3& bounds, const String& leftTexture, const String& rightTexture, const String& frontTexture, const String& backTexture, const String& topTexture, const String& bottomTexture) const {
             BrushFaceList faces(6);
             // left face
-            faces[0] = m_factory->createFace(bounds.min + vm::vec3::zero,
-                                             bounds.min + vm::vec3::pos_y,
-                                             bounds.min + vm::vec3::pos_z,
+            faces[0] = m_factory->createFace(bounds.min + vm::vec3::zero(),
+                                             bounds.min + vm::vec3::pos_y(),
+                                             bounds.min + vm::vec3::pos_z(),
                                              leftTexture);
             // right face
-            faces[1] = m_factory->createFace(bounds.max + vm::vec3::zero,
-                                             bounds.max + vm::vec3::pos_z,
-                                             bounds.max + vm::vec3::pos_y,
+            faces[1] = m_factory->createFace(bounds.max + vm::vec3::zero(),
+                                             bounds.max + vm::vec3::pos_z(),
+                                             bounds.max + vm::vec3::pos_y(),
                                              rightTexture);
             // front face
-            faces[2] = m_factory->createFace(bounds.min + vm::vec3::zero,
-                                             bounds.min + vm::vec3::pos_z,
-                                             bounds.min + vm::vec3::pos_x,
+            faces[2] = m_factory->createFace(bounds.min + vm::vec3::zero(),
+                                             bounds.min + vm::vec3::pos_z(),
+                                             bounds.min + vm::vec3::pos_x(),
                                              frontTexture);
             // back face
-            faces[3] = m_factory->createFace(bounds.max + vm::vec3::zero,
-                                             bounds.max + vm::vec3::pos_x,
-                                             bounds.max + vm::vec3::pos_z,
+            faces[3] = m_factory->createFace(bounds.max + vm::vec3::zero(),
+                                             bounds.max + vm::vec3::pos_x(),
+                                             bounds.max + vm::vec3::pos_z(),
                                              backTexture);
             // top face
-            faces[4] = m_factory->createFace(bounds.max + vm::vec3::zero,
-                                             bounds.max + vm::vec3::pos_y,
-                                             bounds.max + vm::vec3::pos_x,
+            faces[4] = m_factory->createFace(bounds.max + vm::vec3::zero(),
+                                             bounds.max + vm::vec3::pos_y(),
+                                             bounds.max + vm::vec3::pos_x(),
                                              topTexture);
             // bottom face
-            faces[5] = m_factory->createFace(bounds.min + vm::vec3::zero,
-                                             bounds.min + vm::vec3::pos_x,
-                                             bounds.min + vm::vec3::pos_y,
+            faces[5] = m_factory->createFace(bounds.min + vm::vec3::zero(),
+                                             bounds.min + vm::vec3::pos_x(),
+                                             bounds.min + vm::vec3::pos_y(),
                                              bottomTexture);
 
             return m_factory->createBrush(m_worldBounds, faces);

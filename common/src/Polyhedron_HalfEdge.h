@@ -72,7 +72,7 @@ T Polyhedron<T,FP,VP>::HalfEdge::length() const {
 
 template <typename T, typename FP, typename VP>
 T Polyhedron<T,FP,VP>::HalfEdge::squaredLength() const {
-    return vm::squaredLength(vector());
+    return vm::squared_length(vector());
 }
 
 template <typename T, typename FP, typename VP>
@@ -120,7 +120,7 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::HalfEdge::hasOrigins(const std::vector<V>& origins, const T epsilon) const {
     const HalfEdge* edge = this;
     for (const V& origin : origins) {
-        if (!isEqual(edge->origin()->position(), origin, epsilon)) {
+        if (!vm::is_equal(edge->origin()->position(), origin, epsilon)) {
             return false;
         }
         edge = edge->next();
@@ -129,10 +129,10 @@ bool Polyhedron<T,FP,VP>::HalfEdge::hasOrigins(const std::vector<V>& origins, co
 }
 
 template <typename T, typename FP, typename VP>
-vm::point_status Polyhedron<T,FP,VP>::HalfEdge::pointStatus(const V& faceNormal, const V& point) const {
+vm::plane_status Polyhedron<T,FP,VP>::HalfEdge::pointStatus(const V& faceNormal, const V& point) const {
     const auto normal = normalize(cross(normalize(vector()), faceNormal));
     const auto plane = vm::plane<T,3>(origin()->position(), normal);
-    return plane.pointStatus(point);
+    return plane.point_status(point);
 }
 
 template <typename T, typename FP, typename VP>
@@ -150,7 +150,7 @@ bool Polyhedron<T,FP,VP>::HalfEdge::colinear(const HalfEdge* other) const {
     const auto& p1 = destination()->position();
     const auto& p2 = other->destination()->position();
 
-    return vm::colinear(p0, p1, p2) && vm::dot(vector(), other->vector()) > 0.0;
+    return vm::is_colinear(p0, p1, p2) && vm::dot(vector(), other->vector()) > 0.0;
 }
 
 template <typename T, typename FP, typename VP>

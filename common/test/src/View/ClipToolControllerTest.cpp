@@ -78,7 +78,7 @@ namespace TrenchBroom {
             const Renderer::Camera::Viewport viewport(0, 0, 1920, 1080);
 
             // Camera at 0 -160 64 looking towards +y
-            Renderer::PerspectiveCamera camera(90.0f, 1.0f, 8000.0f, viewport, vm::vec3f(0.0f, -160.0f, 64.0f), vm::vec3f::pos_y, vm::vec3f::pos_z);
+            Renderer::PerspectiveCamera camera(90.0f, 1.0f, 8000.0f, viewport, vm::vec3f(0.0f, -160.0f, 64.0f), vm::vec3f::pos_y(), vm::vec3f::pos_z());
 
             // The following test places these 2 clip points
             const auto clipPoint1 = vm::vec3(-16, -16, 52);

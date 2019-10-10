@@ -20,7 +20,6 @@
 #include "TransformObjectsCommand.h"
 
 #include "TrenchBroom.h"
-#include "Macros.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <vecmath/mat.h>
@@ -32,32 +31,32 @@ namespace TrenchBroom {
         const Command::CommandType TransformObjectsCommand::Type = Command::freeType();
 
         TransformObjectsCommand::Ptr TransformObjectsCommand::translate(const vm::vec3& delta, const bool lockTextures) {
-            const auto transform = vm::translationMatrix(delta);
+            const auto transform = vm::translation_matrix(delta);
             return Ptr(new TransformObjectsCommand(Action_Translate, "Move Objects", transform, lockTextures));
         }
 
         TransformObjectsCommand::Ptr TransformObjectsCommand::rotate(const vm::vec3& center, const vm::vec3& axis, const FloatType angle, const bool lockTextures) {
-            const auto transform = vm::translationMatrix(center) * vm::rotationMatrix(axis, angle) * vm::translationMatrix(-center);
+            const auto transform = vm::translation_matrix(center) * vm::rotation_matrix(axis, angle) * vm::translation_matrix(-center);
             return Ptr(new TransformObjectsCommand(Action_Rotate, "Rotate Objects", transform, lockTextures));
         }
 
         TransformObjectsCommand::Ptr TransformObjectsCommand::scale(const vm::bbox3& oldBBox, const vm::bbox3& newBBox, const bool lockTextures) {
-            const auto transform = scaleBBoxMatrix(oldBBox, newBBox);
+            const auto transform = vm::scale_bbox_matrix(oldBBox, newBBox);
             return Ptr(new TransformObjectsCommand(Action_Scale, "Scale Objects", transform, lockTextures));
         }
 
         TransformObjectsCommand::Ptr TransformObjectsCommand::scale(const vm::vec3& center, const vm::vec3& scaleFactors, const bool lockTextures) {
-            const auto transform = vm::translationMatrix(center) * vm::scalingMatrix(scaleFactors) * vm::translationMatrix(-center);
+            const auto transform = vm::translation_matrix(center) * vm::scaling_matrix(scaleFactors) * vm::translation_matrix(-center);
             return Ptr(new TransformObjectsCommand(Action_Scale, "Scale Objects", transform, lockTextures));
         }
 
         TransformObjectsCommand::Ptr TransformObjectsCommand::shearBBox(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta, const bool lockTextures) {
-            const auto transform = vm::shearBBoxMatrix(box, sideToShear, delta);
+            const auto transform = vm::shear_bbox_matrix(box, sideToShear, delta);
             return Ptr(new TransformObjectsCommand(Action_Shear, "Shear Objects", transform, lockTextures));
         }
 
         TransformObjectsCommand::Ptr TransformObjectsCommand::flip(const vm::vec3& center, const vm::axis::type axis, const bool lockTextures) {
-            const auto transform = vm::translationMatrix(center) * vm::mirrorMatrix<FloatType>(axis) * vm::translationMatrix(-center);
+            const auto transform = vm::translation_matrix(center) * vm::mirror_matrix<FloatType>(axis) * vm::translation_matrix(-center);
             return Ptr(new TransformObjectsCommand(Action_Flip, "Flip Objects", transform, lockTextures));
         }
 

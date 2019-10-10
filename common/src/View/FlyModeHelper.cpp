@@ -53,7 +53,7 @@ namespace TrenchBroom {
 
             if (anyKeyDown()) {
                 const auto delta = moveDelta(time);
-                if (!isZero(delta, vm::Cf::almostZero())) {
+                if (!vm::is_zero(delta, vm::Cf::almost_zero())) {
                     m_camera.moveBy(delta);
                 }
             }
@@ -165,10 +165,10 @@ namespace TrenchBroom {
                 delta = delta + m_camera.right() * dist;
             }
             if (m_up) {
-                delta = delta + vm::vec3f::pos_z * dist;
+                delta = delta + vm::vec3f::pos_z() * dist;
             }
             if (m_down) {
-                delta = delta - vm::vec3f::pos_z * dist;
+                delta = delta - vm::vec3f::pos_z() * dist;
             }
             return delta;
         }

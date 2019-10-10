@@ -1,5 +1,4 @@
 add_subdirectory(googletest)
-add_subdirectory(googlemock)
 add_subdirectory(stackwalker)
 add_subdirectory(optional-lite)
 add_subdirectory(glew)

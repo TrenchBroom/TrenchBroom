@@ -95,7 +95,7 @@ namespace TrenchBroom {
         }
 
         const vm::mat4x4 Entity::modelTransformation() const {
-            return vm::translationMatrix(origin()) * rotation();
+            return vm::translation_matrix(origin()) * rotation();
         }
 
         FloatType Entity::area(vm::axis::type axis) const {
@@ -113,9 +113,9 @@ namespace TrenchBroom {
         }
 
         void Entity::cacheAttributes() {
-            m_cachedOrigin = vm::vec3::parse(attribute(AttributeNames::Origin, ""), vm::vec3::zero);
-            if (vm::isNaN(m_cachedOrigin)) {
-                m_cachedOrigin = vm::vec3::zero;
+            m_cachedOrigin = vm::parse<FloatType, 3>(attribute(AttributeNames::Origin, ""), vm::vec3::zero());
+            if (vm::is_nan(m_cachedOrigin)) {
+                m_cachedOrigin = vm::vec3::zero();
             }
             m_cachedRotation = EntityRotationPolicy::getRotation(this);
         }
@@ -242,9 +242,9 @@ namespace TrenchBroom {
             if (!hasChildren()) {
                 const vm::bbox3& myBounds = definitionBounds();
                 if (!myBounds.contains(ray.origin)) {
-                    const FloatType distance = vm::intersectRayAndBBox(ray, myBounds);
-                    if (!vm::isnan(distance)) {
-                        const vm::vec3 hitPoint = ray.pointAtDistance(distance);
+                    const FloatType distance = vm::intersect_ray_bbox(ray, myBounds);
+                    if (!vm::is_nan(distance)) {
+                        const vm::vec3 hitPoint = vm::point_at_distance(ray, distance);
                         pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
                         return;
                     }
@@ -258,9 +258,9 @@ namespace TrenchBroom {
                     if (invertible) {
                         const auto transformedRay = ray.transform(inverse);
                         const auto distance = m_modelFrame->intersect(vm::ray3f(transformedRay));
-                        if (!vm::isnan(distance)) {
+                        if (!vm::is_nan(distance)) {
                             // transform back to world space
-                            const auto transformedHitPoint = vm::vec3(transformedRay.pointAtDistance(distance));
+                            const auto transformedHitPoint = vm::vec3(point_at_distance(transformedRay, distance));
                             const auto hitPoint = transform * transformedHitPoint;
                             pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
                             return;
@@ -378,8 +378,8 @@ namespace TrenchBroom {
 
                 // applying rotation has side effects (e.g. normalizing "angles")
                 // so only do it if there is actually some rotation.
-                const auto rotation = vm::stripTranslation(transformation);
-                if (rotation != vm::mat4x4::identity) {
+                const auto rotation = vm::strip_translation(transformation);
+                if (rotation != vm::mat4x4::identity()) {
                     applyRotation(rotation);
                 }
             }

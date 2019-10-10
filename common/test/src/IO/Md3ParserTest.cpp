@@ -62,7 +62,7 @@ namespace TrenchBroom {
 
             const auto* frame = model->frame("MilkShape 3D");
             ASSERT_NE(nullptr, frame);
-            ASSERT_TRUE(vm::isEqual(vm::bbox3f(vm::vec3f(-10.234375, -10.765625, -9.4375), vm::vec3f(30.34375, 10.765625, 11.609375)), frame->bounds(), 0.01f));
+            ASSERT_TRUE(vm::is_equal(vm::bbox3f(vm::vec3f(-10.234375, -10.765625, -9.4375), vm::vec3f(30.34375, 10.765625, 11.609375)), frame->bounds(), 0.01f));
 
             const auto* surface1 = model->surface("x_bfg");
             ASSERT_NE(nullptr, surface1);

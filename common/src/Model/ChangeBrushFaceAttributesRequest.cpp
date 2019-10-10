@@ -277,9 +277,9 @@ namespace TrenchBroom {
 
         void ChangeBrushFaceAttributesRequest::resetAll() {
             resetTextureAxes();
-            setOffset(vm::vec2f::zero);
+            setOffset(vm::vec2f::zero());
             setRotation(0.0f);
-            setScale(vm::vec2f::one);
+            setScale(vm::vec2f::one());
         }
 
         void ChangeBrushFaceAttributesRequest::setTexture(Assets::Texture* texture) {

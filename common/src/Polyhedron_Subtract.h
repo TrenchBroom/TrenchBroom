@@ -104,9 +104,9 @@ private:
         using VList = std::vector<V>;
 
         auto it = std::begin(planes);
-        it = sortPlanes(it, std::end(planes), VList({ V::pos_x, V::pos_y, V::pos_z }));
-        it = sortPlanes(it, std::end(planes), VList({ V::pos_y, V::pos_x, V::pos_z }));
-             sortPlanes(it, std::end(planes), VList({ V::pos_z, V::pos_x, V::pos_y }));
+        it = sortPlanes(it, std::end(planes), VList({ V::pos_x(), V::pos_y(), V::pos_z() }));
+        it = sortPlanes(it, std::end(planes), VList({ V::pos_y(), V::pos_x(), V::pos_z() }));
+             sortPlanes(it, std::end(planes), VList({ V::pos_z(), V::pos_x(), V::pos_y() }));
 
         return planes;
     }

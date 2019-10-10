@@ -177,9 +177,9 @@ namespace TrenchBroom {
                     }
 
                     std::vector<vm::vec3> stages(3);
-                    stages[0] = vec * vm::vec3::pos_x;
-                    stages[1] = vec * vm::vec3::pos_y;
-                    stages[2] = vec * vm::vec3::pos_z;
+                    stages[0] = vec * vm::vec3::pos_x();
+                    stages[1] = vec * vm::vec3::pos_y();
+                    stages[2] = vec * vm::vec3::pos_z();
 
                     std::vector<Color> colors(3);
                     colors[0] = pref(Preferences::XAxisColor);
@@ -206,25 +206,23 @@ namespace TrenchBroom {
 
             virtual DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const vm::vec3& curPoint) const {
                 const auto& camera = inputState.camera();
-                if (camera.perspectiveProjection()) {
-                    return new PlaneDragRestricter(vm::plane3(curPoint, vm::vec3::pos_z));
-                } else {
-                    return new PlaneDragRestricter(vm::plane3(curPoint, vm::vec3(firstAxis(camera.direction()))));
-                }
+                const auto axis = camera.perspectiveProjection() ? vm::vec3::pos_z() : vm::vec3(vm::get_abs_max_component_axis(camera.direction()));
+                return new PlaneDragRestricter(vm::plane3(curPoint, axis));
             }
 
             virtual DragRestricter* doCreateVerticalDragRestricter(const InputState& inputState, const vm::vec3& curPoint) const {
                 const auto& camera = inputState.camera();
                 if (camera.perspectiveProjection()) {
-                    return new LineDragRestricter(vm::line3(curPoint, vm::vec3::pos_z));
+                    return new LineDragRestricter(vm::line3(curPoint, vm::vec3::pos_z()));
                 } else {
-                    return new PlaneDragRestricter(vm::plane3(curPoint, vm::vec3(firstAxis(camera.direction()))));
+                    const auto axis = vm::vec3(vm::get_abs_max_component_axis(camera.direction()));
+                    return new PlaneDragRestricter(vm::plane3(curPoint, axis));
                 }
             }
 
             virtual DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& curPoint) const {
                 const auto delta = curPoint - initialPoint;
-                const auto axis = firstAxis(delta);
+                const auto axis = vm::get_abs_max_component_axis(delta);
                 return new LineDragRestricter(vm::line3(initialPoint, axis));
             }
 

@@ -70,7 +70,7 @@ namespace TrenchBroom {
                 const BrushFace::Points& points = face->points();
                 for (size_t i = 0; i < 3; ++i) {
                     const vm::vec3& point = points[i];
-                    if (!isIntegral(point)) {
+                    if (!vm::is_integral(point)) {
                         issues.push_back(new NonIntegerPlanePointsIssue(brush));
                         return;
                     }

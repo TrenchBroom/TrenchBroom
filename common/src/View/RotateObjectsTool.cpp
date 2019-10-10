@@ -37,7 +37,7 @@ namespace TrenchBroom {
         m_document(document),
         m_toolPage(nullptr),
         m_handle(),
-        m_angle(vm::toRadians(15.0)) {}
+        m_angle(vm::to_radians(15.0)) {}
 
         bool RotateObjectsTool::doActivate() {
             resetRotationCenter();

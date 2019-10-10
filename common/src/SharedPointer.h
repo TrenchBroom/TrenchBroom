@@ -23,22 +23,26 @@
 #include <cassert>
 #include <memory>
 
+// FIXME: pass by reference
 template <typename T>
 std::shared_ptr<T> lock(std::shared_ptr<T> ptr) {
     return ptr;
 }
 
+// FIXME: pass by const reference and don't return false!
 template <typename T>
-bool expired(std::shared_ptr<T> ptr) {
+bool expired(std::shared_ptr<T> /* ptr */) {
     return false;
 }
 
+// FIXME: pass by reference
 template <typename T>
 std::shared_ptr<T> lock(std::weak_ptr<T> ptr) {
     assert(!ptr.expired());
     return ptr.lock();
 }
 
+// FIXME: pass by reference
 template <typename T>
 bool expired(std::weak_ptr<T> ptr) {
     return ptr.expired();

@@ -108,8 +108,8 @@ namespace TrenchBroom {
                 const auto handleArea = hit.target<RotateObjectsHandle::HitArea>();
                 const auto rotationCenter = m_tool->rotationCenter();
                 const auto rotationAxis = m_tool->rotationAxis(handleArea);
-                const auto startPointDistance = vm::intersectRayAndPlane(inputState.pickRay(), vm::plane3(rotationCenter, rotationAxis));
-                if (vm::isnan(startPointDistance)) {
+                const auto startPointDistance = vm::intersect_ray_plane(inputState.pickRay(), vm::plane3(rotationCenter, rotationAxis));
+                if (vm::is_nan(startPointDistance)) {
                     return DragInfo();
                 }
 
@@ -117,7 +117,7 @@ namespace TrenchBroom {
 
                 m_area = handleArea;
                 m_center = rotationCenter;
-                m_start = inputState.pickRay().pointAtDistance(startPointDistance);
+                m_start = vm::point_at_distance(inputState.pickRay(), startPointDistance);
                 m_axis = rotationAxis;
                 m_angle = 0.0;
                 const auto radius = m_tool->majorHandleRadius(inputState.camera());
@@ -125,9 +125,9 @@ namespace TrenchBroom {
             }
 
             DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
-                const vm::vec3 ref = normalize(m_start - m_center);
-                const vm::vec3 vec = normalize(nextHandlePosition - m_center);
-                m_angle = measureAngle(vec, ref, m_axis);
+                const vm::vec3 ref = vm::normalize(m_start - m_center);
+                const vm::vec3 vec = vm::normalize(nextHandlePosition - m_center);
+                m_angle = vm::measure_angle(vec, ref, m_axis);
                 m_tool->applyRotation(m_center, m_axis, m_angle);
                 return DR_Continue;
             }
@@ -175,7 +175,7 @@ namespace TrenchBroom {
                     glAssert(glDisable(GL_CULL_FACE));
                     glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
 
-                    Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(vm::vec3f(m_position)));
+                    Renderer::MultiplyModelMatrix translation(renderContext.transformation(),vm::translation_matrix(vm::vec3f(m_position)));
                     Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
                     shader.set("Color", Color(1.0f, 1.0f, 1.0f, 0.2f));
                     m_circle.render();
@@ -190,7 +190,7 @@ namespace TrenchBroom {
                 const auto startAxis = normalize(m_start - m_center);
                 const auto endAxis = vm::quat3(m_axis, m_angle) * startAxis;
 
-                renderBatch.addOneShot(new AngleIndicatorRenderer(m_center, handleRadius, firstComponent(m_axis), startAxis, endAxis));
+                renderBatch.addOneShot(new AngleIndicatorRenderer(m_center, handleRadius, vm::find_abs_max_component(m_axis), startAxis, endAxis));
             }
 
             void renderAngleText(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -198,7 +198,7 @@ namespace TrenchBroom {
 
                 renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
                 renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-                renderService.renderString(angleString(vm::toDegrees(m_angle)), vm::vec3f(m_center));
+                renderService.renderString(angleString(vm::to_degrees(m_angle)), vm::vec3f(m_center));
             }
 
             String angleString(const FloatType angle) const {

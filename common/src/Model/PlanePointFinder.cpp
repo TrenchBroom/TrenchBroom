@@ -129,7 +129,7 @@ namespace TrenchBroom {
         FloatType computePlaneFrequency(const vm::plane3& plane) {
             static const auto c = FloatType(1.0) - std::sin(vm::C::pi() / FloatType(4.0));
 
-            const auto& axis = firstAxis(plane.normal);
+            const auto axis = vm::get_abs_max_component_axis(plane.normal);
             const auto cos = dot(plane.normal, axis);
             assert(cos != FloatType(0.0));
 
@@ -138,32 +138,32 @@ namespace TrenchBroom {
 
         void setDefaultPlanePoints(const vm::plane3& plane, BrushFace::Points& points) {
             points[0] = round(plane.anchor());
-            switch (firstComponent(plane.normal)) {
+            switch (vm::find_abs_max_component(plane.normal)) {
                 case vm::axis::x:
                     if (plane.normal.x() > 0.0) {
-                        points[1] = points[0] + 64.0 * vm::vec3::pos_z;
-                        points[2] = points[0] + 64.0 * vm::vec3::pos_y;
+                        points[1] = points[0] + 64.0 * vm::vec3::pos_z();
+                        points[2] = points[0] + 64.0 * vm::vec3::pos_y();
                     } else {
-                        points[1] = points[0] + 64.0 * vm::vec3::pos_y;
-                        points[2] = points[0] + 64.0 * vm::vec3::pos_z;
+                        points[1] = points[0] + 64.0 * vm::vec3::pos_y();
+                        points[2] = points[0] + 64.0 * vm::vec3::pos_z();
                     }
                     break;
                 case vm::axis::y:
                     if (plane.normal.y() > 0.0) {
-                        points[1] = points[0] + 64.0 * vm::vec3::pos_x;
-                        points[2] = points[0] + 64.0 * vm::vec3::pos_z;
+                        points[1] = points[0] + 64.0 * vm::vec3::pos_x();
+                        points[2] = points[0] + 64.0 * vm::vec3::pos_z();
                     } else {
-                        points[1] = points[0] + 64.0 * vm::vec3::pos_z;
-                        points[2] = points[0] + 64.0 * vm::vec3::pos_x;
+                        points[1] = points[0] + 64.0 * vm::vec3::pos_z();
+                        points[2] = points[0] + 64.0 * vm::vec3::pos_x();
                     }
                     break;
                 default:
                     if  (plane.normal.z() > 0.0) {
-                        points[1] = points[0] + 64.0 * vm::vec3::pos_y;
-                        points[2] = points[0] + 64.0 * vm::vec3::pos_x;
+                        points[1] = points[0] + 64.0 * vm::vec3::pos_y();
+                        points[2] = points[0] + 64.0 * vm::vec3::pos_x();
                     } else {
-                        points[1] = points[0] + 64.0 * vm::vec3::pos_x;
-                        points[2] = points[0] + 64.0 * vm::vec3::pos_y;
+                        points[1] = points[0] + 64.0 * vm::vec3::pos_x();
+                        points[2] = points[0] + 64.0 * vm::vec3::pos_y();
                     }
                     break;
             }
@@ -174,17 +174,17 @@ namespace TrenchBroom {
 
             assert(numPoints <= 3);
 
-            if (numPoints == 3 && isIntegral(points[0]) && isIntegral(points[1]) && isIntegral(points[2])) {
+            if (numPoints == 3 && vm::is_integral(points[0]) && vm::is_integral(points[1]) && vm::is_integral(points[2])) {
                 return;
             }
 
             const auto frequency = computePlaneFrequency(plane);
-            if (vm::isZero(frequency, 1.0 / 7084.0)) {
+            if (vm::is_zero(frequency, 1.0 / 7084.0)) {
                 setDefaultPlanePoints(plane, points);
                 return;
             }
 
-            const auto axis = firstComponent(plane.normal);
+            const auto axis = vm::find_abs_max_component(plane.normal);
             const auto swizzledPlane = vm::plane3(plane.distance, swizzle(plane.normal, axis));
             for (size_t i = 0; i < 3; ++i) {
                 points[i] = swizzle(points[i], axis);
@@ -197,7 +197,7 @@ namespace TrenchBroom {
             auto cursor = GridSearchCursor(swizzledPlane, frequency);
             if (numPoints == 0) {
                 points[0] = cursor.findMinimum(swizzledPlane.anchor());
-            } else if (!isIntegral(points[0])) {
+            } else if (!vm::is_integral(points[0])) {
                 points[0] = cursor.findMinimum(points[0]);
             }
 
@@ -205,16 +205,16 @@ namespace TrenchBroom {
             FloatType cos;
             size_t count = 0;
             do {
-                if (numPoints < 2 || !isIntegral(points[1])) {
-                    points[1] = cursor.findMinimum(points[0] + FloatType(0.33) * multiplier * pointDistance * vm::vec3::pos_x);
+                if (numPoints < 2 || !vm::is_integral(points[1])) {
+                    points[1] = cursor.findMinimum(points[0] + FloatType(0.33) * multiplier * pointDistance * vm::vec3::pos_x());
                 }
-                points[2] = cursor.findMinimum(points[0] + multiplier * (pointDistance * vm::vec3::pos_y - pointDistance / FloatType(2.0) * vm::vec3::pos_x));
+                points[2] = cursor.findMinimum(points[0] + multiplier * (pointDistance * vm::vec3::pos_y() - pointDistance / FloatType(2.0) * vm::vec3::pos_x()));
                 v1 = normalize(points[2] - points[0]);
                 v2 = normalize(points[1] - points[0]);
                 cos = dot(v1, v2);
                 multiplier *= FloatType(1.5);
                 ++count;
-            } while (vm::isnan(cos) || std::abs(cos) > FloatType(0.9));
+            } while (vm::is_nan(cos) || std::abs(cos) > FloatType(0.9));
 
             v1 = cross(v1, v2);
             if ((v1.z() > 0.0) != (swizzledPlane.normal.z() > FloatType(0.0))) {

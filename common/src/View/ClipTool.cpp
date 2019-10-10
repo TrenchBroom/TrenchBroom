@@ -149,8 +149,8 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < m_numPoints; ++i) {
                     const auto& point = m_points[i].point;
                     const auto distance = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
-                    if (!vm::isnan(distance)) {
-                        const auto hitPoint = pickRay.pointAtDistance(distance);
+                    if (!vm::is_nan(distance)) {
+                        const auto hitPoint = vm::point_at_distance(pickRay, distance);
                         pickResult.addHit(Model::Hit(PointHit, distance, hitPoint, i));
                     }
                 }
@@ -170,7 +170,7 @@ namespace TrenchBroom {
             bool doComputeThirdPoint(vm::vec3& point) const override {
                 ensure(m_numPoints == 2, "invalid numPoints");
                 point = m_points[1].point + 128.0 * computeHelpVector();
-                return !colinear(m_points[0].point, m_points[1].point, point);
+                return !vm::is_colinear(m_points[0].point, m_points[1].point, point);
             }
 
             vm::vec3 computeHelpVector() const {
@@ -179,7 +179,7 @@ namespace TrenchBroom {
 
                 const auto helpVectors = combineHelpVectors();
                 for (size_t i = 0; i < helpVectors.size(); ++i) {
-                    const auto axis = firstComponent(helpVectors[i]);
+                    const auto axis = vm::find_abs_max_component(helpVectors[i]);
                     const auto index = helpVectors[i][axis] > 0.0 ? axis : axis + 3;
                     counts[index]++;
                 }
@@ -196,10 +196,10 @@ namespace TrenchBroom {
                     // two counts are equal
                     if (firstIndex % 3 == 2 || nextIndex % 3 == 2) {
                         // prefer the Z axis if possible:
-                        return vm::vec3::pos_z;
+                        return vm::vec3::pos_z();
                     } else {
                         // Z axis cannot win, so X and Y axis are a tie, prefer the X axis:
-                        return vm::vec3::pos_x;
+                        return vm::vec3::pos_x();
                     }
                 }
             }
@@ -233,12 +233,12 @@ namespace TrenchBroom {
             bool doCanAddPoint(const vm::vec3& point) const override {
                 if (m_numPoints == 3) {
                     return false;
-                } else if (m_numPoints == 2 && colinear(m_points[0].point, m_points[1].point, point)) {
+                } else if (m_numPoints == 2 && vm::is_colinear(m_points[0].point, m_points[1].point, point)) {
                     return false;
                 } else {
                     // Don't allow to place a point onto another point!
                     for (size_t i = 0; i < m_numPoints; ++i) {
-                        if (vm::isEqual(m_points[i].point, point, vm::C::almostZero())) {
+                        if (vm::is_equal(m_points[i].point, point, vm::C::almost_zero())) {
                             return false;
                         }
                     }
@@ -289,7 +289,7 @@ namespace TrenchBroom {
 
                 // Don't allow to drag a point onto another point!
                 for (size_t i = 0; i < m_numPoints; ++i) {
-                    if (m_dragIndex != i && vm::isEqual(m_points[i].point, newPosition, vm::C::almostZero())) {
+                    if (m_dragIndex != i && vm::is_equal(m_points[i].point, newPosition, vm::C::almost_zero())) {
                         return false;
                     }
                 }
@@ -312,7 +312,7 @@ namespace TrenchBroom {
                             break;
                     }
 
-                    if (colinear(m_points[index0].point, m_points[index1].point, newPosition)) {
+                    if (vm::is_colinear(m_points[index0].point, m_points[index1].point, newPosition)) {
                         return false;
                     }
                 }
@@ -445,7 +445,7 @@ namespace TrenchBroom {
 
             void doRenderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& point) const override {}
 
-            vm::vec3 doGetHelpVector() const { return vm::vec3::zero; }
+            vm::vec3 doGetHelpVector() const { return vm::vec3::zero(); }
 
             bool doComputeThirdPoint(vm::vec3& point) const override { return false; }
 
@@ -796,13 +796,13 @@ namespace TrenchBroom {
 
                 const auto bestFrontDiff = bestFrontFace->boundary().normal - frontFace->boundary().normal;
                 const auto frontDiff = face->boundary().normal - frontFace->boundary().normal;
-                if (squaredLength(frontDiff) < squaredLength(bestFrontDiff)) {
+                if (vm::squared_length(frontDiff) < vm::squared_length(bestFrontDiff)) {
                     bestFrontFace = face;
                 }
 
                 const auto bestBackDiff = bestBackFace->boundary().normal - backFace->boundary().normal;
                 const auto backDiff = face->boundary().normal - backFace->boundary().normal;
-                if (squaredLength(backDiff) < squaredLength(bestBackDiff)) {
+                if (vm::squared_length(backDiff) < vm::squared_length(bestBackDiff)) {
                     bestBackFace = face;
                 }
 

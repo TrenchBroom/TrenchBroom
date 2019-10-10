@@ -221,7 +221,7 @@ namespace TrenchBroom {
 
             m_xOffsetEditor->setIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
             m_yOffsetEditor->setIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
-            m_rotationEditor->setIncrements(vm::toDegrees(grid.angle()), 90.0, 1.0);
+            m_rotationEditor->setIncrements(vm::to_degrees(grid.angle()), 90.0, 1.0);
         }
 
         void FaceAttribsEditor::createGui(GLContextManager& contextManager) {

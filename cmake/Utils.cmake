@@ -43,6 +43,34 @@ MACRO(SET_XCODE_ATTRIBUTES TARGET)
     set_target_properties(${TARGET} PROPERTIES XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH[variant=RelWithDebInfo] NO)
 ENDMACRO(SET_XCODE_ATTRIBUTES)
 
+MACRO(set_compiler_config TARGET)
+    if(COMPILER_IS_CLANG)
+        target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Weverything -pedantic -Wno-format -Wno-variadic-macros -Wno-c99-extensions -Wno-padded -Wno-unused-parameter -Wno-global-constructors -Wno-exit-time-destructors -Wno-weak-vtables -Wno-weak-template-vtables -Wno-float-equal -Wno-used-but-marked-unused -Wno-format-nonliteral -Wno-missing-noreturn -Wno-unused-local-typedef -Wno-double-promotion -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-implicit-fallthrough -Wno-zero-as-null-pointer-constant -Wno-switch-enum -Wno-c++98-compat-bind-to-temporary-copy)
+        target_compile_options(${TARGET} PRIVATE "$<$<CONFIG:RELEASE>:-O3>")
+
+        # FIXME: Remove once we switch to Xcode 10
+        target_compile_options(${TARGET} PRIVATE -Wno-missing-braces)
+
+        # FIXME: Suppress warnings in moc generated files:
+        target_compile_options(${TARGET} PRIVATE -Wno-redundant-parens)
+    elseif(COMPILER_IS_GNU)
+        target_compile_options(${TARGET} PRIVATE -Wall -Wextra -pedantic -Wno-format -Wno-variadic-macros -Wno-padded -Wno-unused-parameter -Wno-float-equal -Wno-format-nonliteral -Wno-missing-noreturn -Wno-zero-as-null-pointer-constant -Wno-error=maybe-uninitialized)
+        target_compile_options(${TARGET} PRIVATE "$<$<CONFIG:RELEASE>:-O3>")
+
+        # FIXME: enable -Wcpp once we found a workaround for glew / QOpenGLWindow problem, see RenderView.h
+        target_compile_options(${TARGET} PRIVATE -Wno-cpp)
+    elseif(COMPILER_IS_MSVC)
+        target_compile_definitions(${TARGET} PRIVATE _CRT_SECURE_NO_DEPRECATE _CRT_NONSTDC_NO_DEPRECATE)
+        target_compile_options(${TARGET} PRIVATE /W3 /EHsc /MP)
+        target_compile_options(${TARGET} PRIVATE "$<$<CONFIG:RELEASE>:/Ox>")
+
+        # Generate debug symbols even for Release; we build a stripped pdb in Release mode, see TrenchBroomApp.cmake
+        target_compile_options(${TARGET} PRIVATE "$<$<CONFIG:RELEASE>:/Zi>")
+    else()
+        message(FATAL_ERROR "Cannot set compile options for target ${TARGET}")
+    endif()
+ENDMACRO(set_compiler_config)
+
 MACRO(FIX_WIN32_PATH VARNAME)
     IF (WIN32)
         STRING(REPLACE "/" "\\" ${VARNAME} "${${VARNAME}}")

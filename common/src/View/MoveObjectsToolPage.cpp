@@ -86,7 +86,7 @@ namespace TrenchBroom {
         }
 
         void MoveObjectsToolPage::applyMove() {
-            const vm::vec3 delta = vm::vec3::parse(m_offset->text().toStdString());
+            const vm::vec3 delta = vm::parse<FloatType, 3>(m_offset->text().toStdString());
 
             MapDocumentSPtr document = lock(m_document);
             document->translateObjects(delta);

@@ -261,7 +261,7 @@ namespace TrenchBroom {
             DragRestricter* createDragRestricter(const InputState& inputState, const vm::vec3& initialPoint) const override {
                 const auto& camera = inputState.camera();
                 const auto camDir = vm::vec3(camera.direction());
-                return new PlaneDragRestricter(vm::plane3(initialPoint, firstAxis(camDir)));
+                return new PlaneDragRestricter(vm::plane3(initialPoint, vm::get_abs_max_component_axis(camDir)));
             }
 
             DragSnapper* createDragSnapper(const InputState& inputState) const override {
@@ -274,16 +274,16 @@ namespace TrenchBroom {
 
             bool doGetNewClipPointPosition(const InputState& inputState, vm::vec3& position) const override {
                 const auto& camera = inputState.camera();
-                const auto viewDir = firstAxis(vm::vec3(camera.direction()));
+                const auto viewDir = vm::get_abs_max_component_axis(vm::vec3(camera.direction()));
 
                 const auto& pickRay = inputState.pickRay();
                 const auto defaultPos = m_tool->defaultClipPointPos();
-                const auto distance = vm::intersectRayAndPlane(pickRay, vm::plane3(defaultPos, viewDir));
-                if (vm::isnan(distance)) {
+                const auto distance = vm::intersect_ray_plane(pickRay, vm::plane3(defaultPos, viewDir));
+                if (vm::is_nan(distance)) {
                     return false;
                 } else {
                     const auto& grid = m_tool->grid();
-                    position = grid.snap(pickRay.pointAtDistance(distance));
+                    position = grid.snap(vm::point_at_distance(pickRay, distance));
                     return true;
                 }
             }
@@ -301,7 +301,7 @@ namespace TrenchBroom {
             std::vector<vm::vec3> result;
             for (const Model::BrushFace* incidentFace : selectIncidentFaces(face, hitPoint)) {
                 const vm::vec3& normal = incidentFace->boundary().normal;
-                result.push_back(firstAxis(normal));
+                result.push_back(vm::get_abs_max_component_axis(normal));
             }
 
             VectorUtils::sortAndRemoveDuplicates(result);
@@ -309,7 +309,7 @@ namespace TrenchBroom {
         }
 
         Model::BrushFaceList ClipToolController3D::selectIncidentFaces(Model::BrushFace* face, const vm::vec3& hitPoint) {
-            static const auto MaxDistance = vm::constants<FloatType>::almostZero();
+            static const auto MaxDistance = vm::constants<FloatType>::almost_zero();
 
             // First, try to see if the clip point is almost equal to a vertex:
             FloatType closestVertexDistance = MaxDistance;

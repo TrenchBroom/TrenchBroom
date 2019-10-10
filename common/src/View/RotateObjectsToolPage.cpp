@@ -51,7 +51,7 @@ namespace TrenchBroom {
         m_rotateButton(nullptr) {
             createGui();
             bindObservers();
-            m_angle->setValue(vm::toDegrees(m_tool->angle()));
+            m_angle->setValue(vm::to_degrees(m_tool->angle()));
         }
 
         RotateObjectsToolPage::~RotateObjectsToolPage() {
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             auto* text3 = new QLabel(tr("axis"));
             m_angle = new SpinControl(this);
             m_angle->setRange(-360.0, 360.0);
-            m_angle->setValue(vm::toDegrees(m_tool->angle()));
+            m_angle->setValue(vm::to_degrees(m_tool->angle()));
 
             m_axis = new QComboBox();
             m_axis->addItem("X");
@@ -153,7 +153,7 @@ namespace TrenchBroom {
 
         void RotateObjectsToolPage::updateGui() {
             const auto& grid = lock(m_document)->grid();
-            m_angle->setIncrements(vm::toDegrees(grid.angle()), 90.0, 1.0);
+            m_angle->setIncrements(vm::to_degrees(grid.angle()), 90.0, 1.0);
 
             auto document = lock(m_document);
             m_rotateButton->setEnabled(document->hasSelectedNodes());
@@ -164,7 +164,7 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsToolPage::centerChanged() {
-            const auto center = vm::vec3::parse(m_recentlyUsedCentersList->currentText().toStdString());
+            const auto center = vm::parse<FloatType, 3>(m_recentlyUsedCentersList->currentText().toStdString());
             m_tool->setRotationCenter(center);
         }
 
@@ -175,13 +175,13 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::angleChanged(double value) {
             const double newAngleDegs = vm::correct(value);
             m_angle->setValue(newAngleDegs);
-            m_tool->setAngle(vm::toRadians(newAngleDegs));
+            m_tool->setAngle(vm::to_radians(newAngleDegs));
         }
 
         void RotateObjectsToolPage::rotateClicked() {
             const auto center = m_tool->rotationCenter();
             const auto axis = getAxis();
-            const auto angle = vm::toRadians(m_angle->value());
+            const auto angle = vm::to_radians(m_angle->value());
 
             auto document = lock(m_document);
             document->rotateObjects(center, axis, angle);
@@ -190,11 +190,11 @@ namespace TrenchBroom {
         vm::vec3 RotateObjectsToolPage::getAxis() const {
             switch (m_axis->currentIndex()) {
                 case 0:
-                    return vm::vec3::pos_x;
+                    return vm::vec3::pos_x();
                 case 1:
-                    return vm::vec3::pos_y;
+                    return vm::vec3::pos_y();
                 default:
-                    return vm::vec3::pos_z;
+                    return vm::vec3::pos_z();
             }
         }
     }

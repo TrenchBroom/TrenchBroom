@@ -149,23 +149,23 @@ bool Polyhedron<T,FP,VP>::Edge::hasVertex(const Vertex* vertex) const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Edge::hasPosition(const V& position, const T epsilon) const {
-    return (isEqual( firstVertex()->position(), position, epsilon) ||
-            isEqual(secondVertex()->position(), position, epsilon));
+    return (vm::is_equal( firstVertex()->position(), position, epsilon) ||
+            vm::is_equal(secondVertex()->position(), position, epsilon));
 }
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Edge::hasPositions(const V& position1, const V& position2, const T epsilon) const {
-    return ((isEqual( firstVertex()->position(), position1, epsilon) &&
-             isEqual(secondVertex()->position(), position2, epsilon)) ||
-            (isEqual( firstVertex()->position(), position2, epsilon) &&
-             isEqual(secondVertex()->position(), position1, epsilon))
+    return ((vm::is_equal( firstVertex()->position(), position1, epsilon) &&
+             vm::is_equal(secondVertex()->position(), position2, epsilon)) ||
+            (vm::is_equal( firstVertex()->position(), position2, epsilon) &&
+             vm::is_equal(secondVertex()->position(), position1, epsilon))
             );
 }
 
 template <typename T, typename FP, typename VP>
 T Polyhedron<T,FP,VP>::Edge::distanceTo(const V& position1, const V& position2) const {
-    const T pos1Distance = vm::min(squaredDistance(firstVertex()->position(), position1), squaredDistance(secondVertex()->position(), position1));
-    const T pos2Distance = vm::min(squaredDistance(firstVertex()->position(), position2), squaredDistance(secondVertex()->position(), position2));
+    const T pos1Distance = vm::min(vm::squared_distance(firstVertex()->position(), position1), vm::squared_distance(secondVertex()->position(), position1));
+    const T pos2Distance = vm::min(vm::squared_distance(firstVertex()->position(), position2), vm::squared_distance(secondVertex()->position(), position2));
     return std::max(pos1Distance, pos2Distance);
 }
 
@@ -204,12 +204,12 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::split(const vm::p
     const V& startPos = firstVertex()->position();
     const V& endPos = secondVertex()->position();
 
-    const T startDist = plane.pointDistance(startPos);
-    const T endDist = plane.pointDistance(endPos);
+    const T startDist = plane.point_distance(startPos);
+    const T endDist = plane.point_distance(endPos);
 
     // Check what's implied by the precondition:
-    assert(vm::abs(startDist) > vm::constants<T>::pointStatusEpsilon());
-    assert(vm::abs(endDist)   > vm::constants<T>::pointStatusEpsilon());
+    assert(vm::abs(startDist) > vm::constants<T>::point_status_epsilon());
+    assert(vm::abs(endDist)   > vm::constants<T>::point_status_epsilon());
     assert(vm::sign(startDist) != vm::sign(endDist));
     assert(startDist != endDist); // implied by the above
 

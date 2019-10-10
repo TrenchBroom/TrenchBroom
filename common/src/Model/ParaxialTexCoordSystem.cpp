@@ -121,17 +121,17 @@ namespace TrenchBroom {
         void ParaxialTexCoordSystem::doSetRotation(const vm::vec3& normal, const float oldAngle, const float newAngle) {
             m_index = planeNormalIndex(normal);
             axes(m_index, m_xAxis, m_yAxis);
-            rotateAxes(m_xAxis, m_yAxis, vm::toRadians(newAngle), m_index);
+            rotateAxes(m_xAxis, m_yAxis, vm::to_radians(newAngle), m_index);
         }
 
         void ParaxialTexCoordSystem::doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& oldInvariant) {
-            const vm::vec3 offset     = transformation * vm::vec3::zero;
+            const vm::vec3 offset     = transformation * vm::vec3::zero();
             const vm::vec3& oldNormal = oldBoundary.normal;
                   vm::vec3 newNormal  = newBoundary.normal;
-            assert(isUnit(newNormal, vm::C::almostZero()));
+            assert(vm::is_unit(newNormal, vm::C::almost_zero()));
 
             // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
-            if (isEqual(newNormal, oldNormal, 0.01)) {
+            if (vm::is_equal(newNormal, oldNormal, 0.01)) {
                 newNormal = oldNormal;
             }
 
@@ -145,9 +145,9 @@ namespace TrenchBroom {
 
             // project the texture axes onto the boundary plane along the texture Z axis
             const vm::vec2 scale(attribs.scale());
-            const vm::vec3 boundaryOffset     = oldBoundary.projectPoint(vm::vec3::zero, getZAxis());
-            const vm::vec3 oldXAxisOnBoundary = oldBoundary.projectPoint(m_xAxis * scale.x(), getZAxis()) - boundaryOffset;
-            const vm::vec3 oldYAxisOnBoundary = oldBoundary.projectPoint(m_yAxis * scale.y(), getZAxis()) - boundaryOffset;
+            const vm::vec3 boundaryOffset     = oldBoundary.project_point(vm::vec3::zero(), getZAxis());
+            const vm::vec3 oldXAxisOnBoundary = oldBoundary.project_point(m_xAxis * scale.x(), getZAxis()) - boundaryOffset;
+            const vm::vec3 oldYAxisOnBoundary = oldBoundary.project_point(m_yAxis * scale.y(), getZAxis()) - boundaryOffset;
 
             // transform the projected texture axes and compensate the translational component
             const vm::vec3 transformedXAxis = transformation * oldXAxisOnBoundary - offset;
@@ -164,19 +164,19 @@ namespace TrenchBroom {
             const vm::plane3 newTexturePlane(0.0, newProjectionAxis);
 
             // project the transformed texture axes onto the new texture projection plane
-            const vm::vec3 projectedTransformedXAxis = newTexturePlane.projectPoint(transformedXAxis);
-            const vm::vec3 projectedTransformedYAxis = newTexturePlane.projectPoint(transformedYAxis);
-            assert(!isNaN(projectedTransformedXAxis) &&
-                   !isNaN(projectedTransformedYAxis));
+            const vm::vec3 projectedTransformedXAxis = newTexturePlane.project_point(transformedXAxis);
+            const vm::vec3 projectedTransformedYAxis = newTexturePlane.project_point(transformedYAxis);
+            assert(!vm::is_nan(projectedTransformedXAxis) &&
+                   !vm::is_nan(projectedTransformedYAxis));
 
-            const vm::vec3 normalizedXAxis = normalize(projectedTransformedXAxis);
-            const vm::vec3 normalizedYAxis = normalize(projectedTransformedYAxis);
+            const vm::vec3 normalizedXAxis = vm::normalize(projectedTransformedXAxis);
+            const vm::vec3 normalizedYAxis = vm::normalize(projectedTransformedYAxis);
 
             // determine the rotation angle from the dot product of the new base axes and the transformed, projected and normalized texture axes
-            float cosX = static_cast<float>(dot(newBaseXAxis, normalizedXAxis));
-            float cosY = static_cast<float>(dot(newBaseYAxis, normalizedYAxis));
-            assert(!vm::isnan(cosX));
-            assert(!vm::isnan(cosY));
+            float cosX = static_cast<float>(vm::dot(newBaseXAxis, normalizedXAxis));
+            float cosY = static_cast<float>(vm::dot(newBaseYAxis, normalizedYAxis));
+            assert(!vm::is_nan(cosX));
+            assert(!vm::is_nan(cosY));
 
             float radX = std::acos(cosX);
             if (dot(cross(newBaseXAxis, normalizedXAxis), newProjectionAxis) < 0.0)
@@ -195,7 +195,7 @@ namespace TrenchBroom {
             if (planeNormIndex == 12)
                 rad *= -1.0f;
 
-            const float newRotation = vm::correct(vm::normalizeDegrees(vm::toDegrees(rad)), 4);
+            const float newRotation = vm::correct(vm::normalize_degrees(vm::to_degrees(rad)), 4);
             doSetRotation(newNormal, newRotation, newRotation);
 
             // finally compute the scaling factors
@@ -217,11 +217,11 @@ namespace TrenchBroom {
             // the original texture coordiknates of the center
             const vm::vec2f newOffset = correct(attribs.modOffset(oldInvariantTexCoords - newInvariantTexCoords), 4);
 
-            assert(!isNaN(newOffset));
-            assert(!isNaN(newScale));
-            assert(!vm::isnan(newRotation));
-            assert(!vm::isZero(newScale.x(), vm::Cf::almostZero()));
-            assert(!vm::isZero(newScale.y(), vm::Cf::almostZero()));
+            assert(!vm::is_nan(newOffset));
+            assert(!vm::is_nan(newScale));
+            assert(!vm::is_nan(newRotation));
+            assert(!vm::is_zero(newScale.x(), vm::Cf::almost_zero()));
+            assert(!vm::is_zero(newScale.y(), vm::Cf::almost_zero()));
 
             attribs.setOffset(newOffset);
             attribs.setScale(newScale);
@@ -242,18 +242,19 @@ namespace TrenchBroom {
         }
 
         float ParaxialTexCoordSystem::doMeasureAngle(const float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const {
-            const auto rot = vm::quat3(vm::vec3::pos_z, -vm::toRadians(currentAngle));
+            const auto rot = vm::quat3(vm::vec3::pos_z(), -vm::to_radians(currentAngle));
             const auto vec = rot * vm::vec3(point - center);
 
-            const auto angleInRadians = vm::C::twoPi() - vm::measureAngle(vm::normalize(vec), vm::vec3::pos_x, vm::vec3::pos_z);
-            return float(vm::toDegrees(angleInRadians));
+            const auto angleInRadians =
+                vm::C::two_pi() - vm::measure_angle(vm::normalize(vec), vm::vec3::pos_x(), vm::vec3::pos_z());
+            return float(vm::to_degrees(angleInRadians));
         }
 
         void ParaxialTexCoordSystem::rotateAxes(vm::vec3& xAxis, vm::vec3& yAxis, const FloatType angleInRadians, const size_t planeNormIndex) const {
             const vm::vec3 rotAxis = vm::cross(BaseAxes[planeNormIndex * 3 + 2], BaseAxes[planeNormIndex * 3 + 1]);
             const vm::quat3 rot(rotAxis, angleInRadians);
-            xAxis = correct(rot * xAxis);
-            yAxis = correct(rot * yAxis);
+            xAxis = vm::correct(rot * xAxis);
+            yAxis = vm::correct(rot * yAxis);
         }
     }
 }

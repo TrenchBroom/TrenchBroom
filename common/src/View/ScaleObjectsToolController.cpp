@@ -92,7 +92,7 @@ namespace TrenchBroom {
             const vm::vec3 initialPoint = [&]() {
                 vm::vec3 p = dragStartHit.hitPoint();
                 restricter->hitPoint(inputState, p);
-                snapper->snap(inputState, vm::vec3::zero, vm::vec3::zero, p);
+                snapper->snap(inputState, vm::vec3::zero(), vm::vec3::zero(), p);
                 return p;
             }();
 
@@ -109,7 +109,7 @@ namespace TrenchBroom {
                 const auto& camera = inputState.camera();
                 if (camera.orthographicProjection()) {
                     // special case for 2D: don't scale along the axis of the camera
-                    const size_t cameraComponent = firstComponent(camera.direction());
+                    const size_t cameraComponent = vm::find_abs_max_component(camera.direction());
                     scaleAllAxes.setAxisProportional(cameraComponent, false);
                 }
             }
@@ -213,7 +213,7 @@ namespace TrenchBroom {
 
             // bounds and corner handles
 
-            if (!m_tool->bounds().empty())  {
+            if (!m_tool->bounds().is_empty())  {
                 // bounds
                 {
                     Renderer::RenderService renderService(renderContext, renderBatch);
@@ -276,7 +276,7 @@ namespace TrenchBroom {
                 const auto line = m_tool->dragEdge();
 
                 if (camera.orthographicProjection()
-                    && parallel(line.direction(), camera.direction())) {
+                    && vm::is_parallel(line.direction(), camera.direction())) {
                     // for the 2D view, for drag edges that are parallel to the camera,
                     // render the highlight with a ring around the handle
                     Renderer::RenderService renderService(renderContext, renderBatch);

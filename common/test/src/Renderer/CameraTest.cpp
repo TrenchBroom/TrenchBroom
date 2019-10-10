@@ -29,42 +29,42 @@ namespace TrenchBroom {
             PerspectiveCamera c;
             c.setDirection(vm::vec3f(0,0,1), vm::vec3f(0,0,1));
 
-            ASSERT_FALSE(isNaN(c.direction()));
-            ASSERT_FALSE(isNaN(c.right()));
-            ASSERT_FALSE(isNaN(c.up()));
+            ASSERT_FALSE(vm::is_nan(c.direction()));
+            ASSERT_FALSE(vm::is_nan(c.right()));
+            ASSERT_FALSE(vm::is_nan(c.up()));
         }
 
         TEST(CameraTest, testOrbitDown) {
             PerspectiveCamera c;
             c.setDirection(vm::vec3f(1,0,0), vm::vec3f(0,0,1));
 
-            c.orbit(vm::vec3f::zero, 0.0f, vm::constants<float>::pi());
+            c.orbit(vm::vec3f::zero(), 0.0f, vm::constants<float>::pi());
 
-            ASSERT_FALSE(isNaN(c.direction()));
-            ASSERT_FALSE(isNaN(c.right()));
-            ASSERT_FALSE(isNaN(c.up()));
+            ASSERT_FALSE(vm::is_nan(c.direction()));
+            ASSERT_FALSE(vm::is_nan(c.right()));
+            ASSERT_FALSE(vm::is_nan(c.up()));
         }
 
         TEST(CameraTest, testOrbitWhileInverted) {
             PerspectiveCamera c;
             c.setDirection(vm::vec3f(1,0,0), vm::vec3f(0,0,-1));
 
-            c.orbit(vm::vec3f::zero, vm::constants<float>::pi(), 0.0f);
+            c.orbit(vm::vec3f::zero(), vm::constants<float>::pi(), 0.0f);
 
-            ASSERT_FALSE(isNaN(c.direction()));
-            ASSERT_FALSE(isNaN(c.right()));
-            ASSERT_FALSE(isNaN(c.up()));
+            ASSERT_FALSE(vm::is_nan(c.direction()));
+            ASSERT_FALSE(vm::is_nan(c.right()));
+            ASSERT_FALSE(vm::is_nan(c.up()));
         }
 
         TEST(CameraTest, testYawWhenPitchedDown) {
             PerspectiveCamera c;
-            c.setDirection(vm::vec3f::neg_z, vm::vec3f::pos_x);
+            c.setDirection(vm::vec3f::neg_z(), vm::vec3f::pos_x());
 
             c.rotate(0.1f, 0.0f);
 
-            ASSERT_FALSE(isNaN(c.direction()));
-            ASSERT_FALSE(isNaN(c.right()));
-            ASSERT_FALSE(isNaN(c.up()));
+            ASSERT_FALSE(vm::is_nan(c.direction()));
+            ASSERT_FALSE(vm::is_nan(c.right()));
+            ASSERT_FALSE(vm::is_nan(c.up()));
         }
     }
 }

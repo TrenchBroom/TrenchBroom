@@ -75,7 +75,7 @@ namespace TrenchBroom {
             }
 
             bool equalHandles(const vm::vec3& lhs, const vm::vec3& rhs) const override {
-                return squaredDistance(lhs, rhs) < MaxHandleDistance * MaxHandleDistance;
+                return vm::squared_distance(lhs, rhs) < MaxHandleDistance * MaxHandleDistance;
             }
         };
 

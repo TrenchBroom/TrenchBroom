@@ -144,8 +144,8 @@ Updated: 2011-03-02
     )";
             ASSERT_EQ(expectedDescription, pointDefinition->description()) << "Expected text value as entity defintion description";
 
-            ASSERT_TRUE(vm::isEqual(Color(0.77f, 0.88f, 1.0f, 1.0f), pointDefinition->color(), 0.01f)) << "Expected matching color";
-            ASSERT_TRUE(vm::isEqual(vm::bbox3(vm::vec3(-4.0, -4.0, -4.0), vm::vec3(+4.0, +4.0, +4.0)), pointDefinition->bounds(), 0.01)) << "Expected matching bounds";
+            ASSERT_TRUE(vm::is_equal(Color(0.77f, 0.88f, 1.0f, 1.0f), pointDefinition->color(), 0.01f)) << "Expected matching color";
+            ASSERT_TRUE(vm::is_equal(vm::bbox3(vm::vec3(-4.0, -4.0, -4.0), vm::vec3(+4.0, +4.0, +4.0)), pointDefinition->bounds(), 0.01)) << "Expected matching bounds";
 
             ASSERT_EQ(3u, pointDefinition->attributeDefinitions().size()) << "Expected three attribute definitions";
 
@@ -222,7 +222,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
 )";
             ASSERT_EQ(expectedDescription, brushDefinition->description()) << "Expected text value as entity defintion description";
 
-            ASSERT_TRUE(vm::isEqual(Color(0.0f, 0.4f, 1.0f), brushDefinition->color(), 0.01f)) << "Expected matching color";
+            ASSERT_TRUE(vm::is_equal(Color(0.0f, 0.4f, 1.0f), brushDefinition->color(), 0.01f)) << "Expected matching color";
 
             ASSERT_EQ(7u, brushDefinition->attributeDefinitions().size()) << "Expected three attribute definitions";
             assertAttributeDefinition("noise", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);

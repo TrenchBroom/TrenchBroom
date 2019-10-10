@@ -71,7 +71,7 @@ namespace TrenchBroom {
                 const vm::vec3f& p1 = triangle[0];
                 const vm::vec3f& p2 = triangle[1];
                 const vm::vec3f& p3 = triangle[2];
-                closestDistance = vm::safeMin(closestDistance, vm::intersectRayAndTriangle(ray, p1, p2, p3));
+                closestDistance = vm::safe_min(closestDistance, vm::intersect_ray_triangle(ray, p1, p2, p3));
             }
 
             return closestDistance;

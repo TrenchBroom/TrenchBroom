@@ -72,8 +72,8 @@ namespace TrenchBroom {
 
                 // The hit point is the closest point on the pick ray to one of the edges of the face.
                 // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
-                assert(result.pickedSideNormal != vm::vec3::zero);
-                pickResult.addHit(Model::Hit(ShearToolSideHit, result.distAlongRay, pickRay.pointAtDistance(result.distAlongRay), BBoxSide{result.pickedSideNormal}));
+                assert(result.pickedSideNormal != vm::vec3::zero());
+                pickResult.addHit(Model::Hit(ShearToolSideHit, result.distAlongRay, vm::point_at_distance(pickRay, result.distAlongRay), BBoxSide{result.pickedSideNormal}));
             }
         }
 
@@ -113,9 +113,9 @@ namespace TrenchBroom {
             for (const auto& side : allSides()) {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
-                const auto dist = vm::intersectRayAndPolygon(pickRay, std::begin(poly), std::end(poly));
-                if (!vm::isnan(dist)) {
-                    localPickResult.addHit(Model::Hit(ShearToolSideHit, dist, pickRay.pointAtDistance(dist), side));
+                const auto dist = vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly));
+                if (!vm::is_nan(dist)) {
+                    localPickResult.addHit(Model::Hit(ShearToolSideHit, dist, vm::point_at_distance(pickRay, dist), side));
                 }
             }
 
@@ -165,7 +165,7 @@ namespace TrenchBroom {
 
             m_bboxAtDragStart = bounds();
             m_dragStartHit = hit;
-            m_dragCumulativeDelta = vm::vec3::zero;
+            m_dragCumulativeDelta = vm::vec3::zero();
 
             MapDocumentSPtr document = lock(m_document);
             document->beginTransaction("Shear Objects");
@@ -176,7 +176,7 @@ namespace TrenchBroom {
             ensure(m_resizing, "must be resizing already");
 
             MapDocumentSPtr document = lock(m_document);
-            if (isZero(m_dragCumulativeDelta, vm::C::almostZero())) {
+            if (vm::is_zero(m_dragCumulativeDelta, vm::C::almost_zero())) {
                 document->cancelTransaction();
             } else {
                 document->commitTransaction();
@@ -200,7 +200,7 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
 
-            if (!isZero(delta, vm::C::almostZero())) {
+            if (!vm::is_zero(delta, vm::C::almost_zero())) {
                 const BBoxSide side = m_dragStartHit.target<BBoxSide>();
 
                 if (document->shearObjects(bounds(), side.normal, delta)) {
@@ -215,19 +215,16 @@ namespace TrenchBroom {
 
         vm::mat4x4 ShearObjectsTool::bboxShearMatrix() const {
             if (!m_resizing) {
-                return vm::mat4x4::identity;
+                return vm::mat4x4::identity();
             }
 
             // happens if you cmd+drag on an edge or corner
             if (m_dragStartHit.type() != ShearToolSideHit) {
-                return vm::mat4x4::identity;
+                return vm::mat4x4::identity();
             }
 
             const BBoxSide side = m_dragStartHit.target<BBoxSide>();
-
-            return shearBBoxMatrix(m_bboxAtDragStart,
-                                   side.normal,
-                                   m_dragCumulativeDelta);
+            return vm::shear_bbox_matrix(m_bboxAtDragStart, side.normal, m_dragCumulativeDelta);
         }
 
         vm::polygon3f ShearObjectsTool::shearHandle() const {
