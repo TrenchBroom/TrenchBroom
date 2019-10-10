@@ -46,6 +46,9 @@ int main(int argc, char *argv[])
     QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
     QSettings::setDefaultFormat(QSettings::IniFormat);
 
+    // Set up Hi DPI scaling
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
     // We can't use auto mnemonics in TrenchBroom. e.g. by default with Qt, Alt+D opens the "Debug" menu,
     // Alt+S activates the "Show default properties" checkbox in the entity inspector.
     // Flying with Alt held down and pressing WASD is a fundamental behaviour in TB, so we can't have
