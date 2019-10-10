@@ -88,7 +88,7 @@ target_link_libraries(TrenchBroom common) # common already comes with all its de
 set_compiler_config(TrenchBroom)
 
 # Add dependency to generate the manual during build
-add_dependencies(TrenchBroom GenerateManual)
+# add_dependencies(TrenchBroom GenerateManual)
 
 # Enable ASAN if possible and requested
 if(COMPILER_IS_GNU AND TB_ENABLE_ASAN)
