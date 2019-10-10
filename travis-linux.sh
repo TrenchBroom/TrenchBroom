@@ -25,7 +25,7 @@ cmake --version
 
 mkdir build
 cd build
-cmake .. -GNinja -DCMAKE_PREFIX_PATH=/opt/qt59 -DCMAKE_BUILD_TYPE=Release || exit 1 # FIXME: restore "-DCMAKE_CXX_FLAGS=-Werror"
+cmake .. -GNinja -DCMAKE_PREFIX_PATH=/opt/qt59 -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Werror" || exit 1
 # Ubuntu's cppcheck is too old
 #cmake --build . --target cppcheck || exit 1
 cmake --build . --config Release || exit 1
