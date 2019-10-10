@@ -27,21 +27,27 @@
 #include <QTextStream>
 
 #include <array>
-#include <string>
 #include <tuple>
 
 namespace TrenchBroom {
     namespace View {
+        void printKeys(QTextStream& out);
+        QString toString(const IO::Path& path, const QString& suffix);
+        QString toString(const QKeySequence& keySequence);
+
+        void printMenuShortcuts(QTextStream& out);
+        void printActionShortcuts(QTextStream& out);
+
         void printKeys(QTextStream& out) {
             const auto keyStrings = KeyStrings();
 
             out << "const keys = {\n";
             for (const auto& [key, str] : keyStrings) {
-                out << "    " << key << ": ";
+                out << "    " << key << ": '";
                 if (str == "'") {
-                    out << "'\\''";
+                    out << "\\'";
                 } else if (str == "\\") {
-                    out << "'\\\\'";
+                    out << "\\\\";
                 } else {
                     out << str;
                 }
@@ -62,11 +68,11 @@ namespace TrenchBroom {
         }
 
         QString toString(const QKeySequence& keySequence) {
-            static constexpr std::array<std::tuple<Qt::Modifier, Qt::Key>, 4> Modifiers = {
-                std::make_tuple(Qt::SHIFT, Qt::Key_Shift),
-                std::make_tuple(Qt::ALT, Qt::Key_Alt),
-                std::make_tuple(Qt::CTRL, Qt::Key_Control),
-                std::make_tuple(Qt::META, Qt::Key_Meta),
+            static constexpr std::array<std::tuple<int, Qt::Key>, 4> Modifiers = {
+                std::make_tuple(static_cast<int>(Qt::SHIFT), Qt::Key_Shift),
+                std::make_tuple(static_cast<int>(Qt::ALT), Qt::Key_Alt),
+                std::make_tuple(static_cast<int>(Qt::CTRL), Qt::Key_Control),
+                std::make_tuple(static_cast<int>(Qt::META), Qt::Key_Meta),
             };
 
             QString result;
@@ -74,11 +80,11 @@ namespace TrenchBroom {
 
             if (keySequence.count() > 0) {
                 const auto rawKey = keySequence[0];
-                const auto key = rawKey & ~(Qt::KeyboardModifierMask);
+                const auto key = rawKey & ~(static_cast<int>(Qt::KeyboardModifierMask));
 
                 result += "key: " + QString::number(key) + ", ";
                 result += "modifiers: [";
-                for (const auto [modifier, keyCode] : Modifiers) {
+                for (const auto& [modifier, keyCode] : Modifiers) {
                     if ((rawKey & modifier) != 0) {
                         result += QString::number(keyCode) + ", ";
                     }
