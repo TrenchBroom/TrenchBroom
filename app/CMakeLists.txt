@@ -147,7 +147,8 @@ macro(configure_app_target APP_TARGET_NAME)
 
     if(${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
         # Make executable name conventional lowercase on linux
-        set_target_properties(${APP_TARGET_NAME} PROPERTIES OUTPUT_NAME string(TOLOWER ${APP_TARGET_NAME}))
+        string(TOLOWER ${APP_TARGET_NAME} APP_TARGET_NAME_LOWER)
+        set_target_properties(${APP_TARGET_NAME} PROPERTIES OUTPUT_NAME ${APP_TARGET_NAME_LOWER})
     endif()
 
     # Set up the resources and DLLs for the executable
