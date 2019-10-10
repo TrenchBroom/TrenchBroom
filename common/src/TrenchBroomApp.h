@@ -64,7 +64,7 @@ namespace TrenchBroom {
             void updateRecentDocument(const IO::Path& path);
 
             bool openDocument(const IO::Path& path);
-            bool recoverFromException(const RecoverableException& e, const std::function<bool()>& op);
+            bool recoverFromException(const RecoverableException& e, const std::function<bool()>& retry);
             void openPreferences();
             void openAbout();
             bool initializeGameFactory();

@@ -225,7 +225,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool TrenchBroomApp::recoverFromException(const RecoverableException &e, const std::function<bool()>& op) {
+        bool TrenchBroomApp::recoverFromException(const RecoverableException& e, const std::function<bool()>& retry) {
             // Guard against recursion. It's ok to use a static here since the functions calling this are not reentrant.
             static bool recovering = false;
 
@@ -233,11 +233,11 @@ namespace TrenchBroom {
                 StringStream message;
                 message << e.what() << "\n\n" << e.query();
 
-                const QMessageBox::StandardButton result = QMessageBox::question(nullptr, QString("TrenchBroom"), QString::fromStdString(message.str()), QMessageBox::Yes | QMessageBox::No);
+                const auto result = QMessageBox::question(nullptr, QString("TrenchBroom"), QString::fromStdString(message.str()), QMessageBox::Yes | QMessageBox::No);
                 if (result == QMessageBox::Yes) {
                     TemporarilySetBool setRecovering(recovering);
                     e.recover();
-                    return op(); // Recursive call here.
+                    return retry(); // Recursive call here.
                 } else {
                     return false;
                 }
