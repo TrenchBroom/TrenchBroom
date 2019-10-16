@@ -332,7 +332,6 @@ namespace TrenchBroom {
             void debugCreateBrush();
             void debugCreateCube();
             void debugClipBrush();
-            void debugCopyJSShortcutMap();
             void debugCrash();
             void debugThrowExceptionDuringCommand();
             void debugSetWindowSize();

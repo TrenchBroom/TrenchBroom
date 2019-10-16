@@ -1429,13 +1429,6 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
                 }));
-            debugMenu.addItem(createMenuAction(IO::Path("Menu/Debug/Copy Javascript Shortcut Map"), QObject::tr("Copy Javascript Shortcut Map"), 0,
-                [](ActionExecutionContext& context) {
-                    context.frame()->debugCopyJSShortcutMap();
-                },
-                [](ActionExecutionContext& context) {
-                    return context.hasDocument();
-                }));
             debugMenu.addItem(createMenuAction(IO::Path("Menu/Debug/Crash..."), QObject::tr("Crash..."), 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->debugCrash();

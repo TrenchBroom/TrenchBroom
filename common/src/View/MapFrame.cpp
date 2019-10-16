@@ -1508,13 +1508,6 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::debugCopyJSShortcutMap() {
-            // FIXME: reimplement
-//            QClipboard *clipboard = QApplication::clipboard();
-//            const String str = ActionManager::instance().getJSTable();
-//            clipboard->setText(QString::fromStdString(str));
-        }
-
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wold-style-cast"
