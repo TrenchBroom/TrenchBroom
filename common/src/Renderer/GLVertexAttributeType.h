@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_AttributeSpec_h
 #define TrenchBroom_AttributeSpec_h
 
+#include "Macros.h"
 #include "Renderer/GL.h"
 
 #include <vecmath/vec.h>

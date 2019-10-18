@@ -19,6 +19,7 @@
 
 #include "DirectoryTextureCollectionEditor.h"
 
+#include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "IO/PathQt.h"
 #include "View/BorderLine.h"

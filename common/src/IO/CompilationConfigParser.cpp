@@ -19,6 +19,8 @@
 
 #include "CompilationConfigParser.h"
 
+#include "CollectionUtils.h"
+
 namespace TrenchBroom {
     namespace IO {
         CompilationConfigParser::CompilationConfigParser(const char* begin, const char* end, const Path& path) :

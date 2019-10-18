@@ -19,6 +19,7 @@
 
 #include "DuplicateNodesCommand.h"
 
+#include "CollectionUtils.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
 #include "View/MapDocumentCommandFacade.h"

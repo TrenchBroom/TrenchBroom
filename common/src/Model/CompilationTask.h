@@ -20,14 +20,12 @@
 #ifndef CompilationTask_h
 #define CompilationTask_h
 
+#include "Macros.h"
 #include "Notifier.h"
 #include "StringType.h"
 #include "IO/Path.h"
 
 #include <vector>
-
-class wxTimer;
-class wxTimerEvent;
 
 namespace TrenchBroom {
     namespace Model {

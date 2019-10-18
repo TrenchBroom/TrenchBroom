@@ -19,6 +19,7 @@
 
 #include "TextureBrowserView.h"
 
+#include "CollectionUtils.h"
 #include "StepIterator.h"
 #include "Renderer/GL.h"
 #include "PreferenceManager.h"

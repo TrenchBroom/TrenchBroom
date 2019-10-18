@@ -19,6 +19,7 @@
 
 #include "ToolBoxConnector.h"
 
+#include "Macros.h"
 #include "View/ToolBox.h"
 #include "View/ToolChain.h"
 

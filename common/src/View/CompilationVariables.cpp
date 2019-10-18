@@ -21,6 +21,7 @@
 
 #include "IO/SystemPaths.h"
 #include "Model/Game.h"
+#include "VectorUtilsMinimal.h"
 #include "View/MapDocument.h"
 
 #include <thread>

@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_EditorContext
 #define TrenchBroom_EditorContext
 
+#include "Bitset.h"
 #include "Notifier.h"
 #include "Model/Tag.h"
 #include "Model/ModelTypes.h"

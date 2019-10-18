@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_CollectMatchingNodesVisitor
 #define TrenchBroom_CollectMatchingNodesVisitor
 
-#include "CollectionUtils.h"
 #include "Model/NodeVisitor.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"

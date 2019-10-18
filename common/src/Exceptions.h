@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_Exceptions_h
 #define TrenchBroom_Exceptions_h
 
-#include "CollectionUtils.h"
-
 #include <exception>
 #include <string>
 #include <sstream>

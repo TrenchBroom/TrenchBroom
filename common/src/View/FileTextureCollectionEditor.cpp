@@ -19,6 +19,7 @@
 
 #include "FileTextureCollectionEditor.h"
 
+#include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "Assets/TextureManager.h"
 #include "Assets/TextureCollection.h"

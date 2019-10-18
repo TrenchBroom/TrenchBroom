@@ -22,6 +22,7 @@
 
 #include "Renderer/GL.h"
 #include "Renderer/GLVertex.h"
+#include "VectorUtilsMinimal.h"
 
 namespace TrenchBroom {
     namespace Renderer {

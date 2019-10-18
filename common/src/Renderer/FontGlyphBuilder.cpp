@@ -19,6 +19,7 @@
 
 #include "FontGlyphBuilder.h"
 
+#include "Macros.h"
 #include "Renderer/FontTexture.h"
 
 #include <cassert>

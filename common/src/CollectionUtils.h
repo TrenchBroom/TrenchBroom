@@ -22,6 +22,7 @@
 
 #include "Macros.h"
 #include "Ensure.h"
+#include "VectorUtilsMinimal.h"
 
 #include <algorithm>
 #include <array>
@@ -83,30 +84,6 @@ namespace Utils {
         }
     };
 }
-
-class Bitset {
-private:
-    std::vector<bool> m_bits;
-public:
-    Bitset(const size_t initialSize = 64) :
-    m_bits(initialSize, false) {}
-
-    bool operator[](const size_t index) const {
-        if (index >= m_bits.size())
-            return false;
-        return m_bits[index];
-    }
-
-    std::vector<bool>::reference operator[](const size_t index) {
-        if (index >= m_bits.size())
-            m_bits.insert(std::end(m_bits), index - m_bits.size() + 1, false);
-        return m_bits[index];
-    }
-
-    void reset() {
-        m_bits = std::vector<bool>(64, false);
-    }
-};
 
 namespace CollectionUtils {
     template <typename I, typename C>
@@ -310,13 +287,6 @@ namespace VectorUtils {
         result.push_back(item4);
         result.push_back(item5);
         return result;
-    }
-
-    template <typename T>
-    void clearToZero(std::vector<T>& vec) {
-        using std::swap;
-        std::vector<T> empty(0);
-        swap(vec, empty);
     }
 
     template <typename T, typename C>
@@ -594,12 +564,6 @@ namespace VectorUtils {
         std::vector<T> result;
         concatenate(vec1, vec2, result);
         return result;
-    }
-
-    template <typename T1, typename T2>
-    void append(std::vector<T1>& vec1, const std::vector<T2>& vec2) {
-        vec1.reserve(vec1.size() + vec2.size());
-        vec1.insert(std::end(vec1), std::begin(vec2), std::end(vec2));
     }
 
     template <typename T1, typename T2>

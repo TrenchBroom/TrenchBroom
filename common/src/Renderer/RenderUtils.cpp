@@ -27,6 +27,8 @@
 #include <vecmath/bbox.h>
 #include <vecmath/util.h>
 
+#include <map>
+
 namespace TrenchBroom {
     namespace Renderer {
         static const float EdgeOffset = 0.0001f;

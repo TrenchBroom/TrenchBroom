@@ -19,6 +19,7 @@
 
 #include "RotateObjectsTool.h"
 
+#include "CollectionUtils.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/RotateObjectsHandle.h"

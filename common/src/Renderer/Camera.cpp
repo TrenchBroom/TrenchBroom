@@ -19,6 +19,8 @@
 
 #include "Camera.h"
 
+#include "Macros.h"
+
 #include <vecmath/ray.h>
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>

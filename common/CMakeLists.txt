@@ -520,6 +520,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/Texture.h
         ${COMMON_SOURCE_DIR}/Assets/TextureManager.h
         ${COMMON_SOURCE_DIR}/AttrString.h
+        ${COMMON_SOURCE_DIR}/Bitset.h
         ${COMMON_SOURCE_DIR}/ByteBuffer.h
         ${COMMON_SOURCE_DIR}/CollectionUtils.h
         ${COMMON_SOURCE_DIR}/Color.h
@@ -817,6 +818,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
         ${COMMON_SOURCE_DIR}/TrenchBroom.h
         ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.h
+        ${COMMON_SOURCE_DIR}/VectorUtilsMinimal.h
         ${COMMON_SOURCE_DIR}/View/AboutDialog.h
         ${COMMON_SOURCE_DIR}/View/ActionContext.h
         ${COMMON_SOURCE_DIR}/View/Actions.h

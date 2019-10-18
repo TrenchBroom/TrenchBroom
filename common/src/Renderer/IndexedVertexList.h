@@ -20,10 +20,8 @@
 #ifndef TrenchBroom_IndexedVertexList_h
 #define TrenchBroom_IndexedVertexList_h
 
-#include "CollectionUtils.h"
 #include "Renderer/GL.h"
-
-#include <vector>
+#include "VectorUtilsMinimal.h"
 
 namespace TrenchBroom {
     namespace Renderer {

@@ -20,13 +20,12 @@
 #ifndef IndexArray_h
 #define IndexArray_h
 
-#include "CollectionUtils.h"
-#include "SharedPointer.h"
 #include "Renderer/GL.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
+#include "VectorUtilsMinimal.h"
 
-#include <vector>
+#include <memory>
 
 namespace TrenchBroom {
     namespace Renderer {
