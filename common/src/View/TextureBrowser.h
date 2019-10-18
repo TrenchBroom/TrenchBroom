@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_TextureBrowser
 #define TrenchBroom_TextureBrowser
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Assets/TextureManager.h"
 #include "View/TextureBrowserView.h"
 #include "View/ViewTypes.h"

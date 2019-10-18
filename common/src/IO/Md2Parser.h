@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Md2Parser
 #define TrenchBroom_Md2Parser
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityModel.h"
 #include "Assets/TextureCollection.h"

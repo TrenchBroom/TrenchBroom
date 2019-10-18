@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_AttrString
 #define TrenchBroom_AttrString
 
-#include "StringUtils.h"
+#include "StringType.h"
 
 #include <vector>
 

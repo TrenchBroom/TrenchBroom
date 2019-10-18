@@ -21,7 +21,7 @@
 #define TRENCHBROOM_ACTIONS_H
 
 #include "Preference.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "View/ActionContext.h"
 
 #include <functional>

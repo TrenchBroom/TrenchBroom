@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityAttributeGridTable
 #define TrenchBroom_EntityAttributeGridTable
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 

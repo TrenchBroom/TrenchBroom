@@ -20,7 +20,7 @@
 #ifndef TRENCHBROOM_TESTENVIRONMENT_H
 #define TRENCHBROOM_TESTENVIRONMENT_H
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "IO/Path.h"
 
 namespace TrenchBroom {

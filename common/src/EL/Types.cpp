@@ -19,6 +19,8 @@
 
 #include "Types.h"
 
+#include "Macros.h"
+
 namespace TrenchBroom {
     namespace EL {
         String typeName(const ValueType type) {

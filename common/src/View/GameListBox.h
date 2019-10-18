@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_GameListBox
 #define TrenchBroom_GameListBox
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "View/ImageListBox.h"
 
 class QPixmap;

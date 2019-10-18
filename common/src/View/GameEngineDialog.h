@@ -20,7 +20,7 @@
 #ifndef GameEngineDialog_h
 #define GameEngineDialog_h
 
-#include "StringUtils.h"
+#include "StringType.h"
 
 #include <QDialog>
 

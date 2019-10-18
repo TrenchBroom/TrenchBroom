@@ -21,7 +21,7 @@
 #define TrenchBroom_ParserStatus
 
 #include "Logger.h"
-#include "StringUtils.h"
+#include "StringType.h"
 
 namespace TrenchBroom {
     namespace IO {

@@ -20,9 +20,11 @@
 #ifndef TRENCHBROOM_TAG_H
 #define TRENCHBROOM_TAG_H
 
-#include "StringUtils.h"
+#include "StringType.h"
+#include "StringList.h"
 
 #include <vector>
+#include <set>
 
 namespace TrenchBroom {
     namespace IO {

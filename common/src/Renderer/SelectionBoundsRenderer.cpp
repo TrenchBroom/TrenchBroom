@@ -26,6 +26,7 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
 #include "Renderer/TextAnchor.h"
+#include "StringStream.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/vec.h>

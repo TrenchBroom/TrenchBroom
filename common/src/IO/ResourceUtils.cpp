@@ -22,6 +22,7 @@
 #include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "IO/SystemPaths.h"
+#include "Macros.h"
 
 #include <QApplication>
 #include <QThread>

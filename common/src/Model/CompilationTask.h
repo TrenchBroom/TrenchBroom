@@ -21,7 +21,7 @@
 #define CompilationTask_h
 
 #include "Notifier.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "IO/Path.h"
 
 #include <vector>

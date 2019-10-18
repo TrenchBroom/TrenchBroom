@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_GameFactory
 #define TrenchBroom_GameFactory
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Preference.h"
 #include "IO/Path.h"
 #include "Model/GameConfig.h"

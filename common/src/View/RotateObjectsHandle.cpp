@@ -34,6 +34,7 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
+#include "StringUtils.h"
 #include "View/InputState.h"
 
 #include <vecmath/intersection.h>

@@ -17,24 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ColorRange_h
-#define TrenchBroom_ColorRange_h
+#ifndef TrenchBroom_StringSet_h
+#define TrenchBroom_StringSet_h
 
-#include "StringList.h"
+#include "StringType.h"
 
-namespace TrenchBroom {
-    namespace Assets {
-        namespace ColorRange {
-            using Type = int;
-            static const Type Unset = 0;
-            static const Type Float = 1;
-            static const Type Byte  = 2;
-            static const Type Mixed = Float | Byte;
-        }
+#include <set>
 
-        ColorRange::Type detectColorRange(const String& str);
-        ColorRange::Type detectColorRange(const StringList& components);
-    }
-}
+using StringSet = std::set<String>;
 
 #endif

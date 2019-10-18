@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_MapFormat
 #define TrenchBroom_MapFormat
 
-#include "StringUtils.h"
+#include "StringType.h"
 
 namespace TrenchBroom {
     namespace Model {

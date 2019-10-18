@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityAttributeIndex
 #define TrenchBroom_EntityAttributeIndex
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Model/ModelTypes.h"
 #include "Model/EntityAttributes.h"
 #include "StringMap.h"

@@ -21,7 +21,7 @@
 #define TrenchBroom_GL_h
 
 #include "Exceptions.h"
-#include "StringUtils.h"
+#include "StringType.h"
 
 #include <cstddef>
 #include <vector>

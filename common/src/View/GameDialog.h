@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_GameDialog
 #define TrenchBroom_GameDialog
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Model/MapFormat.h"
 
 #include <QDialog>

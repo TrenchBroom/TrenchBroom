@@ -20,7 +20,8 @@
 #ifndef TrenchBroom_ModEditor
 #define TrenchBroom_ModEditor
 
-#include "StringUtils.h"
+#include "StringType.h"
+#include "StringList.h"
 #include "View/ViewTypes.h"
 
 #include <QWidget>

@@ -22,6 +22,7 @@
 
 #include "CollectionUtils.h"
 #include "Exceptions.h"
+#include "StringType.h"
 #include "StringUtils.h"
 
 #include <cassert>

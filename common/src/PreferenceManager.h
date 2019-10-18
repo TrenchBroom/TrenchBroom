@@ -22,7 +22,7 @@
 
 #include "Notifier.h"
 #include "Preference.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "View/KeyboardShortcut.h"
 
 #include <QApplication>

@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_ToolBox
 #define TrenchBroom_ToolBox
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Notifier.h"
 
 #include <map>

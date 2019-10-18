@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_ShaderConfig
 #define TrenchBroom_ShaderConfig
 
-#include "StringUtils.h"
-#include "CollectionUtils.h"
+#include "StringType.h"
+#include "StringList.h"
 
 namespace TrenchBroom {
     namespace Renderer {

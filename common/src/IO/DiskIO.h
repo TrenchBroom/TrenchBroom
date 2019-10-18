@@ -20,7 +20,7 @@
 #ifndef DiskIO_h
 #define DiskIO_h
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "IO/FileMatcher.h"
 #include "IO/Path.h"
 

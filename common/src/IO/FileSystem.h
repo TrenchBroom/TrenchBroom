@@ -22,7 +22,7 @@
 
 #include "CollectionUtils.h"
 #include "Macros.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
 

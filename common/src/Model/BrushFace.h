@@ -23,7 +23,7 @@
 #include "TrenchBroom.h"
 #include "ProjectingSequence.h"
 #include "SharedPointer.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Assets/AssetTypes.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"

@@ -19,6 +19,8 @@
 
 #include "Tokenizer.h"
 
+#include "StringUtils.h"
+
 namespace TrenchBroom {
     namespace IO {
         TokenizerState::TokenizerState(const char* begin, const char* end, const String& escapableChars, const char escapeChar) :

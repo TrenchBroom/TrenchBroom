@@ -21,7 +21,7 @@
 #define TrenchBroom_CommandProcessor
 
 #include "Notifier.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "View/Command.h"
 #include "View/UndoableCommand.h"
 #include "View/ViewTypes.h"

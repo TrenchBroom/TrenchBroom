@@ -20,7 +20,8 @@
 #ifndef TRENCHBROOM_VARIABLESTOREMODEL_H
 #define TRENCHBROOM_VARIABLESTOREMODEL_H
 
-#include "StringUtils.h"
+#include "StringType.h"
+#include "StringList.h"
 
 #include <QAbstractListModel>
 

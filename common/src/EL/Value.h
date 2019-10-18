@@ -20,12 +20,14 @@
 #ifndef Value_h
 #define Value_h
 
-#include "StringUtils.h"
-#include "SharedPointer.h"
+#include "StringType.h"
+#include "StringList.h"
+#include "StringSet.h"
 #include "EL/Types.h"
 
 #include <algorithm>
 #include <iterator>
+#include <memory>
 
 namespace TrenchBroom {
     namespace EL {

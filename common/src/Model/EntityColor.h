@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityColor
 #define TrenchBroom_EntityColor
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Assets/ColorRange.h"
 #include "Model/ModelTypes.h"
 

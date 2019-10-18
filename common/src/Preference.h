@@ -23,7 +23,7 @@
 #include "Color.h"
 #include "Exceptions.h"
 #include "Macros.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "View/KeyboardShortcut.h"

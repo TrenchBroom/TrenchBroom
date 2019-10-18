@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityAttributeEditor
 #define TrenchBroom_EntityAttributeEditor
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 

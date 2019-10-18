@@ -23,6 +23,7 @@
 #include "Logger.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
+#include "StringUtils.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
 

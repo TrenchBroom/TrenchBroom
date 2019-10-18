@@ -23,6 +23,7 @@
 #include "Assets/Palette.h"
 #include "IO/Reader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
+#include "StringStream.h"
 
 namespace TrenchBroom {
     namespace IO {

@@ -19,6 +19,7 @@
 
 #include "AddBrushVerticesCommand.h"
 
+#include "StringUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 

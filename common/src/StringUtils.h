@@ -21,6 +21,10 @@
 #define TrenchBroom_StringUtils_h
 
 #include "Macros.h"
+#include "StringList.h"
+#include "StringSet.h"
+#include "StringStream.h"
+#include "StringType.h"
 
 #include <cassert>
 #include <cstdarg>
@@ -30,12 +34,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
-using String = std::string;
-using StringStream = std::stringstream;
-using StringSet = std::set<String>;
-using StringList = std::vector<String>;
-using StringMap = std::map<String, String>;
 
 static const String EmptyString("");
 static const StringList EmptyStringList(0);

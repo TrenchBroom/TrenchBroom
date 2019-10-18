@@ -31,6 +31,7 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
+#include "StringUtils.h"
 
 namespace TrenchBroom {
     namespace IO {

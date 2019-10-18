@@ -21,6 +21,8 @@
 
 #include "CollectionUtils.h"
 #include "EL/ELExceptions.h"
+#include "StringStream.h"
+#include "StringUtils.h"
 
 #include <algorithm>
 #include <cmath>

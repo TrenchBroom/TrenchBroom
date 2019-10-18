@@ -22,7 +22,7 @@
 
 #include "Exceptions.h"
 #include "Macros.h"
-#include "StringUtils.h"
+#include "StringType.h"
 
 #include <vecmath/vec.h>
 

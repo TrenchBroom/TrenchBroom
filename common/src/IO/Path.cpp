@@ -20,6 +20,7 @@
 #include "Path.h"
 
 #include "Exceptions.h"
+#include "StringUtils.h"
 
 #include <algorithm>
 #include <cassert>

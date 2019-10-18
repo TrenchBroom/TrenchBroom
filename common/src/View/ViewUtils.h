@@ -21,7 +21,7 @@
 #define TrenchBroom_ViewUtils
 
 #include "View/ViewTypes.h"
-#include "StringUtils.h"
+#include "StringType.h"
 
 class QWidget;
 class QString;

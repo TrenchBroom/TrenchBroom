@@ -20,9 +20,11 @@
 #ifndef TrenchBroom_SetModsCommand
 #define TrenchBroom_SetModsCommand
 
-#include "SharedPointer.h"
+#include "StringList.h"
 #include "View/DocumentCommand.h"
-#include "StringUtils.h"
+#include "StringType.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {

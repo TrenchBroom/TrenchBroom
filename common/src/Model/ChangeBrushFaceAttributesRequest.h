@@ -21,7 +21,7 @@
 #define TrenchBroom_ChangeBrushFaceAttributesRequest
 
 #include "Color.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Model/ModelTypes.h"
 
 #include <vecmath/forward.h>

@@ -25,6 +25,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "IO/TextureLoader.h"
+#include "StringUtils.h"
 
 #include <algorithm>
 #include <iterator>

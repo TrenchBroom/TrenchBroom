@@ -19,6 +19,9 @@
 
 #include "ActionContext.h"
 
+#include "StringList.h"
+#include "StringUtils.h"
+
 namespace TrenchBroom {
     namespace View {
         bool actionContextMatches(ActionContext::Type lhs, ActionContext::Type rhs) {

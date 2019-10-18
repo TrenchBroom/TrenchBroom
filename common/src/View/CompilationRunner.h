@@ -21,7 +21,7 @@
 #define CompilationRunner_h
 
 #include "Macros.h"
-#include "StringUtils.h"
+#include "StringType.h"
 
 #include "Model/CompilationTask.h"
 #include "View/CompilationContext.h"

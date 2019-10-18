@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Token
 #define TrenchBroom_Token
 
-#include "StringUtils.h"
+#include "StringType.h"
 
 #include <cassert>
 #include <cstdlib>

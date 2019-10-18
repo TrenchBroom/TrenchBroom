@@ -19,6 +19,8 @@
 
 #include "CreateEntityToolController.h"
 
+#include "StringList.h"
+#include "StringUtils.h"
 #include "View/CreateEntityTool.h"
 #include "View/InputState.h"
 

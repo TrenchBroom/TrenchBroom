@@ -21,7 +21,7 @@
 #define CompilationProfile_h
 
 #include "Notifier.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Model/CompilationTask.h"
 
 #include <vector>

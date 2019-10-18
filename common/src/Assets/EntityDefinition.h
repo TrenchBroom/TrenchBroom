@@ -23,7 +23,7 @@
 #include "TrenchBroom.h"
 #include "Color.h"
 #include "Notifier.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/ModelDefinition.h"
 

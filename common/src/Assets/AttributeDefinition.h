@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_AttributeDefinition
 #define TrenchBroom_AttributeDefinition
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Exceptions.h"
 
 #include <optional-lite/optional.hpp>

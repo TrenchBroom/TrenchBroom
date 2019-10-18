@@ -20,7 +20,7 @@
 #ifndef TRENCHBROOM_TAGMANAGER_H
 #define TRENCHBROOM_TAGMANAGER_H
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Model/Tag.h"
 
 #include <list>

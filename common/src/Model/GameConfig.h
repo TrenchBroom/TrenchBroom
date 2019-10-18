@@ -21,7 +21,8 @@
 #define TrenchBroom_GameConfig
 
 #include "Color.h"
-#include "StringUtils.h"
+#include "StringSet.h"
+#include "StringType.h"
 #include "IO/Path.h"
 #include "Model/CompilationConfig.h"
 #include "Model/GameEngineConfig.h"

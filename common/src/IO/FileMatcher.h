@@ -20,7 +20,8 @@
 #ifndef FileMatcher_h
 #define FileMatcher_h
 
-#include "StringUtils.h"
+#include "StringType.h"
+#include "StringList.h"
 
 namespace TrenchBroom {
     namespace IO {

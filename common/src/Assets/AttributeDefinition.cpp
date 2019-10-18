@@ -19,6 +19,8 @@
 
 #include "AttributeDefinition.h"
 
+#include "StringStream.h"
+#include "StringUtils.h"
 #include "CollectionUtils.h"
 #include "Macros.h"
 

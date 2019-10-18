@@ -19,6 +19,7 @@
 
 #include "TagManager.h"
 
+#include "Macros.h"
 #include "Model/Tag.h"
 
 #include <algorithm>

@@ -21,6 +21,7 @@
 #define EvaluationContext_h
 
 #include "EL/Value.h"
+#include "Macros.h"
 
 #include <memory>
 

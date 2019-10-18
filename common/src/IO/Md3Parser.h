@@ -20,7 +20,7 @@
 #ifndef TRENCHBROOM_MD3PARSER_H
 #define TRENCHBROOM_MD3PARSER_H
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Assets/EntityModel.h"
 #include "IO/EntityModelParser.h"
 

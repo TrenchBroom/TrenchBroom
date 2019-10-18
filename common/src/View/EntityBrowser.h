@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityBrowser
 #define TrenchBroom_EntityBrowser
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "View/ViewTypes.h"
 
 #include <QWidget>

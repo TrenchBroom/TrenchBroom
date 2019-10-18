@@ -22,7 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "SharedPointer.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/EntityDefinitionLoader.h"

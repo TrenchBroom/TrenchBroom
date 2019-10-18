@@ -21,7 +21,7 @@
 #define TrenchBroom_TestParserStatus
 
 #include "Logger.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "IO/ParserStatus.h"
 
 #include <map>

@@ -21,6 +21,7 @@
 
 #include "IO/Path.h"
 #include "IO/PathQt.h"
+#include "StringUtils.h"
 
 #include <QFileInfo>
 

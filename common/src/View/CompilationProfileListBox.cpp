@@ -21,6 +21,7 @@
 
 #include "Model/CompilationConfig.h"
 #include "Model/CompilationProfile.h"
+#include "StringStream.h"
 #include "View/ElidedLabel.h"
 #include "View/wxUtils.h"
 

@@ -21,7 +21,7 @@
 #define CompilationVariables_h
 
 #include "EL.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {

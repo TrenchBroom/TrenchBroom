@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityProperties
 #define TrenchBroom_EntityProperties
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "StringMap.h"
 #include "Model/EntityAttributeSnapshot.h"
 #include "Model/ModelTypes.h"

@@ -20,7 +20,8 @@
 #ifndef TrenchBroom_Logger
 #define TrenchBroom_Logger
 
-#include "StringUtils.h"
+#include "StringType.h"
+#include "StringStream.h"
 
 class QString;
 

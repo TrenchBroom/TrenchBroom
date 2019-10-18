@@ -18,6 +18,7 @@
  */
 
 #include "TextOutputAdapter.h"
+#include "Macros.h"
 #include "View/wxUtils.h"
 
 #include <QTextEdit>

@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_MdlParser
 #define TrenchBroom_MdlParser
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityModel.h"
 #include "IO/EntityModelParser.h"

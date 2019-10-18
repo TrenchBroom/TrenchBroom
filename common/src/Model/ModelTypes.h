@@ -21,7 +21,7 @@
 #define TrenchBroom_ModelTypes_h
 
 #include "TrenchBroom.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "SharedPointer.h"
 #include "Model/BrushGeometry.h"
 

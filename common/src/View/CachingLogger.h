@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_CachingLogger
 #define TrenchBroom_CachingLogger
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Logger.h"
 
 #include <vector>

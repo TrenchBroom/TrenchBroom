@@ -20,7 +20,7 @@
 #ifndef CurrentGameIndicator_h
 #define CurrentGameIndicator_h
 
-#include "StringUtils.h"
+#include "StringType.h"
 
 #include <QWidget>
 

@@ -24,7 +24,7 @@
 #include <QString>
 
 #include "Color.h"
-#include "StringUtils.h"
+#include "StringType.h"
 
 #include "View/ViewConstants.h"
 

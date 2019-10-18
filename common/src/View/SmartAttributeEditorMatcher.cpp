@@ -19,6 +19,8 @@
 
 #include "SmartAttributeEditorMatcher.h"
 
+#include "StringUtils.h"
+
 namespace TrenchBroom {
     namespace View {
         SmartAttributeEditorMatcher::~SmartAttributeEditorMatcher() {}

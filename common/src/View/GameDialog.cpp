@@ -23,6 +23,7 @@
 #include "PreferenceManager.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
+#include "StringUtils.h"
 #include "View/BorderLine.h"
 #include "View/GameListBox.h"
 #include "View/ViewConstants.h"

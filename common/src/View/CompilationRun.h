@@ -20,7 +20,7 @@
 #ifndef CompilationRun_h
 #define CompilationRun_h
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "View/ViewTypes.h"
 
 #include <QObject>

@@ -21,7 +21,7 @@
 #define TrenchBroom_CreateEntityToolController
 
 #include "View/ToolController.h"
-#include "StringUtils.h"
+#include "StringType.h"
 
 namespace TrenchBroom {
     namespace View {

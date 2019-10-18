@@ -22,6 +22,7 @@
 
 #include "Model/IssueGenerator.h"
 #include "Model/ModelTypes.h"
+#include "StringList.h"
 
 namespace TrenchBroom {
     namespace Model {

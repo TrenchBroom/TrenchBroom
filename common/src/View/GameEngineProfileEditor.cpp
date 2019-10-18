@@ -24,6 +24,7 @@
 #include "IO/PathQt.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
+#include "StringUtils.h"
 #include "TemporarilySetAny.h"
 
 #include <QBoxLayout>

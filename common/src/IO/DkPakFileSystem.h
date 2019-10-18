@@ -20,7 +20,7 @@
 #ifndef DkPakFileSystem_h
 #define DkPakFileSystem_h
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "IO/ImageFileSystem.h"
 #include "IO/Path.h"
 

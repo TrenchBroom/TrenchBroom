@@ -19,6 +19,8 @@
 
 #include "Logger.h"
 
+#include "StringUtils.h"
+
 #include <QString>
 
 #include <cstdarg>

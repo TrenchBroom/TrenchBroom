@@ -19,6 +19,8 @@
 
 #include "ColorRange.h"
 
+#include "StringUtils.h"
+
 namespace TrenchBroom {
     namespace Assets {
         ColorRange::Type detectColorRange(const StringList& components);

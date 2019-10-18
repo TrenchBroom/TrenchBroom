@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Bsp29Parser
 #define TrenchBroom_Bsp29Parser
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "SharedPointer.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/TextureCollection.h"

@@ -20,9 +20,9 @@
 #ifndef TrenchBroom_AssetTypes_h
 #define TrenchBroom_AssetTypes_h
 
-#include "StringUtils.h"
-#include "SharedPointer.h"
+#include "StringType.h"
 
+#include <memory>
 #include <map>
 #include <vector>
 

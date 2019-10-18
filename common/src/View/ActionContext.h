@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_ActionContext_h
 #define TrenchBroom_ActionContext_h
 
-#include "StringUtils.h"
+#include "StringType.h"
 
 namespace TrenchBroom {
     namespace View {

@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_ResourceUtils
 #define TrenchBroom_ResourceUtils
 
-#include "StringUtils.h"
+#include "StringType.h"
 
 #include <QPixmap>
 #include <QIcon>

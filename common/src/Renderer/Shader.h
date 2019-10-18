@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Shader
 #define TrenchBroom_Shader
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Renderer/GL.h"
 #include "IO/Path.h"
 

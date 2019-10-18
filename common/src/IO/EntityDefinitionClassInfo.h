@@ -21,7 +21,7 @@
 #define TrenchBroom_EntityDefinitionClassInfo
 
 #include "TrenchBroom.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Color.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/ModelDefinition.h"

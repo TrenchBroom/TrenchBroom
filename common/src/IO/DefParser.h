@@ -22,7 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "Color.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Assets/AssetTypes.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"

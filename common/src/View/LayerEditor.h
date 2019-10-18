@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_LayerEditor
 #define TrenchBroom_LayerEditor
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 

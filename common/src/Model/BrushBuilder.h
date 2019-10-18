@@ -21,7 +21,7 @@
 #define TrenchBroom_BrushBuilder
 
 #include "TrenchBroom.h"
-#include "StringUtils.h"
+#include "StringType.h"
 
 #include <vecmath/bbox.h>
 

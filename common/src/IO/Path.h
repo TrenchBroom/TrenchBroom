@@ -20,7 +20,8 @@
 #ifndef TrenchBroom_Path
 #define TrenchBroom_Path
 
-#include "StringUtils.h"
+#include "StringType.h"
+#include "StringList.h"
 
 #include <iostream>
 #include <vector>

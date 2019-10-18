@@ -20,7 +20,8 @@
 #ifndef TRENCHBROOM_QUAKE3SHADER_H
 #define TRENCHBROOM_QUAKE3SHADER_H
 
-#include "StringUtils.h"
+#include "StringType.h"
+#include "StringSet.h"
 #include "IO/Path.h"
 
 #include <vector>

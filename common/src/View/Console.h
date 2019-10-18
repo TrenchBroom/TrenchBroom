@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Console
 #define TrenchBroom_Console
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Notifier.h"
 #include "Logger.h"
 #include "View/TabBook.h"

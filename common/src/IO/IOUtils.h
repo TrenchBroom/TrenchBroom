@@ -23,7 +23,7 @@
 #include "Exceptions.h"
 #include "ByteBuffer.h"
 #include "Macros.h"
-#include "StringUtils.h"
+#include "StringType.h"
 
 #include <vecmath/forward.h>
 

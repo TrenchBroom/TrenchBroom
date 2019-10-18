@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityDefinitionGroup
 #define TrenchBroom_EntityDefinitionGroup
 
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinition.h"
 

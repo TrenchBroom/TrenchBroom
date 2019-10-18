@@ -19,6 +19,7 @@
 
 #include "SetModsCommand.h"
 
+#include "StringList.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <cassert>

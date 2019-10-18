@@ -21,8 +21,9 @@
 #define TrenchBroom_Group
 
 #include "TrenchBroom.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Hit.h"
+#include "Macros.h"
 #include "Model/ModelTypes.h"
 #include "Model/Node.h"
 #include "Model/Object.h"

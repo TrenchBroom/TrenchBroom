@@ -27,6 +27,7 @@
 #include "IO/IdMipTextureReader.h"
 #include "IO/Path.h"
 #include "IO/WalTextureReader.h"
+#include "StringUtils.h"
 
 namespace TrenchBroom {
     namespace IO {

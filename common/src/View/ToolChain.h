@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_ToolChain
 #define TrenchBroom_ToolChain
 
-#include "StringUtils.h"
+#include "StringType.h"
 
 namespace TrenchBroom {
     namespace Model {

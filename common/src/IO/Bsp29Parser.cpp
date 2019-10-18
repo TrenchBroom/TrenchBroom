@@ -28,6 +28,7 @@
 #include "IO/IdMipTextureReader.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
+#include "StringStream.h"
 
 namespace TrenchBroom {
     namespace IO {

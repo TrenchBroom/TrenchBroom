@@ -21,7 +21,7 @@
 #define TrenchBroom_CreateEntityTool
 
 #include "TrenchBroom.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 

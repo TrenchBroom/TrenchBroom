@@ -23,7 +23,7 @@
 #include "SharedPointer.h"
 #include "IO/Path.h"
 #include "View/DocumentCommand.h"
-#include "StringUtils.h"
+#include "StringType.h"
 
 namespace TrenchBroom {
     namespace View {

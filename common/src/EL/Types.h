@@ -20,7 +20,7 @@
 #ifndef Types_h
 #define Types_h
 
-#include "StringUtils.h"
+#include "StringType.h"
 
 #include <map>
 #include <vector>

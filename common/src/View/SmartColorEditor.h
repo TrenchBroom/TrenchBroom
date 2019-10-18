@@ -21,7 +21,7 @@
 #define TrenchBroom_SmartColorEditor
 
 #include "SharedPointer.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Model/ModelTypes.h"
 #include "View/SmartAttributeEditor.h"
 #include "View/ViewTypes.h"

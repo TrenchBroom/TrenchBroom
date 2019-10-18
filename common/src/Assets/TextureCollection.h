@@ -21,7 +21,7 @@
 #define TrenchBroom_TextureCollection
 
 #include "Notifier.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Assets/AssetTypes.h"
 #include "IO/Path.h"
 #include "Renderer/GL.h"

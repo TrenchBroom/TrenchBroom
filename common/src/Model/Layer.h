@@ -20,7 +20,8 @@
 #ifndef TrenchBroom_Layer
 #define TrenchBroom_Layer
 
-#include "StringUtils.h"
+#include "StringType.h"
+#include "Macros.h"
 #include "Model/ModelTypes.h"
 #include "Model/Node.h"
 

@@ -28,6 +28,7 @@
 #include "Renderer/RenderService.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
+#include "StringStream.h"
 #include "View/RotateObjectsTool.h"
 #include "View/InputState.h"
 #include "View/MoveToolController.h"

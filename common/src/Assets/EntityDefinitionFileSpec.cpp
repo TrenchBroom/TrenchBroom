@@ -19,6 +19,8 @@
 
 #include "EntityDefinitionFileSpec.h"
 
+#include "StringUtils.h"
+
 #include <cassert>
 
 namespace TrenchBroom {

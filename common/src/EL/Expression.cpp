@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "EL/EvaluationContext.h"
+#include "StringStream.h"
 
 namespace TrenchBroom {
     namespace EL {
