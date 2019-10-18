@@ -19,10 +19,11 @@
 
 #include "TagManager.h"
 
-#include "Macros.h"
+#include "Ensure.h"
 #include "Model/Tag.h"
 
 #include <algorithm>
+#include <cassert>
 #include <stdexcept>
 
 namespace TrenchBroom {

@@ -19,6 +19,7 @@
 
 #include "ImageLoaderImpl.h"
 
+#include "Ensure.h"
 #include "Exceptions.h"
 #include "Macros.h"
 #include "IO/Path.h"

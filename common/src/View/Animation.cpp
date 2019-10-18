@@ -18,7 +18,8 @@
  */
 
 #include "Animation.h"
-#include "Macros.h"
+
+#include "Ensure.h"
 #include "View/AnimationCurve.h"
 
 #include <algorithm>

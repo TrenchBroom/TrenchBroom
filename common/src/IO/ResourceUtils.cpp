@@ -19,6 +19,7 @@
 
 #include "ResourceUtils.h"
 
+#include "Ensure.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "IO/SystemPaths.h"

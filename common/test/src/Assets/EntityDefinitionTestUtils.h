@@ -21,7 +21,7 @@
 #define EntityDefinitionTestUtils_h
 
 #include "Color.h"
-#include "StringType.h"
+#include "StringUtils.h"
 
 namespace TrenchBroom {
     namespace IO {

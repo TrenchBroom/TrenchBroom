@@ -19,6 +19,7 @@
 
 #include "Vbo.h"
 
+#include "Ensure.h"
 #include "Exceptions.h"
 #include "Renderer/VboBlock.h"
 

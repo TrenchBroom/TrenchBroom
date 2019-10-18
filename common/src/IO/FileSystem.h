@@ -20,13 +20,13 @@
 #ifndef TrenchBroom_FileSystem
 #define TrenchBroom_FileSystem
 
+#include "Exceptions.h"
 #include "CollectionUtils.h"
 #include "Macros.h"
 #include "StringType.h"
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
 
-#include <iostream>
 #include <memory>
 
 namespace TrenchBroom {

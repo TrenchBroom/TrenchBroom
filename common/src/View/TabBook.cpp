@@ -19,6 +19,7 @@
 
 #include "TabBook.h"
 
+#include "Ensure.h"
 #include "Macros.h"
 #include "View/TabBar.h"
 

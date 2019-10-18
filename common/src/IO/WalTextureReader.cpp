@@ -19,6 +19,7 @@
 
 #include "WalTextureReader.h"
 
+#include "Ensure.h"
 #include "StringUtils.h"
 #include "IO/File.h"
 #include "IO/Reader.h"

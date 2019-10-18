@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+#include "Ensure.h"
 #include "Macros.h"
 #include "StringUtils.h"
 

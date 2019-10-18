@@ -20,6 +20,7 @@
 #include "GameFileSystem.h"
 
 #include "CollectionUtils.h"
+#include "Exceptions.h"
 #include "Logger.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DkPakFileSystem.h"

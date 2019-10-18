@@ -20,6 +20,7 @@
 #include "FreeImageTextureReader.h"
 
 #include "Color.h"
+#include "Ensure.h"
 #include "FreeImage.h"
 #include "StringUtils.h"
 #include "Assets/Texture.h"

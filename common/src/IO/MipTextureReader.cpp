@@ -20,6 +20,7 @@
 #include "MipTextureReader.h"
 
 #include "Color.h"
+#include "Ensure.h"
 #include "StringUtils.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"

@@ -20,8 +20,7 @@
 #ifndef TrenchBroom_TemporarilySetAny
 #define TrenchBroom_TemporarilySetAny
 
-#include <cassert>
-#include <iostream>
+#include "Ensure.h"
 
 namespace TrenchBroom {
     template <typename T>

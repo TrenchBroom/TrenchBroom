@@ -19,6 +19,7 @@
 
 #include "Autosaver.h"
 
+#include "Exceptions.h"
 #include "StringUtils.h"
 #include "IO/DiskFileSystem.h"
 #include "View/MapDocument.h"

@@ -19,7 +19,7 @@
 
 #include "TabBar.h"
 
-#include "Macros.h"
+#include "Ensure.h"
 #include "View/TabBook.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"

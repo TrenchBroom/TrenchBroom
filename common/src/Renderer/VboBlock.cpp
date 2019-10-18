@@ -19,6 +19,8 @@
 
 #include "VboBlock.h"
 
+#include "Ensure.h"
+
 #include <cassert>
 
 namespace TrenchBroom {

@@ -19,8 +19,8 @@
 
 #include "FlagsEditor.h"
 
+#include "Ensure.h"
 #include "View/ViewConstants.h"
-#include "Macros.h"
 
 #include <QGridLayout>
 #include <QCheckBox>

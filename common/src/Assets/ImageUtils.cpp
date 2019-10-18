@@ -18,6 +18,7 @@
  */
 
 #include "ImageUtils.h"
+#include "Ensure.h"
 
 #include <vecmath/vec.h>
 

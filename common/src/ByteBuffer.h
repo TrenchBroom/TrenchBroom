@@ -20,10 +20,10 @@
 #ifndef TrenchBroom_ByteBuffer_h
 #define TrenchBroom_ByteBuffer_h
 
-#include "SharedPointer.h"
-#include "Macros.h"
+#include "Ensure.h"
 
 #include <cassert>
+#include <memory>
 #include <vector>
 
 template <typename T>

@@ -29,6 +29,7 @@
 #include <cassert>
 #include <functional>
 #include <iostream>
+#include <list>
 #include <unordered_map>
 
 /**

@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_VertexArrayRenderer
 #define TrenchBroom_VertexArrayRenderer
 
+#include "Ensure.h"
 #include "Renderer/GL.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
