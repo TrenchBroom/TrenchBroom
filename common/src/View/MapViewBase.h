@@ -96,7 +96,7 @@ namespace TrenchBroom {
              */
             bool m_isCurrent;
         private: // shortcuts
-            std::vector<std::pair<std::unique_ptr<QShortcut>, const Action*>> m_shortcuts;
+            std::vector<std::pair<QShortcut*, const Action*>> m_shortcuts;
         protected:
             MapViewBase(Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
 

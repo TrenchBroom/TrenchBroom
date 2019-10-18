@@ -260,15 +260,21 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::createActions() {
+            // Destroy existing QShortcuts via the weak references in m_shortcuts
+            for (auto& [shortcut, action] : m_shortcuts) {
+                delete shortcut;
+            }
             m_shortcuts.clear();
 
             auto visitor = [this](const Action& action) {
-                const auto keySequence = action.keySequence();
-                auto shortcut = std::make_unique<QShortcut>(widgetContainer());
+                const QKeySequence keySequence = action.keySequence();
+
+                QShortcut* shortcut = new QShortcut(this);
+                shortcut->setContext(Qt::WidgetWithChildrenShortcut);
                 shortcut->setKey(keySequence);
-                connect(shortcut.get(), &QShortcut::activated, this, [this, &action]() { triggerAction(action); });
-                connect(shortcut.get(), &QShortcut::activatedAmbiguously, this, [this, &action]() { triggerAmbiguousAction(action.label()); });
-                m_shortcuts.emplace_back(std::move(shortcut), &action);
+                connect(shortcut, &QShortcut::activated, this, [this, &action]() { triggerAction(action); });
+                connect(shortcut, &QShortcut::activatedAmbiguously, this, [this, &action]() { triggerAmbiguousAction(action.label()); });
+                m_shortcuts.emplace_back(shortcut, &action);
             };
 
             auto& actionManager = ActionManager::instance();
