@@ -20,6 +20,7 @@
 #ifndef IndexArray_h
 #define IndexArray_h
 
+#include "Ensure.h"
 #include "Renderer/GL.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
