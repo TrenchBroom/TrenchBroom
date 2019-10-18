@@ -23,8 +23,9 @@
 #include "StringType.h"
 #include "StringList.h"
 
-#include <vector>
+#include <memory>
 #include <set>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {

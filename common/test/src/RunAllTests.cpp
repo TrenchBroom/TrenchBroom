@@ -20,6 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "TrenchBroomApp.h"
+#include "Macros.h"
 
 #include <clocale>
 

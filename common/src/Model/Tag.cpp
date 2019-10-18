@@ -22,6 +22,8 @@
 #include "IO/Path.h"
 #include "Model/TagManager.h"
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace Model {
         TagAttribute::TagAttribute(const AttributeType type, String name) :

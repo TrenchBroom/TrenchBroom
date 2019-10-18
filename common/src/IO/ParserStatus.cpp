@@ -20,6 +20,8 @@
 #include "ParserStatus.h"
 #include "Exceptions.h"
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace IO {
         ParserStatus::ParserStatus(Logger& logger, String prefix) :
