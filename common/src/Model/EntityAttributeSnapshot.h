@@ -23,6 +23,7 @@
 #include "Model/ModelTypes.h"
 
 #include <map>
+#include <list>
 
 namespace TrenchBroom {
     namespace Model {

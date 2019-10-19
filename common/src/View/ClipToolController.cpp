@@ -19,6 +19,7 @@
 
 #include "ClipToolController.h"
 
+#include "CollectionUtils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"

@@ -19,6 +19,7 @@
 
 #include "wxUtils.h"
 
+#include "Ensure.h"
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "View/BorderLine.h"

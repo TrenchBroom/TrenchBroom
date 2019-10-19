@@ -20,6 +20,7 @@
 #include "ResizeBrushesTool.h"
 
 #include "Constants.h"
+#include "CollectionUtils.h"
 #include "TrenchBroom.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"

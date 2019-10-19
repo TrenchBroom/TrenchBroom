@@ -19,6 +19,7 @@
 
 #include "MoveBrushVerticesCommand.h"
 
+#include "CollectionUtils.h"
 #include "Constants.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"

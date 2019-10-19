@@ -23,7 +23,6 @@
 #include "TrenchBroom.h"
 #include "Hit.h"
 #include "ProjectingSequence.h"
-#include "Polyhedron_Matcher.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
@@ -41,6 +40,9 @@
 
 #include <set>
 #include <vector>
+
+template <typename P>
+class PolyhedronMatcher;
 
 namespace TrenchBroom {
     namespace Model {

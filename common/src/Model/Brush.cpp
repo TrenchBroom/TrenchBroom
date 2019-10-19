@@ -22,6 +22,7 @@
 #include "CollectionUtils.h"
 #include "Constants.h"
 #include "Macros.h"
+#include "Polyhedron_Matcher.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushSnapshot.h"
