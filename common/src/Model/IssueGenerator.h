@@ -20,10 +20,27 @@
 #ifndef TrenchBroom_IssueGenerator
 #define TrenchBroom_IssueGenerator
 
-#include "Model/ModelTypes.h"
+#include "StringType.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        using IssueType = int;
+
+        class AttributableNode;
+        class Brush;
+        class Entity;
+        class Group;
+        class Layer;
+        class World;
+
+        class Issue;
+        using IssueList = std::vector<Issue*>;
+
+        class IssueQuickFix;
+        using IssueQuickFixList = std::vector<IssueQuickFix*>;
+
         class IssueGenerator {
         private:
             IssueType m_type;
