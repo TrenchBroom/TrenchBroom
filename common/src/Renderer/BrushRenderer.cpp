@@ -29,6 +29,7 @@
 #include "Model/TagAttribute.h"
 #include "Renderer/IndexArrayMapBuilder.h"
 #include "Renderer/BrushRendererArrays.h"
+#include "Renderer/BrushRendererBrushCache.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/TexturedIndexArrayMapBuilder.h"

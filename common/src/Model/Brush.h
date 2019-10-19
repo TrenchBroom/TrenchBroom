@@ -23,15 +23,14 @@
 #include "TrenchBroom.h"
 #include "Hit.h"
 #include "ProjectingSequence.h"
+#include "Macros.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
-#include "Renderer/BrushRendererBrushCache.h"
 #include "Renderer/VertexListBuilder.h"
 #include "Renderer/TexturedIndexArrayMap.h"
 #include "Renderer/IndexArrayMapBuilder.h"
 #include "Renderer/TexturedIndexArrayMapBuilder.h"
-#include "Renderer/BrushRendererBrushCache.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -45,11 +44,14 @@ template <typename P>
 class PolyhedronMatcher;
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class BrushRendererBrushCache;
+    }
+
     namespace Model {
         struct BrushAlgorithmResult;
         class ModelFactory;
         class PickResult;
-        class BrushRendererBrushCache;
 
         class Brush : public Node, public Object {
         private:
@@ -82,7 +84,7 @@ namespace TrenchBroom {
             BrushGeometry* m_geometry;
 
             mutable bool m_transparent;
-            mutable Renderer::BrushRendererBrushCache m_brushRendererBrushCache;
+            mutable std::unique_ptr<Renderer::BrushRendererBrushCache> m_brushRendererBrushCache; // unique_ptr for breaking header dependencies
         public:
             Brush(const vm::bbox3& worldBounds, const BrushFaceList& faces);
             ~Brush() override;

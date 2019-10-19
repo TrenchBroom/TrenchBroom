@@ -36,6 +36,7 @@
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
 #include "Model/World.h"
+#include "Renderer/BrushRendererBrushCache.h"
 
 #include <vecmath/intersection.h>
 #include <vecmath/vec.h>
@@ -301,7 +302,9 @@ namespace TrenchBroom {
         };
 
         Brush::Brush(const vm::bbox3& worldBounds, const BrushFaceList& faces) :
-        m_geometry(nullptr) {
+        m_geometry(nullptr),
+        m_transparent(false),
+        m_brushRendererBrushCache(std::make_unique<Renderer::BrushRendererBrushCache>()) {
             addFaces(faces);
             try {
                 buildGeometry(worldBounds);
@@ -1531,11 +1534,11 @@ namespace TrenchBroom {
         }
 
         void Brush::invalidateVertexCache() {
-            m_brushRendererBrushCache.invalidateVertexCache();
+            m_brushRendererBrushCache->invalidateVertexCache();
         }
 
         Renderer::BrushRendererBrushCache& Brush::brushRendererBrushCache() const {
-            return m_brushRendererBrushCache;
+            return *m_brushRendererBrushCache;
         }
 
         void Brush::initializeTags(TagManager& tagManager) {
