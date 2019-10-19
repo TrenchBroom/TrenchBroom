@@ -22,6 +22,7 @@
 
 #include "Model/EntityAttributes.h"
 #include "Model/ModelTypes.h"
+#include "StringStream.h"
 
 #include <map>
 #include <memory>

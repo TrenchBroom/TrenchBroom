@@ -159,6 +159,8 @@ namespace TrenchBroom {
 
         EntityAttributes::EntityAttributes() : m_index(std::make_unique<AttributeIndex>()) {}
 
+        EntityAttributes::~EntityAttributes() = default;
+
         const EntityAttribute::List& EntityAttributes::attributes() const {
             return m_attributes;
         }
