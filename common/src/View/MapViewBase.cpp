@@ -263,6 +263,7 @@ namespace TrenchBroom {
         void MapViewBase::createActions() {
             // Destroy existing QShortcuts via the weak references in m_shortcuts
             for (auto& [shortcut, action] : m_shortcuts) {
+                unused(action);
                 delete shortcut;
             }
             m_shortcuts.clear();
@@ -1349,4 +1350,3 @@ namespace TrenchBroom {
         bool MapViewBase::doBeforePopupMenu() { return true; }
         void MapViewBase::doAfterPopupMenu() {}
     }
-}
