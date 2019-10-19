@@ -1350,3 +1350,4 @@ namespace TrenchBroom {
         bool MapViewBase::doBeforePopupMenu() { return true; }
         void MapViewBase::doAfterPopupMenu() {}
     }
+}
