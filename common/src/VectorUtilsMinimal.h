@@ -30,6 +30,14 @@ namespace VectorUtils {
         vec.shrink_to_fit();
     }
 
+    template <typename T>
+    void clearAndDelete(std::vector<T*>& vec) {
+        for (T* ptr : vec) {
+            delete ptr;
+        }
+        vec.clear();
+    }
+
     template <typename T1, typename T2>
     void append(std::vector<T1>& vec1, const std::vector<T2>& vec2) {
         vec1.reserve(vec1.size() + vec2.size());

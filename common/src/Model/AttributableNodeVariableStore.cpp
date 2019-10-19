@@ -19,8 +19,8 @@
 
 #include "AttributableNodeVariableStore.h"
 
-#include <cassert>
 #include "Model/AttributableNode.h"
+#include "StringUtils.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -58,7 +58,8 @@ namespace TrenchBroom {
         }
 
         void AttributableNodeVariableStore::doAssign(const String& name, const EL::Value& value) {
-            m_node->addOrUpdateAttribute(name, value.convertTo(EL::Type_String));
+            const EL::Value stringELValue = value.convertTo(EL::Type_String);
+            m_node->addOrUpdateAttribute(name, StringUtils::toString(stringELValue));
         }
     }
 }

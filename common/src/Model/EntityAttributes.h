@@ -117,6 +117,8 @@ namespace TrenchBroom {
             std::unique_ptr<AttributeIndex> m_index;
         public:
             explicit EntityAttributes();
+            ~EntityAttributes() = default;
+
             const EntityAttribute::List& attributes() const;
             void setAttributes(const EntityAttribute::List& attributes);
 

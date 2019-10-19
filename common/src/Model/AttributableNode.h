@@ -26,7 +26,6 @@
 #include "Model/EntityAttributes.h"
 #include "Model/ModelTypes.h"
 #include "Model/Node.h"
-#include "StringStream.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -82,16 +81,6 @@ namespace TrenchBroom {
 
             EntityAttributeSnapshot attributeSnapshot(const AttributeName& name) const;
 
-            template <typename T>
-            void addOrUpdateAttribute(const AttributeName& name, const T& value) {
-                addOrUpdateAttribute(name, convertValue(value));
-            }
-
-            template <typename T, size_t S>
-            void addOrUpdateAttribute(const AttributeName& name, const vm::vec<T,S>& value) {
-                addOrUpdateAttribute(name, StringUtils::toString(value));
-            }
-
             bool canAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const;
             bool addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value);
 
@@ -105,14 +94,6 @@ namespace TrenchBroom {
             bool isAttributeNameMutable(const AttributeName& name) const;
             bool isAttributeValueMutable(const AttributeName& name) const;
         private: // attribute management internals
-            template <typename T>
-            AttributeValue convertValue(const T& value) const {
-                static StringStream str;
-                str.str("");
-                str << value;
-                return str.str();
-            }
-
             class NotifyAttributeChange {
             private:
                 NotifyNodeChange m_nodeChange;

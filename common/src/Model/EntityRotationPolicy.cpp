@@ -118,9 +118,9 @@ namespace TrenchBroom {
                 case RotationType_AngleUpDown: {
                     const auto direction = normalize(transformation * rotation * vm::vec3::pos_x());
                     if (direction.z() > 0.9) {
-                        entity->addOrUpdateAttribute(info.attribute, 1.0);
+                        entity->addOrUpdateAttribute(info.attribute, "1.0");
                     } else if (direction.z() < -0.9) {
-                        entity->addOrUpdateAttribute(info.attribute, -1.0);
+                        entity->addOrUpdateAttribute(info.attribute, "-1.0");
                     } else {
                         setAngle(entity, info.attribute, direction);
                     }
@@ -129,19 +129,19 @@ namespace TrenchBroom {
                 case RotationType_Euler: {
                     const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const auto nPitchYawRoll = vm::vec3(-yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
-                    entity->addOrUpdateAttribute(info.attribute, round(nPitchYawRoll));
+                    entity->addOrUpdateAttribute(info.attribute, StringUtils::toString(round(nPitchYawRoll)));
                     break;
                 }
                 case RotationType_Euler_PositivePitchDown: {
                     const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const auto nPitchYawRoll = vm::vec3(yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
-                    entity->addOrUpdateAttribute(info.attribute, round(nPitchYawRoll));
+                    entity->addOrUpdateAttribute(info.attribute, StringUtils::toString(round(nPitchYawRoll)));
                     break;
                 }
                 case RotationType_Mangle: {
                     const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const auto yawNPitchRoll = vm::vec3(yawPitchRoll.x(), -yawPitchRoll.y(), yawPitchRoll.z());
-                    entity->addOrUpdateAttribute(info.attribute, round(yawNPitchRoll));
+                    entity->addOrUpdateAttribute(info.attribute, StringUtils::toString(round(yawNPitchRoll)));
                     break;
                 }
                 case RotationType_None:
@@ -221,7 +221,7 @@ namespace TrenchBroom {
 
         void EntityRotationPolicy::setAngle(Entity* entity, const AttributeName& attribute, const vm::vec3& direction) {
             const auto angle = getAngle(direction);
-            entity->addOrUpdateAttribute(attribute, vm::round(angle));
+            entity->addOrUpdateAttribute(attribute, StringUtils::toString(vm::round(angle)));
         }
 
         FloatType EntityRotationPolicy::getAngle(vm::vec3 direction) {

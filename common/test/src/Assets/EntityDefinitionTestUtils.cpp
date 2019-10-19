@@ -26,6 +26,7 @@
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/TestParserStatus.h"
+#include "VectorUtilsMinimal.h"
 
 namespace TrenchBroom {
     namespace Assets {
