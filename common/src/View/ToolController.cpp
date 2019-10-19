@@ -19,6 +19,7 @@
 
 #include "ToolController.h"
 
+#include "Constants.h"
 #include "TrenchBroom.h"
 #include "View/Grid.h"
 #include "View/Tool.h"

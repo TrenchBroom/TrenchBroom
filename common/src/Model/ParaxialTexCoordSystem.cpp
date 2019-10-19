@@ -19,6 +19,7 @@
 
 #include "ParaxialTexCoordSystem.h"
 
+#include "Constants.h"
 #include "TrenchBroom.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"

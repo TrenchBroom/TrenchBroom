@@ -19,9 +19,8 @@
 
 #include "MultiMapView.h"
 
+#include "Ensure.h"
 #include "View/MapView.h"
-
-#include <cassert>
 
 namespace TrenchBroom {
     namespace View {

@@ -20,6 +20,7 @@
 #include "Brush.h"
 
 #include "CollectionUtils.h"
+#include "Constants.h"
 #include "Macros.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"

@@ -22,6 +22,8 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 
+#include <vecmath/mat.h>
+
 namespace TrenchBroom {
     namespace Renderer {
         void Compass3D::doRenderCompass(RenderContext& renderContext, const vm::mat4x4f& transform) {

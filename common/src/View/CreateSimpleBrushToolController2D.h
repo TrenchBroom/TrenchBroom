@@ -20,8 +20,12 @@
 #ifndef TrenchBroom_CreateBrushToolController2D
 #define TrenchBroom_CreateBrushToolController2D
 
+#include "TrenchBroom.h"
 #include "View/ToolController.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace View {

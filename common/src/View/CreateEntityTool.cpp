@@ -19,6 +19,7 @@
 
 #include "CreateEntityTool.h"
 
+#include "Constants.h"
 #include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"

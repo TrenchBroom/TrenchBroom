@@ -19,6 +19,7 @@
 
 #include "MapViewBase.h"
 
+#include "Constants.h"
 #include "TrenchBroom.h"
 #include "Logger.h"
 #include "PreferenceManager.h"

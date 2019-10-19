@@ -19,6 +19,7 @@
 
 #include "MoveBrushEdgesCommand.h"
 
+#include "Constants.h"
 #include "Model/Brush.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"

@@ -18,6 +18,8 @@
  */
 
 #include "MapView3D.h"
+
+#include "Constants.h"
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"

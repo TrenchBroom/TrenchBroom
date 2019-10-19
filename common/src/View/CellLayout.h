@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_CellLayout_h
 #define TrenchBroom_CellLayout_h
 
+#include "Ensure.h"
 #include "Macros.h"
 
 #include <QVariant>

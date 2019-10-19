@@ -21,6 +21,7 @@
 
 #include <cmath>
 
+#include "Constants.h"
 #include "CollectionUtils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"

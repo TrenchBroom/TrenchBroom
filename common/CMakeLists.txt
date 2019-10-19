@@ -524,6 +524,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ByteBuffer.h
         ${COMMON_SOURCE_DIR}/CollectionUtils.h
         ${COMMON_SOURCE_DIR}/Color.h
+        ${COMMON_SOURCE_DIR}/Constants.h
         ${COMMON_SOURCE_DIR}/Disjunction.h
         ${COMMON_SOURCE_DIR}/DoublyLinkedList.h
         ${COMMON_SOURCE_DIR}/EL/ELExceptions.h
@@ -733,6 +734,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Polyhedron_Queries.h
         ${COMMON_SOURCE_DIR}/Polyhedron_Subtract.h
         ${COMMON_SOURCE_DIR}/Polyhedron_Vertex.h
+        ${COMMON_SOURCE_DIR}/Polyhedron3.h
         ${COMMON_SOURCE_DIR}/Preference.h
         ${COMMON_SOURCE_DIR}/PreferenceManager.h
         ${COMMON_SOURCE_DIR}/Preferences.h

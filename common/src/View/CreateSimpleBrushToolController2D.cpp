@@ -19,7 +19,6 @@
 
 #include "CreateSimpleBrushToolController2D.h"
 
-#include "Polyhedron.h"
 #include "Renderer/Camera.h"
 #include "View/CreateSimpleBrushTool.h"
 #include "View/Grid.h"

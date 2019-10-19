@@ -19,9 +19,9 @@
 
 #include "PlanePointFinder.h"
 
+#include "Constants.h"
 #include "TrenchBroom.h"
 
-#include <vecmath/constants.h>
 #include <vecmath/vec.h>
 #include <vecmath/plane.h>
 

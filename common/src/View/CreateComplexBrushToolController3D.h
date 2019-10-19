@@ -20,11 +20,7 @@
 #ifndef TrenchBroom_CreateComplexBrushToolController3D
 #define TrenchBroom_CreateComplexBrushToolController3D
 
-#include "Polyhedron.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
-
-#include <vector>
 
 namespace TrenchBroom {
     namespace View {

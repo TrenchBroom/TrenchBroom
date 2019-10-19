@@ -18,7 +18,9 @@
  */
 
 #include "Hit.h"
+
 #include "HitFilter.h"
+#include "Ensure.h"
 
 #include <algorithm>
 #include <limits>

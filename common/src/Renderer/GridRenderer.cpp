@@ -27,6 +27,7 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 
+#include <vecmath/bbox.h>
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {

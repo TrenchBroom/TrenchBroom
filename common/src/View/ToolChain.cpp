@@ -19,6 +19,7 @@
 
 #include "ToolChain.h"
 
+#include "Ensure.h"
 #include "View/ToolController.h"
 
 #include <cassert>

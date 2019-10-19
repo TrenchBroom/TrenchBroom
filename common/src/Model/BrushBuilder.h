@@ -21,9 +21,12 @@
 #define TrenchBroom_BrushBuilder
 
 #include "TrenchBroom.h"
+#include "Polyhedron3.h"
 #include "StringType.h"
 
 #include <vecmath/bbox.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
