@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 
 #include <vecmath/plane.h>
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Renderer {

@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_CreateBrushToolBase
 #define TrenchBroom_CreateBrushToolBase
 
-#include "Polyhedron.h"
 #include "Model/ModelTypes.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"

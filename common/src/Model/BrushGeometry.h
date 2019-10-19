@@ -24,6 +24,7 @@
 #include "Polyhedron.h"
 #include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"
+#include "Polyhedron_Instantiation.h"
 
 namespace TrenchBroom {
     namespace Model {
