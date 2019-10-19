@@ -27,10 +27,6 @@
 #include "Model/BrushGeometry.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
-#include "Renderer/VertexListBuilder.h"
-#include "Renderer/TexturedIndexArrayMap.h"
-#include "Renderer/IndexArrayMapBuilder.h"
-#include "Renderer/TexturedIndexArrayMapBuilder.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>

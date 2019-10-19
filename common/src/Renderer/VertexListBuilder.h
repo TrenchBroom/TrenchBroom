@@ -20,8 +20,6 @@
 #ifndef VertexListBuilder_h
 #define VertexListBuilder_h
 
-#include "Renderer/GL.h"
-#include "Renderer/GLVertex.h"
 #include "VectorUtilsMinimal.h"
 
 namespace TrenchBroom {
