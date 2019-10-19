@@ -19,6 +19,8 @@
 
 #include "EntityDefinitionGroup.h"
 
+#include "StringUtils.h"
+
 namespace TrenchBroom {
     namespace Assets {
         EntityDefinitionGroup::EntityDefinitionGroup(const String& name, const EntityDefinitionList& definitions) :

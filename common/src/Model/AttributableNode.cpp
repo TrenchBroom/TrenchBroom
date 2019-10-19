@@ -20,6 +20,8 @@
 #include "AttributableNode.h"
 
 #include "Assets/AttributeDefinition.h"
+#include "CollectionUtils.h"
+#include "StringMap.h"
 
 namespace TrenchBroom {
     namespace Model {

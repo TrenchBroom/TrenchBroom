@@ -21,6 +21,7 @@
 
 #include "Assets/AttributeDefinition.h"
 #include "Model/EntityAttributes.h"
+#include "CollectionUtils.h"
 
 namespace TrenchBroom {
     namespace IO {

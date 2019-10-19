@@ -20,8 +20,10 @@
 #include "LegacyModelDefinitionParser.h"
 
 #include "Assets/ModelDefinition.h"
-#include "StringUtils.h"
+#include "CollectionUtils.h"
 #include "EL.h"
+#include "StringStream.h"
+#include "StringUtils.h"
 
 namespace TrenchBroom {
     namespace IO {

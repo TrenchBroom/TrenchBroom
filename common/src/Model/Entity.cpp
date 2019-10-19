@@ -33,6 +33,7 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
+#include "StringUtils.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>

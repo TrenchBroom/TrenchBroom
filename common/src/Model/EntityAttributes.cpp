@@ -19,8 +19,9 @@
 
 #include "EntityAttributes.h"
 
-#include "Exceptions.h"
 #include "Assets/EntityDefinition.h"
+#include "Exceptions.h"
+#include "StringMap.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -154,6 +155,10 @@ namespace TrenchBroom {
             return defaultValue;
         }
 
+        // EntityAttributes
+
+        EntityAttributes::EntityAttributes() : m_index(std::make_unique<AttributeIndex>()) {}
+
         const EntityAttribute::List& EntityAttributes::attributes() const {
             return m_attributes;
         }
@@ -171,7 +176,7 @@ namespace TrenchBroom {
                 return *it;
             } else {
                 m_attributes.push_back(EntityAttribute(name, value, definition));
-                m_index.insert(name, --std::end(m_attributes));
+                m_index->insert(name, --std::end(m_attributes));
                 return m_attributes.back();
             }
         }
@@ -189,7 +194,7 @@ namespace TrenchBroom {
             EntityAttribute::List::iterator it = findAttribute(name);
             if (it == std::end(m_attributes))
                 return;
-            m_index.remove(name, it);
+            m_index->remove(name, it);
             m_attributes.erase(it);
         }
 
@@ -213,15 +218,15 @@ namespace TrenchBroom {
         }
 
         bool EntityAttributes::hasAttributeWithPrefix(const AttributeName& prefix, const AttributeValue& value) const {
-            return containsValue(m_index.queryPrefixMatches(prefix), value);
+            return containsValue(m_index->queryPrefixMatches(prefix), value);
         }
 
         bool EntityAttributes::hasNumberedAttribute(const AttributeName& prefix, const AttributeValue& value) const {
-            return containsValue(m_index.queryNumberedMatches(prefix), value);
+            return containsValue(m_index->queryNumberedMatches(prefix), value);
         }
 
         EntityAttributeSnapshot EntityAttributes::snapshot(const AttributeName& name) const {
-            const AttributeIndex::QueryResult matches = m_index.queryExactMatches(name);
+            const AttributeIndex::QueryResult matches = m_index->queryExactMatches(name);
             if (matches.empty())
                 return EntityAttributeSnapshot(name);
 
@@ -229,7 +234,7 @@ namespace TrenchBroom {
             return EntityAttributeSnapshot(name, matches.front()->value());
         }
 
-        bool EntityAttributes::containsValue(const AttributeIndex::QueryResult& matches, const AttributeValue& value) const {
+        bool EntityAttributes::containsValue(const std::vector<IndexValue>& matches, const AttributeValue& value) const {
             if (matches.empty())
                 return false;
 
@@ -242,7 +247,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        EntityAttribute::List EntityAttributes::listFromQueryResult(const AttributeIndex::QueryResult& matches) const {
+        EntityAttribute::List EntityAttributes::listFromQueryResult(const std::vector<IndexValue>& matches) const {
             EntityAttribute::List result;
 
             for (auto attrIt : matches) {
@@ -275,11 +280,11 @@ namespace TrenchBroom {
         }
 
         EntityAttribute::List EntityAttributes::attributeWithName(const AttributeName& name) const {
-            return listFromQueryResult(m_index.queryExactMatches(name));
+            return listFromQueryResult(m_index->queryExactMatches(name));
         }
 
         EntityAttribute::List EntityAttributes::attributesWithPrefix(const AttributeName& prefix) const{
-            return listFromQueryResult(m_index.queryPrefixMatches(prefix));
+            return listFromQueryResult(m_index->queryPrefixMatches(prefix));
         }
 
         EntityAttribute::List EntityAttributes::numberedAttributes(const String& prefix) const {
@@ -294,7 +299,7 @@ namespace TrenchBroom {
         }
 
         EntityAttribute::List::const_iterator EntityAttributes::findAttribute(const AttributeName& name) const {
-            const AttributeIndex::QueryResult matches = m_index.queryExactMatches(name);
+            const AttributeIndex::QueryResult matches = m_index->queryExactMatches(name);
             if (matches.empty())
                 return std::end(m_attributes);
 
@@ -303,7 +308,7 @@ namespace TrenchBroom {
         }
 
         EntityAttribute::List::iterator EntityAttributes::findAttribute(const AttributeName& name) {
-            const AttributeIndex::QueryResult matches = m_index.queryExactMatches(name);
+            const AttributeIndex::QueryResult matches = m_index->queryExactMatches(name);
             if (matches.empty())
                 return std::end(m_attributes);
 
@@ -312,11 +317,11 @@ namespace TrenchBroom {
         }
 
         void EntityAttributes::rebuildIndex() {
-            m_index.clear();
+            m_index->clear();
 
             for (auto it = std::begin(m_attributes), end = std::end(m_attributes); it != end; ++it) {
                 const EntityAttribute& attribute = *it;
-                m_index.insert(attribute.name(), it);
+                m_index->insert(attribute.name(), it);
             }
         }
     }

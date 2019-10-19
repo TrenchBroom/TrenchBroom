@@ -35,7 +35,6 @@
 #include <string>
 #include <vector>
 
-static const String EmptyString("");
 static const StringList EmptyStringList(0);
 
 namespace StringUtils {

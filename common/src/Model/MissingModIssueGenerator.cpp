@@ -19,6 +19,7 @@
 
 #include "MissingModIssueGenerator.h"
 
+#include "CollectionUtils.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Issue.h"

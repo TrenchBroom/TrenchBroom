@@ -20,8 +20,8 @@
 #include "ModelDefinition.h"
 
 #include "Model/EntityAttributesVariableStore.h"
+#include "StringUtils.h"
 
-#include <cassert>
 #include <cmath>
 
 namespace TrenchBroom {

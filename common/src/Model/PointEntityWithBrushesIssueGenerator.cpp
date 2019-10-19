@@ -19,13 +19,14 @@
 
 #include "PointEntityWithBrushesIssueGenerator.h"
 
-#include "StringUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
+#include "StringUtils.h"
+#include "VectorUtilsMinimal.h"
 
 #include <cassert>
 

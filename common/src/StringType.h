@@ -23,5 +23,6 @@
 #include <string>
 
 using String = std::string;
+static const String EmptyString("");
 
 #endif

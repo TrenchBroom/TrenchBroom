@@ -26,6 +26,7 @@
 #include "Model/EntityAttributes.h"
 #include "Model/ModelTypes.h"
 #include "Model/Node.h"
+#include "StringStream.h"
 
 namespace TrenchBroom {
     namespace Model {

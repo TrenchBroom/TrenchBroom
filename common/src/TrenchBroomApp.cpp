@@ -40,6 +40,7 @@
 #include "View/GetVersion.h"
 #include "View/MapViewBase.h"
 #include "View/wxUtils.h"
+#include "StringUtils.h"
 
 #include <QCommandLineParser>
 #include <QtDebug>

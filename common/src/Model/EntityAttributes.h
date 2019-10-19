@@ -21,14 +21,19 @@
 #define TrenchBroom_EntityProperties
 
 #include "StringType.h"
-#include "StringMap.h"
 #include "Model/EntityAttributeSnapshot.h"
 #include "Model/ModelTypes.h"
 
-#include <map>
 #include <list>
+#include <memory>
 
 namespace TrenchBroom {
+    template <typename V>
+    class StringMapValueContainer;
+
+    template <typename V, typename P>
+    class StringMap;
+
     namespace Assets {
         class EntityDefinition;
         class AttributeDefinition;
@@ -77,7 +82,6 @@ namespace TrenchBroom {
 
         class EntityAttribute {
         public:
-            using Map = std::map<AttributableNode*, EntityAttribute>;
             using List = std::list<EntityAttribute>;
             static const List EmptyList;
         private:
@@ -110,8 +114,9 @@ namespace TrenchBroom {
             using IndexValue = EntityAttribute::List::iterator;
             using IndexValueContainer = StringMapValueContainer<IndexValue>;
             using AttributeIndex = StringMap<IndexValue, IndexValueContainer>;
-            AttributeIndex m_index;
+            std::unique_ptr<AttributeIndex> m_index;
         public:
+            explicit EntityAttributes();
             const EntityAttribute::List& attributes() const;
             void setAttributes(const EntityAttribute::List& attributes);
 
@@ -127,8 +132,8 @@ namespace TrenchBroom {
 
             EntityAttributeSnapshot snapshot(const AttributeName& name) const;
         private:
-            bool containsValue(const AttributeIndex::QueryResult& matches, const AttributeValue& value) const;
-            EntityAttribute::List listFromQueryResult(const AttributeIndex::QueryResult& matches) const;
+            bool containsValue(const std::vector<IndexValue>& matches, const AttributeValue& value) const;
+            EntityAttribute::List listFromQueryResult(const std::vector<IndexValue>& matches) const;
         public:
             const AttributeNameSet names() const;
             const AttributeValue* attribute(const AttributeName& name) const;

@@ -19,12 +19,14 @@
 
 #include "ModEditor.h"
 
+#include "CollectionUtils.h"
 #include "Notifier.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Model/Entity.h"
 #include "Model/Game.h"
 #include "Model/Object.h"
+#include "StringUtils.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/TitledPanel.h"

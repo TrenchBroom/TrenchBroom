@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "Logger.h"
 #include "StepIterator.h"
+#include "StringUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModel.h"
