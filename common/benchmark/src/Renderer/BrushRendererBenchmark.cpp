@@ -97,7 +97,8 @@ namespace TrenchBroom {
 
             // Tiny change: remove the last brush
             std::vector<Model::Brush*> brushesMinusOne = brushes;
-            brushesMinusOne.resize(brushes.size() - 1);
+            assert(!brushesMinusOne.empty());
+            brushesMinusOne.pop_back();
 
             timeLambda([&](){ r.setBrushes(brushesMinusOne); }, "setBrushes to " + std::to_string(brushesMinusOne.size()) + " (removing one)");
             timeLambda([&](){
