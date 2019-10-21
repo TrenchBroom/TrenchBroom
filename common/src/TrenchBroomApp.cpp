@@ -324,15 +324,14 @@ namespace TrenchBroom {
         }
 
         static IO::Path crashReportBasePath() {
-            IO::Path mapPath = savedMapPath();
+            const IO::Path mapPath = savedMapPath();
             IO::Path crashLogPath;
 
             if (mapPath.isEmpty()) {
-                // FIXME: Qt docs indicate that this directory may need to be created
-                IO::Path docsDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdString());
+                const IO::Path docsDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdString());
                 crashLogPath = docsDir + IO::Path("trenchbroom-crash.txt");
             } else {
-                String crashFileName = mapPath.lastComponent().deleteExtension().asString() + "-crash.txt";
+                const String crashFileName = mapPath.lastComponent().deleteExtension().asString() + "-crash.txt";
                 crashLogPath = mapPath.deleteLastComponent() + IO::Path(crashFileName);
             }
 
@@ -369,6 +368,13 @@ namespace TrenchBroom {
 
             // write it to the crash log file
             const IO::Path basePath = crashReportBasePath();
+
+            // ensure the containing directory exists
+            const IO::Path containerPath = basePath.deleteLastComponent();
+            if (!IO::Disk::directoryExists(containerPath)) {
+                IO::Disk::createDirectory(containerPath);
+            }
+
             IO::Path reportPath = basePath.addExtension("txt");
             IO::Path mapPath = basePath.addExtension("map");
             IO::Path logPath = basePath.addExtension("log");
@@ -388,8 +394,9 @@ namespace TrenchBroom {
             }
 
             // Copy the log file
-            if (!QFile::copy(IO::pathAsQString(IO::SystemPaths::logFilePath()), QString::fromStdString(logPath.asString())))
+            if (!QFile::copy(IO::pathAsQString(IO::SystemPaths::logFilePath()), QString::fromStdString(logPath.asString()))) {
                 logPath = IO::Path();
+            }
 
             // write the crash log to stderr
             std::cerr << "crash log:" << std::endl;
