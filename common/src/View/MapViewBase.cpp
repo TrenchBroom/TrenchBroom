@@ -815,11 +815,7 @@ namespace TrenchBroom {
 
         void MapViewBase::initializeGL() {
             if (doInitializeGL()) {
-                const auto* vendor   = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
-                const auto* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
-                const auto* version  = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-
-                m_logger->info() << "Renderer info: " << renderer << " version " << version << " from " << vendor;
+                m_logger->info() << "Renderer info: " << glVendor() << " version " << glVersion() << " from " << glVendor();
                 m_logger->info() << "Depth buffer bits: " << depthBits();
                 m_logger->info() << "Multisampling " << StringUtils::choose(multisample(), "enabled", "disabled");
             }

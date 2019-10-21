@@ -38,7 +38,6 @@ namespace TrenchBroom {
         }
 
         void OnePaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
-
             m_mapView = new CyclingMapView(m_document, toolBox, mapRenderer, contextManager,
                 CyclingMapView::View_ALL, m_logger, this);
             m_mapView->linkCamera(m_linkHelper);

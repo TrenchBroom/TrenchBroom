@@ -69,6 +69,10 @@ namespace TrenchBroom {
             void mouseReleaseEvent(QMouseEvent* event) override;
             void wheelEvent(QWheelEvent* event) override;
         protected:
+            const String& glVendor() const;
+            const String& glRenderer() const;
+            const String& glVersion() const;
+
             Renderer::Vbo& vertexVbo();
             Renderer::Vbo& indexVbo();
             Renderer::FontManager& fontManager();

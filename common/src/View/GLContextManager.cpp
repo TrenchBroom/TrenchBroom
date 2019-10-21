@@ -52,10 +52,27 @@ namespace TrenchBroom {
         bool GLContextManager::initialize() {
             if (!m_initialized) {
                 initializeGlew();
+
+                m_glVendor   = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+                m_glRenderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+                m_glVersion  = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+
                 m_initialized = true;
                 return true;
             }
             return false;
+        }
+
+        const String& GLContextManager::glVendor() const {
+            return m_glVendor;
+        }
+
+        const String& GLContextManager::glRenderer() const {
+            return m_glRenderer;
+        }
+
+        const String& GLContextManager::glVersion() const {
+            return m_glVersion;
         }
 
         Renderer::Vbo& GLContextManager::vertexVbo() {
