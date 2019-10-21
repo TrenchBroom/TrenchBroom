@@ -234,7 +234,7 @@ namespace TrenchBroom {
                 document->isGamePathPreference(path)) {
                 reload();
             } else {
-                m_view->requestUpdate();
+                m_view->update();
             }
         }
 
@@ -242,7 +242,7 @@ namespace TrenchBroom {
             if (m_view != nullptr) {
                 updateSelectedTexture();
                 m_view->invalidate();
-                m_view->requestUpdate();
+                m_view->update();
             }
         }
 

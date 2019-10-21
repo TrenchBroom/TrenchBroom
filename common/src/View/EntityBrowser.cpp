@@ -57,7 +57,7 @@ namespace TrenchBroom {
         void EntityBrowser::reload() {
             if (m_view != nullptr) {
                 m_view->invalidate();
-                m_view->requestUpdate();
+                m_view->update();
             }
         }
 
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             if (document->isGamePathPreference(path)) {
                 reload();
             } else {
-                m_view->requestUpdate();
+                m_view->update();
             }
         }
     }

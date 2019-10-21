@@ -96,7 +96,7 @@ namespace TrenchBroom {
         }
 
         void CellView::onScrollBarValueChanged() {
-            requestUpdate();
+            update();
         }
 
         /**
@@ -178,7 +178,7 @@ namespace TrenchBroom {
                 const int height = static_cast<int>(m_layout.height());
                 const int newTop = std::min(std::max(0, top - pixelDelta.y()), height);
                 m_scrollBar->setValue(newTop);
-                requestUpdate();
+                update();
             }
         }
 
@@ -231,7 +231,7 @@ namespace TrenchBroom {
                 const int delta = mousePosition.y() - m_lastMousePos.y();
                 const int newThumbPosition = m_scrollBar->value() - delta;
                 m_scrollBar->setValue(newThumbPosition);
-                requestUpdate();
+                update();
             }
         }
 
@@ -264,12 +264,12 @@ namespace TrenchBroom {
             glAssert(glViewport(0, 0, viewportWidth, viewportHeight));
 
             setupGL();
-            
+
             // NOTE: These are in points, while the glViewport call above is
             // in pixels
             const int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
             const QRect visibleRect = QRect(QPoint(0, top), size());
-            
+
             const float y = static_cast<float>(visibleRect.y());
             const float h = static_cast<float>(visibleRect.height());
             doRender(m_layout, y, h);

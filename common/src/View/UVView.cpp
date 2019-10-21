@@ -68,7 +68,7 @@ namespace TrenchBroom {
 
         void UVView::setSubDivisions(const vm::vec2i& subDivisions) {
             m_helper.setSubDivisions(subDivisions);
-            requestUpdate();
+            update();
         }
 
         void UVView::createTools() {
@@ -125,33 +125,33 @@ namespace TrenchBroom {
                 m_toolBox.disable();
             }
 
-            requestUpdate();
+            update();
         }
 
         void UVView::documentWasCleared(MapDocument* document) {
             m_helper.setFace(nullptr);
             m_toolBox.disable();
-            requestUpdate();
+            update();
         }
 
         void UVView::nodesDidChange(const Model::NodeList& nodes) {
-            requestUpdate();
+            update();
         }
 
         void UVView::brushFacesDidChange(const Model::BrushFaceList& faces) {
-            requestUpdate();
+            update();
         }
 
         void UVView::gridDidChange() {
-            requestUpdate();
+            update();
         }
 
         void UVView::preferenceDidChange(const IO::Path& path) {
-            requestUpdate();
+            update();
         }
 
         void UVView::cameraDidChange(const Renderer::Camera* camera) {
-            requestUpdate();
+            update();
         }
 
         void UVView::doUpdateViewport(int x, int y, int width, int height) {

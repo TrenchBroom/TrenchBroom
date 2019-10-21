@@ -92,7 +92,7 @@ namespace TrenchBroom {
             }
             m_sortOrder = sortOrder;
             invalidate();
-            requestUpdate();
+            update();
         }
 
         void EntityBrowserView::setGroup(const bool group) {
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             }
             m_group = group;
             invalidate();
-            requestUpdate();
+            update();
         }
 
         void EntityBrowserView::setHideUnused(const bool hideUnused) {
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             }
             m_hideUnused = hideUnused;
             invalidate();
-            requestUpdate();
+            update();
         }
 
         void EntityBrowserView::setFilterText(const String& filterText) {
@@ -119,12 +119,12 @@ namespace TrenchBroom {
             }
             m_filterText = filterText;
             invalidate();
-            requestUpdate();
+            update();
         }
 
         void EntityBrowserView::usageCountDidChange() {
             invalidate();
-            requestUpdate();
+            update();
         }
 
         void EntityBrowserView::doInitLayout(Layout& layout) {

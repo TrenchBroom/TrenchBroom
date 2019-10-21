@@ -69,7 +69,6 @@ namespace TrenchBroom {
             void mouseReleaseEvent(QMouseEvent* event) override;
             void wheelEvent(QWheelEvent* event) override;
         public: // migration from QOpenGLWindow compatibility
-            void requestUpdate();
             QWidget* widgetContainer();
         protected:
             Renderer::Vbo& vertexVbo();

@@ -129,14 +129,14 @@ namespace TrenchBroom {
         void MapView3D::cameraDidChange(const Renderer::Camera* camera) {
             if (!m_ignoreCameraChangeEvents) {
                 // Don't refresh if the camera was changed in doPreRender!
-                requestUpdate();
+                update();
             }
         }
 
         void MapView3D::preferenceDidChange(const IO::Path& path) {
             if (path == Preferences::CameraFov.path()) {
                 m_camera.setFov(pref(Preferences::CameraFov));
-                requestUpdate();
+                update();
             }
         }
 
@@ -176,7 +176,7 @@ namespace TrenchBroom {
 
         void MapView3D::updateFlyMode() {
             if (m_flyModeHelper->anyKeyDown()) {
-                requestUpdate();
+                update();
             }
         }
 

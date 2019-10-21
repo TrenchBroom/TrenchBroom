@@ -140,7 +140,7 @@ namespace TrenchBroom {
         }
 
         void MapView2D::cameraDidChange(const Renderer::Camera* camera) {
-            requestUpdate();
+            update();
         }
 
         PickRequest MapView2D::doGetPickRequest(const int x, const int y) const {

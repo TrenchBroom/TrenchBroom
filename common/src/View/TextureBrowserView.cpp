@@ -73,7 +73,7 @@ namespace TrenchBroom {
             }
             m_sortOrder = sortOrder;
             invalidate();
-            requestUpdate();
+            update();
         }
 
         void TextureBrowserView::setGroup(const bool group) {
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             }
             m_group = group;
             invalidate();
-            requestUpdate();
+            update();
         }
 
         void TextureBrowserView::setHideUnused(const bool hideUnused) {
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             }
             m_hideUnused = hideUnused;
             invalidate();
-            requestUpdate();
+            update();
         }
 
         void TextureBrowserView::setFilterText(const String& filterText) {
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             }
             m_filterText = filterText;
             invalidate();
-            requestUpdate();
+            update();
         }
 
         Assets::Texture* TextureBrowserView::selectedTexture() const {
@@ -112,12 +112,12 @@ namespace TrenchBroom {
                 return;
             }
             m_selectedTexture = selectedTexture;
-            requestUpdate();
+            update();
         }
 
         void TextureBrowserView::usageCountDidChange() {
             invalidate();
-            requestUpdate();
+            update();
         }
 
         void TextureBrowserView::doInitLayout(Layout& layout) {
@@ -526,7 +526,7 @@ namespace TrenchBroom {
 
                     emit textureSelected(texture);
 
-                    requestUpdate();
+                    update();
                 }
             }
         }
