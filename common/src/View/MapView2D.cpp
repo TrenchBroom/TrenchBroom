@@ -26,12 +26,9 @@
 #include "Model/BrushFace.h"
 #include "Model/CollectContainedNodesVisitor.h"
 #include "Model/CompareHits.h"
-#include "Model/Entity.h"
 #include "Model/HitAdapter.h"
-#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Model/PointFile.h"
-#include "Model/World.h"
 #include "Renderer/Compass2D.h"
 #include "Renderer/GridRenderer.h"
 #include "Renderer/MapRenderer.h"
@@ -48,7 +45,6 @@
 #include "View/EdgeToolController.h"
 #include "View/FaceTool.h"
 #include "View/FaceToolController.h"
-#include "View/FlashSelectionAnimation.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -61,11 +57,8 @@
 #include "View/SelectionTool.h"
 #include "View/VertexTool.h"
 #include "View/VertexToolController.h"
-#include "View/wxUtils.h"
 
 #include <vecmath/util.h>
-
-#include <QWidget>
 
 namespace TrenchBroom {
     namespace View {

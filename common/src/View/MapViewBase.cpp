@@ -27,7 +27,6 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
@@ -37,7 +36,6 @@
 #include "Model/Group.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
-#include "Model/HitQuery.h"
 #include "Model/Layer.h"
 #include "Model/PointFile.h"
 #include "Model/PortalFile.h"
@@ -52,7 +50,6 @@
 #include "Renderer/RenderService.h"
 #include "View/Actions.h"
 #include "View/Animation.h"
-#include "View/CameraAnimation.h"
 #include "View/EnableDisableTagCallback.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
@@ -66,7 +63,6 @@
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
-#include <vecmath/polygon.h>
 #include <vecmath/util.h>
 
 #include <QtGlobal>
