@@ -41,7 +41,7 @@ namespace TrenchBroom {
 
     TEST(PreferencesTest, migrateLocalV1Settings) {
         const std::map<IO::Path, QString> reg = readV1Settings();
-        
+
         [[maybe_unused]]
         const auto migrated = migrateV1ToV2(reg);
 
@@ -217,7 +217,7 @@ namespace TrenchBroom {
     static void testSerialize(const QString& str, const PrimitiveType& value) {
         const auto testDeserializeOption = maybeDeserialize<Serializer, PrimitiveType>(str);
         const QString testSerialize = serialize<Serializer, PrimitiveType>(value);
-        
+
         ASSERT_TRUE(testDeserializeOption.has_value());
 
         EXPECT_EQ(value, testDeserializeOption.value());
@@ -234,9 +234,9 @@ namespace TrenchBroom {
 
     TEST(PreferencesTest, serializeV1Color) {
         EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV1, Color>("0.921569 0.666667").has_value())); // must give 3 or 4 components
-        
+
         testSerialize<PreferenceSerializerV1, Color>(
-            "0.921569 0.666667 0.45098 0.5", 
+            "0.921569 0.666667 0.45098 0.5",
             Color(0.921569f, 0.666667f, 0.45098f, 0.5f));
     }
 
@@ -260,7 +260,6 @@ namespace TrenchBroom {
         testSerialize<PreferenceSerializerV1, IO::Path>("c:/foo/bar", IO::Path("c:\\foo\\bar"));
         testSerialize<PreferenceSerializerV1, IO::Path>("c:/foo/bar", IO::Path("c:/foo/bar"));
         testSerialize<PreferenceSerializerV1, IO::Path>("/home/foo/bar", IO::Path("/home/foo/bar"));
-        // FIXME: Is this what we want or is it a bug in Path?
         testSerialize<PreferenceSerializerV1, IO::Path>("home/foo/bar", IO::Path("\\home\\foo\\bar"));
 #endif
         testSerialize<PreferenceSerializerV1, IO::Path>("", IO::Path());
@@ -438,13 +437,13 @@ namespace TrenchBroom {
             "Menu/Run/Compile...",
             "Menu/Run/Launch...",
         };
-        
+
         auto& actionsMap = View::ActionManager::instance().actionsMap();
         for (const std::string& preferenceKey : preferenceKeys) {
             const auto preferencePath = IO::Path(preferenceKey);
             const bool found = (actionsMap.find(preferencePath) != actionsMap.end());
             EXPECT_TRUE(found);
-            
+
             if (!found) {
                 std::cerr << "Couldn't find key: '" << preferenceKey << "'\n";
             }
