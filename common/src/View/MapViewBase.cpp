@@ -52,7 +52,6 @@
 #include "View/Animation.h"
 #include "View/EnableDisableTagCallback.h"
 #include "View/FlashSelectionAnimation.h"
-#include "View/FlyModeHelper.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
@@ -790,8 +789,8 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::doFlashSelection() {
-            FlashSelectionAnimation* animation = new FlashSelectionAnimation(m_renderer, this, 180);
-            m_animationManager->runAnimation(animation, true);
+            auto animation = std::make_unique<FlashSelectionAnimation>(m_renderer, this, 180);
+            m_animationManager->runAnimation(std::move(animation), true);
         }
 
         void MapViewBase::doInstallActivationTracker(MapViewActivationTracker& activationTracker) {

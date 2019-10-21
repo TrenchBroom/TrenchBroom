@@ -79,14 +79,14 @@ namespace TrenchBroom {
             connect(m_timer, &QTimer::timeout, this, &AnimationManager::onTimerTick);
         }
 
-        void AnimationManager::runAnimation(Animation* animation, const bool replace) {
+        void AnimationManager::runAnimation(std::unique_ptr<Animation> animation, const bool replace) {
             ensure(animation != nullptr, "animation is null");
 
-            Animation::List& list = m_animations[animation->type()];
+            auto& list = m_animations[animation->type()];
             if (replace) {
                 list.clear();
             }
-            list.push_back(Animation::Ptr(animation));
+            list.emplace_back(std::move(animation));
 
             // start the ticks if needed
             if (!m_timer->isActive()) {
@@ -99,23 +99,22 @@ namespace TrenchBroom {
 
         void AnimationManager::onTimerTick() {
             assert(m_elapsedTimer.isValid());
-            const double msElapsed = static_cast<double>(m_elapsedTimer.restart());
+            const auto msElapsed = static_cast<double>(m_elapsedTimer.restart());
 
             // advance the animation times
-            Animation::List updateAnimations;
             if (!m_animations.empty()) {
                 auto mapIt = std::begin(m_animations);
                 while (mapIt != std::end(m_animations)) {
-                    Animation::List& list = mapIt->second;
+                    auto& list = mapIt->second;
                     auto listIt = std::begin(list);
                     while (listIt != std::end(list)) {
-                        Animation::Ptr animation = *listIt;
-                        if (animation->step(msElapsed)) {
-                            listIt = list.erase(listIt);
-                        }
+                        auto& animation = *listIt;
+                        const auto finished = animation->step(msElapsed);
                         animation->update();
-                        updateAnimations.push_back(animation);
-                        if (listIt != std::end(list)) {
+
+                        if (finished) {
+                            listIt = list.erase(listIt);
+                        } else {
                             ++listIt;
                         }
                     }

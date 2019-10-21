@@ -375,8 +375,8 @@ namespace TrenchBroom {
         }
 
         void MapView3D::animateCamera(const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up, const int duration) {
-            CameraAnimation* animation = new CameraAnimation(m_camera, position, direction, up, duration);
-            m_animationManager->runAnimation(animation, true);
+            auto animation = std::make_unique<CameraAnimation>(m_camera, position, direction, up, duration);
+            m_animationManager->runAnimation(std::move(animation), true);
         }
 
         void MapView3D::doMoveCameraToCurrentTracePoint() {

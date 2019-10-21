@@ -38,9 +38,6 @@ namespace TrenchBroom {
             using Type = int;
             static const Type NoType = -1;
 
-            using Ptr = std::shared_ptr<Animation>;
-            using List = std::vector<Ptr>;
-
             typedef enum {
                 Curve_Flat,
                 Curve_EaseInEaseOut
@@ -81,12 +78,11 @@ namespace TrenchBroom {
              */
             QElapsedTimer m_elapsedTimer;
             QTimer* m_timer;
-            using AnimationMap = std::map<Animation::Type, Animation::List>;
 
-            AnimationMap m_animations;
+            std::map<Animation::Type, std::vector<std::unique_ptr<Animation>>> m_animations;
         public:
             explicit AnimationManager(QObject* parent);
-            void runAnimation(Animation* animation, bool replace);
+            void runAnimation(std::unique_ptr<Animation> animation, bool replace);
 
         private:
             void onTimerTick();
