@@ -29,6 +29,7 @@ namespace TrenchBroom {
     namespace View {
         namespace Fonts {
             QFont fixedWidthFont() {
+                // FIXME: returns a very ugly font on macOS Catalina
                 return QFontDatabase::systemFont(QFontDatabase::FixedFont);
             }
         }
