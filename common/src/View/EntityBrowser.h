@@ -49,7 +49,6 @@ namespace TrenchBroom {
             QLineEdit* m_filterBox;
             QScrollBar* m_scrollBar;
             EntityBrowserView* m_view;
-            QWidget* m_windowContainer;
         public:
             EntityBrowser(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~EntityBrowser() override;

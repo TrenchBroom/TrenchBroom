@@ -55,7 +55,6 @@ namespace TrenchBroom {
             QLineEdit* m_filterBox;
             QScrollBar* m_scrollBar;
             TextureBrowserView* m_view;
-            QWidget* m_windowContainer;
         public:
             TextureBrowser(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~TextureBrowser() override;

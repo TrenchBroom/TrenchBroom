@@ -44,8 +44,7 @@ namespace TrenchBroom {
         m_usedButton(nullptr),
         m_filterBox(nullptr),
         m_scrollBar(nullptr),
-        m_view(nullptr),
-        m_windowContainer(nullptr) {
+        m_view(nullptr) {
             createGui(contextManager);
             bindEvents();
             bindObservers();
@@ -102,12 +101,11 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
             m_view = new TextureBrowserView(m_scrollBar, contextManager, document);
-            m_windowContainer = m_view->widgetContainer();
 
             auto* browserPanelSizer = new QHBoxLayout();
             browserPanelSizer->setContentsMargins(0, 0, 0, 0);
             browserPanelSizer->setSpacing(0);
-            browserPanelSizer->addWidget(m_windowContainer, 1);
+            browserPanelSizer->addWidget(m_view, 1);
             browserPanelSizer->addWidget(m_scrollBar, 0);
             browserPanel->setLayout(browserPanelSizer);
 

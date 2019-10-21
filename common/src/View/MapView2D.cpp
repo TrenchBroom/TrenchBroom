@@ -79,13 +79,13 @@ namespace TrenchBroom {
 
             switch (viewPlane) {
             case ViewPlane_XY:
-                widgetContainer()->setObjectName("XY View");
+                setObjectName("XY View");
                 break;
             case ViewPlane_YZ:
-                widgetContainer()->setObjectName("YZ View");
+                setObjectName("YZ View");
                 break;
             case ViewPlane_XZ:
-                widgetContainer()->setObjectName("XZ View");
+                setObjectName("XZ View");
                 break;
             switchDefault()
             }
@@ -179,7 +179,7 @@ namespace TrenchBroom {
             const auto anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? referenceBounds.min : referenceBounds.max;
             const auto dragPlane = vm::plane3(anchor, -pickRay.direction);
 
-            const auto distance = vm::intersect_ray_plane(pickRay, dragPlane);;
+            const auto distance = vm::intersect_ray_plane(pickRay, dragPlane);
             if (vm::is_nan(distance)) {
                 return vm::vec3::zero();
             } else {

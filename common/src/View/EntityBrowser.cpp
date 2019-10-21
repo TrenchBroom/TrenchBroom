@@ -44,8 +44,7 @@ namespace TrenchBroom {
         m_usedButton(nullptr),
         m_filterBox(nullptr),
         m_scrollBar(nullptr),
-        m_view(nullptr),
-        m_windowContainer(nullptr) {
+        m_view(nullptr) {
             createGui(contextManager);
             bindObservers();
         }
@@ -72,12 +71,11 @@ namespace TrenchBroom {
                 document->entityDefinitionManager(),
                 document->entityModelManager(),
                 *document);
-            m_windowContainer = m_view->widgetContainer();
 
             auto* browserPanelSizer = new QHBoxLayout();
             browserPanelSizer->setContentsMargins(0, 0, 0, 0);
             browserPanelSizer->setSpacing(0);
-            browserPanelSizer->addWidget(m_windowContainer, 1);
+            browserPanelSizer->addWidget(m_view, 1);
             browserPanelSizer->addWidget(m_scrollBar, 0);
 
             auto* browserPanel = new QWidget(this);

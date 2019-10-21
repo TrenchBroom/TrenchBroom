@@ -64,7 +64,6 @@ namespace TrenchBroom {
 
         void UVEditor::createGui(GLContextManager& contextManager) {
             m_uvView = new UVView(m_document, contextManager);
-            m_windowContainer = m_uvView->widgetContainer();
 
             m_resetTextureButton = createBitmapButton("ResetTexture.png", tr("Reset texture alignment"), this);
             m_flipTextureHButton = createBitmapButton("FlipTextureH.png", tr("Flip texture X axis"), this);
@@ -115,7 +114,7 @@ namespace TrenchBroom {
             auto* outerLayout = new QVBoxLayout();
             outerLayout->setContentsMargins(0, 0, 0, 0);
             outerLayout->setSpacing(LayoutConstants::NarrowVMargin);
-            outerLayout->addWidget(m_windowContainer, 1);
+            outerLayout->addWidget(m_uvView, 1);
             outerLayout->addLayout(bottomLayout);
             setLayout(outerLayout);
 

@@ -295,14 +295,14 @@ namespace TrenchBroom {
 
 
         void MapViewBase::updateActionStates() {
-            ActionExecutionContext context(findMapFrame(widgetContainer()), this);
+            ActionExecutionContext context(findMapFrame(this), this);
             for (auto& [shortcut, action] : m_shortcuts) {
                 shortcut->setEnabled(hasFocus() && action->enabled(context));
             }
         }
 
         void MapViewBase::triggerAction(const Action& action) {
-            auto* mapFrame = findMapFrame(widgetContainer());
+            auto* mapFrame = findMapFrame(this);
             ActionExecutionContext context(mapFrame, this);
             action.execute(context);
         }
@@ -794,7 +794,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::doFlashSelection() {
-            FlashSelectionAnimation* animation = new FlashSelectionAnimation(m_renderer, this->widgetContainer(), 180);
+            FlashSelectionAnimation* animation = new FlashSelectionAnimation(m_renderer, this, 180);
             m_animationManager->runAnimation(animation, true);
         }
 
@@ -886,12 +886,12 @@ namespace TrenchBroom {
             const int y = static_cast<int>(viewport.y * r);
             const int width = static_cast<int>(viewport.width * r);
             const int height = static_cast<int>(viewport.height * r);
-            glAssert(glViewport(x, y, width, height));
+            glAssert(glViewport(x, y, width, height))
 
-            glAssert(glEnable(GL_MULTISAMPLE));
-            glAssert(glEnable(GL_BLEND));
-            glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-            glAssert(glShadeModel(GL_SMOOTH));
+            glAssert(glEnable(GL_MULTISAMPLE))
+            glAssert(glEnable(GL_BLEND))
+            glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA))
+            glAssert(glShadeModel(GL_SMOOTH))
         }
 
         void MapViewBase::renderCoordinateSystem(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -1005,7 +1005,7 @@ namespace TrenchBroom {
             Model::Node* newGroup = findNewGroupForObjects(nodes);
             Model::Node* mergeGroup = findGroupToMergeGroupsInto(document->selectedNodes());
 
-            auto* mapFrame = findMapFrame(this->widgetContainer());
+            auto* mapFrame = findMapFrame(this);
 
             QMenu menu;
             QAction* groupAction = menu.addAction(tr("Group"), mapFrame, &MapFrame::groupSelectedObjects);
@@ -1055,7 +1055,7 @@ namespace TrenchBroom {
 
             // Generate a synthetic mouse move event to update the mouse position after the popup menu closes.
             const auto screenPos = QCursor::pos();
-            const auto windowPos = widgetContainer()->window()->mapFromGlobal(screenPos);
+            const auto windowPos = window()->mapFromGlobal(screenPos);
             const auto localPos  = mapFromGlobal(screenPos);
             auto mouseEvent = QMouseEvent(QEvent::MouseMove, localPos, windowPos, screenPos, Qt::NoButton, Qt::NoButton, Qt::NoModifier, Qt::MouseEventSynthesizedByApplication);
             mouseMoveEvent(&mouseEvent);

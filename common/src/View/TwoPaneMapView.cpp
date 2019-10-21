@@ -71,12 +71,12 @@ namespace TrenchBroom {
             addMapView(m_mapView3D);
             addMapView(m_mapView2D);
 
-            m_splitter->addWidget(m_mapView3D->widgetContainer());
+            m_splitter->addWidget(m_mapView3D);
             m_splitter->addWidget(m_mapView2D);
 
             // Configure minimum child sizes and initial splitter position at 50%
             m_mapView2D->setMinimumSize(100, 100);
-            m_mapView3D->widgetContainer()->setMinimumSize(100, 100);
+            m_mapView3D->setMinimumSize(100, 100);
             m_splitter->setSizes(QList<int>{1, 1});
 
             restoreWindowState(m_splitter);
@@ -88,12 +88,12 @@ namespace TrenchBroom {
                 m_mapView2D->hide();
             }
             if (view == m_mapView3D) {
-                m_mapView3D->widgetContainer()->hide();
+                m_mapView3D->hide();
             }
         }
 
         void TwoPaneMapView::doRestoreViews() {
-            m_mapView3D->widgetContainer()->show();
+            m_mapView3D->show();
             m_mapView2D->show();
         }
     }

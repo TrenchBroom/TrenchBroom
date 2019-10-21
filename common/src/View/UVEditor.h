@@ -40,7 +40,6 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
 
             UVView* m_uvView;
-            QWidget* m_windowContainer;
             QSpinBox* m_xSubDivisionEditor;
             QSpinBox* m_ySubDivisionEditor;
 

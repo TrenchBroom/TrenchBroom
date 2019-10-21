@@ -68,7 +68,7 @@ namespace TrenchBroom {
             setLayout(m_layout);
 
             for (auto* mapView : m_mapViews) {
-                m_layout->addWidget(mapView->widgetContainer());
+                m_layout->addWidget(mapView);
             }
 
             assert(!m_mapViews.empty());
@@ -84,7 +84,7 @@ namespace TrenchBroom {
         void CyclingMapView::switchToMapView(MapViewBase* mapView) {
             m_currentMapView = mapView;
 
-            m_layout->setCurrentWidget(m_currentMapView->widgetContainer());
+            m_layout->setCurrentWidget(m_currentMapView);
             m_currentMapView->setFocus();
         }
 
@@ -153,7 +153,7 @@ namespace TrenchBroom {
                 mapView->linkCamera(helper);
             }
         }
-        
+
         void CyclingMapView::cycleChildMapView(MapView* after) {
             for (size_t i = 0; i < m_mapViews.size(); ++i) {
                 if (after == m_mapViews[i]) {

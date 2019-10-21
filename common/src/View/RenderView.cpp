@@ -155,11 +155,6 @@ namespace TrenchBroom {
             update();
         }
 
-        QWidget* RenderView::widgetContainer() {
-            // FIXME: remove this compatibility wrapper
-            return this;
-        }
-
         void RenderView::paintGL() {
             // FIXME: crash
 #if 0
