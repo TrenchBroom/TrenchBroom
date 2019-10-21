@@ -76,10 +76,8 @@ namespace TrenchBroom {
             void showAboutDialog();
             void debugShowCrashReportDialog();
 
-//            void OnExecutableEvent(ExecutableEvent& event);
-
             bool notify(QObject* receiver, QEvent* event) override;
-            
+
 #ifdef __APPLE__
             bool event(QEvent* event) override;
 #endif

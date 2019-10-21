@@ -498,13 +498,6 @@ namespace TrenchBroom {
             }
         }
 
-        // FIXME: Probably not needed with Qt?
-#if 0
-        void TrenchBroomApp::OnExecutableEvent(ExecutableEvent& event) {
-            event.execute();
-        }
-#endif
-
 #ifdef __APPLE__
         bool TrenchBroomApp::event(QEvent* event) {
             if (event->type() == QEvent::FileOpen) {
