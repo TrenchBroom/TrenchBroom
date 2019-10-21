@@ -52,6 +52,7 @@
 #include "View/Animation.h"
 #include "View/EnableDisableTagCallback.h"
 #include "View/FlashSelectionAnimation.h"
+#include "View/GLContextManager.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
@@ -815,7 +816,7 @@ namespace TrenchBroom {
 
         void MapViewBase::initializeGL() {
             if (doInitializeGL()) {
-                m_logger->info() << "Renderer info: " << glVendor() << " version " << glVersion() << " from " << glVendor();
+                m_logger->info() << "Renderer info: " << GLContextManager::GLRenderer << " version " << GLContextManager::GLVersion << " from " << GLContextManager::GLVendor;
                 m_logger->info() << "Depth buffer bits: " << depthBits();
                 m_logger->info() << "Multisampling " << StringUtils::choose(multisample(), "enabled", "disabled");
             }

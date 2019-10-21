@@ -32,6 +32,7 @@
 #include "View/Actions.h"
 #include "View/CrashDialog.h"
 #include "View/GameDialog.h"
+#include "View/GLContextManager.h"
 #include "View/MainMenuBuilder.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
@@ -298,10 +299,9 @@ namespace TrenchBroom {
             StringStream ss;
             ss << "OS:\t" << QSysInfo::prettyProductName().toStdString() << std::endl;
             ss << "Qt:\t" << qVersion() << std::endl;
-            // FIXME:
-//            ss << "GL_VENDOR:\t" << MapViewBase::glVendorString().toStdString() << std::endl;
-//            ss << "GL_RENDERER:\t" << MapViewBase::glRendererString().toStdString() << std::endl;
-//            ss << "GL_VERSION:\t" << MapViewBase::glVersionString().toStdString() << std::endl;
+            ss << "GL_VENDOR:\t" << GLContextManager::GLVendor << std::endl;
+            ss << "GL_RENDERER:\t" << GLContextManager::GLRenderer << std::endl;
+            ss << "GL_VERSION:\t" << GLContextManager::GLVersion << std::endl;
             ss << "TrenchBroom Version:\t" << getBuildVersion().toStdString() << std::endl;
             ss << "TrenchBroom Build:\t" << getBuildIdStr().toStdString() << std::endl;
             ss << "Reason:\t" << reason << std::endl;

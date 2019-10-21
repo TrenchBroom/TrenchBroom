@@ -34,6 +34,10 @@ namespace TrenchBroom {
 
     namespace View {
         class GLContextManager {
+        public:
+            static String GLVendor;
+            static String GLRenderer;
+            static String GLVersion;
         private:
             bool m_initialized;
 
@@ -51,10 +55,6 @@ namespace TrenchBroom {
 
             bool initialized() const;
             bool initialize();
-
-            const String& glVendor() const;
-            const String& glRenderer() const;
-            const String& glVersion() const;
 
             Renderer::Vbo& vertexVbo();
             Renderer::Vbo& indexVbo();

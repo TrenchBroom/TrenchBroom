@@ -174,19 +174,8 @@ namespace TrenchBroom {
             }
         }
 
-        const String& RenderView::glVendor() const {
-            return m_glContext->glVendor();
-        }
 
-        const String& RenderView::glRenderer() const {
-            return m_glContext->glRenderer();
-        }
-
-        const String& RenderView::glVersion() const {
-            return m_glContext->glVersion();
-        }
-
-        Renderer::Vbo& RenderView::vertexVbo() {
+       Renderer::Vbo& RenderView::vertexVbo() {
             return m_glContext->vertexVbo();
         }
 
