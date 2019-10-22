@@ -25,6 +25,7 @@
 #include "View/EntityBrowserView.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
+#include "View/wxUtils.h"
 
 #include <QtGlobal>
 #include <QPushButton>
