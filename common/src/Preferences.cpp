@@ -25,6 +25,8 @@
 
 #include <vecmath/util.h>
 
+#include <QKeySequence>
+
 namespace TrenchBroom {
     namespace Preferences {
         Preference<int> MapViewLayout(IO::Path("Views/Map view layout"), View::MapViewLayout_1Pane);

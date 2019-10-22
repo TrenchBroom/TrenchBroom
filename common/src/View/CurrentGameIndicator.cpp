@@ -22,6 +22,7 @@
 #include "IO/ResourceUtils.h"
 #include "Model/GameFactory.h"
 #include "View/ViewConstants.h"
+#include "View/wxUtils.h"
 
 #include <QBoxLayout>
 #include <QLabel>

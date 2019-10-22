@@ -21,22 +21,12 @@
 #define TrenchBroom_Preference
 
 #include "Color.h"
-#include "Exceptions.h"
 #include "Macros.h"
-#include "StringType.h"
 #include "IO/Path.h"
-#include "IO/PathQt.h"
 #include "View/KeyboardShortcut.h"
-#include "View/wxUtils.h"
 
-#include <memory>
-
-#include <QApplication>
 #include <QSettings>
-#include <QThread>
 #include <QDebug>
-#include <QVariant>
-#include <QKeySequence>
 
 #include <optional-lite/optional.hpp>
 

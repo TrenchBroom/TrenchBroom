@@ -31,6 +31,7 @@
 #include "View/TextureCollectionEditor.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
+#include "View/wxUtils.h"
 
 #include <QVBoxLayout>
 

@@ -29,6 +29,7 @@
 #include "View/KeyboardShortcutModel.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
+#include "View/wxUtils.h"
 
 #include <QBoxLayout>
 #include <QHeaderView>
