@@ -20,19 +20,23 @@
 #ifndef TrenchBroom_EntityColor
 #define TrenchBroom_EntityColor
 
+#include "Color.h"
 #include "StringType.h"
-#include "Assets/ColorRange.h"
 #include "Model/ModelTypes.h"
 
-#include <QColor>
-
 namespace TrenchBroom {
+    namespace Assets {
+        namespace ColorRange {
+            using Type = int;
+        }
+    }
+
     namespace Model {
         Assets::ColorRange::Type detectColorRange(const AttributeName& name, const AttributableNodeList& attributables);
 
         const String convertEntityColor(const String& str, Assets::ColorRange::Type colorRange);
-        QColor parseEntityColor(const String& str);
-        String entityColorAsString(const QColor& color, Assets::ColorRange::Type colorRange);
+        Color parseEntityColor(const String& str);
+        String entityColorAsString(const Color& color, Assets::ColorRange::Type colorRange);
     }
 }
 
