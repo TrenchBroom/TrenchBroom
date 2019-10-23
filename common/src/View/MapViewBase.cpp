@@ -276,6 +276,8 @@ namespace TrenchBroom {
             };
 
             auto& actionManager = ActionManager::instance();
+            // We don't create a QShortcut for actions whose key binding is handled
+            // by the menu or toolbar since they would conflict.
             actionManager.visitMapViewActions(visitor);
 
             auto document = lock(m_document);

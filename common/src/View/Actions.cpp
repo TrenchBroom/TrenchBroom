@@ -30,6 +30,7 @@
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/MapViewBase.h"
+#include "IO/PathQt.h"
 
 #include "vecmath/util.h"
 
@@ -38,6 +39,7 @@
 #include <QString>
 
 #include <cassert>
+#include <set>
 
 namespace TrenchBroom {
     namespace View {
@@ -325,8 +327,33 @@ namespace TrenchBroom {
         }
 
         void ActionManager::visitMapViewActions(const ActionVisitor& visitor) const {
-            for (const auto* action : m_mapViewActions) {
-                visitor(*action);
+            class Visitor : public MenuVisitor {
+            public:
+                std::set<const Action*> menuActions;
+
+                void visit(const Menu& menu) override {
+                    menu.visitEntries(*this);
+                }
+
+                void visit(const MenuSeparatorItem& item) override {}
+
+                void visit(const MenuActionItem& item) override {
+                    const Action* tAction = &item.action();
+                    menuActions.insert(tAction);
+                }
+            };
+
+            // Gather the set of all Actions that are used in menus/toolbars
+            Visitor v;
+            visitMainMenu(v);
+            visitToolBarActions(v);
+
+            for (const auto& [path, actionPtr] : m_actions) {
+                const Action* tAction = actionPtr.get();
+                if (v.menuActions.find(tAction) == v.menuActions.end()) {
+                    // This action is not used in a menu, so visit it
+                    visitor(*actionPtr);
+                }
             }
         }
 
@@ -362,314 +389,285 @@ namespace TrenchBroom {
         void ActionManager::createViewActions() {
             /* ========== Editing Actions ========== */
             /* ========== Tool Specific Actions ========== */
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Create brush"), QObject::tr("Create Brush"),
-                    ActionContext::View3D | ActionContext::CreateComplexBrushTool, QKeySequence(Qt::Key_Return),
-                    [](ActionExecutionContext& context) {
-                        context.view()->createComplexBrush();
-                    },
-                    [](ActionExecutionContext& context) {
-                        return context.hasDocument() && context.frame()->createComplexBrushToolActive();
-                    }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Toggle clip side"), QObject::tr("Toggle Clip Side"),
-                    ActionContext::AnyView | ActionContext::ClipTool, QKeySequence(Qt::CTRL + Qt::Key_Return),
-                    [](ActionExecutionContext& context) {
-                        context.view()->toggleClipSide();
-                    },
-                    [](ActionExecutionContext& context) {
-                        return context.hasDocument() && context.frame()->clipToolActive();
-                    }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Perform clip"), QObject::tr("Perform Clip"),
-                    ActionContext::AnyView | ActionContext::ClipTool, QKeySequence(Qt::Key_Return),
-                    [](ActionExecutionContext& context) {
-                        context.view()->performClip();
-                    },
-                    [](ActionExecutionContext& context) {
-                        return context.hasDocument() && context.frame()->clipToolActive();
-                    }));
+            createAction(IO::Path("Controls/Map view/Create brush"), QObject::tr("Create Brush"),
+                ActionContext::View3D | ActionContext::CreateComplexBrushTool, QKeySequence(Qt::Key_Return),
+                [](ActionExecutionContext& context) {
+                    context.view()->createComplexBrush();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->createComplexBrushToolActive();
+                });
+            createAction(IO::Path("Controls/Map view/Toggle clip side"), QObject::tr("Toggle Clip Side"),
+                ActionContext::AnyView | ActionContext::ClipTool, QKeySequence(Qt::CTRL + Qt::Key_Return),
+                [](ActionExecutionContext& context) {
+                    context.view()->toggleClipSide();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->clipToolActive();
+                });
+            createAction(IO::Path("Controls/Map view/Perform clip"), QObject::tr("Perform Clip"),
+                ActionContext::AnyView | ActionContext::ClipTool, QKeySequence(Qt::Key_Return),
+                [](ActionExecutionContext& context) {
+                    context.view()->performClip();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->clipToolActive();
+                });
 
             /* ========== Translation ========== */
             // applies to objects, vertices, handles (e.g. rotation center)
             // these preference paths are structured like "action in 2D view; action in 3D view"
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Move objects up; Move objects forward"), QObject::tr("Move Forward"),
-                    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_Up),
-                    [](ActionExecutionContext& context) {
-                        context.view()->move(vm::direction::forward);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Move objects down; Move objects backward"), QObject::tr("Move Backward"),
-                    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_Down),
-                    [](ActionExecutionContext& context) {
-                        context.view()->move(vm::direction::backward);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Move objects left"), QObject::tr("Move Left"),
-                    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_Left),
-                    [](ActionExecutionContext& context) {
-                        context.view()->move(vm::direction::left);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Move objects right"), QObject::tr("Move Right"),
-                    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_Right),
-                    [](ActionExecutionContext& context) {
-                        context.view()->move(vm::direction::right);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Move objects backward; Move objects up"), QObject::tr("Move Up"),
-                    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_PageUp),
-                    [](ActionExecutionContext& context) {
-                        context.view()->move(vm::direction::up);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Move objects forward; Move objects down"), QObject::tr("Move Down"),
-                    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_PageDown),
-                    [](ActionExecutionContext& context) {
-                        context.view()->move(vm::direction::down);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
+            createAction(IO::Path("Controls/Map view/Move objects up; Move objects forward"), QObject::tr("Move Forward"),
+                ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_Up),
+                [](ActionExecutionContext& context) {
+                    context.view()->move(vm::direction::forward);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Move objects down; Move objects backward"), QObject::tr("Move Backward"),
+                ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_Down),
+                [](ActionExecutionContext& context) {
+                    context.view()->move(vm::direction::backward);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Move objects left"), QObject::tr("Move Left"),
+                ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_Left),
+                [](ActionExecutionContext& context) {
+                    context.view()->move(vm::direction::left);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Move objects right"), QObject::tr("Move Right"),
+                ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_Right),
+                [](ActionExecutionContext& context) {
+                    context.view()->move(vm::direction::right);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Move objects backward; Move objects up"), QObject::tr("Move Up"),
+                ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_PageUp),
+                [](ActionExecutionContext& context) {
+                    context.view()->move(vm::direction::up);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Move objects forward; Move objects down"), QObject::tr("Move Down"),
+                ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyVertexTool | ActionContext::RotateTool, QKeySequence(Qt::Key_PageDown),
+                [](ActionExecutionContext& context) {
+                    context.view()->move(vm::direction::down);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
 
             /* ========== Duplication ========== */
             // these preference paths are structured like "action in 2D view; action in 3D view"
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Duplicate and move objects up; Duplicate and move objects forward"),
-                    QObject::tr("Duplicate and Move Forward"),
-                    ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_Up),
-                    [](ActionExecutionContext& context) {
-                        context.view()->duplicateAndMoveObjects(vm::direction::forward);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Duplicate and move objects down; Duplicate and move objects backward"),
-                    QObject::tr("Duplicate and Move Backward"),
-                    ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_Down),
-                    [](ActionExecutionContext& context) {
-                        context.view()->duplicateAndMoveObjects(vm::direction::backward);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Duplicate and move objects left"), QObject::tr("Duplicate and Move Left"),
-                    ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_Left),
-                    [](ActionExecutionContext& context) {
-                        context.view()->duplicateAndMoveObjects(vm::direction::left);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Duplicate and move objects right"), QObject::tr("Duplicate and Move Right"),
-                    ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_Right),
-                    [](ActionExecutionContext& context) {
-                        context.view()->duplicateAndMoveObjects(vm::direction::right);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Duplicate and move objects backward; Duplicate and move objects up"),
-                    QObject::tr("Duplicate and Move Up"),
-                    ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_PageUp),
-                    [](ActionExecutionContext& context) {
-                        context.view()->duplicateAndMoveObjects(vm::direction::up);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Duplicate and move objects forward; Duplicate and move objects down"),
-                    QObject::tr("Duplicate and Move Down"),
-                    ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_PageDown),
-                    [](ActionExecutionContext& context) {
-                        context.view()->duplicateAndMoveObjects(vm::direction::down);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
+            createAction(IO::Path("Controls/Map view/Duplicate and move objects up; Duplicate and move objects forward"),
+                QObject::tr("Duplicate and Move Forward"),
+                ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_Up),
+                [](ActionExecutionContext& context) {
+                    context.view()->duplicateAndMoveObjects(vm::direction::forward);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Duplicate and move objects down; Duplicate and move objects backward"),
+                QObject::tr("Duplicate and Move Backward"),
+                ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_Down),
+                [](ActionExecutionContext& context) {
+                    context.view()->duplicateAndMoveObjects(vm::direction::backward);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Duplicate and move objects left"), QObject::tr("Duplicate and Move Left"),
+                ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_Left),
+                [](ActionExecutionContext& context) {
+                    context.view()->duplicateAndMoveObjects(vm::direction::left);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Duplicate and move objects right"), QObject::tr("Duplicate and Move Right"),
+                ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_Right),
+                [](ActionExecutionContext& context) {
+                    context.view()->duplicateAndMoveObjects(vm::direction::right);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Duplicate and move objects backward; Duplicate and move objects up"),
+                QObject::tr("Duplicate and Move Up"),
+                ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_PageUp),
+                [](ActionExecutionContext& context) {
+                    context.view()->duplicateAndMoveObjects(vm::direction::up);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Duplicate and move objects forward; Duplicate and move objects down"),
+                QObject::tr("Duplicate and Move Down"),
+                ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_PageDown),
+                [](ActionExecutionContext& context) {
+                    context.view()->duplicateAndMoveObjects(vm::direction::down);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
 
             /* ========== Rotation ========== */
             // applies to objects, vertices, handles (e.g. rotation center)
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Roll objects clockwise"), QObject::tr("Roll Clockwise"),
-                    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool, QKeySequence(Qt::ALT + Qt::Key_Up),
-                    [](ActionExecutionContext& context) {
-                        context.view()->rotateObjects(vm::rotation_axis::roll, true);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Roll objects counter-clockwise"), QObject::tr("Roll Counter-clockwise"),
-                    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool, QKeySequence(Qt::ALT + Qt::Key_Down),
-                    [](ActionExecutionContext& context) {
-                        context.view()->rotateObjects(vm::rotation_axis::roll, false);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Yaw objects clockwise"), QObject::tr("Yaw Clockwise"),
-                    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool, QKeySequence(Qt::ALT + Qt::Key_Left),
-                    [](ActionExecutionContext& context) {
-                        context.view()->rotateObjects(vm::rotation_axis::yaw, true);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Yaw objects counter-clockwise"), QObject::tr("Yaw Counter-clockwise"),
-                    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool, QKeySequence(Qt::ALT + Qt::Key_Right),
-                    [](ActionExecutionContext& context) {
-                        context.view()->rotateObjects(vm::rotation_axis::yaw, false);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Pitch objects clockwise"), QObject::tr("Pitch Clockwise"),
-                    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool, QKeySequence(Qt::ALT + Qt::Key_PageUp),
-                    [](ActionExecutionContext& context) {
-                        context.view()->rotateObjects(vm::rotation_axis::pitch, true);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Pitch objects counter-clockwise"), QObject::tr("Pitch Counter-clockwise"),
-                    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool, QKeySequence(Qt::ALT + Qt::Key_PageDown),
-                    [](ActionExecutionContext& context) {
-                        context.view()->rotateObjects(vm::rotation_axis::pitch, false);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
+            createAction(IO::Path("Controls/Map view/Roll objects clockwise"), QObject::tr("Roll Clockwise"),
+                ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool, QKeySequence(Qt::ALT + Qt::Key_Up),
+                [](ActionExecutionContext& context) {
+                    context.view()->rotateObjects(vm::rotation_axis::roll, true);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Roll objects counter-clockwise"), QObject::tr("Roll Counter-clockwise"),
+                ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool, QKeySequence(Qt::ALT + Qt::Key_Down),
+                [](ActionExecutionContext& context) {
+                    context.view()->rotateObjects(vm::rotation_axis::roll, false);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Yaw objects clockwise"), QObject::tr("Yaw Clockwise"),
+                ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool, QKeySequence(Qt::ALT + Qt::Key_Left),
+                [](ActionExecutionContext& context) {
+                    context.view()->rotateObjects(vm::rotation_axis::yaw, true);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Yaw objects counter-clockwise"), QObject::tr("Yaw Counter-clockwise"),
+                ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool, QKeySequence(Qt::ALT + Qt::Key_Right),
+                [](ActionExecutionContext& context) {
+                    context.view()->rotateObjects(vm::rotation_axis::yaw, false);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Pitch objects clockwise"), QObject::tr("Pitch Clockwise"),
+                ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool, QKeySequence(Qt::ALT + Qt::Key_PageUp),
+                [](ActionExecutionContext& context) {
+                    context.view()->rotateObjects(vm::rotation_axis::pitch, true);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Pitch objects counter-clockwise"), QObject::tr("Pitch Counter-clockwise"),
+                ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool, QKeySequence(Qt::ALT + Qt::Key_PageDown),
+                [](ActionExecutionContext& context) {
+                    context.view()->rotateObjects(vm::rotation_axis::pitch, false);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
 
             /* ========== Flip ========== */
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Flip objects horizontally"), QObject::tr("Flip Horizontally"),
-                    ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_F),
-                    [](ActionExecutionContext& context) {
-                        context.view()->flipObjects(vm::direction::left);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument() && context.view()->canFlipObjects(); },
-                    IO::Path("FlipHorizontally.png")));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Flip objects vertically"), QObject::tr("Flip Vertically"),
-                    ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_F),
-                    [](ActionExecutionContext& context) {
-                        context.view()->flipObjects(vm::direction::up);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument() && context.view()->canFlipObjects(); },
-                    IO::Path("FlipVertically.png")));
+            createAction(IO::Path("Controls/Map view/Flip objects horizontally"), QObject::tr("Flip Horizontally"),
+                ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_F),
+                [](ActionExecutionContext& context) {
+                    context.view()->flipObjects(vm::direction::left);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument() && context.view()->canFlipObjects(); },
+                IO::Path("FlipHorizontally.png"));
+            createAction(IO::Path("Controls/Map view/Flip objects vertically"), QObject::tr("Flip Vertically"),
+                ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_F),
+                [](ActionExecutionContext& context) {
+                    context.view()->flipObjects(vm::direction::up);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument() && context.view()->canFlipObjects(); },
+                IO::Path("FlipVertically.png"));
 
             /* ========== Texturing ========== */
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Move textures up"), QObject::tr("Move Textures Up"),
-                    ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_Up),
-                    [](ActionExecutionContext& context) {
-                        context.view()->moveTextures(vm::direction::up);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Move textures down"), QObject::tr("Move Textures Down"),
-                    ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_Down),
-                    [](ActionExecutionContext& context) {
-                        context.view()->moveTextures(vm::direction::down);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Move textures left"), QObject::tr("Move Textures Left"),
-                    ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_Left),
-                    [](ActionExecutionContext& context) {
-                        context.view()->moveTextures(vm::direction::left);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Move textures right"), QObject::tr("Move Textures Right"),
-                    ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_Right),
-                    [](ActionExecutionContext& context) {
-                        context.view()->moveTextures(vm::direction::right);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Rotate textures clockwise"), QObject::tr("Rotate Textures Clockwise"),
-                    ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_PageUp),
-                    [](ActionExecutionContext& context) {
-                        context.view()->rotateTextures(true);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(
-                createAction(IO::Path("Controls/Map view/Rotate textures counter-clockwise"), QObject::tr("Rotate Textures Counter-clockwise"),
-                    ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_PageDown),
-                    [](ActionExecutionContext& context) {
-                        context.view()->rotateTextures(false);
-                    },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); }));
+            createAction(IO::Path("Controls/Map view/Move textures up"), QObject::tr("Move Textures Up"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_Up),
+                [](ActionExecutionContext& context) {
+                    context.view()->moveTextures(vm::direction::up);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Move textures down"), QObject::tr("Move Textures Down"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_Down),
+                [](ActionExecutionContext& context) {
+                    context.view()->moveTextures(vm::direction::down);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Move textures left"), QObject::tr("Move Textures Left"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_Left),
+                [](ActionExecutionContext& context) {
+                    context.view()->moveTextures(vm::direction::left);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Move textures right"), QObject::tr("Move Textures Right"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_Right),
+                [](ActionExecutionContext& context) {
+                    context.view()->moveTextures(vm::direction::right);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Rotate textures clockwise"), QObject::tr("Rotate Textures Clockwise"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_PageUp),
+                [](ActionExecutionContext& context) {
+                    context.view()->rotateTextures(true);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Rotate textures counter-clockwise"), QObject::tr("Rotate Textures Counter-clockwise"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_PageDown),
+                [](ActionExecutionContext& context) {
+                    context.view()->rotateTextures(false);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
 
             /* ========== Tag Actions ========== */
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/Make structural"), QObject::tr("Make Structural"),
+            createAction(IO::Path("Controls/Map view/Make structural"), QObject::tr("Make Structural"),
                 ActionContext::NodeSelection, QKeySequence(Qt::ALT + Qt::Key_S),
                 [](ActionExecutionContext& context) { context.view()->makeStructural(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
 
             /* ========== View / Filter Actions ========== */
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/View Filter > Toggle show entity classnames"), QObject::tr("Toggle Show Entity Classnames"), ActionContext::Any, QKeySequence(),
+            createAction(IO::Path("Controls/Map view/View Filter > Toggle show entity classnames"), QObject::tr("Toggle Show Entity Classnames"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->toggleShowEntityClassnames(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/View Filter > Toggle show group bounds"), QObject::tr("Toggle Show Group Bounds"), ActionContext::Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/View Filter > Toggle show group bounds"), QObject::tr("Toggle Show Group Bounds"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->toggleShowGroupBounds(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/View Filter > Toggle show brush entity bounds"), QObject::tr("Toggle Show Brush Entity Bounds"), ActionContext::Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/View Filter > Toggle show brush entity bounds"), QObject::tr("Toggle Show Brush Entity Bounds"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->toggleShowBrushEntityBounds(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/View Filter > Toggle show point entity bounds"), QObject::tr("Toggle Show Point Entity Bounds"), ActionContext::Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/View Filter > Toggle show point entity bounds"), QObject::tr("Toggle Show Point Entity Bounds"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->toggleShowPointEntityBounds(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/View Filter > Toggle show point entities"), QObject::tr("Toggle Show Point Entities"), ActionContext::Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/View Filter > Toggle show point entities"), QObject::tr("Toggle Show Point Entities"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->toggleShowPointEntities(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/View Filter > Toggle show point entity models"), QObject::tr("Toggle Show Point Entity Models"), ActionContext::Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/View Filter > Toggle show point entity models"), QObject::tr("Toggle Show Point Entity Models"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->toggleShowPointEntityModels(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/View Filter > Toggle show brushes"), QObject::tr("Toggle Show Brushes"), ActionContext::Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/View Filter > Toggle show brushes"), QObject::tr("Toggle Show Brushes"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->toggleShowBrushes(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/View Filter > Show textures"), QObject::tr("Show Textures"), ActionContext::Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/View Filter > Show textures"), QObject::tr("Show Textures"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->showTextures(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/View Filter > Hide textures"), QObject::tr("Hide Textures"), ActionContext::Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/View Filter > Hide textures"), QObject::tr("Hide Textures"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->hideTextures(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/View Filter > Hide faces"), QObject::tr("Hide Faces"), ActionContext::Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/View Filter > Hide faces"), QObject::tr("Hide Faces"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->hideFaces(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/View Filter > Shade faces"), QObject::tr("Toggle Shade Faces"), ActionContext::Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/View Filter > Shade faces"), QObject::tr("Toggle Shade Faces"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->toggleShadeFaces(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/View Filter > Use fog"), QObject::tr("Toggle Show Fog"), ActionContext::Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/View Filter > Use fog"), QObject::tr("Toggle Show Fog"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->toggleShowFog(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/View Filter > Show edges"), QObject::tr("Toggle Show Edges"), ActionContext::Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/View Filter > Show edges"), QObject::tr("Toggle Show Edges"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->toggleShowEdges(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/View Filter > Show all entity links"), QObject::tr("Show All Entity Links"), ActionContext::Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/View Filter > Show all entity links"), QObject::tr("Show All Entity Links"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->showAllEntityLinks(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/View Filter > Show transitively selected entity links"), QObject::tr("Show Transitively Selected Entity Links"), ActionContext::Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/View Filter > Show transitively selected entity links"), QObject::tr("Show Transitively Selected Entity Links"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->showTransitivelySelectedEntityLinks(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/View Filter > Show directly selected entity links"), QObject::tr("Show Directly Selected Entity Links"), ActionContext::Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/View Filter > Show directly selected entity links"), QObject::tr("Show Directly Selected Entity Links"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->showDirectlySelectedEntityLinks(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/View Filter > Hide entity links"), QObject::tr("Hide All Entity Links"), ActionContext::Any, QKeySequence(),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/View Filter > Hide entity links"), QObject::tr("Hide All Entity Links"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->hideAllEntityLinks(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
 
 
             /* ========== Misc Actions ========== */
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/Cycle map view"), QObject::tr("Cycle View"),
+            createAction(IO::Path("Controls/Map view/Cycle map view"), QObject::tr("Cycle View"),
                 ActionContext::Any, QKeySequence(Qt::Key_Space),
                 [](ActionExecutionContext& context) { context.view()->cycleMapView(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/Reset camera zoom"), QObject::tr("Reset Camera Zoom"),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Reset camera zoom"), QObject::tr("Reset Camera Zoom"),
                 ActionContext::View3D | ActionContext::AnyTool | ActionContext::AnySelection, QKeySequence(Qt::SHIFT + Qt::Key_Escape),
                 [](ActionExecutionContext& context) { context.view()->resetCameraZoom(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/Cancel"), QObject::tr("Cancel"),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Cancel"), QObject::tr("Cancel"),
                 ActionContext::Any, QKeySequence(Qt::Key_Escape),
                 [](ActionExecutionContext& context) { context.view()->cancel(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            m_mapViewActions.push_back(createAction(IO::Path("Controls/Map view/Deactivate current tool"), QObject::tr("Deactivate Current Tool"),
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Deactivate current tool"), QObject::tr("Deactivate Current Tool"),
                 ActionContext::AnyView | ActionContext::AnyTool, QKeySequence(Qt::CTRL + Qt::Key_Escape),
                 [](ActionExecutionContext& context) { context.view()->deactivateTool(); },
                 [](ActionExecutionContext& context) { return context.hasDocument(); },
-                IO::Path("NoTool.png")));
+                IO::Path("NoTool.png"));
         }
 
         void ActionManager::createMenu() {

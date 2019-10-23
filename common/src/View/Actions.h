@@ -196,18 +196,15 @@ namespace TrenchBroom {
 
             /**
              * The main menu for the map editing window.
+             * These will hold pointers to the actions in m_actions.
              */
             std::vector<std::unique_ptr<Menu>> m_mainMenu;
 
             /**
              * The toolbar for the map editing window. Stored as a menu to allow for separators.
+             * These will hold pointers to the actions in m_actions.
              */
             std::unique_ptr<Menu> m_toolBar;
-
-            /**
-             * Actions which can be triggered by keyboard shortcuts in the map editing views.
-             */
-            std::vector<const Action*> m_mapViewActions;
         private:
             ActionManager();
         public:
@@ -215,11 +212,20 @@ namespace TrenchBroom {
 
             static const ActionManager& instance();
 
+            /**
+             * Note, unlike createAction(), these are not registered / owned by the ActionManager.
+             */
             std::list<Action> createTagActions(const std::list<Model::SmartTag>& tags) const;
+            /**
+             * Note, unlike createAction(), these are not registered / owned by the ActionManager.
+             */
             std::list<Action> createEntityDefinitionActions(const std::vector<Assets::EntityDefinition*>& entityDefinitions) const;
 
             void visitMainMenu(MenuVisitor& visitor) const;
             void visitToolBarActions(MenuVisitor& visitor) const;
+            /**
+             * Visits actions not used in the menu or toolbar.
+             */
             void visitMapViewActions(const ActionVisitor& visitor) const;
             const std::map<IO::Path, std::unique_ptr<Action>>& actionsMap() const;
 
