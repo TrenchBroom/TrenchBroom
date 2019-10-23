@@ -23,7 +23,7 @@
 #include "StringType.h"
 #include "StringList.h"
 
-#include <iostream>
+#include <iosfwd>
 #include <vector>
 
 namespace TrenchBroom {

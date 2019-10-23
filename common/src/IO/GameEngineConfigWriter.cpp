@@ -22,6 +22,8 @@
 #include "Model/GameEngineConfig.h"
 #include "Model/GameEngineProfile.h"
 
+#include <ostream>
+
 namespace TrenchBroom {
     namespace IO {
         GameEngineConfigWriter::GameEngineConfigWriter(const Model::GameEngineConfig& config, std::ostream& stream) :

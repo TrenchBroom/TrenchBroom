@@ -23,6 +23,7 @@
 #include "Model/CompilationProfile.h"
 
 #include <cassert>
+#include <ostream>
 
 namespace TrenchBroom {
     namespace IO {

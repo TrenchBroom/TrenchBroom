@@ -27,8 +27,6 @@
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
 
-#include <iostream>
-
 namespace TrenchBroom {
     namespace IO {
         class CompilationConfigParser : public ConfigParserBase {

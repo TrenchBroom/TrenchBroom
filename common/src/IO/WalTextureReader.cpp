@@ -25,6 +25,8 @@
 #include "IO/Reader.h"
 #include "IO/Path.h"
 
+#include <iostream>
+
 namespace TrenchBroom {
     namespace IO {
         namespace WalLayout {

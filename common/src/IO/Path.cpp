@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iterator>
+#include <ostream>
 
 namespace TrenchBroom {
     namespace IO {

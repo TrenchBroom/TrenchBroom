@@ -21,7 +21,6 @@
 #define TrenchBroom_Allocator_h
 
 #include <cassert>
-#include <iostream>
 #include <limits>
 #include <stack>
 #include <vector>

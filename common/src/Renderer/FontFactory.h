@@ -20,9 +20,6 @@
 #ifndef TrenchBroom_FontFactory
 #define TrenchBroom_FontFactory
 
-#include "Renderer/TextureFont.h"
-
-#include <iostream>
 #include <memory>
 
 namespace TrenchBroom {

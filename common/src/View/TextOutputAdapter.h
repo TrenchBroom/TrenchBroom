@@ -25,8 +25,6 @@
 
 #include <QString>
 
-#include <iostream>
-
 class QTextEdit;
 
 namespace TrenchBroom {

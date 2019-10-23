@@ -24,6 +24,8 @@
 #include "StringUtils.h"
 #include "Model/BrushFace.h"
 
+#include <ostream>
+
 namespace TrenchBroom {
     namespace IO {
         class QuakeStreamSerializer : public MapStreamSerializer {

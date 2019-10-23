@@ -25,7 +25,6 @@
 #include "IO/ConfigParserBase.h"
 #include "Model/GameConfig.h"
 
-#include <iostream>
 #include <vector>
 
 namespace TrenchBroom {

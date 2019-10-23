@@ -28,8 +28,6 @@
 #include "Model/GameEngineConfig.h"
 #include "Model/GameEngineProfile.h"
 
-#include <iostream>
-
 namespace TrenchBroom {
     namespace IO {
         class GameEngineConfigParser : public ConfigParserBase {

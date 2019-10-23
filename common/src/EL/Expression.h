@@ -26,6 +26,7 @@
 
 #include <list>
 #include <memory>
+#include <iosfwd>
 
 namespace TrenchBroom {
     namespace EL {

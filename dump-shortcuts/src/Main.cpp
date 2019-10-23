@@ -27,6 +27,7 @@
 #include <QTextStream>
 
 #include <array>
+#include <iostream>
 #include <tuple>
 
 namespace TrenchBroom {
