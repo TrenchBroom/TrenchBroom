@@ -41,6 +41,9 @@
 #include "View/MapViewBase.h"
 #include "View/wxUtils.h"
 #include "StringUtils.h"
+#ifdef __APPLE__
+#include "View/MainMenuBuilder.h"
+#endif
 
 #include <QCommandLineParser>
 #include <QtDebug>

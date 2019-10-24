@@ -36,6 +36,7 @@
 #include <QPalette>
 #include <QSettings>
 #include <QString>
+#include <QStandardPaths>
 #include <QToolButton>
 #include <QAbstractButton>
 #include <QButtonGroup>
