@@ -22,6 +22,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "TrenchBroomStackWalker.h"
 #include "TrenchBroomApp.h"
 
+#include <sstream>
 #include <cassert>
 
 #ifndef NDEBUG

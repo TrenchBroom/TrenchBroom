@@ -23,6 +23,7 @@
 #include "Macros.h"
 #include "Renderer/GL.h"
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
