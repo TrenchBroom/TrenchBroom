@@ -33,6 +33,7 @@
 #include "Renderer/RenderUtils.h"
 
 #include <cassert>
+#include <cstring>
 
 namespace TrenchBroom {
     namespace Renderer {

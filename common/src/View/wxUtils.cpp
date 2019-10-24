@@ -29,6 +29,7 @@
 #include <QApplication>
 #include <QBoxLayout>
 #include <QDebug>
+#include <QDir>
 #include <QDesktopWidget>
 #include <QFont>
 #include <QLabel>
@@ -36,6 +37,7 @@
 #include <QPalette>
 #include <QSettings>
 #include <QString>
+#include <QStringBuilder>
 #include <QStandardPaths>
 #include <QToolButton>
 #include <QAbstractButton>

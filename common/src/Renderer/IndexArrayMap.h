@@ -23,6 +23,7 @@
 #include "Renderer/GL.h"
 
 #include <map>
+#include <memory>
 
 namespace TrenchBroom {
     namespace Renderer {
