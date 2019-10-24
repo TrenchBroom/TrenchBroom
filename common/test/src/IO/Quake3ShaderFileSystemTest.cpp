@@ -22,6 +22,7 @@
 #include "Logger.h"
 #include "StringUtils.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "IO/Quake3ShaderFileSystem.h"
 

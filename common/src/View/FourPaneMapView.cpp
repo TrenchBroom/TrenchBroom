@@ -19,7 +19,6 @@
 
 #include "FourPaneMapView.h"
 
-#include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"

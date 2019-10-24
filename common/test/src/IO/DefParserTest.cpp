@@ -28,6 +28,7 @@
 #include "IO/DefParser.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
+#include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
 #include "TestUtils.h"

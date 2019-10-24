@@ -20,11 +20,9 @@
 #ifndef DkPakFileSystem_h
 #define DkPakFileSystem_h
 
-#include "StringType.h"
 #include "IO/ImageFileSystem.h"
 #include "IO/Path.h"
 
-#include <map>
 #include <memory>
 
 namespace TrenchBroom {

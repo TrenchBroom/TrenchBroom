@@ -19,6 +19,8 @@
 
 #include "FontFactory.h"
 
+#include "Renderer/TextureFont.h"
+
 namespace TrenchBroom {
     namespace Renderer {
         FontFactory::~FontFactory() = default;

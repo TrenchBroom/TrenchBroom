@@ -23,7 +23,6 @@
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
-#include "Model/ModelTypes.h"
 #include "Model/PickResult.h"
 #include "Renderer/Circle.h"
 #include "Renderer/EdgeRenderer.h"
@@ -33,7 +32,6 @@
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
-#include "Renderer/GLVertexType.h"
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
 

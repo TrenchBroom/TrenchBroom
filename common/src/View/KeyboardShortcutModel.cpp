@@ -24,8 +24,10 @@
 #include "PreferenceManager.h"
 #include "View/ActionContext.h"
 #include "View/Actions.h"
-#include "View/KeyboardShortcut.h"
 #include "View/MapDocument.h"
+#include "IO/PathQt.h"
+
+#include <QBrush>
 
 #include <functional>
 #include <set>

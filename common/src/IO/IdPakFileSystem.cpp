@@ -19,12 +19,10 @@
 
 #include "IdPakFileSystem.h"
 
-#include "CollectionUtils.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
 #include "IO/DiskFileSystem.h"
 
-#include <cassert>
 #include <memory>
 
 namespace TrenchBroom {

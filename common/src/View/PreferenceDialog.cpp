@@ -28,7 +28,6 @@
 #include "View/KeyboardPreferencePane.h"
 #include "View/MousePreferencePane.h"
 #include "View/ViewPreferencePane.h"
-#include "View/ViewConstants.h"
 #include "View/PreferencePane.h"
 #include "View/wxUtils.h"
 

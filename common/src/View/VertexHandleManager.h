@@ -27,9 +27,8 @@
 #include "Model/Hit.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
-#include "View/ViewTypes.h"
 
-#include <vecmath/distance.h>
+#include <vecmath/segment.h>
 
 #include <algorithm>
 #include <functional>

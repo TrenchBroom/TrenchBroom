@@ -20,14 +20,12 @@
 #ifndef TrenchBroom_CollectionUtils_h
 #define TrenchBroom_CollectionUtils_h
 
-#include "Macros.h"
 #include "Ensure.h"
 #include "VectorUtilsMinimal.h"
 
 #include <algorithm>
 #include <array>
 #include <cassert>
-#include <cstdarg>
 #include <iterator>
 #include <limits>
 #include <list>

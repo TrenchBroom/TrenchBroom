@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_ViewEffectsService
 #define TrenchBroom_ViewEffectsService
 
-#include <stdio.h>
-
 namespace TrenchBroom {
     namespace View {
         class ViewEffectsService {

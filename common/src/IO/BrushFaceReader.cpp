@@ -19,7 +19,6 @@
 
 #include "BrushFaceReader.h"
 
-#include "Logger.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"

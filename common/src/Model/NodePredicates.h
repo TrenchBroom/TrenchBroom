@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_NodePredicates
 #define TrenchBroom_NodePredicates
 
-#include <stdio.h>
-
 #undef True
 #undef False
 

@@ -19,8 +19,6 @@
 
 #include "Quake3Shader.h"
 
-#include <cassert>
-
 namespace TrenchBroom {
     namespace Assets {
         const String Quake3ShaderStage::BlendFunc::One = "GL_ONE";

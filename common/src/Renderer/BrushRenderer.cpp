@@ -25,18 +25,15 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/EditorContext.h"
-#include "Model/NodeVisitor.h"
 #include "Model/TagAttribute.h"
 #include "Renderer/IndexArrayMapBuilder.h"
 #include "Renderer/BrushRendererArrays.h"
 #include "Renderer/BrushRendererBrushCache.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
-#include "Renderer/TexturedIndexArrayMapBuilder.h"
-#include "Renderer/GLVertexType.h"
 
-#include <algorithm>
 #include <cassert>
+#include <cstring>
 
 namespace TrenchBroom {
     namespace Renderer {

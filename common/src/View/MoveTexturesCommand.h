@@ -21,7 +21,6 @@
 #define TrenchBroom_MoveTexturesCommand
 
 #include "TrenchBroom.h"
-#include "SharedPointer.h"
 #include "View/DocumentCommand.h"
 
 #include <vecmath/vec.h>

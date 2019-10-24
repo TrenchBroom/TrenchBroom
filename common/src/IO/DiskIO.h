@@ -21,7 +21,6 @@
 #define DiskIO_h
 
 #include "StringType.h"
-#include "IO/FileMatcher.h"
 #include "IO/Path.h"
 
 #include <memory>

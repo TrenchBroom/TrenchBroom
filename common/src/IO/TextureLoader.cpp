@@ -29,7 +29,6 @@
 #include "IO/IdMipTextureReader.h"
 #include "IO/Quake3ShaderTextureReader.h"
 #include "IO/WalTextureReader.h"
-#include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
 #include "Model/GameConfig.h"
 

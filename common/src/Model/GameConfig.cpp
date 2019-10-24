@@ -21,7 +21,6 @@
 
 #include "CollectionUtils.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/SystemPaths.h"
 #include "StringUtils.h"
 
 #include <cassert>

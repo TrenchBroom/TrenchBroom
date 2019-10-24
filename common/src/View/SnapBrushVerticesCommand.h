@@ -21,7 +21,6 @@
 #define TrenchBroom_SnapBrushVerticesCommand
 
 #include "TrenchBroom.h"
-#include "SharedPointer.h"
 #include "View/SnapshotCommand.h"
 
 namespace TrenchBroom {

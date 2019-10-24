@@ -22,7 +22,7 @@
 #include "TrenchBroomApp.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
-#include "IO/DiskFileSystem.h"
+#include "Console.h"
 #include "IO/ResourceUtils.h"
 #include "IO/PathQt.h"
 #include "Model/AttributableNode.h"
@@ -35,7 +35,6 @@
 #include "Model/Layer.h"
 #include "Model/Node.h"
 #include "Model/NodeCollection.h"
-#include "Model/PointFile.h"
 #include "Model/World.h"
 #include "View/Actions.h"
 #include "View/Autosaver.h"
@@ -45,7 +44,6 @@
 #include "FileLogger.h"
 #include "View/ClipTool.h"
 #include "View/CompilationDialog.h"
-#include "View/Console.h"
 #include "View/EdgeTool.h"
 #include "View/FaceTool.h"
 #include "View/GLContextManager.h"
@@ -64,8 +62,6 @@
 #include "View/wxUtils.h"
 #include "View/MapViewToolBox.h"
 
-#include <vecmath/util.h>
-
 #include <QtGlobal>
 #include <QTimer>
 #include <QLabel>
@@ -76,16 +72,9 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QStatusBar>
-#include <QAction>
-#include <QActionGroup>
-#include <QMenu>
-#include <QMenuBar>
-#include <QShortcut>
 #include <QToolBar>
 #include <QComboBox>
 #include <QVBoxLayout>
-#include <QMimeData>
-#include <QUrl>
 
 #include <cassert>
 #include <iterator>

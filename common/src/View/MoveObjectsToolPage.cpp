@@ -22,7 +22,6 @@
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
-#include <QAbstractButton>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>

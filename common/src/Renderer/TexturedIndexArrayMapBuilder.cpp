@@ -20,6 +20,7 @@
 #include "TexturedIndexArrayMapBuilder.h"
 
 #include <algorithm>
+#include <cassert>
 
 namespace TrenchBroom {
     namespace Renderer {

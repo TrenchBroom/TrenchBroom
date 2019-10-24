@@ -26,8 +26,6 @@
 #include "View/KeyboardShortcut.h"
 
 #include <QDebug>
-#include <QFile>
-#include <QFileInfo>
 #include <QDir>
 #include <QStandardPaths>
 #include <QStringBuilder>

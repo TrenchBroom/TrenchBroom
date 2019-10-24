@@ -20,12 +20,10 @@
 #ifndef IndexArrayMap_h
 #define IndexArrayMap_h
 
-#include "Reference.h"
-#include "SharedPointer.h"
 #include "Renderer/GL.h"
 
 #include <map>
-#include <vector>
+#include <memory>
 
 namespace TrenchBroom {
     namespace Renderer {

@@ -25,7 +25,6 @@
 #include "Assets/Texture.h"
 #include "IO/File.h"
 #include "IO/FreeImageTextureReader.h"
-#include "IO/IdMipTextureReader.h"
 #include "IO/Path.h"
 #include "IO/WalTextureReader.h"
 #include "StringUtils.h"

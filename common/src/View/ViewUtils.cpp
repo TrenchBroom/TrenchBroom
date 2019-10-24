@@ -19,7 +19,7 @@
 
 #include "ViewUtils.h"
 
-#include "Exceptions.h"
+#include "IO/PathQt.h"
 #include "Logger.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"

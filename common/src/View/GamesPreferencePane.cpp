@@ -20,7 +20,6 @@
 #include "GamesPreferencePane.h"
 
 #include "PreferenceManager.h"
-#include "Preferences.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
@@ -34,7 +33,6 @@
 #include <QBoxLayout>
 #include <QFileDialog>
 #include <QFormLayout>
-#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QStackedWidget>

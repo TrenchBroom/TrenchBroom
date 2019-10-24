@@ -19,13 +19,11 @@
 
 #include "ZipFileSystem.h"
 
-#include "CollectionUtils.h"
 #include "IO/File.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/IOUtils.h"
 
 #include <cassert>
-#include <cstring>
 #include <memory>
 #include <string>
 

@@ -40,7 +40,6 @@
 #include "Renderer/GLVertex.h"
 #include "Renderer/VertexArray.h"
 #include "View/MapFrame.h"
-#include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
 #include <vecmath/forward.h>

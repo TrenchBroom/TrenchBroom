@@ -20,7 +20,6 @@
 #ifdef _WIN32
 #ifdef _MSC_VER
 #include "StackWalker.h"
-#include <QMutex>
 #include <QMutexLocker>
 #endif
 #else

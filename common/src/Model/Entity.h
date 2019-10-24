@@ -22,7 +22,6 @@
 
 #include "TrenchBroom.h"
 #include "Hit.h"
-#include "Assets/AssetTypes.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityRotationPolicy.h"
 #include "Model/Object.h"

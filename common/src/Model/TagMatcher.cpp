@@ -25,13 +25,10 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/Entity.h"
 #include "Model/Game.h"
 #include "Model/Group.h"
-#include "Model/Layer.h"
 #include "Model/MapFacade.h"
 #include "Model/NodeCollection.h"
-#include "Model/PushSelection.h"
 #include "Model/World.h"
 
 namespace TrenchBroom {

@@ -24,17 +24,14 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/AttributableNode.h"
-#include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"
-#include "View/ViewUtils.h"
 #include "View/ViewConstants.h"
 #include "IO/ResourceUtils.h"
 
 #include <QDebug>
 #include <QBrush>
-#include <QIcon>
 
 namespace TrenchBroom {
     namespace View {

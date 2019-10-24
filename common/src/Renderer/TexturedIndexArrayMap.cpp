@@ -20,7 +20,6 @@
 #include "TexturedIndexArrayMap.h"
 
 #include "CollectionUtils.h"
-#include "Reference.h"
 #include "Renderer/RenderUtils.h"
 
 namespace TrenchBroom {

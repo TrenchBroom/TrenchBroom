@@ -21,9 +21,9 @@
 #define TrenchBroom_EntityBrowserView
 
 #include "Assets/EntityDefinitionManager.h"
+#include "Renderer/FontDescriptor.h"
 #include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/quat.h>

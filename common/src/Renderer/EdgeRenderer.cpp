@@ -23,8 +23,8 @@
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
-#include "Renderer/ShaderProgram.h"
 #include "Renderer/BrushRendererArrays.h"
+#include "Renderer/RenderBatch.h"
 
 namespace TrenchBroom {
     namespace Renderer {

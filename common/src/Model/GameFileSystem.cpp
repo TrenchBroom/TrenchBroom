@@ -25,6 +25,7 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DkPakFileSystem.h"
 #include "IO/IdPakFileSystem.h"
+#include "IO/FileMatcher.h"
 #include "IO/Quake3ShaderFileSystem.h"
 #include "IO/ZipFileSystem.h"
 #include "Model/GameConfig.h"

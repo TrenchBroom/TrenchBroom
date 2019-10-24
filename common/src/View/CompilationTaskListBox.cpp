@@ -33,10 +33,8 @@
 #include <QCompleter>
 #include <QFileDialog>
 #include <QFormLayout>
-#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QStringListModel>
 
 namespace TrenchBroom {
     namespace View {

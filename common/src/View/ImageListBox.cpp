@@ -24,7 +24,6 @@
 #include "View/wxUtils.h"
 
 #include <QBoxLayout>
-#include <QImage>
 #include <QLabel>
 
 #include <cassert>

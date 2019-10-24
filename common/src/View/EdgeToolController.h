@@ -20,7 +20,6 @@
 #ifndef EdgeToolController_h
 #define EdgeToolController_h
 
-#include "TrenchBroom.h"
 #include "View/VertexToolControllerBase.h"
 
 namespace TrenchBroom {

@@ -22,7 +22,6 @@
 
 #include "View/ViewTypes.h"
 
-#include <QWidget>
 #include <QListWidget>
 
 class QPushButton;

@@ -21,7 +21,6 @@
 #define TrenchBroom_TransformObjectsCommand
 
 #include "TrenchBroom.h"
-#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/SnapshotCommand.h"
 

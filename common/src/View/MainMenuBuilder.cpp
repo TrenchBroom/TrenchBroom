@@ -22,8 +22,6 @@
 #include "IO/ResourceUtils.h"
 #include "View/MapFrame.h"
 
-#include <QAction>
-#include <QMenu>
 #include <QMenuBar>
 
 namespace TrenchBroom {

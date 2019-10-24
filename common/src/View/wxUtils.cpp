@@ -29,28 +29,20 @@
 #include <QApplication>
 #include <QBoxLayout>
 #include <QDebug>
-#include <QDesktopWidget>
-#include <QDialogButtonBox>
 #include <QDir>
+#include <QDesktopWidget>
 #include <QFont>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPalette>
-#include <QPushButton>
 #include <QSettings>
-#include <QSizePolicy>
-#include <QSlider>
-#include <QStandardPaths>
 #include <QString>
 #include <QStringBuilder>
-#include <QStyle>
+#include <QStandardPaths>
 #include <QToolButton>
 #include <QAbstractButton>
 #include <QButtonGroup>
 #include <QTableView>
-
-#include <list>
-#include <cstdlib>
 
 namespace TrenchBroom {
     namespace View {

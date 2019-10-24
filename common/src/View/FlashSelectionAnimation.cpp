@@ -20,8 +20,6 @@
 #include "FlashSelectionAnimation.h"
 
 #include "Color.h"
-#include "PreferenceManager.h"
-#include "Preferences.h"
 #include "Renderer/MapRenderer.h"
 
 #include <QWidget>

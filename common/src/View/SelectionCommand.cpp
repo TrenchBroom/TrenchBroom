@@ -22,10 +22,7 @@
 #include "Macros.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/EditorContext.h"
 #include "Model/Entity.h"
-#include "Model/Group.h"
-#include "Model/NodeVisitor.h"
 #include "Model/World.h"
 #include "View/MapDocumentCommandFacade.h"
 

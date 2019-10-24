@@ -24,7 +24,6 @@
 #include "StringType.h"
 #include "View/Command.h"
 #include "View/UndoableCommand.h"
-#include "View/ViewTypes.h"
 
 #include <vector>
 

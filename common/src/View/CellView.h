@@ -21,8 +21,6 @@
 #define TrenchBroom_CellView_h
 
 #include "Renderer/RenderUtils.h"
-#include "Renderer/Transformation.h"
-#include "Renderer/FontDescriptor.h"
 #include "Preferences.h"
 #include "View/CellLayout.h"
 #include "View/RenderView.h"

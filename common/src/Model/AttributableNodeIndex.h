@@ -25,8 +25,6 @@
 #include "Model/EntityAttributes.h"
 #include "StringMap.h"
 
-#include <map>
-
 namespace TrenchBroom {
     namespace Model {
         using AttributableNodeIndexValueContainer = StringMultiMapValueContainer<AttributableNode*>;

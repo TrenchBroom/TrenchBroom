@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_MatchSelectableNodes
 #define TrenchBroom_MatchSelectableNodes
 
-#include <stdio.h>
-
 namespace TrenchBroom {
     namespace Model {
         class Brush;

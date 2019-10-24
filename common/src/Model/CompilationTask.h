@@ -23,7 +23,6 @@
 #include "Macros.h"
 #include "Notifier.h"
 #include "StringType.h"
-#include "IO/Path.h"
 
 #include <vector>
 

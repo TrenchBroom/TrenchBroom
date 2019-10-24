@@ -21,16 +21,13 @@
 
 #include "Model/Layer.h"
 #include "Model/World.h"
-#include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
 #include <QLabel>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <QAbstractButton>
-#include <QListWidget>
 #include <QListWidgetItem>
 #include <QMouseEvent>
 

@@ -20,7 +20,6 @@
 
 #include "Color.h"
 
-#include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_ext.h>
 

@@ -18,14 +18,12 @@
  */
 
 #include "PopupButton.h"
-#include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 #include "View/PopupWindow.h"
 
 #include <QToolButton>
 #include <QHBoxLayout>
 #include <QWindow>
-#include <QScreen>
 
 namespace TrenchBroom {
     namespace View {

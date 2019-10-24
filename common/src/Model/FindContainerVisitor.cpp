@@ -22,7 +22,6 @@
 #include "Model/Group.h"
 #include "Model/Entity.h"
 #include "Model/Layer.h"
-#include "Model/Node.h"
 #include "Model/World.h"
 
 namespace TrenchBroom {

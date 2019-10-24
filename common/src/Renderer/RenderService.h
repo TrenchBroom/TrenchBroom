@@ -22,12 +22,10 @@
 
 #include "AttrString.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
 #include "Color.h"
 #include "Renderer/PrimitiveRenderer.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/segment.h>
 #include <vecmath/polygon.h>
 #include <vecmath/util.h>
 

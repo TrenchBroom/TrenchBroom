@@ -29,7 +29,6 @@
 #include <QClipboard>
 #include <QStringBuilder>
 #include <QApplication>
-#include <QFrame>
 #include <QVBoxLayout>
 
 namespace TrenchBroom {

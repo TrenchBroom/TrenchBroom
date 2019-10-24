@@ -20,13 +20,11 @@
 #ifndef TrenchBroom_PointHandleRenderer
 #define TrenchBroom_PointHandleRenderer
 
-#include "TrenchBroom.h"
 #include "Color.h"
 #include "Renderer/Circle.h"
 #include "Renderer/Renderable.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/vec.h>
 
 #include <map>
 

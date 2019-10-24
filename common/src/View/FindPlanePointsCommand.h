@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_FindPlanePointsCommand
 #define TrenchBroom_FindPlanePointsCommand
 
-#include "SharedPointer.h"
 #include "View/SnapshotCommand.h"
 
 namespace TrenchBroom {

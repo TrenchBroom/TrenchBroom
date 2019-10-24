@@ -20,7 +20,6 @@
 #ifndef RemoveEntityAttributesQuickFix_h
 #define RemoveEntityAttributesQuickFix_h
 
-#include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 
 namespace TrenchBroom {

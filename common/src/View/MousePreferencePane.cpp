@@ -22,7 +22,6 @@
 #include "StringUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "View/BorderLine.h"
 #include "View/FormWithSectionsLayout.h"
 #include "View/KeySequenceEdit.h"
 #include "View/SliderWithLabel.h"

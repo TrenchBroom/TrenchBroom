@@ -31,8 +31,6 @@
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
-#include <vecmath/forward.h>
-
 #include <list>
 #include <optional-lite/optional.hpp>
 

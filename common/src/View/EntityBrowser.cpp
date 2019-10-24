@@ -25,6 +25,7 @@
 #include "View/EntityBrowserView.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
+#include "View/wxUtils.h"
 
 #include <QtGlobal>
 #include <QPushButton>
@@ -32,7 +33,6 @@
 #include <QLineEdit>
 #include <QScrollBar>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {

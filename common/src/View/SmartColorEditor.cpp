@@ -19,10 +19,12 @@
 
 #include "SmartColorEditor.h"
 
+#include "Assets/ColorRange.h"
 #include "CollectionUtils.h"
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityColor.h"
+#include "Model/NodeVisitor.h"
 #include "Model/World.h"
 #include "View/BorderLine.h"
 #include "View/ColorTable.h"
@@ -32,10 +34,8 @@
 
 #include <QLabel>
 #include <QHBoxLayout>
-#include <QPushButton>
 #include <QRadioButton>
 #include <QScrollArea>
-#include <QVBoxLayout>
 
 #include <iomanip>
 
@@ -169,8 +169,8 @@ namespace TrenchBroom {
                     addColor(Model::parseEntityColor(value));
             }
 
-            void addColor(const QColor& color) {
-                VectorUtils::setInsert(m_colors, color, ColorCmp());
+            void addColor(const Color& color) {
+                VectorUtils::setInsert(m_colors, toQColor(color), ColorCmp());
             }
         };
 
@@ -192,7 +192,7 @@ namespace TrenchBroom {
 
         void SmartColorEditor::setColor(const QColor& color) const {
             const auto colorRange = m_floatRadio->isChecked() ? Assets::ColorRange::Float : Assets::ColorRange::Byte;
-            const auto value = Model::entityColorAsString(color, colorRange);
+            const auto value = Model::entityColorAsString(fromQColor(color), colorRange);
             document()->setAttribute(name(), value);
         }
         void SmartColorEditor::floatRangeRadioButtonClicked() {

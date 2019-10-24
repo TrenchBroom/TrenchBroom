@@ -20,6 +20,7 @@
 #include "Node.h"
 
 #include "CollectionUtils.h"
+#include "Macros.h"
 #include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
 

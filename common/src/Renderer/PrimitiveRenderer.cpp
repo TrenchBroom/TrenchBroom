@@ -19,7 +19,6 @@
 
 #include "PrimitiveRenderer.h"
 
-#include "TrenchBroom.h"
 #include "Color.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"

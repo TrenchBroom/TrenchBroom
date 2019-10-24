@@ -19,7 +19,6 @@
 
 #include "UpdateEntitySpawnflagCommand.h"
 
-#include "Macros.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 

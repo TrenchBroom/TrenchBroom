@@ -24,7 +24,7 @@
 #include "IO/Path.h"
 #include "Model/EntityAttributes.h"
 
-#include <iostream>
+#include <iosfwd>
 
 namespace TrenchBroom {
     namespace Assets {

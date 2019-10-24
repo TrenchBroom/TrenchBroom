@@ -20,15 +20,11 @@
 #include "MapViewBar.h"
 
 #include "PreferenceManager.h"
-#include "Preferences.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/ViewEditor.h"
-#include "View/wxUtils.h"
 
-#include <QLabel>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <QResizeEvent>
 #include <QStackedLayout>
 

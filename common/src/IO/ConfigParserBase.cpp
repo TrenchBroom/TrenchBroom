@@ -22,8 +22,6 @@
 #include "CollectionUtils.h"
 #include "Exceptions.h"
 
-#include <cstdarg>
-
 namespace TrenchBroom {
     namespace IO {
         ConfigParserBase::ConfigParserBase(const char* begin, const char* end, const Path& path) :

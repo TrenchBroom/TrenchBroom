@@ -21,7 +21,6 @@
 
 #include "Macros.h"
 #include "CollectionUtils.h"
-#include "Exceptions.h"
 
 namespace TrenchBroom {
     namespace IO {

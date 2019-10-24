@@ -20,10 +20,8 @@
 #ifndef TransformEntityAttributesQuickFix_h
 #define TransformEntityAttributesQuickFix_h
 
-#include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
-#include "Model/PushSelection.h"
 
 #include <functional>
 

@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_PortalFile
 #define TrenchBroom_PortalFile
 
-#include "TrenchBroom.h"
-
 #include <vecmath/forward.h>
 #include <vecmath/polygon.h>
 

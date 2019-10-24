@@ -25,8 +25,6 @@
 
 #include <QDateTime>
 
-#include <algorithm>
-
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType CommandGroup::Type = Command::freeType();

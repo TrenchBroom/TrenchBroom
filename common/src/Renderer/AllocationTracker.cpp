@@ -19,7 +19,6 @@
 
 #include "AllocationTracker.h"
 
-#include <exception>
 #include <cassert>
 #include <algorithm>
 #include <stdexcept>

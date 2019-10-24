@@ -27,7 +27,6 @@
 #include "Assets/AssetTypes.h"
 #include "Assets/ModelDefinition.h"
 
-#include <vecmath/forward.h>
 #include <vecmath/bbox.h>
 
 namespace TrenchBroom {

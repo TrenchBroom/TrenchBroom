@@ -24,15 +24,11 @@
 #include "Preferences.h"
 #include "Model/Brush.h"
 #include "Renderer/RenderBatch.h"
-#include "Renderer/RenderService.h"
 #include "View/Grid.h"
-#include "View/Lasso.h"
 #include "View/MapDocument.h"
-#include "View/VertexCommand.h"
 #include "View/VertexCommand.h"
 
 #include <cassert>
-#include <numeric>
 #include <tuple>
 
 namespace TrenchBroom {

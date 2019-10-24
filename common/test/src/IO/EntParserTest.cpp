@@ -26,6 +26,7 @@
 #include "Assets/EntityDefinitionTestUtils.h"
 #include "IO/DiskIO.h"
 #include "IO/EntParser.h"
+#include "IO/FileMatcher.h"
 #include "IO/File.h"
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"

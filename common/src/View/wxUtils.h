@@ -34,8 +34,6 @@
 #include <QSettings>
 #include <QWidget>
 
-#include <vector>
-
 class QAbstractButton;
 class QCompleter;
 class QDialogButtonBox;

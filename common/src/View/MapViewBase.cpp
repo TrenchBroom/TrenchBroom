@@ -39,7 +39,6 @@
 #include "Model/Layer.h"
 #include "Model/PointFile.h"
 #include "Model/PortalFile.h"
-#include "Model/PushSelection.h"
 #include "Model/World.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Compass.h"
@@ -60,7 +59,6 @@
 #include "View/MapViewConfig.h"
 #include "View/MapViewToolBox.h"
 #include "View/SelectionTool.h"
-#include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
 #include <vecmath/util.h>
@@ -276,6 +274,8 @@ namespace TrenchBroom {
             };
 
             auto& actionManager = ActionManager::instance();
+            // We don't create a QShortcut for actions whose key binding is handled
+            // by the menu or toolbar since they would conflict.
             actionManager.visitMapViewActions(visitor);
 
             auto document = lock(m_document);

@@ -24,6 +24,7 @@
 #include "Assets/AssetTypes.h"
 #include "Model/EntityColor.h"
 #include "Model/ModelTypes.h"
+#include "StringList.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/util.h>

@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_RenameGroupsCommand
 #define TrenchBroom_RenameGroupsCommand
 
-#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
 

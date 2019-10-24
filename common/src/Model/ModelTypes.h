@@ -24,7 +24,6 @@
 #include "StringType.h"
 #include "SharedPointer.h"
 
-#include <vecmath/segment.h>
 #include <vecmath/polygon.h>
 
 #include <map>

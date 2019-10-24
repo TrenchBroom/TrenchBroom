@@ -25,13 +25,10 @@
 #include "Model/ModelTypes.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/EntityModelRenderer.h"
-#include "Renderer/FontDescriptor.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/TriangleRenderer.h"
-#include "Renderer/Vbo.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/vec.h>
 
 #include <map>
 

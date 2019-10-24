@@ -33,7 +33,6 @@
 #include "View/CrashDialog.h"
 #include "View/GameDialog.h"
 #include "View/GLContextManager.h"
-#include "View/MainMenuBuilder.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/PreferenceDialog.h"
@@ -42,6 +41,9 @@
 #include "View/MapViewBase.h"
 #include "View/wxUtils.h"
 #include "StringUtils.h"
+#ifdef __APPLE__
+#include "View/MainMenuBuilder.h"
+#endif
 
 #include <QCommandLineParser>
 #include <QtDebug>

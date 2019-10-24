@@ -20,7 +20,6 @@
 #include "ViewConstants.h"
 
 #include <QColor>
-#include <QPalette>
 #include <QFont>
 #include <QFontDatabase>
 #include <QWidget>
@@ -31,10 +30,13 @@ namespace TrenchBroom {
     namespace View {
         namespace Fonts {
             QFont fixedWidthFont() {
-                // FIXME: returns a very ugly font on macOS Catalina
-                const auto result = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-                qDebug() << result << " - " << result.exactMatch();
-                return result;
+#if defined __APPLE__
+                QFont font("Monaco");
+                font.setStyleHint(QFont::TypeWriter);
+                return font;
+#else
+                return QFontDatabase::systemFont(QFontDatabase::FixedFont);
+#endif
             }
         }
 

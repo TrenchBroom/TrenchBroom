@@ -19,7 +19,6 @@
 
 #include "StandardMapParser.h"
 
-#include "Logger.h"
 #include "TemporarilySetAny.h"
 #include "Model/BrushFace.h"
 

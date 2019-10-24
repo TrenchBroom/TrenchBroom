@@ -31,7 +31,6 @@
 #include "View/RotateObjectsTool.h"
 #include "View/ScaleObjectsTool.h"
 #include "View/ShearObjectsTool.h"
-#include "View/SelectionTool.h"
 #include "View/VertexTool.h"
 
 namespace TrenchBroom {

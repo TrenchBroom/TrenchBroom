@@ -19,7 +19,6 @@
 
 #include "EnableDisableTagCallback.h"
 
-#include <QCursor>
 #include <QMenu>
 
 namespace TrenchBroom {

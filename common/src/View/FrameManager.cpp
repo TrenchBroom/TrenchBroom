@@ -20,7 +20,6 @@
 #include "FrameManager.h"
 
 #include "Exceptions.h"
-#include "Macros.h"
 #include "TrenchBroomApp.h"
 #include "View/AboutDialog.h"
 #include "View/MapDocument.h"

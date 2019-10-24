@@ -19,7 +19,6 @@
 
 #include "RenderContext.h"
 #include "Renderer/Camera.h"
-#include "View/MapViewConfig.h"
 
 namespace TrenchBroom {
     namespace Renderer {

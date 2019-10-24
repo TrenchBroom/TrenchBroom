@@ -20,6 +20,7 @@
 #include "EntityColor.h"
 
 #include "Model/AttributableNode.h"
+#include "Assets/ColorRange.h"
 #include "Model/Entity.h"
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
@@ -69,7 +70,7 @@ namespace TrenchBroom {
             return entityColorAsString(color, colorRange);
         }
 
-        QColor parseEntityColor(const String& str) {
+        Color parseEntityColor(const String& str) {
             const auto components = StringUtils::splitAndTrim(str, " ");
             const auto range = Assets::detectColorRange(components);
             assert(range != Assets::ColorRange::Mixed);
@@ -85,15 +86,15 @@ namespace TrenchBroom {
                 b = static_cast<int>(std::atof(components[2].c_str()) * 255.0);
             }
 
-            return QColor(r, g, b);
+            return Color(r, g, b);
         }
 
-        String entityColorAsString(const QColor& color, const Assets::ColorRange::Type colorRange) {
+        String entityColorAsString(const Color& color, const Assets::ColorRange::Type colorRange) {
             StringStream result;
             if (colorRange == Assets::ColorRange::Byte) {
-                result << int(color.red()) << " " << int(color.green()) << " " << int(color.blue());
+                result << int(color.r() * 255.0f) << " " << int(color.g() * 255.0f) << " " << int(color.b() * 255.0f);
             } else if (colorRange == Assets::ColorRange::Float) {
-                result << float(color.red()) / 255.0f << " " << float(color.green()) / 255.0f << " "<< float(color.blue()) / 255.0f;
+                result << float(color.r()) << " " << float(color.g()) << " " << float(color.b());
             }
             return result.str();
         }

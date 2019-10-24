@@ -19,14 +19,9 @@
 
 #include "HlMipTextureReader.h"
 
-#include "Color.h"
 #include "StringUtils.h"
 #include "Assets/Palette.h"
-#include "Assets/Texture.h"
 #include "IO/Reader.h"
-#include "IO/Path.h"
-
-#include <cstring>
 
 namespace TrenchBroom {
     namespace IO {

@@ -20,7 +20,6 @@
 #include "EntityAttributeGrid.h"
 
 #include "Model/EntityAttributes.h"
-#include "Model/Object.h"
 #include "View/BorderLine.h"
 #include "View/EntityAttributeModel.h"
 #include "View/ViewConstants.h"
@@ -30,13 +29,11 @@
 #include <QHeaderView>
 #include <QTableView>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <QCheckBox>
 #include <QAbstractButton>
 #include <QShortcut>
 #include <QKeySequence>
 #include <QDebug>
-#include <QTextEdit>
 #include <QKeyEvent>
 
 namespace TrenchBroom {

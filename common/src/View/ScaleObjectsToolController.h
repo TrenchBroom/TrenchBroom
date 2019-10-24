@@ -21,7 +21,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TrenchBroom_ScaleObjectsToolController
 #define TrenchBroom_ScaleObjectsToolController
 
-#include "Model/Hit.h"
 #include "Renderer/EdgeRenderer.h"
 #include "View/ToolController.h"
 #include "View/ViewTypes.h"

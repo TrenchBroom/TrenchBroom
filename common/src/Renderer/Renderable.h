@@ -22,8 +22,6 @@
 
 #include "Macros.h"
 
-#include <cstdio>
-
 namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;

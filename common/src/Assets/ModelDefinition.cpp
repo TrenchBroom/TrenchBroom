@@ -22,8 +22,6 @@
 #include "Model/EntityAttributesVariableStore.h"
 #include "StringUtils.h"
 
-#include <cmath>
-
 namespace TrenchBroom {
     namespace Assets {
         ModelSpecification::ModelSpecification() :

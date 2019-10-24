@@ -21,6 +21,7 @@
 
 #include "IO/DiskIO.h"
 #include "IO/File.h"
+#include "IO/FileMatcher.h"
 #include "IO/GameConfigParser.h"
 #include "IO/Reader.h"
 #include "Model/Tag.h"

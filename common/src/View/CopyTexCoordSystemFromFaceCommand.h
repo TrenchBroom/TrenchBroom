@@ -21,7 +21,6 @@
 #define TrenchBroom_CopyTexCoordSystemFromFaceCommand
 
 #include "TrenchBroom.h"
-#include "SharedPointer.h"
 #include "View/DocumentCommand.h"
 #include "Model/TexCoordSystem.h"
 #include "Model/BrushFaceAttributes.h"

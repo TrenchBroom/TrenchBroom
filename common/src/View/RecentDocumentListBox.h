@@ -25,8 +25,6 @@
 
 #include <QPixmap>
 
-#include <vector>
-
 namespace TrenchBroom {
     namespace IO {
         class Path;

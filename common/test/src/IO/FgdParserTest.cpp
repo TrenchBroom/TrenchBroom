@@ -27,6 +27,7 @@
 #include "IO/DiskIO.h"
 #include "IO/FgdParser.h"
 #include "IO/File.h"
+#include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "IO/Reader.h"
 #include "IO/TestParserStatus.h"

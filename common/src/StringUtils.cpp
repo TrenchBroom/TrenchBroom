@@ -21,7 +21,6 @@
 
 #include <algorithm>
 #include <cstdarg>
-#include <cstdio>
 
 namespace StringUtils {
     const String& choose(const bool predicate, const String& positive, const String& negative) {

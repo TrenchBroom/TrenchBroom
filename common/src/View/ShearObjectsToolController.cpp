@@ -22,12 +22,10 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Reference.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
-#include "Renderer/GLVertexType.h"
 #include "Renderer/Camera.h"
 #include "View/InputState.h"
 #include "View/ShearObjectsTool.h"

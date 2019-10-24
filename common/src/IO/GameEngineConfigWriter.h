@@ -23,7 +23,7 @@
 #include "EL.h"
 #include "Macros.h"
 
-#include <iostream>
+#include <iosfwd>
 
 namespace TrenchBroom {
     namespace Model {

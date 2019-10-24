@@ -26,7 +26,6 @@
 #include "Model/MapFacade.h"
 
 #include <cassert>
-#include <map>
 
 namespace TrenchBroom {
     namespace Model {

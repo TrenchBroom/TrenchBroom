@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_ShearTexturesCommand
 #define TrenchBroom_ShearTexturesCommand
 
-#include "SharedPointer.h"
 #include "View/DocumentCommand.h"
 
 #include <vecmath/forward.h>

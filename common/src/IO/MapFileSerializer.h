@@ -23,7 +23,6 @@
 #include "IO/NodeSerializer.h"
 #include "Model/MapFormat.h"
 #include "Model/Brush.h"
-#include "Model/Node.h"
 
 #include <cstdio>
 

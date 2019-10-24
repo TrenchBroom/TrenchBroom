@@ -21,6 +21,7 @@
 #define TrenchBroom_Polyhedron_Misc_h
 
 #include "CollectionUtils.h"
+#include "Macros.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/ray.h>

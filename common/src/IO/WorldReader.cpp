@@ -19,7 +19,6 @@
 
 #include "WorldReader.h"
 
-#include "Logger.h"
 #include "Model/Brush.h"
 #include "Model/Layer.h"
 #include "Model/World.h"

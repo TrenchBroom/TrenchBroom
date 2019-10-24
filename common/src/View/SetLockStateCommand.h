@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_SetLockStateCommand
 #define TrenchBroom_SetLockStateCommand
 
-#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/UndoableCommand.h"
 

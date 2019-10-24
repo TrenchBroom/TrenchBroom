@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_EntityModel
 #define TrenchBroom_EntityModel
 
-#include "TrenchBroom.h"
 #include "Assets/TextureCollection.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMap.h"

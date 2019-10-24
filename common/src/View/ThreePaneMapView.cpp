@@ -19,8 +19,6 @@
 
 #include "ThreePaneMapView.h"
 
-#include "Model/PointFile.h"
-#include "Renderer/Camera.h"
 #include "View/CyclingMapView.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"

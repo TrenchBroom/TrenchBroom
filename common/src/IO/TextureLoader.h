@@ -21,8 +21,6 @@
 #define TextureLoader_h
 
 #include "Macros.h"
-#include "EL.h"
-#include "StringType.h"
 #include "Assets/AssetTypes.h"
 #include "IO/Path.h"
 #include "IO/TextureCollectionLoader.h"

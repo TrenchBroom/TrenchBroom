@@ -27,7 +27,6 @@
 #include "Model/Brush.h"
 #include "Renderer/AllocationTracker.h"
 
-#include <map>
 #include <memory>
 #include <tuple>
 #include <unordered_map>

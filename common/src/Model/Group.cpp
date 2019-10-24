@@ -20,7 +20,6 @@
 #include "Group.h"
 
 #include "TrenchBroom.h"
-#include "Hit.h"
 #include "Model/TagMatcher.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
@@ -38,7 +37,6 @@
 #include "Model/TagVisitor.h"
 
 #include <vecmath/ray.h>
-#include <vecmath/intersection.h>
 
 namespace TrenchBroom {
     namespace Model {

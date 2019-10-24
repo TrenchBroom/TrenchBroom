@@ -20,9 +20,7 @@
 #ifndef InputEvent_h
 #define InputEvent_h
 
-#include <QMouseEvent>
 #include <QKeyEvent>
-#include <QWheelEvent>
 
 #include <chrono>
 #include <list>

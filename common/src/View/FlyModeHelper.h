@@ -23,8 +23,6 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
-#include <iostream>
-
 class QKeyEvent;
 
 namespace TrenchBroom {

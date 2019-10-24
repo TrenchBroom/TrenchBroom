@@ -20,7 +20,6 @@
 #include "EmptyAttributeNameIssueGenerator.h"
 
 #include "Model/Entity.h"
-#include "Model/EntityAttributes.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"

@@ -22,7 +22,6 @@
 
 #include "TrenchBroom.h"
 #include "Model/ModelTypes.h"
-#include "Model/Pickable.h"
 
 namespace TrenchBroom {
     namespace Model {

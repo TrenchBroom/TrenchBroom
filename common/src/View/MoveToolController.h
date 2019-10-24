@@ -25,13 +25,10 @@
 #include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Macros.h"
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
-#include "Renderer/VertexArray.h"
-#include "Renderer/GLVertexType.h"
 #include "View/InputState.h"
 
 #include <vecmath/forward.h>

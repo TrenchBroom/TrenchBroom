@@ -27,7 +27,6 @@
 #include <QtGlobal>
 #include <QLabel>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <QAbstractButton>
 #include <QSpinBox>
 

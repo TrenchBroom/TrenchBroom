@@ -19,8 +19,6 @@
 
 #include "BrushFaceSnapshot.h"
 
-#include "Model/Brush.h"
-
 namespace TrenchBroom {
     namespace Model {
         BrushFaceSnapshot::BrushFaceSnapshot(BrushFace* face, TexCoordSystem& coordSystem) :

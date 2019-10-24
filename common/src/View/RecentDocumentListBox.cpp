@@ -19,12 +19,10 @@
 
 #include "RecentDocumentListBox.h"
 
-#include "StringUtils.h"
 #include "TrenchBroomApp.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "IO/ResourceUtils.h"
-#include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
 
 #include <cassert>

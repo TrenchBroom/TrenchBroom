@@ -25,6 +25,7 @@
 #include "Assets/Texture.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
+#include "Model/BrushFace.h"
 #include "Model/World.h"
 #include "Model/MapFormat.h"
 #include "Renderer/BrushRenderer.h"
@@ -32,7 +33,6 @@
 #include <vector>
 #include <chrono>
 #include <string>
-#include <iostream>
 #include <tuple>
 #include <algorithm>
 

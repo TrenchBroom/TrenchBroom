@@ -21,11 +21,11 @@
 #define Expression_h
 
 #include "Macros.h"
-#include "SharedPointer.h"
 #include "EL/Value.h"
 
 #include <list>
 #include <memory>
+#include <iosfwd>
 
 namespace TrenchBroom {
     namespace EL {

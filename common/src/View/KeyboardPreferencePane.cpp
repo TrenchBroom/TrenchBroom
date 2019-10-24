@@ -20,15 +20,12 @@
 #include "KeyboardPreferencePane.h"
 
 #include "Macros.h"
-#include "Preferences.h"
-#include "Assets/EntityDefinitionManager.h"
-#include "Model/Tag.h"
 #include "View/Actions.h"
-#include "View/BorderLine.h"
 #include "View/KeyboardShortcutItemDelegate.h"
 #include "View/KeyboardShortcutModel.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
+#include "View/wxUtils.h"
 
 #include <QBoxLayout>
 #include <QHeaderView>

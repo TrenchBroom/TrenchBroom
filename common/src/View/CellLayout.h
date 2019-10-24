@@ -27,8 +27,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include <limits>
-#include <memory>
 #include <vector>
 
 namespace TrenchBroom {

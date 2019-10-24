@@ -22,6 +22,7 @@
 #include "CollectionUtils.h"
 #include "Assets/Quake3Shader.h"
 #include "IO/File.h"
+#include "IO/FileMatcher.h"
 #include "IO/Quake3ShaderParser.h"
 #include "IO/SimpleParserStatus.h"
 

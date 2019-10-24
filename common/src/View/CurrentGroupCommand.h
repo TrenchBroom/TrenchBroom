@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_CurrentGroupCommand
 #define TrenchBroom_CurrentGroupCommand
 
-#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/UndoableCommand.h"
 

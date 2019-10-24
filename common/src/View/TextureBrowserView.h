@@ -23,7 +23,6 @@
 #include "StringType.h"
 #include "Assets/TextureManager.h"
 #include "Renderer/FontDescriptor.h"
-#include "Renderer/Vbo.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
 #include "View/CellView.h"

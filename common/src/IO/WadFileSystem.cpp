@@ -22,7 +22,6 @@
 #include "Logger.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
-#include "IO/DiskIO.h"
 
 namespace TrenchBroom {
     namespace IO {

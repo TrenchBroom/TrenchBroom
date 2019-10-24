@@ -22,11 +22,12 @@
 #include "KeyStrings.h"
 #include "IO/Path.h"
 
-#include <QFile>
+#include <QApplication>
 #include <QFileInfo>
 #include <QTextStream>
 
 #include <array>
+#include <iostream>
 #include <tuple>
 
 namespace TrenchBroom {

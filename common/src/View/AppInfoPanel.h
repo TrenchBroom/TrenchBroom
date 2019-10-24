@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_AppInfoPanel
 #define TrenchBroom_AppInfoPanel
 
-#include <QWidget>
 #include <QLabel>
 
 namespace TrenchBroom {

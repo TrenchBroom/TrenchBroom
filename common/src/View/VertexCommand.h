@@ -32,6 +32,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
         class VertexTool;
 
         class VertexCommand : public DocumentCommand {

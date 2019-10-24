@@ -22,7 +22,9 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/Grid.h"
+#include "TrenchBroom.h"
 
+#include <vecmath/distance.h>
 #include <vecmath/vec.h>
 #include <vecmath/ray.h>
 #include <vecmath/plane.h>

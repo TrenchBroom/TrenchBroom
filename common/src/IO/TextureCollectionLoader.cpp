@@ -29,7 +29,6 @@
 #include "IO/TextureReader.h"
 #include "IO/WadFileSystem.h"
 
-#include <cassert>
 #include <memory>
 
 namespace TrenchBroom {

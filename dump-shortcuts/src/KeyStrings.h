@@ -23,7 +23,6 @@
 #include <Qt>
 #include <QString>
 
-#include <ostream>
 #include <unordered_map>
 
 namespace TrenchBroom {

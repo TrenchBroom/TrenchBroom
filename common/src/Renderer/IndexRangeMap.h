@@ -20,7 +20,6 @@
 #ifndef IndexRangeMap_h
 #define IndexRangeMap_h
 
-#include "SharedPointer.h"
 #include "Renderer/GL.h"
 #include "Renderer/VertexArray.h"
 

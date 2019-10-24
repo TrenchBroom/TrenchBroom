@@ -21,7 +21,6 @@
 
 #include "CollectionUtils.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
 #include "TemporarilySetAny.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"

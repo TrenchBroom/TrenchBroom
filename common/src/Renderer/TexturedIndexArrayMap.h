@@ -20,7 +20,6 @@
 #ifndef TexturedIndexArrayMap_h
 #define TexturedIndexArrayMap_h
 
-#include "SharedPointer.h"
 #include "Renderer/IndexArrayMap.h"
 
 #include <map>

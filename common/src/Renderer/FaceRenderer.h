@@ -22,11 +22,8 @@
 
 #include "Color.h"
 #include "Assets/AssetTypes.h"
-#include "Model/BrushFace.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/VertexArray.h"
 
-#include <map>
 #include <memory>
 #include <unordered_map>
 

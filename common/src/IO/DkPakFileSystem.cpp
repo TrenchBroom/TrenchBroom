@@ -19,7 +19,6 @@
 
 #include "DkPakFileSystem.h"
 
-#include "CollectionUtils.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
 #include "IO/DiskFileSystem.h"

@@ -24,12 +24,10 @@
 #include "View/BorderLine.h"
 #include "View/CurrentGameIndicator.h"
 #include "View/GameEngineProfileManager.h"
-#include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
 #include <QBoxLayout>
 #include <QDialogButtonBox>
-#include <QLabel>
 
 namespace TrenchBroom {
     namespace View {

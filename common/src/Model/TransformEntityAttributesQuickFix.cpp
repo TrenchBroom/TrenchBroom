@@ -19,6 +19,9 @@
 
 #include "TransformEntityAttributesQuickFix.h"
 
+#include "Model/PushSelection.h"
+#include "Model/Issue.h"
+
 namespace TrenchBroom {
     namespace Model {
         TransformEntityAttributesQuickFix::TransformEntityAttributesQuickFix(const IssueType issueType, const String& description, const NameTransform& nameTransform, const ValueTransform& valueTransform) :

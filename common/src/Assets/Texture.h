@@ -28,8 +28,6 @@
 
 #include <vecmath/forward.h>
 
-#include <utility>
-#include <cassert>
 #include <vector>
 
 namespace TrenchBroom {

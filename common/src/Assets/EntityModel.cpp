@@ -26,8 +26,6 @@
 #include <vecmath/bbox.h>
 #include <vecmath/intersection.h>
 
-#include <limits>
-
 namespace TrenchBroom {
     namespace Assets {
         // EntityModelFrame

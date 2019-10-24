@@ -19,7 +19,6 @@
 
 #include "NodeReader.h"
 
-#include "Logger.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Layer.h"

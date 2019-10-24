@@ -20,7 +20,6 @@
 #ifndef FaceToolController_h
 #define FaceToolController_h
 
-#include "TrenchBroom.h"
 #include "View/VertexToolControllerBase.h"
 
 namespace TrenchBroom {

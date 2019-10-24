@@ -21,7 +21,6 @@
 #define TrenchBroom_HitFilter
 
 #include "Hit.h"
-#include "SharedPointer.h"
 
 namespace TrenchBroom {
     namespace Model {

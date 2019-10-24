@@ -21,7 +21,6 @@
 #define CompilationContext_h
 
 #include "EL.h"
-#include "Logger.h"
 #include "StringType.h"
 #include "View/TextOutputAdapter.h"
 #include "View/ViewTypes.h"

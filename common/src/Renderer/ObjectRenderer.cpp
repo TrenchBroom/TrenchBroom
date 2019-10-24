@@ -20,8 +20,6 @@
 #include "ObjectRenderer.h"
 
 #include "Model/Group.h"
-#include "Model/Node.h"
-#include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {
     namespace Renderer {

@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_ChangeEntityAttributesCommand
 #define TrenchBroom_ChangeEntityAttributesCommand
 
-#include "SharedPointer.h"
 #include "Model/EntityAttributeSnapshot.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"

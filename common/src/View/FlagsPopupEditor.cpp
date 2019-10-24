@@ -24,7 +24,6 @@
 #include "View/PopupButton.h"
 
 #include <QDebug>
-#include <QFrame>
 #include <QLabel>
 #include <QHBoxLayout>
 
