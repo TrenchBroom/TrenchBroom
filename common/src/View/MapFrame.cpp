@@ -1549,9 +1549,6 @@ namespace TrenchBroom {
             auto newMapView = dynamic_cast<MapViewBase*>(newFocus);
             if (newMapView != nullptr) {
                 m_currentMapView = newMapView;
-                qDebug() << "Current map view changed to " << m_currentMapView;
-            } else {
-                // leave the current map view as-is
             }
 
             updateActionState();

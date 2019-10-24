@@ -36,10 +36,6 @@ namespace TrenchBroom {
             const QRect refWidgetRectOnScreen = QRect(refWidget->mapToGlobal(QPoint(0, 0)), refWidget->size());
             const QSize ourSize = size();
 
-            //qDebug() << "screenGeom " << screenGeom <<
-            //            " refWidgetRectOnScreen " << refWidgetRectOnScreen <<
-            //            " our size: " << size();
-
             // Figure out y position on screen
             int y;
             if (refWidgetRectOnScreen.bottom() + ourSize.height() <= screenGeom.bottom()) { // fits below?

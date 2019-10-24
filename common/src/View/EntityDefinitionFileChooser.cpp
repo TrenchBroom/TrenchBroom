@@ -51,8 +51,6 @@ namespace TrenchBroom {
         void SingleSelectionListWidget::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
             QListWidget::selectionChanged(selected, deselected);
 
-            qDebug() << "selectionChanged " << selected.size() << " sel, " << deselected.size() << " desel\n";
-
             if (!m_allowDeselectAll) {
                 if (selectedIndexes().isEmpty() && !deselected.isEmpty()) {
                     // reselect the items that were just deselected
@@ -213,8 +211,6 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::builtinSelectionChanged() {
-            qDebug("builtinSelectionChanged");
-
             if (m_builtin->selectedItems().isEmpty()) {
                 return;
             }
@@ -224,11 +220,9 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
             if (document->entityDefinitionFile() == spec) {
-                qDebug("builtinSelectionChanged: already on correct file");
                 return;
             }
 
-            qDebug() << "builtinSelectionChanged: setting to " << QString::fromStdString(spec.asString());
             document->setEntityDefinitionFile(spec);
         }
 
