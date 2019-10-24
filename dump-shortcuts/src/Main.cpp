@@ -169,8 +169,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    std::cout << "Writing keyboard shortcuts to file: " << absPath << "\n";
-
     QTextStream out(&file);
 
     // QKeySequence requires that an application instance is created!

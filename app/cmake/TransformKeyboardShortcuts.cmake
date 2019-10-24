@@ -1,5 +1,3 @@
-message(STATUS "Transforming keyboard shortcuts ${INPUT} -> ${OUTPUT}")
-
 set(MANUAL_MENU_PATTERN       	"#menu\\(([^)]+)\\)")
 set(MANUAL_MENU_REPLACEMENT   	"<script>print_menu_item(\"\\1\");</script>")
 set(MANUAL_ACTION_PATTERN     	"#action\\(([^)]+)\\)")
