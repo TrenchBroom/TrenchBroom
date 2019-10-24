@@ -346,6 +346,7 @@ namespace TrenchBroom {
             visitToolBarActions(v);
 
             for (const auto& [path, actionPtr] : m_actions) {
+                unused(path);
                 const Action* tAction = actionPtr.get();
                 if (v.menuActions.find(tAction) == v.menuActions.end()) {
                     // This action is not used in a menu, so visit it
