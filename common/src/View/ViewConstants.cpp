@@ -25,12 +25,16 @@
 #include <QFontDatabase>
 #include <QWidget>
 
+#include <QDebug>
+
 namespace TrenchBroom {
     namespace View {
         namespace Fonts {
             QFont fixedWidthFont() {
                 // FIXME: returns a very ugly font on macOS Catalina
-                return QFontDatabase::systemFont(QFontDatabase::FixedFont);
+                const auto result = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+                qDebug() << result << " - " << result.exactMatch();
+                return result;
             }
         }
 

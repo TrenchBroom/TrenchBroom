@@ -203,10 +203,7 @@ namespace TrenchBroom {
 
             if (!vm::is_zero(delta, vm::C::almost_zero())) {
                 const BBoxSide side = m_dragStartHit.target<BBoxSide>();
-
-                if (document->shearObjects(bounds(), side.normal, delta)) {
-                    // FIXME: What are we supposed to do if this returns false?
-                }
+                document->shearObjects(bounds(), side.normal, delta);
             }
         }
 

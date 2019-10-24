@@ -86,18 +86,6 @@ namespace TrenchBroom {
 
         class MapFrame;
         MapFrame* findMapFrame(QWidget* widget);
-#if 0
-        wxFrame* findFrame(QWidget* window);
-
-        void fitAll(QWidget* window);
-
-        wxColor makeLighter(const wxColor& color);
-        Color fromWxColor(const wxColor& color);
-        wxColor toWxColor(const Color& color);
-
-        std::vector<size_t> getListCtrlSelection(const wxListCtrl* listCtrl);
-        void deselectAllListrCtrlItems(wxListCtrl* listCtrl);
-#endif
 
         QAbstractButton* createBitmapButton(const String& image, const QString& tooltip, QWidget* parent = nullptr);
         QAbstractButton* createBitmapButton(const QIcon& icon, const QString& tooltip, QWidget* parent = nullptr);
@@ -138,12 +126,6 @@ namespace TrenchBroom {
             layout->addStretch(1);
             return layout;
         }
-#if 0
-        void setWindowIcon(wxTopLevelWindow* window);
-        QStringList filterBySuffix(const QStringList& strings, const QString& suffix, bool caseSensitive = false);
-
-        QString wxToQString(const QString& string);
-#endif
 
         void setHint(QLineEdit* ctrl, const char* hint);
         void centerOnScreen(QWidget* window);

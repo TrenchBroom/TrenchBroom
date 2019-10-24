@@ -90,31 +90,6 @@ namespace TrenchBroom {
             return dynamic_cast<MapFrame*>(widget->window());
         }
 
-        // FIXME: Port this stuff as needed
-#if 0
-
-        wxFrame* findFrame(QWidget* window) {
-            if (window == nullptr)
-                return nullptr;
-            return wxDynamicCast(wxGetTopLevelParent(window), wxFrame);
-        }
-
-        void fitAll(QWidget* window) {
-            for (QWidget* child : window->GetChildren())
-                fitAll(child);
-            window->Fit();
-        }
-
-        wxColor makeLighter(const wxColor& color) {
-            wxColor result = color.ChangeLightness(130);
-            if (std::abs(result.Red()   - color.Red())   < 25 &&
-                std::abs(result.Green() - color.Green()) < 25 &&
-                std::abs(result.Blue()  - color.Blue())  < 25)
-                result = color.ChangeLightness(70);
-            return result;
-        }
-#endif
-
         void setHint(QLineEdit* ctrl, const char* hint) {
             ctrl->setPlaceholderText(hint);
         }
@@ -223,35 +198,6 @@ namespace TrenchBroom {
         QColor toQColor(const Color& color) {
             return QColor::fromRgb(int(color.r() * 255.0f), int(color.g() * 255.0f), int(color.b() * 255.0f), int(color.a() * 255.0f));
         }
-#if 0
-        wxColor toWxColor(const Color& color) {
-            const unsigned char r = static_cast<unsigned char>(color.r() * 255.0f);
-            const unsigned char g = static_cast<unsigned char>(color.g() * 255.0f);
-            const unsigned char b = static_cast<unsigned char>(color.b() * 255.0f);
-            const unsigned char a = static_cast<unsigned char>(color.a() * 255.0f);
-            return wxColor(r, g, b, a);
-        }
-
-        std::vector<size_t> getListCtrlSelection(const wxListCtrl* listCtrl) {
-            ensure(listCtrl != nullptr, "listCtrl is null");
-
-            std::vector<size_t> result(static_cast<size_t>(listCtrl->GetSelectedItemCount()));
-
-            size_t i = 0;
-            long itemIndex = listCtrl->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
-            while (itemIndex >= 0) {
-                result[i++] = static_cast<size_t>(itemIndex);
-                itemIndex = listCtrl->GetNextItem(itemIndex, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
-            }
-            return result;
-        }
-
-        void deselectAllListrCtrlItems(wxListCtrl* listCtrl) {
-            for (const auto index : getListCtrlSelection(listCtrl)) {
-                listCtrl->SetItemState(static_cast<long>(index), 0, wxLIST_STATE_SELECTED);
-            }
-        }
-#endif
 
         QAbstractButton* createBitmapButton(const String& image, const QString& tooltip, QWidget* parent) {
             return createBitmapButton(loadIconResourceQt(IO::Path(image)), tooltip, parent);
@@ -350,74 +296,10 @@ namespace TrenchBroom {
 
         void addToMiniToolBarLayout(QBoxLayout*) {}
 
-#if 0
-        QWidget* createDefaultPage(QWidget* parent, const QString& message) {
-            QWidget* containerPanel = new QWidget(parent);
-
-            QLabel* messageText = new QLabel(containerPanel, wxID_ANY, message);
-            messageText->SetFont(messageText->GetFont().Bold());
-            messageText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
-
-            auto* justifySizer = new QHBoxLayout();
-            justifySizer->addStretch(1);
-            justifySizer->addSpacing(LayoutConstants::WideHMargin);
-            justifySizer->addWidget(messageText, wxSizerFlags().Expand());
-            justifySizer->addSpacing(LayoutConstants::WideHMargin);
-            justifySizer->addStretch(1);
-
-            auto* containerSizer = new QVBoxLayout();
-            containerSizer->addSpacing(LayoutConstants::MediumVMargin);
-            containerSizer->addWidget(justifySizer, wxSizerFlags().Expand());
-            containerSizer->addSpacing(LayoutConstants::MediumVMargin);
-            containerSizer->addStretch(1);
-
-            containerPanel->setLayout(containerSizer);
-            return containerPanel;
-        }
-
-#if 0
-        wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, QWidget* parent) {
-            auto* hSizer = new QHBoxLayout();
-            hSizer->addSpacing(LayoutConstants::DialogButtonLeftMargin);
-            hSizer->addWidget(buttonSizer, wxSizerFlags().Expand().Proportion(1));
-            hSizer->addSpacing(LayoutConstants::DialogButtonRightMargin);
-
-            auto* vSizer = new QVBoxLayout();
-            vSizer->addWidget(new BorderLine(parent, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-            vSizer->addSpacing(LayoutConstants::DialogButtonTopMargin);
-            vSizer->addWidget(hSizer, wxSizerFlags().Expand());
-            vSizer->addSpacing(LayoutConstants::DialogButtonBottomMargin);
-            return vSizer;
-        }
-#endif
-#endif
-
         void setWindowIconTB(QWidget* window) {
             ensure(window != nullptr, "window is null");
             window->setWindowIcon(IO::loadIconResourceQt(IO::Path("AppIcon.png")));
         }
-
-#if 0
-        QStringList filterBySuffix(const QStringList& strings, const QString& suffix, const bool caseSensitive) {
-            QStringList result;
-            for (size_t i = 0; i < strings.size(); ++i) {
-                const QString& str = strings[i];
-                if (caseSensitive) {
-                    if (str.EndsWith(suffix))
-                        result.Add(str);
-                } else {
-                    if (str.Lower().EndsWith(suffix.Lower()))
-                        result.Add(str);
-                }
-            }
-            return result;
-        }
-
-        QString wxToQString(const QString& string) {
-            const auto utf8 = string.ToUTF8();
-            return QString::fromUtf8(utf8.data(), utf8.length());
-        }
-#endif
 
         void setDebugBackgroundColor(QWidget* widget, const QColor& color) {
             QPalette p = widget->palette();
