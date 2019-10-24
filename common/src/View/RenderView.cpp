@@ -154,10 +154,8 @@ namespace TrenchBroom {
         }
 
         void RenderView::paintGL() {
-            // FIXME: crash
-#if 0
             if (TrenchBroom::View::isReportingCrash()) return;
-#endif
+
             render();
 
             // Update stats

@@ -149,7 +149,6 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::parseCommandLineAndShowFrame() {
-            // FIXME: Do this here, or after the exec() call?
             QCommandLineParser parser;
             parser.process(*this);
             openFilesOrWelcomeFrame(parser.positionalArguments());
