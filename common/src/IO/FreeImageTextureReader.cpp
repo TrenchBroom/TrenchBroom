@@ -29,8 +29,6 @@
 #include "IO/Path.h"
 #include "IO/ImageLoaderImpl.h"
 
-#include <cstring>
-
 namespace TrenchBroom {
     namespace IO {
         FreeImageTextureReader::FreeImageTextureReader(const NameStrategy& nameStrategy) :

@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_MoveBrushFacesCommand
 #define TrenchBroom_MoveBrushFacesCommand
 
-#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/VertexCommand.h"
 

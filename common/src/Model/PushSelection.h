@@ -20,7 +20,6 @@
 #ifndef PushSelection_h
 #define PushSelection_h
 
-#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {

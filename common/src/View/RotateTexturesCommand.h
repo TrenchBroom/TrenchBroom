@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_RotateTexturesCommand
 #define TrenchBroom_RotateTexturesCommand
 
-#include "SharedPointer.h"
 #include "View/DocumentCommand.h"
 
 namespace TrenchBroom {

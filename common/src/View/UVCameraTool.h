@@ -22,7 +22,6 @@
 
 #include "View/Tool.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Renderer {

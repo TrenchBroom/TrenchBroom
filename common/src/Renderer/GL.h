@@ -23,7 +23,6 @@
 #include "Exceptions.h"
 #include "StringType.h"
 
-#include <cstddef>
 #include <vector>
 
 #include <GL/glew.h>

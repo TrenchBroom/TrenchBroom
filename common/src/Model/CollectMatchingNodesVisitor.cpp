@@ -19,8 +19,6 @@
 
 #include "CollectMatchingNodesVisitor.h"
 
-#include "CollectionUtils.h"
-
 namespace TrenchBroom {
     namespace Model {
         NodeCollectionStrategy::~NodeCollectionStrategy() {}

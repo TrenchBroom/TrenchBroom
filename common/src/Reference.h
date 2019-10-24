@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Reference_h
 #define TrenchBroom_Reference_h
 
-#include "SharedPointer.h"
+#include <memory>
 
 namespace TrenchBroom {
     template <typename T> class TypedReference;

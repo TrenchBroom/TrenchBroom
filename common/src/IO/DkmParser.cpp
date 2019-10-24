@@ -23,14 +23,13 @@
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
 #include "IO/FileSystem.h"
-#include "IO/ImageLoader.h"
+#include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "IO/Reader.h"
 #include "IO/SkinLoader.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/GLVertex.h"
-#include "Renderer/GLVertexType.h"
 #include "StringUtils.h"
 
 namespace TrenchBroom {

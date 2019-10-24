@@ -21,13 +21,11 @@
 #define Reader_h
 
 #include "Exceptions.h"
-#include "Macros.h"
 #include "StringType.h"
 
 #include <vecmath/vec.h>
 
 #include <cstdio>
-#include <cstdint>
 #include <memory>
 
 namespace TrenchBroom {

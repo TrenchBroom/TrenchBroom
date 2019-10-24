@@ -19,12 +19,10 @@
 
 #include "Sphere.h"
 
-#include "TrenchBroom.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
 
-#include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {

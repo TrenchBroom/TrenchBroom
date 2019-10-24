@@ -26,7 +26,6 @@
 
 #include <QRadioButton>
 #include <QLabel>
-#include <QGridLayout>
 #include <QDialogButtonBox>
 
 namespace TrenchBroom {

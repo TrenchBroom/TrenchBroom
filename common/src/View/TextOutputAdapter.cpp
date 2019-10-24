@@ -24,8 +24,6 @@
 
 #include <QTextEdit>
 
-#include <cassert>
-
 namespace TrenchBroom {
     namespace View {
         TextOutputAdapter::TextOutputAdapter(QTextEdit* textEdit) :

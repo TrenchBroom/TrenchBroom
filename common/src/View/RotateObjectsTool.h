@@ -24,6 +24,7 @@
 #include "Model/Hit.h"
 #include "View/Tool.h"
 #include "View/RotateObjectsHandle.h"
+#include "View/ViewTypes.h"
 
 #include <vector>
 

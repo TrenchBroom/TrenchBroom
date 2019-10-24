@@ -22,9 +22,7 @@
 
 #include "Model/Hit.h"
 #include "View/RotateObjectsHandle.h"
-#include "View/RotateObjectsHandle.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Model {

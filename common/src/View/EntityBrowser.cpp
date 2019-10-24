@@ -33,7 +33,6 @@
 #include <QLineEdit>
 #include <QScrollBar>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {

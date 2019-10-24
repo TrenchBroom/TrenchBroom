@@ -22,7 +22,6 @@
 #include "Assets/ModelDefinition.h"
 #include "CollectionUtils.h"
 #include "EL.h"
-#include "StringStream.h"
 #include "StringUtils.h"
 
 namespace TrenchBroom {

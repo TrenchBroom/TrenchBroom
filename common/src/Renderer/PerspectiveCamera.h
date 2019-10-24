@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_PerspectiveCamera
 #define TrenchBroom_PerspectiveCamera
 
-#include "TrenchBroom.h"
 #include "Renderer/Camera.h"
 
 #include <vecmath/forward.h>

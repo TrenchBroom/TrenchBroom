@@ -20,7 +20,6 @@
 #include "PopupWindow.h"
 
 #include <QWindow>
-#include <QScreen>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QDebug>

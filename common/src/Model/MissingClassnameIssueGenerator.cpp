@@ -20,7 +20,6 @@
 #include "MissingClassnameIssueGenerator.h"
 
 #include "StringUtils.h"
-#include "Assets/EntityDefinition.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Issue.h"

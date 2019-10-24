@@ -27,7 +27,6 @@
 #include "View/MapDocument.h"
 #include "View/TextureBrowser.h"
 #include "View/TitledPanel.h"
-#include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
 #include <QDialogButtonBox>

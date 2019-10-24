@@ -27,8 +27,6 @@
 #include "IO/ImageLoader.h"
 
 #include <algorithm>
-#include <cstring>
-#include <fstream>
 
 namespace TrenchBroom {
     namespace Assets {

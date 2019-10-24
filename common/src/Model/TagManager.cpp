@@ -23,7 +23,6 @@
 #include "Model/Tag.h"
 
 #include <algorithm>
-#include <cassert>
 #include <stdexcept>
 
 namespace TrenchBroom {

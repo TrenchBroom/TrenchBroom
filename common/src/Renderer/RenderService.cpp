@@ -35,7 +35,6 @@
 #include <vecmath/vec_ext.h>
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
-#include <vecmath/scalar.h>
 
 namespace TrenchBroom {
     namespace Renderer {

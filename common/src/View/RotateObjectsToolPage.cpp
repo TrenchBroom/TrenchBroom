@@ -32,7 +32,6 @@
 #include <vecmath/util.h>
 
 #include <QtGlobal>
-#include <QAbstractButton>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>

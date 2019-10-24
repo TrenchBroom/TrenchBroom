@@ -20,9 +20,6 @@
 #ifndef TrenchBroom_RenderBatch
 #define TrenchBroom_RenderBatch
 
-#include "TrenchBroom.h"
-#include "Color.h"
-
 #include <list>
 
 namespace TrenchBroom {

@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_ReparentNodesCommand
 #define TrenchBroom_ReparentNodesCommand
 
-#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
 

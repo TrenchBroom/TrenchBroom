@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_AddRemoveNodesCommand
 #define TrenchBroom_AddRemoveNodesCommand
 
-#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
 

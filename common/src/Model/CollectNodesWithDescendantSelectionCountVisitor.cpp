@@ -19,11 +19,7 @@
 
 #include "CollectNodesWithDescendantSelectionCountVisitor.h"
 
-#include "Model/Brush.h"
-#include "Model/Entity.h"
 #include "Model/Group.h"
-#include "Model/Layer.h"
-#include "Model/World.h"
 
 namespace TrenchBroom {
     namespace Model {

@@ -26,8 +26,6 @@
 #include "View/RotateObjectsToolPage.h"
 
 #include <vecmath/vec.h>
-#include <vecmath/vec.h>
-#include <vecmath/bbox.h>
 #include <vecmath/bbox.h>
 #include <vecmath/scalar.h>
 

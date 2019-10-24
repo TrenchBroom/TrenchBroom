@@ -22,11 +22,9 @@
 #include "StringUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "View/BorderLine.h"
 #include "View/ColorButton.h"
 #include "View/FormWithSectionsLayout.h"
 #include "View/SliderWithLabel.h"
-#include "View/TitleBar.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 

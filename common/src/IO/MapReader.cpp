@@ -20,7 +20,6 @@
 #include "MapReader.h"
 
 #include "CollectionUtils.h"
-#include "Logger.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"

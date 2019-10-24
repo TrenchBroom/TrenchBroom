@@ -21,7 +21,6 @@
 
 #include "Assets/Texture.h"
 #include "Model/Entity.h"
-#include "Model/Object.h"
 #include "View/BorderLine.h"
 #include "View/CollapsibleTitledPanel.h"
 #include "View/FaceAttribsEditor.h"
@@ -30,7 +29,6 @@
 #include "View/TextureBrowser.h"
 #include "View/TextureCollectionEditor.h"
 #include "View/TitledPanel.h"
-#include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
 #include <QVBoxLayout>

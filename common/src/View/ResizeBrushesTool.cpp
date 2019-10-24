@@ -41,7 +41,6 @@
 #include <vecmath/line.h>
 #include <vecmath/plane.h>
 #include <vecmath/segment.h>
-#include <vecmath/polygon.h>
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>
 #include <vecmath/scalar.h>

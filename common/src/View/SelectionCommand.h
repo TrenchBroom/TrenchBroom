@@ -24,7 +24,6 @@
 #include "Model/ModelTypes.h"
 #include "Model/BrushFaceReference.h"
 #include "View/UndoableCommand.h"
-#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace View {

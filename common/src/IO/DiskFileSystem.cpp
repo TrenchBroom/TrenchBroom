@@ -24,7 +24,6 @@
 
 #include "IO/DiskIO.h"
 
-#include <cassert>
 #include <memory>
 
 namespace TrenchBroom {

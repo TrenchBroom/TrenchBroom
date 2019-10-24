@@ -21,7 +21,6 @@
 
 #include "CollectionUtils.h"
 #include "PreferenceManager.h"
-#include "Preferences.h"
 #include "IO/CompilationConfigParser.h"
 #include "IO/CompilationConfigWriter.h"
 #include "IO/DiskFileSystem.h"

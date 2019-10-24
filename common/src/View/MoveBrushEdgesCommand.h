@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_MoveBrushEdgesCommand
 #define TrenchBroom_MoveBrushEdgesCommand
 
-#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/VertexCommand.h"
 
@@ -30,6 +29,8 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+
         class MoveBrushEdgesCommand : public VertexCommand {
         public:
             static const CommandType Type;

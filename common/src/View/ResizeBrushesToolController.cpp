@@ -21,18 +21,14 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Reference.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
-#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/GLVertexType.h"
 #include "View/InputState.h"
 #include "View/ResizeBrushesTool.h"
-
-#include <cassert>
 
 namespace TrenchBroom {
     namespace View {

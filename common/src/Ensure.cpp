@@ -23,8 +23,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "TrenchBroomApp.h"
 
 #include <cassert>
-#include <sstream>
-#include <string>
 
 #ifndef NDEBUG
 // for debug builds, ensure is just an assertion

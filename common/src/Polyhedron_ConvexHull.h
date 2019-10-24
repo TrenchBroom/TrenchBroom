@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Polyhedron_ConvexHull_h
 #define TrenchBroom_Polyhedron_ConvexHull_h
 
+#include "Macros.h"
+
 #include <vecmath/segment.h>
 #include <vecmath/plane.h>
 #include <vecmath/bbox.h>

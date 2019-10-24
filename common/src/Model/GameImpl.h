@@ -21,7 +21,6 @@
 #define TrenchBroom_GameImpl
 
 #include "TrenchBroom.h"
-#include "SharedPointer.h"
 #include "Assets/AssetTypes.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"

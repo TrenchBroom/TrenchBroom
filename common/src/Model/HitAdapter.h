@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_HitAdapter
 #define TrenchBroom_HitAdapter
 
-#include <stdio.h>
-
 namespace TrenchBroom {
     namespace Model {
         class Hit;

@@ -24,13 +24,11 @@
 #include "Assets/Palette.h"
 #include "IO/Reader.h"
 #include "IO/FileSystem.h"
-#include "IO/ImageLoader.h"
 #include "IO/Path.h"
 #include "IO/SkinLoader.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/GLVertex.h"
-#include "Renderer/GLVertexType.h"
 
 namespace TrenchBroom {
     namespace IO {

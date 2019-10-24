@@ -21,7 +21,6 @@
 #define TrenchBroom_Tool
 
 #include "Notifier.h"
-#include "StringType.h"
 
 class QWidget;
 class QStackedLayout;

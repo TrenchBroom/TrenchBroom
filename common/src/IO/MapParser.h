@@ -28,7 +28,6 @@
 #include <vecmath/forward.h>
 
 #include <map>
-#include <vector>
 
 namespace TrenchBroom {
     namespace Model {

@@ -22,10 +22,8 @@
 #include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "Assets/TextureManager.h"
-#include "Assets/TextureCollection.h"
 #include "IO/PathQt.h"
 #include "View/BorderLine.h"
-#include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
@@ -33,7 +31,6 @@
 
 #include <QListWidget>
 #include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QAbstractButton>
 #include <QFileDialog>
 #include <QSignalBlocker>

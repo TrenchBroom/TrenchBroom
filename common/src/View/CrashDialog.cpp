@@ -20,9 +20,7 @@
 #include "CrashDialog.h"
 
 #include "StringUtils.h"
-#include "View/BorderLine.h"
 #include "View/GetVersion.h"
-#include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 #include "IO/PathQt.h"
 

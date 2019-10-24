@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_Preferences_h
 #define TrenchBroom_Preferences_h
 
-#include "TrenchBroom.h"
 #include "Color.h"
 #include "Preference.h"
 #include "IO/Path.h"

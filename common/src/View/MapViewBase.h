@@ -33,7 +33,6 @@
 #include "View/UndoableCommand.h"
 #include "View/ViewTypes.h"
 
-#include <functional>
 #include <memory>
 #include <utility>
 #include <vector>

@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_ConvertEntityColorCommand
 #define TrenchBroom_ConvertEntityColorCommand
 
-#include "Color.h"
 #include "SharedPointer.h"
 #include "Model/EntityAttributeSnapshot.h"
 #include "Model/EntityColor.h"

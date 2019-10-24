@@ -22,7 +22,6 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
-#include "Model/EditorContext.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Tag.h"
 #include "View/Grid.h"
@@ -30,12 +29,10 @@
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/MapViewBase.h"
-#include "IO/PathQt.h"
 
 #include "vecmath/util.h"
 
 #include <QKeySequence>
-#include <QMessageBox>
 #include <QString>
 
 #include <cassert>

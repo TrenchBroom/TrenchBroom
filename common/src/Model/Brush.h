@@ -30,7 +30,6 @@
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
-#include <vecmath/segment.h>
 #include <vecmath/polygon.h>
 
 #include <set>

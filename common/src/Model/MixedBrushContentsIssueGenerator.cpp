@@ -22,8 +22,6 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Issue.h"
-#include "Model/IssueQuickFix.h"
-#include "Model/MapFacade.h"
 
 #include <cassert>
 

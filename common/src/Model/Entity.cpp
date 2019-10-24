@@ -20,7 +20,6 @@
 #include "Entity.h"
 
 #include "Assets/EntityModel.h"
-#include "Model/TagMatcher.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/Brush.h"

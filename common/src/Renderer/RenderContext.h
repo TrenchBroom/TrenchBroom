@@ -21,7 +21,7 @@
 #define TrenchBroom_RenderContext
 
 #include "Renderer/Transformation.h"
-#include "Renderer/RenderBatch.h"
+#include "TrenchBroom.h"
 
 namespace TrenchBroom {
     namespace View {

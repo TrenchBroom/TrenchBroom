@@ -30,6 +30,7 @@
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/TextureFont.h"
+#include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
 #include "StringUtils.h"
 #include "View/MapDocument.h"

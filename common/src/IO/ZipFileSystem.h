@@ -20,7 +20,6 @@
 #ifndef TRENCHBROOM_ZIPFILESYSTEM_H
 #define TRENCHBROOM_ZIPFILESYSTEM_H
 
-#include "StringType.h"
 #include "IO/ImageFileSystem.h"
 #include "IO/Path.h"
 

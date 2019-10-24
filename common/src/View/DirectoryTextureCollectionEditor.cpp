@@ -26,11 +26,9 @@
 #include "View/MapDocument.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
-#include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
 #include <QListWidget>
-#include <QLabel>
 #include <QVBoxLayout>
 #include <QAbstractButton>
 

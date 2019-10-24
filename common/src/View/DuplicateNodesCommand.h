@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_DuplicateNodesCommand
 #define TrenchBroom_DuplicateNodesCommand
 
-#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
 

@@ -20,9 +20,6 @@
 #ifndef TRENCHBROOM_TAGATTRIBUTE_H
 #define TRENCHBROOM_TAGATTRIBUTE_H
 
-#include <map>
-#include <string>
-
 namespace TrenchBroom {
     namespace Model {
         class TagAttribute;

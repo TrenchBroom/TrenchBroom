@@ -20,7 +20,6 @@
 #include "SnapBrushVerticesCommand.h"
 
 #include "Model/Brush.h"
-#include "Model/BrushGeometry.h"
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom {

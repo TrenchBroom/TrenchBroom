@@ -20,7 +20,6 @@
 #include "ViewConstants.h"
 
 #include <QColor>
-#include <QPalette>
 #include <QFont>
 #include <QFontDatabase>
 #include <QWidget>

@@ -32,11 +32,11 @@
 #include "Model/BrushSnapshot.h"
 #include "Model/Hit.h"
 #include "Model/MapFormat.h"
-#include "Model/ModelFactoryImpl.h"
 #include "Model/PickResult.h"
 #include "Model/World.h"
 
 #include <vecmath/vec.h>
+#include <vecmath/segment.h>
 #include <vecmath/polygon.h>
 #include <vecmath/ray.h>
 

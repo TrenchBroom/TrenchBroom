@@ -36,7 +36,6 @@
 #include "TrenchBroom.h"
 
 #include <vecmath/intersection.h>
-#include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 #include <vecmath/quat.h>
 #include <vecmath/util.h>

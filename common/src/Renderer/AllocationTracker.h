@@ -22,7 +22,6 @@
 
 #include <vector>
 #include <set>
-#include <utility>
 
 namespace TrenchBroom {
     namespace Renderer {

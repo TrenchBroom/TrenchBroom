@@ -21,7 +21,6 @@
 #define TrenchBroom_CollectRecursivelySelectedNodesVisitor
 
 #include "Model/CollectMatchingNodesVisitor.h"
-#include "Model/NodePredicates.h"
 
 namespace TrenchBroom {
     namespace Model {

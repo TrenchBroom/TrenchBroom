@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_ChangeBrushFaceAttributesCommand
 #define TrenchBroom_ChangeBrushFaceAttributesCommand
 
-#include "SharedPointer.h"
 #include "View/DocumentCommand.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 

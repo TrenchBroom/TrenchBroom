@@ -25,19 +25,16 @@
 #include "PreferenceManager.h"
 #include "Model/Entity.h"
 #include "Model/Game.h"
-#include "Model/Object.h"
 #include "StringUtils.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
-#include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
 #include <QLineEdit>
 #include <QListWidget>
 #include <QWidget>
-#include <QLabel>
 #include <QAbstractButton>
 #include <QVBoxLayout>
 #include <QGridLayout>

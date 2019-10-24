@@ -23,7 +23,6 @@
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/BrushFace.h"
 
-#include <vecmath/bbox.h>
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>

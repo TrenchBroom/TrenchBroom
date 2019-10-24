@@ -27,12 +27,9 @@
 #include "View/RecentDocumentListBox.h"
 #include "View/wxUtils.h"
 
-#include <memory>
-
 #include <QCloseEvent>
 #include <QFileDialog>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <QPushButton>
 
 namespace TrenchBroom {

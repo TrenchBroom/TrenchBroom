@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_ViewTypes
 #define TrenchBroom_ViewTypes
 
-#include "SharedPointer.h"
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {

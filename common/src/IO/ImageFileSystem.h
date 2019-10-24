@@ -20,12 +20,10 @@
 #ifndef ImageFileSystem_h
 #define ImageFileSystem_h
 
-#include "StringType.h"
 #include "IO/FileSystem.h"
 #include "IO/Path.h"
 #include "StringUtils.h"
 
-#include <cstdio>
 #include <map>
 #include <memory>
 

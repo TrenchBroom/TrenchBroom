@@ -25,7 +25,6 @@
 #include "Model/EditorContext.h"
 #include "Model/Game.h"
 #include "Model/Tag.h"
-#include "View/BorderLine.h"
 #include "View/BorderPanel.h"
 #include "View/MapDocument.h"
 #include "View/MapViewConfig.h"
@@ -34,11 +33,9 @@
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
-#include <QAbstractButton>
 #include <QCheckBox>
 #include <QGridLayout>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <QLabel>
 #include <QScrollArea>
 #include <QButtonGroup>

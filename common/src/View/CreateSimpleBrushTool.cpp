@@ -20,10 +20,9 @@
 #include "TrenchBroom.h"
 
 #include "CreateSimpleBrushTool.h"
-#include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
-#include "Model/World.h"
 #include "View/MapDocument.h"
+#include "Model/World.h"
 
 namespace TrenchBroom {
     namespace View {

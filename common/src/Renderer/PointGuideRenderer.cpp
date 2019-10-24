@@ -20,6 +20,8 @@
 #include "PointGuideRenderer.h"
 
 #include "TrenchBroom.h"
+#include "SharedPointer.h"
+
 #include <vecmath/vec.h>
 #include <vecmath/ray.h>
 

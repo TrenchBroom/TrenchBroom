@@ -27,7 +27,6 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 
-#include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/ray.h>
 #include <vecmath/plane.h>

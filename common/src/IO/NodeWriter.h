@@ -21,7 +21,6 @@
 #define TrenchBroom_NodeWriter
 
 #include "IO/NodeSerializer.h"
-#include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
 
 #include <cstdio>

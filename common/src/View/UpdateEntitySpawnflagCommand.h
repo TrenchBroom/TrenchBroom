@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_UpdateEntitySpawnflagCommand
 #define TrenchBroom_UpdateEntitySpawnflagCommand
 
-#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
 

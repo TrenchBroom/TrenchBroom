@@ -20,17 +20,12 @@
 #include "UVViewHelper.h"
 
 #include "TrenchBroom.h"
-#include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/PickResult.h"
 #include "Renderer/OrthographicCamera.h"
-#include "Renderer/RenderContext.h"
-#include "Renderer/ShaderManager.h"
-#include "Renderer/VertexArray.h"
-#include "Renderer/GLVertexType.h"
 #include "View/UVView.h"
 
 #include <vecmath/vec.h>

@@ -18,7 +18,6 @@
  */
 
 #include "Command.h"
-#include "Exceptions.h"
 
 namespace TrenchBroom {
     namespace View {

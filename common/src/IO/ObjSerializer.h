@@ -29,7 +29,6 @@
 #include <vecmath/forward.h>
 
 #include <cstdio>
-#include <list>
 #include <map>
 #include <vector>
 

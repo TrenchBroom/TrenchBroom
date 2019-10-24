@@ -19,8 +19,6 @@
 
 #include "TexturedIndexArrayRenderer.h"
 
-#include "CollectionUtils.h"
-
 namespace TrenchBroom {
     namespace Renderer {
         TexturedIndexArrayRenderer::TexturedIndexArrayRenderer() {}

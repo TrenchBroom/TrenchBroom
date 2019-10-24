@@ -29,7 +29,6 @@
 
 #include <vecmath/vec.h>
 
-#include <algorithm>
 #include <vector>
 #include <cassert>
 #include <unordered_map>

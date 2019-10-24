@@ -22,7 +22,6 @@
 
 #include "StringType.h"
 
-#include <QPixmap>
 #include <QIcon>
 
 namespace TrenchBroom {

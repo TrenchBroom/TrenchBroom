@@ -22,7 +22,6 @@
 
 #include "TrenchBroom.h"
 #include "StringType.h"
-#include "Hit.h"
 #include "Macros.h"
 #include "Model/ModelTypes.h"
 #include "Model/Node.h"

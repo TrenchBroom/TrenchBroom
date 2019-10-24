@@ -22,11 +22,9 @@
 
 #include "Macros.h"
 #include "StringType.h"
-#include "View/ViewTypes.h"
 
 #include <functional>
 #include <memory>
-#include <vector>
 
 namespace TrenchBroom {
     namespace View {

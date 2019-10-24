@@ -36,8 +36,6 @@
 #include "View/MapViewBar.h"
 #include "View/MapViewToolBox.h"
 
-#include <vecmath/scalar.h>
-
 #include <QGridLayout>
 
 namespace TrenchBroom {

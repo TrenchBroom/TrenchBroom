@@ -19,8 +19,6 @@
 
 #include "Renderable.h"
 
-#include <cassert>
-
 namespace TrenchBroom {
     namespace Renderer {
         void Renderable::render(RenderContext& renderContext) {

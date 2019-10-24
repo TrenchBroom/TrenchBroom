@@ -26,7 +26,6 @@
 #include <vecmath/forward.h>
 #include <vecmath/polygon.h>
 
-#include <cassert>
 #include <fstream>
 
 namespace TrenchBroom {

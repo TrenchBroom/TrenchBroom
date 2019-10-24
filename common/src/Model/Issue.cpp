@@ -25,8 +25,6 @@
 #include "Model/EditorContext.h"
 #include "Model/Node.h"
 
-#include <cassert>
-
 namespace TrenchBroom {
     namespace Model {
         Issue::~Issue() = default;

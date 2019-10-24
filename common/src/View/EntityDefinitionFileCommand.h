@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_EntityDefinitionFileCommand
 #define TrenchBroom_EntityDefinitionFileCommand
 
-#include "SharedPointer.h"
 #include "View/DocumentCommand.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 

@@ -19,7 +19,6 @@
 
 #include "BrushFaceReference.h"
 
-#include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 

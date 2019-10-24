@@ -31,7 +31,6 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 
-#include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/segment.h>
 #include <vecmath/distance.h>

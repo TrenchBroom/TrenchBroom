@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_IOUtils_h
 #define TrenchBroom_IOUtils_h
 
-#include "Exceptions.h"
 #include "ByteBuffer.h"
 #include "Macros.h"
 #include "StringType.h"
@@ -31,12 +30,9 @@
 #include <cstdio>
 #include <cstring>
 #include <fstream>
-#include <iostream>
-#include <limits>
 #include <vector>
 
 #ifdef _MSC_VER
-#include <cstdint>
 #elif defined __GNUC__
 #include <stdint.h>
 #endif

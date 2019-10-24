@@ -30,7 +30,6 @@
 #include <QBoxLayout>
 #include <QFileDialog>
 #include <QFormLayout>
-#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QStackedWidget>

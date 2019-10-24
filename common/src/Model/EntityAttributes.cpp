@@ -20,7 +20,6 @@
 #include "EntityAttributes.h"
 
 #include "Assets/EntityDefinition.h"
-#include "Exceptions.h"
 #include "StringMap.h"
 
 namespace TrenchBroom {

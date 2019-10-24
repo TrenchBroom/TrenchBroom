@@ -25,8 +25,6 @@
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
 
-#include <cassert>
-
 namespace TrenchBroom {
     namespace Assets {
         EntityDefinitionManager::~EntityDefinitionManager() {

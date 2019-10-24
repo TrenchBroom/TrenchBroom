@@ -20,7 +20,6 @@
 #include "RenderView.h"
 
 #include "TrenchBroomApp.h"
-#include "Exceptions.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Vbo.h"
@@ -69,7 +68,6 @@
 #include <QWidget>
 
 #ifdef _WIN32
-#include <GL/wglew.h>
 #endif
 
 #include <vecmath/mat.h>

@@ -27,14 +27,11 @@
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Vbo.h"
-#include "Renderer/GLVertexType.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
-
-#include <algorithm>
 
 namespace TrenchBroom {
     namespace Renderer {

@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_RemoveBrushVerticesCommand
 #define TrenchBroom_RemoveBrushVerticesCommand
 
-#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/RemoveBrushElementsCommand.h"
 

@@ -23,9 +23,7 @@
 #include "View/FaceInspector.h"
 #include "View/MapInspector.h"
 #include "View/TabBook.h"
-#include "View/TabBar.h"
 
-#include <QEvent>
 #include <QResizeEvent>
 #include <QVBoxLayout>
 

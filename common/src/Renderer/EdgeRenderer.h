@@ -21,13 +21,10 @@
 #define TrenchBroom_EdgeRenderer
 
 #include "Color.h"
-#include "Reference.h"
-#include "Renderer/IndexArrayMap.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 
-#include <vector>
 #include <memory>
 
 namespace TrenchBroom {

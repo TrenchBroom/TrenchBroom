@@ -23,7 +23,6 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
-#include "Model/Group.h"
 #include "Model/HitAdapter.h"
 
 #include <vecmath/util.h>

@@ -39,7 +39,6 @@
 #include "Model/Layer.h"
 #include "Model/PointFile.h"
 #include "Model/PortalFile.h"
-#include "Model/PushSelection.h"
 #include "Model/World.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Compass.h"
@@ -60,7 +59,6 @@
 #include "View/MapViewConfig.h"
 #include "View/MapViewToolBox.h"
 #include "View/SelectionTool.h"
-#include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
 #include <vecmath/util.h>

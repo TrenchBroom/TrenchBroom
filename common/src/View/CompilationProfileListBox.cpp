@@ -26,7 +26,6 @@
 #include "View/wxUtils.h"
 
 #include <QBoxLayout>
-#include <QLabel>
 
 namespace TrenchBroom {
     namespace View {

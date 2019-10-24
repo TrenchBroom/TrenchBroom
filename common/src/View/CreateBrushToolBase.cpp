@@ -22,7 +22,6 @@
 #include "Preferences.h"
 #include "Model/Brush.h"
 #include "Renderer/BrushRenderer.h"
-#include "Renderer/RenderService.h"
 #include "Renderer/SelectionBoundsRenderer.h"
 #include "View/MapDocument.h"
 

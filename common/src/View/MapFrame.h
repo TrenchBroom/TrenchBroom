@@ -29,7 +29,6 @@
 #include <QMainWindow>
 #include <QPointer>
 
-#include <utility>
 #include <map>
 
 class QAction;

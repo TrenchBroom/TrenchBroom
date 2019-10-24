@@ -24,10 +24,8 @@
 #include "View/MapViewBase.h"
 
 #include <QDateTime>
-#include <QDebug>
 #include <QApplication>
 #include <QMouseEvent>
-#include <QWindow>
 
 namespace TrenchBroom {
     namespace View {

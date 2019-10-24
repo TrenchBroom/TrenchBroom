@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_SmartAttributeEditorManager
 #define TrenchBroom_SmartAttributeEditorManager
 
-#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 

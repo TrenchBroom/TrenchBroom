@@ -21,11 +21,8 @@
 #define TrenchBroom_Vbo
 
 #include "Macros.h"
-#include "SharedPointer.h"
 #include "Renderer/GL.h"
 
-#include <cassert>
-#include <cstring>
 #include <vector>
 
 namespace TrenchBroom {

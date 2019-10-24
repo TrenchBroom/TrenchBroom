@@ -21,7 +21,6 @@
 #define TrenchBroom_NodeCollection
 
 #include "Model/ModelTypes.h"
-#include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {
     namespace Model {

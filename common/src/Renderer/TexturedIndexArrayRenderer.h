@@ -20,11 +20,8 @@
 #ifndef TexturedIndexArrayRenderer_h
 #define TexturedIndexArrayRenderer_h
 
-#include "SharedPointer.h"
 #include "Renderer/IndexArray.h"
 #include "Renderer/TexturedIndexArrayMap.h"
-
-#include <map>
 
 namespace TrenchBroom {
     namespace Assets {

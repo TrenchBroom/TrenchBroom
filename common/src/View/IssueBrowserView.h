@@ -22,7 +22,6 @@
 
 #include "View/ViewTypes.h"
 
-#include "Model/Issue.h"
 #include "Model/ModelTypes.h"
 
 #include <vector>

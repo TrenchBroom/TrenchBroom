@@ -22,8 +22,6 @@
 #include "TrenchBroom.h"
 #include "View/MapViewContainer.h"
 
-#include <cassert>
-
 namespace TrenchBroom {
     namespace View {
         MapView::MapView() :

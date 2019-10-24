@@ -21,10 +21,8 @@
 #define TrenchBroom_RotateObjectsHandle
 
 #include "TrenchBroom.h"
-#include "Color.h"
 #include "Macros.h"
 #include "Model/Hit.h"
-#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Renderer {

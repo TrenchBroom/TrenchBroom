@@ -22,7 +22,6 @@
 
 #include "Renderer/Vbo.h"
 
-#include <cstring>
 #include <vector>
 #include <type_traits>
 

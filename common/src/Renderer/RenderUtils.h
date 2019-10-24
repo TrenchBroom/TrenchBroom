@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_RenderUtils_h
 #define TrenchBroom_RenderUtils_h
 
-#include "Color.h"
-#include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
 
 #include <vecmath/forward.h>

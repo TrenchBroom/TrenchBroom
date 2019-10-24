@@ -29,6 +29,8 @@
 #include "Model/MapFormat.h"
 #include "Model/World.h"
 
+#include <vecmath/segment.h>
+
 #include <cmath>
 
 namespace TrenchBroom {

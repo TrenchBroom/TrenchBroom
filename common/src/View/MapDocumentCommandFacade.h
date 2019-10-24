@@ -29,6 +29,8 @@
 #include "View/MapDocument.h"
 #include "View/UndoableCommand.h"
 
+#include <vecmath/segment.h>
+
 namespace TrenchBroom {
     namespace Model {
         class ChangeBrushFaceAttributesRequest;

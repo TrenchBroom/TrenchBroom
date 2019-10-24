@@ -23,7 +23,6 @@
 #include <vector>
 
 #include <vecmath/forward.h>
-#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Renderer {

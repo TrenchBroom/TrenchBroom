@@ -32,7 +32,6 @@
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/Node.h"
-#include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
 #include "View/InputState.h"

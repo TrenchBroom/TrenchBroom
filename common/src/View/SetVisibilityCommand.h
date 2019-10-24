@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_SetVisibilityCommand
 #define TrenchBroom_SetVisibilityCommand
 
-#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/UndoableCommand.h"
 

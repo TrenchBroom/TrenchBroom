@@ -24,12 +24,8 @@
 #include "View/ToolController.h"
 #include "View/ToolChain.h"
 
-#include <QApplication>
 #include <QDateTime>
 #include <QDebug>
-#include <QEvent>
-#include <QEnterEvent>
-#include <QWindow>
 
 #include <cassert>
 

@@ -26,7 +26,6 @@
 #include "Model/CompilationTask.h"
 #include "View/CompilationContext.h"
 
-#include <QObject>
 #include <QProcess>
 
 #include <list>

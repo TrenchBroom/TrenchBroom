@@ -21,7 +21,6 @@
 
 #include "Assets/AssetTypes.h"
 #include "Assets/Texture.h"
-#include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"

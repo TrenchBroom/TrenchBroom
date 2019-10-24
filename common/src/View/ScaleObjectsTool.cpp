@@ -38,7 +38,6 @@
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>
 
-#include <algorithm>
 #include <iterator>
 #include <set>
 

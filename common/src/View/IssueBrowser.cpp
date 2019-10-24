@@ -19,21 +19,17 @@
 
 #include "IssueBrowser.h"
 
-#include "Macros.h"
 #include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
 #include "Model/World.h"
 #include "View/FlagsPopupEditor.h"
 #include "View/IssueBrowserView.h"
 #include "View/MapDocument.h"
-#include "View/ViewConstants.h"
 
 #include <QList>
 #include <QStringList>
 #include <QCheckBox>
 #include <QVBoxLayout>
-
-#include <QLabel>
 
 #include <cassert>
 

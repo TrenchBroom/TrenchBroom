@@ -19,6 +19,8 @@
 
 #include "BoundsGuideRenderer.h"
 
+#include "SharedPointer.h"
+
 #include <vecmath/bbox.h>
 #include <vecmath/ray.h>
 

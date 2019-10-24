@@ -27,7 +27,6 @@
 #include <functional>
 #include <list>
 #include <memory>
-#include <optional-lite/optional.hpp>
 #include <vector>
 #include <map>
 

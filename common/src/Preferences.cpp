@@ -19,8 +19,6 @@
 
 #include "Preferences.h"
 #include "IO/Path.h"
-#include "IO/SystemPaths.h"
-#include "View/ActionContext.h"
 #include "View/MapViewLayout.h"
 
 #include <vecmath/util.h>

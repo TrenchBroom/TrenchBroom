@@ -19,6 +19,8 @@
 
 #include "IndexArrayMapBuilder.h"
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace Renderer {
         IndexArrayMapBuilder::IndexArrayMapBuilder(const IndexArrayMap::Size& size) :

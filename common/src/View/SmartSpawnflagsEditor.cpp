@@ -23,6 +23,7 @@
 #include "Assets/AttributeDefinition.h"
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
+#include "Model/NodeVisitor.h"
 #include "Model/World.h"
 #include "View/FlagsEditor.h"
 #include "View/MapDocument.h"

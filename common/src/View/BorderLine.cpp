@@ -21,8 +21,6 @@
 
 #include "View/ViewConstants.h"
 
-#include <iostream>
-
 namespace TrenchBroom {
     namespace View {
         BorderLine::BorderLine(const Direction direction, const int thickness, QWidget* parent) :

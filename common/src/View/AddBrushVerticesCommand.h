@@ -20,12 +20,13 @@
 #ifndef AddBrushVerticesCommand_h
 #define AddBrushVerticesCommand_h
 
-#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/VertexCommand.h"
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+
         class AddBrushVerticesCommand : public VertexCommand {
         public:
             static const CommandType Type;

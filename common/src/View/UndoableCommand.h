@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_UndoableCommand
 #define TrenchBroom_UndoableCommand
 
-#include "SharedPointer.h"
 #include "View/Command.h"
 
 namespace TrenchBroom {

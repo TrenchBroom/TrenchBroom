@@ -21,16 +21,13 @@
 
 #include "StringUtils.h"
 #include "TrenchBroom.h"
-#include "View/BorderLine.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsTool.h"
-#include "View/SpinControl.h"
 #include "View/ViewConstants.h"
 
 #include <vecmath/vec.h>
 
-#include <QAbstractButton>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>

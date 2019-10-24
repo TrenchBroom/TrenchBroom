@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_UVOffsetTool
 #define TrenchBroom_UVOffsetTool
 
-#include "Model/ModelTypes.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
 #include "View/ViewTypes.h"

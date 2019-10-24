@@ -20,7 +20,6 @@
 #include "FaceToolController.h"
 
 #include "View/FaceTool.h"
-#include "View/Lasso.h"
 #include "View/VertexHandleManager.h"
 
 namespace TrenchBroom {

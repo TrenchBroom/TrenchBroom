@@ -24,6 +24,7 @@
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityColor.h"
+#include "Model/NodeVisitor.h"
 #include "Model/World.h"
 #include "View/BorderLine.h"
 #include "View/ColorTable.h"

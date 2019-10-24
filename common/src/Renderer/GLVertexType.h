@@ -20,11 +20,8 @@
 #ifndef TrenchBroom_VertexSpec
 #define TrenchBroom_VertexSpec
 
-#include "Renderer/GL.h"
 #include "Renderer/GLVertexAttributeType.h"
 #include "Renderer/GLVertex.h"
-
-#include <vector>
 
 #include <vecmath/forward.h>
 

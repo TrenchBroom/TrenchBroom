@@ -22,7 +22,6 @@
 #include "View/InputState.h"
 #include "Renderer/OrthographicCamera.h"
 
-#include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {

@@ -30,7 +30,6 @@
 #include "View/BorderLine.h"
 #include "View/LayerListBox.h"
 #include "View/MapDocument.h"
-#include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
 #include <QInputDialog>
