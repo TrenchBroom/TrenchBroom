@@ -51,8 +51,7 @@ namespace TrenchBroom {
             m_table = new QTableView();
             m_table->setModel(m_proxy);
 
-            auto* verticalHeader = m_table->verticalHeader();
-            verticalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
+            autoResizeRows(m_table);
 
             m_table->setStyleSheet("QTableView { border: none; }");
             m_table->setHorizontalHeader(new QHeaderView(Qt::Horizontal));

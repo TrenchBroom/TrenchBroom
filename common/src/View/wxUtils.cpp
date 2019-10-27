@@ -333,5 +333,24 @@ namespace TrenchBroom {
             }
             button->setChecked(checked);
         }
+
+        AutoResizeRowsEventFilter::AutoResizeRowsEventFilter(QTableView* tableView) :
+        QObject(tableView),
+        m_tableView(tableView) {
+            m_tableView->installEventFilter(this);
+        }
+
+        bool AutoResizeRowsEventFilter::eventFilter(QObject* watched, QEvent* event) {
+            if (watched == m_tableView && (event->type() == QEvent::Resize || event->type() == QEvent::Show)) {
+                m_tableView->resizeRowsToContents();
+            }
+            return QObject::eventFilter(watched, event);
+        }
+
+        void autoResizeRows(QTableView* tableView) {
+            tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+            tableView->installEventFilter(new AutoResizeRowsEventFilter(tableView));
+            tableView->resizeRowsToContents();
+        }
     }
 }

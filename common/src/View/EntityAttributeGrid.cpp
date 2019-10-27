@@ -310,9 +310,7 @@ namespace TrenchBroom {
             m_model->setParent(m_table); // ensure the table takes ownership of the model in setModel
             m_table->setModel(m_model);
 
-            // autoResizeRows(m_table);
-            auto* verticalHeader = m_table->verticalHeader();
-            verticalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
+            autoResizeRows(m_table);
 
             m_table->setStyleSheet("QTableView { border: none; }");
             m_table->verticalHeader()->setVisible(false);
