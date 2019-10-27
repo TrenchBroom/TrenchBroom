@@ -150,16 +150,6 @@ namespace TrenchBroom {
         QLineEdit* createSearchBox();
 
         void checkButtonInGroup(QButtonGroup* group, int id, bool checked);
-
-        class AutoResizeRowsEventFilter : public QObject {
-            Q_OBJECT
-        private:
-            QTableView* m_tableView;
-        public:
-            explicit AutoResizeRowsEventFilter(QTableView* tableView);
-
-            bool eventFilter(QObject* watched, QEvent* event) override;
-        };
         void autoResizeRows(QTableView* tableView);
     }
 }
