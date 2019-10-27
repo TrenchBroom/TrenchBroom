@@ -52,8 +52,7 @@ namespace TrenchBroom {
             m_table->setModel(m_proxy);
 
             auto* verticalHeader = m_table->verticalHeader();
-            verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
-            verticalHeader->setDefaultSectionSize(1); // setting a too small value will force the minimum size to fit the contents
+            verticalHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
 
             m_table->setStyleSheet("QTableView { border: none; }");
             m_table->setHorizontalHeader(new QHeaderView(Qt::Horizontal));

@@ -43,6 +43,7 @@
 #include <QAbstractButton>
 #include <QButtonGroup>
 #include <QTableView>
+#include <QHeaderView>
 
 namespace TrenchBroom {
     namespace View {
