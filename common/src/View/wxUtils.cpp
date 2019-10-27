@@ -341,8 +341,9 @@ namespace TrenchBroom {
         }
 
         bool AutoResizeRowsEventFilter::eventFilter(QObject* watched, QEvent* event) {
-            if (watched == m_tableView && (event->type() == QEvent::Resize || event->type() == QEvent::Show)) {
+            if (watched == m_tableView && event->type() == QEvent::Show) {
                 m_tableView->resizeRowsToContents();
+                m_tableView->removeEventFilter(this);
             }
             return QObject::eventFilter(watched, event);
         }
