@@ -88,6 +88,7 @@ namespace TrenchBroom {
             void nodesDidChange(const Model::NodeList& nodes);
             void selectionWillChange();
             void selectionDidChange(const Selection& selection);
+            void entityDefinitionsOrModsDidChange();
         private:
             void updateControls();
         public:
