@@ -181,11 +181,8 @@ namespace TrenchBroom {
         bool TrenchBroomApp::openDocument(const IO::Path& path) {
             MapFrame* frame = nullptr;
             try {
-                String gameName;
-                Model::MapFormat mapFormat = Model::MapFormat::Unknown;
-
                 Model::GameFactory& gameFactory = Model::GameFactory::instance();
-                std::tie(gameName, mapFormat) = gameFactory.detectGame(path);
+                auto [gameName, mapFormat] = gameFactory.detectGame(path);
 
                 if (gameName.empty() || mapFormat == Model::MapFormat::Unknown) {
                     if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat)) {
