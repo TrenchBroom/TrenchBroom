@@ -169,11 +169,8 @@ namespace TrenchBroom {
         this->loadCacheFromDisk();
 
         m_fileSystemWatcher = new QFileSystemWatcher(this);
-        if (!m_fileSystemWatcher->addPath(m_preferencesFilePath)) {
-            qDebug() << "Couldn't start file system watcher for: " << m_preferencesFilePath;
-        }
+        assertResult(m_fileSystemWatcher->addPath(m_preferencesFilePath))
         connect(m_fileSystemWatcher, &QFileSystemWatcher::QFileSystemWatcher::fileChanged, this, [this](){
-            qDebug() << "Detected settings change";
             this->loadCacheFromDisk();
         });
     }
@@ -190,22 +187,16 @@ namespace TrenchBroom {
     }
 
     void PreferenceManager::saveChanges() {
-        qDebug() << "saveChanges";
-
         for (auto* pref : m_unsavedPreferences) {
             savePreferenceToCache(pref);
             preferenceDidChangeNotifier(pref->path());
         }
         m_unsavedPreferences.clear();
 
-        if (!writeV2SettingsToPath(m_preferencesFilePath, m_cache)) {
-            qDebug() << "error saving";
-        }
+        assertResult(writeV2SettingsToPath(m_preferencesFilePath, m_cache))
     }
 
     void PreferenceManager::discardChanges() {
-        qDebug() << "discardChanges";
-
         m_unsavedPreferences.clear();
         invalidatePreferences();
     }
@@ -251,8 +242,6 @@ namespace TrenchBroom {
 
         // Reload m_cache
         m_cache = readV2SettingsFromPath(m_preferencesFilePath);
-        qDebug() << "Read " << m_cache.size() << " preferences from " << m_preferencesFilePath;
-
         invalidatePreferences();
 
         // Emit preferenceDidChangeNotifier for any changed preferences
@@ -290,11 +279,7 @@ namespace TrenchBroom {
         }
 
         const QString stringValue = it->second;
-        if (!pref->loadFromString(format, stringValue)) {
-            qDebug() << "Error deserializing";
-        } else {
-            qDebug() << "Deserialized " << IO::pathAsQString(pref->path()) << " from '" << stringValue << "'";
-        }
+        assertResult(pref->loadFromString(format, stringValue))
         pref->setValid(true);
     }
 
@@ -303,8 +288,6 @@ namespace TrenchBroom {
         const QString stringValue = pref->writeToString(format);
 
         m_cache[pref->path()] = stringValue;
-
-        qDebug() << "Saved to cache " << IO::pathAsQString(pref->path()) << " as '" << stringValue << "'";
     }
 
     // V1 settings
@@ -449,15 +432,12 @@ namespace TrenchBroom {
 
             // try Preferences::staticPreferencesMap()
             {
-                auto it = map.find(key);
+                const auto it = map.find(key);
                 if (it != map.end()) {
                     PreferenceBase* prefBase = it->second;
 
-                    auto strMaybe = prefBase->migratePreferenceForThisType(v1, v2, val);
-
-                    if (!strMaybe.has_value()) {
-                        qDebug() << " failed to migrate pref for " << IO::pathAsQString(key);
-                    } else {
+                    const auto strMaybe = prefBase->migratePreferenceForThisType(v1, v2, val);
+                    if (strMaybe.has_value()) {
                         result[key] = *strMaybe;
                     }
                     continue;
@@ -466,15 +446,12 @@ namespace TrenchBroom {
 
             // try ActionManager::actionsMap()
             {
-                auto it = actionsMap.find(key);
+                const auto it = actionsMap.find(key);
                 if (it != actionsMap.end()) {
                     // assume it's a QKeySequence
 
-                    auto strMaybe = migratePreference<QKeySequence>(v1, v2, val);
-
-                    if (!strMaybe.has_value()) {
-                        qDebug() << " failed to migrate pref for " << IO::pathAsQString(key);
-                    } else {
+                    const auto strMaybe = migratePreference<QKeySequence>(v1, v2, val);
+                    if (strMaybe.has_value()) {
                         result[key] = *strMaybe;
                     }
                     continue;
@@ -484,18 +461,12 @@ namespace TrenchBroom {
             // try Preferences::dynaimcPreferencePatterns()
             {
                 bool found = false;
-
                 for (DynamicPreferencePatternBase* dynPref : dynaimcPrefPatterns) {
                     if (matches(key, dynPref->pathPattern())) {
                         found = true;
 
-                        qDebug() << "   " << IO::pathAsQString(key) << " matches pattern " << IO::pathAsQString( dynPref->pathPattern());
-
-                        auto strMaybe = dynPref->migratePreferenceForThisType(v1, v2, val);
-
-                        if (!strMaybe.has_value()) {
-                            qDebug() << " failed to migrate pref for " << IO::pathAsQString(key);
-                        } else {
+                        const auto strMaybe = dynPref->migratePreferenceForThisType(v1, v2, val);
+                        if (strMaybe.has_value()) {
                             result[key] = *strMaybe;
                         }
 
@@ -507,8 +478,6 @@ namespace TrenchBroom {
                     continue;
                 }
             }
-
-            qDebug() << "Couldn't find migration for " << IO::pathAsQString(key);
         }
 
         return result;
@@ -524,8 +493,7 @@ namespace TrenchBroom {
             return {};
         }
 
-        auto result = parseV2SettingsFromJSON(file.readAll());
-        return result;
+        return parseV2SettingsFromJSON(file.readAll());
     }
 
     bool writeV2SettingsToPath(const QString& path, const std::map<IO::Path, QString>& v2Prefs) {
@@ -541,8 +509,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        const bool ok = saveFile.commit();
-        return ok;
+        return saveFile.commit();
     }
 
     std::map<IO::Path, QString> readV2Settings() {
@@ -554,12 +521,7 @@ namespace TrenchBroom {
         QJsonParseError error;
         const QJsonDocument document = QJsonDocument::fromJson(jsonData, &error);
 
-        if (error.error != QJsonParseError::NoError) {
-            qWarning() << "Error parsing settings: " << error.errorString();
-            return {};
-        }
-        if (!document.isObject()) {
-            qWarning() << "Error parsing settings: expected object";
+        if (error.error != QJsonParseError::NoError || !document.isObject()) {
             return {};
         }
 
@@ -589,17 +551,10 @@ namespace TrenchBroom {
 
         QFileInfo prefsFileInfo(destinationPath);
         if (prefsFileInfo.exists()) {
-            qDebug() << destinationPath << " already exists; skipping settings migration.";
             return;
         }
 
         const std::map<IO::Path, QString> v2Prefs = migrateV1ToV2(readV1Settings());
-        const bool ok = writeV2SettingsToPath(destinationPath, v2Prefs);
-
-        if (ok) {
-            qDebug() << "Successfully migrated " << v2Prefs.size() << " settings to " << destinationPath;
-        } else {
-            qDebug() << "Error migrating settings to " << destinationPath;
-        }
+        assertResult(writeV2SettingsToPath(destinationPath, v2Prefs))
     }
 }
