@@ -555,6 +555,6 @@ namespace TrenchBroom {
         }
 
         const std::map<IO::Path, QString> v2Prefs = migrateV1ToV2(readV1Settings());
-        assertResult(writeV2SettingsToPath(destinationPath, v2Prefs))
+        writeV2SettingsToPath(destinationPath, v2Prefs);
     }
 }
