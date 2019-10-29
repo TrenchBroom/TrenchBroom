@@ -100,7 +100,8 @@ public:
 class FileNotFoundException : public ExceptionStream<FileNotFoundException> {
 public:
     using ExceptionStream::ExceptionStream;
-    FileNotFoundException(const std::string& str, const PathException& e) noexcept : ExceptionStream(str + " (" + e.what() + ")") {}
+    FileNotFoundException(const std::string& path) noexcept : ExceptionStream("File not found: '" + path + "'") {}
+    FileNotFoundException(const std::string& path, const PathException& e) noexcept : ExceptionStream("File not found: '" + path + "' (" + e.what() + ")") {}
 };
 
 class AssetException : public ExceptionStream<AssetException> {

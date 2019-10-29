@@ -132,7 +132,7 @@ namespace TrenchBroom {
             std::shared_ptr<File> openFile(const Path& path) {
                 const Path fixedPath = fixPath(path);
                 if (!fileExists(fixedPath)) {
-                    throw FileNotFoundException("File not found: '" + fixedPath.asString() + "'");
+                    throw FileNotFoundException(fixedPath.asString());
                 }
 
                 return std::make_shared<CFile>(fixedPath);

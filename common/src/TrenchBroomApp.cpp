@@ -181,6 +181,10 @@ namespace TrenchBroom {
         bool TrenchBroomApp::openDocument(const IO::Path& path) {
             MapFrame* frame = nullptr;
             try {
+                if (!IO::Disk::fileExists(path)) {
+                    throw FileNotFoundException(path.asString());
+                }
+
                 Model::GameFactory& gameFactory = Model::GameFactory::instance();
                 auto [gameName, mapFormat] = gameFactory.detectGame(path);
 

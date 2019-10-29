@@ -34,10 +34,6 @@ namespace TrenchBroom {
     namespace IO {
         OpenFile::OpenFile(const Path& path, const bool write) :
         file(nullptr) {
-            if (!Disk::fileExists(path)) {
-                throw FileNotFoundException("File not found: '" + path.asString() + "'");
-            }
-
             // cppcheck-suppress noCopyConstructor
             // cppcheck-suppress noOperatorEq
             file = fopen(path.asString().c_str(), write ? "w" : "r");
@@ -53,10 +49,6 @@ namespace TrenchBroom {
         }
 
         OpenStream::OpenStream(const Path& path, const bool write) {
-            if (!Disk::fileExists(path)) {
-                throw FileNotFoundException("File not found: '" + path.asString() + "'");
-            }
-
             stream.open(path.asString().c_str(), std::ios::in | (write ? std::ios::out : std::ios::in));
             if (!stream.is_open()) {
                 throw FileSystemException("Cannot open file: " + path.asString());
