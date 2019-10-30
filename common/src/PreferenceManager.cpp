@@ -169,10 +169,11 @@ namespace TrenchBroom {
         this->loadCacheFromDisk();
 
         m_fileSystemWatcher = new QFileSystemWatcher(this);
-        assertResult(m_fileSystemWatcher->addPath(m_preferencesFilePath))
-        connect(m_fileSystemWatcher, &QFileSystemWatcher::QFileSystemWatcher::fileChanged, this, [this](){
-            this->loadCacheFromDisk();
-        });
+        if (m_fileSystemWatcher->addPath(m_preferencesFilePath)) {
+            connect(m_fileSystemWatcher, &QFileSystemWatcher::QFileSystemWatcher::fileChanged, this, [this](){
+                this->loadCacheFromDisk();
+            });
+        }
     }
 
     PreferenceManager& PreferenceManager::instance() {
