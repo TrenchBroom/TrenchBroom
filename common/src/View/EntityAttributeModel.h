@@ -73,6 +73,7 @@ namespace TrenchBroom {
         public:
             AttributeRow();
             AttributeRow(const String& name, const Model::AttributableNode* node);
+            bool operator==(const AttributeRow& other) const;
             void merge(const Model::AttributableNode* other);
 
             const String& name() const;
