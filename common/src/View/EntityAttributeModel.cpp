@@ -43,6 +43,15 @@ namespace TrenchBroom {
         m_nameMutable(true),
         m_valueMutable(true) {}
 
+        bool AttributeRow::operator==(const AttributeRow& other) const {
+            return m_name == other.m_name
+                && m_value == other.m_value
+                && m_valueType == other.m_valueType
+                && m_nameMutable == other.m_nameMutable
+                && m_valueMutable == other.m_valueMutable
+                && m_tooltip == other.m_tooltip;
+        }
+
         AttributeRow::AttributeRow(const String& name, const Model::AttributableNode* node) :
         m_name(name) {
             const Assets::AttributeDefinition* definition = node->attributeDefinition(name);
@@ -235,11 +244,14 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeModel::setRows(const std::map<String, AttributeRow>& newRowsKeyMap) {
+            const std::vector<AttributeRow> newRows = buildVec(newRowsKeyMap);
+            if (newRows == m_rows) {
+                // Important optimization: avoid any UI updates if nothing in the viewmodel changed.
+                return;
+            }
+
             qDebug() << "EntityAttributeModel::setRows " << newRowsKeyMap.size() << " rows.";
 
-            // Next we're going to update the persistent model indices
-
-            const std::vector<AttributeRow> newRows = buildVec(newRowsKeyMap);
             const std::map<String, int> oldRowIndexMap = buildAttributeToRowIndexMap(m_rows);
             const std::map<String, int> newRowIndexMap = buildAttributeToRowIndexMap(newRows);
 
