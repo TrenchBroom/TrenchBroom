@@ -23,12 +23,13 @@
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
+#include "IO/ResourceUtils.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
-#include "IO/ResourceUtils.h"
+#include "View/wxUtils.h"
 
 #include <QDebug>
 #include <QBrush>
@@ -79,7 +80,7 @@ namespace TrenchBroom {
             const bool otherHasAttribute = other->hasAttribute(m_name);
             const String otherValue = other->attribute(m_name);
 
-            // State transitions 
+            // State transitions
             if (m_valueType == ValueType::Unset) {
                 if (otherHasAttribute) {
                      m_valueType = ValueType::SingleValueAndUnset;
@@ -163,7 +164,7 @@ namespace TrenchBroom {
                     continue;
                 }
 
-                // Add explicitly set attributes 
+                // Add explicitly set attributes
                 for (const Model::EntityAttribute& attribute : node->attributes()) {
                     result.insert(attribute.name());
                 }
@@ -316,12 +317,93 @@ namespace TrenchBroom {
             return -1;
         }
 
+        QStringList EntityAttributeModel::getCompletions(const QModelIndex& index) const {
+            const auto name = attributeName(index.row());
+
+            StringList result;
+            if (index.column() == 0) {
+                result = getAllAttributeNames();
+            } else if (index.column() == 1) {
+                if (name == Model::AttributeNames::Target ||
+                    name == Model::AttributeNames::Killtarget) {
+                    result = getAllValuesForAttributeNames({ Model::AttributeNames::Targetname });
+                } else if (name == Model::AttributeNames::Targetname) {
+                    result = getAllValuesForAttributeNames({ Model::AttributeNames::Target, Model::AttributeNames::Killtarget });
+                } else if (name == Model::AttributeNames::Classname) {
+                    result = getAllClassnames();
+                }
+            }
+
+            return toQStringList(std::begin(result), std::end(result));
+        }
+
+        Model::AttributeName EntityAttributeModel::attributeName(const int row) const {
+            if (row < 0 || row >= static_cast<int>(m_rows.size())) {
+                return "";
+            } else {
+                return m_rows[static_cast<size_t>(row)].name();
+            }
+        }
+
+        StringList EntityAttributeModel::getAllAttributeNames() const {
+            auto document = lock(m_document);
+            const auto& index = document->world()->attributableNodeIndex();
+            auto result = index.allNames();
+
+            // remove duplicates and sort
+            VectorUtils::setCreate(result);
+
+            // also add keys from all loaded entity definitions
+            for (const auto* entityDefinition : document->entityDefinitionManager().definitions()) {
+                for (const auto& attributeDefinition : entityDefinition->attributeDefinitions()) {
+                    VectorUtils::setInsert(result, attributeDefinition->name());
+                }
+            }
+
+            // remove the empty string
+            VectorUtils::setRemove(result, "");
+            return result;
+        }
+
+        StringList EntityAttributeModel::getAllValuesForAttributeNames(const StringList& names) const {
+            auto document = lock(m_document);
+            const auto& index = document->world()->attributableNodeIndex();
+
+            StringList result;
+            for (const auto& name : names) {
+                const auto values = index.allValuesForNames(Model::AttributableNodeIndexQuery::numbered(name));
+                for (const auto& value : values) {
+                    VectorUtils::setInsert(result, value);
+                }
+            }
+
+            // remove the empty string
+            VectorUtils::setRemove(result, "");
+            return result;
+        }
+
+        StringList EntityAttributeModel::getAllClassnames() const {
+            auto document = lock(m_document);
+
+            // start with currently used classnames
+            auto result = getAllValuesForAttributeNames({ Model::AttributeNames::Classname });
+
+            // add keys from all loaded entity definitions
+            for (const auto* entityDefinition : document->entityDefinitionManager().definitions()) {
+                VectorUtils::setInsert(result, entityDefinition->name());
+            }
+
+            // remove the empty string
+            VectorUtils::setRemove(result, "");
+            return result;
+        }
+
         void EntityAttributeModel::updateFromMapDocument() {
             qDebug() << "updateFromMapDocument";
 
             MapDocumentSPtr document = lock(m_document);
 
-            const std::map<String, AttributeRow> rowsMap = 
+            const std::map<String, AttributeRow> rowsMap =
                 AttributeRow::rowsForAttributableNodes(document->allSelectedAttributableNodes(), m_showDefaultRows);
 
             setRows(rowsMap);
@@ -382,9 +464,9 @@ namespace TrenchBroom {
                     }
                 }
                 return QVariant();
-            } 
-            
-            
+            }
+
+
             if (role == Qt::ForegroundRole) {
                 if (row.isDefault() || row.subset()) {
                     return QVariant(QBrush(Colors::disabledText()));
@@ -657,7 +739,7 @@ namespace TrenchBroom {
             return m_rows.nameMutable(index) && m_rows.valueMutable(index);
         }
 
-        
+
 
         QStringList EntityAttributeModel::getCompletions(int row, int col) const {
             const Model::AttributeName name = attributeName(row);

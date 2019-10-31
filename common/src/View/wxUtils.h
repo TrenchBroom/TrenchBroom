@@ -21,10 +21,10 @@
 #define TrenchBroom_wxUtils
 
 #undef CursorShape
-#include <QString>
 
 #include "Color.h"
 #include "StringType.h"
+#include "StringList.h"
 
 #include "View/ViewConstants.h"
 
@@ -32,6 +32,8 @@
 #include <QColor>
 #include <QObject>
 #include <QSettings>
+#include <QString>
+#include <QStringList>
 #include <QWidget>
 
 class QAbstractButton;
@@ -151,6 +153,16 @@ namespace TrenchBroom {
 
         void checkButtonInGroup(QButtonGroup* group, int id, bool checked);
 
+        template <typename I>
+        QStringList toQStringList(I cur, I end) {
+            QStringList result;
+            while (cur != end) {
+                result.push_back(QString::fromStdString(*cur));
+                ++cur;
+            }
+            return result;
+        }
+
         class AutoResizeRowsEventFilter : public QObject {
             Q_OBJECT
         private:
@@ -160,7 +172,7 @@ namespace TrenchBroom {
 
             bool eventFilter(QObject* watched, QEvent* event) override;
         };
-    
+
         void autoResizeRows(QTableView* tableView);
     }
 }

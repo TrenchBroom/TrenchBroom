@@ -21,9 +21,11 @@
 
 #include "Model/EntityAttributes.h"
 #include "View/BorderLine.h"
+#include "View/EntityAttributeItemDelegate.h"
 #include "View/EntityAttributeModel.h"
-#include "View/ViewConstants.h"
+#include "View/EntityAttributeTable.h"
 #include "View/MapDocument.h"
+#include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
 #include <QHeaderView>
@@ -260,55 +262,12 @@ namespace TrenchBroom {
         };
 #endif
 
-        class EntityAttributeTable : public QTableView {
-        protected:
-            bool event(QEvent *event) override {
-                if (event->type() == QEvent::ShortcutOverride) {
-                    QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-
-                    if (keyEvent->key() < Qt::Key_Escape &&
-                        (keyEvent->modifiers() == Qt::NoModifier || keyEvent->modifiers() == Qt::KeypadModifier)) {
-                        qDebug("overriding shortcut key %d\n", keyEvent->key());
-                        event->setAccepted(true);
-                        return true;
-                    } else {
-                        qDebug("not overriding shortcut key %d\n", keyEvent->key());
-                    }
-
-                }
-                return QTableView::event(event);
-            }
-
-            void keyPressEvent(QKeyEvent* event) override {
-                // Set up Qt::Key_Return to open the editor. Doing this binding via a QShortcut makes it so you can't close
-                // an open editor, so do it this way.
-                if (event->key() == Qt::Key_Return
-                    && (event->modifiers() == Qt::NoModifier || event->modifiers() == Qt::KeypadModifier)
-                    && state() != QAbstractItemView::EditingState) {
-
-                    // open the editor
-                    qDebug("opening editor...");
-                    edit(currentIndex());
-                } else {
-                    QTableView::keyPressEvent(event);
-                }
-            }
-
-            /**
-             * The decorations (padlock icon for locked cells) goes on the right of the text
-             */
-            QStyleOptionViewItem viewOptions() const override {
-                QStyleOptionViewItem options = QTableView::viewOptions();
-                options.decorationPosition = QStyleOptionViewItem::Right;
-                return options;
-            }
-        };
-
         void EntityAttributeGrid::createGui(MapDocumentWPtr document) {
             m_table = new EntityAttributeTable();
             m_model = new EntityAttributeModel(document, this);
             m_model->setParent(m_table); // ensure the table takes ownership of the model in setModel
             m_table->setModel(m_model);
+            m_table->setItemDelegate(new EntityAttributeItemDelegate(m_table, m_model, m_table));
 
             autoResizeRows(m_table);
 

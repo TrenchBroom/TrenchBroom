@@ -323,7 +323,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/EnableDisableTagCallback.cpp
         ${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.cpp
         ${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.cpp
+        ${COMMON_SOURCE_DIR}/View/EntityAttributeItemDelegate.cpp
         ${COMMON_SOURCE_DIR}/View/EntityAttributeModel.cpp
+        ${COMMON_SOURCE_DIR}/View/EntityAttributeTable.cpp
         ${COMMON_SOURCE_DIR}/View/EntityBrowser.cpp
         ${COMMON_SOURCE_DIR}/View/EntityBrowserView.cpp
         ${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.cpp
@@ -884,7 +886,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/EnableDisableTagCallback.h
         ${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.h
         ${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.h
+        ${COMMON_SOURCE_DIR}/View/EntityAttributeItemDelegate.h
         ${COMMON_SOURCE_DIR}/View/EntityAttributeModel.h
+        ${COMMON_SOURCE_DIR}/View/EntityAttributeTable.h
         ${COMMON_SOURCE_DIR}/View/EntityBrowser.h
         ${COMMON_SOURCE_DIR}/View/EntityBrowserView.h
         ${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.h

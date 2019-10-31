@@ -33,6 +33,7 @@ class QShortcut;
 namespace TrenchBroom {
     namespace View {
         class EntityAttributeModel;
+        class EntityAttributeTable;
         class Selection;
 
         /**
@@ -45,7 +46,7 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
 
             EntityAttributeModel* m_model;
-            QTableView* m_table;
+            EntityAttributeTable* m_table;
             QAbstractButton* m_addAttributeButton;
             QAbstractButton* m_removePropertiesButton;
             QCheckBox* m_showDefaultPropertiesCheckBox;

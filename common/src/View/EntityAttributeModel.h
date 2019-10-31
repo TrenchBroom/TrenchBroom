@@ -21,6 +21,7 @@
 #define TrenchBroom_EntityAttributeGridTable
 
 #include "StringType.h"
+#include "StringList.h"
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
@@ -38,7 +39,7 @@ namespace TrenchBroom {
     namespace View {
         using AttribRow = std::tuple<QString, QString>;
         using RowList = std::vector<AttribRow>;
-        
+
         enum class ValueType {
             /**
              * No entities have this key set; the provided value is the default from the entity definition
@@ -84,7 +85,7 @@ namespace TrenchBroom {
             bool isDefault() const;
             bool multi() const;
             bool subset() const;
-        
+
             static AttributeRow rowForAttributableNodes(const String& key, const Model::AttributableNodeList& attributables);
             static std::set<String> allKeys(const Model::AttributableNodeList& attributables, bool showDefaultRows);
             static std::map<String, AttributeRow> rowsForAttributableNodes(const Model::AttributableNodeList& attributables, bool showDefaultRows);
@@ -124,6 +125,13 @@ namespace TrenchBroom {
             const AttributeRow* dataForModelIndex(const QModelIndex& index) const;
             int rowForAttributeName(const String& name) const;
 
+        public: // for autocompletion
+            QStringList getCompletions(const QModelIndex& index) const;
+        private: // autocompletion helpers
+            Model::AttributeName attributeName(int row) const;
+            StringList getAllAttributeNames() const;
+            StringList getAllValuesForAttributeNames(const StringList& names) const;
+            StringList getAllClassnames() const;
         public slots:
             void updateFromMapDocument();
 
