@@ -201,7 +201,7 @@ add_executable(TrenchBroom WIN32 MACOSX_BUNDLE)
 target_sources(TrenchBroom PRIVATE ${APP_SOURCE} ${INDEX_OUTPUT_PATH} ${DOC_MANUAL_TARGET_FILES_ABSOLUTE} ${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE} ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE})
 configure_app_target(TrenchBroom)
 
-add_executable(TrenchBroom-nomanual WIN32 MACOSX_BUNDLE)
+add_executable(TrenchBroom-nomanual WIN32 MACOSX_BUNDLE EXCLUDE_FROM_ALL)
 target_sources(TrenchBroom-nomanual PRIVATE ${APP_SOURCE})
 configure_app_target(TrenchBroom-nomanual)
 
