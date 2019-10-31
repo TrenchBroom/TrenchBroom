@@ -69,6 +69,10 @@ namespace TrenchBroom {
             connect(completer, QOverload<const QString&>::of(&QCompleter::activated), this, [this, lineEdit](const QString& value) {
                 m_table->finishEditing(lineEdit);
             });
+
+            connect(lineEdit, &QLineEdit::returnPressed, this, [this, lineEdit]() {
+                m_table->finishEditing(lineEdit);
+            });
         }
 
         QStringList EntityAttributeItemDelegate::getCompletions(const QModelIndex& index) const {
