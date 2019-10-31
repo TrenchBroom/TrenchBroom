@@ -70,8 +70,10 @@ namespace TrenchBroom {
                 m_table->finishEditing(lineEdit);
             });
 
-            connect(lineEdit, &QLineEdit::returnPressed, this, [this, lineEdit]() {
-                m_table->finishEditing(lineEdit);
+            connect(lineEdit, &QLineEdit::returnPressed, this, [this, lineEdit, completer]() {
+                if (completer->popup()->isVisible()) {
+                    m_table->finishEditing(lineEdit);
+                }
             });
         }
 
