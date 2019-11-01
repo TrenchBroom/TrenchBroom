@@ -214,8 +214,9 @@ namespace TrenchBroom {
             updateFromMapDocument();
         }
 
-        static auto buildVec(const std::map<String, AttributeRow>& rows) {
+        static std::vector<AttributeRow> buildVec(const std::map<String, AttributeRow>& rows) {
             std::vector<AttributeRow> result;
+            result.reserve(rows.size());
             for (auto& [key, row] : rows) {
                 unused(key);
                 result.push_back(row);
@@ -245,9 +246,10 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeModel::setRows(const std::map<String, AttributeRow>& newRowsKeyMap) {
+            const std::vector<AttributeRow> oldRows = m_rows;
             const std::vector<AttributeRow> newRows = buildVec(newRowsKeyMap);
             if (newRows == m_rows) {
-                // Important optimization: avoid any UI updates if nothing in the viewmodel changed.
+                // Fast path: nothing in the viewmodel changed.
                 return;
             }
 
@@ -256,46 +258,69 @@ namespace TrenchBroom {
             const std::map<String, int> oldRowIndexMap = buildAttributeToRowIndexMap(m_rows);
             const std::map<String, int> newRowIndexMap = buildAttributeToRowIndexMap(newRows);
 
-            // see: http://doc.qt.io/qt-5/model-view-programming.html#resizable-models
-            // and: http://doc.qt.io/qt-5/qabstractitemmodel.html#layoutChanged
+            // If the key list changes, report it to Qt
+            if (oldRowIndexMap != newRowIndexMap) {
+                // see: http://doc.qt.io/qt-5/model-view-programming.html#resizable-models
+                // and: http://doc.qt.io/qt-5/qabstractitemmodel.html#layoutChanged
 
-            emit layoutAboutToBeChanged();
+                emit layoutAboutToBeChanged();
 
-            // Figure out the mapping from old to new indices
-            const QModelIndexList oldPersistentIndices = persistentIndexList();
-            QModelIndexList newPersistentIndices;
+                // Figure out the mapping from old to new indices
+                const QModelIndexList oldPersistentIndices = persistentIndexList();
+                QModelIndexList newPersistentIndices;
 
-            for (const auto& oldPersistentIndex : oldPersistentIndices) {
-                if (!oldPersistentIndex.isValid()) {
-                    // Shouldn't ever happen, but handle it anyway
-                    newPersistentIndices.push_back(QModelIndex());
-                    continue;
+                for (const auto& oldPersistentIndex : oldPersistentIndices) {
+                    if (!oldPersistentIndex.isValid()) {
+                        // Shouldn't ever happen, but handle it anyway
+                        newPersistentIndices.push_back(QModelIndex());
+                        continue;
+                    }
+
+                    const int oldRow = oldPersistentIndex.row();
+                    const int oldColumn = oldPersistentIndex.column();
+
+                    const String oldKey = m_rows.at(static_cast<size_t>(oldRow)).name();
+
+                    // see if there is a corresponding new row
+                    auto it = newRowIndexMap.find(oldKey);
+                    if (it != newRowIndexMap.end()) {
+                        const int newRow = it->second;
+                        newPersistentIndices.push_back(index(newRow, oldColumn));
+                    } else {
+                        newPersistentIndices.push_back(QModelIndex());
+                    }
                 }
 
-                const int oldRow = oldPersistentIndex.row();
-                const int oldColumn = oldPersistentIndex.column();
-
-                const String oldKey = m_rows.at(static_cast<size_t>(oldRow)).name();
-
-                // see if there is a corresponding new row
-                auto it = newRowIndexMap.find(oldKey);
-                if (it != newRowIndexMap.end()) {
-                    const int newRow = it->second;
-                    newPersistentIndices.push_back(index(newRow, oldColumn));
-                } else {
-                    newPersistentIndices.push_back(QModelIndex());
-                }
+                m_rows = newRows;
+                changePersistentIndexList(oldPersistentIndices, newPersistentIndices);
+                emit layoutChanged();
+            } else {
+                m_rows = newRows;
             }
 
-            m_rows = newRows;
-            changePersistentIndexList(oldPersistentIndices, newPersistentIndices);
-            emit layoutChanged();
+            // If any values changed, report them to Qt
+            for (size_t i = 0; i < m_rows.size(); ++i) {
+                const AttributeRow& newRow = m_rows[i];
+                const String& key = newRow.name();
 
-            // Next tell Qt the data changed for all of the rows
-            if (!m_rows.empty()) {
-                QModelIndex topLeft = index(0, 0);
-                QModelIndex bottomRight = index(static_cast<int>(m_rows.size()) - 1, 1);
-                emit dataChanged(topLeft, bottomRight);
+                bool rowChanged = true;
+
+                auto it = oldRowIndexMap.find(key);
+                if (it != oldRowIndexMap.end()) {
+                    const int oldRowIndex = it->second;
+                    const AttributeRow oldRow = oldRows.at(static_cast<size_t>(oldRowIndex));
+
+                    if (oldRow == newRow) {
+                        rowChanged = false;
+                    }
+                }
+
+                if (rowChanged) {
+                    // NOTE: We only report column 1 as changing. Column 0 changes should be
+                    // handled above with layoutAboutToBeChanged() etc.
+                    const QModelIndex changedModelIndex = index(static_cast<int>(i), 1);
+                    emit dataChanged(changedModelIndex, changedModelIndex);
+                }
             }
         }
 
