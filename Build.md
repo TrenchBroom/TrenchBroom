@@ -67,10 +67,8 @@ TrenchBroom depends on:
 - If you have a debian-based distribution, install them with this command:
 
   ```
-  sudo apt-get install g++-7 qt59base freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build
+  sudo apt-get install g++-7 qt5-default freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev libfreetype6-dev pandoc cmake p7zip-full ninja-build
   ```
-
-  (adjust `qt59base` as needed)
 
 ### Build TrenchBroom
 - Open a terminal and change into the directory where you unpacked the TrenchBroom sources
