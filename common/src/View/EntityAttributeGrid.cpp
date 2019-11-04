@@ -269,6 +269,13 @@ namespace TrenchBroom {
             m_table->setModel(m_model);
             m_table->setItemDelegate(new EntityAttributeItemDelegate(m_table, m_model, m_table));
 
+            connect(m_model, &EntityAttributeModel::currentItemChangeRequestedByModel, this, [this](const QModelIndex& index) {
+                qDebug() << "setting current to " << index;
+                QItemSelectionModel* selectionModel = this->m_table->selectionModel();
+                selectionModel->clearSelection();
+                selectionModel->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
+            });
+
             autoResizeRows(m_table);
 
             m_table->setStyleSheet("QTableView { border: none; }");
@@ -297,6 +304,7 @@ namespace TrenchBroom {
             m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
 
             connect(m_table->selectionModel(), &QItemSelectionModel::currentChanged, this, [=](const QModelIndex& current, const QModelIndex& previous){
+                qDebug() << "current changed form " << previous << " to " << current;
                 emit selectedRow();
             });
 

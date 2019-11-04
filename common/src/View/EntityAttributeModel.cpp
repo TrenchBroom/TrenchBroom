@@ -34,6 +34,7 @@
 #include <QDebug>
 #include <QBrush>
 #include <QMessageBox>
+#include <QTimer>
 
 namespace TrenchBroom {
     namespace View {
@@ -565,8 +566,17 @@ namespace TrenchBroom {
                 // rename key
                 qDebug() << "tried to rename " << QString::fromStdString(attributeRow.name()) << " to " << value.toString();
 
-                if (renameAttribute(rowIndex, value.toString().toStdString(), attributables)) {
-                    // TODO: reselect new row
+                const String newName = value.toString().toStdString();
+                if (renameAttribute(rowIndex, newName, attributables)) {
+                    // Queue selection of the renamed key.
+                    // Not executed immediately because we need to wait for EntityAttributeGrid::updateControls() to
+                    // call EntityAttributeModel::setRows().
+                    QTimer::singleShot(0, this, [this, newName]() {
+                        const int row = this->rowForAttributeName(newName);
+                        if (row != -1) {
+                            emit currentItemChangeRequestedByModel(this->index(row, 1));
+                        }
+                    });
                     return true;
                 }
             } else if (index.column() == 1) {

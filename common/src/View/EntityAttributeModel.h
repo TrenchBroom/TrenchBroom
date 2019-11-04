@@ -153,6 +153,9 @@ namespace TrenchBroom {
             bool hasRowWithAttributeName(const Model::AttributeName& name) const;
             bool renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables);
             bool updateAttribute(const size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables);
+
+        signals:
+            void currentItemChangeRequestedByModel(const QModelIndex& index);
         };
     }
 }
