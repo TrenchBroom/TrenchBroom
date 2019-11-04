@@ -553,23 +553,27 @@ namespace TrenchBroom {
                 return false;
             }
 
+            MapDocumentSPtr document = lock(m_document);
+
+            const size_t rowIndex = static_cast<size_t>(index.row());
+            const Model::AttributableNodeList attributables = document->allSelectedAttributableNodes();
+            if (attributables.empty()) {
+                return false;
+            }
+
             if (index.column() == 0) {
                 // rename key
                 qDebug() << "tried to rename " << QString::fromStdString(attributeRow.name()) << " to " << value.toString();
 
-                MapDocumentSPtr document = lock(m_document);
-                if (document->renameAttribute(attributeRow.name(), value.toString().toStdString())) {
+                if (renameAttribute(rowIndex, value.toString().toStdString(), attributables)) {
                     // TODO: reselect new row
                     return true;
                 }
-
-
             } else if (index.column() == 1) {
                 qDebug() << "tried to set " << QString::fromStdString(attributeRow.name()) << " to "
                          << value.toString();
 
-                MapDocumentSPtr document = lock(m_document);
-                if (document->setAttribute(attributeRow.name(), value.toString().toStdString())) {
+                if (updateAttribute(rowIndex, value.toString().toStdString(), attributables)) {
                     return true;
                 }
             }
@@ -590,22 +594,6 @@ namespace TrenchBroom {
                 }
             }
             return QVariant();
-        }
-
-        void EntityAttributeModel::SetValue(const int row, const int col, const QString& value) {
-            ensure(row >= 0 && row < static_cast<int>(m_rows.size()), "row index out of bounds");
-            ensure(col >= 0 && col < 2, "column index out of bounds");
-
-            MapDocumentSPtr document = lock(m_document);
-
-            const size_t rowIndex = static_cast<size_t>(row);
-            const Model::AttributableNodeList attributables = document->allSelectedAttributableNodes();
-            ensure(!attributables.empty(), "no attributable nodes selected");
-
-            if (col == 0)
-                renameAttribute(rowIndex, value.toStdString(), attributables);
-            else
-                updateAttribute(rowIndex, value.toStdString(), attributables);
         }
 
         bool EntityAttributeModel::InsertRow(const size_t pos) {
@@ -681,30 +669,25 @@ namespace TrenchBroom {
             return rowForAttributeName(name) != -1;
         }
 
-        void EntityAttributeModel::renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables) {
+        bool EntityAttributeModel::renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables) {
             ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
             const AttributeRow& row = m_rows.at(rowIndex);
-
             const String& oldName = row.name();
 
             if (oldName == newName)
-                return;
+                return true;
 
-            if (!row.nameMutable()) {
-                QMessageBox msgBox;
-                msgBox.setWindowTitle(tr("Error"));
-                msgBox.setText(tr("Cannot rename property '%1' to '%2'")
-                    .arg(QString::fromStdString(oldName))
-                    .arg(QString::fromStdString(newName)));
-                msgBox.setIcon(QMessageBox::Critical);
-                msgBox.setStandardButtons(QMessageBox::Ok);
-                msgBox.exec();
-
-                return;
-            }
+            ensure(row.nameMutable(), "tried to rename immutable name"); // EntityAttributeModel::flags prevents us from renaming immutable names
 
             if (hasRowWithAttributeName(newName)) {
+                const AttributeRow& rowToOverwrite = m_rows.at(rowForAttributeName(newName));
+                if (!rowToOverwrite.valueMutable()) {
+                    // Prevent changing an immutable value via a rename
+                    // TODO: would this be better checked inside MapDocument::renameAttribute?
+                    return false;
+                }
+
                 QMessageBox msgBox;
                 msgBox.setWindowTitle(tr("Error"));
                 msgBox.setText(tr("A property with key '%1' already exists.\n\n Do you wish to overwrite it?")
@@ -712,49 +695,35 @@ namespace TrenchBroom {
                 msgBox.setIcon(QMessageBox::Critical);
                 msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
                 if (msgBox.exec() == QMessageBox::No) {
-                    return;
+                    return false;
                 }
             }
 
             MapDocumentSPtr document = lock(m_document);
-            document->renameAttribute(oldName, newName);
-            // FIXME:
-            //return document->renameAttribute(oldName, newName);
+            return document->renameAttribute(oldName, newName);
         }
 
-        void EntityAttributeModel::updateAttribute(const size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables) {
+        bool EntityAttributeModel::updateAttribute(const size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables) {
             ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
             bool hasChange = false;
             const String name = m_rows.at(rowIndex).name();
             for (const Model::AttributableNode* attributable : attributables) {
                 if (attributable->hasAttribute(name)) {
-                    if (!attributable->canAddOrUpdateAttribute(name, newValue)) {
-                        const Model::AttributeValue& oldValue = attributable->attribute(name);
-
-                        QMessageBox msgBox;
-                        msgBox.setWindowTitle(tr("Error"));
-                        msgBox.setText(tr("Cannot change property value '%1' to '%2'")
-                            .arg(QString::fromStdString(oldValue))
-                            .arg(QString::fromStdString(newValue)));
-                        msgBox.setIcon(QMessageBox::Critical);
-                        msgBox.setStandardButtons(QMessageBox::Ok);
-                        msgBox.exec();
-                        return;
-                    }
-                    if (attributable->attribute(name) != newValue)
+                    ensure(attributable->canAddOrUpdateAttribute(name, newValue), "tried to modify immutable attribute value"); // this should be guaranteed by the AttributeRow constructor
+                    if (attributable->attribute(name) != newValue) {
                         hasChange = true;
+                    }
                 } else {
                     hasChange = true;
                 }
             }
 
             if (!hasChange)
-                return;
+                return true;
 
             MapDocumentSPtr document = lock(m_document);
-            // FIXME: Return value
-            document->setAttribute(name, newValue);
+            return document->setAttribute(name, newValue);
         }
     }
 }

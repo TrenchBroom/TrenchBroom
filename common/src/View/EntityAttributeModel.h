@@ -145,15 +145,14 @@ namespace TrenchBroom {
             QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
         private: // helpers
-            void SetValue(const int row, const int col, const QString& value);
             bool InsertRow(const size_t pos);
             bool AppendRow();
             bool DeleteRows(const size_t pos, size_t numRows);
             int rowForName(const Model::AttributeName& name) const;
             bool canRemove(int rowIndexInt);
             bool hasRowWithAttributeName(const Model::AttributeName& name) const;
-            void renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables);
-            void updateAttribute(const size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables);
+            bool renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables);
+            bool updateAttribute(const size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables);
         };
     }
 }
