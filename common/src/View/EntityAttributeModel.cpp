@@ -33,6 +33,7 @@
 
 #include <QDebug>
 #include <QBrush>
+#include <QMessageBox>
 
 namespace TrenchBroom {
     namespace View {
@@ -370,6 +371,14 @@ namespace TrenchBroom {
             }
         }
 
+        Model::AttributeNameList EntityAttributeModel::attributeNames(const int row, const int count) const {
+            Model::AttributeNameList result;
+            for (int i = 0; i < count; ++i) {
+                result.push_back(this->attributeName(row + i));
+            }
+            return result;
+        }
+
         StringList EntityAttributeModel::getAllAttributeNames() const {
             auto document = lock(m_document);
             const auto& index = document->world()->attributableNodeIndex();
@@ -583,12 +592,9 @@ namespace TrenchBroom {
             return QVariant();
         }
 
-        // Begin old code
-
-#if 0
         void EntityAttributeModel::SetValue(const int row, const int col, const QString& value) {
-            ensure(row >= 0 && row < GetRowsCount(), "row index out of bounds");
-            ensure(col >= 0 && col < GetColsCount(), "column index out of bounds");
+            ensure(row >= 0 && row < static_cast<int>(m_rows.size()), "row index out of bounds");
+            ensure(col >= 0 && col < 2, "column index out of bounds");
 
             MapDocumentSPtr document = lock(m_document);
 
@@ -596,62 +602,49 @@ namespace TrenchBroom {
             const Model::AttributableNodeList attributables = document->allSelectedAttributableNodes();
             ensure(!attributables.empty(), "no attributable nodes selected");
 
-            // Ignoring the updates here fails if the user changes the entity classname because in that
-            // case, we must really refresh everything from the entity.
-            // const TemporarilySetBool ignoreUpdates(m_ignoreUpdates);
             if (col == 0)
-                renameAttribute(rowIndex, value.ToStdString(), attributables);
+                renameAttribute(rowIndex, value.toStdString(), attributables);
             else
-                updateAttribute(rowIndex, value.ToStdString(), attributables);
+                updateAttribute(rowIndex, value.toStdString(), attributables);
         }
 
-        void EntityAttributeModel::Clear() {
-            DeleteRows(0, m_rows.totalRowCount());
-        }
-
-        bool EntityAttributeModel::InsertRows(const size_t pos, const size_t numRows) {
-            ensure(pos <= m_rows.totalRowCount(), "insertion position out of bounds");
+        bool EntityAttributeModel::InsertRow(const size_t pos) {
+            ensure(pos <= m_rows.size(), "insertion position out of bounds");
 
             MapDocumentSPtr document = lock(m_document);
 
             const Model::AttributableNodeList attributables = document->allSelectedAttributableNodes();
             ensure(!attributables.empty(), "no attributable nodes selected");
 
-            const StringList newKeys = m_rows.insertRows(pos, numRows, attributables);
-
-            const TemporarilySetBool ignoreUpdates(m_ignoreUpdates);
+            const String newKey = AttributeRow::newAttributeNameForAttributableNodes(attributables);
 
             const Transaction transaction(document);
-            for (const String& name : newKeys)
-                document->setAttribute(name, "");
-
-            notifyRowsInserted(pos, numRows);
+            document->setAttribute(newKey, "");
 
             return true;
         }
 
-        bool EntityAttributeModel::AppendRows(const size_t numRows) {
-            return InsertRows(m_rows.totalRowCount(), numRows);
+        bool EntityAttributeModel::AppendRow() {
+            return InsertRow(m_rows.size());
         }
 
         bool EntityAttributeModel::DeleteRows(const size_t pos, size_t numRows) {
-            if (pos >= m_rows.totalRowCount())
+            if (pos >= m_rows.size())
                 return false;
 
-            numRows = std::min(m_rows.totalRowCount() - pos, numRows);
-            ensure(pos + numRows <= m_rows.totalRowCount(), "row range exceeds row count");
+            // FIXME: dangerous use of size_t, convert all of this to int
+            numRows = std::min(m_rows.size() - pos, numRows);
+            ensure(pos + numRows <= m_rows.size(), "row range exceeds row count");
 
             MapDocumentSPtr document = lock(m_document);
 
             const Model::AttributableNodeList attributables = document->allSelectedAttributableNodes();
             ensure(!attributables.empty(), "no attributable nodes selected");
 
-            const StringList names = m_rows.names(pos, numRows);
+            const StringList names = attributeNames(static_cast<int>(pos), static_cast<int>(numRows));
             ensure(names.size() == numRows, "invalid number of row names");
 
             {
-                const TemporarilySetBool ignoreUpdates(m_ignoreUpdates);
-
                 Transaction transaction(document, StringUtils::safePlural(numRows, "Remove Attribute", "Remove Attributes"));
 
                 bool success = true;
@@ -662,229 +655,91 @@ namespace TrenchBroom {
                     transaction.rollback();
                     return false;
                 }
-
-                m_rows.deleteRows(pos, numRows);
-                notifyRowsDeleted(pos, numRows);
             }
-
-            // Force an update in case we deleted a property with a default value
-            update();
 
             return true;
         }
 
-        QString EntityAttributeModel::GetColLabelValue(const int col) {
-            ensure(col >= 0 && col < GetColsCount(), "column index out of bounds");
-            if (col == 0)
-                return "Key";
-            return "Value";
-        }
-
-        wxGridCellAttr* EntityAttributeModel::GetAttr(const int row, const int col, const wxGridCellAttr::wxAttrKind kind) {
-            if (row < 0 || row >= GetRowsCount() ||
-                col < 0 || col >= GetColsCount())
-                return nullptr;
-
-            const size_t rowIndex = static_cast<size_t>(row);
-            wxGridCellAttr* attr = wxGridTableBase::GetAttr(row, col, kind);
-            if (attr == nullptr)
-                attr = new wxGridCellAttr();
-
-            if (m_rows.isDefaultRow(rowIndex) || m_rows.subset(rowIndex)) {
-                attr->SetTextColour(*wxLIGHT_GREY);
-                attr->SetFont(GetView()->GetFont().MakeItalic());
-            }
-
-            if (col == 0) {
-                if (m_rows.isDefaultRow(rowIndex)) {
-                    attr->SetReadOnly();
-                } else {
-                    if (!m_rows.nameMutable(rowIndex)) {
-                        attr->SetReadOnly();
-                        attr->SetRenderer(new LockedGridCellRenderer());
-                    }
-                }
-            } else if (col == 1) {
-                if (!m_rows.isDefaultRow(rowIndex)) {
-                    attr->SetFont(GetView()->GetFont());
-                }
-                if (!m_rows.valueMutable(rowIndex)) {
-                    attr->SetReadOnly();
-                    attr->SetRenderer(new LockedGridCellRenderer());
-                }
-                if (m_rows.multi(rowIndex)) {
-                    attr->SetTextColour(*wxLIGHT_GREY);
-                    attr->SetFont(GetView()->GetFont().MakeItalic());
-                }
-            }
-            return attr;
-        }
-
-        void EntityAttributeModel::update() {
-            if (m_ignoreUpdates)
-                return;
-
-            MapDocumentSPtr document = lock(m_document);
-            const size_t oldRowCount = m_rows.totalRowCount();
-            m_rows.updateRows(document->allSelectedAttributableNodes(), m_showDefaultRows);
-            const size_t newRowCount = m_rows.totalRowCount();
-
-            if (oldRowCount < newRowCount)
-                notifyRowsAppended(newRowCount - oldRowCount);
-            else if (oldRowCount > newRowCount)
-                notifyRowsDeleted(oldRowCount - 1, oldRowCount - newRowCount);
-            notifyRowsUpdated(0, newRowCount);
-        }
-
-        String EntityAttributeModel::tooltip(const wxGridCellCoords& cellCoords) const {
-            if (cellCoords.GetRow() < 0 || cellCoords.GetRow() >= GetRowsCount())
-                return "";
-
-            const size_t rowIndex = static_cast<size_t>(cellCoords.GetRow());
-            return m_rows.tooltip(rowIndex);
-        }
-
-        Model::AttributeName EntityAttributeModel::attributeName(const int row) const {
-            if (row < 0 || row >= static_cast<int>(m_rows.totalRowCount()))
-                return "";
-            return m_rows.name(static_cast<size_t>(row));
-        }
-
         int EntityAttributeModel::rowForName(const Model::AttributeName& name) const {
-            const size_t index = m_rows.indexOf(name);
-            if (index >= m_rows.totalRowCount())
-                return -1;
-            return static_cast<int>(index);
+            for (size_t i = 0; i < m_rows.size(); ++i) {
+                if (m_rows[i].name() == name) {
+                    return static_cast<int>(i);
+                }
+            }
+            return -1;
         }
 
-        bool EntityAttributeModel::canRemove(const int row) {
-            if (row < 0 || row >= GetNumberAttributeRows())
+        bool EntityAttributeModel::canRemove(const int rowIndexInt) {
+            if (rowIndexInt < 0 || static_cast<size_t>(rowIndexInt) >= m_rows.size())
                 return false;
-            const size_t index = static_cast<size_t>(row);
-            return m_rows.nameMutable(index) && m_rows.valueMutable(index);
+            
+            const AttributeRow& row = m_rows.at(static_cast<size_t>(rowIndexInt));
+            return row.nameMutable() && row.valueMutable();
         }
 
-
-
-        QStringList EntityAttributeModel::getCompletions(int row, int col) const {
-            const Model::AttributeName name = attributeName(row);
-            MapDocumentSPtr document = lock(m_document);
-
-            if (col == 0) {
-                return arrayString(allSortedAttributeNames(document));
-            }
-
-            if (col == 1) {
-                if (name == Model::AttributeNames::Target
-                    || name == Model::AttributeNames::Killtarget) {
-                    return arrayString(allSortedValuesForAttributeNames(document, StringList{Model::AttributeNames::Targetname}));
-                } else if (name == Model::AttributeNames::Targetname) {
-                    return arrayString(allSortedValuesForAttributeNames(document, StringList{Model::AttributeNames::Target, Model::AttributeNames::Killtarget}));
-                } else if (name == Model::AttributeNames::Classname) {
-                    return arrayString(allSortedClassnames(document));
-                }
-            }
-
-            return QStringList();
-        }
-
-        StringSet EntityAttributeModel::allSortedAttributeNames(MapDocumentSPtr document) {
-            const Model::AttributableNodeIndex& index = document->world()->attributableNodeIndex();
-            const StringList names = index.allNames();
-
-            StringSet keySet = SetUtils::makeSet(names);
-
-            // also add keys from all loaded entity definitions
-            for (const auto entityDefinition : document->entityDefinitionManager().definitions()) {
-                for (const auto& attribute : entityDefinition->attributeDefinitions()) {
-                    keySet.insert(attribute->name());
-                }
-            }
-
-            // an empty string prevents the completion popup from opening on macOS
-            keySet.erase("");
-
-            return keySet;
-        }
-
-        StringSet EntityAttributeModel::allSortedValuesForAttributeNames(MapDocumentSPtr document, const StringList& names) {
-            StringSet valueset;
-            const Model::AttributableNodeIndex& index = document->world()->attributableNodeIndex();
-            for (const auto& name : names) {
-                const StringList values = index.allValuesForNames(Model::AttributableNodeIndexQuery::numbered(name));
-                for (const auto& value : values) {
-                    valueset.insert(value);
-                }
-            }
-
-            valueset.erase("");
-
-            return valueset;
-        }
-
-        StringSet EntityAttributeModel::allSortedClassnames(MapDocumentSPtr document) {
-            // Start with classnames in use in the map
-            StringSet valueset = allSortedValuesForAttributeNames(document, StringList{ Model::AttributeNames::Classname });
-
-            // Also add keys from all loaded entity definitions
-            for (const auto entityDefinition : document->entityDefinitionManager().definitions()) {
-                valueset.insert(entityDefinition->name());
-            }
-
-            valueset.erase("");
-
-            return valueset;
-        }
-
-        wxArrayString EntityAttributeModel::arrayString(const StringSet& set) {
-            wxArrayString result;
-            for (const String& string : set)
-                result.Add(QString(string));
-            return result;
+        bool EntityAttributeModel::hasRowWithAttributeName(const Model::AttributeName& name) const {
+            return rowForAttributeName(name) != -1;
         }
 
         void EntityAttributeModel::renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables) {
-            ensure(rowIndex < m_rows.attributeRowCount(), "row index out of bounds");
+            ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
-            const String& oldName = m_rows.name(rowIndex);
+            const AttributeRow& row = m_rows.at(rowIndex);
+
+            const String& oldName = row.name();
 
             if (oldName == newName)
                 return;
 
-            if (!m_rows.nameMutable(rowIndex)) {
-                QString msg;
-                msg << "Cannot rename property '" << oldName << "' to '" << newName << "'";
-                wxMessageBox(msg, "Error", wxOK | wxICON_ERROR | wxCENTRE, GetView());
+            if (!row.nameMutable()) {
+                QMessageBox msgBox;
+                msgBox.setWindowTitle(tr("Error"));
+                msgBox.setText(tr("Cannot rename property '%1' to '%2'")
+                    .arg(QString::fromStdString(oldName))
+                    .arg(QString::fromStdString(newName)));
+                msgBox.setIcon(QMessageBox::Critical);
+                msgBox.setStandardButtons(QMessageBox::Ok);
+                msgBox.exec();
+
                 return;
             }
 
-            if (m_rows.hasRowWithName(newName)) {
-                QString msg;
-                msg << "A property with key '" << newName << "' already exists.\n\n Do you wish to overwrite it?";
-                if (wxMessageBox(msg, "Error", wxYES_NO | wxICON_ERROR | wxCENTRE, GetView()) == wxNO) {
+            if (hasRowWithAttributeName(newName)) {
+                QMessageBox msgBox;
+                msgBox.setWindowTitle(tr("Error"));
+                msgBox.setText(tr("A property with key '%1' already exists.\n\n Do you wish to overwrite it?")
+                    .arg(QString::fromStdString(newName)));
+                msgBox.setIcon(QMessageBox::Critical);
+                msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+                if (msgBox.exec() == QMessageBox::No) {
                     return;
                 }
             }
 
             MapDocumentSPtr document = lock(m_document);
-            if (document->renameAttribute(oldName, newName)) {
-                m_rows.updateRows(attributables, m_showDefaultRows);
-                notifyRowsUpdated(0, m_rows.totalRowCount());
-            }
+            document->renameAttribute(oldName, newName);
+            // FIXME:
+            //return document->renameAttribute(oldName, newName);
         }
 
         void EntityAttributeModel::updateAttribute(const size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables) {
-            ensure(rowIndex < m_rows.totalRowCount(), "row index out of bounds");
+            ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
             bool hasChange = false;
-            const String& name = m_rows.name(rowIndex);
+            const String name = m_rows.at(rowIndex).name();
             for (const Model::AttributableNode* attributable : attributables) {
                 if (attributable->hasAttribute(name)) {
                     if (!attributable->canAddOrUpdateAttribute(name, newValue)) {
                         const Model::AttributeValue& oldValue = attributable->attribute(name);
-                        QString msg;
-                        msg << "Cannot change property value '" << oldValue << "' to '" << newValue << "'";
-                        wxMessageBox(msg, "Error", wxOK | wxICON_ERROR | wxCENTRE, GetView());
+
+                        QMessageBox msgBox;
+                        msgBox.setWindowTitle(tr("Error"));
+                        msgBox.setText(tr("Cannot change property value '%1' to '%2'")
+                            .arg(QString::fromStdString(oldValue))
+                            .arg(QString::fromStdString(newValue)));
+                        msgBox.setIcon(QMessageBox::Critical);
+                        msgBox.setStandardButtons(QMessageBox::Ok);
+                        msgBox.exec();
                         return;
                     }
                     if (attributable->attribute(name) != newValue)
@@ -898,12 +753,8 @@ namespace TrenchBroom {
                 return;
 
             MapDocumentSPtr document = lock(m_document);
-            if (document->setAttribute(name, newValue)) {
-                m_rows.updateRows(attributables, m_showDefaultRows);
-                notifyRowsUpdated(0, m_rows.totalRowCount());
-            }
+            // FIXME: Return value
+            document->setAttribute(name, newValue);
         }
-
-#endif
     }
 }
