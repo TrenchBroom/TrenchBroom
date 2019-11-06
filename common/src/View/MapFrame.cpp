@@ -389,9 +389,9 @@ namespace TrenchBroom {
             actionManager.visitToolBarActions(builder);
 
             m_gridChoice = new QComboBox();
-            for (int i = Grid::MinSize; i < Grid::MaxSize; ++i) {
-                const auto gridSize = Grid::actualSize(i);
-                const auto gridSizeStr = QString::number(gridSize, 'f', 3);
+            for (int i = Grid::MinSize; i <= Grid::MaxSize; ++i) {
+                const FloatType gridSize = Grid::actualSize(i);
+                const QString gridSizeStr = tr("Grid %1").arg(QString::number(gridSize, 'g'));
                 m_gridChoice->addItem(gridSizeStr, QVariant(i));
             }
 
