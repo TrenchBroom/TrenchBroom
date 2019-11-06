@@ -26,9 +26,7 @@ namespace TrenchBroom {
     namespace View {
         void EntityAttributeTable::finishEditing(QWidget* editor) {
             commitData(editor);
-            // FIXME: should continue to edit the next item, but to be consistent with the current behavior
-            // we don't give a hint here
-            closeEditor(editor, QAbstractItemDelegate::NoHint);
+            closeEditor(editor, QAbstractItemDelegate::EditNextItem);
         }
 
         bool EntityAttributeTable::event(QEvent *event) {
