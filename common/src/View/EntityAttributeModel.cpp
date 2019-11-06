@@ -691,7 +691,8 @@ namespace TrenchBroom {
             ensure(row.nameMutable(), "tried to rename immutable name"); // EntityAttributeModel::flags prevents us from renaming immutable names
 
             if (hasRowWithAttributeName(newName)) {
-                const AttributeRow& rowToOverwrite = m_rows.at(rowForAttributeName(newName));
+                const int rowIndex = rowForAttributeName(newName);
+                const AttributeRow& rowToOverwrite = m_rows.at(static_cast<size_t>(rowIndex));
                 if (!rowToOverwrite.valueMutable()) {
                     // Prevent changing an immutable value via a rename
                     // TODO: would this be better checked inside MapDocument::renameAttribute?
