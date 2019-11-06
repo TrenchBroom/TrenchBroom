@@ -31,6 +31,8 @@
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
+#include <optional-lite/optional.hpp>
+
 #include <QDebug>
 #include <QBrush>
 #include <QMessageBox>
@@ -142,20 +144,22 @@ namespace TrenchBroom {
         AttributeRow AttributeRow::rowForAttributableNodes(const String& key, const Model::AttributableNodeList& attributables) {
             ensure(attributables.size() > 0, "rowForAttributableNodes requries a non-empty node list");
 
-            std::unique_ptr<AttributeRow> result;
+            nonstd::optional<AttributeRow> result;
             for (const Model::AttributableNode* node : attributables) {
                 // this happens at startup when the world is still null
                 if (node == nullptr) {
                     continue;
                 }
 
-                if (result == nullptr) {
-                    result = std::make_unique<AttributeRow>(key, node);
+                if (!result.has_value()) {
+                    result = AttributeRow(key, node);
                 }  else {
                     result->merge(node);
                 }
             }
-            return *result;
+
+            assert(result.has_value());
+            return result.value();
         }
 
         std::set<String> AttributeRow::allKeys(const Model::AttributableNodeList& attributables, const bool showDefaultRows) {
@@ -669,7 +673,7 @@ namespace TrenchBroom {
         bool EntityAttributeModel::canRemove(const int rowIndexInt) {
             if (rowIndexInt < 0 || static_cast<size_t>(rowIndexInt) >= m_rows.size())
                 return false;
-            
+
             const AttributeRow& row = m_rows.at(static_cast<size_t>(rowIndexInt));
             return row.nameMutable() && row.valueMutable();
         }
