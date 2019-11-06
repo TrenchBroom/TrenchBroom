@@ -318,10 +318,9 @@ namespace TrenchBroom {
                 }
 
                 if (rowChanged) {
-                    // NOTE: We only report column 1 as changing. Column 0 changes should be
-                    // handled above with layoutAboutToBeChanged() etc.
-                    const QModelIndex changedModelIndex = index(static_cast<int>(i), 1);
-                    emit dataChanged(changedModelIndex, changedModelIndex);
+                    const QModelIndex topLeft = index(static_cast<int>(i), 0);
+                    const QModelIndex bottomRight = index(static_cast<int>(i), 1);
+                    emit dataChanged(topLeft, bottomRight);
                 }
             }
         }
@@ -691,7 +690,7 @@ namespace TrenchBroom {
             ensure(row.nameMutable(), "tried to rename immutable name"); // EntityAttributeModel::flags prevents us from renaming immutable names
 
             if (hasRowWithAttributeName(newName)) {
-                const AttributeRow& rowToOverwrite = m_rows.at(rowForAttributeName(newName));
+                const AttributeRow& rowToOverwrite = m_rows.at(static_cast<size_t>(rowForAttributeName(newName)));
                 if (!rowToOverwrite.valueMutable()) {
                     // Prevent changing an immutable value via a rename
                     // TODO: would this be better checked inside MapDocument::renameAttribute?

@@ -33,6 +33,9 @@ namespace TrenchBroom {
         class Action;
         class MapFrame;
 
+        /**
+         * Builds actions for a menu and saves them in the given ActionMap.
+         */
         class MenuBuilderBase {
         protected:
             using ActionMap = std::map<const Action*, QAction*>;
@@ -43,6 +46,11 @@ namespace TrenchBroom {
             MenuBuilderBase(ActionMap& actions, const TriggerFn& triggerFn);
         public:
             virtual ~MenuBuilderBase();
+
+            /**
+             * Updates the key sequence and tooltip of the given QAction to match the given Action.
+             */
+            static void updateActionKeySeqeunce(QAction* qAction, const Action* tAction);
         protected:
             QAction* findOrCreateQAction(const Action* tAction);
         };

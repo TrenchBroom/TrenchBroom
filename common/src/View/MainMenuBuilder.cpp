@@ -32,6 +32,19 @@ namespace TrenchBroom {
 
         MenuBuilderBase::~MenuBuilderBase() = default;
 
+        void MenuBuilderBase::updateActionKeySeqeunce(QAction* qAction, const Action* tAction) {
+            if (!tAction->keySequence().isEmpty()) {
+                const QString tooltip = QObject::tr("%1 (%2)")
+                    .arg(tAction->label())
+                    .arg(tAction->keySequence().toString(QKeySequence::NativeText));
+                qAction->setToolTip(tooltip);
+            } else {
+                qAction->setToolTip(tAction->label());
+            }
+
+            qAction->setShortcut(tAction->keySequence());
+        }
+
         QAction* MenuBuilderBase::findOrCreateQAction(const Action* tAction) {
             // Check if it already exists
             {
@@ -46,6 +59,7 @@ namespace TrenchBroom {
             if (tAction->hasIcon()) {
                 qAction->setIcon(IO::loadIconResourceQt(tAction->iconPath()));
             }
+            updateActionKeySeqeunce(qAction, tAction);
 
             const auto& triggerFn = m_triggerFn;
             QObject::connect(qAction, &QAction::triggered, [=](){

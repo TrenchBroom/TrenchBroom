@@ -163,105 +163,6 @@ namespace TrenchBroom {
 //            }
             return result;
         }
-
-#if 0
-        /**
-         * Subclass of wxGridCellTextEditor for setting up autocompletion
-         */
-        class EntityAttributeCellEditor : public wxGridCellTextEditor
-        {
-        private:
-            EntityAttributeGrid* m_table;
-            EntityAttributeModel* m_model;
-            int m_row, m_col;
-            bool m_forceChange;
-            String m_forceChangeAttribute;
-
-        public:
-            EntityAttributeCellEditor(EntityAttributeGrid* grid, EntityAttributeModel* table)
-            : m_table(grid),
-            m_model(table),
-            m_row(-1),
-            m_col(-1),
-            m_forceChange(false),
-            m_forceChangeAttribute("") {}
-
-        private:
-            void OnCharHook(wxKeyEvent& event) {
-                if (event.GetKeyCode() == WXK_TAB) {
-                    // HACK: Consume tab key and use it for cell navigation.
-                    // Otherwise, wxTextCtrl::AutoComplete uses it for cycling between completions (on Windows)
-
-                    // First, close the cell editor
-                    m_table->gridWindow()->DisableCellEditControl();
-
-                    // Closing the editor might reorder the cells (#2094), so m_row/m_col are no longer valid.
-                    // Ask the wxGrid for the cursor row/column.
-                    m_table->tabNavigate(m_table->gridWindow()->GetGridCursorRow(), m_table->gridWindow()->GetGridCursorCol(), !event.ShiftDown());
-                } else if (event.GetKeyCode() == WXK_RETURN && m_col == 1) {
-                    // HACK: (#1976) Make the next call to EndEdit return true unconditionally
-                    // so it's possible to press enter to apply a value to all entites in a selection
-                    // even though the grid editor hasn't changed.
-
-                    const TemporarilySetBool forceChange{m_forceChange};
-                    const TemporarilySetAny<String> forceChangeAttribute{m_forceChangeAttribute, m_model->attributeName(m_row)};
-
-                    m_table->gridWindow()->SaveEditControlValue();
-                    m_table->gridWindow()->HideCellEditControl();
-                } else {
-                    event.Skip();
-                }
-            }
-
-        public:
-            void BeginEdit(int row, int col, wxGrid* grid) override {
-                wxGridCellTextEditor::BeginEdit(row, col, grid);
-                assert(grid == m_table->gridWindow());
-
-                m_row = row;
-                m_col = col;
-
-                wxTextCtrl *textCtrl = Text();
-                ensure(textCtrl != nullptr, "wxGridCellTextEditor::Create should have created control");
-
-                const QStringList completions = m_model->getCompletions(row, col);
-                textCtrl->AutoComplete(completions);
-
-                textCtrl->Bind(wxEVT_CHAR_HOOK, &EntityAttributeCellEditor::OnCharHook, this);
-            }
-
-            bool EndEdit(int row, int col, const wxGrid* grid, const QString& oldval, QString *newval) override {
-                assert(grid == m_table->gridWindow());
-
-                wxTextCtrl *textCtrl = Text();
-                ensure(textCtrl != nullptr, "wxGridCellTextEditor::Create should have created control");
-
-                textCtrl->Unbind(wxEVT_CHAR_HOOK, &EntityAttributeCellEditor::OnCharHook, this);
-
-                const bool superclassDidChange = wxGridCellTextEditor::EndEdit(row, col, grid, oldval, newval);
-
-                const String changedAttribute = m_model->attributeName(row);
-
-                if (m_forceChange
-                    && col == 1
-                    && m_forceChangeAttribute == changedAttribute) {
-                    return true;
-                } else {
-                    return superclassDidChange;
-                }
-            }
-
-            void ApplyEdit(int row, int col, wxGrid* grid) override {
-                if (col == 0) {
-                    // Hack to preserve selection when renaming a key (#2094)
-                    const auto newName = GetValue().ToStdString();
-                    m_table->setLastSelectedNameAndColumn(newName, col);
-                }
-                wxGridCellTextEditor::ApplyEdit(row, col, grid);
-            }
-        };
-#endif
-
         void EntityAttributeGrid::createGui(MapDocumentWPtr document) {
             m_table = new EntityAttributeTable();
             m_model = new EntityAttributeModel(document, this);
@@ -348,31 +249,12 @@ namespace TrenchBroom {
             connect(m_removeRowAlternateShortcut, &QShortcut::activated, this, [=](){
                 removeSelectedAttributes();
             });
-
-//            m_openCellEditorShortcut = new QShortcut(QKeySequence(Qt::Key_Return), m_table);// "Enter"), this);
-//            //m_openCellEditorShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-//            connect(m_openCellEditorShortcut, &QShortcut::activated, this, [=](){
-//                bool open = m_table->isPersistentEditorOpen(m_table->currentIndex());
-//
-//
-//                qDebug("enter activated unambiguously, open? %d", (int)open);
-//                if (!open) {
-//                    m_table->edit(m_table->currentIndex());
-//                }
-//            });
-
-//            connect(m_openCellEditorShortcut, &QShortcut::activatedAmbiguously, this, [=](){
-//                qDebug("enter activated ambiguously");
-//                m_table->edit(m_table->currentIndex());
-//            });
        }
 
        void EntityAttributeGrid::updateShortcuts() {
            m_insertRowShortcut->setEnabled(true);
            m_removeRowShortcut->setEnabled(canRemoveSelectedAttributes());
            m_removeRowAlternateShortcut->setEnabled(canRemoveSelectedAttributes());
-           // FIXME:
-           //m_openCellEditorShortcut->setEnabled(m_table->CanEnableCellControl() && !m_table->IsCellEditControlShown());
         }
 
         void EntityAttributeGrid::bindObservers() {
@@ -408,9 +290,6 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeGrid::selectionWillChange() {
-            // FIXME: Needed?
-//            m_table->SaveEditControlValue();
-//            m_table->HideCellEditControl();
         }
 
         void EntityAttributeGrid::selectionDidChange(const Selection& selection) {

@@ -54,7 +54,6 @@ namespace TrenchBroom {
             QShortcut* m_insertRowShortcut;
             QShortcut* m_removeRowShortcut;
             QShortcut* m_removeRowAlternateShortcut;
-            QShortcut* m_openCellEditorShortcut;
 
             bool m_ignoreSelection;
         public:

@@ -72,6 +72,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QStatusBar>
+#include <QTimer>
 #include <QToolBar>
 #include <QComboBox>
 #include <QVBoxLayout>
@@ -215,7 +216,7 @@ namespace TrenchBroom {
 
         void MapFrame::updateShortcuts() {
             for (auto [tAction, qAction] : m_actionMap) {
-                qAction->setShortcut(tAction->keySequence());
+                MenuBuilderBase::updateActionKeySeqeunce(qAction, tAction);
             }
         }
 
@@ -388,9 +389,9 @@ namespace TrenchBroom {
             actionManager.visitToolBarActions(builder);
 
             m_gridChoice = new QComboBox();
-            for (int i = Grid::MinSize; i < Grid::MaxSize; ++i) {
-                const auto gridSize = Grid::actualSize(i);
-                const auto gridSizeStr = QString::number(gridSize, 'f', 3);
+            for (int i = Grid::MinSize; i <= Grid::MaxSize; ++i) {
+                const FloatType gridSize = Grid::actualSize(i);
+                const QString gridSizeStr = tr("Grid %1").arg(QString::number(gridSize, 'g'));
                 m_gridChoice->addItem(gridSizeStr, QVariant(i));
             }
 
@@ -594,17 +595,30 @@ namespace TrenchBroom {
         }
 
         void MapFrame::transactionDone(const String& name) {
-            updateUndoRedoActions();
+            QTimer::singleShot(0, this, [this]() {
+                // FIXME: Delaying this with QTimer::singleShot is a hack to work around the lack of
+                // a notification that's called _after_ the CommandProcessor undo/redo stacks are modified.
+                //
+                // The current transactionDoneNotifier is called after the transaction executes, but before it's
+                // pushed onto the undo stack, but we need to read the undo stack in updateUndoRedoActions(),
+                // so this QTimer::singleShot is needed for now.
+                updateUndoRedoActions();
+            });
         }
 
         void MapFrame::transactionUndone(const String& name) {
-            updateUndoRedoActions();
+            QTimer::singleShot(0, this, [this]() {
+                // FIXME: see MapFrame::transactionDone
+                updateUndoRedoActions();
+            });
         }
 
         void MapFrame::preferenceDidChange(const IO::Path& path) {
             if (path == Preferences::MapViewLayout.path()) {
                 m_mapView->switchToMapView(static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));
             }
+
+            updateShortcuts();
         }
 
         void MapFrame::gridDidChange() {
