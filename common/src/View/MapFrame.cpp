@@ -215,7 +215,7 @@ namespace TrenchBroom {
 
         void MapFrame::updateShortcuts() {
             for (auto [tAction, qAction] : m_actionMap) {
-                qAction->setShortcut(tAction->keySequence());
+                MenuBuilderBase::updateActionKeySeqeunce(qAction, tAction);
             }
         }
 
@@ -605,6 +605,8 @@ namespace TrenchBroom {
             if (path == Preferences::MapViewLayout.path()) {
                 m_mapView->switchToMapView(static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));
             }
+
+            updateShortcuts();
         }
 
         void MapFrame::gridDidChange() {
