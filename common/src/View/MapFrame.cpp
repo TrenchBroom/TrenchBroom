@@ -72,6 +72,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QStatusBar>
+#include <QTimer>
 #include <QToolBar>
 #include <QComboBox>
 #include <QVBoxLayout>
@@ -594,11 +595,22 @@ namespace TrenchBroom {
         }
 
         void MapFrame::transactionDone(const String& name) {
-            updateUndoRedoActions();
+            QTimer::singleShot(0, this, [this]() {
+                // FIXME: Delaying this with QTimer::singleShot is a hack to work around the lack of
+                // a notification that's called _after_ the CommandProcessor undo/redo stacks are modified.
+                //
+                // The current transactionDoneNotifier is called after the transaction executes, but before it's
+                // pushed onto the undo stack, but we need to read the undo stack in updateUndoRedoActions(),
+                // so this QTimer::singleShot is needed for now.
+                updateUndoRedoActions();
+            });
         }
 
         void MapFrame::transactionUndone(const String& name) {
-            updateUndoRedoActions();
+            QTimer::singleShot(0, this, [this]() {
+                // FIXME: see MapFrame::transactionDone
+                updateUndoRedoActions();
+            });
         }
 
         void MapFrame::preferenceDidChange(const IO::Path& path) {
