@@ -318,10 +318,9 @@ namespace TrenchBroom {
                 }
 
                 if (rowChanged) {
-                    // NOTE: We only report column 1 as changing. Column 0 changes should be
-                    // handled above with layoutAboutToBeChanged() etc.
-                    const QModelIndex changedModelIndex = index(static_cast<int>(i), 1);
-                    emit dataChanged(changedModelIndex, changedModelIndex);
+                    const QModelIndex topLeft = index(static_cast<int>(i), 0);
+                    const QModelIndex bottomRight = index(static_cast<int>(i), 1);
+                    emit dataChanged(topLeft, bottomRight);
                 }
             }
         }
