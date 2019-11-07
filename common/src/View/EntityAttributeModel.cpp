@@ -57,6 +57,28 @@ namespace TrenchBroom {
                 && m_tooltip == other.m_tooltip;
         }
 
+        bool AttributeRow::operator<(const AttributeRow& other) const {
+            if (m_name < other.m_name) return true;
+            if (m_name > other.m_name) return false;
+
+            if (m_value < other.m_value) return true;
+            if (m_value > other.m_value) return false;
+
+            if (m_valueType < other.m_valueType) return true;
+            if (m_valueType > other.m_valueType) return false;
+
+            if (m_nameMutable < other.m_nameMutable) return true;
+            if (m_nameMutable > other.m_nameMutable) return false;
+
+            if (m_valueMutable < other.m_valueMutable) return true;
+            if (m_valueMutable > other.m_valueMutable) return false;
+
+            if (m_tooltip < other.m_tooltip) return true;
+            if (m_tooltip > other.m_tooltip) return false;
+
+            return false;
+        }
+
         AttributeRow::AttributeRow(const String& name, const Model::AttributableNode* node) :
         m_name(name) {
             const Assets::AttributeDefinition* definition = node->attributeDefinition(name);
