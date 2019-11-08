@@ -59,8 +59,8 @@ namespace TrenchBroom {
             // TextureReader::readTexture is supposed to return a placeholder for corrupt textures
             ASSERT_TRUE(texture != nullptr);
             ASSERT_EQ("corruptPngTest.png", texture->name());
-            ASSERT_NE(0, texture->width());
-            ASSERT_NE(0, texture->height());
+            ASSERT_NE(0u, texture->width());
+            ASSERT_NE(0u, texture->height());
         }
 
         enum class Component {
@@ -72,7 +72,7 @@ namespace TrenchBroom {
 
             ensure(GL_BGRA == format || GL_RGBA == format, "expected GL_BGRA or GL_RGBA");
 
-            int componentIndex;
+            int componentIndex = 0;
             if (format == GL_RGBA) {
                 switch (component) {
                     case Component::R: componentIndex = 0; break;
@@ -116,13 +116,13 @@ namespace TrenchBroom {
 
         // https://github.com/kduske/TrenchBroom/issues/2474
         static void testImageContents(std::unique_ptr<const Assets::Texture> texture) {
-            const auto w = 64;
-            const auto h = 64;
+            const auto w = 64u;
+            const auto h = 64u;
 
             ASSERT_TRUE(texture != nullptr);
             ASSERT_EQ(w, texture->width());
             ASSERT_EQ(h, texture->height());
-            ASSERT_EQ(1, texture->buffersIfUnprepared().size());
+            ASSERT_EQ(1u, texture->buffersIfUnprepared().size());
             ASSERT_TRUE(GL_BGRA == texture->format() || GL_RGBA == texture->format());
             ASSERT_EQ(Assets::TextureType::Opaque, texture->type());
 
@@ -153,13 +153,13 @@ namespace TrenchBroom {
 
         TEST(FreeImageTextureReaderTest, alphaMaskTest) {
             const auto texture = loadTexture("alphaMaskTest.png");
-            const auto w = 25;
-            const auto h = 10;
+            const auto w = 25u;
+            const auto h = 10u;
 
             ASSERT_TRUE(texture != nullptr);
             ASSERT_EQ(w, texture->width());
             ASSERT_EQ(h, texture->height());
-            ASSERT_EQ(1, texture->buffersIfUnprepared().size());
+            ASSERT_EQ(1u, texture->buffersIfUnprepared().size());
             ASSERT_TRUE(GL_BGRA == texture->format() || GL_RGBA == texture->format());
             ASSERT_EQ(Assets::TextureType::Masked, texture->type());
 

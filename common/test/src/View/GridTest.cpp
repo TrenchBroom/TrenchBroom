@@ -58,14 +58,14 @@ namespace TrenchBroom {
         TEST(GridTest, changeSize) {
             Grid g(0);
             g.incSize();
-            ASSERT_EQ(1u, g.size());
+            ASSERT_EQ(1, g.size());
             g.decSize();
-            ASSERT_EQ(0u, g.size());
+            ASSERT_EQ(0, g.size());
             g.decSize();
             ASSERT_EQ(-1, g.size());
 
-            g.setSize(4u);
-            ASSERT_EQ(4u, g.size());
+            g.setSize(4);
+            ASSERT_EQ(4, g.size());
         }
 
         TEST(GridTest, offsetScalars) {

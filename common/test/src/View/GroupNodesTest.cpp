@@ -135,7 +135,7 @@ namespace TrenchBroom {
 
             ASSERT_EQ(PT_Node, document->paste(data));
             ASSERT_TRUE(document->selectedNodes().hasOnlyEntities());
-            ASSERT_EQ(1, document->selectedNodes().entityCount());
+            ASSERT_EQ(1u, document->selectedNodes().entityCount());
 
             Model::Entity* light = document->selectedNodes().entities().front();
             ASSERT_EQ(group, light->parent());

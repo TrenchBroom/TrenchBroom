@@ -2916,7 +2916,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
-            ASSERT_EQ(0, nodes.size());
+            ASSERT_EQ(0u, nodes.size());
         }
 
         static void assertCannotSnapTo(const String& data, size_t gridSize) {
@@ -2927,7 +2927,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
-            ASSERT_EQ(1, nodes.size());
+            ASSERT_EQ(1u, nodes.size());
 
             Brush* brush = static_cast<Brush*>(nodes.front());
             ASSERT_FALSE(brush->canSnapVertices(worldBounds, gridSize));
@@ -2945,7 +2945,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             const NodeList nodes = reader.read(worldBounds, status);
-            ASSERT_EQ(1, nodes.size());
+            ASSERT_EQ(1u, nodes.size());
 
             Brush* brush = static_cast<Brush*>(nodes.front());
             ASSERT_TRUE(brush->canSnapVertices(worldBounds, gridSize));
@@ -3496,9 +3496,9 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status);
-            ASSERT_EQ(1, nodes.size());
+            ASSERT_EQ(1u, nodes.size());
             ASSERT_TRUE(nodes.at(0)->hasChildren());
-            ASSERT_EQ(2, nodes.at(0)->children().size());
+            ASSERT_EQ(2u, nodes.at(0)->children().size());
 
             Brush* pipe = static_cast<Brush*>(nodes.at(0)->children().at(0));
             Brush* cube = static_cast<Brush*>(nodes.at(0)->children().at(1));
@@ -3532,7 +3532,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             NodeList nodes = reader.read(worldBounds, status);
-            ASSERT_EQ(1, nodes.size());
+            ASSERT_EQ(1u, nodes.size());
 
             Brush* brush = static_cast<Brush*>(nodes.front());
 
@@ -3684,7 +3684,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             auto nodes = reader.read(worldBounds, status);
-            ASSERT_EQ(1, nodes.size());
+            ASSERT_EQ(1u, nodes.size());
 
             std::unique_ptr<Brush> brush(static_cast<Brush*>(nodes.front()));
 
@@ -3784,7 +3784,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             auto nodes = reader.read(worldBounds, status);
-            ASSERT_EQ(1, nodes.size());
+            ASSERT_EQ(1u, nodes.size());
 
             std::unique_ptr<Brush> brush(static_cast<Brush*>(nodes.front()));
 

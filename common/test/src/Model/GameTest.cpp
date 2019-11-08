@@ -103,11 +103,11 @@ namespace TrenchBroom {
             ASSERT_EQ(5u, collection->textureCount());
 
             const auto& textures = collection->textures();
-            ASSERT_EQ(1u, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/test"; }));
-            ASSERT_EQ(1u, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/not_existing"; }));
-            ASSERT_EQ(1u, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/editor_image"; }));
-            ASSERT_EQ(1u, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/not_existing2"; }));
-            ASSERT_EQ(1u, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/test2"; }));
+            ASSERT_EQ(1, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/test"; }));
+            ASSERT_EQ(1, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/not_existing"; }));
+            ASSERT_EQ(1, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/editor_image"; }));
+            ASSERT_EQ(1, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/not_existing2"; }));
+            ASSERT_EQ(1, std::count_if(std::begin(textures), std::end(textures), [](const auto* t) { return t->name() == "test/test2"; }));
         }
     }
 }

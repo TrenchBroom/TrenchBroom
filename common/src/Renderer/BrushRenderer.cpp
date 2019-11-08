@@ -441,9 +441,9 @@ namespace TrenchBroom {
             {
                 const size_t edgeIndexCount = countMarkedEdgeIndices(brush, edgePolicy);
                 if (edgeIndexCount > 0) {
-                    auto[key, dest] = m_edgeIndices->getPointerToInsertElementsAt(edgeIndexCount);
+                    auto [key, insertDest] = m_edgeIndices->getPointerToInsertElementsAt(edgeIndexCount);
                     info.edgeIndicesKey = key;
-                    getMarkedEdgeIndices(brush, edgePolicy, brushVerticesStartIndex, dest);
+                    getMarkedEdgeIndices(brush, edgePolicy, brushVerticesStartIndex, insertDest);
                 } else {
                     // it's possible to have no edges to render
                     // e.g. select all faces of a brush, and the unselected brush renderer
@@ -489,11 +489,11 @@ namespace TrenchBroom {
                         holderPtr = std::make_shared<BrushIndexArray>();
                     }
 
-                    auto [key, dest] = holderPtr->getPointerToInsertElementsAt(transparentIndexCount);
+                    auto [key, insertDest] = holderPtr->getPointerToInsertElementsAt(transparentIndexCount);
                     info.transparentFaceIndicesKeys.push_back({texture, key});
 
                     // process all faces with this texture (they'll be consecutive)
-                    GLuint *currentDest = dest;
+                    GLuint *currentDest = insertDest;
                     for (size_t j = i; j < nextI; ++j) {
                         const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
                         if (cache.face->isMarked() && (forceTransparent || cache.face->hasAttribute(Model::TagAttributes::Transparency))) {
@@ -505,7 +505,7 @@ namespace TrenchBroom {
                             currentDest += triIndicesCountForPolygon(cache.vertexCount);
                         }
                     }
-                    assert(currentDest == (dest + transparentIndexCount));
+                    assert(currentDest == (insertDest + transparentIndexCount));
                 }
 
                 if (opaqueIndexCount > 0) {
@@ -516,11 +516,11 @@ namespace TrenchBroom {
                         holderPtr = std::make_shared<BrushIndexArray>();
                     }
 
-                    auto [key, dest] = holderPtr->getPointerToInsertElementsAt(opaqueIndexCount);
+                    auto [key, insertDest] = holderPtr->getPointerToInsertElementsAt(opaqueIndexCount);
                     info.opaqueFaceIndicesKeys.push_back({texture, key});
 
                     // process all faces with this texture (they'll be consecutive)
-                    GLuint *currentDest = dest;
+                    GLuint *currentDest = insertDest;
                     for (size_t j = i; j < nextI; ++j) {
                         const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
                         if (cache.face->isMarked() && !(forceTransparent || cache.face->hasAttribute(Model::TagAttributes::Transparency))) {
@@ -532,7 +532,7 @@ namespace TrenchBroom {
                             currentDest += triIndicesCountForPolygon(cache.vertexCount);
                         }
                     }
-                    assert(currentDest == (dest + opaqueIndexCount));
+                    assert(currentDest == (insertDest + opaqueIndexCount));
                 }
             }
         }

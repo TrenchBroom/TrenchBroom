@@ -68,7 +68,7 @@ MACRO(set_compiler_config TARGET)
         target_compile_options(${TARGET} PRIVATE -Wno-cpp)
     elseif(COMPILER_IS_MSVC)
         target_compile_definitions(${TARGET} PRIVATE _CRT_SECURE_NO_DEPRECATE _CRT_NONSTDC_NO_DEPRECATE)
-        target_compile_options(${TARGET} PRIVATE /W3 /EHsc /MP)
+        target_compile_options(${TARGET} PRIVATE /W4 /EHsc /MP)
         target_compile_options(${TARGET} PRIVATE "$<$<CONFIG:RELEASE>:/Ox>")
 
         # Generate debug symbols even for Release; we build a stripped pdb in Release mode, see TrenchBroomApp.cmake

@@ -419,7 +419,7 @@ namespace TrenchBroom {
 #if defined(_WIN32) && defined(_MSC_VER)
         LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs) {
             reportCrashAndExit(TrenchBroomStackWalker::getStackTraceFromContext(pExceptionPtrs->ContextRecord), "TrenchBroomUnhandledExceptionFilter");
-            return EXCEPTION_EXECUTE_HANDLER;
+            // return EXCEPTION_EXECUTE_HANDLER; unreachable
         }
 #else
         static void CrashHandler(int /* signum */) {
