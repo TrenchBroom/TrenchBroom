@@ -54,8 +54,6 @@ namespace TrenchBroom {
             QShortcut* m_insertRowShortcut;
             QShortcut* m_removeRowShortcut;
             QShortcut* m_removeRowAlternateShortcut;
-
-            bool m_ignoreSelection;
         public:
             explicit EntityAttributeGrid(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~EntityAttributeGrid() override;

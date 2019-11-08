@@ -42,8 +42,7 @@ namespace TrenchBroom {
     namespace View {
         EntityAttributeGrid::EntityAttributeGrid(MapDocumentWPtr document, QWidget* parent) :
         QWidget(parent),
-        m_document(document),
-        m_ignoreSelection(false) {
+        m_document(document) {
             createGui(document);
             createShortcuts();
             updateShortcuts();
@@ -225,8 +224,7 @@ namespace TrenchBroom {
             layout->addLayout(toolBar, 0);
             setLayout(layout);
 
-            // FIXME: warning in MSVC
-            printf("et: %d\n", m_table->editTriggers());
+
 
             //m_table->setEditTriggers(QAbstractItemView::SelectedClicked | QAbstractItemView::AnyKeyPressed);
         }
@@ -293,7 +291,6 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeGrid::selectionDidChange(const Selection& selection) {
-            const TemporarilySetBool ignoreSelection(m_ignoreSelection);
             updateControls();
         }
 

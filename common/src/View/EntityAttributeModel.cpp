@@ -600,12 +600,15 @@ namespace TrenchBroom {
                     // Queue selection of the renamed key.
                     // Not executed immediately because we need to wait for EntityAttributeGrid::updateControls() to
                     // call EntityAttributeModel::setRows().
+                    // FIXME: not eusre if we want this?
+#if 0
                     QTimer::singleShot(0, this, [this, newName]() {
                         const int row = this->rowForAttributeName(newName);
                         if (row != -1) {
                             emit currentItemChangeRequestedByModel(this->index(row, 1));
                         }
                     });
+#endif
                     return true;
                 }
             } else if (index.column() == 1) {
