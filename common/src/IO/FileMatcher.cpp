@@ -72,7 +72,7 @@ namespace TrenchBroom {
             return StringUtils::caseInsensitiveMatchesPattern(filename, m_pattern);
         }
 
-        bool ExecutableFileMatcher::operator()(const Path& path, const bool directory) const {
+        bool ExecutableFileMatcher::operator()(const Path& path, [[maybe_unused]] const bool directory) const {
 #ifdef __APPLE__
             if (directory && StringUtils::caseInsensitiveEqual(path.extension(), "app"))
                 return true;

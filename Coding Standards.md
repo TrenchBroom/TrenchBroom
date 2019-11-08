@@ -74,14 +74,17 @@
   }
   ```
   
-  Finally, if the semantics of the parameter is clear from the type alone, then it is also allowed to delete
+  If the semantics of the parameter is clear from the type alone, then it is also allowed to delete
   the parameter name:
 
   ```
   void myOtherFunction(const int index, const Model::World*) {...}
   ```
   
-  In general, it is preferrable to not delete the parameter name and it should be done with care.
+  In certain cases, it is more useful to use the `[[maybe_unused]]` attribute, esp. when the function
+  body contains conditionally compiled code.
+  
+  In general, it is preferable to not delete the parameter name and it should be done with care.
 
 # Features
 - We use C++17
