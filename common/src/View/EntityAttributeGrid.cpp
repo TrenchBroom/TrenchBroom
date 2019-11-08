@@ -306,9 +306,10 @@ namespace TrenchBroom {
 
             // Update buttons/checkboxes
             MapDocumentSPtr document = lock(m_document);
-            m_table->setEnabled(!document->allSelectedAttributableNodes().empty());
-            m_addAttributeButton->setEnabled(!document->allSelectedAttributableNodes().empty());
-            m_removePropertiesButton->setEnabled(canRemoveSelectedAttributes());
+            const auto nodes = document->allSelectedAttributableNodes();
+            m_table->setEnabled(!nodes.empty());
+            m_addAttributeButton->setEnabled(!nodes.empty());
+            m_removePropertiesButton->setEnabled(!nodes.empty() && canRemoveSelectedAttributes());
             //m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
 
             // Update shortcuts

@@ -252,7 +252,6 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeModel::setRows(const std::map<String, AttributeRow>& newRowsKeyMap) {
-            const std::vector<AttributeRow> oldRows = m_rows;
             const std::vector<AttributeRow> newRows = buildVec(newRowsKeyMap);
             if (newRows == m_rows) {
                 // Fast path: nothing in the viewmodel changed.
@@ -260,6 +259,8 @@ namespace TrenchBroom {
             }
 
             qDebug() << "EntityAttributeModel::setRows " << newRowsKeyMap.size() << " rows.";
+
+            const std::vector<AttributeRow> oldRows = m_rows;
 
             const std::map<String, int> oldRowIndexMap = buildAttributeToRowIndexMap(m_rows);
             const std::map<String, int> newRowIndexMap = buildAttributeToRowIndexMap(newRows);
