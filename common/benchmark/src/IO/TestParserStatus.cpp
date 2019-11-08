@@ -36,7 +36,7 @@ namespace TrenchBroom {
 
         void TestParserStatus::doProgress(const double) {}
 
-        void TestParserStatus::doLog(const Logger::LogLevel level, const String& str) {
+        void TestParserStatus::doLog(const Logger::LogLevel level, const String& /* str */) {
             MapUtils::findOrInsert(m_statusCounts, level, 0u)->second++;
         }
     }
