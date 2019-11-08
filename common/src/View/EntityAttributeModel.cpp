@@ -57,6 +57,28 @@ namespace TrenchBroom {
                 && m_tooltip == other.m_tooltip;
         }
 
+        bool AttributeRow::operator<(const AttributeRow& other) const {
+            if (m_name < other.m_name) return true;
+            if (m_name > other.m_name) return false;
+
+            if (m_value < other.m_value) return true;
+            if (m_value > other.m_value) return false;
+
+            if (m_valueType < other.m_valueType) return true;
+            if (m_valueType > other.m_valueType) return false;
+
+            if (m_nameMutable < other.m_nameMutable) return true;
+            if (m_nameMutable > other.m_nameMutable) return false;
+
+            if (m_valueMutable < other.m_valueMutable) return true;
+            if (m_valueMutable > other.m_valueMutable) return false;
+
+            if (m_tooltip < other.m_tooltip) return true;
+            if (m_tooltip > other.m_tooltip) return false;
+
+            return false;
+        }
+
         AttributeRow::AttributeRow(const String& name, const Model::AttributableNode* node) :
         m_name(name) {
             const Assets::AttributeDefinition* definition = node->attributeDefinition(name);
@@ -239,6 +261,14 @@ namespace TrenchBroom {
             return result;
         }
 
+        static std::set<String> attributeRowKeySet(const std::vector<AttributeRow>& rows) {
+            std::set<String> result;
+            for (const auto& row : rows) {
+                result.insert(row.name());
+            }
+            return result;
+        }
+
         bool EntityAttributeModel::showDefaultRows() const {
             return m_showDefaultRows;
         }
@@ -252,82 +282,77 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeModel::setRows(const std::map<String, AttributeRow>& newRowsKeyMap) {
-            const std::vector<AttributeRow> newRows = buildVec(newRowsKeyMap);
-            if (newRows == m_rows) {
-                // Fast path: nothing in the viewmodel changed.
+            const std::set<AttributeRow> newRowSet = MapUtils::valueSet(newRowsKeyMap);
+            const std::set<AttributeRow> oldRowSet = SetUtils::makeSet(m_rows);
+
+            if (newRowSet == oldRowSet) {
+                qDebug() << "EntityAttributeModel::setRows: no change";
+                return;
+            }
+            
+            // If exactly one row was changed
+            // we can tell Qt the row was edited instead. This allows the selection/current index
+            // to be preserved, whereas removing the row would invalidate the current index.
+            //
+            // This situation happens when you rename a key and then press Tab to switch
+            // to editing the value for the newly renamed key.
+            const std::set<AttributeRow> newMinusOld = SetUtils::minus(newRowSet, oldRowSet);
+            const std::set<AttributeRow> oldMinusNew = SetUtils::minus(oldRowSet, newRowSet);
+
+            if (newMinusOld.size() == 1 && oldMinusNew.size() == 1) {
+                const AttributeRow oldDeletion = *oldMinusNew.begin();
+                const AttributeRow newAddition = *newMinusOld.begin();
+
+                qDebug() << "EntityAttributeModel::setRows: one row changed: " << QString::fromStdString(oldDeletion.name()) << " -> " << QString::fromStdString(newAddition.name());
+
+                const size_t oldIndex = VectorUtils::indexOf(m_rows, oldDeletion);
+                m_rows.at(oldIndex) = newAddition;
+
+                // Notify Qt
+                const QModelIndex topLeft = index(static_cast<int>(oldIndex), 0);
+                const QModelIndex bottomRight = index(static_cast<int>(oldIndex), 1);
+                emit dataChanged(topLeft, bottomRight);
+
                 return;
             }
 
-            qDebug() << "EntityAttributeModel::setRows " << newRowsKeyMap.size() << " rows.";
+            // Insertions
+            if (!newMinusOld.empty() && oldMinusNew.empty()) {
+                qDebug() << "EntityAttributeModel::setRows: inserting " << newMinusOld.size() << " rows";
 
-            const std::vector<AttributeRow> oldRows = m_rows;
+                const int firstNewRow = static_cast<int>(m_rows.size());
+                const int lastNewRow = firstNewRow + static_cast<int>(newMinusOld.size()) - 1;
+                assert(lastNewRow >= firstNewRow);
 
-            const std::map<String, int> oldRowIndexMap = buildAttributeToRowIndexMap(m_rows);
-            const std::map<String, int> newRowIndexMap = buildAttributeToRowIndexMap(newRows);
-
-            // If the key list changes, report it to Qt
-            if (oldRowIndexMap != newRowIndexMap) {
-                // see: http://doc.qt.io/qt-5/model-view-programming.html#resizable-models
-                // and: http://doc.qt.io/qt-5/qabstractitemmodel.html#layoutChanged
-
-                emit layoutAboutToBeChanged();
-
-                // Figure out the mapping from old to new indices
-                const QModelIndexList oldPersistentIndices = persistentIndexList();
-                QModelIndexList newPersistentIndices;
-
-                for (const auto& oldPersistentIndex : oldPersistentIndices) {
-                    if (!oldPersistentIndex.isValid()) {
-                        // Shouldn't ever happen, but handle it anyway
-                        newPersistentIndices.push_back(QModelIndex());
-                        continue;
-                    }
-
-                    const int oldRow = oldPersistentIndex.row();
-                    const int oldColumn = oldPersistentIndex.column();
-
-                    const String oldKey = m_rows.at(static_cast<size_t>(oldRow)).name();
-
-                    // see if there is a corresponding new row
-                    auto it = newRowIndexMap.find(oldKey);
-                    if (it != newRowIndexMap.end()) {
-                        const int newRow = it->second;
-                        newPersistentIndices.push_back(index(newRow, oldColumn));
-                    } else {
-                        newPersistentIndices.push_back(QModelIndex());
-                    }
+                beginInsertRows(QModelIndex(), firstNewRow, lastNewRow);
+                for (const AttributeRow& row : newMinusOld) {
+                    m_rows.push_back(row);
                 }
-
-                m_rows = newRows;
-                changePersistentIndexList(oldPersistentIndices, newPersistentIndices);
-                emit layoutChanged();
-            } else {
-                m_rows = newRows;
+                endInsertRows();
+                return;
             }
 
-            // If any values changed, report them to Qt
-            for (size_t i = 0; i < m_rows.size(); ++i) {
-                const AttributeRow& newRow = m_rows[i];
-                const String& key = newRow.name();
+            // Deletions
+            if (newMinusOld.empty() && !oldMinusNew.empty()) {
+                qDebug() << "EntityAttributeModel::setRows: deleting " << oldMinusNew.size() << " rows";
 
-                bool rowChanged = true;
+                for (const AttributeRow& row : oldMinusNew) {
+                    const size_t index = VectorUtils::indexOf(m_rows, row);
+                    assert(index < m_rows.size());
 
-                auto it = oldRowIndexMap.find(key);
-                if (it != oldRowIndexMap.end()) {
-                    const int oldRowIndex = it->second;
-                    const AttributeRow oldRow = oldRows.at(static_cast<size_t>(oldRowIndex));
-
-                    if (oldRow == newRow) {
-                        rowChanged = false;
-                    }
+                    beginRemoveRows(QModelIndex(), static_cast<int>(index), static_cast<int>(index));
+                    m_rows.erase(m_rows.begin() + index);
+                    endRemoveRows();
                 }
-
-                if (rowChanged) {
-                    const QModelIndex topLeft = index(static_cast<int>(i), 0);
-                    const QModelIndex bottomRight = index(static_cast<int>(i), 1);
-                    emit dataChanged(topLeft, bottomRight);
-                }
+                return;
             }
+
+            // Fallback case: this will reset selections
+            qDebug() << "EntityAttributeModel::setRows. resetting model (selections will be lost)";
+
+            beginResetModel();
+            m_rows = buildVec(newRowsKeyMap);
+            endResetModel();
         }
 
         const AttributeRow* EntityAttributeModel::dataForModelIndex(const QModelIndex& index) const {
@@ -575,12 +600,15 @@ namespace TrenchBroom {
                     // Queue selection of the renamed key.
                     // Not executed immediately because we need to wait for EntityAttributeGrid::updateControls() to
                     // call EntityAttributeModel::setRows().
+                    // FIXME: not eusre if we want this?
+#if 0
                     QTimer::singleShot(0, this, [this, newName]() {
                         const int row = this->rowForAttributeName(newName);
                         if (row != -1) {
                             emit currentItemChangeRequestedByModel(this->index(row, 1));
                         }
                     });
+#endif
                     return true;
                 }
             } else if (index.column() == 1) {
