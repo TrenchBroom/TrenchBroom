@@ -514,8 +514,8 @@ namespace TrenchBroom {
 #else
         bool Path::hasDriveSpec(const StringList& /* components */) {
             return false;
-#endif
         }
+#endif
 
 #ifdef _WIN32
         bool Path::hasDriveSpec(const String& component) {
