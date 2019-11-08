@@ -53,7 +53,7 @@ namespace TrenchBroom {
             return m_nodes;
         }
 
-        Model::ModelFactory& NodeReader::initialize(const Model::MapFormat format) {
+        Model::ModelFactory& NodeReader::initialize([[maybe_unused]] const Model::MapFormat format) {
             assert(format == m_factory.format());
             return m_factory;
         }

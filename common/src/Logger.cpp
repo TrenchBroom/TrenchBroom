@@ -40,7 +40,7 @@ namespace TrenchBroom {
         return Logger::stream(this, LogLevel_Debug);
     }
 
-    void Logger::debug(const char* format, ...) {
+    void Logger::debug([[maybe_unused]] const char* format, ...) {
 #ifndef NDEBUG
         va_list arguments;
         va_start(arguments, format);
@@ -50,13 +50,13 @@ namespace TrenchBroom {
 #endif
     }
 
-    void Logger::debug(const String& message) {
+    void Logger::debug([[maybe_unused]] const String& message) {
 #ifndef NDEBUG
         log(LogLevel_Debug, message);
 #endif
     }
 
-    void Logger::debug(const QString& message) {
+    void Logger::debug([[maybe_unused]] const QString& message) {
 #ifndef NDEBUG
         log(LogLevel_Debug, message);
 #endif

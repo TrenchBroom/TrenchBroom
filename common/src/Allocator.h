@@ -111,7 +111,7 @@ private:
     }
 public:
 #ifdef TB_ENABLE_ALLOCATOR
-    void* operator new(size_t size) {
+    void* operator new([[maybe_unused]] size_t size) {
         assert(size == sizeof(T));
 
         if (!pool().empty()) {

@@ -442,9 +442,9 @@ namespace VectorUtils {
     }
 
     template <typename T>
-    void swapPred(std::vector<T>& vec, typename std::vector<T>::iterator i) {
+    void swapPred([[maybe_unused]] std::vector<T>& vec, typename std::vector<T>::iterator i) {
         assert(i > std::begin(vec) && i < std::end(vec));
-        std::iter_swap(i, i-1);
+        std::iter_swap(i, std::prev(i));
     }
 
     template <typename T>
@@ -456,9 +456,9 @@ namespace VectorUtils {
     }
 
     template <typename T>
-    void swapSucc(std::vector<T>& vec, typename std::vector<T>::iterator i) {
-        assert(i >= std::begin(vec) && i < std::end(vec) - 1);
-        std::iter_swap(i, i+1);
+    void swapSucc([[maybe_unused]] std::vector<T>& vec, typename std::vector<T>::iterator i) {
+        assert(i >= std::begin(vec) && i < std::prev(std::end(vec)));
+        std::iter_swap(i, std::next(i));
     }
 
     template <typename T>

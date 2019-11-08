@@ -132,7 +132,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MapViewActivationTracker::mouseUpEvent(QMouseEvent* event, QWidget*) {
+        bool MapViewActivationTracker::mouseUpEvent([[maybe_unused]] QMouseEvent* event, QWidget*) {
             if (m_active) {
                 // process the event normally
                 return false;
