@@ -67,39 +67,38 @@ namespace TrenchBroom {
             R, G, B, A
         };
 
-        static int getComponentOfPixel(const Assets::Texture* texture, const int x, const int y, const Component component) {
+        static int getComponentOfPixel(const Assets::Texture* texture, const std::size_t x, const std::size_t y, const Component component) {
             const auto format = texture->format();
 
             ensure(GL_BGRA == format || GL_RGBA == format, "expected GL_BGRA or GL_RGBA");
 
-            int componentIndex = 0;
+            std::size_t componentIndex = 0;
             if (format == GL_RGBA) {
                 switch (component) {
-                    case Component::R: componentIndex = 0; break;
-                    case Component::G: componentIndex = 1; break;
-                    case Component::B: componentIndex = 2; break;
-                    case Component::A: componentIndex = 3; break;
+                    case Component::R: componentIndex = 0u; break;
+                    case Component::G: componentIndex = 1u; break;
+                    case Component::B: componentIndex = 2u; break;
+                    case Component::A: componentIndex = 3u; break;
                 }
             } else {
                 switch (component) {
-                    case Component::R: componentIndex = 2; break;
-                    case Component::G: componentIndex = 1; break;
-                    case Component::B: componentIndex = 0; break;
-                    case Component::A: componentIndex = 3; break;
+                    case Component::R: componentIndex = 2u; break;
+                    case Component::G: componentIndex = 1u; break;
+                    case Component::B: componentIndex = 0u; break;
+                    case Component::A: componentIndex = 3u; break;
                 }
             }
 
             const auto& mip0DataBuffer = texture->buffersIfUnprepared().at(0);
-            ensure(texture->width() * texture->height() * 4 == mip0DataBuffer.size(), "unexpected texture data size");
-            ensure(x >= 0 && x < static_cast<int>(texture->width()), "x out of range");
-            ensure(y >= 0 && y < static_cast<int>(texture->height()), "y out of range");
+            assert(texture->width() * texture->height() * 4 == mip0DataBuffer.size());
+            assert(x < texture->width());
+            assert(y < texture->height());
 
             const uint8_t* mip0Data = mip0DataBuffer.ptr();
-
-            return static_cast<int>(mip0Data[(static_cast<int>(texture->width()) * 4 * y) + (x * 4) + componentIndex]);
+            return static_cast<int>(mip0Data[(texture->width() * 4u * y) + (x * 4u) + componentIndex]);
         }
 
-        static void checkColor(const Assets::Texture* texturePtr, const int x, const int y,
+        static void checkColor(const Assets::Texture* texturePtr, const std::size_t x, const std::size_t y,
             const int r, const int g, const int b, const int a) {
 
             const auto actualR = getComponentOfPixel(texturePtr, x, y, Component::R);
@@ -116,8 +115,8 @@ namespace TrenchBroom {
 
         // https://github.com/kduske/TrenchBroom/issues/2474
         static void testImageContents(std::unique_ptr<const Assets::Texture> texture) {
-            const auto w = 64u;
-            const auto h = 64u;
+            const std::size_t w = 64u;
+            const std::size_t h = 64u;
 
             ASSERT_TRUE(texture != nullptr);
             ASSERT_EQ(w, texture->width());
@@ -127,8 +126,8 @@ namespace TrenchBroom {
             ASSERT_EQ(Assets::TextureType::Opaque, texture->type());
 
             auto* texturePtr = texture.get();
-            for (int y = 0; y < h; ++y) {
-                for (int x = 0; x < w; ++x) {
+            for (std::size_t y = 0; y < h; ++y) {
+                for (std::size_t x = 0; x < w; ++x) {
                     if (x == 0 && y == 0) {
                         // top left pixel is red
                         checkColor(texturePtr, x, y, 255, 0, 0, 255);
@@ -153,8 +152,8 @@ namespace TrenchBroom {
 
         TEST(FreeImageTextureReaderTest, alphaMaskTest) {
             const auto texture = loadTexture("alphaMaskTest.png");
-            const auto w = 25u;
-            const auto h = 10u;
+            const std::size_t w = 25u;
+            const std::size_t h = 10u;
 
             ASSERT_TRUE(texture != nullptr);
             ASSERT_EQ(w, texture->width());
@@ -167,8 +166,8 @@ namespace TrenchBroom {
             ASSERT_EQ(w * h * 4, mip0Data.size());
 
             auto* texturePtr = texture.get();
-            for (int y = 0; y < h; ++y) {
-                for (int x = 0; x < w; ++x) {
+            for (std::size_t y = 0; y < h; ++y) {
+                for (std::size_t x = 0; x < w; ++x) {
                     if (x == 0 && y == 0) {
                         // top left pixel is green opaque
                         ASSERT_EQ(0   /* R */, getComponentOfPixel(texturePtr, x, y, Component::R));
