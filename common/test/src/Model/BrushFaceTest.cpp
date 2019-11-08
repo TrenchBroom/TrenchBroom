@@ -435,7 +435,7 @@ namespace TrenchBroom {
         TEST(BrushFaceTest, testTextureLock_Paraxial) {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            World world(MapFormat::Standard, worldBounds);
+            World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             const Brush* cube = builder.createCube(128.0, "");
@@ -456,7 +456,7 @@ namespace TrenchBroom {
         TEST(BrushFaceTest, testTextureLock_Parallel) {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            World world(MapFormat::Valve, worldBounds);
+            World world(MapFormat::Valve);
 
             BrushBuilder builder(&world, worldBounds);
             const Brush* cube = builder.createCube(128.0, "");
@@ -477,7 +477,7 @@ namespace TrenchBroom {
         TEST(BrushFaceTest, testBrushFaceSnapshot) {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            World world(MapFormat::Valve, worldBounds);
+            World world(MapFormat::Valve);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* cube = builder.createCube(128.0, "");
@@ -527,7 +527,7 @@ namespace TrenchBroom {
                                       "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Valve, worldBounds);
+            World world(MapFormat::Valve);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
@@ -583,7 +583,7 @@ namespace TrenchBroom {
                                       "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Valve, worldBounds);
+            World world(MapFormat::Valve);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
@@ -643,7 +643,7 @@ namespace TrenchBroom {
 )");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Valve, worldBounds);
+            World world(MapFormat::Valve);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);

@@ -39,7 +39,7 @@ namespace TrenchBroom {
         void VertexHandleManager::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             for (const auto& entry : m_handles) {
                 const auto& position = entry.first;
-                const auto distance = camera.pickPointHandle(pickRay, position, pref(Preferences::HandleRadius));
+                const auto distance = camera.pickPointHandle(pickRay, position, static_cast<FloatType>(pref(Preferences::HandleRadius)));
                 if (!vm::is_nan(distance)) {
                     const auto hitPoint = vm::point_at_distance(pickRay, distance);
                     const auto error = vm::squared_distance(pickRay, position).distance;
@@ -73,10 +73,10 @@ namespace TrenchBroom {
         void EdgeHandleManager::pickGridHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const {
             for (const HandleEntry& entry : m_handles) {
                 const vm::segment3& position = entry.first;
-                const FloatType edgeDist = camera.pickLineSegmentHandle(pickRay, position, pref(Preferences::HandleRadius));
+                const FloatType edgeDist = camera.pickLineSegmentHandle(pickRay, position, static_cast<FloatType>(pref(Preferences::HandleRadius)));
                 if (!vm::is_nan(edgeDist)) {
                     const vm::vec3 pointHandle = grid.snap(vm::point_at_distance(pickRay, edgeDist), position);
-                    const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
+                    const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, static_cast<FloatType>(pref(Preferences::HandleRadius)));
                     if (!vm::is_nan(pointDist)) {
                         const vm::vec3 hitPoint = vm::point_at_distance(pickRay, pointDist);
                         pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, HitType(position, pointHandle)));
@@ -90,7 +90,7 @@ namespace TrenchBroom {
                 const vm::segment3& position = entry.first;
                 const vm::vec3 pointHandle = position.center();
 
-                const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
+                const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, static_cast<FloatType>(pref(Preferences::HandleRadius)));
                 if (!vm::is_nan(pointDist)) {
                     const vm::vec3 hitPoint = vm::point_at_distance(pickRay, pointDist);
                     pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, position));
@@ -133,7 +133,7 @@ namespace TrenchBroom {
                 if (!vm::is_nan(distance)) {
                     const auto pointHandle = grid.snap(vm::point_at_distance(pickRay, distance), plane);
 
-                    const auto pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
+                    const auto pointDist = camera.pickPointHandle(pickRay, pointHandle, static_cast<FloatType>(pref(Preferences::HandleRadius)));
                     if (!vm::is_nan(pointDist)) {
                         const auto hitPoint = vm::point_at_distance(pickRay, pointDist);
                         pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, HitType(position, pointHandle)));
@@ -147,7 +147,7 @@ namespace TrenchBroom {
                 const auto& position = entry.first;
                 const auto pointHandle = position.center();
 
-                const auto pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
+                const auto pointDist = camera.pickPointHandle(pickRay, pointHandle, static_cast<FloatType>(pref(Preferences::HandleRadius)));
                 if (!vm::is_nan(pointDist)) {
                     const auto hitPoint = vm::point_at_distance(pickRay, pointDist);
                     pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, position));

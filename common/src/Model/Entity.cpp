@@ -169,7 +169,7 @@ namespace TrenchBroom {
             return m_physicalBounds;
         }
 
-        Node* Entity::doClone(const vm::bbox3& worldBounds) const {
+        Node* Entity::doClone(const vm::bbox3& /* worldBounds */) const {
             auto* entity = new Entity();
             cloneAttributes(entity);
             entity->setDefinition(definition());
@@ -189,11 +189,11 @@ namespace TrenchBroom {
 
         class CanAddChildToEntity : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            void doVisit(const World* world) override   { setResult(false); }
-            void doVisit(const Layer* layer) override   { setResult(false); }
-            void doVisit(const Group* group) override   { setResult(true); }
-            void doVisit(const Entity* entity) override { setResult(true); }
-            void doVisit(const Brush* brush) override   { setResult(true); }
+            void doVisit(const World*)  override   { setResult(false); }
+            void doVisit(const Layer*)  override   { setResult(false); }
+            void doVisit(const Group*)  override   { setResult(true); }
+            void doVisit(const Entity*) override { setResult(true); }
+            void doVisit(const Brush*)  override   { setResult(true); }
         };
 
         bool Entity::doCanAddChild(const Node* child) const {
@@ -202,7 +202,7 @@ namespace TrenchBroom {
             return visitor.result();
         }
 
-        bool Entity::doCanRemoveChild(const Node* child) const {
+        bool Entity::doCanRemoveChild(const Node* /* child */) const {
             return true;
         }
 
@@ -214,19 +214,19 @@ namespace TrenchBroom {
             return true;
         }
 
-        void Entity::doChildWasAdded(Node* node) {
+        void Entity::doChildWasAdded(Node* /* node */) {
             nodePhysicalBoundsDidChange(physicalBounds());
         }
 
-        void Entity::doChildWasRemoved(Node* node) {
+        void Entity::doChildWasRemoved(Node* /* node */) {
             nodePhysicalBoundsDidChange(physicalBounds());
         }
 
-        void Entity::doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds) {
+        void Entity::doNodePhysicalBoundsDidChange() {
             invalidateBounds();
         }
 
-        void Entity::doChildPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
+        void Entity::doChildPhysicalBoundsDidChange() {
             const vm::bbox3 myOldBounds = physicalBounds();
             invalidateBounds();
             if (physicalBounds() != myOldBounds) {
@@ -256,13 +256,13 @@ namespace TrenchBroom {
                     const auto transform = modelTransformation();
                     const auto [invertible, inverse] = vm::invert(transform);
                     if (invertible) {
-                        const auto transformedRay = ray.transform(inverse);
-                        const auto distance = m_modelFrame->intersect(vm::ray3f(transformedRay));
+                        const auto transformedRay = vm::ray3f(ray.transform(inverse));
+                        const auto distance = m_modelFrame->intersect(transformedRay);
                         if (!vm::is_nan(distance)) {
                             // transform back to world space
                             const auto transformedHitPoint = vm::vec3(point_at_distance(transformedRay, distance));
                             const auto hitPoint = transform * transformedHitPoint;
-                            pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
+                            pickResult.addHit(Hit(EntityHit, static_cast<FloatType>(distance), hitPoint, this));
                             return;
                         }
                     }
@@ -312,11 +312,11 @@ namespace TrenchBroom {
             cacheAttributes();
         }
 
-        bool Entity::doIsAttributeNameMutable(const AttributeName& name) const {
+        bool Entity::doIsAttributeNameMutable(const AttributeName& /* name */) const {
             return true;
         }
 
-        bool Entity::doIsAttributeValueMutable(const AttributeName& name) const {
+        bool Entity::doIsAttributeValueMutable(const AttributeName& /* name */) const {
             return true;
         }
 
@@ -357,11 +357,11 @@ namespace TrenchBroom {
             m_lockTextures(lockTextures),
             m_worldBounds(worldBounds) {}
         private:
-            void doVisit(World* world) override   {}
-            void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   {}
-            void doVisit(Entity* entity) override {}
-            void doVisit(Brush* brush) override   { brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
+            void doVisit(World*) override  {}
+            void doVisit(Layer*) override  {}
+            void doVisit(Group*) override  {}
+            void doVisit(Entity*) override {}
+            void doVisit(Brush* brush) override { brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
         };
 
         void Entity::doTransform(const vm::mat4x4& transformation, const bool lockTextures, const vm::bbox3& worldBounds) {

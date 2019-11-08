@@ -75,7 +75,7 @@ namespace TrenchBroom {
             static QString optionDescriptions(const Assets::AttributeDefinition& definition);
 
             void updateDocumentation(const String &attributeName);
-            void createGui(QWidget* parent, MapDocumentWPtr document);
+            void createGui(MapDocumentWPtr document);
         };
     }
 }

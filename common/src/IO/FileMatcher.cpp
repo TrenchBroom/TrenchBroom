@@ -31,12 +31,14 @@ namespace TrenchBroom {
         m_files(files),
         m_directories(directories) {}
 
-        bool FileTypeMatcher::operator()(const Path& path, const bool directory) const {
-            if (m_files && !directory)
+        bool FileTypeMatcher::operator()(const Path& /* path */, const bool directory) const {
+            if (m_files && !directory) {
                 return true;
-            if (m_directories && directory)
+            } else if (m_directories && directory) {
                 return true;
-            return false;
+            } else {
+                return false;
+            }
         }
 
         FileExtensionMatcher::FileExtensionMatcher(const String& extension) :
@@ -65,7 +67,7 @@ namespace TrenchBroom {
         FileNameMatcher::FileNameMatcher(const String& pattern) :
         m_pattern(pattern) {}
 
-        bool FileNameMatcher::operator()(const Path& path, const bool directory) const {
+        bool FileNameMatcher::operator()(const Path& path, const bool /* directory */) const {
             const String filename = path.lastComponent().asString();
             return StringUtils::caseInsensitiveMatchesPattern(filename, m_pattern);
         }

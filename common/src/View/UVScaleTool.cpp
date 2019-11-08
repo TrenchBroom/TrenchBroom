@@ -154,7 +154,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void UVScaleTool::doEndMouseDrag(const InputState& inputState) {
+        void UVScaleTool::doEndMouseDrag(const InputState&) {
             auto document = lock(m_document);
             document->commitTransaction();
         }
@@ -196,7 +196,7 @@ namespace TrenchBroom {
             return position - distance;
         }
 
-        void UVScaleTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void UVScaleTool::doRender(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             if (!m_helper.valid()) {
                 return;
             }

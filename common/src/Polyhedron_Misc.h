@@ -68,16 +68,16 @@ template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Callback::~Callback() {}
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Callback::vertexWasCreated(Vertex* vertex) {}
+void Polyhedron<T,FP,VP>::Callback::vertexWasCreated(Vertex* /* vertex */) {}
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Callback::vertexWillBeDeleted(Vertex* vertex) {}
+void Polyhedron<T,FP,VP>::Callback::vertexWillBeDeleted(Vertex* /* vertex */) {}
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Callback::vertexWasAdded(Vertex* vertex) {}
+void Polyhedron<T,FP,VP>::Callback::vertexWasAdded(Vertex* /* vertex */) {}
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Callback::vertexWillBeRemoved(Vertex* vertex) {}
+void Polyhedron<T,FP,VP>::Callback::vertexWillBeRemoved(Vertex* /* vertex */) {}
 
 template <typename T, typename FP, typename VP>
 vm::plane<T,3> Polyhedron<T,FP,VP>::Callback::getPlane(const Face* face) const {
@@ -109,22 +109,22 @@ vm::plane<T,3> Polyhedron<T,FP,VP>::Callback::getPlane(const Face* face) const {
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Callback::faceWasCreated(Face* face) {}
+void Polyhedron<T,FP,VP>::Callback::faceWasCreated(Face* /* face */) {}
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Callback::faceWillBeDeleted(Face* face) {}
+void Polyhedron<T,FP,VP>::Callback::faceWillBeDeleted(Face* /* face */) {}
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Callback::faceDidChange(Face* face) {}
+void Polyhedron<T,FP,VP>::Callback::faceDidChange(Face* /* face */) {}
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Callback::faceWasFlipped(Face* face) {}
+void Polyhedron<T,FP,VP>::Callback::faceWasFlipped(Face* /* face */) {}
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Callback::faceWasSplit(Face* original, Face* clone) {}
+void Polyhedron<T,FP,VP>::Callback::faceWasSplit(Face* /* original */, Face* /* clone */) {}
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Callback::facesWillBeMerged(Face* remaining, Face* toDelete) {}
+void Polyhedron<T,FP,VP>::Callback::facesWillBeMerged(Face* /* remaining */, Face* /* toDelete */) {}
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron() {
@@ -198,7 +198,7 @@ void Polyhedron<T,FP,VP>::addPoints(const V& p1, const V& p2, const V& p3, const
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callback) {
     if (bounds.min == bounds.max) {
-        addPoint(bounds.min);
+        addPoint(bounds.min, callback);
         return;
     }
 
@@ -231,6 +231,15 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callb
     m_vertices.append(v7, 1);
     m_vertices.append(v8, 1);
 
+    callback.vertexWasCreated(v1);
+    callback.vertexWasCreated(v2);
+    callback.vertexWasCreated(v3);
+    callback.vertexWasCreated(v4);
+    callback.vertexWasCreated(v5);
+    callback.vertexWasCreated(v6);
+    callback.vertexWasCreated(v7);
+    callback.vertexWasCreated(v8);
+
     // Front face
     HalfEdge* f1h1 = new HalfEdge(v1);
     HalfEdge* f1h2 = new HalfEdge(v5);
@@ -242,6 +251,7 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callb
     f1b.append(f1h3, 1);
     f1b.append(f1h4, 1);
     m_faces.append(new Face(f1b), 1);
+    callback.faceWasCreated(m_faces.back());
 
     // Left face
     HalfEdge* f2h1 = new HalfEdge(v1);
@@ -254,6 +264,7 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callb
     f2b.append(f2h3, 1);
     f2b.append(f2h4, 1);
     m_faces.append(new Face(f2b), 1);
+    callback.faceWasCreated(m_faces.back());
 
     // Bottom face
     HalfEdge* f3h1 = new HalfEdge(v1);
@@ -266,6 +277,7 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callb
     f3b.append(f3h3, 1);
     f3b.append(f3h4, 1);
     m_faces.append(new Face(f3b), 1);
+    callback.faceWasCreated(m_faces.back());
 
     // Top face
     HalfEdge* f4h1 = new HalfEdge(v2);
@@ -278,6 +290,7 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callb
     f4b.append(f4h3, 1);
     f4b.append(f4h4, 1);
     m_faces.append(new Face(f4b), 1);
+    callback.faceWasCreated(m_faces.back());
 
     // Back face
     HalfEdge* f5h1 = new HalfEdge(v3);
@@ -290,6 +303,7 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callb
     f5b.append(f5h3, 1);
     f5b.append(f5h4, 1);
     m_faces.append(new Face(f5b), 1);
+    callback.faceWasCreated(m_faces.back());
 
     // Right face
     HalfEdge* f6h1 = new HalfEdge(v5);
@@ -302,6 +316,7 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callb
     f6b.append(f6h3, 1);
     f6b.append(f6h4, 1);
     m_faces.append(new Face(f6b), 1);
+    callback.faceWasCreated(m_faces.back());
 
     m_edges.append(new Edge(f1h4, f2h1), 1); // v1, v2
     m_edges.append(new Edge(f2h4, f3h1), 1); // v1, v3
@@ -350,7 +365,7 @@ private:
             const Vertex* currentVertex = firstVertex;
             do {
                 Vertex* copy = new Vertex(currentVertex->position());
-                assertResult(MapUtils::insertOrFail(m_vertexMap, currentVertex, copy));
+                assertResult(MapUtils::insertOrFail(m_vertexMap, currentVertex, copy))
                 m_vertices.append(copy, 1);
                 currentVertex = currentVertex->next();
             } while (currentVertex != firstVertex);

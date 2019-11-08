@@ -714,7 +714,7 @@ namespace TrenchBroom {
             return rowForAttributeName(name) != -1;
         }
 
-        bool EntityAttributeModel::renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables) {
+        bool EntityAttributeModel::renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& /* attributables */) {
             ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
             const AttributeRow& row = m_rows.at(rowIndex);

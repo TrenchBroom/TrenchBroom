@@ -180,7 +180,7 @@ namespace TrenchBroom {
             emit error();
         }
 
-        void CompilationRunToolTaskRunner::processFinished(const int exitCode, const QProcess::ExitStatus exitStatus) {
+        void CompilationRunToolTaskRunner::processFinished(const int exitCode, const QProcess::ExitStatus /* exitStatus */) {
             if (m_process != nullptr) {
                 m_process.reset();
             }

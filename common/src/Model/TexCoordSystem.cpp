@@ -90,7 +90,7 @@ namespace TrenchBroom {
                         doUpdateNormalWithRotation(oldNormal, newNormal, attribs);
                         break;
                     case WrapStyle::Projection:
-                        doUpdateNormalWithProjection(oldNormal, newNormal, attribs);
+                        doUpdateNormalWithProjection(newNormal, attribs);
                         break;
                 }
             }

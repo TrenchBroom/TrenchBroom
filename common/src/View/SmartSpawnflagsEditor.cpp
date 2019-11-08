@@ -49,11 +49,11 @@ namespace TrenchBroom {
             m_flagIndex(flagIndex),
             m_setFlag(setFlag) {}
 
-            void doVisit(Model::World* world) override   { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
-            void doVisit(Model::Layer* layer) override   {}
-            void doVisit(Model::Group* group) override   {}
-            void doVisit(Model::Entity* entity) override { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
-            void doVisit(Model::Brush* brush) override   {}
+            void doVisit(Model::World*) override  { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
+            void doVisit(Model::Layer*) override  {}
+            void doVisit(Model::Group*) override  {}
+            void doVisit(Model::Entity*) override { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
+            void doVisit(Model::Brush*) override  {}
         };
 
         SmartSpawnflagsEditor::SmartSpawnflagsEditor(View::MapDocumentWPtr document, QWidget* parent) :
@@ -172,7 +172,7 @@ namespace TrenchBroom {
             return std::atoi(value.c_str());
         }
 
-        void SmartSpawnflagsEditor::flagChanged(size_t index, int setFlag, int mixedFlag) {
+        void SmartSpawnflagsEditor::flagChanged(const size_t index, const int /* setFlag */, const int /* mixedFlag */) {
             const Model::AttributableNodeList& toUpdate = attributables();
             if (toUpdate.empty())
                 return;

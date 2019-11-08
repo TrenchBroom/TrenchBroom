@@ -69,6 +69,10 @@ namespace TrenchBroom {
             auto* widget = dynamic_cast<QWidget*>(object);
             ensure(widget != nullptr, "expected a QWidget");
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch-enum"
+#endif
             switch (event->type()) {
                 case QEvent::FocusIn:
                     setFocusEvent(static_cast<QFocusEvent*>(event), widget);
@@ -92,25 +96,28 @@ namespace TrenchBroom {
                 default:
                     break;
             }
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
             // NOTE: In all cases, we don't consume the event but let Qt continue processing it
             return QObject::eventFilter(object, event);
         }
 
-        void MapViewActivationTracker::setFocusEvent(QFocusEvent* event, QWidget* widget) {
+        void MapViewActivationTracker::setFocusEvent(QFocusEvent*, QWidget* widget) {
             for (auto* mapView : m_mapViews) {
                 mapView->setIsCurrent(mapView == widget);
             }
         }
 
-        void MapViewActivationTracker::killFocusEvent(QFocusEvent* event, QWidget* widget) {
+        void MapViewActivationTracker::killFocusEvent(QFocusEvent*, QWidget*) {
             const auto* focusedWidget = QApplication::focusWidget();
             if (!VectorUtils::contains(m_mapViews, focusedWidget)) {
                 deactivate();
             }
         }
 
-        bool MapViewActivationTracker::mouseDownEvent(QMouseEvent* event, QWidget* widget) {
+        bool MapViewActivationTracker::mouseDownEvent(QMouseEvent* event, QWidget*) {
             if (m_active) {
                 // process the event normally
                 return false;
@@ -125,7 +132,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MapViewActivationTracker::mouseUpEvent(QMouseEvent* event, QWidget* widget) {
+        bool MapViewActivationTracker::mouseUpEvent(QMouseEvent* event, QWidget*) {
             if (m_active) {
                 // process the event normally
                 return false;
@@ -140,7 +147,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void MapViewActivationTracker::enterEvent(QEvent* event, QWidget* widget) {
+        void MapViewActivationTracker::enterEvent(QEvent*, QWidget* widget) {
             if (m_active) {
                 widget->setFocus();
             }

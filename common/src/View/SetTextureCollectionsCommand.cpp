@@ -46,11 +46,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SetTextureCollectionsCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool SetTextureCollectionsCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool SetTextureCollectionsCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool SetTextureCollectionsCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
     }

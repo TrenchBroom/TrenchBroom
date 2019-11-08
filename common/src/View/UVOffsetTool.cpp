@@ -88,7 +88,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void UVOffsetTool::doEndMouseDrag(const InputState& inputState) {
+        void UVOffsetTool::doEndMouseDrag(const InputState&) {
             auto document = lock(m_document);
             document->commitTransaction();
         }

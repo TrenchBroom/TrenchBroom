@@ -59,7 +59,7 @@ namespace TrenchBroom {
             invalidate();
         }
 
-        void EntityLinkRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
+        void EntityLinkRenderer::render(RenderContext&, RenderBatch& renderBatch) {
             renderBatch.add(this);
         }
 
@@ -167,8 +167,8 @@ namespace TrenchBroom {
 
         class EntityLinkRenderer::MatchEntities {
         public:
-            bool operator()(const Model::Entity* entity) { return true; }
-            bool operator()(const Model::Node* node) { return false; }
+            bool operator()(const Model::Entity*) { return true; }
+            bool operator()(const Model::Node*) { return false; }
         };
 
         class EntityLinkRenderer::CollectEntitiesVisitor : public Model::CollectMatchingNodesVisitor<MatchEntities, Model::UniqueNodeCollectionStrategy> {};
@@ -187,13 +187,14 @@ namespace TrenchBroom {
             m_selectedColor(selectedColor),
             m_links(links) {}
         private:
-            void doVisit(Model::World* world) override   {}
-            void doVisit(Model::Layer* layer) override   {}
-            void doVisit(Model::Group* group) override   {}
-            void doVisit(Model::Brush* brush) override   {}
+            void doVisit(Model::World*) override {}
+            void doVisit(Model::Layer*) override {}
+            void doVisit(Model::Group*) override {}
+            void doVisit(Model::Brush*) override {}
             void doVisit(Model::Entity* entity) override {
-                if (m_editorContext.visible(entity))
+                if (m_editorContext.visible(entity)) {
                     visitEntity(entity);
+                }
                 stopRecursion();
             }
 

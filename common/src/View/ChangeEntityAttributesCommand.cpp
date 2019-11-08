@@ -98,7 +98,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool ChangeEntityAttributesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool ChangeEntityAttributesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 

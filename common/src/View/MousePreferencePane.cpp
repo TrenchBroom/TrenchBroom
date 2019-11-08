@@ -212,7 +212,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void MousePreferencePane::lookSpeedChanged(const int value) {
+        void MousePreferencePane::lookSpeedChanged(const int /* value */) {
             const auto ratio = m_lookSpeedSlider->ratio();
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraLookSpeed, ratio);
@@ -230,7 +230,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraLookInvertV, value);
         }
 
-        void MousePreferencePane::panSpeedChanged(const int value) {
+        void MousePreferencePane::panSpeedChanged(const int /* value */) {
             const auto ratio = m_panSpeedSlider->ratio();
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraPanSpeed, ratio);
@@ -248,7 +248,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraPanInvertV, value);
         }
 
-        void MousePreferencePane::moveSpeedChanged(const int value) {
+        void MousePreferencePane::moveSpeedChanged(const int /* value */) {
             const auto ratio = m_moveSpeedSlider->ratio();
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraMoveSpeed, ratio);
@@ -302,7 +302,7 @@ namespace TrenchBroom {
             setKeySequence(m_downKeyEditor, Preferences::CameraFlyDown());
         }
 
-        void MousePreferencePane::flyMoveSpeedChanged(const int value) {
+        void MousePreferencePane::flyMoveSpeedChanged(const int /* value */) {
             const auto ratio = m_flyMoveSpeedSlider->ratio();
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraFlyMoveSpeed, ratio);

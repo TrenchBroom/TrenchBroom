@@ -69,11 +69,11 @@ namespace TrenchBroom {
             return document->hasSelectedBrushFaces();
         }
 
-        UndoableCommand::Ptr CopyTexCoordSystemFromFaceCommand::doRepeat(MapDocumentCommandFacade* document) const {
+        UndoableCommand::Ptr CopyTexCoordSystemFromFaceCommand::doRepeat(MapDocumentCommandFacade*) const {
             return UndoableCommand::Ptr(new CopyTexCoordSystemFromFaceCommand(*m_coordSystemSanpshot, m_attribs, m_sourceFacePlane, m_wrapStyle));
         }
 
-        bool CopyTexCoordSystemFromFaceCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool CopyTexCoordSystemFromFaceCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
     }

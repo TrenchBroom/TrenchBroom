@@ -115,7 +115,7 @@ namespace TrenchBroom {
         protected:
             void setExtraAttributes(Model::Node* node, const ExtraAttributes& extraAttributes);
         private: // subclassing interface
-            virtual Model::ModelFactory& initialize(Model::MapFormat format, const vm::bbox3& worldBounds) = 0;
+            virtual Model::ModelFactory& initialize(Model::MapFormat format) = 0;
             virtual Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) = 0;
             virtual void onWorldspawnFilePosition(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
             virtual void onLayer(Model::Layer* layer, ParserStatus& status) = 0;

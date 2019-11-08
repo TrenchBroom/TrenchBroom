@@ -155,7 +155,7 @@ namespace TrenchBroom {
                 std::unique_ptr<Source> doGetSubSource(size_t position, size_t length) const override;
                 std::tuple<const char*, const char*, std::unique_ptr<char[]>> doBuffer() const override;
             private:
-                void throwError(const String& msg) const;
+                [[noreturn]] void throwError(const String& msg) const;
             };
         protected:
             /**

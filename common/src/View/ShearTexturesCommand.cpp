@@ -51,11 +51,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool ShearTexturesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool ShearTexturesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return true;
         }
 
-        UndoableCommand::Ptr ShearTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
+        UndoableCommand::Ptr ShearTexturesCommand::doRepeat(MapDocumentCommandFacade*) const {
             return UndoableCommand::Ptr(new ShearTexturesCommand(m_factors));
         }
 

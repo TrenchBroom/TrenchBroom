@@ -63,7 +63,7 @@ namespace TrenchBroom {
             return document->hasSelectedBrushFaces();
         }
 
-        UndoableCommand::Ptr ChangeBrushFaceAttributesCommand::doRepeat(MapDocumentCommandFacade* document) const {
+        UndoableCommand::Ptr ChangeBrushFaceAttributesCommand::doRepeat(MapDocumentCommandFacade*) const {
             return UndoableCommand::Ptr(new ChangeBrushFaceAttributesCommand(m_request));
         }
 

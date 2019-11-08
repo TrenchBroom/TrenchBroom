@@ -186,7 +186,7 @@ namespace TrenchBroom {
                             std::get<2>(tuple));
         }
 
-        RestrictedDragPolicy::DragResult ScaleObjectsToolController::doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
+        RestrictedDragPolicy::DragResult ScaleObjectsToolController::doDrag(const InputState&, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
             const auto delta = nextHandlePosition - lastHandlePosition;
             m_tool->scaleByDelta(delta);
 
@@ -204,11 +204,11 @@ namespace TrenchBroom {
             m_tool->cancelScale();
         }
 
-        void ScaleObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+        void ScaleObjectsToolController::doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
             renderContext.setForceHideSelectionGuide();
         }
 
-        void ScaleObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void ScaleObjectsToolController::doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             const auto& camera = renderContext.camera();
 
             // bounds and corner handles
@@ -314,7 +314,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool ScaleObjectsToolController::handleInput(const InputState& inputState) const {
+        bool ScaleObjectsToolController::handleInput(const InputState&) const {
             return m_tool->applies();
         }
 

@@ -50,11 +50,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool UpdateEntitySpawnflagCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool UpdateEntitySpawnflagCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool UpdateEntitySpawnflagCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool UpdateEntitySpawnflagCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
     }

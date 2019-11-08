@@ -332,7 +332,7 @@ namespace TrenchBroom {
                     menu.visitEntries(*this);
                 }
 
-                void visit(const MenuSeparatorItem& item) override {}
+                void visit(const MenuSeparatorItem&) override {}
 
                 void visit(const MenuActionItem& item) override {
                     const Action* tAction = &item.action();
@@ -363,7 +363,7 @@ namespace TrenchBroom {
             void visit(const Menu& menu) override {
                 menu.visitEntries(*this);
             }
-            void visit(const MenuSeparatorItem& item) override {}
+            void visit(const MenuSeparatorItem&) override {}
             void visit(const MenuActionItem& item) override {
                 item.action().resetKeySequence();
             }
@@ -680,18 +680,18 @@ namespace TrenchBroom {
         void ActionManager::createFileMenu() {
             auto& fileMenu = createMainMenu("File");
             fileMenu.addItem(createMenuAction(IO::Path("Menu/File/New"), QObject::tr("New Document"), QKeySequence::New,
-                [](ActionExecutionContext& context) {
+                [](ActionExecutionContext&) {
                     auto& app = TrenchBroomApp::instance();
                     app.newDocument();
                 },
-                [](ActionExecutionContext& context) { return true; }));
+                [](ActionExecutionContext&) { return true; }));
             fileMenu.addSeparator();
             fileMenu.addItem(createMenuAction(IO::Path("Menu/File/Open..."), QObject::tr("Open Document..."), QKeySequence::Open,
-                [](ActionExecutionContext& context) {
+                [](ActionExecutionContext&) {
                     auto& app = TrenchBroomApp::instance();
                     app.openDocument();
                 },
-                [](ActionExecutionContext& context) { return true; }));
+                [](ActionExecutionContext&) { return true; }));
             fileMenu.addMenu("Open Recent", MenuEntryType::Menu_RecentDocuments);
             fileMenu.addSeparator();
             fileMenu.addItem(createMenuAction(IO::Path("Menu/File/Save"), QObject::tr("Save Document"), QKeySequence::Save,
@@ -1066,7 +1066,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
                 },
-                [](ActionExecutionContext& context) {
+                [](ActionExecutionContext&) {
                     return pref(Preferences::TextureLock);
                 },
                 IO::Path("TextureLock.png")));
@@ -1077,7 +1077,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
                 },
-                [](ActionExecutionContext& context) {
+                [](ActionExecutionContext&) {
                     return pref(Preferences::UVLock);
                 },
                 IO::Path("UVLock.png")));
@@ -1367,11 +1367,11 @@ namespace TrenchBroom {
                 }));
             viewMenu.addSeparator();
             viewMenu.addItem(createMenuAction(IO::Path("Menu/File/Preferences..."), QObject::tr("Preferences..."), QKeySequence::Preferences,
-                [](ActionExecutionContext& context) {
+                [](ActionExecutionContext&) {
                     auto& app = TrenchBroomApp::instance();
                     app.showPreferences();
                 },
-                [](ActionExecutionContext& context) {
+                [](ActionExecutionContext&) {
                     return true;
                 }));
         }
@@ -1440,11 +1440,11 @@ namespace TrenchBroom {
                     return context.hasDocument();
                 }));
             debugMenu.addItem(createMenuAction(IO::Path("Menu/Debug/Show Crash Report Dialog"), QObject::tr("Show Crash Report Dialog..."), 0,
-                [](ActionExecutionContext& context) {
+                [](ActionExecutionContext&) {
                     auto& app = TrenchBroomApp::instance();
                     app.debugShowCrashReportDialog();
                 },
-                [](ActionExecutionContext& context) {
+                [](ActionExecutionContext&) {
                     return true;
                 }));
             debugMenu.addItem(createMenuAction(IO::Path("Menu/Debug/Set Window Size..."), QObject::tr("Set Window Size..."), 0,
@@ -1461,19 +1461,19 @@ namespace TrenchBroom {
             auto& helpMenu = createMainMenu("Help");
             helpMenu.addItem(
                 createAction(IO::Path("Menu/Help/TrenchBroom Manual"), QObject::tr("TrenchBroom Manual"), ActionContext::Any, QKeySequence(QKeySequence::HelpContents),
-                    [](ActionExecutionContext& context) {
+                    [](ActionExecutionContext&) {
                         auto& app = TrenchBroomApp::instance();
                         app.showManual();
                     },
-                    [](ActionExecutionContext& context) {
+                    [](ActionExecutionContext&) {
                         return true;
                     }));
             helpMenu.addItem(createMenuAction(IO::Path("Menu/File/About TrenchBroom"), QObject::tr("About TrenchBroom"), 0,
-                [](ActionExecutionContext& context) {
+                [](ActionExecutionContext&) {
                     auto& app = TrenchBroomApp::instance();
                     app.showAboutDialog();
                 },
-                [](ActionExecutionContext& context) {
+                [](ActionExecutionContext&) {
                     return true;
                 }));
         }

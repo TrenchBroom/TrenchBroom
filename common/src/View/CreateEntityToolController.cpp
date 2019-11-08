@@ -60,11 +60,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        void CreateEntityToolController::doDragLeave(const InputState& inputState) {
+        void CreateEntityToolController::doDragLeave(const InputState&) {
             m_tool->removeEntity();
         }
 
-        bool CreateEntityToolController::doDragDrop(const InputState& inputState) {
+        bool CreateEntityToolController::doDragDrop(const InputState&) {
             m_tool->commitEntity();
             return true;
         }

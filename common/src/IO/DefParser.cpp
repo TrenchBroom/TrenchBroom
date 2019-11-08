@@ -230,7 +230,7 @@ namespace TrenchBroom {
             return parseDefinition(status);
         }
 
-        Assets::AttributeDefinitionPtr DefParser::parseSpawnflags(ParserStatus& status) {
+        Assets::AttributeDefinitionPtr DefParser::parseSpawnflags(ParserStatus& /* status */) {
             Assets::FlagsAttributeDefinition* definition = new Assets::FlagsAttributeDefinition(Model::AttributeNames::Spawnflags);
             size_t numOptions = 0;
 

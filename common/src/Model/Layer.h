@@ -35,7 +35,7 @@ namespace TrenchBroom {
             mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
         public:
-            Layer(const String& name, const vm::bbox3& worldBounds);
+            Layer(const String& name);
 
             void setName(const String& name);
         private: // implement Node interface
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             bool doCanRemoveChild(const Node* child) const override;
             bool doRemoveIfEmpty() const override;
             bool doShouldAddToSpacialIndex() const override;
-            void doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds) override;
+            void doNodePhysicalBoundsDidChange() override;
             bool doSelectable() const override;
 
             void doPick(const vm::ray3& ray, PickResult& pickResult) const override;

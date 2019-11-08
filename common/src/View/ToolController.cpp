@@ -36,29 +36,29 @@ namespace TrenchBroom {
         PickingPolicy::~PickingPolicy() = default;
 
         NoPickingPolicy::~NoPickingPolicy() = default;
-        void NoPickingPolicy::doPick(const InputState& inputState, Model::PickResult& pickResult) {}
+        void NoPickingPolicy::doPick(const InputState&, Model::PickResult&) {}
 
         KeyPolicy::~KeyPolicy() = default;
 
         NoKeyPolicy::~NoKeyPolicy() = default;
-        void NoKeyPolicy::doModifierKeyChange(const InputState& inputState) {}
+        void NoKeyPolicy::doModifierKeyChange(const InputState&) {}
 
         MousePolicy::~MousePolicy() = default;
 
-        void MousePolicy::doMouseDown(const InputState& inputState) {}
-        void MousePolicy::doMouseUp(const InputState& inputState) {}
-        bool MousePolicy::doMouseClick(const InputState& inputState) { return false; }
-        bool MousePolicy::doMouseDoubleClick(const InputState& inputState) { return false; }
-        void MousePolicy::doMouseMove(const InputState& inputState) {}
-        void MousePolicy::doMouseScroll(const InputState& inputState) {}
+        void MousePolicy::doMouseDown(const InputState&) {}
+        void MousePolicy::doMouseUp(const InputState&) {}
+        bool MousePolicy::doMouseClick(const InputState&) { return false; }
+        bool MousePolicy::doMouseDoubleClick(const InputState&) { return false; }
+        void MousePolicy::doMouseMove(const InputState&) {}
+        void MousePolicy::doMouseScroll(const InputState&) {}
 
         MouseDragPolicy::~MouseDragPolicy() = default;
 
         NoMouseDragPolicy::~NoMouseDragPolicy() = default;
 
-        bool NoMouseDragPolicy::doStartMouseDrag(const InputState& inputState) { return false; }
-        bool NoMouseDragPolicy::doMouseDrag(const InputState& inputState) { return false; }
-        void NoMouseDragPolicy::doEndMouseDrag(const InputState& inputState) {}
+        bool NoMouseDragPolicy::doStartMouseDrag(const InputState&) { return false; }
+        bool NoMouseDragPolicy::doMouseDrag(const InputState&) { return false; }
+        void NoMouseDragPolicy::doEndMouseDrag(const InputState&) {}
         void NoMouseDragPolicy::doCancelMouseDrag() {}
 
         DragRestricter::~DragRestricter() = default;
@@ -205,7 +205,7 @@ namespace TrenchBroom {
             return anySnapped;
         }
 
-        bool NoDragSnapper::doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const {
+        bool NoDragSnapper::doSnap(const InputState&, const vm::vec3& /* initialPoint */, const vm::vec3& /* lastPoint */, vm::vec3& /* curPoint */) const {
             return true;
         }
 
@@ -213,7 +213,7 @@ namespace TrenchBroom {
         m_grid(grid),
         m_offset(offset) {}
 
-        bool AbsoluteDragSnapper::doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const {
+        bool AbsoluteDragSnapper::doSnap(const InputState&, const vm::vec3& /* initialPoint */, const vm::vec3& /* lastPoint */, vm::vec3& curPoint) const {
             curPoint = m_grid.snap(curPoint) - m_offset;
             return true;
         }
@@ -221,7 +221,7 @@ namespace TrenchBroom {
         DeltaDragSnapper::DeltaDragSnapper(const Grid& grid) :
         m_grid(grid) {}
 
-        bool DeltaDragSnapper::doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const {
+        bool DeltaDragSnapper::doSnap(const InputState&, const vm::vec3& initialPoint, const vm::vec3& /* lastPoint */, vm::vec3& curPoint) const {
             curPoint = initialPoint + m_grid.snap(curPoint - initialPoint);
             return true;
         }
@@ -230,7 +230,7 @@ namespace TrenchBroom {
         m_grid(grid),
         m_line(line) {}
 
-        bool LineDragSnapper::doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const {
+        bool LineDragSnapper::doSnap(const InputState&, const vm::vec3& /* initialPoint */, const vm::vec3& /* lastPoint */, vm::vec3& curPoint) const {
             curPoint = m_grid.snap(curPoint, m_line);
             return true;
         }
@@ -247,7 +247,7 @@ namespace TrenchBroom {
             assert(m_radius > 0.0);
         }
 
-        bool CircleDragSnapper::doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const {
+        bool CircleDragSnapper::doSnap(const InputState&, const vm::vec3& /* initialPoint */, const vm::vec3& /* lastPoint */, vm::vec3& curPoint) const {
             if (curPoint == m_center) {
                 return false;
             }
@@ -266,7 +266,7 @@ namespace TrenchBroom {
         SurfaceDragSnapper::SurfaceDragSnapper(const Grid& grid) :
         m_grid(grid) {}
 
-        bool SurfaceDragSnapper::doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const {
+        bool SurfaceDragSnapper::doSnap(const InputState& inputState, const vm::vec3& /* initialPoint */, const vm::vec3& /* lastPoint */, vm::vec3& curPoint) const {
             const Model::Hit& hit = query(inputState).first();
             if (!hit.isMatch()) {
                 return false;
@@ -434,7 +434,7 @@ namespace TrenchBroom {
 
             if (resetCurrentHandlePosition) {
                 vm::vec3 newHandlePosition = m_currentMousePosition;
-                assertResult(snapPoint(inputState, newHandlePosition));
+                assertResult(snapPoint(inputState, newHandlePosition))
                 m_currentHandlePosition = newHandlePosition;
             }
 
@@ -455,17 +455,17 @@ namespace TrenchBroom {
         }
 
         RenderPolicy::~RenderPolicy() = default;
-        void RenderPolicy::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
-        void RenderPolicy::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
+        void RenderPolicy::doSetRenderOptions(const InputState&, Renderer::RenderContext&) const {}
+        void RenderPolicy::doRender(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch&) {}
 
         DropPolicy::~DropPolicy() = default;
 
         NoDropPolicy::~NoDropPolicy() = default;
 
-        bool NoDropPolicy::doDragEnter(const InputState& inputState, const String& payload) { return false; }
-        bool NoDropPolicy::doDragMove(const InputState& inputState) { return false; }
-        void NoDropPolicy::doDragLeave(const InputState& inputState) {}
-        bool NoDropPolicy::doDragDrop(const InputState& inputState) { return false; }
+        bool NoDropPolicy::doDragEnter(const InputState&, const String& /* payload */) { return false; }
+        bool NoDropPolicy::doDragMove(const InputState&) { return false; }
+        void NoDropPolicy::doDragLeave(const InputState&) {}
+        bool NoDropPolicy::doDragDrop(const InputState&) { return false; }
 
         ToolController::~ToolController() = default;
         Tool* ToolController::tool() { return doGetTool(); }
@@ -587,16 +587,16 @@ namespace TrenchBroom {
             return m_chain.cancel();
         }
 
-        bool ToolControllerGroup::doShouldHandleMouseDrag(const InputState& inputState) const {
+        bool ToolControllerGroup::doShouldHandleMouseDrag(const InputState&) const {
             return true;
         }
 
-        void ToolControllerGroup::doMouseDragStarted(const InputState& inputState) {}
-        void ToolControllerGroup::doMouseDragged(const InputState& inputState) {}
-        void ToolControllerGroup::doMouseDragEnded(const InputState& inputState) {}
+        void ToolControllerGroup::doMouseDragStarted(const InputState&) {}
+        void ToolControllerGroup::doMouseDragged(const InputState&) {}
+        void ToolControllerGroup::doMouseDragEnded(const InputState&) {}
         void ToolControllerGroup::doMouseDragCancelled() {}
 
-        bool ToolControllerGroup::doShouldHandleDrop(const InputState& inputState, const String& payload) const {
+        bool ToolControllerGroup::doShouldHandleDrop(const InputState&, const String& /* payload */) const {
             return true;
         }
     }

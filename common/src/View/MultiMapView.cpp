@@ -115,7 +115,7 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        void MultiMapView::cycleChildMapView(MapView* after) {
+        void MultiMapView::cycleChildMapView(MapView*) {
             // only CyclingMapView support cycling
         }
         

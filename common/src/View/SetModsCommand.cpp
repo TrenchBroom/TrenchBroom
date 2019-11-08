@@ -47,11 +47,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SetModsCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool SetModsCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool SetModsCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool SetModsCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
     }

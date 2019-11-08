@@ -36,7 +36,7 @@ namespace TrenchBroom {
                 return new Always();
             }
 
-            bool doMatches(const Hit& hit) const override {
+            bool doMatches(const Hit&) const override {
                 return true;
             }
         };
@@ -47,7 +47,7 @@ namespace TrenchBroom {
                 return new Never();
             }
 
-            bool doMatches(const Hit& hit) const override {
+            bool doMatches(const Hit&) const override {
                 return false;
             }
         };

@@ -83,7 +83,7 @@ namespace TrenchBroom {
             explicit TestCallback(const size_t option) :
             m_option(option) {}
 
-            size_t selectOption(const StringList& options) {
+            size_t selectOption(const StringList& /* options */) {
                 return m_option;
             }
         };

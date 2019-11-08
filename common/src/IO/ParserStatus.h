@@ -40,19 +40,19 @@ namespace TrenchBroom {
             void info(size_t line, size_t column, const String& str);
             void warn(size_t line, size_t column, const String& str);
             void error(size_t line, size_t column, const String& str);
-            void errorAndThrow(size_t line, size_t column, const String& str);
+            [[noreturn]] void errorAndThrow(size_t line, size_t column, const String& str);
 
             void debug(size_t line, const String& str);
             void info(size_t line, const String& str);
             void warn(size_t line, const String& str);
             void error(size_t line, const String& str);
-            void errorAndThrow(size_t line, const String& str);
+            [[noreturn]] void errorAndThrow(size_t line, const String& str);
 
             void debug(const String& str);
             void info(const String& str);
             void warn(const String& str);
             void error(const String& str);
-            void errorAndThrow(const String& str);
+            [[noreturn]] void errorAndThrow(const String& str);
         private:
             void log(Logger::LogLevel level, size_t line, size_t column, const String& str);
             String buildMessage(size_t line, size_t column, const String& str) const;

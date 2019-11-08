@@ -70,7 +70,7 @@ namespace TrenchBroom {
             m_ctrlIncrement = ctrlIncrement;
         }
 
-        void SpinControl::setDigits(const int minDigits, const int maxDigits) {
+        void SpinControl::setDigits(const int /* minDigits */, const int maxDigits) {
             setDecimals(maxDigits);
         }
     }

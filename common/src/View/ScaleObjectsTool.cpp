@@ -156,7 +156,7 @@ namespace TrenchBroom {
             result.reserve(6);
 
             const vm::bbox3 box{{-1, -1, -1}, {1, 1, 1}};
-            auto op = [&](const vm::vec3& p0, const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& normal) {
+            auto op = [&](const vm::vec3& /* p0 */, const vm::vec3& /* p1 */, const vm::vec3& /* p2 */, const vm::vec3& /* p3 */, const vm::vec3& normal) {
                 result.push_back(BBoxSide(normal));
             };
             box.for_each_face(op);
@@ -493,7 +493,7 @@ namespace TrenchBroom {
             return !document->selectedNodes().empty();
         }
 
-        BackSide pickBackSideOfBox(const vm::ray3& pickRay, const Renderer::Camera& camera, const vm::bbox3& box) {
+        BackSide pickBackSideOfBox(const vm::ray3& pickRay, const Renderer::Camera& /* camera */, const vm::bbox3& box) {
             auto closestDistToRay = std::numeric_limits<FloatType>::max();
             auto bestDistAlongRay = std::numeric_limits<FloatType>::max();
             vm::vec3 bestNormal;
@@ -560,7 +560,7 @@ namespace TrenchBroom {
                 if (vm::is_parallel(points.direction(), vm::vec3(camera.direction()))) {
                     // could figure out which endpoint is closer to camera, or just test both.
                     for (const vm::vec3& point : std::vector<vm::vec3>{points.start(), points.end()}) {
-                        const FloatType dist = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
+                        const FloatType dist = camera.pickPointHandle(pickRay, point, static_cast<FloatType>(pref(Preferences::HandleRadius)));
                         if (!vm::is_nan(dist)) {
                             localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, vm::point_at_distance(pickRay, dist), edge));
                         }
@@ -596,7 +596,7 @@ namespace TrenchBroom {
 
                 // make the spheres for the corner handles slightly larger than the
                 // cylinders of the edge handles, so they take priority where they overlap.
-                const auto cornerRadius = pref(Preferences::HandleRadius) * 2.0;
+                const auto cornerRadius = static_cast<FloatType>(pref(Preferences::HandleRadius)) * 2.0;
                 const auto dist = camera.pickPointHandle(pickRay, point, cornerRadius);
                 if (!vm::is_nan(dist)) {
                     localPickResult.addHit(Model::Hit(ScaleToolCornerHit, dist, vm::point_at_distance(pickRay, dist), corner));
@@ -607,7 +607,7 @@ namespace TrenchBroom {
             for (const auto& edge : allEdges()) {
                 const vm::segment3 points = pointsForBBoxEdge(myBounds, edge);
 
-                const auto dist = camera.pickLineSegmentHandle(pickRay, points, pref(Preferences::HandleRadius));
+                const auto dist = camera.pickLineSegmentHandle(pickRay, points, static_cast<FloatType>(pref(Preferences::HandleRadius)));
                 if (!vm::is_nan(dist)) {
                     localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, vm::point_at_distance(pickRay, dist), edge));
                 }

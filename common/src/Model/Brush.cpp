@@ -210,9 +210,9 @@ namespace TrenchBroom {
                 return result;
             }
         public:
-            void vertexWasAdded(BrushVertex* vertex) override {}
+            void vertexWasAdded(BrushVertex* /* vertex */) override {}
 
-            void vertexWillBeRemoved(BrushVertex* vertex) override {}
+            void vertexWillBeRemoved(BrushVertex* /* vertex */) override {}
 
             void faceWasCreated(BrushFaceGeometry* faceGeometry) override {
                 m_addedGeometries.insert(faceGeometry);
@@ -228,7 +228,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void faceDidChange(BrushFaceGeometry* faceGeometry) override {
+            void faceDidChange(BrushFaceGeometry* /* faceGeometry */) override {
                 ensure(false, "faceDidChange called");
             }
 
@@ -239,11 +239,11 @@ namespace TrenchBroom {
                 }
             }
 
-            void faceWasSplit(BrushFaceGeometry* originalGeometry, BrushFaceGeometry* cloneGeometry) override {
+            void faceWasSplit(BrushFaceGeometry* /* originalGeometry */, BrushFaceGeometry* /* cloneGeometry */) override {
                 ensure(false, "faceWasSplit called");
             }
 
-            void facesWillBeMerged(BrushFaceGeometry* remainingGeometry, BrushFaceGeometry* geometryToDelete) override {
+            void facesWillBeMerged(BrushFaceGeometry* /* remainingGeometry */, BrushFaceGeometry* /* geometryToDelete */) override {
                 ensure(false, "facesWillBeMerged called");
             }
         private:
@@ -332,11 +332,11 @@ namespace TrenchBroom {
 
         class FindBrushOwner : public NodeVisitor, public NodeQuery<AttributableNode*> {
         private:
-            void doVisit(World* world) override   { setResult(world); cancel(); }
-            void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   {}
-            void doVisit(Entity* entity) override { setResult(entity); cancel(); }
-            void doVisit(Brush* brush) override   {}
+            void doVisit(World* world) override       { setResult(world); cancel(); }
+            void doVisit(Layer* /* layer */) override {}
+            void doVisit(Group* /* group */) override {}
+            void doVisit(Entity* entity) override     { setResult(entity); cancel(); }
+            void doVisit(Brush* /* brush */) override {}
         };
 
         AttributableNode* Brush::entity() const {
@@ -756,7 +756,7 @@ namespace TrenchBroom {
         }
 
 
-        bool Brush::canRemoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions) const {
+        bool Brush::canRemoveVertices(const vm::bbox3& /* worldBounds */, const std::vector<vm::vec3>& vertexPositions) const {
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!vertexPositions.empty(), "no vertex positions");
 
@@ -792,7 +792,7 @@ namespace TrenchBroom {
             doSetNewGeometry(worldBounds, matcher, newGeometry);
         }
 
-        bool Brush::canSnapVertices(const vm::bbox3& worldBounds, const FloatType snapToF) {
+        bool Brush::canSnapVertices(const vm::bbox3& /* worldBounds */, const FloatType snapToF) {
             BrushGeometry newGeometry;
 
             for (const auto* vertex : m_geometry->vertices()) {
@@ -1250,7 +1250,7 @@ namespace TrenchBroom {
             return brush;
         }
 
-        void Brush::updateFacesFromGeometry(const vm::bbox3& worldBounds, const BrushGeometry& brushGeometry) {
+        void Brush::updateFacesFromGeometry(const vm::bbox3& /* worldBounds */, const BrushGeometry& brushGeometry) {
             m_faces.clear();
 
             for (const auto* faceG : brushGeometry.faces()) {
@@ -1371,11 +1371,11 @@ namespace TrenchBroom {
             return brush;
         }
 
-        bool Brush::doCanAddChild(const Node* child) const {
+        bool Brush::doCanAddChild(const Node* /* child */) const {
             return false;
         }
 
-        bool Brush::doCanRemoveChild(const Node* child) const {
+        bool Brush::doCanRemoveChild(const Node* /* child */) const {
             return false;
         }
 
@@ -1471,11 +1471,11 @@ namespace TrenchBroom {
             Contains(const Brush* i_this) :
             m_this(i_this) {}
         private:
-            void doVisit(const World* world) override   { setResult(false); }
-            void doVisit(const Layer* layer) override   { setResult(false); }
-            void doVisit(const Group* group) override   { setResult(contains(group->logicalBounds())); }
-            void doVisit(const Entity* entity) override { setResult(contains(entity->logicalBounds())); }
-            void doVisit(const Brush* brush) override   { setResult(contains(brush)); }
+            void doVisit(const World* /* world */) override { setResult(false); }
+            void doVisit(const Layer* /* layer */) override { setResult(false); }
+            void doVisit(const Group* group) override       { setResult(contains(group->logicalBounds())); }
+            void doVisit(const Entity* entity) override     { setResult(contains(entity->logicalBounds())); }
+            void doVisit(const Brush* brush) override       { setResult(contains(brush)); }
 
             bool contains(const vm::bbox3& bounds) const {
                 if (m_this->logicalBounds().contains(bounds)) {
@@ -1492,7 +1492,7 @@ namespace TrenchBroom {
             }
 
             bool contains(const Brush* brush) const {
-                return m_this->m_geometry->contains(*brush->m_geometry, QueryCallback());
+                return m_this->m_geometry->contains(*brush->m_geometry);
             }
         };
 
@@ -1510,11 +1510,11 @@ namespace TrenchBroom {
             Intersects(const Brush* i_this) :
             m_this(i_this) {}
         private:
-            void doVisit(const World* world) override   { setResult(false); }
-            void doVisit(const Layer* layer) override   { setResult(false); }
-            void doVisit(const Group* group) override   { setResult(intersects(group->logicalBounds())); }
-            void doVisit(const Entity* entity) override { setResult(intersects(entity->logicalBounds())); }
-            void doVisit(const Brush* brush) override   { setResult(intersects(brush)); }
+            void doVisit(const World* /* world */) override { setResult(false); }
+            void doVisit(const Layer* /* layer */) override { setResult(false); }
+            void doVisit(const Group* group) override       { setResult(intersects(group->logicalBounds())); }
+            void doVisit(const Entity* entity) override     { setResult(intersects(entity->logicalBounds())); }
+            void doVisit(const Brush* brush) override       { setResult(intersects(brush)); }
 
             bool intersects(const vm::bbox3& bounds) const {
                 return m_this->logicalBounds().intersects(bounds);

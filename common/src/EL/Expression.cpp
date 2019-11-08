@@ -132,7 +132,7 @@ namespace TrenchBroom {
             return this;
         }
 
-        Value LiteralExpression::doEvaluate(const EvaluationContext& context) const {
+        Value LiteralExpression::doEvaluate(const EvaluationContext& /* context */) const {
             return m_value;
         }
 

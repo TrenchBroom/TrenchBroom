@@ -108,14 +108,14 @@ namespace TrenchBroom {
             m_tool->cancel();
         }
 
-        void ResizeBrushesToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+        void ResizeBrushesToolController::doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
             if (thisToolDragging()) {
                 renderContext.setForceShowSelectionGuide();
             }
             // TODO: force rendering of all other map views if the input applies and the tool has drag faces
         }
 
-        void ResizeBrushesToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void ResizeBrushesToolController::doRender(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             if (m_tool->hasDragFaces()) {
                 Renderer::DirectEdgeRenderer edgeRenderer = buildEdgeRenderer();
                 edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));

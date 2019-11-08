@@ -49,9 +49,9 @@ namespace TrenchBroom {
             return IO::Path(".");
         }
 
-        void TestGame::doSetGamePath(const IO::Path& gamePath, Logger& logger) {}
-        void TestGame::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger) {}
-        Game::PathErrors TestGame::doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const { return PathErrors(); }
+        void TestGame::doSetGamePath(const IO::Path& /* gamePath */, Logger& /* logger */) {}
+        void TestGame::doSetAdditionalSearchPaths(const IO::Path::List& /* searchPaths */, Logger& /* logger */) {}
+        Game::PathErrors TestGame::doCheckAdditionalSearchPaths(const IO::Path::List& /* searchPaths */) const { return PathErrors(); }
 
         CompilationConfig& TestGame::doCompilationConfig() {
             static CompilationConfig config;
@@ -66,12 +66,12 @@ namespace TrenchBroom {
             return m_smartTags;
         }
 
-        std::unique_ptr<World> TestGame::doNewMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
-            return std::make_unique<World>(format, worldBounds);
+        std::unique_ptr<World> TestGame::doNewMap(const MapFormat format, const vm::bbox3& /* worldBounds */, Logger& /* logger */) const {
+            return std::make_unique<World>(format);
         }
 
-        std::unique_ptr<World> TestGame::doLoadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const {
-            return std::make_unique<World>(format, worldBounds);
+        std::unique_ptr<World> TestGame::doLoadMap(const MapFormat format, const vm::bbox3& /* worldBounds */, const IO::Path& /* path */, Logger& /* logger */) const {
+            return std::make_unique<World>(format);
         }
 
         void TestGame::doWriteMap(World& world, const IO::Path& path) const {
@@ -84,15 +84,15 @@ namespace TrenchBroom {
             writer.writeMap();
         }
 
-        void TestGame::doExportMap(World& world, Model::ExportFormat format, const IO::Path& path) const {}
+        void TestGame::doExportMap(World& /* world */, const Model::ExportFormat /* format */, const IO::Path& /* path */) const {}
 
-        NodeList TestGame::doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
+        NodeList TestGame::doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
             IO::TestParserStatus status;
             IO::NodeReader reader(str, world);
             return reader.read(worldBounds, status);
         }
 
-        BrushFaceList TestGame::doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
+        BrushFaceList TestGame::doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
             IO::TestParserStatus status;
             IO::BrushFaceReader reader(str, world);
             return reader.read(worldBounds, status);
@@ -112,7 +112,7 @@ namespace TrenchBroom {
             return TexturePackageType::File;
         }
 
-        void TestGame::doLoadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const {
+        void TestGame::doLoadTextureCollections(AttributableNode& node, const IO::Path& /* documentPath */, Assets::TextureManager& textureManager, Logger& logger) const {
             const IO::Path::List paths = extractTextureCollections(node);
 
             const IO::Path root = IO::Disk::getCurrentWorkingDir();
@@ -129,7 +129,7 @@ namespace TrenchBroom {
             textureLoader.loadTextures(paths, textureManager);
         }
 
-        bool TestGame::doIsTextureCollection(const IO::Path& path) const {
+        bool TestGame::doIsTextureCollection(const IO::Path& /* path */) const {
             return false;
         }
 
@@ -153,7 +153,7 @@ namespace TrenchBroom {
 
         void TestGame::doReloadShaders() {}
 
-        bool TestGame::doIsEntityDefinitionFile(const IO::Path& path) const {
+        bool TestGame::doIsEntityDefinitionFile(const IO::Path& /* path */) const {
             return false;
         }
 
@@ -161,11 +161,11 @@ namespace TrenchBroom {
             return Assets::EntityDefinitionFileSpec::List();
         }
 
-        Assets::EntityDefinitionFileSpec TestGame::doExtractEntityDefinitionFile(const AttributableNode& node) const {
+        Assets::EntityDefinitionFileSpec TestGame::doExtractEntityDefinitionFile(const AttributableNode& /* node */) const {
             return Assets::EntityDefinitionFileSpec();
         }
 
-        IO::Path TestGame::doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const {
+        IO::Path TestGame::doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& /* spec */, const IO::Path::List& /* searchPaths */) const {
             return IO::Path();
         }
 
@@ -173,7 +173,7 @@ namespace TrenchBroom {
             return EmptyStringList;
         }
 
-        StringList TestGame::doExtractEnabledMods(const AttributableNode& node) const {
+        StringList TestGame::doExtractEnabledMods(const AttributableNode& /* node */) const {
             return EmptyStringList;
         }
 
@@ -191,11 +191,11 @@ namespace TrenchBroom {
             return config;
         }
 
-        Assets::EntityDefinitionList TestGame::doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const {
+        Assets::EntityDefinitionList TestGame::doLoadEntityDefinitions(IO::ParserStatus& /* status */, const IO::Path& /* path */) const {
             return Assets::EntityDefinitionList();
         }
 
-        std::unique_ptr<Assets::EntityModel> TestGame::doInitializeModel(const IO::Path& path, Logger& logger) const { return nullptr; }
-        void TestGame::doLoadFrame(const IO::Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const {}
+        std::unique_ptr<Assets::EntityModel> TestGame::doInitializeModel(const IO::Path& /* path */, Logger& /* logger */) const { return nullptr; }
+        void TestGame::doLoadFrame(const IO::Path& /* path */, size_t /* frameIndex */, Assets::EntityModel& /* model */, Logger& /* logger */) const {}
     }
 }

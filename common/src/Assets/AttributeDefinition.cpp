@@ -64,7 +64,7 @@ namespace TrenchBroom {
             return doEquals(other);
         }
 
-        bool AttributeDefinition::doEquals(const AttributeDefinition* other) const {
+        bool AttributeDefinition::doEquals(const AttributeDefinition* /* other */) const {
             return true;
         }
 
@@ -254,7 +254,7 @@ namespace TrenchBroom {
             return options() == static_cast<const FlagsAttributeDefinition*>(other)->options();
         }
 
-        AttributeDefinition* FlagsAttributeDefinition::doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const {
+        AttributeDefinition* FlagsAttributeDefinition::doClone(const String& name, const String& /* shortDescription */, const String& /* longDescription */, bool /* readOnly */) const {
             auto result = std::make_unique<FlagsAttributeDefinition>(name);
             for (const auto& option : options()) {
                 result->addOption(option.value(), option.shortDescription(), option.longDescription(), option.isDefault());

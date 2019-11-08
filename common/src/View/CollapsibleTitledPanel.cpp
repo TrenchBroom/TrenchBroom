@@ -43,7 +43,7 @@ namespace TrenchBroom {
             m_stateText->setText(stateText);
         }
 
-        void CollapsibleTitleBar::mousePressEvent(QMouseEvent* event) {
+        void CollapsibleTitleBar::mousePressEvent(QMouseEvent* /* event */) {
             emit titleBarClicked();
         }
 

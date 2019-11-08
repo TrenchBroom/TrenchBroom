@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Layer::Layer(const String& name, const vm::bbox3& worldBounds) :
+        Layer::Layer(const String& name) :
         m_name(name),
         m_boundsValid(false) {}
 
@@ -57,7 +57,7 @@ namespace TrenchBroom {
         }
 
         Node* Layer::doClone(const vm::bbox3& worldBounds) const {
-            Layer* layer = new Layer(m_name, worldBounds);
+            Layer* layer = new Layer(m_name);
             cloneAttributes(layer);
             layer->addChildren(clone(worldBounds, children()));
             return layer;
@@ -65,11 +65,11 @@ namespace TrenchBroom {
 
         class CanAddChildToLayer : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            void doVisit(const World* world) override   { setResult(false); }
-            void doVisit(const Layer* layer) override   { setResult(false); }
-            void doVisit(const Group* group) override   { setResult(true); }
-            void doVisit(const Entity* entity) override { setResult(true); }
-            void doVisit(const Brush* brush) override   { setResult(true); }
+            void doVisit(const World*)  override { setResult(false); }
+            void doVisit(const Layer*)  override { setResult(false); }
+            void doVisit(const Group*)  override { setResult(true); }
+            void doVisit(const Entity*) override { setResult(true); }
+            void doVisit(const Brush*)  override { setResult(true); }
         };
 
         bool Layer::doCanAddChild(const Node* child) const {
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             return visitor.result();
         }
 
-        bool Layer::doCanRemoveChild(const Node* child) const {
+        bool Layer::doCanRemoveChild(const Node* /* child */) const {
             return true;
         }
 
@@ -90,7 +90,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        void Layer::doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds) {
+        void Layer::doNodePhysicalBoundsDidChange() {
             invalidateBounds();
         }
 
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        void Layer::doPick(const vm::ray3& ray, PickResult& pickResult) const {}
+        void Layer::doPick(const vm::ray3& /* ray */, PickResult&) const {}
 
         void Layer::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
             for (Node* child : Node::children())

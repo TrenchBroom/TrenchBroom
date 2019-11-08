@@ -32,8 +32,8 @@ namespace TrenchBroom {
             virtual ~ModelFactory();
 
             MapFormat format() const;
-            World* createWorld(const vm::bbox3& worldBounds) const;
-            Layer* createLayer(const String& name, const vm::bbox3& worldBounds) const;
+            World* createWorld() const;
+            Layer* createLayer(const String& name) const;
             Group* createGroup(const String& name) const;
             Entity* createEntity() const;
             Brush* createBrush(const vm::bbox3& worldBounds, const BrushFaceList& faces) const;
@@ -42,8 +42,8 @@ namespace TrenchBroom {
             BrushFace* createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const;
         private:
             virtual MapFormat doGetFormat() const = 0;
-            virtual World* doCreateWorld(const vm::bbox3& worldBounds) const = 0;
-            virtual Layer* doCreateLayer(const String& name, const vm::bbox3& worldBounds) const = 0;
+            virtual World* doCreateWorld() const = 0;
+            virtual Layer* doCreateLayer(const String& name) const = 0;
             virtual Group* doCreateGroup(const String& name) const = 0;
             virtual Entity* doCreateEntity() const = 0;
             virtual Brush* doCreateBrush(const vm::bbox3& worldBounds, const BrushFaceList& faces) const = 0;

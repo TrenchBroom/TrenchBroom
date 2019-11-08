@@ -45,7 +45,7 @@ namespace TrenchBroom {
         m_smartEditorManager(nullptr),
         m_documentationText(nullptr),
         m_currentDefinition(nullptr) {
-            createGui(this, document);
+            createGui(document);
             bindObservers();
         }
 
@@ -72,11 +72,11 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityAttributeEditor::selectionDidChange(const Selection& selection) {
+        void EntityAttributeEditor::selectionDidChange(const Selection&) {
             updateIfSelectedEntityDefinitionChanged();
         }
 
-        void EntityAttributeEditor::nodesDidChange(const Model::NodeList& nodes) {
+        void EntityAttributeEditor::nodesDidChange(const Model::NodeList&) {
             updateIfSelectedEntityDefinitionChanged();
         }
 
@@ -230,7 +230,7 @@ namespace TrenchBroom {
             m_documentationText->moveCursor(QTextCursor::MoveOperation::Start);
         }
 
-        void EntityAttributeEditor::createGui(QWidget* parent, MapDocumentWPtr document) {
+        void EntityAttributeEditor::createGui(MapDocumentWPtr document) {
             m_splitter = new Splitter(Qt::Vertical);
             m_splitter->setObjectName("EntityAttributeEditor_Splitter");
 

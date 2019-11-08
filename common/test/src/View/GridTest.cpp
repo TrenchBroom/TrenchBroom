@@ -165,7 +165,7 @@ namespace TrenchBroom {
             const auto inputDelta = vm::vec3d(1, 1, 7); // moves point to (18, 18, 24)
             const auto pointOnGrid = vm::vec3d(17, 17, 32);
 
-            ASSERT_EQ(pointOnGrid, pointOffGrid + grid16.moveDeltaForPoint(pointOffGrid, worldBounds, inputDelta));
+            ASSERT_EQ(pointOnGrid, pointOffGrid + grid16.moveDeltaForPoint(pointOffGrid, inputDelta));
         }
 
         TEST(GridTest, moveDeltaForPoint_SubInteger) {
@@ -175,7 +175,7 @@ namespace TrenchBroom {
             const auto inputDelta = vm::vec3d(0.01, 0.01, 0.30); // moves point to (0.52, 0.52, 0.81)
             const auto pointOnGrid = vm::vec3d(0.51, 0.51, 1.0);
 
-            ASSERT_EQ(pointOnGrid, pointOffGrid + grid05.moveDeltaForPoint(pointOffGrid, worldBounds, inputDelta));
+            ASSERT_EQ(pointOnGrid, pointOffGrid + grid05.moveDeltaForPoint(pointOffGrid, inputDelta));
         }
 
         TEST(GridTest, moveDeltaForPoint_SubInteger2) {
@@ -185,12 +185,12 @@ namespace TrenchBroom {
             const auto inputDelta = vm::vec3d(0.01, 0.01, 1.30); // moves point to (0.52, 0.52, 1.81)
             const auto pointOnGrid = vm::vec3d(0.51, 0.51, 2.0);
 
-            ASSERT_EQ(pointOnGrid, pointOffGrid + grid05.moveDeltaForPoint(pointOffGrid, worldBounds, inputDelta));
+            ASSERT_EQ(pointOnGrid, pointOffGrid + grid05.moveDeltaForPoint(pointOffGrid, inputDelta));
         }
 
         static Model::Brush* makeCube128() {
             Assets::Texture texture("testTexture", 64, 64);
-            Model::World world(Model::MapFormat::Standard, worldBounds);
+            Model::World world(Model::MapFormat::Standard);
             Model::BrushBuilder builder(&world, worldBounds);
             Model::Brush* cube = builder.createCube(128.0, "");
             return cube;

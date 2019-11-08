@@ -53,7 +53,7 @@ namespace TrenchBroom {
             MissingClassnameIssueQuickFix() :
             IssueQuickFix(MissingClassnameIssue::Type, "Delete entities") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const override {
+            void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
                 facade->deleteObjects();
             }
         };

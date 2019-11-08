@@ -71,7 +71,7 @@ namespace TrenchBroom {
 #if defined(_WIN32) && defined(_MSC_VER)
         LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs);
 #else
-        static void CrashHandler(int signum);
+        [[noreturn]] static void CrashHandler(int signum);
 #endif
 
         TrenchBroomApp::TrenchBroomApp(int& argc, char** argv) :
@@ -422,7 +422,7 @@ namespace TrenchBroom {
             return EXCEPTION_EXECUTE_HANDLER;
         }
 #else
-        static void CrashHandler(int signum) {
+        static void CrashHandler(int /* signum */) {
             TrenchBroom::View::reportCrashAndExit(TrenchBroom::TrenchBroomStackWalker::getStackTrace(), "SIGSEGV");
         }
 #endif
@@ -503,7 +503,6 @@ namespace TrenchBroom {
             } catch (const std::exception& e) {
                 // Unfortunately we can't portably get the stack trace of the exception itself
                 TrenchBroom::View::reportCrashAndExit("<uncaught exception>", e.what());
-                return false;
             }
         }
 

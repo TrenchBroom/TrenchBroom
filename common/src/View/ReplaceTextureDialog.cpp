@@ -142,11 +142,11 @@ namespace TrenchBroom {
             setMinimumSize(650, 450);
         }
 
-        void ReplaceTextureDialog::subjectSelected(Assets::Texture* subject) {
+        void ReplaceTextureDialog::subjectSelected(Assets::Texture* /* subject */) {
             updateReplaceButton();
         }
 
-        void ReplaceTextureDialog::replacementSelected(Assets::Texture* replacement) {
+        void ReplaceTextureDialog::replacementSelected(Assets::Texture* /* replacement */) {
             updateReplaceButton();
         }
 

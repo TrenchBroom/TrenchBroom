@@ -106,7 +106,7 @@ namespace TrenchBroom {
 
             virtual void doSetRotation(const vm::vec3& normal, float oldAngle, float newAngle) = 0;
             virtual void doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant) = 0;
-            virtual void doUpdateNormalWithProjection(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
+            virtual void doUpdateNormalWithProjection(const vm::vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
             virtual void doUpdateNormalWithRotation(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
 
             virtual void doShearTexture(const vm::vec3& normal, const vm::vec2f& factors) = 0;

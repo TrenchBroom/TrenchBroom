@@ -261,7 +261,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::Brightness, value / 40.0f);
         }
 
-        void ViewPreferencePane::gridAlphaChanged(const int value) {
+        void ViewPreferencePane::gridAlphaChanged(const int /* value */) {
             const auto ratio = m_gridAlphaSlider->ratio();
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::GridAlpha, ratio);

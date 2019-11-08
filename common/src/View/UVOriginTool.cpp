@@ -73,7 +73,7 @@ namespace TrenchBroom {
 
                 const auto& pickRay = inputState.pickRay();
                 const auto oDistance = vm::distance(pickRay, origin);
-                if (oDistance.distance <= OriginHandleRadius / m_helper.cameraZoom()) {
+                if (oDistance.distance <= static_cast<FloatType>(OriginHandleRadius / m_helper.cameraZoom())) {
                     const auto hitPoint = vm::point_at_distance(pickRay, oDistance.position);
                     pickResult.addHit(Model::Hit(XHandleHit, oDistance.position, hitPoint, xHandle, oDistance.distance));
                     pickResult.addHit(Model::Hit(YHandleHit, oDistance.position, hitPoint, xHandle, oDistance.distance));
@@ -84,7 +84,7 @@ namespace TrenchBroom {
                     assert(!xDistance.parallel);
                     assert(!yDistance.parallel);
 
-                    const auto maxDistance  = MaxPickDistance / m_helper.cameraZoom();
+                    const auto maxDistance  = MaxPickDistance / static_cast<FloatType>(m_helper.cameraZoom());
                     if (xDistance.distance <= maxDistance) {
                         const auto hitPoint = vm::point_at_distance(pickRay, xDistance.position1);
                         pickResult.addHit(Model::Hit(XHandleHit, xDistance.position1, hitPoint, xHandle, xDistance.distance));
@@ -216,7 +216,7 @@ namespace TrenchBroom {
             return m_helper.snapDelta(delta, -distanceInFaceCoords);
         }
 
-        void UVOriginTool::doEndMouseDrag(const InputState& inputState) {}
+        void UVOriginTool::doEndMouseDrag(const InputState&) {}
         void UVOriginTool::doCancelMouseDrag() {}
 
         void UVOriginTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -227,7 +227,7 @@ namespace TrenchBroom {
             renderOriginHandle(inputState, renderContext, renderBatch);
         }
 
-        void UVOriginTool::renderLineHandles(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void UVOriginTool::renderLineHandles(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(getHandleVertices(inputState)), GL_LINES);
             edgeRenderer.renderOnTop(renderBatch, 0.25f);
         }
@@ -237,8 +237,8 @@ namespace TrenchBroom {
             const Model::Hit& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
             const Model::Hit& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
 
-            const bool highlightXHandle = (thisToolDragging() && m_selector.x() > 0.0) || (!thisToolDragging() && xHandleHit.isMatch());
-            const bool highlightYHandle = (thisToolDragging() && m_selector.y() > 0.0) || (!thisToolDragging() && yHandleHit.isMatch());
+            const bool highlightXHandle = (thisToolDragging() && m_selector.x() > 0.0f) || (!thisToolDragging() && xHandleHit.isMatch());
+            const bool highlightYHandle = (thisToolDragging() && m_selector.y() > 0.0f) || (!thisToolDragging() && yHandleHit.isMatch());
 
             const Color xColor = highlightXHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);
             const Color yColor = highlightYHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);
@@ -297,7 +297,7 @@ namespace TrenchBroom {
             }
         };
 
-        void UVOriginTool::renderOriginHandle(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void UVOriginTool::renderOriginHandle(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             const auto highlight = renderHighlight(inputState);
             renderBatch.addOneShot(new RenderOrigin(m_helper, OriginHandleRadius, highlight));
         }

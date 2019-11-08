@@ -155,12 +155,12 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &ModEditor::preferenceDidChange);
         }
 
-        void ModEditor::documentWasNewed(MapDocument* document) {
+        void ModEditor::documentWasNewed(MapDocument*) {
             updateAvailableMods();
             updateMods();
         }
 
-        void ModEditor::documentWasLoaded(MapDocument* document) {
+        void ModEditor::documentWasLoaded(MapDocument*) {
             updateAvailableMods();
             updateMods();
         }

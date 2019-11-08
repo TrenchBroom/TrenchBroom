@@ -1397,7 +1397,7 @@ public:
         ASSERT_TRUE(m_originals.find(face) == std::end(m_originals));
     }
 
-    void faceWasSplit(PFace* original, PFace* clone) override {
+    void faceWasSplit(PFace* original, PFace* /* clone */) override {
         m_originals.insert(original);
     }
 };

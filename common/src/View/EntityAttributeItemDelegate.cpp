@@ -66,7 +66,7 @@ namespace TrenchBroom {
             completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
             lineEdit->setCompleter(completer);
 
-            connect(completer, QOverload<const QString&>::of(&QCompleter::activated), this, [this, lineEdit](const QString& value) {
+            connect(completer, QOverload<const QString&>::of(&QCompleter::activated), this, [this, lineEdit](const QString& /* value */) {
                 m_table->finishEditing(lineEdit);
             });
 

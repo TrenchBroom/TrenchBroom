@@ -42,8 +42,8 @@ namespace TrenchBroom {
         public:
             explicit FlagsPopupEditor(size_t numCols, QWidget* parent = nullptr, const QString& buttonLabel = "...", bool showFlagsText = true);
 
-            void setFlags(const QStringList& labels, const QStringList& tooltips = QStringList(0));
-            void setFlags(const QList<int>& values, const QStringList& labels, const QStringList& tooltips = QStringList(0));
+            void setFlags(const QStringList& labels, const QStringList& tooltips = QStringList());
+            void setFlags(const QList<int>& values, const QStringList& labels, const QStringList& tooltips = QStringList());
             void setFlagValue(int set, int mixed = 0);
         private:
             void updateFlagsText();

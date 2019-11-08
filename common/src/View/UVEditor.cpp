@@ -120,7 +120,7 @@ namespace TrenchBroom {
             updateButtons();
         }
 
-        void UVEditor::selectionDidChange(const Selection& selection) {
+        void UVEditor::selectionDidChange(const Selection&) {
             updateButtons();
         }
 

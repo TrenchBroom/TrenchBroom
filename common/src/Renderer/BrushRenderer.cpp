@@ -41,11 +41,11 @@ namespace TrenchBroom {
 
         BrushRenderer::Filter::Filter() {}
 
-        BrushRenderer::Filter::Filter(const Filter& other) {}
+        BrushRenderer::Filter::Filter(const Filter& /* other */) {}
 
         BrushRenderer::Filter::~Filter() {}
 
-        BrushRenderer::Filter& BrushRenderer::Filter::operator=(const Filter& other) { return *this; }
+        BrushRenderer::Filter& BrushRenderer::Filter::operator=(const Filter& /* other */) { return *this; }
 
         BrushRenderer::Filter::RenderSettings BrushRenderer::Filter::renderNothing() {
             return std::make_tuple(FaceRenderPolicy::RenderNone, EdgeRenderPolicy::RenderNone);

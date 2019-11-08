@@ -53,14 +53,21 @@ namespace TrenchBroom {
         }
 
         bool FrameManager::closeAllFrames() {
-            return closeAllFrames(false);
+            auto framesCopy = m_frames;
+            for (MapFrame* frame : framesCopy) {
+                if (!frame->close()) {
+                    return false;
+                }
+            }
+            assert(m_frames.empty());
+            return true;
         }
 
         bool FrameManager::allFramesClosed() const {
             return m_frames.empty();
         }
 
-        void FrameManager::onFocusChange(QWidget* old, QWidget* now) {
+        void FrameManager::onFocusChange(QWidget* /* old */, QWidget* now) {
             if (now == nullptr) {
                 return;
             }
@@ -102,17 +109,6 @@ namespace TrenchBroom {
             frame->show();
             frame->raise();
             return frame;
-        }
-
-        bool FrameManager::closeAllFrames(const bool force) {
-            auto framesCopy = m_frames;
-            for (MapFrame* frame : framesCopy) {
-                if (!frame->close()) {
-                    return false;
-                }
-            }
-            assert(m_frames.empty());
-            return true;
         }
 
         void FrameManager::removeFrame(MapFrame* frame) {

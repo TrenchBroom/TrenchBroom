@@ -42,9 +42,9 @@ namespace TrenchBroom {
         public:
             static const Model::Hit::HitType AngleHandleHit;
         private:
-            static const float CenterHandleRadius;
-            static const float RotateHandleRadius;
-            static const float RotateHandleWidth;
+            static const FloatType CenterHandleRadius;
+            static const FloatType RotateHandleRadius;
+            static const FloatType RotateHandleWidth;
 
             MapDocumentWPtr m_document;
             UVViewHelper& m_helper;

@@ -44,7 +44,7 @@ namespace TrenchBroom {
             }
         }
 
-        void IssueQuickFix::doApply(MapFacade* facade, const Issue* issue) const {
+        void IssueQuickFix::doApply(MapFacade* /* facade */, const Issue* /* issue */) const {
             assert(false);
         }
     }

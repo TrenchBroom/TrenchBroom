@@ -136,6 +136,6 @@ namespace TrenchBroom {
         doLog(level, message);
     }
 
-    void NullLogger::doLog(Logger::LogLevel level, const String& message) {}
-    void NullLogger::doLog(Logger::LogLevel level, const QString& message) {}
+    void NullLogger::doLog(Logger::LogLevel /* level */, const String& /* message */) {}
+    void NullLogger::doLog(Logger::LogLevel /* level */, const QString& /* message */) {}
 }

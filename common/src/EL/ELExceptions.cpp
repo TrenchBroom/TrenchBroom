@@ -36,10 +36,10 @@ namespace TrenchBroom {
         IndexError::IndexError(const Value& indexableValue, const Value& indexValue) noexcept :
         EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + "' using index '" + indexValue.describe() + "' of type '" + typeName(indexValue.type()) + "'") {}
 
-        IndexError::IndexError(const Value& indexableValue, const size_t index) noexcept :
+        IndexError::IndexError(const Value& indexableValue, const size_t /* index */) noexcept :
         EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + "' using integral index") {}
 
-        IndexError::IndexError(const Value& indexableValue, const String& key) noexcept :
+        IndexError::IndexError(const Value& indexableValue, const String& /* key */) noexcept :
         EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + "' using string index") {}
 
         IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const size_t outOfBoundsIndex) noexcept :

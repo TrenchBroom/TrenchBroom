@@ -119,19 +119,19 @@ namespace TrenchBroom {
             return dist;
         }
 
-        vm::vec3 Grid::moveDeltaForPoint(const vm::vec3& point, const vm::bbox3& worldBounds, const vm::vec3& delta) const {
+        vm::vec3 Grid::moveDeltaForPoint(const vm::vec3& point, const vm::vec3& delta) const {
             const auto newPoint = snap(point + delta);
             auto actualDelta = newPoint - point;
 
             for (size_t i = 0; i < 3; ++i) {
-                if ((actualDelta[i] > 0.0) != (delta[i] > 0.0)) {
-                    actualDelta[i] = 0.0;
+                if ((actualDelta[i] > static_cast<FloatType>(0.0)) != (delta[i] > static_cast<FloatType>(0.0))) {
+                    actualDelta[i] = static_cast<FloatType>(0.0);
                 }
             }
             return actualDelta;
         }
 
-        vm::vec3 Grid::moveDeltaForBounds(const vm::plane3& dragPlane, const vm::bbox3& bounds, const vm::bbox3& worldBounds, const vm::ray3& ray, const vm::vec3& position) const {
+        vm::vec3 Grid::moveDeltaForBounds(const vm::plane3& dragPlane, const vm::bbox3& bounds, const vm::bbox3& /* worldBounds */, const vm::ray3& ray) const {
 
             // First, compute the snapped position under the mouse:
             const auto dist = vm::intersect_ray_plane(ray, dragPlane);
@@ -158,21 +158,21 @@ namespace TrenchBroom {
             return newMinPos - bounds.min;
         }
 
-        vm::vec3 Grid::moveDelta(const vm::bbox3& bounds, const vm::bbox3& worldBounds, const vm::vec3& delta) const {
+        vm::vec3 Grid::moveDelta(const vm::bbox3& bounds, const vm::vec3& delta) const {
             auto actualDelta = vm::vec3::zero();
             for (size_t i = 0; i < 3; ++i) {
                 if (!vm::is_zero(delta[i], vm::C::almost_zero())) {
                     const auto low  = snap(bounds.min[i] + delta[i]) - bounds.min[i];
                     const auto high = snap(bounds.max[i] + delta[i]) - bounds.max[i];
 
-                    if (low != 0.0 && high != 0.0) {
+                    if (low != static_cast<FloatType>(0.0) && high != static_cast<FloatType>(0.0)) {
                         actualDelta[i] = std::abs(high) < std::abs(low) ? high : low;
-                    } else if (low != 0.0) {
+                    } else if (low != static_cast<FloatType>(0.0)) {
                         actualDelta[i] = low;
-                    } else if (high != 0.0) {
+                    } else if (high != static_cast<FloatType>(0.0)) {
                         actualDelta[i] = high;
                     } else {
-                        actualDelta[i] = 0.0;
+                        actualDelta[i] = static_cast<FloatType>(0.0);
                     }
                 }
             }
@@ -183,7 +183,7 @@ namespace TrenchBroom {
             return actualDelta;
         }
 
-        vm::vec3 Grid::moveDelta(const vm::vec3& point, const vm::bbox3& worldBounds, const vm::vec3& delta) const {
+        vm::vec3 Grid::moveDelta(const vm::vec3& point, const vm::vec3& delta) const {
             auto actualDelta = vm::vec3::zero();
             for (size_t i = 0; i < 3; ++i) {
                 if (!vm::is_zero(delta[i], vm::C::almost_zero())) {

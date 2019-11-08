@@ -54,7 +54,7 @@ namespace TrenchBroom {
             EmptyGroupIssueQuickFix() :
             IssueQuickFix(EmptyGroupIssue::Type, "Delete groups") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const override {
+            void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
                 facade->deleteObjects();
             }
         };

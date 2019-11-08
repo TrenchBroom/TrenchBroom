@@ -88,7 +88,7 @@ namespace TrenchBroom {
             m_tool->cancelMove();
         }
 
-        void MoveObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+        void MoveObjectsToolController::doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
             if (thisToolDragging())
                 renderContext.setForceShowSelectionGuide();
         }

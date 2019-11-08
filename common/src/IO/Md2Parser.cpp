@@ -227,7 +227,7 @@ namespace TrenchBroom {
         m_fs(fs) {}
 
         // http://tfc.duke.free.fr/old/models/md2.htm
-        std::unique_ptr<Assets::EntityModel> Md2Parser::doInitializeModel(Logger& logger) {
+        std::unique_ptr<Assets::EntityModel> Md2Parser::doInitializeModel(Logger& /* logger */) {
             auto reader = Reader::from(m_begin, m_end);
             const int ident = reader.readInt<int32_t>();
             const int version = reader.readInt<int32_t>();
@@ -263,7 +263,7 @@ namespace TrenchBroom {
             return model;
         }
 
-        void Md2Parser::doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
+        void Md2Parser::doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */) {
             auto reader = Reader::from(m_begin, m_end);
             const auto ident = reader.readInt<int32_t>();
             const auto version = reader.readInt<int32_t>();
@@ -309,7 +309,7 @@ namespace TrenchBroom {
             return skins;
         }
 
-        Md2Parser::Md2Frame Md2Parser::parseFrame(Reader reader, const size_t frameIndex, const size_t vertexCount) {
+        Md2Parser::Md2Frame Md2Parser::parseFrame(Reader reader, const size_t /* frameIndex */, const size_t vertexCount) {
             auto frame = Md2Frame(vertexCount);
             frame.scale = reader.readVec<float,3>();
             frame.offset = reader.readVec<float,3>();
@@ -325,7 +325,7 @@ namespace TrenchBroom {
             return frame;
         }
 
-        Md2Parser::Md2MeshList Md2Parser::parseMeshes(Reader reader, const size_t commandCount) {
+        Md2Parser::Md2MeshList Md2Parser::parseMeshes(Reader reader, const size_t /* commandCount */) {
             Md2MeshList meshes;
 
             while (!reader.eof()) {

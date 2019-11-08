@@ -23,15 +23,15 @@ namespace TrenchBroom {
     namespace View {
         InputEvent::~InputEvent() = default;
 
-        bool InputEvent::collateWith(const KeyEvent& event) {
+        bool InputEvent::collateWith(const KeyEvent& /* event */) {
             return false;
         }
 
-        bool InputEvent::collateWith(const MouseEvent& event) {
+        bool InputEvent::collateWith(const MouseEvent& /* event */) {
             return false;
         }
 
-        bool InputEvent::collateWith(const CancelEvent& event) {
+        bool InputEvent::collateWith(const CancelEvent& /* event */) {
             return false;
         }
 
@@ -183,10 +183,10 @@ namespace TrenchBroom {
             if (!wxEvent->pixelDelta().isNull()) {
                 // pixelDelta() is not available everywhere and returns (0, 0) if not available.
                 // This 8.0f factor was just picked to roughly match wxWidgets TrenchBroom
-                scrollDistance = QPointF(wxEvent->pixelDelta()) / 8.0f;
+                scrollDistance = QPointF(wxEvent->pixelDelta()) / 8.0;
             } else {
                 // This gives scrollDistance in degrees, see: http://doc.qt.io/qt-5/qwheelevent.html#angleDelta
-                scrollDistance = QPointF(wxEvent->angleDelta()) / 8.0f;
+                scrollDistance = QPointF(wxEvent->angleDelta()) / 8.0;
             }
 
             m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, posX, posY, scrollDistance.x()));

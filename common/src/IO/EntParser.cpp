@@ -350,7 +350,7 @@ namespace TrenchBroom {
             return Color::parse(parseString(element, attributeName, status));
         }
 
-        nonstd::optional<int> EntParser::parseInteger(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status) {
+        nonstd::optional<int> EntParser::parseInteger(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& /* status */) {
             const auto* strValue = element.Attribute(attributeName.c_str());
             if (strValue != nullptr) {
                 char* end;
@@ -364,7 +364,7 @@ namespace TrenchBroom {
             return nonstd::nullopt;
         }
 
-        nonstd::optional<float> EntParser::parseFloat(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status) {
+        nonstd::optional<float> EntParser::parseFloat(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& /* status */) {
             const auto* strValue = element.Attribute(attributeName.c_str());
             if (strValue != nullptr) {
                 char* end;
@@ -376,7 +376,7 @@ namespace TrenchBroom {
             return nonstd::nullopt;
         }
 
-        nonstd::optional<size_t> EntParser::parseSize(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status) {
+        nonstd::optional<size_t> EntParser::parseSize(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& /* status */) {
             const auto* strValue = element.Attribute(attributeName.c_str());
             if (strValue != nullptr) {
                 char* end;
@@ -388,7 +388,7 @@ namespace TrenchBroom {
             return nonstd::nullopt;
         }
 
-        String EntParser::parseString(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status) {
+        String EntParser::parseString(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& /* status */) {
             const auto* value = element.Attribute(attributeName.c_str());
             if (value == nullptr) {
                 return String();

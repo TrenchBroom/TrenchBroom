@@ -34,10 +34,10 @@ namespace TrenchBroom {
         public:
             FindMatchingBrushFaceVisitor(const P& p = P()) : m_p(p) {}
         private:
-            void doVisit(World* world)   override {}
-            void doVisit(Layer* layer)   override {}
-            void doVisit(Group* group)   override {}
-            void doVisit(Entity* entity) override {}
+            void doVisit(World*)  override {}
+            void doVisit(Layer*)  override {}
+            void doVisit(Group*)  override {}
+            void doVisit(Entity*) override {}
             void doVisit(Brush* brush)   override {
                 for (BrushFace* face : brush->faces()) {
                     if (m_p(face)) {

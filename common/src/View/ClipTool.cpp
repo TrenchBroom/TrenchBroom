@@ -149,7 +149,7 @@ namespace TrenchBroom {
             void doPick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override {
                 for (size_t i = 0; i < m_numPoints; ++i) {
                     const auto& point = m_points[i].point;
-                    const auto distance = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
+                    const auto distance = camera.pickPointHandle(pickRay, point, static_cast<FloatType>(pref(Preferences::HandleRadius)));
                     if (!vm::is_nan(distance)) {
                         const auto hitPoint = vm::point_at_distance(pickRay, distance);
                         pickResult.addHit(Model::Hit(PointHit, distance, hitPoint, i));
@@ -336,7 +336,7 @@ namespace TrenchBroom {
                 m_dragIndex = 4;
             }
 
-            bool doSetFace(const Model::BrushFace* face) override {
+            bool doSetFace(const Model::BrushFace* /* face */) override {
                 return false;
             }
 
@@ -421,9 +421,9 @@ namespace TrenchBroom {
             FaceClipStrategy() :
             m_face(nullptr) {}
         private:
-            void doPick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override {}
+            void doPick(const vm::ray3& /* pickRay */, const Renderer::Camera& /* camera */, Model::PickResult&) const override {}
 
-            void doRender(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) override {
+            void doRender(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult&) override {
                 if (m_face != nullptr) {
                     Renderer::RenderService renderService(renderContext, renderBatch);
 
@@ -444,23 +444,23 @@ namespace TrenchBroom {
                 }
             }
 
-            void doRenderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& point) const override {}
+            void doRenderFeedback(Renderer::RenderContext&, Renderer::RenderBatch&, const vm::vec3& /* point */) const override {}
 
             vm::vec3 doGetHelpVector() const { return vm::vec3::zero(); }
 
-            bool doComputeThirdPoint(vm::vec3& point) const override { return false; }
+            bool doComputeThirdPoint(vm::vec3& /* point */) const override { return false; }
 
             bool doCanClip() const override { return m_face != nullptr; }
             bool doHasPoints() const override { return false; }
-            bool doCanAddPoint(const vm::vec3& point) const override { return false; }
-            void doAddPoint(const vm::vec3& point, const std::vector<vm::vec3>& helpVectors) override {}
+            bool doCanAddPoint(const vm::vec3& /* point */) const override { return false; }
+            void doAddPoint(const vm::vec3& /* point */, const std::vector<vm::vec3>& /* helpVectors */) override {}
             bool doCanRemoveLastPoint() const override { return false; }
             void doRemoveLastPoint() override {}
 
-            bool doCanDragPoint(const Model::PickResult& pickResult, vm::vec3& initialPosition) const override { return false; }
-            void doBeginDragPoint(const Model::PickResult& pickResult) override {}
+            bool doCanDragPoint(const Model::PickResult&, vm::vec3& /* initialPosition */) const override { return false; }
+            void doBeginDragPoint(const Model::PickResult&) override {}
             void doBeginDragLastPoint() override {}
-            bool doDragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors) override { return false; }
+            bool doDragPoint(const vm::vec3& /* newPosition */, const std::vector<vm::vec3>& /* helpVectors */) override { return false; }
             void doEndDragPoint() override {}
             void doCancelDragPoint() override {}
 
@@ -903,25 +903,25 @@ namespace TrenchBroom {
             }
         }
 
-        void ClipTool::selectionDidChange(const Selection& selection) {
+        void ClipTool::selectionDidChange(const Selection&) {
             if (!m_ignoreNotifications) {
                 update();
             }
         }
 
-        void ClipTool::nodesWillChange(const Model::NodeList& nodes) {
+        void ClipTool::nodesWillChange(const Model::NodeList&) {
             if (!m_ignoreNotifications) {
                 update();
             }
         }
 
-        void ClipTool::nodesDidChange(const Model::NodeList& nodes) {
+        void ClipTool::nodesDidChange(const Model::NodeList&) {
             if (!m_ignoreNotifications) {
                 update();
             }
         }
 
-        void ClipTool::facesDidChange(const Model::BrushFaceList& nodes) {
+        void ClipTool::facesDidChange(const Model::BrushFaceList&) {
             if (!m_ignoreNotifications) {
                 update();
             }

@@ -132,7 +132,7 @@ namespace TrenchBroom {
                 const auto hitPointInWorldCoords = vm::point_at_distance(ray, distance);
                 const auto hitPointInTexCoords = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * hitPointInWorldCoords;
 
-                const auto maxDistance = 5.0 / cameraZoom();
+                const auto maxDistance = static_cast<FloatType>(5.0) / static_cast<FloatType>(cameraZoom());
                 const auto stripeSize = UVViewHelper::stripeSize();
 
                 for (size_t i = 0; i < 2; ++i) {

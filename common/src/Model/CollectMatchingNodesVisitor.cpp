@@ -40,9 +40,9 @@ namespace TrenchBroom {
                 m_nodes.push_back(node);
         }
 
-        bool NeverStopRecursion::operator()(const Node* node, bool matched) const { return false; }
+        bool NeverStopRecursion::operator()(const Node* /* node */, bool /* matched */) const { return false; }
 
-        bool StopRecursionIfMatched::operator()(const Node* node, bool matched) const { return matched; }
+        bool StopRecursionIfMatched::operator()(const Node* /* node */, bool matched) const { return matched; }
 
     }
 }

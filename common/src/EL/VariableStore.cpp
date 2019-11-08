@@ -98,7 +98,7 @@ namespace TrenchBroom {
             return 0;
         }
 
-        Value NullVariableStore::doGetValue(const String& name) const {
+        Value NullVariableStore::doGetValue(const String& /* name */) const {
             return Value::Null;
         }
 
@@ -106,7 +106,7 @@ namespace TrenchBroom {
             return StringSet();
         }
 
-        void NullVariableStore::doDeclare(const String& name, const Value& value) {}
-        void NullVariableStore::doAssign(const String& name, const Value& value) {}
+        void NullVariableStore::doDeclare(const String& /* name */, const Value& /* value */) {}
+        void NullVariableStore::doAssign(const String& /* name */, const Value& /* value */) {}
     }
 }

@@ -143,7 +143,7 @@ namespace TrenchBroom {
             }
         }
 
-        void FaceAttribsEditor::surfaceFlagChanged(const size_t index, const int setFlag, const int mixedFlag) {
+        void FaceAttribsEditor::surfaceFlagChanged(const size_t index, const int setFlag, const int /* mixedFlag */) {
             MapDocumentSPtr document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
@@ -160,7 +160,7 @@ namespace TrenchBroom {
             }
         }
 
-        void FaceAttribsEditor::contentFlagChanged(const size_t index, const int setFlag, const int mixedFlag) {
+        void FaceAttribsEditor::contentFlagChanged(const size_t index, const int setFlag, const int /* mixedFlag */) {
             MapDocumentSPtr document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
@@ -190,7 +190,7 @@ namespace TrenchBroom {
             }
         }
 
-        void FaceAttribsEditor::colorValueChanged(const QString& text) {
+        void FaceAttribsEditor::colorValueChanged(const QString& /* text */) {
             MapDocumentSPtr document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
@@ -290,8 +290,6 @@ namespace TrenchBroom {
 
             const Qt::Alignment LabelFlags   = Qt::AlignVCenter | Qt::AlignRight;
             const Qt::Alignment ValueFlags   = Qt::AlignVCenter;
-            const Qt::Alignment Editor1Flags = 0;
-            const Qt::Alignment Editor2Flags = 0;
 
             auto* faceAttribsLayout = new QGridLayout();
             faceAttribsLayout->setContentsMargins(
@@ -312,33 +310,33 @@ namespace TrenchBroom {
             ++r; c = 0;
 
             faceAttribsLayout->addWidget(xOffsetLabel,         r,c++, LabelFlags);
-            faceAttribsLayout->addWidget(m_xOffsetEditor,      r,c++, Editor1Flags);
+            faceAttribsLayout->addWidget(m_xOffsetEditor,      r,c++);
             faceAttribsLayout->addWidget(yOffsetLabel,         r,c++, LabelFlags);
-            faceAttribsLayout->addWidget(m_yOffsetEditor,      r,c++, Editor2Flags);
+            faceAttribsLayout->addWidget(m_yOffsetEditor,      r,c++);
             ++r; c = 0;
 
             faceAttribsLayout->addWidget(xScaleLabel,          r,c++, LabelFlags);
-            faceAttribsLayout->addWidget(m_xScaleEditor,       r,c++, Editor1Flags);
+            faceAttribsLayout->addWidget(m_xScaleEditor,       r,c++);
             faceAttribsLayout->addWidget(yScaleLabel,          r,c++, LabelFlags);
-            faceAttribsLayout->addWidget(m_yScaleEditor,       r,c++, Editor2Flags);
+            faceAttribsLayout->addWidget(m_yScaleEditor,       r,c++);
             ++r; c = 0;
 
             faceAttribsLayout->addWidget(rotationLabel,        r,c++, LabelFlags);
-            faceAttribsLayout->addWidget(m_rotationEditor,     r,c++, Editor1Flags);
+            faceAttribsLayout->addWidget(m_rotationEditor,     r,c++);
             faceAttribsLayout->addWidget(m_surfaceValueLabel,  r,c++, LabelFlags);
-            faceAttribsLayout->addWidget(m_surfaceValueEditor, r,c++, Editor2Flags);
+            faceAttribsLayout->addWidget(m_surfaceValueEditor, r,c++);
             ++r; c = 0;
 
             faceAttribsLayout->addWidget(m_surfaceFlagsLabel,  r,c++, LabelFlags);
-            faceAttribsLayout->addWidget(m_surfaceFlagsEditor, r,c++, 1,3, Editor2Flags);
+            faceAttribsLayout->addWidget(m_surfaceFlagsEditor, r,c++, 1,3);
             ++r; c = 0;
 
             faceAttribsLayout->addWidget(m_contentFlagsLabel,  r,c++, LabelFlags);
-            faceAttribsLayout->addWidget(m_contentFlagsEditor, r,c++, 1,3, Editor2Flags);
+            faceAttribsLayout->addWidget(m_contentFlagsEditor, r,c++, 1,3);
             ++r; c = 0;
 
             faceAttribsLayout->addWidget(m_colorLabel,         r,c++, LabelFlags);
-            faceAttribsLayout->addWidget(m_colorEditor,        r,c++, 1,3, Editor2Flags);
+            faceAttribsLayout->addWidget(m_colorEditor,        r,c++, 1,3);
             ++r; c = 0;
 
             faceAttribsLayout->setColumnStretch(1, 1);
@@ -404,13 +402,13 @@ namespace TrenchBroom {
             updateControls();
         }
 
-        void FaceAttribsEditor::brushFacesDidChange(const Model::BrushFaceList& faces) {
+        void FaceAttribsEditor::brushFacesDidChange(const Model::BrushFaceList&) {
             MapDocumentSPtr document = lock(m_document);
             m_faces = document->allSelectedBrushFaces();
             updateControls();
         }
 
-        void FaceAttribsEditor::selectionDidChange(const Selection& selection) {
+        void FaceAttribsEditor::selectionDidChange(const Selection&) {
             MapDocumentSPtr document = lock(m_document);
             m_faces = document->allSelectedBrushFaces();
             updateControls();
@@ -541,12 +539,12 @@ namespace TrenchBroom {
                         }
                     }
                 }
-                setValueOrMulti(m_xOffsetEditor, xOffsetMulti, xOffset);
-                setValueOrMulti(m_yOffsetEditor, yOffsetMulti, yOffset);
-                setValueOrMulti(m_rotationEditor, rotationMulti, rotation);
-                setValueOrMulti(m_xScaleEditor, xScaleMulti, xScale);
-                setValueOrMulti(m_yScaleEditor, yScaleMulti, yScale);
-                setValueOrMulti(m_surfaceValueEditor, surfaceValueMulti, surfaceValue);
+                setValueOrMulti(m_xOffsetEditor, xOffsetMulti, static_cast<double>(xOffset));
+                setValueOrMulti(m_yOffsetEditor, yOffsetMulti, static_cast<double>(yOffset));
+                setValueOrMulti(m_rotationEditor, rotationMulti, static_cast<double>(rotation));
+                setValueOrMulti(m_xScaleEditor, xScaleMulti, static_cast<double>(xScale));
+                setValueOrMulti(m_yScaleEditor, yScaleMulti, static_cast<double>(yScale));
+                setValueOrMulti(m_surfaceValueEditor, surfaceValueMulti, static_cast<double>(surfaceValue));
                 if (hasColorValue) {
                     if (colorValueMulti) {
                         m_colorEditor->setPlaceholderText("multi");

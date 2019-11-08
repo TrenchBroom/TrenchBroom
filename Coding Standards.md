@@ -56,6 +56,33 @@
   using IntToListOfStringPairs = std::map<int, std::vector<std::pair<String, String>>>;
   ```
 
+# Misc
+- Unused function parameters should be commented out, e.g.:
+
+  ```
+  void myFunction(const int index, const int /* unusedParameter */) {...}
+  ```
+  
+  Alternatively, it is allowed to mark them as unused in the function body if commenting them out is not
+  possible. 'Macros.h' contains a macro that can be used here:
+   
+  ```
+  #include "Macros.h"
+  
+  void myFunction(const int index, const int unusedParameter = 0) {
+      unused(unusedParameter);
+  }
+  ```
+  
+  Finally, if the semantics of the parameter is clear from the type alone, then it is also allowed to delete
+  the parameter name:
+
+  ```
+  void myOtherFunction(const int index, const Model::World*) {...}
+  ```
+  
+  In general, it is preferrable to not delete the parameter name and it should be done with care.
+
 # Features
 - We use C++17
 - The entire source code and test cases must compile without warnings.

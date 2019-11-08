@@ -88,7 +88,7 @@ namespace TrenchBroom {
         }
 
         ValueHolder* BooleanValueHolder::clone() const { return new BooleanValueHolder(m_value); }
-        void BooleanValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const { str << (m_value ? "true" : "false"); }
+        void BooleanValueHolder::appendToStream(std::ostream& str, const bool /* multiline */, const String& /* indent */) const { str << (m_value ? "true" : "false"); }
 
         StringHolder::~StringHolder() {}
         ValueType StringHolder::type() const { return Type_String; }
@@ -148,7 +148,7 @@ namespace TrenchBroom {
             throw ConversionError(describe(), type(), toType);
         }
 
-        void StringHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
+        void StringHolder::appendToStream(std::ostream& str, const bool /* multiline */, const String& /* indent */) const {
             // Unescaping happens in IO::ELParser::parseLiteral
             str << "\"" << StringUtils::escape(doGetValue(), "\\\"") << "\"";
         }
@@ -210,7 +210,7 @@ namespace TrenchBroom {
 
         ValueHolder* NumberValueHolder::clone() const { return new NumberValueHolder(m_value); }
 
-        void NumberValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
+        void NumberValueHolder::appendToStream(std::ostream& str, const bool /* multiline */, const String& /* indent */) const {
             if (std::abs(m_value - std::round(m_value)) < RoundingThreshold) {
                 str.precision(0);
                 str.setf(std::ios::fixed);
@@ -408,7 +408,7 @@ namespace TrenchBroom {
 
         ValueHolder* RangeValueHolder::clone() const { return new RangeValueHolder(m_value); }
 
-        void RangeValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
+        void RangeValueHolder::appendToStream(std::ostream& str, const bool /* multiline */, const String& /* indent */) const {
             str << "[";
             for (size_t i = 0; i < m_value.size(); ++i) {
                 str << m_value[i];
@@ -467,15 +467,15 @@ namespace TrenchBroom {
         }
 
         ValueHolder* NullValueHolder::clone() const { return new NullValueHolder(); }
-        void NullValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const { str << "null"; }
+        void NullValueHolder::appendToStream(std::ostream& str, const bool /* multiline */, const String& /* indent */) const { str << "null"; }
 
 
         ValueType UndefinedValueHolder::type() const { return Type_Undefined; }
         size_t UndefinedValueHolder::length() const { return 0; }
-        bool UndefinedValueHolder::convertibleTo(const ValueType toType) const { return false; }
+        bool UndefinedValueHolder::convertibleTo(const ValueType /* toType */) const { return false; }
         ValueHolder* UndefinedValueHolder::convertTo(const ValueType toType) const { throw ConversionError(describe(), type(), toType); }
         ValueHolder* UndefinedValueHolder::clone() const { return new UndefinedValueHolder(); }
-        void UndefinedValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const { str << "undefined"; }
+        void UndefinedValueHolder::appendToStream(std::ostream& str, const bool /* multiline */, const String& /* indent */) const { str << "undefined"; }
 
 
         const Value Value::Null = Value(new NullValueHolder(), 0, 0);

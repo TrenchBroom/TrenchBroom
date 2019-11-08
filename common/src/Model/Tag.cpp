@@ -197,8 +197,8 @@ namespace TrenchBroom {
 
         TagMatcher::~TagMatcher() = default;
 
-        void TagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {}
-        void TagMatcher::disable(TagMatcherCallback& callback, MapFacade& facade) const {}
+        void TagMatcher::enable(TagMatcherCallback& /* callback */, MapFacade& /* facade */) const {}
+        void TagMatcher::disable(TagMatcherCallback& /* callback */, MapFacade& /* facade */) const {}
 
         bool TagMatcher::canEnable() const {
             return false;

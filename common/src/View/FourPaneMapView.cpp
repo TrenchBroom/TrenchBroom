@@ -114,7 +114,7 @@ namespace TrenchBroom {
             connect(m_rightVSplitter, &QSplitter::splitterMoved, this, &FourPaneMapView::onSplitterMoved);
         }
 
-        void FourPaneMapView::onSplitterMoved(int pos, int index) {
+        void FourPaneMapView::onSplitterMoved(const int /* pos */, [[maybe_unused]] const int index) {
             auto* moved = qobject_cast<QSplitter*>(QObject::sender());
             auto* other = (moved == m_leftVSplitter) ? m_rightVSplitter : m_leftVSplitter;
 

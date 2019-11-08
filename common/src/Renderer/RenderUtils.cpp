@@ -31,14 +31,14 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        static const float EdgeOffset = 0.0001f;
+        static const double EdgeOffset = 0.0001;
 
-        void glSetEdgeOffset(const float f) {
-            glAssert(glDepthRange(0.0f, 1.0f - EdgeOffset * f));
+        void glSetEdgeOffset(const double f) {
+            glAssert(glDepthRange(0.0, 1.0 - EdgeOffset * f))
         }
 
         void glResetEdgeOffset() {
-            glAssert(glDepthRange(EdgeOffset, 1.0f));
+            glAssert(glDepthRange(EdgeOffset, 1.0))
         }
 
         void coordinateSystemVerticesX(const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end) {
@@ -60,8 +60,8 @@ namespace TrenchBroom {
         }
 
         TextureRenderFunc::~TextureRenderFunc() {}
-        void TextureRenderFunc::before(const Assets::Texture* texture) {}
-        void TextureRenderFunc::after(const Assets::Texture* texture) {}
+        void TextureRenderFunc::before(const Assets::Texture* /* texture */) {}
+        void TextureRenderFunc::after(const Assets::Texture* /* texture */) {}
 
         void DefaultTextureRenderFunc::before(const Assets::Texture* texture) {
             if (texture != nullptr) {

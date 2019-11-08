@@ -25,21 +25,21 @@ namespace TrenchBroom {
         void CollectLayersStrategy::addLayer(TrenchBroom::Model::Layer* layer) { m_layers.push_back(layer); }
 
         const LayerList& SkipLayersStrategy::layers() const { return EmptyLayerList; }
-        void SkipLayersStrategy::addLayer(TrenchBroom::Model::Layer* layer) {}
+        void SkipLayersStrategy::addLayer(TrenchBroom::Model::Layer* /* layer */) {}
 
 
         const GroupList& CollectGroupsStrategy::groups() const { return m_groups; }
         void CollectGroupsStrategy::addGroup(Group* group) { m_groups.push_back(group); }
 
         const GroupList& SkipGroupsStrategy::groups() const { return EmptyGroupList; }
-        void SkipGroupsStrategy::addGroup(Group* group) {}
+        void SkipGroupsStrategy::addGroup(Group* /* group */) {}
 
 
         const EntityList& CollectEntitiesStrategy::entities() const { return m_entities; }
         void CollectEntitiesStrategy::addEntity(Entity* entity) { m_entities.push_back(entity); }
 
         const EntityList& SkipEntitiesStrategy::entities() const { return EmptyEntityList; }
-        void SkipEntitiesStrategy::addEntity(Entity* entity) {}
+        void SkipEntitiesStrategy::addEntity(Entity* /* entity */) {}
 
 
         const BrushList& CollectBrushesStrategy::brushes() const { return m_brushes; }
@@ -47,6 +47,6 @@ namespace TrenchBroom {
 
 
         const BrushList& SkipBrushesStrategy::brushes() const { return EmptyBrushList; }
-        void SkipBrushesStrategy::addBrush(Brush* brush) {}
+        void SkipBrushesStrategy::addBrush(Brush* /* brush */) {}
     }
 }

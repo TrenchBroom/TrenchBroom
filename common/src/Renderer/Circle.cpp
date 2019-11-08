@@ -59,7 +59,7 @@ namespace TrenchBroom {
         m_filled(filled) {
             assert(radius > 0.0f);
             assert(segments > 0);
-            assert(angleLength > 0.0);
+            assert(angleLength > 0.0f);
             init3D(radius, segments, axis, startAngle, angleLength);
         }
 

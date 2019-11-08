@@ -176,7 +176,7 @@ namespace TrenchBroom {
             return m_attributes.snapshot(name);
         }
 
-        bool AttributableNode::canAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const {
+        bool AttributableNode::canAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& /* value */) const {
             return isAttributeValueMutable(name);
         }
 

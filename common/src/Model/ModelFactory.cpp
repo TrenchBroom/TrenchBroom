@@ -27,12 +27,12 @@ namespace TrenchBroom {
             return doGetFormat();
         }
 
-        World* ModelFactory::createWorld(const vm::bbox3& worldBounds) const {
-            return doCreateWorld(worldBounds);
+        World* ModelFactory::createWorld() const {
+            return doCreateWorld();
         }
 
-        Layer* ModelFactory::createLayer(const String& name, const vm::bbox3& worldBounds) const {
-            return doCreateLayer(name, worldBounds);
+        Layer* ModelFactory::createLayer(const String& name) const {
+            return doCreateLayer(name);
         }
 
         Group* ModelFactory::createGroup(const String& name) const {

@@ -24,7 +24,7 @@
 namespace TrenchBroom {
     namespace View {
         LimitedKeySequenceEdit::LimitedKeySequenceEdit(QWidget* parent) :
-        LimitedKeySequenceEdit(MaxCount) {}
+        LimitedKeySequenceEdit(MaxCount, parent) {}
 
         LimitedKeySequenceEdit::LimitedKeySequenceEdit(const size_t maxCount, QWidget* parent) :
         QKeySequenceEdit(parent),

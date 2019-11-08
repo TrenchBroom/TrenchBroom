@@ -194,27 +194,27 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &TextureBrowser::preferenceDidChange);
         }
 
-        void TextureBrowser::documentWasNewed(MapDocument* document) {
+        void TextureBrowser::documentWasNewed(MapDocument*) {
             reload();
         }
 
-        void TextureBrowser::documentWasLoaded(MapDocument* document) {
+        void TextureBrowser::documentWasLoaded(MapDocument*) {
             reload();
         }
 
-        void TextureBrowser::nodesWereAdded(const Model::NodeList& nodes) {
+        void TextureBrowser::nodesWereAdded(const Model::NodeList&) {
             reload();
         }
 
-        void TextureBrowser::nodesWereRemoved(const Model::NodeList& nodes) {
+        void TextureBrowser::nodesWereRemoved(const Model::NodeList&) {
             reload();
         }
 
-        void TextureBrowser::nodesDidChange(const Model::NodeList& nodes) {
+        void TextureBrowser::nodesDidChange(const Model::NodeList&) {
             reload();
         }
 
-        void TextureBrowser::brushFacesDidChange(const Model::BrushFaceList& faces) {
+        void TextureBrowser::brushFacesDidChange(const Model::BrushFaceList&) {
             reload();
         }
 
@@ -222,7 +222,7 @@ namespace TrenchBroom {
             reload();
         }
 
-        void TextureBrowser::currentTextureNameDidChange(const String& textureName) {
+        void TextureBrowser::currentTextureNameDidChange(const String& /* textureName */) {
             updateSelectedTexture();
         }
 

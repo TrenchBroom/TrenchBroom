@@ -55,7 +55,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Console::logToDebugOut(const LogLevel level, const QString& message) {
+        void Console::logToDebugOut(const LogLevel /* level */, const QString& message) {
             qDebug("%s", message.toStdString().c_str());
         }
 

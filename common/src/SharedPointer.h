@@ -24,7 +24,7 @@
 #include <memory>
 
 template <typename T>
-bool expired(const std::shared_ptr<T>& ptr) {
+bool expired(const std::shared_ptr<T>& /* ptr */) {
     return false;
 }
 

@@ -82,7 +82,7 @@ namespace TrenchBroom {
             m_okButton->setEnabled(!gameName.isEmpty());
         }
 
-        void GameDialog::gameSelected(const QString& gameName) {
+        void GameDialog::gameSelected(const QString& /* gameName */) {
             accept();
         }
 
@@ -226,7 +226,7 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &GameDialog::preferenceDidChange);
         }
 
-        void GameDialog::preferenceDidChange(const IO::Path& path) {
+        void GameDialog::preferenceDidChange(const IO::Path& /* path */) {
             m_gameListBox->reloadGameInfos();
         }
     }
