@@ -162,15 +162,15 @@ namespace TrenchBroom {
 
         void Node::addChild(Node* child) {
             doAddChild(child);
-            incDescendantCount(child->descendantCount() + 1);
-            incChildSelectionCount(child->selected() ? 1 : 0);
+            incDescendantCount(child->descendantCount() + 1u);
+            incChildSelectionCount(child->selected() ? 1u : 0u);
             incDescendantSelectionCount(child->descendantSelectionCount());
         }
 
         void Node::removeChild(Node* child) {
             doRemoveChild(child);
-            decDescendantCount(child->descendantCount() + 1);
-            decChildSelectionCount(child->selected() ? 1 : 0);
+            decDescendantCount(child->descendantCount() + 1u);
+            decChildSelectionCount(child->selected() ? 1u : 0u);
             decDescendantSelectionCount(child->descendantSelectionCount());
         }
 

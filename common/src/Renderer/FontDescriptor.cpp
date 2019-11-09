@@ -72,7 +72,7 @@ namespace TrenchBroom {
         }
 
         unsigned char FontDescriptor::charCount() const {
-            return m_maxChar - m_minChar + 1;
+            return m_maxChar - m_minChar + 1u;
         }
     }
 }

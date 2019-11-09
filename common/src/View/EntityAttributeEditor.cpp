@@ -105,15 +105,7 @@ namespace TrenchBroom {
         }
 
         QString EntityAttributeEditor::optionDescriptions(const Assets::AttributeDefinition& definition) {
-#ifdef _MSC_VER
-            // MSVC complains about a constant conditional expression inside of QStringBuilder
-#pragma warning(push)
-#pragma warning(disable : 4127)
-#endif
             const QString bullet = QString(" ") % QChar(0x2022) % QString(" ");
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 
             switch (definition.type()) {
                 case Assets::AttributeDefinition::Type_ChoiceAttribute: {

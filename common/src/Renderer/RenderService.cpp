@@ -55,8 +55,8 @@ namespace TrenchBroom {
             }
 
             vm::vec3f getOffset(const Camera& camera) const {
-                const float w(camera.viewport().width);
-                const float h(camera.viewport().height);
+                const auto w = static_cast<float>(camera.viewport().width);
+                const auto h = static_cast<float>(camera.viewport().height);
                 return vm::vec3f(w / 2.0f, h - 20.0f, 0.0f);
             }
         };

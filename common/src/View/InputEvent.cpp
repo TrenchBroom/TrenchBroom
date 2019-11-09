@@ -189,8 +189,8 @@ namespace TrenchBroom {
                 scrollDistance = QPointF(wxEvent->angleDelta()) / 8.0;
             }
 
-            m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, posX, posY, scrollDistance.x()));
-            m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Vertical, posX, posY, scrollDistance.y()));
+            m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, posX, posY, static_cast<float>(scrollDistance.x())));
+            m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Vertical,   posX, posY, static_cast<float>(scrollDistance.y())));
         }
 
         void InputEventRecorder::processEvents(InputEventProcessor& processor) {

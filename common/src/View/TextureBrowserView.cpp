@@ -168,8 +168,8 @@ namespace TrenchBroom {
             const auto totalSize = vm::vec2f(vm::max(groupNameSize.x(), textureNameSize.x()), 2.0f * defaultTextHeight + 4.0f);
 
             const float scaleFactor = pref(Preferences::TextureBrowserIconSize);
-            const size_t scaledTextureWidth = static_cast<size_t>(vm::round(scaleFactor * static_cast<float>(texture->width())));
-            const size_t scaledTextureHeight = static_cast<size_t>(vm::round(scaleFactor * static_cast<float>(texture->height())));
+            const float scaledTextureWidth = vm::round(scaleFactor * static_cast<float>(texture->width()));
+            const float scaledTextureHeight = vm::round(scaleFactor * static_cast<float>(texture->height()));
 
             auto cellData = std::shared_ptr<TextureCellData>(new TextureCellData{
                 texture,
