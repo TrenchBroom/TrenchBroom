@@ -63,8 +63,12 @@ namespace TrenchBroom {
              * @param stride the stride for the vertex buffer pointer
              * @param offset the offset for the vertex buffer pointer
              */
-            static void setup(const size_t index, const size_t stride, const size_t offset) {}
-            static void cleanup(const size_t index) {}
+            static void setup(const size_t index, const size_t stride, const size_t offset) {
+                unused(index);
+                unused(stride);
+                unused(offset);
+            }
+            static void cleanup(const size_t /* index */) {}
 
             // Non-instantiable
             GLVertexAttributeType() = delete;
@@ -85,12 +89,12 @@ namespace TrenchBroom {
             static const size_t Size = sizeof(ElementType);
 
             static void setup(const size_t index, const size_t stride, const size_t offset) {
-                glAssert(glEnableVertexAttribArray(static_cast<GLuint>(index)));
-                glAssert(glVertexAttribPointer(static_cast<GLuint>(index), static_cast<GLint>(S), D, 0, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
+                glAssert(glEnableVertexAttribArray(static_cast<GLuint>(index)))
+                glAssert(glVertexAttribPointer(static_cast<GLuint>(index), static_cast<GLint>(S), D, 0, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)))
             }
 
             static void cleanup(const size_t index) {
-                glAssert(glDisableVertexAttribArray(static_cast<GLuint>(index)));
+                glAssert(glDisableVertexAttribArray(static_cast<GLuint>(index)))
             }
 
             // Non-instantiable
@@ -111,13 +115,13 @@ namespace TrenchBroom {
             using ElementType = vm::vec<ComponentType,S>;
             static const size_t Size = sizeof(ElementType);
 
-            static void setup(const size_t index, const size_t stride, const size_t offset) {
-                glAssert(glEnableClientState(GL_VERTEX_ARRAY));
-                glAssert(glVertexPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
+            static void setup(const size_t /* index */, const size_t stride, const size_t offset) {
+                glAssert(glEnableClientState(GL_VERTEX_ARRAY))
+                glAssert(glVertexPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)))
             }
 
-            static void cleanup(const size_t index) {
-                glAssert(glDisableClientState(GL_VERTEX_ARRAY));
+            static void cleanup(const size_t /* index */) {
+                glAssert(glDisableClientState(GL_VERTEX_ARRAY))
             }
 
             // Non-instantiable
@@ -138,14 +142,14 @@ namespace TrenchBroom {
             using ElementType = vm::vec<ComponentType,S>;
             static const size_t Size = sizeof(ElementType);
 
-            static void setup(const size_t index, const size_t stride, const size_t offset) {
+            static void setup(const size_t /* index */, const size_t stride, const size_t offset) {
                 assert(S == 3);
-                glAssert(glEnableClientState(GL_NORMAL_ARRAY));
-                glAssert(glNormalPointer(D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
+                glAssert(glEnableClientState(GL_NORMAL_ARRAY))
+                glAssert(glNormalPointer(D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)))
             }
 
-            static void cleanup(const size_t index) {
-                glAssert(glDisableClientState(GL_NORMAL_ARRAY));
+            static void cleanup(const size_t /* index */) {
+                glAssert(glDisableClientState(GL_NORMAL_ARRAY))
             }
 
             // Non-instantiable
@@ -166,13 +170,13 @@ namespace TrenchBroom {
             using ElementType = vm::vec<ComponentType,S>;
             static const size_t Size = sizeof(ElementType);
 
-            static void setup(const size_t index, const size_t stride, const size_t offset) {
-                glAssert(glEnableClientState(GL_COLOR_ARRAY));
-                glAssert(glColorPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
+            static void setup(const size_t /* index */, const size_t stride, const size_t offset) {
+                glAssert(glEnableClientState(GL_COLOR_ARRAY))
+                glAssert(glColorPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)))
             }
 
-            static void cleanup(const size_t index) {
-                glAssert(glDisableClientState(GL_COLOR_ARRAY));
+            static void cleanup(const size_t /* index */) {
+                glAssert(glDisableClientState(GL_COLOR_ARRAY))
             }
 
             // Non-instantiable
@@ -193,15 +197,15 @@ namespace TrenchBroom {
             using ElementType = vm::vec<ComponentType,S>;
             static const size_t Size = sizeof(ElementType);
 
-            static void setup(const size_t index, const size_t stride, const size_t offset) {
-                glAssert(glClientActiveTexture(GL_TEXTURE0));
-                glAssert(glEnableClientState(GL_TEXTURE_COORD_ARRAY));
-                glAssert(glTexCoordPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
+            static void setup(const size_t /* index */, const size_t stride, const size_t offset) {
+                glAssert(glClientActiveTexture(GL_TEXTURE0))
+                glAssert(glEnableClientState(GL_TEXTURE_COORD_ARRAY))
+                glAssert(glTexCoordPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)))
             }
 
-            static void cleanup(const size_t index) {
-                glAssert(glClientActiveTexture(GL_TEXTURE0));
-                glAssert(glDisableClientState(GL_TEXTURE_COORD_ARRAY));
+            static void cleanup(const size_t /* index */) {
+                glAssert(glClientActiveTexture(GL_TEXTURE0))
+                glAssert(glDisableClientState(GL_TEXTURE_COORD_ARRAY))
             }
 
             // Non-instantiable
@@ -222,16 +226,16 @@ namespace TrenchBroom {
             using ElementType = vm::vec<ComponentType,S>;
             static const size_t Size = sizeof(ElementType);
 
-            static void setup(const size_t index, const size_t stride, const size_t offset) {
-                glAssert(glClientActiveTexture(GL_TEXTURE1));
-                glAssert(glEnableClientState(GL_TEXTURE_COORD_ARRAY));
-                glAssert(glTexCoordPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
+            static void setup(const size_t /* index */, const size_t stride, const size_t offset) {
+                glAssert(glClientActiveTexture(GL_TEXTURE1))
+                glAssert(glEnableClientState(GL_TEXTURE_COORD_ARRAY))
+                glAssert(glTexCoordPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)))
             }
 
-            static void cleanup(const size_t index) {
-                glAssert(glClientActiveTexture(GL_TEXTURE1));
-                glAssert(glDisableClientState(GL_TEXTURE_COORD_ARRAY));
-                glAssert(glClientActiveTexture(GL_TEXTURE0));
+            static void cleanup(const size_t /* index */) {
+                glAssert(glClientActiveTexture(GL_TEXTURE1))
+                glAssert(glDisableClientState(GL_TEXTURE_COORD_ARRAY))
+                glAssert(glClientActiveTexture(GL_TEXTURE0))
             }
 
             // Non-instantiable
@@ -252,16 +256,16 @@ namespace TrenchBroom {
             using ElementType = vm::vec<ComponentType,S>;
             static const size_t Size = sizeof(ElementType);
 
-            static void setup(const size_t index, const size_t stride, const size_t offset) {
-                glAssert(glClientActiveTexture(GL_TEXTURE2));
-                glAssert(glEnableClientState(GL_TEXTURE_COORD_ARRAY));
-                glAssert(glTexCoordPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
+            static void setup(const size_t /* index */, const size_t stride, const size_t offset) {
+                glAssert(glClientActiveTexture(GL_TEXTURE2))
+                glAssert(glEnableClientState(GL_TEXTURE_COORD_ARRAY))
+                glAssert(glTexCoordPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)))
             }
 
-            static void cleanup(const size_t index) {
-                glAssert(glClientActiveTexture(GL_TEXTURE2));
-                glAssert(glDisableClientState(GL_TEXTURE_COORD_ARRAY));
-                glAssert(glClientActiveTexture(GL_TEXTURE0));
+            static void cleanup(const size_t /* index */) {
+                glAssert(glClientActiveTexture(GL_TEXTURE2))
+                glAssert(glDisableClientState(GL_TEXTURE_COORD_ARRAY))
+                glAssert(glClientActiveTexture(GL_TEXTURE0))
             }
 
             // Non-instantiable
@@ -282,16 +286,16 @@ namespace TrenchBroom {
             using ElementType = vm::vec<ComponentType,S>;
             static const size_t Size = sizeof(ElementType);
 
-            static void setup(const size_t index, const size_t stride, const size_t offset) {
-                glAssert(glClientActiveTexture(GL_TEXTURE3));
-                glAssert(glEnableClientState(GL_TEXTURE_COORD_ARRAY));
-                glAssert(glTexCoordPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
+            static void setup(const size_t /* index */, const size_t stride, const size_t offset) {
+                glAssert(glClientActiveTexture(GL_TEXTURE3))
+                glAssert(glEnableClientState(GL_TEXTURE_COORD_ARRAY))
+                glAssert(glTexCoordPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)))
             }
 
-            static void cleanup(const size_t index) {
-                glAssert(glClientActiveTexture(GL_TEXTURE3));
-                glAssert(glDisableClientState(GL_TEXTURE_COORD_ARRAY));
-                glAssert(glClientActiveTexture(GL_TEXTURE0));
+            static void cleanup(const size_t /* index */) {
+                glAssert(glClientActiveTexture(GL_TEXTURE3))
+                glAssert(glDisableClientState(GL_TEXTURE_COORD_ARRAY))
+                glAssert(glClientActiveTexture(GL_TEXTURE0))
             }
 
             // Non-instantiable

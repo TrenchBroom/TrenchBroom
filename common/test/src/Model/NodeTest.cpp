@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace Model {
         class MockNode : public Node {
         private: // implement Node interface
-            Node* doClone(const vm::bbox3& worldBounds) const override {
+            Node* doClone(const vm::bbox3& /* worldBounds */) const override {
                 return new MockNode();
             }
 
@@ -102,10 +102,10 @@ namespace TrenchBroom {
                 mockDoAccept(visitor);
             }
 
-            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override {}
+            void doGenerateIssues(const IssueGenerator* /* generator */, IssueList& /* issues */) override {}
 
-            void doAcceptTagVisitor(TagVisitor& visitor) override {}
-            void doAcceptTagVisitor(ConstTagVisitor& visitor) const override {}
+            void doAcceptTagVisitor(TagVisitor& /* visitor */) override {}
+            void doAcceptTagVisitor(ConstTagVisitor& /* visitor */) const override {}
         public:
             MOCK_CONST_METHOD1(mockDoCanAddChild, bool(const Node*));
             MOCK_CONST_METHOD1(mockDoCanRemoveChild, bool(const Node*));
@@ -126,7 +126,7 @@ namespace TrenchBroom {
 
         class TestNode : public Node {
         private: // implement Node interface
-            Node* doClone(const vm::bbox3& worldBounds) const override {
+            Node* doClone(const vm::bbox3& /* worldBounds */) const override {
                 return new TestNode();
             }
 
@@ -145,11 +145,11 @@ namespace TrenchBroom {
                 return bounds;
             }
 
-            bool doCanAddChild(const Node* child) const override {
+            bool doCanAddChild(const Node* /* child */) const override {
                 return true;
             }
 
-            bool doCanRemoveChild(const Node* child) const override {
+            bool doCanRemoveChild(const Node* /* child */) const override {
                 return true;
             }
 
@@ -170,15 +170,15 @@ namespace TrenchBroom {
             void doAncestorWillChange() override {}
             void doAncestorDidChange() override {}
 
-            void doPick(const vm::ray3& ray, PickResult& pickResult) const override {}
-            void doFindNodesContaining(const vm::vec3& point, NodeList& result) override {}
+            void doPick(const vm::ray3& /* ray */, PickResult& /* pickResult */) const override {}
+            void doFindNodesContaining(const vm::vec3& /* point */, NodeList& /* result */) override {}
 
-            void doAccept(NodeVisitor& visitor) override {}
-            void doAccept(ConstNodeVisitor& visitor) const override {}
-            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override {}
+            void doAccept(NodeVisitor& /* visitor */) override {}
+            void doAccept(ConstNodeVisitor& /* visitor */) const override {}
+            void doGenerateIssues(const IssueGenerator* /* generator */, IssueList& /* issues */) override {}
 
-            void doAcceptTagVisitor(TagVisitor& visitor) override {}
-            void doAcceptTagVisitor(ConstTagVisitor& visitor) const override {}
+            void doAcceptTagVisitor(TagVisitor& /* visitor */) override {}
+            void doAcceptTagVisitor(ConstTagVisitor& /* visitor */) const override {}
         };
 
         class DestroyableNode : public TestNode {

@@ -215,7 +215,7 @@ namespace TrenchBroom {
             unused(m_end);
         }
 
-        std::unique_ptr<Assets::EntityModel> MdlParser::doInitializeModel(Logger& logger) {
+        std::unique_ptr<Assets::EntityModel> MdlParser::doInitializeModel(Logger& /* logger */) {
             auto reader = Reader::from(m_begin, m_end);
 
             const auto ident = reader.readInt<int32_t>();
@@ -251,7 +251,7 @@ namespace TrenchBroom {
             return model;
         }
 
-        void MdlParser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
+        void MdlParser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */) {
             auto reader = Reader::from(m_begin, m_end);
 
             const auto ident = reader.readInt<int32_t>();
@@ -324,7 +324,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MdlParser::skipSkins(Reader& reader, const size_t count, const size_t width, const size_t height, const int flags) {
+        void MdlParser::skipSkins(Reader& reader, const size_t count, const size_t width, const size_t height, const int /* flags */) {
             const auto size = width * height;
 
             for (size_t i = 0; i < count; ++i) {

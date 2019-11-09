@@ -368,7 +368,7 @@ private:
             m_right->appendTo(str, indent, level + 1);
         }
 
-        virtual void checkParentPointers(const Node* expectedParent) const override {
+        virtual void checkParentPointers([[maybe_unused]] const Node* expectedParent) const override {
             assert(this->m_parent == expectedParent);
             m_left->checkParentPointers(this);
             m_left->checkParentPointers(this);
@@ -447,7 +447,7 @@ private:
             str << ": " << m_data << std::endl;
         }
 
-        virtual void checkParentPointers(const Node* expectedParent) const override {
+        virtual void checkParentPointers([[maybe_unused]] const Node* expectedParent) const override {
             assert(this->m_parent == expectedParent);
         }
     };

@@ -116,14 +116,14 @@ namespace TrenchBroom {
 
         void PrimitiveRenderer::TriangleRenderAttributes::render(IndexRangeRenderer& renderer, ActiveShader& shader) const {
             if (m_cullingPolicy == CP_ShowBackfaces) {
-                glAssert(glPushAttrib(GL_POLYGON_BIT));
-                glAssert(glDisable(GL_CULL_FACE));
-                glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+                glAssert(glPushAttrib(GL_POLYGON_BIT))
+                glAssert(glDisable(GL_CULL_FACE))
+                glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL))
             }
 
             // Disable depth writes if drawing something transparent
-            if (m_color.a() < 1.0) {
-                glAssert(glDepthMask(GL_FALSE));
+            if (m_color.a() < 1.0f) {
+                glAssert(glDepthMask(GL_FALSE))
             }
 
             switch (m_occlusionPolicy) {
@@ -132,27 +132,27 @@ namespace TrenchBroom {
                     renderer.render();
                     break;
                 case OP_Show:
-                    glAssert(glDisable(GL_DEPTH_TEST));
+                    glAssert(glDisable(GL_DEPTH_TEST))
                     shader.set("Color", m_color);
                     renderer.render();
-                    glAssert(glEnable(GL_DEPTH_TEST));
+                    glAssert(glEnable(GL_DEPTH_TEST))
                     break;
                 case OP_Transparent:
-                    glAssert(glDisable(GL_DEPTH_TEST));
+                    glAssert(glDisable(GL_DEPTH_TEST))
                     shader.set("Color", Color(m_color, m_color.a() / 2.0f));
                     renderer.render();
-                    glAssert(glEnable(GL_DEPTH_TEST));
+                    glAssert(glEnable(GL_DEPTH_TEST))
                     shader.set("Color", m_color);
                     renderer.render();
                     break;
             }
 
-            if (m_color.a() < 1.0) {
-                glAssert(glDepthMask(GL_TRUE));
+            if (m_color.a() < 1.0f) {
+                glAssert(glDepthMask(GL_TRUE))
             }
 
             if (m_cullingPolicy == CP_ShowBackfaces) {
-                glAssert(glPopAttrib());
+                glAssert(glPopAttrib())
             }
         }
 
@@ -220,7 +220,7 @@ namespace TrenchBroom {
         }
 
         void PrimitiveRenderer::renderCylinder(const Color& color, const float radius, const size_t segments, const OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy, const vm::vec3f& start, const vm::vec3f& end) {
-            assert(radius > 0.0);
+            assert(radius > 0.0f);
             assert(segments > 2);
 
             const vm::vec3f vec = end - start;
@@ -273,7 +273,7 @@ namespace TrenchBroom {
                 IndexRangeRenderer& renderer = entry.second;
                 attributes.render(renderer, shader);
             }
-            glAssert(glLineWidth(1.0f));
+            glAssert(glLineWidth(1.0f))
         }
 
         void PrimitiveRenderer::renderTriangles(RenderContext& renderContext) {

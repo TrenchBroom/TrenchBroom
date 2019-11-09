@@ -197,7 +197,7 @@ namespace TrenchBroom {
 
         class SetupGL : public Renderable {
         private:
-            void doRender(RenderContext& renderContext) override {
+            void doRender(RenderContext&) override {
                 glAssert(glFrontFace(GL_CW))
                 glAssert(glEnable(GL_CULL_FACE))
                 glAssert(glEnable(GL_DEPTH_TEST))
@@ -325,8 +325,8 @@ namespace TrenchBroom {
             const Model::NodeCollection& selectedNodes() const { return m_selectedNodes; }
             const Model::NodeCollection& lockedNodes() const   { return m_lockedNodes;   }
         private:
-            void doVisit(Model::World* world) override   {}
-            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::World*) override   {}
+            void doVisit(Model::Layer*) override   {}
 
             void doVisit(Model::Group* group) override   {
                 if (group->locked()) {
@@ -475,45 +475,45 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapRenderer::preferenceDidChange);
         }
 
-        void MapRenderer::documentWasCleared(View::MapDocument* document) {
+        void MapRenderer::documentWasCleared(View::MapDocument*) {
             clear();
         }
 
-        void MapRenderer::documentWasNewedOrLoaded(View::MapDocument* document) {
+        void MapRenderer::documentWasNewedOrLoaded(View::MapDocument*) {
             clear();
             updateRenderers(Renderer_All);
         }
 
-        void MapRenderer::nodesWereAdded(const Model::NodeList& nodes) {
+        void MapRenderer::nodesWereAdded(const Model::NodeList&) {
             updateRenderers(Renderer_Default);
         }
 
-        void MapRenderer::nodesWereRemoved(const Model::NodeList& nodes) {
+        void MapRenderer::nodesWereRemoved(const Model::NodeList&) {
             updateRenderers(Renderer_Default);
         }
 
-        void MapRenderer::nodesDidChange(const Model::NodeList& nodes) {
+        void MapRenderer::nodesDidChange(const Model::NodeList&) {
             invalidateRenderers(Renderer_Selection);
             invalidateEntityLinkRenderer();
         }
 
-        void MapRenderer::nodeVisibilityDidChange(const Model::NodeList& nodes) {
+        void MapRenderer::nodeVisibilityDidChange(const Model::NodeList&) {
             invalidateRenderers(Renderer_All);
         }
 
-        void MapRenderer::nodeLockingDidChange(const Model::NodeList& nodes) {
+        void MapRenderer::nodeLockingDidChange(const Model::NodeList&) {
             updateRenderers(Renderer_Default_Locked);
         }
 
-        void MapRenderer::groupWasOpened(Model::Group* group) {
+        void MapRenderer::groupWasOpened(Model::Group*) {
             updateRenderers(Renderer_Default_Selection);
         }
 
-        void MapRenderer::groupWasClosed(Model::Group* group) {
+        void MapRenderer::groupWasClosed(Model::Group*) {
             updateRenderers(Renderer_Default_Selection);
         }
 
-        void MapRenderer::brushFacesDidChange(const Model::BrushFaceList& faces) {
+        void MapRenderer::brushFacesDidChange(const Model::BrushFaceList&) {
             invalidateRenderers(Renderer_Selection);
         }
 

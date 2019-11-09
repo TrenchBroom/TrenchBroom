@@ -19,12 +19,14 @@
 
 #include "EntityAttributeTable.h"
 
+#include <QDebug>
 #include <QEvent>
 #include <QKeyEvent>
 
 namespace TrenchBroom {
     namespace View {
         void EntityAttributeTable::finishEditing(QWidget* editor) {
+            qDebug() << "finish editing";
             commitData(editor);
             closeEditor(editor, QAbstractItemDelegate::EditNextItem);
         }

@@ -85,7 +85,7 @@ namespace TrenchBroom {
             return std::unique_ptr<TexCoordSystemSnapshot>();
         }
 
-        void ParaxialTexCoordSystem::doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) {
+        void ParaxialTexCoordSystem::doRestoreSnapshot(const TexCoordSystemSnapshot& /* snapshot */) {
             ensure(false, "unsupported");
         }
 
@@ -106,9 +106,9 @@ namespace TrenchBroom {
             setRotation(normal, 0.0f, attribs.rotation());
         }
 
-        void ParaxialTexCoordSystem::doResetTextureAxes(const vm::vec3& normal) {}
-        void ParaxialTexCoordSystem::doResetTextureAxesToParaxial(const vm::vec3& normal, const float angle) {}
-        void ParaxialTexCoordSystem::doResetTextureAxesToParallel(const vm::vec3& normal, const float angle) {}
+        void ParaxialTexCoordSystem::doResetTextureAxes(const vm::vec3& /* normal */) {}
+        void ParaxialTexCoordSystem::doResetTextureAxesToParaxial(const vm::vec3& /* normal */, const float /* angle */) {}
+        void ParaxialTexCoordSystem::doResetTextureAxesToParallel(const vm::vec3& /* normal */, const float /* angle */) {}
 
         bool ParaxialTexCoordSystem::isRotationInverted(const vm::vec3& normal) const {
             const size_t index = planeNormalIndex(normal);
@@ -119,10 +119,10 @@ namespace TrenchBroom {
             return (computeTexCoords(point, attribs.scale()) + attribs.offset()) / attribs.textureSize();
         }
 
-        void ParaxialTexCoordSystem::doSetRotation(const vm::vec3& normal, const float oldAngle, const float newAngle) {
+        void ParaxialTexCoordSystem::doSetRotation(const vm::vec3& normal, const float /* oldAngle */, const float newAngle) {
             m_index = planeNormalIndex(normal);
             axes(m_index, m_xAxis, m_yAxis);
-            rotateAxes(m_xAxis, m_yAxis, vm::to_radians(newAngle), m_index);
+            rotateAxes(m_xAxis, m_yAxis, vm::to_radians(static_cast<FloatType>(newAngle)), m_index);
         }
 
         void ParaxialTexCoordSystem::doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& oldInvariant) {
@@ -229,26 +229,26 @@ namespace TrenchBroom {
             attribs.setRotation(newRotation);
         }
 
-        void ParaxialTexCoordSystem::doUpdateNormalWithProjection(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) {
+        void ParaxialTexCoordSystem::doUpdateNormalWithProjection(const vm::vec3& newNormal, const BrushFaceAttributes& attribs) {
             setRotation(newNormal, attribs.rotation(), attribs.rotation());
         }
 
-        void ParaxialTexCoordSystem::doUpdateNormalWithRotation(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) {
+        void ParaxialTexCoordSystem::doUpdateNormalWithRotation(const vm::vec3& /* oldNormal */, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) {
             // not supported; fall back to doUpdateNormalWithProjection
-            doUpdateNormalWithProjection(oldNormal, newNormal, attribs);
+            doUpdateNormalWithProjection(newNormal, attribs);
         }
 
-        void ParaxialTexCoordSystem::doShearTexture(const vm::vec3& normal, const vm::vec2f& factors) {
+        void ParaxialTexCoordSystem::doShearTexture(const vm::vec3& /* normal */, const vm::vec2f& /* factors */) {
             // not supported
         }
 
         float ParaxialTexCoordSystem::doMeasureAngle(const float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const {
-            const auto rot = vm::quat3(vm::vec3::pos_z(), -vm::to_radians(currentAngle));
-            const auto vec = rot * vm::vec3(point - center);
+            const auto rot = vm::quatf(vm::vec3f::pos_z(), -vm::to_radians(currentAngle));
+            const auto vec = rot * vm::vec3f(point - center);
 
             const auto angleInRadians =
-                vm::C::two_pi() - vm::measure_angle(vm::normalize(vec), vm::vec3::pos_x(), vm::vec3::pos_z());
-            return float(vm::to_degrees(angleInRadians));
+                vm::Cf::two_pi() - vm::measure_angle(vm::normalize(vec), vm::vec3f::pos_x(), vm::vec3f::pos_z());
+            return vm::to_degrees(angleInRadians);
         }
 
         void ParaxialTexCoordSystem::rotateAxes(vm::vec3& xAxis, vm::vec3& yAxis, const FloatType angleInRadians, const size_t planeNormIndex) const {

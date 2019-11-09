@@ -76,51 +76,51 @@ namespace TrenchBroom {
             Assets::Texture texture("testTexture", 64, 64);
             Assets::Texture texture2("testTexture2", 64, 64);
 
-            EXPECT_EQ(0, texture.usageCount());
-            EXPECT_EQ(0, texture2.usageCount());
+            EXPECT_EQ(0u, texture.usageCount());
+            EXPECT_EQ(0u, texture2.usageCount());
 
             // BrushFaceAttributes doesn't increase usage count
             BrushFaceAttributes attribs("");
             attribs.setTexture(&texture);
-            EXPECT_EQ(1, texture.usageCount());
+            EXPECT_EQ(1u, texture.usageCount());
 
             {
                 // test constructor
                 BrushFace face(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs));
-                EXPECT_EQ(2, texture.usageCount());
+                EXPECT_EQ(2u, texture.usageCount());
 
                 // test clone()
                 BrushFace *clone = face.clone();
-                EXPECT_EQ(3, texture.usageCount());
+                EXPECT_EQ(3u, texture.usageCount());
 
                 // test destructor
                 delete clone;
                 clone = nullptr;
-                EXPECT_EQ(2, texture.usageCount());
+                EXPECT_EQ(2u, texture.usageCount());
 
                 // test setTexture
                 face.setTexture(&texture2);
-                EXPECT_EQ(1, texture.usageCount());
-                EXPECT_EQ(1, texture2.usageCount());
+                EXPECT_EQ(1u, texture.usageCount());
+                EXPECT_EQ(1u, texture2.usageCount());
 
                 // test setTexture with the same texture
                 face.setTexture(&texture2);
-                EXPECT_EQ(1, texture2.usageCount());
+                EXPECT_EQ(1u, texture2.usageCount());
 
                 // test setFaceAttributes
                 EXPECT_EQ(&texture, attribs.texture());
                 face.setAttribs(attribs);
-                EXPECT_EQ(2, texture.usageCount());
-                EXPECT_EQ(0, texture2.usageCount());
+                EXPECT_EQ(2u, texture.usageCount());
+                EXPECT_EQ(0u, texture2.usageCount());
 
                 // test setFaceAttributes with the same attributes
                 face.setAttribs(attribs);
-                EXPECT_EQ(2, texture.usageCount());
-                EXPECT_EQ(0, texture2.usageCount());
+                EXPECT_EQ(2u, texture.usageCount());
+                EXPECT_EQ(0u, texture2.usageCount());
             }
 
-            EXPECT_EQ(1, texture.usageCount());
-            EXPECT_EQ(0, texture2.usageCount());
+            EXPECT_EQ(1u, texture.usageCount());
+            EXPECT_EQ(0u, texture2.usageCount());
         }
 
         static void getFaceVertsAndTexCoords(const BrushFace *face,
@@ -435,7 +435,7 @@ namespace TrenchBroom {
         TEST(BrushFaceTest, testTextureLock_Paraxial) {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            World world(MapFormat::Standard, worldBounds);
+            World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             const Brush* cube = builder.createCube(128.0, "");
@@ -456,7 +456,7 @@ namespace TrenchBroom {
         TEST(BrushFaceTest, testTextureLock_Parallel) {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            World world(MapFormat::Valve, worldBounds);
+            World world(MapFormat::Valve);
 
             BrushBuilder builder(&world, worldBounds);
             const Brush* cube = builder.createCube(128.0, "");
@@ -477,7 +477,7 @@ namespace TrenchBroom {
         TEST(BrushFaceTest, testBrushFaceSnapshot) {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            World world(MapFormat::Valve, worldBounds);
+            World world(MapFormat::Valve);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* cube = builder.createCube(128.0, "");
@@ -527,7 +527,7 @@ namespace TrenchBroom {
                                       "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Valve, worldBounds);
+            World world(MapFormat::Valve);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
@@ -583,7 +583,7 @@ namespace TrenchBroom {
                                       "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Valve, worldBounds);
+            World world(MapFormat::Valve);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
@@ -643,7 +643,7 @@ namespace TrenchBroom {
 )");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Valve, worldBounds);
+            World world(MapFormat::Valve);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);

@@ -206,7 +206,7 @@ namespace TrenchBroom {
             facade.setFaceAttributes(request);
         }
 
-        void FlagsTagMatcher::disable(TagMatcherCallback& callback, MapFacade& facade) const {
+        void FlagsTagMatcher::disable(TagMatcherCallback& /* callback */, MapFacade& facade) const {
             ChangeBrushFaceAttributesRequest request;
             m_unsetFlags(request, m_flags);
             facade.setFaceAttributes(request);
@@ -313,7 +313,7 @@ namespace TrenchBroom {
 
         }
 
-        void EntityClassNameTagMatcher::disable(TagMatcherCallback& callback, MapFacade& facade) const {
+        void EntityClassNameTagMatcher::disable(TagMatcherCallback& /* callback */, MapFacade& facade) const {
             // entities will be removed automatically when they become empty
 
             const auto& selectedBrushes = facade.selectedNodes().nodes();

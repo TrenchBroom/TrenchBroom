@@ -37,7 +37,7 @@ class QKeySequence;
 namespace TrenchBroom {
     class PrefSerializer {
     public:
-        virtual ~PrefSerializer() = default;
+        virtual ~PrefSerializer();
 
         virtual bool readFromString(const QString& in, bool* out) const = 0;
         virtual bool readFromString(const QString& in, Color* out) const = 0;
@@ -72,7 +72,7 @@ namespace TrenchBroom {
     class PreferenceBase {
     public:
         PreferenceBase() = default;
-        virtual ~PreferenceBase() = default;
+        virtual ~PreferenceBase();
 
         PreferenceBase(const PreferenceBase& other) = default;
         PreferenceBase(PreferenceBase&& other) noexcept = default;
@@ -96,7 +96,7 @@ namespace TrenchBroom {
 
     class DynamicPreferencePatternBase {
     public:
-        virtual ~DynamicPreferencePatternBase() = default;
+        virtual ~DynamicPreferencePatternBase();
         virtual const IO::Path& pathPattern() const = 0;
         virtual nonstd::optional<QString> migratePreferenceForThisType(const PrefSerializer& from, const PrefSerializer& to, const QString& input) const = 0;
     };

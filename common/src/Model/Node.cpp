@@ -339,7 +339,7 @@ namespace TrenchBroom {
 
         // notice that we take a copy here so that we can safely propagate the old bounds up
         void Node::nodePhysicalBoundsDidChange(const vm::bbox3 oldBounds) {
-            doNodePhysicalBoundsDidChange(oldBounds);
+            doNodePhysicalBoundsDidChange();
             if (m_parent != nullptr)
                 m_parent->childPhysicalBoundsDidChange(this, oldBounds);
         }
@@ -377,12 +377,12 @@ namespace TrenchBroom {
                 nodePhysicalBoundsDidChange(myOldBounds);
             }
 
-            doChildPhysicalBoundsDidChange(node, oldBounds);
+            doChildPhysicalBoundsDidChange();
             descendantPhysicalBoundsDidChange(node, oldBounds, 1);
         }
 
         void Node::descendantPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {
-            doDescendantPhysicalBoundsDidChange(node, oldBounds, depth);
+            doDescendantPhysicalBoundsDidChange(node);
             if (shouldPropagateDescendantEvents() && m_parent != nullptr) {
                 m_parent->descendantPhysicalBoundsDidChange(node, oldBounds, depth + 1);
             }
@@ -636,15 +636,15 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        void Node::doChildWillBeAdded(Node* node) {}
-        void Node::doChildWasAdded(Node* node) {}
-        void Node::doChildWillBeRemoved(Node* node) {}
-        void Node::doChildWasRemoved(Node* node) {}
+        void Node::doChildWillBeAdded(Node* /* node */) {}
+        void Node::doChildWasAdded(Node* /* node */) {}
+        void Node::doChildWillBeRemoved(Node* /* node */) {}
+        void Node::doChildWasRemoved(Node* /* node */) {}
 
-        void Node::doDescendantWillBeAdded(Node* newParent, Node* node, const size_t depth) {}
-        void Node::doDescendantWasAdded(Node* node, const size_t depth) {}
-        void Node::doDescendantWillBeRemoved(Node* node, const size_t depth) {}
-        void Node::doDescendantWasRemoved(Node* oldParent, Node* node, const size_t depth) {}
+        void Node::doDescendantWillBeAdded(Node* /* newParent */, Node* /* node */, const size_t /* depth */) {}
+        void Node::doDescendantWasAdded(Node* /* node */, const size_t /* depth */) {}
+        void Node::doDescendantWillBeRemoved(Node* /* node */, const size_t /* depth */) {}
+        void Node::doDescendantWasRemoved(Node* /* oldParent */, Node* /* node */, const size_t /* depth */) {}
         bool Node::doShouldPropagateDescendantEvents() const { return true; }
 
         void Node::doParentWillChange() {}
@@ -652,14 +652,14 @@ namespace TrenchBroom {
         void Node::doAncestorWillChange() {}
         void Node::doAncestorDidChange() {}
 
-        void Node::doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds) {}
-        void Node::doChildPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {}
-        void Node::doDescendantPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {}
+        void Node::doNodePhysicalBoundsDidChange() {}
+        void Node::doChildPhysicalBoundsDidChange() {}
+        void Node::doDescendantPhysicalBoundsDidChange(Node* /* node */) {}
 
-        void Node::doChildWillChange(Node* node) {}
-        void Node::doChildDidChange(Node* node) {}
-        void Node::doDescendantWillChange(Node* node) {}
-        void Node::doDescendantDidChange(Node* node)  {}
+        void Node::doChildWillChange(Node* /* node */) {}
+        void Node::doChildDidChange(Node* /* node */) {}
+        void Node::doDescendantWillChange(Node* /* node */) {}
+        void Node::doDescendantDidChange(Node* /* node */)  {}
 
         void Node::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {
             if (m_parent != nullptr)

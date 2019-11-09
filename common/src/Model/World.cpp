@@ -29,13 +29,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        World::World(MapFormat mapFormat, const vm::bbox3& worldBounds) :
+        World::World(MapFormat mapFormat) :
         m_factory(mapFormat),
         m_defaultLayer(nullptr),
         m_nodeTree(std::make_unique<NodeTree>()),
         m_updateNodeTree(true) {
             addOrUpdateAttribute(AttributeNames::Classname, AttributeValues::WorldspawnClassname);
-            createDefaultLayer(worldBounds);
+            createDefaultLayer();
         }
 
         World::~World() = default;
@@ -58,8 +58,8 @@ namespace TrenchBroom {
             return visitor.layers();
         }
 
-        void World::createDefaultLayer(const vm::bbox3& worldBounds) {
-            m_defaultLayer = createLayer("Default Layer", worldBounds);
+        void World::createDefaultLayer() {
+            m_defaultLayer = createLayer("Default Layer");
             addChild(m_defaultLayer);
         }
 
@@ -92,9 +92,9 @@ namespace TrenchBroom {
             explicit AddNodeToNodeTree(NodeTree& nodeTree) :
             m_nodeTree(nodeTree) {}
         private:
-            void doVisit(World* world) override   {}
-            void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   {}
+            void doVisit(World*) override         {}
+            void doVisit(Layer*) override         {}
+            void doVisit(Group*) override         {}
             void doVisit(Entity* entity) override { m_nodeTree.insert(entity->physicalBounds(), entity); }
             void doVisit(Brush* brush) override   { m_nodeTree.insert(brush->physicalBounds(), brush); }
         };
@@ -106,9 +106,9 @@ namespace TrenchBroom {
             explicit RemoveNodeFromNodeTree(NodeTree& nodeTree) :
             m_nodeTree(nodeTree) {}
         private:
-            void doVisit(World* world) override   {}
-            void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   {}
+            void doVisit(World*) override         {}
+            void doVisit(Layer*) override         {}
+            void doVisit(Group*) override         {}
             void doVisit(Entity* entity) override { doRemove(entity, entity->physicalBounds()); }
             void doVisit(Brush* brush) override   { doRemove(brush, brush->physicalBounds()); }
 
@@ -128,9 +128,9 @@ namespace TrenchBroom {
             explicit UpdateNodeInNodeTree(NodeTree& nodeTree) :
             m_nodeTree(nodeTree) {}
         private:
-            void doVisit(World* world) override   {}
-            void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   {}
+            void doVisit(World*) override         {}
+            void doVisit(Layer*) override         {}
+            void doVisit(Group*) override         {}
             void doVisit(Entity* entity) override { m_nodeTree.update(entity->physicalBounds(), entity); }
             void doVisit(Brush* brush) override   { m_nodeTree.update(brush->physicalBounds(), brush); }
         };
@@ -183,8 +183,8 @@ namespace TrenchBroom {
             return logicalBounds();
         }
 
-        Node* World::doClone(const vm::bbox3& worldBounds) const {
-            World* world = m_factory.createWorld(worldBounds);
+        Node* World::doClone(const vm::bbox3& /* worldBounds */) const {
+            World* world = m_factory.createWorld();
             cloneAttributes(world);
             return world;
         }
@@ -193,7 +193,7 @@ namespace TrenchBroom {
             const NodeList& myChildren = children();
             assert(myChildren[0] == m_defaultLayer);
 
-            World* world = m_factory.createWorld(worldBounds);
+            World* world = m_factory.createWorld();
             cloneAttributes(world);
 
             world->defaultLayer()->addChildren(cloneRecursively(worldBounds, m_defaultLayer->children()));
@@ -210,11 +210,11 @@ namespace TrenchBroom {
 
         class CanAddChildToWorld : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            void doVisit(const World* world) override   { setResult(false); }
-            void doVisit(const Layer* layer) override   { setResult(true); }
-            void doVisit(const Group* group) override   { setResult(false); }
-            void doVisit(const Entity* entity) override { setResult(false); }
-            void doVisit(const Brush* brush) override   { setResult(false); }
+            void doVisit(const World*) override  { setResult(false); }
+            void doVisit(const Layer*) override  { setResult(true); }
+            void doVisit(const Group*) override  { setResult(false); }
+            void doVisit(const Entity*) override { setResult(false); }
+            void doVisit(const Brush*) override  { setResult(false); }
         };
 
         bool World::doCanAddChild(const Node* child) const {
@@ -230,11 +230,11 @@ namespace TrenchBroom {
             explicit CanRemoveChildFromWorld(const World* i_this) :
             m_this(i_this) {}
         private:
-            void doVisit(const World* world) override   { setResult(false); }
-            void doVisit(const Layer* layer) override   { setResult(layer != m_this->defaultLayer()); }
-            void doVisit(const Group* group) override   { setResult(false); }
-            void doVisit(const Entity* entity) override { setResult(false); }
-            void doVisit(const Brush* brush) override   { setResult(false); }
+            void doVisit(const World*) override        { setResult(false); }
+            void doVisit(const Layer* layer) override  { setResult(layer != m_this->defaultLayer()); }
+            void doVisit(const Group*) override        { setResult(false); }
+            void doVisit(const Entity*) override       { setResult(false); }
+            void doVisit(const Brush*) override        { setResult(false); }
         };
 
         bool World::doCanRemoveChild(const Node* child) const {
@@ -251,7 +251,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        void World::doDescendantWasAdded(Node* node, const size_t depth) {
+        void World::doDescendantWasAdded(Node* node, const size_t /* depth */) {
             // NOTE: `node` is just the root of a subtree that is being connected to this World.
             // In some cases, (e.g. if `node` is a Group), `node` will not be added to the spatial index, but some of its descendants may be.
             // We need to recursively search the `node` being connected and add it or any descendants that need to be added.
@@ -261,14 +261,14 @@ namespace TrenchBroom {
             }
         }
 
-        void World::doDescendantWillBeRemoved(Node* node, const size_t depth) {
+        void World::doDescendantWillBeRemoved(Node* node, const size_t /* depth */) {
             if (m_updateNodeTree) {
                 RemoveNodeFromNodeTree visitor(*m_nodeTree);
                 node->acceptAndRecurse(visitor);
             }
         }
 
-        void World::doDescendantPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {
+        void World::doDescendantPhysicalBoundsDidChange(Node* node) {
             if (m_updateNodeTree) {
                 UpdateNodeInNodeTree visitor(*m_nodeTree);
                 node->accept(visitor);
@@ -319,7 +319,7 @@ namespace TrenchBroom {
             m_attributableIndex.removeAttribute(attributable, name, value);
         }
 
-        void World::doAttributesDidChange(const vm::bbox3& oldBounds) {}
+        void World::doAttributesDidChange(const vm::bbox3& /* oldBounds */) {}
 
         bool World::doIsAttributeNameMutable(const AttributeName& name) const {
             if (name == AttributeNames::Classname)
@@ -359,12 +359,12 @@ namespace TrenchBroom {
             return m_factory.format();
         }
 
-        World* World::doCreateWorld(const vm::bbox3& worldBounds) const {
-            return m_factory.createWorld(worldBounds);
+        World* World::doCreateWorld() const {
+            return m_factory.createWorld();
         }
 
-        Layer* World::doCreateLayer(const String& name, const vm::bbox3& worldBounds) const {
-            return m_factory.createLayer(name, worldBounds);
+        Layer* World::doCreateLayer(const String& name) const {
+            return m_factory.createLayer(name);
         }
 
         Group* World::doCreateGroup(const String& name) const {

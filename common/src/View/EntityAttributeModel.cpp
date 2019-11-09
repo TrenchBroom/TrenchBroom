@@ -31,6 +31,7 @@
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
+#include <iterator>
 #include <optional-lite/optional.hpp>
 
 #include <QDebug>
@@ -252,6 +253,7 @@ namespace TrenchBroom {
             return result;
         }
 
+        /* FIXME: remove unused code
         static auto buildAttributeToRowIndexMap(const std::vector<AttributeRow>& rows) {
             std::map<String, int> result;
             for (size_t i = 0; i < rows.size(); ++i) {
@@ -268,6 +270,7 @@ namespace TrenchBroom {
             }
             return result;
         }
+        */
 
         bool EntityAttributeModel::showDefaultRows() const {
             return m_showDefaultRows;
@@ -289,7 +292,7 @@ namespace TrenchBroom {
                 qDebug() << "EntityAttributeModel::setRows: no change";
                 return;
             }
-            
+
             // If exactly one row was changed
             // we can tell Qt the row was edited instead. This allows the selection/current index
             // to be preserved, whereas removing the row would invalidate the current index.
@@ -337,11 +340,11 @@ namespace TrenchBroom {
                 qDebug() << "EntityAttributeModel::setRows: deleting " << oldMinusNew.size() << " rows";
 
                 for (const AttributeRow& row : oldMinusNew) {
-                    const size_t index = VectorUtils::indexOf(m_rows, row);
-                    assert(index < m_rows.size());
+                    const int index = static_cast<int>(VectorUtils::indexOf(m_rows, row));
+                    assert(index < static_cast<int>(m_rows.size()));
 
-                    beginRemoveRows(QModelIndex(), static_cast<int>(index), static_cast<int>(index));
-                    m_rows.erase(m_rows.begin() + index);
+                    beginRemoveRows(QModelIndex(), index, index);
+                    m_rows.erase(std::next(m_rows.begin(), index));
                     endRemoveRows();
                 }
                 return;
@@ -711,7 +714,7 @@ namespace TrenchBroom {
             return rowForAttributeName(name) != -1;
         }
 
-        bool EntityAttributeModel::renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables) {
+        bool EntityAttributeModel::renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& /* attributables */) {
             ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
             const AttributeRow& row = m_rows.at(rowIndex);

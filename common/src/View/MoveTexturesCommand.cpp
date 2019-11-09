@@ -52,11 +52,11 @@ namespace TrenchBroom {
             document->performMoveTextures(m_cameraUp, m_cameraRight, delta);
         }
 
-        bool MoveTexturesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool MoveTexturesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return true;
         }
 
-        UndoableCommand::Ptr MoveTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
+        UndoableCommand::Ptr MoveTexturesCommand::doRepeat(MapDocumentCommandFacade*) const {
             return UndoableCommand::Ptr(new MoveTexturesCommand(m_cameraUp, m_cameraRight, m_delta));
         }
 

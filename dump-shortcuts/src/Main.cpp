@@ -111,7 +111,7 @@ namespace TrenchBroom {
                 m_path = m_path.deleteLastComponent();
             }
 
-            void visit(const MenuSeparatorItem& item) override {}
+            void visit(const MenuSeparatorItem&) override {}
 
             void visit(const MenuActionItem& item) override {
                 m_out << "    '" << QString::fromStdString(item.action().preferencePath().asString('/')) << "': ";

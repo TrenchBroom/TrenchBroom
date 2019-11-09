@@ -45,7 +45,7 @@ namespace TrenchBroom {
             updateLabel();
         }
 
-        void TabBarButton::mousePressEvent(QMouseEvent *event) {
+        void TabBarButton::mousePressEvent(QMouseEvent*) {
             emit clicked();
         }
 

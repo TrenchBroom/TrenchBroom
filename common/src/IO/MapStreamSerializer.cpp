@@ -201,12 +201,12 @@ namespace TrenchBroom {
         void MapStreamSerializer::doBeginFile() {}
         void MapStreamSerializer::doEndFile() {}
 
-        void MapStreamSerializer::doBeginEntity(const Model::Node* node) {
+        void MapStreamSerializer::doBeginEntity(const Model::Node* /* node */) {
             m_stream << "// entity " << entityNo() << "\n";
             m_stream << "{\n";
         }
 
-        void MapStreamSerializer::doEndEntity(Model::Node* node) {
+        void MapStreamSerializer::doEndEntity(Model::Node* /* node */) {
             m_stream << "}\n";
         }
 
@@ -214,12 +214,12 @@ namespace TrenchBroom {
             m_stream << "\"" << escapeEntityAttribute(attribute.name()) << "\" \"" << escapeEntityAttribute(attribute.value()) << "\"\n";
         }
 
-        void MapStreamSerializer::doBeginBrush(const Model::Brush* brush) {
+        void MapStreamSerializer::doBeginBrush(const Model::Brush* /* brush */) {
             m_stream << "// brush " << brushNo() << "\n";
             m_stream << "{\n";
         }
 
-        void MapStreamSerializer::doEndBrush(Model::Brush* brush) {
+        void MapStreamSerializer::doEndBrush(Model::Brush* /* brush */) {
             m_stream << "}\n";
         }
 

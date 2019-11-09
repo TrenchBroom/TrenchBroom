@@ -80,7 +80,7 @@ namespace TrenchBroom {
             m_button->setEnabled(document->hasSelectedNodes());
         }
 
-        void MoveObjectsToolPage::selectionDidChange(const Selection& selection) {
+        void MoveObjectsToolPage::selectionDidChange(const Selection&) {
             updateGui();
         }
 

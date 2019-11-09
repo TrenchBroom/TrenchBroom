@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <cstdarg>
+#include <cctype>
 
 namespace StringUtils {
     const String& choose(const bool predicate, const String& positive, const String& negative) {
@@ -185,13 +186,13 @@ namespace StringUtils {
 
     String toLower(const String& str) {
         String result(str);
-        std::transform(std::begin(result), std::end(result), std::begin(result), tolower);
+        std::transform(std::begin(result), std::end(result), std::begin(result), [](const char c) { return static_cast<char>(std::tolower(static_cast<int>(c))); });
         return result;
     }
 
     String toUpper(const String& str) {
         String result(str);
-        std::transform(std::begin(result), std::end(result), std::begin(result), toupper);
+        std::transform(std::begin(result), std::end(result), std::begin(result), [](const char c) { return static_cast<char>(std::toupper(static_cast<int>(c))); });
         return result;
     }
 

@@ -38,8 +38,8 @@ namespace TrenchBroom {
             ModelFactoryImpl(MapFormat format);
         private: // implement ModelFactory interface
             MapFormat doGetFormat() const override;
-            World* doCreateWorld(const vm::bbox3& worldBounds) const override;
-            Layer* doCreateLayer(const String& name, const vm::bbox3& worldBounds) const override;
+            World* doCreateWorld() const override;
+            Layer* doCreateLayer(const String& name) const override;
             Group* doCreateGroup(const String& name) const override;
             Entity* doCreateEntity() const override;
             Brush* doCreateBrush(const vm::bbox3& worldBounds, const BrushFaceList& faces) const override;

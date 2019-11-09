@@ -38,7 +38,7 @@ namespace TrenchBroom {
         m_topWidgetMaster(nullptr) {
             m_tabBook = new TabBook();
 
-            m_mapInspector = new MapInspector(document, contextManager);
+            m_mapInspector = new MapInspector(document);
             m_entityInspector = new EntityInspector(document, contextManager);
             m_faceInspector = new FaceInspector(document, contextManager);
 

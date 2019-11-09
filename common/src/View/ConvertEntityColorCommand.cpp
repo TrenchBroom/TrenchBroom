@@ -44,11 +44,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool ConvertEntityColorCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool ConvertEntityColorCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool ConvertEntityColorCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool ConvertEntityColorCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
     }

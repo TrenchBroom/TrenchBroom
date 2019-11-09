@@ -51,16 +51,17 @@ namespace TrenchBroom {
 
         class Issue::MatchSelectableIssueNodes {
         public:
-            bool operator()(const Model::World* world) const   { return false; }
-            bool operator()(const Model::Layer* layer) const   { return false; }
-            bool operator()(const Model::Group* group) const   { return true; }
+            bool operator()(const Model::World*) const         { return false; }
+            bool operator()(const Model::Layer*) const         { return false; }
+            bool operator()(const Model::Group*) const         { return true; }
             bool operator()(const Model::Entity* entity) const { return !entity->hasChildren(); }
-            bool operator()(const Model::Brush* brush) const   { return true; }
+            bool operator()(const Model::Brush*) const         { return true; }
         };
 
-        bool Issue::addSelectableNodes(const EditorContext& editorContext, Model::NodeList& nodes) const {
-            if (m_node->parent() == nullptr)
+        bool Issue::addSelectableNodes(const EditorContext& /* editorContext */, Model::NodeList& nodes) const {
+            if (m_node->parent() == nullptr) {
                 return false;
+            }
 
             using CollectSelectableIssueNodesVisitor = CollectMatchingNodesVisitor<MatchSelectableIssueNodes, StandardNodeCollectionStrategy, StopRecursionIfMatched>;
 

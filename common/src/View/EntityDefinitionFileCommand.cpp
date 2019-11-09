@@ -45,11 +45,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool EntityDefinitionFileCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool EntityDefinitionFileCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool EntityDefinitionFileCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool EntityDefinitionFileCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
     }

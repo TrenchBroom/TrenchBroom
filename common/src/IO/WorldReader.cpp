@@ -38,27 +38,27 @@ namespace TrenchBroom {
             return std::move(m_world);
         }
 
-        Model::ModelFactory& WorldReader::initialize(const Model::MapFormat format, const vm::bbox3& worldBounds) {
-            m_world = std::make_unique<Model::World>(format, worldBounds);
+        Model::ModelFactory& WorldReader::initialize(const Model::MapFormat format) {
+            m_world = std::make_unique<Model::World>(format);
             m_world->disableNodeTreeUpdates();
             return *m_world;
         }
 
-        Model::Node* WorldReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+        Model::Node* WorldReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
             m_world->setAttributes(attributes);
             setExtraAttributes(m_world.get(), extraAttributes);
             return m_world->defaultLayer();
         }
 
-        void WorldReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount, ParserStatus& status) {
+        void WorldReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount, ParserStatus& /* status */) {
             m_world->setFilePosition(lineNumber, lineCount);
         }
 
-        void WorldReader::onLayer(Model::Layer* layer, ParserStatus& status) {
+        void WorldReader::onLayer(Model::Layer* layer, ParserStatus& /* status */) {
             m_world->addChild(layer);
         }
 
-        void WorldReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) {
+        void WorldReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& /* status */) {
             if (parent != nullptr) {
                 parent->addChild(node);
             } else {
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             m_world->defaultLayer()->addChild(node);
         }
 
-        void WorldReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status) {
+        void WorldReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& /* status */) {
             if (parent != nullptr) {
                 parent->addChild(brush);
             } else {

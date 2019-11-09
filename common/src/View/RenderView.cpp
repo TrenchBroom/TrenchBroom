@@ -281,6 +281,6 @@ namespace TrenchBroom {
             return m_glContext->initialize();
         }
 
-        void RenderView::doUpdateViewport(const int x, const int y, const int width, const int height) {}
+        void RenderView::doUpdateViewport(const int /* x */, const int /* y */, const int /* width */, const int /* height */) {}
     }
 }

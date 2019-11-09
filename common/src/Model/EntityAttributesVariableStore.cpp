@@ -48,11 +48,11 @@ namespace TrenchBroom {
             return m_attributes.names();
         }
 
-        void EntityAttributesVariableStore::doDeclare(const String& name, const EL::Value& value) {
+        void EntityAttributesVariableStore::doDeclare(const String& /* name */, const EL::Value& /* value */) {
             throw EL::EvaluationError("Declaring attributes directly is unsafe");
         }
 
-        void EntityAttributesVariableStore::doAssign(const String& name, const EL::Value& value) {
+        void EntityAttributesVariableStore::doAssign(const String& /* name */, const EL::Value& /* value */) {
             throw EL::EvaluationError("Changing attributes directly is unsafe");
         }
     }

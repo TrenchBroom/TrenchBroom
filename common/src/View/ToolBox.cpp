@@ -60,7 +60,7 @@ namespace TrenchBroom {
             return m_dropReceiver != nullptr;
         }
 
-        bool ToolBox::dragMove(ToolChain* chain, const InputState& inputState, const String& text) {
+        bool ToolBox::dragMove(ToolChain* /* chain */, const InputState& inputState, const String& /* text */) {
             if (!m_enabled || m_dropReceiver == nullptr) {
                 return false;
             }
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void ToolBox::dragLeave(ToolChain* chain, const InputState& inputState) {
+        void ToolBox::dragLeave(ToolChain* /* chain */, const InputState& inputState) {
             if (!m_enabled || m_dropReceiver == nullptr) {
                 return;
             }
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             m_dropReceiver = nullptr;
         }
 
-        bool ToolBox::dragDrop(ToolChain* chain, const InputState& inputState, const String& text) {
+        bool ToolBox::dragDrop(ToolChain* /* chain */, const InputState& inputState, const String& /* text */) {
             if (!m_enabled || m_dropReceiver == nullptr) {
                 return false;
             }

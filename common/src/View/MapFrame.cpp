@@ -363,7 +363,7 @@ namespace TrenchBroom {
                 menu.visitEntries(*this);
             }
 
-            void visit(const MenuSeparatorItem& item) override {
+            void visit(const MenuSeparatorItem&) override {
                 m_toolBar.addSeparator();
             }
 
@@ -558,7 +558,7 @@ namespace TrenchBroom {
 
         void MapFrame::unbindObservers() {
             PreferenceManager& prefs = PreferenceManager::instance();
-            assertResult(prefs.preferenceDidChangeNotifier.removeObserver(this, &MapFrame::preferenceDidChange));
+            assertResult(prefs.preferenceDidChangeNotifier.removeObserver(this, &MapFrame::preferenceDidChange))
 
             m_document->documentWasClearedNotifier.removeObserver(this, &MapFrame::documentWasCleared);
             m_document->documentWasNewedNotifier.removeObserver(this, &MapFrame::documentDidChange);
@@ -579,12 +579,12 @@ namespace TrenchBroom {
             m_mapView->mapViewToolBox()->toolDeactivatedNotifier.removeObserver(this, &MapFrame::toolDeactivated);
         }
 
-        void MapFrame::documentWasCleared(View::MapDocument* document) {
+        void MapFrame::documentWasCleared(View::MapDocument*) {
             updateTitle();
             updateActionState();
         }
 
-        void MapFrame::documentDidChange(View::MapDocument* document) {
+        void MapFrame::documentDidChange(View::MapDocument*) {
             updateTitle();
             updateActionState();
             updateRecentDocumentsMenu();
@@ -594,7 +594,7 @@ namespace TrenchBroom {
             updateTitle();
         }
 
-        void MapFrame::transactionDone(const String& name) {
+        void MapFrame::transactionDone(const String& /* name */) {
             QTimer::singleShot(0, this, [this]() {
                 // FIXME: Delaying this with QTimer::singleShot is a hack to work around the lack of
                 // a notification that's called _after_ the CommandProcessor undo/redo stacks are modified.
@@ -606,7 +606,7 @@ namespace TrenchBroom {
             });
         }
 
-        void MapFrame::transactionUndone(const String& name) {
+        void MapFrame::transactionUndone(const String& /* name */) {
             QTimer::singleShot(0, this, [this]() {
                 // FIXME: see MapFrame::transactionDone
                 updateUndoRedoActions();
@@ -626,28 +626,28 @@ namespace TrenchBroom {
             updateToolBarWidgets();
         }
 
-        void MapFrame::toolActivated(Tool* tool) {
+        void MapFrame::toolActivated(Tool*) {
             updateActionState();
         }
 
-        void MapFrame::toolDeactivated(Tool* tool) {
+        void MapFrame::toolDeactivated(Tool*) {
             updateActionState();
         }
 
-        void MapFrame::selectionDidChange(const Selection& selection) {
+        void MapFrame::selectionDidChange(const Selection&) {
             updateActionState();
             updateStatusBar();
         }
 
-        void MapFrame::currentLayerDidChange(const TrenchBroom::Model::Layer* layer) {
+        void MapFrame::currentLayerDidChange(const TrenchBroom::Model::Layer*) {
             updateStatusBar();
         }
 
-        void MapFrame::groupWasOpened(Model::Group* group) {
+        void MapFrame::groupWasOpened(Model::Group*) {
             updateStatusBar();
         }
 
-        void MapFrame::groupWasClosed(Model::Group* group) {
+        void MapFrame::groupWasClosed(Model::Group*) {
             updateStatusBar();
         }
 
@@ -656,7 +656,7 @@ namespace TrenchBroom {
             connect(qApp, &QApplication::focusChanged, this, &MapFrame::focusChange);
             connect(m_gridChoice, QOverload<int>::of(&QComboBox::activated), this, [this](const int index) { setGridSize(index + Grid::MinSize); });
             connect(QApplication::clipboard(), &QClipboard::dataChanged, this, &MapFrame::updatePasteActions);
-            connect(m_toolBar, &QToolBar::visibilityChanged, this, [this](const bool visible) {
+            connect(m_toolBar, &QToolBar::visibilityChanged, this, [this](const bool /* visible */) {
                 // update the "Toggle Toolbar" menu item
                 this->updateActionState();
             });
@@ -752,6 +752,11 @@ namespace TrenchBroom {
             if (!m_document->modified())
                 return true;
             const QMessageBox::StandardButton result = QMessageBox::question(this, "TrenchBroom", QString::fromStdString(m_document->filename() + " has been modified. Do you want to save the changes?"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch-enum"
+#endif
             switch (result) {
                 case QMessageBox::Yes:
                     return saveDocument();
@@ -760,6 +765,9 @@ namespace TrenchBroom {
                 default:
                     return false;
             }
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
         }
 
         void MapFrame::loadPointFile() {
@@ -1525,7 +1533,7 @@ namespace TrenchBroom {
 #pragma clang diagnostic pop
 #endif
 
-        static void debugException() {
+        [[noreturn]] static void debugException() {
             Exception e;
             throw e;
         }
@@ -1559,7 +1567,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::focusChange(QWidget* oldFocus, QWidget* newFocus) {
+        void MapFrame::focusChange(QWidget* /* oldFocus */, QWidget* newFocus) {
             auto newMapView = dynamic_cast<MapViewBase*>(newFocus);
             if (newMapView != nullptr) {
                 m_currentMapView = newMapView;
@@ -1585,7 +1593,7 @@ namespace TrenchBroom {
             return m_document->persistent();
         }
 
-        void MapFrame::changeEvent(QEvent* event) {
+        void MapFrame::changeEvent(QEvent*) {
             if (m_mapView != nullptr) {
                 m_mapView->windowActivationStateChanged(isActiveWindow());
             }

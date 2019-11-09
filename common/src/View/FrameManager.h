@@ -56,7 +56,6 @@ namespace TrenchBroom {
             void onFocusChange(QWidget* old, QWidget* now);
             MapFrame* createOrReuseFrame();
             MapFrame* createFrame(MapDocumentSPtr document);
-            bool closeAllFrames(bool force);
             void removeFrame(MapFrame* frame);
 
             friend class MapFrame;

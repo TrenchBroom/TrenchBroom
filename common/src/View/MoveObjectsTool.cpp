@@ -48,7 +48,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        MoveObjectsTool::MoveResult MoveObjectsTool::move(const InputState& inputState, const vm::vec3& delta) {
+        MoveObjectsTool::MoveResult MoveObjectsTool::move(const InputState&, const vm::vec3& delta) {
             auto document = lock(m_document);
             const auto& worldBounds = document->worldBounds();
             const auto bounds = document->selectionBounds();
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MoveObjectsTool::endMove(const InputState& inputState) {
+        void MoveObjectsTool::endMove(const InputState&) {
             auto document = lock(m_document);
             document->commitTransaction();
         }

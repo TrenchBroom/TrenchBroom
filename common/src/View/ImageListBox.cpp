@@ -80,7 +80,7 @@ namespace TrenchBroom {
             return new ImageListBoxItemRenderer(title(index), subtitle(index), image(index), parent);
         }
 
-        QPixmap ImageListBox::image(const size_t index) const {
+        QPixmap ImageListBox::image(const size_t /* index */) const {
             return QPixmap();
         }
     }

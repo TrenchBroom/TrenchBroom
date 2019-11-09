@@ -70,15 +70,15 @@ namespace TrenchBroom {
         }
 
         FloatType RotateObjectsHandle::Handle::majorRadius() {
-            return pref(Preferences::RotateHandleRadius);
+            return static_cast<FloatType>(pref(Preferences::RotateHandleRadius));
         }
 
         FloatType RotateObjectsHandle::Handle::minorRadius() {
-            return pref(Preferences::HandleRadius);
+            return static_cast<FloatType>(pref(Preferences::HandleRadius));
         }
 
         Model::Hit RotateObjectsHandle::Handle::pickCenterHandle(const vm::ray3& pickRay, const Renderer::Camera& camera) const {
-            const FloatType distance = camera.pickPointHandle(pickRay, m_position, pref(Preferences::HandleRadius));
+            const FloatType distance = camera.pickPointHandle(pickRay, m_position, static_cast<FloatType>(pref(Preferences::HandleRadius)));
             if (vm::is_nan(distance)) {
                 return Model::Hit::NoHit;
             } else {
@@ -186,7 +186,7 @@ namespace TrenchBroom {
                 case HitArea::HitArea_None:
                     break;
                 switchDefault()
-            };
+            }
         }
 
         Model::Hit RotateObjectsHandle::Handle3D::pick(const vm::ray3& pickRay, const Renderer::Camera& camera) const {
@@ -258,7 +258,7 @@ namespace TrenchBroom {
                 case HitArea::HitArea_None:
                     break;
                     switchDefault()
-            };
+            }
         }
 
         Model::Hit RotateObjectsHandle::Handle3D::pickRotateHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const HitArea area) const {

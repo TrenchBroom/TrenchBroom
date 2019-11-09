@@ -84,11 +84,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SetVisibilityCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool SetVisibilityCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
 
-        bool SetVisibilityCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool SetVisibilityCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
     }

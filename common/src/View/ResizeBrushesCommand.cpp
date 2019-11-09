@@ -46,7 +46,7 @@ namespace TrenchBroom {
         }
 
 
-        bool ResizeBrushesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool ResizeBrushesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 

@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "Reference.h"
+#include "Macros.h"
 
 #include <vecmath/vec.h>
 
@@ -56,6 +57,7 @@ namespace TrenchBroom {
             // TODO: rename to create
             template <typename T>
             static Hit hit(const HitType type, const FloatType distance, const vm::vec3& hitPoint, const T& target, const FloatType error = 0.0) {
+                unused(error);
                 return Hit(type, distance, hitPoint, target);
             }
 

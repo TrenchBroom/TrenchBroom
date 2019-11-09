@@ -47,14 +47,14 @@ namespace TrenchBroom {
             std::unique_ptr<NodeTree> m_nodeTree;
             bool m_updateNodeTree;
         public:
-            World(MapFormat mapFormat, const vm::bbox3& worldBounds);
+            World(MapFormat mapFormat);
             ~World() override;
         public: // layer management
             Layer* defaultLayer() const;
             LayerList allLayers() const;
             LayerList customLayers() const;
         private:
-            void createDefaultLayer(const vm::bbox3& worldBounds);
+            void createDefaultLayer();
         public: // index
             const AttributableNodeIndex& attributableNodeIndex() const;
         public: // selection
@@ -87,7 +87,7 @@ namespace TrenchBroom {
 
             void doDescendantWasAdded(Node* node, size_t depth) override;
             void doDescendantWillBeRemoved(Node* node, size_t depth) override;
-            void doDescendantPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds, size_t depth) override;
+            void doDescendantPhysicalBoundsDidChange(Node* node) override;
 
             bool doSelectable() const override;
             void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
@@ -107,8 +107,8 @@ namespace TrenchBroom {
             vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement ModelFactory interface
             MapFormat doGetFormat() const override;
-            World* doCreateWorld(const vm::bbox3& worldBounds) const override;
-            Layer* doCreateLayer(const String& name, const vm::bbox3& worldBounds) const override;
+            World* doCreateWorld() const override;
+            Layer* doCreateLayer(const String& name) const override;
             Group* doCreateGroup(const String& name) const override;
             Entity* doCreateEntity() const override;
             Brush* doCreateBrush(const vm::bbox3& worldBounds, const BrushFaceList& faces) const override;

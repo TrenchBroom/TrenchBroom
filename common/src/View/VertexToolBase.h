@@ -339,9 +339,9 @@ namespace TrenchBroom {
             }
 
             template <typename HH>
-            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HH& position) const {}
+            void renderGuide(Renderer::RenderContext&, Renderer::RenderBatch&, const HH& /* position */) const {}
 
-            virtual void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& position) const {}
+            virtual void renderGuide(Renderer::RenderContext&, Renderer::RenderBatch&, const vm::vec3& /* position */) const {}
         protected: // Tool interface
             virtual bool doActivate() override {
                 m_changeCount = 0;
@@ -496,10 +496,10 @@ namespace TrenchBroom {
                 AddHandles(VertexHandleManagerBaseT<HT>& handles) :
                 m_handles(handles) {}
             private:
-                void doVisit(Model::World* world) override  {}
-                void doVisit(Model::Layer* layer) override   {}
-                void doVisit(Model::Group* group) override   {}
-                void doVisit(Model::Entity* entity) override {}
+                void doVisit(Model::World*) override  {}
+                void doVisit(Model::Layer*) override  {}
+                void doVisit(Model::Group*) override  {}
+                void doVisit(Model::Entity*) override {}
                 void doVisit(Model::Brush* brush) override   {
                     m_handles.addHandles(brush);
                 }
@@ -513,10 +513,10 @@ namespace TrenchBroom {
                 RemoveHandles(VertexHandleManagerBaseT<HT>& handles) :
                 m_handles(handles) {}
             private:
-                void doVisit(Model::World* world) override   {}
-                void doVisit(Model::Layer* layer) override   {}
-                void doVisit(Model::Group* group) override   {}
-                void doVisit(Model::Entity* entity) override {}
+                void doVisit(Model::World*) override  {}
+                void doVisit(Model::Layer*) override  {}
+                void doVisit(Model::Group*) override  {}
+                void doVisit(Model::Entity*) override {}
                 void doVisit(Model::Brush* brush) override   {
                     m_handles.removeHandles(brush);
                 }

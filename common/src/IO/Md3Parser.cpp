@@ -87,7 +87,7 @@ namespace TrenchBroom {
             return model;
         }
 
-        void Md3Parser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
+        void Md3Parser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */) {
             auto reader = Reader::from(m_begin, m_end);
 
             const auto ident = reader.readInt<int32_t>();

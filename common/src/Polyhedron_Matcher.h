@@ -215,7 +215,7 @@ private:
         }
 
         size_t result = 0;
-        visitMatchingVertexPairs(leftFace, rightFace, [&](Vertex* leftVertex, Vertex* rightVertex){
+        visitMatchingVertexPairs(leftFace, rightFace, [&result](Vertex* /* leftVertex */, Vertex* /* rightVertex */){
             ++result;
         });
         return result;

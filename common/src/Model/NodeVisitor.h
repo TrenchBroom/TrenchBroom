@@ -198,7 +198,7 @@ namespace TrenchBroom {
                 }
             }
         private:
-            virtual T doCombineResults(T oldResult, T newResult) const { return newResult; }
+            virtual T doCombineResults(T /* oldResult */, T newResult) const { return newResult; }
         };
     }
 }

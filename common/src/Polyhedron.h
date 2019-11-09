@@ -525,31 +525,31 @@ private:
     class Subtract;
 public: // geometrical queries
     bool contains(const V& point, const Callback& callback = Callback()) const;
-    bool contains(const Polyhedron& other, const Callback& callback = Callback()) const;
+    bool contains(const Polyhedron& other) const;
     bool intersects(const Polyhedron& other, const Callback& callback = Callback()) const;
 private:
-    static bool pointIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
-    static bool pointIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
+    static bool pointIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs);
+    static bool pointIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs);
     static bool pointIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
     static bool pointIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
 
-    static bool edgeIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
-    static bool edgeIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
-    static bool edgeIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
-    static bool edgeIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
+    static bool edgeIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs);
+    static bool edgeIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs);
+    static bool edgeIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs);
+    static bool edgeIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs);
 
     static bool edgeIntersectsFace(const Edge* lhsEdge, const Face* rhsFace);
 
     static bool polygonIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
-    static bool polygonIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
-    static bool polygonIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
-    static bool polygonIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
+    static bool polygonIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs);
+    static bool polygonIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs);
+    static bool polygonIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs);
 
     static bool faceIntersectsFace(const Face* lhsFace, const Face* rhsFace);
 
     static bool polyhedronIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
-    static bool polyhedronIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
-    static bool polyhedronIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
+    static bool polyhedronIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs);
+    static bool polyhedronIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs);
     static bool polyhedronIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
 
     static bool separate(const Face* faces, const Vertex* vertices, const Callback& callback);

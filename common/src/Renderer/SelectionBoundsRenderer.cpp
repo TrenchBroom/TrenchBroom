@@ -62,7 +62,7 @@ namespace TrenchBroom {
                 }
             }
 
-            vm::vec2f extraOffsets(TextAlignment::Type alignment, const vm::vec2f& size) const override {
+            vm::vec2f extraOffsets(const TextAlignment::Type alignment) const override {
                 vm::vec2f result;
                 if (alignment & TextAlignment::Top) {
                     result[1] -= 8.0f;
@@ -189,7 +189,7 @@ namespace TrenchBroom {
                 }
             }
 
-            vm::vec2f extraOffsets(TextAlignment::Type alignment, const vm::vec2f& size) const override {
+            vm::vec2f extraOffsets(const TextAlignment::Type alignment) const override {
                 vm::vec2f result;
                 if (alignment & TextAlignment::Top) {
                     result[1] -= 8.0f;
@@ -245,7 +245,7 @@ namespace TrenchBroom {
                 }
             }
 
-            vm::vec2f extraOffsets(TextAlignment::Type alignment, const vm::vec2f& size) const override {
+            vm::vec2f extraOffsets(const TextAlignment::Type alignment) const override {
                 vm::vec2f result;
                 if (alignment & TextAlignment::Top)
                     result[1] -= 8.0f;

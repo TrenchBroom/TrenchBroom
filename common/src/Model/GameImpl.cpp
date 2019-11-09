@@ -116,7 +116,7 @@ namespace TrenchBroom {
             if (!initialMapFilePath.isEmpty() && IO::Disk::fileExists(initialMapFilePath)) {
                 return doLoadMap(format, worldBounds, initialMapFilePath, logger);
             } else {
-                auto world = std::make_unique<World>(format, worldBounds);
+                auto world = std::make_unique<World>(format);
 
                 const Model::BrushBuilder builder(world.get(), worldBounds);
                 auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);

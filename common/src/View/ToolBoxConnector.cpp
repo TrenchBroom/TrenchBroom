@@ -88,7 +88,7 @@ namespace TrenchBroom {
             m_toolBox->dragLeave(m_toolChain, m_inputState);
         }
 
-        bool ToolBoxConnector::dragDrop(const int x, const int y, const String& text) {
+        bool ToolBoxConnector::dragDrop(const int /* x */, const int /* y */, const String& text) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
             updatePickResult();
@@ -169,7 +169,7 @@ namespace TrenchBroom {
             updateModifierKeys();
         }
 
-        void ToolBoxConnector::processEvent(const KeyEvent& event) {
+        void ToolBoxConnector::processEvent(const KeyEvent&) {
             updateModifierKeys();
         }
 
@@ -207,7 +207,7 @@ namespace TrenchBroom {
 
         }
 
-        void ToolBoxConnector::processEvent(const CancelEvent& event) {
+        void ToolBoxConnector::processEvent(const CancelEvent&) {
             cancelDrag();
         }
 
@@ -266,7 +266,7 @@ namespace TrenchBroom {
             updatePickResult();
         }
 
-        void ToolBoxConnector::processDragStart(const MouseEvent& event) {
+        void ToolBoxConnector::processDragStart(const MouseEvent&) {
             if (m_toolBox->startMouseDrag(m_toolChain, m_inputState)) {
                 m_inputState.setAnyToolDragging(true);
             }
@@ -282,7 +282,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ToolBoxConnector::processDragEnd(const MouseEvent& event) {
+        void ToolBoxConnector::processDragEnd(const MouseEvent&) {
             if (m_toolBox->dragging()) {
                 m_toolBox->endMouseDrag(m_inputState);
                 m_inputState.setAnyToolDragging(false);

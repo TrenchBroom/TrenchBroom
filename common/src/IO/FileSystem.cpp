@@ -181,7 +181,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool FileSystem::doCanMakeAbsolute(const Path& path) const {
+        bool FileSystem::doCanMakeAbsolute(const Path& /* path */) const {
             return false;
         }
 

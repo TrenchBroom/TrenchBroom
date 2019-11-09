@@ -380,7 +380,7 @@ namespace TrenchBroom {
             }
         }
 
-        void FgdParser::skipClassAttribute(ParserStatus& status) {
+        void FgdParser::skipClassAttribute(ParserStatus& /* status */) {
             size_t depth = 0;
             Token token;
             do {
@@ -551,7 +551,7 @@ namespace TrenchBroom {
             return std::make_shared<Assets::UnknownAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
         }
 
-        bool FgdParser::parseReadOnlyFlag(ParserStatus& status) {
+        bool FgdParser::parseReadOnlyFlag(ParserStatus& /* status */) {
             auto token = m_tokenizer.peekToken();
             if (token.hasType(FgdToken::Word) && token.data() == "readonly") {
                 m_tokenizer.nextToken();

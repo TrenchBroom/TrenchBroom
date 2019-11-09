@@ -74,7 +74,7 @@ namespace TrenchBroom {
             return document->hasSelectedNodes();
         }
 
-        UndoableCommand::Ptr TransformObjectsCommand::doRepeat(MapDocumentCommandFacade* document) const {
+        UndoableCommand::Ptr TransformObjectsCommand::doRepeat(MapDocumentCommandFacade*) const {
             return UndoableCommand::Ptr(new TransformObjectsCommand(m_action, m_name, m_transform, m_lockTextures));
         }
 

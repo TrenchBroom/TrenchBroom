@@ -46,9 +46,9 @@ namespace TrenchBroom {
     public:
         explicit TreeBuilder(AABB& tree) : m_tree(tree) {}
     private:
-        void doVisit(Model::World* world) override {}
-        void doVisit(Model::Layer* layer) override {}
-        void doVisit(Model::Group* group) override {}
+        void doVisit(Model::World*) override {}
+        void doVisit(Model::Layer*) override {}
+        void doVisit(Model::Group*) override {}
         void doVisit(Model::Entity* entity) override {
             doInsert(entity);
         }

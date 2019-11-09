@@ -97,12 +97,12 @@ namespace TrenchBroom {
             }
         }
 
-        void SmartAttributeEditorManager::selectionDidChange(const Selection& selection) {
+        void SmartAttributeEditorManager::selectionDidChange(const Selection&) {
             MapDocumentSPtr document = lock(m_document);
             switchEditor(m_name, document->allSelectedAttributableNodes());
         }
 
-        void SmartAttributeEditorManager::nodesDidChange(const Model::NodeList& nodes) {
+        void SmartAttributeEditorManager::nodesDidChange(const Model::NodeList&) {
             MapDocumentSPtr document = lock(m_document);
             switchEditor(m_name, document->allSelectedAttributableNodes());
         }

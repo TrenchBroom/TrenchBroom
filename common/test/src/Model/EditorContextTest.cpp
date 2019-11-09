@@ -37,7 +37,7 @@ namespace TrenchBroom {
 
             void SetUp() override {
                 worldBounds = vm::bbox3d(8192.0);
-                world = new World(MapFormat::Standard, worldBounds);
+                world = new World(MapFormat::Standard);
             }
 
             void TearDown() override {

@@ -45,7 +45,7 @@ namespace TrenchBroom {
         m_smartEditorManager(nullptr),
         m_documentationText(nullptr),
         m_currentDefinition(nullptr) {
-            createGui(this, document);
+            createGui(document);
             bindObservers();
         }
 
@@ -72,11 +72,11 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityAttributeEditor::selectionDidChange(const Selection& selection) {
+        void EntityAttributeEditor::selectionDidChange(const Selection&) {
             updateIfSelectedEntityDefinitionChanged();
         }
 
-        void EntityAttributeEditor::nodesDidChange(const Model::NodeList& nodes) {
+        void EntityAttributeEditor::nodesDidChange(const Model::NodeList&) {
             updateIfSelectedEntityDefinitionChanged();
         }
 
@@ -105,7 +105,15 @@ namespace TrenchBroom {
         }
 
         QString EntityAttributeEditor::optionDescriptions(const Assets::AttributeDefinition& definition) {
+#ifdef _MSC_VER
+            // MSVC complains about a constant conditional expression inside of QStringBuilder
+#pragma warning(push)
+#pragma warning(disable : 4127)
+#endif
             const QString bullet = QString(" ") % QChar(0x2022) % QString(" ");
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
             switch (definition.type()) {
                 case Assets::AttributeDefinition::Type_ChoiceAttribute: {
@@ -230,7 +238,7 @@ namespace TrenchBroom {
             m_documentationText->moveCursor(QTextCursor::MoveOperation::Start);
         }
 
-        void EntityAttributeEditor::createGui(QWidget* parent, MapDocumentWPtr document) {
+        void EntityAttributeEditor::createGui(MapDocumentWPtr document) {
             m_splitter = new Splitter(Qt::Vertical);
             m_splitter->setObjectName("EntityAttributeEditor_Splitter");
 

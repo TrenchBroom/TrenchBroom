@@ -92,7 +92,7 @@ namespace TrenchBroom {
         template <class LayerStrategy, class GroupStrategy, class EntityStrategy, class BrushStrategy>
         class AssortNodesVisitorT : public NodeVisitor, public LayerStrategy, public GroupStrategy, public EntityStrategy, public BrushStrategy {
         private:
-            void doVisit(World* world)   override {}
+            void doVisit(World* /* world */)   override {}
             void doVisit(Layer* layer)   override {  LayerStrategy::addLayer(layer); }
             void doVisit(Group* group)   override {  GroupStrategy::addGroup(group); }
             void doVisit(Entity* entity) override { EntityStrategy::addEntity(entity); }

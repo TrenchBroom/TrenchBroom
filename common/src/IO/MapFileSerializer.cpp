@@ -78,11 +78,11 @@ namespace TrenchBroom {
                 const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 std::fprintf(stream, TextureInfoFormat.c_str(),
                              textureName.c_str(),
-                             face->xOffset(),
-                             face->yOffset(),
-                             face->rotation(),
-                             face->xScale(),
-                             face->yScale());
+                             static_cast<double>(face->xOffset()),
+                             static_cast<double>(face->yOffset()),
+                             static_cast<double>(face->rotation()),
+                             static_cast<double>(face->xScale()),
+                             static_cast<double>(face->yScale()));
             }
         };
 
@@ -110,7 +110,7 @@ namespace TrenchBroom {
                 std::fprintf(stream, SurfaceAttributesFormat.c_str(),
                              face->surfaceContents(),
                              face->surfaceFlags(),
-                             face->surfaceValue());
+                             static_cast<double>(face->surfaceValue()));
             }
         };
 
@@ -185,16 +185,16 @@ namespace TrenchBroom {
                              xAxis.x(),
                              xAxis.y(),
                              xAxis.z(),
-                             face->xOffset(),
+                             static_cast<double>(face->xOffset()),
 
                              yAxis.x(),
                              yAxis.y(),
                              yAxis.z(),
-                             face->yOffset(),
+                             static_cast<double>(face->yOffset()),
 
-                             face->rotation(),
-                             face->xScale(),
-                             face->yScale());
+                             static_cast<double>(face->rotation()),
+                             static_cast<double>(face->xScale()),
+                             static_cast<double>(face->yScale()));
             }
         };
 
@@ -228,7 +228,7 @@ namespace TrenchBroom {
         void MapFileSerializer::doBeginFile() {}
         void MapFileSerializer::doEndFile() {}
 
-        void MapFileSerializer::doBeginEntity(const Model::Node* node) {
+        void MapFileSerializer::doBeginEntity(const Model::Node* /* node */) {
             std::fprintf(m_stream, "// entity %u\n", entityNo());
             ++m_line;
             m_startLineStack.push_back(m_line);
@@ -249,7 +249,7 @@ namespace TrenchBroom {
             ++m_line;
         }
 
-        void MapFileSerializer::doBeginBrush(const Model::Brush* brush) {
+        void MapFileSerializer::doBeginBrush(const Model::Brush* /* brush */) {
             std::fprintf(m_stream, "// brush %u\n", brushNo());
             ++m_line;
             m_startLineStack.push_back(m_line);

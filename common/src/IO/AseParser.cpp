@@ -134,7 +134,7 @@ namespace TrenchBroom {
             }
         }
 
-        void AseParser::parseScene(Logger& logger) {
+        void AseParser::parseScene(Logger& /* logger */) {
             skipDirective("SCENE");
         }
 
@@ -147,7 +147,7 @@ namespace TrenchBroom {
             });
         }
 
-        void AseParser::parseMaterialListMaterialCount(Logger& logger, Path::List& paths) {
+        void AseParser::parseMaterialListMaterialCount(Logger& /* logger */, Path::List& paths) {
             expectDirective("MATERIAL_COUNT");
             paths.resize(parseSizeArgument());
         }
@@ -175,7 +175,7 @@ namespace TrenchBroom {
             });
         }
 
-        void AseParser::parseMaterialListMaterialMapDiffuseBitmap(Logger& logger, Path& path) {
+        void AseParser::parseMaterialListMaterialMapDiffuseBitmap(Logger& /* logger */, Path& path) {
             expectDirective("BITMAP");
             const auto token = expect(AseToken::String, m_tokenizer.nextToken());
             path = Path(token.data());
@@ -191,7 +191,7 @@ namespace TrenchBroom {
             });
         }
 
-        void AseParser::parseGeomObjectNodeName(Logger& logger, GeomObject& geomObject) {
+        void AseParser::parseGeomObjectNodeName(Logger& /* logger */, GeomObject& geomObject) {
             expectDirective("NODE_NAME");
             const auto token = expect(AseToken::String, m_tokenizer.nextToken());
             geomObject.name = token.data();
@@ -220,7 +220,7 @@ namespace TrenchBroom {
             });
         }
 
-        void AseParser::parseGeomObjectMeshNumVertex(Logger& logger, std::vector<vm::vec3f>& vertices) {
+        void AseParser::parseGeomObjectMeshNumVertex(Logger& /* logger */, std::vector<vm::vec3f>& vertices) {
             expectDirective("MESH_NUMVERTEX");
             const auto vertexCount = parseSizeArgument();
             vertices.reserve(vertexCount);
@@ -234,13 +234,13 @@ namespace TrenchBroom {
             });
         }
 
-        void AseParser::parseGeomObjectMeshVertex(Logger& logger, std::vector<vm::vec3f>& vertices) {
+        void AseParser::parseGeomObjectMeshVertex(Logger& /* logger */, std::vector<vm::vec3f>& vertices) {
             expectDirective("MESH_VERTEX");
             expectSizeArgument(vertices.size());
             vertices.emplace_back(parseVecArgument());
         }
 
-        void AseParser::parseGeomObjectMeshNumFaces(Logger& logger, std::vector<MeshFace>& faces) {
+        void AseParser::parseGeomObjectMeshNumFaces(Logger& /* logger */, std::vector<MeshFace>& faces) {
             expectDirective("MESH_NUMFACES");
             const auto faceCount = parseSizeArgument();
             faces.reserve(faceCount);
@@ -254,7 +254,7 @@ namespace TrenchBroom {
             });
         }
 
-        void AseParser::parseGeomObjectMeshFace(Logger& logger, std::vector<MeshFace>& faces) {
+        void AseParser::parseGeomObjectMeshFace(Logger& /* logger */, std::vector<MeshFace>& faces) {
             expectDirective("MESH_FACE");
             expectSizeArgument(faces.size());
 
@@ -294,7 +294,7 @@ namespace TrenchBroom {
             }});
         }
 
-        void AseParser::parseGeomObjectMeshNumTVertex(Logger& logger, std::vector<vm::vec2f>& uv) {
+        void AseParser::parseGeomObjectMeshNumTVertex(Logger& /* logger */, std::vector<vm::vec2f>& uv) {
             expectDirective("MESH_NUMTVERTEX");
             const auto uvCount = parseSizeArgument();
             uv.reserve(uvCount);
@@ -308,7 +308,7 @@ namespace TrenchBroom {
             });
         }
 
-        void AseParser::parseGeomObjectMeshTVertex(Logger& logger, std::vector<vm::vec2f>& uv) {
+        void AseParser::parseGeomObjectMeshTVertex(Logger& /* logger */, std::vector<vm::vec2f>& uv) {
             expectDirective("MESH_TVERT");
             expectSizeArgument(uv.size());
             const auto tmp = parseVecArgument();
@@ -323,7 +323,7 @@ namespace TrenchBroom {
             });
         }
 
-        void AseParser::parseGeomObjectMeshTFace(Logger& logger, std::vector<MeshFace>& faces) {
+        void AseParser::parseGeomObjectMeshTFace(Logger& /* logger */, std::vector<MeshFace>& faces) {
             expectDirective("MESH_TFACE");
             const auto token = m_tokenizer.peekToken();
             const auto index = parseSizeArgument();
@@ -525,7 +525,7 @@ namespace TrenchBroom {
             }
         }
 
-        Path AseParser::fixTexturePath(Logger& logger, Path path) const {
+        Path AseParser::fixTexturePath(Logger& /* logger */, Path path) const {
             if (!path.isAbsolute()) {
                 // usually the paths appear to be relative to the map file, but this will just yield a valid path if we kick off the ".." parts
                 while (!path.isEmpty() && path.firstComponent() == Path("..")) {

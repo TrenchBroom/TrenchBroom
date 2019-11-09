@@ -150,11 +150,11 @@ namespace TrenchBroom {
                     const auto plane = vm::orthogonal_plane(vm::vec3(camera.defaultPoint(distance)), vm::vec3(camera.direction()));
                     const auto initialPoint = vm::point_at_distance(inputState.pickRay(), vm::intersect_ray_plane(inputState.pickRay(), plane));
 
-                    m_lasso = new Lasso(camera, distance, initialPoint);
+                    m_lasso = new Lasso(camera, static_cast<FloatType>(distance), initialPoint);
                     return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), initialPoint);
                 }
 
-                DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
+                DragResult doDrag(const InputState&, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) override {
                     ensure(m_lasso != nullptr, "lasso is null");
                     m_lasso->update(nextHandlePosition);
                     return DR_Continue;
@@ -177,7 +177,7 @@ namespace TrenchBroom {
                     return m_tool->deselectAll();
                 }
             protected:
-                virtual void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override {
+                virtual void doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const override {
                     renderContext.setForceHideSelectionGuide();
                 }
 
@@ -283,7 +283,7 @@ namespace TrenchBroom {
                             ));
                 }
 
-                DragResult doMove(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
+                DragResult doMove(const InputState&, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
                     switch (m_tool->move(nextHandlePosition - lastHandlePosition)) {
                         case T::MR_Continue:
                             return DR_Continue;
@@ -295,7 +295,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                void doEndMove(const InputState& inputState) override {
+                void doEndMove(const InputState&) override {
                     m_tool->endMove();
                 }
 
@@ -303,7 +303,7 @@ namespace TrenchBroom {
                     m_tool->cancelMove();
                 }
 
-                DragSnapper* doCreateDragSnapper(const InputState& inputState) const  override {
+                DragSnapper* doCreateDragSnapper(const InputState&) const  override {
                     return new DeltaDragSnapper(m_tool->grid());
                 }
 

@@ -289,7 +289,7 @@ namespace TrenchBroom {
             tool->showPage();
         }
 
-        void MapViewToolBox::toolDeactivated(Tool* tool) {
+        void MapViewToolBox::toolDeactivated(Tool*) {
             updateEditorContext();
             m_moveObjectsTool->showPage();
         }
@@ -300,7 +300,7 @@ namespace TrenchBroom {
             editorContext.setBlockSelection(createComplexBrushToolActive());
         }
 
-        void MapViewToolBox::documentWasNewedOrLoaded(MapDocument* document) {
+        void MapViewToolBox::documentWasNewedOrLoaded(MapDocument*) {
             deactivateAllTools();
         }
     }

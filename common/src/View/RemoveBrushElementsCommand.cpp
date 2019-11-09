@@ -46,7 +46,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool RemoveBrushElementsCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool RemoveBrushElementsCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
     }

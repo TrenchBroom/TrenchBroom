@@ -46,7 +46,7 @@ namespace TrenchBroom {
         PerspectiveCamera::PerspectiveCamera(const float fov, const float nearPlane, const float farPlane, const Viewport& viewport, const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up)
         : Camera(nearPlane, farPlane, viewport, position, direction, up),
         m_fov(fov) {
-            assert(m_fov > 0.0);
+            assert(m_fov > 0.0f);
         }
 
         float PerspectiveCamera::fov() const {

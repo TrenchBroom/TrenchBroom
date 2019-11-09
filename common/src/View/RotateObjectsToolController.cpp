@@ -124,7 +124,7 @@ namespace TrenchBroom {
                 return DragInfo(new CircleDragRestricter(m_center, m_axis, radius), new CircleDragSnapper(m_tool->grid(), m_tool->angle(), m_start, m_center, m_axis, radius));
             }
 
-            DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
+            DragResult doDrag(const InputState&, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) override {
                 const vm::vec3 ref = vm::normalize(m_start - m_center);
                 const vm::vec3 vec = vm::normalize(nextHandlePosition - m_center);
                 m_angle = vm::measure_angle(vec, ref, m_axis);
@@ -132,7 +132,7 @@ namespace TrenchBroom {
                 return DR_Continue;
             }
 
-            void doEndDrag(const InputState& inputState) override {
+            void doEndDrag(const InputState&) override {
                 m_tool->commitRotation();
             }
 
@@ -169,19 +169,19 @@ namespace TrenchBroom {
                 }
 
                 void doRender(Renderer::RenderContext& renderContext) override {
-                    glAssert(glDisable(GL_DEPTH_TEST));
+                    glAssert(glDisable(GL_DEPTH_TEST))
 
-                    glAssert(glPushAttrib(GL_POLYGON_BIT));
-                    glAssert(glDisable(GL_CULL_FACE));
-                    glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+                    glAssert(glPushAttrib(GL_POLYGON_BIT))
+                    glAssert(glDisable(GL_CULL_FACE))
+                    glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL))
 
                     Renderer::MultiplyModelMatrix translation(renderContext.transformation(),vm::translation_matrix(vm::vec3f(m_position)));
                     Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
                     shader.set("Color", Color(1.0f, 1.0f, 1.0f, 0.2f));
                     m_circle.render();
 
-                    glAssert(glEnable(GL_DEPTH_TEST));
-                    glAssert(glPopAttrib());
+                    glAssert(glEnable(GL_DEPTH_TEST))
+                    glAssert(glPopAttrib())
                 }
             };
 
@@ -252,12 +252,12 @@ namespace TrenchBroom {
                 return MoveInfo(m_tool->rotationCenter());
             }
 
-            DragResult doMove(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
+            DragResult doMove(const InputState&, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) override {
                 m_tool->setRotationCenter(nextHandlePosition);
                 return DR_Continue;
             }
 
-            void doEndMove(const InputState& inputState) override {}
+            void doEndMove(const InputState&) override {}
 
             void doCancelMove() override {
                 m_tool->setRotationCenter(initialHandlePosition());
@@ -323,7 +323,7 @@ namespace TrenchBroom {
             explicit MoveCenterPart(RotateObjectsTool* tool) :
             MoveCenterBase(tool) {}
         private:
-            void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
+            void doRenderHighlight(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
                 m_tool->renderHighlight2D(renderContext, renderBatch, area);
             }
         };
@@ -333,7 +333,7 @@ namespace TrenchBroom {
             explicit RotateObjectsPart(RotateObjectsTool* tool) :
             RotateObjectsBase(tool) {}
         private:
-            void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
+            void doRenderHighlight(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
                 m_tool->renderHighlight2D(renderContext, renderBatch, area);
             }
         };
@@ -358,7 +358,7 @@ namespace TrenchBroom {
             explicit MoveCenterPart(RotateObjectsTool* tool) :
             MoveCenterBase(tool) {}
         private:
-            void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
+            void doRenderHighlight(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
                 m_tool->renderHighlight3D(renderContext, renderBatch, area);
             }
         };
@@ -368,7 +368,7 @@ namespace TrenchBroom {
             explicit RotateObjectsPart(RotateObjectsTool* tool) :
             RotateObjectsBase(tool) {}
         private:
-            void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
+            void doRenderHighlight(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
                 m_tool->renderHighlight3D(renderContext, renderBatch, area);
             }
         };

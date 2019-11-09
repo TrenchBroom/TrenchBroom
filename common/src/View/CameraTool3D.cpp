@@ -156,7 +156,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        void CameraTool3D::doEndMouseDrag(const InputState& inputState) {
+        void CameraTool3D::doEndMouseDrag(const InputState&) {
             m_orbit = false;
         }
 

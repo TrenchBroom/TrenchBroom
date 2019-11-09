@@ -442,9 +442,9 @@ namespace TrenchBroom {
             virtual void doAncestorWillChange();
             virtual void doAncestorDidChange();
 
-            virtual void doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds);
-            virtual void doChildPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds);
-            virtual void doDescendantPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds, size_t depth);
+            virtual void doNodePhysicalBoundsDidChange();
+            virtual void doChildPhysicalBoundsDidChange();
+            virtual void doDescendantPhysicalBoundsDidChange(Node* node);
 
             virtual void doChildWillChange(Node* node);
             virtual void doChildDidChange(Node* node);

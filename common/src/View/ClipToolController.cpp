@@ -135,7 +135,7 @@ namespace TrenchBroom {
             return DragInfo(restricter, snapper, initialPoint);
         }
 
-        RestrictedDragPolicy::DragResult ClipToolController::AddClipPointPart::doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
+        RestrictedDragPolicy::DragResult ClipToolController::AddClipPointPart::doDrag(const InputState& inputState, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) {
 
             if (!m_secondPointSet) {
                 vm::vec3 position;
@@ -151,7 +151,7 @@ namespace TrenchBroom {
             return DR_Deny;
         }
 
-        void ClipToolController::AddClipPointPart::doEndDrag(const InputState& inputState) {
+        void ClipToolController::AddClipPointPart::doEndDrag(const InputState&) {
             if (m_secondPointSet)
                 m_callback->tool()->endDragPoint();
         }
@@ -197,13 +197,15 @@ namespace TrenchBroom {
             return DragInfo(restricter, snapper, initialPoint);
         }
 
-        RestrictedDragPolicy::DragResult ClipToolController::MoveClipPointPart::doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
-            if (m_callback->tool()->dragPoint(nextHandlePosition, m_callback->getHelpVectors(inputState, nextHandlePosition)))
+        RestrictedDragPolicy::DragResult ClipToolController::MoveClipPointPart::doDrag(const InputState& inputState, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) {
+            if (m_callback->tool()->dragPoint(nextHandlePosition, m_callback->getHelpVectors(inputState, nextHandlePosition))) {
                 return DR_Continue;
-            return DR_Deny;
+            } else {
+                return DR_Deny;
+            }
         }
 
-        void ClipToolController::MoveClipPointPart::doEndDrag(const InputState& inputState) {
+        void ClipToolController::MoveClipPointPart::doEndDrag(const InputState&) {
             m_callback->tool()->endDragPoint();
         }
 
@@ -232,7 +234,7 @@ namespace TrenchBroom {
             m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);
         }
 
-        void ClipToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+        void ClipToolController::doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
             if (m_tool->hasBrushes()) {
                 renderContext.setHideSelection();
                 renderContext.setForceHideSelectionGuide();
@@ -264,11 +266,11 @@ namespace TrenchBroom {
                 return new PlaneDragRestricter(vm::plane3(initialPoint, vm::get_abs_max_component_axis(camDir)));
             }
 
-            DragSnapper* createDragSnapper(const InputState& inputState) const override {
+            DragSnapper* createDragSnapper(const InputState&) const override {
                 return new AbsoluteDragSnapper(m_tool->grid());
             }
 
-            std::vector<vm::vec3> getHelpVectors(const InputState& inputState, const vm::vec3& clipPoint) const override {
+            std::vector<vm::vec3> getHelpVectors(const InputState& inputState, const vm::vec3& /* clipPoint */) const override {
                 return std::vector<vm::vec3>(1, vm::vec3(inputState.camera().direction()));
             }
 
@@ -353,7 +355,7 @@ namespace TrenchBroom {
             Callback3D(ClipTool* tool) :
             Callback(tool) {}
 
-            DragRestricter* createDragRestricter(const InputState& inputState, const vm::vec3& initialPoint) const override {
+            DragRestricter* createDragRestricter(const InputState&, const vm::vec3& /* initialPoint */) const override {
                 SurfaceDragRestricter* restricter = new SurfaceDragRestricter();
                 restricter->setPickable(true);
                 restricter->setType(Model::Brush::BrushHit);
@@ -366,14 +368,14 @@ namespace TrenchBroom {
                 ClipPointSnapper(const Grid& grid) :
                 SurfaceDragSnapper(grid) {}
             private:
-                vm::plane3 doGetPlane(const InputState& inputState, const Model::Hit& hit) const override {
+                vm::plane3 doGetPlane(const InputState&, const Model::Hit& hit) const override {
                     ensure(hit.type() == Model::Brush::BrushHit, "invalid hit type");
                     const Model::BrushFace* face = Model::hitToFace(hit);
                     return face->boundary();
                 }
             };
 
-            DragSnapper* createDragSnapper(const InputState& inputState) const override {
+            DragSnapper* createDragSnapper(const InputState&) const override {
                 SurfaceDragSnapper* snapper = new ClipPointSnapper(m_tool->grid());
                 snapper->setPickable(true);
                 snapper->setType(Model::Brush::BrushHit);

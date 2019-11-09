@@ -47,7 +47,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool SmartAttributeEditorDefaultMatcher::doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const {
+        bool SmartAttributeEditorDefaultMatcher::doMatches(const Model::AttributeName& /* name */, const Model::AttributableNodeList& /* attributables */) const {
             return true;
         }
     }

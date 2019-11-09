@@ -199,7 +199,7 @@ namespace TrenchBroom {
         if (s.readFromString(string, &result)) {
             return { result };
         }
-        return {};
+        return nonstd::nullopt;
     }
 
     template <class Serializer, class PrimitiveType>

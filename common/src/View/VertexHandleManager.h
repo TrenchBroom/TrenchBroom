@@ -217,7 +217,7 @@ namespace TrenchBroom {
             HandleList allHandles() const {
                 HandleList result;
                 result.reserve(totalHandleCount());
-                collectHandles([](const HandleInfo& info) { return true; }, std::back_inserter(result));
+                collectHandles([](const HandleInfo& /* info */) { return true; }, std::back_inserter(result));
                 return result;
             }
 
