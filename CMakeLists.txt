@@ -15,6 +15,11 @@ if(POLICY CMP0058)
     cmake_policy(SET CMP0058 NEW)
 endif()
 
+# Instruct cmake not to set default warning levels for MSVC projects (cmake 3.15 or higher)
+if (POLICY CMP0092)
+    cmake_policy(SET CMP0092 NEW)
+endif()
+
 # Enable the source_group command for creating IDE folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
