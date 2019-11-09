@@ -37,6 +37,7 @@
 #include <QKeySequence>
 #include <QDebug>
 #include <QKeyEvent>
+#include <QSortFilterProxyModel>
 
 namespace TrenchBroom {
     namespace View {
@@ -67,7 +68,8 @@ namespace TrenchBroom {
             ensure(row != -1, "row should have been inserted");
 
             // Select the newly inserted attribute name
-            QModelIndex mi = m_model->index(row, 0);
+            const QModelIndex mi = m_proxyModel->mapFromSource(m_model->index(row, 0));
+
             m_table->setCurrentIndex(mi);
             m_table->setFocus();
         }
@@ -81,7 +83,7 @@ namespace TrenchBroom {
             }
             // FIXME: support more than 1 row
             // FIXME: current vs selected
-            QModelIndex current = s->currentIndex();
+            QModelIndex current = m_proxyModel->mapToSource(s->currentIndex());
             if (!current.isValid()) {
                 return;
             }
@@ -162,19 +164,31 @@ namespace TrenchBroom {
 //            }
             return result;
         }
+
+        class EntitySortFilterProxyModel : public QSortFilterProxyModel {
+        public:
+            EntitySortFilterProxyModel(QObject* parent = nullptr) : QSortFilterProxyModel(parent) {}
+
+        protected:
+            bool lessThan(const QModelIndex& left, const QModelIndex& right) const {
+                const EntityAttributeModel& source = dynamic_cast<const EntityAttributeModel&>(*sourceModel());
+
+                return source.lessThan(static_cast<size_t>(left.row()), static_cast<size_t>(right.row()));
+            }
+        };
+
         void EntityAttributeGrid::createGui(MapDocumentWPtr document) {
             m_table = new EntityAttributeTable();
-            m_model = new EntityAttributeModel(document, this);
-            m_model->setParent(m_table); // ensure the table takes ownership of the model in setModel
-            m_table->setModel(m_model);
-            m_table->setItemDelegate(new EntityAttributeItemDelegate(m_table, m_model, m_table));
 
-            connect(m_model, &EntityAttributeModel::currentItemChangeRequestedByModel, this, [this](const QModelIndex& index) {
-                qDebug() << "setting current to " << index;
-                QItemSelectionModel* selectionModel = this->m_table->selectionModel();
-                selectionModel->clearSelection();
-                selectionModel->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
-            });
+            m_model = new EntityAttributeModel(document, this);
+            m_model->setParent(m_table); // ensure the table takes ownership of the model in setModel // FIXME: why? this looks unnecessary
+
+            m_proxyModel = new EntitySortFilterProxyModel(this);
+            m_proxyModel->setSourceModel(m_model);
+            m_proxyModel->sort(0);
+            m_table->setModel(m_proxyModel);
+
+            m_table->setItemDelegate(new EntityAttributeItemDelegate(m_table, m_model, m_proxyModel, m_table));
 
             autoResizeRows(m_table);
 
@@ -184,8 +198,6 @@ namespace TrenchBroom {
             m_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
             m_table->horizontalHeader()->setSectionsClickable(false);
             m_table->setSelectionBehavior(QAbstractItemView::SelectItems);
-
-//            m_table->Bind(wxEVT_GRID_SELECT_CELL, &EntityAttributeGrid::OnAttributeGridSelectCell, this);
 
             m_addAttributeButton = createBitmapButton("Add.png", tr("Add a new property"), this);
             connect(m_addAttributeButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
@@ -224,9 +236,7 @@ namespace TrenchBroom {
             layout->addLayout(toolBar, 0);
             setLayout(layout);
 
-
-
-            //m_table->setEditTriggers(QAbstractItemView::SelectedClicked | QAbstractItemView::AnyKeyPressed);
+            m_table->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked | QAbstractItemView::AnyKeyPressed);
         }
 
         void EntityAttributeGrid::createShortcuts() {
@@ -314,7 +324,7 @@ namespace TrenchBroom {
         }
 
         Model::AttributeName EntityAttributeGrid::selectedRowName() const {
-            QModelIndex current = m_table->currentIndex();
+            QModelIndex current = m_proxyModel->mapToSource(m_table->currentIndex());
             const AttributeRow* rowModel = m_model->dataForModelIndex(current);
             if (rowModel == nullptr) {
                 return "";

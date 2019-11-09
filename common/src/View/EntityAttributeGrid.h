@@ -29,6 +29,7 @@ class QTableView;
 class QCheckBox;
 class QAbstractButton;
 class QShortcut;
+class QSortFilterProxyModel;
 
 namespace TrenchBroom {
     namespace View {
@@ -46,6 +47,7 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
 
             EntityAttributeModel* m_model;
+            QSortFilterProxyModel* m_proxyModel;
             EntityAttributeTable* m_table;
             QAbstractButton* m_addAttributeButton;
             QAbstractButton* m_removePropertiesButton;

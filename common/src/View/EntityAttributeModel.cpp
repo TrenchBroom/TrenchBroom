@@ -491,16 +491,20 @@ namespace TrenchBroom {
         }
 
         Qt::ItemFlags EntityAttributeModel::flags(const QModelIndex &index) const {
-            const AttributeRow& issue = m_rows.at(static_cast<size_t>(index.row()));
+            if (!index.isValid()) {
+                return Qt::NoItemFlags;
+            }
+
+            const AttributeRow& row = m_rows.at(static_cast<size_t>(index.row()));
 
             Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
             if (index.column() == 0) {
-                if (issue.nameMutable()) {
+                if (row.nameMutable()) {
                     flags |= Qt::ItemIsEditable;
                 }
             } else {
-                if (issue.valueMutable()) {
+                if (row.valueMutable()) {
                     flags |= Qt::ItemIsEditable;
                 }
             }
@@ -600,18 +604,6 @@ namespace TrenchBroom {
 
                 const String newName = value.toString().toStdString();
                 if (renameAttribute(rowIndex, newName, attributables)) {
-                    // Queue selection of the renamed key.
-                    // Not executed immediately because we need to wait for EntityAttributeGrid::updateControls() to
-                    // call EntityAttributeModel::setRows().
-                    // FIXME: not eusre if we want this?
-#if 0
-                    QTimer::singleShot(0, this, [this, newName]() {
-                        const int row = this->rowForAttributeName(newName);
-                        if (row != -1) {
-                            emit currentItemChangeRequestedByModel(this->index(row, 1));
-                        }
-                    });
-#endif
                     return true;
                 }
             } else if (index.column() == 1) {
@@ -769,6 +761,22 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
             return document->setAttribute(name, newValue);
+        }
+
+        bool EntityAttributeModel::lessThan(const size_t rowIndexA, const size_t rowIndexB) const {
+            const AttributeRow& rowA = m_rows.at(rowIndexA);
+            const AttributeRow& rowB = m_rows.at(rowIndexB);
+
+            // 1. non-default sorts before default
+            if (!rowA.isDefault() &&  rowB.isDefault()) {
+                return true;
+            }
+            if ( rowA.isDefault() && !rowB.isDefault()) {
+                return false;
+            }
+
+            // 2. sort by name
+            return rowA.name() < rowB.name();
         }
     }
 }

@@ -26,13 +26,15 @@
 #include <QDebug>
 #include <QEvent>
 #include <QLineEdit>
+#include <QSortFilterProxyModel>
 
 namespace TrenchBroom {
     namespace View {
-        EntityAttributeItemDelegate::EntityAttributeItemDelegate(EntityAttributeTable* table, const EntityAttributeModel* model, QWidget* parent) :
+        EntityAttributeItemDelegate::EntityAttributeItemDelegate(EntityAttributeTable* table, const EntityAttributeModel* model, const QSortFilterProxyModel* proxyModel, QWidget* parent) :
         QStyledItemDelegate(parent),
         m_table(table),
-        m_model(model) {}
+        m_model(model),
+        m_proxyModel(proxyModel) {}
 
         QWidget* EntityAttributeItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
             auto* editor = QStyledItemDelegate::createEditor(parent, option, index);
@@ -78,7 +80,7 @@ namespace TrenchBroom {
         }
 
         QStringList EntityAttributeItemDelegate::getCompletions(const QModelIndex& index) const {
-            auto completions = m_model->getCompletions(index);
+            auto completions = m_model->getCompletions(m_proxyModel->mapToSource(index));
             completions.sort(Qt::CaseInsensitive);
             return completions;
         }

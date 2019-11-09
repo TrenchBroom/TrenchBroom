@@ -155,8 +155,12 @@ namespace TrenchBroom {
             bool renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables);
             bool updateAttribute(const size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables);
 
-        signals:
-            void currentItemChangeRequestedByModel(const QModelIndex& index);
+        public:
+            /**
+             * Return the desired sort order for these two rows.
+             * Used by EntitySortFilterProxyModel to sort the rows.
+             */
+            bool lessThan(size_t rowIndexA, size_t rowIndexB) const;
         };
     }
 }
