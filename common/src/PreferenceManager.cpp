@@ -377,16 +377,8 @@ namespace TrenchBroom {
     }
 
     std::map<IO::Path, QString> readV1Settings() {
-#ifdef _MSC_VER
-        // MSVC complains about a constant conditional expression inside of QStringBuilder
-#pragma warning(push)
-#pragma warning(disable : 4127)
-#endif
         [[maybe_unused]]
         const QString linuxPath = QDir::homePath() % QLatin1String("/.TrenchBroom/.preferences");
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 
         [[maybe_unused]]
         const QString macOSPath = QStandardPaths::locate(QStandardPaths::ConfigLocation,

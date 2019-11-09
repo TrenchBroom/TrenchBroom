@@ -100,7 +100,7 @@ namespace TrenchBroom {
                                 rgbaImage[i * 4 + 3] = 0xFF;
                                 break;
                             case PaletteTransparency::Index255Transparent:
-                                rgbaImage[i * 4 + 3] = (index == 255) ? 0x00 : 0xFF;
+                                rgbaImage[i * 4 + 3] = static_cast<ColorT>((index == 255) ? 0x00 : 0xFF);
                                 hasTransparency |= (index == 255);
                                 break;
                         }

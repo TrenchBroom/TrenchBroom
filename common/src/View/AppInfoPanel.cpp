@@ -49,17 +49,9 @@ namespace TrenchBroom {
             BorderLine* appLine = new BorderLine(BorderLine::Direction_Horizontal);
             QLabel* appClaim = new QLabel(tr("Level Editor"));
 
-#ifdef _MSC_VER
-            // MSVC complains about a constant conditional expression inside of QStringBuilder
-#pragma warning(push)
-#pragma warning(disable : 4127)
-#endif
             ClickableLabel* version = new ClickableLabel(QString(tr("Version ")) % getBuildVersion());
             ClickableLabel* build = new ClickableLabel(QString(tr("Build ")) % getBuildIdStr());
             ClickableLabel* qtVersion = new ClickableLabel(QString(tr("Qt ")) % QString::fromLocal8Bit(qVersion()));
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 
             makeInfo(version);
             makeInfo(build);
@@ -92,15 +84,7 @@ namespace TrenchBroom {
 
         void AppInfoPanel::versionInfoClicked() {
             QClipboard *clipboard = QApplication::clipboard();
-#ifdef _MSC_VER
-            // MSVC complains about a constant conditional expression inside of QStringBuilder
-#pragma warning(push)
-#pragma warning(disable : 4127)
-#endif
             const QString str = QString("TrenchBroom ") % getBuildVersion() % QString(" Build ") % getBuildIdStr();
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
             clipboard->setText(str);
         }
 
