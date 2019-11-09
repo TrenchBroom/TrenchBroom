@@ -183,7 +183,7 @@ namespace TrenchBroom {
             }
         }
 
-        void LayerListBox::documentDidChange(MapDocument* document) {
+        void LayerListBox::documentDidChange(MapDocument*) {
             reload();
         }
 
@@ -198,11 +198,11 @@ namespace TrenchBroom {
             updateItems();
         }
 
-        void LayerListBox::nodesDidChange(const Model::NodeList& nodes) {
+        void LayerListBox::nodesDidChange(const Model::NodeList&) {
             updateItems();
         }
 
-        void LayerListBox::currentLayerDidChange(const Model::Layer* layer) {
+        void LayerListBox::currentLayerDidChange(const Model::Layer*) {
             updateItems();
         }
 
@@ -219,7 +219,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const auto* world = document->world();
             const auto layers = world->allLayers();
-            auto* renderer = new LayerListBoxWidget(document, layers[index], this);
+            auto* renderer = new LayerListBoxWidget(document, layers[index], parent);
 
             connect(renderer, &LayerListBoxWidget::layerDoubleClicked, this, [this](auto* layer){
                 emit layerSetCurrent(layer);

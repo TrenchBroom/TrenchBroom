@@ -22,6 +22,8 @@
 
 #include <memory>
 
+// TODO: reevaluate if this is still needed; if it is, document it properly
+
 namespace TrenchBroom {
     template <typename T> class TypedReference;
     class UntypedReference;
@@ -30,7 +32,7 @@ namespace TrenchBroom {
         class Holder {
         public:
             using Ptr = std::shared_ptr<Holder>;
-            virtual ~Holder() {}
+            virtual ~Holder();
         };
 
         template <typename T> TypedReference<T> swap(T& value);

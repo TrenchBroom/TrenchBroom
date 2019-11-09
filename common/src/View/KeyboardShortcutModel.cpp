@@ -52,11 +52,11 @@ namespace TrenchBroom {
             emit dataChanged(createIndex(0, 0), createIndex(totalActionCount(), 3));
         }
 
-        int KeyboardShortcutModel::rowCount(const QModelIndex& parent) const {
+        int KeyboardShortcutModel::rowCount(const QModelIndex& /* parent */) const {
             return totalActionCount();
         }
 
-        int KeyboardShortcutModel::columnCount(const QModelIndex& parent) const {
+        int KeyboardShortcutModel::columnCount(const QModelIndex& /* parent */) const {
             // Shortcut, Context, Description
             return 3;
         }
@@ -159,7 +159,7 @@ namespace TrenchBroom {
                 m_currentPath = m_currentPath.deleteLastComponent();
             }
 
-            void visit(const MenuSeparatorItem& item) override {}
+            void visit(const MenuSeparatorItem&) override {}
 
             void visit(const MenuActionItem& item) override {
                 m_actions.emplace_back(m_currentPath + IO::pathFromQString(item.label()), item.action());

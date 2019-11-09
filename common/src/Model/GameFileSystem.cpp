@@ -137,15 +137,15 @@ namespace TrenchBroom {
             }
         }
 
-        bool GameFileSystem::doDirectoryExists(const IO::Path& path) const {
+        bool GameFileSystem::doDirectoryExists(const IO::Path& /* path */) const {
             return false;
         }
 
-        bool GameFileSystem::doFileExists(const IO::Path& path) const {
+        bool GameFileSystem::doFileExists(const IO::Path& /* path */) const {
             return false;
         }
 
-        IO::Path::List GameFileSystem::doGetDirectoryContents(const IO::Path& path) const {
+        IO::Path::List GameFileSystem::doGetDirectoryContents(const IO::Path& /* path */) const {
             return TrenchBroom::IO::Path::List();
         }
 

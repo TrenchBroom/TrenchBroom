@@ -41,7 +41,7 @@ namespace TrenchBroom {
             createGui();
         }
 
-        void SmartChoiceEditor::comboBoxActivated(int index) {
+        void SmartChoiceEditor::comboBoxActivated(const int /* index */) {
             TemporarilySetBool ignoreTextChanged(m_ignoreEditTextChanged);
 
             const auto valueDescStr = m_comboBox->currentText().toStdString();

@@ -102,10 +102,10 @@ namespace TrenchBroom {
             m_pickRay(pickRay),
             m_closest(std::numeric_limits<FloatType>::max()) {}
         private:
-            void doVisit(const Model::World* world) override   {}
-            void doVisit(const Model::Layer* layer) override   {}
-            void doVisit(const Model::Group* group) override   {}
-            void doVisit(const Model::Entity* entity) override {}
+            void doVisit(const Model::World*) override  {}
+            void doVisit(const Model::Layer*) override  {}
+            void doVisit(const Model::Group*) override  {}
+            void doVisit(const Model::Entity*) override {}
             void doVisit(const Model::Brush* brush) override   {
                 for (const auto edge : brush->edges())
                     visitEdge(edge);
@@ -265,7 +265,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool ResizeBrushesTool::resize(const vm::ray3& pickRay, const Renderer::Camera& camera) {
+        bool ResizeBrushesTool::resize(const vm::ray3& pickRay, const Renderer::Camera& /* camera */) {
             assert(hasDragFaces());
 
             auto* dragFace = dragFaces().front();
@@ -469,13 +469,13 @@ namespace TrenchBroom {
             }
         }
 
-        void ResizeBrushesTool::nodesDidChange(const Model::NodeList& nodes) {
+        void ResizeBrushesTool::nodesDidChange(const Model::NodeList&) {
             if (!m_dragging) {
                 m_dragHandles.clear();
             }
         }
 
-        void ResizeBrushesTool::selectionDidChange(const Selection& selection) {
+        void ResizeBrushesTool::selectionDidChange(const Selection&) {
             if (!m_dragging) {
                 m_dragHandles.clear();
             }

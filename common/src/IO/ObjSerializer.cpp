@@ -89,7 +89,7 @@ namespace TrenchBroom {
         void ObjFileSerializer::writeTexCoords() {
             std::fprintf(m_stream, "# texture coordinates\n");
             for (const vm::vec2f& elem : m_texCoords.list()) {
-                std::fprintf(m_stream, "vt %.17g %.17g\n", elem.x(), elem.y());
+                std::fprintf(m_stream, "vt %.17g %.17g\n", static_cast<double>(elem.x()), static_cast<double>(elem.y()));
             }
         }
 
@@ -128,7 +128,7 @@ namespace TrenchBroom {
 
         void ObjFileSerializer::doBeginEntity(const Model::Node* /* node */) {}
         void ObjFileSerializer::doEndEntity(Model::Node* /* node */) {}
-        void ObjFileSerializer::doEntityAttribute(const Model::EntityAttribute& attribute) {}
+        void ObjFileSerializer::doEntityAttribute(const Model::EntityAttribute& /* attribute */) {}
 
         void ObjFileSerializer::doBeginBrush(const Model::Brush* /* brush */) {
             m_currentObject.entityNo = entityNo();

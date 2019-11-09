@@ -38,8 +38,8 @@ namespace TrenchBroom {
             }
         }
 
-        void ComputeNodeBoundsVisitor::doVisit(const World* world) {}
-        void ComputeNodeBoundsVisitor::doVisit(const Layer* layer) {}
+        void ComputeNodeBoundsVisitor::doVisit(const World*) {}
+        void ComputeNodeBoundsVisitor::doVisit(const Layer*) {}
 
         void ComputeNodeBoundsVisitor::doVisit(const Group* group) {
             if (m_boundsType == BoundsType::Physical) {

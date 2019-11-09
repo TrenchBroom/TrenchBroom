@@ -232,7 +232,7 @@ namespace TrenchBroom {
         m_fs(fs) {}
 
         // http://tfc.duke.free.fr/old/models/md2.htm
-        std::unique_ptr<Assets::EntityModel> DkmParser::doInitializeModel(Logger& logger) {
+        std::unique_ptr<Assets::EntityModel> DkmParser::doInitializeModel(Logger& /* logger */) {
             auto reader = Reader::from(m_begin, m_end);
 
             const int ident = reader.readInt<int32_t>();
@@ -270,7 +270,7 @@ namespace TrenchBroom {
             return model;
         }
 
-        void DkmParser::doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
+        void DkmParser::doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */) {
             auto reader = Reader::from(m_begin, m_end);
             const int ident = reader.readInt<int32_t>();
             const int version = reader.readInt<int32_t>();
@@ -317,7 +317,7 @@ namespace TrenchBroom {
             return skins;
         }
 
-        DkmParser::DkmFrame DkmParser::parseFrame(Reader reader, const size_t frameIndex, const size_t vertexCount, const int version) {
+        DkmParser::DkmFrame DkmParser::parseFrame(Reader reader, const size_t /* frameIndex */, const size_t vertexCount, const int version) {
             assert(version == 1 || version == 2);
 
             auto frame = DkmFrame(vertexCount);
@@ -354,7 +354,7 @@ namespace TrenchBroom {
             return frame;
         }
 
-        DkmParser::DkmMeshList DkmParser::parseMeshes(Reader reader, const size_t commandCount) {
+        DkmParser::DkmMeshList DkmParser::parseMeshes(Reader reader, const size_t /* commandCount */) {
             DkmMeshList meshes;
 
             // vertex count is signed, where < 0 indicates a triangle fan and > 0 indicates a triangle strip

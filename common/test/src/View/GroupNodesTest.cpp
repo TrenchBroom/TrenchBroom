@@ -135,7 +135,7 @@ namespace TrenchBroom {
 
             ASSERT_EQ(PT_Node, document->paste(data));
             ASSERT_TRUE(document->selectedNodes().hasOnlyEntities());
-            ASSERT_EQ(1, document->selectedNodes().entityCount());
+            ASSERT_EQ(1u, document->selectedNodes().entityCount());
 
             Model::Entity* light = document->selectedNodes().entities().front();
             ASSERT_EQ(group, light->parent());
@@ -189,7 +189,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(group->selected());
 
             EXPECT_FALSE(entity->hasAttribute("origin"));
-            ASSERT_TRUE(document->rotateObjects(vm::vec3::zero(), vm::vec3::pos_z(), 10.0f));
+            ASSERT_TRUE(document->rotateObjects(vm::vec3::zero(), vm::vec3::pos_z(), static_cast<FloatType>(10.0)));
             EXPECT_FALSE(entity->hasAttribute("origin"));
 
             document->undoLastCommand();

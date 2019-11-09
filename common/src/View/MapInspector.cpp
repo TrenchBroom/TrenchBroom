@@ -30,12 +30,12 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapInspector::MapInspector(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
+        MapInspector::MapInspector(MapDocumentWPtr document, QWidget* parent) :
         TabBookPage(parent) {
-            createGui(document, contextManager);
+            createGui(document);
         }
 
-        void MapInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
+        void MapInspector::createGui(MapDocumentWPtr document) {
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);
             sizer->setSpacing(0);

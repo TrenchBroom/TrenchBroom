@@ -258,7 +258,7 @@ namespace TrenchBroom {
             const qreal r = devicePixelRatioF();
             const auto viewportWidth = static_cast<int>(width() * r);
             const auto viewportHeight = static_cast<int>(height() * r);
-            glAssert(glViewport(0, 0, viewportWidth, viewportHeight));
+            glAssert(glViewport(0, 0, viewportWidth, viewportHeight))
 
             setupGL();
 
@@ -273,26 +273,26 @@ namespace TrenchBroom {
         }
 
         void CellView::setupGL() {
-            glAssert(glEnable(GL_MULTISAMPLE));
-            glAssert(glEnable(GL_BLEND));
-            glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-            glAssert(glEnable(GL_CULL_FACE));
-            glAssert(glEnable(GL_DEPTH_TEST));
-            glAssert(glDepthFunc(GL_LEQUAL));
-            glAssert(glShadeModel(GL_SMOOTH));
+            glAssert(glEnable(GL_MULTISAMPLE))
+            glAssert(glEnable(GL_BLEND))
+            glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA))
+            glAssert(glEnable(GL_CULL_FACE))
+            glAssert(glEnable(GL_DEPTH_TEST))
+            glAssert(glDepthFunc(GL_LEQUAL))
+            glAssert(glShadeModel(GL_SMOOTH))
         }
 
         void CellView::doClear() {}
-        void CellView::doLeftClick(Layout& layout, float x, float y) {}
-        void CellView::doContextMenu(Layout& layout, float x, float y, QContextMenuEvent* event) {}
+        void CellView::doLeftClick(Layout& /* layout */, float /* x */, float /* y */) {}
+        void CellView::doContextMenu(Layout& /* layout */, float /* x */, float /* y */, QContextMenuEvent* /* event */) {}
 
         bool CellView::dndEnabled() { return false; }
-        QPixmap CellView::dndImage(const Cell& cell) { assert(false); return QPixmap(); }
-        QString CellView::dndData(const Cell& cell) { assert(false); return ""; }
-        QString CellView::tooltip(const Cell& cell) { return ""; }
+        QPixmap CellView::dndImage(const Cell& /* cell */) { assert(false); return QPixmap(); }
+        QString CellView::dndData(const Cell& /* cell */) { assert(false); return ""; }
+        QString CellView::tooltip(const Cell& /* cell */) { return ""; }
 
-        void CellView::processEvent(const KeyEvent& event) {}
-        void CellView::processEvent(const MouseEvent& event) {}
-        void CellView::processEvent(const CancelEvent& event) {}
+        void CellView::processEvent(const KeyEvent& /* event */) {}
+        void CellView::processEvent(const MouseEvent& /* event */) {}
+        void CellView::processEvent(const CancelEvent& /* event */) {}
     }
 }

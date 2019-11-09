@@ -42,19 +42,19 @@ namespace TrenchBroom {
             }
         }
 
-        Model::ModelFactory& BrushFaceReader::initialize(const Model::MapFormat format, const vm::bbox3& worldBounds) {
+        Model::ModelFactory& BrushFaceReader::initialize([[maybe_unused]] const Model::MapFormat format) {
             assert(format == m_factory.format());
             return m_factory;
         }
 
-        Model::Node* BrushFaceReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) { return nullptr; }
-        void BrushFaceReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount, ParserStatus& status) {}
-        void BrushFaceReader::onLayer(Model::Layer* layer, ParserStatus& status) {}
-        void BrushFaceReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) {}
-        void BrushFaceReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {}
-        void BrushFaceReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status) {}
+        Model::Node* BrushFaceReader::onWorldspawn(const Model::EntityAttribute::List& /* attributes */, const ExtraAttributes& /* extraAttributes */, ParserStatus& /* status */) { return nullptr; }
+        void BrushFaceReader::onWorldspawnFilePosition(const size_t /* lineNumber */, const size_t /* lineCount */, ParserStatus& /* status */) {}
+        void BrushFaceReader::onLayer(Model::Layer* /* layer */, ParserStatus& /* status */) {}
+        void BrushFaceReader::onNode(Model::Node* /* parent */, Model::Node* /* node */, ParserStatus& /* status */) {}
+        void BrushFaceReader::onUnresolvedNode(const ParentInfo& /* parentInfo */, Model::Node* /* node */, ParserStatus& /* status */) {}
+        void BrushFaceReader::onBrush(Model::Node* /* parent */, Model::Brush* /* brush */, ParserStatus& /* status */) {}
 
-        void BrushFaceReader::onBrushFace(Model::BrushFace* face, ParserStatus& status) {
+        void BrushFaceReader::onBrushFace(Model::BrushFace* face, ParserStatus& /* status */) {
             m_brushFaces.push_back(face);
         }
     }

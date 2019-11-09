@@ -159,7 +159,7 @@ namespace TrenchBroom {
             m_rotateButton->setEnabled(document->hasSelectedNodes());
         }
 
-        void RotateObjectsToolPage::selectionDidChange(const Selection& selection) {
+        void RotateObjectsToolPage::selectionDidChange(const Selection&) {
             updateGui();
         }
 

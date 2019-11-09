@@ -415,6 +415,7 @@ namespace TrenchBroom {
                     } else {
                         parseQuake2Face(status);
                     }
+                    break;
                 case Model::MapFormat::Unknown:
                     // cannot happen
                     break;
@@ -621,7 +622,7 @@ namespace TrenchBroom {
             status.warn(startLine, "Skipping patch: currently not supported");
         }
 
-        std::tuple<vm::vec3, vm::vec3, vm::vec3> StandardMapParser::parseFacePoints(ParserStatus& status) {
+        std::tuple<vm::vec3, vm::vec3, vm::vec3> StandardMapParser::parseFacePoints(ParserStatus& /* status */) {
             const auto p1 = correct(parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
             const auto p2 = correct(parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
             const auto p3 = correct(parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
@@ -629,7 +630,7 @@ namespace TrenchBroom {
             return std::make_tuple(p1, p2, p3);
         }
 
-        String StandardMapParser::parseTextureName(ParserStatus& status) {
+        String StandardMapParser::parseTextureName(ParserStatus& /* status */) {
             auto textureName = m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace());
             if (textureName == Model::BrushFace::NoTextureName) {
                 textureName = "";
@@ -637,7 +638,7 @@ namespace TrenchBroom {
             return textureName;
         }
 
-        std::tuple<vm::vec3, float, vm::vec3, float> StandardMapParser::parseValveTextureAxes(ParserStatus& status) {
+        std::tuple<vm::vec3, float, vm::vec3, float> StandardMapParser::parseValveTextureAxes(ParserStatus& /* status */) {
             const auto firstAxis = parseFloatVector<4>(QuakeMapToken::OBracket, QuakeMapToken::CBracket);
             const auto texS = firstAxis.xyz();
             const auto xOffset = static_cast<float>(firstAxis.w());
@@ -649,7 +650,7 @@ namespace TrenchBroom {
             return std::make_tuple(texS, xOffset, texT, yOffset);
         }
 
-        std::tuple<vm::vec3, vm::vec3> StandardMapParser::parsePrimitiveTextureAxes(ParserStatus& status) {
+        std::tuple<vm::vec3, vm::vec3> StandardMapParser::parsePrimitiveTextureAxes(ParserStatus& /* status */) {
             const auto texX = correct(parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
             const auto texY = correct(parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
             return std::make_tuple(texX, texY);
@@ -663,7 +664,7 @@ namespace TrenchBroom {
             return expect(QuakeMapToken::Integer, m_tokenizer.nextToken()).toInteger<int>();
         }
 
-        void StandardMapParser::parseExtraAttributes(ExtraAttributes& attributes, ParserStatus& status) {
+        void StandardMapParser::parseExtraAttributes(ExtraAttributes& attributes, ParserStatus& /* status */) {
             const TemporarilySetBoolFun<QuakeMapTokenizer> parseEof(&m_tokenizer, &QuakeMapTokenizer::setSkipEol, false);
             auto token = m_tokenizer.nextToken();
             expect(QuakeMapToken::String | QuakeMapToken::Eol | QuakeMapToken::Eof, token);

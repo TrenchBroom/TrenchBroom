@@ -1397,7 +1397,7 @@ public:
         ASSERT_TRUE(m_originals.find(face) == std::end(m_originals));
     }
 
-    void faceWasSplit(PFace* original, PFace* clone) override {
+    void faceWasSplit(PFace* original, PFace* /* clone */) override {
         m_originals.insert(original);
     }
 };
@@ -1801,7 +1801,7 @@ TEST(PolyhedronTest, subtractDisjointCuboidFromCuboid) {
     const Polyhedron3d subtrahend(vm::bbox3d(vm::vec3d(96.0, 96.0, 96.0), vm::vec3d(128.0, 128.0, 128.0)));
 
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
-    ASSERT_EQ(1, result.size());
+    ASSERT_EQ(1u, result.size());
 
     const Polyhedron3d resultPolyhedron = result.front();
     ASSERT_EQ(minuend, resultPolyhedron);

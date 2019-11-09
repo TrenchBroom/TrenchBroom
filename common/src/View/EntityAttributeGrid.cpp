@@ -188,17 +188,17 @@ namespace TrenchBroom {
 //            m_table->Bind(wxEVT_GRID_SELECT_CELL, &EntityAttributeGrid::OnAttributeGridSelectCell, this);
 
             m_addAttributeButton = createBitmapButton("Add.png", tr("Add a new property"), this);
-            connect(m_addAttributeButton, &QAbstractButton::clicked, this, [=](bool checked){
+            connect(m_addAttributeButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
                 addAttribute();
             });
 
             m_removePropertiesButton = createBitmapButton("Remove.png", tr("Remove the selected properties"), this);
-            connect(m_removePropertiesButton, &QAbstractButton::clicked, this, [=](bool checked){
+            connect(m_removePropertiesButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
                 removeSelectedAttributes();
             });
 
             m_showDefaultPropertiesCheckBox = new QCheckBox(tr("Show default properties"));
-            connect(m_showDefaultPropertiesCheckBox, &QCheckBox::stateChanged, this, [=](int state){
+            connect(m_showDefaultPropertiesCheckBox, &QCheckBox::stateChanged, this, [=](const int state){
                 m_model->setShowDefaultRows(state == Qt::Checked);
             });
             m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
@@ -275,22 +275,22 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityAttributeGrid::documentWasNewed(MapDocument* document) {
+        void EntityAttributeGrid::documentWasNewed(MapDocument*) {
             updateControls();
         }
 
-        void EntityAttributeGrid::documentWasLoaded(MapDocument* document) {
+        void EntityAttributeGrid::documentWasLoaded(MapDocument*) {
             updateControls();
         }
 
-        void EntityAttributeGrid::nodesDidChange(const Model::NodeList& nodes) {
+        void EntityAttributeGrid::nodesDidChange(const Model::NodeList&) {
             updateControls();
         }
 
         void EntityAttributeGrid::selectionWillChange() {
         }
 
-        void EntityAttributeGrid::selectionDidChange(const Selection& selection) {
+        void EntityAttributeGrid::selectionDidChange(const Selection&) {
             updateControls();
         }
 

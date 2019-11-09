@@ -50,11 +50,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool ReparentNodesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool ReparentNodesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool ReparentNodesCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool ReparentNodesCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
     }

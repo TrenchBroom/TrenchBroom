@@ -71,7 +71,7 @@ namespace TrenchBroom {
         }
 
         QWidget* CompilationProfileEditor::createEditorPage(QWidget* parent) {
-            auto* containerPanel = new QWidget();
+            auto* containerPanel = new QWidget(parent);
             auto* upperPanel = new QWidget(containerPanel);
             setDefaultWindowColor(upperPanel);
 

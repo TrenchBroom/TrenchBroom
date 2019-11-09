@@ -300,7 +300,7 @@ namespace TrenchBroom {
             m_toolBox->refreshViewsNotifier.removeObserver(this, &SwitchableMapViewContainer::refreshViews);
         }
 
-        void SwitchableMapViewContainer::refreshViews(Tool* tool) {
+        void SwitchableMapViewContainer::refreshViews(Tool*) {
             // NOTE: it doesn't work to call QWidget::update() here. The actual OpenGL view is a QWindow embedded in
             // the widget hierarchy with QWidget::createWindowContainer(), and we need to call QWindow::requestUpdate().
             m_mapView->refreshViews();

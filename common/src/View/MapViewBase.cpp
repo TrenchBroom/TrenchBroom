@@ -176,30 +176,30 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapViewBase::preferenceDidChange);
         }
 
-        void MapViewBase::nodesDidChange(const Model::NodeList& nodes) {
+        void MapViewBase::nodesDidChange(const Model::NodeList&) {
             updatePickResult();
             update();
         }
 
-        void MapViewBase::toolChanged(Tool* tool) {
+        void MapViewBase::toolChanged(Tool*) {
             updatePickResult();
             updateActionStates();
             update();
         }
 
-        void MapViewBase::commandDone(Command::Ptr command) {
+        void MapViewBase::commandDone(Command::Ptr) {
             updateActionStates();
             updatePickResult();
             update();
         }
 
-        void MapViewBase::commandUndone(UndoableCommand::Ptr command) {
+        void MapViewBase::commandUndone(UndoableCommand::Ptr) {
             updateActionStates();
             updatePickResult();
             update();
         }
 
-        void MapViewBase::selectionDidChange(const Selection& selection) {
+        void MapViewBase::selectionDidChange(const Selection&) {
             updateActionStates();
         }
 
@@ -247,7 +247,7 @@ namespace TrenchBroom {
             update();
         }
 
-        void MapViewBase::documentDidChange(MapDocument* document) {
+        void MapViewBase::documentDidChange(MapDocument*) {
             createActions();
             updateActionStates();
             updatePickResult();
@@ -918,7 +918,7 @@ namespace TrenchBroom {
             m_portalFileRenderer = nullptr;
         }
 
-        void MapViewBase::validatePortalFileRenderer(Renderer::RenderContext& renderContext) {
+        void MapViewBase::validatePortalFileRenderer(Renderer::RenderContext&) {
             assert(m_portalFileRenderer == nullptr);
             m_portalFileRenderer = std::make_unique<Renderer::PrimitiveRenderer>();
 
@@ -967,11 +967,11 @@ namespace TrenchBroom {
         static bool isEntity(const Model::Node* node) {
             class IsEntity : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
             private:
-                void doVisit(const Model::World* world) override   { setResult(false); }
-                void doVisit(const Model::Layer* layer) override   { setResult(false); }
-                void doVisit(const Model::Group* group) override   { setResult(false); }
-                void doVisit(const Model::Entity* entity) override { setResult(true); }
-                void doVisit(const Model::Brush* brush) override   { setResult(false); }
+                void doVisit(const Model::World*) override  { setResult(false); }
+                void doVisit(const Model::Layer*) override  { setResult(false); }
+                void doVisit(const Model::Group*) override  { setResult(false); }
+                void doVisit(const Model::Entity*) override { setResult(true); }
+                void doVisit(const Model::Brush*) override  { setResult(false); }
             };
 
             IsEntity visitor;
@@ -1063,7 +1063,7 @@ namespace TrenchBroom {
             dragEnterEvent->acceptProposedAction();
         }
 
-        void MapViewBase::dragLeaveEvent(QDragLeaveEvent* event) {
+        void MapViewBase::dragLeaveEvent(QDragLeaveEvent*) {
             dragLeave();
         }
 
@@ -1272,11 +1272,11 @@ namespace TrenchBroom {
         public:
             BrushesToEntities(const Model::World* world) : m_world(world) {}
         public:
-            bool operator()(const Model::World* world) const   { return false; }
-            bool operator()(const Model::Layer* layer) const   { return false; }
-            bool operator()(const Model::Group* group) const   { return true;  }
-            bool operator()(const Model::Entity* entity) const { return true; }
-            bool operator()(const Model::Brush* brush) const   { return brush->entity() == m_world; }
+            bool operator()(const Model::World*) const       { return false; }
+            bool operator()(const Model::Layer*) const       { return false; }
+            bool operator()(const Model::Group*) const       { return true;  }
+            bool operator()(const Model::Entity*) const      { return true; }
+            bool operator()(const Model::Brush* brush) const { return brush->entity() == m_world; }
         };
 
         static Model::NodeList collectEntitiesForBrushes(const Model::NodeList& selectedNodes, const Model::World *world) {
@@ -1337,7 +1337,7 @@ namespace TrenchBroom {
 
         void MapViewBase::doPreRender() {}
 
-        void MapViewBase::doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
+        void MapViewBase::doRenderExtras(Renderer::RenderContext&, Renderer::RenderBatch&) {}
 
         bool MapViewBase::doBeforePopupMenu() { return true; }
         void MapViewBase::doAfterPopupMenu() {}

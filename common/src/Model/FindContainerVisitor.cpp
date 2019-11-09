@@ -46,6 +46,6 @@ namespace TrenchBroom {
             cancel();
         }
 
-        void FindContainerVisitor::doVisit(Brush* brush) {}
+        void FindContainerVisitor::doVisit(Brush*) {}
     }
 }

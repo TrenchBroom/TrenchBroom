@@ -88,7 +88,7 @@ namespace TrenchBroom {
         }
 
         void assertShader(const Path::List& paths, const Path& path) {
-            ASSERT_EQ(1u, std::count_if(std::begin(paths), std::end(paths), [&path](const auto& item) { return item == path; }));
+            ASSERT_EQ(1, std::count_if(std::begin(paths), std::end(paths), [&path](const auto& item) { return item == path; }));
         }
     }
 }

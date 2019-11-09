@@ -124,7 +124,7 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapView3D::preferenceDidChange);
         }
 
-        void MapView3D::cameraDidChange(const Renderer::Camera* camera) {
+        void MapView3D::cameraDidChange(const Renderer::Camera* /* camera */) {
             if (!m_ignoreCameraChangeEvents) {
                 // Don't refresh if the camera was changed in doPreRender!
                 update();
@@ -199,7 +199,7 @@ namespace TrenchBroom {
             m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
         }
 
-        vm::vec3 MapView3D::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
+        vm::vec3 MapView3D::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& /* referenceBounds */) const {
             auto document = lock(m_document);
             const auto& grid = document->grid();
 
@@ -218,11 +218,11 @@ namespace TrenchBroom {
                 if (hit.isMatch()) {
                     const auto* face = Model::hitToFace(hit);
                     const auto dragPlane = vm::aligned_orthogonal_plane(hit.hitPoint(), face->boundary().normal);
-                    return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, hit.hitPoint());
+                    return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay);
                 } else {
                     const auto point = vm::vec3(grid.snap(m_camera.defaultPoint(pickRay)));
                     const auto dragPlane = vm::aligned_orthogonal_plane(point, -vm::vec3(vm::get_abs_max_component_axis(m_camera.direction())));
-                    return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, point);
+                    return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay);
                 }
             } else {
                 const auto oldMin = bounds.min;
@@ -266,9 +266,9 @@ namespace TrenchBroom {
                 return m_center / static_cast<FloatType>(m_count);
             }
         private:
-            void doVisit(const Model::World* world) override   {}
-            void doVisit(const Model::Layer* layer) override   {}
-            void doVisit(const Model::Group* group) override   {}
+            void doVisit(const Model::World*) override   {}
+            void doVisit(const Model::Layer*) override   {}
+            void doVisit(const Model::Group*) override   {}
 
             void doVisit(const Model::Entity* entity) override {
                 if (!entity->hasChildren()) {
@@ -310,9 +310,9 @@ namespace TrenchBroom {
                 return m_offset;
             }
         private:
-            void doVisit(const Model::World* world) override   {}
-            void doVisit(const Model::Layer* layer) override   {}
-            void doVisit(const Model::Group* group) override   {}
+            void doVisit(const Model::World*) override   {}
+            void doVisit(const Model::Layer*) override   {}
+            void doVisit(const Model::Group*) override   {}
 
             void doVisit(const Model::Entity* entity) override {
                 if (!entity->hasChildren()) {
@@ -336,7 +336,7 @@ namespace TrenchBroom {
             void addPoint(const vm::vec3f& point, const vm::plane3f& plane) {
                 const auto ray = vm::ray3f(m_cameraPosition, -m_cameraDirection);
                 const auto newPlane = vm::plane3f(point + 64.0f * plane.normal, plane.normal);
-                const auto dist = vm::intersect_ray_plane(ray, newPlane);;
+                const auto dist = vm::intersect_ray_plane(ray, newPlane);
                 if (!vm::is_nan(dist) && dist > 0.0f) {
                     m_offset = std::max(m_offset, dist);
                 }
@@ -396,7 +396,7 @@ namespace TrenchBroom {
                     const auto projectedDirection = plane.project_vector(vm::vec3(m_camera.direction()));
                     if (vm::is_zero(projectedDirection, vm::C::almost_zero())) {
                         // camera is looking straight down or up
-                        if (m_camera.direction().z() < 0.0) {
+                        if (m_camera.direction().z() < 0.0f) {
                             return vm::vec3(vm::get_abs_max_component_axis(m_camera.up()));
                         } else {
                             return vm::vec3(-vm::get_abs_max_component_axis(m_camera.up()));
@@ -432,11 +432,11 @@ namespace TrenchBroom {
             const auto& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (hit.isMatch()) {
                 const auto* face = Model::hitToFace(hit);
-                return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay(), hit.hitPoint());
+                return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay());
             } else {
                 const auto newPosition = Renderer::Camera::defaultPoint(pickRay());
                 const auto defCenter = bounds.center();
-                return grid.moveDeltaForPoint(defCenter, worldBounds, newPosition - defCenter);
+                return grid.moveDeltaForPoint(defCenter, newPosition - defCenter);
             }
         }
 
@@ -465,7 +465,7 @@ namespace TrenchBroom {
             m_flyModeHelper->pollAndUpdate();
         }
 
-        void MapView3D::doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
+        void MapView3D::doRenderGrid(Renderer::RenderContext&, Renderer::RenderBatch&) {}
 
         void MapView3D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderer.render(renderContext, renderBatch);
@@ -483,7 +483,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MapView3D::doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void MapView3D::doRenderTools(MapViewToolBox& /* toolBox */, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderTools(renderContext, renderBatch);
         }
 
@@ -492,6 +492,6 @@ namespace TrenchBroom {
             return true;
         }
 
-        void MapView3D::doLinkCamera(CameraLinkHelper& helper) {}
+        void MapView3D::doLinkCamera(CameraLinkHelper& /* helper */) {}
     }
 }

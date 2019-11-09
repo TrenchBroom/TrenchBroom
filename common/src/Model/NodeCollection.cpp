@@ -37,7 +37,7 @@ namespace TrenchBroom {
             AddNode(NodeCollection& collection) :
             m_collection(collection) {}
         private:
-            void doVisit(World* world) override   {}
+            void doVisit(World*) override         {}
             void doVisit(Layer* layer) override   { m_collection.m_nodes.push_back(layer);  m_collection.m_layers.push_back(layer); }
             void doVisit(Group* group) override   { m_collection.m_nodes.push_back(group);  m_collection.m_groups.push_back(group); }
             void doVisit(Entity* entity) override { m_collection.m_nodes.push_back(entity); m_collection.m_entities.push_back(entity); }
@@ -69,7 +69,7 @@ namespace TrenchBroom {
                 m_collection.m_brushes.erase(m_brushRem, std::end(m_collection.m_brushes));
             }
         private:
-            void doVisit(World* world) override   {}
+            void doVisit(World*) override         {}
             void doVisit(Layer* layer) override   { remove(m_collection.m_nodes, m_nodeRem, layer);  remove(m_collection.m_layers, m_layerRem, layer); }
             void doVisit(Group* group) override   { remove(m_collection.m_nodes, m_nodeRem, group);  remove(m_collection.m_groups, m_groupRem, group); }
             void doVisit(Entity* entity) override { remove(m_collection.m_nodes, m_nodeRem, entity); remove(m_collection.m_entities, m_entityRem, entity); }

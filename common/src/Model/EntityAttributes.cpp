@@ -142,7 +142,7 @@ namespace TrenchBroom {
             return groupType == AttributeValues::GroupTypeGroup;
         }
 
-        bool isWorldspawn(const String& classname, const EntityAttribute::List& attributes) {
+        bool isWorldspawn(const String& classname, const EntityAttribute::List& /* attributes */) {
             return classname == AttributeValues::WorldspawnClassname;
         }
 

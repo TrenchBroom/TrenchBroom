@@ -38,9 +38,9 @@ namespace TrenchBroom {
         class MapInspector : public TabBookPage {
             Q_OBJECT
         public:
-            MapInspector(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            MapInspector(MapDocumentWPtr document, QWidget* parent = nullptr);
         private:
-            void createGui(MapDocumentWPtr document, GLContextManager& contextManager);
+            void createGui(MapDocumentWPtr document);
             QWidget* createLayerEditor(QWidget* parent, MapDocumentWPtr document);
             QWidget* createModEditor(QWidget* parent, MapDocumentWPtr document);
         };

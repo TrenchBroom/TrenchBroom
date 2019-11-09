@@ -76,7 +76,7 @@ namespace TrenchBroom {
             return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
         }
 
-        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController2D::doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
+        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController2D::doDrag(const InputState& inputState, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) {
             if (updateBounds(inputState, nextHandlePosition)) {
                 m_tool->refreshViews();
                 return DR_Continue;
@@ -84,7 +84,7 @@ namespace TrenchBroom {
             return DR_Deny;
         }
 
-        void CreateSimpleBrushToolController2D::doEndDrag(const InputState& inputState) {
+        void CreateSimpleBrushToolController2D::doEndDrag(const InputState&) {
             if (!m_bounds.is_empty())
                 m_tool->createBrush();
         }
@@ -93,9 +93,9 @@ namespace TrenchBroom {
             m_tool->cancel();
         }
 
-        void CreateSimpleBrushToolController2D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
+        void CreateSimpleBrushToolController2D::doSetRenderOptions(const InputState&, Renderer::RenderContext&) const {}
 
-        void CreateSimpleBrushToolController2D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void CreateSimpleBrushToolController2D::doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_tool->render(renderContext, renderBatch);
         }
 

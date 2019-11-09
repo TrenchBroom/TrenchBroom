@@ -62,7 +62,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool AddBrushVerticesCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool AddBrushVerticesCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
     }

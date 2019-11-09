@@ -44,7 +44,7 @@ namespace TrenchBroom {
             }
         }
 
-        void TextureCollectionEditor::documentWasNewedOrLoaded(MapDocument* document) {
+        void TextureCollectionEditor::documentWasNewedOrLoaded(MapDocument*) {
             qDeleteAll(children());
             delete layout();
             createGui();

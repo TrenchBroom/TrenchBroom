@@ -92,7 +92,7 @@ namespace TrenchBroom {
             return UndoableCommand::Ptr(new CommandGroup(name(), clones, m_commandDoNotifier, m_commandDoneNotifier, m_commandUndoNotifier, m_commandUndoneNotifier));
         }
 
-        bool CommandGroup::doCollateWith(UndoableCommand::Ptr command) {
+        bool CommandGroup::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
 

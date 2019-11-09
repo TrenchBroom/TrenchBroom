@@ -29,11 +29,13 @@
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::contains(const V& point, const Callback& callback) const {
-    if (!polyhedron())
+    if (!polyhedron()) {
         return false;
+    }
 
-    if (!bounds().contains(point))
+    if (!bounds().contains(point)) {
         return false;
+    }
 
     const Face* firstFace = m_faces.front();
     const Face* currentFace = firstFace;
@@ -48,7 +50,7 @@ bool Polyhedron<T,FP,VP>::contains(const V& point, const Callback& callback) con
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::contains(const Polyhedron& other, const Callback& callback) const {
+bool Polyhedron<T,FP,VP>::contains(const Polyhedron& other) const {
     if (!polyhedron()) {
         return false;
     }
@@ -80,9 +82,9 @@ bool Polyhedron<T,FP,VP>::intersects(const Polyhedron& other, const Callback& ca
 
     if (point()) {
         if (other.point()) {
-            return pointIntersectsPoint(*this, other, callback);
+            return pointIntersectsPoint(*this, other);
         } else if (other.edge()) {
-            return pointIntersectsEdge(*this, other, callback);
+            return pointIntersectsEdge(*this, other);
         } else if (other.polygon()) {
             return pointIntersectsPolygon(*this, other, callback);
         } else {
@@ -90,31 +92,31 @@ bool Polyhedron<T,FP,VP>::intersects(const Polyhedron& other, const Callback& ca
         }
     } else if (edge()) {
         if (other.point()) {
-            return edgeIntersectsPoint(*this, other, callback);
+            return edgeIntersectsPoint(*this, other);
         } else if (other.edge()) {
-            return edgeIntersectsEdge(*this, other, callback);
+            return edgeIntersectsEdge(*this, other);
         } else if (other.polygon()) {
-            return edgeIntersectsPolygon(*this, other, callback);
+            return edgeIntersectsPolygon(*this, other);
         } else {
-            return edgeIntersectsPolyhedron(*this, other, callback);
+            return edgeIntersectsPolyhedron(*this, other);
         }
     } else if (polygon()) {
         if (other.point()) {
             return polygonIntersectsPoint(*this, other, callback);
         } else if (other.edge()) {
-            return polygonIntersectsEdge(*this, other, callback);
+            return polygonIntersectsEdge(*this, other);
         } else if (other.polygon()) {
-            return polygonIntersectsPolygon(*this, other, callback);
+            return polygonIntersectsPolygon(*this, other);
         } else {
-            return polygonIntersectsPolyhedron(*this, other, callback);
+            return polygonIntersectsPolyhedron(*this, other);
         }
     } else {
         if (other.point()) {
             return polyhedronIntersectsPoint(*this, other, callback);
         } else if (other.edge()) {
-            return polyhedronIntersectsEdge(*this, other, callback);
+            return polyhedronIntersectsEdge(*this, other);
         } else if (other.polygon()) {
-            return polyhedronIntersectsPolygon(*this, other, callback);
+            return polyhedronIntersectsPolygon(*this, other);
         } else {
             return polyhedronIntersectsPolyhedron(*this, other, callback);
         }
@@ -122,7 +124,7 @@ bool Polyhedron<T,FP,VP>::intersects(const Polyhedron& other, const Callback& ca
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::pointIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback) {
+bool Polyhedron<T,FP,VP>::pointIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs) {
     assert(lhs.point());
     assert(rhs.point());
 
@@ -132,7 +134,7 @@ bool Polyhedron<T,FP,VP>::pointIntersectsPoint(const Polyhedron& lhs, const Poly
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::pointIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback) {
+bool Polyhedron<T,FP,VP>::pointIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs) {
     assert(lhs.point());
     assert(rhs.edge());
 
@@ -167,12 +169,12 @@ bool Polyhedron<T,FP,VP>::pointIntersectsPolyhedron(const Polyhedron& lhs, const
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::edgeIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback) {
-    return pointIntersectsEdge(rhs, lhs, callback);
+bool Polyhedron<T,FP,VP>::edgeIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs) {
+    return pointIntersectsEdge(rhs, lhs);
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::edgeIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback) {
+bool Polyhedron<T,FP,VP>::edgeIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs) {
     assert(lhs.edge());
     assert(rhs.edge());
 
@@ -210,7 +212,7 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsEdge(const Polyhedron& lhs, const Polyhe
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::edgeIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback) {
+bool Polyhedron<T,FP,VP>::edgeIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs) {
     assert(lhs.edge());
     assert(rhs.polygon());
 
@@ -221,7 +223,7 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsPolygon(const Polyhedron& lhs, const Pol
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::edgeIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback) {
+bool Polyhedron<T,FP,VP>::edgeIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs) {
     assert(lhs.edge());
     assert(rhs.polyhedron());
 
@@ -297,12 +299,12 @@ bool Polyhedron<T,FP,VP>::polygonIntersectsPoint(const Polyhedron& lhs, const Po
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::polygonIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback){
-    return edgeIntersectsPolygon(rhs, lhs, callback);
+bool Polyhedron<T,FP,VP>::polygonIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs){
+    return edgeIntersectsPolygon(rhs, lhs);
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::polygonIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback) {
+bool Polyhedron<T,FP,VP>::polygonIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs) {
     assert(lhs.polygon());
     assert(rhs.polygon());
 
@@ -313,7 +315,7 @@ bool Polyhedron<T,FP,VP>::polygonIntersectsPolygon(const Polyhedron& lhs, const 
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::polygonIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback) {
+bool Polyhedron<T,FP,VP>::polygonIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs) {
     assert(lhs.polygon());
     assert(rhs.polyhedron());
 
@@ -362,13 +364,13 @@ bool Polyhedron<T,FP,VP>::polyhedronIntersectsPoint(const Polyhedron& lhs, const
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::polyhedronIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback) {
-    return edgeIntersectsPolyhedron(rhs, lhs, callback);
+bool Polyhedron<T,FP,VP>::polyhedronIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs) {
+    return edgeIntersectsPolyhedron(rhs, lhs);
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::polyhedronIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback) {
-    return polygonIntersectsPolyhedron(rhs, lhs, callback);
+bool Polyhedron<T,FP,VP>::polyhedronIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs) {
+    return polygonIntersectsPolyhedron(rhs, lhs);
 }
 
 template <typename T, typename FP, typename VP>

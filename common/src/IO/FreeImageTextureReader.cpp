@@ -42,13 +42,13 @@ namespace TrenchBroom {
          * or GL_BGRA constant.
          */
         static constexpr GLenum freeImage32BPPFormatToGLFormat() {
-            if (FI_RGBA_RED == 0
+            if constexpr (FI_RGBA_RED == 0
                 && FI_RGBA_GREEN == 1
                 && FI_RGBA_BLUE == 2
                 && FI_RGBA_ALPHA == 3) {
 
                 return GL_RGBA;
-            } else if (FI_RGBA_BLUE == 0
+            } else if constexpr (FI_RGBA_BLUE == 0
                 && FI_RGBA_GREEN == 1
                 && FI_RGBA_RED == 2
                 && FI_RGBA_ALPHA == 3) {

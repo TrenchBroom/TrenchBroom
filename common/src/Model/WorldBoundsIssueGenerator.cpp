@@ -54,7 +54,7 @@ namespace TrenchBroom {
             WorldBoundsIssueQuickFix() :
             IssueQuickFix(WorldBoundsIssue::Type, "Delete objects") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const override {
+            void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
                 facade->deleteObjects();
             }
         };

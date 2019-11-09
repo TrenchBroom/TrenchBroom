@@ -98,7 +98,7 @@ namespace TrenchBroom {
             // There's no way around this unless the clip tool allowed the mouse to be slightly outside of the brush
             InputState inputState(clipPoint1ScreenSpace.x() + 2, clipPoint1ScreenSpace.y());
             updatePickState(inputState, camera, *document);
-            ASSERT_EQ(1, inputState.pickResult().size());
+            ASSERT_EQ(1u, inputState.pickResult().size());
 
             inputState.mouseDown(MouseButtons::MBLeft);
             ASSERT_TRUE(controller.mouseClick(inputState));
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             // HACK: bias the points towards the center of the screen a bit
             inputState.mouseMove(clipPoint2ScreenSpace.x() - 2, clipPoint2ScreenSpace.y(), 0, 0);
             updatePickState(inputState, camera, *document);
-            ASSERT_EQ(1, inputState.pickResult().size());
+            ASSERT_EQ(1u, inputState.pickResult().size());
 
             inputState.mouseDown(MouseButtons::MBLeft);
             ASSERT_TRUE(controller.mouseClick(inputState));
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             // Check the clip result
             // TODO: would be better to check the clip plane but it's not public
             const Model::NodeList& objects = document->world()->defaultLayer()->children();
-            ASSERT_EQ(1, objects.size());
+            ASSERT_EQ(1u, objects.size());
 
             auto* brush = dynamic_cast<Model::Brush*>(objects.at(0));
             ASSERT_NE(nullptr, brush);

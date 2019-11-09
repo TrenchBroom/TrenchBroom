@@ -147,11 +147,11 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityDefinitionFileChooser::documentWasNewed(MapDocument* document) {
+        void EntityDefinitionFileChooser::documentWasNewed(MapDocument*) {
             updateControls();
         }
 
-        void EntityDefinitionFileChooser::documentWasLoaded(MapDocument* document) {
+        void EntityDefinitionFileChooser::documentWasLoaded(MapDocument*) {
             updateControls();
         }
 

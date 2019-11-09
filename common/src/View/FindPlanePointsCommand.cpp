@@ -37,11 +37,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool FindPlanePointsCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool FindPlanePointsCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool FindPlanePointsCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool FindPlanePointsCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
     }

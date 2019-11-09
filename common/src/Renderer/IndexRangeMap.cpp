@@ -39,7 +39,7 @@ namespace TrenchBroom {
             counts.reserve(capacity);
         }
 
-        void IndexRangeMap::IndicesAndCounts::add(const PrimType primType, const size_t index, const size_t count, const bool dynamicGrowth) {
+        void IndexRangeMap::IndicesAndCounts::add(const PrimType primType, const size_t index, const size_t count, [[maybe_unused]] const bool dynamicGrowth) {
             switch (primType) {
                 case GL_POINTS:
                 case GL_LINES:
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             }
         }
 
-        void IndexRangeMap::IndicesAndCounts::add(const IndicesAndCounts& other, const bool dynamicGrowth) {
+        void IndexRangeMap::IndicesAndCounts::add(const IndicesAndCounts& other, [[maybe_unused]] const bool dynamicGrowth) {
             assert(dynamicGrowth || indices.capacity() >= indices.size() + other.indices.size());
             VectorUtils::append(indices, other.indices);
             VectorUtils::append(counts, other.counts);

@@ -244,9 +244,9 @@ namespace TrenchBroom {
             renderer->setSelected(m_listWidget->currentItem() == widgetItem);
         }
 
-        void ControlListBox::selectedRowChanged(const int index) {}
+        void ControlListBox::selectedRowChanged(const int /* index */) {}
 
-        void ControlListBox::doubleClicked(const size_t index) {}
+        void ControlListBox::doubleClicked(const size_t /* index */) {}
 
         void ControlListBox::listItemSelectionChanged() {
             for (int row = 0; row < count(); ++row) {

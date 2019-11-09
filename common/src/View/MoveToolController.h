@@ -156,9 +156,10 @@ namespace TrenchBroom {
                 doCancelMove();
             }
 
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
-                if (Super::thisToolDragging())
+            void doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
+                if (Super::thisToolDragging()) {
                     renderMoveTrace(renderContext, renderBatch);
+                }
             }
 
             void renderMoveTrace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -217,13 +218,13 @@ namespace TrenchBroom {
                 }
             }
 
-            virtual DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& curPoint) const {
+            virtual DragRestricter* doCreateRestrictedDragRestricter(const InputState&, const vm::vec3& initialPoint, const vm::vec3& curPoint) const {
                 const auto delta = curPoint - initialPoint;
                 const auto axis = vm::get_abs_max_component_axis(delta);
                 return new LineDragRestricter(vm::line3(initialPoint, axis));
             }
 
-            virtual DragSnapper* doCreateDragSnapper(const InputState& inputState) const {
+            virtual DragSnapper* doCreateDragSnapper(const InputState&) const {
                 return new DeltaDragSnapper(m_grid);
             }
         };

@@ -163,7 +163,7 @@ namespace TrenchBroom {
             return bounds;
         }
 
-        float EntityModel::UnloadedFrame::intersect(const vm::ray3f& ray) const {
+        float EntityModel::UnloadedFrame::intersect(const vm::ray3f& /* ray */) const {
             return vm::nan<float>();
         }
 
@@ -199,7 +199,7 @@ namespace TrenchBroom {
         EntityModel::TexturedMesh::TexturedMesh(LoadedFrame& frame, const EntityModel::VertexList& vertices, const EntityModel::TexturedIndices& indices) :
         Mesh(vertices),
         m_indices(indices) {
-            m_indices.forEachPrimitive([&frame, &vertices](const Assets::Texture* texture, const PrimType primType, const size_t index, const size_t count) {
+            m_indices.forEachPrimitive([&frame, &vertices](const Assets::Texture* /* texture */, const PrimType primType, const size_t index, const size_t count) {
                 frame.addToSpacialTree(vertices, primType, index, count);
             });
         }

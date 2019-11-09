@@ -52,7 +52,7 @@ namespace TrenchBroom {
             update();
         }
 
-        void ColorTable::paintEvent(QPaintEvent* event) {
+        void ColorTable::paintEvent(QPaintEvent* /* event */) {
             const auto virtualSize = size();
             const auto cols = computeCols(virtualSize.width());
             const auto rows = computeRows(cols);

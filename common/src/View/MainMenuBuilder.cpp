@@ -97,7 +97,7 @@ namespace TrenchBroom {
             m_currentMenu = parentMenu;
         }
 
-        void MainMenuBuilder::visit(const MenuSeparatorItem& item) {
+        void MainMenuBuilder::visit(const MenuSeparatorItem&) {
             assert(m_currentMenu != nullptr);
             m_currentMenu->addSeparator();
         }

@@ -313,11 +313,11 @@ namespace TrenchBroom {
             auto* brush2 = builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture");
             document->addNode(brush1, entity);
             document->addNode(brush2, document->currentParent());
-            ASSERT_EQ(1, entity->children().size());
+            ASSERT_EQ(1u, entity->children().size());
 
             document->select(Model::NodeList { brush1, brush2 });
             ASSERT_TRUE(document->csgConvexMerge());
-            ASSERT_EQ(1, entity->children().size()); // added to the parent of the first brush
+            ASSERT_EQ(1u, entity->children().size()); // added to the parent of the first brush
 
             auto* brush3 = entity->children().front();
             ASSERT_EQ(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), brush3->logicalBounds());
@@ -333,14 +333,14 @@ namespace TrenchBroom {
             auto* brush2 = builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture");
             document->addNode(brush1, entity);
             document->addNode(brush2, document->currentParent());
-            ASSERT_EQ(1, entity->children().size());
+            ASSERT_EQ(1u, entity->children().size());
 
             auto* face1 = brush1->faces().front();
             auto* face2 = brush2->faces().front();
 
             document->select(Model::BrushFaceList { face1, face2 });
             ASSERT_TRUE(document->csgConvexMerge());
-            ASSERT_EQ(2, entity->children().size()); // added to the parent of the first brush, original brush is not deleted
+            ASSERT_EQ(2u, entity->children().size()); // added to the parent of the first brush, original brush is not deleted
 
             auto* brush3 = entity->children().back();
 
@@ -361,7 +361,7 @@ namespace TrenchBroom {
 
         TEST_F(MapDocumentTest, setTextureNull) {
             Model::BrushBuilder builder(document->world(), document->worldBounds());
-            Model::Brush *brush1 = builder.createCube(64.0f, Model::BrushFace::NoTextureName);
+            Model::Brush *brush1 = builder.createCube(64.0, Model::BrushFace::NoTextureName);
 
             document->addNode(brush1, document->currentParent());
             document->select(brush1);
@@ -387,11 +387,11 @@ namespace TrenchBroom {
             brush2->findFace(vm::vec3::pos_z())->restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
             document->addNode(brush1, entity);
             document->addNode(brush2, entity);
-            ASSERT_EQ(2, entity->children().size());
+            ASSERT_EQ(2u, entity->children().size());
 
             document->select(Model::NodeList { brush1, brush2 });
             ASSERT_TRUE(document->csgConvexMerge());
-            ASSERT_EQ(1, entity->children().size());
+            ASSERT_EQ(1u, entity->children().size());
 
             Model::Brush* brush3 = static_cast<Model::Brush*>(entity->children()[0]);
             Model::BrushFace* top = brush3->findFace(vm::vec3::pos_z());
@@ -413,12 +413,12 @@ namespace TrenchBroom {
             brush2->findFace(vm::vec3::pos_z())->restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
             document->addNode(brush1, entity);
             document->addNode(brush2, entity);
-            ASSERT_EQ(2, entity->children().size());
+            ASSERT_EQ(2u, entity->children().size());
 
             // we want to compute brush1 - brush2
             document->select(Model::NodeList { brush2 });
             ASSERT_TRUE(document->csgSubtract());
-            ASSERT_EQ(1, entity->children().size());
+            ASSERT_EQ(1u, entity->children().size());
 
             Model::Brush* brush3 = static_cast<Model::Brush*>(entity->children()[0]);
             ASSERT_EQ(vm::bbox3(vm::vec3(0, 0, 32), vm::vec3(64, 64, 64)), brush3->logicalBounds());
@@ -441,12 +441,12 @@ namespace TrenchBroom {
             Model::Brush* subtrahend2 = builder.createCuboid(vm::bbox3(vm::vec3(32, 32, 0), vm::vec3(64, 64, 64)), "texture");
 
             document->addNodes(Model::NodeList{minuend, subtrahend1, subtrahend2}, entity);
-            ASSERT_EQ(3, entity->children().size());
+            ASSERT_EQ(3u, entity->children().size());
 
             // we want to compute minuend - {subtrahend1, subtrahend2}
             document->select(Model::NodeList{subtrahend1, subtrahend2});
             ASSERT_TRUE(document->csgSubtract());
-            ASSERT_EQ(2, entity->children().size());
+            ASSERT_EQ(2u, entity->children().size());
 
             auto* remainder1 = dynamic_cast<Model::Brush*>(entity->children()[0]);
             auto* remainder2 = dynamic_cast<Model::Brush*>(entity->children()[1]);
@@ -475,7 +475,7 @@ namespace TrenchBroom {
 
             document->select(Model::NodeList{subtrahend1});
             ASSERT_TRUE(document->csgSubtract());
-            ASSERT_EQ(0, entity->children().size());
+            ASSERT_EQ(0u, entity->children().size());
             EXPECT_TRUE(document->selectedNodes().empty());
 
             // check that the selection is restored after undo
@@ -943,7 +943,7 @@ namespace TrenchBroom {
 
             const auto delta = vm::vec3(16, 16, 16);
             ASSERT_EQ(PT_Node, document->paste(copied));
-            ASSERT_EQ(1, document->selectedNodes().groupCount());
+            ASSERT_EQ(1u, document->selectedNodes().groupCount());
             ASSERT_EQ(groupName, document->selectedNodes().groups().at(0)->name());
             ASSERT_TRUE(document->translateObjects(delta));
             ASSERT_EQ(box.translate(delta), document->selectionBounds());

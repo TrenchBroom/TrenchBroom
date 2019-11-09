@@ -122,7 +122,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void UVShearTool::doEndMouseDrag(const InputState& inputState) {
+        void UVShearTool::doEndMouseDrag(const InputState&) {
             auto document = lock(m_document);
             document->commitTransaction();
         }

@@ -28,20 +28,20 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        EdgeRenderer::Params::Params(const float i_width, const float i_offset, const bool i_onTop) :
+        EdgeRenderer::Params::Params(const float i_width, const double i_offset, const bool i_onTop) :
         width(i_width),
         offset(i_offset),
         onTop(i_onTop),
         useColor(false) {}
 
-        EdgeRenderer::Params::Params(float i_width, float i_offset, bool i_onTop, const Color& i_color) :
+        EdgeRenderer::Params::Params(const float i_width, const double i_offset,const  bool i_onTop, const Color& i_color) :
         width(i_width),
         offset(i_offset),
         onTop(i_onTop),
         useColor(true),
         color(i_color) {}
 
-        EdgeRenderer::Params::Params(float i_width, float i_offset, bool i_onTop, bool i_useColor, const Color& i_color) :
+        EdgeRenderer::Params::Params(const float i_width, const double i_offset, const bool i_onTop, const bool i_useColor, const Color& i_color) :
         width(i_width),
         offset(i_offset),
         onTop(i_onTop),
@@ -54,14 +54,14 @@ namespace TrenchBroom {
         EdgeRenderer::RenderBase::~RenderBase() {}
 
         void EdgeRenderer::RenderBase::renderEdges(RenderContext& renderContext) {
-            if (m_params.offset != 0.0f)
+            if (m_params.offset != 0.0)
                 glSetEdgeOffset(m_params.offset);
 
             if (m_params.width != 1.0f)
-                glAssert(glLineWidth(m_params.width));
+                glAssert(glLineWidth(m_params.width))
 
             if (m_params.onTop)
-                glAssert(glDisable(GL_DEPTH_TEST));
+                glAssert(glDisable(GL_DEPTH_TEST))
 
             if (m_params.useColor) {
                 ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPUniformCShader);
@@ -73,42 +73,42 @@ namespace TrenchBroom {
             }
 
             if (m_params.onTop)
-                glAssert(glEnable(GL_DEPTH_TEST));
+                glAssert(glEnable(GL_DEPTH_TEST))
 
             if (m_params.width != 1.0f)
-                glAssert(glLineWidth(1.0f));
+                glAssert(glLineWidth(1.0f))
 
-            if (m_params.offset != 0.0f)
+            if (m_params.offset != 0.0)
                 glResetEdgeOffset();
         }
 
         EdgeRenderer::~EdgeRenderer() {}
 
-        void EdgeRenderer::render(RenderBatch& renderBatch, const float width, const float offset) {
+        void EdgeRenderer::render(RenderBatch& renderBatch, const float width, const double offset) {
             doRender(renderBatch, Params(width, offset, false));
         }
 
-        void EdgeRenderer::render(RenderBatch& renderBatch, const Color& color, const float width, const float offset) {
+        void EdgeRenderer::render(RenderBatch& renderBatch, const Color& color, const float width, const double offset) {
             doRender(renderBatch, Params(width, offset, false, color));
         }
 
-        void EdgeRenderer::render(RenderBatch& renderBatch, const bool useColor, const Color& color, const float width, const float offset) {
+        void EdgeRenderer::render(RenderBatch& renderBatch, const bool useColor, const Color& color, const float width, const double offset) {
             doRender(renderBatch, Params(width, offset, false, useColor, color));
         }
 
-        void EdgeRenderer::renderOnTop(RenderBatch& renderBatch, const float width, const float offset) {
+        void EdgeRenderer::renderOnTop(RenderBatch& renderBatch, const float width, const double offset) {
             doRender(renderBatch, Params(width, offset, true));
         }
 
-        void EdgeRenderer::renderOnTop(RenderBatch& renderBatch, const Color& color, const float width, const float offset) {
+        void EdgeRenderer::renderOnTop(RenderBatch& renderBatch, const Color& color, const float width, const double offset) {
             doRender(renderBatch, Params(width, offset, true, color));
         }
 
-        void EdgeRenderer::renderOnTop(RenderBatch& renderBatch, const bool useColor, const Color& color, const float width, const float offset) {
+        void EdgeRenderer::renderOnTop(RenderBatch& renderBatch, const bool useColor, const Color& color, const float width, const double offset) {
             doRender(renderBatch, Params(width, offset, true, useColor, color));
         }
 
-        void EdgeRenderer::render(RenderBatch& renderBatch, const bool useColor, const Color& color, const bool onTop, const float width, const float offset) {
+        void EdgeRenderer::render(RenderBatch& renderBatch, const bool useColor, const Color& color, const bool onTop, const float width, const double offset) {
             doRender(renderBatch, Params(width, offset, onTop, useColor, color));
         }
 
@@ -127,7 +127,7 @@ namespace TrenchBroom {
             renderEdges(renderContext);
         }
 
-        void DirectEdgeRenderer::Render::doRenderVertices(RenderContext& renderContext) {
+        void DirectEdgeRenderer::Render::doRenderVertices(RenderContext&) {
             m_indexRanges.render(m_vertexArray);
         }
 
@@ -180,7 +180,7 @@ namespace TrenchBroom {
             renderEdges(renderContext);
         }
 
-        void IndexedEdgeRenderer::Render::doRenderVertices(RenderContext& renderContext) {
+        void IndexedEdgeRenderer::Render::doRenderVertices(RenderContext&) {
             m_vertexArray->setupVertices();
             m_indexArray->render(GL_LINES);
             m_vertexArray->cleanupVertices();

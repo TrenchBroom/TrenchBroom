@@ -159,11 +159,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SelectionCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool SelectionCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool SelectionCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool SelectionCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
     }

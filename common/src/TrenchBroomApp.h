@@ -91,7 +91,7 @@ namespace TrenchBroom {
         };
 
         void setCrashReportGUIEnbled(bool guiEnabled);
-        void reportCrashAndExit(const String &stacktrace, const String &reason);
+        [[noreturn]] void reportCrashAndExit(const String &stacktrace, const String &reason);
         bool isReportingCrash();
     }
 }

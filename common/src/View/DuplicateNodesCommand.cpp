@@ -92,11 +92,11 @@ namespace TrenchBroom {
 
         class DuplicateNodesCommand::CloneParentQuery : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
         private:
-            void doVisit(const Model::World* world) override   { setResult(false); }
-            void doVisit(const Model::Layer* layer) override   { setResult(false); }
-            void doVisit(const Model::Group* group) override   { setResult(false);  }
-            void doVisit(const Model::Entity* entity) override { setResult(true);  }
-            void doVisit(const Model::Brush* brush) override   { setResult(false); }
+            void doVisit(const Model::World*) override  { setResult(false); }
+            void doVisit(const Model::Layer*) override  { setResult(false); }
+            void doVisit(const Model::Group*) override  { setResult(false);  }
+            void doVisit(const Model::Entity*) override { setResult(true);  }
+            void doVisit(const Model::Brush*) override  { setResult(false); }
         };
 
         bool DuplicateNodesCommand::cloneParent(const Model::Node* node) const {
@@ -109,11 +109,11 @@ namespace TrenchBroom {
             return document->hasSelectedNodes();
         }
 
-        UndoableCommand::Ptr DuplicateNodesCommand::doRepeat(MapDocumentCommandFacade* document) const {
+        UndoableCommand::Ptr DuplicateNodesCommand::doRepeat(MapDocumentCommandFacade*) const {
             return UndoableCommand::Ptr(new DuplicateNodesCommand());
         }
 
-        bool DuplicateNodesCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool DuplicateNodesCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
     }

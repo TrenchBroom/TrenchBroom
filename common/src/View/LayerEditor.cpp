@@ -162,8 +162,8 @@ namespace TrenchBroom {
                 return Model::NodeList(std::begin(m_moveNodes), std::end(m_moveNodes));
             }
         private:
-            void doVisit(Model::World* world) override   {}
-            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::World*) override   {}
+            void doVisit(Model::Layer*) override   {}
 
             void doVisit(Model::Group* group) override   {
                 assert(group->selected());
@@ -257,7 +257,7 @@ namespace TrenchBroom {
             if (!name.empty()) {
                 auto document = lock(m_document);
                 auto* world = document->world();
-                auto* layer = world->createLayer(name, document->worldBounds());
+                auto* layer = world->createLayer(name);
 
                 Transaction transaction(document, "Create Layer " + layer->name());
                 document->addNode(layer, world);

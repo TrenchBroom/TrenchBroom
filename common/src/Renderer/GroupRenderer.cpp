@@ -113,12 +113,15 @@ namespace TrenchBroom {
             }
         }
 
-        void GroupRenderer::renderBounds(RenderContext& renderContext, RenderBatch& renderBatch) {
-            if (!m_boundsValid)
+        void GroupRenderer::renderBounds(RenderContext&, RenderBatch& renderBatch) {
+            if (!m_boundsValid) {
                 validateBounds();
+            }
 
-            if (m_showOccludedBounds)
+            if (m_showOccludedBounds) {
                 m_boundsRenderer.renderOnTop(renderBatch, m_overrideBoundsColor, m_occludedBoundsColor);
+            }
+
             m_boundsRenderer.render(renderBatch, m_overrideBoundsColor, m_boundsColor);
         }
 
@@ -212,7 +215,7 @@ namespace TrenchBroom {
             return group->name();
         }
 
-        const Color& GroupRenderer::boundsColor(const Model::Group* group) const {
+        const Color& GroupRenderer::boundsColor(const Model::Group* /* group */) const {
             return pref(Preferences::DefaultGroupColor);
         }
     }

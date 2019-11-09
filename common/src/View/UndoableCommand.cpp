@@ -62,7 +62,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        UndoableCommand::Ptr UndoableCommand::doRepeat(MapDocumentCommandFacade* document) const {
+        UndoableCommand::Ptr UndoableCommand::doRepeat(MapDocumentCommandFacade*) const {
             throw CommandProcessorException("Command is not repeatable");
         }
 

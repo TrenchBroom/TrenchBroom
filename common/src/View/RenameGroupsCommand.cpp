@@ -43,11 +43,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool RenameGroupsCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool RenameGroupsCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool RenameGroupsCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool RenameGroupsCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
     }

@@ -134,7 +134,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ScaleObjectsToolPage::selectionDidChange(const Selection& selection) {
+        void ScaleObjectsToolPage::selectionDidChange(const Selection&) {
             updateGui();
         }
 

@@ -28,8 +28,8 @@
 namespace TrenchBroom {
     namespace Model {
         namespace NodePredicates {
-            bool True::operator()(const Node* node) const  { return true;  }
-            bool False::operator()(const Node* node) const { return false; }
+            bool True::operator()(const Node*) const  { return true;  }
+            bool False::operator()(const Node*) const { return false; }
 
             bool EqualsNode::operator()(const World* world) const   { return world  == m_node; }
             bool EqualsNode::operator()(World* world) const         { return world  == m_node; }
@@ -42,10 +42,10 @@ namespace TrenchBroom {
             bool EqualsNode::operator()(const Brush* brush) const   { return brush  == m_node; }
             bool EqualsNode::operator()(Brush* brush) const         { return brush  == m_node; }
 
-            bool EqualsObject::operator()(const World* world) const   { return false; }
-            bool EqualsObject::operator()(World* world) const         { return false; }
-            bool EqualsObject::operator()(const Layer* layer) const   { return false; }
-            bool EqualsObject::operator()(Layer* layer) const         { return false; }
+            bool EqualsObject::operator()(const World*) const         { return false; }
+            bool EqualsObject::operator()(World*) const               { return false; }
+            bool EqualsObject::operator()(const Layer*) const         { return false; }
+            bool EqualsObject::operator()(Layer*) const               { return false; }
             bool EqualsObject::operator()(const Group* group) const   { return group  == m_object; }
             bool EqualsObject::operator()(Group* group) const         { return group  == m_object; }
             bool EqualsObject::operator()(const Entity* entity) const { return entity == m_object; }

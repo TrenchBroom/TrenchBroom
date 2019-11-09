@@ -44,7 +44,7 @@ namespace TrenchBroom {
             entity->addOrUpdateAttribute(attribute.name(), attribute.value());
         }
 
-        void EntitySnapshot::doRestore(const vm::bbox3& worldBounds) {
+        void EntitySnapshot::doRestore(const vm::bbox3& /* worldBounds */) {
             restoreAttribute(m_entity, m_origin);
             restoreAttribute(m_entity, m_rotation);
         }

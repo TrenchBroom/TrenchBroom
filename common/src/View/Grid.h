@@ -328,14 +328,14 @@ namespace TrenchBroom {
              * Returns a copy of `delta` that snaps the result to grid, if the grid snapping moves the result in the same direction as delta (tested on each axis).
              * Otherwise, returns the original point for that axis.
              */
-            vm::vec3 moveDeltaForPoint(const vm::vec3& point, const vm::bbox3& worldBounds, const vm::vec3& delta) const;
+            vm::vec3 moveDeltaForPoint(const vm::vec3& point, const vm::vec3& delta) const;
             /**
              * Returns a delta to `bounds.mins` which moves the box to point where `ray` impacts `dragPlane`, grid snapped.
              * The box is positioned so it is in front of `dragPlane`.
              */
-            vm::vec3 moveDeltaForBounds(const vm::plane3& dragPlane, const vm::bbox3& bounds, const vm::bbox3& worldBounds, const vm::ray3& ray, const vm::vec3& position) const;
-            vm::vec3 moveDelta(const vm::bbox3& bounds, const vm::bbox3& worldBounds, const vm::vec3& delta) const;
-            vm::vec3 moveDelta(const vm::vec3& point, const vm::bbox3& worldBounds, const vm::vec3& delta) const;
+            vm::vec3 moveDeltaForBounds(const vm::plane3& dragPlane, const vm::bbox3& bounds, const vm::bbox3& worldBounds, const vm::ray3& ray) const;
+            vm::vec3 moveDelta(const vm::bbox3& bounds, const vm::vec3& delta) const;
+            vm::vec3 moveDelta(const vm::vec3& point, const vm::vec3& delta) const;
             vm::vec3 moveDelta(const vm::vec3& delta) const;
             /**
              * Given `delta`, a vector in the direction of the face's normal,

@@ -63,10 +63,11 @@ namespace TrenchBroom {
             setGeometry(QRect(desiredPointInParentCoords, ourSize));
         }
 
-        void PopupWindow::closeEvent(QCloseEvent* event) {
+        void PopupWindow::closeEvent(QCloseEvent*) {
             emit visibilityChanged(false);
         }
-        void PopupWindow::showEvent(QShowEvent* event) {
+        
+        void PopupWindow::showEvent(QShowEvent*) {
             emit visibilityChanged(true);
         }
     }

@@ -59,11 +59,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool CurrentGroupCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool CurrentGroupCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
 
-        bool CurrentGroupCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool CurrentGroupCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
     }

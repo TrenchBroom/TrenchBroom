@@ -30,7 +30,7 @@ namespace TrenchBroom {
             }
         }
 
-        int VariableStoreModel::rowCount(const QModelIndex& parent) const {
+        int VariableStoreModel::rowCount(const QModelIndex& /* parent */) const {
             return static_cast<int>(m_variables->size());
         }
 

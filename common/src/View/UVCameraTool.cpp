@@ -76,7 +76,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void UVCameraTool::doEndMouseDrag(const InputState& inputState) {}
+        void UVCameraTool::doEndMouseDrag(const InputState&) {}
 
         void UVCameraTool::doCancelMouseDrag() {}
 

@@ -82,14 +82,13 @@ namespace TrenchBroom {
             leftPlane   = vm::plane3f(center - w2 * right(), -right());
         }
 
-        void OrthographicCamera::doRenderFrustum(RenderContext& renderContext, Vbo& vbo, const float size, const Color& color) const {
-        }
+        void OrthographicCamera::doRenderFrustum(RenderContext&, Vbo& /* vbo */, const float /* size */, const Color& /* color */) const {}
 
-        float OrthographicCamera::doPickFrustum(const float size, const vm::ray3f& ray) const {
+        float OrthographicCamera::doPickFrustum(const float /* size */, const vm::ray3f& /* ray */) const {
             return vm::nan<float>();
         }
 
-        float OrthographicCamera::doGetPerspectiveScalingFactor(const vm::vec3f& position) const {
+        float OrthographicCamera::doGetPerspectiveScalingFactor(const vm::vec3f& /* position */) const {
             return 1.0f / zoom();
         }
 

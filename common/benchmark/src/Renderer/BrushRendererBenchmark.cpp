@@ -55,7 +55,7 @@ namespace TrenchBroom {
 
             // make brushes, cycling through the textures for each face
             const vm::bbox3 worldBounds(4096.0);
-            Model::World world(Model::MapFormat::Standard, worldBounds);
+            Model::World world(Model::MapFormat::Standard);
 
             Model::BrushBuilder builder(&world, worldBounds);
 

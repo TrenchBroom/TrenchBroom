@@ -399,7 +399,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void SelectionTool::doEndMouseDrag(const InputState& inputState) {
+        void SelectionTool::doEndMouseDrag(const InputState&) {
             auto document = lock(m_document);
             document->commitTransaction();
         }

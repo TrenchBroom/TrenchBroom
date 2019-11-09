@@ -53,12 +53,12 @@ namespace TrenchBroom {
             return m_nodes;
         }
 
-        Model::ModelFactory& NodeReader::initialize(const Model::MapFormat format, const vm::bbox3& worldBounds) {
+        Model::ModelFactory& NodeReader::initialize([[maybe_unused]] const Model::MapFormat format) {
             assert(format == m_factory.format());
             return m_factory;
         }
 
-        Model::Node* NodeReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+        Model::Node* NodeReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
             Model::Entity* worldspawn = m_factory.createEntity();
             worldspawn->setAttributes(attributes);
             setExtraAttributes(worldspawn, extraAttributes);
@@ -67,20 +67,21 @@ namespace TrenchBroom {
             return worldspawn;
         }
 
-        void NodeReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount, ParserStatus& status) {
+        void NodeReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount, ParserStatus& /* status */) {
             assert(!m_nodes.empty());
             m_nodes.front()->setFilePosition(lineNumber, lineCount);
         }
 
-        void NodeReader::onLayer(Model::Layer* layer, ParserStatus& status) {
+        void NodeReader::onLayer(Model::Layer* layer, ParserStatus& /* status */) {
             m_nodes.push_back(layer);
         }
 
-        void NodeReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) {
-            if (parent != nullptr)
+        void NodeReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& /* status */) {
+            if (parent != nullptr) {
                 parent->addChild(node);
-            else
+            } else {
                 m_nodes.push_back(node);
+            }
         }
 
         void NodeReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {
@@ -96,11 +97,12 @@ namespace TrenchBroom {
             m_nodes.push_back(node);
         }
 
-        void NodeReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status) {
-            if (parent != nullptr)
+        void NodeReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& /* status */) {
+            if (parent != nullptr) {
                 parent->addChild(brush);
-            else
+            } else {
                 m_nodes.push_back(brush);
+            }
         }
     }
 }

@@ -55,11 +55,11 @@ namespace TrenchBroom {
             }
         }
 
-        bool collateTextureOp(ChangeBrushFaceAttributesRequest::TextureOp& myOp, Assets::Texture*& myTexture, const ChangeBrushFaceAttributesRequest::TextureOp theirOp, Assets::Texture*& theirTexture);
-        bool collateTextureOp(ChangeBrushFaceAttributesRequest::TextureOp& myOp, Assets::Texture*& myTexture, const ChangeBrushFaceAttributesRequest::TextureOp theirOp, Assets::Texture*& theirTexture) {
-
-            if (theirOp != ChangeBrushFaceAttributesRequest::TextureOp_None)
+        bool collateTextureOp(ChangeBrushFaceAttributesRequest::TextureOp& myOp, const ChangeBrushFaceAttributesRequest::TextureOp theirOp);
+        bool collateTextureOp(ChangeBrushFaceAttributesRequest::TextureOp& myOp, const ChangeBrushFaceAttributesRequest::TextureOp theirOp) {
+            if (theirOp != ChangeBrushFaceAttributesRequest::TextureOp_None) {
                 myOp = theirOp;
+            }
             return true;
         }
 
@@ -83,7 +83,7 @@ namespace TrenchBroom {
                         switchDefault()
                     }
                 switchDefault()
-            };
+            }
         }
 
         template <typename T>
@@ -518,7 +518,7 @@ namespace TrenchBroom {
 
             if (!collateAxisOp(newAxisOp, other.m_axisOp))
                 return false;
-            if (!collateTextureOp(newTextureOp, newTexture, other.m_textureOp, other.m_texture))
+            if (!collateTextureOp(newTextureOp, other.m_textureOp))
                 return false;
             if (!collateValueOp(newXOffsetOp, newXOffset, other.m_xOffsetOp, other.m_xOffset))
                 return false;

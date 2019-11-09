@@ -47,11 +47,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool RotateTexturesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool RotateTexturesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return true;
         }
 
-        UndoableCommand::Ptr RotateTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
+        UndoableCommand::Ptr RotateTexturesCommand::doRepeat(MapDocumentCommandFacade*) const {
             return UndoableCommand::Ptr(new RotateTexturesCommand(m_angle));
         }
 

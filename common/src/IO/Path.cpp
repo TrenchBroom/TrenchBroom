@@ -503,29 +503,33 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool Path::hasDriveSpec(const StringList& components) {
 #ifdef _WIN32
+        bool Path::hasDriveSpec(const StringList& components) {
             if (components.empty()) {
                 return false;
             } else {
                 return hasDriveSpec(components[0]);
             }
-#else
-            return false;
-#endif
         }
+#else
+        bool Path::hasDriveSpec(const StringList& /* components */) {
+            return false;
+        }
+#endif
 
-        bool Path::hasDriveSpec(const String& component) {
 #ifdef _WIN32
+        bool Path::hasDriveSpec(const String& component) {
             if (component.size() <= 1) {
                 return false;
             } else {
                 return component[1] == ':';
             }
-#else
-            return false;
-#endif
         }
+#else
+        bool Path::hasDriveSpec(const String& /* component */) {
+            return false;
+        }
+#endif
 
         StringList Path::resolvePath(const bool absolute, const StringList& components) const {
             auto resolved = StringList();
@@ -542,6 +546,8 @@ namespace TrenchBroom {
                     if (absolute && hasDriveSpec(resolved[0]) && resolved.size() < 2) {
                         throw PathException("Cannot resolve path");
                     }
+#else
+                    unused(absolute);
 #endif
                     resolved.pop_back();
                     continue;

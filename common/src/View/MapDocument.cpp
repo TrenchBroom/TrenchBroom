@@ -931,10 +931,10 @@ namespace TrenchBroom {
         public:
             MatchGroupableNodes(const Model::World* world) : m_world(world) {}
         public:
-            bool operator()(const Model::World* world) const   { return false; }
-            bool operator()(const Model::Layer* layer) const   { return false; }
-            bool operator()(const Model::Group* group) const   { return true;  }
-            bool operator()(const Model::Entity* entity) const { return true; }
+            bool operator()(const Model::World*) const  { return false; }
+            bool operator()(const Model::Layer*) const  { return false; }
+            bool operator()(const Model::Group*) const  { return true;  }
+            bool operator()(const Model::Entity*) const { return true; }
             bool operator()(const Model::Brush* brush) const   { return brush->entity() == m_world; }
         };
 
@@ -999,7 +999,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MapDocument::isolate(const Model::NodeList& nodes) {
+        void MapDocument::isolate(const Model::NodeList& /* nodes */) {
             const Model::LayerList& layers = m_world->allLayers();
 
             Model::CollectTransitivelyUnselectedNodesVisitor collectUnselected;
@@ -1445,19 +1445,19 @@ namespace TrenchBroom {
             ThrowExceptionCommand() : DocumentCommand(Type, "Throw Exception") {}
 
         private:
-            bool doPerformDo(MapDocumentCommandFacade* document) override {
+            bool doPerformDo(MapDocumentCommandFacade*) override {
                 throw GeometryException();
             }
 
-            bool doPerformUndo(MapDocumentCommandFacade* document) override {
+            bool doPerformUndo(MapDocumentCommandFacade*) override {
                 return true;
             }
 
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const override {
+            bool doIsRepeatable(MapDocumentCommandFacade*) const override {
                 return false;
             }
 
-            bool doCollateWith(UndoableCommand::Ptr command) override {
+            bool doCollateWith(UndoableCommand::Ptr) override {
                 return false;
             }
         };
@@ -1698,10 +1698,10 @@ namespace TrenchBroom {
             SetTextures(Assets::TextureManager& manager) :
                 m_manager(manager) {}
         private:
-            void doVisit(Model::World* world) override   {}
-            void doVisit(Model::Layer* layer) override   {}
-            void doVisit(Model::Group* group) override   {}
-            void doVisit(Model::Entity* entity) override {}
+            void doVisit(Model::World*) override   {}
+            void doVisit(Model::Layer*) override   {}
+            void doVisit(Model::Group*) override   {}
+            void doVisit(Model::Entity*) override {}
             void doVisit(Model::Brush* brush) override   {
                 for (Model::BrushFace* face : brush->faces()) {
                     face->updateTexture(m_manager);
@@ -1711,10 +1711,10 @@ namespace TrenchBroom {
 
         class MapDocument::UnsetTextures : public Model::NodeVisitor {
         private:
-            void doVisit(Model::World* world) override   {}
-            void doVisit(Model::Layer* layer) override   {}
-            void doVisit(Model::Group* group) override   {}
-            void doVisit(Model::Entity* entity) override {}
+            void doVisit(Model::World*) override   {}
+            void doVisit(Model::Layer*) override   {}
+            void doVisit(Model::Group*) override   {}
+            void doVisit(Model::Entity*) override {}
             void doVisit(Model::Brush* brush) override   {
                 for (Model::BrushFace* face : brush->faces()) {
                     face->setTexture(nullptr);
@@ -1756,10 +1756,10 @@ namespace TrenchBroom {
             m_manager(manager) {}
         private:
             void doVisit(Model::World* world) override   { handle(world); }
-            void doVisit(Model::Layer* layer) override   {}
-            void doVisit(Model::Group* group) override   {}
+            void doVisit(Model::Layer*) override         {}
+            void doVisit(Model::Group*) override         {}
             void doVisit(Model::Entity* entity) override { handle(entity); }
-            void doVisit(Model::Brush* brush) override   {}
+            void doVisit(Model::Brush*) override         {}
             void handle(Model::AttributableNode* attributable) {
                 Assets::EntityDefinition* definition = m_manager.definition(attributable);
                 attributable->setDefinition(definition);
@@ -1769,10 +1769,10 @@ namespace TrenchBroom {
         class MapDocument::UnsetEntityDefinitions : public Model::NodeVisitor {
         private:
             void doVisit(Model::World* world) override   { world->setDefinition(nullptr); }
-            void doVisit(Model::Layer* layer) override   {}
-            void doVisit(Model::Group* group) override   {}
+            void doVisit(Model::Layer*) override         {}
+            void doVisit(Model::Group*) override         {}
             void doVisit(Model::Entity* entity) override { entity->setDefinition(nullptr); }
-            void doVisit(Model::Brush* brush) override   {}
+            void doVisit(Model::Brush*) override         {}
         };
 
         void MapDocument::setEntityDefinitions() {
@@ -1815,23 +1815,23 @@ namespace TrenchBroom {
             explicit SetEntityModels(Assets::EntityModelManager& manager) :
             m_manager(manager) {}
         private:
-            void doVisit(Model::World* world) override   {}
-            void doVisit(Model::Layer* layer) override   {}
-            void doVisit(Model::Group* group) override   {}
+            void doVisit(Model::World*) override         {}
+            void doVisit(Model::Layer*) override         {}
+            void doVisit(Model::Group*) override         {}
             void doVisit(Model::Entity* entity) override {
                 const auto* frame = m_manager.frame(entity->modelSpecification());
                 entity->setModelFrame(frame);
             }
-            void doVisit(Model::Brush* brush) override   {}
+            void doVisit(Model::Brush*) override         {}
         };
 
         class MapDocument::UnsetEntityModels : public Model::NodeVisitor {
         private:
-            void doVisit(Model::World* world) override   {}
-            void doVisit(Model::Layer* layer) override   {}
-            void doVisit(Model::Group* group) override   {}
+            void doVisit(Model::World*) override         {}
+            void doVisit(Model::Layer*) override         {}
+            void doVisit(Model::Group*) override         {}
             void doVisit(Model::Entity* entity) override { entity->setModelFrame(nullptr); }
-            void doVisit(Model::Brush* brush) override   {}
+            void doVisit(Model::Brush*) override         {}
         };
 
         void MapDocument::setEntityModels() {
@@ -2012,10 +2012,10 @@ namespace TrenchBroom {
             explicit InitializeFaceTagsVisitor(Model::TagManager& tagManager) :
                 m_tagManager(tagManager) {}
         private:
-            void doVisit(Model::World* world)   override {}
-            void doVisit(Model::Layer* layer)   override {}
-            void doVisit(Model::Group* group)   override {}
-            void doVisit(Model::Entity* entity) override {}
+            void doVisit(Model::World*) override         {}
+            void doVisit(Model::Layer*) override         {}
+            void doVisit(Model::Group*) override         {}
+            void doVisit(Model::Entity*) override        {}
             void doVisit(Model::Brush* brush)   override { brush->initializeTags(m_tagManager); }
         };
 

@@ -151,11 +151,11 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &EntityBrowser::preferenceDidChange);
         }
 
-        void EntityBrowser::documentWasNewed(MapDocument* document) {
+        void EntityBrowser::documentWasNewed(MapDocument*) {
             reload();
         }
 
-        void EntityBrowser::documentWasLoaded(MapDocument* document) {
+        void EntityBrowser::documentWasLoaded(MapDocument*) {
             reload();
         }
 

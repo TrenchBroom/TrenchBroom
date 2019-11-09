@@ -75,11 +75,11 @@ namespace TrenchBroom {
         public:
             SetEditStateVisitor(const EditState editState) : m_editState(editState) {}
         private:
-            void doVisit(World* world) override   {}
-            void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   { group->setEditState(m_editState); }
-            void doVisit(Entity* entity) override {}
-            void doVisit(Brush* brush) override   {}
+            void doVisit(World*) override       {}
+            void doVisit(Layer*) override       {}
+            void doVisit(Group* group) override { group->setEditState(m_editState); }
+            void doVisit(Entity*) override      {}
+            void doVisit(Brush*) override       {}
         };
 
         void Group::openAncestors() {
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             return m_physicalBounds;
         }
 
-        Node* Group::doClone(const vm::bbox3& worldBounds) const {
+        Node* Group::doClone(const vm::bbox3& /* worldBounds */) const {
             Group* group = new Group(m_name);
             cloneAttributes(group);
             return group;
@@ -126,11 +126,11 @@ namespace TrenchBroom {
 
         class CanAddChildToGroup : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            void doVisit(const World* world) override   { setResult(false); }
-            void doVisit(const Layer* layer) override   { setResult(false); }
-            void doVisit(const Group* group) override   { setResult(true); }
-            void doVisit(const Entity* entity) override { setResult(true); }
-            void doVisit(const Brush* brush) override   { setResult(true); }
+            void doVisit(const World*) override  { setResult(false); }
+            void doVisit(const Layer*) override  { setResult(false); }
+            void doVisit(const Group*) override  { setResult(true); }
+            void doVisit(const Entity*) override { setResult(true); }
+            void doVisit(const Brush*) override  { setResult(true); }
         };
 
         bool Group::doCanAddChild(const Node* child) const {
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             return visitor.result();
         }
 
-        bool Group::doCanRemoveChild(const Node* child) const {
+        bool Group::doCanRemoveChild(const Node* /* child */) const {
             return true;
         }
 
@@ -151,19 +151,19 @@ namespace TrenchBroom {
             return false;
         }
 
-        void Group::doChildWasAdded(Node* node) {
+        void Group::doChildWasAdded(Node* /* node */) {
             nodePhysicalBoundsDidChange(physicalBounds());
         }
 
-        void Group::doChildWasRemoved(Node* node) {
+        void Group::doChildWasRemoved(Node* /* node */) {
             nodePhysicalBoundsDidChange(physicalBounds());
         }
 
-        void Group::doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds) {
+        void Group::doNodePhysicalBoundsDidChange() {
             invalidateBounds();
         }
 
-        void Group::doChildPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
+        void Group::doChildPhysicalBoundsDidChange() {
             const vm::bbox3 myOldBounds = physicalBounds();
             invalidateBounds();
             if (physicalBounds() != myOldBounds) {
@@ -175,7 +175,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void Group::doPick(const vm::ray3& ray, PickResult& pickResult) const {
+        void Group::doPick(const vm::ray3& /* ray */, PickResult&) const {
             // For composite nodes (Groups, brush entities), pick rays don't hit the group
             // but instead just the primitives inside (brushes, point entities).
             // This avoids a potential performance trap where we'd have to exhaustively

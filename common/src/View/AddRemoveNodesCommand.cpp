@@ -106,11 +106,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool AddRemoveNodesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool AddRemoveNodesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool AddRemoveNodesCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool AddRemoveNodesCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
     }

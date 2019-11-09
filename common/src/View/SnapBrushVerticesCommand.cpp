@@ -38,7 +38,7 @@ namespace TrenchBroom {
             return document->performSnapVertices(m_snapTo);
         }
 
-        bool SnapBrushVerticesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool SnapBrushVerticesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 

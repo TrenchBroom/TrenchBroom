@@ -26,21 +26,21 @@ namespace TrenchBroom {
     namespace Model {
         // FindGroupVisitor
 
-        void FindGroupVisitor::doVisit(World* world) {}
-        void FindGroupVisitor::doVisit(Layer* layer) {}
+        void FindGroupVisitor::doVisit(World*) {}
+        void FindGroupVisitor::doVisit(Layer*) {}
 
         void FindGroupVisitor::doVisit(Group* group) {
             setResult(group);
             cancel();
         }
 
-        void FindGroupVisitor::doVisit(Entity* entity) {}
-        void FindGroupVisitor::doVisit(Brush* brush) {}
+        void FindGroupVisitor::doVisit(Entity*) {}
+        void FindGroupVisitor::doVisit(Brush*) {}
 
         // FindOutermostClosedGroupVisitor
 
-        void FindOutermostClosedGroupVisitor::doVisit(World* world) {}
-        void FindOutermostClosedGroupVisitor::doVisit(Layer* layer) {}
+        void FindOutermostClosedGroupVisitor::doVisit(World*) {}
+        void FindOutermostClosedGroupVisitor::doVisit(Layer*) {}
 
         void FindOutermostClosedGroupVisitor::doVisit(Group* group) {
             const bool closed = !(group->opened() || group->hasOpenedDescendant());
@@ -50,8 +50,8 @@ namespace TrenchBroom {
             }
         }
 
-        void FindOutermostClosedGroupVisitor::doVisit(Entity* entity) {}
-        void FindOutermostClosedGroupVisitor::doVisit(Brush* brush) {}
+        void FindOutermostClosedGroupVisitor::doVisit(Entity*) {}
+        void FindOutermostClosedGroupVisitor::doVisit(Brush*) {}
 
         // Helper functions
 

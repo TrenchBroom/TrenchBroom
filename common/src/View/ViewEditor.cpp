@@ -237,7 +237,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ViewEditor::documentWasNewedOrLoaded(MapDocument* document) {
+        void ViewEditor::documentWasNewedOrLoaded(MapDocument*) {
             createGui();
             refreshGui();
         }
@@ -539,7 +539,7 @@ namespace TrenchBroom {
             editorContext.setShowBrushes(checked);
         }
 
-        void ViewEditor::showTagChanged(const bool checked) {
+        void ViewEditor::showTagChanged(const bool /* checked */) {
             MapDocumentSPtr document = lock(m_document);
 
             Model::Tag::TagType hiddenTags = 0;

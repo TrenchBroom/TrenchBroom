@@ -87,7 +87,7 @@ namespace TrenchBroom {
         }
 
         void MapReader::onFormatSet(const Model::MapFormat format) {
-            m_factory = &initialize(format, m_worldBounds);
+            m_factory = &initialize(format);
         }
 
         void MapReader::onBeginEntity(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
@@ -117,7 +117,7 @@ namespace TrenchBroom {
             m_brushParent = nullptr;
         }
 
-        void MapReader::onBeginBrush(const size_t line, ParserStatus& status) {
+        void MapReader::onBeginBrush(const size_t /* line */, ParserStatus& /* status */) {
             assert(m_faces.empty());
         }
 
@@ -160,7 +160,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            Model::Layer* layer = m_factory->createLayer(name, m_worldBounds);
+            Model::Layer* layer = m_factory->createLayer(name);
             setExtraAttributes(layer, extraAttributes);
             m_layers.insert(std::make_pair(layerId, layer));
 
@@ -209,7 +209,7 @@ namespace TrenchBroom {
             m_brushParent = group;
         }
 
-        void MapReader::createEntity(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+        void MapReader::createEntity(const size_t /* line */, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             Model::Entity* entity = m_factory->createEntity();
             entity->setAttributes(attributes);
             setExtraAttributes(entity, extraAttributes);
@@ -330,7 +330,7 @@ namespace TrenchBroom {
             node->setFilePosition(startLine, lineCount);
         }
 
-        void MapReader::setExtraAttributes(Model::Node* node, const ExtraAttributes& extraAttributes) {
+        void MapReader::setExtraAttributes(Model::Node* /* node */, const ExtraAttributes& extraAttributes) {
             ExtraAttributes::const_iterator it;
             it = extraAttributes.find("hideIssues");
             if (it != std::end(extraAttributes)) {
@@ -341,7 +341,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MapReader::onBrushFace(Model::BrushFace* face, ParserStatus& status) {
+        void MapReader::onBrushFace(Model::BrushFace* face, ParserStatus& /* status */) {
             m_faces.push_back(face);
         }
     }

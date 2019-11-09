@@ -96,32 +96,32 @@ namespace TrenchBroom {
             }
         }
 
-        void IssueBrowser::documentWasNewedOrLoaded(MapDocument* document) {
+        void IssueBrowser::documentWasNewedOrLoaded(MapDocument*) {
 			updateFilterFlags();
             m_view->reload();
         }
 
-        void IssueBrowser::documentWasSaved(MapDocument* document) {
+        void IssueBrowser::documentWasSaved(MapDocument*) {
             m_view->update();
         }
 
-        void IssueBrowser::nodesWereAdded(const Model::NodeList& nodes) {
+        void IssueBrowser::nodesWereAdded(const Model::NodeList&) {
             m_view->reload();
         }
 
-        void IssueBrowser::nodesWereRemoved(const Model::NodeList& nodes) {
+        void IssueBrowser::nodesWereRemoved(const Model::NodeList&) {
             m_view->reload();
         }
 
-        void IssueBrowser::nodesDidChange(const Model::NodeList& nodes) {
+        void IssueBrowser::nodesDidChange(const Model::NodeList&) {
             m_view->reload();
         }
 
-        void IssueBrowser::brushFacesDidChange(const Model::BrushFaceList& faces) {
+        void IssueBrowser::brushFacesDidChange(const Model::BrushFaceList&) {
             m_view->reload();
         }
 
-        void IssueBrowser::issueIgnoreChanged(Model::Issue* issue) {
+        void IssueBrowser::issueIgnoreChanged(Model::Issue*) {
             m_view->update();
         }
 
@@ -150,7 +150,7 @@ namespace TrenchBroom {
             m_view->setShowHiddenIssues(m_showHiddenIssuesCheckBox->isChecked());
         }
 
-        void IssueBrowser::filterChanged(size_t index, int setFlag, int mixedFlag) {
+        void IssueBrowser::filterChanged(const size_t /* index */, const int setFlag, const int /* mixedFlag */) {
             m_view->setHiddenGenerators(~setFlag);
         }
     }

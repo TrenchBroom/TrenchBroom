@@ -131,7 +131,7 @@ namespace TrenchBroom {
             m_camera.cameraDidChangeNotifier.removeObserver(this, &MapView2D::cameraDidChange);
         }
 
-        void MapView2D::cameraDidChange(const Renderer::Camera* camera) {
+        void MapView2D::cameraDidChange(const Renderer::Camera*) {
             update();
         }
 
@@ -175,8 +175,7 @@ namespace TrenchBroom {
             if (vm::is_nan(distance)) {
                 return vm::vec3::zero();
             } else {
-                const auto hitPoint = vm::point_at_distance(pickRay, distance);
-                return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
+                return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay);
             }
         }
 
@@ -240,7 +239,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MapView2D::animateCamera(const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up, const int duration) {
+        void MapView2D::animateCamera(const vm::vec3f& position, const vm::vec3f& /* direction */, const vm::vec3f& /* up */, const int duration) {
             const auto actualPosition = dot(position, m_camera.up()) * m_camera.up() + dot(position, m_camera.right()) * m_camera.right() + dot(m_camera.position(), m_camera.direction()) * m_camera.direction();
             auto animation = std::make_unique<CameraAnimation>(m_camera, actualPosition, m_camera.direction(), m_camera.up(), duration);
             m_animationManager->runAnimation(std::move(animation), true);
@@ -286,7 +285,7 @@ namespace TrenchBroom {
             const auto& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
             if (hit.isMatch()) {
                 const auto* face = Model::hitToFace(hit);
-                return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay(), hit.hitPoint());
+                return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay());
             } else {
                 const auto referenceBounds = document->referenceBounds();
                 const auto& pickRay = MapView2D::pickRay();
@@ -300,8 +299,7 @@ namespace TrenchBroom {
                 if (vm::is_nan(distance)) {
                     return vm::vec3::zero();
                 } else {
-                    const auto hitPoint = vm::point_at_distance(pickRay, distance);
-                    return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
+                    return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay);
                 }
             }
         }
@@ -326,7 +324,7 @@ namespace TrenchBroom {
             return m_camera;
         }
 
-        void MapView2D::doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void MapView2D::doRenderGrid(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             MapDocumentSPtr document = lock(m_document);
             renderBatch.addOneShot(new Renderer::GridRenderer(m_camera, document->worldBounds()));
         }
@@ -342,11 +340,11 @@ namespace TrenchBroom {
             }
         }
 
-        void MapView2D::doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void MapView2D::doRenderTools(MapViewToolBox& /* toolBox */, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderTools(renderContext, renderBatch);
         }
 
-        void MapView2D::doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
+        void MapView2D::doRenderExtras(Renderer::RenderContext&, Renderer::RenderBatch&) {}
 
         void MapView2D::doLinkCamera(CameraLinkHelper& helper) {
             helper.addCamera(&m_camera);

@@ -110,7 +110,7 @@ namespace TrenchBroom {
             m_camera.cameraDidChangeNotifier.removeObserver(this, &UVView::cameraDidChange);
         }
 
-        void UVView::selectionDidChange(const Selection& selection) {
+        void UVView::selectionDidChange(const Selection&) {
             MapDocumentSPtr document = lock(m_document);
             const Model::BrushFaceList& faces = document->selectedBrushFaces();
             if (faces.size() != 1) {
@@ -128,17 +128,17 @@ namespace TrenchBroom {
             update();
         }
 
-        void UVView::documentWasCleared(MapDocument* document) {
+        void UVView::documentWasCleared(MapDocument*) {
             m_helper.setFace(nullptr);
             m_toolBox.disable();
             update();
         }
 
-        void UVView::nodesDidChange(const Model::NodeList& nodes) {
+        void UVView::nodesDidChange(const Model::NodeList&) {
             update();
         }
 
-        void UVView::brushFacesDidChange(const Model::BrushFaceList& faces) {
+        void UVView::brushFacesDidChange(const Model::BrushFaceList&) {
             update();
         }
 
@@ -146,11 +146,11 @@ namespace TrenchBroom {
             update();
         }
 
-        void UVView::preferenceDidChange(const IO::Path& path) {
+        void UVView::preferenceDidChange(const IO::Path&) {
             update();
         }
 
-        void UVView::cameraDidChange(const Renderer::Camera* camera) {
+        void UVView::cameraDidChange(const Renderer::Camera*) {
             update();
         }
 
@@ -264,7 +264,7 @@ namespace TrenchBroom {
             }
         };
 
-        void UVView::renderTexture(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void UVView::renderTexture(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             const Model::BrushFace* face = m_helper.face();
             const Assets::Texture* texture = face->texture();
             if (texture == nullptr)
@@ -273,7 +273,7 @@ namespace TrenchBroom {
             renderBatch.addOneShot(new RenderTexture(m_helper));
         }
 
-        void UVView::renderFace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void UVView::renderFace(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             assert(m_helper.valid());
 
             const auto* face = m_helper.face();
@@ -292,7 +292,7 @@ namespace TrenchBroom {
             edgeRenderer.renderOnTop(renderBatch, edgeColor, 2.5f);
         }
 
-        void UVView::renderTextureAxes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void UVView::renderTextureAxes(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             assert(m_helper.valid());
 
             const auto* face = m_helper.face();

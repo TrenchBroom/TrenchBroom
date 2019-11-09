@@ -96,12 +96,12 @@ namespace TrenchBroom {
                 return DragInfo(restricter, new NoDragSnapper(), m_initialPoint);
             }
 
-            DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
+            DragResult doDrag(const InputState&, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) override {
                 updatePolyhedron(nextHandlePosition);
                 return DR_Continue;
             }
 
-            void doEndDrag(const InputState& inputState) override {
+            void doEndDrag(const InputState&) override {
             }
 
             void doCancelDrag() override {
@@ -169,7 +169,7 @@ namespace TrenchBroom {
                 return DragInfo(new LineDragRestricter(line), new NoDragSnapper(), origin);
             }
 
-            DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
+            DragResult doDrag(const InputState&, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) override {
                 auto polyhedron = m_oldPolyhedron;
                 assert(polyhedron.polygon());
 
@@ -191,7 +191,7 @@ namespace TrenchBroom {
                 return DR_Continue;
             }
 
-            void doEndDrag(const InputState& inputState) override {
+            void doEndDrag(const InputState&) override {
             }
 
             void doCancelDrag() override {

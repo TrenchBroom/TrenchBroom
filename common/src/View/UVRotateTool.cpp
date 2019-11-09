@@ -46,9 +46,9 @@
 namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType UVRotateTool::AngleHandleHit = Model::Hit::freeHitType();
-        const float UVRotateTool::CenterHandleRadius =  2.5f;
-        const float UVRotateTool::RotateHandleRadius = 32.0f;
-        const float UVRotateTool::RotateHandleWidth  =  5.0f;
+        const double UVRotateTool::CenterHandleRadius =  2.5;
+        const double UVRotateTool::RotateHandleRadius = 32.0;
+        const double UVRotateTool::RotateHandleWidth  =  5.0;
 
         UVRotateTool::UVRotateTool(MapDocumentWPtr document, UVViewHelper& helper) :
         ToolControllerBase(),
@@ -83,8 +83,8 @@ namespace TrenchBroom {
                 const auto originOnPlane   = toPlane * fromFace * vm::vec3(m_helper.originInFaceCoords());
                 const auto hitPointOnPlane = toPlane * hitPoint;
 
-                const auto zoom = m_helper.cameraZoom();
-                const auto error = vm::abs(RotateHandleRadius / zoom - distance(hitPointOnPlane, originOnPlane));
+                const auto zoom = static_cast<FloatType>(m_helper.cameraZoom());
+                const auto error = vm::abs(RotateHandleRadius / zoom - vm::distance(hitPointOnPlane, originOnPlane));
                 if (error <= RotateHandleWidth / zoom) {
                     pickResult.addHit(Model::Hit(AngleHandleHit, distanceToFace, hitPoint, 0, error));
                 }
@@ -199,7 +199,7 @@ namespace TrenchBroom {
             return angle;
         }
 
-        void UVRotateTool::doEndMouseDrag(const InputState& inputState) {
+        void UVRotateTool::doEndMouseDrag(const InputState&) {
             auto document = lock(m_document);
             document->commitTransaction();
         }
@@ -269,7 +269,7 @@ namespace TrenchBroom {
             }
         };
 
-        void UVRotateTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void UVRotateTool::doRender(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             if (!m_helper.valid()) {
                 return;
             }
@@ -283,7 +283,7 @@ namespace TrenchBroom {
             const auto& angleHandleHit = pickResult.query().type(AngleHandleHit).occluded().first();
             const auto highlight = angleHandleHit.isMatch() || thisToolDragging();
 
-            renderBatch.addOneShot(new Render(m_helper, CenterHandleRadius, RotateHandleRadius, highlight));
+            renderBatch.addOneShot(new Render(m_helper, static_cast<float>(CenterHandleRadius), static_cast<float>(RotateHandleRadius), highlight));
         }
 
         bool UVRotateTool::doCancel() {

@@ -37,11 +37,11 @@ namespace TrenchBroom {
             CollectMatchingBrushFacesVisitor(const P& p = P()) : m_p(p) {}
             const BrushFaceList& faces() const { return m_faces; }
         private:
-            void doVisit(World* world)   override {}
-            void doVisit(Layer* layer)   override {}
-            void doVisit(Group* group)   override {}
-            void doVisit(Entity* entity) override {}
-            void doVisit(Brush* brush)   override {
+            void doVisit(World*)  override {}
+            void doVisit(Layer*)  override {}
+            void doVisit(Group*)  override {}
+            void doVisit(Entity*) override {}
+            void doVisit(Brush* brush) override {
                 for (BrushFace* face : brush->faces()) {
                     if (m_p(face))
                         m_faces.push_back(face);
