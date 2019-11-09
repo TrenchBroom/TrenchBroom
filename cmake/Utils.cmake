@@ -69,6 +69,17 @@ MACRO(set_compiler_config TARGET)
     elseif(COMPILER_IS_MSVC)
         target_compile_definitions(${TARGET} PRIVATE _CRT_SECURE_NO_DEPRECATE _CRT_NONSTDC_NO_DEPRECATE)
         target_compile_options(${TARGET} PRIVATE /W4 /EHsc /MP)
+
+        # signed/unsigned mismatch: https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-4-c4365
+        target_compile_options(${TARGET} PRIVATE /w44365)
+
+        # disable warnings on external code: https://blogs.msdn.microsoft.com/vcblog/2017/12/13/broken-warnings-theory/
+        target_compile_options(${TARGET} PRIVATE /experimental:external /external:anglebrackets /external:W0)
+
+        # workaround /external generating some spurious warnings
+        # https://developercommunity.visualstudio.com/content/problem/220812/experimentalexternal-generates-a-lot-of-c4193-warn.html
+        target_compile_options(${TARGET} PRIVATE /wd4193)
+
         target_compile_options(${TARGET} PRIVATE "$<$<CONFIG:RELEASE>:/Ox>")
 
         # Generate debug symbols even for Release; we build a stripped pdb in Release mode, see TrenchBroomApp.cmake
