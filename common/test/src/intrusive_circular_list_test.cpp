@@ -135,6 +135,43 @@ TEST(intrusive_circular_list_test, destructor_cleanup) {
     ASSERT_TRUE(t3_deleted);
 }
 
+TEST(intrusive_circular_list_test, iterators) {
+    list l;
+
+    // empty list
+    ASSERT_EQ(l.begin(), l.end());
+
+    auto* e1 = l.emplace_back();
+
+    auto it = l.begin();
+    auto end = l.end();
+    ASSERT_NE(it, end);
+
+    ASSERT_EQ(e1, *it);
+    ASSERT_EQ(e1, *it++);
+    ASSERT_EQ(it, end);
+
+    auto* e2 = l.emplace_back();
+
+    it = l.begin();
+    end = l.end();
+    ASSERT_NE(it, end);
+
+    ASSERT_EQ(e1, *it);
+    ASSERT_EQ(e1, *it++);
+    ASSERT_EQ(e2, *it);
+    ASSERT_EQ(e2, *it++);
+    ASSERT_EQ(it, end);
+
+    it = l.begin();
+    end = l.end();
+
+    ++it;
+    ASSERT_EQ(e2, *it);
+    ++it;
+    ASSERT_EQ(end, it);
+}
+
 TEST(intrusive_circular_list_test, front) {
     list l;
 

@@ -83,10 +83,13 @@ private:
 };
 
 /**
- * A circular list that stores its links inside of the list items. This list
+ * A circular list that stores its links inside of the list items.
  *
- * @tparam T
- * @tparam GetLink
+ * If this list is modified in a way that removes an element that is pointed to by an iterator, this iterator
+ * becomes invalid. Any iterator becomes invalid if the head item of the list is removed.
+ *
+ * @tparam T the type of the list items
+ * @tparam GetLink maps a list item to its link info structure
  */
 template <typename T, typename GetLink>
 class intrusive_circular_list {
@@ -95,6 +98,62 @@ public:
     using item = T;
     using get_link_info = GetLink;
     using link_info = intrusive_circular_link<T>;
+public: // iterators
+    class iterator {
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using difference_type = std::ptrdiff_t;
+        using value_type = T;
+        using pointer = T*;
+        using reference = T&;
+    private:
+        T* m_first;
+        T* m_item;
+    public:
+        iterator(T* item) :
+        m_first(item),
+        m_item(item) {}
+
+        iterator& operator++() {
+            this->increment();
+            return *this;
+        }
+
+        iterator operator++(int) {
+            auto result = iterator(*this);
+            this->increment();
+            return result;
+        }
+
+        pointer operator*() const {
+            return m_item;
+        }
+
+        reference operator->() const {
+            return *m_item;
+        }
+
+        bool operator==(const iterator& other) const {
+            return m_item == other.m_item;
+        }
+
+        bool operator!=(const iterator& other) const {
+            return m_item != other.m_item;
+        }
+    private:
+        void increment() {
+            if (m_item != nullptr) {
+                const auto get_link = get_link_info();
+                const auto& link = get_link(m_item);
+                T* next = link.next();
+                if (next == m_first) {
+                    m_item = nullptr;
+                } else {
+                    m_item = next;
+                }
+            }
+        }
+    };
 private:
     T* m_head;
     std::size_t m_size;
@@ -130,6 +189,21 @@ public:
         m_head = other.m_head;
         m_size = other.m_size;
         other.release();
+    }
+
+    /**
+     * Returns an iterator pointing to the first element of this list. If this list is empty, then the returned
+     * iterator is equivalent to an end iterator.
+     */
+    iterator begin() const {
+        return iterator(m_head);
+    }
+
+    /**
+     * Returns the end iterator for this list.
+     */
+    iterator end() const {
+        return iterator(nullptr);
     }
 
     /**
