@@ -256,7 +256,7 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::createGui() {
-            setLayout(nullptr);
+            deleteChildWidgetsAndLayout(this);
 
             auto* sizer = new QGridLayout();
             sizer->setContentsMargins(

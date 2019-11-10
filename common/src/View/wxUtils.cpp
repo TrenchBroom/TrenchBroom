@@ -353,5 +353,11 @@ namespace TrenchBroom {
             tableView->installEventFilter(new AutoResizeRowsEventFilter(tableView));
             tableView->resizeRowsToContents();
         }
+
+        void deleteChildWidgetsAndLayout(QWidget* widget) {
+            qDeleteAll(widget->findChildren<QWidget*>("", Qt::FindDirectChildrenOnly));
+
+            delete widget->layout();
+        }
     }
 }
