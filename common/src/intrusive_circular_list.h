@@ -22,6 +22,11 @@
 
 #include <cstddef>
 
+/**
+ * This structure contains the link information stored in list items.
+ *
+ * @tparam T the type of the list items
+ */
 template <typename T>
 class intrusive_circular_link {
     static_assert(!std::is_pointer<T>::value, "intrusive lists do not accept pointer arguments");
@@ -30,32 +35,59 @@ private:
     T* m_next;
     T* m_previous;
 public:
+    /**
+     * Creates a new link for the given list item. Sets both next and previous to the given item so that the
+     * link forms a self loop.
+     *
+     * @param item the list item for this link
+     */
     explicit intrusive_circular_link(T* item) :
     m_next(item),
     m_previous(item) {}
 
+    /**
+     * Returns this link's predecessor.
+     */
     T* previous() const {
         return m_previous;
     }
 
+    /**
+     * Returns this link's successor.
+     */
     T* next() const {
         return m_next;
     }
 private:
+    /**
+     * Sets this link's predecessor.
+     */
     void set_previous(T* previous) {
         m_previous = previous;
     }
 
+    /**
+     * Sets this link's successor.
+     */
     void set_next(T* next) {
         m_next = next;
     }
 
+    /**
+     * Flips this link by exchanging its predecessor and its successor.
+     */
     void flip() {
         using std::swap;
         swap(m_next, m_previous);
     }
 };
 
+/**
+ * A circular list that stores its links inside of the list items. This list
+ *
+ * @tparam T
+ * @tparam GetLink
+ */
 template <typename T, typename GetLink>
 class intrusive_circular_list {
     static_assert(!std::is_pointer<T>::value, "intrusive lists do not accept pointer arguments");
@@ -169,15 +201,16 @@ public:
     }
 
     /**
-     * Creates a new instance of T and adds it to this list.
+     * Creates a new instance of U and adds it to the back of this list.
      *
-     * @tparam Args the types of the arguments to forward to T's constructor
-     * @param args the arguments to forward to T's constructor
-     * @return a pointer to the newly created instance of T
+     * @tparam U the actual type to instantiate, U* must be convertible to T*
+     * @tparam Args the types of the arguments to forward to U's constructor
+     * @param args the arguments to forward to U's constructor
+     * @return a pointer to the newly created instance of U
      */
-    template <typename... Args>
-    T* emplace_back(Args&&... args) {
-        T* item = new T(std::forward<Args>(args)...);
+    template <typename U=T, typename... Args>
+    U* emplace_back(Args&&... args) {
+        U* item = new U(std::forward<Args>(args)...);
         push_back(item);
         return item;
     }
@@ -313,7 +346,8 @@ public:
     }
 
     /**
-     * Removes the given items from this list and deletes them.
+     * Removes the given items from this list and deletes them. If the list is not empty after
+     * removal of the given nodes, then the predecessor of the given first node becomes the head of this list.
      *
      * @param first the first item to remove
      * @param last the liast item to remove
@@ -329,16 +363,14 @@ public:
         release(first, last, count);
 
         const auto get_link = GetLink();
-
         auto cur = first;
-        const auto last_next = get_link(last).next();
         do {
             auto& cur_link = get_link(cur);
             auto next = cur_link.next();
 
             delete cur;
             cur = next;
-        } while (cur != last_next);
+        } while (cur != first);
 
         assert(check_invariant());
     }
@@ -387,20 +419,20 @@ public:
     }
 
     /**
+     * Clears this list without deleting its items.
+     */
+    void release() {
+        m_head = nullptr;
+        m_size = 0u;
+    }
+
+    /**
      * Clears this list and deletes all items.
      */
     void clear() {
         if (!empty()) {
             remove(front(), back(), size());
         }
-    }
-
-    /**
-     * Clears this list without deleting its items.
-     */
-    void release() {
-        m_head = nullptr;
-        m_size = 0u;
     }
 private:
     bool check_invariant() {

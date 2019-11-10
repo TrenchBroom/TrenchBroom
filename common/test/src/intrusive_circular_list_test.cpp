@@ -72,6 +72,28 @@ public:
 
 using list = intrusive_circular_list<element, get_link>;
 
+template <typename Item>
+void assertLinks(Item* head, const std::vector<Item*>& items) {
+    ASSERT_TRUE((head == nullptr) == (items.empty()));
+
+    if (head != nullptr) {
+        const auto get_link = ::get_link();
+        auto list_cur = head;
+        auto list_previous = get_link(head).previous();
+
+        for (std::size_t i = 0u; i < items.size(); ++i) {
+            auto items_cur = items[i];
+            ASSERT_EQ(list_cur, items_cur);
+            ASSERT_EQ(list_cur, get_link(list_previous).next());
+
+            list_previous = list_cur;
+            list_cur = get_link(list_cur).next();
+        }
+
+        ASSERT_EQ(head, list_cur);
+    }
+}
+
 template <typename List>
 void assertList(const List& list, const std::vector<typename List::item*>& items) {
     ASSERT_EQ(list.empty(), items.empty());
@@ -81,20 +103,7 @@ void assertList(const List& list, const std::vector<typename List::item*>& items
         ASSERT_EQ(list.front(), items.front());
         ASSERT_EQ(list.back(), items.back());
 
-        const auto get_link = typename List::get_link_info();
-        auto list_cur = list.front();
-        auto list_previous = list.back();
-
-        for (std::size_t i = 0u; i < items.size(); ++i) {
-            auto items_cur = items[i];
-            ASSERT_EQ(list_cur, items_cur);
-
-            ASSERT_EQ(list_previous, get_link(list_cur).previous());
-            ASSERT_EQ(list_cur, get_link(list_previous).next());
-
-            list_previous = list_cur;
-            list_cur = get_link(list_cur).next();
-        }
+        assertLinks(list.front(), items);
     }
 }
 
@@ -190,6 +199,16 @@ TEST(intrusive_circular_list_test, emplace_back) {
 
     auto* e3 = l.emplace_back();
     assertList(l, { e1, e2, e3 });
+}
+
+TEST(intrusive_circular_list_test, emplace_back_subtype) {
+    auto e1_deleted = false;
+    {
+        list l;
+        auto* e1 = l.emplace_back<delete_tracking_element>(e1_deleted);
+        assertList(l, { e1 });
+    }
+    ASSERT_TRUE(e1_deleted);
 }
 
 TEST(intrusive_circular_list_test, append) {
@@ -1336,4 +1355,246 @@ TEST(intrusive_circular_list_test, splice_replace_all_items_with_all_items) {
     ASSERT_TRUE(t1_deleted);
     ASSERT_TRUE(t2_deleted);
     ASSERT_TRUE(t3_deleted);
+}
+
+TEST(intrusive_circular_list_test, remove_single) {
+    list l;
+
+    auto e1_deleted = false;
+    auto e2_deleted = false;
+    auto e3_deleted = false;
+    auto e4_deleted = false;
+
+    auto* e1 = new delete_tracking_element(e1_deleted);
+    auto* e2 = new delete_tracking_element(e2_deleted);
+    auto* e3 = new delete_tracking_element(e3_deleted);
+    auto* e4 = new delete_tracking_element(e4_deleted);
+
+    l.push_back(e1);
+    l.push_back(e2);
+    l.push_back(e3);
+    l.push_back(e4);
+
+    // mid element
+    l.remove(e2, e2, 1u);
+    ASSERT_FALSE(e1_deleted);
+    ASSERT_TRUE(e2_deleted);
+    ASSERT_FALSE(e3_deleted);
+    ASSERT_FALSE(e4_deleted);
+    assertList(l, { e1, e3, e4 });
+
+    // front element
+    l.remove(e1, e1, 1u);
+    ASSERT_TRUE(e1_deleted);
+    ASSERT_TRUE(e2_deleted);
+    ASSERT_FALSE(e3_deleted);
+    ASSERT_FALSE(e4_deleted);
+    assertList(l, { e4, e3 }); // removal affects list head
+
+    // back element
+    l.remove(e3, e3, 1u);
+    ASSERT_TRUE(e1_deleted);
+    ASSERT_TRUE(e2_deleted);
+    ASSERT_TRUE(e3_deleted);
+    ASSERT_FALSE(e4_deleted);
+    assertList(l, { e4 });
+
+    // single element
+    l.remove(e4, e4, 1u);
+    ASSERT_TRUE(e1_deleted);
+    ASSERT_TRUE(e2_deleted);
+    ASSERT_TRUE(e3_deleted);
+    ASSERT_TRUE(e4_deleted);
+    assertList(l, {});
+}
+
+TEST(intrusive_circular_list_test, remove_multiple) {
+    list l;
+
+    auto e1_deleted = false;
+    auto e2_deleted = false;
+    auto e3_deleted = false;
+    auto e4_deleted = false;
+
+    auto* e1 = new delete_tracking_element(e1_deleted);
+    auto* e2 = new delete_tracking_element(e2_deleted);
+    auto* e3 = new delete_tracking_element(e3_deleted);
+    auto* e4 = new delete_tracking_element(e4_deleted);
+
+    l.push_back(e1);
+    l.push_back(e2);
+    l.push_back(e3);
+    l.push_back(e4);
+
+    l.remove(e4, e1, 2u);
+    ASSERT_TRUE(e1_deleted);
+    ASSERT_FALSE(e2_deleted);
+    ASSERT_FALSE(e3_deleted);
+    ASSERT_TRUE(e4_deleted);
+    assertList(l, { e3, e2 });
+}
+
+
+TEST(intrusive_circular_list_test, remove_all) {
+    list l;
+
+    auto e1_deleted = false;
+    auto e2_deleted = false;
+
+    auto* e1 = new delete_tracking_element(e1_deleted);
+    auto* e2 = new delete_tracking_element(e2_deleted);
+
+    l.push_back(e1);
+    l.push_back(e2);
+
+    l.remove(e1, e2, 2u);
+    ASSERT_TRUE(e1_deleted);
+    ASSERT_TRUE(e2_deleted);
+    assertList(l, {});
+}
+
+
+TEST(intrusive_circular_list_test, release_single) {
+    list l;
+
+    auto e1_deleted = false;
+    auto e2_deleted = false;
+    auto e3_deleted = false;
+    auto e4_deleted = false;
+
+    element* e1 = new delete_tracking_element(e1_deleted);
+    element* e2 = new delete_tracking_element(e2_deleted);
+    element* e3 = new delete_tracking_element(e3_deleted);
+    element* e4 = new delete_tracking_element(e4_deleted);
+
+    l.push_back(e1);
+    l.push_back(e2);
+    l.push_back(e3);
+    l.push_back(e4);
+
+    // mid element
+    l.release(e2, e2, 1u);
+    ASSERT_FALSE(e1_deleted);
+    ASSERT_FALSE(e2_deleted);
+    ASSERT_FALSE(e3_deleted);
+    ASSERT_FALSE(e4_deleted);
+    assertList(l, { e1, e3, e4 });
+    assertLinks(e2, { e2 });
+
+    // front element
+    l.release(e1, e1, 1u);
+    ASSERT_FALSE(e1_deleted);
+    ASSERT_FALSE(e2_deleted);
+    ASSERT_FALSE(e3_deleted);
+    ASSERT_FALSE(e4_deleted);
+    assertList(l, { e4, e3 }); // removal affects list head
+    assertLinks(e1, { e1 });
+
+    // back element
+    l.release(e3, e3, 1u);
+    ASSERT_FALSE(e1_deleted);
+    ASSERT_FALSE(e2_deleted);
+    ASSERT_FALSE(e3_deleted);
+    ASSERT_FALSE(e4_deleted);
+    assertList(l, { e4 });
+    assertLinks(e3, { e3 });
+
+    // single element
+    l.release(e4, e4, 1u);
+    ASSERT_FALSE(e1_deleted);
+    ASSERT_FALSE(e2_deleted);
+    ASSERT_FALSE(e3_deleted);
+    ASSERT_FALSE(e4_deleted);
+    assertList(l, {});
+    assertLinks(e4, { e4 });
+}
+
+TEST(intrusive_circular_list_test, release_multiple) {
+    list l;
+
+    auto e1_deleted = false;
+    auto e2_deleted = false;
+    auto e3_deleted = false;
+    auto e4_deleted = false;
+
+    element* e1 = new delete_tracking_element(e1_deleted);
+    element* e2 = new delete_tracking_element(e2_deleted);
+    element* e3 = new delete_tracking_element(e3_deleted);
+    element* e4 = new delete_tracking_element(e4_deleted);
+
+    l.push_back(e1);
+    l.push_back(e2);
+    l.push_back(e3);
+    l.push_back(e4);
+
+    l.release(e4, e1, 2u);
+    ASSERT_FALSE(e1_deleted);
+    ASSERT_FALSE(e2_deleted);
+    ASSERT_FALSE(e3_deleted);
+    ASSERT_FALSE(e4_deleted);
+    assertList(l, { e3, e2 });
+    assertLinks(e4, { e4, e1 });
+}
+
+TEST(intrusive_circular_list_test, release_all) {
+    list l;
+
+    auto e1_deleted = false;
+    auto e2_deleted = false;
+
+    element* e1 = new delete_tracking_element(e1_deleted);
+    element* e2 = new delete_tracking_element(e2_deleted);
+
+    l.push_back(e1);
+    l.push_back(e2);
+
+    l.release(e1, e2, 2u);
+    ASSERT_FALSE(e1_deleted);
+    ASSERT_FALSE(e2_deleted);
+    assertList(l, {});
+    assertLinks(e1, { e1, e2 });
+}
+
+TEST(intrusive_circular_list_test, release) {
+    list l;
+
+    auto e1_deleted = false;
+    auto e2_deleted = false;
+
+    element* e1 = new delete_tracking_element(e1_deleted);
+    element* e2 = new delete_tracking_element(e2_deleted);
+
+    l.push_back(e1);
+    l.push_back(e2);
+
+    l.release();
+    ASSERT_FALSE(e1_deleted);
+    ASSERT_FALSE(e2_deleted);
+    assertList(l, {});
+    assertLinks(e1, { e1, e2 });
+}
+
+TEST(intrusive_circular_list_test, clear_empty_list) {
+    list l;
+
+    l.clear();
+    assertList(l, {});
+}
+
+TEST(intrusive_circular_list_test, clear_with_items) {
+    list l;
+
+    auto e1_deleted = false;
+    auto e2_deleted = false;
+
+    element* e1 = new delete_tracking_element(e1_deleted);
+    element* e2 = new delete_tracking_element(e2_deleted);
+
+    l.push_back(e1);
+    l.push_back(e2);
+
+    l.clear();
+    ASSERT_TRUE(e1_deleted);
+    ASSERT_TRUE(e2_deleted);
+    assertList(l, {});
 }
