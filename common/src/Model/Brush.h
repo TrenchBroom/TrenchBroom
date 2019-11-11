@@ -54,12 +54,12 @@ namespace TrenchBroom {
         public:
             static const Hit::HitType BrushHit;
         private:
-            struct ProjectToVertex : public ProjectingSequenceProjector<BrushVertex*, BrushVertex*> {
-                static BrushVertex*& project(BrushVertex*& vertex);
+            struct ProjectToVertex : public ProjectingSequenceProjector<const BrushVertex*, const BrushVertex*> {
+                static ConstType project(const BrushVertex* vertex);
             };
 
-            struct ProjectToEdge : public ProjectingSequenceProjector<BrushEdge*, BrushEdge*> {
-                static BrushEdge*& project(BrushEdge*& edge);
+            struct ProjectToEdge : public ProjectingSequenceProjector<const BrushEdge*, const BrushEdge*> {
+                static ConstType project(const BrushEdge* edge);
             };
 
             class AddFaceToGeometryCallback;
@@ -71,8 +71,8 @@ namespace TrenchBroom {
 
             using VertexSet = std::set<vm::vec3>;
         public:
-            using VertexList = ConstProjectingSequence<BrushVertexList, ProjectToVertex>;
-            using EdgeList = ConstProjectingSequence<BrushEdgeList, ProjectToEdge>;
+            using VertexList = ProjectingSequence<BrushVertexList, ProjectToVertex>;
+            using EdgeList = ProjectingSequence<BrushEdgeList, ProjectToEdge>;
 
         private:
             BrushFaceList m_faces;

@@ -107,11 +107,11 @@ namespace TrenchBroom {
             void doVisit(const Model::Group*) override  {}
             void doVisit(const Model::Entity*) override {}
             void doVisit(const Model::Brush* brush) override   {
-                for (const auto edge : brush->edges())
+                for (const auto* edge : brush->edges())
                     visitEdge(edge);
             }
 
-            void visitEdge(Model::BrushEdge* edge) {
+            void visitEdge(const Model::BrushEdge* edge) {
                 auto* left = edge->firstFace()->payload();
                 auto* right = edge->secondFace()->payload();
                 const auto leftDot  = dot(left->boundary().normal,  m_pickRay.direction);

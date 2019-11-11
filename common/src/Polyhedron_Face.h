@@ -30,12 +30,12 @@
 #include <vecmath/util.h>
 
 template <typename T, typename FP, typename VP>
-typename DoublyLinkedList<typename Polyhedron<T,FP,VP>::Face, typename Polyhedron<T,FP,VP>::GetFaceLink>::Link& Polyhedron<T,FP,VP>::GetFaceLink::operator()(Face* face) const {
+intrusive_circular_link<typename Polyhedron<T,FP,VP>::Face>& Polyhedron<T,FP,VP>::GetFaceLink::operator()(Face* face) const {
     return face->m_link;
 }
 
 template <typename T, typename FP, typename VP>
-const typename DoublyLinkedList<typename Polyhedron<T,FP,VP>::Face, typename Polyhedron<T,FP,VP>::GetFaceLink>::Link& Polyhedron<T,FP,VP>::GetFaceLink::operator()(const Face* face) const {
+const intrusive_circular_link<typename Polyhedron<T,FP,VP>::Face>& Polyhedron<T,FP,VP>::GetFaceLink::operator()(const Face* face) const {
     return face->m_link;
 }
 

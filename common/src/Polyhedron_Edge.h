@@ -27,12 +27,12 @@
 #include <vecmath/scalar.h>
 
 template <typename T, typename FP, typename VP>
-typename DoublyLinkedList<typename Polyhedron<T,FP,VP>::Edge, typename Polyhedron<T,FP,VP>::GetEdgeLink>::Link& Polyhedron<T,FP,VP>::GetEdgeLink::operator()(Edge* edge) const {
+intrusive_circular_link<typename Polyhedron<T,FP,VP>::Edge>& Polyhedron<T,FP,VP>::GetEdgeLink::operator()(Edge* edge) const {
     return edge->m_link;
 }
 
 template <typename T, typename FP, typename VP>
-const typename DoublyLinkedList<typename Polyhedron<T,FP,VP>::Edge, typename Polyhedron<T,FP,VP>::GetEdgeLink>::Link& Polyhedron<T,FP,VP>::GetEdgeLink::operator()(const Edge* edge) const {
+const intrusive_circular_link<typename Polyhedron<T,FP,VP>::Edge>& Polyhedron<T,FP,VP>::GetEdgeLink::operator()(const Edge* edge) const {
     return edge->m_link;
 }
 

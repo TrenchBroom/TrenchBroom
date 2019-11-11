@@ -21,7 +21,7 @@
 #define TrenchBroom_Polyhedron_h
 
 #include "Allocator.h"
-#include "DoublyLinkedList.h"
+#include "intrusive_circular_list.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -48,39 +48,35 @@ public:
     class HalfEdge;
     class Face;
 private:
-    class GetVertexLink {
-    public:
-        typename DoublyLinkedList<Vertex, GetVertexLink>::Link& operator()(Vertex* vertex) const;
-        const typename DoublyLinkedList<Vertex, GetVertexLink>::Link& operator()(const Vertex* vertex) const;
+    struct GetVertexLink {
+        intrusive_circular_link<Vertex>& operator()(Vertex* vertex) const;
+        const intrusive_circular_link<Vertex>& operator()(const Vertex* vertex) const;
     };
 
-    class GetEdgeLink {
-    public:
-        typename DoublyLinkedList<Edge, GetEdgeLink>::Link& operator()(Edge* edge) const;
-        const typename DoublyLinkedList<Edge, GetEdgeLink>::Link& operator()(const Edge* edge) const;
+    struct GetEdgeLink {
+        intrusive_circular_link<Edge>& operator()(Edge* edge) const;
+        const intrusive_circular_link<Edge>& operator()(const Edge* edge) const;
     };
 
-    class GetHalfEdgeLink {
-    public:
-        typename DoublyLinkedList<HalfEdge, GetHalfEdgeLink>::Link& operator()(HalfEdge* halfEdge) const;
-        const typename DoublyLinkedList<HalfEdge, GetHalfEdgeLink>::Link& operator()(const HalfEdge* halfEdge) const;
+    struct GetHalfEdgeLink {
+        intrusive_circular_link<HalfEdge>& operator()(HalfEdge* halfEdge) const;
+        const intrusive_circular_link<HalfEdge>& operator()(const HalfEdge* halfEdge) const;
     };
 
-    class GetFaceLink {
-    public:
-        typename DoublyLinkedList<Face, GetFaceLink>::Link& operator()(Face* face) const;
-        const typename DoublyLinkedList<Face, GetFaceLink>::Link& operator()(const Face* face) const;
+    struct GetFaceLink {
+        intrusive_circular_link<Face>& operator()(Face* face) const;
+        const intrusive_circular_link<Face>& operator()(const Face* face) const;
     };
 
-    using VertexLink = typename DoublyLinkedList<Vertex, GetVertexLink>::Link;
-    using EdgeLink = typename DoublyLinkedList<Edge, GetEdgeLink>::Link;
-    using HalfEdgeLink = typename DoublyLinkedList<HalfEdge, GetHalfEdgeLink>::Link;
-    using FaceLink = typename DoublyLinkedList<Face, GetFaceLink>::Link;
+    using VertexLink = intrusive_circular_link<Vertex>;
+    using EdgeLink = intrusive_circular_link<Edge>;
+    using HalfEdgeLink = intrusive_circular_link<HalfEdge>;
+    using FaceLink = intrusive_circular_link<Face>;
 public:
-    using VertexList = DoublyLinkedList<Vertex, GetVertexLink>;
-    using EdgeList = DoublyLinkedList<Edge, GetEdgeLink>;
-    using HalfEdgeList = DoublyLinkedList<HalfEdge, GetHalfEdgeLink>;
-    using FaceList = DoublyLinkedList<Face, GetFaceLink>;
+    using VertexList = intrusive_circular_list<Vertex, GetVertexLink>;
+    using EdgeList = intrusive_circular_list<Edge, GetEdgeLink>;
+    using HalfEdgeList = intrusive_circular_list<HalfEdge, GetHalfEdgeLink>;
+    using FaceList = intrusive_circular_list<Face, GetFaceLink>;
 
     class VertexDistanceCmp;
     using ClosestVertexSet = std::set<Vertex*, VertexDistanceCmp>;

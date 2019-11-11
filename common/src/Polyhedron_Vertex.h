@@ -21,12 +21,12 @@
 #define TrenchBroom_Polyhedron_Vertex_h
 
 template <typename T, typename FP, typename VP>
-typename DoublyLinkedList<typename Polyhedron<T,FP,VP>::Vertex, typename Polyhedron<T,FP,VP>::GetVertexLink>::Link& Polyhedron<T,FP,VP>::GetVertexLink::operator()(Vertex* vertex) const {
+intrusive_circular_link<typename Polyhedron<T,FP,VP>::Vertex>& Polyhedron<T,FP,VP>::GetVertexLink::operator()(Vertex* vertex) const {
     return vertex->m_link;
 }
 
 template <typename T, typename FP, typename VP>
-const typename DoublyLinkedList<typename Polyhedron<T,FP,VP>::Vertex, typename Polyhedron<T,FP,VP>::GetVertexLink>::Link& Polyhedron<T,FP,VP>::GetVertexLink::operator()(const Vertex* vertex) const {
+const intrusive_circular_link<typename Polyhedron<T,FP,VP>::Vertex>& Polyhedron<T,FP,VP>::GetVertexLink::operator()(const Vertex* vertex) const {
     return vertex->m_link;
 }
 

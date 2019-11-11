@@ -1045,7 +1045,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Color.h
         ${COMMON_SOURCE_DIR}/Constants.h
         ${COMMON_SOURCE_DIR}/Disjunction.h
-        ${COMMON_SOURCE_DIR}/DoublyLinkedList.h
         ${COMMON_SOURCE_DIR}/Ensure.h
         ${COMMON_SOURCE_DIR}/Exceptions.h
         ${COMMON_SOURCE_DIR}/FileLogger.h

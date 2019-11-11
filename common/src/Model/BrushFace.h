@@ -67,16 +67,16 @@ namespace TrenchBroom {
         public:
             static const String NoTextureName;
         private:
-            struct ProjectToVertex : public ProjectingSequenceProjector<BrushHalfEdge*, BrushVertex*> {
-                static Type project(BrushHalfEdge* halfEdge);
+            struct ProjectToVertex : public ProjectingSequenceProjector<const BrushHalfEdge*, const BrushVertex*> {
+                static ConstType project(const BrushHalfEdge* halfEdge);
             };
 
-            struct ProjectToEdge : public ProjectingSequenceProjector<BrushHalfEdge*, BrushEdge*> {
-                static Type project(BrushHalfEdge* halfEdge);
+            struct ProjectToEdge : public ProjectingSequenceProjector<const BrushHalfEdge*, const BrushEdge*> {
+                static ConstType project(const BrushHalfEdge* halfEdge);
             };
         public:
-            using VertexList = ConstProjectingSequence<BrushHalfEdgeList, ProjectToVertex>;
-            using EdgeList = ConstProjectingSequence<BrushHalfEdgeList, ProjectToEdge>;
+            using VertexList = ProjectingSequence<BrushHalfEdgeList, ProjectToVertex>;
+            using EdgeList = ProjectingSequence<BrushHalfEdgeList, ProjectToEdge>;
         private:
             Brush* m_brush;
             BrushFace::Points m_points;
