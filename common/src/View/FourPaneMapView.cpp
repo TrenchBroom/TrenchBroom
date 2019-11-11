@@ -24,7 +24,7 @@
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
 #include "View/Splitter.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QHBoxLayout>
 #include <QSettings>

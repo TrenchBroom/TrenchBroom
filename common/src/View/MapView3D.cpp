@@ -64,7 +64,7 @@
 #include "View/SetBrushFaceAttributesTool.h"
 #include "View/VertexTool.h"
 #include "View/VertexToolController.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <vecmath/util.h>
 

@@ -29,7 +29,7 @@
 #include "View/TextureBrowser.h"
 #include "View/TextureCollectionEditor.h"
 #include "View/TitledPanel.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QVBoxLayout>
 

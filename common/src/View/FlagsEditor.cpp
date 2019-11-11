@@ -21,7 +21,7 @@
 
 #include "Ensure.h"
 #include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QGridLayout>
 #include <QCheckBox>

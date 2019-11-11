@@ -27,7 +27,7 @@
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QListWidget>
 #include <QVBoxLayout>

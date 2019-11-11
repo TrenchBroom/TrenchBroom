@@ -28,7 +28,7 @@
 #include "View/GameEngineDialog.h"
 #include "View/GameListBox.h"
 #include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QBoxLayout>
 #include <QFileDialog>

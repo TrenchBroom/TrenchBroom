@@ -20,7 +20,7 @@
 #include "AboutDialog.h"
 
 #include "View/AppInfoPanel.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QLabel>
 #include <QHBoxLayout>

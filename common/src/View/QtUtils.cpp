@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "wxUtils.h"
+#include "QtUtils.h"
 
 #include "Ensure.h"
 #include "IO/Path.h"

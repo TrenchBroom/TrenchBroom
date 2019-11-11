@@ -18,7 +18,7 @@
  */
 
 #include "PopupButton.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 #include "View/PopupWindow.h"
 
 #include <QToolButton>

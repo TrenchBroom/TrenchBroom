@@ -29,7 +29,7 @@
 #include "View/MousePreferencePane.h"
 #include "View/ViewPreferencePane.h"
 #include "View/PreferencePane.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QBoxLayout>
 #include <QCloseEvent>

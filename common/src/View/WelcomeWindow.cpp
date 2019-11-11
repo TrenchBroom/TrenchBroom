@@ -25,7 +25,7 @@
 #include "View/BorderLine.h"
 #include "View/ViewConstants.h"
 #include "View/RecentDocumentListBox.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QCloseEvent>
 #include <QFileDialog>

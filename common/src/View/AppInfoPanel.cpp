@@ -22,7 +22,7 @@
 #include "IO/ResourceUtils.h"
 #include "View/BorderLine.h"
 #include "View/GetVersion.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QString>
 #include <QLabel>

@@ -23,7 +23,7 @@
 #include "View/DirectoryTextureCollectionEditor.h"
 #include "View/FileTextureCollectionEditor.h"
 #include "View/MapDocument.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QVBoxLayout>
 

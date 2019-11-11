@@ -23,7 +23,7 @@
 #include "Notifier.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <vector>
 

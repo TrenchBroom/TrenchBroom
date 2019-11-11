@@ -31,7 +31,7 @@
 #include "View/PopupButton.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QCheckBox>
 #include <QGridLayout>

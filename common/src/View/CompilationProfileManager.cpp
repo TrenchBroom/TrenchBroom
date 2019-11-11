@@ -25,7 +25,7 @@
 #include "View/CompilationProfileListBox.h"
 #include "View/CompilationProfileEditor.h"
 #include "View/TitledPanel.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QAbstractButton>
 

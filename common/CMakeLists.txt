@@ -486,7 +486,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/ViewPreferencePane.cpp
         ${COMMON_SOURCE_DIR}/View/ViewUtils.cpp
         ${COMMON_SOURCE_DIR}/View/WelcomeWindow.cpp
-        ${COMMON_SOURCE_DIR}/View/wxUtils.cpp
+        ${COMMON_SOURCE_DIR}/View/QtUtils.cpp
         ${COMMON_SOURCE_DIR}/AttrString.cpp
         ${COMMON_SOURCE_DIR}/Color.cpp
         ${COMMON_SOURCE_DIR}/Disjunction.cpp
@@ -1036,7 +1036,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/ViewTypes.h
         ${COMMON_SOURCE_DIR}/View/ViewUtils.h
         ${COMMON_SOURCE_DIR}/View/WelcomeWindow.h
-        ${COMMON_SOURCE_DIR}/View/wxUtils.h
+        ${COMMON_SOURCE_DIR}/View/QtUtils.h
         ${COMMON_SOURCE_DIR}/Allocator.h
         ${COMMON_SOURCE_DIR}/AttrString.h
         ${COMMON_SOURCE_DIR}/Bitset.h

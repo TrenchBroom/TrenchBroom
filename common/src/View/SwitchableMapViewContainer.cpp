@@ -35,7 +35,7 @@
 #include "View/MapViewContainer.h"
 #include "View/MapViewBar.h"
 #include "View/MapViewToolBox.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QGridLayout>
 
