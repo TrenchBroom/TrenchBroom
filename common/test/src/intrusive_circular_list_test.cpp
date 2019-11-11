@@ -225,6 +225,22 @@ TEST(intrusive_circular_list_test, push_back) {
     assertList(l, { e1, e2, e3 });
 }
 
+TEST(intrusive_circular_list_test, append_items) {
+    ASSERT_TRUE(false); // todo
+}
+
+TEST(intrusive_circular_list_test, insert_items_before) {
+    ASSERT_TRUE(false); // todo
+}
+
+TEST(intrusive_circular_list_test, insert_items_after) {
+    ASSERT_TRUE(false); // todo
+}
+
+TEST(intrusive_circular_list_test, replace_items) {
+    ASSERT_TRUE(false); // todo
+}
+
 TEST(intrusive_circular_list_test, emplace_back) {
     list l;
 
@@ -236,6 +252,10 @@ TEST(intrusive_circular_list_test, emplace_back) {
 
     auto* e3 = l.emplace_back();
     assertList(l, { e1, e2, e3 });
+}
+
+TEST(intrusive_circular_list_test, reverse) {
+    ASSERT_TRUE(false); // todo
 }
 
 TEST(intrusive_circular_list_test, emplace_back_subtype) {

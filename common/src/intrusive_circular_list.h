@@ -99,28 +99,33 @@ public:
     using get_link_info = GetLink;
     using link_info = intrusive_circular_link<T>;
 public: // iterators
-    class iterator {
+    template <typename TT>
+    class iterator_base {
     public:
         using iterator_category = std::forward_iterator_tag;
         using difference_type = std::ptrdiff_t;
-        using value_type = T;
-        using pointer = T*;
-        using reference = T&;
+        using value_type = TT;
+        using pointer = TT*;
+        using reference = TT&;
     private:
-        T* m_first;
-        T* m_item;
+        pointer m_first;
+        pointer m_item;
     public:
-        iterator(T* item) :
+        iterator_base(pointer item) :
         m_first(item),
         m_item(item) {}
 
-        iterator& operator++() {
+        iterator_base() :
+        m_first(nullptr),
+        m_item(nullptr) {}
+
+        iterator_base& operator++() {
             this->increment();
             return *this;
         }
 
-        iterator operator++(int) {
-            auto result = iterator(*this);
+        iterator_base operator++(int) {
+            auto result = iterator_base(*this);
             this->increment();
             return result;
         }
@@ -133,11 +138,11 @@ public: // iterators
             return *m_item;
         }
 
-        bool operator==(const iterator& other) const {
+        bool operator==(const iterator_base& other) const {
             return m_item == other.m_item;
         }
 
-        bool operator!=(const iterator& other) const {
+        bool operator!=(const iterator_base& other) const {
             return m_item != other.m_item;
         }
     private:
@@ -154,6 +159,9 @@ public: // iterators
             }
         }
     };
+
+    using iterator = iterator_base<T>;
+    using const_iterator = iterator_base<T const>;
 private:
     T* m_head;
     std::size_t m_size;
@@ -189,21 +197,52 @@ public:
         m_head = other.m_head;
         m_size = other.m_size;
         other.release();
+        return *this;
     }
 
     /**
      * Returns an iterator pointing to the first element of this list. If this list is empty, then the returned
      * iterator is equivalent to an end iterator.
      */
-    iterator begin() const {
+    iterator begin() {
         return iterator(m_head);
     }
 
     /**
-     * Returns the end iterator for this list.
+     * Returns an end iterator for this list.
      */
-    iterator end() const {
-        return iterator(nullptr);
+    iterator end() {
+        return iterator();
+    }
+
+    /**
+     * Returns a const iterator pointing to the first element of this list. If this list is empty, then the returned
+     * iterator is equivalent to an end iterator.
+     */
+    const_iterator begin() const {
+        return cbegin();
+    }
+
+    /**
+     * Returns a const end iterator for this list.
+     */
+    const_iterator end() const {
+        return cend();
+    }
+
+    /**
+     * Returns a const iterator pointing to the first element of this list. If this list is empty, then the returned
+     * iterator is equivalent to an end iterator.
+     */
+    const_iterator cbegin() const {
+        return const_iterator(m_head);
+    }
+
+    /**
+     * Returns a const end iterator for this list.
+     */
+    const_iterator cend() const {
+        return const_iterator();
     }
 
     /**
@@ -240,38 +279,223 @@ public:
     }
 
     /**
+     * Indicates whether the given item is contained in this list.
+     *
+     * @param item the item to check, which must not be null
+     * @return true if the given item is contained in this list and false otherwise
+     */
+    bool contains(const T* item) const {
+        assert(item != nullptr);
+
+        if (empty()) {
+            return false;
+        } else {
+            const auto get_link = GetLink();
+            auto cur_item = m_head;
+            do {
+                if (cur_item == item) {
+                    return true;
+                }
+                cur_item = get_link(cur_item).next();
+            } while (cur_item != m_head);
+        }
+
+        return false;
+    }
+
+    /**
      * Adds the given item to this list. The item's link must be a self loop.
      *
      * @param item the items to add, must not be null
      */
     void push_back(T* item) {
         assert(item != nullptr);
+        assert(!contains(item));
         assert(check_invariant());
 
         if (empty()) {
             m_head = item;
             m_size = 1u;
         } else {
-            const auto get_link = GetLink();
-
-            auto list_head = m_head;
-            auto& list_head_link = get_link(list_head);
-
-            auto list_tail = list_head_link.previous();
-            auto& list_tail_link = get_link(list_tail);
-
-            auto& item_link = get_link(item);
-
-            list_head_link.set_previous(item);
-            list_tail_link.set_next(item);
-
-            item_link.set_previous(list_tail);
-            item_link.set_next(list_head);
-
-            ++m_size;
+            insert_before(m_head, item, 1u);
         }
 
         assert(check_invariant());
+    }
+
+    void append(T* items, const std::size_t count) {
+        assert(items != nullptr);
+        assert(!contains(items));
+        assert(count > 0u);
+
+        if (empty()) {
+            m_head = items;
+            m_size = count;
+        } else {
+            insert_before(m_head, items, count);
+        }
+    }
+
+    void insert_before(T* position, T* items, const std::size_t count) {
+        assert(items != nullptr);
+        assert(contains(position));
+        assert(count > 0u);
+        assert(!contains(items));
+
+        if (empty()) {
+            m_head = items;
+            m_size = count;
+        } else {
+            const auto get_link = GetLink();
+            const auto& position_link = get_link(position);
+            auto previous = position_link.previous();
+            insert_after(previous, items, count);
+        }
+    }
+
+    void insert_after(T* position, T* items, std::size_t count) {
+        assert(items != nullptr);
+        assert(contains(position));
+        assert(!contains(items));
+        assert(count > 0u);
+        assert(check_invariant());
+
+        if (empty()) {
+            m_head = items;
+            m_size = count;
+        } else {
+            const auto get_link = GetLink();
+
+            auto previous = position;
+            auto& previous_link = get_link(previous);
+
+            auto next = previous_link.next();
+            auto& next_link = get_link(next);
+
+            auto first = items;
+            auto& first_link = get_link(items);
+
+            auto last = first_link.previous();
+            auto& last_link = get_link(last);
+
+            previous_link.set_next(first);
+            next_link.set_previous(last);
+            first_link.set_previous(previous);
+            last_link.set_next(next);
+
+            m_size += count;
+        }
+
+        assert(check_invariant());
+    }
+
+    void replace(T* replace_first, T* replace_last, const std::size_t replace_count,
+                 T* move_first, const std::size_t move_count) {
+        assert(replace_first != nullptr);
+        assert(replace_last != nullptr);
+        assert(contains(replace_first));
+        assert(contains(replace_last));
+        assert(replace_count > 0u);
+        assert(replace_count <= size());
+        assert(move_first != nullptr);
+        assert(move_count > 0u);
+
+        remove(replace_first, replace_last, replace_count);
+
+        const auto get_link = GetLink();
+        const auto& move_first_link = get_link(move_first);
+        auto move_last = move_first_link.previous();
+
+        // m_head is now either null or it points to the predecessor of replace_first
+        insert_after(m_head, move_first, move_last, move_count);
+    }
+
+    void remove(T* item) {
+        remove(item, item, 1u);
+    }
+
+    /**
+     * Removes the given items from this list and deletes them. If the list is not empty after
+     * removal of the given nodes, then the predecessor of the given first node becomes the head of this list.
+     *
+     * @param first the first item to remove
+     * @param last the liast item to remove
+     * @param count the number of items to remove
+     */
+    void remove(T* first, T* last, std::size_t count) {
+        assert(first != nullptr);
+        assert(last != nullptr);
+        assert(contains(first));
+        assert(contains(last));
+        assert(count > 0u);
+        assert(count <= size());
+        assert(check_invariant());
+
+        release(first, last, count);
+
+        const auto get_link = GetLink();
+        auto cur = first;
+        do {
+            auto& cur_link = get_link(cur);
+            auto next = cur_link.next();
+
+            delete cur;
+            cur = next;
+        } while (cur != first);
+
+        assert(check_invariant());
+    }
+
+    /**
+     * Removes the given items from this list without deleting them. If the list is not empty after
+     * removal of the given nodes, then the predecessor of the given first node becomes the head of this list.
+     *
+     * Returns a list containing the released nodes.
+     *
+     * @param first the first item to remove
+     * @param last the last item to remove
+     * @param count the number of items to remove
+     * @return a list containing the released nodes, with first at the front
+     */
+    intrusive_circular_list release(T* first, T* last, std::size_t count) {
+        assert(first != nullptr);
+        assert(last != nullptr);
+        assert(contains(first));
+        assert(contains(last));
+        assert(count > 0u);
+        assert(count <= size());
+        assert(check_invariant());
+
+        if (count == size()) {
+            m_head = nullptr;
+            m_size = 0u;
+        } else {
+            const auto get_link = GetLink();
+
+            auto& first_link = get_link(first);
+            auto& last_link = get_link(last);
+
+            auto previous = first_link.previous();
+            auto next = last_link.next();
+
+            auto& previous_link = get_link(previous);
+            auto& next_link = get_link(next);
+
+            first_link.set_previous(last);
+            last_link.set_next(first);
+
+            previous_link.set_next(next);
+            next_link.set_previous(previous);
+
+            m_size -= count;
+            m_head = previous;
+        }
+
+        assert(check_invariant());
+
+        intrusive_circular_list result;
+        result.append(first, count);
+        return result;
     }
 
     /**
@@ -287,6 +511,25 @@ public:
         U* item = new U(std::forward<Args>(args)...);
         push_back(item);
         return item;
+    }
+
+    /**
+     * Reverse the order of the items in this list.
+     */
+    void reverse() {
+        assert(check_invariant());
+        if (!empty()) {
+            const auto get_link = GetLink();
+            auto cur = m_head;
+            do {
+                auto& cur_link = get_link(cur);
+                auto next = cur_link.next();
+
+                cur_link.flip();
+                cur = next;
+            } while (cur != m_head);
+            assert(check_invariant());
+        }
     }
 
     /**
@@ -332,7 +575,9 @@ public:
      * @param count the number of items to move into this list
      */
     void splice_before(T* position, intrusive_circular_list& list, T* first, T* last, std::size_t count) {
-        assert(position != nullptr || empty());
+        assert(empty() || position != nullptr);
+        assert(empty() || contains(position));
+
         if (empty()) {
             splice_after(position, list, first, last, count);
         } else {
@@ -356,7 +601,8 @@ public:
      * @param count the number of items to moved into this list
      */
     void splice_after(T* position, intrusive_circular_list& list, T* first, T* last, std::size_t count) {
-        assert(position != nullptr || empty());
+        assert(empty() || position != nullptr);
+        assert(empty() || contains(position));
         assert(first != nullptr);
         assert(last != nullptr);
         assert(check_invariant());
@@ -406,6 +652,8 @@ public:
 
         assert(replace_first != nullptr);
         assert(replace_last != nullptr);
+        assert(contains(replace_first));
+        assert(contains(replace_last));
         assert(replace_count > 0u);
         assert(replace_count <= size());
         assert(move_first != nullptr);
@@ -417,79 +665,6 @@ public:
 
         // m_head is now either null or it points to the predecessor of replace_first
         splice_after(m_head, list, move_first, move_last, move_count);
-    }
-
-    /**
-     * Removes the given items from this list and deletes them. If the list is not empty after
-     * removal of the given nodes, then the predecessor of the given first node becomes the head of this list.
-     *
-     * @param first the first item to remove
-     * @param last the liast item to remove
-     * @param count the number of items to remove
-     */
-    void remove(T* first, T* last, std::size_t count) {
-        assert(first != nullptr);
-        assert(last != nullptr);
-        assert(count > 0u);
-        assert(count <= size());
-        assert(check_invariant());
-
-        release(first, last, count);
-
-        const auto get_link = GetLink();
-        auto cur = first;
-        do {
-            auto& cur_link = get_link(cur);
-            auto next = cur_link.next();
-
-            delete cur;
-            cur = next;
-        } while (cur != first);
-
-        assert(check_invariant());
-    }
-
-    /**
-     * Removes the given items from this list without deleting them. If the list is not empty after
-     * removal of the given nodes, then the predecessor of the given first node becomes the head of this list.
-     *
-     * @param first the first item to remove
-     * @param last the last item to remove
-     * @param count the number of items to remove
-     */
-    void release(T* first, T* last, std::size_t count) {
-        assert(first != nullptr);
-        assert(last != nullptr);
-        assert(count > 0u);
-        assert(count <= size());
-        assert(check_invariant());
-
-        if (count == size()) {
-            m_head = nullptr;
-            m_size = 0u;
-        } else {
-            const auto get_link = GetLink();
-
-            auto& first_link = get_link(first);
-            auto& last_link = get_link(last);
-
-            auto previous = first_link.previous();
-            auto next = last_link.next();
-
-            auto& previous_link = get_link(previous);
-            auto& next_link = get_link(next);
-
-            first_link.set_previous(last);
-            last_link.set_next(first);
-
-            previous_link.set_next(next);
-            next_link.set_previous(previous);
-
-            m_size -= count;
-            m_head = previous;
-        }
-
-        assert(check_invariant());
     }
 
     /**
