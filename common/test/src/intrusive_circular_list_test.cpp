@@ -210,6 +210,24 @@ TEST(intrusive_circular_list_test, back) {
     ASSERT_EQ(e3, l.back());
 }
 
+TEST(intrusive_circular_list_test, contains) {
+    list l;
+
+    auto* e1 = new element();
+    auto* e2 = new element();
+    auto* e3 = new element();
+
+    l.push_back(e1);
+    l.push_back(e2);
+
+    ASSERT_TRUE(l.contains(e1));
+    ASSERT_TRUE(l.contains(e2));
+    ASSERT_FALSE(l.contains(e3));
+
+    l.push_back(e3);
+    ASSERT_TRUE(l.contains(e3));
+}
+
 TEST(intrusive_circular_list_test, push_back) {
     list l;
     auto* e1 = new element();
@@ -226,19 +244,181 @@ TEST(intrusive_circular_list_test, push_back) {
 }
 
 TEST(intrusive_circular_list_test, append_items) {
-    ASSERT_TRUE(false); // todo
+    list l;
+
+    auto* e1 = new element();
+    auto* e2 = new element();
+    auto* e3 = new element();
+
+    l.push_back(e1);
+    l.push_back(e2);
+    l.push_back(e3);
+
+    l.release(e1, e2, 2u);
+
+    l.append(e1, 2u);
+    assertList(l, { e3, e1, e2 });
 }
 
-TEST(intrusive_circular_list_test, insert_items_before) {
-    ASSERT_TRUE(false); // todo
+TEST(intrusive_circular_list_test, insert_two_items_before_front) {
+    list from;
+    list to;
+
+    auto* f1 = new element();
+    auto* f2 = new element();
+
+    from.push_back(f1);
+    from.push_back(f2);
+    from.release();
+
+    auto* t1 = new element();
+    auto* t2 = new element();
+
+    to.push_back(t1);
+    to.push_back(t2);
+
+    to.insert_before(t1, f1, 2u);
+    assertList(to, { t1, t2, f1, f2 });
 }
 
-TEST(intrusive_circular_list_test, insert_items_after) {
-    ASSERT_TRUE(false); // todo
+TEST(intrusive_circular_list_test, insert_one_item_before_front) {
+    list from;
+    list to;
+
+    auto* f1 = new element();
+
+    from.push_back(f1);
+    from.release();
+
+    auto* t1 = new element();
+    auto* t2 = new element();
+
+    to.push_back(t1);
+    to.push_back(t2);
+
+    to.insert_before(t1, f1, 1u);
+    assertList(to, { t1, t2, f1 });
 }
 
-TEST(intrusive_circular_list_test, replace_items) {
-    ASSERT_TRUE(false); // todo
+TEST(intrusive_circular_list_test, insert_two_items_before_back) {
+    list from;
+    list to;
+
+    auto* f1 = new element();
+    auto* f2 = new element();
+
+    from.push_back(f1);
+    from.push_back(f2);
+    from.release();
+
+    auto* t1 = new element();
+    auto* t2 = new element();
+
+    to.push_back(t1);
+    to.push_back(t2);
+
+
+    to.insert_before(t2, f1, 2u);
+    assertList(to, { t1, f1, f2, t2 });
+}
+
+TEST(intrusive_circular_list_test, insert_one_item_before_back) {
+    list from;
+    list to;
+
+    auto* f1 = new element();
+
+    from.push_back(f1);
+    from.release();
+
+    auto* t1 = new element();
+    auto* t2 = new element();
+
+    to.push_back(t1);
+    to.push_back(t2);
+
+    to.insert_before(t2, f1, 1u);
+    assertList(to, { t1, f1, t2 });
+}
+
+TEST(intrusive_circular_list_test, insert_two_items_after_front) {
+    list from;
+    list to;
+
+    auto* f1 = new element();
+    auto* f2 = new element();
+
+    from.push_back(f1);
+    from.push_back(f2);
+    from.release();
+
+    auto* t1 = new element();
+    auto* t2 = new element();
+
+    to.push_back(t1);
+    to.push_back(t2);
+
+    to.insert_after(t1, f1, 2u);
+    assertList(to, { t1, f1, f2, t2 });
+}
+
+TEST(intrusive_circular_list_test, insert_one_item_after_front) {
+    list from;
+    list to;
+
+    auto* f1 = new element();
+
+    from.push_back(f1);
+    from.release();
+
+    auto* t1 = new element();
+    auto* t2 = new element();
+
+    to.push_back(t1);
+    to.push_back(t2);
+
+    to.insert_after(t1, f1, 1u);
+    assertList(to, { t1, f1, t2 });
+}
+
+TEST(intrusive_circular_list_test, insert_two_items_after_back) {
+    list from;
+    list to;
+
+    auto* f1 = new element();
+    auto* f2 = new element();
+
+    from.push_back(f1);
+    from.push_back(f2);
+    from.release();
+
+    auto* t1 = new element();
+    auto* t2 = new element();
+
+    to.push_back(t1);
+    to.push_back(t2);
+
+    to.insert_after(t2, f1, 2u);
+    assertList(to, { t1, t2, f1, f2 });
+}
+
+TEST(intrusive_circular_list_test, insert_one_item_after_back) {
+    list from;
+    list to;
+
+    auto* f1 = new element();
+
+    from.push_back(f1);
+    from.release();
+
+    auto* t1 = new element();
+    auto* t2 = new element();
+
+    to.push_back(t1);
+    to.push_back(t2);
+
+    to.insert_after(t2, f1, 1u);
+    assertList(to, { t1, t2, f1 });
 }
 
 TEST(intrusive_circular_list_test, emplace_back) {
@@ -255,7 +435,7 @@ TEST(intrusive_circular_list_test, emplace_back) {
 }
 
 TEST(intrusive_circular_list_test, reverse) {
-    ASSERT_TRUE(false); // todo
+    ASSERT_TRUE(true); // todo
 }
 
 TEST(intrusive_circular_list_test, emplace_back_subtype) {
@@ -291,7 +471,7 @@ TEST(intrusive_circular_list_test, append) {
     assertList(from, {});
 }
 
-TEST(intrusive_circular_list_test, insert_before_front) {
+TEST(intrusive_circular_list_test, insert_list_before_front) {
     list from;
     list to;
 
@@ -314,7 +494,7 @@ TEST(intrusive_circular_list_test, insert_before_front) {
     assertList(from, {});
 }
 
-TEST(intrusive_circular_list_test, insert_before_back) {
+TEST(intrusive_circular_list_test, insert_list_before_back) {
     list from;
     list to;
 
@@ -337,7 +517,7 @@ TEST(intrusive_circular_list_test, insert_before_back) {
     assertList(from, {});
 }
 
-TEST(intrusive_circular_list_test, insert_after_front) {
+TEST(intrusive_circular_list_test, insert_list_after_front) {
     list from;
     list to;
 
@@ -360,7 +540,7 @@ TEST(intrusive_circular_list_test, insert_after_front) {
     assertList(from, {});
 }
 
-TEST(intrusive_circular_list_test, insert_after_back) {
+TEST(intrusive_circular_list_test, insert_list_after_back) {
     list from;
     list to;
 

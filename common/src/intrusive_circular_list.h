@@ -323,6 +323,12 @@ public:
         assert(check_invariant());
     }
 
+    /**
+     * Appends the given item and all other items linked with it to this list.
+     *
+     * @param items the first of the items to append
+     * @param count the total number of items to append
+     */
     void append(T* items, const std::size_t count) {
         assert(items != nullptr);
         assert(!contains(items));
@@ -338,7 +344,7 @@ public:
 
     void insert_before(T* position, T* items, const std::size_t count) {
         assert(items != nullptr);
-        assert(contains(position));
+        assert(empty() || contains(position));
         assert(count > 0u);
         assert(!contains(items));
 
@@ -355,7 +361,7 @@ public:
 
     void insert_after(T* position, T* items, std::size_t count) {
         assert(items != nullptr);
-        assert(contains(position));
+        assert(empty() || contains(position));
         assert(!contains(items));
         assert(count > 0u);
         assert(check_invariant());
@@ -410,19 +416,26 @@ public:
         insert_after(m_head, move_first, move_last, move_count);
     }
 
-    void remove(T* item) {
-        remove(item, item, 1u);
+    /**
+     * Returns the given item from this list and returns a list containing the removed item.
+     *
+     * @param item the item to remove, must not be null
+     * @return a list containing the removed item
+     */
+    intrusive_circular_list remove(T* item) {
+        return remove(item, item, 1u);
     }
 
     /**
-     * Removes the given items from this list and deletes them. If the list is not empty after
-     * removal of the given nodes, then the predecessor of the given first node becomes the head of this list.
+     * Removes the given items from this list and returns a list containing the removed nodes. If this list is not empty
+     * after removal of the given nodes, then the predecessor of the given first node becomes the head of this list.
      *
      * @param first the first item to remove
      * @param last the liast item to remove
      * @param count the number of items to remove
+     * @return a list containing the removed nodes
      */
-    void remove(T* first, T* last, std::size_t count) {
+    intrusive_circular_list remove(T* first, T* last, std::size_t count) {
         assert(first != nullptr);
         assert(last != nullptr);
         assert(contains(first));
@@ -431,33 +444,22 @@ public:
         assert(count <= size());
         assert(check_invariant());
 
-        release(first, last, count);
-
-        const auto get_link = GetLink();
-        auto cur = first;
-        do {
-            auto& cur_link = get_link(cur);
-            auto next = cur_link.next();
-
-            delete cur;
-            cur = next;
-        } while (cur != first);
+        intrusive_circular_list result;
+        result.splice_after(nullptr, *this, first, last, count);
 
         assert(check_invariant());
+        return result;
     }
 
     /**
      * Removes the given items from this list without deleting them. If the list is not empty after
      * removal of the given nodes, then the predecessor of the given first node becomes the head of this list.
      *
-     * Returns a list containing the released nodes.
-     *
      * @param first the first item to remove
      * @param last the last item to remove
      * @param count the number of items to remove
-     * @return a list containing the released nodes, with first at the front
      */
-    intrusive_circular_list release(T* first, T* last, std::size_t count) {
+    void release(T* first, T* last, std::size_t count) {
         assert(first != nullptr);
         assert(last != nullptr);
         assert(contains(first));
@@ -492,10 +494,6 @@ public:
         }
 
         assert(check_invariant());
-
-        intrusive_circular_list result;
-        result.append(first, count);
-        return result;
     }
 
     /**
@@ -608,29 +606,7 @@ public:
         assert(check_invariant());
 
         list.release(first, last, count);
-
-        if (empty()) {
-            m_head = first;
-            m_size = count;
-        } else {
-            const auto get_link = GetLink();
-
-            auto& first_link = get_link(first);
-            auto& last_link = get_link(last);
-
-            auto previous = position;
-            auto& previous_link = get_link(previous);
-            auto next = previous_link.next();
-            auto& next_link = get_link(next);
-
-            previous_link.set_next(first);
-            next_link.set_previous(last);
-
-            first_link.set_previous(previous);
-            last_link.set_next(next);
-
-            m_size += count;
-        }
+        insert_after(position, first, count);
 
         assert(check_invariant());
     }
@@ -680,7 +656,14 @@ public:
      */
     void clear() {
         if (!empty()) {
-            remove(front(), back(), size());
+            const auto get_link = GetLink();
+            auto cur = m_head;
+            do {
+                auto next = get_link(cur).next();
+                delete cur;
+                cur = next;
+            } while (cur != m_head);
+            m_size = 0u;
         }
     }
 private:
