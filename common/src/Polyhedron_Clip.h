@@ -283,13 +283,13 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(
             // We have to split the edge and insert a new vertex, which will become the origin or destination of the new seam edge.
             Edge* currentEdge = currentBoundaryEdge->edge();
             Edge* newEdge = currentEdge->split(plane);
-            m_edges.append(newEdge, 1);
+            m_edges.append(newEdge, 1u);
 
             currentBoundaryEdge = currentBoundaryEdge->next();
             Vertex* newVertex = currentBoundaryEdge->origin();
             assert(plane.point_status(newVertex->position()) == vm::plane_status::inside);
 
-            m_vertices.append(newVertex, 1);
+            m_vertices.append(newVertex, 1u);
             callback.vertexWasCreated(newVertex);
 
             // The newly inserted vertex will be reexamined in the next loop iteration as it is now contained within the plane.
@@ -305,7 +305,8 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(
     }
 
     if (seamDestination->next() == seamOrigin) {
-        std::swap(seamOrigin, seamDestination);
+        using std::swap;
+        swap(seamOrigin, seamDestination);
     } else if (seamOrigin->next() != seamDestination) {
         // If the origin and the destination are not already connected by an edge, we must split the current face and insert an edge
         // between them.
@@ -332,16 +333,13 @@ void Polyhedron<T,FP,VP>::intersectWithPlane(HalfEdge* oldBoundaryFirst, HalfEdg
 
     Face* oldFace = oldBoundaryFirst->face();
     oldFace->insertIntoBoundaryAfter(newBoundaryLast, newBoundarySplitter);
-    const size_t newBoundaryCount = oldFace->replaceBoundary(newBoundaryFirst, newBoundarySplitter, oldBoundarySplitter);
+    HalfEdgeList newBoundary = oldFace->replaceBoundary(newBoundaryFirst, newBoundarySplitter, oldBoundarySplitter);
 
-    HalfEdgeList newBoundary;
-    newBoundary.append(newBoundaryFirst, newBoundaryCount);
-
-    Face* newFace = new Face(newBoundary);
+    Face* newFace = new Face(std::move(newBoundary));
     Edge* newEdge = new Edge(oldBoundarySplitter, newBoundarySplitter);
 
-    m_edges.append(newEdge, 1);
-    m_faces.append(newFace, 1);
+    m_edges.append(newEdge, 1u);
+    m_faces.append(newFace, 1u);
 
     callback.faceWasSplit(oldFace, newFace);
 }

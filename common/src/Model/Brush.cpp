@@ -54,11 +54,11 @@ namespace TrenchBroom {
     namespace Model {
         const Hit::HitType Brush::BrushHit = Hit::freeHitType();
 
-        Brush::ProjectToVertex::ConstType Brush::ProjectToVertex::project(const BrushVertex* vertex) {
+        Brush::ProjectToVertex::Type Brush::ProjectToVertex::project(const BrushVertex* vertex) {
             return vertex;
         }
 
-        Brush::ProjectToEdge::ConstType Brush::ProjectToEdge::project(const BrushEdge* edge) {
+        Brush::ProjectToEdge::Type Brush::ProjectToEdge::project(const BrushEdge* edge) {
             return edge;
         }
 
@@ -66,7 +66,7 @@ namespace TrenchBroom {
         private:
             BrushFace* m_addedFace;
         public:
-            AddFaceToGeometryCallback(BrushFace* addedFace) :
+            explicit AddFaceToGeometryCallback(BrushFace* addedFace) :
             m_addedFace(addedFace) {
                 ensure(m_addedFace != nullptr, "addedFace is null");
             }

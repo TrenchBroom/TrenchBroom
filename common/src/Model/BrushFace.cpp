@@ -43,11 +43,11 @@ namespace TrenchBroom {
     namespace Model {
         const String BrushFace::NoTextureName = "__TB_empty";
 
-        BrushFace::ProjectToVertex::ConstType BrushFace::ProjectToVertex::project(const BrushHalfEdge* halfEdge) {
+        BrushFace::ProjectToVertex::Type BrushFace::ProjectToVertex::project(const BrushHalfEdge* halfEdge) {
             return halfEdge->origin();
         }
 
-        BrushFace::ProjectToEdge::ConstType BrushFace::ProjectToEdge::project(const BrushHalfEdge* halfEdge) {
+        BrushFace::ProjectToEdge::Type BrushFace::ProjectToEdge::project(const BrushHalfEdge* halfEdge) {
             return halfEdge->edge();
         }
 

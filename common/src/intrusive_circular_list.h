@@ -111,7 +111,7 @@ public: // iterators
         pointer m_first;
         pointer m_item;
     public:
-        iterator_base(pointer item) :
+        explicit iterator_base(pointer item) :
         m_first(item),
         m_item(item) {}
 
@@ -273,8 +273,7 @@ public:
         if (empty()) {
             return nullptr;
         } else {
-            const auto get_link = GetLink();
-            return get_link(m_head).previous();
+            return get_previous(m_head);
         }
     }
 
@@ -290,13 +289,12 @@ public:
         if (empty()) {
             return false;
         } else {
-            const auto get_link = GetLink();
             auto cur_item = m_head;
             do {
                 if (cur_item == item) {
                     return true;
                 }
-                cur_item = get_link(cur_item).next();
+                cur_item = get_next(cur_item);
             } while (cur_item != m_head);
         }
 
@@ -331,6 +329,9 @@ public:
      */
     void append(T* items, const std::size_t count) {
         assert(items != nullptr);
+        if (contains(items)) {
+            bool b = true;
+        }
         assert(!contains(items));
         assert(count > 0u);
 
@@ -338,7 +339,7 @@ public:
             m_head = items;
             m_size = count;
         } else {
-            insert_before(m_head, items, count);
+            insert_after(back(), items, count);
         }
     }
 
@@ -352,10 +353,7 @@ public:
             m_head = items;
             m_size = count;
         } else {
-            const auto get_link = GetLink();
-            const auto& position_link = get_link(position);
-            auto previous = position_link.previous();
-            insert_after(previous, items, count);
+            insert_after(get_previous(position), items, count);
         }
     }
 
@@ -370,24 +368,14 @@ public:
             m_head = items;
             m_size = count;
         } else {
-            const auto get_link = GetLink();
-
             auto previous = position;
-            auto& previous_link = get_link(previous);
-
-            auto next = previous_link.next();
-            auto& next_link = get_link(next);
+            auto next = get_next(previous);
 
             auto first = items;
-            auto& first_link = get_link(items);
+            auto last = get_previous(first);
 
-            auto last = first_link.previous();
-            auto& last_link = get_link(last);
-
-            previous_link.set_next(first);
-            next_link.set_previous(last);
-            first_link.set_previous(previous);
-            last_link.set_next(next);
+            connect(previous, first);
+            connect(last, next);
 
             m_size += count;
         }
@@ -395,7 +383,7 @@ public:
         assert(check_invariant());
     }
 
-    void replace(T* replace_first, T* replace_last, const std::size_t replace_count,
+    intrusive_circular_list replace(T* replace_first, T* replace_last, const std::size_t replace_count,
                  T* move_first, const std::size_t move_count) {
         assert(replace_first != nullptr);
         assert(replace_last != nullptr);
@@ -406,14 +394,8 @@ public:
         assert(move_first != nullptr);
         assert(move_count > 0u);
 
-        remove(replace_first, replace_last, replace_count);
-
-        const auto get_link = GetLink();
-        const auto& move_first_link = get_link(move_first);
-        auto move_last = move_first_link.previous();
-
-        // m_head is now either null or it points to the predecessor of replace_first
-        insert_after(m_head, move_first, move_last, move_count);
+        insert_after(replace_last, move_first, move_count);
+        return remove(replace_first, replace_last, replace_count);
     }
 
     /**
@@ -428,7 +410,7 @@ public:
 
     /**
      * Removes the given items from this list and returns a list containing the removed nodes. If this list is not empty
-     * after removal of the given nodes, then the predecessor of the given first node becomes the head of this list.
+     * after removal of the given nodes, then the successor of the given last node becomes the head of this list.
      *
      * @param first the first item to remove
      * @param last the liast item to remove
@@ -472,25 +454,14 @@ public:
             m_head = nullptr;
             m_size = 0u;
         } else {
-            const auto get_link = GetLink();
+            auto previous = get_previous(first);
+            auto next = get_next(last);
 
-            auto& first_link = get_link(first);
-            auto& last_link = get_link(last);
-
-            auto previous = first_link.previous();
-            auto next = last_link.next();
-
-            auto& previous_link = get_link(previous);
-            auto& next_link = get_link(next);
-
-            first_link.set_previous(last);
-            last_link.set_next(first);
-
-            previous_link.set_next(next);
-            next_link.set_previous(previous);
+            connect(last, first);
+            connect(previous, next);
 
             m_size -= count;
-            m_head = previous;
+            m_head = next;
         }
 
         assert(check_invariant());
@@ -517,12 +488,10 @@ public:
     void reverse() {
         assert(check_invariant());
         if (!empty()) {
-            const auto get_link = GetLink();
             auto cur = m_head;
             do {
                 auto& cur_link = get_link(cur);
                 auto next = cur_link.next();
-
                 cur_link.flip();
                 cur = next;
             } while (cur != m_head);
@@ -579,10 +548,7 @@ public:
         if (empty()) {
             splice_after(position, list, first, last, count);
         } else {
-            const auto get_link = GetLink();
-            auto& position_link = get_link(position);
-            auto previous = position_link.previous();
-            splice_after(previous, list, first, last, count);
+            splice_after(get_previous(position), list, first, last, count);
         }
     }
 
@@ -622,7 +588,7 @@ public:
      * @param move_last the last item to move into this list, must not be null
      * @param move_count the number of items to move into this list
      */
-    void splice_replace(
+    intrusive_circular_list splice_replace(
         T* replace_first, T* replace_last, const std::size_t replace_count,
         intrusive_circular_list& list, T* move_first, T* move_last, const std::size_t move_count) {
 
@@ -637,10 +603,8 @@ public:
         assert(move_count > 0u);
         assert(move_count <= list.size());
 
-        remove(replace_first, replace_last, replace_count);
-
-        // m_head is now either null or it points to the predecessor of replace_first
-        splice_after(m_head, list, move_first, move_last, move_count);
+        splice_after(replace_last, list, move_first, move_last, move_count);
+        return remove(replace_first, replace_last, replace_count);
     }
 
     /**
@@ -666,7 +630,30 @@ public:
             m_size = 0u;
         }
     }
-private:
+private: // helpers
+    auto& get_link(T* item) const {
+        assert(item != nullptr);
+        return GetLink()(item);
+    }
+
+    T* get_previous(T* item) const {
+        assert(item != nullptr);
+        return get_link(item).previous();
+    }
+
+    T* get_next(T* item) const {
+        assert(item != nullptr);
+        return get_link(item).next();
+    }
+
+    void connect(T* previous, T* next) {
+        auto& previous_link = get_link(previous);
+        auto& next_link = get_link(next);
+
+        previous_link.set_next(next);
+        next_link.set_previous(previous);
+    }
+private: // invariants and checks
     bool check_invariant() {
         if (m_head == nullptr) {
             return m_size == 0u;

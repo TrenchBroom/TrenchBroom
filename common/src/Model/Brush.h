@@ -55,11 +55,11 @@ namespace TrenchBroom {
             static const Hit::HitType BrushHit;
         private:
             struct ProjectToVertex : public ProjectingSequenceProjector<const BrushVertex*, const BrushVertex*> {
-                static ConstType project(const BrushVertex* vertex);
+                static Type project(const BrushVertex* vertex);
             };
 
             struct ProjectToEdge : public ProjectingSequenceProjector<const BrushEdge*, const BrushEdge*> {
-                static ConstType project(const BrushEdge* edge);
+                static Type project(const BrushEdge* edge);
             };
 
             class AddFaceToGeometryCallback;

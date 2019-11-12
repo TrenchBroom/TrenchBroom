@@ -221,7 +221,7 @@ public:
         typename FP::Type m_payload;
         FaceLink m_link;
     private:
-        Face(HalfEdgeList& boundary);
+        explicit Face(HalfEdgeList&& boundary);
     public:
         typename FP::Type payload() const;
         void setPayload(typename FP::Type payload);
@@ -260,13 +260,10 @@ public:
         bool coplanar(const Face* other) const;
         bool verticesOnPlane(const vm::plane<T,3>& plane) const;
         void flip();
-        void insertIntoBoundaryBefore(HalfEdge* before, HalfEdge* edge);
         void insertIntoBoundaryAfter(HalfEdge* after, HalfEdge* edge);
-        size_t removeFromBoundary(HalfEdge* from, HalfEdge* to);
-        size_t removeFromBoundary(HalfEdge* edge);
-        size_t replaceBoundary(HalfEdge* edge, HalfEdge* with);
-        size_t replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with);
-        void replaceEntireBoundary(HalfEdgeList& newBoundary);
+        HalfEdgeList removeFromBoundary(HalfEdge* from, HalfEdge* to);
+        HalfEdgeList removeFromBoundary(HalfEdge* edge);
+        HalfEdgeList replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with);
         size_t countAndSetFace(HalfEdge* from, HalfEdge* until, Face* face);
         size_t countAndUnsetFace(HalfEdge* from, HalfEdge* until);
         void setBoundaryFaces();
@@ -312,22 +309,15 @@ public: // Constructors
     Polyhedron();
 
     Polyhedron(std::initializer_list<V> positions);
-    Polyhedron(std::initializer_list<V> positions, Callback& callback);
-
     Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4);
-    Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback);
-
     explicit Polyhedron(const vm::bbox<T,3>& bounds);
-    Polyhedron(const vm::bbox<T,3>& bounds, Callback& callback);
-
     explicit Polyhedron(const std::vector<V>& positions);
-    Polyhedron(const std::vector<V>& positions, Callback& callback);
 
     Polyhedron(const Polyhedron<T,FP,VP>& other);
     Polyhedron(Polyhedron<T,FP,VP>&& other) noexcept;
 private: // Constructor helpers
-    void addPoints(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback);
-    void setBounds(const vm::bbox<T,3>& bounds, Callback& callback);
+    void addPoints(const V& p1, const V& p2, const V& p3, const V& p4);
+    void setBounds(const vm::bbox<T,3>& bounds);
 private: // Copy helper
     class Copy;
 public: // Destructor

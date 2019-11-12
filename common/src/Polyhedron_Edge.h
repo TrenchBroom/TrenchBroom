@@ -226,17 +226,43 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::split(const vm::p
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::insertVertex(const V& position) {
+    /*
+     before:
+
+     |----------this edge---------|
+     |                            |
+     ------------old1st----------->
+     <-----------old2nd------------
+
+     after:
+
+     |-this edge--|  |--new edge--|
+     |            |  |            |
+     ----old1st--->  ----new1st--->
+     <---new2nd----  ----old2nd----
+                   /\
+               new vertex
+
+     */
+
+    // create new vertices and new half edges originating from it
     Vertex* newVertex = new Vertex(position);
     HalfEdge* newFirstEdge = new HalfEdge(newVertex);
     HalfEdge* oldFirstEdge = firstEdge();
     HalfEdge* newSecondEdge = new HalfEdge(newVertex);
     HalfEdge* oldSecondEdge = secondEdge();
 
+    // insert the new half edges into the corresponding faces
     firstFace()->insertIntoBoundaryAfter(oldFirstEdge, newFirstEdge);
     secondFace()->insertIntoBoundaryAfter(oldSecondEdge, newSecondEdge);
 
+    // make old1st the leaving edge of its origin vertex
     setFirstAsLeaving();
+
+    // unset old2nd from this edge
     unsetSecondEdge();
+
+    // and replace it with new2nd
     setSecondEdge(newSecondEdge);
 
     return new Edge(newFirstEdge, oldSecondEdge);

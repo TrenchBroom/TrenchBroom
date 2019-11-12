@@ -40,7 +40,8 @@ const intrusive_circular_link<typename Polyhedron<T,FP,VP>::Face>& Polyhedron<T,
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Face::Face(HalfEdgeList& boundary) :
+Polyhedron<T,FP,VP>::Face::Face(HalfEdgeList&& boundary) :
+m_boundary(std::move(boundary)),
 m_payload(FP::defaultValue()),
 #ifdef _MSC_VER
 // MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay because we just store the pointer there.
@@ -52,9 +53,6 @@ m_link(this)
 m_link(this)
 #endif
 {
-    using std::swap;
-    swap(m_boundary, boundary);
-
     assert(m_boundary.size() >= 3);
     setBoundaryFaces();
 }
@@ -334,17 +332,6 @@ void Polyhedron<T,FP,VP>::Face::flip() {
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Face::insertIntoBoundaryBefore(HalfEdge* before, HalfEdge* edge) {
-    ensure(before != nullptr, "before is null");
-    ensure(edge != nullptr, "edge is null");
-    assert(before->face() == this);
-    assert(edge->face() == nullptr);
-
-    edge->setFace(this);
-    m_boundary.insertBefore(before, edge, 1);
-}
-
-template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Face::insertIntoBoundaryAfter(HalfEdge* after, HalfEdge* edge) {
     ensure(after != nullptr, "after is null");
     ensure(edge != nullptr, "edge is null");
@@ -352,34 +339,27 @@ void Polyhedron<T,FP,VP>::Face::insertIntoBoundaryAfter(HalfEdge* after, HalfEdg
     assert(edge->face() == nullptr);
 
     edge->setFace(this);
-    m_boundary.insertAfter(after, edge, 1);
+    m_boundary.insert_after(after, edge, 1u);
 }
 
 template <typename T, typename FP, typename VP>
-size_t Polyhedron<T,FP,VP>::Face::removeFromBoundary(HalfEdge* from, HalfEdge* to) {
+typename Polyhedron<T,FP,VP>::HalfEdgeList Polyhedron<T,FP,VP>::Face::removeFromBoundary(HalfEdge* from, HalfEdge* to) {
     ensure(from != nullptr, "from is null");
     ensure(to != nullptr, "to is null");
     assert(from->face() == this);
     assert(to->face() == this);
 
     const auto removeCount = countAndUnsetFace(from, to->next());
-    m_boundary.remove(from, to, removeCount);
-    return removeCount;
+    return m_boundary.remove(from, to, removeCount);
 }
 
 template <typename T, typename FP, typename VP>
-size_t Polyhedron<T,FP,VP>::Face::removeFromBoundary(HalfEdge* edge) {
-    removeFromBoundary(edge, edge);
-    return 1;
+typename Polyhedron<T,FP,VP>::HalfEdgeList Polyhedron<T,FP,VP>::Face::removeFromBoundary(HalfEdge* edge) {
+    return removeFromBoundary(edge, edge);
 }
 
 template <typename T, typename FP, typename VP>
-size_t Polyhedron<T,FP,VP>::Face::replaceBoundary(HalfEdge* edge, HalfEdge* with) {
-    return replaceBoundary(edge, edge, with);
-}
-
-template <typename T, typename FP, typename VP>
-size_t Polyhedron<T,FP,VP>::Face::replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with) {
+typename Polyhedron<T,FP,VP>::HalfEdgeList Polyhedron<T,FP,VP>::Face::replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with) {
     ensure(from != nullptr, "from is null");
     ensure(to != nullptr, "to is null");
     ensure(with != nullptr, "with is null");
@@ -389,17 +369,7 @@ size_t Polyhedron<T,FP,VP>::Face::replaceBoundary(HalfEdge* from, HalfEdge* to, 
 
     const auto removeCount = countAndUnsetFace(from, to->next());
     const auto insertCount = countAndSetFace(with, with, this);
-    m_boundary.replace(from, to, removeCount, with, insertCount);
-    return removeCount;
-}
-
-template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Face::replaceEntireBoundary(HalfEdgeList& newBoundary) {
-    using std::swap;
-
-    unsetBoundaryFaces();
-    swap(m_boundary, newBoundary);
-    setBoundaryFaces();
+    return m_boundary.replace(from, to, removeCount, with, insertCount);
 }
 
 template <typename T, typename FP, typename VP>
