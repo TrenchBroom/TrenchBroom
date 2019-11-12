@@ -1127,6 +1127,8 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
             <QVBoxLayout>
             <QWidget>
     )
+else()
+    message(STATUS "Not using precompiled headers")
 endif()
 
 # Organize files into IDE folders

@@ -198,14 +198,14 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds) {
     Vertex* v7 = new Vertex(p7);
     Vertex* v8 = new Vertex(p8);
 
-    m_vertices.append(v1, 1u);
-    m_vertices.append(v2, 1u);
-    m_vertices.append(v3, 1u);
-    m_vertices.append(v4, 1u);
-    m_vertices.append(v5, 1u);
-    m_vertices.append(v6, 1u);
-    m_vertices.append(v7, 1u);
-    m_vertices.append(v8, 1u);
+    m_vertices.push_back(v1);
+    m_vertices.push_back(v2);
+    m_vertices.push_back(v3);
+    m_vertices.push_back(v4);
+    m_vertices.push_back(v5);
+    m_vertices.push_back(v6);
+    m_vertices.push_back(v7);
+    m_vertices.push_back(v8);
 
     // Front face
     HalfEdge* f1h1 = new HalfEdge(v1);
@@ -213,11 +213,11 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds) {
     HalfEdge* f1h3 = new HalfEdge(v6);
     HalfEdge* f1h4 = new HalfEdge(v2);
     HalfEdgeList f1b;
-    f1b.append(f1h1, 1u);
-    f1b.append(f1h2, 1u);
-    f1b.append(f1h3, 1u);
-    f1b.append(f1h4, 1u);
-    m_faces.append(new Face(std::move(f1b)), 1u);
+    f1b.push_back(f1h1);
+    f1b.push_back(f1h2);
+    f1b.push_back(f1h3);
+    f1b.push_back(f1h4);
+    m_faces.push_back(new Face(std::move(f1b)));
 
     // Left face
     HalfEdge* f2h1 = new HalfEdge(v1);
@@ -225,11 +225,11 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds) {
     HalfEdge* f2h3 = new HalfEdge(v4);
     HalfEdge* f2h4 = new HalfEdge(v3);
     HalfEdgeList f2b;
-    f2b.append(f2h1, 1u);
-    f2b.append(f2h2, 1u);
-    f2b.append(f2h3, 1u);
-    f2b.append(f2h4, 1u);
-    m_faces.append(new Face(std::move(f2b)), 1u);
+    f2b.push_back(f2h1);
+    f2b.push_back(f2h2);
+    f2b.push_back(f2h3);
+    f2b.push_back(f2h4);
+    m_faces.push_back(new Face(std::move(f2b)));
 
     // Bottom face
     HalfEdge* f3h1 = new HalfEdge(v1);
@@ -237,11 +237,11 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds) {
     HalfEdge* f3h3 = new HalfEdge(v7);
     HalfEdge* f3h4 = new HalfEdge(v5);
     HalfEdgeList f3b;
-    f3b.append(f3h1, 1u);
-    f3b.append(f3h2, 1u);
-    f3b.append(f3h3, 1u);
-    f3b.append(f3h4, 1u);
-    m_faces.append(new Face(std::move(f3b)), 1u);
+    f3b.push_back(f3h1);
+    f3b.push_back(f3h2);
+    f3b.push_back(f3h3);
+    f3b.push_back(f3h4);
+    m_faces.push_back(new Face(std::move(f3b)));
 
     // Top face
     HalfEdge* f4h1 = new HalfEdge(v2);
@@ -249,11 +249,11 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds) {
     HalfEdge* f4h3 = new HalfEdge(v8);
     HalfEdge* f4h4 = new HalfEdge(v4);
     HalfEdgeList f4b;
-    f4b.append(f4h1, 1u);
-    f4b.append(f4h2, 1u);
-    f4b.append(f4h3, 1u);
-    f4b.append(f4h4, 1u);
-    m_faces.append(new Face(std::move(f4b)), 1u);
+    f4b.push_back(f4h1);
+    f4b.push_back(f4h2);
+    f4b.push_back(f4h3);
+    f4b.push_back(f4h4);
+    m_faces.push_back(new Face(std::move(f4b)));
 
     // Back face
     HalfEdge* f5h1 = new HalfEdge(v3);
@@ -261,11 +261,11 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds) {
     HalfEdge* f5h3 = new HalfEdge(v8);
     HalfEdge* f5h4 = new HalfEdge(v7);
     HalfEdgeList f5b;
-    f5b.append(f5h1, 1u);
-    f5b.append(f5h2, 1u);
-    f5b.append(f5h3, 1u);
-    f5b.append(f5h4, 1u);
-    m_faces.append(new Face(std::move(f5b)), 1u);
+    f5b.push_back(f5h1);
+    f5b.push_back(f5h2);
+    f5b.push_back(f5h3);
+    f5b.push_back(f5h4);
+    m_faces.push_back(new Face(std::move(f5b)));
 
     // Right face
     HalfEdge* f6h1 = new HalfEdge(v5);
@@ -273,24 +273,24 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds) {
     HalfEdge* f6h3 = new HalfEdge(v8);
     HalfEdge* f6h4 = new HalfEdge(v6);
     HalfEdgeList f6b;
-    f6b.append(f6h1, 1u);
-    f6b.append(f6h2, 1u);
-    f6b.append(f6h3, 1u);
-    f6b.append(f6h4, 1u);
-    m_faces.append(new Face(std::move(f6b)), 1u);
+    f6b.push_back(f6h1);
+    f6b.push_back(f6h2);
+    f6b.push_back(f6h3);
+    f6b.push_back(f6h4);
+    m_faces.push_back(new Face(std::move(f6b)));
 
-    m_edges.append(new Edge(f1h4, f2h1), 1u); // v1, v2
-    m_edges.append(new Edge(f2h4, f3h1), 1u); // v1, v3
-    m_edges.append(new Edge(f1h1, f3h4), 1u); // v1, v5
-    m_edges.append(new Edge(f2h2, f4h4), 1u); // v2, v4
-    m_edges.append(new Edge(f4h1, f1h3), 1u); // v2, v6
-    m_edges.append(new Edge(f2h3, f5h1), 1u); // v3, v4
-    m_edges.append(new Edge(f3h2, f5h4), 1u); // v3, v7
-    m_edges.append(new Edge(f4h3, f5h2), 1u); // v4, v8
-    m_edges.append(new Edge(f1h2, f6h4), 1u); // v5, v6
-    m_edges.append(new Edge(f6h1, f3h3), 1u); // v5, v7
-    m_edges.append(new Edge(f6h3, f4h2), 1u); // v6, v8
-    m_edges.append(new Edge(f6h2, f5h3), 1u); // v7, v8
+    m_edges.push_back(new Edge(f1h4, f2h1)); // v1, v2
+    m_edges.push_back(new Edge(f2h4, f3h1)); // v1, v3
+    m_edges.push_back(new Edge(f1h1, f3h4)); // v1, v5
+    m_edges.push_back(new Edge(f2h2, f4h4)); // v2, v4
+    m_edges.push_back(new Edge(f4h1, f1h3)); // v2, v6
+    m_edges.push_back(new Edge(f2h3, f5h1)); // v3, v4
+    m_edges.push_back(new Edge(f3h2, f5h4)); // v3, v7
+    m_edges.push_back(new Edge(f4h3, f5h2)); // v4, v8
+    m_edges.push_back(new Edge(f1h2, f6h4)); // v5, v6
+    m_edges.push_back(new Edge(f6h1, f3h3)); // v5, v7
+    m_edges.push_back(new Edge(f6h3, f4h2)); // v6, v8
+    m_edges.push_back(new Edge(f6h2, f5h3)); // v7, v8
 
     m_bounds = bounds;
 }
@@ -327,7 +327,7 @@ private:
             do {
                 Vertex* copy = new Vertex(currentVertex->position());
                 assertResult(MapUtils::insertOrFail(m_vertexMap, currentVertex, copy))
-                m_vertices.append(copy, 1u);
+                m_vertices.push_back(copy);
                 currentVertex = currentVertex->next();
             } while (currentVertex != firstVertex);
         }
@@ -350,12 +350,12 @@ private:
         const HalfEdge* firstHalfEdge = originalFace->m_boundary.front();
         const HalfEdge* currentHalfEdge = firstHalfEdge;
         do {
-            myBoundary.append(copyHalfEdge(currentHalfEdge), 1u);
+            myBoundary.push_back(copyHalfEdge(currentHalfEdge));
             currentHalfEdge = currentHalfEdge->next();
         } while (currentHalfEdge != firstHalfEdge);
 
         Face* copy = new Face(std::move(myBoundary));
-        m_faces.append(copy, 1u);
+        m_faces.push_back(copy);
     }
 
     HalfEdge* copyHalfEdge(const HalfEdge* original) {
@@ -378,7 +378,7 @@ private:
             const Edge* firstEdge = originalEdges.front();
             const Edge* currentEdge = firstEdge;
             do {
-                m_edges.append(copyEdge(currentEdge), 1u);
+                m_edges.push_back(copyEdge(currentEdge));
                 currentEdge = currentEdge->next();
             } while (currentEdge != firstEdge);
         }

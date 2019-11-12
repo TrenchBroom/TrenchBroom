@@ -283,13 +283,13 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(
             // We have to split the edge and insert a new vertex, which will become the origin or destination of the new seam edge.
             Edge* currentEdge = currentBoundaryEdge->edge();
             Edge* newEdge = currentEdge->split(plane);
-            m_edges.append(newEdge, 1u);
+            m_edges.push_back(newEdge);
 
             currentBoundaryEdge = currentBoundaryEdge->next();
             Vertex* newVertex = currentBoundaryEdge->origin();
             assert(plane.point_status(newVertex->position()) == vm::plane_status::inside);
 
-            m_vertices.append(newVertex, 1u);
+            m_vertices.push_back(newVertex);
             callback.vertexWasCreated(newVertex);
 
             // The newly inserted vertex will be reexamined in the next loop iteration as it is now contained within the plane.
@@ -338,8 +338,8 @@ void Polyhedron<T,FP,VP>::intersectWithPlane(HalfEdge* oldBoundaryFirst, HalfEdg
     Face* newFace = new Face(std::move(newBoundary));
     Edge* newEdge = new Edge(oldBoundarySplitter, newBoundarySplitter);
 
-    m_edges.append(newEdge, 1u);
-    m_faces.append(newFace, 1u);
+    m_edges.push_back(newEdge);
+    m_faces.push_back(newFace);
 
     callback.faceWasSplit(oldFace, newFace);
 }

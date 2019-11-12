@@ -95,21 +95,31 @@ void assertLinks(Item* head, const std::vector<Item*>& items) {
 }
 
 template <typename List>
-void assertList(const List& list, const std::vector<typename List::item*>& items) {
-    ASSERT_EQ(list.empty(), items.empty());
-    ASSERT_EQ(list.size(), items.size());
+void assertList(const std::vector<typename List::item*>& expected, const List& actual) {
+    ASSERT_EQ(actual.empty(), expected.empty());
+    ASSERT_EQ(actual.size(), expected.size());
 
-    if (!list.empty()) {
-        ASSERT_EQ(list.front(), items.front());
-        ASSERT_EQ(list.back(), items.back());
+    if (!actual.empty()) {
+        ASSERT_EQ(actual.front(), expected.front());
+        ASSERT_EQ(actual.back(), expected.back());
 
-        assertLinks(list.front(), items);
+        assertLinks(actual.front(), expected);
     }
 }
 
 TEST(intrusive_circular_list_test, constructor_default) {
-    list l;
-    assertList(l, {});
+    assertList({}, list());
+}
+
+TEST(intrusive_circular_list_test, constructor_initializer_list) {
+    assertList({}, list({}));
+
+    auto* e1 = new element();
+    assertList({ e1 }, list({ e1 }));
+
+    auto* e2 = new element();
+    auto* e3 = new element();
+    assertList({ e2, e3 }, list({ e2, e3 }));
 }
 
 TEST(intrusive_circular_list_test, destructor_cleanup) {
@@ -172,6 +182,24 @@ TEST(intrusive_circular_list_test, iterators) {
     ASSERT_EQ(end, it);
 }
 
+TEST(intrusive_circular_list_test, empty) {
+    list l;
+    ASSERT_TRUE(l.empty());
+
+    auto* e1 = new element();
+    l.push_back(e1);
+    ASSERT_FALSE(l.empty());
+}
+
+TEST(intrusive_circular_list_test, size) {
+    list l;
+    ASSERT_EQ(0u, l.size());
+
+    auto* e1 = new element();
+    l.push_back(e1);
+    ASSERT_EQ(1u, l.size());
+}
+
 TEST(intrusive_circular_list_test, front) {
     list l;
 
@@ -232,32 +260,15 @@ TEST(intrusive_circular_list_test, push_back) {
     list l;
     auto* e1 = new element();
     l.push_back(e1);
-    assertList(l, { e1 });
+    assertList({ e1 }, l);
 
     auto* e2 = new element();
     l.push_back(e2);
-    assertList(l, { e1, e2 });
+    assertList({ e1, e2 }, l);
 
     auto* e3 = new element();
     l.push_back(e3);
-    assertList(l, { e1, e2, e3 });
-}
-
-TEST(intrusive_circular_list_test, append_items) {
-    list l;
-
-    auto* e1 = new element();
-    auto* e2 = new element();
-    auto* e3 = new element();
-
-    l.push_back(e1);
-    l.push_back(e2);
-    l.push_back(e3);
-
-    l.release(e1, e2, 2u);
-
-    l.append(e1, 2u);
-    assertList(l, { e3, e1, e2 });
+    assertList({ e1, e2, e3 }, l);
 }
 
 TEST(intrusive_circular_list_test, insert_two_items_before_front) {
@@ -278,7 +289,7 @@ TEST(intrusive_circular_list_test, insert_two_items_before_front) {
     to.push_back(t2);
 
     to.insert_before(t1, f1, 2u);
-    assertList(to, { t1, t2, f1, f2 });
+    assertList({ t1, t2, f1, f2 }, to);
 }
 
 TEST(intrusive_circular_list_test, insert_one_item_before_front) {
@@ -297,7 +308,7 @@ TEST(intrusive_circular_list_test, insert_one_item_before_front) {
     to.push_back(t2);
 
     to.insert_before(t1, f1, 1u);
-    assertList(to, { t1, t2, f1 });
+    assertList({ t1, t2, f1 }, to);
 }
 
 TEST(intrusive_circular_list_test, insert_two_items_before_back) {
@@ -319,7 +330,7 @@ TEST(intrusive_circular_list_test, insert_two_items_before_back) {
 
 
     to.insert_before(t2, f1, 2u);
-    assertList(to, { t1, f1, f2, t2 });
+    assertList({ t1, f1, f2, t2 }, to);
 }
 
 TEST(intrusive_circular_list_test, insert_one_item_before_back) {
@@ -338,7 +349,7 @@ TEST(intrusive_circular_list_test, insert_one_item_before_back) {
     to.push_back(t2);
 
     to.insert_before(t2, f1, 1u);
-    assertList(to, { t1, f1, t2 });
+    assertList({ t1, f1, t2 }, to);
 }
 
 TEST(intrusive_circular_list_test, insert_two_items_after_front) {
@@ -359,7 +370,7 @@ TEST(intrusive_circular_list_test, insert_two_items_after_front) {
     to.push_back(t2);
 
     to.insert_after(t1, f1, 2u);
-    assertList(to, { t1, f1, f2, t2 });
+    assertList({ t1, f1, f2, t2 }, to);
 }
 
 TEST(intrusive_circular_list_test, insert_one_item_after_front) {
@@ -378,7 +389,7 @@ TEST(intrusive_circular_list_test, insert_one_item_after_front) {
     to.push_back(t2);
 
     to.insert_after(t1, f1, 1u);
-    assertList(to, { t1, f1, t2 });
+    assertList({ t1, f1, t2 }, to);
 }
 
 TEST(intrusive_circular_list_test, insert_two_items_after_back) {
@@ -399,7 +410,7 @@ TEST(intrusive_circular_list_test, insert_two_items_after_back) {
     to.push_back(t2);
 
     to.insert_after(t2, f1, 2u);
-    assertList(to, { t1, t2, f1, f2 });
+    assertList({ t1, t2, f1, f2 }, to);
 }
 
 TEST(intrusive_circular_list_test, insert_one_item_after_back) {
@@ -418,24 +429,322 @@ TEST(intrusive_circular_list_test, insert_one_item_after_back) {
     to.push_back(t2);
 
     to.insert_after(t2, f1, 1u);
-    assertList(to, { t1, t2, f1 });
+    assertList({ t1, t2, f1 }, to);
+}
+
+TEST(intrusive_circular_list_test, replace_front_item_with_one_item) {
+    auto* f1 = new element();
+    list from({ f1 });
+    from.release();
+
+    auto* t1 = new element();
+    auto* t2 = new element();
+    list to({ t1, t2 });
+
+    to.replace(t1, t1, 1u, f1, 1u);
+    assertList({ f1, t2 }, to);
+}
+
+TEST(intrusive_circular_list_test, replace_back_item_with_one_item) {
+    auto* f1 = new element();
+    list from({ f1 });
+    from.release();
+
+    auto* t1 = new element();
+    auto* t2 = new element();
+    list to({ t1, t2 });
+
+    to.replace(t2, t2, 1u, f1, 1u);
+    assertList({ f1, t1 }, to); // removal affects list head
+}
+
+TEST(intrusive_circular_list_test, replace_all_items_with_one_item) {
+    auto* f1 = new element();
+    list from({ f1 });
+    from.release();
+
+    auto* t1 = new element();
+    auto* t2 = new element();
+    list to({ t1, t2 });
+
+    to.replace(t1, t2, 2u, f1, 1u);
+    assertList({ f1 }, to);
+}
+
+TEST(intrusive_circular_list_test, replace_some_items_with_one_item) {
+    auto* f1 = new element();
+    list from({ f1 });
+    from.release();
+
+    auto* t1 = new element();
+    auto* t2 = new element();
+    auto* t3 = new element();
+    auto* t4 = new element();
+    list to({ t1, t2, t3, t4 });
+
+    to.replace(t4, t1, 2u, f1, 1u);
+    assertList({ f1, t2, t3 }, to);
+}
+
+TEST(intrusive_circular_list_test, replace_some_items_with_two_items) {
+    auto* f1 = new element();
+    auto* f2 = new element();
+    list from({ f1, f2 });
+    from.release();
+
+    auto* t1 = new element();
+    auto* t2 = new element();
+    auto* t3 = new element();
+    auto* t4 = new element();
+    list to({ t1, t2, t3, t4 });
+
+    to.replace(t4, t1, 2u, f1, 2u);
+    assertList({ f1, f2, t2, t3 }, to);
+}
+
+TEST(intrusive_circular_list_test, remove_single_item) {
+    auto* e1 = new element();
+    list l({ e1 });
+    assertList({ e1 }, l.remove(e1));
+    assertList({}, l);
+}
+
+TEST(intrusive_circular_list_test, remove_front_item) {
+    auto* e1 = new element();
+    auto* e2 = new element();
+    auto* e3 = new element();
+    list l({ e1, e2, e3 });
+    assertList({ e1 }, l.remove(e1));
+    assertList({ e2, e3 }, l);
+}
+
+TEST(intrusive_circular_list_test, remove_mid_item) {
+    auto* e1 = new element();
+    auto* e2 = new element();
+    auto* e3 = new element();
+    list l({ e1, e2, e3 });
+    assertList({ e2 }, l.remove(e2));
+    assertList({ e3, e1 }, l); // removal affects list head
+}
+
+TEST(intrusive_circular_list_test, remove_back_item) {
+    auto* e1 = new element();
+    auto* e2 = new element();
+    auto* e3 = new element();
+    list l({ e1, e2, e3 });
+    assertList({ e3 }, l.remove(e3));
+    assertList({ e1, e2 }, l);
+}
+
+TEST(intrusive_circular_list_test, remove_single) {
+    list l;
+
+    auto e1_deleted = false;
+    auto e2_deleted = false;
+    auto e3_deleted = false;
+    auto e4_deleted = false;
+
+    auto* e1 = new delete_tracking_element(e1_deleted);
+    auto* e2 = new delete_tracking_element(e2_deleted);
+    auto* e3 = new delete_tracking_element(e3_deleted);
+    auto* e4 = new delete_tracking_element(e4_deleted);
+
+    l.push_back(e1);
+    l.push_back(e2);
+    l.push_back(e3);
+    l.push_back(e4);
+
+    // mid element
+    l.remove(e2, e2, 1u);
+    ASSERT_FALSE(e1_deleted);
+    ASSERT_TRUE(e2_deleted);
+    ASSERT_FALSE(e3_deleted);
+    ASSERT_FALSE(e4_deleted);
+    assertList({ e3, e4, e1 }, l); // removal affects list head
+
+    // front element
+    l.remove(e3, e3, 1u);
+    ASSERT_FALSE(e1_deleted);
+    ASSERT_TRUE(e2_deleted);
+    ASSERT_TRUE(e3_deleted);
+    ASSERT_FALSE(e4_deleted);
+    assertList({ e4, e1 }, l);
+
+    // back element
+    l.remove(e1, e1, 1u);
+    ASSERT_TRUE(e1_deleted);
+    ASSERT_TRUE(e2_deleted);
+    ASSERT_TRUE(e3_deleted);
+    ASSERT_FALSE(e4_deleted);
+    assertList({ e4 }, l);
+
+    // single element
+    l.remove(e4, e4, 1u);
+    ASSERT_TRUE(e1_deleted);
+    ASSERT_TRUE(e2_deleted);
+    ASSERT_TRUE(e3_deleted);
+    ASSERT_TRUE(e4_deleted);
+    assertList({}, l);
+}
+
+TEST(intrusive_circular_list_test, remove_multiple) {
+    list l;
+
+    auto e1_deleted = false;
+    auto e2_deleted = false;
+    auto e3_deleted = false;
+    auto e4_deleted = false;
+
+    auto* e1 = new delete_tracking_element(e1_deleted);
+    auto* e2 = new delete_tracking_element(e2_deleted);
+    auto* e3 = new delete_tracking_element(e3_deleted);
+    auto* e4 = new delete_tracking_element(e4_deleted);
+
+    l.push_back(e1);
+    l.push_back(e2);
+    l.push_back(e3);
+    l.push_back(e4);
+
+    l.remove(e4, e1, 2u);
+    ASSERT_TRUE(e1_deleted);
+    ASSERT_FALSE(e2_deleted);
+    ASSERT_FALSE(e3_deleted);
+    ASSERT_TRUE(e4_deleted);
+    assertList({ e2, e3 }, l);
+}
+
+
+TEST(intrusive_circular_list_test, remove_all) {
+    list l;
+
+    auto e1_deleted = false;
+    auto e2_deleted = false;
+
+    auto* e1 = new delete_tracking_element(e1_deleted);
+    auto* e2 = new delete_tracking_element(e2_deleted);
+
+    l.push_back(e1);
+    l.push_back(e2);
+
+    l.remove(e1, e2, 2u);
+    ASSERT_TRUE(e1_deleted);
+    ASSERT_TRUE(e2_deleted);
+    assertList({}, l);
+}
+
+
+TEST(intrusive_circular_list_test, release_single) {
+    list l;
+
+    auto e1_deleted = false;
+    auto e2_deleted = false;
+    auto e3_deleted = false;
+    auto e4_deleted = false;
+
+    element* e1 = new delete_tracking_element(e1_deleted);
+    element* e2 = new delete_tracking_element(e2_deleted);
+    element* e3 = new delete_tracking_element(e3_deleted);
+    element* e4 = new delete_tracking_element(e4_deleted);
+
+    l.push_back(e1);
+    l.push_back(e2);
+    l.push_back(e3);
+    l.push_back(e4);
+
+    // mid element
+    l.release(e2, e2, 1u);
+    ASSERT_FALSE(e1_deleted);
+    ASSERT_FALSE(e2_deleted);
+    ASSERT_FALSE(e3_deleted);
+    ASSERT_FALSE(e4_deleted);
+    assertList({ e3, e4, e1 }, l); // removal affects list head
+    assertLinks(e2, { e2 });
+
+    // front element
+    l.release(e3, e3, 1u);
+    ASSERT_FALSE(e1_deleted);
+    ASSERT_FALSE(e2_deleted);
+    ASSERT_FALSE(e3_deleted);
+    ASSERT_FALSE(e4_deleted);
+    assertList({ e4, e1 }, l);
+    assertLinks(e3, { e3 }); // removal affects list head
+
+    // back element
+    l.release(e1, e1, 1u);
+    ASSERT_FALSE(e1_deleted);
+    ASSERT_FALSE(e2_deleted);
+    ASSERT_FALSE(e3_deleted);
+    ASSERT_FALSE(e4_deleted);
+    assertList({ e4 }, l);
+    assertLinks(e1, { e1 });
+
+    // single element
+    l.release(e4, e4, 1u);
+    ASSERT_FALSE(e1_deleted);
+    ASSERT_FALSE(e2_deleted);
+    ASSERT_FALSE(e3_deleted);
+    ASSERT_FALSE(e4_deleted);
+    assertList({}, l);
+    assertLinks(e4, { e4 });
+}
+
+TEST(intrusive_circular_list_test, release_multiple) {
+    list l;
+
+    auto e1_deleted = false;
+    auto e2_deleted = false;
+    auto e3_deleted = false;
+    auto e4_deleted = false;
+
+    element* e1 = new delete_tracking_element(e1_deleted);
+    element* e2 = new delete_tracking_element(e2_deleted);
+    element* e3 = new delete_tracking_element(e3_deleted);
+    element* e4 = new delete_tracking_element(e4_deleted);
+
+    l.push_back(e1);
+    l.push_back(e2);
+    l.push_back(e3);
+    l.push_back(e4);
+
+    l.release(e4, e1, 2u);
+    ASSERT_FALSE(e1_deleted);
+    ASSERT_FALSE(e2_deleted);
+    ASSERT_FALSE(e3_deleted);
+    ASSERT_FALSE(e4_deleted);
+    assertList({ e2, e3 }, l);
+    assertLinks(e4, { e4, e1 });
+}
+
+TEST(intrusive_circular_list_test, release_all) {
+    list l;
+
+    auto e1_deleted = false;
+    auto e2_deleted = false;
+
+    element* e1 = new delete_tracking_element(e1_deleted);
+    element* e2 = new delete_tracking_element(e2_deleted);
+
+    l.push_back(e1);
+    l.push_back(e2);
+
+    l.release(e1, e2, 2u);
+    ASSERT_FALSE(e1_deleted);
+    ASSERT_FALSE(e2_deleted);
+    assertList({}, l);
+    assertLinks(e1, { e1, e2 });
 }
 
 TEST(intrusive_circular_list_test, emplace_back) {
     list l;
 
     auto* e1 = l.emplace_back();
-    assertList(l, { e1 });
+    assertList({ e1 }, l);
 
     auto* e2 = l.emplace_back();
-    assertList(l, { e1, e2 });
+    assertList({ e1, e2 }, l);
 
     auto* e3 = l.emplace_back();
-    assertList(l, { e1, e2, e3 });
-}
-
-TEST(intrusive_circular_list_test, reverse) {
-    ASSERT_TRUE(true); // todo
+    assertList({ e1, e2, e3 }, l);
 }
 
 TEST(intrusive_circular_list_test, emplace_back_subtype) {
@@ -443,12 +752,22 @@ TEST(intrusive_circular_list_test, emplace_back_subtype) {
     {
         list l;
         auto* e1 = l.emplace_back<delete_tracking_element>(e1_deleted);
-        assertList(l, { e1 });
+        assertList({ e1 }, l);
     }
     ASSERT_TRUE(e1_deleted);
 }
 
-TEST(intrusive_circular_list_test, append) {
+TEST(intrusive_circular_list_test, reverse) {
+    auto* e1 = new element();
+    auto* e2 = new element();
+    auto* e3 = new element();
+    list l({ e1, e2, e3 });
+
+    l.reverse();
+    assertList({e1, e3, e2}, l);
+}
+
+TEST(intrusive_circular_list_test, append_list) {
     list from;
     list to;
 
@@ -467,8 +786,8 @@ TEST(intrusive_circular_list_test, append) {
     to.push_back(t2);
 
     to.append(from);
-    assertList(to, { t1, t2, f1, f2, f3 });
-    assertList(from, {});
+    assertList({ t1, t2, f1, f2, f3 }, to);
+    assertList({}, from);
 }
 
 TEST(intrusive_circular_list_test, insert_list_before_front) {
@@ -490,8 +809,8 @@ TEST(intrusive_circular_list_test, insert_list_before_front) {
     to.push_back(t2);
 
     to.insert_before(t1, from);
-    assertList(to, { t1, t2, f1, f2, f3 });
-    assertList(from, {});
+    assertList({ t1, t2, f1, f2, f3 }, to);
+    assertList({}, from);
 }
 
 TEST(intrusive_circular_list_test, insert_list_before_back) {
@@ -513,8 +832,8 @@ TEST(intrusive_circular_list_test, insert_list_before_back) {
     to.push_back(t2);
 
     to.insert_before(t2, from);
-    assertList(to, { t1, f1, f2, f3, t2 });
-    assertList(from, {});
+    assertList({ t1, f1, f2, f3, t2 }, to);
+    assertList({}, from);
 }
 
 TEST(intrusive_circular_list_test, insert_list_after_front) {
@@ -536,8 +855,8 @@ TEST(intrusive_circular_list_test, insert_list_after_front) {
     to.push_back(t2);
 
     to.insert_after(t1, from);
-    assertList(to, { t1, f1, f2, f3, t2 });
-    assertList(from, {});
+    assertList({ t1, f1, f2, f3, t2 }, to);
+    assertList({}, from);
 }
 
 TEST(intrusive_circular_list_test, insert_list_after_back) {
@@ -559,8 +878,54 @@ TEST(intrusive_circular_list_test, insert_list_after_back) {
     to.push_back(t2);
 
     to.insert_after(t2, from);
-    assertList(to, { t1, t2, f1, f2, f3 });
-    assertList(from, {});
+    assertList({ t1, t2, f1, f2, f3 }, to);
+    assertList({}, from);
+}
+
+TEST(intrusive_circular_list_test, splice_back_one_item) {
+    list from;
+    list to;
+
+    auto* f1 = new element();
+    auto* f2 = new element();
+    auto* f3 = new element();
+
+    from.push_back(f1);
+    from.push_back(f2);
+    from.push_back(f3);
+
+    auto* t1 = new element();
+    auto* t2 = new element();
+
+    to.push_back(t1);
+    to.push_back(t2);
+
+    to.splice_back(from, f1, f1, 1u);
+    assertList({ t1, t2, f1 }, to);
+    assertList({f2, f3}, from);
+}
+
+TEST(intrusive_circular_list_test, splice_back_two_items) {
+    list from;
+    list to;
+
+    auto* f1 = new element();
+    auto* f2 = new element();
+    auto* f3 = new element();
+
+    from.push_back(f1);
+    from.push_back(f2);
+    from.push_back(f3);
+
+    auto* t1 = new element();
+    auto* t2 = new element();
+
+    to.push_back(t1);
+    to.push_back(t2);
+
+    to.splice_back(from, f1, f2, 2u);
+    assertList({ t1, t2, f1, f2 }, to);
+    assertList({ f3 }, from);
 }
 
 TEST(intrusive_circular_list_test, splice_one_item_before_empty_list) {
@@ -576,8 +941,8 @@ TEST(intrusive_circular_list_test, splice_one_item_before_empty_list) {
     from.push_back(f3);
 
     to.splice_before(nullptr, from, f2, f2, 1u);
-    assertList(to, { f2 });
-    assertList(from, { f3, f1 }); // removal affects list head
+    assertList({ f2 }, to);
+    assertList({ f3, f1 }, from); // removal affects list head
 }
 
 TEST(intrusive_circular_list_test, splice_two_items_before_empty_list) {
@@ -593,8 +958,8 @@ TEST(intrusive_circular_list_test, splice_two_items_before_empty_list) {
     from.push_back(f3);
 
     to.splice_before(nullptr, from, f2, f3, 2u);
-    assertList(to, { f2, f3 });
-    assertList(from, { f1 });
+    assertList({ f2, f3 }, to);
+    assertList({ f1 }, from);
 }
 
 TEST(intrusive_circular_list_test, splice_all_items_before_empty_list) {
@@ -610,8 +975,8 @@ TEST(intrusive_circular_list_test, splice_all_items_before_empty_list) {
     from.push_back(f3);
 
     to.splice_before(nullptr, from, f1, f3, 3u);
-    assertList(to, { f1, f2, f3 });
-    assertList(from, {});
+    assertList({ f1, f2, f3 }, to);
+    assertList({}, from);
 }
 
 TEST(intrusive_circular_list_test, splice_one_item_before_front) {
@@ -635,8 +1000,8 @@ TEST(intrusive_circular_list_test, splice_one_item_before_front) {
     to.push_back(t3);
 
     to.splice_before(t1, from, f2, f2, 1u);
-    assertList(to, { t1, t2, t3, f2 });
-    assertList(from, { f3, f1 }); // removal affects list head
+    assertList({ t1, t2, t3, f2 }, to);
+    assertList({ f3, f1 }, from); // removal affects list head
 }
 
 TEST(intrusive_circular_list_test, splice_one_item_before_mid) {
@@ -660,8 +1025,8 @@ TEST(intrusive_circular_list_test, splice_one_item_before_mid) {
     to.push_back(t3);
 
     to.splice_before(t2, from, f2, f2, 1u);
-    assertList(to, { t1, f2, t2, t3 });
-    assertList(from, { f3, f1 }); // removal affects list head
+    assertList({ t1, f2, t2, t3 }, to);
+    assertList({ f3, f1 }, from); // removal affects list head
 }
 
 TEST(intrusive_circular_list_test, splice_one_item_before_last) {
@@ -685,8 +1050,8 @@ TEST(intrusive_circular_list_test, splice_one_item_before_last) {
     to.push_back(t3);
 
     to.splice_before(t3, from, f2, f2, 1u);
-    assertList(to, { t1, t2, f2, t3 });
-    assertList(from, { f3, f1 }); // removal affects list head
+    assertList({ t1, t2, f2, t3 }, to);
+    assertList({ f3, f1 }, from); // removal affects list head
 }
 
 TEST(intrusive_circular_list_test, splice_last_two_items_before_front) {
@@ -710,8 +1075,8 @@ TEST(intrusive_circular_list_test, splice_last_two_items_before_front) {
     to.push_back(t3);
 
     to.splice_before(t1, from, f2, f3, 2u);
-    assertList(to, { t1, t2, t3, f2, f3 });
-    assertList(from, { f1 });
+    assertList({ t1, t2, t3, f2, f3 }, to);
+    assertList({ f1 }, from);
 }
 
 TEST(intrusive_circular_list_test, splice_last_two_items_before_mid) {
@@ -735,8 +1100,8 @@ TEST(intrusive_circular_list_test, splice_last_two_items_before_mid) {
     to.push_back(t3);
 
     to.splice_before(t2, from, f2, f3, 2u);
-    assertList(to, { t1, f2, f3, t2, t3 });
-    assertList(from, { f1 });
+    assertList({ t1, f2, f3, t2, t3 }, to);
+    assertList({ f1 }, from);
 }
 
 TEST(intrusive_circular_list_test, splice_last_two_items_before_last) {
@@ -760,8 +1125,8 @@ TEST(intrusive_circular_list_test, splice_last_two_items_before_last) {
     to.push_back(t3);
 
     to.splice_before(t3, from, f2, f3, 2u);
-    assertList(to, { t1, t2, f2, f3, t3 });
-    assertList(from, { f1 });
+    assertList({ t1, t2, f2, f3, t3 }, to);
+    assertList({ f1 }, from);
 }
 
 TEST(intrusive_circular_list_test, splice_last_and_first_items_before_front) {
@@ -785,8 +1150,8 @@ TEST(intrusive_circular_list_test, splice_last_and_first_items_before_front) {
     to.push_back(t3);
 
     to.splice_before(t1, from, f3, f1, 2u);
-    assertList(to, { t1, t2, t3, f3, f1 });
-    assertList(from, { f2 });
+    assertList({ t1, t2, t3, f3, f1 }, to);
+    assertList({ f2 }, from);
 }
 
 TEST(intrusive_circular_list_test, splice_all_items_before_front) {
@@ -810,8 +1175,8 @@ TEST(intrusive_circular_list_test, splice_all_items_before_front) {
     to.push_back(t3);
 
     to.splice_before(t1, from, f3, f2, 3u);
-    assertList(to, { t1, t2, t3, f3, f1, f2 });
-    assertList(from, {});
+    assertList({ t1, t2, t3, f3, f1, f2 }, to);
+    assertList({}, from);
 }
 
 TEST(intrusive_circular_list_test, splice_all_items_before_mid) {
@@ -835,8 +1200,8 @@ TEST(intrusive_circular_list_test, splice_all_items_before_mid) {
     to.push_back(t3);
 
     to.splice_before(t2, from, f3, f2, 3u);
-    assertList(to, { t1, f3, f1, f2, t2, t3 });
-    assertList(from, {});
+    assertList({ t1, f3, f1, f2, t2, t3 }, to);
+    assertList({}, from);
 }
 
 TEST(intrusive_circular_list_test, splice_all_items_before_last) {
@@ -860,8 +1225,8 @@ TEST(intrusive_circular_list_test, splice_all_items_before_last) {
     to.push_back(t3);
 
     to.splice_before(t3, from, f3, f2, 3u);
-    assertList(to, { t1, t2, f3, f1, f2, t3 });
-    assertList(from, {});
+    assertList({ t1, t2, f3, f1, f2, t3 }, to);
+    assertList({}, from);
 }
 
 TEST(intrusive_circular_list_test, splice_one_item_after_empty_list) {
@@ -877,8 +1242,8 @@ TEST(intrusive_circular_list_test, splice_one_item_after_empty_list) {
     from.push_back(f3);
 
     to.splice_after(nullptr, from, f2, f2, 1u);
-    assertList(to, { f2 });
-    assertList(from, { f3, f1 }); // removal affects list head
+    assertList({ f2 }, to);
+    assertList({ f3, f1 }, from); // removal affects list head
 }
 
 TEST(intrusive_circular_list_test, splice_two_items_after_empty_list) {
@@ -894,8 +1259,8 @@ TEST(intrusive_circular_list_test, splice_two_items_after_empty_list) {
     from.push_back(f3);
 
     to.splice_after(nullptr, from, f2, f3, 2u);
-    assertList(to, { f2, f3 });
-    assertList(from, { f1 });
+    assertList({ f2, f3 }, to);
+    assertList({ f1 }, from);
 }
 
 TEST(intrusive_circular_list_test, splice_all_items_after_empty_list) {
@@ -911,8 +1276,8 @@ TEST(intrusive_circular_list_test, splice_all_items_after_empty_list) {
     from.push_back(f3);
 
     to.splice_after(nullptr, from, f1, f3, 3u);
-    assertList(to, { f1, f2, f3 });
-    assertList(from, {});
+    assertList({ f1, f2, f3 }, to);
+    assertList({}, from);
 }
 
 TEST(intrusive_circular_list_test, splice_one_item_after_front) {
@@ -936,8 +1301,8 @@ TEST(intrusive_circular_list_test, splice_one_item_after_front) {
     to.push_back(t3);
 
     to.splice_after(t1, from, f2, f2, 1u);
-    assertList(to, { t1, f2, t2, t3 });
-    assertList(from, { f3, f1 }); // removal affects list head
+    assertList({ t1, f2, t2, t3 }, to);
+    assertList({ f3, f1 }, from); // removal affects list head
 }
 
 TEST(intrusive_circular_list_test, splice_one_item_after_mid) {
@@ -961,8 +1326,8 @@ TEST(intrusive_circular_list_test, splice_one_item_after_mid) {
     to.push_back(t3);
 
     to.splice_after(t2, from, f2, f2, 1u);
-    assertList(to, { t1, t2, f2, t3 });
-    assertList(from, { f3, f1 }); // removal affects list head
+    assertList({ t1, t2, f2, t3 }, to);
+    assertList({ f3, f1 }, from); // removal affects list head
 }
 
 TEST(intrusive_circular_list_test, splice_one_item_after_last) {
@@ -986,8 +1351,8 @@ TEST(intrusive_circular_list_test, splice_one_item_after_last) {
     to.push_back(t3);
 
     to.splice_after(t3, from, f2, f2, 1u);
-    assertList(to, { t1, t2, t3, f2 });
-    assertList(from, { f3, f1 }); // removal affects list head
+    assertList({ t1, t2, t3, f2 }, to);
+    assertList({ f3, f1 }, from); // removal affects list head
 }
 
 TEST(intrusive_circular_list_test, splice_last_two_items_after_front) {
@@ -1011,8 +1376,8 @@ TEST(intrusive_circular_list_test, splice_last_two_items_after_front) {
     to.push_back(t3);
 
     to.splice_after(t1, from, f2, f3, 2u);
-    assertList(to, { t1, f2, f3, t2, t3 });
-    assertList(from, { f1 });
+    assertList({ t1, f2, f3, t2, t3 }, to);
+    assertList({ f1 }, from);
 }
 
 TEST(intrusive_circular_list_test, splice_last_two_items_after_mid) {
@@ -1036,8 +1401,8 @@ TEST(intrusive_circular_list_test, splice_last_two_items_after_mid) {
     to.push_back(t3);
 
     to.splice_after(t2, from, f2, f3, 2u);
-    assertList(to, { t1, t2, f2, f3, t3 });
-    assertList(from, { f1 });
+    assertList({ t1, t2, f2, f3, t3 }, to);
+    assertList({ f1 }, from);
 }
 
 TEST(intrusive_circular_list_test, splice_last_two_items_after_last) {
@@ -1061,8 +1426,8 @@ TEST(intrusive_circular_list_test, splice_last_two_items_after_last) {
     to.push_back(t3);
 
     to.splice_after(t3, from, f2, f3, 2u);
-    assertList(to, { t1, t2, t3, f2, f3 });
-    assertList(from, { f1 });
+    assertList({ t1, t2, t3, f2, f3 }, to);
+    assertList({ f1 }, from);
 }
 
 TEST(intrusive_circular_list_test, splice_last_and_first_items_after_front) {
@@ -1086,8 +1451,8 @@ TEST(intrusive_circular_list_test, splice_last_and_first_items_after_front) {
     to.push_back(t3);
 
     to.splice_after(t1, from, f3, f1, 2u);
-    assertList(to, { t1, f3, f1, t2, t3 });
-    assertList(from, { f2 });
+    assertList({ t1, f3, f1, t2, t3 }, to);
+    assertList({ f2 }, from);
 }
 
 TEST(intrusive_circular_list_test, splice_all_items_after_front) {
@@ -1111,8 +1476,8 @@ TEST(intrusive_circular_list_test, splice_all_items_after_front) {
     to.push_back(t3);
 
     to.splice_after(t1, from, f3, f2, 3u);
-    assertList(to, { t1, f3, f1, f2, t2, t3 });
-    assertList(from, {});
+    assertList({ t1, f3, f1, f2, t2, t3 }, to);
+    assertList({}, from);
 }
 
 TEST(intrusive_circular_list_test, splice_all_items_after_mid) {
@@ -1136,8 +1501,8 @@ TEST(intrusive_circular_list_test, splice_all_items_after_mid) {
     to.push_back(t3);
 
     to.splice_after(t2, from, f3, f2, 3u);
-    assertList(to, { t1, t2, f3, f1, f2, t3 });
-    assertList(from, {});
+    assertList({ t1, t2, f3, f1, f2, t3 }, to);
+    assertList({}, from);
 }
 
 TEST(intrusive_circular_list_test, splice_all_items_after_last) {
@@ -1161,8 +1526,8 @@ TEST(intrusive_circular_list_test, splice_all_items_after_last) {
     to.push_back(t3);
 
     to.splice_after(t3, from, f3, f2, 3u);
-    assertList(to, { t1, t2, t3, f3, f1, f2 });
-    assertList(from, {});
+    assertList({ t1, t2, t3, f3, f1, f2 }, to);
+    assertList({}, from);
 }
 
 TEST(intrusive_circular_list_test, splice_replace_first_item_with_one_item) {
@@ -1190,8 +1555,8 @@ TEST(intrusive_circular_list_test, splice_replace_first_item_with_one_item) {
     to.push_back(t3);
 
     to.splice_replace(t1, t1, 1u, from, f2, f2, 1u);
-    assertList(to, { f2, t2, t3 });
-    assertList(from, { f3, f1 }); // removal affects list head
+    assertList({ f2, t2, t3 }, to);
+    assertList({ f3, f1 }, from); // removal affects list head
 
     ASSERT_TRUE(t1_deleted);
     ASSERT_FALSE(t2_deleted);
@@ -1223,8 +1588,8 @@ TEST(intrusive_circular_list_test, splice_replace_mid_item_with_one_item) {
     to.push_back(t3);
 
     to.splice_replace(t2, t2, 1u, from, f2, f2, 1u);
-    assertList(to, { f2, t3, t1 }); // removal affects list head
-    assertList(from, { f3, f1 }); // removal affects list head
+    assertList({ f2, t3, t1 }, to); // removal affects list head
+    assertList({ f3, f1 }, from); // removal affects list head
 
     ASSERT_FALSE(t1_deleted);
     ASSERT_TRUE(t2_deleted);
@@ -1256,8 +1621,8 @@ TEST(intrusive_circular_list_test, splice_replace_last_item_with_one_item) {
     to.push_back(t3);
 
     to.splice_replace(t3, t3, 1u, from, f2, f2, 1u);
-    assertList(to, { f2, t1, t2 }); // removal affects list head
-    assertList(from, { f3, f1 });  // removal affects list head
+    assertList({ f2, t1, t2 }, to); // removal affects list head
+    assertList({ f3, f1 }, from);  // removal affects list head
 
     ASSERT_FALSE(t1_deleted);
     ASSERT_FALSE(t2_deleted);
@@ -1289,8 +1654,8 @@ TEST(intrusive_circular_list_test, splice_replace_first_item_with_two_items) {
     to.push_back(t3);
 
     to.splice_replace(t1, t1, 1u, from, f3, f1, 2u);
-    assertList(to, { f3, f1, t2, t3 }); // removal affects list head
-    assertList(from, { f2 });
+    assertList({ f3, f1, t2, t3 }, to); // removal affects list head
+    assertList({ f2 }, from);
 
     ASSERT_TRUE(t1_deleted);
     ASSERT_FALSE(t2_deleted);
@@ -1322,8 +1687,8 @@ TEST(intrusive_circular_list_test, splice_replace_mid_item_with_two_items) {
     to.push_back(t3);
 
     to.splice_replace(t2, t2, 1u, from, f3, f1, 2u);
-    assertList(to, { f3, f1, t3, t1 }); // removal affects list head
-    assertList(from, { f2 });
+    assertList({ f3, f1, t3, t1 }, to); // removal affects list head
+    assertList({ f2 }, from);
 
     ASSERT_FALSE(t1_deleted);
     ASSERT_TRUE(t2_deleted);
@@ -1355,8 +1720,8 @@ TEST(intrusive_circular_list_test, splice_replace_last_item_with_two_items) {
     to.push_back(t3);
 
     to.splice_replace(t3, t3, 1u, from, f3, f1, 2u);
-    assertList(to, { f3, f1, t1, t2 }); // removal affects list head
-    assertList(from, { f2 });
+    assertList({ f3, f1, t1, t2 }, to); // removal affects list head
+    assertList({ f2 }, from);
 
     ASSERT_FALSE(t1_deleted);
     ASSERT_FALSE(t2_deleted);
@@ -1388,8 +1753,8 @@ TEST(intrusive_circular_list_test, splice_replace_mid_item_with_all_items) {
     to.push_back(t3);
 
     to.splice_replace(t2, t2, 1u, from, f3, f2, 3u);
-    assertList(to, { f3, f1, f2, t3, t1 }); // removal affects list head
-    assertList(from, {});
+    assertList({ f3, f1, f2, t3, t1 }, to); // removal affects list head
+    assertList({}, from);
 
     ASSERT_FALSE(t1_deleted);
     ASSERT_TRUE(t2_deleted);
@@ -1421,8 +1786,8 @@ TEST(intrusive_circular_list_test, splice_replace_first_two_items_with_two_items
     to.push_back(t3);
 
     to.splice_replace(t1, t2, 2u, from, f1, f2, 2u);
-    assertList(to, { f1, f2, t3 }); // removal affects list head
-    assertList(from, { f3 });
+    assertList({ f1, f2, t3 }, to); // removal affects list head
+    assertList({ f3 }, from);
 
     ASSERT_TRUE(t1_deleted);
     ASSERT_TRUE(t2_deleted);
@@ -1454,8 +1819,8 @@ TEST(intrusive_circular_list_test, splice_replace_last_two_items_with_two_items)
     to.push_back(t3);
 
     to.splice_replace(t2, t3, 2u, from, f1, f2, 2u);
-    assertList(to, { f1, f2, t1 }); // removal affects list head
-    assertList(from, { f3 });
+    assertList({ f1, f2, t1 }, to); // removal affects list head
+    assertList({ f3 }, from);
 
     ASSERT_FALSE(t1_deleted);
     ASSERT_TRUE(t2_deleted);
@@ -1487,8 +1852,8 @@ TEST(intrusive_circular_list_test, splice_replace_last_and_first_items_with_two_
     to.push_back(t3);
 
     to.splice_replace(t3, t1, 2u, from, f1, f2, 2u);
-    assertList(to, { f1, f2, t2 }); // removal affects list head
-    assertList(from, { f3 });
+    assertList({ f1, f2, t2 }, to); // removal affects list head
+    assertList({ f3 }, from);
 
     ASSERT_TRUE(t1_deleted);
     ASSERT_FALSE(t2_deleted);
@@ -1520,8 +1885,8 @@ TEST(intrusive_circular_list_test, splice_replace_all_items_with_two_items) {
     to.push_back(t3);
 
     to.splice_replace(t3, t2, 3u, from, f1, f2, 2u);
-    assertList(to, { f1, f2 });
-    assertList(from, { f3 });
+    assertList({ f1, f2 }, to);
+    assertList({ f3 }, from);
 
     ASSERT_TRUE(t1_deleted);
     ASSERT_TRUE(t2_deleted);
@@ -1553,8 +1918,8 @@ TEST(intrusive_circular_list_test, splice_replace_all_items_with_one_item) {
     to.push_back(t3);
 
     to.splice_replace(t2, t1, 3u, from, f1, f1, 1u);
-    assertList(to, { f1 });
-    assertList(from, { f2, f3 });
+    assertList({ f1 }, to);
+    assertList({ f2, f3 }, from);
 
     ASSERT_TRUE(t1_deleted);
     ASSERT_TRUE(t2_deleted);
@@ -1586,210 +1951,12 @@ TEST(intrusive_circular_list_test, splice_replace_all_items_with_all_items) {
     to.push_back(t3);
 
     to.splice_replace(t1, t3, 3u, from, f1, f3, 3u);
-    assertList(to, { f1, f2, f3 });
-    assertList(from, {});
+    assertList({ f1, f2, f3 }, to);
+    assertList({}, from);
 
     ASSERT_TRUE(t1_deleted);
     ASSERT_TRUE(t2_deleted);
     ASSERT_TRUE(t3_deleted);
-}
-
-TEST(intrusive_circular_list_test, remove_single) {
-    list l;
-
-    auto e1_deleted = false;
-    auto e2_deleted = false;
-    auto e3_deleted = false;
-    auto e4_deleted = false;
-
-    auto* e1 = new delete_tracking_element(e1_deleted);
-    auto* e2 = new delete_tracking_element(e2_deleted);
-    auto* e3 = new delete_tracking_element(e3_deleted);
-    auto* e4 = new delete_tracking_element(e4_deleted);
-
-    l.push_back(e1);
-    l.push_back(e2);
-    l.push_back(e3);
-    l.push_back(e4);
-
-    // mid element
-    l.remove(e2, e2, 1u);
-    ASSERT_FALSE(e1_deleted);
-    ASSERT_TRUE(e2_deleted);
-    ASSERT_FALSE(e3_deleted);
-    ASSERT_FALSE(e4_deleted);
-    assertList(l, { e3, e4, e1 }); // removal affects list head
-
-    // front element
-    l.remove(e3, e3, 1u);
-    ASSERT_FALSE(e1_deleted);
-    ASSERT_TRUE(e2_deleted);
-    ASSERT_TRUE(e3_deleted);
-    ASSERT_FALSE(e4_deleted);
-    assertList(l, { e4, e1 });
-
-    // back element
-    l.remove(e1, e1, 1u);
-    ASSERT_TRUE(e1_deleted);
-    ASSERT_TRUE(e2_deleted);
-    ASSERT_TRUE(e3_deleted);
-    ASSERT_FALSE(e4_deleted);
-    assertList(l, { e4 });
-
-    // single element
-    l.remove(e4, e4, 1u);
-    ASSERT_TRUE(e1_deleted);
-    ASSERT_TRUE(e2_deleted);
-    ASSERT_TRUE(e3_deleted);
-    ASSERT_TRUE(e4_deleted);
-    assertList(l, {});
-}
-
-TEST(intrusive_circular_list_test, remove_multiple) {
-    list l;
-
-    auto e1_deleted = false;
-    auto e2_deleted = false;
-    auto e3_deleted = false;
-    auto e4_deleted = false;
-
-    auto* e1 = new delete_tracking_element(e1_deleted);
-    auto* e2 = new delete_tracking_element(e2_deleted);
-    auto* e3 = new delete_tracking_element(e3_deleted);
-    auto* e4 = new delete_tracking_element(e4_deleted);
-
-    l.push_back(e1);
-    l.push_back(e2);
-    l.push_back(e3);
-    l.push_back(e4);
-
-    l.remove(e4, e1, 2u);
-    ASSERT_TRUE(e1_deleted);
-    ASSERT_FALSE(e2_deleted);
-    ASSERT_FALSE(e3_deleted);
-    ASSERT_TRUE(e4_deleted);
-    assertList(l, { e2, e3 });
-}
-
-
-TEST(intrusive_circular_list_test, remove_all) {
-    list l;
-
-    auto e1_deleted = false;
-    auto e2_deleted = false;
-
-    auto* e1 = new delete_tracking_element(e1_deleted);
-    auto* e2 = new delete_tracking_element(e2_deleted);
-
-    l.push_back(e1);
-    l.push_back(e2);
-
-    l.remove(e1, e2, 2u);
-    ASSERT_TRUE(e1_deleted);
-    ASSERT_TRUE(e2_deleted);
-    assertList(l, {});
-}
-
-
-TEST(intrusive_circular_list_test, release_single) {
-    list l;
-
-    auto e1_deleted = false;
-    auto e2_deleted = false;
-    auto e3_deleted = false;
-    auto e4_deleted = false;
-
-    element* e1 = new delete_tracking_element(e1_deleted);
-    element* e2 = new delete_tracking_element(e2_deleted);
-    element* e3 = new delete_tracking_element(e3_deleted);
-    element* e4 = new delete_tracking_element(e4_deleted);
-
-    l.push_back(e1);
-    l.push_back(e2);
-    l.push_back(e3);
-    l.push_back(e4);
-
-    // mid element
-    l.release(e2, e2, 1u);
-    ASSERT_FALSE(e1_deleted);
-    ASSERT_FALSE(e2_deleted);
-    ASSERT_FALSE(e3_deleted);
-    ASSERT_FALSE(e4_deleted);
-    assertList(l, { e3, e4, e1 }); // removal affects list head
-    assertLinks(e2, { e2 });
-
-    // front element
-    l.release(e3, e3, 1u);
-    ASSERT_FALSE(e1_deleted);
-    ASSERT_FALSE(e2_deleted);
-    ASSERT_FALSE(e3_deleted);
-    ASSERT_FALSE(e4_deleted);
-    assertList(l, { e4, e1 });
-    assertLinks(e3, { e3 }); // removal affects list head
-
-    // back element
-    l.release(e1, e1, 1u);
-    ASSERT_FALSE(e1_deleted);
-    ASSERT_FALSE(e2_deleted);
-    ASSERT_FALSE(e3_deleted);
-    ASSERT_FALSE(e4_deleted);
-    assertList(l, { e4 });
-    assertLinks(e1, { e1 });
-
-    // single element
-    l.release(e4, e4, 1u);
-    ASSERT_FALSE(e1_deleted);
-    ASSERT_FALSE(e2_deleted);
-    ASSERT_FALSE(e3_deleted);
-    ASSERT_FALSE(e4_deleted);
-    assertList(l, {});
-    assertLinks(e4, { e4 });
-}
-
-TEST(intrusive_circular_list_test, release_multiple) {
-    list l;
-
-    auto e1_deleted = false;
-    auto e2_deleted = false;
-    auto e3_deleted = false;
-    auto e4_deleted = false;
-
-    element* e1 = new delete_tracking_element(e1_deleted);
-    element* e2 = new delete_tracking_element(e2_deleted);
-    element* e3 = new delete_tracking_element(e3_deleted);
-    element* e4 = new delete_tracking_element(e4_deleted);
-
-    l.push_back(e1);
-    l.push_back(e2);
-    l.push_back(e3);
-    l.push_back(e4);
-
-    l.release(e4, e1, 2u);
-    ASSERT_FALSE(e1_deleted);
-    ASSERT_FALSE(e2_deleted);
-    ASSERT_FALSE(e3_deleted);
-    ASSERT_FALSE(e4_deleted);
-    assertList(l, { e2, e3 });
-    assertLinks(e4, { e4, e1 });
-}
-
-TEST(intrusive_circular_list_test, release_all) {
-    list l;
-
-    auto e1_deleted = false;
-    auto e2_deleted = false;
-
-    element* e1 = new delete_tracking_element(e1_deleted);
-    element* e2 = new delete_tracking_element(e2_deleted);
-
-    l.push_back(e1);
-    l.push_back(e2);
-
-    l.release(e1, e2, 2u);
-    ASSERT_FALSE(e1_deleted);
-    ASSERT_FALSE(e2_deleted);
-    assertList(l, {});
-    assertLinks(e1, { e1, e2 });
 }
 
 TEST(intrusive_circular_list_test, release) {
@@ -1807,7 +1974,7 @@ TEST(intrusive_circular_list_test, release) {
     l.release();
     ASSERT_FALSE(e1_deleted);
     ASSERT_FALSE(e2_deleted);
-    assertList(l, {});
+    assertList({}, l);
     assertLinks(e1, { e1, e2 });
 }
 
@@ -1815,7 +1982,7 @@ TEST(intrusive_circular_list_test, clear_empty_list) {
     list l;
 
     l.clear();
-    assertList(l, {});
+    assertList({}, l);
 }
 
 TEST(intrusive_circular_list_test, clear_with_items) {
@@ -1833,5 +2000,5 @@ TEST(intrusive_circular_list_test, clear_with_items) {
     l.clear();
     ASSERT_TRUE(e1_deleted);
     ASSERT_TRUE(e2_deleted);
-    assertList(l, {});
+    assertList({}, l);
 }

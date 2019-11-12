@@ -21,6 +21,7 @@
 #define TRENCHBROOM_INTRUSIVE_CIRCULAR_LIST_H
 
 #include <cstddef>
+#include <utility>
 
 /**
  * This structure contains the link information stored in list items.
@@ -171,7 +172,24 @@ public:
      */
     intrusive_circular_list() :
     m_head(nullptr),
-    m_size(0u) {}
+    m_size(0u) {
+        assert(check_invariant());
+    }
+
+    /**
+     * Creates a new list containing the items in the given initializer list. Each of the given items must be a self
+     * loop.
+     *
+     * @param items the items to insert into this list
+     */
+    intrusive_circular_list(std::initializer_list<T*> items) :
+    m_head(nullptr),
+    m_size(0u) {
+        for (T* item : items) {
+            push_back(item);
+        }
+        assert(check_invariant());
+    }
 
     /**
      * Destroys this list and its items.
@@ -322,27 +340,13 @@ public:
     }
 
     /**
-     * Appends the given item and all other items linked with it to this list.
+     * Inserts the given items into this list before the given position. If this list is empty, then the given position
+     * must be null, and the items are inserted at the front of this list.
      *
-     * @param items the first of the items to append
-     * @param count the total number of items to append
+     * @param position the position before which the items are inserted
+     * @param items the items to insert
+     * @param count the number of items to insert
      */
-    void append(T* items, const std::size_t count) {
-        assert(items != nullptr);
-        if (contains(items)) {
-            bool b = true;
-        }
-        assert(!contains(items));
-        assert(count > 0u);
-
-        if (empty()) {
-            m_head = items;
-            m_size = count;
-        } else {
-            insert_after(back(), items, count);
-        }
-    }
-
     void insert_before(T* position, T* items, const std::size_t count) {
         assert(items != nullptr);
         assert(empty() || contains(position));
@@ -357,6 +361,14 @@ public:
         }
     }
 
+    /**
+     * Inserts the given items into this list after the given position. If this list is empty, then the given position
+     * must be null, and the items are inserted at the front of this list.
+     *
+     * @param position the position after which the items are inserted
+     * @param items the items to insert
+     * @param count the number of items to insert
+     */
     void insert_after(T* position, T* items, std::size_t count) {
         assert(items != nullptr);
         assert(empty() || contains(position));
@@ -383,6 +395,16 @@ public:
         assert(check_invariant());
     }
 
+    /**
+     * Replaces the given items of this list with the given items.
+     *
+     * @param replace_first the first item of this list to replace
+     * @param replace_last the last item of this list to replace
+     * @param replace_count the number of items of this list to replace
+     * @param move_first the items to move into this list
+     * @param move_count the number of items to move into this list
+     * @return a list containing the replaced items
+     */
     intrusive_circular_list replace(T* replace_first, T* replace_last, const std::size_t replace_count,
                  T* move_first, const std::size_t move_count) {
         assert(replace_first != nullptr);
@@ -500,7 +522,7 @@ public:
     }
 
     /**
-     * Appends the items of the given list to the end of this list. Afterwards, the given list will be empty.
+     * Appends all items from the given list to the end of this list. Afterwards, the given list will be empty.
      *
      * @param list the list to append to this list
      */
@@ -531,6 +553,19 @@ public:
     }
 
     /**
+     * Moves items from the given list into this this list before its head item. If this list is empty, the items will
+     * be moved to the front of this list.
+     *
+     * @param list the list which the given items should be moved from
+     * @param first the first item to move into this list
+     * @param last the last item to move into this list
+     * @param count the number of items to move into this list
+     */
+    void splice_back(intrusive_circular_list& list, T* first, T* last, const std::size_t count) {
+        splice_before(front(), list, first, last, count);
+    }
+
+    /**
      * Moves items from the given list into this list before the given item of this list. The items will be removed
      * from the given list and inserted before the given item of this list. If the given position is null, then this list
      * must be empty and the given items will be added to it
@@ -541,7 +576,7 @@ public:
      * @param last the last item to move into this list
      * @param count the number of items to move into this list
      */
-    void splice_before(T* position, intrusive_circular_list& list, T* first, T* last, std::size_t count) {
+    void splice_before(T* position, intrusive_circular_list& list, T* first, T* last, const std::size_t count) {
         assert(empty() || position != nullptr);
         assert(empty() || contains(position));
 
@@ -564,7 +599,7 @@ public:
      * @param last the last item to moved into this list
      * @param count the number of items to moved into this list
      */
-    void splice_after(T* position, intrusive_circular_list& list, T* first, T* last, std::size_t count) {
+    void splice_after(T* position, intrusive_circular_list& list, T* first, T* last, const std::size_t count) {
         assert(empty() || position != nullptr);
         assert(empty() || contains(position));
         assert(first != nullptr);
