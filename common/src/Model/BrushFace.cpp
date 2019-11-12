@@ -554,12 +554,12 @@ namespace TrenchBroom {
             const auto texZAxis = m_texCoordSystem->fromMatrix(vm::vec2f::zero(), vm::vec2f::one()) * vm::vec3::pos_z();
             const auto worldToPlaneMatrix = vm::plane_projection_matrix(m_boundary.distance, m_boundary.normal, texZAxis);
             const auto [invertible, planeToWorldMatrix] = vm::invert(worldToPlaneMatrix); assert(invertible); unused(invertible);
-            return planeToWorldMatrix * vm::mat4x4::zero() * worldToPlaneMatrix;
+            return planeToWorldMatrix * vm::mat4x4::zero_out<2>() * worldToPlaneMatrix;
         }
 
         vm::mat4x4 BrushFace::toTexCoordSystemMatrix(const vm::vec2f& offset, const vm::vec2f& scale, const bool project) const {
             if (project) {
-                return vm::mat4x4::zero() * m_texCoordSystem->toMatrix(offset, scale);
+                return vm::mat4x4::zero_out<2>() * m_texCoordSystem->toMatrix(offset, scale);
             } else {
                 return m_texCoordSystem->toMatrix(offset, scale);
             }

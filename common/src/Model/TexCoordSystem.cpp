@@ -99,7 +99,7 @@ namespace TrenchBroom {
         void TexCoordSystem::moveTexture(const vm::vec3& normal, const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset, BrushFaceAttributes& attribs) const {
             const auto toPlane = vm::plane_projection_matrix(0.0, normal);
             const auto [invertible, fromPlane] = invert(toPlane);
-            const auto transform = fromPlane * vm::mat4x4::zero() * toPlane;
+            const auto transform = fromPlane * vm::mat4x4::zero_out<2>() * toPlane;
             const auto texX = normalize(transform * getXAxis());
             const auto texY = normalize(transform * getYAxis());
             assert(invertible); unused(invertible);
