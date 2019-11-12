@@ -60,18 +60,8 @@ namespace TrenchBroom {
             explicit EntityAttributeGrid(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~EntityAttributeGrid() override;
         private:
-//            void OnAttributeGridSize(wxSizeEvent& event);
-//            void OnAttributeGridSelectCell(wxGridEvent& event);
-//            void OnAttributeGridTab(wxGridEvent& event);
-        public:
-//            void tabNavigate(int row, int col, bool forward);
-        private:
-//            void moveCursorTo(int row, int col);
-//            void fireSelectionEvent(int row, int col);
-        private:
             void addAttribute();
             void removeSelectedAttributes();
-            void removeAttribute(const String& key);
 
             bool canRemoveSelectedAttributes() const;
             std::set<int> selectedRowsAndCursorRow() const;

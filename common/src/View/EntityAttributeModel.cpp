@@ -653,38 +653,6 @@ namespace TrenchBroom {
             return InsertRow(m_rows.size());
         }
 
-        bool EntityAttributeModel::DeleteRows(const size_t pos, size_t numRows) {
-            if (pos >= m_rows.size())
-                return false;
-
-            // FIXME: dangerous use of size_t, convert all of this to int
-            numRows = std::min(m_rows.size() - pos, numRows);
-            ensure(pos + numRows <= m_rows.size(), "row range exceeds row count");
-
-            MapDocumentSPtr document = lock(m_document);
-
-            const Model::AttributableNodeList attributables = document->allSelectedAttributableNodes();
-            ensure(!attributables.empty(), "no attributable nodes selected");
-
-            const StringList names = attributeNames(static_cast<int>(pos), static_cast<int>(numRows));
-            ensure(names.size() == numRows, "invalid number of row names");
-
-            {
-                Transaction transaction(document, StringUtils::safePlural(numRows, "Remove Attribute", "Remove Attributes"));
-
-                bool success = true;
-                for (size_t i = 0; i < numRows && success; i++)
-                    success = document->removeAttribute(names[i]);
-
-                if (!success) {
-                    transaction.rollback();
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         int EntityAttributeModel::rowForName(const Model::AttributeName& name) const {
             for (size_t i = 0; i < m_rows.size(); ++i) {
                 if (m_rows[i].name() == name) {
