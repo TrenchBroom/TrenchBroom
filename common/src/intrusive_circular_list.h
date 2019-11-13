@@ -637,7 +637,7 @@ private: // helpers
             m_size += count;
         }
     }
-private: // invariants and checks
+private: // invariant
     bool check_invariant() {
         if (m_head == nullptr) {
             return m_size == 0u;
