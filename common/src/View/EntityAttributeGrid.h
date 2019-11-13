@@ -52,10 +52,6 @@ namespace TrenchBroom {
             QAbstractButton* m_addAttributeButton;
             QAbstractButton* m_removePropertiesButton;
             QCheckBox* m_showDefaultPropertiesCheckBox;
-
-            QShortcut* m_insertRowShortcut;
-            QShortcut* m_removeRowShortcut;
-            QShortcut* m_removeRowAlternateShortcut;
         public:
             explicit EntityAttributeGrid(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~EntityAttributeGrid() override;
@@ -67,8 +63,6 @@ namespace TrenchBroom {
             std::set<int> selectedRowsAndCursorRow() const;
         private:
             void createGui(MapDocumentWPtr document);
-            void createShortcuts();
-            void updateShortcuts();
 
             void bindObservers();
             void unbindObservers();

@@ -46,8 +46,6 @@ namespace TrenchBroom {
         QWidget(parent),
         m_document(document) {
             createGui(document);
-            createShortcuts();
-            updateShortcuts();
             bindObservers();
         }
 
@@ -189,6 +187,13 @@ namespace TrenchBroom {
             });
             m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
 
+            connect(m_table, &EntityAttributeTable::addRowShortcutTriggered, this, [=](){
+                addAttribute();
+            });
+            connect(m_table, &EntityAttributeTable::removeRowsShortcutTriggered, this, [=](){
+                removeSelectedAttributes();
+            });
+
             connect(m_table->selectionModel(), &QItemSelectionModel::currentChanged, this, [=](const QModelIndex& current, const QModelIndex& previous){
                 qDebug() << "current changed form " << previous << " to " << current;
                 emit selectedRow();
@@ -211,32 +216,6 @@ namespace TrenchBroom {
             setLayout(layout);
 
             m_table->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked | QAbstractItemView::AnyKeyPressed);
-        }
-
-        void EntityAttributeGrid::createShortcuts() {
-            m_insertRowShortcut = new QShortcut(QKeySequence("Ctrl-Return"), this);
-            m_insertRowShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-            connect(m_insertRowShortcut, &QShortcut::activated, this, [=](){
-                addAttribute();
-            });
-
-            m_removeRowShortcut = new QShortcut(QKeySequence("Delete"), this);
-            m_removeRowShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-            connect(m_removeRowShortcut, &QShortcut::activated, this, [=](){
-                removeSelectedAttributes();
-            });
-
-            m_removeRowAlternateShortcut = new QShortcut(QKeySequence("Backspace"), this);
-            m_removeRowAlternateShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-            connect(m_removeRowAlternateShortcut, &QShortcut::activated, this, [=](){
-                removeSelectedAttributes();
-            });
-       }
-
-       void EntityAttributeGrid::updateShortcuts() {
-           m_insertRowShortcut->setEnabled(true);
-           m_removeRowShortcut->setEnabled(canRemoveSelectedAttributes());
-           m_removeRowAlternateShortcut->setEnabled(canRemoveSelectedAttributes());
         }
 
         void EntityAttributeGrid::bindObservers() {
@@ -292,9 +271,6 @@ namespace TrenchBroom {
             m_addAttributeButton->setEnabled(!nodes.empty());
             m_removePropertiesButton->setEnabled(!nodes.empty() && canRemoveSelectedAttributes());
             m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
-
-            // Update shortcuts
-            updateShortcuts();
         }
 
         Model::AttributeName EntityAttributeGrid::selectedRowName() const {

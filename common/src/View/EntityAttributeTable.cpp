@@ -31,24 +31,52 @@ namespace TrenchBroom {
             closeEditor(editor, QAbstractItemDelegate::EditNextItem);
         }
 
+        static bool isInsertRowShortcut(QKeyEvent* event) {
+            return event->key() == Qt::Key_Return && event->modifiers() == Qt::CTRL;
+        }
+
+        static bool isRemoveRowsShortcut(QKeyEvent* event) {
+            return (event->key() == Qt::Key_Delete && event->modifiers() == 0)
+                || (event->key() == Qt::Key_Backspace && event->modifiers() == 0);
+        }
+
         bool EntityAttributeTable::event(QEvent *event) {
             if (event->type() == QEvent::ShortcutOverride) {
                 QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 
+                // Accepting a QEvent::ShortcutOverride suppresses QShortcut/QAction from being triggered
+                // and causes a normal key press to be delivered to the focused widget.
+
+                // This is necessary so e.g. pressing U (UV lock menu item) types a U character into the
+                // current row, rather than activating the UV lock menu shortcut.
                 if (keyEvent->key() < Qt::Key_Escape &&
                     (keyEvent->modifiers() == Qt::NoModifier || keyEvent->modifiers() == Qt::KeypadModifier)) {
-                    qDebug("overriding shortcut key %d\n", keyEvent->key());
                     event->setAccepted(true);
                     return true;
-                } else {
-                    qDebug("not overriding shortcut key %d\n", keyEvent->key());
                 }
 
+                // These insert/remove row shortcut are handled here so they take precedence
+                // over the Delete menu action for deleting brushes.
+                if (isInsertRowShortcut(keyEvent) || isRemoveRowsShortcut(keyEvent)) {
+                    event->setAccepted(true);
+                    return true;
+                }
+
+                qDebug("not overriding shortcut key %d\n", keyEvent->key());
             }
             return QTableView::event(event);
         }
 
         void EntityAttributeTable::keyPressEvent(QKeyEvent* event) {
+            if (isInsertRowShortcut(event)) {
+                emit addRowShortcutTriggered();
+                return;
+            }
+            if (isRemoveRowsShortcut(event)) {
+                emit removeRowsShortcutTriggered();
+                return;
+            }
+
             // Set up Qt::Key_Return to open the editor. Doing this binding via a QShortcut makes it so you can't close
             // an open editor, so do it this way.
             if (event->key() == Qt::Key_Return
