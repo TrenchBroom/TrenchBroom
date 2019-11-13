@@ -642,8 +642,6 @@ private: // invariants and checks
         if (m_head == nullptr) {
             return m_size == 0u;
         } else {
-            const auto get_link = GetLink();
-
             std::size_t count = 0u;
             auto cur = m_head;
             do {
