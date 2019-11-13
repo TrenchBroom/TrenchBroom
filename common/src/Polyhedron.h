@@ -269,8 +269,8 @@ public:
 
         template <typename H>
         HalfEdgeList replaceBoundary(HalfEdge* from, HalfEdge* to, H&& with);
-        size_t countAndSetFace(HalfEdge* from, HalfEdge* until, Face* face);
-        size_t countAndUnsetFace(HalfEdge* from, HalfEdge* until);
+        size_t countAndSetFace(HalfEdge* from, HalfEdge* to, Face* face);
+        size_t countAndUnsetFace(HalfEdge* from, HalfEdge* to);
         void setBoundaryFaces();
         void unsetBoundaryFaces();
         void removeBoundaryFromEdges();

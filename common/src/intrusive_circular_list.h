@@ -296,6 +296,28 @@ public:
     }
 
     /**
+     * Returns an iterator for the given item. The returned iterator can be used to iterate all items in the list,
+     * starting at the given item.
+     *
+     * @param item the item for which an iterator should be returned
+     * @return the iterator
+     */
+    static iterator iter(T* item) {
+        return iterator(item);
+    }
+
+    /**
+     * Returns aconst iterator for the given item. The returned iterator can be used to iterate all items in the list,
+     * starting at the given item.
+     *
+     * @param item the item for which an iterator should be returned
+     * @return the iterator
+     */
+    static const_iterator iter(const T* item) {
+        return const_iterator(item);
+    }
+
+    /**
      * Indicates whether the given item is contained in this list.
      *
      * @param item the item to check, which must not be null
@@ -333,7 +355,7 @@ public:
             m_head = item;
             m_size = 1u;
         } else {
-            insert_after(back(), item, 1u);
+            insert_before(begin(), item, 1u);
         }
 
         assert(check_invariant());
@@ -346,47 +368,39 @@ public:
      * @return a list containing the removed item
      */
     intrusive_circular_list remove(T* item) {
-        return remove(item, item, 1u);
+        return remove(iter(item), std::next(iter(item)), 1u);
     }
 
     /**
-     * Removes the given items from this list and returns a list containing the removed nodes. If this list is not empty
-     * after removal of the given nodes, then the successor of the given last node becomes the head of this list.
+     * Removes the items in the range [first, last) from this list and returns a list containing the removed items.
      *
-     * @param first the first item to remove
-     * @param last the liast item to remove
+     * @param first, last the range of items to remove
      * @param count the number of items to remove
      * @return a list containing the removed nodes
      */
-    intrusive_circular_list remove(T* first, T* last, std::size_t count) {
-        assert(first != nullptr);
-        assert(last != nullptr);
-        assert(contains(first));
-        assert(contains(last));
+    intrusive_circular_list remove(iterator first, iterator last, const std::size_t count) {
+        assert(contains(*first));
+        assert(last == end() || contains(*last));
         assert(count > 0u);
         assert(count <= size());
         assert(check_invariant());
 
         intrusive_circular_list result;
-        result.splice_after(nullptr, *this, first, last, count);
+        result.splice_back(*this, first, last, count);
 
         assert(check_invariant());
         return result;
     }
 
     /**
-     * Removes the given items from this list without deleting them. If the list is not empty after
-     * removal of the given nodes, then the predecessor of the given first node becomes the head of this list.
+     * Removes the in the range [first, last) from this list without deleting them.
      *
-     * @param first the first item to remove
-     * @param last the last item to remove
-     * @param count the number of items to remove
+     * @param first, last the range of items to release
+     * @param count the number of items to release
      */
-    void release(T* first, T* last, std::size_t count) {
-        assert(first != nullptr);
-        assert(last != nullptr);
-        assert(contains(first));
-        assert(contains(last));
+    void release(iterator first, iterator last, const std::size_t count) {
+        assert(contains(*first));
+        assert(last == end() || contains(*last));
         assert(count > 0u);
         assert(count <= size());
         assert(check_invariant());
@@ -395,10 +409,10 @@ public:
             m_head = nullptr;
             m_size = 0u;
         } else {
-            auto previous = get_previous(first);
-            auto next = get_next(last);
+            auto previous = get_previous(*first);
+            auto next = last == end() ? front() : *last;
 
-            connect(last, first);
+            connect(get_previous(next), *first);
             connect(previous, next);
 
             m_size -= count;
@@ -429,6 +443,7 @@ public:
     void reverse() {
         assert(check_invariant());
         if (!empty()) {
+            m_head = get_previous(m_head);
             auto cur = m_head;
             do {
                 auto& cur_link = get_link(cur);
@@ -441,18 +456,18 @@ public:
     }
 
     /**
-     * Appends all items from the given list to the end of this list. Afterwards, the given list will be empty.
+     * Moves all items from the given list to the end of this list. Afterwards, the given list will be empty.
      *
      * @tparam L the type of the list to append
      * @param list the list to append to this list
      */
     template <typename L>
     void append(L&& list) {
-        insert_after(back(), std::forward<L>(list));
+        insert(end(), std::forward<L>(list));
     }
 
     /**
-     * Inserts all items from the given list before the given item of this list. Afterwards, the given list will be
+     * Moves all items from the given list before the given item of this list. Afterwards, the given list will be
      * empty.
      *
      * @tparam L the type of the list to insert
@@ -460,21 +475,8 @@ public:
      * @param list the list to insert into this list
      */
     template <typename L>
-    void insert_before(T* position, L&& list) {
-        splice_before(position, list, list.front(), list.back(), list.size());
-    }
-
-    /**
-     * Inserts all items from the given list after the given item of this list. Afterwards, the given list will be
-     * empty.
-     *
-     * @tparam L the type of the list to insert
-     * @param position the item after which the items of the given list should be inserted
-     * @param list the list to insert into this list
-     */
-    template <typename L>
-    void insert_after(T* position, L&& list) {
-        splice_after(position, std::forward<L>(list), list.front(), list.back(), list.size());
+    void insert(iterator position, L&& list) {
+        splice(position, list, std::begin(list), std::end(list), list.size());
     }
 
     /**
@@ -483,101 +485,84 @@ public:
      *
      * @tparam L the type of the list to splice from
      * @param list the list which the given items should be moved from
-     * @param first the first item to move into this list
-     * @param last the last item to move into this list
+     * @param first, last the range of items to move into this list
      * @param count the number of items to move into this list
      */
     template <typename L>
-    void splice_back(L&& list, T* first, T* last, const std::size_t count) {
-        splice_before(front(), std::forward<L>(list), first, last, count);
+    void splice_back(L&& list, iterator first, iterator last, const std::size_t count) {
+        splice(begin(), std::forward<L>(list), first, last, count);
     }
 
     /**
      * Moves items from the given list into this list before the given item of this list. The items will be removed
-     * from the given list and inserted before the given item of this list. If the given position is null, then this list
-     * must be empty and the given items will be added to it
+     * from the given list and inserted before the given item of this list.
      *
      * @tparam L the type of the list to splice from
      * @param position the item before which the items of the given list should be inserted, or null if this list is empty
      * @param list the list which the given items should be moved from
-     * @param first the first item to move into this list
-     * @param last the last item to move into this list
+     * @param list, last the range of items to move into this list
      * @param count the number of items to move into this list
      */
     template <typename L>
-    void splice_before(T* position, L&& list, T* first, T* last, const std::size_t count) {
-        assert(empty() || position != nullptr);
-        assert(empty() || contains(position));
+    void splice(iterator position, L&& list, iterator first, iterator last, const std::size_t count) {
+        assert(!empty() || position == end());
+        assert(position == end() || contains(*position));
 
+        list.release(first, last, count);
         if (empty()) {
-            splice_after(position, std::forward<L>(list), first, last, count);
+            m_head = *first;
+            m_size = count;
         } else {
-            splice_after(get_previous(position), std::forward<L>(list), first, last, count);
+            insert_before(position, *first, count);
         }
     }
 
-
     /**
-     * Moves items from the given list into this list after the given item of this list. The items will be removed
-     * from the given list and inserted after the given item of this list. If the given position is null, then this list
-     * must be empty and the given items will be added to it.
+     * Replaces the items in the range [first, last) from this list and inserts all items from the given list before
+     * the given last item.
      *
-     * @tparam L the type of the list to splice from
-     * @param position the item after which the items of the given list should be inserted, or null if this list is empty
-     * @param list the list which the given items should be moved from
-     * @param first the first item to moved into this list
-     * @param last the last item to moved into this list
-     * @param count the number of items to moved into this list
+     * @tparam L the type of the list to move items from
+     * @param replace_first, replace_last the range of items to replace
+     * @param replace_count the number of items to replace
+     * @param list the list to move items from
+     * @return a list containing the replaced items
      */
     template <typename L>
-    void splice_after(T* position, L&& list, T* first, T* last, const std::size_t count) {
-        assert(empty() || position != nullptr);
-        assert(empty() || contains(position));
-        assert(first != nullptr);
-        assert(last != nullptr);
-        assert(check_invariant());
-
-        list.release(first, last, count);
-        insert_after(position, first, count);
-
-        assert(check_invariant());
-    }
-
-    template <typename L>
-    intrusive_circular_list splice_replace(T* replace_first, T* replace_last, const std::size_t replace_count, L&& list) {
-        return splice_replace(replace_first, replace_last, replace_count, list, list.front(), list.back(), list.size());
+    intrusive_circular_list splice_replace(iterator replace_first, iterator replace_last, const std::size_t replace_count, L&& list) {
+        return splice_replace(replace_first, replace_last, replace_count, list, std::begin(list), std::end(list), list.size());
     }
 
     /**
-     * Moves items from the given list into this list, replacing the given items of this list.
+     * Moves items in the range [move_first, move_last) from the given list into this list, replacing the items in range
+     * [replace_first, replace_last) of this list.
      *
      * @tparam L the type of the list to splice from
-     * @param replace_first the first item of this list to be replaced, must not be null
-     * @param replace_last the last item of this list to be replaced, must not be null
+     * @param replace_first, replace_last the range of items to replace
      * @param replace_count the number of items of this list to replace
      * @param list the list which the given items should be moved from
-     * @param move_first the first item to move into this list, must not be null
-     * @param move_last the last item to move into this list, must not be null
+     * @param move_first, move_last the range of items to move into this list
      * @param move_count the number of items to move into this list
      */
     template <typename L>
     intrusive_circular_list splice_replace(
-        T* replace_first, T* replace_last, const std::size_t replace_count,
-        L&& list, T* move_first, T* move_last, const std::size_t move_count) {
+        iterator replace_first, iterator replace_last, const std::size_t replace_count,
+        L&& list, iterator move_first, iterator move_last, const std::size_t move_count) {
 
-        assert(replace_first != nullptr);
-        assert(replace_last != nullptr);
-        assert(contains(replace_first));
-        assert(contains(replace_last));
+        assert(empty() || contains(*replace_first));
+        assert(replace_last == end() || contains(*replace_last));
         assert(replace_count > 0u);
         assert(replace_count <= size());
-        assert(move_first != nullptr);
-        assert(move_last != nullptr);
         assert(move_count > 0u);
         assert(move_count <= list.size());
 
-        splice_after(replace_last, std::forward<L>(list), move_first, move_last, move_count);
-        return remove(replace_first, replace_last, replace_count);
+        auto insert_position = replace_last;
+        auto result = remove(replace_first, replace_last, replace_count);
+        if (empty()) {
+            insert_position = end();
+        }
+
+        splice(insert_position, std::forward<L>(list), move_first, move_last, move_count);
+        return result;
     }
 
     /**
@@ -628,19 +613,19 @@ private: // helpers
     }
 
     /**
-     * Inserts the given items into this list after the given position. If this list is empty, then the given position
-     * must be null, and the items are inserted at the front of this list.
+     * Inserts the given items into this list before the given position. If this list is empty, then the items are
+     * inserted at the front of this list.
      *
-     * @param position the position after which the items are inserted
+     * @param position the position before which the items are inserted
      * @param items the items to insert
      * @param count the number of items to insert
      */
-    void insert_after(T* position, T* items, std::size_t count) {
+    void insert_before(iterator position, T* items, std::size_t count) {
         if (empty()) {
             m_head = items;
             m_size = count;
         } else {
-            auto previous = position;
+            auto previous = position == end() ? back() : get_previous(*position);
             auto next = get_next(previous);
 
             auto first = items;
@@ -662,8 +647,8 @@ private: // invariants and checks
             std::size_t count = 0u;
             auto cur = m_head;
             do {
-                auto next = get_link(cur).next();
-                if (get_link(next).previous() != cur) {
+                auto next = get_next(cur);
+                if (get_previous(next) != cur) {
                     return false;
                 }
                 ++count;

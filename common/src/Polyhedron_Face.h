@@ -336,15 +336,8 @@ void Polyhedron<T,FP,VP>::Face::insertIntoBoundaryAfter(HalfEdge* after, H&& edg
     ensure(after != nullptr, "after is null");
     assert(after->face() == this);
 
-    HalfEdge* firstEdge = edges.front();
-    HalfEdge* curEdge = firstEdge;
-    do {
-        assert(curEdge->face() == nullptr);
-        curEdge->setFace(this);
-        curEdge = curEdge->next();
-    } while (curEdge != firstEdge);
-
-    m_boundary.insert_after(after, std::forward<H>(edges));
+    countAndSetFace(edges.front(), edges.back(), this);
+    m_boundary.insert(HalfEdgeList::iter(after->next()), std::forward<H>(edges));
 }
 
 template <typename T, typename FP, typename VP>
@@ -354,8 +347,8 @@ typename Polyhedron<T,FP,VP>::HalfEdgeList Polyhedron<T,FP,VP>::Face::removeFrom
     assert(from->face() == this);
     assert(to->face() == this);
 
-    const auto removeCount = countAndUnsetFace(from, to->next());
-    return m_boundary.remove(from, to, removeCount);
+    const auto removeCount = countAndUnsetFace(from, to);
+    return m_boundary.remove(HalfEdgeList::iter(from), std::next(HalfEdgeList::iter(to)), removeCount);
 }
 
 template <typename T, typename FP, typename VP>
@@ -370,33 +363,32 @@ typename Polyhedron<T,FP,VP>::HalfEdgeList Polyhedron<T,FP,VP>::Face::replaceBou
     assert(from->face() == this);
     assert(to->face() == this);
 
-    // FIXME: to->next() cannot be right, it should be to?
-    const auto removeCount = countAndUnsetFace(from, to->next());
+    const auto removeCount = countAndUnsetFace(from, to);
     countAndSetFace(with.front(), with.back(), this);
-    return m_boundary.splice_replace(from, to, removeCount, std::forward<H>(with));
+    return m_boundary.splice_replace(HalfEdgeList::iter(from), std::next(HalfEdgeList::iter(to)), removeCount, std::forward<H>(with));
 }
 
 template <typename T, typename FP, typename VP>
-size_t Polyhedron<T,FP,VP>::Face::countAndSetFace(HalfEdge* from, HalfEdge* until, Face* face) {
+size_t Polyhedron<T,FP,VP>::Face::countAndSetFace(HalfEdge* from, HalfEdge* to, Face* face) {
     size_t count = 0u;
     auto* cur = from;
     do {
         cur->setFace(face);
         cur = cur->next();
         ++count;
-    } while (cur != until);
+    } while (cur != to->next());
     return count;
 }
 
 template <typename T, typename FP, typename VP>
-size_t Polyhedron<T,FP,VP>::Face::countAndUnsetFace(HalfEdge* from, HalfEdge* until) {
+size_t Polyhedron<T,FP,VP>::Face::countAndUnsetFace(HalfEdge* from, HalfEdge* to) {
     size_t count = 0u;
     auto* cur = from;
     do {
         cur->unsetFace();
         cur = cur->next();
         ++count;
-    } while (cur != until);
+    } while (cur != to->next());
     return count;
 }
 

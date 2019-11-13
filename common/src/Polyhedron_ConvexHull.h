@@ -657,7 +657,7 @@ void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Ve
             // We expect that the vertices on the seam have had a remaining edge
             // set as their leaving edge before the call to this function.
             callback.vertexWillBeDeleted(origin);
-            verticesToDelete.splice_back(m_vertices, origin, origin, 1u);
+            verticesToDelete.splice_back(m_vertices, VertexList::iter(origin), std::next(VertexList::iter(origin)), 1u);
         }
         current = current->next();
     } while (current != first);
