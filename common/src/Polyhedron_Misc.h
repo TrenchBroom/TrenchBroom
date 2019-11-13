@@ -1290,10 +1290,9 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdg
 
     HalfEdgeList edgesToRemove = face->removeFromBoundary(borderFirst, borderLast);
     HalfEdgeList remainingEdges = face->removeFromBoundary(remainingFirst, remainingLast);
-    remainingEdges.release(); // we don' want to delete the remaining edges
 
     // the replaced twin edges are deleted
-    neighbour->replaceBoundary(twinFirst, twinLast, remainingFirst);
+    neighbour->replaceBoundary(twinFirst, twinLast, std::move(remainingEdges));
 
     // now delete any remaining vertices and edges
     // edgesToRemove are deleted when the container falls out of scope

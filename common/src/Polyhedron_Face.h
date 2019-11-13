@@ -331,15 +331,20 @@ void Polyhedron<T,FP,VP>::Face::flip() {
     m_boundary.reverse();
 }
 
-template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Face::insertIntoBoundaryAfter(HalfEdge* after, HalfEdge* edge) {
+template <typename T, typename FP, typename VP> template <typename H>
+void Polyhedron<T,FP,VP>::Face::insertIntoBoundaryAfter(HalfEdge* after, H&& edges) {
     ensure(after != nullptr, "after is null");
-    ensure(edge != nullptr, "edge is null");
     assert(after->face() == this);
-    assert(edge->face() == nullptr);
 
-    edge->setFace(this);
-    m_boundary.insert_after(after, edge, 1u);
+    HalfEdge* firstEdge = edges.front();
+    HalfEdge* curEdge = firstEdge;
+    do {
+        assert(curEdge->face() == nullptr);
+        curEdge->setFace(this);
+        curEdge = curEdge->next();
+    } while (curEdge != firstEdge);
+
+    m_boundary.insert_after(after, std::forward<H>(edges));
 }
 
 template <typename T, typename FP, typename VP>
@@ -358,23 +363,22 @@ typename Polyhedron<T,FP,VP>::HalfEdgeList Polyhedron<T,FP,VP>::Face::removeFrom
     return removeFromBoundary(edge, edge);
 }
 
-template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::HalfEdgeList Polyhedron<T,FP,VP>::Face::replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with) {
+template <typename T, typename FP, typename VP> template <typename H>
+typename Polyhedron<T,FP,VP>::HalfEdgeList Polyhedron<T,FP,VP>::Face::replaceBoundary(HalfEdge* from, HalfEdge* to, H&& with) {
     ensure(from != nullptr, "from is null");
     ensure(to != nullptr, "to is null");
-    ensure(with != nullptr, "with is null");
     assert(from->face() == this);
     assert(to->face() == this);
-    assert(with->face() == nullptr);
 
+    // FIXME: to->next() cannot be right, it should be to?
     const auto removeCount = countAndUnsetFace(from, to->next());
-    const auto insertCount = countAndSetFace(with, with, this);
-    return m_boundary.replace(from, to, removeCount, with, insertCount);
+    countAndSetFace(with.front(), with.back(), this);
+    return m_boundary.splice_replace(from, to, removeCount, std::forward<H>(with));
 }
 
 template <typename T, typename FP, typename VP>
 size_t Polyhedron<T,FP,VP>::Face::countAndSetFace(HalfEdge* from, HalfEdge* until, Face* face) {
-    size_t count = 0;
+    size_t count = 0u;
     auto* cur = from;
     do {
         cur->setFace(face);
@@ -386,7 +390,7 @@ size_t Polyhedron<T,FP,VP>::Face::countAndSetFace(HalfEdge* from, HalfEdge* unti
 
 template <typename T, typename FP, typename VP>
 size_t Polyhedron<T,FP,VP>::Face::countAndUnsetFace(HalfEdge* from, HalfEdge* until) {
-    size_t count = 0;
+    size_t count = 0u;
     auto* cur = from;
     do {
         cur->unsetFace();

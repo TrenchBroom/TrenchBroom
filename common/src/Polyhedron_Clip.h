@@ -332,8 +332,8 @@ void Polyhedron<T,FP,VP>::intersectWithPlane(HalfEdge* oldBoundaryFirst, HalfEdg
     HalfEdge* newBoundarySplitter = new HalfEdge(oldBoundaryFirst->origin());
 
     Face* oldFace = oldBoundaryFirst->face();
-    oldFace->insertIntoBoundaryAfter(newBoundaryLast, newBoundarySplitter);
-    HalfEdgeList newBoundary = oldFace->replaceBoundary(newBoundaryFirst, newBoundarySplitter, oldBoundarySplitter);
+    oldFace->insertIntoBoundaryAfter(newBoundaryLast, HalfEdgeList({ newBoundarySplitter }));
+    HalfEdgeList newBoundary = oldFace->replaceBoundary(newBoundaryFirst, newBoundarySplitter, HalfEdgeList({ oldBoundarySplitter }));
 
     Face* newFace = new Face(std::move(newBoundary));
     Edge* newEdge = new Edge(oldBoundarySplitter, newBoundarySplitter);

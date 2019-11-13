@@ -260,10 +260,15 @@ public:
         bool coplanar(const Face* other) const;
         bool verticesOnPlane(const vm::plane<T,3>& plane) const;
         void flip();
-        void insertIntoBoundaryAfter(HalfEdge* after, HalfEdge* edge);
+
+        template <typename H>
+        void insertIntoBoundaryAfter(HalfEdge* after, H&& edges);
+
         HalfEdgeList removeFromBoundary(HalfEdge* from, HalfEdge* to);
         HalfEdgeList removeFromBoundary(HalfEdge* edge);
-        HalfEdgeList replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with);
+
+        template <typename H>
+        HalfEdgeList replaceBoundary(HalfEdge* from, HalfEdge* to, H&& with);
         size_t countAndSetFace(HalfEdge* from, HalfEdge* until, Face* face);
         size_t countAndUnsetFace(HalfEdge* from, HalfEdge* until);
         void setBoundaryFaces();

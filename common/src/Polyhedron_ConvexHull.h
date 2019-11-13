@@ -436,8 +436,8 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
     HalfEdge* h1 = new HalfEdge(firstVisibleEdge->origin());
     HalfEdge* h2 = new HalfEdge(newVertex);
 
-    face->insertIntoBoundaryAfter(lastVisibleEdge, h1);
-    face->insertIntoBoundaryAfter(h1, h2);
+    face->insertIntoBoundaryAfter(lastVisibleEdge, HalfEdgeList({ h1 }));
+    face->insertIntoBoundaryAfter(h1, HalfEdgeList({ h2 }));
     HalfEdgeList visibleEdges = face->removeFromBoundary(firstVisibleEdge, lastVisibleEdge);
 
     h1->setAsLeaving();

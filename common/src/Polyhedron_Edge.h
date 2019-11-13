@@ -246,6 +246,7 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::insertVertex(cons
      */
 
     // create new vertices and new half edges originating from it
+    // the caller is responsible for storing the newly created vertex!
     Vertex* newVertex = new Vertex(position);
     HalfEdge* newFirstEdge = new HalfEdge(newVertex);
     HalfEdge* oldFirstEdge = firstEdge();
@@ -253,8 +254,8 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::insertVertex(cons
     HalfEdge* oldSecondEdge = secondEdge();
 
     // insert the new half edges into the corresponding faces
-    firstFace()->insertIntoBoundaryAfter(oldFirstEdge, newFirstEdge);
-    secondFace()->insertIntoBoundaryAfter(oldSecondEdge, newSecondEdge);
+    firstFace()->insertIntoBoundaryAfter(oldFirstEdge, HalfEdgeList({ newFirstEdge }));
+    secondFace()->insertIntoBoundaryAfter(oldSecondEdge, HalfEdgeList({ newSecondEdge }));
 
     // make old1st the leaving edge of its origin vertex
     setFirstAsLeaving();
