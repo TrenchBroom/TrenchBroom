@@ -39,7 +39,7 @@
 #include "View/WelcomeWindow.h"
 #include "View/GetVersion.h"
 #include "View/MapViewBase.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 #include "StringUtils.h"
 #ifdef __APPLE__
 #include "View/MainMenuBuilder.h"

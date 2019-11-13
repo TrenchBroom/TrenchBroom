@@ -36,7 +36,7 @@
 #include "View/SpinControl.h"
 #include "View/UVEditor.h"
 #include "View/ViewUtils.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QtGlobal>
 #include <QLabel>

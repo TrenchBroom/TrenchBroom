@@ -29,6 +29,7 @@ class QTableView;
 class QCheckBox;
 class QAbstractButton;
 class QShortcut;
+class QSortFilterProxyModel;
 
 namespace TrenchBroom {
     namespace View {
@@ -46,37 +47,22 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
 
             EntityAttributeModel* m_model;
+            QSortFilterProxyModel* m_proxyModel;
             EntityAttributeTable* m_table;
             QAbstractButton* m_addAttributeButton;
             QAbstractButton* m_removePropertiesButton;
             QCheckBox* m_showDefaultPropertiesCheckBox;
-
-            QShortcut* m_insertRowShortcut;
-            QShortcut* m_removeRowShortcut;
-            QShortcut* m_removeRowAlternateShortcut;
         public:
             explicit EntityAttributeGrid(MapDocumentWPtr document, QWidget* parent = nullptr);
             ~EntityAttributeGrid() override;
         private:
-//            void OnAttributeGridSize(wxSizeEvent& event);
-//            void OnAttributeGridSelectCell(wxGridEvent& event);
-//            void OnAttributeGridTab(wxGridEvent& event);
-        public:
-//            void tabNavigate(int row, int col, bool forward);
-        private:
-//            void moveCursorTo(int row, int col);
-//            void fireSelectionEvent(int row, int col);
-        private:
             void addAttribute();
             void removeSelectedAttributes();
-            void removeAttribute(const String& key);
 
             bool canRemoveSelectedAttributes() const;
             std::set<int> selectedRowsAndCursorRow() const;
         private:
             void createGui(MapDocumentWPtr document);
-            void createShortcuts();
-            void updateShortcuts();
 
             void bindObservers();
             void unbindObservers();

@@ -27,7 +27,7 @@
 #include "View/MultiCompletionLineEdit.h"
 #include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QAbstractButton>
 #include <QCompleter>

@@ -23,7 +23,7 @@
 #include "Model/GameEngineConfig.h"
 #include "Model/GameEngineProfile.h"
 #include "View/ElidedLabel.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QBoxLayout>
 

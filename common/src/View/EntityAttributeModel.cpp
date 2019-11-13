@@ -29,7 +29,7 @@
 #include "Model/World.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <iterator>
 #include <optional-lite/optional.hpp>
@@ -491,16 +491,20 @@ namespace TrenchBroom {
         }
 
         Qt::ItemFlags EntityAttributeModel::flags(const QModelIndex &index) const {
-            const AttributeRow& issue = m_rows.at(static_cast<size_t>(index.row()));
+            if (!index.isValid()) {
+                return Qt::NoItemFlags;
+            }
+
+            const AttributeRow& row = m_rows.at(static_cast<size_t>(index.row()));
 
             Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
             if (index.column() == 0) {
-                if (issue.nameMutable()) {
+                if (row.nameMutable()) {
                     flags |= Qt::ItemIsEditable;
                 }
             } else {
-                if (issue.valueMutable()) {
+                if (row.valueMutable()) {
                     flags |= Qt::ItemIsEditable;
                 }
             }
@@ -600,18 +604,6 @@ namespace TrenchBroom {
 
                 const String newName = value.toString().toStdString();
                 if (renameAttribute(rowIndex, newName, attributables)) {
-                    // Queue selection of the renamed key.
-                    // Not executed immediately because we need to wait for EntityAttributeGrid::updateControls() to
-                    // call EntityAttributeModel::setRows().
-                    // FIXME: not eusre if we want this?
-#if 0
-                    QTimer::singleShot(0, this, [this, newName]() {
-                        const int row = this->rowForAttributeName(newName);
-                        if (row != -1) {
-                            emit currentItemChangeRequestedByModel(this->index(row, 1));
-                        }
-                    });
-#endif
                     return true;
                 }
             } else if (index.column() == 1) {
@@ -659,38 +651,6 @@ namespace TrenchBroom {
 
         bool EntityAttributeModel::AppendRow() {
             return InsertRow(m_rows.size());
-        }
-
-        bool EntityAttributeModel::DeleteRows(const size_t pos, size_t numRows) {
-            if (pos >= m_rows.size())
-                return false;
-
-            // FIXME: dangerous use of size_t, convert all of this to int
-            numRows = std::min(m_rows.size() - pos, numRows);
-            ensure(pos + numRows <= m_rows.size(), "row range exceeds row count");
-
-            MapDocumentSPtr document = lock(m_document);
-
-            const Model::AttributableNodeList attributables = document->allSelectedAttributableNodes();
-            ensure(!attributables.empty(), "no attributable nodes selected");
-
-            const StringList names = attributeNames(static_cast<int>(pos), static_cast<int>(numRows));
-            ensure(names.size() == numRows, "invalid number of row names");
-
-            {
-                Transaction transaction(document, StringUtils::safePlural(numRows, "Remove Attribute", "Remove Attributes"));
-
-                bool success = true;
-                for (size_t i = 0; i < numRows && success; i++)
-                    success = document->removeAttribute(names[i]);
-
-                if (!success) {
-                    transaction.rollback();
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         int EntityAttributeModel::rowForName(const Model::AttributeName& name) const {
@@ -769,6 +729,22 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
             return document->setAttribute(name, newValue);
+        }
+
+        bool EntityAttributeModel::lessThan(const size_t rowIndexA, const size_t rowIndexB) const {
+            const AttributeRow& rowA = m_rows.at(rowIndexA);
+            const AttributeRow& rowB = m_rows.at(rowIndexB);
+
+            // 1. non-default sorts before default
+            if (!rowA.isDefault() &&  rowB.isDefault()) {
+                return true;
+            }
+            if ( rowA.isDefault() && !rowB.isDefault()) {
+                return false;
+            }
+
+            // 2. sort by name
+            return rowA.name() < rowB.name();
         }
     }
 }

@@ -26,7 +26,7 @@
 #include "View/GameEngineProfileListBox.h"
 #include "View/GameEngineProfileEditor.h"
 #include "View/TitledPanel.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QAbstractButton>
 #include <QBoxLayout>

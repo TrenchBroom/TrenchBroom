@@ -24,7 +24,7 @@
 #include "Model/IssueQuickFix.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QHBoxLayout>
 #include <QTableView>

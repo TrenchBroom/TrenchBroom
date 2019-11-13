@@ -29,7 +29,7 @@
 #include "View/Splitter.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QApplication>
 #include <QCloseEvent>

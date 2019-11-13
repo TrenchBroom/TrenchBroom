@@ -20,13 +20,14 @@
 #include "EntityAttributeGrid.h"
 
 #include "Model/EntityAttributes.h"
+#include "StringUtils.h"
 #include "View/BorderLine.h"
 #include "View/EntityAttributeItemDelegate.h"
 #include "View/EntityAttributeModel.h"
 #include "View/EntityAttributeTable.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QHeaderView>
 #include <QTableView>
@@ -37,6 +38,7 @@
 #include <QKeySequence>
 #include <QDebug>
 #include <QKeyEvent>
+#include <QSortFilterProxyModel>
 
 namespace TrenchBroom {
     namespace View {
@@ -44,8 +46,6 @@ namespace TrenchBroom {
         QWidget(parent),
         m_document(document) {
             createGui(document);
-            createShortcuts();
-            updateShortcuts();
             bindObservers();
         }
 
@@ -67,75 +67,40 @@ namespace TrenchBroom {
             ensure(row != -1, "row should have been inserted");
 
             // Select the newly inserted attribute name
-            QModelIndex mi = m_model->index(row, 0);
+            const QModelIndex mi = m_proxyModel->mapFromSource(m_model->index(row, 0));
+
             m_table->setCurrentIndex(mi);
             m_table->setFocus();
         }
 
         void EntityAttributeGrid::removeSelectedAttributes() {
-            qDebug("FIXME: removeSelectedAttributes");
+            assert(canRemoveSelectedAttributes());
 
-            QItemSelectionModel *s = m_table->selectionModel();
-            if (!s->hasSelection()) {
-                return;
-            }
-            // FIXME: support more than 1 row
-            // FIXME: current vs selected
-            QModelIndex current = s->currentIndex();
-            if (!current.isValid()) {
-                return;
+            const auto selectedRows = selectedRowsAndCursorRow();
+
+            StringList attributes;
+            for (const int row : selectedRows) {
+                attributes.push_back(m_model->attributeName(row));
             }
 
-            const AttributeRow* temp = m_model->dataForModelIndex(current);
-            String name = temp->name();
-
+            const size_t numRows = attributes.size();
             MapDocumentSPtr document = lock(m_document);
 
-            // FIXME: transaction
-            document->removeAttribute(name);
+            {
+                Transaction transaction(document, StringUtils::safePlural(numRows, "Remove Attribute", "Remove Attributes"));
 
+                bool success = true;
+                for (const String& attribute : attributes) {
+                    success = success && document->removeAttribute(attribute);
+                }
 
-//            assert(canRemoveSelectedAttributes());
-//
-//            const auto selectedRows = selectedRowsAndCursorRow();
-//
-//            StringList attributes;
-//            for (const int row : selectedRows) {
-//                attributes.push_back(m_model->attributeName(row));
-//            }
-//
-//            for (const String& key : attributes) {
-//                removeAttribute(key);
-//            }
-        }
-
-        /**
-         * Removes an attribute, and clear the current selection.
-         *
-         * If this attribute is still in the table after removing, sets the grid cursor on the new row
-         */
-        void EntityAttributeGrid::removeAttribute(const String& key) {
-            qDebug() << "removeAttribute " << QString::fromStdString(key);
-
-
-
-
-//            const int row = m_model->rowForName(key);
-//            if (row == -1)
-//                return;
-//
-//            m_table->DeleteRows(row, 1);
-//            m_table->ClearSelection();
-//
-//            const int newRow = m_model->rowForName(key);
-//            if (newRow != -1) {
-//                m_table->SetGridCursor(newRow, m_table->GetGridCursorCol());
-//            }
+                if (!success) {
+                    transaction.rollback();
+                }
+            }
         }
 
         bool EntityAttributeGrid::canRemoveSelectedAttributes() const {
-            return true;
-            /* FIXME:
             const auto rows = selectedRowsAndCursorRow();
             if (rows.empty())
                 return false;
@@ -145,36 +110,57 @@ namespace TrenchBroom {
                     return false;
             }
             return true;
-             */
         }
 
+        /**
+         * returns rows indices in the model (not proxy model).
+         */
         std::set<int> EntityAttributeGrid::selectedRowsAndCursorRow() const {
             std::set<int> result;
 
-            // FIXME:
-//            if (m_table->GetGridCursorCol() != -1
-//                && m_table->GetGridCursorRow() != -1) {
-//                result.insert(m_table->GetGridCursorRow());
-//            }
-//
-//            for (const int row : m_table->GetSelectedRows()) {
-//                result.insert(row);
-//            }
+            QItemSelectionModel* selection = m_table->selectionModel();
+
+            // current row
+            const QModelIndex currentIndexInSource = m_proxyModel->mapToSource(selection->currentIndex());
+            if (currentIndexInSource.isValid()) {
+                result.insert(currentIndexInSource.row());
+            }
+
+            // selected rows
+            for (const QModelIndex& index : selection->selectedIndexes()) {
+                const QModelIndex indexInSource = m_proxyModel->mapToSource(index);
+                if (indexInSource.isValid()) {
+                    result.insert(indexInSource.row());
+                }
+            }
+
             return result;
         }
+
+        class EntitySortFilterProxyModel : public QSortFilterProxyModel {
+        public:
+            EntitySortFilterProxyModel(QObject* parent = nullptr) : QSortFilterProxyModel(parent) {}
+
+        protected:
+            bool lessThan(const QModelIndex& left, const QModelIndex& right) const {
+                const EntityAttributeModel& source = dynamic_cast<const EntityAttributeModel&>(*sourceModel());
+
+                return source.lessThan(static_cast<size_t>(left.row()), static_cast<size_t>(right.row()));
+            }
+        };
+
         void EntityAttributeGrid::createGui(MapDocumentWPtr document) {
             m_table = new EntityAttributeTable();
-            m_model = new EntityAttributeModel(document, this);
-            m_model->setParent(m_table); // ensure the table takes ownership of the model in setModel
-            m_table->setModel(m_model);
-            m_table->setItemDelegate(new EntityAttributeItemDelegate(m_table, m_model, m_table));
 
-            connect(m_model, &EntityAttributeModel::currentItemChangeRequestedByModel, this, [this](const QModelIndex& index) {
-                qDebug() << "setting current to " << index;
-                QItemSelectionModel* selectionModel = this->m_table->selectionModel();
-                selectionModel->clearSelection();
-                selectionModel->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
-            });
+            m_model = new EntityAttributeModel(document, this);
+            m_model->setParent(m_table); // ensure the table takes ownership of the model in setModel // FIXME: why? this looks unnecessary
+
+            m_proxyModel = new EntitySortFilterProxyModel(this);
+            m_proxyModel->setSourceModel(m_model);
+            m_proxyModel->sort(0);
+            m_table->setModel(m_proxyModel);
+
+            m_table->setItemDelegate(new EntityAttributeItemDelegate(m_table, m_model, m_proxyModel, m_table));
 
             autoResizeRows(m_table);
 
@@ -184,8 +170,6 @@ namespace TrenchBroom {
             m_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
             m_table->horizontalHeader()->setSectionsClickable(false);
             m_table->setSelectionBehavior(QAbstractItemView::SelectItems);
-
-//            m_table->Bind(wxEVT_GRID_SELECT_CELL, &EntityAttributeGrid::OnAttributeGridSelectCell, this);
 
             m_addAttributeButton = createBitmapButton("Add.png", tr("Add a new property"), this);
             connect(m_addAttributeButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
@@ -202,6 +186,13 @@ namespace TrenchBroom {
                 m_model->setShowDefaultRows(state == Qt::Checked);
             });
             m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
+
+            connect(m_table, &EntityAttributeTable::addRowShortcutTriggered, this, [=](){
+                addAttribute();
+            });
+            connect(m_table, &EntityAttributeTable::removeRowsShortcutTriggered, this, [=](){
+                removeSelectedAttributes();
+            });
 
             connect(m_table->selectionModel(), &QItemSelectionModel::currentChanged, this, [=](const QModelIndex& current, const QModelIndex& previous){
                 qDebug() << "current changed form " << previous << " to " << current;
@@ -224,35 +215,7 @@ namespace TrenchBroom {
             layout->addLayout(toolBar, 0);
             setLayout(layout);
 
-
-
-            //m_table->setEditTriggers(QAbstractItemView::SelectedClicked | QAbstractItemView::AnyKeyPressed);
-        }
-
-        void EntityAttributeGrid::createShortcuts() {
-            m_insertRowShortcut = new QShortcut(QKeySequence("Ctrl-Return"), this);
-            m_insertRowShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-            connect(m_insertRowShortcut, &QShortcut::activated, this, [=](){
-                addAttribute();
-            });
-
-            m_removeRowShortcut = new QShortcut(QKeySequence("Delete"), this);
-            m_removeRowShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-            connect(m_removeRowShortcut, &QShortcut::activated, this, [=](){
-                removeSelectedAttributes();
-            });
-
-            m_removeRowAlternateShortcut = new QShortcut(QKeySequence("Backspace"), this);
-            m_removeRowAlternateShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-            connect(m_removeRowAlternateShortcut, &QShortcut::activated, this, [=](){
-                removeSelectedAttributes();
-            });
-       }
-
-       void EntityAttributeGrid::updateShortcuts() {
-           m_insertRowShortcut->setEnabled(true);
-           m_removeRowShortcut->setEnabled(canRemoveSelectedAttributes());
-           m_removeRowAlternateShortcut->setEnabled(canRemoveSelectedAttributes());
+            m_table->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked | QAbstractItemView::AnyKeyPressed);
         }
 
         void EntityAttributeGrid::bindObservers() {
@@ -307,14 +270,11 @@ namespace TrenchBroom {
             m_table->setEnabled(!nodes.empty());
             m_addAttributeButton->setEnabled(!nodes.empty());
             m_removePropertiesButton->setEnabled(!nodes.empty() && canRemoveSelectedAttributes());
-            //m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
-
-            // Update shortcuts
-            updateShortcuts();
+            m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
         }
 
         Model::AttributeName EntityAttributeGrid::selectedRowName() const {
-            QModelIndex current = m_table->currentIndex();
+            QModelIndex current = m_proxyModel->mapToSource(m_table->currentIndex());
             const AttributeRow* rowModel = m_model->dataForModelIndex(current);
             if (rowModel == nullptr) {
                 return "";

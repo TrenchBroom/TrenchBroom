@@ -129,7 +129,6 @@ namespace TrenchBroom {
         public: // for autocompletion
             QStringList getCompletions(const QModelIndex& index) const;
         private: // autocompletion helpers
-            Model::AttributeName attributeName(int row) const;
             Model::AttributeNameList attributeNames(int row, int count) const;
             StringList getAllAttributeNames() const;
             StringList getAllValuesForAttributeNames(const StringList& names) const;
@@ -148,15 +147,19 @@ namespace TrenchBroom {
         private: // helpers
             bool InsertRow(const size_t pos);
             bool AppendRow();
-            bool DeleteRows(const size_t pos, size_t numRows);
             int rowForName(const Model::AttributeName& name) const;
-            bool canRemove(int rowIndexInt);
             bool hasRowWithAttributeName(const Model::AttributeName& name) const;
             bool renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables);
             bool updateAttribute(const size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables);
 
-        signals:
-            void currentItemChangeRequestedByModel(const QModelIndex& index);
+        public: // EntityAttributeGrid helpers
+            Model::AttributeName attributeName(int row) const;
+            bool canRemove(int rowIndexInt);
+            /**
+             * Return the desired sort order for these two rows.
+             * Used by EntitySortFilterProxyModel to sort the rows.
+             */
+            bool lessThan(size_t rowIndexA, size_t rowIndexB) const;
         };
     }
 }

@@ -22,7 +22,7 @@
 #include "View/MapDocument.h"
 #include "View/UVView.h"
 #include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QtGlobal>
 #include <QLabel>

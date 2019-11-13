@@ -28,7 +28,7 @@
 #include "View/MapDocument.h"
 #include "View/Splitter.h"
 #include "View/TitledPanel.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QVBoxLayout>
 

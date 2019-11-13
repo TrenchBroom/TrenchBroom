@@ -23,6 +23,7 @@
 #include "View/DirectoryTextureCollectionEditor.h"
 #include "View/FileTextureCollectionEditor.h"
 #include "View/MapDocument.h"
+#include "View/QtUtils.h"
 
 #include <QVBoxLayout>
 
@@ -45,12 +46,12 @@ namespace TrenchBroom {
         }
 
         void TextureCollectionEditor::documentWasNewedOrLoaded(MapDocument*) {
-            qDeleteAll(children());
-            delete layout();
             createGui();
         }
 
         void TextureCollectionEditor::createGui() {
+            deleteChildWidgetsAndLayout(this);
+
             QWidget* collectionEditor = nullptr;
 
             auto document = lock(m_document);

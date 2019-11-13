@@ -59,7 +59,7 @@
 #include "View/SwitchableMapViewContainer.h"
 #include "View/VertexTool.h"
 #include "View/ViewUtils.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 #include "View/MapViewToolBox.h"
 
 #include <QtGlobal>

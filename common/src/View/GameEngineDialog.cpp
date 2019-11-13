@@ -24,7 +24,7 @@
 #include "View/BorderLine.h"
 #include "View/CurrentGameIndicator.h"
 #include "View/GameEngineProfileManager.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QBoxLayout>
 #include <QDialogButtonBox>

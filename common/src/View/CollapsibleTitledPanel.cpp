@@ -21,7 +21,7 @@
 
 #include "View/BorderLine.h"
 #include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QLabel>
 #include <QLayout>

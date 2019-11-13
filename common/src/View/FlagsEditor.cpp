@@ -21,6 +21,7 @@
 
 #include "Ensure.h"
 #include "View/ViewConstants.h"
+#include "View/QtUtils.h"
 
 #include <QGridLayout>
 #include <QCheckBox>
@@ -55,10 +56,7 @@ namespace TrenchBroom {
             m_checkBoxes.resize(count, nullptr);
             m_values.resize(count, 0);
 
-            qDeleteAll(children());
-            if (layout() != nullptr) {
-                delete layout();
-            }
+            deleteChildWidgetsAndLayout(this);
 
             auto* layout = new QGridLayout();
             layout->setHorizontalSpacing(LayoutConstants::WideHMargin);

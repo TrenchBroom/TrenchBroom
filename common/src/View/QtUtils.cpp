@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "wxUtils.h"
+#include "QtUtils.h"
 
 #include "Ensure.h"
 #include "IO/Path.h"
@@ -352,6 +352,12 @@ namespace TrenchBroom {
             tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
             tableView->installEventFilter(new AutoResizeRowsEventFilter(tableView));
             tableView->resizeRowsToContents();
+        }
+
+        void deleteChildWidgetsAndLayout(QWidget* widget) {
+            qDeleteAll(widget->findChildren<QWidget*>("", Qt::FindDirectChildrenOnly));
+
+            delete widget->layout();
         }
     }
 }

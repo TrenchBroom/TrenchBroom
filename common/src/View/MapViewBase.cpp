@@ -59,7 +59,7 @@
 #include "View/MapViewConfig.h"
 #include "View/MapViewToolBox.h"
 #include "View/SelectionTool.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <vecmath/util.h>
 

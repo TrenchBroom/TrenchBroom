@@ -35,6 +35,7 @@
 #include "View/MapViewContainer.h"
 #include "View/MapViewBar.h"
 #include "View/MapViewToolBox.h"
+#include "View/QtUtils.h"
 
 #include <QGridLayout>
 
@@ -77,14 +78,7 @@ namespace TrenchBroom {
         void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId) {
             m_activationTracker.clear();
 
-            if (m_mapView != nullptr) {
-                delete m_mapView;
-                m_mapView = nullptr;
-            }
-
-            if (layout()) {
-                delete layout();
-            }
+            deleteChildWidgetsAndLayout(this);
 
             switch (viewId) {
                 case MapViewLayout_1Pane:
@@ -99,6 +93,7 @@ namespace TrenchBroom {
                 case MapViewLayout_4Pane:
                     m_mapView = new FourPaneMapView(m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger);
                     break;
+                switchDefault()
             }
 
             installActivationTracker(m_activationTracker);

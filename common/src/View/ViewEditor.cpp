@@ -31,7 +31,7 @@
 #include "View/PopupButton.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -256,7 +256,7 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::createGui() {
-            setLayout(nullptr);
+            deleteChildWidgetsAndLayout(this);
 
             auto* sizer = new QGridLayout();
             sizer->setContentsMargins(

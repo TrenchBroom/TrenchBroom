@@ -32,6 +32,10 @@ namespace TrenchBroom {
             bool event(QEvent *event) override;
             void keyPressEvent(QKeyEvent* event) override;
             QStyleOptionViewItem viewOptions() const override;
+
+        signals:
+            void addRowShortcutTriggered();
+            void removeRowsShortcutTriggered();
         };
     }
 }

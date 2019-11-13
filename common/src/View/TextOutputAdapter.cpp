@@ -20,7 +20,7 @@
 #include "TextOutputAdapter.h"
 
 #include "Ensure.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 #include <QTextEdit>
 

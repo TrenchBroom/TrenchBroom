@@ -28,7 +28,7 @@
 #include "Renderer/GLVertexType.h"
 #include "View/GLContextManager.h"
 #include "View/InputEvent.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
 /*
  * - glew requires it is included before <OpenGL/gl.h>
