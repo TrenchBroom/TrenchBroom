@@ -84,13 +84,18 @@ private:
 };
 
 /**
- * A circular list that stores its links inside of the list items.
+ * A circular list that stores its links inside of the list items. The list takes ownership of the items added to it,
+ * and therefore the items are deleted when the list is destroyed.
+ *
+ * As this is an intrusive list, the list item type T must have an intrusive_circular_link member. GetLink is a functor
+ * you must provide that describes how to access the intrusive_circular_link member; when called with T* it must return
+ * a reference to its corresponding intrusive_circular_link.
  *
  * If this list is modified in a way that removes an element that is pointed to by an iterator, this iterator
  * becomes invalid. Any iterator becomes invalid if the head item of the list is removed.
  *
  * @tparam T the type of the list items
- * @tparam GetLink maps a list item to its link info structure
+ * @tparam GetLink maps a list item to a reference to its corresponding intrusive_circular_link
  */
 template <typename T, typename GetLink>
 class intrusive_circular_list {
@@ -326,16 +331,10 @@ public:
     bool contains(const T* item) const {
         assert(item != nullptr);
 
-        if (empty()) {
-            return false;
-        } else {
-            auto cur_item = m_head;
-            do {
-                if (cur_item == item) {
-                    return true;
-                }
-                cur_item = get_next(cur_item);
-            } while (cur_item != m_head);
+        for (const T* candidate : *this) {
+            if (candidate == item) {
+                return true;
+            }
         }
 
         return false;
@@ -409,8 +408,8 @@ public:
             m_head = nullptr;
             m_size = 0u;
         } else {
-            auto previous = get_previous(*first);
-            auto next = last == end() ? front() : *last;
+            T* previous = get_previous(*first);
+            T* next = last == end() ? front() : *last;
 
             connect(get_previous(next), *first);
             connect(previous, next);
@@ -444,10 +443,10 @@ public:
         assert(check_invariant());
         if (!empty()) {
             m_head = get_previous(m_head);
-            auto cur = m_head;
+            T* cur = m_head;
             do {
                 auto& cur_link = get_link(cur);
-                auto next = cur_link.next();
+                T* next = cur_link.next();
                 cur_link.flip();
                 cur = next;
             } while (cur != m_head);
@@ -578,10 +577,10 @@ public:
      */
     void clear() {
         if (!empty()) {
-            const auto get_link = GetLink();
-            auto cur = m_head;
+            const auto& get_link = GetLink();
+            T* cur = m_head;
             do {
-                auto next = get_link(cur).next();
+                T* next = get_link(cur).next();
                 delete cur;
                 cur = next;
             } while (cur != m_head);
@@ -625,11 +624,11 @@ private: // helpers
             m_head = items;
             m_size = count;
         } else {
-            auto previous = position == end() ? back() : get_previous(*position);
-            auto next = get_next(previous);
+            T* previous = position == end() ? back() : get_previous(*position);
+            T* next = get_next(previous);
 
-            auto first = items;
-            auto last = get_previous(first);
+            T* first = items;
+            T* last = get_previous(first);
 
             connect(previous, first);
             connect(last, next);
@@ -643,9 +642,9 @@ private: // invariant
             return m_size == 0u;
         } else {
             std::size_t count = 0u;
-            auto cur = m_head;
+            T* cur = m_head;
             do {
-                auto next = get_next(cur);
+                T* next = get_next(cur);
                 if (get_previous(next) != cur) {
                     return false;
                 }
