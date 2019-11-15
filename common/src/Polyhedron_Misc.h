@@ -944,7 +944,7 @@ typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::findClosestFace(const s
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::updateBounds() {
-    auto builder = vm::bbox<T,3>::builder();
+    auto builder = typename vm::bbox<T,3>::builder();
     builder.add(std::begin(m_vertices), std::end(m_vertices), GetVertexPosition());
 
     if (!builder.initialized()) {

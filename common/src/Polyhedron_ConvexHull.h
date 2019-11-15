@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Polyhedron_ConvexHull_h
 #define TrenchBroom_Polyhedron_ConvexHull_h
 
+#include "Macros.h"
+
 #include <vecmath/segment.h>
 #include <vecmath/plane.h>
 #include <vecmath/bbox.h>
@@ -237,7 +239,6 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPoint(const
 // given point is not coplanar.
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolygon(const vec3& position, Callback& callback) {
-    assert(polygon());
     Face* face = m_faces.front();
     const vm::plane_status status = face->pointStatus(position);
     switch (status) {
@@ -246,7 +247,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPoly
         case vm::plane_status::above:
             face->flip();
             callback.faceWasFlipped(face);
-            return makePolyhedron(position, callback);
+            switchFallthrough();
         case vm::plane_status::below:
             return makePolyhedron(position, callback);
     }
@@ -365,6 +366,8 @@ void Polyhedron<T,FP,VP>::makePolygon(const std::vector<vec3>& positions, Callba
     m_faces.push_back(f);
 }
 
+// Converts a coplanar polyhedron into a non-coplanar one by adding the given
+// point, which is assumed to be non-coplanar to the points in this polyhedron.
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::makePolyhedron(const vec3& position, Callback& callback) {
     assert(polygon());
@@ -383,6 +386,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::makePolyhedron(const 
     return addPointToPolyhedron(position, seam, callback);
 }
 
+// Adds the given point to this polyhedron.
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolyhedron(const vec3& position, Callback& callback) {
     assert(polyhedron());
@@ -703,12 +707,13 @@ public:
             switch (result) {
                 case MatchResult_Second:
                     edge->flip();
-                    return edge;
+                    switchFallthrough();
                 case MatchResult_First:
                     return edge;
                 case MatchResult_Both:
                 case MatchResult_Neither:
                     break;
+                switchDefault()
             }
         }
         return nullptr;
