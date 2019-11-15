@@ -38,7 +38,9 @@ private:
     const Polyhedron& m_minuend;
     Polyhedron m_subtrahend;
     const Callback& m_callback;
-    List m_fragments;
+
+    using Fragments = std::vector<Polyhedron<T,FP,VP>>;
+    Fragments m_fragments;
 
     using PlaneList = std::list<vm::plane<T,3>>;
     using PlaneIt = typename PlaneList::const_iterator;
@@ -55,7 +57,7 @@ public:
         }
     }
 
-    const List result() {
+    Fragments result() {
         return m_fragments;
     }
 private:
@@ -83,7 +85,7 @@ private:
         const PlaneList planes = sortPlanes(findSubtrahendPlanes());
 
         assert(m_fragments.empty());
-        doSubtract(List{m_minuend}, std::begin(planes), std::end(planes));
+        doSubtract(Fragments{m_minuend}, std::begin(planes), std::end(planes));
     }
 
     auto findSubtrahendPlanes() const {
@@ -101,17 +103,17 @@ private:
     }
 
     static PlaneList sortPlanes(PlaneList planes) {
-        using VList = std::vector<V>;
+        using VList = std::vector<vec3>;
 
         auto it = std::begin(planes);
-        it = sortPlanes(it, std::end(planes), VList({ V::pos_x(), V::pos_y(), V::pos_z() }));
-        it = sortPlanes(it, std::end(planes), VList({ V::pos_y(), V::pos_x(), V::pos_z() }));
-             sortPlanes(it, std::end(planes), VList({ V::pos_z(), V::pos_x(), V::pos_y() }));
+        it = sortPlanes(it, std::end(planes), VList({ vec3::pos_x(), vec3::pos_y(), vec3::pos_z() }));
+        it = sortPlanes(it, std::end(planes), VList({ vec3::pos_y(), vec3::pos_x(), vec3::pos_z() }));
+             sortPlanes(it, std::end(planes), VList({ vec3::pos_z(), vec3::pos_x(), vec3::pos_y() }));
 
         return planes;
     }
 
-    static typename PlaneList::iterator sortPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const std::vector<V>& axes) {
+    static typename PlaneList::iterator sortPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const std::vector<vec3>& axes) {
         if (begin == end)
             return end;
 
@@ -126,7 +128,7 @@ private:
         return it;
     }
 
-    static typename PlaneList::iterator selectPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const std::vector<V>& axes) {
+    static typename PlaneList::iterator selectPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const std::vector<vec3>& axes) {
         assert(begin != end);
         assert(!axes.empty());
 
@@ -201,7 +203,7 @@ private:
         return bestIt;
     }
 
-    void doSubtract(const List& fragments, PlaneIt curPlaneIt, PlaneIt endPlaneIt) {
+    void doSubtract(const Fragments& fragments, PlaneIt curPlaneIt, PlaneIt endPlaneIt) {
         if (fragments.empty() || curPlaneIt == endPlaneIt) {
             // no more fragments to process or all of `minutendFragments`
             // are now behind all of subtrahendPlanes so they can be discarded.
@@ -213,21 +215,23 @@ private:
 
         // clip the list of minutendFragments into a list of those in front of the
         // currentPlane, and those behind
-        List backFragments;
+        Fragments backFragments;
 
         for (const Polyhedron& fragment : fragments) {
             // the front fragments go directly into the result set.
             Polyhedron<T,FP,VP> fragmentInFront = fragment;
             const auto frontClipResult = fragmentInFront.clip(curPlaneInv);
 
-            if (!frontClipResult.empty()) // Polyhedron::clip() keeps the part behind the plane.
-                m_fragments.push_back(fragmentInFront);
+            if (!frontClipResult.empty()) { // Polyhedron::clip() keeps the part behind the plane.
+                m_fragments.push_back(std::move(fragmentInFront));
+            }
 
             // back fragments need to be clipped by the rest of the subtrahend planes
             Polyhedron<T,FP,VP> fragmentBehind = fragment;
             const auto backClipResult = fragmentBehind.clip(curPlane);
-            if (!backClipResult.empty())
-                backFragments.push_back(fragmentBehind);
+            if (!backClipResult.empty()) {
+                backFragments.push_back(std::move(fragmentBehind));
+            }
         }
 
         // recursively process the back fragments.

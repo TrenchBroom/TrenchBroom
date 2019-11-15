@@ -62,7 +62,7 @@ TEST(PolyhedronTest, initWith4Points) {
     const vm::vec3d p3(-8.0, 0.0, 0.0);
     const vm::vec3d p4( 0.0, 8.0, 0.0);
 
-    const Polyhedron3d p(p1, p2, p3, p4);
+    const Polyhedron3d p({ p1, p2, p3, p4 });
     ASSERT_TRUE(p.closed());
 
     std::vector<vm::vec3d> points;
@@ -394,7 +394,7 @@ TEST(PolyhedronTest, testSimpleConvexHull) {
     const vm::vec3d p4( 0.0, 8.0, 0.0);
     const vm::vec3d p5( 0.0, 4.0, 12.0);
 
-    Polyhedron3d p(p1, p2, p3, p4);
+    Polyhedron3d p({ p1, p2, p3, p4 });
     p.addPoint(p5);
 
     ASSERT_TRUE(p.closed());
@@ -429,7 +429,7 @@ TEST(PolyhedronTest, testSimpleConvexHullWithCoplanarFaces) {
     const vm::vec3d p4( 0.0, 8.0, 0.0);
     const vm::vec3d p5( 0.0, 0.0, 12.0);
 
-    Polyhedron3d p(p1, p2, p3, p4);
+    Polyhedron3d p({ p1, p2, p3, p4 });
     p.addPoint(p5);
 
     ASSERT_TRUE(p.closed());
@@ -1760,7 +1760,7 @@ bool findAndRemove(Polyhedron3d::SubtractResult& result, const std::vector<vm::v
 bool findAndRemove(Polyhedron3d::SubtractResult& result, const std::vector<vm::vec3d>& vertices) {
     for (auto it = std::begin(result), end = std::end(result); it != end; ++it) {
         const Polyhedron3d& polyhedron = *it;
-        if (polyhedron.hasVertices(vertices)) {
+        if (polyhedron.hasAllVertices(vertices)) {
             result.erase(it);
             return true;
         }

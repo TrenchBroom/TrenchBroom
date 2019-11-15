@@ -29,6 +29,8 @@
 #include <vecmath/scalar.h>
 #include <vecmath/util.h>
 
+#include <unordered_set>
+
 template <typename T, typename FP, typename VP>
 intrusive_circular_link<typename Polyhedron<T,FP,VP>::Face>& Polyhedron<T,FP,VP>::GetFaceLink::operator()(Face* face) const {
     return face->m_link;
@@ -54,17 +56,12 @@ m_link(this)
 #endif
 {
     assert(m_boundary.size() >= 3);
-    setBoundaryFaces();
+    countAndSetFace(m_boundary.front(), m_boundary.back(), this);
 }
 
 template <typename T, typename FP, typename VP>
-typename FP::Type Polyhedron<T,FP,VP>::Face::payload() const {
-    return m_payload;
-}
-
-template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Face::setPayload(typename FP::Type payload) {
-    m_payload = payload;
+const typename Polyhedron<T,FP,VP>::HalfEdgeList& Polyhedron<T,FP,VP>::Face::boundary() const {
+    return m_boundary;
 }
 
 template <typename T, typename FP, typename VP>
@@ -78,17 +75,22 @@ typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::Face::previous() const 
 }
 
 template <typename T, typename FP, typename VP>
+typename FP::Type Polyhedron<T,FP,VP>::Face::payload() const {
+    return m_payload;
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::Face::setPayload(typename FP::Type payload) {
+    m_payload = payload;
+}
+
+template <typename T, typename FP, typename VP>
 size_t Polyhedron<T,FP,VP>::Face::vertexCount() const {
     return m_boundary.size();
 }
 
 template <typename T, typename FP, typename VP>
-const typename Polyhedron<T,FP,VP>::HalfEdgeList& Polyhedron<T,FP,VP>::Face::boundary() const {
-    return m_boundary;
-}
-
-template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Face::findHalfEdge(const typename Polyhedron<T,FP,VP>::V& origin, const T epsilon) const {
+typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Face::findHalfEdge(const typename Polyhedron<T,FP,VP>::vec3& origin, const T epsilon) const {
     auto* firstEdge = m_boundary.front();
     auto* currentEdge = firstEdge;
     do {
@@ -101,21 +103,7 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Face::findHalfEdge(
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Face::findHalfEdge(const Vertex* origin) const {
-    ensure(origin != nullptr, "origin is null");
-    auto* firstEdge = m_boundary.front();
-    auto* currentEdge = firstEdge;
-    do {
-        if (currentEdge->origin() == origin) {
-            return currentEdge;
-        }
-        currentEdge = currentEdge->next();
-    } while (currentEdge != firstEdge);
-    return currentEdge;
-}
-
-template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Face::findEdge(const V& first, const V& second, const T epsilon) const {
+typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Face::findEdge(const vec3& first, const vec3& second, const T epsilon) const {
     auto* halfEdge = findHalfEdge(first, epsilon);
     if (halfEdge == nullptr) {
         return nullptr;
@@ -134,21 +122,23 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Face::findEdge(const V&
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::origin() const {
-    const auto* edge = *std::begin(m_boundary);
+typename Polyhedron<T,FP,VP>::vec3 Polyhedron<T,FP,VP>::Face::origin() const {
+    const auto* edge = m_boundary.front();
     return edge->origin()->position();
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::PosList Polyhedron<T,FP,VP>::Face::vertexPositions() const {
-    std::vector<V> result(0);
+std::vector<typename Polyhedron<T,FP,VP>::vec3> Polyhedron<T,FP,VP>::Face::vertexPositions() const {
+    std::vector<vec3> result;
     result.reserve(vertexCount());
-    getVertexPositions(std::back_inserter(result));
+    for (const auto* halfEdge : m_boundary) {
+        result.push_back(halfEdge->origin()->position());
+    }
     return result;
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::Face::hasVertexPosition(const V& position, const T epsilon) const {
+bool Polyhedron<T,FP,VP>::Face::hasVertexPosition(const vec3& position, const T epsilon) const {
     const auto* firstEdge = m_boundary.front();
     const auto* currentEdge = firstEdge;
     do {
@@ -161,7 +151,7 @@ bool Polyhedron<T,FP,VP>::Face::hasVertexPosition(const V& position, const T eps
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::Face::hasVertexPositions(const std::vector<V>& positions, const T epsilon) const {
+bool Polyhedron<T,FP,VP>::Face::hasVertexPositions(const std::vector<vec3>& positions, const T epsilon) const {
     if (positions.size() != vertexCount()) {
         return false;
     }
@@ -178,7 +168,7 @@ bool Polyhedron<T,FP,VP>::Face::hasVertexPositions(const std::vector<V>& positio
 }
 
 template <typename T, typename FP, typename VP>
-T Polyhedron<T,FP,VP>::Face::distanceTo(const std::vector<V>& positions, const T maxDistance) const {
+T Polyhedron<T,FP,VP>::Face::distanceTo(const std::vector<vec3>& positions, const T maxDistance) const {
     if (positions.size() != vertexCount()) {
         return maxDistance;
     }
@@ -191,7 +181,7 @@ T Polyhedron<T,FP,VP>::Face::distanceTo(const std::vector<V>& positions, const T
     const auto* firstEdge = m_boundary.front();
     const auto* currentEdge = firstEdge;
     do {
-        const T currentDistance = distance(currentEdge->origin()->position(), positions.front());
+        const T currentDistance = vm::distance(currentEdge->origin()->position(), positions.front());
         if (currentDistance < closestDistance) {
             closestDistance = currentDistance;
             startEdge = currentEdge;
@@ -212,32 +202,31 @@ T Polyhedron<T,FP,VP>::Face::distanceTo(const std::vector<V>& positions, const T
         const auto& position = *posIt;
         ++posIt;
 
-        closestDistance = std::max(closestDistance, distance(currentEdge->origin()->position(), position));
+        closestDistance = vm::max(closestDistance, vm::distance(currentEdge->origin()->position(), position));
         currentEdge = currentEdge->next();
     } while (currentEdge != firstEdge);
     return closestDistance;
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::normal() const {
+typename Polyhedron<T,FP,VP>::vec3 Polyhedron<T,FP,VP>::Face::normal() const {
     const auto* first = m_boundary.front();
     const auto* current = first;
-    V normal;
     do {
         const auto& p1 = current->origin()->position();
         const auto& p2 = current->next()->origin()->position();
         const auto& p3 = current->next()->next()->origin()->position();
-        normal = vm::cross(p2 - p1, p3 - p1);
+        const auto normal = vm::cross(p2 - p1, p3 - p1);
         if (!vm::is_zero(normal, vm::constants<T>::almost_zero())) {
             return vm::normalize(normal);
         }
         current = current->next();
     } while (first != current);
-    return normal;
+    return vm::vec3::zero();
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::center() const {
+typename Polyhedron<T,FP,VP>::vec3 Polyhedron<T,FP,VP>::Face::center() const {
     return vm::average(std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
 }
 
@@ -260,7 +249,7 @@ T Polyhedron<T,FP,VP>::Face::intersectWithRay(const vm::ray<T,3>& ray, const vm:
 }
 
 template <typename T, typename FP, typename VP>
-vm::plane_status Polyhedron<T,FP,VP>::Face::pointStatus(const V& point, const T epsilon) const {
+vm::plane_status Polyhedron<T,FP,VP>::Face::pointStatus(const vec3& point, const T epsilon) const {
     const auto norm = normal();
     const auto distance = vm::dot(point - origin(), norm);
     if (distance > epsilon) {
@@ -272,31 +261,9 @@ vm::plane_status Polyhedron<T,FP,VP>::Face::pointStatus(const V& point, const T 
     }
 }
 
-template <typename T, typename FP, typename VP> template <typename O>
-void Polyhedron<T,FP,VP>::Face::getVertexPositions(O output) const {
-    auto* firstEdge = m_boundary.front();
-    auto* currentEdge = firstEdge;
-    do {
-        output = currentEdge->origin()->position();
-        currentEdge = currentEdge->next();
-    } while (currentEdge != firstEdge);
-}
-
-template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Vertex::Set Polyhedron<T,FP,VP>::Face::vertexSet() const {
-    typename Vertex::Set result;
-    auto* firstEdge = m_boundary.front();
-    auto* currentEdge = firstEdge;
-    do {
-        result.insert(currentEdge->origin());
-        currentEdge = currentEdge->next();
-    } while (currentEdge != firstEdge);
-    return result;
-}
-
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Face::coplanar(const Face* other) const {
-    ensure(other != nullptr, "other is null");
+    assert(other != nullptr);
 
     // Test if the normals are colinear by checking their enclosed angle.
     if (1.0 - dot(normal(), other->normal()) >= vm::constants<T>::colinear_epsilon()) {
@@ -333,7 +300,7 @@ void Polyhedron<T,FP,VP>::Face::flip() {
 
 template <typename T, typename FP, typename VP> template <typename H>
 void Polyhedron<T,FP,VP>::Face::insertIntoBoundaryAfter(HalfEdge* after, H&& edges) {
-    ensure(after != nullptr, "after is null");
+    assert(after != nullptr);
     assert(after->face() == this);
 
     countAndSetFace(edges.front(), edges.back(), this);
@@ -342,8 +309,8 @@ void Polyhedron<T,FP,VP>::Face::insertIntoBoundaryAfter(HalfEdge* after, H&& edg
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::HalfEdgeList Polyhedron<T,FP,VP>::Face::removeFromBoundary(HalfEdge* from, HalfEdge* to) {
-    ensure(from != nullptr, "from is null");
-    ensure(to != nullptr, "to is null");
+    assert(from != nullptr);
+    assert(to != nullptr);
     assert(from->face() == this);
     assert(to->face() == this);
 
@@ -358,8 +325,8 @@ typename Polyhedron<T,FP,VP>::HalfEdgeList Polyhedron<T,FP,VP>::Face::removeFrom
 
 template <typename T, typename FP, typename VP> template <typename H>
 typename Polyhedron<T,FP,VP>::HalfEdgeList Polyhedron<T,FP,VP>::Face::replaceBoundary(HalfEdge* from, HalfEdge* to, H&& with) {
-    ensure(from != nullptr, "from is null");
-    ensure(to != nullptr, "to is null");
+    assert(from != nullptr);
+    assert(to != nullptr);
     assert(from->face() == this);
     assert(to->face() == this);
 
@@ -393,49 +360,24 @@ size_t Polyhedron<T,FP,VP>::Face::countAndUnsetFace(HalfEdge* from, HalfEdge* to
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Face::setBoundaryFaces() {
-    auto* first = m_boundary.front();
-    auto* current = first;
-    do {
-        current->setFace(this);
-        current = current->next();
-    } while (current != first);
-}
+size_t Polyhedron<T,FP,VP>::Face::countSharedVertices(const Face* other) const {
+    assert(other != nullptr);
+    assert(other != this);
 
-template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Face::unsetBoundaryFaces() {
-    auto* first = m_boundary.front();
-    auto* current = first;
-    do {
-        current->unsetFace();
-        current = current->next();
-    } while (current != first);
-}
+    auto myVertices = std::unordered_set<Vertex*>();
+    for (auto* halfEdge : m_boundary) {
+        myVertices.insert(halfEdge->origin());
+    }
 
-template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Face::removeBoundaryFromEdges() {
-    auto* first = m_boundary.front();
-    auto* current = first;
-    do {
-        auto* edge = current->edge();
-        if (edge != nullptr) {
-            edge->makeSecondEdge(current);
-            edge->unsetSecondEdge();
+    std::size_t sharedVertexCount = 0u;
+    for (auto* halfEdge : other->m_boundary) {
+        if (myVertices.count(halfEdge->origin()) > 0u) {
+            ++sharedVertexCount;
         }
-        current = current->next();
-    } while (current != first);
-}
+    }
 
-template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::Face::setLeavingEdges() {
-    auto* first = m_boundary.front();
-    auto* current = first;
-    do {
-        current->setAsLeaving();
-        current = current->next();
-    } while (current != first);
+    return sharedVertexCount;
 }
-
 
 template <typename T, typename FP, typename VP>
 class Polyhedron<T,FP,VP>::Face::RayIntersection {
@@ -501,15 +443,6 @@ typename Polyhedron<T,FP,VP>::Face::RayIntersection Polyhedron<T,FP,VP>::Face::i
     } else {
         return RayIntersection::Back(distance);
     }
-}
-
-template <typename T, typename FP, typename VP>
-size_t Polyhedron<T,FP,VP>::Face::countSharedVertices(const Face* other) const {
-    ensure(other != nullptr, "other is null");
-    assert(other != this);
-
-    const auto intersection = SetUtils::intersection(vertexSet(), other->vertexSet());
-    return intersection.size();
 }
 
 #endif

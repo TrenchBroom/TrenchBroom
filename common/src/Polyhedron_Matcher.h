@@ -51,13 +51,14 @@
  * each face of the right polyhedron. If multiple faces of the left polyhedron have a maximal matching score, the
  * matcher selects a face such that its normal is closest to the normal of the right face.
  */
+
 template <typename P>
 class PolyhedronMatcher {
 private:
-    using V = typename P::V;
+    using V = vm::vec<typename P::FloatType,3u>;
     using Vertex = typename P::Vertex;
     using VertexList = typename P::VertexList;
-    using VertexSet = typename P::Vertex::Set;
+    using VertexSet = std::set<Vertex*>;
     using HalfEdge = typename P::HalfEdge;
     using Face = typename P::Face;
     using VMap = std::map<V,V>;

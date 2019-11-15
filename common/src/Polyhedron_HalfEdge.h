@@ -45,7 +45,7 @@ m_link(this)
 m_link(this)
 #endif
 {
-    ensure(m_origin != nullptr, "origin is null");
+    assert(m_origin != nullptr);
     setAsLeaving();
 }
 
@@ -63,21 +63,6 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::HalfEdge::origin() co
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::HalfEdge::destination() const {
     return next()->origin();
-}
-
-template <typename T, typename FP, typename VP>
-T Polyhedron<T,FP,VP>::HalfEdge::length() const {
-    return vm::length(vector());
-}
-
-template <typename T, typename FP, typename VP>
-T Polyhedron<T,FP,VP>::HalfEdge::squaredLength() const {
-    return vm::squared_length(vector());
-}
-
-template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::HalfEdge::vector() const {
-    return destination()->position() - origin()->position();
 }
 
 template <typename T, typename FP, typename VP>
@@ -101,14 +86,14 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::HalfEdge::previous(
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::HalfEdge::twin() const {
-    ensure(m_edge != nullptr, "edge is null");
-    return m_edge->twin(this);
+typename Polyhedron<T,FP,VP>::vec3 Polyhedron<T,FP,VP>::HalfEdge::vector() const {
+    return destination()->position() - origin()->position();
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::HalfEdge::previousIncident() const {
-    return twin()->next();
+typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::HalfEdge::twin() const {
+    assert(m_edge != nullptr);
+    return m_edge->twin(this);
 }
 
 template <typename T, typename FP, typename VP>
@@ -116,10 +101,16 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::HalfEdge::nextIncid
     return previous()->twin();
 }
 
+
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::HalfEdge::hasOrigins(const std::vector<V>& origins, const T epsilon) const {
+typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::HalfEdge::previousIncident() const {
+    return twin()->next();
+}
+
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::HalfEdge::hasOrigins(const std::vector<vec3>& origins, const T epsilon) const {
     const HalfEdge* edge = this;
-    for (const V& origin : origins) {
+    for (const vec3& origin : origins) {
         if (!vm::is_equal(edge->origin()->position(), origin, epsilon)) {
             return false;
         }
@@ -129,20 +120,15 @@ bool Polyhedron<T,FP,VP>::HalfEdge::hasOrigins(const std::vector<V>& origins, co
 }
 
 template <typename T, typename FP, typename VP>
-vm::plane_status Polyhedron<T,FP,VP>::HalfEdge::pointStatus(const V& faceNormal, const V& point) const {
-    const auto normal = normalize(cross(normalize(vector()), faceNormal));
-    const auto plane = vm::plane<T,3>(origin()->position(), normal);
+vm::plane_status Polyhedron<T,FP,VP>::HalfEdge::pointStatus(const vec3& normal, const vec3& point) const {
+    const auto planeNormal = vm::normalize(vm::cross(vm::normalize(vector()), normal));
+    const auto plane = vm::plane<T,3>(origin()->position(), planeNormal);
     return plane.point_status(point);
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::HalfEdge::isLeavingEdge() const {
-    return m_origin->leaving() == this;
-}
-
-template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::HalfEdge::colinear(const HalfEdge* other) const {
-    ensure(other != nullptr, "other is null");
+    assert(other != nullptr);
     assert(other != this);
     assert(destination() == other->origin());
 
@@ -155,34 +141,34 @@ bool Polyhedron<T,FP,VP>::HalfEdge::colinear(const HalfEdge* other) const {
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::HalfEdge::setOrigin(Vertex* origin) {
-    ensure(origin != nullptr, "origin is null");
+    assert(origin != nullptr);
     m_origin = origin;
     setAsLeaving();
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::HalfEdge::setEdge(Edge* edge) {
-    ensure(edge != nullptr, "edge is null");
+    assert(edge != nullptr);
     assert(m_edge == nullptr);
     m_edge = edge;
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::HalfEdge::unsetEdge() {
-    ensure(m_edge != nullptr, "edge is null");
+    assert(m_edge != nullptr);
     m_edge = nullptr;
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::HalfEdge::setFace(Face* face) {
-    ensure(face != nullptr, "face is null");
+    assert(face != nullptr);
     assert(m_face == nullptr);
     m_face = face;
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::HalfEdge::unsetFace() {
-    ensure(m_face != nullptr, "face is null");
+    assert(m_face != nullptr);
     m_face = nullptr;
 }
 

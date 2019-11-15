@@ -29,6 +29,8 @@
 #include "Polyhedron_Subtract.h"
 #include "Polyhedron_Intersect.h"
 #include "Polyhedron_Queries.h"
+#include "Polyhedron_Checks.h"
+
 #include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"
 

@@ -1094,6 +1094,7 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
             <cstdlib>
             <ctime>
             <functional>
+            <initializer_list>
             <iterator>
             <iostream>
             <istream>

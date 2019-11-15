@@ -617,7 +617,7 @@ namespace TrenchBroom {
 
         bool Brush::hasVertex(const vm::vec3& position, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
-            return m_geometry->findVertexByPosition(position, nullptr, epsilon) != nullptr;
+            return m_geometry->findVertexByPosition(position, epsilon) != nullptr;
         }
 
         bool Brush::hasVertices(const std::vector<vm::vec3>& positions, const FloatType epsilon) const {
@@ -1173,17 +1173,21 @@ namespace TrenchBroom {
         }
 
         BrushList Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushList& subtrahends) const {
-            auto result = std::list<BrushGeometry>{*m_geometry};
+            auto result = std::vector<BrushGeometry>{*m_geometry};
 
             for (auto* subtrahend : subtrahends) {
-                auto nextResults = std::list<BrushGeometry>();
+                auto nextResults = std::vector<BrushGeometry>();
 
                 for (const BrushGeometry& fragment : result) {
-                    const auto subFragments = fragment.subtract(*subtrahend->m_geometry);
-                    ListUtils::append(nextResults, subFragments);
+                    auto subFragments = fragment.subtract(*subtrahend->m_geometry);
+
+                    nextResults.reserve(nextResults.size() + subFragments.size());
+                    for (auto& subFragment : subFragments) {
+                        nextResults.push_back(std::move(subFragment));
+                    }
                 }
 
-                result = nextResults;
+                result = std::move(nextResults);
             }
 
             BrushList brushes;
