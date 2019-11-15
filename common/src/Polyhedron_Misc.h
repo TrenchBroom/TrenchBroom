@@ -37,7 +37,7 @@ class Polyhedron<T,FP,VP>::VertexDistanceCmp {
 private:
     V m_anchor;
 public:
-    VertexDistanceCmp(const V& anchor) :
+    explicit VertexDistanceCmp(const V& anchor) :
     m_anchor(anchor) {}
 
     bool operator()(const Vertex* lhs, const Vertex* rhs) const {
@@ -65,7 +65,7 @@ const typename Polyhedron<T,FP,VP>::V& Polyhedron<T,FP,VP>::GetVertexPosition::o
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Callback::~Callback() {}
+Polyhedron<T,FP,VP>::Callback::~Callback() = default;
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Callback::vertexWasCreated(Vertex* /* vertex */) {}
@@ -133,46 +133,22 @@ Polyhedron<T,FP,VP>::Polyhedron() {
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron(std::initializer_list<V> positions) {
-    Callback c;
-    addPoints(std::begin(positions), std::end(positions), c);
-}
-
-template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Polyhedron(std::initializer_list<V> positions, Callback& callback) {
-    addPoints(std::begin(positions), std::end(positions), callback);
+    addPoints(std::begin(positions), std::end(positions));
 }
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4) {
-    Callback c;
-    addPoints(p1, p2, p3, p4, c);
-}
-
-template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback) {
-    addPoints(p1, p2, p3, p4, callback);
+    addPoints(p1, p2, p3, p4);
 }
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron(const vm::bbox<T,3>& bounds) {
-    Callback c;
-    setBounds(bounds, c);
-}
-
-template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Polyhedron(const vm::bbox<T,3>& bounds, Callback& callback) {
-    setBounds(bounds, callback);
+    setBounds(bounds);
 }
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron(const std::vector<V>& positions) {
-    Callback c;
-    addPoints(std::begin(positions), std::end(positions), c);
-}
-
-template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Polyhedron(const std::vector<V>& positions, Callback& callback) {
-    addPoints(std::begin(positions), std::end(positions), callback);
+    addPoints(std::begin(positions), std::end(positions));
 }
 
 template <typename T, typename FP, typename VP>
@@ -188,21 +164,21 @@ m_faces(std::move(other.m_faces)),
 m_bounds(std::move(other.m_bounds)) {}
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::addPoints(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback) {
-    addPoint(p1, callback);
-    addPoint(p2, callback);
-    addPoint(p3, callback);
-    addPoint(p4, callback);
+void Polyhedron<T,FP,VP>::addPoints(const V& p1, const V& p2, const V& p3, const V& p4) {
+    addPoint(p1);
+    addPoint(p2);
+    addPoint(p3);
+    addPoint(p4);
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callback) {
+void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds) {
     if (bounds.min == bounds.max) {
-        addPoint(bounds.min, callback);
+        addPoint(bounds.min);
         return;
     }
 
-    // Explicitely create the polyhedron for better performance when building brushes.
+    // Explicitly create the polyhedron for better performance when building brushes.
 
     const V p1(bounds.min.x(), bounds.min.y(), bounds.min.z());
     const V p2(bounds.min.x(), bounds.min.y(), bounds.max.z());
@@ -222,23 +198,14 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callb
     Vertex* v7 = new Vertex(p7);
     Vertex* v8 = new Vertex(p8);
 
-    m_vertices.append(v1, 1);
-    m_vertices.append(v2, 1);
-    m_vertices.append(v3, 1);
-    m_vertices.append(v4, 1);
-    m_vertices.append(v5, 1);
-    m_vertices.append(v6, 1);
-    m_vertices.append(v7, 1);
-    m_vertices.append(v8, 1);
-
-    callback.vertexWasCreated(v1);
-    callback.vertexWasCreated(v2);
-    callback.vertexWasCreated(v3);
-    callback.vertexWasCreated(v4);
-    callback.vertexWasCreated(v5);
-    callback.vertexWasCreated(v6);
-    callback.vertexWasCreated(v7);
-    callback.vertexWasCreated(v8);
+    m_vertices.push_back(v1);
+    m_vertices.push_back(v2);
+    m_vertices.push_back(v3);
+    m_vertices.push_back(v4);
+    m_vertices.push_back(v5);
+    m_vertices.push_back(v6);
+    m_vertices.push_back(v7);
+    m_vertices.push_back(v8);
 
     // Front face
     HalfEdge* f1h1 = new HalfEdge(v1);
@@ -246,12 +213,11 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callb
     HalfEdge* f1h3 = new HalfEdge(v6);
     HalfEdge* f1h4 = new HalfEdge(v2);
     HalfEdgeList f1b;
-    f1b.append(f1h1, 1);
-    f1b.append(f1h2, 1);
-    f1b.append(f1h3, 1);
-    f1b.append(f1h4, 1);
-    m_faces.append(new Face(f1b), 1);
-    callback.faceWasCreated(m_faces.back());
+    f1b.push_back(f1h1);
+    f1b.push_back(f1h2);
+    f1b.push_back(f1h3);
+    f1b.push_back(f1h4);
+    m_faces.push_back(new Face(std::move(f1b)));
 
     // Left face
     HalfEdge* f2h1 = new HalfEdge(v1);
@@ -259,12 +225,11 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callb
     HalfEdge* f2h3 = new HalfEdge(v4);
     HalfEdge* f2h4 = new HalfEdge(v3);
     HalfEdgeList f2b;
-    f2b.append(f2h1, 1);
-    f2b.append(f2h2, 1);
-    f2b.append(f2h3, 1);
-    f2b.append(f2h4, 1);
-    m_faces.append(new Face(f2b), 1);
-    callback.faceWasCreated(m_faces.back());
+    f2b.push_back(f2h1);
+    f2b.push_back(f2h2);
+    f2b.push_back(f2h3);
+    f2b.push_back(f2h4);
+    m_faces.push_back(new Face(std::move(f2b)));
 
     // Bottom face
     HalfEdge* f3h1 = new HalfEdge(v1);
@@ -272,12 +237,11 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callb
     HalfEdge* f3h3 = new HalfEdge(v7);
     HalfEdge* f3h4 = new HalfEdge(v5);
     HalfEdgeList f3b;
-    f3b.append(f3h1, 1);
-    f3b.append(f3h2, 1);
-    f3b.append(f3h3, 1);
-    f3b.append(f3h4, 1);
-    m_faces.append(new Face(f3b), 1);
-    callback.faceWasCreated(m_faces.back());
+    f3b.push_back(f3h1);
+    f3b.push_back(f3h2);
+    f3b.push_back(f3h3);
+    f3b.push_back(f3h4);
+    m_faces.push_back(new Face(std::move(f3b)));
 
     // Top face
     HalfEdge* f4h1 = new HalfEdge(v2);
@@ -285,12 +249,11 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callb
     HalfEdge* f4h3 = new HalfEdge(v8);
     HalfEdge* f4h4 = new HalfEdge(v4);
     HalfEdgeList f4b;
-    f4b.append(f4h1, 1);
-    f4b.append(f4h2, 1);
-    f4b.append(f4h3, 1);
-    f4b.append(f4h4, 1);
-    m_faces.append(new Face(f4b), 1);
-    callback.faceWasCreated(m_faces.back());
+    f4b.push_back(f4h1);
+    f4b.push_back(f4h2);
+    f4b.push_back(f4h3);
+    f4b.push_back(f4h4);
+    m_faces.push_back(new Face(std::move(f4b)));
 
     // Back face
     HalfEdge* f5h1 = new HalfEdge(v3);
@@ -298,12 +261,11 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callb
     HalfEdge* f5h3 = new HalfEdge(v8);
     HalfEdge* f5h4 = new HalfEdge(v7);
     HalfEdgeList f5b;
-    f5b.append(f5h1, 1);
-    f5b.append(f5h2, 1);
-    f5b.append(f5h3, 1);
-    f5b.append(f5h4, 1);
-    m_faces.append(new Face(f5b), 1);
-    callback.faceWasCreated(m_faces.back());
+    f5b.push_back(f5h1);
+    f5b.push_back(f5h2);
+    f5b.push_back(f5h3);
+    f5b.push_back(f5h4);
+    m_faces.push_back(new Face(std::move(f5b)));
 
     // Right face
     HalfEdge* f6h1 = new HalfEdge(v5);
@@ -311,25 +273,24 @@ void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callb
     HalfEdge* f6h3 = new HalfEdge(v8);
     HalfEdge* f6h4 = new HalfEdge(v6);
     HalfEdgeList f6b;
-    f6b.append(f6h1, 1);
-    f6b.append(f6h2, 1);
-    f6b.append(f6h3, 1);
-    f6b.append(f6h4, 1);
-    m_faces.append(new Face(f6b), 1);
-    callback.faceWasCreated(m_faces.back());
+    f6b.push_back(f6h1);
+    f6b.push_back(f6h2);
+    f6b.push_back(f6h3);
+    f6b.push_back(f6h4);
+    m_faces.push_back(new Face(std::move(f6b)));
 
-    m_edges.append(new Edge(f1h4, f2h1), 1); // v1, v2
-    m_edges.append(new Edge(f2h4, f3h1), 1); // v1, v3
-    m_edges.append(new Edge(f1h1, f3h4), 1); // v1, v5
-    m_edges.append(new Edge(f2h2, f4h4), 1); // v2, v4
-    m_edges.append(new Edge(f4h1, f1h3), 1); // v2, v6
-    m_edges.append(new Edge(f2h3, f5h1), 1); // v3, v4
-    m_edges.append(new Edge(f3h2, f5h4), 1); // v3, v7
-    m_edges.append(new Edge(f4h3, f5h2), 1); // v4, v8
-    m_edges.append(new Edge(f1h2, f6h4), 1); // v5, v6
-    m_edges.append(new Edge(f6h1, f3h3), 1); // v5, v7
-    m_edges.append(new Edge(f6h3, f4h2), 1); // v6, v8
-    m_edges.append(new Edge(f6h2, f5h3), 1); // v7, v8
+    m_edges.push_back(new Edge(f1h4, f2h1)); // v1, v2
+    m_edges.push_back(new Edge(f2h4, f3h1)); // v1, v3
+    m_edges.push_back(new Edge(f1h1, f3h4)); // v1, v5
+    m_edges.push_back(new Edge(f2h2, f4h4)); // v2, v4
+    m_edges.push_back(new Edge(f4h1, f1h3)); // v2, v6
+    m_edges.push_back(new Edge(f2h3, f5h1)); // v3, v4
+    m_edges.push_back(new Edge(f3h2, f5h4)); // v3, v7
+    m_edges.push_back(new Edge(f4h3, f5h2)); // v4, v8
+    m_edges.push_back(new Edge(f1h2, f6h4)); // v5, v6
+    m_edges.push_back(new Edge(f6h1, f3h3)); // v5, v7
+    m_edges.push_back(new Edge(f6h3, f4h2)); // v6, v8
+    m_edges.push_back(new Edge(f6h2, f5h3)); // v7, v8
 
     m_bounds = bounds;
 }
@@ -366,7 +327,7 @@ private:
             do {
                 Vertex* copy = new Vertex(currentVertex->position());
                 assertResult(MapUtils::insertOrFail(m_vertexMap, currentVertex, copy))
-                m_vertices.append(copy, 1);
+                m_vertices.push_back(copy);
                 currentVertex = currentVertex->next();
             } while (currentVertex != firstVertex);
         }
@@ -389,25 +350,12 @@ private:
         const HalfEdge* firstHalfEdge = originalFace->m_boundary.front();
         const HalfEdge* currentHalfEdge = firstHalfEdge;
         do {
-            myBoundary.append(copyHalfEdge(currentHalfEdge), 1);
+            myBoundary.push_back(copyHalfEdge(currentHalfEdge));
             currentHalfEdge = currentHalfEdge->next();
         } while (currentHalfEdge != firstHalfEdge);
 
-        Face* copy = new Face(myBoundary);
-        m_faces.append(copy, 1);
-    }
-
-    HalfEdgeList copyBoundary(const HalfEdgeList& original) {
-        HalfEdgeList result;
-
-        const HalfEdge* firstHalfEdge = original.front();
-        const HalfEdge* currentHalfEdge = firstHalfEdge;
-        do {
-            result.append(copyHalfEdge(currentHalfEdge), 1);
-            currentHalfEdge = currentHalfEdge->next();
-        } while (currentHalfEdge != firstHalfEdge);
-
-        return result;
+        Face* copy = new Face(std::move(myBoundary));
+        m_faces.push_back(copy);
     }
 
     HalfEdge* copyHalfEdge(const HalfEdge* original) {
@@ -430,7 +378,7 @@ private:
             const Edge* firstEdge = originalEdges.front();
             const Edge* currentEdge = firstEdge;
             do {
-                m_edges.append(copyEdge(currentEdge), 1);
+                m_edges.push_back(copyEdge(currentEdge));
                 currentEdge = currentEdge->next();
             } while (currentEdge != firstEdge);
         }
@@ -1209,7 +1157,6 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::removeEdge(Edge* edge, 
         firstVertex->setLeaving(firstEdge->previous()->twin());
         firstFace->removeFromBoundary(firstEdge);
         nextEdge->setOrigin(firstVertex);
-        delete firstEdge;
 
         if (firstFace->vertexCount() == 2) {
             removeDegenerateFace(firstFace, callback);
@@ -1222,7 +1169,6 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::removeEdge(Edge* edge, 
         auto* secondEdge = edge->secondEdge();
 
         secondFace->removeFromBoundary(secondEdge);
-        delete secondEdge;
 
         if (secondFace->vertexCount() == 2) {
             removeDegenerateFace(secondFace, callback);
@@ -1231,11 +1177,9 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::removeEdge(Edge* edge, 
 
     callback.vertexWillBeDeleted(secondVertex);
     m_vertices.remove(secondVertex);
-    delete secondVertex;
 
     auto* result = edge->next();
     m_edges.remove(edge);
-    delete edge;
 
     // Merge faces that may have become coplanar
     {
@@ -1303,12 +1247,10 @@ void Polyhedron<T,FP,VP>::removeDegenerateFace(Face* face, Callback& callback) {
     // Delete the now obsolete edge.
     // The constructor doesn't do anything, so no further cleanup is necessary.
     m_edges.remove(edge2);
-    delete edge2;
 
     // Delete the degenerate face. This also deletes its boundary of halfEdge1 and halfEdge2.
     callback.faceWillBeDeleted(face);
     m_faces.remove(face);
-    delete face;
 }
 
 // Merges the face incident to the given edge (called border) with its neighbour, i.e.
@@ -1323,6 +1265,7 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdg
     Face* face = borderFirst->face();
     Face* neighbour = borderFirst->twin()->face();
 
+    // find the entire border between the two faces
     while (borderFirst->previous()->face() == face &&
            borderFirst->previous()->twin()->face() == neighbour) {
         borderFirst = borderFirst->previous();
@@ -1338,46 +1281,45 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdg
 
     HalfEdge* twinFirst = borderLast->twin();
 
+    // make sure we don't remove any leaving edges
     borderFirst->origin()->setLeaving(twinLast->next());
     twinFirst->origin()->setLeaving(borderLast->next());
 
     HalfEdge* remainingFirst = borderLast->next();
     HalfEdge* remainingLast = borderFirst->previous();
 
-    face->removeFromBoundary(borderFirst, borderLast);
-    face->removeFromBoundary(remainingFirst, remainingLast);
+    HalfEdgeList edgesToRemove = face->removeFromBoundary(borderFirst, borderLast);
+    HalfEdgeList remainingEdges = face->removeFromBoundary(remainingFirst, remainingLast);
 
-    neighbour->replaceBoundary(twinFirst, twinLast, remainingFirst);
+    // the replaced twin edges are deleted
+    neighbour->replaceBoundary(twinFirst, twinLast, std::move(remainingEdges));
 
-    HalfEdge* cur = borderFirst;
+    // now delete any remaining vertices and edges
+    // edgesToRemove are deleted when the container falls out of scope
+    HalfEdge* firstEdge = edgesToRemove.front();
+    HalfEdge* curEdge = firstEdge;
     do {
-        Edge* edge = cur->edge();
-        HalfEdge* next = cur->next();
-        HalfEdge* twin = cur->twin();
-        Vertex* origin = cur->origin();
+        Edge* edge = curEdge->edge();
+        HalfEdge* next = curEdge->next();
+        Vertex* origin = curEdge->origin();
 
         if (edge == validEdge) {
             validEdge = validEdge->next();
         }
 
         m_edges.remove(edge);
-        delete edge;
 
-        delete cur;
-        delete twin;
-
-        if (cur != borderFirst) {
+        // don't delete the origin of the first border edge!
+        if (curEdge != borderFirst) {
             callback.vertexWillBeDeleted(origin);
             m_vertices.remove(origin);
-            delete origin;
         }
 
-        cur = next;
-    } while (cur != borderFirst);
+        curEdge = next;
+    } while (curEdge != firstEdge);
 
     callback.facesWillBeMerged(neighbour, face);
     m_faces.remove(face);
-    delete face;
 
     return validEdge;
 }

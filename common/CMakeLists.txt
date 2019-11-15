@@ -1045,11 +1045,11 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Color.h
         ${COMMON_SOURCE_DIR}/Constants.h
         ${COMMON_SOURCE_DIR}/Disjunction.h
-        ${COMMON_SOURCE_DIR}/DoublyLinkedList.h
         ${COMMON_SOURCE_DIR}/Ensure.h
         ${COMMON_SOURCE_DIR}/Exceptions.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
         ${COMMON_SOURCE_DIR}/FreeType.h
+        ${COMMON_SOURCE_DIR}/intrusive_circular_list.h
         ${COMMON_SOURCE_DIR}/Logger.h
         ${COMMON_SOURCE_DIR}/Macros.h
         ${COMMON_SOURCE_DIR}/Notifier.h
@@ -1081,6 +1081,55 @@ set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_compile_features(common PRIVATE cxx_std_17)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common PUBLIC tinyxml2 vecmath optlite glew miniz freeimage freetype OpenGL::GL Qt5::Widgets)
+
+# use precompiled headers on CMake 3.16 or later
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
+    message(STATUS "Using precompiled headers")
+    target_precompile_headers(common PUBLIC
+            <algorithm>
+            <array>
+            <cassert>
+            <cstddef>
+            <cstdio>
+            <cstdlib>
+            <ctime>
+            <functional>
+            <iterator>
+            <iostream>
+            <istream>
+            <limits>
+            <list>
+            <map>
+            <memory>
+            <ostream>
+            <set>
+            <string>
+            <tuple>
+            <unordered_map>
+            <unordered_set>
+            <utility>
+            <vector>
+
+            <QApplication>
+            <QBoxLayout>
+            <QCheckBox>
+            <QDebug>
+            <QEvent>
+            <QtGlobal>
+            <QGridLayout>
+            <QHBoxLayout>
+            <QLabel>
+            <QLineEdit>
+            <QObject>
+            <QPushButton>
+            <QString>
+            <QStringBuilder>
+            <QVBoxLayout>
+            <QWidget>
+    )
+else()
+    message(STATUS "Not using precompiled headers")
+endif()
 
 # Organize files into IDE folders
 source_group(TREE "${COMMON_SOURCE_DIR}" FILES ${COMMON_SOURCE} ${COMMON_HEADER})

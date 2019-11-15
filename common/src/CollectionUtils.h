@@ -654,7 +654,7 @@ namespace VectorUtils {
     std::vector<T> setCreate(const std::vector<T>& vec, const Cmp cmp = Cmp()) {
         auto result = vec;
         setCreate(result, cmp);
-        return std::move(result);
+        return result;
     }
 
     template <typename T1, typename T2, typename Cmp = std::less<T1>>
@@ -718,7 +718,7 @@ namespace VectorUtils {
         std::set_union(std::begin(vec1), std::end(vec1),
                        std::begin(vec2), std::end(vec2),
                        std::back_inserter(result), cmp);
-        return std::move(result);
+        return result;
     }
 
     template <typename T, typename Cmp = std::less<T>>
@@ -727,7 +727,7 @@ namespace VectorUtils {
         std::set_difference(std::begin(minuend), std::end(minuend),
                             std::begin(subtrahend), std::end(subtrahend),
                             std::back_inserter(result), cmp);
-        return std::move(result);
+        return result;
     }
 
     template <typename T, typename Cmp = std::less<T>>
@@ -736,7 +736,7 @@ namespace VectorUtils {
         std::set_intersection(std::begin(vec1), std::end(vec1),
                               std::begin(vec2), std::end(vec2),
                               std::back_inserter(result), cmp);
-        return std::move(result);
+        return result;
     }
 
     /**

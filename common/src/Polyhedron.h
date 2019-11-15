@@ -21,7 +21,7 @@
 #define TrenchBroom_Polyhedron_h
 
 #include "Allocator.h"
-#include "DoublyLinkedList.h"
+#include "intrusive_circular_list.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -48,39 +48,35 @@ public:
     class HalfEdge;
     class Face;
 private:
-    class GetVertexLink {
-    public:
-        typename DoublyLinkedList<Vertex, GetVertexLink>::Link& operator()(Vertex* vertex) const;
-        const typename DoublyLinkedList<Vertex, GetVertexLink>::Link& operator()(const Vertex* vertex) const;
+    struct GetVertexLink {
+        intrusive_circular_link<Vertex>& operator()(Vertex* vertex) const;
+        const intrusive_circular_link<Vertex>& operator()(const Vertex* vertex) const;
     };
 
-    class GetEdgeLink {
-    public:
-        typename DoublyLinkedList<Edge, GetEdgeLink>::Link& operator()(Edge* edge) const;
-        const typename DoublyLinkedList<Edge, GetEdgeLink>::Link& operator()(const Edge* edge) const;
+    struct GetEdgeLink {
+        intrusive_circular_link<Edge>& operator()(Edge* edge) const;
+        const intrusive_circular_link<Edge>& operator()(const Edge* edge) const;
     };
 
-    class GetHalfEdgeLink {
-    public:
-        typename DoublyLinkedList<HalfEdge, GetHalfEdgeLink>::Link& operator()(HalfEdge* halfEdge) const;
-        const typename DoublyLinkedList<HalfEdge, GetHalfEdgeLink>::Link& operator()(const HalfEdge* halfEdge) const;
+    struct GetHalfEdgeLink {
+        intrusive_circular_link<HalfEdge>& operator()(HalfEdge* halfEdge) const;
+        const intrusive_circular_link<HalfEdge>& operator()(const HalfEdge* halfEdge) const;
     };
 
-    class GetFaceLink {
-    public:
-        typename DoublyLinkedList<Face, GetFaceLink>::Link& operator()(Face* face) const;
-        const typename DoublyLinkedList<Face, GetFaceLink>::Link& operator()(const Face* face) const;
+    struct GetFaceLink {
+        intrusive_circular_link<Face>& operator()(Face* face) const;
+        const intrusive_circular_link<Face>& operator()(const Face* face) const;
     };
 
-    using VertexLink = typename DoublyLinkedList<Vertex, GetVertexLink>::Link;
-    using EdgeLink = typename DoublyLinkedList<Edge, GetEdgeLink>::Link;
-    using HalfEdgeLink = typename DoublyLinkedList<HalfEdge, GetHalfEdgeLink>::Link;
-    using FaceLink = typename DoublyLinkedList<Face, GetFaceLink>::Link;
+    using VertexLink = intrusive_circular_link<Vertex>;
+    using EdgeLink = intrusive_circular_link<Edge>;
+    using HalfEdgeLink = intrusive_circular_link<HalfEdge>;
+    using FaceLink = intrusive_circular_link<Face>;
 public:
-    using VertexList = DoublyLinkedList<Vertex, GetVertexLink>;
-    using EdgeList = DoublyLinkedList<Edge, GetEdgeLink>;
-    using HalfEdgeList = DoublyLinkedList<HalfEdge, GetHalfEdgeLink>;
-    using FaceList = DoublyLinkedList<Face, GetFaceLink>;
+    using VertexList = intrusive_circular_list<Vertex, GetVertexLink>;
+    using EdgeList = intrusive_circular_list<Edge, GetEdgeLink>;
+    using HalfEdgeList = intrusive_circular_list<HalfEdge, GetHalfEdgeLink>;
+    using FaceList = intrusive_circular_list<Face, GetFaceLink>;
 
     class VertexDistanceCmp;
     using ClosestVertexSet = std::set<Vertex*, VertexDistanceCmp>;
@@ -225,7 +221,7 @@ public:
         typename FP::Type m_payload;
         FaceLink m_link;
     private:
-        Face(HalfEdgeList& boundary);
+        explicit Face(HalfEdgeList&& boundary);
     public:
         typename FP::Type payload() const;
         void setPayload(typename FP::Type payload);
@@ -264,15 +260,17 @@ public:
         bool coplanar(const Face* other) const;
         bool verticesOnPlane(const vm::plane<T,3>& plane) const;
         void flip();
-        void insertIntoBoundaryBefore(HalfEdge* before, HalfEdge* edge);
-        void insertIntoBoundaryAfter(HalfEdge* after, HalfEdge* edge);
-        size_t removeFromBoundary(HalfEdge* from, HalfEdge* to);
-        size_t removeFromBoundary(HalfEdge* edge);
-        size_t replaceBoundary(HalfEdge* edge, HalfEdge* with);
-        size_t replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with);
-        void replaceEntireBoundary(HalfEdgeList& newBoundary);
-        size_t countAndSetFace(HalfEdge* from, HalfEdge* until, Face* face);
-        size_t countAndUnsetFace(HalfEdge* from, HalfEdge* until);
+
+        template <typename H>
+        void insertIntoBoundaryAfter(HalfEdge* after, H&& edges);
+
+        HalfEdgeList removeFromBoundary(HalfEdge* from, HalfEdge* to);
+        HalfEdgeList removeFromBoundary(HalfEdge* edge);
+
+        template <typename H>
+        HalfEdgeList replaceBoundary(HalfEdge* from, HalfEdge* to, H&& with);
+        size_t countAndSetFace(HalfEdge* from, HalfEdge* to, Face* face);
+        size_t countAndUnsetFace(HalfEdge* from, HalfEdge* to);
         void setBoundaryFaces();
         void unsetBoundaryFaces();
         void removeBoundaryFromEdges();
@@ -316,22 +314,15 @@ public: // Constructors
     Polyhedron();
 
     Polyhedron(std::initializer_list<V> positions);
-    Polyhedron(std::initializer_list<V> positions, Callback& callback);
-
     Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4);
-    Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback);
-
     explicit Polyhedron(const vm::bbox<T,3>& bounds);
-    Polyhedron(const vm::bbox<T,3>& bounds, Callback& callback);
-
     explicit Polyhedron(const std::vector<V>& positions);
-    Polyhedron(const std::vector<V>& positions, Callback& callback);
 
     Polyhedron(const Polyhedron<T,FP,VP>& other);
     Polyhedron(Polyhedron<T,FP,VP>&& other) noexcept;
 private: // Constructor helpers
-    void addPoints(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback);
-    void setBounds(const vm::bbox<T,3>& bounds, Callback& callback);
+    void addPoints(const V& p1, const V& p2, const V& p3, const V& p4);
+    void setBounds(const vm::bbox<T,3>& bounds);
 private: // Copy helper
     class Copy;
 public: // Destructor

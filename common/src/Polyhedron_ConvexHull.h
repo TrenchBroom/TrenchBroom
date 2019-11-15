@@ -91,9 +91,9 @@ public:
     }
 
     Edge* second() const {
-        assert(size() > 1);
+        assert(size() > 1u);
         const_iterator it = std::begin(m_edges);
-        std::advance(it, 1);
+        std::advance(it, 1u);
         return *it;
     }
 
@@ -250,7 +250,7 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFirstPoint(const V& position, Callback& callback) {
     assert(empty());
     Vertex* newVertex = new Vertex(position);
-    m_vertices.append(newVertex, 1);
+    m_vertices.push_back(newVertex);
     callback.vertexWasCreated(newVertex);
     return newVertex;
 }
@@ -263,13 +263,13 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addSecondPoint(const 
     Vertex* onlyVertex = *std::begin(m_vertices);
     if (position != onlyVertex->position()) {
         Vertex* newVertex = new Vertex(position);
-        m_vertices.append(newVertex, 1);
+        m_vertices.push_back(newVertex);
         callback.vertexWasCreated(newVertex);
 
         HalfEdge* halfEdge1 = new HalfEdge(onlyVertex);
         HalfEdge* halfEdge2 = new HalfEdge(newVertex);
         Edge* edge = new Edge(halfEdge1, halfEdge2);
-        m_edges.append(edge, 1);
+        m_edges.push_back(edge);
         return newVertex;
     } else {
         return nullptr;
@@ -336,19 +336,19 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addNonColinearThirdPo
     e1->unsetSecondEdge();
 
     HalfEdgeList boundary;
-    boundary.append(h1, 1);
-    boundary.append(h2, 1);
-    boundary.append(h3, 1);
+    boundary.push_back(h1);
+    boundary.push_back(h2);
+    boundary.push_back(h3);
 
-    Face* face = new Face(boundary);
+    Face* face = new Face(std::move(boundary));
 
     Edge* e2 = new Edge(h2);
     Edge* e3 = new Edge(h3);
 
-    m_vertices.append(v3, 1);
-    m_edges.append(e2, 1);
-    m_edges.append(e3, 1);
-    m_faces.append(face, 1);
+    m_vertices.push_back(v3);
+    m_edges.push_back(e2);
+    m_edges.push_back(e3);
+    m_faces.push_back(face);
 
     callback.vertexWasCreated(v1);
     callback.faceWasCreated(face);
@@ -360,7 +360,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addNonColinearThirdPo
 // Adds the given point to a polyhedron that is either a polygon or a polyhedron.
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPoint(const V& position, Callback& callback) {
-    if (faceCount() == 1) {
+    if (faceCount() == 1u) {
         return addFurtherPointToPolygon(position, callback);
     } else {
         return addFurtherPointToPolyhedron(position, callback);
@@ -436,38 +436,37 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
     HalfEdge* h1 = new HalfEdge(firstVisibleEdge->origin());
     HalfEdge* h2 = new HalfEdge(newVertex);
 
-    face->insertIntoBoundaryAfter(lastVisibleEdge, h1);
-    face->insertIntoBoundaryAfter(h1, h2);
-    face->removeFromBoundary(firstVisibleEdge, lastVisibleEdge);
+    face->insertIntoBoundaryAfter(lastVisibleEdge, HalfEdgeList({ h1 }));
+    face->insertIntoBoundaryAfter(h1, HalfEdgeList({ h2 }));
+    HalfEdgeList visibleEdges = face->removeFromBoundary(firstVisibleEdge, lastVisibleEdge);
 
     h1->setAsLeaving();
 
     Edge* e1 = new Edge(h1);
     Edge* e2 = new Edge(h2);
 
-    // Delete the visible half edges, the vertices and edges.
-    firstEdge = firstVisibleEdge;
+    // delete the visible vertices and edges.
+    // the visible half edges are deleted when visibleEdges goes out of scope
+    firstEdge = visibleEdges.front();
     curEdge = firstEdge;
     do {
         HalfEdge* nextEdge = curEdge->next();
 
         Edge* edge = curEdge->edge();
         m_edges.remove(edge);
-        delete edge;
 
         if (curEdge != firstEdge) {
             Vertex* vertex = curEdge->origin();
             callback.vertexWillBeDeleted(vertex);
             m_vertices.remove(vertex);
-            delete vertex;
         }
 
         curEdge = nextEdge;
     } while (curEdge != firstEdge);
 
-    m_edges.append(e1, 1);
-    m_edges.append(e2, 1);
-    m_vertices.append(newVertex, 1);
+    m_edges.push_back(e1);
+    m_edges.push_back(e2);
+    m_vertices.push_back(newVertex);
     callback.vertexWasCreated(newVertex);
 
     return newVertex;
@@ -482,22 +481,22 @@ void Polyhedron<T,FP,VP>::makePolygon(const std::vector<V>& positions, Callback&
     assert(positions.size() > 2);
 
     HalfEdgeList boundary;
-    for (size_t i = 0; i < positions.size(); ++i) {
+    for (size_t i = 0u; i < positions.size(); ++i) {
         const V& p = positions[i];
         Vertex* v = new Vertex(p);
         HalfEdge* h = new HalfEdge(v);
         Edge* e = new Edge(h);
 
-        m_vertices.append(v, 1);
+        m_vertices.push_back(v);
         callback.vertexWasCreated(v);
 
-        boundary.append(h, 1);
-        m_edges.append(e, 1);
+        boundary.push_back(h);
+        m_edges.push_back(e);
     }
 
-    Face* f = new Face(boundary);
+    Face* f = new Face(std::move(boundary));
     callback.faceWasCreated(f);
-    m_faces.append(f, 1);
+    m_faces.push_back(f);
 }
 
 // Converts a coplanar polyhedron into a non-coplanar one by adding the given
@@ -650,7 +649,6 @@ void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Ve
                 // This means that we can safely unset the edge and delete it.
                 current->unsetEdge();
                 m_edges.remove(edge);
-                delete edge;
             }
         }
 
@@ -659,14 +657,12 @@ void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Ve
             // We expect that the vertices on the seam have had a remaining edge
             // set as their leaving edge before the call to this function.
             callback.vertexWillBeDeleted(origin);
-            m_vertices.remove(origin);
-            verticesToDelete.append(origin, 1);
+            verticesToDelete.splice_back(m_vertices, VertexList::iter(origin), std::next(VertexList::iter(origin)), 1u);
         }
         current = current->next();
     } while (current != first);
 
     m_faces.remove(face);
-    delete face;
 }
 
 /**
@@ -684,13 +680,13 @@ void Polyhedron<T,FP,VP>::sealWithSinglePolygon(const Seam& seam, Callback& call
 
         Vertex* origin = seamEdge->secondVertex();
         HalfEdge* boundaryEdge = new HalfEdge(origin);
-        boundary.append(boundaryEdge, 1);
+        boundary.push_back(boundaryEdge);
         seamEdge->setSecondEdge(boundaryEdge);
     }
 
-    Face* face = new Face(boundary);
+    Face* face = new Face(std::move(boundary));
     callback.faceWasCreated(face);
-    m_faces.append(face, 1);
+    m_faces.push_back(face);
 }
 
 template <typename T, typename FP, typename VP>
@@ -698,7 +694,7 @@ class Polyhedron<T,FP,VP>::ShiftSeamForWeaving {
 private:
     const V m_position;
 public:
-    ShiftSeamForWeaving(const V& position) : m_position(position) {}
+    explicit ShiftSeamForWeaving(const V& position) : m_position(position) {}
 public:
     bool operator()(const Seam& seam) const {
         const auto* last = seam.last();
@@ -783,9 +779,9 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
         auto* h = h3;
 
         HalfEdgeList boundary;
-        boundary.append(h1, 1);
-        boundary.append(h2, 1);
-        boundary.append(h3, 1);
+        boundary.push_back(h1);
+        boundary.push_back(h2);
+        boundary.push_back(h3);
         edge->setSecondEdge(h2);
 
         if (it != std::end(seam)) {
@@ -800,7 +796,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
 
                 auto* v = next->firstVertex();
                 h = new HalfEdge(v);
-                boundary.append(h, 1);
+                boundary.push_back(h);
 
                 if (++it != std::end(seam)) {
                     next = *it;
@@ -808,12 +804,12 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
             }
         }
 
-        Face* newFace = new Face(boundary);
+        Face* newFace = new Face(std::move(boundary));
         callback.faceWasCreated(newFace);
-        m_faces.append(newFace, 1);
+        m_faces.push_back(newFace);
 
         if (last != nullptr) {
-            m_edges.append(new Edge(h1, last), 1);
+            m_edges.push_back(new Edge(h1, last));
         }
 
         if (first == nullptr) {
@@ -823,9 +819,9 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
     }
 
     assert(first->face() != last->face());
-    m_edges.append(new Edge(first, last), 1);
+    m_edges.push_back(new Edge(first, last));
 
-    m_vertices.append(top, 1);
+    m_vertices.push_back(top);
     callback.vertexWasCreated(top);
 
     return top;

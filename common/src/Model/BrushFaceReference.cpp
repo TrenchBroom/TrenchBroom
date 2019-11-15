@@ -19,10 +19,9 @@
 
 #include "BrushFaceReference.h"
 
+#include "Ensure.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-
-#include <vecmath/plane.h>
 
 namespace TrenchBroom {
     namespace Model {

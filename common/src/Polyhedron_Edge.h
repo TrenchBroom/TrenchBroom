@@ -27,12 +27,12 @@
 #include <vecmath/scalar.h>
 
 template <typename T, typename FP, typename VP>
-typename DoublyLinkedList<typename Polyhedron<T,FP,VP>::Edge, typename Polyhedron<T,FP,VP>::GetEdgeLink>::Link& Polyhedron<T,FP,VP>::GetEdgeLink::operator()(Edge* edge) const {
+intrusive_circular_link<typename Polyhedron<T,FP,VP>::Edge>& Polyhedron<T,FP,VP>::GetEdgeLink::operator()(Edge* edge) const {
     return edge->m_link;
 }
 
 template <typename T, typename FP, typename VP>
-const typename DoublyLinkedList<typename Polyhedron<T,FP,VP>::Edge, typename Polyhedron<T,FP,VP>::GetEdgeLink>::Link& Polyhedron<T,FP,VP>::GetEdgeLink::operator()(const Edge* edge) const {
+const intrusive_circular_link<typename Polyhedron<T,FP,VP>::Edge>& Polyhedron<T,FP,VP>::GetEdgeLink::operator()(const Edge* edge) const {
     return edge->m_link;
 }
 
@@ -226,17 +226,44 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::split(const vm::p
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Edge::insertVertex(const V& position) {
+    /*
+     before:
+
+     |----------this edge---------|
+     |                            |
+     ------------old1st----------->
+     <-----------old2nd------------
+
+     after:
+
+     |-this edge--|  |--new edge--|
+     |            |  |            |
+     ----old1st--->  ----new1st--->
+     <---new2nd----  ----old2nd----
+                   /\
+               new vertex
+
+     */
+
+    // create new vertices and new half edges originating from it
+    // the caller is responsible for storing the newly created vertex!
     Vertex* newVertex = new Vertex(position);
     HalfEdge* newFirstEdge = new HalfEdge(newVertex);
     HalfEdge* oldFirstEdge = firstEdge();
     HalfEdge* newSecondEdge = new HalfEdge(newVertex);
     HalfEdge* oldSecondEdge = secondEdge();
 
-    firstFace()->insertIntoBoundaryAfter(oldFirstEdge, newFirstEdge);
-    secondFace()->insertIntoBoundaryAfter(oldSecondEdge, newSecondEdge);
+    // insert the new half edges into the corresponding faces
+    firstFace()->insertIntoBoundaryAfter(oldFirstEdge, HalfEdgeList({ newFirstEdge }));
+    secondFace()->insertIntoBoundaryAfter(oldSecondEdge, HalfEdgeList({ newSecondEdge }));
 
+    // make old1st the leaving edge of its origin vertex
     setFirstAsLeaving();
+
+    // unset old2nd from this edge
     unsetSecondEdge();
+
+    // and replace it with new2nd
     setSecondEdge(newSecondEdge);
 
     return new Edge(newFirstEdge, oldSecondEdge);
