@@ -22,13 +22,10 @@
 
 #include "TrenchBroom.h"
 
-#include "Polyhedron.h"
+#include "Polyhedron_Forward.h"
 #include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"
 
-#include "Polyhedron_Instantiation.h"
-
-template<typename T, typename FP, typename VB> class Polyhedron;
 using Polyhedron3 = Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
 
 #endif

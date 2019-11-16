@@ -34,5 +34,17 @@
 #include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"
 
+template class Polyhedron_Vertex<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+template class Polyhedron_Vertex<FloatType, BrushFacePayload, BrushVertexPayload>;
+
+template class Polyhedron_Edge<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+template class Polyhedron_Edge<FloatType, BrushFacePayload, BrushVertexPayload>;
+
+template class Polyhedron_HalfEdge<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+template class Polyhedron_HalfEdge<FloatType, BrushFacePayload, BrushVertexPayload>;
+
+template class Polyhedron_Face<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+template class Polyhedron_Face<FloatType, BrushFacePayload, BrushVertexPayload>;
+
 template class Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
 template class Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;

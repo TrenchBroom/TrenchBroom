@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "Constants.h"
+#include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -844,7 +845,7 @@ namespace TrenchBroom {
             }
 
             for (const auto& edge : edgePositions) {
-                if (!result.geometry.hasEdge(edge.start() + delta, edge.end() + delta)) {
+                if (!result.geometry->hasEdge(edge.start() + delta, edge.end() + delta)) {
                     return false;
                 }
             }
@@ -887,7 +888,7 @@ namespace TrenchBroom {
             }
 
             for (const auto& face : facePositions) {
-                if (!result.geometry.hasFace(face.vertices() + delta)) {
+                if (!result.geometry->hasFace(face.vertices() + delta)) {
                     return false;
                 }
             }
@@ -915,14 +916,20 @@ namespace TrenchBroom {
             return result;
         }
 
-        Brush::CanMoveVerticesResult::CanMoveVerticesResult(const bool s, const BrushGeometry& g) : success(s), geometry(g) {}
+        Brush::CanMoveVerticesResult::CanMoveVerticesResult(const bool s, BrushGeometry&& g) :
+        success(s),
+        geometry(new BrushGeometry(std::move(g))) {}
+
+        Brush::CanMoveVerticesResult::~CanMoveVerticesResult() {
+            delete geometry;
+        }
 
         Brush::CanMoveVerticesResult Brush::CanMoveVerticesResult::rejectVertexMove() {
             return CanMoveVerticesResult(false, BrushGeometry());
         }
 
-        Brush::CanMoveVerticesResult Brush::CanMoveVerticesResult::acceptVertexMove(const BrushGeometry& result) {
-            return CanMoveVerticesResult(true, result);
+        Brush::CanMoveVerticesResult Brush::CanMoveVerticesResult::acceptVertexMove(BrushGeometry&& result) {
+            return CanMoveVerticesResult(true, std::move(result));
         }
 
         /*
@@ -984,7 +991,7 @@ namespace TrenchBroom {
 
             // Special case, takes care of the first column.
             if (moving.vertexCount() == vertexCount()) {
-                return CanMoveVerticesResult::acceptVertexMove(result);
+                return CanMoveVerticesResult::acceptVertexMove(std::move(result));
             }
 
             // Will vertices be removed?
@@ -1005,7 +1012,7 @@ namespace TrenchBroom {
             // One of the remaining two ok cases?
             if ((moving.point() && remaining.polygon()) ||
                 (moving.edge() && remaining.edge())) {
-                return CanMoveVerticesResult::acceptVertexMove(result);
+                return CanMoveVerticesResult::acceptVertexMove(std::move(result));
             }
 
             // Invert if necessary.
@@ -1032,7 +1039,7 @@ namespace TrenchBroom {
                 }
             }
 
-            return CanMoveVerticesResult::acceptVertexMove(result);
+            return CanMoveVerticesResult::acceptVertexMove(std::move(result));
         }
 
         void Brush::doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, const bool uvLock) {

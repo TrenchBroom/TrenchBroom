@@ -19,9 +19,10 @@
 
 #include "BrushFace.h"
 
+#include "Constants.h"
+#include "Polyhedron.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
-#include "Constants.h"
 #include "Model/TagMatcher.h"
 #include "Model/Brush.h"
 #include "Model/BrushFaceSnapshot.h"

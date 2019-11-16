@@ -25,7 +25,6 @@
 #include "Model/Brush.h"
 #include "Model/Layer.h"
 #include "View/Autosaver.h"
-#include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 
 #include <chrono>

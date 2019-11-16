@@ -20,8 +20,9 @@
 #ifndef VertexToolBase_h
 #define VertexToolBase_h
 
-#include "Disjunction.h"
 #include "TrenchBroom.h"
+#include "Disjunction.h"
+#include "Polyhedron.h"
 #include "Polyhedron3.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"

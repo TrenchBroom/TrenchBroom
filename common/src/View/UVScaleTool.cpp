@@ -20,6 +20,7 @@
 #include "UVScaleTool.h"
 
 #include "TrenchBroom.h"
+#include "Polyhedron.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"

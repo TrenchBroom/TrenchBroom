@@ -19,19 +19,19 @@
 
 #include "Grid.h"
 
-#include <cmath>
-
 #include "Constants.h"
 #include "CollectionUtils.h"
+#include "Polyhedron.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/ray.h>
-#include <vecmath/plane.h>
 #include <vecmath/intersection.h>
 #include <vecmath/scalar.h>
+
+#include <cmath>
 
 namespace TrenchBroom {
     namespace View {

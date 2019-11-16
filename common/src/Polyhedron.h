@@ -23,6 +23,8 @@
 #include "Allocator.h"
 #include "intrusive_circular_list.h"
 
+#include "Polyhedron_Forward.h"
+
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/bbox.h>
@@ -32,6 +34,978 @@
 #include <limits>
 #include <ostream>
 #include <vector>
+
+/* ====================== Implementation in Polyhedron_Vertex.h ====================== */
+
+
+/**
+ * Maps a vertex to its contained intrusive_circular_link member, used for intrusive_circular_list.
+ */
+struct Polyhedron_GetVertexLink {
+    template <typename T, typename FP, typename VP>
+    intrusive_circular_link<Polyhedron_Vertex<T,FP,VP>>& operator()(Polyhedron_Vertex<T,FP,VP>* vertex) const;
+
+    template <typename T, typename FP, typename VP>
+    const intrusive_circular_link<Polyhedron_Vertex<T,FP,VP>>& operator()(const Polyhedron_Vertex<T,FP,VP>* vertex) const;
+};
+
+/**
+ * A vertex of a polyhedron.
+ *
+ * Each vertex of a polyhedron has a position, a leaving half edge, a link to its previous and next neighbours in
+ * the containing intrusive circular list, and a payload.
+ *
+ * The leaving half edge of a vertex is any half edge that has the vertex as its origin. It is used to find
+ * the incident faces of a vertex.
+ *
+ * The payload of a vertex can be used to store user data.
+ */
+template <typename T, typename FP, typename VP>
+class Polyhedron_Vertex : public Allocator<Polyhedron_Vertex<T,FP,VP>> {
+private:
+    friend class Polyhedron<T,FP,VP>;
+    friend class Polyhedron_Edge<T,FP,VP>;
+    friend class Polyhedron_HalfEdge<T,FP,VP>;
+    friend class Polyhedron_Face<T,FP,VP>;
+    friend struct Polyhedron_GetVertexLink;
+
+    using Vertex = Polyhedron_Vertex<T,FP,VP>;
+    using HalfEdge = Polyhedron_HalfEdge<T,FP,VP>;
+    using Face = Polyhedron_Face<T,FP,VP>;
+private:
+    /**
+     * The vertex position.
+     */
+    vm::vec<T,3> m_position;
+
+    /**
+     * A half edge that originates at this vertex.
+     */
+    HalfEdge* m_leaving;
+
+    /**
+     * The intrusive_circular_link member required to put vertices in an intrusive_circular_list.
+     */
+    intrusive_circular_link<Vertex> m_link;
+
+    /**
+     * A payload data item that can be set on this vertex.
+     */
+    typename VP::Type m_payload;
+private:
+    /**
+     * Creates a new vertex at the given position. The leaving half edge will be null.
+     *
+     * @param position the position of the new vertex
+     */
+    explicit Polyhedron_Vertex(const vm::vec<T,3>& position);
+public:
+    /**
+     * Returns the position of this vertex.
+     */
+    const vm::vec<T,3>& position() const;
+
+    /**
+     * Sets the position of this vertex.
+     *
+     * @param position the position to set
+     */
+    void setPosition(const vm::vec<T,3>& position);
+
+    /**
+     * Returns the leaving half edge assigned to this vertex.
+     */
+    HalfEdge* leaving() const;
+
+    /**
+     * Sets the leaving half edge for this vertex. The given edge must not be null and its origin must be
+     * this vertex.
+     *
+     * @param edge the half edge to set
+     */
+    void setLeaving(HalfEdge* edge);
+
+    /**
+     * Returns the next vertex in its containing circular list.
+     */
+    Vertex* next() const;
+
+    /**
+     * Returns the previous vertex in its containing circular list.
+     */
+    Vertex* previous() const;
+
+    /**
+     * Returns the payload assigned to this vertex.
+     */
+    typename VP::Type payload() const;
+
+    /**
+     * Sets the payload assigned to this vertex.
+     *
+     * @param payload the payload to set
+     */
+    void setPayload(typename VP::Type payload);
+
+    /**
+     * Indicates whether the given face is incident to this vertex.
+     *
+     * @param face the face to check, must not be null
+     * @return true if this vertex is incident to the given face and false otherwise
+     */
+    bool incident(const Face* face) const;
+
+    /**
+     * Appends a textual representation of the given vertices' position to the given stream.
+     */
+    friend std::ostream& operator<<(std::ostream& stream, const Vertex& vertex);
+
+    /**
+     * Rounds each component of this vertices' position to the nearest integer if the distance of the component's
+     * value to that integer is less  than the given epsilon value. Furthermore, the component value is rounded
+     * such that at most the given number of decimals are retained.
+     *
+     * @param decimals the number of decimals to retain
+     * @param epsilon an epsilon value
+     */
+    void correctPosition(const size_t decimals = 0, const T epsilon = vm::constants<T>::correct_epsilon());
+};
+
+/* ====================== Implementation in Polyhedron_Edge.h ====================== */
+
+/**
+ * Maps an edge to its contained intrusive_circular_link member, used for intrusive_circular_list.
+ */
+struct Polyhedron_GetEdgeLink {
+    template <typename T, typename FP, typename VP>
+    intrusive_circular_link<Polyhedron_Edge<T,FP,VP>>& operator()(Polyhedron_Edge<T,FP,VP>* edge) const;
+
+    template <typename T, typename FP, typename VP>
+    const intrusive_circular_link<Polyhedron_Edge<T,FP,VP>>& operator()(const Polyhedron_Edge<T,FP,VP>* edge) const;
+};
+
+/**
+ * And edge of a polyhedron.
+ *
+ * Each edge consists of two half edges with opposite directions. These half edges belong to adjacent faces
+ * that share the edge. During execution of some algorithms, edges may be underspecified, meaning that they
+ * have only one half edge. If both half edges are set, then this edge is called fully specified.
+ *
+ * The naming of the contained half edges as first or second does not imply any precedence, but it is
+ * sometimes used to distinguish the half edges in algorithms. For example, when splitting a polyhedron along
+ * a seam, the first and second half edge will be used to determine which part of the polyhedron is deleted
+ * and which part is retained.
+ *
+ * Furthermore, an edge has a link to its previous and next neighbours in the containing intrusive circular
+ * list.
+ */
+template <typename T, typename FP, typename VP>
+class Polyhedron_Edge : public Allocator<Polyhedron_Edge<T,FP,VP>> {
+private:
+    friend class Polyhedron<T,FP,VP>;
+    friend class Polyhedron_Vertex<T,FP,VP>;
+    friend class Polyhedron_HalfEdge<T,FP,VP>;
+    friend class Polyhedron_Face<T,FP,VP>;
+    friend struct Polyhedron_GetEdgeLink;
+
+    using Vertex = Polyhedron_Vertex<T,FP,VP>;
+    using Edge = Polyhedron_Edge<T,FP,VP>;
+    using HalfEdge = Polyhedron_HalfEdge<T,FP,VP>;
+    using Face = Polyhedron_Face<T,FP,VP>;
+private:
+    /**
+     * The first half edge.
+     */
+    HalfEdge* m_first;
+
+    /**
+     * The second half edge.
+     */
+    HalfEdge* m_second;
+
+    /**
+     * The intrusive_circular_link member required to put vertices in an intrusive_circular_list.
+     */
+    intrusive_circular_link<Edge> m_link;
+private:
+    /**
+     * Creates a new edge with the given half edges.
+     *
+     * @param first the first half edge, must not be null
+     * @param second the second half edge, may be null
+     */
+    Polyhedron_Edge(HalfEdge* first, HalfEdge* second = nullptr);
+public:
+    /**
+     * Returns the origin of the first half edge.
+     */
+    Vertex* firstVertex() const;
+
+    /**
+     * Returns the origin of the second half edge if one is set. Otherwise returns the destination of the
+     * first half edge.
+     */
+    Vertex* secondVertex() const;
+
+    /**
+     * Returns the first half edge.
+     */
+    HalfEdge* firstEdge() const;
+
+    /**
+     * Returns the second half edge. Behavior is unspecified if the second half edge is unset.
+     */
+    HalfEdge* secondEdge() const;
+
+    /**
+     * Returns the twin of the given half edge, which must be one of the half edges of this edge. If a half
+     * edge is passed that doesn't belong to this edge, the behavior is unspecified.
+     *
+     * @param halfEdge the half edge of which the twin should be returned
+     * @return the second half edge if given the first half edge, and the first half edge if given the second
+     * half edge
+     */
+    HalfEdge* twin(const HalfEdge* halfEdge) const;
+
+    /**
+     * Returns the vector from the position of the first vertex to the position of the second vertex.
+     * The behavior is unspecified if this edge is not fully specified.
+     */
+    vm::vec<T,3> vector() const;
+
+    /**
+     * Returns the center between the position of the first vertex and the position of the second vertex.
+     * The behavior is unspecified if this edge is not fully specified.
+     */
+    vm::vec<T,3> center() const;
+
+    /**
+     * Returns the face to which the first half edge belongs.
+     */
+    Face* firstFace() const;
+
+    /**
+     * Returns the face to which the second half edge belongs. The behavior is unspecified if no second half
+     * edge is set.
+     */
+    Face* secondFace() const;
+
+    /**
+     * Indicates whether the given vertex is either the first or the second vertex of this edge.
+     *
+     * @param vertex the vertex to check, which must not be null
+     * @return true if the given vertex is either the first or the second vertex of this edge, and false
+     * otherwise
+     */
+    bool hasVertex(const Vertex* vertex) const;
+
+    /**
+     * Indicates whether this edge has a vertex with the given position, up to the given epsilon value.
+     *
+     * @param position the position to check
+     * @param epsilon the epsilon value to use for equality checks
+     * @return true if this edge has a vertex with the given position
+     */
+    bool hasPosition(const vm::vec<T,3>& position, T epsilon = static_cast<T>(0.0)) const;
+
+    /**
+     * Indicates whether this edge has the given positions for its first and second vertex, up to the given
+     * epsilon value. The order of the given positions does not matter.
+     *
+     * @param position1 the first position to check
+     * @param position2 the second position to check
+     * @param epsilon the epsilon value to use for equality checks
+     * @return true if this edge has both of the given positions for its first and second vertex and false
+     * otherwise
+     */
+    bool hasPositions(const vm::vec<T,3>& position1, const vm::vec<T,3>& position2, T epsilon = static_cast<T>(0.0)) const;
+
+    /**
+     * Computes the maximum of the minimal distances of each of the positions this edge's vertices and the
+     * given two points. The result is the maximum of two distances d1 and d2, where
+     *
+     * - d1 is the minimum of the distances between the positions of this edge's vertices and position1
+     * - d2 is the minimum of the distances between the positions of this edge's vertices and position2
+     *
+     * If this edge is not fully specified, the behavior is unspecified.
+     *
+     * @param position1 the first point
+     * @param position2 the second point
+     * @return the maximum of the distances d1 and d2 as specified above
+     */
+    T distanceTo(const vm::vec<T,3>& position1, const vm::vec<T,3>& position2) const;
+
+    /**
+     * Indicates whether this edge is fully specified, that is, its second half edge is set.
+     *
+     * @return true if this edge is fully specified and false otherwise
+     */
+    bool fullySpecified() const;
+
+    /**
+     * Returns the next edge in its containing circular list.
+     */
+    Edge* next() const;
+
+    /**
+     * Returns the previous edge in its containing circular list.
+     */
+    Edge* previous() const;
+private:
+    /**
+     * Splits this edge by inserting a new vertex at the position where this edge intersects the given plane.
+     *
+     * The newly created vertices' position will be the point at which the line segment defined by this
+     * edge's vertices' positions intersects the given plane.
+
+     * This function assumes that the vertices of this edge are on opposite sides of the given plane.
+     *
+     * @param plane the plane at which to split this edge
+     * @return the newly created edge
+     */
+    Edge* split(const vm::plane<T,3>& plane);
+
+    /**
+     * Inserts a new vertex at the given position into this edge, creating two new half edges, and a new edge.
+     * The newly created half edges are added to the boundaries of the corresponding faces, but the newly
+     * created vertex and edge must be stored in their respective containing circular lists.
+     *
+     * The newly created vertex will be the origin of the newly created edge's first half edge.
+     *
+     * The following diagram illustrates the effects of this function
+     *
+     * Before calling this function, this edge looks as follows
+     *
+     * /\------------old1st----------->/\
+     * \/<-----------new2nd------------\/
+     * |                               |
+     * 1st vertex                      2nd vertex
+     *
+     * Suppose that the given plane intersects this edge at its center, then the result will look as follows.
+     *
+     *   |-this edge--|  |--new edge--|
+     *   |            |  |            |
+     * /\----old1st--->/\----new1st--->/\
+     * \/<---new2nd----\/----old2nd----\/
+     * |               |               |
+     * 1st vertex      new vertex      2nd vertex
+     *
+     * @param position the positition of the newly created vertex
+     * @return the newly created edge
+     */
+    Edge* insertVertex(const vm::vec<T,3>& position);
+
+    /**
+     * Flips this edge by swapping its first and second half edges.
+     */
+    void flip();
+
+    /**
+     * Ensures that the given half edge is the first half edge of this edge. If the given edge is null, or
+     * if it is neither the first nor the second half edge of this edge, the behavior is unspecfied. If the
+     * given half edge already is the first half edge of this edge, then nothing happens. Otherwise, this
+     * edge is flipped and thereby the given half edge is made the first half edge of this edge.
+     *
+     * @param edge the half edge to make the first half edge of this edge
+     */
+    void makeFirstEdge(HalfEdge* edge);
+
+    /**
+     * Ensures that the given half edge is the second half edge of this edge. If the given edge is null, or
+     * if it is neither the first nor the second half edge of this edge, the behavior is unspecfied. If the
+     * given half edge already is the second half edge of this edge, then nothing happens. Otherwise, this
+     * edge is flipped and thereby the given half edge is made the second half edge of this edge.
+     *
+     * @param edge the half edge to make the second half edge of this edge
+     */
+    void makeSecondEdge(HalfEdge* edge);
+
+    /**
+     * Ensures that the first half edge of this edge is the leaving half edge of its origin vertex.
+     */
+    void setFirstAsLeaving();
+
+    /**
+     * Sets the second half edge of this edge to null. Assumes that this edge is fully specified, otherwise
+     * the behavior is unspecified.
+     */
+    void unsetSecondEdge();
+
+    /**
+     * Sets the second half edge of this edge. Assumes that this edge is not fully specified, otherwise the
+     * behavior is undefined. Furthermore, the given half edge must not be associated with any other edge.
+     *
+     * @param second the half edge to set as the second half edge of this edge, must not be null
+     */
+    void setSecondEdge(HalfEdge* second);
+};
+
+/* ====================== Implementation in Polyhedron_HalfEdge.h ====================== */
+
+/**
+ * Maps a half edge to its contained intrusive_circular_link member, used for intrusive_circular_list.
+ */
+struct Polyhedron_GetHalfEdgeLink {
+    template <typename T, typename FP, typename VP>
+    intrusive_circular_link<Polyhedron_HalfEdge<T,FP,VP>>& operator()(Polyhedron_HalfEdge<T,FP,VP>* halfEdge) const;
+
+    template <typename T, typename FP, typename VP>
+    const intrusive_circular_link<Polyhedron_HalfEdge<T,FP,VP>>& operator()(const Polyhedron_HalfEdge<T,FP,VP>* halfEdge) const;
+};
+
+/**
+ * A half edge of a polyhedron. Every edge of a polyhedron is made up of two half edges, each of which belongs
+ * to the two faces containing the edge. The half edges belonging to a face make up its boundary.
+ *
+ * Each half edge has an origin vertex, the edge to which the half edge belongs, and the face to which it
+ * belongs. The origin vertex may have a pointer to this half edge if it was set as the leaving half edge
+ * of that vertex.
+ *
+ * Furthermore, an edge has a link to its previous and next neighbours in the containing intrusive circular
+ * list.
+ *
+ * The destination vertex of a half edge is the vertex at which the half edge ends and where its successor
+ * in the boundary of the containing face originates.
+ *
+ * If this half edge is part of a fully specified edge, then the other half edge of that edge is called
+ * the twin of this half edge.
+ *
+ * A half edge is stored in an intrusive circular list that belongs to the face whose boundary the half edge
+ * belongs to.
+ */
+template <typename T, typename FP, typename VP>
+class Polyhedron_HalfEdge : public Allocator<Polyhedron_HalfEdge<T,FP,VP>> {
+private:
+    friend class Polyhedron<T,FP,VP>;
+    friend class Polyhedron_Vertex<T,FP,VP>;
+    friend class Polyhedron_Edge<T,FP,VP>;
+    friend class Polyhedron_Face<T,FP,VP>;
+    friend struct Polyhedron_GetHalfEdgeLink;
+
+    using Vertex = Polyhedron_Vertex<T,FP,VP>;
+    using Edge = Polyhedron_Edge<T,FP,VP>;
+    using HalfEdge = Polyhedron_HalfEdge<T,FP,VP>;
+    using Face = Polyhedron_Face<T,FP,VP>;
+private:
+    /**
+     * The origin vertex of this half edge.
+     */
+    Vertex* m_origin;
+
+    /**
+     * The edge to which this half edge belongs.
+     */
+    Edge* m_edge;
+
+    /**
+     * The face whose boundary this half edge belongs to.
+     */
+    Face* m_face;
+
+    /**
+     * The intrusive_circular_link member required to put half edges in an intrusive_circular_list.
+     */
+    intrusive_circular_link<HalfEdge> m_link;
+private:
+    /**
+     * Creates a new half edge with the given vertex as its origin. This half edge will be set as the leaving
+     * half edge of the given vertex.
+     *
+     * @param origin the origin vertex, must not be null
+     */
+    Polyhedron_HalfEdge(Vertex* origin);
+public:
+    /**
+     * The destructor resets the leaving half edge of its origin vertex to null if this is the leading half
+     * edge of the origin vertex.
+     */
+    ~Polyhedron_HalfEdge();
+public:
+    /**
+     * Returns the origin vertex of this half edge.
+     */
+    Vertex* origin() const;
+
+    /**
+     * Returns the destination vertex of this half edge, which is the vertex where its successor originates.
+     */
+    Vertex* destination() const;
+
+    /**
+     * Returns the edge to which this half edge belongs, which can be null.
+     */
+    Edge* edge() const;
+
+    /**
+     * Returns the face to which this half edge belongs, which can be null.
+     */
+    Face* face() const;
+
+    /**
+     * Returns the next half edge in its containing circular list.
+     */
+    HalfEdge* next() const;
+
+    /**
+     * Returns the previous half edge in its containing circular list.
+     */
+    HalfEdge* previous() const;
+
+    /**
+     * Returns a vector from the position of this half edge's origin to the position of its destination
+     * vertex.
+     */
+    vm::vec<T,3 >vector() const;
+
+    /**
+     * Returns the twin of this half edge, that is, the other half edge of the edge to which this half edge
+     * belongs.
+     *
+     * If this half edge does not belong to an edge, the behavior is unspecified. If the corresponding edge
+     * is not fully specified, then null is returned.
+     */
+    HalfEdge* twin() const;
+
+    /**
+     * Returns the next incident half edge, that is, the next half edge, in counter clockwise order, that
+     * originates at the origin of this half edge.
+     *
+     * This function is used to enumerate the faces incident to a vertex.
+     *
+     * @return the next incident half edge
+     */
+    HalfEdge* nextIncident() const;
+
+    /**
+     * Returns the previous incident half edge, that is, the previous half edge, in counter clockwise order,
+     * that originates at the origin of this half edge.
+     *
+     * This function is used to enumerate the faces incident to a vertex.
+     *
+     * @return the previous incident half edge
+     */
+    HalfEdge* previousIncident() const;
+
+    /**
+     * Indicates whether the positions of the origin vertices of this half edge and its successors have the
+     * given positions. The first position is compared to the position of this half edge's origin, the next
+     * given position is compared to the position of this half edge's successor's origin, and so on.
+     *
+     * @param positions the positions to check
+     * @param epsilon an epsilon value for comparing the vertex positions agains the given positions
+     * @return true if the given positions match the positions of the origin vertices, and false otherwise
+     */
+    bool hasOrigins(const std::vector<vm::vec<T,3>>& positions, T epsilon = static_cast<T>(0.0)) const;
+
+    /**
+     * Prints a textual description of the given half edge to the given output stream.
+     *
+     * @param stream the stream
+     * @param edge the edge to print
+     * @return a reference to the given stream
+     */
+    friend std::ostream& operator<<(std::ostream& stream, const HalfEdge& edge) {
+        stream << *edge.origin() << " --> ";
+        if (edge.destination() != nullptr) {
+            stream << *edge.destination();
+        } else {
+            stream << "NULL";
+        }
+        return stream;
+    }
+private:
+    /**
+     * Determines the relative location of the given point and a plane p that is defined as follows.
+     *
+     * Let u be the normalized vector of this half edge (see vector() member function).
+     * Let p.normal be the cross product of u and the given normal.
+     * Let p.anchor be the position of this half edge's origin.
+     *
+     * @param normal the normal vector, this is expected to be a unit vector
+     * @param point the point to check
+     * @return the relative location of the given point and the plane p
+     */
+    vm::plane_status pointStatus(const vm::vec<T,3>& normal, const vm::vec<T,3>& point) const;
+
+    /**
+     * Determines whether this half edge is colinear to the given half edge, which is expected to have this
+     * half edge's destination as its origin.
+     *
+     * @param other the half edge to check against, must not be null and must not be identical to this half
+     * edge
+     * @return true if this half edge is colinear with the given half edge
+     */
+    bool colinear(const HalfEdge* other) const;
+
+    /**
+     * Sets the origin of this half edge and sets this as the leaving half edge of the given vertex.
+     *
+     * @param origin the origin to set, which must not be null
+     */
+    void setOrigin(Vertex* origin);
+
+    /**
+     * Sets the edge to which this half edge belongs. This half edge must not already belong to an edge when
+     * this function is called.
+     *
+     * @param edge the edge to set, must not be null
+     */
+    void setEdge(Edge* edge);
+
+    /**
+     * Sets the edge of this half edge to null. Assumes that this half edge does belong to an edge when this
+     * function is called.
+     */
+    void unsetEdge();
+
+    /**
+     * Sets the face whose boundary this half edge belongs to. This half edge must not already belong to the
+     * boundary of any other face when this function is called.
+     *
+     * @param face the face to set, must not be null
+     */
+    void setFace(Face* face);
+
+    /**
+     * Sets the face to which this half edge belongs to null. Assumes that this half edge does belong to a
+     * face when this function is called.
+     */
+    void unsetFace();
+
+    /**
+     * Sets this half edge as the leaving half edge of its origin vertex.
+     */
+    void setAsLeaving();
+};
+
+/* ====================== Implementation in Polyhedron_Face.h ====================== */
+
+/**
+ * Maps a face to its contained intrusive_circular_link member, used for intrusive_circular_list.
+ */
+struct Polyhedron_GetFaceLink {
+    template <typename T, typename FP, typename VP>
+    intrusive_circular_link<Polyhedron_Face<T,FP,VP>>& operator()(Polyhedron_Face<T,FP,VP>* face) const;
+
+    template <typename T, typename FP, typename VP>
+    const intrusive_circular_link<Polyhedron_Face<T,FP,VP>>& operator()(const Polyhedron_Face<T,FP,VP>* face) const;
+};
+
+/**
+ * A face of a polyhedron. Each face has a boundary that is a circular list of half edges (in counter
+ * clockwise order) and a payload that can be used to attach some user data to the face.
+ *
+ * Furthermore, a face has a link to its previous and next neighbours in the containing intrusive circular
+ * list.
+ */
+template <typename T, typename FP, typename VP>
+class Polyhedron_Face : public Allocator<Polyhedron_Face<T,FP,VP>> {
+private:
+    friend class Polyhedron<T,FP,VP>;
+    friend class Polyhedron_Vertex<T,FP,VP>;
+    friend class Polyhedron_Edge<T,FP,VP>;
+    friend class Polyhedron_HalfEdge<T,FP,VP>;
+    friend struct Polyhedron_GetFaceLink;
+
+    using Vertex = Polyhedron_Vertex<T,FP,VP>;
+    using Edge = Polyhedron_Edge<T,FP,VP>;
+    using HalfEdge = Polyhedron_HalfEdge<T,FP,VP>;
+    using Face = Polyhedron_Face<T,FP,VP>;
+
+    using HalfEdgeList = Polyhedron_HalfEdgeList<T,FP,VP>;
+private:
+    /**
+     * The boundary of this face. The boundary of a face is a circular list of half edges, usually three or
+     * more (but in some cases less if the face is degenerate).
+     */
+    HalfEdgeList m_boundary;
+
+    /**
+     * The payload attached to this face.
+     */
+    typename FP::Type m_payload;
+
+    /**
+     * The intrusive_circular_link member required to put half edges in an intrusive_circular_list.
+     */
+    intrusive_circular_link<Face> m_link;
+private:
+    /**
+     * Creates a new face with the given boundary and sets the face of each of the boundary's half edges
+     * to this. The given boundary is moved into this face.
+     *
+     * @param boundary the boundary of the newly created face, which must contain at least three half edges
+     */
+    explicit Polyhedron_Face(HalfEdgeList&& boundary);
+public:
+    /**
+     * Returns the circular list of half edges that make up the boundary of this face.
+     */
+    const HalfEdgeList& boundary() const;
+
+    /**
+     * Returns the next face in its containing circular list.
+     */
+    Face* next() const;
+
+    /**
+     * Returns the next face in its containing circular list.
+     */
+    Face* previous() const;
+
+    /**
+     * Returns the payload assigned to this vertex.
+     */
+    typename FP::Type payload() const;
+
+    /**
+     * Sets the payload assigned to this vertex.
+     *
+     * @param payload the payload to set
+     */
+    void setPayload(typename FP::Type payload);
+
+    /**
+     * Returns the number of vertices of this face. This is identical to the size of its boundary.
+     */
+    size_t vertexCount() const;
+
+    /**
+     * Returns the half edge of this face's boundary whose origin's position is equal to the given origin,
+     * up to the given epsilon.
+     *
+     * @param origin the position of the origin to find
+     * @param epsilon the epsilon value to use for comparison
+     * @return the half edge whose origin has the given position, or null if no such half edge exists in
+     * this face's boundary
+     */
+    HalfEdge* findHalfEdge(const vm::vec<T,3>& origin, T epsilon = static_cast<T>(0.0)) const;
+
+    /**
+     * Finds an edge that is adjacent to this face whose first and second vertex have the given positions,
+     * up to the given epsilon.
+     *
+     * @param first the first position to find
+     * @param second the second position to find
+     * @param epsilon the epsilon value to use for comparison
+     * @return the edge whose vertices have the given positions, or null if no such edge is adjacent to
+     * this face
+     */
+    Edge* findEdge(const vm::vec<T,3>& first, const vm::vec<T,3>& second, T epsilon = static_cast<T>(0.0)) const;
+
+    /**
+     * Returns the position of the origin of the first half edge in this face's boundary.
+     */
+    vm::vec<T,3> origin() const;
+
+    /**
+     * Returns a list of the positions of this face's vertices.
+     */
+    std::vector<vm::vec<T,3>> vertexPositions() const;
+
+    /**
+     * Indicates whether this face has a vertex with the given position, up to the given epsilon.
+     *
+     * @param position the position to check
+     * @param epsilon the epsilon value to use for comparison
+     * @return true if this face has a vertex with the given position and false otherwise
+     */
+    bool hasVertexPosition(const vm::vec<T,3>& position, T epsilon = static_cast<T>(0.0)) const;
+
+    /**
+     * Indicates whether this face has the given vertex positions. Thereby, the first given position is
+     * compared to the position of the origin of the first half edge of this face's boundary, the next given
+     * position is compared to its successor, and so on.
+     *
+     * @param positions the positions to check
+     * @param epsilon the epsilon value to use for comparison
+     * @return true if this face has the given vertex positions and false otherwise
+     */
+    bool hasVertexPositions(const std::vector<vm::vec<T,3>>& positions, T epsilon = static_cast<T>(0.0)) const;
+
+    /**
+     * Returns the maximum distance between this face's vertices and the given positions. First, the algorithm
+     * finds the vertex with the minimal distance to the first given position.
+     *
+     * If no vertex is within the given max distance of the given points, then the given max distance is
+     * returned.
+     *
+     * Then it proceeds to compute the distance of the succeeding vertices (in the order in which the vertices
+     * appear in the boundary) to the succeeding given positions, and takes the maximum of all computed
+     * distances and returns it.
+     *
+     * @param positions the positions to compute the distance to
+     * @param maxDistance the max distance
+     * @return the maximum distance as computed
+     */
+    T distanceTo(const std::vector<vm::vec<T,3>>& positions, T maxDistance = std::numeric_limits<T>::max()) const;
+
+    /**
+     * Returns the normal of this face. The normal is computed by finding three non colinear vertices in the
+     * boundary of this face, and taking the cross product of the vectors between these vertices.
+     *
+     * If no colinear vertices are found, then a zero vector is returned.
+     *
+     * @return the normal of this face
+     */
+    vm::vec<T,3> normal() const;
+
+    /**
+     * Returns the center of this face.
+     */
+    vm::vec<T,3> center() const;
+
+    /**
+     * Intersects this face with the given ray and returns the distance along the given ray's direction, from
+     * the given ray's origin to the point of intersection, or NaN if the given reay does not intersect this
+     * face.
+     *
+     * The given side determines whether hits from above or below this face should be returned. A hit is
+     * considered from above if the ray's origin is above this face (the face normal points towards it) and
+     * it is considered from below if the ray's origin is below this face (the face normal points away from
+     * it).
+     *
+     * @param ray the ray
+     * @param side the side(s) from which a hit should be considered
+     * @return the distance to the point of intersection or NaN if the given ray does not intersect this face
+     * from the given side
+     */
+    T intersectWithRay(const vm::ray<T,3>& ray, const vm::side side) const;
+
+    /**
+     * Computes the position of the given point in relation to the plane on which this face lies. This plane
+     * is determined by the position of the origin of the first half edge of this face and the face normal.
+     *
+     * @param point the point to check
+     * @param epsilon the epsilon value to use for the position check
+     * @return the relative position of the given point
+     */
+    vm::plane_status pointStatus(const vm::vec<T,3>& point, T epsilon = vm::constants<T>::point_status_epsilon()) const;
+
+    /**
+     * Prints a textual description of the face to the given output stream.
+     *
+     * @param stream the stream
+     * @param edge the edge to print
+     * @return a reference to the given stream
+     */
+    friend std::ostream& operator<<(std::ostream& stream, const Face& face) {
+        const auto* firstEdge = face.boundary().front();
+        const auto* currentEdge = firstEdge;
+        do {
+            stream << *currentEdge << std::endl;
+            currentEdge = currentEdge->next();
+        } while (currentEdge != firstEdge);
+        return stream;
+    }
+private:
+    /**
+     * Checks whether this face is coplanar with the given face, that is, if both faces lie in the same plane.
+     *
+     * @param other the other face
+     * @return true if the faces are coplanar and false otherwise
+     */
+    bool coplanar(const Face* other) const;
+
+    /**
+     * Checks whether all vertices of this face lie in the given plane.
+     *
+     * @param plane the plane to check
+     * @return true if all vertices of this face lie on the given plane, and false otherwise
+     */
+    bool verticesOnPlane(const vm::plane<T,3>& plane) const;
+
+    /**
+     * Flips this face by reversing the order of its half edges.
+     */
+    void flip();
+
+    /**
+     * Inserts the given circular list of edges into the boundary of this face after the given half edge.
+     * After insertion, the given list of edges will be empty.
+     *
+     * If the given half edge does not belong to this face's boundary, the behavior is unspecified.
+     *
+     * @tparam H the type of the given list of edges
+     * @param after the half edge after which the given half edges should be inserted
+     * @param edges the half edges to insert
+     */
+    template <typename H>
+    void insertIntoBoundaryAfter(HalfEdge* after, H&& edges);
+
+    /**
+     * Removes the range [from, to] of half edges from this face's boundary. If either of the given half
+     * edges does not belong to this face's boundary, the behavior is unspecified.
+     *
+     * @param from the first half edge to remove
+     * @param to the last half edge to remove (inclusive)
+     * @return a circular list containing the removed half edges
+     */
+    HalfEdgeList removeFromBoundary(HalfEdge* from, HalfEdge* to);
+
+    /**
+     * Removes the given edge from this face's boundary. This is equivalent to calling
+     *
+     * removeFromBoundary(edge, edge);
+     *
+     * @param edge the half edge to remove
+     * @return a circular list containing the removed half edge
+     */
+    HalfEdgeList removeFromBoundary(HalfEdge* edge);
+
+    /**
+     * Replaces the range [from, to] of half edges of this face's boundary with the half edges in the given
+     * circular list. After replacement, the given circular list will be empty.
+     *
+     * If the given range of half edges does not belong to this face's boundary, the behavior is unspecified.
+     *
+     * @tparam H the type of the given list of edges
+     * @param from the first half edge to replace
+     * @param to the last edge to replace (inclusive)
+     * @param with the half edges to insert
+     * @return a circular list containing the replaced half edges
+     */
+    template <typename H>
+    HalfEdgeList replaceBoundary(HalfEdge* from, HalfEdge* to, H&& with);
+
+    /**
+     * Counts number of half edges in the range [from, to] and sets their face to the given face.
+     *
+     * @param from the first half edge to count
+     * @param to the last half edge to count (inclusive)
+     * @param face the face to set for the given range of half edges
+     * @return the number of half edges in the given range
+     */
+    size_t countAndSetFace(HalfEdge* from, HalfEdge* to, Face* face);
+
+    /**
+     * Counts number of half edges in the range [from, to] and sets their face to null.
+     *
+     * @param from the first half edge to count
+     * @param to the last half edge to count (inclusive)
+     * @return the number of half edges in the given range
+     */
+    size_t countAndUnsetFace(HalfEdge* from, HalfEdge* to);
+
+    /**
+     * Counts the number of vertices which are shared between this face and the given face. Two faces share
+     * a vertex if this vertex is the origin of a half edge of both faces.
+     *
+     * @param other the other face, which must not be null and it must not be identical to this face
+     * @return the number of shared vertices
+     */
+    size_t countSharedVertices(const Face* other) const;
+
+    /**
+     * The result of intersecting a polyhedron face with a ray.
+     */
+    class RayIntersection;
+
+    /**
+     * Intersects this face with the given ray and returns the result.
+     */
+    RayIntersection intersectWithRay(const vm::ray<T,3>& ray) const;
+};
 
 template <typename T, typename FP, typename VP>
 class Polyhedron {
@@ -44,935 +1018,20 @@ private:
 private:
     static constexpr const auto MinEdgeLength = T(0.01);
 public:
-    class Vertex;
-    class Edge;
-    class HalfEdge;
-    class Face;
+    using Vertex = Polyhedron_Vertex<T,FP,VP>;
+    using Edge = Polyhedron_Edge<T,FP,VP>;
+    using HalfEdge = Polyhedron_HalfEdge<T,FP,VP>;
+    using Face = Polyhedron_Face<T,FP,VP>;
 private:
-    /**
-     * Maps a vertex to its contained intrusive_circular_link member, used for intrusive_circular_list.
-     */
-    struct GetVertexLink {
-        intrusive_circular_link<Vertex>& operator()(Vertex* vertex) const;
-        const intrusive_circular_link<Vertex>& operator()(const Vertex* vertex) const;
-    };
-
-    /**
-     * Maps an edge to its contained intrusive_circular_link member, used for intrusive_circular_list.
-     */
-    struct GetEdgeLink {
-        intrusive_circular_link<Edge>& operator()(Edge* edge) const;
-        const intrusive_circular_link<Edge>& operator()(const Edge* edge) const;
-    };
-
-    /**
-     * Maps a half edge to its contained intrusive_circular_link member, used for intrusive_circular_list.
-     */
-    struct GetHalfEdgeLink {
-        intrusive_circular_link<HalfEdge>& operator()(HalfEdge* halfEdge) const;
-        const intrusive_circular_link<HalfEdge>& operator()(const HalfEdge* halfEdge) const;
-    };
-
-    /**
-     * Maps a face to its contained intrusive_circular_link member, used for intrusive_circular_list.
-     */
-    struct GetFaceLink {
-        intrusive_circular_link<Face>& operator()(Face* face) const;
-        const intrusive_circular_link<Face>& operator()(const Face* face) const;
-    };
-
     using VertexLink = intrusive_circular_link<Vertex>;
     using EdgeLink = intrusive_circular_link<Edge>;
     using HalfEdgeLink = intrusive_circular_link<HalfEdge>;
     using FaceLink = intrusive_circular_link<Face>;
 public:
-    using VertexList = intrusive_circular_list<Vertex, GetVertexLink>;
-    using EdgeList = intrusive_circular_list<Edge, GetEdgeLink>;
-    using HalfEdgeList = intrusive_circular_list<HalfEdge, GetHalfEdgeLink>;
-    using FaceList = intrusive_circular_list<Face, GetFaceLink>;
-public:
-    /* ====================== Implementation in Polyhedron_Vertex.h ====================== */
-
-    /**
-     * A vertex of a polyhedron.
-     *
-     * Each vertex of a polyhedron has a position, a leaving half edge, a link to its previous and next neighbours in
-     * the containing intrusive circular list, and a payload.
-     *
-     * The leaving half edge of a vertex is any half edge that has the vertex as its origin. It is used to find
-     * the incident faces of a vertex.
-     *
-     * The payload of a vertex can be used to store user data.
-     */
-    class Vertex : public Allocator<Vertex> {
-    private:
-        friend class Polyhedron<T,FP,VP>;
-    private:
-        /**
-         * The vertex position.
-         */
-        vec3 m_position;
-
-        /**
-         * A half edge that originates at this vertex.
-         */
-        HalfEdge* m_leaving;
-
-        /**
-         * The intrusive_circular_link member required to put vertices in an intrusive_circular_list.
-         */
-        VertexLink m_link;
-
-        /**
-         * A payload data item that can be set on this vertex.
-         */
-        typename VP::Type m_payload;
-    private:
-        /**
-         * Creates a new vertex at the given position. The leaving half edge will be null.
-         *
-         * @param position the position of the new vertex
-         */
-        explicit Vertex(const vec3& position);
-    public:
-        /**
-         * Returns the position of this vertex.
-         */
-        const vec3& position() const;
-
-        /**
-         * Sets the position of this vertex.
-         *
-         * @param position the position to set
-         */
-        void setPosition(const vec3& position);
-
-        /**
-         * Returns the leaving half edge assigned to this vertex.
-         */
-        HalfEdge* leaving() const;
-
-        /**
-         * Sets the leaving half edge for this vertex. The given edge must not be null and its origin must be
-         * this vertex.
-         *
-         * @param edge the half edge to set
-         */
-        void setLeaving(HalfEdge* edge);
-
-        /**
-         * Returns the next vertex in its containing circular list.
-         */
-        Vertex* next() const;
-
-        /**
-         * Returns the previous vertex in its containing circular list.
-         */
-        Vertex* previous() const;
-
-        /**
-         * Returns the payload assigned to this vertex.
-         */
-        typename VP::Type payload() const;
-
-        /**
-         * Sets the payload assigned to this vertex.
-         *
-         * @param payload the payload to set
-         */
-        void setPayload(typename VP::Type payload);
-
-        /**
-         * Indicates whether the given face is incident to this vertex.
-         *
-         * @param face the face to check, must not be null
-         * @return true if this vertex is incident to the given face and false otherwise
-         */
-        bool incident(const Face* face) const;
-
-        /**
-         * Appends a textual representation of the given vertices' position to the given stream.
-         */
-        friend std::ostream& operator<<(std::ostream& stream, const Vertex& vertex);
-
-        /**
-         * Rounds each component of this vertices' position to the nearest integer if the distance of the component's
-         * value to that integer is less  than the given epsilon value. Furthermore, the component value is rounded
-         * such that at most the given number of decimals are retained.
-         *
-         * @param decimals the number of decimals to retain
-         * @param epsilon an epsilon value
-         */
-        void correctPosition(const size_t decimals = 0, const T epsilon = vm::constants<T>::correct_epsilon());
-    };
-
-    /* ====================== Implementation in Polyhedron_Edge.h ====================== */
-    /**
-     * And edge of a polyhedron.
-     *
-     * Each edge consists of two half edges with opposite directions. These half edges belong to adjacent faces
-     * that share the edge. During execution of some algorithms, edges may be underspecified, meaning that they
-     * have only one half edge. If both half edges are set, then this edge is called fully specified.
-     *
-     * The naming of the contained half edges as first or second does not imply any precedence, but it is
-     * sometimes used to distinguish the half edges in algorithms. For example, when splitting a polyhedron along
-     * a seam, the first and second half edge will be used to determine which part of the polyhedron is deleted
-     * and which part is retained.
-     *
-     * Furthermore, an edge has a link to its previous and next neighbours in the containing intrusive circular
-     * list.
-     */
-    class Edge : public Allocator<Edge> {
-    private:
-        friend class Polyhedron<T,FP,VP>;
-
-        /**
-         * The first half edge.
-         */
-        HalfEdge* m_first;
-
-        /**
-         * The second half edge.
-         */
-        HalfEdge* m_second;
-
-        /**
-         * The intrusive_circular_link member required to put vertices in an intrusive_circular_list.
-         */
-        EdgeLink m_link;
-    private:
-        /**
-         * Creates a new edge with the given half edges.
-         *
-         * @param first the first half edge, must not be null
-         * @param second the second half edge, may be null
-         */
-        Edge(HalfEdge* first, HalfEdge* second = nullptr);
-    public:
-        /**
-         * Returns the origin of the first half edge.
-         */
-        Vertex* firstVertex() const;
-
-        /**
-         * Returns the origin of the second half edge if one is set. Otherwise returns the destination of the
-         * first half edge.
-         */
-        Vertex* secondVertex() const;
-
-        /**
-         * Returns the first half edge.
-         */
-        HalfEdge* firstEdge() const;
-
-        /**
-         * Returns the second half edge. Behavior is unspecified if the second half edge is unset.
-         */
-        HalfEdge* secondEdge() const;
-
-        /**
-         * Returns the twin of the given half edge, which must be one of the half edges of this edge. If a half
-         * edge is passed that doesn't belong to this edge, the behavior is unspecified.
-         *
-         * @param halfEdge the half edge of which the twin should be returned
-         * @return the second half edge if given the first half edge, and the first half edge if given the second
-         * half edge
-         */
-        HalfEdge* twin(const HalfEdge* halfEdge) const;
-
-        /**
-         * Returns the vector from the position of the first vertex to the position of the second vertex.
-         * The behavior is unspecified if this edge is not fully specified.
-         */
-        vec3 vector() const;
-
-        /**
-         * Returns the center between the position of the first vertex and the position of the second vertex.
-         * The behavior is unspecified if this edge is not fully specified.
-         */
-        vec3 center() const;
-
-        /**
-         * Returns the face to which the first half edge belongs.
-         */
-        Face* firstFace() const;
-
-        /**
-         * Returns the face to which the second half edge belongs. The behavior is unspecified if no second half
-         * edge is set.
-         */
-        Face* secondFace() const;
-
-        /**
-         * Indicates whether the given vertex is either the first or the second vertex of this edge.
-         *
-         * @param vertex the vertex to check, which must not be null
-         * @return true if the given vertex is either the first or the second vertex of this edge, and false
-         * otherwise
-         */
-        bool hasVertex(const Vertex* vertex) const;
-
-        /**
-         * Indicates whether this edge has a vertex with the given position, up to the given epsilon value.
-         *
-         * @param position the position to check
-         * @param epsilon the epsilon value to use for equality checks
-         * @return true if this edge has a vertex with the given position
-         */
-        bool hasPosition(const vec3& position, T epsilon = static_cast<T>(0.0)) const;
-
-        /**
-         * Indicates whether this edge has the given positions for its first and second vertex, up to the given
-         * epsilon value. The order of the given positions does not matter.
-         *
-         * @param position1 the first position to check
-         * @param position2 the second position to check
-         * @param epsilon the epsilon value to use for equality checks
-         * @return true if this edge has both of the given positions for its first and second vertex and false
-         * otherwise
-         */
-        bool hasPositions(const vec3& position1, const vec3& position2, T epsilon = static_cast<T>(0.0)) const;
-
-        /**
-         * Computes the maximum of the minimal distances of each of the positions this edge's vertices and the
-         * given two points. The result is the maximum of two distances d1 and d2, where
-         *
-         * - d1 is the minimum of the distances between the positions of this edge's vertices and position1
-         * - d2 is the minimum of the distances between the positions of this edge's vertices and position2
-         *
-         * If this edge is not fully specified, the behavior is unspecified.
-         *
-         * @param position1 the first point
-         * @param position2 the second point
-         * @return the maximum of the distances d1 and d2 as specified above
-         */
-        T distanceTo(const vec3& position1, const vec3& position2) const;
-
-        /**
-         * Indicates whether this edge is fully specified, that is, its second half edge is set.
-         *
-         * @return true if this edge is fully specified and false otherwise
-         */
-        bool fullySpecified() const;
-
-        /**
-         * Returns the next edge in its containing circular list.
-         */
-        Edge* next() const;
-
-        /**
-         * Returns the previous edge in its containing circular list.
-         */
-        Edge* previous() const;
-    private:
-        /**
-         * Splits this edge by inserting a new vertex at the position where this edge intersects the given plane.
-         *
-         * The newly created vertices' position will be the point at which the line segment defined by this
-         * edge's vertices' positions intersects the given plane.
-
-         * This function assumes that the vertices of this edge are on opposite sides of the given plane.
-         *
-         * @param plane the plane at which to split this edge
-         * @return the newly created edge
-         */
-        Edge* split(const vm::plane<T,3>& plane);
-
-        /**
-         * Inserts a new vertex at the given position into this edge, creating two new half edges, and a new edge.
-         * The newly created half edges are added to the boundaries of the corresponding faces, but the newly
-         * created vertex and edge must be stored in their respective containing circular lists.
-         *
-         * The newly created vertex will be the origin of the newly created edge's first half edge.
-         *
-         * The following diagram illustrates the effects of this function
-         *
-         * Before calling this function, this edge looks as follows
-         *
-         * /\------------old1st----------->/\
-         * \/<-----------new2nd------------\/
-         * |                               |
-         * 1st vertex                      2nd vertex
-         *
-         * Suppose that the given plane intersects this edge at its center, then the result will look as follows.
-         *
-         *   |-this edge--|  |--new edge--|
-         *   |            |  |            |
-         * /\----old1st--->/\----new1st--->/\
-         * \/<---new2nd----\/----old2nd----\/
-         * |               |               |
-         * 1st vertex      new vertex      2nd vertex
-         *
-         * @param position the positition of the newly created vertex
-         * @return the newly created edge
-         */
-        Edge* insertVertex(const vec3& position);
-
-        /**
-         * Flips this edge by swapping its first and second half edges.
-         */
-        void flip();
-
-        /**
-         * Ensures that the given half edge is the first half edge of this edge. If the given edge is null, or
-         * if it is neither the first nor the second half edge of this edge, the behavior is unspecfied. If the
-         * given half edge already is the first half edge of this edge, then nothing happens. Otherwise, this
-         * edge is flipped and thereby the given half edge is made the first half edge of this edge.
-         *
-         * @param edge the half edge to make the first half edge of this edge
-         */
-        void makeFirstEdge(HalfEdge* edge);
-
-        /**
-         * Ensures that the given half edge is the second half edge of this edge. If the given edge is null, or
-         * if it is neither the first nor the second half edge of this edge, the behavior is unspecfied. If the
-         * given half edge already is the second half edge of this edge, then nothing happens. Otherwise, this
-         * edge is flipped and thereby the given half edge is made the second half edge of this edge.
-         *
-         * @param edge the half edge to make the second half edge of this edge
-         */
-        void makeSecondEdge(HalfEdge* edge);
-
-        /**
-         * Ensures that the first half edge of this edge is the leaving half edge of its origin vertex.
-         */
-        void setFirstAsLeaving();
-
-        /**
-         * Sets the second half edge of this edge to null. Assumes that this edge is fully specified, otherwise
-         * the behavior is unspecified.
-         */
-        void unsetSecondEdge();
-
-        /**
-         * Sets the second half edge of this edge. Assumes that this edge is not fully specified, otherwise the
-         * behavior is undefined. Furthermore, the given half edge must not be associated with any other edge.
-         *
-         * @param second the half edge to set as the second half edge of this edge, must not be null
-         */
-        void setSecondEdge(HalfEdge* second);
-    };
-
-    /* ====================== Implementation in Polyhedron_HalfEdge.h ====================== */
-    /**
-     * A half edge of a polyhedron. Every edge of a polyhedron is made up of two half edges, each of which belongs
-     * to the two faces containing the edge. The half edges belonging to a face make up its boundary.
-     *
-     * Each half edge has an origin vertex, the edge to which the half edge belongs, and the face to which it
-     * belongs. The origin vertex may have a pointer to this half edge if it was set as the leaving half edge
-     * of that vertex.
-     *
-     * Furthermore, an edge has a link to its previous and next neighbours in the containing intrusive circular
-     * list.
-     *
-     * The destination vertex of a half edge is the vertex at which the half edge ends and where its successor
-     * in the boundary of the containing face originates.
-     *
-     * If this half edge is part of a fully specified edge, then the other half edge of that edge is called
-     * the twin of this half edge.
-     *
-     * A half edge is stored in an intrusive circular list that belongs to the face whose boundary the half edge
-     * belongs to.
-     */
-    class HalfEdge : public Allocator<HalfEdge> {
-    private:
-        friend class Polyhedron<T,FP,VP>;
-
-        /**
-         * The origin vertex of this half edge.
-         */
-        Vertex* m_origin;
-
-        /**
-         * The edge to which this half edge belongs.
-         */
-        Edge* m_edge;
-
-        /**
-         * The face whose boundary this half edge belongs to.
-         */
-        Face* m_face;
-
-        /**
-         * The intrusive_circular_link member required to put half edges in an intrusive_circular_list.
-         */
-        HalfEdgeLink m_link;
-    private:
-        /**
-         * Creates a new half edge with the given vertex as its origin. This half edge will be set as the leaving
-         * half edge of the given vertex.
-         *
-         * @param origin the origin vertex, must not be null
-         */
-        HalfEdge(Vertex* origin);
-    public:
-        /**
-         * The destructor resets the leaving half edge of its origin vertex to null if this is the leading half
-         * edge of the origin vertex.
-         */
-        ~HalfEdge();
-    public:
-        /**
-         * Returns the origin vertex of this half edge.
-         */
-        Vertex* origin() const;
-
-        /**
-         * Returns the destination vertex of this half edge, which is the vertex where its successor originates.
-         */
-        Vertex* destination() const;
-
-        /**
-         * Returns the edge to which this half edge belongs, which can be null.
-         */
-        Edge* edge() const;
-
-        /**
-         * Returns the face to which this half edge belongs, which can be null.
-         */
-        Face* face() const;
-
-        /**
-         * Returns the next half edge in its containing circular list.
-         */
-        HalfEdge* next() const;
-
-        /**
-         * Returns the previous half edge in its containing circular list.
-         */
-        HalfEdge* previous() const;
-
-        /**
-         * Returns a vector from the position of this half edge's origin to the position of its destination
-         * vertex.
-         */
-        vec3 vector() const;
-
-        /**
-         * Returns the twin of this half edge, that is, the other half edge of the edge to which this half edge
-         * belongs.
-         *
-         * If this half edge does not belong to an edge, the behavior is unspecified. If the corresponding edge
-         * is not fully specified, then null is returned.
-         */
-        HalfEdge* twin() const;
-
-        /**
-         * Returns the next incident half edge, that is, the next half edge, in counter clockwise order, that
-         * originates at the origin of this half edge.
-         *
-         * This function is used to enumerate the faces incident to a vertex.
-         *
-         * @return the next incident half edge
-         */
-        HalfEdge* nextIncident() const;
-
-        /**
-         * Returns the previous incident half edge, that is, the previous half edge, in counter clockwise order,
-         * that originates at the origin of this half edge.
-         *
-         * This function is used to enumerate the faces incident to a vertex.
-         *
-         * @return the previous incident half edge
-         */
-        HalfEdge* previousIncident() const;
-
-        /**
-         * Indicates whether the positions of the origin vertices of this half edge and its successors have the
-         * given positions. The first position is compared to the position of this half edge's origin, the next
-         * given position is compared to the position of this half edge's successor's origin, and so on.
-         *
-         * @param positions the positions to check
-         * @param epsilon an epsilon value for comparing the vertex positions agains the given positions
-         * @return true if the given positions match the positions of the origin vertices, and false otherwise
-         */
-        bool hasOrigins(const std::vector<vec3>& positions, T epsilon = static_cast<T>(0.0)) const;
-
-        /**
-         * Prints a textual description of the given half edge to the given output stream.
-         *
-         * @param stream the stream
-         * @param edge the edge to print
-         * @return a reference to the given stream
-         */
-        friend std::ostream& operator<<(std::ostream& stream, const HalfEdge& edge) {
-            stream << *edge.origin() << " --> ";
-            if (edge.destination() != nullptr) {
-                stream << *edge.destination();
-            } else {
-                stream << "NULL";
-            }
-            return stream;
-        }
-    private:
-        /**
-         * Determines the relative location of the given point and a plane p that is defined as follows.
-         *
-         * Let u be the normalized vector of this half edge (see vector() member function).
-         * Let p.normal be the cross product of u and the given normal.
-         * Let p.anchor be the position of this half edge's origin.
-         *
-         * @param normal the normal vector, this is expected to be a unit vector
-         * @param point the point to check
-         * @return the relative location of the given point and the plane p
-         */
-        vm::plane_status pointStatus(const vec3& normal, const vec3& point) const;
-
-        /**
-         * Determines whether this half edge is colinear to the given half edge, which is expected to have this
-         * half edge's destination as its origin.
-         *
-         * @param other the half edge to check against, must not be null and must not be identical to this half
-         * edge
-         * @return true if this half edge is colinear with the given half edge
-         */
-        bool colinear(const HalfEdge* other) const;
-
-        /**
-         * Sets the origin of this half edge and sets this as the leaving half edge of the given vertex.
-         *
-         * @param origin the origin to set, which must not be null
-         */
-        void setOrigin(Vertex* origin);
-
-        /**
-         * Sets the edge to which this half edge belongs. This half edge must not already belong to an edge when
-         * this function is called.
-         *
-         * @param edge the edge to set, must not be null
-         */
-        void setEdge(Edge* edge);
-
-        /**
-         * Sets the edge of this half edge to null. Assumes that this half edge does belong to an edge when this
-         * function is called.
-         */
-        void unsetEdge();
-
-        /**
-         * Sets the face whose boundary this half edge belongs to. This half edge must not already belong to the
-         * boundary of any other face when this function is called.
-         *
-         * @param face the face to set, must not be null
-         */
-        void setFace(Face* face);
-
-        /**
-         * Sets the face to which this half edge belongs to null. Assumes that this half edge does belong to a
-         * face when this function is called.
-         */
-        void unsetFace();
-
-        /**
-         * Sets this half edge as the leaving half edge of its origin vertex.
-         */
-        void setAsLeaving();
-    };
-
-    /* ====================== Implementation in Polyhedron_Face.h ====================== */
-    /**
-     * A face of a polyhedron. Each face has a boundary that is a circular list of half edges (in counter
-     * clockwise order) and a payload that can be used to attach some user data to the face.
-     *
-     * Furthermore, a face has a link to its previous and next neighbours in the containing intrusive circular
-     * list.
-     */
-    class Face : public Allocator<Face> {
-    private:
-        friend class Polyhedron<T,FP,VP>;
-
-        /**
-         * The boundary of this face. The boundary of a face is a circular list of half edges, usually three or
-         * more (but in some cases less if the face is degenerate).
-         */
-        HalfEdgeList m_boundary;
-
-        /**
-         * The payload attached to this face.
-         */
-        typename FP::Type m_payload;
-
-        /**
-         * The intrusive_circular_link member required to put half edges in an intrusive_circular_list.
-         */
-        FaceLink m_link;
-    private:
-        /**
-         * Creates a new face with the given boundary and sets the face of each of the boundary's half edges
-         * to this. The given boundary is moved into this face.
-         *
-         * @param boundary the boundary of the newly created face, which must contain at least three half edges
-         */
-        explicit Face(HalfEdgeList&& boundary);
-    public:
-        /**
-         * Returns the circular list of half edges that make up the boundary of this face.
-         */
-        const HalfEdgeList& boundary() const;
-
-        /**
-         * Returns the next face in its containing circular list.
-         */
-        Face* next() const;
-
-        /**
-         * Returns the next face in its containing circular list.
-         */
-        Face* previous() const;
-
-        /**
-         * Returns the payload assigned to this vertex.
-         */
-        typename FP::Type payload() const;
-
-        /**
-         * Sets the payload assigned to this vertex.
-         *
-         * @param payload the payload to set
-         */
-        void setPayload(typename FP::Type payload);
-
-        /**
-         * Returns the number of vertices of this face. This is identical to the size of its boundary.
-         */
-        size_t vertexCount() const;
-
-        /**
-         * Returns the half edge of this face's boundary whose origin's position is equal to the given origin,
-         * up to the given epsilon.
-         *
-         * @param origin the position of the origin to find
-         * @param epsilon the epsilon value to use for comparison
-         * @return the half edge whose origin has the given position, or null if no such half edge exists in
-         * this face's boundary
-         */
-        HalfEdge* findHalfEdge(const vec3& origin, T epsilon = static_cast<T>(0.0)) const;
-
-        /**
-         * Finds an edge that is adjacent to this face whose first and second vertex have the given positions,
-         * up to the given epsilon.
-         *
-         * @param first the first position to find
-         * @param second the second position to find
-         * @param epsilon the epsilon value to use for comparison
-         * @return the edge whose vertices have the given positions, or null if no such edge is adjacent to
-         * this face
-         */
-        Edge* findEdge(const vec3& first, const vec3& second, T epsilon = static_cast<T>(0.0)) const;
-
-        /**
-         * Returns the position of the origin of the first half edge in this face's boundary.
-         */
-        vec3 origin() const;
-
-        /**
-         * Returns a list of the positions of this face's vertices.
-         */
-        std::vector<vec3> vertexPositions() const;
-
-        /**
-         * Indicates whether this face has a vertex with the given position, up to the given epsilon.
-         *
-         * @param position the position to check
-         * @param epsilon the epsilon value to use for comparison
-         * @return true if this face has a vertex with the given position and false otherwise
-         */
-        bool hasVertexPosition(const vec3& position, T epsilon = static_cast<T>(0.0)) const;
-
-        /**
-         * Indicates whether this face has the given vertex positions. Thereby, the first given position is
-         * compared to the position of the origin of the first half edge of this face's boundary, the next given
-         * position is compared to its successor, and so on.
-         *
-         * @param positions the positions to check
-         * @param epsilon the epsilon value to use for comparison
-         * @return true if this face has the given vertex positions and false otherwise
-         */
-        bool hasVertexPositions(const std::vector<vec3>& positions, T epsilon = static_cast<T>(0.0)) const;
-
-        /**
-         * Returns the maximum distance between this face's vertices and the given positions. First, the algorithm
-         * finds the vertex with the minimal distance to the first given position.
-         *
-         * If no vertex is within the given max distance of the given points, then the given max distance is
-         * returned.
-         *
-         * Then it proceeds to compute the distance of the succeeding vertices (in the order in which the vertices
-         * appear in the boundary) to the succeeding given positions, and takes the maximum of all computed
-         * distances and returns it.
-         *
-         * @param positions the positions to compute the distance to
-         * @param maxDistance the max distance
-         * @return the maximum distance as computed
-         */
-        T distanceTo(const std::vector<vec3>& positions, T maxDistance = std::numeric_limits<T>::max()) const;
-
-        /**
-         * Returns the normal of this face. The normal is computed by finding three non colinear vertices in the
-         * boundary of this face, and taking the cross product of the vectors between these vertices.
-         *
-         * If no colinear vertices are found, then a zero vector is returned.
-         *
-         * @return the normal of this face
-         */
-        vec3 normal() const;
-
-        /**
-         * Returns the center of this face.
-         */
-        vec3 center() const;
-
-        /**
-         * Intersects this face with the given ray and returns the distance along the given ray's direction, from
-         * the given ray's origin to the point of intersection, or NaN if the given reay does not intersect this
-         * face.
-         *
-         * The given side determines whether hits from above or below this face should be returned. A hit is
-         * considered from above if the ray's origin is above this face (the face normal points towards it) and
-         * it is considered from below if the ray's origin is below this face (the face normal points away from
-         * it).
-         *
-         * @param ray the ray
-         * @param side the side(s) from which a hit should be considered
-         * @return the distance to the point of intersection or NaN if the given ray does not intersect this face
-         * from the given side
-         */
-        T intersectWithRay(const vm::ray<T,3>& ray, const vm::side side) const;
-
-        /**
-         * Computes the position of the given point in relation to the plane on which this face lies. This plane
-         * is determined by the position of the origin of the first half edge of this face and the face normal.
-         *
-         * @param point the point to check
-         * @param epsilon the epsilon value to use for the position check
-         * @return the relative position of the given point
-         */
-        vm::plane_status pointStatus(const vec3& point, T epsilon = vm::constants<T>::point_status_epsilon()) const;
-
-        /**
-         * Prints a textual description of the face to the given output stream.
-         *
-         * @param stream the stream
-         * @param edge the edge to print
-         * @return a reference to the given stream
-         */
-        friend std::ostream& operator<<(std::ostream& stream, const Face& face) {
-            const auto* firstEdge = face.boundary().front();
-            const auto* currentEdge = firstEdge;
-            do {
-                stream << *currentEdge << std::endl;
-                currentEdge = currentEdge->next();
-            } while (currentEdge != firstEdge);
-            return stream;
-        }
-    private:
-        /**
-         * Checks whether this face is coplanar with the given face, that is, if both faces lie in the same plane.
-         *
-         * @param other the other face
-         * @return true if the faces are coplanar and false otherwise
-         */
-        bool coplanar(const Face* other) const;
-
-        /**
-         * Checks whether all vertices of this face lie in the given plane.
-         *
-         * @param plane the plane to check
-         * @return true if all vertices of this face lie on the given plane, and false otherwise
-         */
-        bool verticesOnPlane(const vm::plane<T,3>& plane) const;
-
-        /**
-         * Flips this face by reversing the order of its half edges.
-         */
-        void flip();
-
-        /**
-         * Inserts the given circular list of edges into the boundary of this face after the given half edge.
-         * After insertion, the given list of edges will be empty.
-         *
-         * If the given half edge does not belong to this face's boundary, the behavior is unspecified.
-         *
-         * @tparam H the type of the given list of edges
-         * @param after the half edge after which the given half edges should be inserted
-         * @param edges the half edges to insert
-         */
-        template <typename H>
-        void insertIntoBoundaryAfter(HalfEdge* after, H&& edges);
-
-        /**
-         * Removes the range [from, to] of half edges from this face's boundary. If either of the given half
-         * edges does not belong to this face's boundary, the behavior is unspecified.
-         *
-         * @param from the first half edge to remove
-         * @param to the last half edge to remove (inclusive)
-         * @return a circular list containing the removed half edges
-         */
-        HalfEdgeList removeFromBoundary(HalfEdge* from, HalfEdge* to);
-
-        /**
-         * Removes the given edge from this face's boundary. This is equivalent to calling
-         *
-         * removeFromBoundary(edge, edge);
-         *
-         * @param edge the half edge to remove
-         * @return a circular list containing the removed half edge
-         */
-        HalfEdgeList removeFromBoundary(HalfEdge* edge);
-
-        /**
-         * Replaces the range [from, to] of half edges of this face's boundary with the half edges in the given
-         * circular list. After replacement, the given circular list will be empty.
-         *
-         * If the given range of half edges does not belong to this face's boundary, the behavior is unspecified.
-         *
-         * @tparam H the type of the given list of edges
-         * @param from the first half edge to replace
-         * @param to the last edge to replace (inclusive)
-         * @param with the half edges to insert
-         * @return a circular list containing the replaced half edges
-         */
-        template <typename H>
-        HalfEdgeList replaceBoundary(HalfEdge* from, HalfEdge* to, H&& with);
-
-        /**
-         * Counts number of half edges in the range [from, to] and sets their face to the given face.
-         *
-         * @param from the first half edge to count
-         * @param to the last half edge to count (inclusive)
-         * @param face the face to set for the given range of half edges
-         * @return the number of half edges in the given range
-         */
-        size_t countAndSetFace(HalfEdge* from, HalfEdge* to, Face* face);
-
-        /**
-         * Counts number of half edges in the range [from, to] and sets their face to null.
-         *
-         * @param from the first half edge to count
-         * @param to the last half edge to count (inclusive)
-         * @return the number of half edges in the given range
-         */
-        size_t countAndUnsetFace(HalfEdge* from, HalfEdge* to);
-
-        /**
-         * Counts the number of vertices which are shared between this face and the given face. Two faces share
-         * a vertex if this vertex is the origin of a half edge of both faces.
-         *
-         * @param other the other face, which must not be null and it must not be identical to this face
-         * @return the number of shared vertices
-         */
-        size_t countSharedVertices(const Face* other) const;
-
-        /**
-         * The result of intersecting a polyhedron face with a ray.
-         */
-        class RayIntersection;
-
-        /**
-         * Intersects this face with the given ray and returns the result.
-         */
-        RayIntersection intersectWithRay(const vm::ray<T,3>& ray) const;
-    };
+    using VertexList = Polyhedron_VertexList<T,FP,VP>;
+    using EdgeList = Polyhedron_EdgeList<T,FP,VP>;
+    using HalfEdgeList = Polyhedron_HalfEdgeList<T,FP,VP>;
+    using FaceList = Polyhedron_FaceList<T,FP,VP>;
 private:
     /**
      * A seam is a circular sequence of consecutive edges. For each edge of a seam, it must hold that its first

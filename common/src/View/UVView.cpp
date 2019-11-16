@@ -20,6 +20,7 @@
 #include "UVView.h"
 
 #include "TrenchBroom.h"
+#include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/Texture.h"

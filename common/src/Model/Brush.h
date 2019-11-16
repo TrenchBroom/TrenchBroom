@@ -196,14 +196,14 @@ namespace TrenchBroom {
             struct CanMoveVerticesResult {
             public:
                 bool success;
-                BrushGeometry geometry;
-
+                BrushGeometry* geometry;
             private:
-                CanMoveVerticesResult(bool s, const BrushGeometry& g);
-
+                CanMoveVerticesResult(bool s, BrushGeometry&& g);
             public:
+                ~CanMoveVerticesResult();
+
                 static CanMoveVerticesResult rejectVertexMove();
-                static CanMoveVerticesResult acceptVertexMove(const BrushGeometry& result);
+                static CanMoveVerticesResult acceptVertexMove(BrushGeometry&& result);
             };
 
             CanMoveVerticesResult doCanMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, vm::vec3 delta, bool allowVertexRemoval) const;

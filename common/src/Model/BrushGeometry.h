@@ -21,10 +21,9 @@
 #define TrenchBroom_BrushGeometry_h
 
 #include "TrenchBroom.h"
-#include "Polyhedron.h"
 #include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"
-#include "Polyhedron_Instantiation.h"
+#include "Polyhedron_Forward.h"
 
 #include <map>
 #include <set>
@@ -36,14 +35,14 @@ namespace TrenchBroom {
 
         using BrushGeometry = Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-        using BrushVertex = BrushGeometry::Vertex;
-        using BrushEdge = BrushGeometry::Edge;
-        using BrushHalfEdge = BrushGeometry::HalfEdge;
-        using BrushFaceGeometry = BrushGeometry::Face;
+        using BrushVertex = Polyhedron_Vertex<FloatType, BrushFacePayload, BrushVertexPayload>;
+        using BrushEdge = Polyhedron_Edge<FloatType, BrushFacePayload, BrushVertexPayload>;
+        using BrushHalfEdge = Polyhedron_HalfEdge<FloatType, BrushFacePayload, BrushVertexPayload>;
+        using BrushFaceGeometry = Polyhedron_Face<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-        using BrushVertexList = BrushGeometry::VertexList;
-        using BrushEdgeList = BrushGeometry::EdgeList;
-        using BrushHalfEdgeList = BrushGeometry::HalfEdgeList;
+        using BrushVertexList = Polyhedron_VertexList<FloatType, BrushFacePayload, BrushVertexPayload>;
+        using BrushEdgeList = Polyhedron_EdgeList<FloatType, BrushFacePayload, BrushVertexPayload>;;
+        using BrushHalfEdgeList = Polyhedron_HalfEdgeList<FloatType, BrushFacePayload, BrushVertexPayload>;;
 
         using BrushEdgeSet = std::set<BrushEdge*>;
 

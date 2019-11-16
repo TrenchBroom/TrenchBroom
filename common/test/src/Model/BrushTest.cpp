@@ -21,6 +21,7 @@
 
 #include "TestUtils.h"
 
+#include "Polyhedron.h"
 #include "Assets/Texture.h"
 #include "IO/DiskIO.h"
 #include "IO/NodeReader.h"
@@ -44,7 +45,6 @@
 #include <fstream>
 #include <iterator>
 #include <memory>
-#include <sstream>
 
 namespace TrenchBroom {
     namespace Model {

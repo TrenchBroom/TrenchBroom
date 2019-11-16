@@ -19,9 +19,10 @@
 
 #include "ClipTool.h"
 
-#include "Constants.h"
 #include "TrenchBroom.h"
 #include "CollectionUtils.h"
+#include "Constants.h"
+#include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Macros.h"

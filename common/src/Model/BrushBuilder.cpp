@@ -20,7 +20,7 @@
 #include "BrushBuilder.h"
 
 #include "Ensure.h"
-#include "Polyhedron3.h"
+#include "Polyhedron.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/ModelFactory.h"
