@@ -248,12 +248,12 @@ private:
 };
 
 template <typename T, typename FP, typename VP>
-const typename Polyhedron<T,FP,VP>::vec3& Polyhedron<T,FP,VP>::GetVertexPosition::operator()(const Vertex* vertex) const {
+const vm::vec<T,3>& Polyhedron<T,FP,VP>::GetVertexPosition::operator()(const Vertex* vertex) const {
     return vertex->position();
 }
 
 template <typename T, typename FP, typename VP>
-const typename Polyhedron<T,FP,VP>::vec3& Polyhedron<T,FP,VP>::GetVertexPosition::operator()(const HalfEdge* halfEdge) const {
+const vm::vec<T,3>& Polyhedron<T,FP,VP>::GetVertexPosition::operator()(const HalfEdge* halfEdge) const {
     return halfEdge->origin()->position();
 }
 
@@ -325,7 +325,7 @@ Polyhedron<T,FP,VP>::Polyhedron() {
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Polyhedron(std::initializer_list<vec3> positions) {
+Polyhedron<T,FP,VP>::Polyhedron(std::initializer_list<vm::vec<T,3>> positions) {
     addPoints(std::begin(positions), std::end(positions));
 }
 
@@ -339,14 +339,14 @@ m_bounds(bounds) {
 
     // Explicitly create the polyhedron for better performance when building brushes.
 
-    const vec3 p1(m_bounds.min.x(), m_bounds.min.y(), m_bounds.min.z());
-    const vec3 p2(m_bounds.min.x(), m_bounds.min.y(), m_bounds.max.z());
-    const vec3 p3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.min.z());
-    const vec3 p4(m_bounds.min.x(), m_bounds.max.y(), m_bounds.max.z());
-    const vec3 p5(m_bounds.max.x(), m_bounds.min.y(), m_bounds.min.z());
-    const vec3 p6(m_bounds.max.x(), m_bounds.min.y(), m_bounds.max.z());
-    const vec3 p7(m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z());
-    const vec3 p8(m_bounds.max.x(), m_bounds.max.y(), m_bounds.max.z());
+    const vm::vec<T,3> p1(m_bounds.min.x(), m_bounds.min.y(), m_bounds.min.z());
+    const vm::vec<T,3> p2(m_bounds.min.x(), m_bounds.min.y(), m_bounds.max.z());
+    const vm::vec<T,3> p3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.min.z());
+    const vm::vec<T,3> p4(m_bounds.min.x(), m_bounds.max.y(), m_bounds.max.z());
+    const vm::vec<T,3> p5(m_bounds.max.x(), m_bounds.min.y(), m_bounds.min.z());
+    const vm::vec<T,3> p6(m_bounds.max.x(), m_bounds.min.y(), m_bounds.max.z());
+    const vm::vec<T,3> p7(m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z());
+    const vm::vec<T,3> p8(m_bounds.max.x(), m_bounds.max.y(), m_bounds.max.z());
 
     Vertex* v1 = new Vertex(p1);
     Vertex* v2 = new Vertex(p2);
@@ -453,7 +453,7 @@ m_bounds(bounds) {
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Polyhedron(const std::vector<vec3>& positions) {
+Polyhedron<T,FP,VP>::Polyhedron(const std::vector<vm::vec<T,3>>& positions) {
     addPoints(std::begin(positions), std::end(positions));
 }
 
@@ -699,8 +699,8 @@ const typename Polyhedron<T,FP,VP>::VertexList& Polyhedron<T,FP,VP>::vertices() 
 }
 
 template <typename T, typename FP, typename VP>
-std::vector<typename Polyhedron<T,FP,VP>::vec3> Polyhedron<T,FP,VP>::vertexPositions() const {
-    std::vector<vec3> result;
+std::vector<vm::vec<T,3>> Polyhedron<T,FP,VP>::vertexPositions() const {
+    std::vector<vm::vec<T,3>> result;
     result.reserve(vertexCount());
     for (const auto* vertex : m_vertices) {
         result.push_back(vertex->position());
@@ -719,7 +719,7 @@ const typename Polyhedron<T,FP,VP>::EdgeList& Polyhedron<T,FP,VP>::edges() const
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::hasEdge(const vec3& pos1, const vec3& pos2, const T epsilon) const {
+bool Polyhedron<T,FP,VP>::hasEdge(const vm::vec<T,3>& pos1, const vm::vec<T,3>& pos2, const T epsilon) const {
     return findEdgeByPositions(pos1, pos2, epsilon) != nullptr;
 }
 
@@ -734,7 +734,7 @@ const typename Polyhedron<T,FP,VP>::FaceList& Polyhedron<T,FP,VP>::faces() const
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::hasFace(const std::vector<vec3>& positions, const T epsilon) const {
+bool Polyhedron<T,FP,VP>::hasFace(const std::vector<vm::vec<T,3>>& positions, const T epsilon) const {
     return findFaceByPositions(positions, epsilon) != nullptr;
 }
 
@@ -806,13 +806,13 @@ typename Polyhedron<T,FP,VP>::FaceHit Polyhedron<T,FP,VP>::pickFace(const vm::ra
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::hasVertex(const vec3& position, const T epsilon) const {
+bool Polyhedron<T,FP,VP>::hasVertex(const vm::vec<T,3>& position, const T epsilon) const {
     return findVertexByPosition(position, epsilon) != nullptr;
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::hasAnyVertex(const std::vector<vec3>& positions, const T epsilon) const {
-    for (const vec3& position : positions) {
+bool Polyhedron<T,FP,VP>::hasAnyVertex(const std::vector<vm::vec<T,3>>& positions, const T epsilon) const {
+    for (const vm::vec<T,3>& position : positions) {
         if (hasVertex(position, epsilon)) {
             return true;
         }
@@ -821,11 +821,11 @@ bool Polyhedron<T,FP,VP>::hasAnyVertex(const std::vector<vec3>& positions, const
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::hasAllVertices(const std::vector<vec3>& positions, const T epsilon) const {
+bool Polyhedron<T,FP,VP>::hasAllVertices(const std::vector<vm::vec<T,3>>& positions, const T epsilon) const {
     if (positions.size() != vertexCount()) {
         return false;
     }
-    for (const vec3& position : positions) {
+    for (const vm::vec<T,3>& position : positions) {
         if (!hasVertex(position, epsilon)) {
             return false;
         }
@@ -834,7 +834,7 @@ bool Polyhedron<T,FP,VP>::hasAllVertices(const std::vector<vec3>& positions, con
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findVertexByPosition(const vec3& position, const T epsilon) const {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findVertexByPosition(const vm::vec<T,3>& position, const T epsilon) const {
     if (m_vertices.empty()) {
         return nullptr;
     }
@@ -851,7 +851,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findVertexByPosition(
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findClosestVertex(const vec3& position, const T maxDistance) const {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findClosestVertex(const vm::vec<T,3>& position, const T maxDistance) const {
     if (m_vertices.empty()) {
         return nullptr;
     }
@@ -873,7 +873,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findClosestVertex(con
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::findEdgeByPositions(const vec3& pos1, const vec3& pos2, const T epsilon) const {
+typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::findEdgeByPositions(const vm::vec<T,3>& pos1, const vm::vec<T,3>& pos2, const T epsilon) const {
     if (m_edges.empty()) {
         return nullptr;
     }
@@ -890,7 +890,7 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::findEdgeByPositions(con
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::findClosestEdge(const vec3& pos1, const vec3& pos2, const T maxDistance) const {
+typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::findClosestEdge(const vm::vec<T,3>& pos1, const vm::vec<T,3>& pos2, const T maxDistance) const {
     if (m_edges.empty()) {
         return nullptr;
     }
@@ -912,7 +912,7 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::findClosestEdge(const v
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::findFaceByPositions(const std::vector<vec3>& positions, const T epsilon) const {
+typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::findFaceByPositions(const std::vector<vm::vec<T,3>>& positions, const T epsilon) const {
     auto* firstFace = m_faces.front();
     auto* currentFace = firstFace;
     do {
@@ -925,7 +925,7 @@ typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::findFaceByPositions(con
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::findClosestFace(const std::vector<vec3>& positions, const T maxDistance) {
+typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::findClosestFace(const std::vector<vm::vec<T,3>>& positions, const T maxDistance) {
     auto closestDistance = maxDistance;
     Face* closestFace = nullptr;
 

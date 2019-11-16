@@ -1014,8 +1014,6 @@ public:
     using FacePayloadType = FP;
     using VertexPayloadType = VP;
 private:
-    using vec3 = vm::vec<T,3>;
-private:
     static constexpr const auto MinEdgeLength = T(0.01);
 public:
     using Vertex = Polyhedron_Vertex<T,FP,VP>;
@@ -1043,8 +1041,8 @@ public:
      * Helper that maps a vertex to its position or a half edge to the position of its origin.
      */
     struct GetVertexPosition {
-        const vec3& operator()(const Vertex* vertex) const;
-        const vec3& operator()(const HalfEdge* halfEdge) const;
+        const vm::vec<T,3>& operator()(const Vertex* vertex) const;
+        const vm::vec<T,3>& operator()(const HalfEdge* halfEdge) const;
     };
 
     /**
@@ -1170,7 +1168,7 @@ public: // Constructors
      *
      * @param positions the points from which the convex hull is computed
      */
-    Polyhedron(std::initializer_list<vec3> positions);
+    Polyhedron(std::initializer_list<vm::vec<T,3>> positions);
 
     /**
      * Constructs a polyhedron that corresponds to the given axis aligned cuboid.
@@ -1182,7 +1180,7 @@ public: // Constructors
      *
      * @param positions the points from which the convex hull is computed
      */
-    explicit Polyhedron(const std::vector<vec3>& positions);
+    explicit Polyhedron(const std::vector<vm::vec<T,3>>& positions);
 
     /**
      * Copy constructor.
@@ -1246,7 +1244,7 @@ public: // Accessors
     /**
      * Returns a vector containing the positions of all vertices of this polyhedron.
      */
-    std::vector<vec3> vertexPositions() const;
+    std::vector<vm::vec<T,3>> vertexPositions() const;
 
     /**
      * Returns the number of edges of this polyhedron.
@@ -1266,7 +1264,7 @@ public: // Accessors
      * @param epsilon the epsilon value to use for comparison
      * @return true if this polyhedron has an edge with the given vertex positions
      */
-    bool hasEdge(const vec3& pos1, const vec3& pos2, T epsilon = static_cast<T>(0.0)) const;
+    bool hasEdge(const vm::vec<T,3>& pos1, const vm::vec<T,3>& pos2, T epsilon = static_cast<T>(0.0)) const;
 
     /**
      * Returns the number of faces of this polyhedron.
@@ -1285,7 +1283,7 @@ public: // Accessors
      * @param epsilon the epsilon value to use for comparison
      * @return true if this polyhedron has an edge with the given vertex positions
      */
-    bool hasFace(const std::vector<vec3>& positions, T epsilon = static_cast<T>(0.0)) const;
+    bool hasFace(const std::vector<vm::vec<T,3>>& positions, T epsilon = static_cast<T>(0.0)) const;
 
     /**
      * Returns the bounds of this polyhedron.
@@ -1383,7 +1381,7 @@ public: // General purpose methods
      * @param epsilon the epsilon value to use for comparison
      * @return true if this polyhedron has a vertex with the given position and false otherwise
      */
-    bool hasVertex(const vec3& position, T epsilon = static_cast<T>(0.0)) const;
+    bool hasVertex(const vm::vec<T,3>& position, T epsilon = static_cast<T>(0.0)) const;
 
     /**
      * Checks whether any of the given positions corresponds to the position of a vertex of this polyhedron.
@@ -1393,7 +1391,7 @@ public: // General purpose methods
      * @return true if any of the given positions has a corresponding vertex of this polyhedron and false
      * otherwise
      */
-    bool hasAnyVertex(const std::vector<vec3>& positions, T epsilon = static_cast<T>(0.0)) const;
+    bool hasAnyVertex(const std::vector<vm::vec<T,3>>& positions, T epsilon = static_cast<T>(0.0)) const;
 
     /**
      * Checks whether all of the given positions corresponds to the position of a vertex of this polyhedron.
@@ -1403,7 +1401,7 @@ public: // General purpose methods
      * @return true if all of the given positions have a corresponding vertex of this polyhedron and false
      * otherwise
      */
-    bool hasAllVertices(const std::vector<vec3>& positions, T epsilon = static_cast<T>(0.0)) const;
+    bool hasAllVertices(const std::vector<vm::vec<T,3>>& positions, T epsilon = static_cast<T>(0.0)) const;
 
     /**
      * Finds a vertex with the given position.
@@ -1413,7 +1411,7 @@ public: // General purpose methods
      * @return a vertex whose position compares equal to the given position or null if no such vertex exists in
      * this polyhedron
      */
-    Vertex* findVertexByPosition(const vec3& position, T epsilon = static_cast<T>(0.0)) const;
+    Vertex* findVertexByPosition(const vm::vec<T,3>& position, T epsilon = static_cast<T>(0.0)) const;
 
     /**
      * Finds a vertex such that
@@ -1424,7 +1422,7 @@ public: // General purpose methods
      * @param maxDistance the maximum distance at which a vertex is considered
      * @return a vertex or null if no vertex satisfies the criteria listed above
      */
-    Vertex* findClosestVertex(const vec3& position, T maxDistance = std::numeric_limits<T>::max()) const;
+    Vertex* findClosestVertex(const vm::vec<T,3>& position, T maxDistance = std::numeric_limits<T>::max()) const;
 
     /**
      * Finds an edge with the given vertex positions. An edge is considered a match if
@@ -1435,7 +1433,7 @@ public: // General purpose methods
      * @param epsilon the epsilon value to use for comparison
      * @return an edge with the given vertex positions or null if no such edge exists in this polyhedron
      */
-    Edge* findEdgeByPositions(const vec3& pos1, const vec3& pos2, T epsilon = static_cast<T>(0.0)) const;
+    Edge* findEdgeByPositions(const vm::vec<T,3>& pos1, const vm::vec<T,3>& pos2, T epsilon = static_cast<T>(0.0)) const;
 
     /**
      * Finds an edge such that
@@ -1449,7 +1447,7 @@ public: // General purpose methods
      * @param maxDistance the maximum distance at which an edge is considered
      * @return an edge or null if no edge satisfies the criteria listed above
      */
-    Edge* findClosestEdge(const vec3& pos1, const vec3& pos2, T maxDistance = std::numeric_limits<T>::max()) const;
+    Edge* findClosestEdge(const vm::vec<T,3>& pos1, const vm::vec<T,3>& pos2, T maxDistance = std::numeric_limits<T>::max()) const;
 
     /**
      * Finds a face with the given vertex positions. A face is considered a match if
@@ -1459,7 +1457,7 @@ public: // General purpose methods
      * @param epsilon the epsilon value to use for comparison
      * @return a face with the given vertex positions or null if no such face exists in this polyhedron
      */
-    Face* findFaceByPositions(const std::vector<vec3>& positions, T epsilon = static_cast<T>(0.0)) const;
+    Face* findFaceByPositions(const std::vector<vm::vec<T,3>>& positions, T epsilon = static_cast<T>(0.0)) const;
 
     /**
      * Finds a face such that
@@ -1472,7 +1470,7 @@ public: // General purpose methods
      * @param maxDistance the maximum distance at which a face is considered
      * @return a face or null if no face satisfies the criteria listed above
      */
-    Face* findClosestFace(const std::vector<vec3>& positions, T maxDistance = std::numeric_limits<T>::max());
+    Face* findClosestFace(const std::vector<vm::vec<T,3>>& positions, T maxDistance = std::numeric_limits<T>::max());
 private:
     /**
      * Updates the bounds to the smallest bounding box that contains the positions of all vertices of this
@@ -1573,7 +1571,7 @@ public: // Convex hull; adding and removing points
      *
      * @param points the points to add to this polyhedron
      */
-    void addPoints(const std::vector<vec3>& points);
+    void addPoints(const std::vector<vm::vec<T,3>>& points);
 
     /**
      * Adds the given points to this polyhedron. The effect of adding the given points to a polyhedron is that
@@ -1582,7 +1580,7 @@ public: // Convex hull; adding and removing points
      * @param points the points to add to this polyhedron
      * @param callback the callback to inform of lifecycle events
      */
-    void addPoints(const std::vector<vec3>& points, Callback& callback);
+    void addPoints(const std::vector<vm::vec<T,3>>& points, Callback& callback);
 private:
     /**
      * Adds the points in range [cur, end) to this polyhedron. The effect of adding the given points to a
@@ -1614,7 +1612,7 @@ public:
      * @param position the point to add
      * @return the newly created vertex, or null if the given point was not added to this polyhedron
      */
-    Vertex* addPoint(const vec3& position);
+    Vertex* addPoint(const vm::vec<T,3>& position);
 
     /**
      * Adds the given point to this polyhedron. The effect of adding the given point to a polyhedron is that the
@@ -1626,7 +1624,7 @@ public:
      * @param callback the callback to inform of lifecycle events
      * @return the newly created vertex, or null if the given point was not added to this polyhedron
      */
-    Vertex* addPoint(const vec3& position, Callback& callback);
+    Vertex* addPoint(const vm::vec<T,3>& position, Callback& callback);
 
     /**
      * Merges this polyhedron with the given polyhedron. The effect of merging two polyhedra is that the resulting
@@ -1653,7 +1651,7 @@ private:
      * @param callback the callback to inform of lifecycle events
      * @return the newly created vertex
      */
-    Vertex* addFirstPoint(const vec3& position, Callback& callback);
+    Vertex* addFirstPoint(const vm::vec<T,3>& position, Callback& callback);
 
     /**
      * Helper function that adds the given point to a point polyhedron. Afterwards, this polyhedron will be a
@@ -1667,7 +1665,7 @@ private:
      * @param callback the callback to inform of lifecycle events
      * @return the newly created vertex or null if no vertex was created
      */
-    Vertex* addSecondPoint(const vec3& position, Callback& callback);
+    Vertex* addSecondPoint(const vm::vec<T,3>& position, Callback& callback);
 
     /**
      * Helper function that adds the given point to an edge polyhedron. Afterwards, this polyhedron will be an
@@ -1683,7 +1681,7 @@ private:
      * @param callback the callback to inform of lifecycle events
      * @return the newly created vertex or null if no vertex was created
      */
-    Vertex* addThirdPoint(const vec3& position, Callback& callback);
+    Vertex* addThirdPoint(const vm::vec<T,3>& position, Callback& callback);
 
     /**
      * Helper function that adds the given point to an edge polyhedron. Afterwards, this polyhedron is an edge.
@@ -1695,7 +1693,7 @@ private:
      * @param callback the callback to inform of lifecycle events
      * @return the newly created vertex or null if no vertex was created
      */
-    Vertex* addColinearThirdPoint(const vec3& position, Callback& callback);
+    Vertex* addColinearThirdPoint(const vm::vec<T,3>& position, Callback& callback);
 
 
     /**
@@ -1708,7 +1706,7 @@ private:
      * @param callback the callback to inform of lifecycle events
      * @return the newly created vertex
      */
-    Vertex* addNonColinearThirdPoint(const vec3& position, Callback& callback);
+    Vertex* addNonColinearThirdPoint(const vm::vec<T,3>& position, Callback& callback);
 
     /**
      * Helper function that adds the given point to a polyhedron that is either a polygon or a convex volume.
@@ -1728,7 +1726,7 @@ private:
      * @param callback the callback to inform of lifecycle events
      * @return the newly created vertex or null if no vertex was created
      */
-    Vertex* addFurtherPoint(const vec3& position, Callback& callback);
+    Vertex* addFurtherPoint(const vm::vec<T,3>& position, Callback& callback);
 
     /**
      * Helper function that adds the given point to a polygon.
@@ -1742,7 +1740,7 @@ private:
      * @param callback the callback to inform of lifecycle events
      * @return the newly created vertex or null if no vertex was created
      */
-    Vertex* addFurtherPointToPolygon(const vec3& position, Callback& callback);
+    Vertex* addFurtherPointToPolygon(const vm::vec<T,3>& position, Callback& callback);
 
     /**
      * Helper function that adds a coplanar point to a polygon.
@@ -1754,7 +1752,7 @@ private:
      * @param callback the callback to inform of lifecycle events
      * @return the newly created vertex or null if no vertex was created
      */
-    Vertex* addPointToPolygon(const vec3& position, Callback& callback);
+    Vertex* addPointToPolygon(const vm::vec<T,3>& position, Callback& callback);
 
     /**
      * Helper function that creates a new polygon from the given vector of coplanar points.
@@ -1765,7 +1763,7 @@ private:
      * @param positions the points to create a polygon from
      * @param callback the callback to inform of lifecycle events
      */
-    void makePolygon(const std::vector<vec3>& positions, Callback& callback);
+    void makePolygon(const std::vector<vm::vec<T,3>>& positions, Callback& callback);
 
     /**
      * Helper function that adds the given non coplanar point to a polygon, turning it into a convex volume.
@@ -1777,7 +1775,7 @@ private:
      * @param callback the callback to inform of lifecycle events
      * @return the newly created vertex or null if no vertex was created
      */
-    Vertex* makePolyhedron(const vec3& position, Callback& callback);
+    Vertex* makePolyhedron(const vm::vec<T,3>& position, Callback& callback);
 
     /**
      * Helper function that adds the given point to a convex volume.
@@ -1788,9 +1786,9 @@ private:
      * @param callback the callback to inform of lifecycle events
      * @return the newly created vertex or null if no vertex was created
      */
-    Vertex* addFurtherPointToPolyhedron(const vec3& position, Callback& callback);
+    Vertex* addFurtherPointToPolyhedron(const vm::vec<T,3>& position, Callback& callback);
 
-    Vertex* addPointToPolyhedron(const vec3& position, const Seam& seam, Callback& callback);
+    Vertex* addPointToPolyhedron(const vm::vec<T,3>& position, const Seam& seam, Callback& callback);
 
     class SplittingCriterion;
     class SplitByVisibilityCriterion;
@@ -1807,7 +1805,7 @@ private:
     void sealWithSinglePolygon(const Seam& seam, Callback& callback);
 
     class ShiftSeamForWeaving;
-    Vertex* weave(Seam seam, const vec3& position, Callback& callback);
+    Vertex* weave(Seam seam, const vm::vec<T,3>& position, Callback& callback);
 public: // Clipping
     struct ClipResult {
         typedef enum {
@@ -1864,7 +1862,7 @@ public: // Subtraction
 private:
     class Subtract;
 public: // geometrical queries
-    bool contains(const vec3& point, const Callback& callback = Callback()) const;
+    bool contains(const vm::vec<T,3>& point, const Callback& callback = Callback()) const;
     bool contains(const Polyhedron& other) const;
     bool intersects(const Polyhedron& other, const Callback& callback = Callback()) const;
 private:

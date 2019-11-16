@@ -28,7 +28,7 @@
 #include <vecmath/distance.h>
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::contains(const vec3& point, const Callback& callback) const {
+bool Polyhedron<T,FP,VP>::contains(const vm::vec<T,3>& point, const Callback& callback) const {
     if (!polyhedron()) {
         return false;
     }
@@ -128,8 +128,8 @@ bool Polyhedron<T,FP,VP>::pointIntersectsPoint(const Polyhedron& lhs, const Poly
     assert(lhs.point());
     assert(rhs.point());
 
-    const vec3& lhsPos = lhs.m_vertices.front()->position();
-    const vec3& rhsPos = rhs.m_vertices.front()->position();
+    const vm::vec<T,3>& lhsPos = lhs.m_vertices.front()->position();
+    const vm::vec<T,3>& rhsPos = rhs.m_vertices.front()->position();
     return lhsPos == rhsPos;
 }
 
@@ -138,10 +138,10 @@ bool Polyhedron<T,FP,VP>::pointIntersectsEdge(const Polyhedron& lhs, const Polyh
     assert(lhs.point());
     assert(rhs.edge());
 
-    const vec3& lhsPos = lhs.m_vertices.front()->position();
+    const vm::vec<T,3>& lhsPos = lhs.m_vertices.front()->position();
     const Edge* rhsEdge = rhs.m_edges.front();
-    const vec3& rhsStart = rhsEdge->firstVertex()->position();
-    const vec3& rhsEnd = rhsEdge->secondVertex()->position();
+    const vm::vec<T,3>& rhsStart = rhsEdge->firstVertex()->position();
+    const vm::vec<T,3>& rhsEnd = rhsEdge->secondVertex()->position();
 
     return vm::segment<T,3>(rhsStart, rhsEnd).contains(lhsPos, vm::constants<T>::almost_zero());
 }
@@ -151,9 +151,9 @@ bool Polyhedron<T,FP,VP>::pointIntersectsPolygon(const Polyhedron& lhs, const Po
     assert(lhs.point());
     assert(rhs.polygon());
 
-    const vec3& lhsPos = lhs.m_vertices.front()->position();
+    const vm::vec<T,3>& lhsPos = lhs.m_vertices.front()->position();
     const Face* rhsFace = rhs.m_faces.front();
-    const vec3 rhsNormal = callback.getPlane(rhsFace).normal;
+    const vm::vec<T,3> rhsNormal = callback.getPlane(rhsFace).normal;
     const HalfEdgeList& rhsBoundary = rhsFace->boundary();
 
     return vm::polygon_contains_point(lhsPos, rhsNormal, std::begin(rhsBoundary), std::end(rhsBoundary), GetVertexPosition());
@@ -164,7 +164,7 @@ bool Polyhedron<T,FP,VP>::pointIntersectsPolyhedron(const Polyhedron& lhs, const
     assert(lhs.point());
     assert(rhs.polyhedron());
 
-    const vec3& lhsPos = lhs.m_vertices.front()->position();
+    const vm::vec<T,3>& lhsPos = lhs.m_vertices.front()->position();
     return rhs.contains(lhsPos, callback);
 }
 

@@ -103,17 +103,17 @@ private:
     }
 
     static PlaneList sortPlanes(PlaneList planes) {
-        using VList = std::vector<vec3>;
+        using VList = std::vector<vm::vec<T,3>>;
 
         auto it = std::begin(planes);
-        it = sortPlanes(it, std::end(planes), VList({ vec3::pos_x(), vec3::pos_y(), vec3::pos_z() }));
-        it = sortPlanes(it, std::end(planes), VList({ vec3::pos_y(), vec3::pos_x(), vec3::pos_z() }));
-             sortPlanes(it, std::end(planes), VList({ vec3::pos_z(), vec3::pos_x(), vec3::pos_y() }));
+        it = sortPlanes(it, std::end(planes), VList({ vm::vec<T,3>::pos_x(), vm::vec<T,3>::pos_y(), vm::vec<T,3>::pos_z() }));
+        it = sortPlanes(it, std::end(planes), VList({ vm::vec<T,3>::pos_y(), vm::vec<T,3>::pos_x(), vm::vec<T,3>::pos_z() }));
+             sortPlanes(it, std::end(planes), VList({ vm::vec<T,3>::pos_z(), vm::vec<T,3>::pos_x(), vm::vec<T,3>::pos_y() }));
 
         return planes;
     }
 
-    static typename PlaneList::iterator sortPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const std::vector<vec3>& axes) {
+    static typename PlaneList::iterator sortPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const std::vector<vm::vec<T,3>>& axes) {
         if (begin == end)
             return end;
 
@@ -128,7 +128,7 @@ private:
         return it;
     }
 
-    static typename PlaneList::iterator selectPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const std::vector<vec3>& axes) {
+    static typename PlaneList::iterator selectPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const std::vector<vm::vec<T,3>>& axes) {
         assert(begin != end);
         assert(!axes.empty());
 
