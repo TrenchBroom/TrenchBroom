@@ -75,7 +75,9 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeGrid::removeSelectedAttributes() {
-            assert(canRemoveSelectedAttributes());
+            if (!canRemoveSelectedAttributes()) {
+                return;
+            }
 
             const auto selectedRows = selectedRowsAndCursorRow();
 
