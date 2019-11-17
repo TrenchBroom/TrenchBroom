@@ -50,6 +50,8 @@
 
 #include <algorithm>
 #include <iterator>
+#include <set>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -167,25 +169,24 @@ namespace TrenchBroom {
         public:
             template <typename I>
             MoveVerticesCallback(const BrushGeometry* geometry, I cur, I end, const vm::vec3& delta) {
-                const auto vertices = Brush::createVertexSet(std::vector<vm::vec3>(cur, end));
+                const auto vertices = std::set<vm::vec3>(cur, end);
                 buildIncidences(geometry, vertices, delta);
             }
 
             MoveVerticesCallback(const BrushGeometry* geometry, const vm::vec3& vertex, const vm::vec3& delta) {
-                VertexSet vertices = Brush::createVertexSet();
-                vertices.insert(vertex);
+                const auto vertices = std::set<vm::vec3>({ vertex });
                 buildIncidences(geometry, vertices, delta);
             }
 
             MoveVerticesCallback(const BrushGeometry* geometry) {
-                buildIncidences(geometry, Brush::createVertexSet(), vm::vec3::zero());
+                buildIncidences(geometry, std::set<vm::vec3>(), vm::vec3::zero());
             }
 
             ~MoveVerticesCallback() override {
                 VectorUtils::clearAndDelete(m_removedFaces);
             }
         private:
-            void buildIncidences(const BrushGeometry* geometry, const VertexSet& verticesToBeMoved, const vm::vec3& delta) {
+            void buildIncidences(const BrushGeometry* geometry, const std::set<vm::vec3>& verticesToBeMoved, const vm::vec3& delta) {
                 const auto& vertices = geometry->vertices();
                 const auto* firstVertex = vertices.front();
                 const auto* curVertex = firstVertex;
@@ -762,7 +763,7 @@ namespace TrenchBroom {
             ensure(!vertexPositions.empty(), "no vertex positions");
 
             BrushGeometry testGeometry;
-            const auto vertexSet = Brush::createVertexSet(vertexPositions);
+            const auto vertexSet = std::set<vm::vec3>(std::begin(vertexPositions), std::end(vertexPositions));
 
             for (const auto* vertex : m_geometry->vertices()) {
                 const auto& position = vertex->position();
@@ -780,7 +781,7 @@ namespace TrenchBroom {
             assert(canRemoveVertices(worldBounds, vertexPositions));
 
             BrushGeometry newGeometry;
-            const auto vertexSet = Brush::createVertexSet(vertexPositions);
+            const auto vertexSet = std::set<vm::vec3>(std::begin(vertexPositions), std::end(vertexPositions));
 
             for (const auto* vertex : m_geometry->vertices()) {
                 const auto& position = vertex->position();
@@ -966,7 +967,7 @@ namespace TrenchBroom {
                 return CanMoveVerticesResult::rejectVertexMove();
             }
 
-            const auto vertexSet = Brush::createVertexSet(vertexPositions);
+            const auto vertexSet = std::set<vm::vec3>(std::begin(vertexPositions), std::end(vertexPositions));
 
             BrushGeometry remaining;
             BrushGeometry moving;
@@ -1048,7 +1049,7 @@ namespace TrenchBroom {
             assert(canMoveVertices(worldBounds, vertexPositions, delta));
 
             BrushGeometry newGeometry;
-            const auto vertexSet = Brush::createVertexSet(vertexPositions);
+            const auto vertexSet = std::set<vm::vec3>(std::begin(vertexPositions), std::end(vertexPositions));
 
             for (auto* vertex : m_geometry->vertices()) {
                 const auto& position = vertex->position();
@@ -1173,10 +1174,6 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_faces);
             updateFacesFromGeometry(worldBounds, newGeometry);
             rebuildGeometry(worldBounds);
-        }
-
-        Brush::VertexSet Brush::createVertexSet(const std::vector<vm::vec3>& vertices) {
-            return VertexSet(std::begin(vertices), std::end(vertices));
         }
 
         BrushList Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushList& subtrahends) const {

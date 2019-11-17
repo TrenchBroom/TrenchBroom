@@ -32,8 +32,6 @@
 #include <vecmath/vec.h>
 #include <vecmath/polygon.h>
 
-// FIXME: this should not be included here
-#include <set>
 #include <vector>
 
 template <typename P>
@@ -69,8 +67,6 @@ namespace TrenchBroom {
             class MoveVerticesCallback;
             using RemoveVertexCallback = MoveVerticesCallback;
             class QueryCallback;
-
-            using VertexSet = std::set<vm::vec3>;
         public:
             using VertexList = ProjectingSequence<BrushVertexList, ProjectToVertex>;
             using EdgeList = ProjectingSequence<BrushEdgeList, ProjectToEdge>;
@@ -239,8 +235,6 @@ namespace TrenchBroom {
              */
             void applyUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right);
             void doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, bool uvLock = false);
-
-            static VertexSet createVertexSet(const std::vector<vm::vec3>& vertices = std::vector<vm::vec3>(0));
         public:
             // CSG operations
             /**
