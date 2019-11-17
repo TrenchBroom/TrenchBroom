@@ -21,12 +21,12 @@
 #define TrenchBroom_Polyhedron_HalfEdge_h
 
 template <typename T, typename FP, typename VP>
-intrusive_circular_link<Polyhedron_HalfEdge<T,FP,VP>>& Polyhedron_GetHalfEdgeLink::operator()(Polyhedron_HalfEdge<T,FP,VP>* halfEdge) const {
+intrusive_circular_link<Polyhedron_HalfEdge<T,FP,VP>>& Polyhedron_GetHalfEdgeLink<T,FP,VP>::operator()(Polyhedron_HalfEdge<T,FP,VP>* halfEdge) const {
     return halfEdge->m_link;
 }
 
 template <typename T, typename FP, typename VP>
-const intrusive_circular_link<Polyhedron_HalfEdge<T,FP,VP>>& Polyhedron_GetHalfEdgeLink::operator()(const Polyhedron_HalfEdge<T,FP,VP>* halfEdge) const {
+const intrusive_circular_link<Polyhedron_HalfEdge<T,FP,VP>>& Polyhedron_GetHalfEdgeLink<T,FP,VP>::operator()(const Polyhedron_HalfEdge<T,FP,VP>* halfEdge) const {
     return halfEdge->m_link;
 }
 

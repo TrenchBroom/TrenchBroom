@@ -37,15 +37,12 @@
 
 /* ====================== Implementation in Polyhedron_Vertex.h ====================== */
 
-
 /**
  * Maps a vertex to its contained intrusive_circular_link member, used for intrusive_circular_list.
  */
+template <typename T, typename FP, typename VP>
 struct Polyhedron_GetVertexLink {
-    template <typename T, typename FP, typename VP>
     intrusive_circular_link<Polyhedron_Vertex<T,FP,VP>>& operator()(Polyhedron_Vertex<T,FP,VP>* vertex) const;
-
-    template <typename T, typename FP, typename VP>
     const intrusive_circular_link<Polyhedron_Vertex<T,FP,VP>>& operator()(const Polyhedron_Vertex<T,FP,VP>* vertex) const;
 };
 
@@ -67,7 +64,7 @@ private:
     friend class Polyhedron_Edge<T,FP,VP>;
     friend class Polyhedron_HalfEdge<T,FP,VP>;
     friend class Polyhedron_Face<T,FP,VP>;
-    friend struct Polyhedron_GetVertexLink;
+    friend struct Polyhedron_GetVertexLink<T,FP,VP>;
 
     using Vertex = Polyhedron_Vertex<T,FP,VP>;
     using HalfEdge = Polyhedron_HalfEdge<T,FP,VP>;
@@ -179,11 +176,9 @@ public:
 /**
  * Maps an edge to its contained intrusive_circular_link member, used for intrusive_circular_list.
  */
+template <typename T, typename FP, typename VP>
 struct Polyhedron_GetEdgeLink {
-    template <typename T, typename FP, typename VP>
     intrusive_circular_link<Polyhedron_Edge<T,FP,VP>>& operator()(Polyhedron_Edge<T,FP,VP>* edge) const;
-
-    template <typename T, typename FP, typename VP>
     const intrusive_circular_link<Polyhedron_Edge<T,FP,VP>>& operator()(const Polyhedron_Edge<T,FP,VP>* edge) const;
 };
 
@@ -209,7 +204,7 @@ private:
     friend class Polyhedron_Vertex<T,FP,VP>;
     friend class Polyhedron_HalfEdge<T,FP,VP>;
     friend class Polyhedron_Face<T,FP,VP>;
-    friend struct Polyhedron_GetEdgeLink;
+    friend struct Polyhedron_GetEdgeLink<T,FP,VP>;
 
     using Vertex = Polyhedron_Vertex<T,FP,VP>;
     using Edge = Polyhedron_Edge<T,FP,VP>;
@@ -448,11 +443,9 @@ private:
 /**
  * Maps a half edge to its contained intrusive_circular_link member, used for intrusive_circular_list.
  */
+template <typename T, typename FP, typename VP>
 struct Polyhedron_GetHalfEdgeLink {
-    template <typename T, typename FP, typename VP>
     intrusive_circular_link<Polyhedron_HalfEdge<T,FP,VP>>& operator()(Polyhedron_HalfEdge<T,FP,VP>* halfEdge) const;
-
-    template <typename T, typename FP, typename VP>
     const intrusive_circular_link<Polyhedron_HalfEdge<T,FP,VP>>& operator()(const Polyhedron_HalfEdge<T,FP,VP>* halfEdge) const;
 };
 
@@ -483,7 +476,7 @@ private:
     friend class Polyhedron_Vertex<T,FP,VP>;
     friend class Polyhedron_Edge<T,FP,VP>;
     friend class Polyhedron_Face<T,FP,VP>;
-    friend struct Polyhedron_GetHalfEdgeLink;
+    friend struct Polyhedron_GetHalfEdgeLink<T,FP,VP>;
 
     using Vertex = Polyhedron_Vertex<T,FP,VP>;
     using Edge = Polyhedron_Edge<T,FP,VP>;
@@ -686,11 +679,9 @@ private:
 /**
  * Maps a face to its contained intrusive_circular_link member, used for intrusive_circular_list.
  */
+template <typename T, typename FP, typename VP>
 struct Polyhedron_GetFaceLink {
-    template <typename T, typename FP, typename VP>
     intrusive_circular_link<Polyhedron_Face<T,FP,VP>>& operator()(Polyhedron_Face<T,FP,VP>* face) const;
-
-    template <typename T, typename FP, typename VP>
     const intrusive_circular_link<Polyhedron_Face<T,FP,VP>>& operator()(const Polyhedron_Face<T,FP,VP>* face) const;
 };
 
@@ -708,7 +699,7 @@ private:
     friend class Polyhedron_Vertex<T,FP,VP>;
     friend class Polyhedron_Edge<T,FP,VP>;
     friend class Polyhedron_HalfEdge<T,FP,VP>;
-    friend struct Polyhedron_GetFaceLink;
+    friend struct Polyhedron_GetFaceLink<T,FP,VP>;
 
     using Vertex = Polyhedron_Vertex<T,FP,VP>;
     using Edge = Polyhedron_Edge<T,FP,VP>;

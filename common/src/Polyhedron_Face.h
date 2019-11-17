@@ -34,12 +34,12 @@
 #include <unordered_set>
 
 template <typename T, typename FP, typename VP>
-intrusive_circular_link<Polyhedron_Face<T,FP,VP>>& Polyhedron_GetFaceLink::operator()(Polyhedron_Face<T,FP,VP>* face) const {
+intrusive_circular_link<Polyhedron_Face<T,FP,VP>>& Polyhedron_GetFaceLink<T,FP,VP>::operator()(Polyhedron_Face<T,FP,VP>* face) const {
     return face->m_link;
 }
 
 template <typename T, typename FP, typename VP>
-const intrusive_circular_link<Polyhedron_Face<T,FP,VP>>& Polyhedron_GetFaceLink::operator()(const Polyhedron_Face<T,FP,VP>* face) const {
+const intrusive_circular_link<Polyhedron_Face<T,FP,VP>>& Polyhedron_GetFaceLink<T,FP,VP>::operator()(const Polyhedron_Face<T,FP,VP>* face) const {
     return face->m_link;
 }
 
