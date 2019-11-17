@@ -921,8 +921,33 @@ namespace TrenchBroom {
         success(s),
         geometry(new BrushGeometry(std::move(g))) {}
 
+        Brush::CanMoveVerticesResult::CanMoveVerticesResult(const Brush::CanMoveVerticesResult& other) :
+        success(other.success),
+        geometry(new BrushGeometry(*other.geometry)) {}
+
+        Brush::CanMoveVerticesResult::CanMoveVerticesResult(Brush::CanMoveVerticesResult&& other) noexcept :
+        success(other.success),
+        geometry(std::move(other.geometry)) {
+            other.success = false;
+            other.geometry = nullptr;
+        }
+
         Brush::CanMoveVerticesResult::~CanMoveVerticesResult() {
             delete geometry;
+        }
+
+        Brush::CanMoveVerticesResult& Brush::CanMoveVerticesResult::operator=(const Brush::CanMoveVerticesResult& other) {
+            success = other.success;
+            geometry = new BrushGeometry(*other.geometry);
+            return *this;
+        }
+
+        Brush::CanMoveVerticesResult& Brush::CanMoveVerticesResult::operator=(Brush::CanMoveVerticesResult&& other) {
+            success = other.success;
+            geometry = other.geometry;
+            other.success = false;
+            other.geometry = nullptr;
+            return *this;
         }
 
         Brush::CanMoveVerticesResult Brush::CanMoveVerticesResult::rejectVertexMove() {
