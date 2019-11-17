@@ -199,6 +199,7 @@ namespace TrenchBroom {
                 BrushGeometry* geometry;
             private:
                 CanMoveVerticesResult(bool s, BrushGeometry&& g);
+                deleteCopyAndMove(CanMoveVerticesResult)
             public:
                 ~CanMoveVerticesResult();
 
