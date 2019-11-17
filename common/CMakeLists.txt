@@ -1043,17 +1043,16 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Polyhedron_Checks.h
         ${COMMON_SOURCE_DIR}/Polyhedron_Clip.h
         ${COMMON_SOURCE_DIR}/Polyhedron_ConvexHull.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_CSG.h
         ${COMMON_SOURCE_DIR}/Polyhedron_DefaultPayload.h
         ${COMMON_SOURCE_DIR}/Polyhedron_Edge.h
         ${COMMON_SOURCE_DIR}/Polyhedron_Face.h
         ${COMMON_SOURCE_DIR}/Polyhedron_Forward.h
         ${COMMON_SOURCE_DIR}/Polyhedron_HalfEdge.h
         ${COMMON_SOURCE_DIR}/Polyhedron_Instantiation.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Intersect.h
         ${COMMON_SOURCE_DIR}/Polyhedron_Matcher.h
         ${COMMON_SOURCE_DIR}/Polyhedron_Misc.h
         ${COMMON_SOURCE_DIR}/Polyhedron_Queries.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Subtract.h
         ${COMMON_SOURCE_DIR}/Polyhedron_Vertex.h
         ${COMMON_SOURCE_DIR}/Polyhedron3.h
         ${COMMON_SOURCE_DIR}/Preference.h

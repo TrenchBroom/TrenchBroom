@@ -26,8 +26,7 @@
 #include "Polyhedron_Face.h"
 #include "Polyhedron_ConvexHull.h"
 #include "Polyhedron_Clip.h"
-#include "Polyhedron_Subtract.h"
-#include "Polyhedron_Intersect.h"
+#include "Polyhedron_CSG.h"
 #include "Polyhedron_Queries.h"
 #include "Polyhedron_Checks.h"
 

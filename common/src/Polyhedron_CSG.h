@@ -17,17 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Polyhedron_Subtract_h
-#define Polyhedron_Subtract_h
+#ifndef Polyhedron_CSG_h
+#define Polyhedron_CSG_h
+
+#include <vector>
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(const Polyhedron& subtrahend) const {
-    Callback c;
-    return subtract(subtrahend, c);
+Polyhedron<T,FP,VP> Polyhedron<T,FP,VP>::intersect(Polyhedron other, const Callback& callback) const {
+    if (!polyhedron() || !other.polyhedron())
+        return Polyhedron();
+
+    const Face* firstFace = m_faces.front();
+    const Face* currentFace = firstFace;
+    do {
+        const vm::plane<T,3> plane = callback.getPlane(currentFace);
+        const ClipResult result = other.clip(plane);
+        if (result.empty())
+            return Polyhedron();
+        currentFace = currentFace->next();
+    } while (currentFace != firstFace);
+    return other;
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(const Polyhedron& subtrahend, const Callback& callback) const {
+std::vector<Polyhedron<T,FP,VP>> Polyhedron<T,FP,VP>::subtract(const Polyhedron& subtrahend, const Callback& callback) const {
     Subtract subtract(*this, subtrahend, callback);
     return subtract.result();
 }
@@ -42,8 +55,7 @@ private:
     using Fragments = std::vector<Polyhedron<T,FP,VP>>;
     Fragments m_fragments;
 
-    using PlaneList = std::list<vm::plane<T,3>>;
-    using PlaneIt = typename PlaneList::const_iterator;
+    using PlaneList = std::vector<vm::plane<T,3>>;
 public:
     Subtract(const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback) :
     m_minuend(minuend),
@@ -74,8 +86,9 @@ private:
         Face* current = first;
         do {
             const ClipResult result = m_subtrahend.clip(m_callback.getPlane(current));
-            if (result.empty())
+            if (result.empty()) {
                 return false;
+            }
             current = current->next();
         } while (current != first);
         return true;
@@ -88,40 +101,40 @@ private:
         doSubtract(Fragments{m_minuend}, std::begin(planes), std::end(planes));
     }
 
-    auto findSubtrahendPlanes() const {
+    /**
+     * Returns a vector containing the planes of all of the subtrahend's faces.
+     */
+    PlaneList findSubtrahendPlanes() const {
         PlaneList result;
+        result.reserve(m_subtrahend.faceCount());
 
-        const Face* firstFace = m_subtrahend.faces().front();
-        const Face* currentFace = firstFace;
-        do {
-            const vm::plane<T,3> plane = m_callback.getPlane(currentFace);
-            result.push_back(plane);
-            currentFace = currentFace->next();
-        } while (currentFace != firstFace);
+        for (const auto* face : m_subtrahend.faces()) {
+            result.push_back(m_callback.getPlane(face));
+        }
 
         return result;
     }
 
     static PlaneList sortPlanes(PlaneList planes) {
-        using VList = std::vector<vm::vec<T,3>>;
-
         auto it = std::begin(planes);
-        it = sortPlanes(it, std::end(planes), VList({ vm::vec<T,3>::pos_x(), vm::vec<T,3>::pos_y(), vm::vec<T,3>::pos_z() }));
-        it = sortPlanes(it, std::end(planes), VList({ vm::vec<T,3>::pos_y(), vm::vec<T,3>::pos_x(), vm::vec<T,3>::pos_z() }));
-             sortPlanes(it, std::end(planes), VList({ vm::vec<T,3>::pos_z(), vm::vec<T,3>::pos_x(), vm::vec<T,3>::pos_y() }));
+        it = sortPlanes(it, std::end(planes), { vm::vec<T,3>::pos_x(), vm::vec<T,3>::pos_y(), vm::vec<T,3>::pos_z() });
+        it = sortPlanes(it, std::end(planes), { vm::vec<T,3>::pos_y(), vm::vec<T,3>::pos_x(), vm::vec<T,3>::pos_z() });
+             sortPlanes(it, std::end(planes), { vm::vec<T,3>::pos_z(), vm::vec<T,3>::pos_x(), vm::vec<T,3>::pos_y() });
 
         return planes;
     }
 
     static typename PlaneList::iterator sortPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const std::vector<vm::vec<T,3>>& axes) {
-        if (begin == end)
+        if (begin == end) {
             return end;
+        }
 
         auto it = begin;
         while (it != end) {
             auto next = selectPlanes(it, end, axes);
-            if (next == it || next == end)
+            if (next == it || next == end) {
                 break; // no further progress
+            }
             it = next;
         }
 
@@ -141,19 +154,23 @@ private:
             for (auto axIt = std::next(std::begin(axes)), axEnd = std::end(axes); newBestIt == end && axIt != axEnd; ++axIt) {
                 const vm::vec<T,3>& altAxis = *axIt;
                 newBestIt = selectPlane(it, bestIt, end, altAxis);
-                if (newBestIt != end)
+                if (newBestIt != end) {
                     break;
+                }
             }
 
-            if (newBestIt != end)
+            if (newBestIt != end) {
                 bestIt = newBestIt;
+            }
         }
 
-        if (bestIt == end)
+        if (bestIt == end) {
             return end;
+        }
 
-        if (vm::abs(dot(bestIt->normal, axis)) < 0.5)
+        if (vm::abs(dot(bestIt->normal, axis)) < 0.5) {
             return begin;
+        }
 
         assert(bestIt != end);
         axis = -bestIt->normal;
@@ -164,30 +181,47 @@ private:
             const T bestDot = bestIt != end ? dot(bestIt->normal, axis) : 0.0;
             const T curDot  = dot(it->normal, axis);
 
-            if (curDot > bestDot)
+            if (curDot > bestDot) {
                 bestIt = it;
-            if (bestDot == 1.0)
+            }
+            if (bestDot == 1.0) {
                 break;
+            }
         }
 
-        if (bestIt != end)
+        if (bestIt != end) {
             std::iter_swap(begin++, bestIt);
+        }
+
         return begin;
     }
 
+    /**
+     * From the two given planes, select the one whose normal is closer to the given axis (or its opposite),
+     * and return its iterator.
+     *
+     * @param curIt a plane
+     * @param bestIt the current best plane, or an end iterator
+     * @param end the end iterator
+     * @param axis the axis
+     * @return an iterator to the new best plane
+     */
     static typename PlaneList::iterator selectPlane(typename PlaneList::iterator curIt, typename PlaneList::iterator bestIt, typename PlaneList::iterator end, const vm::vec<T,3>& axis) {
-        const T curDot = dot(curIt->normal, axis);
-        if (curDot == 0.0)
+        const T curDot = vm::dot(curIt->normal, axis);
+        if (curDot == 0.0) {
             return bestIt;
-        if (curDot == 1.0)
+        }
+        if (curDot == 1.0) {
             return curIt;
+        }
 
-        const T bestDot = bestIt != end ? dot(bestIt->normal, axis) : 0.0;
-        if (vm::abs(curDot) > vm::abs(bestDot))
+        const T bestDot = bestIt != end ? vm::dot(bestIt->normal, axis) : 0.0;
+        if (vm::abs(curDot) > vm::abs(bestDot)) {
             return curIt;
-
-        if (vm::abs(curDot) == vm::abs(bestDot)) {
-            // Resolve ambiguities.
+        } else if (vm::abs(curDot) < vm::abs(bestDot)) {
+            return bestIt; // implies bestIt != end
+        } else {
+            // vm::abs(curDot) == vm::abs(bestDot), resolve ambiguities.
 
             assert(bestIt != end); // Because curDot != 0.0, the same is true for bestDot!
             if (bestDot < 0.0 && curDot > 0.0) {
@@ -198,12 +232,9 @@ private:
             // Could not resolve ambiguities. Caller should try other axes.
             return end;
         }
-
-        // vm::abs(curDot) < vm::abs(bestDot)
-        return bestIt;
     }
 
-    void doSubtract(const Fragments& fragments, PlaneIt curPlaneIt, PlaneIt endPlaneIt) {
+    void doSubtract(const Fragments& fragments, typename PlaneList::const_iterator curPlaneIt, typename PlaneList::const_iterator endPlaneIt) {
         if (fragments.empty() || curPlaneIt == endPlaneIt) {
             // no more fragments to process or all of `minutendFragments`
             // are now behind all of subtrahendPlanes so they can be discarded.
@@ -239,4 +270,4 @@ private:
     }
 };
 
-#endif /* Polyhedron_Subtract_h */
+#endif /* Polyhedron_CSG_h */

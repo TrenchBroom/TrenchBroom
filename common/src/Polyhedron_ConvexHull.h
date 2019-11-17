@@ -28,6 +28,7 @@
 #include <vecmath/constants.h>
 #include <vecmath/util.h>
 
+#include <list>
 #include <unordered_set>
 #include <vector>
 
@@ -247,7 +248,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPoly
         case vm::plane_status::above:
             face->flip();
             callback.faceWasFlipped(face);
-            switchFallthrough();
+        switchFallthrough();
         case vm::plane_status::below:
             return makePolyhedron(position, callback);
     }
@@ -383,7 +384,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::makePolyhedron(const 
         current = current->previous(); // The seam must be CCW, so we have to iterate in reverse order in this case.
     } while (current != first);
 
-    return addPointToPolyhedron(position, seam, callback);
+    return weave(seam, position, callback);
 }
 
 // Adds the given point to this polyhedron.
@@ -404,22 +405,324 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPoly
         return nullptr;
     }
 
-    assert(checkFaceBoundaries());
-    split(seam, callback);
-    assert(checkFaceBoundaries());
-
-    return addPointToPolyhedron(position, seam, callback);
-}
-
-// Adds the given point to this polyhedron by weaving a cap over the given seam.
-// Assumes that this polyhedron has been split by the given seam.
-template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolyhedron(const vm::vec<T,3>& position, const Seam& seam, Callback& callback) {
     assert(seam.size() >= 3);
-    assert(!seam.hasMultipleLoops());
+    split(seam, callback);
 
     return weave(seam, position, callback);
 }
+
+template <typename T, typename FP, typename VP>
+class Polyhedron<T,FP,VP>::Seam {
+private:
+    using List = std::list<Edge*>;
+    List m_edges;
+public:
+    using iterator = typename List::iterator;
+    using const_iterator = typename List::const_iterator;
+public:
+    /**
+     * Appends the given edge to the end of this seam.
+     *
+     * If this seam is not empty, then the given edge must not be identical to the last edge of this seam, and
+     * its first vertex must be identical to the last edge's second vertex.
+     *
+     * @param edge the edge to append, must not be null
+     */
+    void push_back(Edge* edge) {
+        assert(edge != nullptr);
+        assert(empty() || edge != last());
+        assert(checkEdge(edge));
+        m_edges.push_back(edge);
+    }
+
+
+    /**
+     * Replaces the range [first, end) of this seam with the given edge.
+     *
+     * @param first, end the range of edges to replace
+     * @param replacement the replacemenet edge, must not be null
+     */
+    void replace(typename List::iterator first, typename List::iterator end, Edge* replacement) {
+        m_edges.erase(first, end);
+        m_edges.insert(end, replacement);
+        assert(check());
+    }
+
+    /**
+     * Shifts this seam until the given criterion evaluates to true. If continued shifting doesn't satisfy the
+     * given criterion, this function stops and returns false.
+     *
+     * @tparam C the type of the given criterion
+     * @param criterion the criterion to check after each time this seam is shifted
+     * @return true if shifting satisfied the given criterion, and false otherwise
+     */
+    template <typename C>
+    bool shift(const C& criterion) {
+        size_t i = 0;
+        while (i < m_edges.size()) {
+            if (criterion(static_cast<const Seam&>(*this))) {
+                return true;
+            }
+            shift();
+            ++i;
+        }
+        return false;
+    }
+
+    /**
+     * Shifts this seam by taking its first edge and moving it to the back of this seam.
+     *
+     * Given a seam of three edges e1, e2, e3, the effect of shifting it will be that the seam becomes e2, e3, e1.
+     *
+     * Assumes that this seam is not empty.
+     */
+    void shift() {
+        assert(!m_edges.empty());
+        const auto pos = std::end(m_edges);
+        const auto first = std::begin(m_edges);
+        const auto last = std::next(std::begin(m_edges), 1u);
+
+        m_edges.splice(pos, m_edges, first, last);
+        assert(check());
+    }
+
+    /**
+     * Indicates whether this seam is empty.
+     *
+     * @return true if this seam is empty and false otherwise
+     */
+    bool empty() const {
+        return m_edges.empty();
+    }
+
+    /**
+     * Returns the number of edges in this seam.
+     */
+    size_t size() const {
+        return m_edges.size();
+    }
+
+    /**
+     * Returns the first edge of this seam.
+     *
+     * Assumes that this seam is not empty.
+     */
+    Edge* first() const {
+        assert(!empty());
+        return m_edges.front();
+    }
+
+    /**
+     * Returns the second edge of this seam.
+     *
+     * Assumes that this seam contains at least two edges.
+     */
+    Edge* second() const {
+        assert(size() > 1u);
+        const_iterator it = std::begin(m_edges);
+        std::advance(it, 1u);
+        return *it;
+    }
+
+    /**
+     * Returns the last edge of this seam.
+     *
+     * Assumes that this seam is not empty.
+     */
+    Edge* last() const {
+        assert(!empty());
+        return m_edges.back();
+    }
+
+    /**
+     * Returns an iterator pointing to the first edge in this seam, or an end iterator if this seam is empty.
+     */
+    iterator begin() {
+        return std::begin(m_edges);
+    }
+
+    /**
+     * Returns an iterator pointing to the end of this seam.
+     */
+    iterator end() {
+        return std::end(m_edges);
+    }
+
+    /**
+     * Returns a const iterator pointing to the first edge in this seam, or an end iterator if this seam is empty.
+     */
+    const_iterator begin() const {
+        return std::begin(m_edges);
+    }
+
+    /**
+     * Returns a const iterator pointing to the end of this seam.
+     */
+    const_iterator end() const {
+        return std::end(m_edges);
+    }
+
+    /**
+     * Removes all edges from this seam.
+     */
+    void clear() {
+        m_edges.clear();
+    }
+
+    /**
+     * Checks whether this seam is a consecutive list of edges connected with their vertices.
+     */
+    bool hasMultipleLoops() const {
+        assert(size() > 2);
+
+        std::unordered_set<Vertex*> visitedVertices;
+        for (const Edge* edge : m_edges) {
+            if (!visitedVertices.insert(edge->secondVertex()).second) {
+                return true;
+            }
+        }
+        return false;
+    }
+private:
+    /**
+     * Checks whether the given edge is connected to last edge of the current seam, or more precisely, whether
+     * the second vertex of the given edge is identical to the first vertex of the last edge of this seam.
+     *
+     * @param edge the edge to check
+     * @return true if this seam is empty or if the given edge shares a vertex with the last edge of this seam,
+     * and false otherwise
+     */
+    bool checkEdge(Edge* edge) const {
+        if (m_edges.empty()) {
+            return true;
+        }
+
+        Edge* last = m_edges.back();
+        return last->firstVertex() == edge->secondVertex();
+    }
+
+    /**
+     * Checks whether the edges of this seam share their vertices, that is, for each edge, its second vertex is
+     * identical to its predecessors first vertex.
+     *
+     * @return true if the edges of this seam share their vertices and false otherwise
+     */
+    bool check() const {
+        assert(size() > 2);
+
+        const Edge* last = m_edges.back();
+        for (const Edge* edge : m_edges) {
+            if (last->firstVertex() != edge->secondVertex()) {
+                return false;
+            }
+
+            last = edge;
+        }
+        return true;
+    }
+};
+
+template <typename T, typename FP, typename VP>
+class Polyhedron<T,FP,VP>::SplittingCriterion {
+private:
+    typedef enum {
+        MatchResult_First,
+        MatchResult_Second,
+        MatchResult_Both,
+        MatchResult_Neither
+    } MatchResult;
+public:
+    virtual ~SplittingCriterion() {}
+public:
+    Edge* findFirstSplittingEdge(EdgeList& edges) const {
+        for (Edge* edge : edges) {
+            const MatchResult result = matches(edge);
+            switch (result) {
+                case MatchResult_Second:
+                    edge->flip();
+                    switchFallthrough();
+                case MatchResult_First:
+                    return edge;
+                case MatchResult_Both:
+                case MatchResult_Neither:
+                    break;
+                    switchDefault()
+            }
+        }
+        return nullptr;
+    }
+
+    // finds the next seam edge in counter clockwise orientation
+    Edge* findNextSplittingEdge(Edge* last) const {
+        assert(last != nullptr);
+
+        HalfEdge* halfEdge = last->firstEdge()->previous();
+        Edge* next = halfEdge->edge();
+
+        MatchResult result = matches(next);
+        while (result != MatchResult_First && result != MatchResult_Second && next != last) {
+            halfEdge = halfEdge->twin()->previous();
+            next = halfEdge->edge();
+            result = matches(next);
+        }
+
+        if (result != MatchResult_First && result != MatchResult_Second) {
+            return nullptr;
+        }
+
+        if (result == MatchResult_Second) {
+            next->flip();
+        }
+
+        return next;
+    }
+private:
+    MatchResult matches(const Edge* edge) const {
+        const bool firstResult = matches(edge->firstFace());
+        const bool secondResult = matches(edge->secondFace());
+        if (firstResult && secondResult) {
+            return MatchResult_Both;
+        } else if (firstResult) {
+            return MatchResult_First;
+        } else if (secondResult) {
+            return MatchResult_Second;
+        } else {
+            return MatchResult_Neither;
+        }
+    }
+public:
+    bool matches(const Face* face) const {
+        return doMatches(face);
+    }
+private:
+    virtual bool doMatches(const Face* face) const = 0;
+};
+
+template <typename T, typename FP, typename VP>
+class Polyhedron<T,FP,VP>::SplitByConnectivityCriterion : public Polyhedron<T,FP,VP>::SplittingCriterion {
+private:
+    const Vertex* m_vertex;
+public:
+    SplitByConnectivityCriterion(const Vertex* vertex) :
+        m_vertex(vertex) {}
+private:
+    bool doMatches(const Face* face) const override {
+        return !m_vertex->incident(face);
+    }
+};
+
+template <typename T, typename FP, typename VP>
+class Polyhedron<T,FP,VP>::SplitByVisibilityCriterion : public Polyhedron<T,FP,VP>::SplittingCriterion {
+private:
+    vm::vec<T,3> m_point;
+public:
+    SplitByVisibilityCriterion(const vm::vec<T,3>& point) :
+        m_point(point) {}
+private:
+    bool doMatches(const Face* face) const override {
+        return face->pointStatus(m_point) == vm::plane_status::below;
+    }
+};
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::createSeam(const SplittingCriterion& criterion) {
@@ -435,13 +738,9 @@ typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::createSeam(const Splitti
         } while (current != first);
     }
 
-    // The resulting seam contains the edges where one face satisfies the given criterion while the other does not.
-    // The edges are in counter clockwise order and consecutive, and they form a loop. They are oriented such that
-    // the first face matches the criterion and the second face does not.
     return seam;
 }
 
-// Splits this polyhedron along the given seam and removes all faces, edges and vertices which are "above" the seam.
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::split(const Seam& seam, Callback& callback) {
     assert(seam.size() >= 3);
@@ -527,14 +826,11 @@ void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Ve
     m_faces.remove(face);
 }
 
-/**
- Weaves a new cap onto the given seam edges. The new cap will be a single polygon, so we assume that all seam vertices lie
- on a plane.
- */
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::sealWithSinglePolygon(const Seam& seam, Callback& callback) {
     assert(seam.size() >= 3);
     assert(!seam.hasMultipleLoops());
+    assert(!empty() && !point() && !edge() && !polygon());
 
     HalfEdgeList boundary;
     for (Edge* seamEdge : seam) {
@@ -576,14 +872,12 @@ public:
     }
 };
 
-/**
- Weaves a new cap onto the given seam edges. The new cap will form a triangle fan (actually a cone) with a new vertex
- at the location of the given point being shared by all the newly created triangles.
- */
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, const vm::vec<T,3>& position, Callback& callback) {
     assert(seam.size() >= 3);
     assert(!seam.hasMultipleLoops());
+    assert(!empty() && !point() && !edge());
+
     if (!seam.shift(ShiftSeamForWeaving(position))) {
         return nullptr;
     }
@@ -688,109 +982,5 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
 
     return top;
 }
-
-template <typename T, typename FP, typename VP>
-class Polyhedron<T,FP,VP>::SplittingCriterion {
-private:
-    typedef enum {
-        MatchResult_First,
-        MatchResult_Second,
-        MatchResult_Both,
-        MatchResult_Neither
-    } MatchResult;
-public:
-    virtual ~SplittingCriterion() {}
-public:
-    Edge* findFirstSplittingEdge(EdgeList& edges) const {
-        for (Edge* edge : edges) {
-            const MatchResult result = matches(edge);
-            switch (result) {
-                case MatchResult_Second:
-                    edge->flip();
-                    switchFallthrough();
-                case MatchResult_First:
-                    return edge;
-                case MatchResult_Both:
-                case MatchResult_Neither:
-                    break;
-                switchDefault()
-            }
-        }
-        return nullptr;
-    }
-
-    // finds the next seam edge in counter clockwise orientation
-    Edge* findNextSplittingEdge(Edge* last) const {
-        assert(last != nullptr);
-
-        HalfEdge* halfEdge = last->firstEdge()->previous();
-        Edge* next = halfEdge->edge();
-
-        MatchResult result = matches(next);
-        while (result != MatchResult_First && result != MatchResult_Second && next != last) {
-            halfEdge = halfEdge->twin()->previous();
-            next = halfEdge->edge();
-            result = matches(next);
-        }
-
-        if (result != MatchResult_First && result != MatchResult_Second) {
-            return nullptr;
-        }
-
-        if (result == MatchResult_Second) {
-            next->flip();
-        }
-
-        return next;
-    }
-private:
-    MatchResult matches(const Edge* edge) const {
-        const bool firstResult = matches(edge->firstFace());
-        const bool secondResult = matches(edge->secondFace());
-        if (firstResult && secondResult) {
-            return MatchResult_Both;
-        } else if (firstResult) {
-            return MatchResult_First;
-        } else if (secondResult) {
-            return MatchResult_Second;
-        } else {
-            return MatchResult_Neither;
-        }
-    }
-public:
-    bool matches(const Face* face) const {
-        return doMatches(face);
-    }
-private:
-    virtual bool doMatches(const Face* face) const = 0;
-};
-
-template <typename T, typename FP, typename VP>
-class Polyhedron<T,FP,VP>::SplitByConnectivityCriterion : public Polyhedron<T,FP,VP>::SplittingCriterion {
-private:
-    const Vertex* m_vertex;
-public:
-    SplitByConnectivityCriterion(const Vertex* vertex) :
-    m_vertex(vertex) {}
-private:
-    bool doMatches(const Face* face) const override {
-        return !m_vertex->incident(face);
-    }
-};
-
-
-
-template <typename T, typename FP, typename VP>
-class Polyhedron<T,FP,VP>::SplitByVisibilityCriterion : public Polyhedron<T,FP,VP>::SplittingCriterion {
-private:
-    vm::vec<T,3> m_point;
-public:
-    SplitByVisibilityCriterion(const vm::vec<T,3>& point) :
-    m_point(point) {}
-private:
-    bool doMatches(const Face* face) const override {
-        return face->pointStatus(m_point) == vm::plane_status::below;
-    }
-};
 
 #endif

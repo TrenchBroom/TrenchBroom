@@ -1030,12 +1030,6 @@ public:
     using EdgeList = Polyhedron_EdgeList<T,FP,VP>;
     using HalfEdgeList = Polyhedron_HalfEdgeList<T,FP,VP>;
     using FaceList = Polyhedron_FaceList<T,FP,VP>;
-private:
-    /**
-     * A seam is a circular sequence of consecutive edges. For each edge of a seam, it must hold that its first
-     * vertex is identical to the second vertex of its predecessor.
-     */
-    class Seam;
 public:
     /**
      * Helper that maps a vertex to its position or a half edge to the position of its origin.
@@ -1695,7 +1689,6 @@ private:
      */
     Vertex* addColinearThirdPoint(const vm::vec<T,3>& position, Callback& callback);
 
-
     /**
      * Helper function that adds the given point to an edge polyhedron. Afterwards, this polyhedron is a triangle.
      *
@@ -1788,60 +1781,191 @@ private:
      */
     Vertex* addFurtherPointToPolyhedron(const vm::vec<T,3>& position, Callback& callback);
 
-    Vertex* addPointToPolyhedron(const vm::vec<T,3>& position, const Seam& seam, Callback& callback);
+    /**
+     * A seam is a circular sequence of consecutive edges. For each edge of a seam, it must hold that its first
+     * vertex is identical to the second vertex of its predecessor.
+     */
+    class Seam;
 
     class SplittingCriterion;
     class SplitByVisibilityCriterion;
     class SplitByConnectivityCriterion;
-    class SplitByNormalCriterion;
 
+    /**
+     * Creates a seam using the given splitting criterion.
+     *
+     * Suppose that the faces of a polyhedron are the vertices of a graph G, and two graph vertices are connected
+     * in if and only if the corresponding faces are adjacent.
+     *
+     * Given such a graph, a seam divides the faces of a graph into two disjoint sets such that, for every pair
+     * of faces f1, f2 from the same set, there is a graph in G that connects them.
+     *
+     * In other words, a seam separates the faces of a polyhedron in such a way that the polyhedron can be
+     * pulled apart into two "open" polyhedra along the seam.
+     *
+     * Thereby, the returned seam contains those edges where the incident faces belong to different sets, i.e.
+     * the edges of the seam are oriented such that the first faces matches the splitting criterion and the other
+     * faces does not.
+     *
+     * @param criterion the splitting criterion
+     * @return a seam that separates the faces that match the given criterion from those that do not
+     */
     Seam createSeam(const SplittingCriterion& criterion);
 
+    /**
+     * Splits this polyhedron along the given seam. The edges of the seam must be oriented in such a way that
+     * the portion of this polyhedron that is connected to the first faces of the given edges should be retained
+     * and the portion of this polyhedron that is connected to the second faces of the given edges should be
+     * removed.
+     *
+     * The removed faces, edges and vertices are deleted. The seam edges will have their second half edges unset.
+     *
+     * Therefore, this polyhedron will be open after this function finishes.
+     *
+     * @param seam the seam to split this polyhedron along
+     * @param callback the callback to inform of lifecycle events
+     */
     void split(const Seam& seam, Callback& callback);
 
+    /**
+     * Helper that recursively deletes faces and edges, and adds vertices to be deleted to the given list.
+     *
+     * This function will delete all faces and edges which are somehow connected to the given half edge.
+     * Furthermore, it will delete all vertices it encounters where the leaving half edge is to be deleted also.
+     *
+     * To protect a vertex from being deleted, it should therefore have a leaving half edge that is not going to
+     * be deleted here, i.e. to protect a vertex from being deleted, its leaving edge should belong to a face
+     * which will not be visited by this function.
+     *
+     * Therefore, a caller should make sure that the portion of this polyhedron that should be retained is not
+     * connected to the portion that should be deleted. This can be ensured by unsetting the second half edge of
+     * every seam edge before calling this function.
+     *
+     * @tparam FaceSet a set of faces
+     * @param first the half edge at which to start deleting faces
+     * @param visitedFaces the faces that have already been visited by this function in previous calls
+     * @param verticesToDelete the vertices that should be deleted later
+     * @param callback the callback to inform of lifecycle events
+     */
     template <typename FaceSet>
-    void deleteFaces(HalfEdge* current, FaceSet& visitedFaces, VertexList& verticesToDelete, Callback& callback);
+    void deleteFaces(HalfEdge* first, FaceSet& visitedFaces, VertexList& verticesToDelete, Callback& callback);
 
+    /**
+     * Waves a new cap onto this polyhedron. The new cap will be a single polygon, so this function assumes that
+     * this polygon is opened along the given seam, and all edges of the given seam lie on a plane.
+     *
+     * The edges of the given seam are expected to be oriented such that their second edges are unset. The new
+     * polygon will then be the first face of every edge in the given seam.
+     *
+     * Assumes that this polyhedron is neither empty, nor a point, nor an edge, nor a polygon.
+     *
+     * @param seam the seam to weave a polygon onto
+     * @param callback the callback to inform of lifecycle events
+     */
     void sealWithSinglePolygon(const Seam& seam, Callback& callback);
 
     class ShiftSeamForWeaving;
+
+    /**
+     * Weaves a new cap onto this polyhedron. The new cap will be a cone, the tip of which will be a newly created
+     * vertex at the given position. If two adjacent faces of the cone are coplanar, these will be merged.
+     *
+     * The edges of the given seam are expected to be oriented such that their second edges are unset. Each edge
+     * will then have a newly created polygon as its first face.
+     *
+     * Assumes that this polyhedron is neither empty, nor a point, nor an edge. Note that this polyhedron can be
+     * a polygon, however.
+     *
+     * @param seam the seam to weave a cone onto
+     * @param position the position of the cone's tip
+     * @param callback the callback to inform of lifecycle events
+     * @return the newly created vertex at the tip of the newly created cone
+     */
     Vertex* weave(Seam seam, const vm::vec<T,3>& position, Callback& callback);
+
+    /* ====================== Implementation in Polyhedron_Clip.h ====================== */
 public: // Clipping
+    /**
+     * The result of clipping this polyhedron with a plane.
+     */
     struct ClipResult {
         typedef enum {
+            /**
+             * Clipping did not change this polyhedron.
+             */
             Type_ClipUnchanged,
+
+            /**
+             * Clipping resulted in an empty polyhedron.
+             */
             Type_ClipEmpty,
+
+            /**
+             * Clipping was successful and effective.
+             */
             Type_ClipSuccess
         } Type;
 
+        /**
+         * The type of result.
+         */
         const Type type;
+
+        /**
+         * Creates a new clip result of the given type.
+         * @param i_type the type of the clip result
+         */
         ClipResult(const Type i_type);
+
+        /**
+         * Indicates whether clipping this polyhedron had any effect.
+         */
         bool unchanged() const;
+
+        /**
+         * Indicates whether clipping this polyhedron resulted in an empty polyhedron.
+         */
         bool empty() const;
+
+        /**
+         * Indicates whether clipping this polyhedron was successful and effective.
+         */
         bool success() const;
     };
 
     /**
-     Removes the part of the polyhedron that is in front of the given plane.
-
-     May throw a GeometryException if the polyhedron cannot be intersected with the given plane.
+     * Removes the part of this polyhedron that is in front of the given plane.
+     *
+     * @param plane the plane to clip with
+     * @return the result of the clipping operation
+     * @throw GeometryException if the polyhedron cannot be intersected with the given plane
      */
     ClipResult clip(const vm::plane<T,3>& plane);
 
     /**
-     May throw a GeometryException if the polyhedron cannot be intersected with the given plane.
+     * Removes the part of this polyhedron that is in front of the given plane.
+     *
+     * @param plane the plane to clip with
+     * @param callback the callback to inform of lifecycle events
+     * @return the result of the clipping operation
+     * @throw GeometryException if the polyhedron cannot be intersected with the given plane
      */
     ClipResult clip(const vm::plane<T,3>& plane, Callback& callback);
 
-    /**
-     Clips this polyhedron using all faces of the given polyhedron.
-     */
-    ClipResult clip(const Polyhedron& polyhedron);
-    ClipResult clip(const Polyhedron& polyhedron, Callback& callback);
-public: // Intersection
-    Polyhedron intersect(const Polyhedron& other) const;
-    Polyhedron intersect(Polyhedron other, const Callback& callback) const;
 private:
+    /**
+     * Checks whether this polyhedron is intersected by the given plane. Returns either of the following results.
+     *
+     * - a clip result of type Type_ClipUnchanged if intersecting this polyhedron with the given plane would leave
+     *   it unchanged
+     * - a clip result of Type_ClipEmpty if intersecting this polyhedron with the given plane would leave it
+     *   empty
+     * - a clip result of Type_ClipSuccess if intersecting this polyhedron with the given plane would be successful
+     *    and effective.
+     *
+     * @param plane the plane to check
+     * @return a clip result
+     */
     ClipResult checkIntersects(const vm::plane<T,3>& plane) const;
 
     class NoSeamException;
@@ -1849,23 +1973,198 @@ private:
     /**
      May throw a NoSeamException if the polyhedron cannot be intersected with the given plane due.
      */
-    Seam intersectWithPlane(const vm::plane<T,3>& plane, Callback& callback);
-    HalfEdge* findInitialIntersectingEdge(const vm::plane<T,3>& plane) const;
-    HalfEdge* intersectWithPlane(HalfEdge* firstBoundaryEdge, const vm::plane<T,3>& plane, Callback& callback);
-    void intersectWithPlane(HalfEdge* remainingFirst, HalfEdge* deletedFirst, Callback& callback);
-    HalfEdge* findNextIntersectingEdge(HalfEdge* searchFrom, const vm::plane<T,3>& plane) const;
-public: // Subtraction
-    using SubtractResult = std::vector<Polyhedron>;
 
-    SubtractResult subtract(const Polyhedron& subtrahend) const;
-    SubtractResult subtract(const Polyhedron& subtrahend, const Callback& callback) const;
+    /**
+     * Creates a seam along the intersection of this polyhedron with the given plane. This will create
+     *
+     * - new vertices where the plane intersects with an edge of this polyhedron,
+     * - new edges connecting the newly created vertices such that a seam can be created and
+     * - new faces by splitting those faces that are intersected with the given plane.
+     *
+     * The newly created edges are oriented such that their second edge is incident to the faces which are
+     * above the given plane. If a face is split, then the portion that is above the given plane is newly created
+     * and the portion that is below the given plane will be the original face, modified so that it does not
+     * intersect with the given plane.
+     *
+     * Afterwards, this polyhedron will be modified in such a way that it has no edge or face that intersects with
+     * the given plane. The edges of the returned seam will lie entirely inside of the given plane.
+     *
+     * This function assumes that the given plane does intersect with this polyhedron.
+     *
+     * In some corner cases, it is impossible to construct a seam due to floating point inaccuracies. If this
+     * function detects such a case, it throws a NoSeamException.
+     *
+     * @param plane the plane to intersect this polyhedron with
+     * @param callback the callback to inform of lifecycle events
+     * @return the constructed seam, which will not be empty and valid
+     * @throw NoSeamException if no seam could be constructed
+     */
+    Seam intersectWithPlane(const vm::plane<T,3>& plane, Callback& callback);
+
+    /**
+     * This function finds the starting edge for intersecting a polyhedron with a plane. It returns a half edge
+     * such that one of the following conditions hold:
+     *
+     * - The half edge is split in two by the given plane, and its origin is be above the given plane or
+     *   its destination is be below the given plane.
+     * - The half edge lies entirely within the given plane, and it belongs to a face that lies above the given
+     *   plane.
+     *
+     * This function may fail to find such a half edge in certain corner cases. If such a case is detected, the
+     * function returns null.
+     *
+     * @param plane the intersecting plane
+     * @return the starting edge for intersecting this polyhedron with the plane, or null if no such edge could
+     * be found
+     */
+    HalfEdge* findInitialIntersectingEdge(const vm::plane<T,3>& plane) const;
+
+    /**
+     * Intersects a face with the given plane. There are three cases to consider.
+     *
+     * 1. The plane just touches the face, i.e. one vertex of the face is inside the plane. In this case, the
+     *    face is left untouched and the half edge whose destination is inside the plane is returned.
+     * 2. The plane just touches an edge of the face, i.e. two consecutive vertices of the face are inside the
+     *    plane. In that case, the face is left untouched and the touched half edge is returned.
+     * 3. The plane intersects the face. In this case, there are two points where the given plane intersects the
+     *    boundary of the face, and any number of these points of intersection may coincide with a vertex of the
+     *    face.
+     *
+     *    In this case, the algorithm will insert vertices at those points of intersection where there isn't a
+     *    vertex already, splitting the intersected edges in the process. Finally, the algorithm will split the
+     *    face into two such that the newly created face coincides with the portion of the given face that lies
+     *    above the given plane, and the given face is modified so that it lies entirely below the given plane.
+     *
+     *    Finally, the algorithm then returns the newly created half edge which was inserted into the given face.
+     *
+     * The returned half edge can be used by the caller to continue splitting this polyhedron with the given plane.
+     *
+     * @param firstBoundaryEdge a half edge that belongs to the face being split
+     * @param plane the intersecting plane
+     * @param callback the callback to inform of lifecycle events
+     * @return a half edge as specified in the description above
+     */
+    HalfEdge* intersectWithPlane(HalfEdge* firstBoundaryEdge, const vm::plane<T,3>& plane, Callback& callback);
+
+    /**
+     * Splits a face in two, creating a new face and a new edge. Expects that both given half edges
+     * oldBoundaryFirst and newBoundaryFirst belong to the same face, which is the face to be split.
+     *
+     * The following diagram illustrates how the face is split. Given a face with the following shape:
+     *
+     *      oldBoundaryFirst
+     *   *<------------------*<------------------*
+     *   |                                       /\
+     *   |                                       |
+     *   |                 face                  |
+     *   |                                       |
+     *   \/                                      |
+     *   *------------------>*------------------>*
+     *                         newBoundaryFirst
+     *
+     * The result of splitting this face will then look like this:
+     *
+     *      oldBoundaryFirst
+     *   *<------------------*<------------------*
+     *   |                   |/\                 /\
+     *   |                   ||                  |
+     *   |       face        ||     new face     |
+     *   |                   ||                  |
+     *   \/                 \/|                  |
+     *   *------------------>*------------------>*
+     *                         newBoundaryFirst
+     *
+     * @param oldBoundaryFirst the first half edge of the boundary of the remaining portion of the face
+     * @param newBoundaryFirst the first half edge of the boundary of the newly created face
+     * @param callback the callback to inform of lifecycle events
+     */
+    void intersectWithPlane(HalfEdge* oldBoundaryFirst, HalfEdge* newBoundaryFirst, Callback& callback);
+
+    /**
+     * Searches all half edges leaving the destination of half edge searchFrom for a half edge that is intersected
+     * by the given plane under the assumption that searchFrom was also intersected.
+     *
+     * A half edge leaving searchEdge's destination is considered to be intersected by the given plane if either
+     * of the following conditions hold:
+     *
+     * - its destination is inside the plane
+     * - its destination and the origin of its predecessor lie on different sides of the plane.
+     *
+     * The search stops if such a half edge is found or if the search encounters searchFrom's twin, which is
+     * already known to be intersected by the given plane. In the first case, the found half edge is returned, and
+     * in the latter case, the function returns null.
+     *
+     * @param searchFrom the half edge at which the search starts and ends
+     * @param plane the intersecting plane
+     * @return a half edge that is intersected by the given plane and that is different from the given half edge's
+     * twin, or null if no such half edge could be found
+     */
+    HalfEdge* findNextIntersectingEdge(HalfEdge* searchFrom, const vm::plane<T,3>& plane) const;
+
+    /* ====================== Implementation in Polyhedron_CSG.h ====================== */
+public: // Intersection
+    /**
+     * Clips this polyhedron with all faces of the given polyhedron. The result is the intersection of this and
+     * the given polyhedron. This polyhedron remains unchanged.
+     *
+     * @param polyhedron the polyhedron to clip with
+     * @param callback the callback to use when determining the normals of the given subtrahend's faces
+     * @return the result of the clipping operation
+     * @throw GeometryException if the polyhedron cannot be intersected with any face of the given polyhedron
+     */
+    Polyhedron intersect(Polyhedron other, const Callback& callback = Callback()) const;
+
+public: // Subtraction
+    /**
+     * Subtracts the given polyhedron from this polyhedron and returns the resulting fragments. This polyhedron
+     * remains unchanged.
+     *
+     * In general, the result of a CSG subtraction is concave and can therefore not be represented by one single
+     * polyhedron. This algorithm represents the concave shape as a disjoint union of convex polyhedra. In the
+     * context of subtraction, these polyhedra are called fragments.
+     *
+     * If the given polyhedron and this polyhedron are disjoint, the result of the subtraction is identical to
+     * this polyhedron.
+     *
+     * @param subtrahend the polyhedron to subtract from this polyhedron
+     * @param callback the callback to use when determining the normals of the given subtrahend's faces
+     * @return the resulting fragments
+     */
+    std::vector<Polyhedron> subtract(const Polyhedron& subtrahend, const Callback& callback = Callback()) const;
 private:
     class Subtract;
+
+    /* ====================== Implementation in Polyhedron_Queries.h ====================== */
 public: // geometrical queries
+    /**
+     * Checks whether this polyhedron contains the given point. A point is considered to be contained in this
+     * polyhedron if it isn't above any of its faces' planes.
+     *
+     * @param point the point to check
+     * @param callback the callback to use when determining plane normals
+     * @return true if the given point is contained in this polyhedron and false otherwise
+     */
     bool contains(const vm::vec<T,3>& point, const Callback& callback = Callback()) const;
+
+    /**
+     * Checks whether this polyhedron contains the given polyhedron. A polyhedron is considered to be contained
+     * in this polyhedron if the CSG intersection of the polyhedra is identical to the given polyhedron.
+     *
+     * @param other the polyhedron to check
+     * @return true if the given polyhedron is contained in this polyhedron and false otherwise
+     */
     bool contains(const Polyhedron& other) const;
+
+    /**
+     * Checks whether this polyhedron intersects with the given polyhedron, i.e. whether their CSG intersection
+     * is an empty polyhedron.
+     *
+     * @param other the polyhedron to check
+     * @param callback the callback to use when determining the normals of the given subtrahend's faces
+     * @return true if this polyhedron intersects the other polyhedron
+     */
     bool intersects(const Polyhedron& other, const Callback& callback = Callback()) const;
-private:
+private: // helper functions for all cases of polygon / polygon intersection
     static bool pointIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs);
     static bool pointIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs);
     static bool pointIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
@@ -1890,8 +2189,30 @@ private:
     static bool polyhedronIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs);
     static bool polyhedronIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
 
-    static bool separate(const Face* faces, const Vertex* vertices, const Callback& callback);
-    static vm::plane_status pointStatus(const vm::plane<T,3>& plane, const Vertex* vertices);
+    /**
+     * Checks whether there is a face among the given faces such that all of the given vertices are above that
+     * face's plane.
+     *
+     * @param faces the faces to check
+     * @param vertices the vertices to check against each face plane
+     * @param callback the callback to use when determining the normals of the given subtrahend's faces
+     * @return true if a face was found such that all of the given vertices have their position above the face
+     * plane and false otherwise
+     */
+    static bool separate(const FaceList& faces, const VertexList& vertices, const Callback& callback);
+
+    /**
+     * Checks the relative positions of the given points to the given plane. Returns
+     *
+     * - vm::plane_status::above if all of the given points are above the given plane
+     * - vm::plane_status::below if all of the given points are below the given plane
+     * - vm::plane_status::inside otherwise
+     *
+     * @param plane the plane
+     * @param vertices the vertices to check
+     * @return the relative position of the given points to the given plane
+     */
+    static vm::plane_status pointStatus(const vm::plane<T,3>& plane, const VertexList& vertices);
 
     /* ====================== Implementation in Polyhedron_Checks.h ====================== */
 private: // invariants and checks
