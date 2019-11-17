@@ -1084,7 +1084,7 @@ target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common PUBLIC tinyxml2 vecmath optlite glew miniz freeimage freetype OpenGL::GL Qt5::Widgets)
 
 # use precompiled headers on CMake 3.16 or later
-if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
+if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
     message(STATUS "Using precompiled headers")
     target_precompile_headers(common PUBLIC
             <algorithm>
