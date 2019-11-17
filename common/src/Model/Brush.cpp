@@ -937,16 +937,20 @@ namespace TrenchBroom {
         }
 
         Brush::CanMoveVerticesResult& Brush::CanMoveVerticesResult::operator=(const Brush::CanMoveVerticesResult& other) {
-            success = other.success;
-            geometry = new BrushGeometry(*other.geometry);
+            if (this != &other) {
+                success = other.success;
+                geometry = new BrushGeometry(*other.geometry);
+            }
             return *this;
         }
 
         Brush::CanMoveVerticesResult& Brush::CanMoveVerticesResult::operator=(Brush::CanMoveVerticesResult&& other) {
-            success = other.success;
-            geometry = other.geometry;
-            other.success = false;
-            other.geometry = nullptr;
+            if (this != &other) {
+                success = other.success;
+                geometry = other.geometry;
+                other.success = false;
+                other.geometry = nullptr;
+            }
             return *this;
         }
 
