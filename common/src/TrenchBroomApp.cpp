@@ -461,10 +461,11 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::openDocument() {
-            const auto pathStr = QFileDialog::getOpenFileName(nullptr, "Open Map", "", "Map files (*.map);;Any files (*.*)");
+            const QString pathStr = QFileDialog::getOpenFileName(nullptr, tr("Open Map"), fileDialogDefaultDirectory(FileDialogDir::Map), "Map files (*.map);;Any files (*.*)");
             const auto path = IO::pathFromQString(pathStr);
 
             if (!path.isEmpty()) {
+                updateFileDialogDefaultDirectoryWithFilename(FileDialogDir::Map, pathStr);
                 openDocument(path);
             }
         }

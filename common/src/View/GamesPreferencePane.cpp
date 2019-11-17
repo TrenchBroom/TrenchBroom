@@ -117,8 +117,9 @@ namespace TrenchBroom {
         }
 
         void GamesPreferencePane::chooseGamePathClicked() {
-            const QString pathStr = QFileDialog::getExistingDirectory(this);
+            const QString pathStr = QFileDialog::getExistingDirectory(this, tr("Game Path"), fileDialogDefaultDirectory(FileDialogDir::GamePath));
             if (!pathStr.isEmpty()) {
+                updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir::GamePath, pathStr);
                 updateGamePath(pathStr);
             }
         }

@@ -169,8 +169,9 @@ namespace TrenchBroom {
         }
 
         void GameEngineProfileEditor::changePathClicked() {
-            const auto pathStr = QFileDialog::getOpenFileName(this, "Choose Engine");
+            const QString pathStr = QFileDialog::getOpenFileName(this, tr("Choose Engine"), fileDialogDefaultDirectory(FileDialogDir::Engine));
             if (!pathStr.isEmpty()) {
+                updateFileDialogDefaultDirectoryWithFilename(FileDialogDir::Engine, pathStr);
                 updatePath(pathStr);
             }
         }

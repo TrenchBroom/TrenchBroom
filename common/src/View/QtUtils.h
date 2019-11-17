@@ -61,6 +61,22 @@ namespace TrenchBroom {
             ~DisableWindowUpdates();
         };
 
+        enum class FileDialogDir {
+            Map,
+            TextureCollection,
+            CompileTool,
+            Engine,
+            EntityDefinition,
+            GamePath
+        };
+        /**
+         * Gets the default directory from QSettings to use for the given type of file chooser.
+         */
+        QString fileDialogDefaultDirectory(FileDialogDir type);
+        
+        void updateFileDialogDefaultDirectoryWithFilename(FileDialogDir type, const QString& filename);
+        void updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir type, const QString& newDefaultDirectory);
+
         QString windowSettingsPath(const QWidget* window, const QString& suffix = "");
 
         void saveWindowGeometry(QWidget* window);

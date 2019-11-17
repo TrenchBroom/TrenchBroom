@@ -21,6 +21,7 @@
 
 #include "EL/Interpolator.h"
 #include "Model/CompilationProfile.h"
+#include "QtUtils.h"
 #include "View/BorderLine.h"
 #include "View/CompilationVariables.h"
 #include "View/MultiCompletionLineEdit.h"
@@ -275,8 +276,10 @@ namespace TrenchBroom {
         }
 
         void CompilationRunToolTaskEditor::browseTool() {
-            const auto toolSpec = QFileDialog::getOpenFileName(this, "Select Tool");
+            const QString toolSpec = QFileDialog::getOpenFileName(this, tr("Select Tool"), fileDialogDefaultDirectory(FileDialogDir::CompileTool));
             if (!toolSpec.isEmpty()) {
+                updateFileDialogDefaultDirectoryWithFilename(FileDialogDir::CompileTool, toolSpec);
+
                 // will call toolSpecChanged and update the model there
                 m_toolEditor->setText(toolSpec);
             }

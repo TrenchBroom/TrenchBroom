@@ -702,7 +702,7 @@ namespace TrenchBroom {
                 const IO::Path directory = originalPath.deleteLastComponent();
                 const IO::Path fileName = originalPath.lastComponent();
 
-                const QString newFileName = QFileDialog::getSaveFileName(this, "Save map file", IO::pathAsQString(originalPath), "Map files (*.map)");
+                const QString newFileName = QFileDialog::getSaveFileName(this, tr("Save map file"), IO::pathAsQString(originalPath), "Map files (*.map)");
                 if (newFileName.isEmpty()) {
                     return false;
                 }
@@ -724,7 +724,7 @@ namespace TrenchBroom {
             const IO::Path& originalPath = m_document->path();
             const IO::Path objPath = originalPath.replaceExtension("obj");
 
-            const QString newFileName = QFileDialog::getSaveFileName(this, "Export Wavefront OBJ file", IO::pathAsQString(objPath), "Wavefront OBJ files (*.obj)");
+            const QString newFileName = QFileDialog::getSaveFileName(this, tr("Export Wavefront OBJ file"), IO::pathAsQString(objPath), "Wavefront OBJ files (*.obj)");
             if (newFileName.isEmpty())
                 return false;
 
@@ -776,7 +776,7 @@ namespace TrenchBroom {
                 defaultDir = IO::pathAsQString(m_document->path().deleteLastComponent());
             }
 
-            const QString fileName = QFileDialog::getOpenFileName(this, "Load Point File", defaultDir, "Point files (*.pts);;Any files (*.*)");
+            const QString fileName = QFileDialog::getOpenFileName(this, tr("Load Point File"), defaultDir, "Point files (*.pts);;Any files (*.*)");
 
             if (!fileName.isEmpty()) {
                 m_document->loadPointFile(IO::pathFromQString(fileName));
@@ -809,7 +809,7 @@ namespace TrenchBroom {
                 defaultDir = IO::pathAsQString(m_document->path().deleteLastComponent());
             }
 
-            const QString fileName = QFileDialog::getOpenFileName(this, "Load Portal File", defaultDir, "Portal files (*.prt);;Any files (*.*)");
+            const QString fileName = QFileDialog::getOpenFileName(this, tr("Load Portal File"), defaultDir, "Portal files (*.prt);;Any files (*.*)");
 
             if (!fileName.isEmpty()) {
                 m_document->loadPortalFile(IO::pathFromQString(fileName));

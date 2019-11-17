@@ -25,6 +25,7 @@
 #include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
+#include "QtUtils.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/TitledPanel.h"
@@ -227,14 +228,18 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::chooseExternalClicked() {
-            const QString fileName = QFileDialog::getOpenFileName(nullptr, "Load Entity Definition File", "",
+            const QString fileName = QFileDialog::getOpenFileName(nullptr,
+                tr("Load Entity Definition File"),
+                fileDialogDefaultDirectory(FileDialogDir::EntityDefinition),
                 "All supported entity definition files (*.fgd *.def *.ent);;"
                 "Worldcraft / Hammer files (*.fgd);;"
                 "QuakeC files (*.def);;"
                 "Radiant XML files (*.ent)");
+
             if (fileName.isEmpty())
                 return;
 
+            updateFileDialogDefaultDirectoryWithFilename(FileDialogDir::EntityDefinition, fileName);
             loadEntityDefinitionFile(m_document, this, fileName);
         }
 

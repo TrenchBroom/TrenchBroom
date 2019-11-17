@@ -132,11 +132,12 @@ namespace TrenchBroom {
         }
 
         void FileTextureCollectionEditor::addTextureCollections() {
-            const QString pathQStr = QFileDialog::getOpenFileName(nullptr, "Load Texture Collection", "", "");
+            const QString pathQStr = QFileDialog::getOpenFileName(nullptr, tr("Load Texture Collection"), fileDialogDefaultDirectory(FileDialogDir::TextureCollection), "");
             if (pathQStr.isEmpty()) {
                 return;
             }
 
+            updateFileDialogDefaultDirectoryWithFilename(FileDialogDir::TextureCollection, pathQStr);
             loadTextureCollection(m_document, this, pathQStr);
         }
 

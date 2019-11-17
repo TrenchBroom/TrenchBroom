@@ -20,6 +20,7 @@
 #include "QtUtils.h"
 
 #include "Ensure.h"
+#include "Macros.h"
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "View/BorderLine.h"
@@ -54,6 +55,44 @@ namespace TrenchBroom {
 
         DisableWindowUpdates::~DisableWindowUpdates() {
             m_widget->setUpdatesEnabled(true);
+        }
+
+        static QString fileDialogDirToString(const FileDialogDir dir) {
+            switch (dir) {
+                case FileDialogDir::Map: return "Map";
+                case FileDialogDir::TextureCollection: return "TextureCollection";
+                case FileDialogDir::CompileTool: return "CompileTool";
+                case FileDialogDir::Engine: return "Engine";
+                case FileDialogDir::EntityDefinition: return "EntityDefinition";
+                case FileDialogDir::GamePath: return "GamePath";
+                switchDefault()
+            }
+        }
+
+        static QString fileDialogDefaultDirectorySettingsPath(const FileDialogDir dir) {
+            return QString::fromLatin1("FileDialog/%1/DefaultDirectory")
+                .arg(fileDialogDirToString(dir));
+        }
+
+        QString fileDialogDefaultDirectory(const FileDialogDir dir) {
+            const QString key = fileDialogDefaultDirectorySettingsPath(dir);
+            
+            const QSettings settings;
+            const QString defaultDir = settings.value(key).toString();
+            return defaultDir;
+        }
+
+        void updateFileDialogDefaultDirectoryWithFilename(FileDialogDir type, const QString& filename) {
+            const QDir dirQDir = QFileInfo(filename).absoluteDir();
+            const QString dirString = dirQDir.absolutePath();
+            updateFileDialogDefaultDirectoryWithDirectory(type, dirString);
+        }
+
+        void updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir type, const QString& newDefaultDirectory) {
+            const QString key = fileDialogDefaultDirectorySettingsPath(type);
+
+            QSettings settings;
+            settings.setValue(key, newDefaultDirectory);
         }
 
         QString windowSettingsPath(const QWidget* window, const QString& suffix) {
