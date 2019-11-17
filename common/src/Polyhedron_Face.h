@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Polyhedron_Face_h
 #define TrenchBroom_Polyhedron_Face_h
 
+#include "Macros.h"
+
 #include <vecmath/intersection.h>
 
 #include <vecmath/vec.h>
@@ -244,6 +246,7 @@ T Polyhedron_Face<T,FP,VP>::intersectWithRay(const vm::ray<T,3>& ray, const vm::
             return result.back() ? result.distance() : vm::nan<T>();
         case vm::side::both:
             return result.distance();
+        switchDefault()
     }
 }
 
