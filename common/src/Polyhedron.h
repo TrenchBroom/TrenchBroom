@@ -158,7 +158,10 @@ public:
     /**
      * Appends a textual representation of the given vertices' position to the given stream.
      */
-    friend std::ostream& operator<<(std::ostream& stream, const Vertex& vertex);
+    friend std::ostream& operator<<(std::ostream& stream, const Vertex& vertex) {
+        stream << vertex.position();
+        return stream;
+    }
 
     /**
      * Rounds each component of this vertices' position to the nearest integer if the distance of the component's

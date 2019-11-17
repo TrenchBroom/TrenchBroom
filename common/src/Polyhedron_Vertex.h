@@ -101,13 +101,6 @@ bool Polyhedron_Vertex<T,FP,VP>::incident(const Face* face) const {
 }
 
 template <typename T, typename FP, typename VP>
-std::ostream& operator<<(std::ostream& stream, const Polyhedron_Vertex<T,FP,VP>& vertex) {
-    stream << vertex.position();
-    return stream;
-}
-
-
-template <typename T, typename FP, typename VP>
 void Polyhedron_Vertex<T,FP,VP>::correctPosition(const size_t decimals, const T epsilon) {
     m_position = vm::correct(m_position, decimals, epsilon);
 }
