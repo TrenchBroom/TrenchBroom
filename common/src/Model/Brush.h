@@ -21,9 +21,9 @@
 #define TrenchBroom_Brush
 
 #include "TrenchBroom.h"
+#include "Macros.h"
 #include "Hit.h"
 #include "ProjectingSequence.h"
-#include "Macros.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Node.h"
 #include "Model/Object.h"

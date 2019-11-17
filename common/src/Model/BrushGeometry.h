@@ -25,9 +25,6 @@
 #include "Polyhedron_DefaultPayload.h"
 #include "Polyhedron_Forward.h"
 
-#include <map>
-#include <set>
-
 namespace TrenchBroom {
     namespace Model {
         class Brush;
@@ -43,10 +40,6 @@ namespace TrenchBroom {
         using BrushVertexList = Polyhedron_VertexList<FloatType, BrushFacePayload, BrushVertexPayload>;
         using BrushEdgeList = Polyhedron_EdgeList<FloatType, BrushFacePayload, BrushVertexPayload>;
         using BrushHalfEdgeList = Polyhedron_HalfEdgeList<FloatType, BrushFacePayload, BrushVertexPayload>;
-
-        using BrushEdgeSet = std::set<BrushEdge*>;
-
-        using VertexToEdgesMap = std::map<vm::vec3, BrushEdgeSet>;
     }
 }
 

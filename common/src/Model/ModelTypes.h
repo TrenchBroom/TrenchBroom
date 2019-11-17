@@ -26,6 +26,7 @@
 
 #include <vecmath/polygon.h>
 
+// FIXME: this head must not pull in std headers
 #include <map>
 #include <set>
 #include <vector>

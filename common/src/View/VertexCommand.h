@@ -24,7 +24,9 @@
 #include "View/DocumentCommand.h"
 #include "View/VertexHandleManager.h"
 
+#include <map>
 #include <memory>
+#include <set>
 
 namespace TrenchBroom {
     namespace Model {
@@ -64,8 +66,9 @@ namespace TrenchBroom {
             static void extractEdgeMap(const Model::EdgeToBrushesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions);
             static void extractFaceMap(const Model::FaceToBrushesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions);
 
-            // TODO 1720: Remove these methods if possible.
-            static void extractEdgeMap(const Model::VertexToEdgesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions);
+            using BrushEdgeSet = std::set<Model::BrushEdge*>;
+            using VertexToEdgesMap = std::map<vm::vec3, BrushEdgeSet>;
+            static void extractEdgeMap(const VertexToEdgesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions);
             static void extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions);
 
             static Model::BrushVerticesMap brushVertexMap(const Model::BrushEdgesMap& edges);
