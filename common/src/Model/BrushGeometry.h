@@ -41,8 +41,8 @@ namespace TrenchBroom {
         using BrushFaceGeometry = Polyhedron_Face<FloatType, BrushFacePayload, BrushVertexPayload>;
 
         using BrushVertexList = Polyhedron_VertexList<FloatType, BrushFacePayload, BrushVertexPayload>;
-        using BrushEdgeList = Polyhedron_EdgeList<FloatType, BrushFacePayload, BrushVertexPayload>;;
-        using BrushHalfEdgeList = Polyhedron_HalfEdgeList<FloatType, BrushFacePayload, BrushVertexPayload>;;
+        using BrushEdgeList = Polyhedron_EdgeList<FloatType, BrushFacePayload, BrushVertexPayload>;
+        using BrushHalfEdgeList = Polyhedron_HalfEdgeList<FloatType, BrushFacePayload, BrushVertexPayload>;
 
         using BrushEdgeSet = std::set<BrushEdge*>;
 

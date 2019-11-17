@@ -233,7 +233,7 @@ namespace TrenchBroom {
         }
 
         void SelectionTool::adjustGrid(const InputState& inputState) {
-            const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;;
+            const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
             auto document = lock(m_document);
             auto& grid = document->grid();
             if (factor * inputState.scrollY() < 0.0f) {

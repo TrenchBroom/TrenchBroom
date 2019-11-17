@@ -32,6 +32,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/polygon.h>
 
+// FIXME: this should not be included here
 #include <set>
 #include <vector>
 

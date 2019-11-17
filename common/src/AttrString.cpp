@@ -82,7 +82,7 @@ namespace TrenchBroom {
 
     void AttrString::lines(LineFunc& func) const {
         for (size_t i = 0; i < m_lines.size(); ++i)
-            func.process(m_lines[i].string, m_lines[i].justify);;
+            func.process(m_lines[i].string, m_lines[i].justify);
     }
 
 
