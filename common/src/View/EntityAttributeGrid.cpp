@@ -69,6 +69,7 @@ namespace TrenchBroom {
             // Select the newly inserted attribute name
             const QModelIndex mi = m_proxyModel->mapFromSource(m_model->index(row, 0));
 
+            m_table->clearSelection();
             m_table->setCurrentIndex(mi);
             m_table->setFocus();
         }
