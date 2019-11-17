@@ -89,7 +89,7 @@ namespace TrenchBroom {
 
             connect(m_floatRadio, &QAbstractButton::clicked, this, &SmartColorEditor::floatRangeRadioButtonClicked);
             connect(m_byteRadio, &QAbstractButton::clicked, this, &SmartColorEditor::byteRangeRadioButtonClicked);
-            connect(m_colorPicker, &ColorButton::colorChanged, this, &SmartColorEditor::colorPickerChanged);
+            connect(m_colorPicker, &ColorButton::colorChangedByUser, this, &SmartColorEditor::colorPickerChanged);
             connect(m_colorHistory, &ColorTable::colorTableSelected, this, &SmartColorEditor::colorTableSelected);
         }
 
@@ -195,6 +195,7 @@ namespace TrenchBroom {
             const auto value = Model::entityColorAsString(fromQColor(color), colorRange);
             document()->setAttribute(name(), value);
         }
+
         void SmartColorEditor::floatRangeRadioButtonClicked() {
             document()->convertEntityColorRange(name(), Assets::ColorRange::Float);
         }

@@ -45,7 +45,13 @@ namespace TrenchBroom {
             layout->addStretch();
             setLayout(layout);
 
-            connect(m_button, &QPushButton::clicked, this, &ColorButton::clicked);
+            connect(m_button, &QPushButton::clicked, this, [this](){
+                const QColor color = QColorDialog::getColor(m_color, this);
+                if (color.isValid()) {
+                    setColor(color);
+                    emit colorChangedByUser(m_color);
+                }
+            });
         }
 
         void ColorButton::setColor(const QColor& color) {
@@ -55,13 +61,6 @@ namespace TrenchBroom {
 
                 update();
                 emit colorChanged(m_color);
-            }
-        }
-
-        void ColorButton::clicked() {
-            const auto color = QColorDialog::getColor(m_color, this);
-            if (color.isValid()) {
-                setColor(color);
             }
         }
     }

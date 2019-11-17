@@ -36,14 +36,22 @@ namespace TrenchBroom {
         public:
             explicit ColorButton(QWidget* parent = nullptr);
         signals:
+            /**
+             * Emitted when the color is set either programatically via setColor() or
+             * as a result of the user clicking on the color button.
+             */
             void colorChanged(const QColor& color);
+            /**
+             * Emitted only as a result of the user clicking on the color button.
+             */
+            void colorChangedByUser(const QColor& color);
         public slots:
+            /**
+             * Change the current color displayed on the button. Causes colorChanged() to be emitted.
+             */
             void setColor(const QColor& color);
-        private slots:
-            void clicked();
         };
     }
 }
-
 
 #endif //TRENCHBROOM_COLORBUTTON_H
