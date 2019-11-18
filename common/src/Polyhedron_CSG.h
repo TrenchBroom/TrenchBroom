@@ -24,18 +24,18 @@
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP> Polyhedron<T,FP,VP>::intersect(Polyhedron other, const Callback& callback) const {
-    if (!polyhedron() || !other.polyhedron())
+    if (!polyhedron() || !other.polyhedron()) {
         return Polyhedron();
+    }
 
-    const Face* firstFace = m_faces.front();
-    const Face* currentFace = firstFace;
-    do {
+    for (const Face* currentFace : m_faces) {
         const vm::plane<T,3> plane = callback.getPlane(currentFace);
         const ClipResult result = other.clip(plane);
-        if (result.empty())
+        if (result.empty()) {
             return Polyhedron();
-        currentFace = currentFace->next();
-    } while (currentFace != firstFace);
+        }
+    }
+
     return other;
 }
 
@@ -82,15 +82,13 @@ private:
      * Otherwise, returns true.
      */
     bool clipSubtrahend() {
-        Face* first = m_minuend.faces().front();
-        Face* current = first;
-        do {
-            const ClipResult result = m_subtrahend.clip(m_callback.getPlane(current));
+        for (const Face* face : m_minuend.faces()) {
+            const ClipResult result = m_subtrahend.clip(m_callback.getPlane(face));
             if (result.empty()) {
                 return false;
             }
-            current = current->next();
-        } while (current != first);
+        }
+
         return true;
     }
 
