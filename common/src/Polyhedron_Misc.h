@@ -60,11 +60,9 @@ void Polyhedron<T,FP,VP>::Callback::vertexWillBeRemoved(Vertex* /* vertex */) {}
 template <typename T, typename FP, typename VP>
 vm::plane<T,3> Polyhedron<T,FP,VP>::Callback::getPlane(const Face* face) const {
     const auto& boundary = face->boundary();
-    assert(boundary.size() >= 3);
+    assert(boundary.size() >= 3u);
 
-    const auto* firstEdge = boundary.front();
-    const auto* curEdge = firstEdge;
-    do {
+    for (const HalfEdge* curEdge : boundary) {
         const auto* e1 = curEdge;
         const auto* e2 = e1->next();
         const auto* e3 = e2->next();
@@ -77,9 +75,7 @@ vm::plane<T,3> Polyhedron<T,FP,VP>::Callback::getPlane(const Face* face) const {
         if (valid) {
             return result;
         }
-
-        curEdge = curEdge->next();
-    } while (curEdge != firstEdge);
+    }
 
     // TODO: We should really throw an exception here.
     assert(false);
@@ -323,39 +319,27 @@ public:
     }
 private:
     void copyVertices(const VertexList& originalVertices) {
-        if (!originalVertices.empty()) {
-            const Vertex* firstVertex = originalVertices.front();
-            const Vertex* currentVertex = firstVertex;
-            do {
-                Vertex* copy = new Vertex(currentVertex->position());
-                assert(m_vertexMap.count(currentVertex) == 0u);
-                m_vertexMap.insert(std::make_pair(currentVertex, copy));
-                m_vertices.push_back(copy);
-                currentVertex = currentVertex->next();
-            } while (currentVertex != firstVertex);
+        for (const Vertex* currentVertex : originalVertices) {
+            Vertex* copy = new Vertex(currentVertex->position());
+            assert(m_vertexMap.count(currentVertex) == 0u);
+            m_vertexMap.insert(std::make_pair(currentVertex, copy));
+            m_vertices.push_back(copy);
+            currentVertex = currentVertex->next();
         }
     }
 
     void copyFaces(const FaceList& originalFaces) {
-        if (!originalFaces.empty()) {
-            const Face* firstFace = originalFaces.front();
-            const Face* currentFace = firstFace;
-            do {
-                copyFace(currentFace);
-                currentFace = currentFace->next();
-            } while (currentFace != firstFace);
+        for (const Face* currentFace : originalFaces) {
+            copyFace(currentFace);
         }
     }
 
     void copyFace(const Face* originalFace) {
         HalfEdgeList myBoundary;
 
-        const HalfEdge* firstHalfEdge = originalFace->m_boundary.front();
-        const HalfEdge* currentHalfEdge = firstHalfEdge;
-        do {
+        for (const HalfEdge* currentHalfEdge : originalFace->boundary()) {
             myBoundary.push_back(copyHalfEdge(currentHalfEdge));
-            currentHalfEdge = currentHalfEdge->next();
-        } while (currentHalfEdge != firstHalfEdge);
+        }
 
         Face* copy = new Face(std::move(myBoundary));
         m_faces.push_back(copy);
@@ -378,13 +362,8 @@ private:
     }
 
     void copyEdges(const EdgeList& originalEdges) {
-        if (!originalEdges.empty()) {
-            const Edge* firstEdge = originalEdges.front();
-            const Edge* currentEdge = firstEdge;
-            do {
-                m_edges.push_back(copyEdge(currentEdge));
-                currentEdge = currentEdge->next();
-            } while (currentEdge != firstEdge);
+        for (const Edge* currentEdge : originalEdges) {
+            m_edges.push_back(copyEdge(currentEdge));
         }
     }
 
@@ -432,37 +411,22 @@ bool Polyhedron<T,FP,VP>::operator==(const Polyhedron& other) const {
         return false;
     }
 
-    if (vertexCount() > 0) {
-        Vertex* current = m_vertices.front();
-        Vertex* first = current;
-        do {
-            if (!other.hasVertex(current->position(), 0.0)) {
-                return false;
-            }
-            current = current->next();
-        } while (current != first);
+    for (const Vertex* current : m_vertices) {
+        if (!other.hasVertex(current->position(), 0.0)) {
+            return false;
+        }
     }
 
-    if (edgeCount() > 0) {
-        Edge* current = m_edges.front();
-        Edge* first = current;
-        do {
-            if (!other.hasEdge(current->firstVertex()->position(), current->secondVertex()->position(), 0.0)) {
-                return false;
-            }
-            current = current->next();
-        } while (current != first);
+    for (const Edge* current : m_edges) {
+        if (!other.hasEdge(current->firstVertex()->position(), current->secondVertex()->position(), 0.0)) {
+            return false;
+        }
     }
 
-    if (faceCount() > 0) {
-        Face* current = m_faces.front();
-        Face* first = current;
-        do {
-            if (!other.hasFace(current->vertexPositions(), 0.0)) {
-                return false;
-            }
-            current = current->next();
-        } while (current != first);
+    for (const Face* current : m_faces) {
+        if (!other.hasFace(current->vertexPositions(), 0.0)) {
+            return false;
+        }
     }
 
     return true;
@@ -487,7 +451,7 @@ template <typename T, typename FP, typename VP>
 std::vector<vm::vec<T,3>> Polyhedron<T,FP,VP>::vertexPositions() const {
     std::vector<vm::vec<T,3>> result;
     result.reserve(vertexCount());
-    for (const auto* vertex : m_vertices) {
+    for (const Vertex* vertex : m_vertices) {
         result.push_back(vertex->position());
     }
     return result;
@@ -624,8 +588,8 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findVertexByPosition(
         return nullptr;
     }
 
-    auto* firstVertex = m_vertices.front();
-    auto* currentVertex = firstVertex;
+    Vertex* firstVertex = m_vertices.front();
+    Vertex* currentVertex = firstVertex;
     do {
         if (vm::is_equal(position, currentVertex->position(), epsilon)) {
             return currentVertex;
@@ -644,8 +608,8 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findClosestVertex(con
     auto closestDistance2 = maxDistance * maxDistance;
     Vertex* closestVertex = nullptr;
 
-    auto* firstVertex = m_vertices.front();
-    auto* currentVertex = firstVertex;
+    Vertex* firstVertex = m_vertices.front();
+    Vertex* currentVertex = firstVertex;
     do {
         const T currentDistance2 = vm::squared_distance(position, currentVertex->position());
         if (currentDistance2 < closestDistance2) {
@@ -663,8 +627,8 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::findEdgeByPositions(con
         return nullptr;
     }
 
-    auto* firstEdge = m_edges.front();
-    auto* currentEdge = firstEdge;
+    Edge* firstEdge = m_edges.front();
+    Edge* currentEdge = firstEdge;
     do {
         if (currentEdge->hasPositions(pos1, pos2, epsilon)) {
             return currentEdge;
@@ -683,8 +647,8 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::findClosestEdge(const v
     auto closestDistance = maxDistance;
     Edge* closestEdge = nullptr;
 
-    auto* firstEdge = m_edges.front();
-    auto* currentEdge = firstEdge;
+    Edge* firstEdge = m_edges.front();
+    Edge* currentEdge = firstEdge;
     do {
         const auto currentDistance = currentEdge->distanceTo(pos1, pos2);
         if (currentDistance < closestDistance) {
@@ -698,8 +662,8 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::findClosestEdge(const v
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::findFaceByPositions(const std::vector<vm::vec<T,3>>& positions, const T epsilon) const {
-    auto* firstFace = m_faces.front();
-    auto* currentFace = firstFace;
+    Face* firstFace = m_faces.front();
+    Face* currentFace = firstFace;
     do {
         if (currentFace->hasVertexPositions(positions, epsilon)) {
             return currentFace;
@@ -714,8 +678,8 @@ typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::findClosestFace(const s
     auto closestDistance = maxDistance;
     Face* closestFace = nullptr;
 
-    auto* firstFace = m_faces.front();
-    auto* currentFace = firstFace;
+    Face* firstFace = m_faces.front();
+    Face* currentFace = firstFace;
     do {
         const auto currentDistance = currentFace->distanceTo(positions);
         if (currentDistance < closestDistance) {

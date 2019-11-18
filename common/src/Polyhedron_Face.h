@@ -67,6 +67,11 @@ const typename Polyhedron_Face<T,FP,VP>::HalfEdgeList& Polyhedron_Face<T,FP,VP>:
 }
 
 template <typename T, typename FP, typename VP>
+typename Polyhedron_Face<T,FP,VP>::HalfEdgeList& Polyhedron_Face<T,FP,VP>::boundary() {
+    return m_boundary;
+}
+
+template <typename T, typename FP, typename VP>
 typename Polyhedron_Face<T,FP,VP>::Face* Polyhedron_Face<T,FP,VP>::next() const {
     return m_link.next();
 }
@@ -92,21 +97,18 @@ size_t Polyhedron_Face<T,FP,VP>::vertexCount() const {
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron_Face<T,FP,VP>::HalfEdge* Polyhedron_Face<T,FP,VP>::findHalfEdge(const vm::vec<T,3>& origin, const T epsilon) const {
-    auto* firstEdge = m_boundary.front();
-    auto* currentEdge = firstEdge;
-    do {
-        if (vm::is_equal(currentEdge->origin()->position(), origin, epsilon)) {
-            return currentEdge;
+const typename Polyhedron_Face<T,FP,VP>::HalfEdge* Polyhedron_Face<T,FP,VP>::findHalfEdge(const vm::vec<T,3>& origin, const T epsilon) const {
+    for (const HalfEdge* halfEdge : m_boundary) {
+        if (vm::is_equal(halfEdge->origin()->position(), origin, epsilon)) {
+            return halfEdge;
         }
-        currentEdge = currentEdge->next();
-    } while (currentEdge != firstEdge);
-    return currentEdge;
+    }
+    return nullptr;
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron_Face<T,FP,VP>::Edge* Polyhedron_Face<T,FP,VP>::findEdge(const vm::vec<T,3>& first, const vm::vec<T,3>& second, const T epsilon) const {
-    auto* halfEdge = findHalfEdge(first, epsilon);
+const typename Polyhedron_Face<T,FP,VP>::Edge* Polyhedron_Face<T,FP,VP>::findEdge(const vm::vec<T,3>& first, const vm::vec<T,3>& second, const T epsilon) const {
+    const HalfEdge* halfEdge = findHalfEdge(first, epsilon);
     if (halfEdge == nullptr) {
         return nullptr;
     }
@@ -125,7 +127,7 @@ typename Polyhedron_Face<T,FP,VP>::Edge* Polyhedron_Face<T,FP,VP>::findEdge(cons
 
 template <typename T, typename FP, typename VP>
 vm::vec<T,3> Polyhedron_Face<T,FP,VP>::origin() const {
-    const auto* edge = m_boundary.front();
+    const HalfEdge* edge = m_boundary.front();
     return edge->origin()->position();
 }
 
@@ -141,14 +143,11 @@ std::vector<vm::vec<T,3>> Polyhedron_Face<T,FP,VP>::vertexPositions() const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron_Face<T,FP,VP>::hasVertexPosition(const vm::vec<T,3>& position, const T epsilon) const {
-    const auto* firstEdge = m_boundary.front();
-    const auto* currentEdge = firstEdge;
-    do {
-        if (vm::is_equal(currentEdge->origin()->position(), position, epsilon)) {
+    for (const HalfEdge* halfEdge : m_boundary) {
+        if (vm::is_equal(halfEdge->origin()->position(), position, epsilon)) {
             return true;
         }
-        currentEdge = currentEdge->next();
-    } while (currentEdge != firstEdge);
+    }
     return false;
 }
 
@@ -158,14 +157,12 @@ bool Polyhedron_Face<T,FP,VP>::hasVertexPositions(const std::vector<vm::vec<T,3>
         return false;
     }
 
-    const auto* firstEdge = m_boundary.front();
-    const auto* currentEdge = firstEdge;
-    do {
-        if (currentEdge->hasOrigins(positions, epsilon)) {
+    for (const HalfEdge* halfEdge : m_boundary) {
+        if (halfEdge->hasOrigins(positions, epsilon)) {
             return true;
         }
-        currentEdge = currentEdge->next();
-    } while (currentEdge != firstEdge);
+    }
+
     return false;
 }
 
@@ -179,17 +176,13 @@ T Polyhedron_Face<T,FP,VP>::distanceTo(const std::vector<vm::vec<T,3>>& position
 
     // Find the boundary edge with the origin closest to the first position.
     const HalfEdge* startEdge = nullptr;
-
-    const auto* firstEdge = m_boundary.front();
-    const auto* currentEdge = firstEdge;
-    do {
-        const T currentDistance = vm::distance(currentEdge->origin()->position(), positions.front());
+    for (const HalfEdge* halfEdge : m_boundary) {
+        const T currentDistance = vm::distance(halfEdge->origin()->position(), positions.front());
         if (currentDistance < closestDistance) {
             closestDistance = currentDistance;
-            startEdge = currentEdge;
+            startEdge = halfEdge;
         }
-        currentEdge = currentEdge->next();
-    } while (currentEdge != firstEdge);
+    }
 
     // No vertex is within maxDistance of the first of the given positions.
     if (startEdge == nullptr) {
@@ -197,8 +190,8 @@ T Polyhedron_Face<T,FP,VP>::distanceTo(const std::vector<vm::vec<T,3>>& position
     }
 
     // now find the maximum distance of all points
-    firstEdge = startEdge;
-    currentEdge = firstEdge->next();
+    const HalfEdge* firstEdge = startEdge;
+    const HalfEdge* currentEdge = firstEdge->next();
     auto posIt = std::next(std::begin(positions));
     do {
         const auto& position = *posIt;
@@ -212,18 +205,16 @@ T Polyhedron_Face<T,FP,VP>::distanceTo(const std::vector<vm::vec<T,3>>& position
 
 template <typename T, typename FP, typename VP>
 vm::vec<T,3> Polyhedron_Face<T,FP,VP>::normal() const {
-    const auto* first = m_boundary.front();
-    const auto* current = first;
-    do {
-        const auto& p1 = current->origin()->position();
-        const auto& p2 = current->next()->origin()->position();
-        const auto& p3 = current->next()->next()->origin()->position();
+    for (const HalfEdge* halfEdge : m_boundary) {
+        const auto& p1 = halfEdge->origin()->position();
+        const auto& p2 = halfEdge->next()->origin()->position();
+        const auto& p3 = halfEdge->next()->next()->origin()->position();
         const auto normal = vm::cross(p2 - p1, p3 - p1);
         if (!vm::is_zero(normal, vm::constants<T>::almost_zero())) {
             return vm::normalize(normal);
         }
-        current = current->next();
-    } while (first != current);
+    }
+
     return vm::vec<T,3>::zero();
 }
 
@@ -283,15 +274,13 @@ bool Polyhedron_Face<T,FP,VP>::coplanar(const Face* other) const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron_Face<T,FP,VP>::verticesOnPlane(const vm::plane<T,3>& plane) const {
-    auto* firstEdge = m_boundary.front();
-    auto* currentEdge = firstEdge;
-    do {
-        const auto* vertex = currentEdge->origin();
+    for (const HalfEdge* halfEdge : m_boundary) {
+        const auto* vertex = halfEdge->origin();
         if (plane.point_status(vertex->position()) != vm::plane_status::inside) {
             return false;
         }
-        currentEdge = currentEdge->next();
-    } while (currentEdge != firstEdge);
+    }
+
     return true;
 }
 

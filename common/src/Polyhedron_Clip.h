@@ -100,13 +100,12 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const vm::pla
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::checkIntersects(const vm::plane<T,3>& plane) const {
-    size_t above = 0;
-    size_t below = 0;
-    size_t inside = 0;
+    std::size_t above = 0u;
+    std::size_t below = 0u;
+    std::size_t inside = 0u;
 
-    const Vertex* firstVertex = m_vertices.front();
-    const Vertex* currentVertex = firstVertex;
-    do {
+
+    for (const Vertex* currentVertex : m_vertices) {
         const vm::plane_status status = plane.point_status(currentVertex->position());
         switch (status) {
             case vm::plane_status::above:
@@ -118,10 +117,9 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::checkIntersects(co
             case vm::plane_status::inside:
                 ++inside;
                 break;
-            switchDefault()
+                switchDefault()
         }
-        currentVertex = currentVertex->next();
-    } while (currentVertex != firstVertex);
+    }
 
     assert(above + below + inside == m_vertices.size());
 
@@ -187,9 +185,7 @@ typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::intersectWithPlane(const
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::findInitialIntersectingEdge(const vm::plane<T,3>& plane) const {
-    Edge* firstEdge = m_edges.front();
-    Edge* currentEdge = firstEdge;
-    do {
+    for (const Edge* currentEdge : m_edges) {
         HalfEdge* halfEdge = currentEdge->firstEdge();
         const vm::plane_status os = plane.point_status(halfEdge->origin()->position());
         const vm::plane_status ds = plane.point_status(halfEdge->destination()->position());
@@ -231,8 +227,7 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::findInitialIntersec
                 return halfEdge;
             }
         }
-        currentEdge = currentEdge->next();
-    } while (currentEdge != firstEdge);
+    }
     return nullptr;
 }
 

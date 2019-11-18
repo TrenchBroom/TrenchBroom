@@ -102,13 +102,8 @@ void Polyhedron<T,FP,VP>::merge(const Polyhedron& other) {
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::merge(const Polyhedron& other, Callback& callback) {
-    if (!other.empty()) {
-        const Vertex* firstVertex = other.vertices().front();
-        const Vertex* currentVertex = firstVertex;
-        do {
-            addPoint(currentVertex->position(), callback);
-            currentVertex = currentVertex->next();
-        } while (currentVertex != firstVertex);
+    for (const Vertex* vertex : other.vertices()) {
+        addPoint(vertex->position(), callback);
     }
 }
 
@@ -267,32 +262,32 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
     HalfEdge* firstVisibleEdge = nullptr;
     HalfEdge* lastVisibleEdge = nullptr;
 
-    HalfEdge* firstEdge = face->boundary().front();
-    HalfEdge* curEdge = firstEdge;
-    do {
+    for (HalfEdge* curEdge : face->boundary()) {
         HalfEdge* prevEdge = curEdge->previous();
         HalfEdge* nextEdge = curEdge->next();
         const vm::plane_status prevStatus = prevEdge->pointStatus(facePlane.normal, position);
-        const vm::plane_status  curStatus =  curEdge->pointStatus(facePlane.normal, position);
+        const vm::plane_status curStatus = curEdge->pointStatus(facePlane.normal, position);
         const vm::plane_status nextStatus = nextEdge->pointStatus(facePlane.normal, position);
 
         // If the current edge contains the point, it will not be added anyway.
         if (curStatus == vm::plane_status::inside &&
-            vm::segment<T,3>(curEdge->origin()->position(), curEdge->destination()->position()).contains(position,
+            vm::segment<T, 3>(curEdge->origin()->position(), curEdge->destination()->position()).contains(position,
                 vm::constants<T>::almost_zero())) {
             return nullptr;
         }
 
-        if (prevStatus == vm::plane_status::below &&  curStatus != vm::plane_status::below) {
+        if (prevStatus == vm::plane_status::below && curStatus != vm::plane_status::below) {
             firstVisibleEdge = curEdge;
         }
 
-        if ( curStatus != vm::plane_status::below && nextStatus == vm::plane_status::below) {
+        if (curStatus != vm::plane_status::below && nextStatus == vm::plane_status::below) {
             lastVisibleEdge = curEdge;
         }
 
-        curEdge = curEdge->next();
-    } while (curEdge != firstEdge && (firstVisibleEdge == nullptr || lastVisibleEdge == nullptr));
+        if (firstVisibleEdge != nullptr && lastVisibleEdge != nullptr) {
+            break;
+        }
+    }
 
     // Is the point contained in the polygon?
     if (firstVisibleEdge == nullptr || lastVisibleEdge == nullptr) {
@@ -315,22 +310,16 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
 
     // delete the visible vertices and edges.
     // the visible half edges are deleted when visibleEdges goes out of scope
-    firstEdge = visibleEdges.front();
-    curEdge = firstEdge;
-    do {
-        HalfEdge* nextEdge = curEdge->next();
-
+    for (HalfEdge* curEdge : visibleEdges) {
         Edge* edge = curEdge->edge();
         m_edges.remove(edge);
 
-        if (curEdge != firstEdge) {
+        if (curEdge != visibleEdges.front()) {
             Vertex* vertex = curEdge->origin();
             callback.vertexWillBeDeleted(vertex);
             m_vertices.remove(vertex);
         }
-
-        curEdge = nextEdge;
-    } while (curEdge != firstEdge);
+    }
 
     m_edges.push_back(e1);
     m_edges.push_back(e2);
@@ -375,14 +364,10 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::makePolyhedron(const 
 
     Seam seam;
     Face* face = m_faces.front();
-    const HalfEdgeList& boundary = face->boundary();
 
-    HalfEdge* first = boundary.front();
-    HalfEdge* current = first;
-    do {
-        seam.push_back(current->edge());
-        current = current->previous(); // The seam must be CCW, so we have to iterate in reverse order in this case.
-    } while (current != first);
+    for (const HalfEdge* halfEdge : face->boundary()) {
+        seam.push_back(halfEdge->edge());
+    }
 
     return weave(seam, position, callback);
 }

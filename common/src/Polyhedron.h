@@ -738,6 +738,11 @@ public:
     const HalfEdgeList& boundary() const;
 
     /**
+     * Returns the circular list of half edges that make up the boundary of this face.
+     */
+    HalfEdgeList& boundary();
+
+    /**
      * Returns the next face in its containing circular list.
      */
     Face* next() const;
@@ -773,7 +778,7 @@ public:
      * @return the half edge whose origin has the given position, or null if no such half edge exists in
      * this face's boundary
      */
-    HalfEdge* findHalfEdge(const vm::vec<T,3>& origin, T epsilon = static_cast<T>(0.0)) const;
+    const HalfEdge* findHalfEdge(const vm::vec<T,3>& origin, T epsilon = static_cast<T>(0.0)) const;
 
     /**
      * Finds an edge that is adjacent to this face whose first and second vertex have the given positions,
@@ -785,7 +790,7 @@ public:
      * @return the edge whose vertices have the given positions, or null if no such edge is adjacent to
      * this face
      */
-    Edge* findEdge(const vm::vec<T,3>& first, const vm::vec<T,3>& second, T epsilon = static_cast<T>(0.0)) const;
+    const Edge* findEdge(const vm::vec<T,3>& first, const vm::vec<T,3>& second, T epsilon = static_cast<T>(0.0)) const;
 
     /**
      * Returns the position of the origin of the first half edge in this face's boundary.
