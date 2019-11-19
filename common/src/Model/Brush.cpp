@@ -187,24 +187,20 @@ namespace TrenchBroom {
             }
         private:
             void buildIncidences(const BrushGeometry* geometry, const std::set<vm::vec3>& verticesToBeMoved, const vm::vec3& delta) {
-                const auto& vertices = geometry->vertices();
-                const auto* firstVertex = vertices.front();
-                const auto* curVertex = firstVertex;
-                do {
+                for (const BrushVertex* curVertex : geometry->vertices()) {
                     const auto& position = curVertex->position();
                     if (verticesToBeMoved.count(position)) {
                         m_incidences.insert(std::make_pair(position + delta, collectIncidentFaces(curVertex)));
                     } else {
                         m_incidences.insert(std::make_pair(position, collectIncidentFaces(curVertex)));
                     }
-                    curVertex = curVertex->next();
-                } while (curVertex != firstVertex);
+                }
             }
 
             BrushFaceList collectIncidentFaces(const BrushVertex* vertex) {
                 BrushFaceList result;
-                auto* firstEdge = vertex->leaving();
-                auto* curEdge = firstEdge;
+                const BrushHalfEdge* firstEdge = vertex->leaving();
+                const BrushHalfEdge* curEdge = firstEdge;
                 do {
                     result.push_back(curEdge->face()->payload());
                     curEdge = curEdge->nextIncident();

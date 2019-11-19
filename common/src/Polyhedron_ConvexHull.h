@@ -366,12 +366,10 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::makePolyhedron(const 
     Face* face = m_faces.front();
     const HalfEdgeList& boundary = face->boundary();
 
-    HalfEdge* first = boundary.front();
-    HalfEdge* current = first;
-    do {
-        seam.push_back(current->edge());
-        current = current->previous(); // The seam must be CCW, so we have to iterate in reverse order in this case.
-    } while (current != first);
+    // The seam must be CCW, so we have to iterate in reverse order in this case.
+    for (auto it = boundary.rbegin(), end = boundary.rend(); it != end; ++it) {
+        seam.push_back((*it)->edge());
+    }
 
     return weave(seam, position, callback);
 }

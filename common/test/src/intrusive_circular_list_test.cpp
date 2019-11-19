@@ -178,14 +178,38 @@ TEST(intrusive_circular_list_test, iterators) {
     ASSERT_EQ(e2, *it);
     ASSERT_EQ(e2, *it++);
     ASSERT_EQ(it, end);
+}
 
-    it = l.begin();
-    end = l.end();
+TEST(intrusive_circular_list_test, reverse_iterators) {
+    list l;
 
-    ++it;
+    // empty list
+    ASSERT_EQ(l.rbegin(), l.rend());
+
+    auto* e1 = l.emplace_back();
+
+    auto it = l.rbegin();
+    auto end = l.rend();
+    ASSERT_NE(it, end);
+
+    ASSERT_EQ(e1, *it);
+    ASSERT_EQ(e1, *it++);
+    ASSERT_EQ(it, end);
+
+    auto* e2 = l.emplace_back();
+    auto* e3 = l.emplace_back();
+
+    it = l.rbegin();
+    end = l.rend();
+    ASSERT_NE(it, end);
+
+    ASSERT_EQ(e3, *it);
+    ASSERT_EQ(e3, *it++);
     ASSERT_EQ(e2, *it);
-    ++it;
-    ASSERT_EQ(end, it);
+    ASSERT_EQ(e2, *it++);
+    ASSERT_EQ(e1, *it);
+    ASSERT_EQ(e1, *it++);
+    ASSERT_EQ(it, end);
 }
 
 TEST(intrusive_circular_list_test, empty) {
