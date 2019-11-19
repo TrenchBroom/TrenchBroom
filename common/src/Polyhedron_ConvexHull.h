@@ -364,10 +364,14 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::makePolyhedron(const 
 
     Seam seam;
     Face* face = m_faces.front();
+    const HalfEdgeList& boundary = face->boundary();
 
-    for (const HalfEdge* halfEdge : face->boundary()) {
-        seam.push_back(halfEdge->edge());
-    }
+    HalfEdge* first = boundary.front();
+    HalfEdge* current = first;
+    do {
+        seam.push_back(current->edge());
+        current = current->previous(); // The seam must be CCW, so we have to iterate in reverse order in this case.
+    } while (current != first);
 
     return weave(seam, position, callback);
 }
