@@ -1050,6 +1050,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Polyhedron_Forward.h
         ${COMMON_SOURCE_DIR}/Polyhedron_HalfEdge.h
         ${COMMON_SOURCE_DIR}/Polyhedron_Instantiation.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_IO.h
         ${COMMON_SOURCE_DIR}/Polyhedron_Matcher.h
         ${COMMON_SOURCE_DIR}/Polyhedron_Misc.h
         ${COMMON_SOURCE_DIR}/Polyhedron_Queries.h

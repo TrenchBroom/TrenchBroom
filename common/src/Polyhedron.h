@@ -32,7 +32,6 @@
 
 #include <initializer_list>
 #include <limits>
-#include <ostream>
 #include <vector>
 
 /* ====================== Implementation in Polyhedron_Vertex.h ====================== */
@@ -151,14 +150,6 @@ public:
      * @return true if this vertex is incident to the given face and false otherwise
      */
     bool incident(const Face* face) const;
-
-    /**
-     * Appends a textual representation of the given vertices' position to the given stream.
-     */
-    friend std::ostream& operator<<(std::ostream& stream, const Vertex& vertex) {
-        stream << vertex.position();
-        return stream;
-    }
 
     /**
      * Rounds each component of this vertices' position to the nearest integer if the distance of the component's
@@ -592,23 +583,6 @@ public:
      * @return true if the given positions match the positions of the origin vertices, and false otherwise
      */
     bool hasOrigins(const std::vector<vm::vec<T,3>>& positions, T epsilon = static_cast<T>(0.0)) const;
-
-    /**
-     * Prints a textual description of the given half edge to the given output stream.
-     *
-     * @param stream the stream
-     * @param edge the edge to print
-     * @return a reference to the given stream
-     */
-    friend std::ostream& operator<<(std::ostream& stream, const HalfEdge& edge) {
-        stream << *edge.origin() << " --> ";
-        if (edge.destination() != nullptr) {
-            stream << *edge.destination();
-        } else {
-            stream << "NULL";
-        }
-        return stream;
-    }
 private:
     /**
      * Determines the relative location of the given point and a plane p that is defined as follows.
@@ -880,23 +854,6 @@ public:
      * @return the relative position of the given point
      */
     vm::plane_status pointStatus(const vm::vec<T,3>& point, T epsilon = vm::constants<T>::point_status_epsilon()) const;
-
-    /**
-     * Prints a textual description of the face to the given output stream.
-     *
-     * @param stream the stream
-     * @param edge the edge to print
-     * @return a reference to the given stream
-     */
-    friend std::ostream& operator<<(std::ostream& stream, const Face& face) {
-        const auto* firstEdge = face.boundary().front();
-        const auto* currentEdge = firstEdge;
-        do {
-            stream << *currentEdge << std::endl;
-            currentEdge = currentEdge->next();
-        } while (currentEdge != firstEdge);
-        return stream;
-    }
 private:
     /**
      * Checks whether this face is coplanar with the given face, that is, if both faces lie in the same plane.

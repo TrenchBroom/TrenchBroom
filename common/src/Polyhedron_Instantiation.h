@@ -20,6 +20,7 @@
 #ifndef Polyhedron_Instantiation_h
 #define Polyhedron_Instantiation_h
 
+#include "TrenchBroom.h"
 #include "Polyhedron.h"
 #include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"
