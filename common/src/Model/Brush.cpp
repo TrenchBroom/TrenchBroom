@@ -915,40 +915,7 @@ namespace TrenchBroom {
 
         Brush::CanMoveVerticesResult::CanMoveVerticesResult(const bool s, BrushGeometry&& g) :
         success(s),
-        geometry(new BrushGeometry(std::move(g))) {}
-
-        Brush::CanMoveVerticesResult::CanMoveVerticesResult(const Brush::CanMoveVerticesResult& other) :
-        success(other.success),
-        geometry(new BrushGeometry(*other.geometry)) {}
-
-        Brush::CanMoveVerticesResult::CanMoveVerticesResult(Brush::CanMoveVerticesResult&& other) noexcept :
-        success(other.success),
-        geometry(std::move(other.geometry)) {
-            other.success = false;
-            other.geometry = nullptr;
-        }
-
-        Brush::CanMoveVerticesResult::~CanMoveVerticesResult() {
-            delete geometry;
-        }
-
-        Brush::CanMoveVerticesResult& Brush::CanMoveVerticesResult::operator=(const Brush::CanMoveVerticesResult& other) {
-            if (this != &other) {
-                success = other.success;
-                geometry = new BrushGeometry(*other.geometry);
-            }
-            return *this;
-        }
-
-        Brush::CanMoveVerticesResult& Brush::CanMoveVerticesResult::operator=(Brush::CanMoveVerticesResult&& other) {
-            if (this != &other) {
-                success = other.success;
-                geometry = other.geometry;
-                other.success = false;
-                other.geometry = nullptr;
-            }
-            return *this;
-        }
+        geometry(std::make_unique<BrushGeometry>(std::move(g))) {}
 
         Brush::CanMoveVerticesResult Brush::CanMoveVerticesResult::rejectVertexMove() {
             return CanMoveVerticesResult(false, BrushGeometry());

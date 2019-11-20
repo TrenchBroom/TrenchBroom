@@ -32,6 +32,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/polygon.h>
 
+#include <memory>
 #include <vector>
 
 template <typename P>
@@ -193,17 +194,10 @@ namespace TrenchBroom {
             struct CanMoveVerticesResult {
             public:
                 bool success;
-                BrushGeometry* geometry;
+                std::unique_ptr<BrushGeometry> geometry;
             private:
                 CanMoveVerticesResult(bool s, BrushGeometry&& g);
             public:
-                CanMoveVerticesResult(const CanMoveVerticesResult& other);
-                CanMoveVerticesResult(CanMoveVerticesResult&& other) noexcept;
-                ~CanMoveVerticesResult();
-
-                CanMoveVerticesResult& operator=(const CanMoveVerticesResult& other);
-                CanMoveVerticesResult& operator=(CanMoveVerticesResult&& other);
-
                 static CanMoveVerticesResult rejectVertexMove();
                 static CanMoveVerticesResult acceptVertexMove(BrushGeometry&& result);
             };
