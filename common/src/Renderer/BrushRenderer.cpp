@@ -19,6 +19,7 @@
 
 #include "BrushRenderer.h"
 
+#include "Polyhedron.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Model/Brush.h"

@@ -24,6 +24,8 @@
 #include "View/CreateBrushToolBase.h"
 #include "View/ViewTypes.h"
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace Renderer {
         class BrushRenderer;
@@ -34,7 +36,7 @@ namespace TrenchBroom {
     namespace View {
         class CreateComplexBrushTool : public CreateBrushToolBase {
         private:
-            Polyhedron3 m_polyhedron;
+            std::unique_ptr<Polyhedron3> m_polyhedron;
         public:
             CreateComplexBrushTool(MapDocumentWPtr document);
 

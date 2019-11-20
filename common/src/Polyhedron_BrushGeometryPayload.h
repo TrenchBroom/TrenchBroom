@@ -22,6 +22,7 @@
 
 //#include "Renderer/GL.h"
 
+#include <cstdint>
 #include <limits>
 
 namespace TrenchBroom {

@@ -105,7 +105,7 @@ public:
     using get_link_info = GetLink;
     using link_info = intrusive_circular_link<T>;
 public: // iterators
-    template <typename TT>
+    template <typename TT, typename Inc>
     class iterator_base {
     public:
         using iterator_category = std::forward_iterator_tag;
@@ -154,9 +154,8 @@ public: // iterators
     private:
         void increment() {
             if (m_item != nullptr) {
-                const auto get_link = get_link_info();
-                const auto& link = get_link(m_item);
-                T* next = link.next();
+                Inc inc;
+                pointer next = inc(m_item);
                 if (next == m_first) {
                     m_item = nullptr;
                 } else {
@@ -166,8 +165,28 @@ public: // iterators
         }
     };
 
-    using iterator = iterator_base<T>;
-    using const_iterator = iterator_base<T const>;
+    struct IncForward {
+        template <typename TT>
+        TT* operator()(TT* item) const {
+            const auto get_link = get_link_info();
+            const auto& link = get_link(item);
+            return link.next();
+        }
+    };
+
+    struct IncBackward {
+        template <typename TT>
+        TT* operator()(TT* item) const {
+            const auto get_link = get_link_info();
+            const auto& link = get_link(item);
+            return link.previous();
+        }
+    };
+
+    using iterator = iterator_base<T, IncForward>;
+    using const_iterator = iterator_base<T const, IncForward>;
+    using reverse_iterator = iterator_base<T, IncBackward>;
+    using const_reverse_iterator = iterator_base<T const, IncBackward>;
 private:
     T* m_head;
     std::size_t m_size;
@@ -228,7 +247,7 @@ public:
      * iterator is equivalent to an end iterator.
      */
     iterator begin() {
-        return iterator(m_head);
+        return iterator(front());
     }
 
     /**
@@ -258,7 +277,7 @@ public:
      * iterator is equivalent to an end iterator.
      */
     const_iterator cbegin() const {
-        return const_iterator(m_head);
+        return const_iterator(front());
     }
 
     /**
@@ -266,6 +285,51 @@ public:
      */
     const_iterator cend() const {
         return const_iterator();
+    }
+
+    /**
+     * Returns a reverse iterator pointing to the last element of this list. If this list is empty, then the
+     * returned iterator is equivalent to an end iterator.
+     */
+    reverse_iterator rbegin() {
+        return reverse_iterator(back());
+    }
+
+    /**
+     * Returns an end iterator for this list.
+     */
+    reverse_iterator rend() {
+        return reverse_iterator();
+    }
+
+    /**
+     * Returns a const reverse iterator pointing to the last element of this list. If this list is empty, then
+     * the returned iterator is equivalent to an end iterator.
+     */
+    const_reverse_iterator rbegin() const {
+        return crbegin();
+    }
+
+    /**
+     * Returns a const end iterator for this list.
+     */
+    const_reverse_iterator rend() const {
+        return crend();
+    }
+
+    /**
+     * Returns a const reverse iterator pointing to the last element of this list. If this list is empty, then
+     * the returned iterator is equivalent to an end iterator.
+     */
+    const_reverse_iterator crbegin() const {
+        return const_reverse_iterator(back());
+    }
+
+    /**
+     * Returns a const end iterator for this list.
+     */
+    const_reverse_iterator crend() const {
+        return const_reverse_iterator();
     }
 
     /**

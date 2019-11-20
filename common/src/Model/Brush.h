@@ -21,9 +21,9 @@
 #define TrenchBroom_Brush
 
 #include "TrenchBroom.h"
+#include "Macros.h"
 #include "Hit.h"
 #include "ProjectingSequence.h"
-#include "Macros.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
@@ -32,7 +32,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/polygon.h>
 
-#include <set>
+#include <memory>
 #include <vector>
 
 template <typename P>
@@ -68,8 +68,6 @@ namespace TrenchBroom {
             class MoveVerticesCallback;
             using RemoveVertexCallback = MoveVerticesCallback;
             class QueryCallback;
-
-            using VertexSet = std::set<vm::vec3>;
         public:
             using VertexList = ProjectingSequence<BrushVertexList, ProjectToVertex>;
             using EdgeList = ProjectingSequence<BrushEdgeList, ProjectToEdge>;
@@ -196,14 +194,12 @@ namespace TrenchBroom {
             struct CanMoveVerticesResult {
             public:
                 bool success;
-                BrushGeometry geometry;
-
+                std::unique_ptr<BrushGeometry> geometry;
             private:
-                CanMoveVerticesResult(bool s, const BrushGeometry& g);
-
+                CanMoveVerticesResult(bool s, BrushGeometry&& g);
             public:
                 static CanMoveVerticesResult rejectVertexMove();
-                static CanMoveVerticesResult acceptVertexMove(const BrushGeometry& result);
+                static CanMoveVerticesResult acceptVertexMove(BrushGeometry&& result);
             };
 
             CanMoveVerticesResult doCanMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, vm::vec3 delta, bool allowVertexRemoval) const;
@@ -237,8 +233,6 @@ namespace TrenchBroom {
              */
             void applyUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right);
             void doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, bool uvLock = false);
-
-            static VertexSet createVertexSet(const std::vector<vm::vec3>& vertices = std::vector<vm::vec3>(0));
         public:
             // CSG operations
             /**

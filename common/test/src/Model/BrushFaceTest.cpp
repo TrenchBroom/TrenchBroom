@@ -21,6 +21,7 @@
 
 #include "TrenchBroom.h"
 #include "Exceptions.h"
+#include "Polyhedron.h"
 #include "TestUtils.h"
 #include "Assets/Texture.h"
 #include "IO/NodeReader.h"
@@ -31,11 +32,11 @@
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/MapFormat.h"
+#include "Model/ModelTypes.h"
 #include "Model/NodeSnapshot.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/World.h"
-#include "Model/ModelTypes.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>

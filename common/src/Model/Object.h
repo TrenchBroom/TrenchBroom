@@ -21,10 +21,12 @@
 #define TrenchBroom_Object
 
 #include "TrenchBroom.h"
-#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
+        class Group;
+        class Layer;
+        class Node;
         class NodeSnapshot;
         class PickResult;
 
@@ -55,6 +57,5 @@ namespace TrenchBroom {
         };
     }
 }
-
 
 #endif /* defined(TrenchBroom_Object) */

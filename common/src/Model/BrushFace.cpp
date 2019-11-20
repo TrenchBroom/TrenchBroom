@@ -19,9 +19,10 @@
 
 #include "BrushFace.h"
 
+#include "Constants.h"
+#include "Polyhedron.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
-#include "Constants.h"
 #include "Model/TagMatcher.h"
 #include "Model/Brush.h"
 #include "Model/BrushFaceSnapshot.h"
@@ -207,32 +208,26 @@ namespace TrenchBroom {
         }
 
         FloatType BrushFace::area(const vm::axis::type axis) const {
-            const BrushHalfEdge* first = m_geometry->boundary().front();
-            const BrushHalfEdge* current = first;
-
             FloatType c1 = 0.0;
             FloatType c2 = 0.0;
             switch (axis) {
                 case vm::axis::x:
-                    do {
-                        c1 += current->origin()->position().y() * current->next()->origin()->position().z();
-                        c2 += current->origin()->position().z() * current->next()->origin()->position().y();
-                        current = current->next();
-                    } while (current != first);
+                    for (const BrushHalfEdge* halfEdge : m_geometry->boundary()) {
+                        c1 += halfEdge->origin()->position().y() * halfEdge->destination()->position().z();
+                        c2 += halfEdge->origin()->position().z() * halfEdge->destination()->position().y();
+                    }
                     break;
                 case vm::axis::y:
-                    do {
-                        c1 += current->origin()->position().z() * current->next()->origin()->position().x();
-                        c2 += current->origin()->position().x() * current->next()->origin()->position().z();
-                        current = current->next();
-                    } while (current != first);
+                    for (const BrushHalfEdge* halfEdge : m_geometry->boundary()) {
+                        c1 += halfEdge->origin()->position().z() * halfEdge->destination()->position().x();
+                        c2 += halfEdge->origin()->position().x() * halfEdge->destination()->position().z();
+                    }
                     break;
                 case vm::axis::z:
-                    do {
-                        c1 += current->origin()->position().x() * current->next()->origin()->position().y();
-                        c2 += current->origin()->position().y() * current->next()->origin()->position().x();
-                        current = current->next();
-                    } while (current != first);
+                    for (const BrushHalfEdge* halfEdge : m_geometry->boundary()) {
+                        c1 += halfEdge->origin()->position().x() * halfEdge->destination()->position().y();
+                        c2 += halfEdge->origin()->position().y() * halfEdge->destination()->position().x();
+                    }
                     break;
             };
             return vm::abs((c1 - c2) / 2.0);

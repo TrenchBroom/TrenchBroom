@@ -720,21 +720,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/TransformObjectVisitor.h
         ${COMMON_SOURCE_DIR}/Model/World.h
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Polyhedron.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_BrushGeometryPayload.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Clip.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_ConvexHull.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_DefaultPayload.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Edge.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Face.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_HalfEdge.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Instantiation.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Intersect.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Matcher.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Misc.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Queries.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Subtract.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Vertex.h
         ${COMMON_SOURCE_DIR}/Renderer/AllocationTracker.h
         ${COMMON_SOURCE_DIR}/Renderer/BoundsGuideRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/BrushRenderer.h
@@ -1053,6 +1038,23 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Logger.h
         ${COMMON_SOURCE_DIR}/Macros.h
         ${COMMON_SOURCE_DIR}/Notifier.h
+        ${COMMON_SOURCE_DIR}/Polyhedron.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_BrushGeometryPayload.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_Checks.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_Clip.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_ConvexHull.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_CSG.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_DefaultPayload.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_Edge.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_Face.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_Forward.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_HalfEdge.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_Instantiation.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_IO.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_Matcher.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_Misc.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_Queries.h
+        ${COMMON_SOURCE_DIR}/Polyhedron_Vertex.h
         ${COMMON_SOURCE_DIR}/Polyhedron3.h
         ${COMMON_SOURCE_DIR}/Preference.h
         ${COMMON_SOURCE_DIR}/PreferenceManager.h
@@ -1083,7 +1085,7 @@ target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
 target_link_libraries(common PUBLIC tinyxml2 vecmath optlite glew miniz freeimage freetype OpenGL::GL Qt5::Widgets)
 
 # use precompiled headers on CMake 3.16 or later
-if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
+if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
     message(STATUS "Using precompiled headers")
     target_precompile_headers(common PUBLIC
             <algorithm>
@@ -1094,6 +1096,7 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
             <cstdlib>
             <ctime>
             <functional>
+            <initializer_list>
             <iterator>
             <iostream>
             <istream>

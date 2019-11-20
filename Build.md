@@ -10,14 +10,7 @@ First, clone the TrenchBroom repository. If you are using the official repositor
 repository by running
 
 ```
-git clone https://github.com/kduske/TrenchBroom.git
-```
-
-TrenchBroom uses a few git submodules for some of its dependencies. To initialize the submodules, issue the following command:
-
-```
-cd TrenchBroom
-git submodule update --init --recursive
+git clone --recursive https://github.com/kduske/TrenchBroom.git
 ```
 
 ## Windows

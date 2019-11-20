@@ -19,6 +19,7 @@
 
 #include "VertexHandleManager.h"
 
+#include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/Grid.h"

@@ -19,6 +19,7 @@
 
 #include "MapDocumentTest.h"
 
+#include "Polyhedron.h"
 #include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/ModelDefinition.h"

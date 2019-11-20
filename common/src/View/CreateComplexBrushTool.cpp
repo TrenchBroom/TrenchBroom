@@ -18,7 +18,7 @@
  */
 
 #include "CreateComplexBrushTool.h"
-#include "Polyhedron3.h"
+#include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -28,18 +28,19 @@
 namespace TrenchBroom {
     namespace View {
         CreateComplexBrushTool::CreateComplexBrushTool(MapDocumentWPtr document) :
-        CreateBrushToolBase(false, document) {}
+        CreateBrushToolBase(false, document),
+        m_polyhedron(std::make_unique<Polyhedron3>()){}
 
         const Polyhedron3& CreateComplexBrushTool::polyhedron() const {
-            return m_polyhedron;
+            return *m_polyhedron;
         }
 
         void CreateComplexBrushTool::update(const Polyhedron3& polyhedron) {
-            m_polyhedron = polyhedron;
-            if (m_polyhedron.closed()) {
+            *m_polyhedron = polyhedron;
+            if (m_polyhedron->closed()) {
                 MapDocumentSPtr document = lock(m_document);
                 const Model::BrushBuilder builder(document->world(), document->worldBounds());
-                Model::Brush* brush = builder.createBrush(m_polyhedron, document->currentTextureName());
+                Model::Brush* brush = builder.createBrush(*m_polyhedron, document->currentTextureName());
                 updateBrush(brush);
             } else {
                 updateBrush(nullptr);

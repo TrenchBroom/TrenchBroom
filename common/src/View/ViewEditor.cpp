@@ -478,7 +478,7 @@ namespace TrenchBroom {
             auto tagIt = std::begin(tags);
             auto boxIt = std::begin(m_tagCheckBoxes);
             while (tagIt != std::end(tags) && boxIt != std::end(m_tagCheckBoxes)) {
-                const Model::Tag& tag = *tagIt;;
+                const Model::Tag& tag = *tagIt;
                 QCheckBox* checkBox = *boxIt;
                 checkBox->setChecked((tag.type() & hiddenTags) == 0);
                 ++tagIt; ++boxIt;

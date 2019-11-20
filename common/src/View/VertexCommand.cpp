@@ -48,10 +48,10 @@ namespace TrenchBroom {
             extract(faces, brushes, brushFaces, facePositions);
         }
 
-        void VertexCommand::extractEdgeMap(const Model::VertexToEdgesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions) {
+        void VertexCommand::extractEdgeMap(const VertexToEdgesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions) {
 
             for (const auto& entry : edges) {
-                const Model::BrushEdgeSet& mappedEdges = entry.second;
+                const BrushEdgeSet& mappedEdges = entry.second;
                 for (Model::BrushEdge* edge : mappedEdges) {
                     Model::Brush* brush = edge->firstFace()->payload()->brush();
                     const vm::segment3 edgePosition(edge->firstVertex()->position(), edge->secondVertex()->position());
