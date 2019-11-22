@@ -3,12 +3,17 @@
 cmake_minimum_required(VERSION 3.12)
 
 # Configure CCache if available
-find_program(CCACHE_FOUND ccache)
-if(CCACHE_FOUND)
-    message(STATUS "Using CCache")
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-endif(CCACHE_FOUND)
+if(NOT CCACHE_FOUND)
+    find_program(CCACHE_FOUND ccache)
+    if(CCACHE_FOUND)
+        message(STATUS "Using CCache")
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+    else()
+        message(STATUS "Not using CCache")
+    endif()
+endif()
+
 
 # Fix warning with Ninja and cotire (see https://github.com/sakra/cotire/issues/81)
 if(POLICY CMP0058)
@@ -66,9 +71,10 @@ if(NOT GIT_FOUND)
 endif()
 
 # Find Pandoc
-if (NOT PANDOC_PATH AND NOT PANDOC_PATH-NOTFOUND)
+if (NOT PANDOC_PATH)
     find_program(PANDOC_PATH NAMES "pandoc" DOC "Pandoc program location")
-    if(PANDOC_PATH-NOTFOUND)
+
+    if(NOT PANDOC_PATH)
         message(FATAL_ERROR "Could not find pandoc")
     else()
         message(STATUS "Found Pandoc: ${PANDOC_PATH}")
