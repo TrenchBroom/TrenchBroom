@@ -26,6 +26,27 @@
 - No inline if statements such as `if (…) doThis();`
 - Avoid header files that declare more than one class
 
+# Exceptions
+- Functions should generally document their exception guarantee, but if a function can throw an exception, this is
+  mandatory. There are [four levels of exception guarantee](https://en.cppreference.com/w/cpp/language/exceptions) 
+  in C++:
+  - *No guarantee*: If the function throws an exception, the program may not be in a valid state: resource leaks, memory
+    corruption, or other invariant-destroying errors may have occurred.
+  - *Basic guarantee*: If the function throws an exception, the program is in a valid state. No resources are leaked,
+    and all objects' invariants are intact.
+  - *Strong guarantee*: If the function throws an exception, the state of the program is rolled back to the state just
+    before the function call. The strong guarantee implies the basic guarantee.
+  - *Nothrow guarantee*: The function never throws exceptions. This is mandatory for destructors and other functions
+    that may be called during stack unwinding, as well as swaps and move constructors.
+
+## Handling Exceptions During Command Execution
+It is mandatory that no exceptions reach the command processor. If an exception is caught by the command processor, it
+will throw away the command that caused the exception, log an error message, and return false as if the command had
+reported a failure to execute. However, this may or may not leave the program in an invalid state. 
+
+This means that all command methods such must implement a nothrow guarantee. Exceptions must be handled and a valid
+program state must be ensured if any function called by a command throws an exception.
+
 # Types
 - Only use `auto` when the type is obvious from surrounding visible code, e.g.:
   ```
