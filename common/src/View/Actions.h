@@ -102,14 +102,14 @@ namespace TrenchBroom {
          * CheckedFn has type ActionExecutionContext& -> bool
          */
         template <class ExecuteFn, class EnabledFn, class CheckedFn>
-        class ActionSub : public Action {
+        class LambdaAction : public Action {
         private:
             ExecuteFn m_execute;
             EnabledFn m_enabled;
             CheckedFn m_checked;
             bool m_checkable;
         public:
-            ActionSub(const IO::Path& preferencePath, const QString& label, ActionContext::Type actionContext, const QKeySequence& defaultShortcut,
+            LambdaAction(const IO::Path& preferencePath, const QString& label, ActionContext::Type actionContext, const QKeySequence& defaultShortcut,
                 const ExecuteFn& execute, const EnabledFn& enabled, const CheckedFn& checked, const bool checkable, const IO::Path& iconPath)
                 : Action(preferencePath, label, actionContext, defaultShortcut, iconPath),
                 m_execute(execute),
@@ -294,7 +294,7 @@ namespace TrenchBroom {
                                        const ExecuteFn& execute, const EnabledFn& enabled,
                                        const IO::Path& iconPath = IO::Path()) {
 
-                auto action = std::unique_ptr<Action>(new ActionSub(
+                auto action = std::unique_ptr<Action>(new LambdaAction(
                     preferencePath,
                     label,
                     actionContext,
@@ -314,7 +314,7 @@ namespace TrenchBroom {
             const Action* createAction(const IO::Path& preferencePath, const QString& label, int actionContext, const QKeySequence& defaultShortcut,
                                        const ExecuteFn& execute, const EnabledFn& enabled,
                                        const CheckedFn& checked, const IO::Path& iconPath = IO::Path()) {
-                auto action = std::unique_ptr<Action>(new ActionSub(
+                auto action = std::unique_ptr<Action>(new LambdaAction(
                     preferencePath,
                     label,
                     actionContext,
