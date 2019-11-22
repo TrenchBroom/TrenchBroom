@@ -27,24 +27,27 @@
 #include "View/MapFrame.h"
 #include "View/ViewConstants.h"
 
+#include <QAbstractButton>
 #include <QApplication>
 #include <QBoxLayout>
+#include <QButtonGroup>
 #include <QDebug>
 #include <QDir>
 #include <QDesktopWidget>
 #include <QFont>
+#include <QGuiApplication>
+#include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPalette>
 #include <QSettings>
+#include <QScreen>
 #include <QString>
 #include <QStringBuilder>
 #include <QStandardPaths>
-#include <QToolButton>
-#include <QAbstractButton>
-#include <QButtonGroup>
 #include <QTableView>
-#include <QHeaderView>
+#include <QToolButton>
+#include <QWindow>
 
 namespace TrenchBroom {
     namespace View {
@@ -76,7 +79,7 @@ namespace TrenchBroom {
 
         QString fileDialogDefaultDirectory(const FileDialogDir dir) {
             const QString key = fileDialogDefaultDirectorySettingsPath(dir);
-            
+
             const QSettings settings;
             const QString defaultDir = settings.value(key).toString();
             return defaultDir;
@@ -127,14 +130,16 @@ namespace TrenchBroom {
         }
 
         void centerOnScreen(QWidget* window) {
-            window->setGeometry(
-                QStyle::alignedRect(
-                    Qt::LeftToRight,
-                    Qt::AlignCenter,
-                    window->size(),
-                    QApplication::desktop()->availableGeometry()
-                )
-            );
+            const auto position = window->mapToGlobal({ window->width() / 2, 0 });
+            const auto* screen = QGuiApplication::screenAt(position);
+            if (screen != nullptr) {
+                window->setGeometry(
+                    QStyle::alignedRect(
+                        Qt::LeftToRight,
+                        Qt::AlignCenter,
+                        window->size(),
+                        screen->availableGeometry()));
+            }
         }
 
         QWidget* makeDefault(QWidget* widget) {
