@@ -222,7 +222,7 @@ namespace TrenchBroom {
 
             const auto actionContext = ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool;
             for (const auto& tag : tags) {
-                auto action = std::unique_ptr<Action>(new ActionSub(IO::Path("Tags/Toggle/" + tag.name()),
+                result.push_back(std::unique_ptr<Action>(new ActionSub(IO::Path("Tags/Toggle/" + tag.name()),
                     QObject::tr("Toggle Tag %1").arg(QString::fromStdString(tag.name())),
                     actionContext, QKeySequence(),
                     [&tag](ActionExecutionContext& context) {
@@ -231,11 +231,9 @@ namespace TrenchBroom {
                     [](ActionExecutionContext& context) { return context.hasDocument(); },
                     [](ActionExecutionContext&) { return false; },
                     false,
-                    IO::Path()));
-
-                result.push_back(std::move(action));
+                    IO::Path())));
                 if (tag.canEnable()) {
-                    auto action = std::unique_ptr<Action>(new ActionSub(IO::Path("Tags/Enable/" + tag.name()),
+                    result.push_back(std::unique_ptr<Action>(new ActionSub(IO::Path("Tags/Enable/" + tag.name()),
                         QObject::tr("Enable Tag %1").arg(QString::fromStdString(tag.name())),
                         actionContext, QKeySequence(),
                         [&tag](ActionExecutionContext& context) {
@@ -244,12 +242,10 @@ namespace TrenchBroom {
                         [](ActionExecutionContext& context) { return context.hasDocument(); },
                         [](ActionExecutionContext&) { return false; },
                         false,
-                        IO::Path()));
-
-                    result.push_back(std::move(action));
+                        IO::Path())));
                 }
                 if (tag.canDisable()) {
-                    auto action = std::unique_ptr<Action>(new ActionSub(IO::Path("Tags/Disable/" + tag.name()),
+                    result.push_back(std::unique_ptr<Action>(new ActionSub(IO::Path("Tags/Disable/" + tag.name()),
                         QObject::tr("Disable Tag %1").arg(QString::fromStdString(tag.name())),
                         actionContext, QKeySequence(),
                         [&tag](ActionExecutionContext& context) {
@@ -258,9 +254,7 @@ namespace TrenchBroom {
                         [](ActionExecutionContext& context) { return context.hasDocument(); },
                         [](ActionExecutionContext&) { return false; },
                         false,
-                        IO::Path()));
-
-                    result.push_back(std::move(action));
+                        IO::Path())));
                 }
             }
 
@@ -272,7 +266,7 @@ namespace TrenchBroom {
 
             const auto actionContext = ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool;
             for (const auto* definition : entityDefinitions) {
-                auto action = std::unique_ptr<Action>(new ActionSub(IO::Path("Entity Definitions/Toggle/" + definition->name()),
+                result.push_back(std::unique_ptr<Action>(new ActionSub(IO::Path("Entity Definitions/Toggle/" + definition->name()),
                     QObject::tr("Toggle Entity %1").arg(QString::fromStdString(definition->name())),
                     actionContext, QKeySequence(),
                     [definition](ActionExecutionContext& context) {
@@ -281,11 +275,9 @@ namespace TrenchBroom {
                     [](ActionExecutionContext& context) { return context.hasDocument(); },
                     [](ActionExecutionContext&) { return false; },
                     false,
-                    IO::Path()));
-
-                result.push_back(std::move(action));
+                    IO::Path())));
                 if (definition->name() != Model::AttributeValues::WorldspawnClassname) {
-                    auto action = std::unique_ptr<Action>(new ActionSub(IO::Path("Entity Definitions/Create/" + definition->name()),
+                    result.push_back(std::unique_ptr<Action>(new ActionSub(IO::Path("Entity Definitions/Create/" + definition->name()),
                         QObject::tr("Create Entity %1").arg(QString::fromStdString(definition->name())),
                         actionContext, QKeySequence(),
                         [definition](ActionExecutionContext& context) {
@@ -294,9 +286,7 @@ namespace TrenchBroom {
                         [](ActionExecutionContext& context) { return context.hasDocument(); },
                         [](ActionExecutionContext&) { return false; },
                         false,
-                        IO::Path()));
-
-                    result.push_back(std::move(action));
+                        IO::Path())));
                 }
             }
 
