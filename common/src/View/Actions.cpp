@@ -86,12 +86,12 @@ namespace TrenchBroom {
 
         Action::~Action() = default;
 
-        Action::Action(const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext, const QKeySequence& defaultShortcut, const IO::Path& iconPath) :
-        m_label(label),
-        m_preferencePath(preferencePath),
+        Action::Action(IO::Path preferencePath, QString label, const ActionContext::Type actionContext, QKeySequence defaultShortcut, IO::Path iconPath) :
+        m_label(std::move(label)),
+        m_preferencePath(std::move(preferencePath)),
         m_actionContext(actionContext),
-        m_defaultShortcut(defaultShortcut),
-        m_iconPath(iconPath) {}
+        m_defaultShortcut(std::move(defaultShortcut)),
+        m_iconPath(std::move(iconPath)) {}
 
         const QString& Action::label() const {
             return m_label;
@@ -1455,6 +1455,13 @@ namespace TrenchBroom {
                 }));
         }
 
+        Menu& ActionManager::createMainMenu(const String& name) {
+            auto menu = std::make_unique<Menu>(name, MenuEntryType::Menu_None);
+            auto* result = menu.get();
+            m_mainMenu.emplace_back(std::move(menu));
+            return *result;
+        }
+
         void ActionManager::createToolbar() {
             m_toolBar = std::make_unique<Menu>("Toolbar", MenuEntryType::Menu_None);
             m_toolBar->addItem(existingAction(IO::Path("Controls/Map view/Deactivate current tool")));
@@ -1474,13 +1481,6 @@ namespace TrenchBroom {
             m_toolBar->addItem(existingAction(IO::Path("Menu/Edit/Texture Lock")));
             m_toolBar->addItem(existingAction(IO::Path("Menu/Edit/UV Lock")));
             m_toolBar->addSeparator();
-        }
-
-        Menu& ActionManager::createMainMenu(const String& name) {
-            auto menu = std::make_unique<Menu>(name, MenuEntryType::Menu_None);
-            auto* result = menu.get();
-            m_mainMenu.emplace_back(std::move(menu));
-            return *result;
         }
 
         const Action* ActionManager::existingAction(const IO::Path& preferencePath) const {
