@@ -437,7 +437,8 @@ public:
     /**
      * Removes the items in the range [first, last) from this list and returns a list containing the removed items.
      *
-     * @param first, last the range of items to remove
+     * @param first start of the range of items to remove
+     * @param last end of the range of items to remove
      * @param count the number of items to remove
      * @return a list containing the removed nodes
      */
@@ -458,7 +459,8 @@ public:
     /**
      * Removes the in the range [first, last) from this list without deleting them.
      *
-     * @param first, last the range of items to release
+     * @param first start of the range of items to release
+     * @param last end of the range of items to release
      * @param count the number of items to release
      */
     void release(iterator first, iterator last, const std::size_t count) {
@@ -548,7 +550,8 @@ public:
      *
      * @tparam L the type of the list to splice from
      * @param list the list which the given items should be moved from
-     * @param first, last the range of items to move into this list
+     * @param first start of the range of items to move into this list
+     * @param last end of the range of items to move into this list
      * @param count the number of items to move into this list
      */
     template <typename L>
@@ -563,7 +566,8 @@ public:
      * @tparam L the type of the list to splice from
      * @param position the item before which the items of the given list should be inserted, or null if this list is empty
      * @param list the list which the given items should be moved from
-     * @param list, last the range of items to move into this list
+     * @param first start of the range of items to move into this list
+     * @param last end of the range of items to move into this list
      * @param count the number of items to move into this list
      */
     template <typename L>
@@ -585,7 +589,8 @@ public:
      * the given last item.
      *
      * @tparam L the type of the list to move items from
-     * @param replace_first, replace_last the range of items to replace
+     * @param replace_first start of the range of items to replace
+     * @param replace_last end of the range of items to replace
      * @param replace_count the number of items to replace
      * @param list the list to move items from
      * @return a list containing the replaced items
@@ -600,10 +605,12 @@ public:
      * [replace_first, replace_last) of this list.
      *
      * @tparam L the type of the list to splice from
-     * @param replace_first, replace_last the range of items to replace
+     * @param replace_first start of the range of items to replace
+     * @param replace_last end of the range of items to replace
      * @param replace_count the number of items of this list to replace
      * @param list the list which the given items should be moved from
-     * @param move_first, move_last the range of items to move into this list
+     * @param move_first start of the range of items to move into this list
+     * @param move_last end of the range of items to move into this list
      * @param move_count the number of items to move into this list
      */
     template <typename L>
