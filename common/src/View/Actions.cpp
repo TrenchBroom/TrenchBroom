@@ -222,39 +222,36 @@ namespace TrenchBroom {
 
             const auto actionContext = ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool;
             for (const auto& tag : tags) {
-                result.push_back(std::unique_ptr<Action>(new LambdaAction(IO::Path("Tags/Toggle/" + tag.name()),
+                result.push_back(makeAction(
+                    IO::Path("Tags/Toggle/" + tag.name()),
                     QObject::tr("Toggle Tag %1").arg(QString::fromStdString(tag.name())),
-                    actionContext, QKeySequence(),
+                    actionContext,
                     [&tag](ActionExecutionContext& context) {
                         context.view()->toggleTagVisible(tag);
                     },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); },
-                    [](ActionExecutionContext&) { return false; },
-                    false,
-                    IO::Path())));
+                    [](ActionExecutionContext& context) { return context.hasDocument(); }
+                ));
                 if (tag.canEnable()) {
-                    result.push_back(std::unique_ptr<Action>(new LambdaAction(IO::Path("Tags/Enable/" + tag.name()),
+                    result.push_back(makeAction(
+                        IO::Path("Tags/Enable/" + tag.name()),
                         QObject::tr("Enable Tag %1").arg(QString::fromStdString(tag.name())),
-                        actionContext, QKeySequence(),
+                        actionContext,
                         [&tag](ActionExecutionContext& context) {
                             context.view()->enableTag(tag);
                         },
-                        [](ActionExecutionContext& context) { return context.hasDocument(); },
-                        [](ActionExecutionContext&) { return false; },
-                        false,
-                        IO::Path())));
+                        [](ActionExecutionContext& context) { return context.hasDocument(); }
+                    ));
                 }
                 if (tag.canDisable()) {
-                    result.push_back(std::unique_ptr<Action>(new LambdaAction(IO::Path("Tags/Disable/" + tag.name()),
+                    result.push_back(makeAction(
+                        IO::Path("Tags/Disable/" + tag.name()),
                         QObject::tr("Disable Tag %1").arg(QString::fromStdString(tag.name())),
-                        actionContext, QKeySequence(),
+                        actionContext,
                         [&tag](ActionExecutionContext& context) {
                             context.view()->disableTag(tag);
                         },
-                        [](ActionExecutionContext& context) { return context.hasDocument(); },
-                        [](ActionExecutionContext&) { return false; },
-                        false,
-                        IO::Path())));
+                        [](ActionExecutionContext& context) { return context.hasDocument(); }
+                    ));
                 }
             }
 
@@ -266,27 +263,25 @@ namespace TrenchBroom {
 
             const auto actionContext = ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool;
             for (const auto* definition : entityDefinitions) {
-                result.push_back(std::unique_ptr<Action>(new LambdaAction(IO::Path("Entity Definitions/Toggle/" + definition->name()),
+                result.push_back(makeAction(
+                    IO::Path("Entity Definitions/Toggle/" + definition->name()),
                     QObject::tr("Toggle Entity %1").arg(QString::fromStdString(definition->name())),
-                    actionContext, QKeySequence(),
+                    actionContext,
                     [definition](ActionExecutionContext& context) {
                         context.view()->toggleEntityDefinitionVisible(definition);
                     },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); },
-                    [](ActionExecutionContext&) { return false; },
-                    false,
-                    IO::Path())));
+                    [](ActionExecutionContext& context) { return context.hasDocument(); }
+                ));
                 if (definition->name() != Model::AttributeValues::WorldspawnClassname) {
-                    result.push_back(std::unique_ptr<Action>(new LambdaAction(IO::Path("Entity Definitions/Create/" + definition->name()),
+                    result.push_back(makeAction(
+                        IO::Path("Entity Definitions/Create/" + definition->name()),
                         QObject::tr("Create Entity %1").arg(QString::fromStdString(definition->name())),
-                        actionContext, QKeySequence(),
+                        actionContext,
                         [definition](ActionExecutionContext& context) {
                             context.view()->createEntity(definition);
                         },
-                        [](ActionExecutionContext& context) { return context.hasDocument(); },
-                        [](ActionExecutionContext&) { return false; },
-                        false,
-                        IO::Path())));
+                        [](ActionExecutionContext& context) { return context.hasDocument(); }
+                    ));
                 }
             }
 
