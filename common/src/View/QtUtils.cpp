@@ -50,8 +50,9 @@
 // QDesktopWidget was deprecated in Qt 5.10 and we should use QGuiApplication::screenAt in 5.10 and above
 // Used in centerOnScreen
 #if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
-#include <QApplication>
+#include <QGuiApplication>
 #else
+#include <QApplication>
 #include <QDesktopWidget>
 #endif
 
@@ -146,14 +147,12 @@ namespace TrenchBroom {
 #else
             const auto screenGeometry = QApplication::desktop()->availableGeometry(window);
 #endif
-            if (screen != nullptr) {
-                window->setGeometry(
-                    QStyle::alignedRect(
-                        Qt::LeftToRight,
-                        Qt::AlignCenter,
-                        window->size(),
-                        screenGeometry));
-            }
+            window->setGeometry(
+                QStyle::alignedRect(
+                    Qt::LeftToRight,
+                    Qt::AlignCenter,
+                    window->size(),
+                    screenGeometry));
         }
 
         QWidget* makeDefault(QWidget* widget) {
