@@ -290,7 +290,7 @@ namespace TrenchBroom {
             }
 
             template <class ExecuteFn, class EnabledFn>
-            const Action* createAction(const IO::Path& preferencePath, const QString& label, int actionContext, const QKeySequence& defaultShortcut,
+            const Action* createAction(const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext, const QKeySequence& defaultShortcut,
                                        const ExecuteFn& execute, const EnabledFn& enabled,
                                        const IO::Path& iconPath = IO::Path()) {
 
@@ -311,7 +311,7 @@ namespace TrenchBroom {
             }
 
             template <class ExecuteFn, class EnabledFn, class CheckedFn>
-            const Action* createAction(const IO::Path& preferencePath, const QString& label, int actionContext, const QKeySequence& defaultShortcut,
+            const Action* createAction(const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext, const QKeySequence& defaultShortcut,
                                        const ExecuteFn& execute, const EnabledFn& enabled,
                                        const CheckedFn& checked, const IO::Path& iconPath = IO::Path()) {
                 auto action = std::unique_ptr<Action>(new LambdaAction(
