@@ -25,9 +25,11 @@
 #include "StringSet.h"
 #include "EL/Types.h"
 
-#include <algorithm>
-#include <iterator>
+#include <iosfwd>
+#include <map>
 #include <memory>
+#include <utility>
+#include <vector>
 
 namespace TrenchBroom {
     namespace EL {
@@ -189,7 +191,6 @@ namespace TrenchBroom {
         public:
             static const Value Null;
             static const Value Undefined;
-            using Set = std::set<Value>;
         private:
             using IndexList = std::vector<size_t>;
             using ValuePtr = std::shared_ptr<ValueHolder>;
@@ -261,20 +262,21 @@ namespace TrenchBroom {
             static Value ref(const StringType& value);
         private:
             template <typename T>
-            ArrayType makeArray(const std::vector<T>& value) {
+            ArrayType makeArray(const std::vector<T>& values) {
                 ArrayType result;
-                result.reserve(value.size());
-                std::transform(std::begin(value), std::end(value), std::back_inserter(result),
-                               [](const T& elem) { return EL::Value(elem); });
+                result.reserve(values.size());
+                for (const auto& value : values) {
+                    result.push_back(EL::Value(value));
+                }
                 return result;
             }
 
             template <typename T, typename C>
-            MapType makeMap(const std::map<String, T, C>& value) {
-                using Entry = typename std::map<String, T, C>::value_type;
+            MapType makeMap(const std::map<String, T, C>& values) {
                 MapType result;
-                std::transform(std::begin(value), std::end(value), std::inserter(result, result.begin()),
-                               [](const Entry& entry) { return std::make_pair(entry.first, EL::Value(entry.second)); });
+                for (const auto& entry : values) {
+                    result.insert(std::make_pair(entry.first, EL::Value(entry.second)));
+                }
                 return result;
             }
         public:
