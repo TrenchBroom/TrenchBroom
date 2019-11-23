@@ -22,7 +22,7 @@
 #include "TrenchBroom.h"
 #include "Constants.h"
 #include "CollectionUtils.h"
-#include "Polyhedron.h"
+#include "Polyhedron_Instantiation.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Model/Brush.h"

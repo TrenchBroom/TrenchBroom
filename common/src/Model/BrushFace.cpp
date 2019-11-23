@@ -20,7 +20,7 @@
 #include "BrushFace.h"
 
 #include "Constants.h"
-#include "Polyhedron.h"
+#include "Polyhedron_Instantiation.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "Model/TagMatcher.h"

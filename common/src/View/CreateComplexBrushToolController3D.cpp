@@ -20,7 +20,7 @@
 #include "CreateComplexBrushToolController3D.h"
 
 #include "TrenchBroom.h"
-#include "Polyhedron.h"
+#include "Polyhedron_Instantiation.h"
 #include "Polyhedron3.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"

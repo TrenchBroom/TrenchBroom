@@ -19,7 +19,7 @@
 
 #include "NonIntegerVerticesIssueGenerator.h"
 
-#include "Polyhedron.h"
+#include "Polyhedron_Instantiation.h"
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Issue.h"

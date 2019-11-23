@@ -21,7 +21,7 @@
 
 #include "TestUtils.h"
 
-#include "Polyhedron.h"
+#include "Polyhedron_Instantiation.h"
 #include "Assets/Texture.h"
 #include "IO/DiskIO.h"
 #include "IO/NodeReader.h"

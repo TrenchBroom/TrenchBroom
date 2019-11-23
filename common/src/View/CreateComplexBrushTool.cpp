@@ -18,7 +18,7 @@
  */
 
 #include "CreateComplexBrushTool.h"
-#include "Polyhedron.h"
+#include "Polyhedron_Instantiation.h"
 #include "PreferenceManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"

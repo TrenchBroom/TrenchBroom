@@ -22,9 +22,6 @@
 #include "CollectionUtils.h"
 
 #include "TrenchBroom.h"
-#include "Polyhedron.h"
-#include "Polyhedron_BrushGeometryPayload.h"
-#include "Polyhedron_DefaultPayload.h"
 #include "Polyhedron_Instantiation.h"
 #include "TestUtils.h"
 

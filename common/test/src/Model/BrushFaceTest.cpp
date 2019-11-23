@@ -21,7 +21,7 @@
 
 #include "TrenchBroom.h"
 #include "Exceptions.h"
-#include "Polyhedron.h"
+#include "Polyhedron_Instantiation.h"
 #include "TestUtils.h"
 #include "Assets/Texture.h"
 #include "IO/NodeReader.h"

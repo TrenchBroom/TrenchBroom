@@ -19,7 +19,7 @@
 
 #include "ResizeBrushesToolController.h"
 
-#include "Polyhedron.h"
+#include "Polyhedron_Instantiation.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/BrushFace.h"

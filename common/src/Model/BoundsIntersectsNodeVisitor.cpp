@@ -19,7 +19,7 @@
 
 #include "BoundsIntersectsNodeVisitor.h"
 
-#include "Polyhedron.h"
+#include "Polyhedron_Instantiation.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"

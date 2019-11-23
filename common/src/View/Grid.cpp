@@ -21,7 +21,7 @@
 
 #include "Constants.h"
 #include "CollectionUtils.h"
-#include "Polyhedron.h"
+#include "Polyhedron_Instantiation.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
