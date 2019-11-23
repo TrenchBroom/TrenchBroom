@@ -27,24 +27,35 @@
 #include "View/MapFrame.h"
 #include "View/ViewConstants.h"
 
-#include <QApplication>
+#include <QtGlobal>
+#include <QAbstractButton>
 #include <QBoxLayout>
+#include <QButtonGroup>
 #include <QDebug>
 #include <QDir>
-#include <QDesktopWidget>
 #include <QFont>
+#include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPalette>
 #include <QSettings>
+#include <QScreen>
 #include <QString>
 #include <QStringBuilder>
 #include <QStandardPaths>
-#include <QToolButton>
-#include <QAbstractButton>
-#include <QButtonGroup>
 #include <QTableView>
-#include <QHeaderView>
+#include <QToolButton>
+#include <QWindow>
+
+// QDesktopWidget was deprecated in Qt 5.10 and we should use QGuiApplication::screenAt in 5.10 and above
+// Used in centerOnScreen
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+#include <QGuiApplication>
+#else
+#include <QApplication>
+#include <QDesktopWidget>
+#endif
+
 
 namespace TrenchBroom {
     namespace View {
@@ -76,7 +87,7 @@ namespace TrenchBroom {
 
         QString fileDialogDefaultDirectory(const FileDialogDir dir) {
             const QString key = fileDialogDefaultDirectorySettingsPath(dir);
-            
+
             const QSettings settings;
             const QString defaultDir = settings.value(key).toString();
             return defaultDir;
@@ -127,14 +138,21 @@ namespace TrenchBroom {
         }
 
         void centerOnScreen(QWidget* window) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+            const auto* screen = QGuiApplication::screenAt(window->mapToGlobal({ window->width() / 2, 0 }));
+            if (screen == nullptr) {
+                return;
+            }
+            const auto screenGeometry = screen->availableGeometry();
+#else
+            const auto screenGeometry = QApplication::desktop()->availableGeometry(window);
+#endif
             window->setGeometry(
                 QStyle::alignedRect(
                     Qt::LeftToRight,
                     Qt::AlignCenter,
                     window->size(),
-                    QApplication::desktop()->availableGeometry()
-                )
-            );
+                    screenGeometry));
         }
 
         QWidget* makeDefault(QWidget* widget) {

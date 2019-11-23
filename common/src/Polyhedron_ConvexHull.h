@@ -426,7 +426,8 @@ public:
     /**
      * Replaces the range [first, end) of this seam with the given edge.
      *
-     * @param first, end the range of edges to replace
+     * @param first start of the range of edges to replace
+     * @param end end end of the range of edges to replace
      * @param replacement the replacemenet edge, must not be null
      */
     void replace(typename List::iterator first, typename List::iterator end, Edge* replacement) {
