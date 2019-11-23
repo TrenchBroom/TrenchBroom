@@ -98,12 +98,17 @@ but there are some ways to mitigate the effects.
   
   class X { ... }
   
-  std::ostream& operator<<(std::ostream& s, const X& x);
+  std::ostream& operator<<(std::ostream& s, const X& x) { ... }
   ```
   The stream insertion operator requires that `<ostream>` be included in `X.h`, with the effect that `<ostream>` is
   included wherever `X.h` is included, even if the stream insertion operator is not used in that place. In this case,
   it is useful to split off a header `X_IO.h` that declares the stream insertion operator while removing the 
   `<ostream>` include and the operator declaration from `X.h`.
+  
+  As an alternative when using the std library iostreams, you can include `<iosfwd>` in the header file. `<iosfwd>` has
+  forward declarations for all iostream related types, so it can be used when stream operators are only declared and not
+  implemented in your header file.
+  
 - Use a function template to avoid specifying the std library type directly. Consider the following example: 
 
   ```
