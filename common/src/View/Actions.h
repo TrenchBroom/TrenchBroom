@@ -321,7 +321,7 @@ namespace TrenchBroom {
 
                 auto checkedFn = [](ActionExecutionContext&) { return false; };
                 auto action = std::unique_ptr<Action>(new LambdaAction<ExecuteFn, EnabledFn, decltype(checkedFn)>(
-                    std::move(preferencePath),
+                    preferencePath,
                     std::move(label),
                     std::move(actionContext),
                     std::move(defaultShortcut),
@@ -331,7 +331,7 @@ namespace TrenchBroom {
                     false,
                     std::move(iconPath)));
 
-                auto [it, didInsert] = m_actions.insert({ action->preferencePath(), std::move(action) });
+                auto [it, didInsert] = m_actions.insert({ preferencePath, std::move(action) });
                 ensure(didInsert, "duplicate action name");
                 return it->second.get();
             }
@@ -341,7 +341,7 @@ namespace TrenchBroom {
                                        ExecuteFn execute, EnabledFn enabled,
                                        CheckedFn checked, IO::Path iconPath = IO::Path()) {
                 auto action = std::unique_ptr<Action>(new LambdaAction<ExecuteFn, EnabledFn, CheckedFn>(
-                    std::move(preferencePath),
+                    preferencePath,
                     std::move(label),
                     std::move(actionContext),
                     std::move(defaultShortcut),
@@ -351,7 +351,7 @@ namespace TrenchBroom {
                     true,
                     std::move(iconPath)));
 
-                auto [it, didInsert] = m_actions.insert({ action->preferencePath(), std::move(action) });
+                auto [it, didInsert] = m_actions.insert({ preferencePath, std::move(action) });
                 ensure(didInsert, "duplicate action name");
                 return it->second.get();
             }
