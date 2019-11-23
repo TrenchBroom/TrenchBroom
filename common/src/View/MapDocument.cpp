@@ -262,8 +262,8 @@ namespace TrenchBroom {
         }
 
         void MapDocument::visitActions(const ActionVisitor& visitor, const ActionList& actions) const {
-            for (const auto& action : actions) {
-                visitor(action);
+            for (const std::unique_ptr<Action>& action : actions) {
+                visitor(*action);
             }
         }
 

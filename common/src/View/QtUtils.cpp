@@ -27,15 +27,13 @@
 #include "View/MapFrame.h"
 #include "View/ViewConstants.h"
 
+#include <QtGlobal>
 #include <QAbstractButton>
-#include <QApplication>
 #include <QBoxLayout>
 #include <QButtonGroup>
 #include <QDebug>
 #include <QDir>
-#include <QDesktopWidget>
 #include <QFont>
-#include <QGuiApplication>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
@@ -48,6 +46,16 @@
 #include <QTableView>
 #include <QToolButton>
 #include <QWindow>
+
+// QDesktopWidget was deprecated in Qt 5.10 and we should use QGuiApplication::screenAt in 5.10 and above
+// Used in centerOnScreen
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+#include <QGuiApplication>
+#else
+#include <QApplication>
+#include <QDesktopWidget>
+#endif
+
 
 namespace TrenchBroom {
     namespace View {
@@ -130,16 +138,21 @@ namespace TrenchBroom {
         }
 
         void centerOnScreen(QWidget* window) {
-            const auto position = window->mapToGlobal({ window->width() / 2, 0 });
-            const auto* screen = QGuiApplication::screenAt(position);
-            if (screen != nullptr) {
-                window->setGeometry(
-                    QStyle::alignedRect(
-                        Qt::LeftToRight,
-                        Qt::AlignCenter,
-                        window->size(),
-                        screen->availableGeometry()));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+            const auto* screen = QGuiApplication::screenAt(window->mapToGlobal({ window->width() / 2, 0 }));
+            if (screen == nullptr) {
+                return;
             }
+            const auto screenGeometry = screen->availableGeometry();
+#else
+            const auto screenGeometry = QApplication::desktop()->availableGeometry(window);
+#endif
+            window->setGeometry(
+                QStyle::alignedRect(
+                    Qt::LeftToRight,
+                    Qt::AlignCenter,
+                    window->size(),
+                    screenGeometry));
         }
 
         QWidget* makeDefault(QWidget* widget) {

@@ -1538,7 +1538,8 @@ private:
      * and the given points.
      *
      * @tparam I the type of the given iterators
-     * @param cur, end the range of points to add to this polyhedron
+     * @param cur start of the range of points to add
+     * @param end end of the range of points to add
      */
     template <typename I> void addPoints(I cur, I end);
 
@@ -1548,7 +1549,8 @@ private:
      * and the given points.
      *
      * @tparam I the type of the given iterators
-     * @param cur, end the range of points to add to this polyhedron
+     * @param cur start of the range of points to add
+     * @param end end of the range of points to add
      * @param callback the callback to inform of lifecycle events
      */
     template <typename I> void addPoints(I cur, I end, Callback& callback);
@@ -2063,7 +2065,7 @@ public: // Intersection
      * Clips this polyhedron with all faces of the given polyhedron. The result is the intersection of this and
      * the given polyhedron. This polyhedron remains unchanged.
      *
-     * @param polyhedron the polyhedron to clip with
+     * @param other the polyhedron to clip with
      * @param callback the callback to use when determining the normals of the given subtrahend's faces
      * @return the result of the clipping operation
      * @throw GeometryException if the polyhedron cannot be intersected with any face of the given polyhedron

@@ -84,18 +84,14 @@ namespace TrenchBroom {
 
         // Action
 
-        Action::Action(const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext, const QKeySequence& defaultShortcut,
-            const Action::ExecuteFn& execute, const Action::EnabledFn& enabled, const Action::CheckedFn& checked,
-            const IO::Path& iconPath) :
-        m_label(label),
-        m_preferencePath(preferencePath),
+        Action::~Action() = default;
+
+        Action::Action(IO::Path preferencePath, QString label, const ActionContext::Type actionContext, QKeySequence defaultShortcut, IO::Path iconPath) :
+        m_label(std::move(label)),
+        m_preferencePath(std::move(preferencePath)),
         m_actionContext(actionContext),
-        m_defaultShortcut(defaultShortcut),
-        m_execute(execute),
-        m_enabled(enabled),
-        m_checkable(static_cast<bool>(checked)),
-        m_checked(checked),
-        m_iconPath(iconPath) {}
+        m_defaultShortcut(std::move(defaultShortcut)),
+        m_iconPath(std::move(iconPath)) {}
 
         const QString& Action::label() const {
             return m_label;
@@ -123,25 +119,6 @@ namespace TrenchBroom {
 
         void Action::resetKeySequence() const {
             setKeySequence(m_defaultShortcut);
-        }
-
-        void Action::execute(ActionExecutionContext& context) const {
-            if (enabled(context)) {
-                m_execute(context);
-            }
-        }
-
-        bool Action::enabled(ActionExecutionContext& context) const {
-            return context.hasActionContext(m_actionContext) && m_enabled(context);
-        }
-
-        bool Action::checkable() const {
-            return m_checkable;
-        }
-
-        bool Action::checked(ActionExecutionContext& context) const {
-            assert(checkable());
-            return m_checked(context);
         }
 
         bool Action::hasIcon() const {
@@ -240,71 +217,71 @@ namespace TrenchBroom {
             return instance;
         }
 
-        std::list<Action> ActionManager::createTagActions(const std::list<Model::SmartTag>& tags) const {
-            std::list<Action> result;
+        std::vector<std::unique_ptr<Action>> ActionManager::createTagActions(const std::list<Model::SmartTag>& tags) const {
+            std::vector<std::unique_ptr<Action>> result;
 
             const auto actionContext = ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool;
             for (const auto& tag : tags) {
-                result.emplace_back(IO::Path("Tags/Toggle/" + tag.name()),
+                result.push_back(makeAction(
+                    IO::Path("Tags/Toggle/" + tag.name()),
                     QObject::tr("Toggle Tag %1").arg(QString::fromStdString(tag.name())),
-                    actionContext, QKeySequence(),
+                    actionContext,
                     [&tag](ActionExecutionContext& context) {
                         context.view()->toggleTagVisible(tag);
                     },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); },
-                    Action::CheckedFn(),
-                    IO::Path());
+                    [](ActionExecutionContext& context) { return context.hasDocument(); }
+                ));
                 if (tag.canEnable()) {
-                    result.emplace_back(IO::Path("Tags/Enable/" + tag.name()),
+                    result.push_back(makeAction(
+                        IO::Path("Tags/Enable/" + tag.name()),
                         QObject::tr("Enable Tag %1").arg(QString::fromStdString(tag.name())),
-                        actionContext, QKeySequence(),
+                        actionContext,
                         [&tag](ActionExecutionContext& context) {
                             context.view()->enableTag(tag);
                         },
-                        [](ActionExecutionContext& context) { return context.hasDocument(); },
-                        Action::CheckedFn(),
-                        IO::Path());
+                        [](ActionExecutionContext& context) { return context.hasDocument(); }
+                    ));
                 }
                 if (tag.canDisable()) {
-                    result.emplace_back(IO::Path("Tags/Disable/" + tag.name()),
+                    result.push_back(makeAction(
+                        IO::Path("Tags/Disable/" + tag.name()),
                         QObject::tr("Disable Tag %1").arg(QString::fromStdString(tag.name())),
-                        actionContext, QKeySequence(),
+                        actionContext,
                         [&tag](ActionExecutionContext& context) {
                             context.view()->disableTag(tag);
                         },
-                        [](ActionExecutionContext& context) { return context.hasDocument(); },
-                        Action::CheckedFn(),
-                        IO::Path());
+                        [](ActionExecutionContext& context) { return context.hasDocument(); }
+                    ));
                 }
             }
 
             return result;
         }
 
-        std::list<Action> ActionManager::createEntityDefinitionActions(const std::vector<Assets::EntityDefinition*>& entityDefinitions) const {
-            std::list<Action> result;
+        std::vector<std::unique_ptr<Action>> ActionManager::createEntityDefinitionActions(const std::vector<Assets::EntityDefinition*>& entityDefinitions) const {
+            std::vector<std::unique_ptr<Action>> result;
 
             const auto actionContext = ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool;
             for (const auto* definition : entityDefinitions) {
-                result.emplace_back(IO::Path("Entity Definitions/Toggle/" + definition->name()),
+                result.push_back(makeAction(
+                    IO::Path("Entity Definitions/Toggle/" + definition->name()),
                     QObject::tr("Toggle Entity %1").arg(QString::fromStdString(definition->name())),
-                    actionContext, QKeySequence(),
+                    actionContext,
                     [definition](ActionExecutionContext& context) {
                         context.view()->toggleEntityDefinitionVisible(definition);
                     },
-                    [](ActionExecutionContext& context) { return context.hasDocument(); },
-                    Action::CheckedFn(),
-                    IO::Path());
+                    [](ActionExecutionContext& context) { return context.hasDocument(); }
+                ));
                 if (definition->name() != Model::AttributeValues::WorldspawnClassname) {
-                    result.emplace_back(IO::Path("Entity Definitions/Create/" + definition->name()),
+                    result.push_back(makeAction(
+                        IO::Path("Entity Definitions/Create/" + definition->name()),
                         QObject::tr("Create Entity %1").arg(QString::fromStdString(definition->name())),
-                        actionContext, QKeySequence(),
+                        actionContext,
                         [definition](ActionExecutionContext& context) {
                             context.view()->createEntity(definition);
                         },
-                        [](ActionExecutionContext& context) { return context.hasDocument(); },
-                        Action::CheckedFn(),
-                        IO::Path());
+                        [](ActionExecutionContext& context) { return context.hasDocument(); }
+                    ));
                 }
             }
 
@@ -1478,6 +1455,13 @@ namespace TrenchBroom {
                 }));
         }
 
+        Menu& ActionManager::createMainMenu(const String& name) {
+            auto menu = std::make_unique<Menu>(name, MenuEntryType::Menu_None);
+            auto* result = menu.get();
+            m_mainMenu.emplace_back(std::move(menu));
+            return *result;
+        }
+
         void ActionManager::createToolbar() {
             m_toolBar = std::make_unique<Menu>("Toolbar", MenuEntryType::Menu_None);
             m_toolBar->addItem(existingAction(IO::Path("Controls/Map view/Deactivate current tool")));
@@ -1497,77 +1481,6 @@ namespace TrenchBroom {
             m_toolBar->addItem(existingAction(IO::Path("Menu/Edit/Texture Lock")));
             m_toolBar->addItem(existingAction(IO::Path("Menu/Edit/UV Lock")));
             m_toolBar->addSeparator();
-        }
-
-        const Action* ActionManager::createMenuAction(const IO::Path& preferencePath, const QString& label, const int key, const Action::ExecuteFn& execute,
-                                                      const Action::EnabledFn& enabled,
-                                                      const IO::Path& iconPath) {
-            return createAction(preferencePath, label, ActionContext::Any, QKeySequence(key), execute, enabled, Action::CheckedFn(), iconPath);
-        }
-
-        const Action* ActionManager::createMenuAction(const IO::Path& preferencePath, const QString& label, const int key, const Action::ExecuteFn& execute,
-                                                      const Action::EnabledFn& enabled,
-                                                      const Action::CheckedFn& checked,
-                                                      const IO::Path& iconPath) {
-            return createAction(preferencePath, label, ActionContext::Any, QKeySequence(key), execute, enabled, checked, iconPath);
-        }
-
-        const Action* ActionManager::createMenuAction(const IO::Path& preferencePath, const QString& label, const QKeySequence::StandardKey key,
-                                                      const Action::ExecuteFn& execute,
-                                                      const Action::EnabledFn& enabled,
-                                                      const IO::Path& iconPath) {
-            return createAction(preferencePath, label, ActionContext::Any, QKeySequence(key), execute, enabled, Action::CheckedFn(), iconPath);
-        }
-
-        const Action* ActionManager::createMenuAction(const IO::Path& preferencePath, const QString& label, const QKeySequence::StandardKey key,
-                                                      const Action::ExecuteFn& execute,
-                                                      const Action::EnabledFn& enabled,
-                                                      const Action::CheckedFn& checked,
-                                                      const IO::Path& iconPath) {
-            return createAction(preferencePath, label, ActionContext::Any, QKeySequence(key), execute, enabled, checked, iconPath);
-        }
-
-        const Action* ActionManager::createAction(const IO::Path& preferencePath, const QString& label, const int actionContext,
-            const QKeySequence& defaultShortcut, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
-            const IO::Path& iconPath) {
-            auto action = std::make_unique<Action>(
-                preferencePath,
-                label,
-                actionContext,
-                defaultShortcut,
-                execute,
-                enabled,
-                Action::CheckedFn(),
-                iconPath);
-
-            auto [it, didInsert] = m_actions.insert({preferencePath, std::move(action)});
-            ensure(didInsert, "duplicate action name");
-            return it->second.get();
-        }
-
-        const Action* ActionManager::createAction(const IO::Path& preferencePath, const QString& label, const int actionContext,
-            const QKeySequence& defaultShortcut, const Action::ExecuteFn& execute, const Action::EnabledFn& enabled,
-            const Action::CheckedFn& checked, const IO::Path& iconPath) {
-            auto action = std::make_unique<Action>(
-                preferencePath,
-                label,
-                actionContext,
-                defaultShortcut,
-                execute,
-                enabled,
-                checked,
-                iconPath);
-
-            auto [it, didInsert] = m_actions.insert({preferencePath, std::move(action)});
-            ensure(didInsert, "duplicate action name");
-            return it->second.get();
-        }
-
-        Menu& ActionManager::createMainMenu(const String& name) {
-            auto menu = std::make_unique<Menu>(name, MenuEntryType::Menu_None);
-            auto* result = menu.get();
-            m_mainMenu.emplace_back(std::move(menu));
-            return *result;
         }
 
         const Action* ActionManager::existingAction(const IO::Path& preferencePath) const {

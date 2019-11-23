@@ -100,9 +100,6 @@ macro(configure_app_target APP_TARGET_NAME)
         # Set the path to the plist template
         set_target_properties(${APP_TARGET_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${APP_RESOURCE_DIR}/mac/TrenchBroom-Info.plist")
 
-        # Configure the XCode generator project
-        set_xcode_attributes(${APP_TARGET_NAME})
-
         # If requested, run macdeployqt which copies the Qt frameworks into the TrenchBroom.app bundle
         # and modifies the TrenchBroom executable to refer to these private copies of the framework instead
         # of the ones in /usr/local. This is slow so only do it if requested.
