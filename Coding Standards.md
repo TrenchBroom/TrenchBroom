@@ -77,6 +77,21 @@ program state must be ensured if any function called by a command throws an exce
   using IntToListOfStringPairs = std::map<int, std::vector<std::pair<String, String>>>;
   ```
 
+# Compilation Times
+Follow these rules to keep compilation times as low as possible:
+- Avoid including headers in other headers. Remember that including a header B in another header A includes B in every
+  file that includes A. This can really lead to an explosion of inclusions because this process is recursive.
+  - Use forward declarations instead.
+  - Split off a part of a header into a separate header, e.g. declare some functions separately if they must include
+    large headers. See the next item for more details.
+- Avoid including std library headers. Since names in std cannot be forward declared, this is sometimes unavoidable,
+  but there are some ways to mitigate the effects.
+  - Split off parts of a header into a separate header. As an example, take a header `X.h` that declares some class `X` 
+    along with `std::ostream& operator<<(std::ostream& s, const X& x)`. This output operator requires that `<ostream>` 
+    be included `X.h`. This leads to a lot of includes of `<ostream>` wherever `X.h` is included, even if the stream 
+    operators are only used in one place. In such a case, it might be useful to split off a header `X_IO.h` that
+    declares the IO operators. Then, `<ostream>` can be removed from `X.h`.
+
 # Misc
 - Unused function parameters should be commented out, e.g.:
 
