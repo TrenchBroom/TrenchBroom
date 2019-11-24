@@ -19,7 +19,10 @@
 
 #include "CompilationContext.h"
 
+#include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
+#include "EL/Value.h"
+#include "EL/Types.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -42,7 +45,7 @@ namespace TrenchBroom {
         }
 
         String CompilationContext::variableValue(const String& variableName) const {
-            return m_variables.value(variableName).convertTo(EL::Type_String).stringValue();
+            return m_variables.value(variableName).convertTo(EL::ValueType::Type_String).stringValue();
         }
     }
 }

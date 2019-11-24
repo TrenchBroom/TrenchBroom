@@ -20,12 +20,15 @@
 #ifndef GameEngineConfigWriter_h
 #define GameEngineConfigWriter_h
 
-#include "EL.h"
 #include "Macros.h"
 
 #include <iosfwd>
 
 namespace TrenchBroom {
+    namespace EL {
+        class Value;
+    }
+
     namespace Model {
         class GameEngineConfig;
         class GameEngineProfile;

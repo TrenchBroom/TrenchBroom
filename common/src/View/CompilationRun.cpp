@@ -19,6 +19,7 @@
 
 #include "CompilationRun.h"
 
+#include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
 #include "Model/CompilationProfile.h"
 #include "Model/Game.h"

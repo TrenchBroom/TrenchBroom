@@ -37,7 +37,7 @@ namespace TrenchBroom {
         using MapType = std::map<String, Value>;
         using RangeType = std::vector<long>;
 
-        typedef enum {
+        enum class ValueType {
             Type_Boolean,
             Type_String,
             Type_Number,
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             Type_Range,
             Type_Null,
             Type_Undefined
-        } ValueType;
+        };
 
         String typeName(ValueType type);
         ValueType typeForName(const String& type);

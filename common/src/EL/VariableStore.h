@@ -20,8 +20,11 @@
 #ifndef VariableStore_h
 #define VariableStore_h
 
+#include "StringSet.h"
 #include "StringType.h"
 #include "EL/Value.h"
+
+#include <map>
 
 namespace TrenchBroom {
     namespace EL {
@@ -39,7 +42,7 @@ namespace TrenchBroom {
             size_t size() const;
             Value value(const String& name) const;
             const StringSet names() const;
-            void declare(const String& name, const Value& value = Value::Undefined);
+            void declare(const String& name, const Value& value);
             void assign(const String& name, const Value& value);
         private:
             virtual VariableStore* doClone() const = 0;

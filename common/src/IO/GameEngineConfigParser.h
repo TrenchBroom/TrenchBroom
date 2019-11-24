@@ -22,7 +22,6 @@
 
 #include "Macros.h"
 #include "StringType.h"
-#include "EL.h"
 #include "IO/ConfigParserBase.h"
 #include "IO/Path.h"
 #include "Model/GameEngineConfig.h"

@@ -25,21 +25,21 @@ namespace TrenchBroom {
     namespace EL {
         String typeName(const ValueType type) {
             switch (type) {
-                case Type_Boolean:
+                case ValueType::Type_Boolean:
                     return "Boolean";
-                case Type_String:
+                case ValueType::Type_String:
                     return "String";
-                case Type_Number:
+                case ValueType::Type_Number:
                     return "Number";
-                case Type_Array:
+                case ValueType::Type_Array:
                     return "Array";
-                case Type_Map:
+                case ValueType::Type_Map:
                     return "Map";
-                case Type_Range:
+                case ValueType::Type_Range:
                     return "Range";
-                case Type_Null:
+                case ValueType::Type_Null:
                     return "Null";
-                case Type_Undefined:
+                case ValueType::Type_Undefined:
                     return "Undefined";
                     switchDefault()
             }
@@ -47,21 +47,21 @@ namespace TrenchBroom {
 
         ValueType typeForName(const String& type) {
             if (type == "Boolean")
-                return Type_Boolean;
+                return ValueType::Type_Boolean;
             if (type == "String")
-                return Type_String;
+                return ValueType::Type_String;
             if (type == "Number")
-                return Type_Number;
+                return ValueType::Type_Number;
             if (type == "Array")
-                return Type_Array;
+                return ValueType::Type_Array;
             if (type == "Map")
-                return Type_Map;
+                return ValueType::Type_Map;
             if (type == "Range")
-                return Type_Range;
+                return ValueType::Type_Range;
             if (type == "Undefined")
-                return Type_Undefined;
+                return ValueType::Type_Undefined;
             assert(false);
-            return Type_Null;
+            return ValueType::Type_Null;
         }
     }
 }

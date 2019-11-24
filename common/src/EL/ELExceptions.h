@@ -21,10 +21,13 @@
 #define ELExceptions_h
 
 #include "Exceptions.h"
-#include "EL/Types.h"
+#include "StringType.h"
 
 namespace TrenchBroom {
     namespace EL {
+        class Value;
+        enum class ValueType;
+
         class Exception : public ExceptionStream<Exception> {
         public:
             using ExceptionStream::ExceptionStream;
@@ -32,12 +35,12 @@ namespace TrenchBroom {
 
         class ConversionError : public Exception {
         public:
-            ConversionError(const String& value, const ValueType from, const ValueType to);
+            ConversionError(const String& value, ValueType from, ValueType to);
         };
 
         class DereferenceError : public Exception {
         public:
-            DereferenceError(const String& value, const ValueType from, const ValueType to);
+            DereferenceError(const String& value, ValueType from, ValueType to);
         };
 
         class EvaluationError : public Exception {

@@ -20,7 +20,7 @@
 #include "ELParser.h"
 
 #include "CollectionUtils.h"
-#include "EL.h"
+#include "EL/Expression.h"
 
 namespace TrenchBroom {
     namespace IO {

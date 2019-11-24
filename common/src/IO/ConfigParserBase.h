@@ -21,11 +21,16 @@
 #define ConfigParserBase_h
 
 #include "StringType.h"
-#include "EL.h"
 #include "IO/ELParser.h"
 #include "IO/Path.h"
 
 namespace TrenchBroom {
+    namespace EL {
+        class Expression;
+        class Value;
+        enum class ValueType;
+    }
+
     namespace IO {
         class ConfigParserBase {
         private:

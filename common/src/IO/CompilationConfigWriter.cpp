@@ -19,6 +19,8 @@
 
 #include "CompilationConfigWriter.h"
 
+#include "EL/Value.h"
+#include "EL/Types.h"
 #include "Model/CompilationConfig.h"
 #include "Model/CompilationProfile.h"
 

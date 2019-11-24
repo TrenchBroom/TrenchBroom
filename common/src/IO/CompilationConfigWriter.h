@@ -20,12 +20,16 @@
 #ifndef CompilationConfigWriter_h
 #define CompilationConfigWriter_h
 
-#include "EL.h"
 #include "Macros.h"
+#include "StringType.h"
 
 #include <iosfwd>
 
 namespace TrenchBroom {
+    namespace EL {
+        class Value;
+    }
+
     namespace Model {
         class CompilationConfig;
         class CompilationProfile;

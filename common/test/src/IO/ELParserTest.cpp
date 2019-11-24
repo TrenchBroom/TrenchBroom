@@ -19,8 +19,11 @@
 
 #include <gtest/gtest.h>
 
-#include "EL.h"
 #include "CollectionUtils.h"
+#include "EL/ELExceptions.h"
+#include "EL/EvaluationContext.h"
+#include "EL/Expression.h"
+#include "EL/Value.h"
 #include "IO/ELParser.h"
 
 #include <limits>

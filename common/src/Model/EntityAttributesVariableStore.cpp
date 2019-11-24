@@ -19,6 +19,8 @@
 
 #include "EntityAttributesVariableStore.h"
 
+#include "EL/ELExceptions.h"
+#include "EL/Value.h"
 #include "Model/EntityAttributes.h"
 
 namespace TrenchBroom {

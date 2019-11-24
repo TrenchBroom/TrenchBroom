@@ -20,6 +20,9 @@
 #include "CompilationConfigParser.h"
 
 #include "CollectionUtils.h"
+#include "EL/EvaluationContext.h"
+#include "EL/Expression.h"
+#include "EL/Value.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -31,7 +34,7 @@ namespace TrenchBroom {
 
         Model::CompilationConfig CompilationConfigParser::parse() {
             const EL::Value root = parseConfigFile().evaluate(EL::EvaluationContext());
-            expectType(root, EL::Type_Map);
+            expectType(root, EL::ValueType::Type_Map);
 
             expectStructure(root, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
 
@@ -83,7 +86,7 @@ namespace TrenchBroom {
         }
 
         Model::CompilationTask* CompilationConfigParser::parseTask(const EL::Value& value) const {
-            expectMapEntry(value, "type", EL::Type_String);
+            expectMapEntry(value, "type", EL::ValueType::Type_String);
             const String& type = value["type"].stringValue();
 
             if (type == "export")

@@ -203,7 +203,7 @@ namespace TrenchBroom {
             ArrayType array;
             for (const ExpressionBase* element : m_elements) {
                 const Value value = element->evaluate(context);
-                if (value.type() == Type_Range) {
+                if (value.type() == ValueType::Type_Range) {
                     const RangeType& range = value.rangeValue();
                     array.reserve(array.size() + range.size());
                     for (size_t i = 0; i < range.size(); ++i)
@@ -951,8 +951,8 @@ namespace TrenchBroom {
             const Value leftValue = m_leftOperand->evaluate(context);
             const Value rightValue = m_rightOperand->evaluate(context);
 
-            const long from = static_cast<long>(leftValue.convertTo(Type_Number).numberValue());
-            const long to = static_cast<long>(rightValue.convertTo(Type_Number).numberValue());
+            const long from = static_cast<long>(leftValue.convertTo(ValueType::Type_Number).numberValue());
+            const long to = static_cast<long>(rightValue.convertTo(ValueType::Type_Number).numberValue());
 
             RangeType range;
             if (from <= to) {
@@ -994,7 +994,7 @@ namespace TrenchBroom {
 
         Value CaseOperator::doEvaluate(const EvaluationContext& context) const {
             const Value premise = m_leftOperand->evaluate(context);
-            if (premise.convertTo(Type_Boolean))
+            if (premise.convertTo(ValueType::Type_Boolean))
                 return m_rightOperand->evaluate(context);
             return Value::Undefined;
         }

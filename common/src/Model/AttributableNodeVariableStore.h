@@ -21,7 +21,7 @@
 #define AttributableNodeVariableStore_h
 
 #include "Macros.h"
-#include "EL.h"
+#include "EL/VariableStore.h"
 
 namespace TrenchBroom {
     namespace Model {
