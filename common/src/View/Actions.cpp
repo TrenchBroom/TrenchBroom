@@ -86,12 +86,12 @@ namespace TrenchBroom {
 
         Action::~Action() = default;
 
-        Action::Action(IO::Path preferencePath, QString label, const ActionContext::Type actionContext, QKeySequence defaultShortcut, IO::Path iconPath) :
-        m_label(std::move(label)),
-        m_preferencePath(std::move(preferencePath)),
+        Action::Action(const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext, const QKeySequence& defaultShortcut, const IO::Path& iconPath) :
+        m_label(label),
+        m_preferencePath(preferencePath),
         m_actionContext(actionContext),
-        m_defaultShortcut(std::move(defaultShortcut)),
-        m_iconPath(std::move(iconPath)) {}
+        m_defaultShortcut(defaultShortcut),
+        m_iconPath(iconPath) {}
 
         const QString& Action::label() const {
             return m_label;
