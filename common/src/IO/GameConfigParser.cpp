@@ -38,7 +38,7 @@ namespace TrenchBroom {
             using Model::GameConfig;
 
             const auto root = parseConfigFile().evaluate(EL::EvaluationContext());
-            expectType(root, EL::ValueType::Type_Map);
+            expectType(root, EL::ValueType::Map);
 
             const auto expectedVersion = 3.0;
             const auto actualVersion = root["version"].numberValue();
@@ -169,11 +169,11 @@ namespace TrenchBroom {
 
             const String& typeStr = value["type"].stringValue();
             if (typeStr == "file") {
-                expectMapEntry(value, "format", EL::ValueType::Type_Map);
+                expectMapEntry(value, "format", EL::ValueType::Map);
                 const GameConfig::PackageFormatConfig formatConfig = parsePackageFormatConfig(value["format"]);
                 return GameConfig::TexturePackageConfig(formatConfig);
             } else if (typeStr == "directory") {
-                expectMapEntry(value, "root", EL::ValueType::Type_String);
+                expectMapEntry(value, "root", EL::ValueType::String);
                 const Path root(value["root"].stringValue());
                 return GameConfig::TexturePackageConfig(root);
             } else {
@@ -290,25 +290,25 @@ namespace TrenchBroom {
                 auto match = entry["match"].stringValue();
 
                 if (match == "texture") {
-                    expectMapEntry(entry, "pattern", EL::ValueType::Type_String);
+                    expectMapEntry(entry, "pattern", EL::ValueType::String);
                     auto pattern = entry["pattern"].stringValue();
                     auto attribs = parseTagAttributes(entry["attribs"]);
                     auto matcher = std::make_unique<Model::TextureNameTagMatcher>(std::move(pattern));
                     result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
                 } else if (match == "surfaceparm") {
-                    expectMapEntry(entry, "pattern", EL::ValueType::Type_String);
+                    expectMapEntry(entry, "pattern", EL::ValueType::String);
                     auto pattern = entry["pattern"].stringValue();
                     auto attribs = parseTagAttributes(entry["attribs"]);
                     auto matcher = std::make_unique<Model::SurfaceParmTagMatcher>(std::move(pattern));
                     result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
                 } else if (match == "contentflag") {
-                    expectMapEntry(entry, "flags", EL::ValueType::Type_Array);
+                    expectMapEntry(entry, "flags", EL::ValueType::Array);
                     const auto flagValue = parseFlagValue(entry["flags"], faceAttribsConfig.contentFlags);
                     auto attribs = parseTagAttributes(entry["attribs"]);
                     auto matcher = std::make_unique<Model::ContentFlagsTagMatcher>(flagValue);
                     result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
                 } else if (match == "surfaceflag") {
-                    expectMapEntry(entry, "flags", EL::ValueType::Type_Array);
+                    expectMapEntry(entry, "flags", EL::ValueType::Array);
                     const auto flagValue = parseFlagValue(entry["flags"], faceAttribsConfig.surfaceFlags);
                     auto attribs = parseTagAttributes(entry["attribs"]);
                     auto matcher = std::make_unique<Model::SurfaceFlagsTagMatcher>(flagValue);

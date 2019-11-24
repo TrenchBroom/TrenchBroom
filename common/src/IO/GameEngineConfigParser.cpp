@@ -35,7 +35,7 @@ namespace TrenchBroom {
 
         Model::GameEngineConfig GameEngineConfigParser::parse() {
             const EL::Value root = parseConfigFile().evaluate(EL::EvaluationContext());
-            expectType(root, EL::ValueType::Type_Map);
+            expectType(root, EL::ValueType::Map);
 
             expectStructure(root, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
 

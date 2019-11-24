@@ -116,18 +116,18 @@ namespace TrenchBroom {
 
         ModelSpecification ModelDefinition::convertToModel(const EL::Value& value) const {
             switch (value.type()) {
-                case EL::ValueType::Type_Map:
+                case EL::ValueType::Map:
                     return ModelSpecification( path(value["path"]),
                                               index(value["skin"]),
                                               index(value["frame"]));
-                case EL::ValueType::Type_String:
+                case EL::ValueType::String:
                     return ModelSpecification(path(value));
-                case EL::ValueType::Type_Boolean:
-                case EL::ValueType::Type_Number:
-                case EL::ValueType::Type_Array:
-                case EL::ValueType::Type_Range:
-                case EL::ValueType::Type_Null:
-                case EL::ValueType::Type_Undefined:
+                case EL::ValueType::Boolean:
+                case EL::ValueType::Number:
+                case EL::ValueType::Array:
+                case EL::ValueType::Range:
+                case EL::ValueType::Null:
+                case EL::ValueType::Undefined:
                     break;
             }
 
@@ -135,16 +135,16 @@ namespace TrenchBroom {
         }
 
         IO::Path ModelDefinition::path(const EL::Value& value) const {
-            if (value.type() != EL::ValueType::Type_String)
+            if (value.type() != EL::ValueType::String)
                 return IO::Path();
             const String& path = value.stringValue();
             return IO::Path(StringUtils::isPrefix(path, ":") ? path.substr(1) : path);
         }
 
         size_t ModelDefinition::index(const EL::Value& value) const {
-            if (!value.convertibleTo(EL::ValueType::Type_Number))
+            if (!value.convertibleTo(EL::ValueType::Number))
                 return 0;
-            const EL::IntegerType intValue = value.convertTo(EL::ValueType::Type_Number).integerValue();
+            const EL::IntegerType intValue = value.convertTo(EL::ValueType::Number).integerValue();
             return static_cast<size_t>(std::max(0l, intValue));
         }
     }

@@ -34,7 +34,7 @@ namespace TrenchBroom {
 
         Model::CompilationConfig CompilationConfigParser::parse() {
             const EL::Value root = parseConfigFile().evaluate(EL::EvaluationContext());
-            expectType(root, EL::ValueType::Type_Map);
+            expectType(root, EL::ValueType::Map);
 
             expectStructure(root, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
 
@@ -86,7 +86,7 @@ namespace TrenchBroom {
         }
 
         Model::CompilationTask* CompilationConfigParser::parseTask(const EL::Value& value) const {
-            expectMapEntry(value, "type", EL::ValueType::Type_String);
+            expectMapEntry(value, "type", EL::ValueType::String);
             const String& type = value["type"].stringValue();
 
             if (type == "export")

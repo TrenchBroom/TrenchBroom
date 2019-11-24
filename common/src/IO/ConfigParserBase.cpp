@@ -49,13 +49,13 @@ namespace TrenchBroom {
         void ConfigParserBase::expectStructure(const EL::Value& value, const String& structure) const {
             ELParser parser(ELParser::Mode::Strict, structure);
             const auto expected = parser.parse().evaluate(EL::EvaluationContext());
-            assert(expected.type() == EL::ValueType::Type_Array);
+            assert(expected.type() == EL::ValueType::Array);
 
             const auto& mandatory = expected[0];
-            assert(mandatory.type() == EL::ValueType::Type_Map);
+            assert(mandatory.type() == EL::ValueType::Map);
 
             const auto& optional = expected[1];
-            assert(optional.type() == EL::ValueType::Type_Map);
+            assert(optional.type() == EL::ValueType::Map);
 
             // Are all mandatory keys present?
             for (const auto& key : mandatory.keys()) {

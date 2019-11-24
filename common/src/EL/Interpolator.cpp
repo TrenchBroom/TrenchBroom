@@ -32,7 +32,7 @@ namespace TrenchBroom {
                 m_tokenizer.appendUntil("${", result);
                 if (!m_tokenizer.eof()) {
                     Expression expression = parse();
-                    result << expression.evaluate(context).convertTo(EL::ValueType::Type_String).stringValue();
+                    result << expression.evaluate(context).convertTo(EL::ValueType::String).stringValue();
                     expect(IO::ELToken::CBrace, m_tokenizer.nextToken());
                 }
             }

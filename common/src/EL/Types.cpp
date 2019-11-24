@@ -25,21 +25,21 @@ namespace TrenchBroom {
     namespace EL {
         String typeName(const ValueType type) {
             switch (type) {
-                case ValueType::Type_Boolean:
+                case ValueType::Boolean:
                     return "Boolean";
-                case ValueType::Type_String:
+                case ValueType::String:
                     return "String";
-                case ValueType::Type_Number:
+                case ValueType::Number:
                     return "Number";
-                case ValueType::Type_Array:
+                case ValueType::Array:
                     return "Array";
-                case ValueType::Type_Map:
+                case ValueType::Map:
                     return "Map";
-                case ValueType::Type_Range:
+                case ValueType::Range:
                     return "Range";
-                case ValueType::Type_Null:
+                case ValueType::Null:
                     return "Null";
-                case ValueType::Type_Undefined:
+                case ValueType::Undefined:
                     return "Undefined";
                     switchDefault()
             }
@@ -47,21 +47,21 @@ namespace TrenchBroom {
 
         ValueType typeForName(const String& type) {
             if (type == "Boolean")
-                return ValueType::Type_Boolean;
+                return ValueType::Boolean;
             if (type == "String")
-                return ValueType::Type_String;
+                return ValueType::String;
             if (type == "Number")
-                return ValueType::Type_Number;
+                return ValueType::Number;
             if (type == "Array")
-                return ValueType::Type_Array;
+                return ValueType::Array;
             if (type == "Map")
-                return ValueType::Type_Map;
+                return ValueType::Map;
             if (type == "Range")
-                return ValueType::Type_Range;
+                return ValueType::Range;
             if (type == "Undefined")
-                return ValueType::Type_Undefined;
+                return ValueType::Undefined;
             assert(false);
-            return ValueType::Type_Null;
+            return ValueType::Null;
         }
     }
 }

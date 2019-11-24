@@ -38,14 +38,14 @@ namespace TrenchBroom {
         using RangeType = std::vector<long>;
 
         enum class ValueType {
-            Type_Boolean,
-            Type_String,
-            Type_Number,
-            Type_Array,
-            Type_Map,
-            Type_Range,
-            Type_Null,
-            Type_Undefined
+            Boolean,
+            String,
+            Number,
+            Array,
+            Map,
+            Range,
+            Null,
+            Undefined
         };
 
         String typeName(ValueType type);

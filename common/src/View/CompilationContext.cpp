@@ -45,7 +45,7 @@ namespace TrenchBroom {
         }
 
         String CompilationContext::variableValue(const String& variableName) const {
-            return m_variables.value(variableName).convertTo(EL::ValueType::Type_String).stringValue();
+            return m_variables.value(variableName).convertTo(EL::ValueType::String).stringValue();
         }
     }
 }

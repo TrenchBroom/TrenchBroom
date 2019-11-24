@@ -60,7 +60,7 @@ namespace TrenchBroom {
         }
 
         void AttributableNodeVariableStore::doAssign(const String& name, const EL::Value& value) {
-            const EL::Value stringELValue = value.convertTo(EL::ValueType::Type_String);
+            const EL::Value stringELValue = value.convertTo(EL::ValueType::String);
             m_node->addOrUpdateAttribute(name, StringUtils::toString(stringELValue));
         }
     }
