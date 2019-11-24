@@ -20,6 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "CollectionUtils.h"
+#include "Exceptions.h"
 #include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"

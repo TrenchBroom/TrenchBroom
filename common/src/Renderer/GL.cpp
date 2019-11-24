@@ -19,6 +19,8 @@
 
 #include "GL.h"
 
+#include "Exceptions.h"
+
 namespace TrenchBroom {
     void glCheckError(const String& msg) {
         const GLenum error = glGetError();

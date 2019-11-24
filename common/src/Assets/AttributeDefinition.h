@@ -21,7 +21,6 @@
 #define TrenchBroom_AttributeDefinition
 
 #include "StringType.h"
-#include "Exceptions.h"
 
 #include <optional-lite/optional.hpp>
 #include <vector>
@@ -77,11 +76,7 @@ namespace TrenchBroom {
             }
 
             const T& defaultValue() const {
-                if (!hasDefaultValue()) {
-                    throw EntityAttributeException(name() + " has no default value");
-                } else {
-                    return *m_defaultValue;
-                }
+                return *m_defaultValue;
             }
         protected:
             AttributeDefinitionWithDefaultValue(const String& name, Type type, const String& shortDescription, const String& longDescription, bool readOnly, nonstd::optional<T> defaultValue = nonstd::nullopt) :

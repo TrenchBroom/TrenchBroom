@@ -19,6 +19,7 @@
 
 #include "GLContextManager.h"
 
+#include "Exceptions.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/GL.h"
 #include "Renderer/ShaderManager.h"

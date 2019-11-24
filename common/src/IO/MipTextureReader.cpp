@@ -21,12 +21,11 @@
 
 #include "Color.h"
 #include "Ensure.h"
-#include "StringUtils.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
-#include "IO/Path.h"
+#include "IO/ReaderException.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -70,7 +69,7 @@ namespace TrenchBroom {
             const auto name = textureName(basename, path);
             try {
                 auto reader = file->reader().buffer();
-                
+
                 // This is unused, we use the one from the wad directory (they're usually the same,
                 // but could be different in broken .wad's.)
                 reader.readString(MipLayout::TextureNameLength);

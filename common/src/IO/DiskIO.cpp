@@ -19,10 +19,11 @@
 
 #include "DiskIO.h"
 
+#include "Exceptions.h"
+#include "StringUtils.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/PathQt.h"
-#include "StringUtils.h"
 
 #include <QDir>
 #include <QFileInfo>

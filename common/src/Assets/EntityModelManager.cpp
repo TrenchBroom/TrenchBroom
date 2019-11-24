@@ -19,6 +19,7 @@
 
 #include "EntityModelManager.h"
 
+#include "Exceptions.h"
 #include "Logger.h"
 #include "Macros.h"
 #include "Assets/EntityModel.h"
@@ -28,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        EntityModelManager::EntityModelManager(int magFilter, int minFilter, Logger& logger) :
+        EntityModelManager::EntityModelManager(const int magFilter, const int minFilter, Logger& logger) :
         m_logger(logger),
         m_loader(nullptr),
         m_minFilter(minFilter),

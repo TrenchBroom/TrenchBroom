@@ -19,6 +19,7 @@
 
 #include "File.h"
 
+#include "Exceptions.h"
 #include "IO/IOUtils.h"
 
 namespace TrenchBroom {

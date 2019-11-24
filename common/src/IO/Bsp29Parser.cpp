@@ -19,7 +19,9 @@
 
 #include "Bsp29Parser.h"
 
-#include <Assets/EntityModel.h>
+#include "Exceptions.h"
+#include "StringStream.h"
+#include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
 #include "IO/File.h"
@@ -28,7 +30,6 @@
 #include "IO/IdMipTextureReader.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
-#include "StringStream.h"
 
 namespace TrenchBroom {
     namespace IO {
