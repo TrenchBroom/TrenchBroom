@@ -87,9 +87,11 @@
   In general, it is preferable to not delete the parameter name and it should be done with care.
 
 # Features
-- We use C++17
+- We use C++17.
 - The entire source code and test cases must compile without warnings.
 - Everything that can be const should be const: methods, parameters and variables.
+- Move semantics should be used when it makes sense from a performance perspective. Generally, parameters should be
+  taken by const reference, const pointer or by value rather than by rvalue reference or forwarding reference.
 - Use RAII where possible.
 - Avoid raw pointers unless they are confined to a method, class, or subsystem.
   Don't return raw pointers from public methods. Favor references and smart
