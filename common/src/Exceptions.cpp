@@ -21,9 +21,32 @@
 
 Exception::Exception() noexcept {}
 
-Exception::Exception(const std::string& str) noexcept :
-m_msg(str) {}
+Exception::Exception(std::string&& str) noexcept :
+m_msg(std::move(str)) {}
 
 const char* Exception::what() const noexcept {
     return m_msg.c_str();
 }
+
+ParserException::ParserException(const size_t line, const size_t column, const std::string& str) {
+    *this << "At line " << line << ", column " << column << ":";
+    if (!str.empty()) {
+        *this << " " << str;
+    }
+}
+
+ParserException::ParserException(const size_t line, const std::string& str) {
+    *this << "At line " << line << ":";
+    if (!str.empty()) {
+        *this << " " << str;
+    }
+}
+
+FileSystemException::FileSystemException(const std::string& str, const PathException& e) :
+ExceptionStream(str + " (" + e.what() + ")") {}
+
+FileNotFoundException::FileNotFoundException(const std::string& path) :
+ExceptionStream("File not found: '" + path + "'") {}
+
+FileNotFoundException::FileNotFoundException(const std::string& path, const PathException& e) :
+ExceptionStream("File not found: '" + path + "' (" + e.what() + ")") {}

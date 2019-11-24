@@ -22,11 +22,8 @@
 #include "IO/DiskIO.h"
 
 namespace TrenchBroom {
-    RecoverableException::RecoverableException(const std::string& str) :
-    Exception(str) {}
-
-    FileDeletingException::FileDeletingException(const std::string& str, const IO::Path& path) noexcept :
-    RecoverableException(str),
+    FileDeletingException::FileDeletingException(std::string&& str, const IO::Path& path) :
+    RecoverableException(std::move(str)),
     m_path(path) {}
 
     std::string_view FileDeletingException::query() const {

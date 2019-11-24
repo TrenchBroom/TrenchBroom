@@ -29,7 +29,7 @@ protected:
     std::string m_msg;
 public:
     Exception() noexcept;
-    explicit Exception(const std::string& str) noexcept;
+    explicit Exception(std::string&& str) noexcept;
 
     const char* what() const noexcept override;
 };
@@ -40,13 +40,13 @@ public:
     ExceptionStream() noexcept :
     Exception() {}
 
-    explicit ExceptionStream(const std::string& str) noexcept :
-    Exception(str) {}
+    explicit ExceptionStream(std::string&& str) noexcept :
+    Exception(std::move(str)) {}
 
     template <typename T>
-    C& operator<< (T value) {
+    C& operator<< (T&& value) {
         std::stringstream stream;
-        stream << m_msg << value;
+        stream << m_msg << std::forward<T>(value);
         m_msg = stream.str();
         return static_cast<C&>(*this);
     }
@@ -65,20 +65,8 @@ public:
 class ParserException : public ExceptionStream<ParserException> {
 public:
     using ExceptionStream::ExceptionStream;
-    ParserException(const size_t line, const size_t column, const std::string& str = "") noexcept :
-    ExceptionStream() {
-        *this << "At line " << line << ", column " << column << ":";
-        if (!str.empty()) {
-            *this << " " << str;
-        }
-    }
-
-    explicit ParserException(const size_t line, const std::string& str = "") noexcept : ExceptionStream() {
-        *this << "At line " << line << ":";
-        if (!str.empty()) {
-            *this << " " << str;
-        }
-    }
+    ParserException(const size_t line, const size_t column, const std::string& str = "");
+    explicit ParserException(const size_t line, const std::string& str = "");
 };
 
 class VboException : public ExceptionStream<VboException> {
@@ -94,14 +82,14 @@ public:
 class FileSystemException : public ExceptionStream<FileSystemException> {
 public:
     using ExceptionStream::ExceptionStream;
-    FileSystemException(const std::string& str, const PathException& e) noexcept : ExceptionStream(str + " (" + e.what() + ")") {}
+    FileSystemException(const std::string& str, const PathException& e);
 };
 
 class FileNotFoundException : public ExceptionStream<FileNotFoundException> {
 public:
     using ExceptionStream::ExceptionStream;
-    FileNotFoundException(const std::string& path) noexcept : ExceptionStream("File not found: '" + path + "'") {}
-    FileNotFoundException(const std::string& path, const PathException& e) noexcept : ExceptionStream("File not found: '" + path + "' (" + e.what() + ")") {}
+    FileNotFoundException(const std::string& path);
+    FileNotFoundException(const std::string& path, const PathException& e);
 };
 
 class AssetException : public ExceptionStream<AssetException> {
