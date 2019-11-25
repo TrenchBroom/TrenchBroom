@@ -36,7 +36,7 @@ namespace TrenchBroom {
         }
 
         void GroupSnapshot::takeSnapshot(Group* group) {
-            const NodeList& children = group->children();
+            const auto& children = group->children();
 
             TakeSnapshotVisitor visitor;
             Node::acceptAndRecurse(std::begin(children), std::end(children), visitor);

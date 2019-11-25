@@ -24,6 +24,8 @@
 #include "Model/ModelTypes.h"
 
 #include <cstdio>
+#include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -32,7 +34,7 @@ namespace TrenchBroom {
 
         class NodeWriter {
         private:
-            using EntityBrushesMap = std::map<Model::Entity*, Model::BrushList>;
+            using EntityBrushesMap = std::map<Model::Entity*, std::vector<Model::Brush*>>;
             class CollectEntityBrushesStrategy;
             class WriteNode;
 
@@ -49,9 +51,9 @@ namespace TrenchBroom {
             void writeCustomLayers();
             void writeCustomLayer(Model::Layer* layer);
         public:
-            void writeNodes(const Model::NodeList& nodes);
+            void writeNodes(const std::vector<Model::Node*>& nodes);
         private:
-            void writeWorldBrushes(const Model::BrushList& brushes);
+            void writeWorldBrushes(const std::vector<Model::Brush*>& brushes);
             void writeEntityBrushes(const EntityBrushesMap& entityBrushes);
         public:
             void writeBrushFaces(const Model::BrushFaceList& faces);

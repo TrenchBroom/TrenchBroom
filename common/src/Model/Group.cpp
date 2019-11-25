@@ -20,7 +20,6 @@
 #include "Group.h"
 
 #include "TrenchBroom.h"
-#include "Model/TagMatcher.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/Brush.h"
@@ -37,6 +36,8 @@
 #include "Model/TagVisitor.h"
 
 #include <vecmath/ray.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -184,7 +185,7 @@ namespace TrenchBroom {
             // See: https://github.com/kduske/TrenchBroom/issues/2742
         }
 
-        void Group::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
+        void Group::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) {
             if (logicalBounds().contains(point)) {
                 result.push_back(this);
             }

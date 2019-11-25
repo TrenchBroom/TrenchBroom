@@ -19,6 +19,7 @@
 
 #include "GameImpl.h"
 
+#include "Exceptions.h"
 #include "Macros.h"
 #include "Assets/Palette.h"
 #include "IO/AseParser.h"
@@ -52,7 +53,7 @@
 #include "Model/Layer.h"
 #include "Model/World.h"
 
-#include "Exceptions.h"
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -156,7 +157,7 @@ namespace TrenchBroom {
             }
         }
 
-        NodeList GameImpl::doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
+        std::vector<Node*> GameImpl::doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             IO::NodeReader reader(str, world);
             return reader.read(worldBounds, parserStatus);
@@ -168,7 +169,7 @@ namespace TrenchBroom {
             return reader.read(worldBounds, parserStatus);
         }
 
-        void GameImpl::doWriteNodesToStream(World& world, const Model::NodeList& nodes, std::ostream& stream) const {
+        void GameImpl::doWriteNodesToStream(World& world, const std::vector<Node*>& nodes, std::ostream& stream) const {
             IO::NodeWriter writer(world, stream);
             writer.writeNodes(nodes);
         }

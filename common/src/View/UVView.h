@@ -31,6 +31,8 @@
 #include "View/UVViewHelper.h"
 #include "View/ViewTypes.h"
 
+#include <vector>
+
 class QWidget;
 
 namespace TrenchBroom {
@@ -82,7 +84,7 @@ namespace TrenchBroom {
 
             void selectionDidChange(const Selection& selection);
             void documentWasCleared(MapDocument* document);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void brushFacesDidChange(const Model::BrushFaceList& faces);
             void gridDidChange();
             void cameraDidChange(const Renderer::Camera* camera);

@@ -22,6 +22,8 @@
 
 #include "Model/ModelTypes.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class MapFacade;
@@ -29,7 +31,7 @@ namespace TrenchBroom {
         class PushSelection {
         private:
             MapFacade* m_facade;
-            NodeList m_nodes;
+            std::vector<Node*> m_nodes;
             BrushFaceList m_faces;
         public:
             template <typename T>

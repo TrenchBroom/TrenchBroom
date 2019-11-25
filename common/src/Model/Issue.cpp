@@ -58,7 +58,7 @@ namespace TrenchBroom {
             bool operator()(const Model::Brush*) const         { return true; }
         };
 
-        bool Issue::addSelectableNodes(const EditorContext& /* editorContext */, Model::NodeList& nodes) const {
+        bool Issue::addSelectableNodes(const EditorContext& /* editorContext */, std::vector<Model::Node*>& nodes) const {
             if (m_node->parent() == nullptr) {
                 return false;
             }

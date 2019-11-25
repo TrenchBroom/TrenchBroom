@@ -30,6 +30,7 @@
 #include <vecmath/polygon.h>
 
 #include <tuple>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -95,7 +96,7 @@ namespace TrenchBroom {
         private:
             void bindObservers();
             void unbindObservers();
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void selectionDidChange(const Selection& selection);
         };
     }

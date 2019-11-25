@@ -25,10 +25,10 @@
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
-#include "StringUtils.h"
 #include "VectorUtilsMinimal.h"
 
-#include <cassert>
+#include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -57,8 +57,8 @@ namespace TrenchBroom {
             IssueQuickFix(PointEntityWithBrushesIssue::Type, "Move brushes to world") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const override {
-                NodeList affectedNodes;
-                ParentChildrenMap nodesToReparent;
+                std::vector<Node*> affectedNodes;
+                std::map<Node*, std::vector<Node*>> nodesToReparent;
 
                 for (const Issue* issue : issues) {
                     Node* node = issue->node();

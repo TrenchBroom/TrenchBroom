@@ -26,7 +26,6 @@
 #include "TemporarilySetAny.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
-#include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
@@ -39,7 +38,6 @@
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SelectionBoundsRenderer.h"
-#include "View/Animation.h"
 #include "View/CameraAnimation.h"
 #include "View/CameraTool3D.h"
 #include "View/ClipToolController.h"
@@ -53,7 +51,6 @@
 #include "View/FlyModeHelper.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
-#include "View/MapDocument.h"
 #include "View/MapViewToolBox.h"
 #include "View/MoveObjectsToolController.h"
 #include "View/ResizeBrushesToolController.h"
@@ -343,7 +340,7 @@ namespace TrenchBroom {
             }
         };
 
-        vm::vec3 MapView3D::focusCameraOnObjectsPosition(const Model::NodeList& nodes) {
+        vm::vec3 MapView3D::focusCameraOnObjectsPosition(const std::vector<Model::Node*>& nodes) {
             ComputeCameraCenterPositionVisitor center(vm::vec3(m_camera.position()), vm::vec3(m_camera.direction()));
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), center);
 

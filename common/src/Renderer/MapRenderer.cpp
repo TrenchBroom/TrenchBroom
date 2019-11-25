@@ -19,13 +19,11 @@
 
 #include "MapRenderer.h"
 
-#include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
@@ -402,7 +400,7 @@ namespace TrenchBroom {
                 m_lockedRenderer->invalidate();
         }
 
-        void MapRenderer::invalidateBrushesInRenderers(Renderer renderers, const Model::BrushList& brushes) {
+        void MapRenderer::invalidateBrushesInRenderers(Renderer renderers, const std::vector<Model::Brush*>& brushes) {
             if ((renderers & Renderer_Default) != 0) {
                 m_defaultRenderer->invalidateBrushes(brushes);
             }
@@ -484,24 +482,24 @@ namespace TrenchBroom {
             updateRenderers(Renderer_All);
         }
 
-        void MapRenderer::nodesWereAdded(const Model::NodeList&) {
+        void MapRenderer::nodesWereAdded(const std::vector<Model::Node*>&) {
             updateRenderers(Renderer_Default);
         }
 
-        void MapRenderer::nodesWereRemoved(const Model::NodeList&) {
+        void MapRenderer::nodesWereRemoved(const std::vector<Model::Node*>&) {
             updateRenderers(Renderer_Default);
         }
 
-        void MapRenderer::nodesDidChange(const Model::NodeList&) {
+        void MapRenderer::nodesDidChange(const std::vector<Model::Node*>&) {
             invalidateRenderers(Renderer_Selection);
             invalidateEntityLinkRenderer();
         }
 
-        void MapRenderer::nodeVisibilityDidChange(const Model::NodeList&) {
+        void MapRenderer::nodeVisibilityDidChange(const std::vector<Model::Node*>&) {
             invalidateRenderers(Renderer_All);
         }
 
-        void MapRenderer::nodeLockingDidChange(const Model::NodeList&) {
+        void MapRenderer::nodeLockingDidChange(const std::vector<Model::Node*>&) {
             updateRenderers(Renderer_Default_Locked);
         }
 
@@ -542,8 +540,8 @@ namespace TrenchBroom {
             }
         }
 
-        Model::BrushSet MapRenderer::collectBrushes(const Model::BrushFaceList& faces) {
-            Model::BrushSet result;
+        std::set<Model::Brush*> MapRenderer::collectBrushes(const Model::BrushFaceList& faces) {
+            std::set<Model::Brush*> result;
             for (const Model::BrushFace* face : faces)
                 result.insert(face->brush());
             return result;

@@ -26,6 +26,9 @@
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
+#include <map>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Renderer {
         class BrushRenderer;
@@ -114,8 +117,8 @@ namespace TrenchBroom {
             ClipSide m_clipSide;
             ClipStrategy* m_strategy;
 
-            Model::ParentChildrenMap m_frontBrushes;
-            Model::ParentChildrenMap m_backBrushes;
+            std::map<Model::Node*, std::vector<Model::Node*>> m_frontBrushes;
+            std::map<Model::Node*, std::vector<Model::Node*>> m_backBrushes;
 
             Renderer::BrushRenderer* m_remainingBrushRenderer;
             Renderer::BrushRenderer* m_clippedBrushRenderer;
@@ -143,7 +146,7 @@ namespace TrenchBroom {
             bool canClip() const;
             void performClip();
         private:
-            Model::ParentChildrenMap clipBrushes();
+            std::map<Model::Node*, std::vector<Model::Node*>> clipBrushes();
         public:
 
             vm::vec3 defaultClipPointPos() const;
@@ -173,7 +176,7 @@ namespace TrenchBroom {
 
             void clearRenderers();
             void updateRenderers();
-            void addBrushesToRenderer(const Model::ParentChildrenMap& map, Renderer::BrushRenderer* renderer);
+            void addBrushesToRenderer(const std::map<Model::Node*, std::vector<Model::Node*>>& map, Renderer::BrushRenderer* renderer);
 
             bool keepFrontBrushes() const;
             bool keepBackBrushes() const;
@@ -186,8 +189,8 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             void selectionDidChange(const Selection& selection);
-            void nodesWillChange(const Model::NodeList& nodes);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesWillChange(const std::vector<Model::Node*>& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void facesDidChange(const Model::BrushFaceList& nodes);
         };
     }

@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
-
 #include <gtest/gtest.h>
 
 #include "Model/Brush.h"
@@ -28,7 +26,6 @@
 #include "Model/Layer.h"
 #include "Model/World.h"
 #include "View/MapDocumentTest.h"
-#include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -50,7 +47,7 @@ namespace TrenchBroom {
 
             // select the brush
             document->select(brush);
-            ASSERT_EQ(Model::BrushList{brush}, document->selectedNodes().brushes());
+            ASSERT_EQ(std::vector<Model::Brush*>({ brush }), document->selectedNodes().brushes());
 
             // translate the brush
             document->translateObjects(vm::vec3(10.0, 0.0, 0.0));
@@ -60,11 +57,11 @@ namespace TrenchBroom {
 
             document->undoLastCommand();
             ASSERT_EQ(vm::vec3::zero(), brush->logicalBounds().center());
-            ASSERT_EQ(Model::BrushList{brush}, document->selectedNodes().brushes());
+            ASSERT_EQ(std::vector<Model::Brush*>({ brush }), document->selectedNodes().brushes());
             ASSERT_EQ(Model::BrushFaceList{}, document->selectedBrushFaces());
 
             document->undoLastCommand();
-            ASSERT_EQ(Model::BrushList{}, document->selectedNodes().brushes());
+            ASSERT_EQ(std::vector<Model::Brush*>({}), document->selectedNodes().brushes());
             ASSERT_EQ(Model::BrushFaceList{}, document->selectedBrushFaces());
 
             document->undoLastCommand();

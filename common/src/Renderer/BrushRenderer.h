@@ -30,6 +30,7 @@
 #include <memory>
 #include <tuple>
 #include <unordered_map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -178,11 +179,11 @@ namespace TrenchBroom {
             /**
              * New brushes are invalidated, brushes already in the BrushRenderer are not invalidated.
              */
-            void addBrushes(const Model::BrushList& brushes);
+            void addBrushes(const std::vector<Model::Brush*>& brushes);
             /**
              * New brushes are invalidated, brushes already in the BrushRenderer are not invalidated.
              */
-            void setBrushes(const Model::BrushList& brushes);
+            void setBrushes(const std::vector<Model::Brush*>& brushes);
             void clear();
 
             /**
@@ -196,7 +197,7 @@ namespace TrenchBroom {
              * maps will be empty, so the BrushRenderer will not have any lingering Texture* pointers.
              */
             void invalidate();
-            void invalidateBrushes(const Model::BrushList& brushes);
+            void invalidateBrushes(const std::vector<Model::Brush*>& brushes);
             bool valid() const;
 
             /**

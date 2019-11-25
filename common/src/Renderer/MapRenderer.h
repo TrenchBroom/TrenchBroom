@@ -27,6 +27,7 @@
 
 #include <map>
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -109,7 +110,7 @@ namespace TrenchBroom {
              */
             void updateRenderers(Renderer renderers);
             void invalidateRenderers(Renderer renderers);
-            void invalidateBrushesInRenderers(Renderer renderers, const Model::BrushList& brushes);
+            void invalidateBrushesInRenderers(Renderer renderers, const std::vector<Model::Brush*>& brushes);
             void invalidateEntityLinkRenderer();
             void reloadEntityModels();
         private: // notification
@@ -119,12 +120,12 @@ namespace TrenchBroom {
             void documentWasCleared(View::MapDocument* document);
             void documentWasNewedOrLoaded(View::MapDocument* document);
 
-            void nodesWereAdded(const Model::NodeList& nodes);
-            void nodesWereRemoved(const Model::NodeList& nodes);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesWereAdded(const std::vector<Model::Node*>& nodes);
+            void nodesWereRemoved(const std::vector<Model::Node*>& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
 
-            void nodeVisibilityDidChange(const Model::NodeList& nodes);
-            void nodeLockingDidChange(const Model::NodeList& nodes);
+            void nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes);
+            void nodeLockingDidChange(const std::vector<Model::Node*>& nodes);
 
             void groupWasOpened(Model::Group* group);
             void groupWasClosed(Model::Group* group);
@@ -132,7 +133,7 @@ namespace TrenchBroom {
             void brushFacesDidChange(const Model::BrushFaceList& faces);
 
             void selectionDidChange(const View::Selection& selection);
-            Model::BrushSet collectBrushes(const Model::BrushFaceList& faces);
+            std::set<Model::Brush*> collectBrushes(const Model::BrushFaceList& faces);
 
             void textureCollectionsWillChange();
             void entityDefinitionsDidChange();

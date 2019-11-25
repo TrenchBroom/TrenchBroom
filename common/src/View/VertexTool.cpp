@@ -29,7 +29,9 @@
 #include "View/VertexCommand.h"
 
 #include <cassert>
+#include <set>
 #include <tuple>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -38,15 +40,15 @@ namespace TrenchBroom {
         m_mode(Mode_Move),
         m_guideRenderer(document) {}
 
-        Model::BrushSet VertexTool::findIncidentBrushes(const vm::vec3& handle) const {
+        std::set<Model::Brush*> VertexTool::findIncidentBrushes(const vm::vec3& handle) const {
             return findIncidentBrushes(m_vertexHandles, handle);
         }
 
-        Model::BrushSet VertexTool::findIncidentBrushes(const vm::segment3& handle) const {
+        std::set<Model::Brush*> VertexTool::findIncidentBrushes(const vm::segment3& handle) const {
             return findIncidentBrushes(m_edgeHandles, handle);
         }
 
-        Model::BrushSet VertexTool::findIncidentBrushes(const vm::polygon3& handle) const {
+        std::set<Model::Brush*> VertexTool::findIncidentBrushes(const vm::polygon3& handle) const {
             return findIncidentBrushes(m_faceHandles, handle);
         }
 
@@ -110,17 +112,17 @@ namespace TrenchBroom {
 
                 const MapDocument::MoveVerticesResult result = document->moveVertices(brushMap, delta);
                 if (result.success) {
-					if (!result.hasRemainingVertices) {
-						return MR_Cancel;
-					} else {
-						m_dragHandlePosition = m_dragHandlePosition + delta;
-						return MR_Continue;
-					}
-				} else {
-					return MR_Deny;
-				}
+                    if (!result.hasRemainingVertices) {
+                        return MR_Cancel;
+                    } else {
+                        m_dragHandlePosition = m_dragHandlePosition + delta;
+                        return MR_Continue;
+                    }
+                } else {
+                    return MR_Deny;
+                }
             } else {
-                Model::BrushSet brushes;
+                std::set<Model::Brush*> brushes;
                 if (m_mode == Mode_Split_Edge) {
                     if (m_edgeHandles.selectedHandleCount() == 1) {
                         const vm::segment3 handle = m_edgeHandles.selectedHandles().front();
@@ -158,7 +160,7 @@ namespace TrenchBroom {
             m_mode = Mode_Move;
         }
         void VertexTool::cancelMove() {
-			VertexToolBase::cancelMove();
+            VertexToolBase::cancelMove();
             m_edgeHandles.deselectAll();
             m_faceHandles.deselectAll();
             m_mode = Mode_Move;
@@ -211,7 +213,7 @@ namespace TrenchBroom {
             m_edgeHandles.clear();
             m_faceHandles.clear();
 
-            const Model::BrushList& brushes = selectedBrushes();
+            const std::vector<Model::Brush*>& brushes = selectedBrushes();
             m_edgeHandles.addHandles(std::begin(brushes), std::end(brushes));
             m_faceHandles.addHandles(std::begin(brushes), std::end(brushes));
 
@@ -227,7 +229,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void VertexTool::addHandles(const Model::NodeList& nodes) {
+        void VertexTool::addHandles(const std::vector<Model::Node*>& nodes) {
             AddHandles<vm::vec3> addVertexHandles(m_vertexHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), addVertexHandles);
 
@@ -238,7 +240,7 @@ namespace TrenchBroom {
             Model::Node::accept(std::begin(nodes), std::end(nodes), addFaceHandles);
         }
 
-        void VertexTool::removeHandles(const Model::NodeList& nodes) {
+        void VertexTool::removeHandles(const std::vector<Model::Node*>& nodes) {
             RemoveHandles<vm::vec3> removeVertexHandles(m_vertexHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), removeVertexHandles);
 

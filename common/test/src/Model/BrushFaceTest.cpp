@@ -44,6 +44,7 @@
 #include <vecmath/mat_ext.h>
 
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -533,7 +534,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            NodeList nodes = reader.read(worldBounds, status);
+            std::vector<Node*> nodes = reader.read(worldBounds, status);
             Brush* pyramidLight = static_cast<Brush*>(nodes.at(0)->children().at(0));
             ASSERT_NE(nullptr, pyramidLight);
 
@@ -589,7 +590,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            NodeList nodes = reader.read(worldBounds, status);
+            std::vector<Node*> nodes = reader.read(worldBounds, status);
             Brush* pyramidLight = static_cast<Brush*>(nodes.at(0)->children().at(0));
             ASSERT_NE(nullptr, pyramidLight);
 
@@ -649,7 +650,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            NodeList nodes = reader.read(worldBounds, status);
+            std::vector<Node*> nodes = reader.read(worldBounds, status);
             Brush* brush = static_cast<Brush*>(nodes.at(0)->children().at(0));
             ASSERT_NE(nullptr, brush);
 

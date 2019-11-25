@@ -23,6 +23,8 @@
 #include "Model/ModelTypes.h"
 #include "View/RemoveBrushElementsCommand.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class Snapshot;
@@ -38,7 +40,7 @@ namespace TrenchBroom {
         public:
             static Ptr remove(const Model::VertexToBrushesMap& vertices);
         private:
-            RemoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions);
+            RemoveBrushVerticesCommand(const std::vector<Model::Brush*>& brushes, const Model::BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions);
         public:
             void selectNewHandlePositions(VertexHandleManager& manager) const;
             void selectOldHandlePositions(VertexHandleManager& manager) const;

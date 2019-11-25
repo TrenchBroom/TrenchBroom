@@ -20,13 +20,15 @@
 #include "ModelUtils.h"
 #include "Model/CollectNodesVisitor.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
-        NodeList collectParents(const NodeList& nodes) {
+        std::vector<Node*> collectParents(const std::vector<Node*>& nodes) {
             return collectParents(std::begin(nodes), std::end(nodes));
         }
 
-        NodeList collectParents(const ParentChildrenMap& nodes) {
+        std::vector<Node*> collectParents(const std::map<Node*, std::vector<Node*>>& nodes) {
             CollectUniqueNodesVisitor visitor;
             for (const auto& entry : nodes) {
                 Node* parent = entry.first;
@@ -35,16 +37,16 @@ namespace TrenchBroom {
             return visitor.nodes();
         }
 
-        NodeList collectChildren(const ParentChildrenMap& nodes) {
-            NodeList result;
+        std::vector<Node*> collectChildren(const std::map<Node*, std::vector<Node*>>& nodes) {
+            std::vector<Node*> result;
             for (const auto& entry : nodes) {
-                const NodeList& children = entry.second;
+                const std::vector<Node*>& children = entry.second;
                 VectorUtils::append(result, children);
             }
             return result;
         }
 
-        NodeList collectDescendants(const Model::NodeList& nodes) {
+        std::vector<Node*> collectDescendants(const std::vector<Node*>& nodes) {
             CollectNodesVisitor visitor;
             for (const auto* node : nodes) {
                 node->recurse(visitor);
@@ -52,8 +54,8 @@ namespace TrenchBroom {
             return visitor.nodes();
         }
 
-        ParentChildrenMap parentChildrenMap(const NodeList& nodes) {
-            ParentChildrenMap result;
+        std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes) {
+            std::map<Node*, std::vector<Node*>> result;
 
             for (Node* node : nodes) {
                 Node* parent = node->parent();

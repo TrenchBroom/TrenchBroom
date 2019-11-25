@@ -24,7 +24,8 @@
 #include "Model/IssueQuickFix.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"
-#include "View/QtUtils.h"
+
+#include <vector>
 
 #include <QHBoxLayout>
 #include <QTableView>
@@ -111,7 +112,7 @@ namespace TrenchBroom {
         void IssueBrowserView::updateSelection() {
             MapDocumentSPtr document = lock(m_document);
 
-            Model::NodeList nodes;
+            std::vector<Model::Node*> nodes;
             for (Model::Issue* issue : collectIssues(getSelection())) {
                 if (!issue->addSelectableNodes(document->editorContext(), nodes)) {
                     nodes.clear();

@@ -31,7 +31,6 @@
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
-#include "Renderer/RenderUtils.h"
 #include "Renderer/TextAnchor.h"
 #include "Renderer/GLVertexType.h"
 
@@ -40,6 +39,8 @@
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 #include <vecmath/scalar.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -75,7 +76,7 @@ namespace TrenchBroom {
         m_showAngles(false),
         m_showHiddenEntities(false) {}
 
-        void EntityRenderer::setEntities(const Model::EntityList& entities) {
+        void EntityRenderer::setEntities(const std::vector<Model::Entity*>& entities) {
             m_entities = entities;
             m_modelRenderer.setEntities(std::begin(m_entities), std::end(m_entities));
             invalidate();

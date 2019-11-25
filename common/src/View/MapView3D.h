@@ -26,6 +26,8 @@
 #include "View/MapViewBase.h"
 #include "View/ViewTypes.h"
 
+#include <vector>
+
 class QKeyEvent;
 
 namespace TrenchBroom {
@@ -87,7 +89,7 @@ namespace TrenchBroom {
 
             class ComputeCameraCenterPositionVisitor;
             class ComputeCameraCenterOffsetVisitor;
-            vm::vec3 focusCameraOnObjectsPosition(const Model::NodeList& nodes);
+            vm::vec3 focusCameraOnObjectsPosition(const std::vector<Model::Node*>& nodes);
 
             void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
             void animateCamera(const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up, const int duration = DefaultCameraAnimationDuration);

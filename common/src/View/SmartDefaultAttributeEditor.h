@@ -22,6 +22,8 @@
 
 #include "View/SmartAttributeEditor.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Assets {
         class EntityDefinition;
@@ -36,7 +38,7 @@ namespace TrenchBroom {
         public:
             explicit SmartDefaultAttributeEditor(View::MapDocumentWPtr document, QWidget* parent = nullptr);
         private:
-            void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
+            void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) override;
         };
     }
 }

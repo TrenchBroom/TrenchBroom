@@ -43,6 +43,8 @@
 #include <vecmath/vec_io.h>
 
 #include <algorithm>
+#include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -601,8 +603,8 @@ namespace TrenchBroom {
             }
         }
 
-        Model::ParentChildrenMap ClipTool::clipBrushes() {
-            Model::ParentChildrenMap result;
+        std::map<Model::Node*, std::vector<Model::Node*>> ClipTool::clipBrushes() {
+            std::map<Model::Node*, std::vector<Model::Node*>> result;
             if (!m_frontBrushes.empty()) {
                 if (keepFrontBrushes()) {
                     MapUtils::merge(result, m_frontBrushes);
@@ -843,7 +845,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ClipTool::addBrushesToRenderer(const Model::ParentChildrenMap& map, Renderer::BrushRenderer* renderer) {
+        void ClipTool::addBrushesToRenderer(const std::map<Model::Node*, std::vector<Model::Node*>>& map, Renderer::BrushRenderer* renderer) {
             Model::CollectBrushesVisitor collect;
 
             for (const auto& entry : map) {
@@ -912,13 +914,13 @@ namespace TrenchBroom {
             }
         }
 
-        void ClipTool::nodesWillChange(const Model::NodeList&) {
+        void ClipTool::nodesWillChange(const std::vector<Model::Node*>&) {
             if (!m_ignoreNotifications) {
                 update();
             }
         }
 
-        void ClipTool::nodesDidChange(const Model::NodeList&) {
+        void ClipTool::nodesDidChange(const std::vector<Model::Node*>&) {
             if (!m_ignoreNotifications) {
                 update();
             }

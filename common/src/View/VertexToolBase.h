@@ -53,9 +53,10 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
-#include <algorithm>
 #include <cassert>
-#include <numeric>
+#include <map>
+#include <set>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -100,15 +101,15 @@ namespace TrenchBroom {
                 return lock(m_document)->grid();
             }
 
-            const Model::BrushList& selectedBrushes() const {
+            const std::vector<Model::Brush*>& selectedBrushes() const {
                 MapDocumentSPtr document = lock(m_document);
                 return document->selectedNodes().brushes();
             }
         public:
             template <typename M, typename I>
-            std::map<typename M::Handle, Model::BrushSet> buildBrushMap(const M& manager, I cur, I end) const {
+            std::map<typename M::Handle, std::set<Model::Brush*>> buildBrushMap(const M& manager, I cur, I end) const {
                 using H2 = typename M::Handle;
-                std::map<H2, Model::BrushSet> result;
+                std::map<H2, std::set<Model::Brush*>> result;
                 while (cur != end) {
                     const H2& handle = *cur++;
                     result[handle] = findIncidentBrushes(manager, handle);
@@ -117,20 +118,22 @@ namespace TrenchBroom {
             }
 
             template <typename M, typename H2>
-            Model::BrushSet findIncidentBrushes(const M& manager, const H2& handle) const {
-                const Model::BrushList& brushes = selectedBrushes();
+            std::set<Model::Brush*> findIncidentBrushes(const M& manager, const H2& handle) const {
+                const std::vector<Model::Brush*>& brushes = selectedBrushes();
                 return manager.findIncidentBrushes(handle, std::begin(brushes), std::end(brushes));
             }
 
             template <typename M, typename I>
-            Model::BrushSet findIncidentBrushes(const M& manager, I cur, I end) const {
-                const Model::BrushList& brushes = selectedBrushes();
-                Model::BrushSet result;
+            std::set<Model::Brush*> findIncidentBrushes(const M& manager, I cur, I end) const {
+                const std::vector<Model::Brush*>& brushes = selectedBrushes();
+                std::set<Model::Brush*> result;
                 auto out = std::inserter(result, std::end(result));
 
-                std::for_each(cur, end, [&manager, &brushes, &out](const auto& handle) {
+                while (cur != end) {
+                    const auto& handle = *cur;
                     manager.findIncidentBrushes(handle, std::begin(brushes), std::end(brushes), out);
-                });
+                    ++cur;
+                }
 
                 return result;
             }
@@ -145,19 +148,23 @@ namespace TrenchBroom {
                         handleManager().deselectAll();
 
                     // Count the number of hit handles which are selected already.
-                    const size_t selected = std::accumulate(std::begin(hits), std::end(hits), 0u, [this](const size_t cur, const Model::Hit& hit) {
-                        const H& handle = hit.target<H>();
-                        const bool curSelected = handleManager().selected(handle);
-                        return cur + (curSelected ? 1 : 0);
-                    });
+                    size_t selected = 0u;
+                    for (const auto& hit : hits) {
+                        const auto& handle = hit.target<H>();
+                        if (handleManager().selected(handle)) {
+                            ++selected;
+                        }
+                    }
 
                     if (selected < hits.size()) {
-                        for (const auto& hit : hits)
+                        for (const auto& hit : hits) {
                             handleManager().select(hit.target<H>());
+                        }
                     } else if (addToSelection) {
                         // The user meant to deselect a selected handle.
-                        for (const auto& hit : hits)
+                        for (const auto& hit : hits) {
                             handleManager().deselect(hit.target<H>());
+                        }
                     }
                 }
                 refreshViews();
@@ -171,8 +178,9 @@ namespace TrenchBroom {
                 HandleList selectedHandles;
 
                 lasso.selected(std::begin(allHandles), std::end(allHandles), std::back_inserter(selectedHandles));
-                if (!modifySelection)
+                if (!modifySelection) {
                     handleManager().deselectAll();
+                }
                 handleManager().toggle(std::begin(selectedHandles), std::end(selectedHandles));
             }
 
@@ -198,11 +206,12 @@ namespace TrenchBroom {
                 assert(!hits.empty());
 
                 // Delesect all handles if any of the hit handles is not already selected.
-                if (std::any_of(std::begin(hits), std::end(hits), [&](const auto& hit) {
-                    const H& handle = this->getHandlePosition(hit);
-                    return !this->handleManager().selected(handle);
-                })) {
-                    handleManager().deselectAll();
+                for (const auto& hit : hits) {
+                    const H& handle = getHandlePosition(hit);
+                    if (!handleManager().selected(handle)) {
+                        handleManager().deselectAll();
+                        break;
+                    }
                 }
 
                 // Now select all of the hit handles.
@@ -349,7 +358,7 @@ namespace TrenchBroom {
                 m_changeCount = 0;
                 bindObservers();
 
-                const Model::BrushList& brushes = selectedBrushes();
+                const std::vector<Model::Brush*>& brushes = selectedBrushes();
                 handleManager().clear();
                 handleManager().addHandles(std::begin(brushes), std::end(brushes));
 
@@ -458,13 +467,13 @@ namespace TrenchBroom {
                 removeHandles(selection.deselectedNodes());
             }
 
-            void nodesWillChange(const Model::NodeList& nodes) {
+            void nodesWillChange(const std::vector<Model::Node*>& nodes) {
                 if (!m_ignoreChangeNotifications) {
                     removeHandles(nodes);
                 }
             }
 
-            void nodesDidChange(const Model::NodeList& nodes) {
+            void nodesDidChange(const std::vector<Model::Node*>& nodes) {
                 if (!m_ignoreChangeNotifications) {
                     addHandles(nodes);
                 }
@@ -524,12 +533,12 @@ namespace TrenchBroom {
                 }
             };
 
-            virtual void addHandles(const Model::NodeList& nodes) {
+            virtual void addHandles(const std::vector<Model::Node*>& nodes) {
                 AddHandles<H> addVisitor(handleManager());
                 Model::Node::accept(std::begin(nodes), std::end(nodes), addVisitor);
             }
 
-            virtual void removeHandles(const Model::NodeList& nodes) {
+            virtual void removeHandles(const std::vector<Model::Node*>& nodes) {
                 RemoveHandles<H> removeVisitor(handleManager());
                 Model::Node::accept(std::begin(nodes), std::end(nodes), removeVisitor);
             }

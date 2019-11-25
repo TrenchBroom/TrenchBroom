@@ -29,6 +29,8 @@
 #include "Model/ModelFactoryImpl.h"
 #include "Model/Node.h"
 
+#include <vector>
+
 template <typename T, size_t S, typename U>
 class AABBTree;
 
@@ -51,8 +53,8 @@ namespace TrenchBroom {
             ~World() override;
         public: // layer management
             Layer* defaultLayer() const;
-            LayerList allLayers() const;
-            LayerList customLayers() const;
+            std::vector<Layer*> allLayers() const;
+            std::vector<Layer*> customLayers() const;
         private:
             void createDefaultLayer();
         public: // index
@@ -91,12 +93,12 @@ namespace TrenchBroom {
 
             bool doSelectable() const override;
             void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
-            void doFindNodesContaining(const vm::vec3& point, NodeList& result) override;
+            void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
-            void doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const override;
-            void doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const override;
+            void doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<AttributableNode*>& result) const override;
+            void doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, std::vector<AttributableNode*>& result) const override;
             void doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) override;
             void doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) override;
         private: // implement AttributableNode interface

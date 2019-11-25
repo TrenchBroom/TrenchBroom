@@ -23,6 +23,8 @@
 #include "Model/ModelTypes.h"
 #include "Model/Tag.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class IssueGeneratorRegistry;
@@ -31,7 +33,7 @@ namespace TrenchBroom {
         class Node : public Taggable {
         private:
             Node* m_parent;
-            NodeList m_children;
+            std::vector<Node*> m_children;
             size_t m_descendantCount;
             bool m_selected;
 
@@ -77,8 +79,8 @@ namespace TrenchBroom {
         protected:
             void cloneAttributes(Node* node) const;
 
-            static NodeList clone(const vm::bbox3& worldBounds, const NodeList& nodes);
-            static NodeList cloneRecursively(const vm::bbox3& worldBounds, const NodeList& nodes);
+            static std::vector<Node*> clone(const vm::bbox3& worldBounds, const std::vector<Node*>& nodes);
+            static std::vector<Node*> cloneRecursively(const vm::bbox3& worldBounds, const std::vector<Node*>& nodes);
 
             template <typename I, typename O>
             static void clone(const vm::bbox3& worldBounds, I cur, I end, O result) {
@@ -101,22 +103,22 @@ namespace TrenchBroom {
             size_t depth() const;
             Node* parent() const;
             bool isAncestorOf(const Node* node) const;
-            bool isAncestorOf(const NodeList& nodes) const;
+            bool isAncestorOf(const std::vector<Node*>& nodes) const;
             bool isDescendantOf(const Node* node) const;
-            bool isDescendantOf(const NodeList& nodes) const;
-            NodeList findDescendants(const NodeList& nodes) const;
+            bool isDescendantOf(const std::vector<Node*>& nodes) const;
+            std::vector<Node*> findDescendants(const std::vector<Node*>& nodes) const;
 
             bool removeIfEmpty() const;
 
             bool hasChildren() const;
             size_t childCount() const;
-            const NodeList& children() const;
+            const std::vector<Node*>& children() const;
             size_t descendantCount() const;
             size_t familySize() const;
 
             bool shouldAddToSpacialIndex() const;
         public:
-            void addChildren(const NodeList& children);
+            void addChildren(const std::vector<Node*>& children);
 
             template <typename I>
             void addChildren(I cur, I end, size_t count = 0) {
@@ -237,7 +239,7 @@ namespace TrenchBroom {
              * Normally just a list of `this`, but for brush entities,
              * it's a list of the contained brushes (excluding the Entity itself).
              */
-            virtual NodeList nodesRequiredForViewSelection();
+            virtual std::vector<Node*> nodesRequiredForViewSelection();
         protected:
             void incChildSelectionCount(size_t delta);
             void decChildSelectionCount(size_t delta);
@@ -260,7 +262,7 @@ namespace TrenchBroom {
             bool setLockState(LockState lockState);
         public: // picking
             void pick(const vm::ray3& ray, PickResult& result) const;
-            void findNodesContaining(const vm::vec3& point, NodeList& result);
+            void findNodesContaining(const vm::vec3& point, std::vector<Node*>& result);
         public: // file position
             size_t lineNumber() const;
             void setFilePosition(size_t lineNumber, size_t lineCount);
@@ -406,8 +408,8 @@ namespace TrenchBroom {
                 }
             }
         protected: // index management
-            void findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const;
-            void findAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const;
+            void findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<AttributableNode*>& result) const;
+            void findAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, std::vector<AttributableNode*>& result) const;
 
             void addToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
             void removeFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
@@ -454,15 +456,15 @@ namespace TrenchBroom {
             virtual bool doSelectable() const = 0;
 
             virtual void doPick(const vm::ray3& ray, PickResult& pickResult) const = 0;
-            virtual void doFindNodesContaining(const vm::vec3& point, NodeList& result) = 0;
+            virtual void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) = 0;
 
             virtual void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) = 0;
 
             virtual void doAccept(NodeVisitor& visitor) = 0;
             virtual void doAccept(ConstNodeVisitor& visitor) const = 0;
 
-            virtual void doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const;
-            virtual void doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const;
+            virtual void doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<AttributableNode*>& result) const;
+            virtual void doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, std::vector<AttributableNode*>& result) const;
 
             virtual void doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
             virtual void doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);

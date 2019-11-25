@@ -387,7 +387,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            const NodeList nodes = reader.read(worldBounds, status);
+            const std::vector<Node*> nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
         }
 
@@ -412,7 +412,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            const NodeList nodes = reader.read(worldBounds, status);
+            const std::vector<Node*> nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
         }
 
@@ -519,7 +519,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            const NodeList nodes = reader.read(worldBounds, status);
+            const std::vector<Node*> nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
         }
 
@@ -542,7 +542,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            const NodeList nodes = reader.read(worldBounds, status);
+            const std::vector<Node*> nodes = reader.read(worldBounds, status);
             ASSERT_TRUE(nodes.empty());
         }
 
@@ -1720,7 +1720,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            const NodeList nodes = reader.read(worldBounds, status);
+            const std::vector<Node*> nodes = reader.read(worldBounds, status);
             assert(nodes.size() == 1);
 
             Brush* brush = static_cast<Brush*>(nodes.front());
@@ -2633,7 +2633,7 @@ namespace TrenchBroom {
             Brush* minuend = builder.createCuboid(vm::bbox3(vm::vec3(-32.0, -16.0, -32.0), vm::vec3(32.0, 16.0, 32.0)), minuendTexture);
             Brush* subtrahend = builder.createCuboid(vm::bbox3(vm::vec3(-16.0, -32.0, -64.0), vm::vec3(16.0, 32.0, 0.0)), subtrahendTexture);
 
-            const BrushList result = minuend->subtract(world, worldBounds, defaultTexture, subtrahend);
+            const std::vector<Brush*> result = minuend->subtract(world, worldBounds, defaultTexture, subtrahend);
             ASSERT_EQ(3u, result.size());
 
             Brush* left = nullptr;
@@ -2719,7 +2719,7 @@ namespace TrenchBroom {
             Brush* brush1 = builder.createCuboid(brush1Bounds, "texture");
             Brush* brush2 = builder.createCuboid(brush2Bounds, "texture");
 
-            BrushList result = brush1->subtract(world, worldBounds, "texture", brush2);
+            std::vector<Brush*> result = brush1->subtract(world, worldBounds, "texture", brush2);
             ASSERT_EQ(1u, result.size());
 
             Brush* subtraction = result.at(0);
@@ -2740,7 +2740,7 @@ namespace TrenchBroom {
             Brush* brush1 = builder.createCuboid(brush1Bounds, "texture");
             Brush* brush2 = builder.createCuboid(brush2Bounds, "texture");
 
-            BrushList result = brush1->subtract(world, worldBounds, "texture", brush2);
+            std::vector<Brush*> result = brush1->subtract(world, worldBounds, "texture", brush2);
             ASSERT_EQ(0u, result.size());
 
             VectorUtils::deleteAll(result);
@@ -2815,7 +2815,7 @@ namespace TrenchBroom {
             Brush* minuend = static_cast<Brush*>(IO::NodeReader::read(minuendStr, world, worldBounds, status).front());
             Brush* subtrahend = static_cast<Brush*>(IO::NodeReader::read(subtrahendStr, world, worldBounds, status).front());
 
-            const BrushList result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
+            const std::vector<Brush*> result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
             ASSERT_FALSE(result.empty());
 
             delete minuend;
@@ -2889,7 +2889,7 @@ namespace TrenchBroom {
             Brush* minuend = static_cast<Brush*>(IO::NodeReader::read(minuendStr, world, worldBounds, status).front());
             Brush* subtrahend = static_cast<Brush*>(IO::NodeReader::read(subtrahendStr, world, worldBounds, status).front());
 
-            const BrushList result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
+            const std::vector<Brush*> result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
             ASSERT_EQ(8u, result.size());
 
             delete minuend;
@@ -2915,7 +2915,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            const NodeList nodes = reader.read(worldBounds, status);
+            const std::vector<Node*> nodes = reader.read(worldBounds, status);
             ASSERT_EQ(0u, nodes.size());
         }
 
@@ -2926,7 +2926,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            const NodeList nodes = reader.read(worldBounds, status);
+            const std::vector<Node*> nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
 
             Brush* brush = static_cast<Brush*>(nodes.front());
@@ -2944,7 +2944,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            const NodeList nodes = reader.read(worldBounds, status);
+            const std::vector<Node*> nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
 
             Brush* brush = static_cast<Brush*>(nodes.front());
@@ -3167,7 +3167,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            NodeList nodes = reader.read(worldBounds, status); // assertion failure
+            std::vector<Node*> nodes = reader.read(worldBounds, status); // assertion failure
             VectorUtils::clearAndDelete(nodes);
         }
 
@@ -3218,7 +3218,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            NodeList nodes = reader.read(worldBounds, status); // assertion failure
+            std::vector<Node*> nodes = reader.read(worldBounds, status); // assertion failure
             VectorUtils::clearAndDelete(nodes);
         }
 
@@ -3245,7 +3245,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            NodeList nodes = reader.read(worldBounds, status); // assertion failure
+            std::vector<Node*> nodes = reader.read(worldBounds, status); // assertion failure
             VectorUtils::clearAndDelete(nodes);
         }
 
@@ -3495,7 +3495,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            NodeList nodes = reader.read(worldBounds, status);
+            std::vector<Node*> nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
             ASSERT_TRUE(nodes.at(0)->hasChildren());
             ASSERT_EQ(2u, nodes.at(0)->children().size());
@@ -3531,7 +3531,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            NodeList nodes = reader.read(worldBounds, status);
+            std::vector<Node*> nodes = reader.read(worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
 
             Brush* brush = static_cast<Brush*>(nodes.front());

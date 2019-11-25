@@ -50,8 +50,7 @@ namespace TrenchBroom {
 
             Model::Group* m_currentGroup;
         public:
-            Notifier<>
-            editorContextDidChangeNotifier;
+            Notifier<> editorContextDidChangeNotifier;
         public:
             EditorContext();
 

@@ -23,6 +23,8 @@
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
+#include <vector>
+
 #include <QWidget>
 
 namespace TrenchBroom {
@@ -30,27 +32,27 @@ namespace TrenchBroom {
         class SmartAttributeEditor : public QWidget {
             Q_OBJECT
         private:
-            View::MapDocumentWPtr m_document;
+            MapDocumentWPtr m_document;
 
             Model::AttributeName m_name;
-            Model::AttributableNodeList m_attributables;
+            std::vector<Model::AttributableNode*> m_attributables;
             bool m_active;
         public:
-            explicit SmartAttributeEditor(View::MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit SmartAttributeEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
             virtual ~SmartAttributeEditor();
 
             bool usesName(const Model::AttributeName& name) const;
 
             void activate(const Model::AttributeName& name);
-            void update(const Model::AttributableNodeList& attributables);
+            void update(const std::vector<Model::AttributableNode*>& attributables);
             void deactivate();
         protected:
-            View::MapDocumentSPtr document() const;
+            MapDocumentSPtr document() const;
             const Model::AttributeName& name() const;
-            const Model::AttributableNodeList attributables() const;
+            const std::vector<Model::AttributableNode*> attributables() const;
             void addOrUpdateAttribute(const Model::AttributeValue& value);
         private:
-            virtual void doUpdateVisual(const Model::AttributableNodeList& attributables) = 0;
+            virtual void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) = 0;
         };
     }
 }

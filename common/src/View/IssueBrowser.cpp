@@ -105,15 +105,15 @@ namespace TrenchBroom {
             m_view->update();
         }
 
-        void IssueBrowser::nodesWereAdded(const Model::NodeList&) {
+        void IssueBrowser::nodesWereAdded(const std::vector<Model::Node*>&) {
             m_view->reload();
         }
 
-        void IssueBrowser::nodesWereRemoved(const Model::NodeList&) {
+        void IssueBrowser::nodesWereRemoved(const std::vector<Model::Node*>&) {
             m_view->reload();
         }
 
-        void IssueBrowser::nodesDidChange(const Model::NodeList&) {
+        void IssueBrowser::nodesDidChange(const std::vector<Model::Node*>&) {
             m_view->reload();
         }
 

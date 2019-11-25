@@ -25,23 +25,23 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetVisibilityCommand::Type = Command::freeType();
 
-        SetVisibilityCommand::Ptr SetVisibilityCommand::show(const Model::NodeList& nodes) {
+        SetVisibilityCommand::Ptr SetVisibilityCommand::show(const std::vector<Model::Node*>& nodes) {
             return Ptr(new SetVisibilityCommand(nodes, Action_Show));
         }
 
-        SetVisibilityCommand::Ptr SetVisibilityCommand::hide(const Model::NodeList& nodes) {
+        SetVisibilityCommand::Ptr SetVisibilityCommand::hide(const std::vector<Model::Node*>& nodes) {
             return Ptr(new SetVisibilityCommand(nodes, Action_Hide));
         }
 
-        SetVisibilityCommand::Ptr SetVisibilityCommand::ensureVisible(const Model::NodeList& nodes) {
+        SetVisibilityCommand::Ptr SetVisibilityCommand::ensureVisible(const std::vector<Model::Node*>& nodes) {
             return Ptr(new SetVisibilityCommand(nodes, Action_Ensure));
         }
 
-        SetVisibilityCommand::Ptr SetVisibilityCommand::reset(const Model::NodeList& nodes) {
+        SetVisibilityCommand::Ptr SetVisibilityCommand::reset(const std::vector<Model::Node*>& nodes) {
             return Ptr(new SetVisibilityCommand(nodes, Action_Reset));
         }
 
-        SetVisibilityCommand::SetVisibilityCommand(const Model::NodeList& nodes, const Action action) :
+        SetVisibilityCommand::SetVisibilityCommand(const std::vector<Model::Node*>& nodes, const Action action) :
         UndoableCommand(Type, makeName(action)),
         m_nodes(nodes),
         m_action(action) {}

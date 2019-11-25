@@ -25,6 +25,8 @@
 #include "View/TextureBrowserView.h"
 #include "View/ViewTypes.h"
 
+#include <vector>
+
 #include <QWidget>
 
 class QPushButton;
@@ -77,9 +79,9 @@ namespace TrenchBroom {
 
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
-            void nodesWereAdded(const Model::NodeList& nodes);
-            void nodesWereRemoved(const Model::NodeList& nodes);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesWereAdded(const std::vector<Model::Node*>& nodes);
+            void nodesWereRemoved(const std::vector<Model::Node*>& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void brushFacesDidChange(const Model::BrushFaceList& faces);
             void textureCollectionsDidChange();
             void currentTextureNameDidChange(const String& textureName);

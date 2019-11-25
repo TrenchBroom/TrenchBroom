@@ -86,7 +86,7 @@ namespace TrenchBroom {
 
         void TestGame::doExportMap(World& /* world */, const Model::ExportFormat /* format */, const IO::Path& /* path */) const {}
 
-        NodeList TestGame::doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
+        std::vector<Node*> TestGame::doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
             IO::TestParserStatus status;
             IO::NodeReader reader(str, world);
             return reader.read(worldBounds, status);
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             return reader.read(worldBounds, status);
         }
 
-        void TestGame::doWriteNodesToStream(World& world, const Model::NodeList& nodes, std::ostream& stream) const {
+        void TestGame::doWriteNodesToStream(World& world, const std::vector<Node*>& nodes, std::ostream& stream) const {
             IO::NodeWriter writer(world, stream);
             writer.writeNodes(nodes);
         }

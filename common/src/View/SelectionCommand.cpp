@@ -30,36 +30,36 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SelectionCommand::Type = Command::freeType();
 
-        SelectionCommand::Ptr SelectionCommand::select(const Model::NodeList& nodes) {
+        SelectionCommand::Ptr SelectionCommand::select(const std::vector<Model::Node*>& nodes) {
             return Ptr(new SelectionCommand(Action_SelectNodes, nodes, Model::EmptyBrushFaceList));
         }
 
         SelectionCommand::Ptr SelectionCommand::select(const Model::BrushFaceList& faces) {
-            return Ptr(new SelectionCommand(Action_SelectFaces, Model::EmptyNodeList, faces));
+            return Ptr(new SelectionCommand(Action_SelectFaces, std::vector<Model::Node*>{}, faces));
         }
 
         SelectionCommand::Ptr SelectionCommand::convertToFaces() {
-            return Ptr(new SelectionCommand(Action_ConvertToFaces, Model::EmptyNodeList, Model::EmptyBrushFaceList));
+            return Ptr(new SelectionCommand(Action_ConvertToFaces, std::vector<Model::Node*>{}, Model::EmptyBrushFaceList));
         }
 
         SelectionCommand::Ptr SelectionCommand::selectAllNodes() {
-            return Ptr(new SelectionCommand(Action_SelectAllNodes, Model::EmptyNodeList, Model::EmptyBrushFaceList));
+            return Ptr(new SelectionCommand(Action_SelectAllNodes, std::vector<Model::Node*>{}, Model::EmptyBrushFaceList));
         }
 
         SelectionCommand::Ptr SelectionCommand::selectAllFaces() {
-            return Ptr(new SelectionCommand(Action_SelectAllFaces, Model::EmptyNodeList, Model::EmptyBrushFaceList));
+            return Ptr(new SelectionCommand(Action_SelectAllFaces, std::vector<Model::Node*>{}, Model::EmptyBrushFaceList));
         }
 
-        SelectionCommand::Ptr SelectionCommand::deselect(const Model::NodeList& nodes) {
+        SelectionCommand::Ptr SelectionCommand::deselect(const std::vector<Model::Node*>& nodes) {
             return Ptr(new SelectionCommand(Action_DeselectNodes, nodes, Model::EmptyBrushFaceList));
         }
 
         SelectionCommand::Ptr SelectionCommand::deselect(const Model::BrushFaceList& faces) {
-            return Ptr(new SelectionCommand(Action_DeselectFaces, Model::EmptyNodeList, faces));
+            return Ptr(new SelectionCommand(Action_DeselectFaces, std::vector<Model::Node*>{}, faces));
         }
 
         SelectionCommand::Ptr SelectionCommand::deselectAll() {
-            return Ptr(new SelectionCommand(Action_DeselectAll, Model::EmptyNodeList, Model::EmptyBrushFaceList));
+            return Ptr(new SelectionCommand(Action_DeselectAll, std::vector<Model::Node*>{}, Model::EmptyBrushFaceList));
         }
 
         static Model::BrushFaceReference::List faceRefs(const Model::BrushFaceList& faces) {
@@ -76,13 +76,13 @@ namespace TrenchBroom {
             return result;
         }
 
-        SelectionCommand::SelectionCommand(const Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces) :
+        SelectionCommand::SelectionCommand(const Action action, const std::vector<Model::Node*>& nodes, const Model::BrushFaceList& faces) :
         UndoableCommand(Type, makeName(action, nodes, faces)),
         m_action(action),
         m_nodes(nodes),
         m_faceRefs(faceRefs(faces)) {}
 
-        String SelectionCommand::makeName(const Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces) {
+        String SelectionCommand::makeName(const Action action, const std::vector<Model::Node*>& nodes, const Model::BrushFaceList& faces) {
             StringStream result;
             switch (action) {
                 case Action_SelectNodes:

@@ -38,7 +38,7 @@ namespace TrenchBroom {
             Model::Layer* layer2 = new Model::Layer("Layer 2");
             document->addNode(layer2, document->world());
 
-            ASSERT_FALSE(document->reparentNodes(layer2, Model::NodeList(1, layer1)));
+            ASSERT_FALSE(document->reparentNodes(layer2, { layer1 }));
         }
 
         TEST_F(ReparentNodesTest, reparentBetweenLayers) {
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             document->addNode(entity, oldParent);
 
             assert(entity->parent() == oldParent);
-            ASSERT_TRUE(document->reparentNodes(newParent, Model::NodeList(1, entity)));
+            ASSERT_TRUE(document->reparentNodes(newParent, { entity }));
             ASSERT_EQ(newParent, entity->parent());
 
             document->undoLastCommand();
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             Model::Group* group = new Model::Group("Group");
             document->addNode(group, document->currentParent());
 
-            ASSERT_FALSE(document->reparentNodes(group, Model::NodeList(1, group)));
+            ASSERT_FALSE(document->reparentNodes(group, { group }));
         }
 
         TEST_F(ReparentNodesTest, reparentGroupToChild) {
@@ -73,7 +73,7 @@ namespace TrenchBroom {
             Model::Group* inner = new Model::Group("Inner");
             document->addNode(inner, outer);
 
-            ASSERT_FALSE(document->reparentNodes(inner, Model::NodeList(1, outer)));
+            ASSERT_FALSE(document->reparentNodes(inner, { outer }));
         }
 
         TEST_F(ReparentNodesTest, removeEmptyGroup) {
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             Model::Entity* entity = new Model::Entity();
             document->addNode(entity, group);
 
-            ASSERT_TRUE(document->reparentNodes(document->currentParent(), Model::NodeList(1, entity)));
+            ASSERT_TRUE(document->reparentNodes(document->currentParent(), { entity }));
             ASSERT_EQ(document->currentParent(), entity->parent());
             ASSERT_TRUE(group->parent() == nullptr);
 
@@ -102,7 +102,7 @@ namespace TrenchBroom {
             Model::Entity* entity = new Model::Entity();
             document->addNode(entity, inner);
 
-            ASSERT_TRUE(document->reparentNodes(document->currentParent(), Model::NodeList(1, entity)));
+            ASSERT_TRUE(document->reparentNodes(document->currentParent(), { entity }));
             ASSERT_EQ(document->currentParent(), entity->parent());
             ASSERT_TRUE(inner->parent() == nullptr);
             ASSERT_TRUE(outer->parent() == nullptr);
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             Model::Brush* brush = createBrush();
             document->addNode(brush, entity);
 
-            ASSERT_TRUE(document->reparentNodes(document->currentParent(), Model::NodeList(1, brush)));
+            ASSERT_TRUE(document->reparentNodes(document->currentParent(), { brush }));
             ASSERT_EQ(document->currentParent(), brush->parent());
             ASSERT_TRUE(entity->parent() == nullptr);
 
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             Model::Brush* brush = createBrush();
             document->addNode(brush, entity);
 
-            ASSERT_TRUE(document->reparentNodes(document->currentParent(), Model::NodeList(1, brush)));
+            ASSERT_TRUE(document->reparentNodes(document->currentParent(), { brush }));
             ASSERT_EQ(document->currentParent(), brush->parent());
             ASSERT_TRUE(group->parent() == nullptr);
             ASSERT_TRUE(entity->parent() == nullptr);

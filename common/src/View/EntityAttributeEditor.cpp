@@ -76,7 +76,7 @@ namespace TrenchBroom {
             updateIfSelectedEntityDefinitionChanged();
         }
 
-        void EntityAttributeEditor::nodesDidChange(const Model::NodeList&) {
+        void EntityAttributeEditor::nodesDidChange(const std::vector<Model::Node*>&) {
             updateIfSelectedEntityDefinitionChanged();
         }
 

@@ -29,6 +29,8 @@
 
 #include <vecmath/bbox.h>
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class PickResult;
@@ -84,7 +86,7 @@ namespace TrenchBroom {
             bool doSelectable() const override;
 
             void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
-            void doFindNodesContaining(const vm::vec3& point, NodeList& result) override;
+            void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
 
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
             void doAccept(NodeVisitor& visitor) override;

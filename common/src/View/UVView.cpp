@@ -135,7 +135,7 @@ namespace TrenchBroom {
             update();
         }
 
-        void UVView::nodesDidChange(const Model::NodeList&) {
+        void UVView::nodesDidChange(const std::vector<Model::Node*>&) {
             update();
         }
 

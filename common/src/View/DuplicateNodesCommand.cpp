@@ -43,9 +43,7 @@ namespace TrenchBroom {
 
         bool DuplicateNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             if (m_firstExecution) {
-                using NodeMapInsertPos = std::pair<bool, Model::NodeMap::iterator>;
-
-                Model::NodeMap newParentMap;
+                std::map<Model::Node*, Model::Node*> newParentMap;
 
                 const vm::bbox3& worldBounds = document->worldBounds();
                 m_previouslySelectedNodes = document->selectedNodes().nodes();
@@ -55,7 +53,7 @@ namespace TrenchBroom {
 
                     Model::Node* parent = original->parent();
                     if (cloneParent(parent)) {
-                        NodeMapInsertPos insertPos = MapUtils::findInsertPos(newParentMap, parent);
+                        auto insertPos = MapUtils::findInsertPos(newParentMap, parent);
                         Model::Node* newParent = nullptr;
                         if (insertPos.first) {
                             assert(insertPos.second != std::begin(newParentMap));

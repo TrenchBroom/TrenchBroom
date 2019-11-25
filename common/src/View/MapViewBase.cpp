@@ -63,14 +63,13 @@
 
 #include <vecmath/util.h>
 
+#include <vector>
+
 #include <QtGlobal>
 #include <QShortcut>
 #include <QMenu>
 #include <QString>
 #include <QMimeData>
-
-#include <algorithm>
-#include <iterator>
 
 namespace TrenchBroom {
     namespace View {
@@ -176,7 +175,7 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapViewBase::preferenceDidChange);
         }
 
-        void MapViewBase::nodesDidChange(const Model::NodeList&) {
+        void MapViewBase::nodesDidChange(const std::vector<Model::Node*>&) {
             updatePickResult();
             update();
         }
@@ -362,7 +361,7 @@ namespace TrenchBroom {
                 return;
 
             const vm::vec3 axis = rotationAxis(axisSpec, clockwise);
-            const double angle = m_toolBox.rotateObjectsToolActive() ? std::abs(m_toolBox.rotateToolAngle()) : vm::C::half_pi();
+            const double angle = m_toolBox.rotateObjectsToolActive() ? vm::abs(m_toolBox.rotateToolAngle()) : vm::C::half_pi();
 
             const Grid& grid = document->grid();
             const vm::vec3 center = m_toolBox.rotateObjectsToolActive() ? m_toolBox.rotateToolCenter() : grid.referencePoint(document->selectionBounds());
@@ -605,7 +604,7 @@ namespace TrenchBroom {
             }
 
             Transaction transaction(document, "Make Structural");
-            Model::NodeList toReparent;
+            std::vector<Model::Node*> toReparent;
             for (auto* brush : document->selectedNodes().brushes()) {
                 if (brush->entity() != document->world()) {
                     toReparent.push_back(brush);
@@ -991,7 +990,7 @@ namespace TrenchBroom {
             }
 
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            const std::vector<Model::Node*>& nodes = document->selectedNodes().nodes();
             Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);
             Model::Node* currentGroup = document->editorContext().currentGroup();
             Model::Node* newGroup = findNewGroupForObjects(nodes);
@@ -1097,9 +1096,11 @@ namespace TrenchBroom {
                 const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
 
                 Assets::EntityDefinitionList filteredDefinitions;
-                std::copy_if(std::begin(definitions), std::end(definitions), std::back_inserter(filteredDefinitions),
-                             [](const Assets::EntityDefinition* definition) { return !StringUtils::caseSensitiveEqual(definition->name(), Model::AttributeValues::WorldspawnClassname); }
-                );
+                for (auto* definition : definitions) {
+                    if (!StringUtils::caseSensitiveEqual(definition->name(), Model::AttributeValues::WorldspawnClassname)) {
+                        filteredDefinitions.push_back(definition);
+                    }
+                }
 
                 if (!filteredDefinitions.empty()) {
                     const auto groupName = QString::fromStdString(group.displayName());
@@ -1134,7 +1135,7 @@ namespace TrenchBroom {
 
         void MapViewBase::addSelectedObjectsToGroup() {
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList nodes = document->selectedNodes().nodes();
+            const std::vector<Model::Node*> nodes = document->selectedNodes().nodes();
             Model::Node* newGroup = findNewGroupForObjects(nodes);
             ensure(newGroup != nullptr, "newGroup is null");
 
@@ -1146,7 +1147,7 @@ namespace TrenchBroom {
 
         void MapViewBase::removeSelectedObjectsFromGroup() {
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList nodes = document->selectedNodes().nodes();
+            const std::vector<Model::Node*> nodes = document->selectedNodes().nodes();
             Model::Node* currentGroup = document->editorContext().currentGroup();
             ensure(currentGroup != nullptr, "currentGroup is null");
 
@@ -1159,7 +1160,7 @@ namespace TrenchBroom {
             document->select(nodes);
         }
 
-        Model::Node* MapViewBase::findNewGroupForObjects(const Model::NodeList& nodes) const {
+        Model::Node* MapViewBase::findNewGroupForObjects(const std::vector<Model::Node*>& nodes) const {
             Model::Node* newGroup = nullptr;
 
             MapDocumentSPtr document = lock(m_document);
@@ -1197,10 +1198,13 @@ namespace TrenchBroom {
                 return nullptr;
             }
 
-            const auto& nodes = selectedNodes.nodes();
-            const bool canReparentAll = std::all_of(nodes.begin(), nodes.end(), [&](const auto* node){
-                return node == mergeTarget || this->canReparentNode(node, mergeTarget);
-            });
+            bool canReparentAll = true;
+            for (const auto* node : selectedNodes.nodes()) {
+                canReparentAll &= node == mergeTarget || canReparentNode(node, mergeTarget);
+                if (!canReparentAll) {
+                    break;
+                }
+            }
 
             if (canReparentAll) {
                 return mergeTarget;
@@ -1215,7 +1219,7 @@ namespace TrenchBroom {
 
         void MapViewBase::moveSelectedBrushesToEntity() {
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList nodes = document->selectedNodes().nodes();
+            const std::vector<Model::Node*> nodes = document->selectedNodes().nodes();
             Model::Node* newParent = findNewParentEntityForBrushes(nodes);
             ensure(newParent != nullptr, "newParent is null");
 
@@ -1226,7 +1230,7 @@ namespace TrenchBroom {
             document->select(nodes);
         }
 
-        Model::Node* MapViewBase::findNewParentEntityForBrushes(const Model::NodeList& nodes) const {
+        Model::Node* MapViewBase::findNewParentEntityForBrushes(const std::vector<Model::Node*>& nodes) const {
             Model::Node* newParent = nullptr;
 
             MapDocumentSPtr document = lock(m_document);
@@ -1257,7 +1261,7 @@ namespace TrenchBroom {
             return document->currentLayer();
         }
 
-        bool MapViewBase::canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const {
+        bool MapViewBase::canReparentNodes(const std::vector<Model::Node*>& nodes, const Model::Node* newParent) const {
             for (const Model::Node* node : nodes) {
                 if (canReparentNode(node, newParent)) {
                     return true;
@@ -1279,7 +1283,7 @@ namespace TrenchBroom {
             bool operator()(const Model::Brush* brush) const { return brush->entity() == m_world; }
         };
 
-        static Model::NodeList collectEntitiesForBrushes(const Model::NodeList& selectedNodes, const Model::World *world) {
+        static std::vector<Model::Node*> collectEntitiesForBrushes(const std::vector<Model::Node*>& selectedNodes, const Model::World *world) {
             using BrushesToEntitiesVisitor = Model::CollectMatchingNodesVisitor<BrushesToEntities, Model::UniqueNodeCollectionStrategy, Model::StopRecursionIfMatched>;
 
             BrushesToEntitiesVisitor collect(world);
@@ -1287,18 +1291,18 @@ namespace TrenchBroom {
             return collect.nodes();
         }
 
-        void MapViewBase::reparentNodes(const Model::NodeList& nodes, Model::Node* newParent, const bool preserveEntities) {
+        void MapViewBase::reparentNodes(const std::vector<Model::Node*>& nodes, Model::Node* newParent, const bool preserveEntities) {
             ensure(newParent != nullptr, "newParent is null");
 
             MapDocumentSPtr document = lock(m_document);
-            Model::NodeList inputNodes;
+            std::vector<Model::Node*> inputNodes;
             if (preserveEntities) {
                 inputNodes = collectEntitiesForBrushes(nodes, document->world());
             } else {
                 inputNodes = nodes;
             }
 
-            const Model::NodeList reparentableNodes = collectReparentableNodes(inputNodes, newParent);
+            const std::vector<Model::Node*> reparentableNodes = collectReparentableNodes(inputNodes, newParent);
             assert(!reparentableNodes.empty());
 
             StringStream name;
@@ -1310,9 +1314,13 @@ namespace TrenchBroom {
             document->select(reparentableNodes);
         }
 
-        Model::NodeList MapViewBase::collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const {
-            Model::NodeList result;
-            std::copy_if(std::begin(nodes), std::end(nodes), std::back_inserter(result), [=](const Model::Node* node) { return newParent != node && newParent != node->parent() && !newParent->isDescendantOf(node); });
+        std::vector<Model::Node*> MapViewBase::collectReparentableNodes(const std::vector<Model::Node*>& nodes, const Model::Node* newParent) const {
+            std::vector<Model::Node*> result;
+            for (auto* node : nodes) {
+                if (newParent != node && newParent != node->parent() && !newParent->isDescendantOf(node)) {
+                    result.push_back(node);
+                }
+            }
             return result;
         }
 
@@ -1325,7 +1333,7 @@ namespace TrenchBroom {
         bool MapViewBase::canMakeStructural() const {
             MapDocumentSPtr document = lock(m_document);
             if (document->selectedNodes().hasOnlyBrushes()) {
-                const Model::BrushList& brushes = document->selectedNodes().brushes();
+                const std::vector<Model::Brush*>& brushes = document->selectedNodes().brushes();
                 for (const auto* brush : brushes) {
                     if (brush->hasAnyTag() || brush->entity() != document->world() || brush->anyFaceHasAnyTag()) {
                         return true;

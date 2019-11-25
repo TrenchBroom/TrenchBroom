@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -76,15 +77,15 @@ namespace TrenchBroom {
             node->setLockState(m_lockState);
         }
 
-        NodeList Node::clone(const vm::bbox3& worldBounds, const NodeList& nodes) {
-            NodeList clones;
+        std::vector<Node*> Node::clone(const vm::bbox3& worldBounds, const std::vector<Node*>& nodes) {
+            std::vector<Node*> clones;
             clones.reserve(nodes.size());
             clone(worldBounds, std::begin(nodes), std::end(nodes), std::back_inserter(clones));
             return clones;
         }
 
-        NodeList Node::cloneRecursively(const vm::bbox3& worldBounds, const NodeList& nodes) {
-            NodeList clones;
+        std::vector<Node*> Node::cloneRecursively(const vm::bbox3& worldBounds, const std::vector<Node*>& nodes) {
+            std::vector<Node*> clones;
             clones.reserve(nodes.size());
             cloneRecursively(worldBounds, std::begin(nodes), std::end(nodes), std::back_inserter(clones));
             return clones;
@@ -104,7 +105,7 @@ namespace TrenchBroom {
             return node->isDescendantOf(this);
         }
 
-        bool Node::isAncestorOf(const NodeList& nodes) const {
+        bool Node::isAncestorOf(const std::vector<Node*>& nodes) const {
             return std::any_of(std::begin(nodes), std::end(nodes), [this](const Node* node) { return isAncestorOf(node); });
         }
 
@@ -118,12 +119,12 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool Node::isDescendantOf(const NodeList& nodes) const {
+        bool Node::isDescendantOf(const std::vector<Node*>& nodes) const {
             return any_of(std::begin(nodes), std::end(nodes), [this](const Node* node) { return isDescendantOf(node); });
         }
 
-        NodeList Node::findDescendants(const NodeList& nodes) const {
-            NodeList result;
+        std::vector<Node*> Node::findDescendants(const std::vector<Node*>& nodes) const {
+            std::vector<Node*> result;
             std::copy_if(std::begin(nodes), std::end(nodes), std::back_inserter(result), [this](const Node* node) { return node->isDescendantOf(this); });
             return result;
         }
@@ -140,7 +141,7 @@ namespace TrenchBroom {
             return m_children.size();
         }
 
-        const NodeList& Node::children() const {
+        const std::vector<Node*>& Node::children() const {
             return m_children;
         }
 
@@ -156,7 +157,7 @@ namespace TrenchBroom {
             return doShouldAddToSpacialIndex();
         }
 
-        void Node::addChildren(const NodeList& children) {
+        void Node::addChildren(const std::vector<Node*>& children) {
             addChildren(std::begin(children), std::end(children), children.size());
         }
 
@@ -447,8 +448,8 @@ namespace TrenchBroom {
             decChildSelectionCount(1);
         }
 
-        NodeList Node::nodesRequiredForViewSelection() {
-            return NodeList{this};
+        std::vector<Node*> Node::nodesRequiredForViewSelection() {
+            return std::vector<Node*>{this};
         }
 
         void Node::incChildSelectionCount(const size_t delta) {
@@ -558,7 +559,7 @@ namespace TrenchBroom {
             doPick(ray, pickResult);
         }
 
-        void Node::findNodesContaining(const vm::vec3& point, NodeList& result) {
+        void Node::findNodesContaining(const vm::vec3& point, std::vector<Node*>& result) {
             doFindNodesContaining(point, result);
         }
 
@@ -610,11 +611,11 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_issues);
         }
 
-        void Node::findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {
+        void Node::findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<AttributableNode*>& result) const {
             return doFindAttributableNodesWithAttribute(name, value, result);
         }
 
-        void Node::findAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const {
+        void Node::findAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, std::vector<AttributableNode*>& result) const {
             return doFindAttributableNodesWithNumberedAttribute(prefix, value, result);
         }
 
@@ -661,12 +662,12 @@ namespace TrenchBroom {
         void Node::doDescendantWillChange(Node* /* node */) {}
         void Node::doDescendantDidChange(Node* /* node */)  {}
 
-        void Node::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {
+        void Node::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<AttributableNode*>& result) const {
             if (m_parent != nullptr)
                 m_parent->findAttributableNodesWithAttribute(name, value, result);
         }
 
-        void Node::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const {
+        void Node::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, std::vector<AttributableNode*>& result) const {
             if (m_parent != nullptr)
                 m_parent->findAttributableNodesWithNumberedAttribute(prefix, value, result);
         }

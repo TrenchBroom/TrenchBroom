@@ -317,7 +317,7 @@ namespace TrenchBroom {
             // entities will be removed automatically when they become empty
 
             const auto& selectedBrushes = facade.selectedNodes().nodes();
-            auto detailBrushes = Model::NodeList{};
+            auto detailBrushes = std::vector<Node*> {};
             for (auto* brush : selectedBrushes) {
                 if (matches(*brush)) {
                     detailBrushes.push_back(brush);
@@ -326,7 +326,7 @@ namespace TrenchBroom {
 
             facade.deselectAll();
             facade.reparentNodes(facade.currentParent(), detailBrushes);
-            facade.select(Model::NodeList(std::begin(detailBrushes), std::end(detailBrushes)));
+            facade.select(std::vector<Node*> (std::begin(detailBrushes), std::end(detailBrushes)));
         }
 
         bool EntityClassNameTagMatcher::canEnable() const {

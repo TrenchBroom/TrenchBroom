@@ -26,6 +26,8 @@
 #include "View/ToolController.h"
 #include "View/ViewTypes.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;
@@ -47,7 +49,7 @@ namespace TrenchBroom {
          * The order of the hits is preserved, but if multiple hits map to the same group, that group
          * will only be listed once in the output.
          */
-        Model::NodeList hitsToNodesWithGroupPicking(const Model::Hit::List& hits);
+        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const Model::Hit::List& hits);
 
         class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:
@@ -67,7 +69,7 @@ namespace TrenchBroom {
 
             const Model::Hit& firstHit(const InputState& inputState, Model::Hit::HitType type) const;
 
-            Model::NodeList collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) const;
+            std::vector<Model::Node*> collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) const;
 
             void doMouseScroll(const InputState& inputState) override;
             void adjustGrid(const InputState& inputState);

@@ -29,6 +29,9 @@
 #include <vecmath/forward.h>
 #include <vecmath/util.h>
 
+#include <map>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Assets {
         class EntityDefinitionManager;
@@ -57,7 +60,7 @@ namespace TrenchBroom {
             virtual bool hasSelectedNodes() const = 0;
             virtual bool hasSelectedBrushFaces() const = 0;
 
-            virtual const AttributableNodeList allSelectedAttributableNodes() const = 0;
+            virtual const std::vector<AttributableNode*> allSelectedAttributableNodes() const = 0;
             virtual const NodeCollection& selectedNodes() const = 0;
             virtual const BrushFaceList allSelectedBrushFaces() const = 0;
             virtual const BrushFaceList& selectedBrushFaces() const = 0;
@@ -72,7 +75,7 @@ namespace TrenchBroom {
             virtual void selectTouching(bool del) = 0;
             virtual void selectInside(bool del) = 0;
             virtual void selectNodesWithFilePosition(const std::vector<size_t>& positions) = 0;
-            virtual void select(const NodeList& nodes) = 0;
+            virtual void select(const std::vector<Node*>& nodes) = 0;
             virtual void select(Node* node) = 0;
             virtual void select(const BrushFaceList& faces) = 0;
             virtual void select(BrushFace* face) = 0;
@@ -80,31 +83,31 @@ namespace TrenchBroom {
 
             virtual void deselectAll() = 0;
             virtual void deselect(Node* node) = 0;
-            virtual void deselect(const NodeList& nodes) = 0;
+            virtual void deselect(const std::vector<Node*>& nodes) = 0;
             virtual void deselect(BrushFace* face) = 0;
         public: // adding, removing, reparenting, and duplicating nodes
             virtual void addNode(Node* node, Node* parent) = 0;
             virtual void removeNode(Node* node) = 0;
 
-            virtual NodeList addNodes(const ParentChildrenMap& nodes) = 0;
-            virtual NodeList addNodes(const NodeList& nodes, Node* parent) = 0;
-            virtual void removeNodes(const NodeList& nodes) = 0;
+            virtual std::vector<Node*> addNodes(const std::map<Node*, std::vector<Node*>>& nodes) = 0;
+            virtual std::vector<Node*> addNodes(const std::vector<Node*>& nodes, Node* parent) = 0;
+            virtual void removeNodes(const std::vector<Node*>& nodes) = 0;
 
-            virtual bool reparentNodes(Node* newParent, const NodeList& children) = 0;
-            virtual bool reparentNodes(const ParentChildrenMap& nodes) = 0;
+            virtual bool reparentNodes(Node* newParent, const std::vector<Node*>& children) = 0;
+            virtual bool reparentNodes(const std::map<Node*, std::vector<Node*>>& nodes) = 0;
             virtual bool deleteObjects() = 0;
             virtual bool duplicateObjects() = 0;
         public: // entity management
             virtual Model::Entity* createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta) = 0;
             virtual Model::Entity* createBrushEntity(const Assets::BrushEntityDefinition* definition) = 0;
         public: // modifying transient node attributes
-            virtual void hide(const NodeList nodes) = 0; // Don't take the nodes by reference!
-            virtual void show(const NodeList& nodes) = 0;
-            virtual void resetVisibility(const NodeList& nodes) = 0;
+            virtual void hide(const std::vector<Node*> nodes) = 0; // Don't take the nodes by reference!
+            virtual void show(const std::vector<Node*>& nodes) = 0;
+            virtual void resetVisibility(const std::vector<Node*>& nodes) = 0;
 
-            virtual void lock(const NodeList& nodes) = 0;
-            virtual void unlock(const NodeList& nodes) = 0;
-            virtual void resetLock(const NodeList& nodes) = 0;
+            virtual void lock(const std::vector<Node*>& nodes) = 0;
+            virtual void unlock(const std::vector<Node*>& nodes) = 0;
+            virtual void resetLock(const std::vector<Node*>& nodes) = 0;
         public: // modifying objects
             virtual bool translateObjects(const vm::vec3& delta) = 0;
             virtual bool rotateObjects(const vm::vec3& center, const vm::vec3& axis, FloatType angle) = 0;
@@ -129,7 +132,7 @@ namespace TrenchBroom {
             virtual bool rotateTextures(float angle) = 0;
             virtual bool shearTextures(const vm::vec2f& factors) = 0;
         public: // modifying vertices
-            virtual void rebuildBrushGeometry(const BrushList& brushes) = 0;
+            virtual void rebuildBrushGeometry(const std::vector<Brush*>& brushes) = 0;
             virtual bool snapVertices(FloatType snapTo) = 0;
             virtual bool findPlanePoints() = 0;
 

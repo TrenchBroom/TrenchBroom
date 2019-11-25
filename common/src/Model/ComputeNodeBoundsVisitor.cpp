@@ -23,6 +23,8 @@
 #include "Model/Group.h"
 #include "Model/Entity.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         ComputeNodeBoundsVisitor::ComputeNodeBoundsVisitor(const BoundsType type, const vm::bbox3& defaultBounds) :
@@ -65,11 +67,11 @@ namespace TrenchBroom {
             }
         }
 
-        vm::bbox3 computeLogicalBounds(const Model::NodeList& nodes) {
+        vm::bbox3 computeLogicalBounds(const std::vector<Node*>& nodes) {
             return computeLogicalBounds(std::begin(nodes), std::end(nodes));
         }
 
-        vm::bbox3 computePhysicalBounds(const Model::NodeList& nodes) {
+        vm::bbox3 computePhysicalBounds(const std::vector<Node*>& nodes) {
             return computePhysicalBounds(std::begin(nodes), std::end(nodes));
         }
     }

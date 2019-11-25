@@ -25,6 +25,8 @@
 #include "Model/ModelTypes.h"
 #include "Model/Node.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class Layer : public Node {
@@ -52,7 +54,7 @@ namespace TrenchBroom {
             bool doSelectable() const override;
 
             void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
-            void doFindNodesContaining(const vm::vec3& point, NodeList& result) override;
+            void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
 
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
             void doAccept(NodeVisitor& visitor) override;

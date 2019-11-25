@@ -23,14 +23,17 @@
 #include "Model/NodeVisitor.h"
 #include "Model/ModelTypes.h"
 
+#include <set>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class CollectAttributableNodesVisitor : public NodeVisitor {
         private:
-            NodeSet m_addedNodes;
-            AttributableNodeList m_nodes;
+            std::set<Node*> m_addedNodes;
+            std::vector<AttributableNode*> m_nodes;
         public:
-            const AttributableNodeList& nodes() const;
+            const std::vector<AttributableNode*>& nodes() const;
         private:
             void doVisit(World* world) override;
             void doVisit(Layer* layer) override;

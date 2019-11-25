@@ -29,10 +29,11 @@
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
 
+#include <cassert>
+#include <vector>
+
 #include <QScrollArea>
 #include <QVBoxLayout>
-
-#include <cassert>
 
 namespace TrenchBroom {
     namespace View {
@@ -80,7 +81,7 @@ namespace TrenchBroom {
             setLayout(layout);
         }
 
-        void SmartSpawnflagsEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
+        void SmartSpawnflagsEditor::doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) {
             assert(!attributables.empty());
             if (m_ignoreUpdates)
                 return;
@@ -108,7 +109,7 @@ namespace TrenchBroom {
 //            m_scrolledWindow->Scroll(m_lastScrollPos.x * xRate, m_lastScrollPos.y * yRate);
         }
 
-        void SmartSpawnflagsEditor::getFlags(const Model::AttributableNodeList& attributables, QStringList& labels, QStringList& tooltips) const {
+        void SmartSpawnflagsEditor::getFlags(const std::vector<Model::AttributableNode*>& attributables, QStringList& labels, QStringList& tooltips) const {
             QStringList defaultLabels;
 
             // Initialize the labels and tooltips.
@@ -148,15 +149,15 @@ namespace TrenchBroom {
             }
         }
 
-        void SmartSpawnflagsEditor::getFlagValues(const Model::AttributableNodeList& attributables, int& setFlags, int& mixedFlags) const {
+        void SmartSpawnflagsEditor::getFlagValues(const std::vector<Model::AttributableNode*>& attributables, int& setFlags, int& mixedFlags) const {
             if (attributables.empty()) {
                 setFlags = 0;
                 mixedFlags = 0;
                 return;
             }
 
-            Model::AttributableNodeList::const_iterator it = std::begin(attributables);
-            Model::AttributableNodeList::const_iterator end = std::end(attributables);
+            auto it = std::begin(attributables);
+            auto end = std::end(attributables);
             setFlags = getFlagValue(*it);
             mixedFlags = 0;
 
@@ -173,7 +174,7 @@ namespace TrenchBroom {
         }
 
         void SmartSpawnflagsEditor::flagChanged(const size_t index, const int /* setFlag */, const int /* mixedFlag */) {
-            const Model::AttributableNodeList& toUpdate = attributables();
+            const std::vector<Model::AttributableNode*>& toUpdate = attributables();
             if (toUpdate.empty())
                 return;
 

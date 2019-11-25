@@ -26,6 +26,8 @@
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/GroupRenderer.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Assets {
         class EntityModelManager;
@@ -47,9 +49,9 @@ namespace TrenchBroom {
             m_entityRenderer(entityModelManager, editorContext),
             m_brushRenderer(brushFilter) {}
         public: // object management
-            void setObjects(const Model::GroupList& groups, const Model::EntityList& entities, const Model::BrushList& brushes);
+            void setObjects(const std::vector<Model::Group*>& groups, const std::vector<Model::Entity*>& entities, const std::vector<Model::Brush*>& brushes);
             void invalidate();
-            void invalidateBrushes(const Model::BrushList& brushes);
+            void invalidateBrushes(const std::vector<Model::Brush*>& brushes);
             void clear();
             void reloadModels();
         public: // configuration

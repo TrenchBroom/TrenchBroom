@@ -23,27 +23,27 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::NodeList& Selection::partiallySelectedNodes() const {
+        const std::vector<Model::Node*>& Selection::partiallySelectedNodes() const {
             return m_partiallySelectedNodes;
         }
 
-        const Model::NodeList& Selection::partiallyDeselectedNodes() const {
+        const std::vector<Model::Node*>& Selection::partiallyDeselectedNodes() const {
             return m_partiallyDeselectedNodes;
         }
 
-        const Model::NodeList& Selection::recursivelySelectedNodes() const {
+        const std::vector<Model::Node*>& Selection::recursivelySelectedNodes() const {
             return m_recursivelySelectedNodes;
         }
 
-        const Model::NodeList& Selection::recursivelyDeselectedNodes() const {
+        const std::vector<Model::Node*>& Selection::recursivelyDeselectedNodes() const {
             return m_recursivelyDeselectedNodes;
         }
 
-        const Model::NodeList& Selection::selectedNodes() const {
+        const std::vector<Model::Node*>& Selection::selectedNodes() const {
             return m_selectedNodes;
         }
 
-        const Model::NodeList& Selection::deselectedNodes() const {
+        const std::vector<Model::Node*>& Selection::deselectedNodes() const {
             return m_deselectedNodes;
         }
 
@@ -55,27 +55,27 @@ namespace TrenchBroom {
             return m_deselectedBrushFaces;
         }
 
-        void Selection::addPartiallySelectedNodes(const Model::NodeList& nodes) {
+        void Selection::addPartiallySelectedNodes(const std::vector<Model::Node*>& nodes) {
             VectorUtils::append(m_partiallySelectedNodes, nodes);
         }
 
-        void Selection::addPartiallyDeselectedNodes(const Model::NodeList& nodes) {
+        void Selection::addPartiallyDeselectedNodes(const std::vector<Model::Node*>& nodes) {
             VectorUtils::append(m_partiallyDeselectedNodes, nodes);
         }
 
-        void Selection::addRecursivelySelectedNodes(const Model::NodeList& nodes) {
+        void Selection::addRecursivelySelectedNodes(const std::vector<Model::Node*>& nodes) {
             VectorUtils::append(m_recursivelySelectedNodes, nodes);
         }
 
-        void Selection::addRecursivelyDeselectedNodes(const Model::NodeList& nodes) {
+        void Selection::addRecursivelyDeselectedNodes(const std::vector<Model::Node*>& nodes) {
             VectorUtils::append(m_recursivelyDeselectedNodes, nodes);
         }
 
-        void Selection::addSelectedNodes(const Model::NodeList& nodes) {
+        void Selection::addSelectedNodes(const std::vector<Model::Node*>& nodes) {
             VectorUtils::append(m_selectedNodes, nodes);
         }
 
-        void Selection::addDeselectedNodes(const Model::NodeList& nodes) {
+        void Selection::addDeselectedNodes(const std::vector<Model::Node*>& nodes) {
             VectorUtils::append(m_deselectedNodes, nodes);
         }
 

@@ -51,7 +51,7 @@ namespace TrenchBroom {
             explicit SmartAttributeEditorManager(View::MapDocumentWPtr document, QWidget* parent = nullptr);
             ~SmartAttributeEditorManager();
 
-            void switchEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables);
+            void switchEditor(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables);
             bool isDefaultEditorActive() const;
         private:
             SmartAttributeEditor* activeEditor() const;
@@ -61,9 +61,9 @@ namespace TrenchBroom {
             void unbindObservers();
 
             void selectionDidChange(const Selection& selection);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
 
-            EditorPtr selectEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const;
+            EditorPtr selectEditor(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const;
             EditorPtr defaultEditor() const;
 
             void activateEditor(EditorPtr editor, const Model::AttributeName& name);

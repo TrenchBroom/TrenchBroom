@@ -23,68 +23,78 @@
 #include "Model/ModelTypes.h"
 #include "Model/NodeVisitor.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class CollectLayersStrategy {
         private:
-            LayerList m_layers;
+            std::vector<Layer*> m_layers;
         public:
-            const LayerList& layers() const;
+            const std::vector<Layer*>& layers() const;
         protected:
             void addLayer(Layer* layer);
         };
 
         class SkipLayersStrategy {
+        private:
+            static const std::vector<Layer*> m_layers;
         public:
-            const LayerList& layers() const;
+            const std::vector<Layer*>& layers() const;
         protected:
             void addLayer(Layer* layer);
         };
 
         class CollectGroupsStrategy {
         private:
-            GroupList m_groups;
+            std::vector<Group*> m_groups;
         public:
-            const GroupList& groups() const;
+            const std::vector<Group*>& groups() const;
         protected:
             void addGroup(Group* group);
         };
 
         class SkipGroupsStrategy {
+        private:
+            static const std::vector<Group*> m_groups;
         public:
-            const GroupList& groups() const;
+            const std::vector<Group*>& groups() const;
         protected:
             void addGroup(Group* group);
         };
 
         class CollectEntitiesStrategy {
         private:
-            EntityList m_entities;
+            std::vector<Entity*> m_entities;
         public:
-            const EntityList& entities() const;
+            const std::vector<Entity*>& entities() const;
         protected:
             void addEntity(Entity* entity);
         };
 
         class SkipEntitiesStrategy {
+        private:
+            static const std::vector<Entity*> m_entities;
         public:
-            const EntityList& entities() const;
+            const std::vector<Entity*>& entities() const;
         protected:
             void addEntity(Entity* entity);
         };
 
         class CollectBrushesStrategy {
         private:
-            BrushList m_brushes;
+            std::vector<Brush*> m_brushes;
         public:
-            const BrushList& brushes() const;
+            const std::vector<Brush*>& brushes() const;
         protected:
             void addBrush(Brush* brush);
         };
 
         class SkipBrushesStrategy {
+        private:
+            static const std::vector<Brush*> m_brushes;
         public:
-            const BrushList& brushes() const;
+            const std::vector<Brush*>& brushes() const;
         protected:
             void addBrush(Brush* brush);
         };

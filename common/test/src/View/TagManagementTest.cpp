@@ -399,7 +399,7 @@ namespace TrenchBroom {
             const auto& tag = document->smartTag("entity");
             ASSERT_FALSE(brush->hasTag(tag));
 
-            document->reparentNodes(entity, Model::NodeList{brush});
+            document->reparentNodes(entity, { brush });
             ASSERT_TRUE(brush->hasTag(tag));
         }
 
@@ -418,7 +418,7 @@ namespace TrenchBroom {
             const auto& tag = document->smartTag("entity");
             ASSERT_FALSE(brush->hasTag(tag));
 
-            document->reparentNodes(lightEntity, Model::NodeList{brush});
+            document->reparentNodes(lightEntity, { brush });
             ASSERT_TRUE(brush->hasTag(tag));
         }
 

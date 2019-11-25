@@ -27,6 +27,7 @@
 #include "Model/NodeVisitor.h"
 
 #include <algorithm>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -47,11 +48,11 @@ namespace TrenchBroom {
         class NodeCollection::RemoveNode : public NodeVisitor {
         private:
             NodeCollection& m_collection;
-            NodeList::iterator m_nodeRem;
-            LayerList::iterator m_layerRem;
-            GroupList::iterator m_groupRem;
-            EntityList::iterator m_entityRem;
-            BrushList::iterator m_brushRem;
+            std::vector<Node*>::iterator m_nodeRem;
+            std::vector<Layer*>::iterator m_layerRem;
+            std::vector<Model::Group*>::iterator m_groupRem;
+            std::vector<Entity*>::iterator m_entityRem;
+            std::vector<Brush*>::iterator m_brushRem;
         public:
             RemoveNode(NodeCollection& collection) :
             m_collection(collection),
@@ -137,43 +138,43 @@ namespace TrenchBroom {
             return !empty() && nodeCount() == brushCount();
         }
 
-        NodeList::iterator NodeCollection::begin() {
+        std::vector<Node*>::iterator NodeCollection::begin() {
             return std::begin(m_nodes);
         }
 
-        NodeList::iterator NodeCollection::end() {
+        std::vector<Node*>::iterator NodeCollection::end() {
             return std::end(m_nodes);
         }
 
-        NodeList::const_iterator NodeCollection::begin() const {
+        std::vector<Node*>::const_iterator NodeCollection::begin() const {
             return std::begin(m_nodes);
         }
 
-        NodeList::const_iterator NodeCollection::end() const {
+        std::vector<Node*>::const_iterator NodeCollection::end() const {
             return std::end(m_nodes);
         }
 
-        const NodeList& NodeCollection::nodes() const {
+        const std::vector<Node*>& NodeCollection::nodes() const {
             return m_nodes;
         }
 
-        const LayerList& NodeCollection::layers() const {
+        const std::vector<Layer*>& NodeCollection::layers() const {
             return m_layers;
         }
 
-        const GroupList& NodeCollection::groups() const {
+        const std::vector<Model::Group*>& NodeCollection::groups() const {
             return m_groups;
         }
 
-        const EntityList& NodeCollection::entities() const {
+        const std::vector<Entity*>& NodeCollection::entities() const {
             return m_entities;
         }
 
-        const BrushList& NodeCollection::brushes() const {
+        const std::vector<Brush*>& NodeCollection::brushes() const {
             return m_brushes;
         }
 
-        void NodeCollection::addNodes(const NodeList& nodes) {
+        void NodeCollection::addNodes(const std::vector<Node*>& nodes) {
             AddNode visitor(*this);
             Node::accept(std::begin(nodes), std::end(nodes), visitor);
         }
@@ -184,7 +185,7 @@ namespace TrenchBroom {
             node->accept(visitor);
         }
 
-        void NodeCollection::removeNodes(const NodeList& nodes) {
+        void NodeCollection::removeNodes(const std::vector<Node*>& nodes) {
             RemoveNode visitor(*this);
             Node::accept(std::begin(nodes), std::end(nodes), visitor);
         }

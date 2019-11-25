@@ -41,13 +41,14 @@
 #include <vecmath/vec.h>
 #include <vecmath/line.h>
 #include <vecmath/plane.h>
-#include <vecmath/segment.h>
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>
 #include <vecmath/scalar.h>
 
-#include <algorithm>
-#include <iterator>
+#include <limits>
+#include <map>
+#include <set>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -237,7 +238,7 @@ namespace TrenchBroom {
             Model::CollectMatchingBrushFacesVisitor<MatchFaceBoundary> visitor((MatchFaceBoundary(face)));
 
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            const auto& nodes = document->selectedNodes().nodes();
             Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
             return visitor.faces();
         }
@@ -346,7 +347,7 @@ namespace TrenchBroom {
                 return true;
             }
 
-            std::map<vm::polygon3, Model::BrushSet> brushMap;
+            std::map<vm::polygon3, std::set<Model::Brush*>> brushMap;
             for (const auto* face : dragFaces()) {
                 brushMap[face->polygon()].insert(face->brush());
             }
@@ -384,16 +385,16 @@ namespace TrenchBroom {
 
             // First ensure that the drag can be applied at all. For this, check whether each drag handle is moved
             // "up" along its normal.
-            if (!std::all_of(std::begin(m_dragHandles), std::end(m_dragHandles), [&delta](const auto& handle) {
+            for (const auto& handle : m_dragHandles) {
                 const auto& normal = std::get<1>(handle);
-                return dot(normal, delta) > FloatType(0.0);
-            })) {
-                return false;
+                if (vm::dot(normal, delta) <= FloatType(0)) {
+                    return false;
+                }
             }
 
-            Model::BrushList newBrushes;
+            std::vector<Model::Brush*> newBrushes;
             std::vector<FaceHandle> newDragHandles;
-            Model::ParentChildrenMap newNodes;
+            std::map<Model::Node*, std::vector<Model::Node*>> newNodes;
 
             for (auto* dragFace : dragFaces()) {
                 auto* brush = dragFace->brush();
@@ -448,7 +449,10 @@ namespace TrenchBroom {
 
             std::vector<vm::polygon3> result;
             result.reserve(dragFaces.size());
-            std::transform(std::begin(dragFaces), std::end(dragFaces), std::back_inserter(result), [](const Model::BrushFace* face) { return face->polygon(); });
+            for (const auto* face : dragFaces) {
+                result.push_back(face->polygon());
+            }
+
             return result;
         }
 
@@ -470,7 +474,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ResizeBrushesTool::nodesDidChange(const Model::NodeList&) {
+        void ResizeBrushesTool::nodesDidChange(const std::vector<Model::Node*>&) {
             if (!m_dragging) {
                 m_dragHandles.clear();
             }

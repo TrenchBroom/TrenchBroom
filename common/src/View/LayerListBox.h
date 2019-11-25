@@ -80,8 +80,8 @@ namespace TrenchBroom {
             void unbindObservers();
 
             void documentDidChange(MapDocument* document);
-            void nodesWereAddedOrRemoved(const Model::NodeList& nodes);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesWereAddedOrRemoved(const std::vector<Model::Node*>& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void currentLayerDidChange(const Model::Layer* layer);
 
             const LayerListBoxWidget* widgetAtRow(int row) const;

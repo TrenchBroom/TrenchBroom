@@ -19,11 +19,13 @@
 
 #include "CollectMatchingNodesVisitor.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         NodeCollectionStrategy::~NodeCollectionStrategy() {}
 
-        const NodeList& NodeCollectionStrategy::nodes() const {
+        const std::vector<Node*>& NodeCollectionStrategy::nodes() const {
             return m_nodes;
         }
 

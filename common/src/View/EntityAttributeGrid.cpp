@@ -249,7 +249,7 @@ namespace TrenchBroom {
             updateControls();
         }
 
-        void EntityAttributeGrid::nodesDidChange(const Model::NodeList&) {
+        void EntityAttributeGrid::nodesDidChange(const std::vector<Model::Node*>&) {
             updateControls();
         }
 

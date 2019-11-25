@@ -30,25 +30,25 @@
 
 namespace TrenchBroom {
     namespace View {
-        VertexCommand::VertexCommand(const CommandType type, const String& name, const Model::BrushList& brushes) :
+        VertexCommand::VertexCommand(const CommandType type, const String& name, const std::vector<Model::Brush*>& brushes) :
         DocumentCommand(type, name),
         m_brushes(brushes) {}
 
         VertexCommand::~VertexCommand() = default;
 
-        void VertexCommand::extractVertexMap(const Model::VertexToBrushesMap& vertices, Model::BrushList& brushes, Model::BrushVerticesMap& brushVertices, std::vector<vm::vec3>& vertexPositions) {
+        void VertexCommand::extractVertexMap(const Model::VertexToBrushesMap& vertices, std::vector<Model::Brush*>& brushes, Model::BrushVerticesMap& brushVertices, std::vector<vm::vec3>& vertexPositions) {
             extract(vertices, brushes, brushVertices, vertexPositions);
         }
 
-        void VertexCommand::extractEdgeMap(const Model::EdgeToBrushesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions) {
+        void VertexCommand::extractEdgeMap(const Model::EdgeToBrushesMap& edges, std::vector<Model::Brush*>& brushes, Model::BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions) {
             extract(edges, brushes, brushEdges, edgePositions);
         }
 
-        void VertexCommand::extractFaceMap(const Model::FaceToBrushesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions) {
+        void VertexCommand::extractFaceMap(const Model::FaceToBrushesMap& faces, std::vector<Model::Brush*>& brushes, Model::BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions) {
             extract(faces, brushes, brushFaces, facePositions);
         }
 
-        void VertexCommand::extractEdgeMap(const VertexToEdgesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions) {
+        void VertexCommand::extractEdgeMap(const VertexToEdgesMap& edges, std::vector<Model::Brush*>& brushes, Model::BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions) {
 
             for (const auto& entry : edges) {
                 const BrushEdgeSet& mappedEdges = entry.second;
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             assert(brushes.size() == brushEdges.size());
         }
 
-        void VertexCommand::extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions) {
+        void VertexCommand::extractFaceMap(const Model::VertexToFacesMap& faces, std::vector<Model::Brush*>& brushes, Model::BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions) {
 
             for (const auto& entry : faces) {
                 const Model::BrushFaceSet& mappedFaces = entry.second;

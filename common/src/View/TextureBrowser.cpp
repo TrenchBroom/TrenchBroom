@@ -202,15 +202,15 @@ namespace TrenchBroom {
             reload();
         }
 
-        void TextureBrowser::nodesWereAdded(const Model::NodeList&) {
+        void TextureBrowser::nodesWereAdded(const std::vector<Model::Node*>&) {
             reload();
         }
 
-        void TextureBrowser::nodesWereRemoved(const Model::NodeList&) {
+        void TextureBrowser::nodesWereRemoved(const std::vector<Model::Node*>&) {
             reload();
         }
 
-        void TextureBrowser::nodesDidChange(const Model::NodeList&) {
+        void TextureBrowser::nodesDidChange(const std::vector<Model::Node*>&) {
             reload();
         }
 

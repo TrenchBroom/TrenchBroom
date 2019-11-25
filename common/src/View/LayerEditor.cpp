@@ -32,13 +32,15 @@
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 
+#include <set>
+#include <vector>
+
 #include <QInputDialog>
 #include <QMenu>
 #include <QVBoxLayout>
 #include <QMessageBox>
-#include <QAbstractButton>
 
-#include <set>
+#include <QAbstractButton>
 
 namespace TrenchBroom {
     namespace View {
@@ -54,10 +56,10 @@ namespace TrenchBroom {
         void LayerEditor::onSetCurrentLayer(Model::Layer* layer) {
             auto document = lock(m_document);
             if (layer->locked()) {
-                document->resetLock(Model::NodeList(1, layer));
+                document->resetLock(std::vector<Model::Node*>(1, layer));
             }
             if (layer->hidden()) {
-                document->resetVisibility(Model::NodeList(1, layer));
+                document->resetVisibility(std::vector<Model::Node*>(1, layer));
             }
             document->setCurrentLayer(layer);
 
@@ -108,9 +110,9 @@ namespace TrenchBroom {
             ensure(layer != nullptr, "layer is null");
             auto document = lock(m_document);
             if (!layer->hidden()) {
-                document->hide(Model::NodeList(1, layer));
+                document->hide(std::vector<Model::Node*>(1, layer));
             } else {
-                document->resetVisibility(Model::NodeList(1, layer));
+                document->resetVisibility(std::vector<Model::Node*>(1, layer));
             }
         }
 
@@ -140,26 +142,26 @@ namespace TrenchBroom {
             ensure(layer != nullptr, "layer is null");
             auto document = lock(m_document);
             if (!layer->locked()) {
-                document->lock(Model::NodeList(1, layer));
+                document->lock(std::vector<Model::Node*>(1, layer));
             } else {
-                document->resetLock(Model::NodeList(1, layer));
+                document->resetLock(std::vector<Model::Node*>(1, layer));
             }
         }
 
         class LayerEditor::CollectMoveableNodes : public Model::NodeVisitor {
         private:
             Model::World* m_world;
-            Model::NodeSet m_selectNodes;
-            Model::NodeSet m_moveNodes;
+            std::set<Model::Node*> m_selectNodes;
+            std::set<Model::Node*> m_moveNodes;
         public:
             CollectMoveableNodes(Model::World* world) : m_world(world) {}
 
-            const Model::NodeList selectNodes() const {
-                return Model::NodeList(std::begin(m_selectNodes), std::end(m_selectNodes));
+            const std::vector<Model::Node*> selectNodes() const {
+                return std::vector<Model::Node*>(std::begin(m_selectNodes), std::end(m_selectNodes));
             }
 
-            const Model::NodeList moveNodes() const {
-                return Model::NodeList(std::begin(m_moveNodes), std::end(m_moveNodes));
+            const std::vector<Model::Node*> moveNodes() const {
+                return std::vector<Model::Node*>(std::begin(m_moveNodes), std::end(m_moveNodes));
             }
         private:
             void doVisit(Model::World*) override   {}
@@ -192,7 +194,7 @@ namespace TrenchBroom {
                         m_selectNodes.insert(brush);
                     } else {
                         if (m_moveNodes.insert(entity).second) {
-                            const Model::NodeList& siblings = entity->children();
+                            const std::vector<Model::Node*>& siblings = entity->children();
                             m_selectNodes.insert(std::begin(siblings), std::end(siblings));
                         }
                     }
@@ -324,7 +326,7 @@ namespace TrenchBroom {
         void LayerEditor::onShowAllLayers() {
             auto document = lock(m_document);
             const auto layers = document->world()->allLayers();
-            document->resetVisibility(Model::NodeList(std::begin(layers), std::end(layers)));
+            document->resetVisibility(std::vector<Model::Node*>(std::begin(layers), std::end(layers)));
         }
 
         Model::Layer* LayerEditor::findVisibleAndUnlockedLayer(const Model::Layer* except) const {

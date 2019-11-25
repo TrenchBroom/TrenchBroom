@@ -36,12 +36,16 @@ namespace TrenchBroom {
         using IdType = size_t;
 
         class Node;
-        using NodeSet = std::set<Node*>;
-        using NodeList = std::vector<Node*>;
-        static const NodeList EmptyNodeList(0);
 
-        using NodeMap = std::map<Node*, Node*>;
-        using ParentChildrenMap = std::map<Node*, NodeList>;
+        class AttributableNode;
+        class World;
+        class Layer;
+        class Group;
+        class Entity;
+        class Brush;
+        class BrushFace;
+
+        class Object;
 
         // TODO: replace with class based enum
         typedef enum {
@@ -57,44 +61,9 @@ namespace TrenchBroom {
             Lock_Unlocked  = 4
         } LockState;
 
-        using VisibilityMap = std::map<Node*, VisibilityState>;
-        using LockStateMap = std::map<Node*, LockState>;
-
         class NodeVisitor;
         class ConstNodeVisitor;
 
-        class World;
-
-        class AttributableNode;
-        using AttributableNodeSet = std::set<AttributableNode*>;
-        static const AttributableNodeSet EmptyAttributableNodeSet;
-        using AttributableNodeList = std::vector<AttributableNode*>;
-        static const AttributableNodeList EmptyAttributableNodeList(0);
-
-        class Layer;
-        using LayerList = std::vector<Layer*>;
-        static const LayerList EmptyLayerList(0);
-
-        class Group;
-        using GroupList = std::vector<Group*>;
-        static const GroupList EmptyGroupList(0);
-        using GroupSet = std::set<Group*>;
-        using GroupNameMap = std::map<Group*, String>;
-
-        class Entity;
-        using EntityList = std::vector<Entity*>;
-        static const EntityList EmptyEntityList(0);
-        using EntitySet = std::set<Entity*>;
-
-        class Brush;
-        using BrushList = std::vector<Brush*>;
-        static const BrushList EmptyBrushList(0);
-        using BrushSet = std::set<Brush*>;
-        static const BrushSet EmptyBrushSet;
-
-        class Object;
-
-        class BrushFace;
         using BrushFaceSet = std::set<BrushFace*>;
         static const BrushFaceSet EmptyBrushFaceSet;
         using BrushFaceList = std::vector<BrushFace*>;
@@ -106,9 +75,9 @@ namespace TrenchBroom {
         using AttributeValue = String;
         using AttributeValueList = std::vector<AttributeValue>;
 
-        using VertexToBrushesMap = std::map<vm::vec3, BrushSet>;
-        using EdgeToBrushesMap = std::map<vm::segment3, BrushSet>;
-        using FaceToBrushesMap = std::map<vm::polygon3, BrushSet>;
+        using VertexToBrushesMap = std::map<vm::vec3, std::set<Brush*>>;
+        using EdgeToBrushesMap = std::map<vm::segment3, std::set<Brush*>>;
+        using FaceToBrushesMap = std::map<vm::polygon3, std::set<Brush*>>;
         using VertexToFacesMap = std::map<vm::vec3, BrushFaceSet>;
         using BrushVerticesMap = std::map<Model::Brush*, std::vector<vm::vec3>>;
         using BrushEdgesMap = std::map<Model::Brush*, std::vector<vm::segment3>>;

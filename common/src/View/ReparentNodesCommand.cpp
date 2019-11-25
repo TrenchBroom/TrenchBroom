@@ -29,11 +29,11 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ReparentNodesCommand::Type = Command::freeType();
 
-        ReparentNodesCommand::Ptr ReparentNodesCommand::reparent(const Model::ParentChildrenMap& nodesToAdd, const Model::ParentChildrenMap& nodesToRemove) {
+        ReparentNodesCommand::Ptr ReparentNodesCommand::reparent(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove) {
             return Ptr(new ReparentNodesCommand(nodesToAdd, nodesToRemove));
         }
 
-        ReparentNodesCommand::ReparentNodesCommand(const Model::ParentChildrenMap& nodesToAdd, const Model::ParentChildrenMap& nodesToRemove) :
+        ReparentNodesCommand::ReparentNodesCommand(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove) :
         DocumentCommand(Type, "Reparent Objects"),
         m_nodesToAdd(nodesToAdd),
         m_nodesToRemove(nodesToRemove) {}

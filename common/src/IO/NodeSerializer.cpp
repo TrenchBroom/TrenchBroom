@@ -85,7 +85,7 @@ namespace TrenchBroom {
             endEntity(node);
         }
 
-        void NodeSerializer::entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, const Model::BrushList& entityBrushes) {
+        void NodeSerializer::entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, const std::vector<Model::Brush*>& entityBrushes) {
             beginEntity(node, attributes, parentAttributes);
             brushes(entityBrushes);
             endEntity(node);
@@ -108,17 +108,19 @@ namespace TrenchBroom {
         }
 
         void NodeSerializer::entityAttributes(const Model::EntityAttribute::List& attributes) {
-            std::for_each(std::begin(attributes), std::end(attributes),
-                          [this](const Model::EntityAttribute& attribute) { entityAttribute(attribute); });
+            for (const auto& attribute : attributes) {
+                entityAttribute(attribute);
+            }
         }
 
         void NodeSerializer::entityAttribute(const Model::EntityAttribute& attribute) {
             doEntityAttribute(attribute);
         }
 
-        void NodeSerializer::brushes(const Model::BrushList& brushes) {
-            std::for_each(std::begin(brushes), std::end(brushes),
-                          [this](Model::Brush* brush) { this->brush(brush); });
+        void NodeSerializer::brushes(const std::vector<Model::Brush*>& brushes) {
+            for (auto* brush : brushes) {
+                this->brush(brush);
+            }
         }
 
         void NodeSerializer::brush(Model::Brush* brush) {
@@ -137,8 +139,9 @@ namespace TrenchBroom {
         }
 
         void NodeSerializer::brushFaces(const Model::BrushFaceList& faces) {
-            std::for_each(std::begin(faces), std::end(faces),
-                          [this](Model::BrushFace* face) { brushFace(face); });
+            for (auto* face : faces) {
+                brushFace(face);
+            }
         }
 
         void NodeSerializer::brushFace(Model::BrushFace* face) {

@@ -23,6 +23,8 @@
 #include "Model/ModelTypes.h"
 #include "View/VertexCommand.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class Snapshot;
@@ -42,7 +44,7 @@ namespace TrenchBroom {
             static Ptr move(const Model::VertexToBrushesMap& vertices, const vm::vec3& delta);
             bool hasRemainingVertices() const;
         private:
-            MoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta);
+            MoveBrushVerticesCommand(const std::vector<Model::Brush*>& brushes, const Model::BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta);
 
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;

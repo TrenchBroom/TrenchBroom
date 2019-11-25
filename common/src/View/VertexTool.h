@@ -21,9 +21,11 @@
 #define VertexTool_h
 
 #include "Renderer/PointGuideRenderer.h"
-#include "View/UndoableCommand.h"
 #include "View/VertexToolBase.h"
 #include "View/VertexHandleManager.h"
+
+#include <set>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -41,6 +43,7 @@ namespace TrenchBroom {
         class Grid;
         class Lasso;
         class Selection;
+        class VertexCommand;
 
         class VertexTool : public VertexToolBase<vm::vec3> {
         private:
@@ -60,9 +63,9 @@ namespace TrenchBroom {
         public:
             VertexTool(MapDocumentWPtr document);
         public:
-            Model::BrushSet findIncidentBrushes(const vm::vec3& handle) const;
-            Model::BrushSet findIncidentBrushes(const vm::segment3& handle) const;
-            Model::BrushSet findIncidentBrushes(const vm::polygon3& handle) const;
+            std::set<Model::Brush*> findIncidentBrushes(const vm::vec3& handle) const;
+            std::set<Model::Brush*> findIncidentBrushes(const vm::segment3& handle) const;
+            std::set<Model::Brush*> findIncidentBrushes(const vm::polygon3& handle) const;
         private:
             using VertexToolBase::findIncidentBrushes;
         public:
@@ -88,8 +91,8 @@ namespace TrenchBroom {
             bool doActivate() override;
             bool doDeactivate() override;
         private:
-            void addHandles(const Model::NodeList& nodes) override;
-            void removeHandles(const Model::NodeList& nodes) override;
+            void addHandles(const std::vector<Model::Node*>& nodes) override;
+            void removeHandles(const std::vector<Model::Node*>& nodes) override;
 
             void addHandles(VertexCommand* command) override;
             void removeHandles(VertexCommand* command) override;

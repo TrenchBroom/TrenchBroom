@@ -113,7 +113,7 @@ namespace TrenchBroom {
             document->addNode(brush1, document->currentParent());
             document->addNode(brush2, document->currentParent());
 
-            Model::NodeList brushes;
+            std::vector<Model::Node*> brushes;
             brushes.push_back(brush1);
             brushes.push_back(brush2);
             document->select(brushes);
@@ -141,7 +141,7 @@ namespace TrenchBroom {
             document->addNode(brush1, document->currentParent());
             document->addNode(brush2, document->currentParent());
 
-            Model::NodeList brushes;
+            std::vector<Model::Node*> brushes;
             brushes.push_back(brush1);
             brushes.push_back(brush2);
             document->select(brushes);
@@ -170,7 +170,7 @@ namespace TrenchBroom {
             Model::Brush *brush1 = builder.createCuboid(initialBBox, "texture");
 
             document->addNode(brush1, document->currentParent());
-            document->select(Model::NodeList{brush1});
+            document->select(std::vector<Model::Node*>{brush1});
 
             const std::set<vm::vec3> initialPositions{
                 // bottom face
@@ -211,7 +211,7 @@ namespace TrenchBroom {
             Model::Brush *brush1 = builder.createCuboid(initialBBox, "texture");
 
             document->addNode(brush1, document->currentParent());
-            document->select(Model::NodeList{brush1});
+            document->select(std::vector<Model::Node*>{brush1});
 
             const std::set<vm::vec3> initialPositions{
                 // bottom face
@@ -254,7 +254,7 @@ namespace TrenchBroom {
             Model::Brush *brush1 = builder.createCuboid(initialBBox, "texture");
 
             document->addNode(brush1, document->currentParent());
-            document->select(Model::NodeList{brush1});
+            document->select(std::vector<Model::Node*>{brush1});
 
             ASSERT_EQ(vm::vec3(200,200,200), brush1->logicalBounds().size());
             ASSERT_EQ(vm::plane3(100.0, vm::vec3::pos_z()), brush1->findFace(vm::vec3::pos_z())->boundary());
@@ -278,7 +278,7 @@ namespace TrenchBroom {
             Model::Brush *brush1 = builder.createCuboid(initialBBox, "texture");
 
             document->addNode(brush1, document->currentParent());
-            document->select(Model::NodeList{ brush1 });
+            document->select(std::vector<Model::Node*>{ brush1 });
             [[maybe_unused]] Model::Group* group = document->groupSelection("my group");
 
             // attempting an invalid scale has no effect
@@ -297,7 +297,7 @@ namespace TrenchBroom {
             Model::Brush *brush1 = builder.createCuboid(initialBBox, "texture");
 
             document->addNode(brush1, document->currentParent());
-            document->select(Model::NodeList{brush1});
+            document->select(std::vector<Model::Node*>{brush1});
 
             const vm::vec3 boundsCenter = initialBBox.center();
             ASSERT_TRUE(document->scaleObjects(boundsCenter, vm::vec3(2.0, 1.0, 1.0)));
@@ -316,7 +316,7 @@ namespace TrenchBroom {
             document->addNode(brush2, document->currentParent());
             ASSERT_EQ(1u, entity->children().size());
 
-            document->select(Model::NodeList { brush1, brush2 });
+            document->select(std::vector<Model::Node*> { brush1, brush2 });
             ASSERT_TRUE(document->csgConvexMerge());
             ASSERT_EQ(1u, entity->children().size()); // added to the parent of the first brush
 
@@ -390,7 +390,7 @@ namespace TrenchBroom {
             document->addNode(brush2, entity);
             ASSERT_EQ(2u, entity->children().size());
 
-            document->select(Model::NodeList { brush1, brush2 });
+            document->select(std::vector<Model::Node*> { brush1, brush2 });
             ASSERT_TRUE(document->csgConvexMerge());
             ASSERT_EQ(1u, entity->children().size());
 
@@ -417,7 +417,7 @@ namespace TrenchBroom {
             ASSERT_EQ(2u, entity->children().size());
 
             // we want to compute brush1 - brush2
-            document->select(Model::NodeList { brush2 });
+            document->select(std::vector<Model::Node*> { brush2 });
             ASSERT_TRUE(document->csgSubtract());
             ASSERT_EQ(1u, entity->children().size());
 
@@ -441,11 +441,11 @@ namespace TrenchBroom {
             Model::Brush* subtrahend1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 32, 64)), "texture");
             Model::Brush* subtrahend2 = builder.createCuboid(vm::bbox3(vm::vec3(32, 32, 0), vm::vec3(64, 64, 64)), "texture");
 
-            document->addNodes(Model::NodeList{minuend, subtrahend1, subtrahend2}, entity);
+            document->addNodes(std::vector<Model::Node*>{minuend, subtrahend1, subtrahend2}, entity);
             ASSERT_EQ(3u, entity->children().size());
 
             // we want to compute minuend - {subtrahend1, subtrahend2}
-            document->select(Model::NodeList{subtrahend1, subtrahend2});
+            document->select(std::vector<Model::Node*>{subtrahend1, subtrahend2});
             ASSERT_TRUE(document->csgSubtract());
             ASSERT_EQ(2u, entity->children().size());
 
@@ -472,9 +472,9 @@ namespace TrenchBroom {
             document->addNode(entity, document->currentParent());
 
             Model::Brush* subtrahend1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture");
-            document->addNodes(Model::NodeList{subtrahend1}, entity);
+            document->addNodes(std::vector<Model::Node*>{subtrahend1}, entity);
 
-            document->select(Model::NodeList{subtrahend1});
+            document->select(std::vector<Model::Node*>{subtrahend1});
             ASSERT_TRUE(document->csgSubtract());
             ASSERT_EQ(0u, entity->children().size());
             EXPECT_TRUE(document->selectedNodes().empty());
@@ -483,7 +483,7 @@ namespace TrenchBroom {
             document->undoLastCommand();
 
             EXPECT_TRUE(document->selectedNodes().hasOnlyBrushes());
-            EXPECT_EQ((Model::BrushList{subtrahend1}), document->selectedNodes().brushes());
+            EXPECT_EQ(std::vector<Model::Brush*>({ subtrahend1 }), document->selectedNodes().brushes());
         }
 
         TEST_F(MapDocumentTest, newWithGroupOpen) {
@@ -509,14 +509,14 @@ namespace TrenchBroom {
 
             document->addNode(innerEnt1, document->currentParent());
             document->addNode(innerEnt2, document->currentParent());
-            document->select(Model::NodeList {innerEnt1, innerEnt2});
+            document->select(std::vector<Model::Node*> {innerEnt1, innerEnt2});
 
             Model::Group* inner = document->groupSelection("Inner");
 
             document->deselectAll();
             document->addNode(outerEnt1, document->currentParent());
             document->addNode(outerEnt2, document->currentParent());
-            document->select(Model::NodeList {inner, outerEnt1, outerEnt2});
+            document->select(std::vector<Model::Node*> {inner, outerEnt1, outerEnt2});
 
             Model::Group* outer = document->groupSelection("Outer");
             document->deselectAll();
@@ -548,13 +548,13 @@ namespace TrenchBroom {
             Model::Entity* ent1 = new Model::Entity();
 
             document->addNode(ent1, document->currentParent());
-            document->select(Model::NodeList {ent1});
+            document->select(std::vector<Model::Node*> {ent1});
 
             Model::Group* group = document->groupSelection("Group");
-            ASSERT_EQ((Model::NodeList {group}), document->selectedNodes().nodes());
+            ASSERT_EQ((std::vector<Model::Node*> {group}), document->selectedNodes().nodes());
 
             document->ungroupSelection();
-            ASSERT_EQ((Model::NodeList {ent1}), document->selectedNodes().nodes());
+            ASSERT_EQ((std::vector<Model::Node*> {ent1}), document->selectedNodes().nodes());
         }
 
         TEST_F(MapDocumentTest, ungroupLeavesBrushEntitySelected) {
@@ -565,17 +565,17 @@ namespace TrenchBroom {
 
             Model::Brush* brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture");
             document->addNode(brush1, ent1);
-            document->select(Model::NodeList{ent1});
-            ASSERT_EQ((Model::NodeList {brush1}), document->selectedNodes().nodes());
+            document->select(std::vector<Model::Node*>{ent1});
+            ASSERT_EQ((std::vector<Model::Node*> {brush1}), document->selectedNodes().nodes());
             ASSERT_FALSE(ent1->selected());
             ASSERT_TRUE(brush1->selected());
 
             Model::Group* group = document->groupSelection("Group");
-            ASSERT_EQ((Model::NodeList {ent1}), group->children());
-            ASSERT_EQ((Model::NodeList {group}), document->selectedNodes().nodes());
+            ASSERT_EQ((std::vector<Model::Node*> {ent1}), group->children());
+            ASSERT_EQ((std::vector<Model::Node*> {group}), document->selectedNodes().nodes());
 
             document->ungroupSelection();
-            ASSERT_EQ((Model::NodeList {brush1}), document->selectedNodes().nodes());
+            ASSERT_EQ((std::vector<Model::Node*> {brush1}), document->selectedNodes().nodes());
             ASSERT_FALSE(ent1->selected());
             ASSERT_TRUE(brush1->selected());
         }
@@ -587,25 +587,25 @@ namespace TrenchBroom {
             Model::Entity* ent1 = new Model::Entity();
             document->addNode(ent1, document->currentParent());
             document->deselectAll();
-            document->select(Model::NodeList {ent1});
+            document->select(std::vector<Model::Node*> {ent1});
             Model::Group* group1 = document->groupSelection("group1");
 
             Model::Entity* ent2 = new Model::Entity();
             document->addNode(ent2, document->currentParent());
             document->deselectAll();
-            document->select(Model::NodeList {ent2});
+            document->select(std::vector<Model::Node*> {ent2});
             Model::Group* group2 = document->groupSelection("group2");
 
-            ASSERT_EQ((Model::NodeSet {group1, group2}), SetUtils::makeSet(document->currentLayer()->children()));
+            ASSERT_EQ((std::set<Model::Node*> {group1, group2}), SetUtils::makeSet(document->currentLayer()->children()));
 
-            document->select(Model::NodeList {group1, group2});
+            document->select(std::vector<Model::Node*> {group1, group2});
             document->mergeSelectedGroupsWithGroup(group2);
 
-            ASSERT_EQ((Model::NodeList {group2}), document->selectedNodes().nodes());
-            ASSERT_EQ((Model::NodeList {group2}), document->currentLayer()->children());
+            ASSERT_EQ((std::vector<Model::Node*> {group2}), document->selectedNodes().nodes());
+            ASSERT_EQ((std::vector<Model::Node*> {group2}), document->currentLayer()->children());
 
-            ASSERT_EQ((Model::NodeSet {}), SetUtils::makeSet(group1->children()));
-            ASSERT_EQ((Model::NodeSet {ent1, ent2}), SetUtils::makeSet(group2->children()));
+            ASSERT_EQ((std::set<Model::Node*> {}), SetUtils::makeSet(group1->children()));
+            ASSERT_EQ((std::set<Model::Node*> {ent1, ent2}), SetUtils::makeSet(group2->children()));
         }
 
         TEST_F(MapDocumentTest, pickSingleBrush) {
@@ -686,7 +686,7 @@ namespace TrenchBroom {
             ASSERT_EQ(brush1->findFace(vm::vec3::neg_x()), hits.front().target<Model::BrushFace*>());
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
 
-            ASSERT_EQ(Model::NodeList{ group }, hitsToNodesWithGroupPicking(hits));
+            ASSERT_EQ(std::vector<Model::Node*>{ group }, hitsToNodesWithGroupPicking(hits));
 
             // hitting both objects in the group should return the group only once
             pickResult.clear();
@@ -695,7 +695,7 @@ namespace TrenchBroom {
             hits = pickResult.query().type(Model::Brush::BrushHit).all();
             ASSERT_EQ(2u, hits.size());
 
-            ASSERT_EQ(Model::NodeList{ group }, hitsToNodesWithGroupPicking(hits));
+            ASSERT_EQ(std::vector<Model::Node*>{ group }, hitsToNodesWithGroupPicking(hits));
 
             // hitting the group bounds doesn't count as a hit
             pickResult.clear();
@@ -716,7 +716,7 @@ namespace TrenchBroom {
             ASSERT_EQ(brush1->findFace(vm::vec3::neg_x()), hits.front().target<Model::BrushFace*>());
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
 
-            ASSERT_EQ(Model::NodeList{ brush1 }, hitsToNodesWithGroupPicking(hits));
+            ASSERT_EQ(std::vector<Model::Node*>{ brush1 }, hitsToNodesWithGroupPicking(hits));
         }
 
         TEST_F(MapDocumentTest, pickNestedGroup) {
@@ -803,7 +803,7 @@ namespace TrenchBroom {
             ASSERT_EQ(brush3->findFace(vm::vec3::neg_x()), hits.front().target<Model::BrushFace*>());
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
 
-            ASSERT_EQ(Model::NodeList{ brush3 }, hitsToNodesWithGroupPicking(hits));
+            ASSERT_EQ(std::vector<Model::Node*>{ brush3 }, hitsToNodesWithGroupPicking(hits));
 
             // hitting the brush in the inner group should return the inner group when hitsToNodesWithGroupPicking() is used
             pickResult.clear();
@@ -814,7 +814,7 @@ namespace TrenchBroom {
 
             ASSERT_EQ(brush1->findFace(vm::vec3::neg_x()), hits.front().target<Model::BrushFace*>());
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
-            ASSERT_EQ(Model::NodeList{ inner }, hitsToNodesWithGroupPicking(hits));
+            ASSERT_EQ(std::vector<Model::Node*>{ inner }, hitsToNodesWithGroupPicking(hits));
 
             // open the inner group, too. hitsToNodesWithGroupPicking() should no longer return groups, since all groups are open.
             document->openGroup(inner);
@@ -841,7 +841,7 @@ namespace TrenchBroom {
 
             ASSERT_EQ(brush3->findFace(vm::vec3::neg_x()), hits.front().target<Model::BrushFace*>());
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
-            ASSERT_EQ(Model::NodeList{ brush3 }, hitsToNodesWithGroupPicking(hits));
+            ASSERT_EQ(std::vector<Model::Node*>{ brush3 }, hitsToNodesWithGroupPicking(hits));
 
             // pick a brush in the inner group
             pickResult.clear();
@@ -852,7 +852,7 @@ namespace TrenchBroom {
 
             ASSERT_EQ(brush1->findFace(vm::vec3::neg_x()), hits.front().target<Model::BrushFace*>());
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
-            ASSERT_EQ(Model::NodeList{ brush1 }, hitsToNodesWithGroupPicking(hits));
+            ASSERT_EQ(std::vector<Model::Node*>{ brush1 }, hitsToNodesWithGroupPicking(hits));
         }
 
         TEST_F(MapDocumentTest, pickBrushEntity) {

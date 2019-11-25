@@ -25,13 +25,15 @@
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
-        static AttributableNodeList findExactExact(const AttributableNodeIndex& index, const AttributeName& name, const AttributeValue& value) {
+        static std::vector<AttributableNode*> findExactExact(const AttributableNodeIndex& index, const AttributeName& name, const AttributeValue& value) {
             return index.findAttributableNodes(AttributableNodeIndexQuery::exact(name), value);
         }
 
-        static AttributableNodeList findNumberedExact(const AttributableNodeIndex& index, const AttributeName& name, const AttributeValue& value) {
+        static std::vector<AttributableNode*> findNumberedExact(const AttributableNodeIndex& index, const AttributeName& name, const AttributeValue& value) {
             return index.findAttributableNodes(AttributableNodeIndexQuery::numbered(name), value);
         }
 
@@ -50,7 +52,7 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(findExactExact(index, "test", "notfound").empty());
 
-            AttributableNodeList attributables = findExactExact(index, "test", "somevalue");
+            std::vector<AttributableNode*> attributables = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(2u, attributables.size());
             ASSERT_TRUE(VectorUtils::contains(attributables, entity1));
             ASSERT_TRUE(VectorUtils::contains(attributables, entity2));
@@ -78,7 +80,7 @@ namespace TrenchBroom {
 
             index.removeAttributableNode(entity2);
 
-            const AttributableNodeList& attributables = findExactExact(index, "test", "somevalue");
+            const std::vector<AttributableNode*>& attributables = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(1u, attributables.size());
             ASSERT_EQ(entity1, attributables.front());
 
@@ -103,7 +105,7 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(findExactExact(index, "test", "notfound").empty());
 
-            AttributableNodeList attributables = findExactExact(index, "test", "somevalue");
+            std::vector<AttributableNode*> attributables = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(2u, attributables.size());
             ASSERT_TRUE(VectorUtils::contains(attributables, entity1));
             ASSERT_TRUE(VectorUtils::contains(attributables, entity2));
@@ -131,7 +133,7 @@ namespace TrenchBroom {
 
             index.removeAttribute(entity2, "other", "someothervalue");
 
-            const AttributableNodeList& attributables = findExactExact(index, "test", "somevalue");
+            const std::vector<AttributableNode*>& attributables = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(2u, attributables.size());
             ASSERT_TRUE(VectorUtils::contains(attributables, entity1));
             ASSERT_TRUE(VectorUtils::contains(attributables, entity2));
@@ -153,7 +155,7 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(findNumberedExact(index, "test", "notfound").empty());
 
-            AttributableNodeList attributables = findNumberedExact(index, "test", "somevalue");
+            std::vector<AttributableNode*> attributables = findNumberedExact(index, "test", "somevalue");
             ASSERT_EQ(1u, attributables.size());
             ASSERT_TRUE(VectorUtils::contains(attributables, entity1));
 
@@ -169,7 +171,7 @@ namespace TrenchBroom {
 
             index.addAttributableNode(entity1);
 
-            AttributableNodeList attributables = findExactExact(index, "delay", "3.5");
+            std::vector<AttributableNode*> attributables = findExactExact(index, "delay", "3.5");
             ASSERT_EQ(1u, attributables.size());
             ASSERT_TRUE(VectorUtils::contains(attributables, entity1));
 

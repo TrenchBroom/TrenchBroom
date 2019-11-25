@@ -25,19 +25,19 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetLockStateCommand::Type = Command::freeType();
 
-        SetLockStateCommand::Ptr SetLockStateCommand::lock(const Model::NodeList& nodes) {
+        SetLockStateCommand::Ptr SetLockStateCommand::lock(const std::vector<Model::Node*>& nodes) {
             return Ptr(new SetLockStateCommand(nodes, Model::Lock_Locked));
         }
 
-        SetLockStateCommand::Ptr SetLockStateCommand::unlock(const Model::NodeList& nodes) {
+        SetLockStateCommand::Ptr SetLockStateCommand::unlock(const std::vector<Model::Node*>& nodes) {
             return Ptr(new SetLockStateCommand(nodes, Model::Lock_Unlocked));
         }
 
-        SetLockStateCommand::Ptr SetLockStateCommand::reset(const Model::NodeList& nodes) {
+        SetLockStateCommand::Ptr SetLockStateCommand::reset(const std::vector<Model::Node*>& nodes) {
             return Ptr(new SetLockStateCommand(nodes, Model::Lock_Inherited));
         }
 
-        SetLockStateCommand::SetLockStateCommand(const Model::NodeList& nodes, const Model::LockState lockState) :
+        SetLockStateCommand::SetLockStateCommand(const std::vector<Model::Node*>& nodes, const Model::LockState lockState) :
         UndoableCommand(Type, makeName(lockState)),
         m_nodes(nodes),
         m_lockState(lockState) {}

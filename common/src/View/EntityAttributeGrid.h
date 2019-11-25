@@ -23,6 +23,8 @@
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
+#include <vector>
+
 #include <QWidget>
 
 class QTableView;
@@ -69,7 +71,7 @@ namespace TrenchBroom {
 
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void selectionWillChange();
             void selectionDidChange(const Selection& selection);
             void entityDefinitionsOrModsDidChange();
