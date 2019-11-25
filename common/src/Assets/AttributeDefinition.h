@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_AttributeDefinition
 #define TrenchBroom_AttributeDefinition
 
+#include "Ensure.h"
 #include "StringType.h"
 
 #include <optional-lite/optional.hpp>
@@ -76,6 +77,7 @@ namespace TrenchBroom {
             }
 
             const T& defaultValue() const {
+                ensure(hasDefaultValue(), "attribute definition has no default value");
                 return *m_defaultValue;
             }
         protected:
