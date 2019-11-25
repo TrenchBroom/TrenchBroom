@@ -35,12 +35,13 @@
 #include "StringUtils.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/vec.h>
 #include <vecmath/bbox.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 #include <vecmath/intersection.h>
 #include <vecmath/util.h>
+#include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -121,7 +122,7 @@ namespace TrenchBroom {
         }
 
         void Entity::setOrigin(const vm::vec3& origin) {
-            addOrUpdateAttribute(AttributeNames::Origin, StringUtils::toString(round(origin)));
+            addOrUpdateAttribute(AttributeNames::Origin, StringUtils::toString(vm::round(origin)));
         }
 
         void Entity::applyRotation(const vm::mat4x4& transformation) {

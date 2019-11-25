@@ -29,6 +29,8 @@
 #include "Model/EntityAttributes.h"
 
 #include <vecmath/bbox.h>
+#include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 
 #include <tinyxml2/tinyxml2.h>
 

@@ -23,6 +23,7 @@
 #include "Exceptions.h"
 #include <vecmath/scalar.h>
 #include <vecmath/bbox.h>
+#include <vecmath/bbox_io.h>
 #include <vecmath/ray.h>
 #include <vecmath/intersection.h>
 
@@ -560,7 +561,7 @@ private:
     void check(const Box& bounds, const U& data) const {
         if (vm::is_nan(bounds.min) || vm::is_nan(bounds.max)) {
             NodeTreeException ex;
-            ex << "Cannot add node to AABB with invalid bounds [ ( " << bounds.min << " ) ( " << bounds.max << " ) ]: " << data;
+            ex << "Cannot add node to AABB with invalid bounds " << bounds << ": " << data;
             throw ex;
         }
     }

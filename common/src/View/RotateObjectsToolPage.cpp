@@ -29,6 +29,7 @@
 #include "View/ViewConstants.h"
 
 #include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 #include <vecmath/util.h>
 
 #include <QtGlobal>

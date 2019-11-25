@@ -40,6 +40,7 @@
 #include <vecmath/scalar.h>
 #include <vecmath/util.h>
 #include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -664,11 +665,6 @@ namespace TrenchBroom {
             } else {
                 return vm::intersect_ray_polygon(ray, m_boundary, m_geometry->boundary().begin(), m_geometry->boundary().end(), BrushGeometry::GetVertexPosition());
             }
-        }
-
-        void BrushFace::printPoints() const {
-            std::for_each(std::begin(m_points), std::end(m_points), [](const vm::vec3& p) { std::cout << "( " << p << " ) "; });
-            std::cout << std::endl;
         }
 
         void BrushFace::setPoints(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2) {

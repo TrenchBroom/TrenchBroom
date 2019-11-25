@@ -39,6 +39,8 @@
 #include "View/Selection.h"
 
 #include <vecmath/ray.h>
+#include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 
 #include <algorithm>
 

@@ -21,12 +21,10 @@
 #define TrenchBroom_TrenchBroomApp
 
 #include "Notifier.h"
-#include "IO/Path.h"
-#include "View/FrameManager.h"
-#include "View/RecentDocuments.h"
-#include "View/WelcomeWindow.h"
+#include "StringType.h"
 
 #include <memory>
+#include <vector>
 
 #include <QApplication>
 
@@ -37,8 +35,15 @@ namespace TrenchBroom {
     class Logger;
     class RecoverableException;
 
+    namespace IO {
+        class Path;
+    }
+
     namespace View {
         class ExecutableEvent;
+        class FrameManager;
+        class RecentDocuments;
+        class WelcomeWindow;
 
         class TrenchBroomApp : public QApplication {
             Q_OBJECT
@@ -52,13 +57,14 @@ namespace TrenchBroom {
             static TrenchBroomApp& instance();
 
             TrenchBroomApp(int& argc, char** argv);
+            ~TrenchBroomApp();
         public:
             void parseCommandLineAndShowFrame();
             QSettings& settings();
 
             FrameManager* frameManager();
 
-            const IO::Path::List& recentDocuments() const;
+            const std::vector<IO::Path>& recentDocuments() const;
             void addRecentDocumentMenu(QMenu* menu);
             void removeRecentDocumentMenu(QMenu* menu);
             void updateRecentDocument(const IO::Path& path);

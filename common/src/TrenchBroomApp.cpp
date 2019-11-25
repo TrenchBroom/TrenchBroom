@@ -19,7 +19,6 @@
 
 #include "TrenchBroomApp.h"
 
-#include "Macros.h"
 #include "RecoverableExceptions.h"
 #include "TrenchBroomStackWalker.h"
 #include "IO/Path.h"
@@ -32,6 +31,7 @@
 #include "View/Actions.h"
 #include "View/CrashDialog.h"
 #include "View/GameDialog.h"
+#include "View/FrameManager.h"
 #include "View/GLContextManager.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
@@ -40,13 +40,13 @@
 #include "View/GetVersion.h"
 #include "View/MapViewBase.h"
 #include "View/QtUtils.h"
+#include "View/RecentDocuments.h"
 #include "StringUtils.h"
 #ifdef __APPLE__
 #include "View/MainMenuBuilder.h"
 #endif
 
 #include <QCommandLineParser>
-#include <QtDebug>
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QMenuBar>
@@ -60,6 +60,7 @@
 #include <csignal>
 #include <cstdlib>
 #include <fstream>
+#include <iostream>
 
 namespace TrenchBroom {
     namespace View {
@@ -147,6 +148,9 @@ namespace TrenchBroom {
 
             m_recentDocuments->didChangeNotifier.addObserver(recentDocumentsDidChangeNotifier);
         }
+
+        // must be implemented in cpp file in order to use std::unique_ptr with forward declared type as members
+        TrenchBroomApp::~TrenchBroomApp() = default;
 
         void TrenchBroomApp::parseCommandLineAndShowFrame() {
             QCommandLineParser parser;

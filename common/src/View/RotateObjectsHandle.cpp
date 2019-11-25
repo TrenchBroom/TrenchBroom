@@ -24,20 +24,17 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
-#include "Renderer/Circle.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
-#include "Renderer/RenderUtils.h"
 #include "StringUtils.h"
-#include "View/InputState.h"
 
 #include <vecmath/intersection.h>
 #include <vecmath/mat.h>
 #include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 #include <vecmath/scalar.h>
 
-#include <cassert>
 #include <tuple>
 
 namespace TrenchBroom {

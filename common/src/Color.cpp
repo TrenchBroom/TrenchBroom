@@ -21,7 +21,7 @@
 #include "Color.h"
 
 #include <vecmath/vec.h>
-#include <vecmath/vec_ext.h>
+#include <vecmath/vec_io.h>
 
 bool Color::canParse(const std::string& str) {
     return vm::can_parse<float, 4>(str) || vm::can_parse<float, 3>(str);

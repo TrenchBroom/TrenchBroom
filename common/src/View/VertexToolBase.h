@@ -34,6 +34,7 @@
 #include "Model/World.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"
+#include "View/AddBrushVerticesCommand.h"
 #include "View/Lasso.h"
 #include "View/MapDocument.h"
 #include "View/MoveBrushVerticesCommand.h"
@@ -47,10 +48,10 @@
 #include "View/VertexCommand.h"
 #include "View/VertexHandleManager.h"
 #include "View/ViewTypes.h"
-#include "AddBrushVerticesCommand.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 
 #include <algorithm>
 #include <cassert>

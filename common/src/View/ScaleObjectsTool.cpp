@@ -33,6 +33,7 @@
 #include "View/ScaleObjectsToolPage.h"
 
 #include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 #include <vecmath/line.h>
 #include <vecmath/bbox.h>
 #include <vecmath/distance.h>

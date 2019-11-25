@@ -22,9 +22,9 @@
 #define TrenchBroom_ScaleObjectsTool
 
 #include "TrenchBroom.h"
-#include "MapDocument.h"
 #include "Model/Hit.h"
 #include "View/Tool.h"
+#include "View/ViewTypes.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/bbox.h>

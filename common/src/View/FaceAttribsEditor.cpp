@@ -38,6 +38,9 @@
 #include "View/ViewUtils.h"
 #include "View/QtUtils.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
+
 #include <QtGlobal>
 #include <QLabel>
 #include <QLineEdit>

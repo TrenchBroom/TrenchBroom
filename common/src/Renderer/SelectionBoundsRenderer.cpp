@@ -30,6 +30,7 @@
 
 #include <vecmath/bbox.h>
 #include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 #include <vecmath/util.h>
 
 namespace TrenchBroom {
@@ -330,11 +331,11 @@ namespace TrenchBroom {
             renderService.setBackgroundColor(pref(Preferences::WeakInfoOverlayBackgroundColor));
             renderService.setShowOccludedObjects();
 
-            buffer << "Min: " << correct(m_bounds.min);
+            buffer << "Min: " << vm::correct(m_bounds.min);
             renderService.renderString(buffer.str(), MinMaxTextAnchor3D(m_bounds, vm::bbox3::Corner::min, renderContext.camera()));
             buffer.str("");
 
-            buffer << "Max: " << correct(m_bounds.max);
+            buffer << "Max: " << vm::correct(m_bounds.max);
             renderService.renderString(buffer.str(), MinMaxTextAnchor3D(m_bounds, vm::bbox3::Corner::max, renderContext.camera()));
         }
     }
