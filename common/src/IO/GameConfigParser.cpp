@@ -26,6 +26,8 @@
 #include "Model/TagAttribute.h"
 #include "Model/TagMatcher.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         GameConfigParser::GameConfigParser(const char* begin, const char* end, const Path& path) :
@@ -43,7 +45,7 @@ namespace TrenchBroom {
             const auto expectedVersion = 3.0;
             const auto actualVersion = root["version"].numberValue();
             if (actualVersion != expectedVersion) {
-                throw ParserException(root["version"].line(), root["version"].column()) << " Unsupported game configuration version " << actualVersion << ", expected " << expectedVersion;
+                throw ParserException(root["version"].line(), root["version"].column(), " Unsupported game configuration version " + std::to_string(actualVersion) + ", expected " + std::to_string(expectedVersion));
             }
 
             expectStructure(root,

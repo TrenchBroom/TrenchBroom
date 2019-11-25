@@ -133,8 +133,8 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::checkIntersects(co
 }
 
 template <typename T, typename FP, typename VP>
-class Polyhedron<T,FP,VP>::NoSeamException : public ExceptionStream<GeometryException> {
-    using ExceptionStream::ExceptionStream;
+class Polyhedron<T,FP,VP>::NoSeamException : public Exception {
+    using Exception::Exception;
 };
 
 template <typename T, typename FP, typename VP>

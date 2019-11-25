@@ -26,6 +26,8 @@
 #include "IO/Reader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         namespace Md3Layout {
@@ -61,11 +63,10 @@ namespace TrenchBroom {
             const auto version = reader.readInt<int32_t>();
 
             if (ident != Md3Layout::Ident) {
-                throw AssetException() << "Unknown MD3 model ident: " << ident;
+                throw AssetException("Unknown MD3 model ident: " + std::to_string(ident));
             }
-
             if (version != Md3Layout::Version) {
-                throw AssetException() << "Unknown MD3 model version: " << version;
+                throw AssetException("Unknown MD3 model version: " + std::to_string(version));
             }
 
             /* const auto name = */ reader.readString(Md3Layout::ModelNameLength);
@@ -94,11 +95,10 @@ namespace TrenchBroom {
             const auto version = reader.readInt<int32_t>();
 
             if (ident != Md3Layout::Ident) {
-                throw AssetException() << "Unknown MD3 model ident: " << ident;
+                throw AssetException("Unknown MD3 model ident: " + std::to_string(ident));
             }
-
             if (version != Md3Layout::Version) {
-                throw AssetException() << "Unknown MD3 model version: " << version;
+                throw AssetException("Unknown MD3 model version: " + std::to_string(version));
             }
 
             /* const auto name = */ reader.readString(Md3Layout::ModelNameLength);
@@ -122,7 +122,7 @@ namespace TrenchBroom {
                 const auto ident = reader.readInt<int32_t>();
 
                 if (ident != Md3Layout::Ident) {
-                    throw AssetException() << "Unknown MD3 model surface ident: " << ident;
+                    throw AssetException("Unknown MD3 model surface ident: " + std::to_string(ident));
                 }
 
                 const auto surfaceName = reader.readString(Md3Layout::SurfaceNameLength);
@@ -162,7 +162,7 @@ namespace TrenchBroom {
                 const auto ident = reader.readInt<int32_t>();
 
                 if (ident != Md3Layout::Ident) {
-                    throw AssetException() << "Unknown MD3 model surface ident: " << ident;
+                    throw AssetException("Unknown MD3 model surface ident: " + std::to_string(ident));
                 }
 
                 /* const auto surfaceName = */ reader.readString(Md3Layout::SurfaceNameLength);

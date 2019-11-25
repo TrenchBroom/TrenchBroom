@@ -19,10 +19,11 @@
 
 #include "Shader.h"
 
+#include "Exceptions.h"
+
 #include <cassert>
 #include <fstream>
-
-#include "Exceptions.h"
+#include <sstream>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -49,8 +50,8 @@ namespace TrenchBroom {
             glAssert(glGetShaderiv(m_shaderId, GL_COMPILE_STATUS, &compileStatus));
 
             if (compileStatus == 0) {
-                RenderException ex;
-                ex << "Could not compile shader " << m_name << ": ";
+                auto str = std::stringstream();
+                str << "Could not compile shader " << m_name << ": ";
 
                 GLint infoLogLength;
                 glAssert(glGetShaderiv(m_shaderId, GL_INFO_LOG_LENGTH, &infoLogLength));
@@ -59,13 +60,13 @@ namespace TrenchBroom {
                     glAssert(glGetShaderInfoLog(m_shaderId, infoLogLength, &infoLogLength, infoLog));
                     infoLog[infoLogLength-1] = 0;
 
-                    ex << infoLog;
+                    str << infoLog;
                     delete [] infoLog;
                 } else {
-                    ex << "Unknown error";
+                    str << "Unknown error";
                 }
 
-                throw ex;
+                throw RenderException(str.str());
             }
         }
 
@@ -86,8 +87,9 @@ namespace TrenchBroom {
 
         StringList Shader::loadSource(const IO::Path& path) {
             std::fstream stream(path.asString().c_str(), std::ios::in);
-            if (!stream.is_open())
+            if (!stream.is_open()) {
                 throw RenderException("Could not load shader source from " + path.asString());
+            }
 
             String line;
             StringList lines;

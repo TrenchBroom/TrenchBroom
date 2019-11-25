@@ -24,9 +24,9 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class ReaderException : public ExceptionStream<ReaderException> {
+        class ReaderException : public Exception {
         public:
-            using ExceptionStream::ExceptionStream;
+            using Exception::Exception;
         };
     }
 }

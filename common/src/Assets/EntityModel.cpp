@@ -26,6 +26,8 @@
 #include <vecmath/bbox.h>
 #include <vecmath/intersection.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Assets {
         // EntityModelFrame
@@ -328,9 +330,7 @@ namespace TrenchBroom {
 
         EntityModel::LoadedFrame& EntityModel::loadFrame(const size_t frameIndex, const String& name, const vm::bbox3f& bounds) {
             if (frameIndex >= frameCount()) {
-                AssetException ex;
-                ex << "Frame index " << frameIndex << " is out of bounds (frame count = " << frameCount() << ")";
-                throw ex;
+                throw AssetException("Frame index " + std::to_string(frameIndex) + " is out of bounds (frame count = " + std::to_string(frameCount()) + ")");
             }
 
             auto frame = std::make_unique<LoadedFrame>(frameIndex, name, bounds);

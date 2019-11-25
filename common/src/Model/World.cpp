@@ -27,6 +27,10 @@
 #include "Model/IssueGenerator.h"
 #include "Model/TagVisitor.h"
 
+#include <vecmath/bbox_io.h>
+
+#include <sstream>
+
 namespace TrenchBroom {
     namespace Model {
         World::World(MapFormat mapFormat) :
@@ -114,9 +118,9 @@ namespace TrenchBroom {
 
             void doRemove(Node* node, const vm::bbox3& bounds) {
                 if (!m_nodeTree.remove(node)) {
-                    NodeTreeException ex;
-                    ex << "Node not found with bounds [ (" << bounds.min << ") (" << bounds.max << ") ]: " << node;
-                    throw ex;
+                    auto str = std::stringstream();
+                    str << "Node not found with bounds " << bounds << ": " << node;
+                    throw NodeTreeException(str.str());
                 }
             }
         };

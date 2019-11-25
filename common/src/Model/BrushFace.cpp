@@ -42,6 +42,8 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
+#include <sstream>
+
 namespace TrenchBroom {
     namespace Model {
         const String BrushFace::NoTextureName = "__TB_empty";
@@ -675,12 +677,12 @@ namespace TrenchBroom {
 
             const auto [result, plane] = vm::from_points(m_points[0], m_points[1], m_points[2]);
             if (!result) {
-                GeometryException e;
-                e << "Colinear face points: (" <<
+                auto str = std::stringstream();
+                str << "Colinear face points: (" <<
                 m_points[0] << ") (" <<
                 m_points[1] << ") (" <<
                 m_points[2] << ")";
-                throw e;
+                throw GeometryException(str.str());
             } else {
                 m_boundary = plane;
             }

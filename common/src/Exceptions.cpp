@@ -19,6 +19,8 @@
 
 #include "Exceptions.h"
 
+#include <sstream>
+
 Exception::Exception() noexcept {}
 
 Exception::Exception(std::string&& str) noexcept :
@@ -28,25 +30,35 @@ const char* Exception::what() const noexcept {
     return m_msg.c_str();
 }
 
-ParserException::ParserException(const size_t line, const size_t column, const std::string& str) {
-    *this << "At line " << line << ", column " << column << ":";
+ParserException::ParserException(const size_t line, const size_t column, const std::string& str) :
+Exception(buildMessage(line, column, str)) {}
+
+ParserException::ParserException(const size_t line, const std::string& str) :
+Exception(buildMessage(line, str)) {}
+
+std::string ParserException::buildMessage(const size_t line, const size_t column, const std::string& str) {
+    auto msg = std::stringstream();
+    msg << "At line " << line << ", column " << column << ":";
     if (!str.empty()) {
-        *this << " " << str;
+        msg << " " << str;
     }
+    return msg.str();
 }
 
-ParserException::ParserException(const size_t line, const std::string& str) {
-    *this << "At line " << line << ":";
+std::string ParserException::buildMessage(const size_t line, const std::string& str) {
+    auto msg = std::stringstream();
+    msg << "At line " << line << ":";
     if (!str.empty()) {
-        *this << " " << str;
+        msg << " " << str;
     }
+    return msg.str();
 }
 
 FileSystemException::FileSystemException(const std::string& str, const PathException& e) :
-ExceptionStream(str + " (" + e.what() + ")") {}
+Exception(str + " (" + e.what() + ")") {}
 
 FileNotFoundException::FileNotFoundException(const std::string& path) :
-ExceptionStream("File not found: '" + path + "'") {}
+Exception("File not found: '" + path + "'") {}
 
 FileNotFoundException::FileNotFoundException(const std::string& path, const PathException& e) :
-ExceptionStream("File not found: '" + path + "' (" + e.what() + ")") {}
+Exception("File not found: '" + path + "' (" + e.what() + ")") {}

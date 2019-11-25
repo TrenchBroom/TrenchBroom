@@ -28,9 +28,9 @@ namespace TrenchBroom {
         class Value;
         enum class ValueType;
 
-        class Exception : public ExceptionStream<Exception> {
+        class Exception : public ::Exception {
         public:
-            using ExceptionStream::ExceptionStream;
+            using ::Exception::Exception;
         };
 
         class ConversionError : public Exception {
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             IndexError(const Value& indexableValue, const String& key);
         };
 
-        class IndexOutOfBoundsError : public IndexError {
+        class IndexOutOfBoundsError : public EvaluationError {
         public:
             IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, size_t outOfBoundsIndex);
             IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const String& outOfBoundsIndex);

@@ -22,7 +22,6 @@
 
 #include <exception>
 #include <string>
-#include <sstream>
 
 class Exception : public std::exception {
 protected:
@@ -34,97 +33,82 @@ public:
     const char* what() const noexcept override;
 };
 
-template <class C>
-class ExceptionStream : public Exception {
+class GeometryException : public Exception {
 public:
-    ExceptionStream() noexcept :
-    Exception() {}
-
-    explicit ExceptionStream(std::string&& str) noexcept :
-    Exception(std::move(str)) {}
-
-    template <typename T>
-    C& operator<< (T&& value) {
-        std::stringstream stream;
-        stream << m_msg << std::forward<T>(value);
-        m_msg = stream.str();
-        return static_cast<C&>(*this);
-    }
+    using Exception::Exception;
 };
 
-class GeometryException : public ExceptionStream<GeometryException> {
+class EntityAttributeException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
 };
 
-class EntityAttributeException : public ExceptionStream<EntityAttributeException> {
+class ParserException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
+    ParserException(size_t line, size_t column, const std::string& str = "");
+    explicit ParserException(size_t line, const std::string& str = "");
+private:
+    static std::string buildMessage(size_t line, size_t column, const std::string& str);
+    static std::string buildMessage(size_t line, const std::string& str);
 };
 
-class ParserException : public ExceptionStream<ParserException> {
+class VboException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
-    ParserException(const size_t line, const size_t column, const std::string& str = "");
-    explicit ParserException(const size_t line, const std::string& str = "");
+    using Exception::Exception;
 };
 
-class VboException : public ExceptionStream<VboException> {
+class PathException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
 };
 
-class PathException : public ExceptionStream<PathException> {
+class FileSystemException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
-};
-
-class FileSystemException : public ExceptionStream<FileSystemException> {
-public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
     FileSystemException(const std::string& str, const PathException& e);
 };
 
-class FileNotFoundException : public ExceptionStream<FileNotFoundException> {
+class FileNotFoundException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
     FileNotFoundException(const std::string& path);
     FileNotFoundException(const std::string& path, const PathException& e);
 };
 
-class AssetException : public ExceptionStream<AssetException> {
+class AssetException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
 };
 
-class CommandProcessorException : public ExceptionStream<CommandProcessorException> {
+class CommandProcessorException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
 };
 
-class RenderException : public ExceptionStream<RenderException> {
+class RenderException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
 };
 
-class NodeTreeException : public ExceptionStream<NodeTreeException> {
+class NodeTreeException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
 };
 
-class GameException : public ExceptionStream<GameException> {
+class GameException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
 };
 
-class ResourceNotFoundException : public ExceptionStream<ResourceNotFoundException> {
+class ResourceNotFoundException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
 };
 
-class FileFormatException : public ExceptionStream<FileFormatException> {
+class FileFormatException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
 };
 
 #endif

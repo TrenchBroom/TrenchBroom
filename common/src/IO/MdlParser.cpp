@@ -26,6 +26,8 @@
 #include "IO/Reader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         namespace MdlLayout {
@@ -223,10 +225,10 @@ namespace TrenchBroom {
             const auto version = reader.readInt<int32_t>();
 
             if (ident != MdlLayout::Ident) {
-                throw AssetException() << "Unknown MDL model ident: " << ident;
+                throw AssetException("Unknown MDL model ident: " + std::to_string(ident));
             }
             if (version != MdlLayout::Version6) {
-                throw AssetException() << "Unknown MDL model version: " << version;
+                throw AssetException("Unknown MDL model version: " + std::to_string(version));
             }
 
             /* const auto scale = */ reader.readVec<float, 3>();
@@ -259,10 +261,10 @@ namespace TrenchBroom {
             const auto version = reader.readInt<int32_t>();
 
             if (ident != MdlLayout::Ident) {
-                throw AssetException() << "Unknown MDL model ident: " << ident;
+                throw AssetException("Unknown MDL model ident: " + std::to_string(ident));
             }
             if (version != MdlLayout::Version6) {
-                throw AssetException() << "Unknown MDL model version: " << version;
+                throw AssetException("Unknown MDL model version: " + std::to_string(version));
             }
 
             const auto scale = reader.readVec<float, 3>();

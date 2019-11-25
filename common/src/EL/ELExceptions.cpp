@@ -22,6 +22,8 @@
 #include "EL/Types.h"
 #include "EL/Value.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace EL {
         ConversionError::ConversionError(const String& value, const ValueType from, const ValueType to) :
@@ -40,21 +42,15 @@ namespace TrenchBroom {
         EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + "' using string index") {}
 
         IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const size_t outOfBoundsIndex) :
-        IndexError(indexableValue, indexValue) {
-            *this << ": Index value " << outOfBoundsIndex << " is out of bounds";
-        }
+        EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + "' using index '" + indexValue.describe() + "' of type '" + typeName(indexValue.type()) + "': Index value " + std::to_string(outOfBoundsIndex) + " is out of bounds") {}
 
         IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const String& outOfBoundsIndex) :
-        IndexError(indexableValue, indexValue) {
-            *this << ": Key '" << outOfBoundsIndex << "' not found";
-        }
+        EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + "' using index '" + indexValue.describe() + "' of type '" + typeName(indexValue.type()) + "': Key '" + outOfBoundsIndex + "' not found") {}
+
         IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const size_t index) :
-        IndexError(indexableValue, index) {
-            *this << ": Index value " << index << " is out of bounds";
-        }
+        EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + "' using integral index: Index value " + std::to_string(index) + " is out of bounds") {}
+
         IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const String& key) :
-        IndexError(indexableValue, key) {
-            *this << ": Key '" << key << "' not found";
-        }
+        EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + "' using string index: Key '" + key + "' not found") {}
     }
 }
