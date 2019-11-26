@@ -26,6 +26,8 @@
 #include "EL/Value.h"
 #include "Model/EntityAttributesVariableStore.h"
 
+#include <vecmath/scalar.h>
+
 namespace TrenchBroom {
     namespace Assets {
         ModelSpecification::ModelSpecification() :
@@ -145,7 +147,7 @@ namespace TrenchBroom {
             if (!value.convertibleTo(EL::ValueType::Number))
                 return 0;
             const EL::IntegerType intValue = value.convertTo(EL::ValueType::Number).integerValue();
-            return static_cast<size_t>(std::max(0l, intValue));
+            return static_cast<size_t>(vm::max(0l, intValue));
         }
     }
 }

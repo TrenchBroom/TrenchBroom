@@ -22,8 +22,9 @@
 #include "Constants.h"
 #include "TrenchBroom.h"
 
-#include <vecmath/vec.h>
 #include <vecmath/plane.h>
+#include <vecmath/scalar.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -191,7 +192,7 @@ namespace TrenchBroom {
             }
 
             const auto waveLength = FloatType(1.0) / frequency;
-            const auto pointDistance = std::min(FloatType(64.0), waveLength);
+            const auto pointDistance = vm::min(FloatType(64.0), waveLength);
 
             auto multiplier = FloatType(10.0);
             auto cursor = GridSearchCursor(swizzledPlane, frequency);

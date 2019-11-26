@@ -423,7 +423,8 @@ namespace TrenchBroom {
                 }
             }
         private:
-            void forEachCloseHandle(const H& handle, std::function<void(HandleInfo&)> fun) {
+            template <typename F>
+            void forEachCloseHandle(const H& handle, F fun) {
                 static const auto epsilon = 0.001 * 0.001;
                 for (auto& entry : m_handles) {
                     if (compare(handle, entry.first, epsilon) == 0) {
