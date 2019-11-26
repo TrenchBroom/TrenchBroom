@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_SmartSpawnflagsEditor
 #define TrenchBroom_SmartSpawnflagsEditor
 
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 #include "View/SmartAttributeEditor.h"
 #include "View/ViewTypes.h"

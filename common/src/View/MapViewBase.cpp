@@ -541,7 +541,7 @@ namespace TrenchBroom {
         Assets::EntityDefinition* MapViewBase::findEntityDefinition(const Assets::EntityDefinition::Type type, const size_t index) const {
             size_t count = 0;
             for (const Assets::EntityDefinitionGroup& group : lock(m_document)->entityDefinitionManager().groups()) {
-                const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
+                const std::vector<Assets::EntityDefinition*> definitions = group.definitions(type, Assets::EntityDefinition::Name);
                 if (index < count + definitions.size())
                     return definitions[index - count];
                 count += definitions.size();
@@ -1093,9 +1093,9 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
             for (const Assets::EntityDefinitionGroup& group : document->entityDefinitionManager().groups()) {
-                const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
+                const std::vector<Assets::EntityDefinition*> definitions = group.definitions(type, Assets::EntityDefinition::Name);
 
-                Assets::EntityDefinitionList filteredDefinitions;
+                std::vector<Assets::EntityDefinition*> filteredDefinitions;
                 for (auto* definition : definitions) {
                     if (!StringUtils::caseSensitiveEqual(definition->name(), Model::AttributeValues::WorldspawnClassname)) {
                         filteredDefinitions.push_back(definition);

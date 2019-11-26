@@ -1597,7 +1597,7 @@ namespace TrenchBroom {
             submitAndStore(EntityDefinitionFileCommand::set(spec));
         }
 
-        void MapDocument::setEntityDefinitions(const Assets::EntityDefinitionList& definitions) {
+        void MapDocument::setEntityDefinitions(const std::vector<Assets::EntityDefinition*>& definitions) {
             m_entityDefinitionManager->setDefinitions(definitions);
         }
 

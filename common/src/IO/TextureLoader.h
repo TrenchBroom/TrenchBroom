@@ -21,7 +21,7 @@
 #define TextureLoader_h
 
 #include "Macros.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "IO/Path.h"
 #include "IO/TextureCollectionLoader.h"
 #include "IO/TextureReader.h"

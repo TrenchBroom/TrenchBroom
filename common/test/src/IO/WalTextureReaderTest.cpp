@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
 #include "IO/DiskFileSystem.h"

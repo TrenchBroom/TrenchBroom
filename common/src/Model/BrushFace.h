@@ -24,7 +24,7 @@
 #include "ProjectingSequence.h"
 #include "SharedPointer.h"
 #include "StringType.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Model_Forward.h"

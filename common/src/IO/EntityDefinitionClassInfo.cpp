@@ -81,11 +81,11 @@ namespace TrenchBroom {
             return m_hasSize;
         }
 
-        Assets::AttributeDefinitionList EntityDefinitionClassInfo::attributeList() const {
+        std::vector<std::shared_ptr<Assets::AttributeDefinition>> EntityDefinitionClassInfo::attributeList() const {
             return MapUtils::valueList(m_attributes);
         }
 
-        const Assets::AttributeDefinitionMap& EntityDefinitionClassInfo::attributeMap() const {
+        const std::map<String, std::shared_ptr<Assets::AttributeDefinition>>& EntityDefinitionClassInfo::attributeMap() const {
             return m_attributes;
         }
 
@@ -116,11 +116,11 @@ namespace TrenchBroom {
             m_hasSize = true;
         }
 
-        void EntityDefinitionClassInfo::addAttributeDefinition(Assets::AttributeDefinitionPtr attributeDefinition) {
+        void EntityDefinitionClassInfo::addAttributeDefinition(std::shared_ptr<Assets::AttributeDefinition> attributeDefinition) {
             m_attributes[attributeDefinition->name()] = attributeDefinition;
         }
 
-        void EntityDefinitionClassInfo::addAttributeDefinitions(const Assets::AttributeDefinitionMap& attributeDefinitions) {
+        void EntityDefinitionClassInfo::addAttributeDefinitions(const std::map<String, std::shared_ptr<Assets::AttributeDefinition>>& attributeDefinitions) {
             m_attributes.insert(std::begin(attributeDefinitions), std::end(attributeDefinitions));
         }
 
@@ -142,11 +142,11 @@ namespace TrenchBroom {
                     if (!hasSize() && baseClass.hasSize())
                         setSize(baseClass.size());
 
-                    const Assets::AttributeDefinitionMap& baseProperties = baseClass.attributeMap();
+                    const auto& baseProperties = baseClass.attributeMap();
                     for (const auto& entry : baseProperties) {
-                        const Assets::AttributeDefinitionPtr baseAttribute = entry.second;
+                        const std::shared_ptr<Assets::AttributeDefinition> baseAttribute = entry.second;
 
-                        Assets::AttributeDefinitionMap::iterator classAttributeIt = m_attributes.find(baseAttribute->name());
+                        auto classAttributeIt = m_attributes.find(baseAttribute->name());
                         if (classAttributeIt != std::end(m_attributes)) {
                             // the class already has a definition for this attribute, attempt merging them
                             mergeProperties(classAttributeIt->second.get(), baseAttribute.get());

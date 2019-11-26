@@ -23,7 +23,7 @@
 #include "TrenchBroom.h"
 #include "Color.h"
 #include "StringType.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/Parser.h"
@@ -31,7 +31,9 @@
 #include "IO/Tokenizer.h"
 
 #include <list>
+#include <memory>
 #include <optional-lite/optional.hpp>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -85,9 +87,9 @@ namespace TrenchBroom {
             bool isRecursiveInclude(const Path& path) const;
         private:
             TokenNameMap tokenNames() const override;
-            Assets::EntityDefinitionList doParseDefinitions(ParserStatus& status) override;
+            EntityDefinitionList doParseDefinitions(ParserStatus& status) override;
 
-            void parseDefinitionOrInclude(ParserStatus& status, Assets::EntityDefinitionList& definitions);
+            void parseDefinitionOrInclude(ParserStatus& status, EntityDefinitionList& definitions);
 
             Assets::EntityDefinition* parseDefinition(ParserStatus& status);
             Assets::EntityDefinition* parseSolidClass(ParserStatus& status);
@@ -101,15 +103,15 @@ namespace TrenchBroom {
             String parseNamedValue(ParserStatus& status, const String& name);
             void skipClassAttribute(ParserStatus& status);
 
-            Assets::AttributeDefinitionMap parseProperties(ParserStatus& status);
-            Assets::AttributeDefinitionPtr parseTargetSourceAttribute(ParserStatus& status, const String& name);
-            Assets::AttributeDefinitionPtr parseTargetDestinationAttribute(ParserStatus& status, const String& name);
-            Assets::AttributeDefinitionPtr parseStringAttribute(ParserStatus& status, const String& name);
-            Assets::AttributeDefinitionPtr parseIntegerAttribute(ParserStatus& status, const String& name);
-            Assets::AttributeDefinitionPtr parseFloatAttribute(ParserStatus& status, const String& name);
-            Assets::AttributeDefinitionPtr parseChoicesAttribute(ParserStatus& status, const String& name);
-            Assets::AttributeDefinitionPtr parseFlagsAttribute(ParserStatus& status, const String& name);
-            Assets::AttributeDefinitionPtr parseUnknownAttribute(ParserStatus& status, const String& name);
+            AttributeDefinitionMap parseProperties(ParserStatus& status);
+            AttributeDefinitionPtr parseTargetSourceAttribute(ParserStatus& status, const String& name);
+            AttributeDefinitionPtr parseTargetDestinationAttribute(ParserStatus& status, const String& name);
+            AttributeDefinitionPtr parseStringAttribute(ParserStatus& status, const String& name);
+            AttributeDefinitionPtr parseIntegerAttribute(ParserStatus& status, const String& name);
+            AttributeDefinitionPtr parseFloatAttribute(ParserStatus& status, const String& name);
+            AttributeDefinitionPtr parseChoicesAttribute(ParserStatus& status, const String& name);
+            AttributeDefinitionPtr parseFlagsAttribute(ParserStatus& status, const String& name);
+            AttributeDefinitionPtr parseUnknownAttribute(ParserStatus& status, const String& name);
 
             bool parseReadOnlyFlag(ParserStatus& status);
             String parseAttributeDescription(ParserStatus& status);
@@ -123,8 +125,8 @@ namespace TrenchBroom {
             Color parseColor(ParserStatus& status);
             String parseString(ParserStatus& status);
 
-            Assets::EntityDefinitionList parseInclude(ParserStatus& status);
-            Assets::EntityDefinitionList handleInclude(ParserStatus& status, const Path& path);
+            EntityDefinitionList parseInclude(ParserStatus& status);
+            EntityDefinitionList handleInclude(ParserStatus& status, const Path& path);
         };
     }
 }

@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityModelLoader
 #define TrenchBroom_EntityModelLoader
 
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 
 #include <memory>
 

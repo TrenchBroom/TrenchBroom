@@ -22,7 +22,7 @@
 
 #include "Notifier.h"
 #include "StringType.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "IO/Path.h"
 #include "Renderer/GL.h"
 
@@ -36,7 +36,7 @@ namespace TrenchBroom {
 
             bool m_loaded;
             IO::Path m_path;
-            TextureList m_textures;
+            std::vector<Texture*> m_textures;
 
             size_t m_usageCount;
 
@@ -47,19 +47,19 @@ namespace TrenchBroom {
             Notifier<> usageCountDidChange;
         public:
             TextureCollection();
-            explicit TextureCollection(const TextureList& textures);
+            explicit TextureCollection(const std::vector<Texture*>& textures);
             explicit TextureCollection(const IO::Path& path);
-            TextureCollection(const IO::Path& path, const TextureList& textures);
+            TextureCollection(const IO::Path& path, const std::vector<Texture*>& textures);
             virtual ~TextureCollection();
 
-            void addTextures(const TextureList& textures);
+            void addTextures(const std::vector<Texture*>& textures);
             void addTexture(Texture* texture);
 
             bool loaded() const;
             const IO::Path& path() const;
             String name() const;
             size_t textureCount() const;
-            const TextureList& textures() const;
+            const std::vector<Texture*>& textures() const;
             Texture* textureByIndex(size_t index) const;
             Texture* textureByName(const String& name) const;
 

@@ -21,7 +21,7 @@
 #define TrenchBroom_AttributableNode
 
 #include "Notifier.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Model_Forward.h"

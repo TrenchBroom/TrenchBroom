@@ -452,7 +452,7 @@ namespace TrenchBroom {
             model->addFrames(1);
             auto& surface = model->addSurface(m_name);
 
-            Assets::TextureList textures;
+            std::vector<Assets::Texture*> textures;
             textures.resize(scene.materialPaths.size());
 
             // Load the textures

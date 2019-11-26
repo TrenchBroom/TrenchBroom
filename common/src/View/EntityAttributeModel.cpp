@@ -204,7 +204,7 @@ namespace TrenchBroom {
                 if (showDefaultRows) {
                     const Assets::EntityDefinition* entityDefinition = node->definition();
                     if (entityDefinition != nullptr) {
-                       for (Assets::AttributeDefinitionPtr attributeDefinition : entityDefinition->attributeDefinitions()) {
+                       for (auto attributeDefinition : entityDefinition->attributeDefinitions()) {
                            result.insert(attributeDefinition->name());
                        }
                     }

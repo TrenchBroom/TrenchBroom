@@ -29,6 +29,7 @@
 #include "View/ViewTypes.h"
 
 #include <map>
+#include <vector>
 
 class QScrollBar;
 
@@ -95,12 +96,12 @@ namespace TrenchBroom {
             struct MatchUsageCount;
             struct MatchName;
 
-            Assets::TextureCollectionList getCollections() const;
-            Assets::TextureList getTextures(const Assets::TextureCollection* collection) const;
-            Assets::TextureList getTextures() const;
+            std::vector<Assets::TextureCollection*> getCollections() const;
+            std::vector<Assets::Texture*> getTextures(const Assets::TextureCollection* collection) const;
+            std::vector<Assets::Texture*> getTextures() const;
 
-            void filterTextures(Assets::TextureList& textures) const;
-            void sortTextures(Assets::TextureList& textures) const;
+            void filterTextures(std::vector<Assets::Texture*>& textures) const;
+            void sortTextures(std::vector<Assets::Texture*>& textures) const;
 
             void doClear() override;
             void doRender(Layout& layout, float y, float height) override;

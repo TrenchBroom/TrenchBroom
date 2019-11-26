@@ -92,7 +92,7 @@ namespace TrenchBroom {
             VectorUtils::append(m_toRemove, collections);
         }
 
-        void TextureManager::setTextureCollections(const TextureCollectionList& collections) {
+        void TextureManager::setTextureCollections(const std::vector<TextureCollection*>& collections) {
             clear();
             for (auto* collection : collections) {
                 collection->usageCountDidChange.addObserver(usageCountDidChange);
@@ -150,11 +150,11 @@ namespace TrenchBroom {
             }
         }
 
-        const TextureList& TextureManager::textures() const {
+        const std::vector<Texture*>& TextureManager::textures() const {
             return m_textures;
         }
 
-        const TextureCollectionList& TextureManager::collections() const {
+        const std::vector<TextureCollection*>& TextureManager::collections() const {
             return m_collections;
         }
 

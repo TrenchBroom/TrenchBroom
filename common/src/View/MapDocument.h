@@ -22,7 +22,7 @@
 
 #include "Notifier.h"
 #include "TrenchBroom.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/Path.h"
 #include "Model/EntityColor.h"
@@ -432,7 +432,7 @@ namespace TrenchBroom {
             void setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
 
             // For testing
-            void setEntityDefinitions(const Assets::EntityDefinitionList& definitions);
+            void setEntityDefinitions(const std::vector<Assets::EntityDefinition*>& definitions);
 
             IO::Path::List enabledTextureCollections() const;
             IO::Path::List availableTextureCollections() const;

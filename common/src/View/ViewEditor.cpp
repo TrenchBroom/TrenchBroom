@@ -34,6 +34,8 @@
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
+#include <vector>
+
 #include <QCheckBox>
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -60,7 +62,7 @@ namespace TrenchBroom {
             const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
             for (size_t i = 0; i < groups.size(); ++i) {
                 const Assets::EntityDefinitionGroup& group = groups[i];
-                const Assets::EntityDefinitionList& definitions = group.definitions();
+                const std::vector<Assets::EntityDefinition*>& definitions = group.definitions();
 
                 if (!definitions.empty()) {
                     const bool firstHidden = m_editorContext.entityDefinitionHidden(definitions[0]);
@@ -88,7 +90,7 @@ namespace TrenchBroom {
             ensure(groupIndex < m_entityDefinitionManager.groups().size(), "index out of range");
             const Assets::EntityDefinitionGroup& group = groups[groupIndex];
 
-            const Assets::EntityDefinitionList& definitions = group.definitions();
+            const std::vector<Assets::EntityDefinition*>& definitions = group.definitions();
             for (size_t i = 0; i < definitions.size(); ++i) {
                 const Assets::EntityDefinition* definition = definitions[i];
                 m_editorContext.setEntityDefinitionHidden(definition, !checked);
@@ -114,7 +116,7 @@ namespace TrenchBroom {
             const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
             for (size_t i = 0; i < groups.size(); ++i) {
                 const Assets::EntityDefinitionGroup& group = groups[i];
-                const Assets::EntityDefinitionList& definitions = group.definitions();
+                const std::vector<Assets::EntityDefinition*>& definitions = group.definitions();
                 for (size_t j = 0; j < definitions.size(); ++j) {
                     const Assets::EntityDefinition* definition = definitions[j];
                     m_editorContext.setEntityDefinitionHidden(definition, hidden);
@@ -131,7 +133,7 @@ namespace TrenchBroom {
             const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
             for (size_t i = 0; i < groups.size(); ++i) {
                 const Assets::EntityDefinitionGroup& group = groups[i];
-                const Assets::EntityDefinitionList& definitions = group.definitions();
+                const std::vector<Assets::EntityDefinition*>& definitions = group.definitions();
                 const String& groupName = group.displayName();
 
                 // Checkbox for the prefix, e.g. "func"
@@ -144,8 +146,7 @@ namespace TrenchBroom {
 
                 scrollWidgetLayout->addWidget(groupCB);
 
-                Assets::EntityDefinitionList::const_iterator defIt, defEnd;
-                for (defIt = std::begin(definitions), defEnd = std::end(definitions); defIt != defEnd; ++defIt) {
+                for (auto defIt = std::begin(definitions), defEnd = std::end(definitions); defIt != defEnd; ++defIt) {
                     Assets::EntityDefinition* definition = *defIt;
                     const String defName = definition->name();
 

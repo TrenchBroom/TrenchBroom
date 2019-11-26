@@ -28,6 +28,8 @@
 #include "IO/LegacyModelDefinitionParser.h"
 #include "IO/ParserStatus.h"
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace IO {
         DefTokenizer::DefTokenizer(const char* begin, const char* end) :
@@ -160,8 +162,8 @@ namespace TrenchBroom {
             return names;
         }
 
-        Assets::EntityDefinitionList DefParser::doParseDefinitions(ParserStatus& status) {
-            Assets::EntityDefinitionList definitions;
+        DefParser::EntityDefinitionList DefParser::doParseDefinitions(ParserStatus& status) {
+            EntityDefinitionList definitions;
             try {
                 Assets::EntityDefinition* definition = parseDefinition(status);
                 status.progress(m_tokenizer.progress());
@@ -230,7 +232,7 @@ namespace TrenchBroom {
             return parseDefinition(status);
         }
 
-        Assets::AttributeDefinitionPtr DefParser::parseSpawnflags(ParserStatus& /* status */) {
+        DefParser::AttributeDefinitionPtr DefParser::parseSpawnflags(ParserStatus& /* status */) {
             Assets::FlagsAttributeDefinition* definition = new Assets::FlagsAttributeDefinition(Model::AttributeNames::Spawnflags);
             size_t numOptions = 0;
 
@@ -248,7 +250,7 @@ namespace TrenchBroom {
                 throw;
             }
 
-            return Assets::AttributeDefinitionPtr(definition);
+            return DefParser::AttributeDefinitionPtr(definition);
         }
 
         void DefParser::parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses) {
@@ -302,7 +304,7 @@ namespace TrenchBroom {
             return basename;
         }
 
-        Assets::AttributeDefinitionPtr DefParser::parseChoiceAttribute(ParserStatus& status) {
+        DefParser::AttributeDefinitionPtr DefParser::parseChoiceAttribute(ParserStatus& status) {
             Token token;
             expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
             const String attributeName = token.data();
@@ -324,7 +326,7 @@ namespace TrenchBroom {
 
             expect(status, DefToken::CParenthesis, token);
 
-            return Assets::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(attributeName, "", "", options, false));
+            return DefParser::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(attributeName, "", "", options, false));
         }
 
         Assets::ModelDefinition DefParser::parseModel(ParserStatus& status) {

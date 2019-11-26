@@ -21,7 +21,7 @@
 #define TrenchBroom_FaceRenderer
 
 #include "Color.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Renderer/Renderable.h"
 
 #include <memory>

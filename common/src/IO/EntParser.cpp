@@ -36,6 +36,7 @@
 
 #include <cstdlib>
 #include <functional>
+#include <memory>
 
 namespace TrenchBroom {
     namespace IO {
@@ -49,13 +50,13 @@ namespace TrenchBroom {
         m_end(str.c_str() + str.size()),
         m_defaultEntityColor(defaultEntityColor) {}
 
-        Assets::EntityDefinitionList EntParser::doParseDefinitions(ParserStatus& status) {
+        std::vector<Assets::EntityDefinition*> EntParser::doParseDefinitions(ParserStatus& status) {
             tinyxml2::XMLDocument doc;
             doc.Parse(m_begin, static_cast<size_t>(m_end - m_begin));
             if (doc.Error()) {
                 if (doc.ErrorID() == tinyxml2::XML_ERROR_EMPTY_DOCUMENT) {
                     // we allow empty documents
-                    return Assets::EntityDefinitionList();
+                    return {};
                 } else {
                     const auto lineNum = static_cast<size_t>(doc.ErrorLineNum());
                     const auto error = String(doc.ErrorStr());
@@ -65,9 +66,9 @@ namespace TrenchBroom {
             return parseClasses(doc, status);
         }
 
-        Assets::EntityDefinitionList EntParser::parseClasses(const tinyxml2::XMLDocument& document, ParserStatus& status) {
-            Assets::EntityDefinitionList result;
-            Assets::AttributeDefinitionList attributeDeclarations;
+        std::vector<Assets::EntityDefinition*> EntParser::parseClasses(const tinyxml2::XMLDocument& document, ParserStatus& status) {
+            std::vector<Assets::EntityDefinition*> result;
+            AttributeDefinitionList attributeDeclarations;
 
             const auto* classesNode = document.FirstChildElement("classes");
             if (classesNode != nullptr) {
@@ -88,7 +89,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        Assets::EntityDefinition* EntParser::parseClass(const tinyxml2::XMLElement& element, const Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status) {
+        Assets::EntityDefinition* EntParser::parseClass(const tinyxml2::XMLElement& element, const AttributeDefinitionList& attributeDeclarations, ParserStatus& status) {
             if (!std::strcmp(element.Name(), "point")) {
                 return parsePointEntityDefinition(element, attributeDeclarations, status);
             } else if (!std::strcmp(element.Name(), "group")) {
@@ -99,13 +100,13 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityDefinition* EntParser::parsePointEntityDefinition(const tinyxml2::XMLElement& element, const Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status) {
+        Assets::EntityDefinition* EntParser::parsePointEntityDefinition(const tinyxml2::XMLElement& element, const AttributeDefinitionList& attributeDeclarations, ParserStatus& status) {
             const auto bounds = parseBounds(element, "box", status);
             const auto color = parseColor(element, "color", status);
             const auto name = parseString(element, "name", status);
             const auto modelDefinition = parseModel(element, status);
 
-            Assets::AttributeDefinitionList attributeDefinitions;
+            AttributeDefinitionList attributeDefinitions;
 
             parseSpawnflags(element, attributeDefinitions, status);
             parseAttributes(element, attributeDeclarations, attributeDefinitions, status);
@@ -113,11 +114,11 @@ namespace TrenchBroom {
             return new Assets::PointEntityDefinition(name, color, bounds, getText(element), attributeDefinitions, modelDefinition);
         }
 
-        Assets::EntityDefinition* EntParser::parseBrushEntityDefinition(const tinyxml2::XMLElement& element, const Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status) {
+        Assets::EntityDefinition* EntParser::parseBrushEntityDefinition(const tinyxml2::XMLElement& element, const AttributeDefinitionList& attributeDeclarations, ParserStatus& status) {
             const auto color = parseColor(element, "color", status);
             const auto name = parseString(element, "name", status);
 
-            Assets::AttributeDefinitionList attributeDefinitions;
+            AttributeDefinitionList attributeDefinitions;
 
             parseSpawnflags(element, attributeDefinitions, status);
             parseAttributes(element, attributeDeclarations, attributeDefinitions, status);
@@ -144,7 +145,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntParser::parseSpawnflags(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
+        void EntParser::parseSpawnflags(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
             const auto* flagElement = element.FirstChildElement("flag");
             if (flagElement != nullptr) {
                 auto result = std::make_shared<Assets::FlagsAttributeDefinition>(Model::AttributeNames::Spawnflags);
@@ -166,7 +167,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntParser::parseAttributes(const tinyxml2::XMLElement& parent, const Assets::AttributeDefinitionList& attributeDeclarations, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
+        void EntParser::parseAttributes(const tinyxml2::XMLElement& parent, const AttributeDefinitionList& attributeDeclarations, AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
             const auto* element = parent.FirstChildElement();
             while (element != nullptr) {
                 if (!std::strcmp(element->Name(), "angle")) {
@@ -209,7 +210,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntParser::parseUnknownAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
+        void EntParser::parseUnknownAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
             auto factory = [this, &element, &status](const String& name, const String& shortDesc, const String& longDesc) {
                 auto defaultValue = hasAttribute(element, "value") ? nonstd::make_optional(parseString(element, "value", status)) : nonstd::nullopt;
                 return std::make_shared<Assets::UnknownAttributeDefinition>(name, shortDesc, longDesc, false, std::move(defaultValue));
@@ -217,7 +218,7 @@ namespace TrenchBroom {
             parseAttributeDefinition(element, factory, attributeDefinitions, status);
         }
 
-        void EntParser::parseStringAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
+        void EntParser::parseStringAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
             auto factory = [this, &element, &status](const String& name, const String& shortDesc, const String& longDesc) {
                 auto defaultValue = hasAttribute(element, "value") ? nonstd::make_optional(parseString(element, "value", status)) : nonstd::nullopt;
                 return std::make_shared<Assets::StringAttributeDefinition>(name, shortDesc, longDesc, false, std::move(defaultValue));
@@ -225,8 +226,8 @@ namespace TrenchBroom {
             parseAttributeDefinition(element, factory, attributeDefinitions, status);
         }
 
-        void EntParser::parseBooleanAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
-            auto factory = [this, &element, &status](const String& name, const String& shortDesc, const String& longDesc) -> Assets::AttributeDefinitionPtr {
+        void EntParser::parseBooleanAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
+            auto factory = [this, &element, &status](const String& name, const String& shortDesc, const String& longDesc) -> std::shared_ptr<Assets::AttributeDefinition> {
                 if (hasAttribute(element, "value")) {
                     const auto boolDefaultValue = parseInteger(element, "value", status);
                     if (boolDefaultValue.has_value()) {
@@ -243,8 +244,8 @@ namespace TrenchBroom {
             parseAttributeDefinition(element, factory, attributeDefinitions, status);
         }
 
-        void EntParser::parseIntegerAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
-            auto factory = [this, &element, &status](const String& name, const String& shortDesc, const String& longDesc) -> Assets::AttributeDefinitionPtr {
+        void EntParser::parseIntegerAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
+            auto factory = [this, &element, &status](const String& name, const String& shortDesc, const String& longDesc) -> std::shared_ptr<Assets::AttributeDefinition> {
                 if (hasAttribute(element, "value")) {
                     auto intDefaultValue = parseInteger(element, "value", status);
                     if (intDefaultValue.has_value()) {
@@ -261,8 +262,8 @@ namespace TrenchBroom {
             parseAttributeDefinition(element, factory, attributeDefinitions, status);
         }
 
-        void EntParser::parseRealAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
-            auto factory = [this, &element, &status](const String& name, const String& shortDesc, const String& longDesc) -> Assets::AttributeDefinitionPtr {
+        void EntParser::parseRealAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
+            auto factory = [this, &element, &status](const String& name, const String& shortDesc, const String& longDesc) -> std::shared_ptr<Assets::AttributeDefinition> {
                 if (hasAttribute(element, "value")) {
                     auto floatDefaultValue = parseFloat(element, "value", status);
                     if (floatDefaultValue.has_value()) {
@@ -279,28 +280,28 @@ namespace TrenchBroom {
             parseAttributeDefinition(element, factory, attributeDefinitions, status);
         }
 
-        void EntParser::parseTargetAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
+        void EntParser::parseTargetAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
             auto factory = [](const String& name, const String& shortDesc, const String& longDesc) {
                 return std::make_shared<Assets::AttributeDefinition>(name, Assets::AttributeDefinition::Type_TargetDestinationAttribute, shortDesc, longDesc, false);
             };
             parseAttributeDefinition(element, factory, attributeDefinitions, status);
         }
 
-        void EntParser::parseTargetNameAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
+        void EntParser::parseTargetNameAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
             auto factory = [](const String& name, const String& shortDesc, const String& longDesc) {
                 return std::make_shared<Assets::AttributeDefinition>(name, Assets::AttributeDefinition::Type_TargetSourceAttribute, shortDesc, longDesc, false);
             };
             parseAttributeDefinition(element, factory, attributeDefinitions, status);
         }
 
-        void EntParser::parseDeclaredAttributeDefinition(const tinyxml2::XMLElement& element, const Assets::AttributeDefinitionPtr& attributeDeclaration, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
+        void EntParser::parseDeclaredAttributeDefinition(const tinyxml2::XMLElement& element, const std::shared_ptr<Assets::AttributeDefinition>& attributeDeclaration, AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
             auto factory = [&attributeDeclaration](const String& name, const String& shortDesc, const String& longDesc) {
-                return Assets::AttributeDefinitionPtr(attributeDeclaration->clone(name, shortDesc, longDesc, false));
+                return std::shared_ptr<Assets::AttributeDefinition>(attributeDeclaration->clone(name, shortDesc, longDesc, false));
             };
             parseAttributeDefinition(element, factory, attributeDefinitions, status);
         }
 
-        void EntParser::parseAttributeDefinition(const tinyxml2::XMLElement& element, EntParser::AttributeFactory factory, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
+        void EntParser::parseAttributeDefinition(const tinyxml2::XMLElement& element, EntParser::AttributeFactory factory, AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
             if (expectAttribute(element, "key", status) && expectAttribute(element, "name", status)) {
                 const auto name = parseString(element, "key", status);
                 const auto shortDesc = parseString(element, "name", status);
@@ -310,14 +311,14 @@ namespace TrenchBroom {
             }
         }
 
-        void EntParser::parseAttributeDeclaration(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status) {
+        void EntParser::parseAttributeDeclaration(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDeclarations, ParserStatus& status) {
             const auto* name = element.Name();
             if (name && !std::strcmp(name, "list")) {
                 parseListDeclaration(element, attributeDeclarations, status);
             }
         }
 
-        void EntParser::parseListDeclaration(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status) {
+        void EntParser::parseListDeclaration(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDeclarations, ParserStatus& status) {
             if (expectAttribute(element, "name", status)) {
                 const auto name = parseString(element, "name", status);
                 Assets::ChoiceAttributeOption::List options;

@@ -63,7 +63,7 @@ namespace TrenchBroom {
             EntParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             EntParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }

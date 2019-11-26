@@ -22,13 +22,15 @@
 #include "CollectionUtils.h"
 #include "Assets/Texture.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Assets {
         TextureCollection::TextureCollection() :
         m_loaded(false),
         m_usageCount(0) {}
 
-        TextureCollection::TextureCollection(const TextureList& textures) :
+        TextureCollection::TextureCollection(const std::vector<Texture*>& textures) :
         m_loaded(false),
         m_usageCount(0) {
             addTextures(textures);
@@ -39,7 +41,7 @@ namespace TrenchBroom {
         m_path(path),
         m_usageCount(0) {}
 
-        TextureCollection::TextureCollection(const IO::Path& path, const TextureList& textures) :
+        TextureCollection::TextureCollection(const IO::Path& path, const std::vector<Texture*>& textures) :
         m_loaded(true),
         m_path(path),
         m_usageCount(0) {
@@ -55,7 +57,7 @@ namespace TrenchBroom {
             }
         }
 
-        void TextureCollection::addTextures(const TextureList& textures) {
+        void TextureCollection::addTextures(const std::vector<Texture*>& textures) {
             for (Texture* texture : textures)
                 addTexture(texture);
         }
@@ -85,7 +87,7 @@ namespace TrenchBroom {
             return m_textures.size();
         }
 
-        const TextureList& TextureCollection::textures() const {
+        const std::vector<Texture*>& TextureCollection::textures() const {
             return m_textures;
         }
 

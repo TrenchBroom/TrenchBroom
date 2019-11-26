@@ -23,12 +23,13 @@
 #include "TrenchBroom.h"
 #include "StringType.h"
 #include "Color.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Assets/ModelDefinition.h"
 
 #include <vecmath/bbox.h>
 
 #include <map>
+#include <memory>
 
 namespace TrenchBroom {
     namespace IO {
@@ -46,7 +47,7 @@ namespace TrenchBroom {
             bool m_hasColor;
             vm::bbox3 m_size;
             bool m_hasSize;
-            Assets::AttributeDefinitionMap m_attributes;
+            std::map<String, std::shared_ptr<Assets::AttributeDefinition>> m_attributes;
             Assets::ModelDefinition m_modelDefinition;
             bool m_hasModelDefinition;
         public:
@@ -62,8 +63,8 @@ namespace TrenchBroom {
             bool hasColor() const;
             const vm::bbox3& size() const;
             bool hasSize() const;
-            Assets::AttributeDefinitionList attributeList() const;
-            const Assets::AttributeDefinitionMap& attributeMap() const;
+            std::vector<std::shared_ptr<Assets::AttributeDefinition>> attributeList() const;
+            const std::map<String, std::shared_ptr<Assets::AttributeDefinition>>& attributeMap() const;
             const Assets::ModelDefinition& modelDefinition() const;
             bool hasModelDefinition() const;
 
@@ -71,8 +72,8 @@ namespace TrenchBroom {
             void setDescription(const String& description);
             void setColor(const Color& color);
             void setSize(const vm::bbox3& size);
-            void addAttributeDefinition(Assets::AttributeDefinitionPtr attributeDefinition);
-            void addAttributeDefinitions(const Assets::AttributeDefinitionMap& attributeDefinitions);
+            void addAttributeDefinition(std::shared_ptr<Assets::AttributeDefinition> attributeDefinition);
+            void addAttributeDefinitions(const std::map<String, std::shared_ptr<Assets::AttributeDefinition>>& attributeDefinitions);
             void setModelDefinition(const Assets::ModelDefinition& modelDefinition);
 
             void resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const StringList& classnames);

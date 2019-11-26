@@ -20,7 +20,7 @@
 #include "FaceAttribsEditor.h"
 
 #include "Color.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Assets/Texture.h"
 #include "IO/ResourceUtils.h"
 #include "Model/BrushFace.h"

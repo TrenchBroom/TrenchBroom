@@ -20,7 +20,7 @@
 #include "TextureCollectionLoader.h"
 
 #include "Logger.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
 #include "IO/DiskIO.h"

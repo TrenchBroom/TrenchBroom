@@ -23,7 +23,7 @@
 #include "TrenchBroom.h"
 #include "Color.h"
 #include "StringType.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/Parser.h"
@@ -32,6 +32,9 @@
 
 #include <vecmath/vec.h>
 #include <vecmath/bbox.h>
+
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -76,16 +79,16 @@ namespace TrenchBroom {
             DefParser(const String& str, const Color& defaultEntityColor);
         private:
             TokenNameMap tokenNames() const override;
-            Assets::EntityDefinitionList doParseDefinitions(ParserStatus& status) override;
+            EntityDefinitionList doParseDefinitions(ParserStatus& status) override;
 
             Assets::EntityDefinition* parseDefinition(ParserStatus& status);
-            Assets::AttributeDefinitionPtr parseSpawnflags(ParserStatus& status);
+            AttributeDefinitionPtr parseSpawnflags(ParserStatus& status);
             void parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses);
             bool parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses);
 
             void parseDefaultAttribute(ParserStatus& status);
             String parseBaseAttribute(ParserStatus& status);
-            Assets::AttributeDefinitionPtr parseChoiceAttribute(ParserStatus& status);
+            AttributeDefinitionPtr parseChoiceAttribute(ParserStatus& status);
             Assets::ModelDefinition parseModel(ParserStatus& status);
 
             String parseDescription();

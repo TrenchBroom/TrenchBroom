@@ -21,7 +21,7 @@
 #define TrenchBroom_GameImpl
 
 #include "TrenchBroom.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFileSystem.h"
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             void doReloadShaders() override;
 
             bool doIsEntityDefinitionFile(const IO::Path& path) const override;
-            Assets::EntityDefinitionList doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const override;
+            std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const override;
             Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const override;
             Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const override;
             Assets::EntityDefinitionFileSpec defaultEntityDefinitionFile() const;
