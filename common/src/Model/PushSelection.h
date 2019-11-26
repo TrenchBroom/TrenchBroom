@@ -22,6 +22,7 @@
 
 #include "Model/Model_Forward.h"
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {

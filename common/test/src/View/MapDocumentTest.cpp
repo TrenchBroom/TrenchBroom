@@ -339,7 +339,7 @@ namespace TrenchBroom {
             auto* face1 = brush1->faces().front();
             auto* face2 = brush2->faces().front();
 
-            document->select({ face1, face2 });
+            document->select(std::vector<Model::BrushFace*>{ face1, face2 });
             ASSERT_TRUE(document->csgConvexMerge());
             ASSERT_EQ(2u, entity->children().size()); // added to the parent of the first brush, original brush is not deleted
 

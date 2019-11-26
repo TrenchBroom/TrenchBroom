@@ -21,6 +21,7 @@
 
 #include "Model/Issue.h"
 
+#include <cassert>
 #include <vector>
 
 namespace TrenchBroom {

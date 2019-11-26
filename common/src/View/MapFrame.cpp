@@ -19,10 +19,11 @@
 
 #include "MapFrame.h"
 
-#include "TrenchBroomApp.h"
+#include "Console.h"
+#include "FileLogger.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
-#include "Console.h"
+#include "TrenchBroomApp.h"
 #include "IO/PathQt.h"
 #include "Model/AttributableNode.h"
 #include "Model/Brush.h"
@@ -38,8 +39,10 @@
 #include "Model/World.h"
 #include "View/Actions.h"
 #include "View/Autosaver.h"
+#if !defined __APPLE__
+#include "View/BorderLine.h"
+#endif
 #include "View/MapViewBase.h"
-#include "FileLogger.h"
 #include "View/ClipTool.h"
 #include "View/CompilationDialog.h"
 #include "View/EdgeTool.h"

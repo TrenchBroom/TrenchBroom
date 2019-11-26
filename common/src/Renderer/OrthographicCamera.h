@@ -24,6 +24,8 @@
 
 #include <vecmath/forward.h>
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Renderer {
         class OrthographicCamera : public Camera {
