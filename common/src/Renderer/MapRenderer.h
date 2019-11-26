@@ -27,6 +27,7 @@
 
 #include <map>
 #include <memory>
+#include <set>
 #include <vector>
 
 namespace TrenchBroom {

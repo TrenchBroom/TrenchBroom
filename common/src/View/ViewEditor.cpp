@@ -19,6 +19,7 @@
 
 #include "ViewEditor.h"
 
+#include "SharedPointer.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -218,7 +219,7 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &ViewEditor::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &ViewEditor::documentWasNewedOrLoaded);
             document->editorContextDidChangeNotifier.addObserver(this, &ViewEditor::editorContextDidChange);
@@ -228,7 +229,7 @@ namespace TrenchBroom {
 
         void ViewEditor::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &ViewEditor::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.removeObserver(this, &ViewEditor::documentWasNewedOrLoaded);
                 document->editorContextDidChangeNotifier.removeObserver(this, &ViewEditor::editorContextDidChange);
@@ -277,7 +278,7 @@ namespace TrenchBroom {
         QWidget* ViewEditor::createEntityDefinitionsPanel(QWidget* parent) {
             TitledPanel* panel = new TitledPanel("Entity Definitions", parent);
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Assets::EntityDefinitionManager& entityDefinitionManager = document->entityDefinitionManager();
 
             Model::EditorContext& editorContext = document->editorContext();
@@ -347,7 +348,7 @@ namespace TrenchBroom {
         void ViewEditor::createTagFilter(QWidget* parent) {
             m_tagCheckBoxes.clear();
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const auto& tags = document->smartTags();
             if (tags.empty()) {
                 createEmptyTagFilter(parent);
@@ -454,7 +455,7 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::refreshEntitiesPanel() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const MapViewConfig& config = document->mapViewConfig();
 
             m_showEntityClassnamesCheckBox->setChecked(config.showEntityClassnames());
@@ -466,7 +467,7 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::refreshBrushesPanel() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             const MapViewConfig& config = document->mapViewConfig();
             m_showBrushesCheckBox->setChecked(config.showBrushes());
@@ -486,7 +487,7 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::refreshRendererPanel() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const MapViewConfig& config = document->mapViewConfig();
             Model::EditorContext& editorContext = document->editorContext();
 
@@ -498,49 +499,49 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::showEntityClassnamesChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowEntityClassnames(checked);
         }
 
         void ViewEditor::showGroupBoundsChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowGroupBounds(checked);
         }
 
         void ViewEditor::showBrushEntityBoundsChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowBrushEntityBounds(checked);
         }
 
         void ViewEditor::showPointEntityBoundsChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowPointEntityBounds(checked);
         }
 
         void ViewEditor::showPointEntitiesChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setShowPointEntities(checked);
         }
 
         void ViewEditor::showPointEntityModelsChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowPointEntityModels(checked);
         }
 
         void ViewEditor::showBrushesChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setShowBrushes(checked);
         }
 
         void ViewEditor::showTagChanged(const bool /* checked */) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             Model::Tag::TagType hiddenTags = 0;
             const auto& tags = document->smartTags();
@@ -561,7 +562,7 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::faceRenderModeChanged(const int id) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
 
             switch (id) {
@@ -578,25 +579,25 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::shadeFacesChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShadeFaces(checked);
         }
 
         void ViewEditor::showFogChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowFog(checked);
         }
 
         void ViewEditor::showEdgesChanged(const bool checked) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowEdges(checked);
         }
 
         void ViewEditor::entityLinkModeChanged(const int id) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
 
             switch (id) {

@@ -19,6 +19,7 @@
 
 #include "ScaleObjectsToolPage.h"
 
+#include "SharedPointer.h"
 #include "StringUtils.h"
 #include "TrenchBroom.h"
 #include "View/Grid.h"

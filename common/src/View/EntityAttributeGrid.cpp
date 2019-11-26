@@ -19,8 +19,9 @@
 
 #include "EntityAttributeGrid.h"
 
-#include "Model/EntityAttributes.h"
+#include "SharedPointer.h"
 #include "StringUtils.h"
+#include "Model/EntityAttributes.h"
 #include "View/BorderLine.h"
 #include "View/EntityAttributeItemDelegate.h"
 #include "View/EntityAttributeModel.h"

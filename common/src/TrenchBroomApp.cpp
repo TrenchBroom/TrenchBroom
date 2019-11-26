@@ -61,6 +61,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {
@@ -200,7 +201,7 @@ namespace TrenchBroom {
 
                 frame = m_frameManager->newFrame();
 
-                Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
+                auto game = gameFactory.createGame(gameName, frame->logger());
                 ensure(game.get() != nullptr, "game is null");
 
                 hideWelcomeWindow();
@@ -443,7 +444,7 @@ namespace TrenchBroom {
                 frame = m_frameManager->newFrame();
 
                 Model::GameFactory &gameFactory = Model::GameFactory::instance();
-                Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
+                auto game = gameFactory.createGame(gameName, frame->logger());
                 ensure(game.get() != nullptr, "game is null");
 
                 hideWelcomeWindow();

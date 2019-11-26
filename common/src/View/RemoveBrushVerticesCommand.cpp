@@ -29,16 +29,16 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType RemoveBrushVerticesCommand::Type = Command::freeType();
 
-        RemoveBrushVerticesCommand::Ptr RemoveBrushVerticesCommand::remove(const Model::VertexToBrushesMap& vertices) {
+        RemoveBrushVerticesCommand::Ptr RemoveBrushVerticesCommand::remove(const VertexToBrushesMap& vertices) {
             std::vector<Model::Brush*> brushes;
-            Model::BrushVerticesMap brushVertices;
+            BrushVerticesMap brushVertices;
             std::vector<vm::vec3> vertexPositions;
             extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
 
             return Ptr(new RemoveBrushVerticesCommand(brushes, brushVertices, vertexPositions));
         }
 
-        RemoveBrushVerticesCommand::RemoveBrushVerticesCommand(const std::vector<Model::Brush*>& brushes, const Model::BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions) :
+        RemoveBrushVerticesCommand::RemoveBrushVerticesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions) :
         RemoveBrushElementsCommand(Type, "Remove Brush Vertices", brushes, vertices),
         m_oldVertexPositions(vertexPositions) {}
     }

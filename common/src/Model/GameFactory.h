@@ -81,7 +81,7 @@ namespace TrenchBroom {
 
             const StringList& gameList() const;
             size_t gameCount() const;
-            GameSPtr createGame(const String& gameName, Logger& logger);
+            std::shared_ptr<Game> createGame(const String& gameName, Logger& logger);
 
             StringList fileFormats(const String& gameName) const;
             IO::Path iconPath(const String& gameName) const;

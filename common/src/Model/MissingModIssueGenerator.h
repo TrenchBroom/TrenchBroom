@@ -24,6 +24,9 @@
 #include "Model/ModelTypes.h"
 #include "StringList.h"
 
+#include <memory>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class MissingModIssueGenerator : public IssueGenerator {
@@ -31,10 +34,10 @@ namespace TrenchBroom {
             class MissingModIssue;
             class MissingModIssueQuickFix;
 
-            GameWPtr m_game;
+            std::weak_ptr<Game> m_game;
             mutable StringList m_lastMods;
         public:
-            MissingModIssueGenerator(GameWPtr game);
+            MissingModIssueGenerator(std::weak_ptr<Game> game);
         private:
             void doGenerate(AttributableNode* node, IssueList& issues) const override;
         };

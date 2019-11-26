@@ -21,16 +21,17 @@
 
 #include "CollectionUtils.h"
 #include "Notifier.h"
+#include "SharedPointer.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
-#include "QtUtils.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
+#include "View/QtUtils.h"
 
 #include <QPushButton>
 #include <QListWidget>
@@ -38,8 +39,6 @@
 #include <QVBoxLayout>
 #include <QFileDialog>
 #include <QDebug>
-
-#include <cassert>
 
 namespace TrenchBroom {
     namespace View {

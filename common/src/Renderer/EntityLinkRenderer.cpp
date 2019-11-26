@@ -20,6 +20,7 @@
 #include "EntityLinkRenderer.h"
 
 #include "Macros.h"
+#include "SharedPointer.h"
 #include "Model/AttributableNode.h"
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EditorContext.h"

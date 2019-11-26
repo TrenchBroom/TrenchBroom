@@ -1391,7 +1391,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void Brush::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+        void Brush::doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) {
             generator->generate(this, issues);
         }
 

@@ -22,6 +22,8 @@
 
 #include "Model/ModelTypes.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class MapFacade;
@@ -37,9 +39,9 @@ namespace TrenchBroom {
 
             const String& description() const;
 
-            void apply(MapFacade* facade, const IssueList& issues) const;
+            void apply(MapFacade* facade, const std::vector<Issue*>& issues) const;
         private:
-            virtual void doApply(MapFacade* facade, const IssueList& issues) const;
+            virtual void doApply(MapFacade* facade, const std::vector<Issue*>& issues) const;
             virtual void doApply(MapFacade* facade, const Issue* issue) const;
         };
     }

@@ -40,7 +40,7 @@ namespace TrenchBroom {
             return m_description;
         }
 
-        const IssueQuickFixList& IssueGenerator::quickFixes() const {
+        const std::vector<IssueQuickFix*>& IssueGenerator::quickFixes() const {
             return m_quickFixes;
         }
 

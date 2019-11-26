@@ -30,6 +30,8 @@
 #include <vecmath/util.h>
 
 #include <map>
+#include <memory>
+#include <set>
 #include <vector>
 
 namespace TrenchBroom {
@@ -46,7 +48,7 @@ namespace TrenchBroom {
         public:
             virtual ~MapFacade();
         public: // getters
-            virtual Model::GameSPtr game() const = 0;
+            virtual std::shared_ptr<Model::Game> game() const = 0;
 
             virtual Layer* currentLayer() const = 0;
             virtual Group* currentGroup() const = 0;
@@ -142,9 +144,9 @@ namespace TrenchBroom {
                 MoveVerticesResult(bool i_success, bool i_hasRemainingVertices);
             };
 
-            virtual MoveVerticesResult moveVertices(const VertexToBrushesMap& vertices, const vm::vec3& delta) = 0;
-            virtual bool moveEdges(const EdgeToBrushesMap& edges, const vm::vec3& delta) = 0;
-            virtual bool moveFaces(const FaceToBrushesMap& faces, const vm::vec3& delta) = 0;
+            virtual MoveVerticesResult moveVertices(const std::map<vm::vec3, std::set<Brush*>>& vertices, const vm::vec3& delta) = 0;
+            virtual bool moveEdges(const std::map<vm::segment3, std::set<Brush*>>& edges, const vm::vec3& delta) = 0;
+            virtual bool moveFaces(const std::map<vm::polygon3, std::set<Brush*>>& faces, const vm::vec3& delta) = 0;
         public: // search paths and mods
             virtual StringList mods() const = 0;
             virtual void setMods(const StringList& mods) = 0;

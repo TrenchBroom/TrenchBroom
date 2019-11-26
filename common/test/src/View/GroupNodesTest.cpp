@@ -28,6 +28,8 @@
 #include "View/MapDocumentTest.h"
 #include "View/MapDocument.h"
 
+#include <set>
+
 namespace TrenchBroom {
     namespace View {
         class GroupNodesTest : public MapDocumentTest {};
@@ -141,7 +143,7 @@ namespace TrenchBroom {
             ASSERT_EQ(group, light->parent());
         }
 
-        static bool hasEmptyName(const Model::AttributeNameSet& names) {
+        static bool hasEmptyName(const std::set<Model::AttributeName>& names) {
             for (const Model::AttributeName& name : names) {
                 if (name.empty())
                     return true;

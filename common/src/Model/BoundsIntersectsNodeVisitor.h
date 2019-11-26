@@ -24,6 +24,8 @@
 #include "Model/ModelTypes.h"
 #include "Model/NodeVisitor.h"
 
+#include <vecmath/bbox.h>
+
 namespace TrenchBroom {
     namespace Model {
         class BoundsIntersectsNodeVisitor : public ConstNodeVisitor, public NodeQuery<bool> {

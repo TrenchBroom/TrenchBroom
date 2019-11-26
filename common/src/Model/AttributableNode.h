@@ -27,6 +27,7 @@
 #include "Model/ModelTypes.h"
 #include "Model/Node.h"
 
+#include <set>
 #include <vector>
 
 namespace TrenchBroom {
@@ -67,7 +68,7 @@ namespace TrenchBroom {
             const EntityAttribute::List& attributes() const;
             void setAttributes(const EntityAttribute::List& attributes);
 
-            AttributeNameSet attributeNames() const;
+            std::set<AttributeName> attributeNames() const;
 
             bool hasAttribute(const AttributeName& name) const;
             bool hasAttribute(const AttributeName& name, const AttributeValue& value) const;
@@ -128,10 +129,10 @@ namespace TrenchBroom {
             vm::vec3 linkTargetAnchor() const;
 
             bool hasMissingSources() const;
-            AttributeNameList findMissingLinkTargets() const;
-            AttributeNameList findMissingKillTargets() const;
+            std::vector<AttributeName> findMissingLinkTargets() const;
+            std::vector<AttributeName> findMissingKillTargets() const;
         private: // link management internals
-            void findMissingTargets(const AttributeName& prefix, AttributeNameList& result) const;
+            void findMissingTargets(const AttributeName& prefix, std::vector<AttributeName>& result) const;
 
             void addLinks(const AttributeName& name, const AttributeValue& value);
             void removeLinks(const AttributeName& name, const AttributeValue& value);

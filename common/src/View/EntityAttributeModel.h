@@ -28,6 +28,7 @@
 #include <QAbstractTableModel>
 
 #include <map>
+#include <set>
 #include <tuple>
 #include <vector>
 
@@ -129,7 +130,7 @@ namespace TrenchBroom {
         public: // for autocompletion
             QStringList getCompletions(const QModelIndex& index) const;
         private: // autocompletion helpers
-            Model::AttributeNameList attributeNames(int row, int count) const;
+            std::vector<Model::AttributeName> attributeNames(int row, int count) const;
             StringList getAllAttributeNames() const;
             StringList getAllValuesForAttributeNames(const StringList& names) const;
             StringList getAllClassnames() const;

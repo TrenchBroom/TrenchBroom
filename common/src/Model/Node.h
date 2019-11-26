@@ -20,8 +20,11 @@
 #ifndef TrenchBroom_Node
 #define TrenchBroom_Node
 
+#include "TrenchBroom.h"
 #include "Model/ModelTypes.h"
 #include "Model/Tag.h"
+
+#include <vecmath/forward.h>
 
 #include <vector>
 
@@ -46,7 +49,7 @@ namespace TrenchBroom {
             size_t m_lineNumber;
             size_t m_lineCount;
 
-            mutable IssueList m_issues;
+            mutable std::vector<Issue*> m_issues;
             mutable bool m_issuesValid;
             IssueType m_hiddenIssues;
         protected:
@@ -268,14 +271,14 @@ namespace TrenchBroom {
             void setFilePosition(size_t lineNumber, size_t lineCount);
             bool containsLine(size_t lineNumber) const;
         public: // issue management
-            const IssueList& issues(const IssueGeneratorList& issueGenerators);
+            const std::vector<Issue*>& issues(const std::vector<IssueGenerator*>& issueGenerators);
 
             bool issueHidden(IssueType type) const;
             void setIssueHidden(IssueType type, bool hidden);
         public: // should only be called from this and from the world
             void invalidateIssues() const;
         private:
-            void validateIssues(const IssueGeneratorList& issueGenerators);
+            void validateIssues(const std::vector<IssueGenerator*>& issueGenerators);
             void clearIssues() const;
         public: // visitors
             template <class V>
@@ -458,7 +461,7 @@ namespace TrenchBroom {
             virtual void doPick(const vm::ray3& ray, PickResult& pickResult) const = 0;
             virtual void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) = 0;
 
-            virtual void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) = 0;
+            virtual void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) = 0;
 
             virtual void doAccept(NodeVisitor& visitor) = 0;
             virtual void doAccept(ConstNodeVisitor& visitor) const = 0;

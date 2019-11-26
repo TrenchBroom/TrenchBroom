@@ -25,6 +25,7 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 
+#include <vecmath/bbox.h>
 #include <vecmath/ray.h>
 
 #include <vector>
@@ -104,7 +105,7 @@ namespace TrenchBroom {
                 mockDoAccept(visitor);
             }
 
-            void doGenerateIssues(const IssueGenerator* /* generator */, IssueList& /* issues */) override {}
+            void doGenerateIssues(const IssueGenerator* /* generator */, std::vector<Issue*>& /* issues */) override {}
 
             void doAcceptTagVisitor(TagVisitor& /* visitor */) override {}
             void doAcceptTagVisitor(ConstTagVisitor& /* visitor */) const override {}
@@ -177,7 +178,7 @@ namespace TrenchBroom {
 
             void doAccept(NodeVisitor& /* visitor */) override {}
             void doAccept(ConstNodeVisitor& /* visitor */) const override {}
-            void doGenerateIssues(const IssueGenerator* /* generator */, IssueList& /* issues */) override {}
+            void doGenerateIssues(const IssueGenerator* /* generator */, std::vector<Issue*>& /* issues */) override {}
 
             void doAcceptTagVisitor(TagVisitor& /* visitor */) override {}
             void doAcceptTagVisitor(ConstTagVisitor& /* visitor */) const override {}

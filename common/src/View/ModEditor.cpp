@@ -23,6 +23,7 @@
 #include "Notifier.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
+#include "SharedPointer.h"
 #include "Model/Entity.h"
 #include "Model/Game.h"
 #include "StringUtils.h"

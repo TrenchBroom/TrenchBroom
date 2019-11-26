@@ -24,8 +24,10 @@
 #include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
 
-#include <algorithm>
+#include <vecmath/bbox.h>
+
 #include <cassert>
+#include <iterator>
 #include <vector>
 
 namespace TrenchBroom {
@@ -125,7 +127,11 @@ namespace TrenchBroom {
 
         std::vector<Node*> Node::findDescendants(const std::vector<Node*>& nodes) const {
             std::vector<Node*> result;
-            std::copy_if(std::begin(nodes), std::end(nodes), std::back_inserter(result), [this](const Node* node) { return node->isDescendantOf(this); });
+            for (auto* node : nodes) {
+                if (node->isDescendantOf(this)) {
+                    result.push_back(node);
+                }
+            }
             return result;
         }
 
@@ -306,13 +312,17 @@ namespace TrenchBroom {
 
         void Node::ancestorWillChange() {
             doAncestorWillChange();
-            std::for_each(std::begin(m_children), std::end(m_children), [](Node* child) { child->ancestorWillChange(); });
+            for (auto* child : m_children) {
+                child->ancestorWillChange();
+            }
             invalidateIssues();
         }
 
         void Node::ancestorDidChange() {
             doAncestorDidChange();
-            std::for_each(std::begin(m_children), std::end(m_children), [](Node* child) { child->ancestorDidChange(); });
+            for (auto* child : m_children) {
+                child->ancestorDidChange();
+            }
             invalidateIssues();
         }
 
@@ -576,7 +586,7 @@ namespace TrenchBroom {
             return lineNumber >= m_lineNumber && lineNumber < m_lineNumber + m_lineCount;
         }
 
-        const IssueList& Node::issues(const IssueGeneratorList& issueGenerators) {
+        const std::vector<Issue*>& Node::issues(const std::vector<IssueGenerator*>& issueGenerators) {
             validateIssues(issueGenerators);
             return m_issues;
         }
@@ -593,7 +603,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Node::validateIssues(const IssueGeneratorList& issueGenerators) {
+        void Node::validateIssues(const std::vector<IssueGenerator*>& issueGenerators) {
             if (!m_issuesValid) {
                 for (const auto* generator : issueGenerators) {
                     doGenerateIssues(generator, m_issues);

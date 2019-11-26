@@ -19,13 +19,16 @@
 
 #include "ViewUtils.h"
 
-#include "IO/PathQt.h"
 #include "Logger.h"
+#include "SharedPointer.h"
+#include "StringUtils.h"
+#include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
-#include "StringUtils.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
+
+#include <memory>
 
 #include <QWidget>
 #include <QString>
@@ -57,10 +60,10 @@ namespace TrenchBroom {
 
             size_t count = 0;
 
-            MapDocumentSPtr document = lock(i_document);
+            auto document = lock(i_document);
             IO::Path::List collections = document->enabledTextureCollections();
 
-            Model::GameSPtr game = document->game();
+            auto game = document->game();
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const IO::Path gamePath = gameFactory.gamePath(game->gameName());
             const IO::Path docPath = document->path();
@@ -94,8 +97,8 @@ namespace TrenchBroom {
                 return 0;
             }
 
-            MapDocumentSPtr document = lock(i_document);
-            Model::GameSPtr game = document->game();
+            auto document = lock(i_document);
+            auto game = document->game();
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const IO::Path gamePath = gameFactory.gamePath(game->gameName());
             const IO::Path docPath = document->path();

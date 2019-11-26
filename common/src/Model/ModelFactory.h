@@ -20,8 +20,11 @@
 #ifndef TrenchBroom_ModelFactory
 #define TrenchBroom_ModelFactory
 
+#include "TrenchBroom.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
+
+#include <vecmath/forward.h>
 
 #include <vector>
 

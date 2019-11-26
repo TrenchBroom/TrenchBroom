@@ -44,6 +44,7 @@
 #include <list>
 #include <map>
 #include <memory>
+#include <set>
 #include <vector>
 
 class Color;
@@ -81,7 +82,7 @@ namespace TrenchBroom {
             static const String DefaultDocumentName;
         protected:
             vm::bbox3 m_worldBounds;
-            Model::GameSPtr m_game;
+            std::shared_ptr<Model::Game> m_game;
             std::unique_ptr<Model::World> m_world;
 
             std::unique_ptr<Model::PointFile> m_pointFile;
@@ -174,7 +175,7 @@ namespace TrenchBroom {
         public: // accessors and such
             Logger& logger();
 
-            Model::GameSPtr game() const override;
+            std::shared_ptr<Model::Game> game() const override;
             const vm::bbox3& worldBounds() const;
             Model::World* world() const;
 
@@ -208,8 +209,8 @@ namespace TrenchBroom {
             void createEntityDefinitionActions();
             void visitActions(const ActionVisitor& visitor, const ActionList& actions) const;
         public: // new, load, save document
-            void newDocument(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game);
-            void loadDocument(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path);
+            void newDocument(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game);
+            void loadDocument(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game, const IO::Path& path);
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
             void saveDocumentTo(const IO::Path& path);
@@ -368,14 +369,14 @@ namespace TrenchBroom {
             bool snapVertices(FloatType snapTo) override;
             bool findPlanePoints() override;
 
-            MoveVerticesResult moveVertices(const Model::VertexToBrushesMap& vertices, const vm::vec3& delta) override;
-            bool moveEdges(const Model::EdgeToBrushesMap& edges, const vm::vec3& delta) override;
-            bool moveFaces(const Model::FaceToBrushesMap& faces, const vm::vec3& delta) override;
+            MoveVerticesResult moveVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices, const vm::vec3& delta) override;
+            bool moveEdges(const std::map<vm::segment3, std::set<Model::Brush*>>& edges, const vm::vec3& delta) override;
+            bool moveFaces(const std::map<vm::polygon3, std::set<Model::Brush*>>& faces, const vm::vec3& delta) override;
 
-            bool addVertices(const Model::VertexToBrushesMap& vertices);
-            bool removeVertices(const Model::VertexToBrushesMap& vertices);
-            bool removeEdges(const Model::EdgeToBrushesMap& edges);
-            bool removeFaces(const Model::FaceToBrushesMap& faces);
+            bool addVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices);
+            bool removeVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices);
+            bool removeEdges(const std::map<vm::segment3, std::set<Model::Brush*>>& edges);
+            bool removeFaces(const std::map<vm::polygon3, std::set<Model::Brush*>>& faces);
         private: // subclassing interface for certain operations which are available from this class, but can only be implemented in a subclass
             virtual void performRebuildBrushGeometry(const std::vector<Model::Brush*>& brushes) = 0;
         public: // debug commands
@@ -422,8 +423,8 @@ namespace TrenchBroom {
             void pick(const vm::ray3& pickRay, Model::PickResult& pickResult) const;
             std::vector<Model::Node*> findNodesContaining(const vm::vec3& point) const;
         private: // world management
-            void createWorld(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game);
-            void loadWorld(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path);
+            void createWorld(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game);
+            void loadWorld(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game, const IO::Path& path);
             void clearWorld();
         public: // asset management
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;

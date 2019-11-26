@@ -36,12 +36,12 @@ namespace TrenchBroom {
         class World;
 
         class Issue;
-        using IssueList = std::vector<Issue*>;
-
         class IssueQuickFix;
-        using IssueQuickFixList = std::vector<IssueQuickFix*>;
 
         class IssueGenerator {
+        protected:
+            using IssueList = std::vector<Issue*>;
+            using IssueQuickFixList = std::vector<IssueQuickFix*>;
         private:
             IssueType m_type;
             String m_description;

@@ -22,6 +22,8 @@
 #include "Assets/EntityDefinition.h"
 #include "StringMap.h"
 
+#include <set>
+
 namespace TrenchBroom {
     namespace Model {
         const String AttributeEscapeChars = "\"\n\\";
@@ -259,10 +261,11 @@ namespace TrenchBroom {
             return result;
         }
 
-        const AttributeNameSet EntityAttributes::names() const {
-            AttributeNameSet result;
-            for (const EntityAttribute& attribute : m_attributes)
+        const std::set<AttributeName> EntityAttributes::names() const {
+            std::set<AttributeName> result;
+            for (const EntityAttribute& attribute : m_attributes) {
                 result.insert(attribute.name());
+            }
             return result;
         }
 

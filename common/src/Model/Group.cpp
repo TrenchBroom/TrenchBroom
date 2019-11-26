@@ -195,7 +195,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Group::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+        void Group::doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) {
             generator->generate(this, issues);
         }
 

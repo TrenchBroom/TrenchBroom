@@ -19,6 +19,7 @@
 
 #include "LayerEditor.h"
 
+#include "SharedPointer.h"
 #include "Model/Brush.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/Entity.h"

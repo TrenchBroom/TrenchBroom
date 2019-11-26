@@ -23,13 +23,17 @@
 #include "Model/ModelTypes.h"
 #include "Model/NodeVisitor.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
+        class NodeSnapshot;
+
         class TakeSnapshotVisitor : public NodeVisitor {
         private:
-            NodeSnapshotList m_result;
+            std::vector<NodeSnapshot*> m_result;
         public:
-            const NodeSnapshotList& result() const;
+            const std::vector<NodeSnapshot*>& result() const;
         private:
             void doVisit(World* world) override;
             void doVisit(Layer* layer) override;

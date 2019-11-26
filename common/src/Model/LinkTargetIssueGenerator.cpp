@@ -86,7 +86,7 @@ namespace TrenchBroom {
             processKeys(node, node->findMissingKillTargets(), issues);
         }
 
-        void LinkTargetIssueGenerator::processKeys(AttributableNode* node, const Model::AttributeNameList& names, IssueList& issues) const {
+        void LinkTargetIssueGenerator::processKeys(AttributableNode* node, const std::vector<Model::AttributeName>& names, IssueList& issues) const {
             issues.reserve(issues.size() + names.size());
             for (const Model::AttributeName& name : names)
                 issues.push_back(new LinkTargetIssue(node, name));

@@ -72,11 +72,11 @@ namespace TrenchBroom {
             return m_attributableIndex;
         }
 
-        const IssueGeneratorList& World::registeredIssueGenerators() const {
+        const std::vector<IssueGenerator*>& World::registeredIssueGenerators() const {
             return m_issueGeneratorRegistry.registeredGenerators();
         }
 
-        IssueQuickFixList World::quickFixes(const IssueType issueTypes) const {
+        std::vector<IssueQuickFix*> World::quickFixes(const IssueType issueTypes) const {
             return m_issueGeneratorRegistry.quickFixes(issueTypes);
         }
 
@@ -296,7 +296,7 @@ namespace TrenchBroom {
             }
         }
 
-        void World::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+        void World::doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) {
             generator->generate(this, issues);
         }
 

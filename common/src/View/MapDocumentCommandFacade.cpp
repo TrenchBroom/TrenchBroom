@@ -774,7 +774,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        std::vector<vm::vec3> MapDocumentCommandFacade::performMoveVertices(const Model::BrushVerticesMap& vertices, const vm::vec3& delta) {
+        std::vector<vm::vec3> MapDocumentCommandFacade::performMoveVertices(const std::map<Model::Brush*, std::vector<vm::vec3>>& vertices, const vm::vec3& delta) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);
 
@@ -795,7 +795,7 @@ namespace TrenchBroom {
             return newVertexPositions;
         }
 
-        std::vector<vm::segment3> MapDocumentCommandFacade::performMoveEdges(const Model::BrushEdgesMap& edges, const vm::vec3& delta) {
+        std::vector<vm::segment3> MapDocumentCommandFacade::performMoveEdges(const std::map<Model::Brush*, std::vector<vm::segment3>>& edges, const vm::vec3& delta) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);
 
@@ -816,7 +816,7 @@ namespace TrenchBroom {
             return newEdgePositions;
         }
 
-        std::vector<vm::polygon3> MapDocumentCommandFacade::performMoveFaces(const Model::BrushFacesMap& faces, const vm::vec3& delta) {
+        std::vector<vm::polygon3> MapDocumentCommandFacade::performMoveFaces(const std::map<Model::Brush*, std::vector<vm::polygon3>>& faces, const vm::vec3& delta) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);
 
@@ -837,7 +837,7 @@ namespace TrenchBroom {
             return newFacePositions;
         }
 
-        void MapDocumentCommandFacade::performAddVertices(const Model::VertexToBrushesMap& vertices) {
+        void MapDocumentCommandFacade::performAddVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);
 
@@ -854,7 +854,7 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
         }
 
-        void MapDocumentCommandFacade::performRemoveVertices(const Model::BrushVerticesMap& vertices) {
+        void MapDocumentCommandFacade::performRemoveVertices(const std::map<Model::Brush*, std::vector<vm::vec3>>& vertices) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);
 

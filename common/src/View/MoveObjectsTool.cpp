@@ -20,6 +20,7 @@
 #include "MoveObjectsTool.h"
 
 #include "TrenchBroom.h"
+#include "SharedPointer.h"
 #include "Model/Brush.h"
 #include "View/Grid.h"
 #include "View/InputState.h"

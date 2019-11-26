@@ -22,6 +22,7 @@
 #include "Assets/AttributeDefinition.h"
 #include "CollectionUtils.h"
 
+#include <set>
 #include <vector>
 
 namespace TrenchBroom {
@@ -130,7 +131,7 @@ namespace TrenchBroom {
                 attributeWasAddedNotifier(this, attribute.name());
         }
 
-        AttributeNameSet AttributableNode::attributeNames() const {
+        std::set<AttributeName> AttributableNode::attributeNames() const {
             return m_attributes.names();
         }
 
@@ -388,19 +389,19 @@ namespace TrenchBroom {
                     hasAttribute(AttributeNames::Targetname));
         }
 
-        AttributeNameList AttributableNode::findMissingLinkTargets() const {
-            AttributeNameList result;
+        std::vector<AttributeName> AttributableNode::findMissingLinkTargets() const {
+            std::vector<AttributeName> result;
             findMissingTargets(AttributeNames::Target, result);
             return result;
         }
 
-        AttributeNameList AttributableNode::findMissingKillTargets() const {
-            AttributeNameList result;
+        std::vector<AttributeName> AttributableNode::findMissingKillTargets() const {
+            std::vector<AttributeName> result;
             findMissingTargets(AttributeNames::Killtarget, result);
             return result;
         }
 
-        void AttributableNode::findMissingTargets(const AttributeName& prefix, AttributeNameList& result) const {
+        void AttributableNode::findMissingTargets(const AttributeName& prefix, std::vector<AttributeName>& result) const {
             for (const EntityAttribute& attribute : m_attributes.numberedAttributes(prefix)) {
                 const AttributeValue& targetname = attribute.value();
                 if (targetname.empty()) {

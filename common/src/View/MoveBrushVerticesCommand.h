@@ -36,15 +36,15 @@ namespace TrenchBroom {
             static const CommandType Type;
             using Ptr = std::shared_ptr<MoveBrushVerticesCommand>;
         private:
-            Model::BrushVerticesMap m_vertices;
+            BrushVerticesMap m_vertices;
             std::vector<vm::vec3> m_oldVertexPositions;
             std::vector<vm::vec3> m_newVertexPositions;
             vm::vec3 m_delta;
         public:
-            static Ptr move(const Model::VertexToBrushesMap& vertices, const vm::vec3& delta);
+            static Ptr move(const VertexToBrushesMap& vertices, const vm::vec3& delta);
             bool hasRemainingVertices() const;
         private:
-            MoveBrushVerticesCommand(const std::vector<Model::Brush*>& brushes, const Model::BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta);
+            MoveBrushVerticesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta);
 
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;

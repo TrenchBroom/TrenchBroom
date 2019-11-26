@@ -663,7 +663,7 @@ namespace TrenchBroom {
             });
         }
 
-        bool MapFrame::newDocument(Model::GameSPtr game, const Model::MapFormat mapFormat) {
+        bool MapFrame::newDocument(std::shared_ptr<Model::Game> game, const Model::MapFormat mapFormat) {
             if (!confirmOrDiscardChanges()) {
                 return false;
             }
@@ -671,7 +671,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MapFrame::openDocument(Model::GameSPtr game, const Model::MapFormat mapFormat, const IO::Path& path) {
+        bool MapFrame::openDocument(std::shared_ptr<Model::Game> game, const Model::MapFormat mapFormat, const IO::Path& path) {
             if (!confirmOrDiscardChanges()) {
                 return false;
             }

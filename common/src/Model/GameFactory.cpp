@@ -26,7 +26,6 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
-#include "IO/FileSystem.h"
 #include "IO/GameConfigParser.h"
 #include "IO/GameEngineConfigParser.h"
 #include "IO/GameEngineConfigWriter.h"
@@ -39,7 +38,7 @@
 #include "Exceptions.h"
 #include "RecoverableExceptions.h"
 
-#include <cassert>
+#include <memory>
 
 namespace TrenchBroom {
     namespace Model {
@@ -72,8 +71,8 @@ namespace TrenchBroom {
             return m_configs.size();
         }
 
-        GameSPtr GameFactory::createGame(const String& gameName, Logger& logger) {
-            return GameSPtr(new GameImpl(gameConfig(gameName), gamePath(gameName), logger));
+        std::shared_ptr<Game> GameFactory::createGame(const String& gameName, Logger& logger) {
+            return std::make_shared<GameImpl>(gameConfig(gameName), gamePath(gameName), logger);
         }
 
         StringList GameFactory::fileFormats(const String& gameName) const {
@@ -164,7 +163,7 @@ namespace TrenchBroom {
                 }
             }
 
-            // This is where we write configs             
+            // This is where we write configs
             if (chain != nullptr) {
                 m_configFS = std::make_unique<IO::WritableDiskFileSystem>(std::move(chain), userGameDir, true);
             } else {

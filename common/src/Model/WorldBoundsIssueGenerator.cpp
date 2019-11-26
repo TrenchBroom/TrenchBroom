@@ -25,9 +25,7 @@
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 
-#include <vecmath/bbox.h>
-
-#include <cassert>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {

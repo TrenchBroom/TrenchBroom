@@ -19,6 +19,7 @@
 
 #include "EntityAttributeEditor.h"
 
+#include "SharedPointer.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/AttributableNode.h"

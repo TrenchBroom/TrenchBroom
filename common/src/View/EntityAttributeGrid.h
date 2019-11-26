@@ -23,6 +23,7 @@
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
+#include <set>
 #include <vector>
 
 #include <QWidget>

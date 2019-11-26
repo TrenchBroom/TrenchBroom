@@ -19,6 +19,7 @@
 
 #include "TextureCollectionEditor.h"
 
+#include "SharedPointer.h"
 #include "Model/Game.h"
 #include "View/DirectoryTextureCollectionEditor.h"
 #include "View/FileTextureCollectionEditor.h"

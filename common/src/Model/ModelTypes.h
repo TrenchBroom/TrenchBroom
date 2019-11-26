@@ -20,16 +20,7 @@
 #ifndef TrenchBroom_ModelTypes_h
 #define TrenchBroom_ModelTypes_h
 
-#include "TrenchBroom.h"
 #include "StringType.h"
-#include "SharedPointer.h"
-
-#include <vecmath/polygon.h>
-
-// FIXME: this header must not pull in std headers
-#include <map>
-#include <set>
-#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -65,40 +56,21 @@ namespace TrenchBroom {
         class ConstNodeVisitor;
 
         using AttributeName = String;
-        using AttributeNameList = std::vector<AttributeName>;
-        using AttributeNameSet = std::set<AttributeName>;
         using AttributeValue = String;
-        using AttributeValueList = std::vector<AttributeValue>;
-
-        using VertexToBrushesMap = std::map<vm::vec3, std::set<Brush*>>;
-        using EdgeToBrushesMap = std::map<vm::segment3, std::set<Brush*>>;
-        using FaceToBrushesMap = std::map<vm::polygon3, std::set<Brush*>>;
-        using VertexToFacesMap = std::map<vm::vec3, std::set<BrushFace*>>;
-        using BrushVerticesMap = std::map<Model::Brush*, std::vector<vm::vec3>>;
-        using BrushEdgesMap = std::map<Model::Brush*, std::vector<vm::segment3>>;
-        using BrushFacesMap = std::map<Model::Brush*, std::vector<vm::polygon3>>;
 
         class BrushFaceSnapshot;
-        using BrushFaceSnapshotList = std::vector<BrushFaceSnapshot*>;
 
         class NodeSnapshot;
-        using NodeSnapshotList = std::vector<NodeSnapshot*>;
 
         using IssueType = int;
 
         class Issue;
-        using IssueList = std::vector<Issue*>;
-        static const IssueList EmptyIssueList(0);
 
         class IssueQuickFix;
-        using IssueQuickFixList = std::vector<IssueQuickFix*>;
 
         class IssueGenerator;
-        using IssueGeneratorList = std::vector<IssueGenerator*>;
 
         class Game;
-        using GameSPtr = std::shared_ptr<Game>;
-        using GameWPtr = std::weak_ptr<Game>;
 
         // TODO: replace with class based enum
         typedef enum {

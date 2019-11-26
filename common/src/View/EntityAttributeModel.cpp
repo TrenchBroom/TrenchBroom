@@ -20,6 +20,7 @@
 #include "EntityAttributeModel.h"
 
 #include "Macros.h"
+#include "SharedPointer.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -405,8 +406,8 @@ namespace TrenchBroom {
             }
         }
 
-        Model::AttributeNameList EntityAttributeModel::attributeNames(const int row, const int count) const {
-            Model::AttributeNameList result;
+        std::vector<Model::AttributeName> EntityAttributeModel::attributeNames(const int row, const int count) const {
+            std::vector<Model::AttributeName> result;
             for (int i = 0; i < count; ++i) {
                 result.push_back(this->attributeName(row + i));
             }

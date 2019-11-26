@@ -24,7 +24,10 @@
 #include "Model/ModelTypes.h"
 #include "View/SnapshotCommand.h"
 
+#include <vecmath/forward.h>
 #include <vecmath/vec.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {

@@ -38,9 +38,9 @@ namespace TrenchBroom {
         private:
             std::vector<vm::polygon3> m_oldFacePositions;
         public:
-            static Ptr remove(const Model::FaceToBrushesMap& faces);
+            static Ptr remove(const FaceToBrushesMap& faces);
         private:
-            RemoveBrushFacesCommand(const std::vector<Model::Brush*>& brushes, const Model::BrushVerticesMap& vertices, const std::vector<vm::polygon3>& facePositions);
+            RemoveBrushFacesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::polygon3>& facePositions);
 
             void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const override;
         };

@@ -24,6 +24,7 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <map>
 #include <set>
 #include <vector>
 
@@ -31,7 +32,7 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType AddBrushVerticesCommand::Type = Command::freeType();
 
-        AddBrushVerticesCommand::Ptr AddBrushVerticesCommand::add(const Model::VertexToBrushesMap& vertices) {
+        AddBrushVerticesCommand::Ptr AddBrushVerticesCommand::add(const VertexToBrushesMap& vertices) {
             std::set<Model::Brush*> allBrushSet;
             for (const auto& entry : vertices) {
                 const std::set<Model::Brush*>& brushes = entry.second;
@@ -43,7 +44,7 @@ namespace TrenchBroom {
             return Ptr(new AddBrushVerticesCommand(Type, actionName, allBrushList, vertices));
         }
 
-        AddBrushVerticesCommand::AddBrushVerticesCommand(CommandType type, const String& name, const std::vector<Model::Brush*>& brushes, const Model::VertexToBrushesMap& vertices) :
+        AddBrushVerticesCommand::AddBrushVerticesCommand(CommandType type, const String& name, const std::vector<Model::Brush*>& brushes, const VertexToBrushesMap& vertices) :
         VertexCommand(type, name, brushes),
         m_vertices(vertices) {}
 

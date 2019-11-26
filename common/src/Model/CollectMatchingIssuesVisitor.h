@@ -28,20 +28,22 @@
 #include "Model/ModelTypes.h"
 #include "Model/World.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         template <typename P>
         class CollectMatchingIssuesVisitor : public NodeVisitor {
         private:
-            const IssueGeneratorList& m_issueGenerators;
+            const std::vector<IssueGenerator*>& m_issueGenerators;
             P m_p;
-            IssueList m_issues;
+            std::vector<Issue*> m_issues;
         public:
-            CollectMatchingIssuesVisitor(const IssueGeneratorList& issueGenerators, const P& p = P()) :
+            CollectMatchingIssuesVisitor(const std::vector<IssueGenerator*>& issueGenerators, const P& p = P()) :
             m_issueGenerators(issueGenerators),
             m_p(p) {}
 
-            const IssueList& issues() const {
+            const std::vector<Issue*>& issues() const {
                 return m_issues;
             }
         private:

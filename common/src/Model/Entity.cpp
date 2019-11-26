@@ -283,7 +283,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Entity::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+        void Entity::doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) {
             generator->generate(this, issues);
         }
 

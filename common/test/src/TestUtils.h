@@ -25,6 +25,7 @@
 #include "StringType.h"
 #include "Model/ModelTypes.h"
 
+#include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
 

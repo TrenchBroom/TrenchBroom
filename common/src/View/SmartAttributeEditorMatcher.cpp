@@ -21,6 +21,7 @@
 
 #include "StringUtils.h"
 
+#include <set>
 #include <vector>
 
 namespace TrenchBroom {

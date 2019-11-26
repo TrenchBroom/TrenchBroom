@@ -26,6 +26,8 @@
 
 #include <vecmath/bbox.h>
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class WorldBoundsIssueGenerator : public IssueGenerator {

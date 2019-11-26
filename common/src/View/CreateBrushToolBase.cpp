@@ -18,8 +18,10 @@
  */
 
 #include "CreateBrushToolBase.h"
+
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
 #include "Model/Brush.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/SelectionBoundsRenderer.h"

@@ -30,6 +30,7 @@
 #include <QPointer>
 
 #include <map>
+#include <memory>
 
 class QAction;
 class QComboBox;
@@ -148,8 +149,8 @@ namespace TrenchBroom {
         private: // menu event handlers
             void bindEvents();
         public:
-            bool newDocument(Model::GameSPtr game, Model::MapFormat mapFormat);
-            bool openDocument(Model::GameSPtr game, Model::MapFormat mapFormat, const IO::Path& path);
+            bool newDocument(std::shared_ptr<Model::Game> game, Model::MapFormat mapFormat);
+            bool openDocument(std::shared_ptr<Model::Game> game, Model::MapFormat mapFormat, const IO::Path& path);
             bool saveDocument();
             bool saveDocumentAs();
             bool exportDocumentAsObj();

@@ -104,7 +104,7 @@ namespace TrenchBroom {
                 child->findNodesContaining(point, result);
         }
 
-        void Layer::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+        void Layer::doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) {
             generator->generate(this, issues);
         }
 

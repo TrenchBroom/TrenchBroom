@@ -19,6 +19,7 @@
 
 #include "FaceInspector.h"
 
+#include "SharedPointer.h"
 #include "Assets/Texture.h"
 #include "Model/Entity.h"
 #include "View/BorderLine.h"

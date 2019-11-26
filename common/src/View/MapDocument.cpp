@@ -170,7 +170,7 @@ namespace TrenchBroom {
             return *this;
         }
 
-        Model::GameSPtr MapDocument::game() const {
+        std::shared_ptr<Model::Game> MapDocument::game() const {
             return m_game;
         }
 
@@ -270,7 +270,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MapDocument::newDocument(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game) {
+        void MapDocument::newDocument(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game) {
             info("Creating new document");
 
             clearDocument();
@@ -286,7 +286,7 @@ namespace TrenchBroom {
             documentWasNewedNotifier(this);
         }
 
-        void MapDocument::loadDocument(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path) {
+        void MapDocument::loadDocument(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game, const IO::Path& path) {
             info("Loading document from " + path.asString());
 
             clearDocument();
@@ -1390,34 +1390,34 @@ namespace TrenchBroom {
             return submitAndStore(FindPlanePointsCommand::findPlanePoints());
         }
 
-        MapDocument::MoveVerticesResult MapDocument::moveVertices(const Model::VertexToBrushesMap& vertices, const vm::vec3& delta) {
+        MapDocument::MoveVerticesResult MapDocument::moveVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices, const vm::vec3& delta) {
             MoveBrushVerticesCommand::Ptr command = MoveBrushVerticesCommand::move(vertices, delta);
             const bool success = submitAndStore(command);
             const bool hasRemainingVertices = command->hasRemainingVertices();
             return MoveVerticesResult(success, hasRemainingVertices);
         }
 
-        bool MapDocument::moveEdges(const Model::EdgeToBrushesMap& edges, const vm::vec3& delta) {
+        bool MapDocument::moveEdges(const std::map<vm::segment3, std::set<Model::Brush*>>& edges, const vm::vec3& delta) {
             return submitAndStore(MoveBrushEdgesCommand::move(edges, delta));
         }
 
-        bool MapDocument::moveFaces(const Model::FaceToBrushesMap& faces, const vm::vec3& delta) {
+        bool MapDocument::moveFaces(const std::map<vm::polygon3, std::set<Model::Brush*>>& faces, const vm::vec3& delta) {
             return submitAndStore(MoveBrushFacesCommand::move(faces, delta));
         }
 
-        bool MapDocument::addVertices(const Model::VertexToBrushesMap& vertices) {
+        bool MapDocument::addVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices) {
             return submitAndStore(AddBrushVerticesCommand::add(vertices));
         }
 
-        bool MapDocument::removeVertices(const Model::VertexToBrushesMap& vertices) {
+        bool MapDocument::removeVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices) {
             return submitAndStore(RemoveBrushVerticesCommand::remove(vertices));
         }
 
-        bool MapDocument::removeEdges(const Model::EdgeToBrushesMap& edges) {
+        bool MapDocument::removeEdges(const std::map<vm::segment3, std::set<Model::Brush*>>& edges) {
             return submitAndStore(RemoveBrushEdgesCommand::remove(edges));
         }
 
-        bool MapDocument::removeFaces(const Model::FaceToBrushesMap& faces) {
+        bool MapDocument::removeFaces(const std::map<vm::polygon3, std::set<Model::Brush*>>& faces) {
             return submitAndStore(RemoveBrushFacesCommand::remove(faces));
         }
 
@@ -1556,7 +1556,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        void MapDocument::createWorld(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game) {
+        void MapDocument::createWorld(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game) {
             m_worldBounds = worldBounds;
             m_game = game;
             m_world = m_game->newMap(mapFormat, m_worldBounds, logger());
@@ -1566,7 +1566,7 @@ namespace TrenchBroom {
             setPath(IO::Path(DefaultDocumentName));
         }
 
-        void MapDocument::loadWorld(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path) {
+        void MapDocument::loadWorld(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game, const IO::Path& path) {
             m_worldBounds = worldBounds;
             m_game = game;
             m_world = m_game->loadMap(mapFormat, m_worldBounds, path, logger());

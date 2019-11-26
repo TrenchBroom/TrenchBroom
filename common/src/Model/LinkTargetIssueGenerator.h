@@ -23,6 +23,8 @@
 #include "Model/IssueGenerator.h"
 #include "Model/ModelTypes.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class LinkTargetIssueGenerator : public IssueGenerator {
@@ -33,7 +35,7 @@ namespace TrenchBroom {
             LinkTargetIssueGenerator();
         private:
             void doGenerate(AttributableNode* node, IssueList& issues) const override;
-            void processKeys(AttributableNode* node, const Model::AttributeNameList& names, IssueList& issues) const;
+            void processKeys(AttributableNode* node, const std::vector<Model::AttributeName>& names, IssueList& issues) const;
         };
     }
 }

@@ -26,6 +26,8 @@
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class NonIntegerVerticesIssueGenerator::NonIntegerVerticesIssue : public Issue {

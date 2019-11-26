@@ -22,6 +22,7 @@
 #include "Model/BrushFace.h"
 
 #include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 
 namespace TrenchBroom {
     namespace Model {

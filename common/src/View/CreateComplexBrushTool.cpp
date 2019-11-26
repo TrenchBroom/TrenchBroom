@@ -18,8 +18,10 @@
  */
 
 #include "CreateComplexBrushTool.h"
+
 #include "Polyhedron.h"
 #include "PreferenceManager.h"
+#include "SharedPointer.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/World.h"
@@ -38,7 +40,7 @@ namespace TrenchBroom {
         void CreateComplexBrushTool::update(const Polyhedron3& polyhedron) {
             *m_polyhedron = polyhedron;
             if (m_polyhedron->closed()) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 const Model::BrushBuilder builder(document->world(), document->worldBounds());
                 Model::Brush* brush = builder.createBrush(*m_polyhedron, document->currentTextureName());
                 updateBrush(brush);

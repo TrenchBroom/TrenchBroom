@@ -19,6 +19,7 @@
 
 #include "IssueBrowser.h"
 
+#include "SharedPointer.h"
 #include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
 #include "Model/World.h"
@@ -128,7 +129,7 @@ namespace TrenchBroom {
         void IssueBrowser::updateFilterFlags() {
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
-            const Model::IssueGeneratorList& generators = world->registeredIssueGenerators();
+            const std::vector<Model::IssueGenerator*>& generators = world->registeredIssueGenerators();
 
             QList<int> flags;
             QStringList labels;
