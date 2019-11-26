@@ -26,6 +26,8 @@
 
 #include <vecmath/forward.h>
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Assets {
         class Texture;
@@ -95,7 +97,7 @@ namespace TrenchBroom {
             void clear();
 
             const String name() const;
-            bool evaluate(const BrushFaceList& faces) const;
+            bool evaluate(const std::vector<BrushFace*>& faces) const;
 
             void resetAll();
 

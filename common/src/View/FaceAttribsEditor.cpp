@@ -405,7 +405,7 @@ namespace TrenchBroom {
             updateControls();
         }
 
-        void FaceAttribsEditor::brushFacesDidChange(const Model::BrushFaceList&) {
+        void FaceAttribsEditor::brushFacesDidChange(const std::vector<Model::BrushFace*>&) {
             MapDocumentSPtr document = lock(m_document);
             m_faces = document->allSelectedBrushFaces();
             updateControls();

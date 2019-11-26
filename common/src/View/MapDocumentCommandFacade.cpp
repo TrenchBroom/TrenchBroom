@@ -96,10 +96,10 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
         }
 
-        void MapDocumentCommandFacade::performSelect(const Model::BrushFaceList& faces) {
+        void MapDocumentCommandFacade::performSelect(const std::vector<Model::BrushFace*>& faces) {
             selectionWillChangeNotifier();
 
-            Model::BrushFaceList selected;
+            std::vector<Model::BrushFace*> selected;
             selected.reserve(faces.size());
 
             Model::CollectNodesWithDescendantSelectionCountVisitor visitor(0);
@@ -188,10 +188,10 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
         }
 
-        void MapDocumentCommandFacade::performDeselect(const Model::BrushFaceList& faces) {
+        void MapDocumentCommandFacade::performDeselect(const std::vector<Model::BrushFace*>& faces) {
             selectionWillChangeNotifier();
 
-            Model::BrushFaceList deselected;
+            std::vector<Model::BrushFace*> deselected;
             deselected.reserve(faces.size());
 
             Model::CollectNodesWithDescendantSelectionCountVisitor visitor(0);
@@ -656,7 +656,7 @@ namespace TrenchBroom {
 
             const std::vector<Model::Brush*>& selectedBrushes = m_selectedNodes.brushes();
             std::vector<Model::Node*> changedNodes;
-            Model::BrushFaceList faces;
+            std::vector<Model::BrushFace*> faces;
 
             for (Model::Brush* brush : selectedBrushes) {
                 Model::BrushFace* face = brush->findFace(polygons);
@@ -896,7 +896,7 @@ namespace TrenchBroom {
                 invalidateSelectionBounds();
             }
 
-            const Model::BrushFaceList brushFaces = allSelectedBrushFaces();
+            const std::vector<Model::BrushFace*> brushFaces = allSelectedBrushFaces();
             if (!brushFaces.empty()) {
                 snapshot->restoreBrushFaces();
                 setTextures(brushFaces);

@@ -64,11 +64,6 @@ namespace TrenchBroom {
         class NodeVisitor;
         class ConstNodeVisitor;
 
-        using BrushFaceSet = std::set<BrushFace*>;
-        static const BrushFaceSet EmptyBrushFaceSet;
-        using BrushFaceList = std::vector<BrushFace*>;
-        static const BrushFaceList EmptyBrushFaceList(0);
-
         using AttributeName = String;
         using AttributeNameList = std::vector<AttributeName>;
         using AttributeNameSet = std::set<AttributeName>;
@@ -78,7 +73,7 @@ namespace TrenchBroom {
         using VertexToBrushesMap = std::map<vm::vec3, std::set<Brush*>>;
         using EdgeToBrushesMap = std::map<vm::segment3, std::set<Brush*>>;
         using FaceToBrushesMap = std::map<vm::polygon3, std::set<Brush*>>;
-        using VertexToFacesMap = std::map<vm::vec3, BrushFaceSet>;
+        using VertexToFacesMap = std::map<vm::vec3, std::set<BrushFace*>>;
         using BrushVerticesMap = std::map<Model::Brush*, std::vector<vm::vec3>>;
         using BrushEdgesMap = std::map<Model::Brush*, std::vector<vm::segment3>>;
         using BrushFacesMap = std::map<Model::Brush*, std::vector<vm::polygon3>>;

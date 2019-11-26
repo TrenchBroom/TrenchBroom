@@ -25,6 +25,8 @@
 
 #include <QWidget>
 
+#include <vector>
+
 class QLabel;
 class QLineEdit;
 class QGridLayout;
@@ -42,7 +44,7 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             MapDocumentWPtr m_document;
-            Model::BrushFaceList m_faces;
+            std::vector<Model::BrushFace*> m_faces;
 
             UVEditor* m_uvEditor;
             QLabel* m_textureName;
@@ -87,7 +89,7 @@ namespace TrenchBroom {
 
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
-            void brushFacesDidChange(const Model::BrushFaceList& faces);
+            void brushFacesDidChange(const std::vector<Model::BrushFace*>& faces);
             void selectionDidChange(const Selection& selection);
             void textureCollectionsDidChange();
 

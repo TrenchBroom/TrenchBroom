@@ -26,16 +26,18 @@
 #include "Model/ModelTypes.h"
 #include "Model/NodeVisitor.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         template <typename P>
         class CollectMatchingBrushFacesVisitor : public NodeVisitor {
         private:
             P m_p;
-            BrushFaceList m_faces;
+            std::vector<BrushFace*> m_faces;
         public:
             CollectMatchingBrushFacesVisitor(const P& p = P()) : m_p(p) {}
-            const BrushFaceList& faces() const { return m_faces; }
+            const std::vector<BrushFace*>& faces() const { return m_faces; }
         private:
             void doVisit(World*)  override {}
             void doVisit(Layer*)  override {}

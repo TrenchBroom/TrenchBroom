@@ -22,6 +22,7 @@
 #include "Model/BrushFace.h"
 
 #include <cassert>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -235,7 +236,7 @@ namespace TrenchBroom {
             return "Change Face Attributes";
         }
 
-        bool ChangeBrushFaceAttributesRequest::evaluate(const BrushFaceList& faces) const {
+        bool ChangeBrushFaceAttributesRequest::evaluate(const std::vector<BrushFace*>& faces) const {
             auto result = false;
             for (BrushFace* face : faces) {
                 switch (m_textureOp) {

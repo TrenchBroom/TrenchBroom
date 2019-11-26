@@ -172,7 +172,7 @@ namespace TrenchBroom {
             void clearBrushes();
             void updateBrushes();
 
-            void setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const;
+            void setFaceAttributes(const std::vector<Model::BrushFace*>& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const;
 
             void clearRenderers();
             void updateRenderers();
@@ -191,7 +191,7 @@ namespace TrenchBroom {
             void selectionDidChange(const Selection& selection);
             void nodesWillChange(const std::vector<Model::Node*>& nodes);
             void nodesDidChange(const std::vector<Model::Node*>& nodes);
-            void facesDidChange(const Model::BrushFaceList& nodes);
+            void facesDidChange(const std::vector<Model::BrushFace*>& nodes);
         };
     }
 }

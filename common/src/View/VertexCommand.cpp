@@ -27,6 +27,7 @@
 #include "View/VertexTool.h"
 
 #include <iterator>
+#include <set>
 
 namespace TrenchBroom {
     namespace View {
@@ -70,9 +71,8 @@ namespace TrenchBroom {
         }
 
         void VertexCommand::extractFaceMap(const Model::VertexToFacesMap& faces, std::vector<Model::Brush*>& brushes, Model::BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions) {
-
             for (const auto& entry : faces) {
-                const Model::BrushFaceSet& mappedFaces = entry.second;
+                const std::set<Model::BrushFace*>& mappedFaces = entry.second;
                 for (Model::BrushFace* face : mappedFaces) {
                     Model::Brush* brush = face->brush();
                     const auto result = brushFaces.insert(std::make_pair(brush, std::vector<vm::polygon3>()));

@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class BrushSnapshot : public NodeSnapshot {
         private:
             Brush* m_brush;
-            BrushFaceList m_faces;
+            std::vector<BrushFace*> m_faces;
         public:
             BrushSnapshot(Brush* brush);
             ~BrushSnapshot() override;

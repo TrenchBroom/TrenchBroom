@@ -31,58 +31,58 @@ namespace TrenchBroom {
         const Command::CommandType SelectionCommand::Type = Command::freeType();
 
         SelectionCommand::Ptr SelectionCommand::select(const std::vector<Model::Node*>& nodes) {
-            return Ptr(new SelectionCommand(Action_SelectNodes, nodes, Model::EmptyBrushFaceList));
+            return Ptr(new SelectionCommand(Action_SelectNodes, nodes, {}));
         }
 
-        SelectionCommand::Ptr SelectionCommand::select(const Model::BrushFaceList& faces) {
-            return Ptr(new SelectionCommand(Action_SelectFaces, std::vector<Model::Node*>{}, faces));
+        SelectionCommand::Ptr SelectionCommand::select(const std::vector<Model::BrushFace*>& faces) {
+            return Ptr(new SelectionCommand(Action_SelectFaces, {}, faces));
         }
 
         SelectionCommand::Ptr SelectionCommand::convertToFaces() {
-            return Ptr(new SelectionCommand(Action_ConvertToFaces, std::vector<Model::Node*>{}, Model::EmptyBrushFaceList));
+            return Ptr(new SelectionCommand(Action_ConvertToFaces, {}, {}));
         }
 
         SelectionCommand::Ptr SelectionCommand::selectAllNodes() {
-            return Ptr(new SelectionCommand(Action_SelectAllNodes, std::vector<Model::Node*>{}, Model::EmptyBrushFaceList));
+            return Ptr(new SelectionCommand(Action_SelectAllNodes, {}, {}));
         }
 
         SelectionCommand::Ptr SelectionCommand::selectAllFaces() {
-            return Ptr(new SelectionCommand(Action_SelectAllFaces, std::vector<Model::Node*>{}, Model::EmptyBrushFaceList));
+            return Ptr(new SelectionCommand(Action_SelectAllFaces, {}, {}));
         }
 
         SelectionCommand::Ptr SelectionCommand::deselect(const std::vector<Model::Node*>& nodes) {
-            return Ptr(new SelectionCommand(Action_DeselectNodes, nodes, Model::EmptyBrushFaceList));
+            return Ptr(new SelectionCommand(Action_DeselectNodes, nodes, {}));
         }
 
-        SelectionCommand::Ptr SelectionCommand::deselect(const Model::BrushFaceList& faces) {
-            return Ptr(new SelectionCommand(Action_DeselectFaces, std::vector<Model::Node*>{}, faces));
+        SelectionCommand::Ptr SelectionCommand::deselect(const std::vector<Model::BrushFace*>& faces) {
+            return Ptr(new SelectionCommand(Action_DeselectFaces, {}, faces));
         }
 
         SelectionCommand::Ptr SelectionCommand::deselectAll() {
-            return Ptr(new SelectionCommand(Action_DeselectAll, std::vector<Model::Node*>{}, Model::EmptyBrushFaceList));
+            return Ptr(new SelectionCommand(Action_DeselectAll, {}, {}));
         }
 
-        static Model::BrushFaceReference::List faceRefs(const Model::BrushFaceList& faces) {
+        static Model::BrushFaceReference::List faceRefs(const std::vector<Model::BrushFace*>& faces) {
             Model::BrushFaceReference::List result;
             for (Model::BrushFace* face : faces)
                 result.push_back(Model::BrushFaceReference(face));
             return result;
         }
 
-        static Model::BrushFaceList resolveFaceRefs(const Model::BrushFaceReference::List& refs) {
-            Model::BrushFaceList result;
+        static std::vector<Model::BrushFace*> resolveFaceRefs(const Model::BrushFaceReference::List& refs) {
+            std::vector<Model::BrushFace*> result;
             for (const Model::BrushFaceReference& ref : refs)
                 result.push_back(ref.resolve());
             return result;
         }
 
-        SelectionCommand::SelectionCommand(const Action action, const std::vector<Model::Node*>& nodes, const Model::BrushFaceList& faces) :
+        SelectionCommand::SelectionCommand(const Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces) :
         UndoableCommand(Type, makeName(action, nodes, faces)),
         m_action(action),
         m_nodes(nodes),
         m_faceRefs(faceRefs(faces)) {}
 
-        String SelectionCommand::makeName(const Action action, const std::vector<Model::Node*>& nodes, const Model::BrushFaceList& faces) {
+        String SelectionCommand::makeName(const Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces) {
             StringStream result;
             switch (action) {
                 case Action_SelectNodes:

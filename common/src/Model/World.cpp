@@ -380,7 +380,7 @@ namespace TrenchBroom {
             return m_factory.createEntity();
         }
 
-        Brush* World::doCreateBrush(const vm::bbox3& worldBounds, const BrushFaceList& faces) const {
+        Brush* World::doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
             return m_factory.createBrush(worldBounds, faces);
         }
 

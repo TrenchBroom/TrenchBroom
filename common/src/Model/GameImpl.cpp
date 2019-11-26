@@ -163,7 +163,7 @@ namespace TrenchBroom {
             return reader.read(worldBounds, parserStatus);
         }
 
-        BrushFaceList GameImpl::doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
+        std::vector<BrushFace*> GameImpl::doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             IO::BrushFaceReader reader(str, world);
             return reader.read(worldBounds, parserStatus);
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             writer.writeNodes(nodes);
         }
 
-        void GameImpl::doWriteBrushFacesToStream(World& world, const BrushFaceList& faces, std::ostream& stream) const {
+        void GameImpl::doWriteBrushFacesToStream(World& world, const std::vector<BrushFace*>& faces, std::ostream& stream) const {
             IO::NodeWriter writer(world, stream);
             writer.writeBrushFaces(faces);
         }

@@ -789,7 +789,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ClipTool::setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const {
+        void ClipTool::setFaceAttributes(const std::vector<Model::BrushFace*>& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const {
             ensure(!faces.empty(), "no faces");
 
             auto faceIt = std::begin(faces);
@@ -926,7 +926,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ClipTool::facesDidChange(const Model::BrushFaceList&) {
+        void ClipTool::facesDidChange(const std::vector<Model::BrushFace*>&) {
             if (!m_ignoreNotifications) {
                 update();
             }

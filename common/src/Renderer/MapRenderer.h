@@ -130,10 +130,10 @@ namespace TrenchBroom {
             void groupWasOpened(Model::Group* group);
             void groupWasClosed(Model::Group* group);
 
-            void brushFacesDidChange(const Model::BrushFaceList& faces);
+            void brushFacesDidChange(const std::vector<Model::BrushFace*>& faces);
 
             void selectionDidChange(const View::Selection& selection);
-            std::set<Model::Brush*> collectBrushes(const Model::BrushFaceList& faces);
+            std::set<Model::Brush*> collectBrushes(const std::vector<Model::BrushFace*>& faces);
 
             void textureCollectionsWillChange();
             void entityDefinitionsDidChange();

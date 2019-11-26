@@ -50,13 +50,13 @@ namespace TrenchBroom {
             MapDocumentCommandFacade();
         public: // selection modification
             void performSelect(const std::vector<Model::Node*>& nodes);
-            void performSelect(const Model::BrushFaceList& faces);
+            void performSelect(const std::vector<Model::BrushFace*>& faces);
             void performSelectAllNodes();
             void performSelectAllBrushFaces();
             void performConvertToBrushFaceSelection();
 
             void performDeselect(const std::vector<Model::Node*>& nodes);
-            void performDeselect(const Model::BrushFaceList& faces);
+            void performDeselect(const std::vector<Model::BrushFace*>& faces);
             void performDeselectAll();
         private:
             void deselectAllNodes();

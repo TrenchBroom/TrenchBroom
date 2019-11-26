@@ -34,8 +34,8 @@ namespace TrenchBroom {
             std::vector<Model::Node*> m_recursivelyDeselectedNodes;
             std::vector<Model::Node*> m_selectedNodes;
             std::vector<Model::Node*> m_deselectedNodes;
-            Model::BrushFaceList m_selectedBrushFaces;
-            Model::BrushFaceList m_deselectedBrushFaces;
+            std::vector<Model::BrushFace*> m_selectedBrushFaces;
+            std::vector<Model::BrushFace*> m_deselectedBrushFaces;
         public:
             const std::vector<Model::Node*>& partiallySelectedNodes() const;
             const std::vector<Model::Node*>& partiallyDeselectedNodes() const;
@@ -43,8 +43,8 @@ namespace TrenchBroom {
             const std::vector<Model::Node*>& recursivelyDeselectedNodes() const;
             const std::vector<Model::Node*>& selectedNodes() const;
             const std::vector<Model::Node*>& deselectedNodes() const;
-            const Model::BrushFaceList& selectedBrushFaces() const;
-            const Model::BrushFaceList& deselectedBrushFaces() const;
+            const std::vector<Model::BrushFace*>& selectedBrushFaces() const;
+            const std::vector<Model::BrushFace*>& deselectedBrushFaces() const;
 
             void addPartiallySelectedNodes(const std::vector<Model::Node*>& nodes);
             void addPartiallyDeselectedNodes(const std::vector<Model::Node*>& nodes);
@@ -52,8 +52,8 @@ namespace TrenchBroom {
             void addRecursivelyDeselectedNodes(const std::vector<Model::Node*>& nodes);
             void addSelectedNodes(const std::vector<Model::Node*>& nodes);
             void addDeselectedNodes(const std::vector<Model::Node*>& nodes);
-            void addSelectedBrushFaces(const Model::BrushFaceList& faces);
-            void addDeselectedBrushFaces(const Model::BrushFaceList& faces);
+            void addSelectedBrushFaces(const std::vector<Model::BrushFace*>& faces);
+            void addDeselectedBrushFaces(const std::vector<Model::BrushFace*>& faces);
         };
     }
 }

@@ -79,7 +79,7 @@ namespace TrenchBroom {
             return new BrushFace(point0, point1, point2, attribs, std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attribs));
         }
 
-        void BrushFace::sortFaces(BrushFaceList& faces) {
+        void BrushFace::sortFaces(std::vector<BrushFace*>& faces) {
             // Originally, the idea to sort faces came from TxQBSP, but the sorting used there was not entirely clear to me.
             // But it is still desirable to have a deterministic order in which the faces are added to the brush, so I chose
             // to just sort the faces by their normals.

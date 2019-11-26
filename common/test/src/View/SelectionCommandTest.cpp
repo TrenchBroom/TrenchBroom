@@ -39,11 +39,11 @@ namespace TrenchBroom {
 
             // select the top face
             document->select(brush->findFace(vm::vec3::pos_z()));
-            ASSERT_EQ(Model::BrushFaceList{brush->findFace(vm::vec3::pos_z())}, document->selectedBrushFaces());
+            ASSERT_EQ(std::vector<Model::BrushFace*>({ brush->findFace(vm::vec3::pos_z()) }), document->selectedBrushFaces());
 
             // deselect it
             document->deselect(brush->findFace(vm::vec3::pos_z()));
-            ASSERT_EQ(Model::BrushFaceList{}, document->selectedBrushFaces());
+            ASSERT_EQ(std::vector<Model::BrushFace*>({}), document->selectedBrushFaces());
 
             // select the brush
             document->select(brush);
@@ -58,14 +58,14 @@ namespace TrenchBroom {
             document->undoLastCommand();
             ASSERT_EQ(vm::vec3::zero(), brush->logicalBounds().center());
             ASSERT_EQ(std::vector<Model::Brush*>({ brush }), document->selectedNodes().brushes());
-            ASSERT_EQ(Model::BrushFaceList{}, document->selectedBrushFaces());
+            ASSERT_EQ(std::vector<Model::BrushFace*>({}), document->selectedBrushFaces());
 
             document->undoLastCommand();
             ASSERT_EQ(std::vector<Model::Brush*>({}), document->selectedNodes().brushes());
-            ASSERT_EQ(Model::BrushFaceList{}, document->selectedBrushFaces());
+            ASSERT_EQ(std::vector<Model::BrushFace*>({}), document->selectedBrushFaces());
 
             document->undoLastCommand();
-            ASSERT_EQ(Model::BrushFaceList{brush->findFace(vm::vec3::pos_z())}, document->selectedBrushFaces());
+            ASSERT_EQ(std::vector<Model::BrushFace*>({ brush->findFace(vm::vec3::pos_z()) }), document->selectedBrushFaces());
         }
     }
 }

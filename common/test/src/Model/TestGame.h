@@ -60,9 +60,9 @@ namespace TrenchBroom {
             void doExportMap(World& world, Model::ExportFormat format, const IO::Path& path) const override;
 
             std::vector<Node*> doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
-            BrushFaceList doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
+            std::vector<BrushFace*> doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
             void doWriteNodesToStream(World& world, const std::vector<Node*>& nodes, std::ostream& stream) const override;
-            void doWriteBrushFacesToStream(World& world, const BrushFaceList& faces, std::ostream& stream) const override;
+            void doWriteBrushFacesToStream(World& world, const std::vector<BrushFace*>& faces, std::ostream& stream) const override;
 
             TexturePackageType doTexturePackageType() const override;
             void doLoadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const override;

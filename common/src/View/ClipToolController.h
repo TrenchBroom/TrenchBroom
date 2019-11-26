@@ -28,6 +28,8 @@
 
 #include <vecmath/forward.h>
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class BrushFace;
@@ -133,7 +135,7 @@ namespace TrenchBroom {
         class ClipToolController3D : public ClipToolController {
         private:
             static std::vector<vm::vec3> selectHelpVectors(Model::BrushFace* face, const vm::vec3& hitPoint);
-            static Model::BrushFaceList selectIncidentFaces(Model::BrushFace* face, const vm::vec3& hitPoint);
+            static std::vector<Model::BrushFace*> selectIncidentFaces(Model::BrushFace* face, const vm::vec3& hitPoint);
         private:
             class Callback3D;
         public:

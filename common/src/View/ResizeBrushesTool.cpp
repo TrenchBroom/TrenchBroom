@@ -125,7 +125,7 @@ namespace TrenchBroom {
                         m_closest = result.distance;
                         const auto hitPoint = vm::point_at_distance(m_pickRay, result.position1);
                         if (m_hitType == ResizeBrushesTool::ResizeHit2D) {
-                            Model::BrushFaceList faces;
+                            std::vector<Model::BrushFace*> faces;
                             if (vm::is_zero(leftDot, vm::C::almost_zero())) {
                                 faces.push_back(left);
                             } else if (vm::is_zero(rightDot, vm::C::almost_zero())) {
@@ -166,8 +166,8 @@ namespace TrenchBroom {
             return !m_dragHandles.empty();
         }
 
-        Model::BrushFaceList ResizeBrushesTool::dragFaces() const {
-            Model::BrushFaceList result;
+        std::vector<Model::BrushFace*> ResizeBrushesTool::dragFaces() const {
+            std::vector<Model::BrushFace*> result;
             for (const auto& handle : m_dragHandles) {
                 const auto* brush = std::get<0>(handle);
                 const auto& normal = std::get<1>(handle);
@@ -216,9 +216,9 @@ namespace TrenchBroom {
             assert(hit.isMatch());
             assert(hit.type() == ResizeHit2D || hit.type() == ResizeHit3D);
 
-            Model::BrushFaceList result;
+            std::vector<Model::BrushFace*> result;
             if (hit.type() == ResizeHit2D) {
-                const Model::BrushFaceList& faces = hit.target<Model::BrushFaceList>();
+                const std::vector<Model::BrushFace*>& faces = hit.target<std::vector<Model::BrushFace*>>();
                 assert(!faces.empty());
                 VectorUtils::append(result, faces);
                 VectorUtils::append(result, collectDragFaces(faces[0]));
@@ -234,7 +234,7 @@ namespace TrenchBroom {
             return getDragHandles(result);
         }
 
-        Model::BrushFaceList ResizeBrushesTool::collectDragFaces(Model::BrushFace* face) const {
+        std::vector<Model::BrushFace*> ResizeBrushesTool::collectDragFaces(Model::BrushFace* face) const {
             Model::CollectMatchingBrushFacesVisitor<MatchFaceBoundary> visitor((MatchFaceBoundary(face)));
 
             MapDocumentSPtr document = lock(m_document);
@@ -243,7 +243,7 @@ namespace TrenchBroom {
             return visitor.faces();
         }
 
-        std::vector<ResizeBrushesTool::FaceHandle> ResizeBrushesTool::getDragHandles(const Model::BrushFaceList& faces) const {
+        std::vector<ResizeBrushesTool::FaceHandle> ResizeBrushesTool::getDragHandles(const std::vector<Model::BrushFace*>& faces) const {
             std::vector<FaceHandle> result;
             for (auto* face : faces) {
                 result.push_back(std::make_tuple(face->brush(), face->boundary().normal));

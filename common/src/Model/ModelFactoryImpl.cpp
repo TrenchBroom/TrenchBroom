@@ -64,7 +64,7 @@ namespace TrenchBroom {
             return new Entity();
         }
 
-        Brush* ModelFactoryImpl::doCreateBrush(const vm::bbox3& worldBounds, const BrushFaceList& faces) const {
+        Brush* ModelFactoryImpl::doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
             assert(m_format != MapFormat::Unknown);
             return new Brush(worldBounds, faces);
         }

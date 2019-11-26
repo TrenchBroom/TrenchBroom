@@ -26,6 +26,7 @@
 
 #include <map>
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -103,7 +104,7 @@ namespace TrenchBroom {
             void beginBrush(const Model::Brush* brush);
             void endBrush(Model::Brush* brush);
         public:
-            void brushFaces(const Model::BrushFaceList& faces);
+            void brushFaces(const std::vector<Model::BrushFace*>& faces);
         private:
             void brushFace(Model::BrushFace* face);
         private:

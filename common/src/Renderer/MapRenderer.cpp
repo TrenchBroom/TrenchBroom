@@ -41,6 +41,7 @@
 #include "View/MapDocument.h"
 
 #include <set>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -511,7 +512,7 @@ namespace TrenchBroom {
             updateRenderers(Renderer_Default_Selection);
         }
 
-        void MapRenderer::brushFacesDidChange(const Model::BrushFaceList&) {
+        void MapRenderer::brushFacesDidChange(const std::vector<Model::BrushFace*>&) {
             invalidateRenderers(Renderer_Selection);
         }
 
@@ -540,10 +541,11 @@ namespace TrenchBroom {
             }
         }
 
-        std::set<Model::Brush*> MapRenderer::collectBrushes(const Model::BrushFaceList& faces) {
+        std::set<Model::Brush*> MapRenderer::collectBrushes(const std::vector<Model::BrushFace*>& faces) {
             std::set<Model::Brush*> result;
-            for (const Model::BrushFace* face : faces)
+            for (const Model::BrushFace* face : faces) {
                 result.insert(face->brush());
+            }
             return result;
         }
 

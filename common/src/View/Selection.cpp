@@ -21,6 +21,8 @@
 
 #include "CollectionUtils.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace View {
         const std::vector<Model::Node*>& Selection::partiallySelectedNodes() const {
@@ -47,11 +49,11 @@ namespace TrenchBroom {
             return m_deselectedNodes;
         }
 
-        const Model::BrushFaceList& Selection::selectedBrushFaces() const {
+        const std::vector<Model::BrushFace*>& Selection::selectedBrushFaces() const {
             return m_selectedBrushFaces;
         }
 
-        const Model::BrushFaceList& Selection::deselectedBrushFaces() const {
+        const std::vector<Model::BrushFace*>& Selection::deselectedBrushFaces() const {
             return m_deselectedBrushFaces;
         }
 
@@ -79,11 +81,11 @@ namespace TrenchBroom {
             VectorUtils::append(m_deselectedNodes, nodes);
         }
 
-        void Selection::addSelectedBrushFaces(const Model::BrushFaceList& faces) {
+        void Selection::addSelectedBrushFaces(const std::vector<Model::BrushFace*>& faces) {
             VectorUtils::append(m_selectedBrushFaces, faces);
         }
 
-        void Selection::addDeselectedBrushFaces(const Model::BrushFaceList& faces) {
+        void Selection::addDeselectedBrushFaces(const std::vector<Model::BrushFace*>& faces) {
             VectorUtils::append(m_deselectedBrushFaces, faces);
         }
     }

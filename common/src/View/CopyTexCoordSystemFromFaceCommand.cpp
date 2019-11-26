@@ -26,6 +26,8 @@
 
 #include <vecmath/plane.h>
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType CopyTexCoordSystemFromFaceCommand::Type = Command::freeType();
@@ -48,7 +50,7 @@ namespace TrenchBroom {
         }
 
         bool CopyTexCoordSystemFromFaceCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            const Model::BrushFaceList faces = document->allSelectedBrushFaces();
+            const std::vector<Model::BrushFace*> faces = document->allSelectedBrushFaces();
             assert(!faces.empty());
 
             assert(m_snapshot == nullptr);

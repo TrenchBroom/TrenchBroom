@@ -23,6 +23,8 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType ChangeBrushFaceAttributesCommand::Type = Command::freeType();
@@ -42,7 +44,7 @@ namespace TrenchBroom {
         }
 
         bool ChangeBrushFaceAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            const Model::BrushFaceList faces = document->allSelectedBrushFaces();
+            const std::vector<Model::BrushFace*> faces = document->allSelectedBrushFaces();
             assert(!faces.empty());
 
             assert(m_snapshot == nullptr);

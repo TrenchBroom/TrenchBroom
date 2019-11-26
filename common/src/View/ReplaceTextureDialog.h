@@ -23,6 +23,8 @@
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
+#include <vector>
+
 #include <QDialog>
 
 class QPushButton;
@@ -48,7 +50,7 @@ namespace TrenchBroom {
             ReplaceTextureDialog(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
         private:
             virtual void accept() override;
-            Model::BrushFaceList getApplicableFaces() const;
+            std::vector<Model::BrushFace*> getApplicableFaces() const;
             void createGui(GLContextManager& contextManager);
         private slots:
             void subjectSelected(Assets::Texture* subject);

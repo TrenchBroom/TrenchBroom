@@ -23,6 +23,8 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         BrushSnapshot::BrushSnapshot(Brush* brush) :

@@ -32,7 +32,7 @@ namespace TrenchBroom {
         private:
             MapFacade* m_facade;
             std::vector<Node*> m_nodes;
-            BrushFaceList m_faces;
+            std::vector<BrushFace*> m_faces;
         public:
             template <typename T>
             explicit PushSelection(std::shared_ptr<T> facade) {

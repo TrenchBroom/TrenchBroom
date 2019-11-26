@@ -25,7 +25,6 @@
 #include "Preferences.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/Renderable.h"
@@ -45,9 +44,8 @@
 #include "View/UVShearTool.h"
 #include "View/UVOriginTool.h"
 
-#include <algorithm>
 #include <cassert>
-#include <iterator>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -113,7 +111,7 @@ namespace TrenchBroom {
 
         void UVView::selectionDidChange(const Selection&) {
             MapDocumentSPtr document = lock(m_document);
-            const Model::BrushFaceList& faces = document->selectedBrushFaces();
+            const std::vector<Model::BrushFace*>& faces = document->selectedBrushFaces();
             if (faces.size() != 1) {
                 m_helper.setFace(nullptr);
             } else {
@@ -139,7 +137,7 @@ namespace TrenchBroom {
             update();
         }
 
-        void UVView::brushFacesDidChange(const Model::BrushFaceList&) {
+        void UVView::brushFacesDidChange(const std::vector<Model::BrushFace*>&) {
             update();
         }
 
@@ -284,8 +282,9 @@ namespace TrenchBroom {
             Vertex::List edgeVertices;
             edgeVertices.reserve(faceVertices.size());
 
-            std::transform(std::begin(faceVertices), std::end(faceVertices), std::back_inserter(edgeVertices),
-                           [](const Model::BrushVertex* vertex) { return Vertex(vm::vec3f(vertex->position())); });
+            for (const auto* vertex : faceVertices) {
+                edgeVertices.push_back(Vertex(vm::vec3f(vertex->position())));
+            }
 
             const Color edgeColor(1.0f, 1.0f, 1.0f, 1.0f); // TODO: make this a preference
 

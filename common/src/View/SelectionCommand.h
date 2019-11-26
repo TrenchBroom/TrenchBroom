@@ -54,18 +54,18 @@ namespace TrenchBroom {
             Model::BrushFaceReference::List m_previouslySelectedFaceRefs;
         public:
             static Ptr select(const std::vector<Model::Node*>& nodes);
-            static Ptr select(const Model::BrushFaceList& faces);
+            static Ptr select(const std::vector<Model::BrushFace*>& faces);
 
             static Ptr convertToFaces();
             static Ptr selectAllNodes();
             static Ptr selectAllFaces();
 
             static Ptr deselect(const std::vector<Model::Node*>& nodes);
-            static Ptr deselect(const Model::BrushFaceList& faces);
+            static Ptr deselect(const std::vector<Model::BrushFace*>& faces);
             static Ptr deselectAll();
         private:
-            SelectionCommand(Action action, const std::vector<Model::Node*>& nodes, const Model::BrushFaceList& faces);
-            static String makeName(Action action, const std::vector<Model::Node*>& nodes, const Model::BrushFaceList& faces);
+            SelectionCommand(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces);
+            static String makeName(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

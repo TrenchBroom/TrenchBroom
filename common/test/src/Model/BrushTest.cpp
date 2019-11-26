@@ -45,6 +45,7 @@
 #include <fstream>
 #include <iterator>
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -54,7 +55,7 @@ namespace TrenchBroom {
         TEST(BrushTest, constructBrushWithRedundantFaces) {
             const vm::bbox3 worldBounds(4096.0);
 
-            BrushFaceList faces;
+            std::vector<BrushFace*> faces;
             faces.push_back(BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
                                                       vm::vec3(1.0, 0.0, 0.0),
                                                       vm::vec3(0.0, 1.0, 0.0)));
@@ -91,7 +92,7 @@ namespace TrenchBroom {
                                                           vm::vec3(1.0, 0.0, 0.0),
                                                           vm::vec3(0.0, 1.0, 0.0));
 
-            BrushFaceList faces;
+            std::vector<BrushFace*> faces;
             faces.push_back(left);
             faces.push_back(right);
             faces.push_back(front);
@@ -105,7 +106,7 @@ namespace TrenchBroom {
             // sort the faces by the weight of their plane normals like QBSP does
             Model::BrushFace::sortFaces(faces);
 
-            const BrushFaceList& brushFaces = brush.faces();
+            const std::vector<BrushFace*>& brushFaces = brush.faces();
             ASSERT_EQ(6u, brushFaces.size());
             for (size_t i = 0; i < faces.size(); i++)
                 ASSERT_EQ(faces[i], brushFaces[i]);
@@ -132,7 +133,7 @@ namespace TrenchBroom {
 
             const vm::bbox3 worldBounds(4096.0);
 
-            BrushFaceList faces;
+            std::vector<BrushFace*> faces;
             faces.push_back(BrushFace::createParaxial(vm::vec3(-192.0, 704.0, 128.0), vm::vec3(-156.0, 650.0, 128.0), vm::vec3(-156.0, 650.0, 160.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(-202.0, 604.0, 160.0), vm::vec3(-164.0, 664.0, 128.0), vm::vec3(-216.0, 613.0, 128.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(-156.0, 650.0, 128.0), vm::vec3(-202.0, 604.0, 128.0), vm::vec3(-202.0, 604.0, 160.0)));
@@ -144,7 +145,7 @@ namespace TrenchBroom {
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
 
-            const BrushFaceList& brushFaces = brush.faces();
+            const std::vector<BrushFace*>& brushFaces = brush.faces();
             ASSERT_EQ(7u, brushFaces.size());
         }
 
@@ -165,7 +166,7 @@ namespace TrenchBroom {
 
             const vm::bbox3 worldBounds(4096.0);
 
-            BrushFaceList faces;
+            std::vector<BrushFace*> faces;
             faces.push_back(BrushFace::createParaxial(vm::vec3(3488.0, 1152.0, 1340.0), vm::vec3(3488.0, 1248.0, 1344.0), vm::vec3(3488.0, 1344.0, 1340.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(3232.0, 1344.0, 1576.0), vm::vec3(3232.0, 1152.0, 1576.0), vm::vec3(3232.0, 1152.0, 1256.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(3488.0, 1344.0, 1576.0), vm::vec3(3264.0, 1344.0, 1576.0), vm::vec3(3264.0, 1344.0, 1256.0)));
@@ -179,7 +180,7 @@ namespace TrenchBroom {
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
 
-            const BrushFaceList& brushFaces = brush.faces();
+            const std::vector<BrushFace*>& brushFaces = brush.faces();
             ASSERT_EQ(9u, brushFaces.size());
         }
 
@@ -197,7 +198,7 @@ namespace TrenchBroom {
 
             const vm::bbox3 worldBounds(4096.0);
 
-            BrushFaceList faces;
+            std::vector<BrushFace*> faces;
             faces.push_back(BrushFace::createParaxial(vm::vec3(-32.0, -1088.0, 896.0), vm::vec3(-64.0, -1120.0, 896.0), vm::vec3(-64.0, -1120.0, 912.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(-32.0, -832.0, 896.0), vm::vec3(-32.0, -1088.0, 896.0), vm::vec3(-32.0, -1088.0, 912.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(-64.0, -848.0, 912.0), vm::vec3(-64.0, -1120.0, 912.0), vm::vec3(-64.0, -1120.0, 896.0)));
@@ -208,7 +209,7 @@ namespace TrenchBroom {
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
 
-            const BrushFaceList& brushFaces = brush.faces();
+            const std::vector<BrushFace*>& brushFaces = brush.faces();
             ASSERT_EQ(6u, brushFaces.size());
         }
 
@@ -226,7 +227,7 @@ namespace TrenchBroom {
 
             const vm::bbox3 worldBounds(4096.0);
 
-            BrushFaceList faces;
+            std::vector<BrushFace*> faces;
             faces.push_back(BrushFace::createParaxial(vm::vec3(-1268.0, 272.0, 2524.0), vm::vec3(-1268.0, 272.0, 2536.0), vm::vec3(-1268.0, 288.0, 2540.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(-1280.0, 265.0, 2534.0), vm::vec3(-1268.0, 272.0, 2524.0), vm::vec3(-1268.0, 288.0, 2528.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(-1268.0, 288.0, 2528.0), vm::vec3(-1280.0, 288.0, 2540.0), vm::vec3(-1280.0, 265.0, 2534.0)));
@@ -235,7 +236,7 @@ namespace TrenchBroom {
             faces.push_back(BrushFace::createParaxial(vm::vec3(-1268.0, 265.0, 2534.0), vm::vec3(-1268.0, 272.0, 2524.0), vm::vec3(-1280.0, 265.0, 2534.0)));
 
             Brush brush(worldBounds, faces);
-            const BrushFaceList& brushFaces = brush.faces();
+            const std::vector<BrushFace*>& brushFaces = brush.faces();
             ASSERT_EQ(6u, brushFaces.size());
         }
 
@@ -255,7 +256,7 @@ namespace TrenchBroom {
 
             const vm::bbox3 worldBounds(4096.0);
 
-            BrushFaceList faces;
+            std::vector<BrushFace*> faces;
             faces.push_back(BrushFace::createParaxial(vm::vec3(1296.0, 896.0, 944.0), vm::vec3(1296.0, 1008.0, 1056.0), vm::vec3(1280.0, 1008.0, 1008.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(1296.0, 1008.0, 1168.0), vm::vec3(1296.0, 1008.0, 1056.0), vm::vec3(1296.0, 896.0, 944.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(1280.0, 1008.0, 1008.0), vm::vec3(1280.0, 1008.0, 1168.0), vm::vec3(1280.0, 896.0, 1056.0)));
@@ -266,7 +267,7 @@ namespace TrenchBroom {
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
 
-            const BrushFaceList& brushFaces = brush.faces();
+            const std::vector<BrushFace*>& brushFaces = brush.faces();
             ASSERT_EQ(6u, brushFaces.size());
         }
 
@@ -283,7 +284,7 @@ namespace TrenchBroom {
 
             const vm::bbox3 worldBounds(4096.0);
 
-            BrushFaceList faces;
+            std::vector<BrushFace*> faces;
             faces.push_back(BrushFace::createParaxial(vm::vec3(-80.0, -80.0, -3840.0), vm::vec3(-80.0, -80.0, -3824.0), vm::vec3(-32.0, -32.0, -3808.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(-96.0, -32.0, -3840.0), vm::vec3(-96.0, -32.0, -3824.0), vm::vec3(-80.0, -80.0, -3824.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(-96.0, -32.0, -3824.0), vm::vec3(-32.0, -32.0, -3808.0), vm::vec3(-80.0, -80.0, -3824.0)));
@@ -293,7 +294,7 @@ namespace TrenchBroom {
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
 
-            const BrushFaceList& brushFaces = brush.faces();
+            const std::vector<BrushFace*>& brushFaces = brush.faces();
             ASSERT_EQ(5u, brushFaces.size());
         }
 
@@ -317,7 +318,7 @@ namespace TrenchBroom {
 
             const vm::bbox3 worldBounds(4096.0);
 
-            BrushFaceList faces;
+            std::vector<BrushFace*> faces;
             faces.push_back(BrushFace::createParaxial(vm::vec3(624.0, 688.0, -456.0), vm::vec3(656.0, 760.0, -480.0), vm::vec3(624.0, 680.0, -480.0), "face7"));
             faces.push_back(BrushFace::createParaxial(vm::vec3(536.0, 792.0, -480.0), vm::vec3(536.0, 792.0, -432.0), vm::vec3(488.0, 720.0, -480.0), "face12"));
             faces.push_back(BrushFace::createParaxial(vm::vec3(568.0, 656.0, -464.0), vm::vec3(568.0, 648.0, -480.0), vm::vec3(520.0, 672.0, -456.0), "face14"));
@@ -330,7 +331,7 @@ namespace TrenchBroom {
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
 
-            const BrushFaceList& brushFaces = brush.faces();
+            const std::vector<BrushFace*>& brushFaces = brush.faces();
             ASSERT_EQ(8u, brushFaces.size());
         }
 
@@ -352,7 +353,7 @@ namespace TrenchBroom {
              }
              */
 
-            BrushFaceList faces;
+            std::vector<BrushFace*> faces;
             faces.push_back(BrushFace::createParaxial(vm::vec3(-729.68857812925364, -128, 2061.2927432882448), vm::vec3(-910.70791411301013, 128, 2242.3120792720015), vm::vec3(-820.19824612113155, -128, 1970.7830752963655)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(-639.17891013737574, -640, 1970.7830752963669), vm::vec3(-729.68857812925364, -128, 2061.2927432882448), vm::vec3(-729.68857812925364, -640, 1880.2734073044885)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(-639.17891013737574, -1024, 1970.7830752963669), vm::vec3(-820.19824612113177, -640, 2151.8024112801227), vm::vec3(-639.17891013737574, -640, 1970.7830752963669)));
@@ -569,7 +570,7 @@ namespace TrenchBroom {
                                                           vm::vec3(1.0, 0.0, 0.0),
                                                           vm::vec3(0.0, 1.0, 0.0));
 
-            BrushFaceList faces;
+            std::vector<BrushFace*> faces;
             faces.push_back(left);
             faces.push_back(right);
             faces.push_back(front);
@@ -616,7 +617,7 @@ namespace TrenchBroom {
                                                           vm::vec3(1.0, 0.0, 0.0),
                                                           vm::vec3(0.0, 1.0, 0.0));
 
-            BrushFaceList faces;
+            std::vector<BrushFace*> faces;
             faces.push_back(left);
             faces.push_back(right);
             faces.push_back(front);
@@ -658,7 +659,7 @@ namespace TrenchBroom {
                                                           vm::vec3(1.0, 0.0, 0.0),
                                                           vm::vec3(0.0, 1.0, 0.0));
 
-            BrushFaceList faces;
+            std::vector<BrushFace*> faces;
             faces.push_back(left);
             faces.push_back(right);
             faces.push_back(front);
@@ -715,8 +716,8 @@ namespace TrenchBroom {
         };
 
         static void assertHasFace(const Brush& brush, const BrushFace& face) {
-            const BrushFaceList& faces = brush.faces();
-            const BrushFaceList::const_iterator it = std::find_if(std::begin(faces), std::end(faces), MatchFace(face));
+            const std::vector<BrushFace*>& faces = brush.faces();
+            const std::vector<BrushFace*>::const_iterator it = std::find_if(std::begin(faces), std::end(faces), MatchFace(face));
             ASSERT_TRUE(it != std::end(faces));
         }
 
@@ -743,7 +744,7 @@ namespace TrenchBroom {
                                                           vm::vec3(1.0, 0.0, 0.0),
                                                           vm::vec3(0.0, 1.0, 0.0));
 
-            BrushFaceList faces;
+            std::vector<BrushFace*> faces;
             faces.push_back(left);
             faces.push_back(right);
             faces.push_back(front);
@@ -790,7 +791,7 @@ namespace TrenchBroom {
                                                         vm::vec3(8.0, 0.0, 1.0),
                                                         vm::vec3(8.0, 1.0, 0.0));
 
-            BrushFaceList faces;
+            std::vector<BrushFace*> faces;
             faces.push_back(left);
             faces.push_back(right);
             faces.push_back(front);
@@ -832,7 +833,7 @@ namespace TrenchBroom {
             BrushFace* bottom = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
                                                           vm::vec3(1.0, 0.0, 0.0),
                                                           vm::vec3(0.0, 1.0, 0.0));
-            BrushFaceList faces;
+            std::vector<BrushFace*> faces;
             faces.push_back(left);
             faces.push_back(right);
             faces.push_back(front);

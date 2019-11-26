@@ -175,7 +175,7 @@ namespace TrenchBroom {
             }
         }
 
-        void NodeWriter::writeBrushFaces(const Model::BrushFaceList& faces) {
+        void NodeWriter::writeBrushFaces(const std::vector<Model::BrushFace*>& faces) {
             m_serializer->beginFile();
             m_serializer->brushFaces(faces);
             m_serializer->endFile();

@@ -108,7 +108,7 @@ namespace TrenchBroom {
 
             Model::NodeCollection m_partiallySelectedNodes;
             Model::NodeCollection m_selectedNodes;
-            Model::BrushFaceList m_selectedBrushFaces;
+            std::vector<Model::BrushFace*> m_selectedBrushFaces;
 
             Model::Layer* m_currentLayer;
             String m_currentTextureName;
@@ -154,7 +154,7 @@ namespace TrenchBroom {
             Notifier<Model::Group*> groupWasOpenedNotifier;
             Notifier<Model::Group*> groupWasClosedNotifier;
 
-            Notifier<const Model::BrushFaceList&> brushFacesDidChangeNotifier;
+            Notifier<const std::vector<Model::BrushFace*>&> brushFacesDidChangeNotifier;
 
             Notifier<> textureCollectionsWillChangeNotifier;
             Notifier<> textureCollectionsDidChangeNotifier;
@@ -224,7 +224,7 @@ namespace TrenchBroom {
             PasteType paste(const String& str);
         private:
             bool pasteNodes(const std::vector<Model::Node*>& nodes);
-            bool pasteBrushFaces(const Model::BrushFaceList& faces);
+            bool pasteBrushFaces(const std::vector<Model::BrushFace*>& faces);
         public: // point file management
             // cppcheck-suppress passedByValue
             void loadPointFile(const IO::Path path);
@@ -246,8 +246,8 @@ namespace TrenchBroom {
 
             const std::vector<Model::AttributableNode*> allSelectedAttributableNodes() const override;
             const Model::NodeCollection& selectedNodes() const override;
-            const Model::BrushFaceList allSelectedBrushFaces() const override;
-            const Model::BrushFaceList& selectedBrushFaces() const override;
+            const std::vector<Model::BrushFace*> allSelectedBrushFaces() const override;
+            const std::vector<Model::BrushFace*>& selectedBrushFaces() const override;
 
             const vm::bbox3& referenceBounds() const override;
             const vm::bbox3& lastSelectionBounds() const override;
@@ -262,7 +262,7 @@ namespace TrenchBroom {
             void selectNodesWithFilePosition(const std::vector<size_t>& positions) override;
             void select(const std::vector<Model::Node*>& nodes) override;
             void select(Model::Node* node) override;
-            void select(const Model::BrushFaceList& faces) override;
+            void select(const std::vector<Model::BrushFace*>& faces) override;
             void select(Model::BrushFace* face) override;
             void convertToFaceSelection() override;
             void selectFacesWithTexture(const Assets::Texture* texture);
@@ -354,7 +354,7 @@ namespace TrenchBroom {
         public: // modifying face attributes, declared in MapFacade interface
             void setTexture(Assets::Texture* texture) override;
         private:
-            bool hasTexture(const Model::BrushFaceList& faces, Assets::Texture* texture) const;
+            bool hasTexture(const std::vector<Model::BrushFace*>& faces, Assets::Texture* texture) const;
         public:
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes) override;
             bool setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) override;
@@ -457,7 +457,7 @@ namespace TrenchBroom {
             class UnsetTextures;
             void setTextures();
             void setTextures(const std::vector<Model::Node*>& nodes);
-            void setTextures(const Model::BrushFaceList& faces);
+            void setTextures(const std::vector<Model::BrushFace*>& faces);
             void unsetTextures();
             void unsetTextures(const std::vector<Model::Node*>& nodes);
 
@@ -506,7 +506,7 @@ namespace TrenchBroom {
             void updateNodeTags(const std::vector<Model::Node*>& nodes);
 
             class InitializeFaceTagsVisitor;
-            void updateFaceTags(const Model::BrushFaceList& faces);
+            void updateFaceTags(const std::vector<Model::BrushFace*>& faces);
             void updateAllFaceTags();
         public: // document path
             bool persistent() const;

@@ -28,7 +28,7 @@
 #include "Model/MapFacade.h"
 #include "Model/PushSelection.h"
 
-#include <cassert>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             void doApply(MapFacade* facade, const IssueList& issues) const override {
                 const PushSelection push(facade);
 
-                BrushFaceList faces;
+                std::vector<BrushFace*> faces;
                 for (const auto* issue : issues) {
                     if (issue->type() == InvalidTextureScaleIssue::Type) {
                         auto* face = static_cast<const InvalidTextureScaleIssue*>(issue)->face();

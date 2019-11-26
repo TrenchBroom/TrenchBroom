@@ -358,7 +358,7 @@ namespace TrenchBroom {
                     return PT_Node;
             } catch (const ParserException& e) {
                 try {
-                    const Model::BrushFaceList faces = m_game->parseBrushFaces(str, *m_world, m_worldBounds, logger());
+                    const std::vector<Model::BrushFace*> faces = m_game->parseBrushFaces(str, *m_world, m_worldBounds, logger());
                     if (!faces.empty() && pasteBrushFaces(faces))
                         return PT_BrushFace;
                 } catch (const ParserException&) {
@@ -385,7 +385,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MapDocument::pasteBrushFaces(const Model::BrushFaceList& faces) {
+        bool MapDocument::pasteBrushFaces(const std::vector<Model::BrushFace*>& faces) {
             assert(!faces.empty());
             const Model::BrushFace* face = faces.back();
 
@@ -508,7 +508,7 @@ namespace TrenchBroom {
             return m_selectedNodes;
         }
 
-        const Model::BrushFaceList MapDocument::allSelectedBrushFaces() const {
+        const std::vector<Model::BrushFace*> MapDocument::allSelectedBrushFaces() const {
             if (hasSelectedBrushFaces())
                 return selectedBrushFaces();
             Model::CollectBrushFacesVisitor visitor;
@@ -516,7 +516,7 @@ namespace TrenchBroom {
             return visitor.faces();
         }
 
-        const Model::BrushFaceList& MapDocument::selectedBrushFaces() const {
+        const std::vector<Model::BrushFace*>& MapDocument::selectedBrushFaces() const {
             return m_selectedBrushFaces;
         }
 
@@ -616,12 +616,12 @@ namespace TrenchBroom {
             submitAndStore(SelectionCommand::select(std::vector<Model::Node*>(1, node)));
         }
 
-        void MapDocument::select(const Model::BrushFaceList& faces) {
+        void MapDocument::select(const std::vector<Model::BrushFace*>& faces) {
             submitAndStore(SelectionCommand::select(faces));
         }
 
         void MapDocument::select(Model::BrushFace* face) {
-            submitAndStore(SelectionCommand::select(Model::BrushFaceList(1, face)));
+            submitAndStore(SelectionCommand::select(std::vector<Model::BrushFace*>(1, face)));
             setCurrentTextureName(face->textureName());
         }
 
@@ -658,7 +658,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::deselect(Model::BrushFace* face) {
-            submitAndStore(SelectionCommand::deselect(Model::BrushFaceList(1, face)));
+            submitAndStore(SelectionCommand::deselect(std::vector<Model::BrushFace*>(1, face)));
         }
 
         void MapDocument::updateLastSelectionBounds() {
@@ -1307,7 +1307,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::setTexture(Assets::Texture* texture) {
-            const Model::BrushFaceList faces = allSelectedBrushFaces();
+            const std::vector<Model::BrushFace*> faces = allSelectedBrushFaces();
 
             if (texture != nullptr) {
                 if (faces.empty()) {
@@ -1335,7 +1335,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool MapDocument::hasTexture(const Model::BrushFaceList& faces, Assets::Texture* texture) const {
+        bool MapDocument::hasTexture(const std::vector<Model::BrushFace*>& faces, Assets::Texture* texture) const {
             for (const Model::BrushFace* face : faces) {
                 if (face->texture() != texture)
                     return false;
@@ -1738,7 +1738,7 @@ namespace TrenchBroom {
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
         }
 
-        void MapDocument::setTextures(const Model::BrushFaceList& faces) {
+        void MapDocument::setTextures(const std::vector<Model::BrushFace*>& faces) {
             for (Model::BrushFace* face : faces) {
                 face->updateTexture(*m_textureManager);
             }
@@ -2004,7 +2004,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MapDocument::updateFaceTags(const Model::BrushFaceList& faces) {
+        void MapDocument::updateFaceTags(const std::vector<Model::BrushFace*>& faces) {
             for (auto* face : faces) {
                 face->updateTags(*m_tagManager);
             }

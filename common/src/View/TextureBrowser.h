@@ -82,7 +82,7 @@ namespace TrenchBroom {
             void nodesWereAdded(const std::vector<Model::Node*>& nodes);
             void nodesWereRemoved(const std::vector<Model::Node*>& nodes);
             void nodesDidChange(const std::vector<Model::Node*>& nodes);
-            void brushFacesDidChange(const Model::BrushFaceList& faces);
+            void brushFacesDidChange(const std::vector<Model::BrushFace*>& faces);
             void textureCollectionsDidChange();
             void currentTextureNameDidChange(const String& textureName);
             void preferenceDidChange(const IO::Path& path);

@@ -81,7 +81,7 @@ namespace TrenchBroom {
             return doParseNodes(str, world, worldBounds, logger);
         }
 
-        BrushFaceList Game::parseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
+        std::vector<BrushFace*> Game::parseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
             return doParseBrushFaces(str, world, worldBounds, logger);
         }
 
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             doWriteNodesToStream(world, nodes, stream);
         }
 
-        void Game::writeBrushFacesToStream(World& world, const Model::BrushFaceList& faces, std::ostream& stream) const {
+        void Game::writeBrushFacesToStream(World& world, const std::vector<BrushFace*>& faces, std::ostream& stream) const {
             doWriteBrushFacesToStream(world, faces, stream);
         }
 
