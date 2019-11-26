@@ -23,7 +23,7 @@
 #include "TrenchBroom.h"
 #include "Assets/AssetTypes.h"
 #include "Model/EntityColor.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "StringList.h"
 
 #include <vecmath/forward.h>

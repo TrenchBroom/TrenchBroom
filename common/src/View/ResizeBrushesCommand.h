@@ -21,7 +21,7 @@
 #define TrenchBroom_ResizeBrushesCommand
 
 #include "TrenchBroom.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/SnapshotCommand.h"
 
 #include <vecmath/forward.h>

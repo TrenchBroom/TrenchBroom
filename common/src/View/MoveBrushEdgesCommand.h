@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_MoveBrushEdgesCommand
 #define TrenchBroom_MoveBrushEdgesCommand
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/VertexCommand.h"
 
 #include <vector>

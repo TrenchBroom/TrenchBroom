@@ -21,7 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "Model/Group.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/Node.h"
 #include "Model/TakeSnapshotVisitor.h"
 

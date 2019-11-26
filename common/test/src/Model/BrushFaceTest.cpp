@@ -32,7 +32,7 @@
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/MapFormat.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/NodeSnapshot.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"

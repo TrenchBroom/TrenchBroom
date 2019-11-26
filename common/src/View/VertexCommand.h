@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_VertexCommand
 #define TrenchBroom_VertexCommand
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
 #include "View/VertexHandleManager.h"
 

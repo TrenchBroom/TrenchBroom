@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_SetLockStateCommand
 #define TrenchBroom_SetLockStateCommand
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/UndoableCommand.h"
 
 #include <map>

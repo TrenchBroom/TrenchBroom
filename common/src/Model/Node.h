@@ -21,7 +21,7 @@
 #define TrenchBroom_Node
 
 #include "TrenchBroom.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/Tag.h"
 
 #include <vecmath/forward.h>

@@ -21,7 +21,7 @@
 #define TrenchBroom_MapView2D
 
 #include <vecmath/scalar.h>
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/OrthographicCamera.h"
 #include "View/MapViewBase.h"
 #include "View/ViewTypes.h"

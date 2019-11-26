@@ -24,7 +24,7 @@
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/EntityAttributes.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/Node.h"
 
 #include <set>

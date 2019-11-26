@@ -23,6 +23,8 @@
 #include "Macros.h"
 #include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
+#include "Model/LockState.h"
+#include "Model/VisibilityState.h"
 
 #include <vecmath/bbox.h>
 
@@ -38,8 +40,8 @@ namespace TrenchBroom {
         m_selected(false),
         m_childSelectionCount(0),
         m_descendantSelectionCount(0),
-        m_visibilityState(Visibility_Inherited),
-        m_lockState(Lock_Inherited),
+        m_visibilityState(VisibilityState::Visibility_Inherited),
+        m_lockState(LockState::Lock_Inherited),
         m_lineNumber(0),
         m_lineCount(0),
         m_issuesValid(false),
@@ -500,22 +502,22 @@ namespace TrenchBroom {
 
         bool Node::visible() const {
             switch (m_visibilityState) {
-                case Visibility_Inherited:
+                case VisibilityState::Visibility_Inherited:
                     return m_parent == nullptr || m_parent->visible();
-                case Visibility_Hidden:
+                case VisibilityState::Visibility_Hidden:
                     return false;
-                case Visibility_Shown:
+                case VisibilityState::Visibility_Shown:
                     return true;
                 switchDefault()
             }
         }
 
         bool Node::shown() const {
-            return m_visibilityState == Visibility_Shown;
+            return m_visibilityState == VisibilityState::Visibility_Shown;
         }
 
         bool Node::hidden() const {
-            return m_visibilityState == Visibility_Hidden;
+            return m_visibilityState == VisibilityState::Visibility_Hidden;
         }
 
         VisibilityState Node::visibilityState() const {
@@ -532,17 +534,17 @@ namespace TrenchBroom {
 
         bool Node::ensureVisible() {
             if (!visible())
-                return setVisibilityState(Visibility_Shown);
+                return setVisibilityState(VisibilityState::Visibility_Shown);
             return false;
         }
 
         bool Node::editable() const {
             switch (m_lockState) {
-                case Lock_Inherited:
+                case LockState::Lock_Inherited:
                     return m_parent == nullptr || m_parent->editable();
-                case Lock_Locked:
+                case LockState::Lock_Locked:
                     return false;
-                case Lock_Unlocked:
+                case LockState::Lock_Unlocked:
                     return true;
                 switchDefault()
             }

@@ -21,7 +21,7 @@
 #define TrenchBroom_CollectAttributableNodesVisitor
 
 #include "Model/NodeVisitor.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <set>
 #include <vector>

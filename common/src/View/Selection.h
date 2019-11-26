@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Selection
 #define TrenchBroom_Selection
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vector>
 

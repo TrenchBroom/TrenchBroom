@@ -29,7 +29,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Hit.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
 #include "Renderer/RenderBatch.h"

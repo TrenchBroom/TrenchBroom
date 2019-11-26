@@ -23,7 +23,7 @@
 #include "TrenchBroom.h"
 #include "Model/Hit.h"
 #include "Model/PickResult.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/OrthographicCamera.h"
 #include "View/RenderView.h"
 #include "View/ToolBox.h"

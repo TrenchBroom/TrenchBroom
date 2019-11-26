@@ -24,7 +24,7 @@
 #include "StringType.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelFactory.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vector>
 

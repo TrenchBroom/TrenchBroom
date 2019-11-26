@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_UpdateEntitySpawnflagCommand
 #define TrenchBroom_UpdateEntitySpawnflagCommand
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
 
 namespace TrenchBroom {

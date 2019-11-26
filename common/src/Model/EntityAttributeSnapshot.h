@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityAttributeSnapshot
 #define TrenchBroom_EntityAttributeSnapshot
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <map>
 #include <list>

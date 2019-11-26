@@ -25,7 +25,7 @@
 #include "IO/Path.h"
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <vector>

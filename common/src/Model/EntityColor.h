@@ -22,7 +22,7 @@
 
 #include "Color.h"
 #include "StringType.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vector>
 

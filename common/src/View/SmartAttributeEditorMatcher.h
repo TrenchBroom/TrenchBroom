@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_SmartAttributeEditorMatcher
 #define TrenchBroom_SmartAttributeEditorMatcher
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <initializer_list>
 #include <set>

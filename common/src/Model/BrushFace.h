@@ -27,7 +27,7 @@
 #include "Assets/AssetTypes.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/Tag.h"
 #include "Model/TexCoordSystem.h"
 

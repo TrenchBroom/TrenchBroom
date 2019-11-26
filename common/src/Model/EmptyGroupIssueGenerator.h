@@ -21,7 +21,7 @@
 #define TrenchBroom_EmptyGroupIssueGenerator
 
 #include "Model/IssueGenerator.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vector>
 

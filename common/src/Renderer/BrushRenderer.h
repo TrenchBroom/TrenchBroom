@@ -21,7 +21,7 @@
 #define TrenchBroom_BrushRenderer
 
 #include "Color.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/FaceRenderer.h"
 #include "Model/Brush.h"

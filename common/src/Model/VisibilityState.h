@@ -17,30 +17,17 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_GroupSnapshot
-#define TrenchBroom_GroupSnapshot
-
-#include "Model/Model_Forward.h"
-#include "Model/NodeSnapshot.h"
-
-#include <vector>
+#ifndef TRENCHBROOM_VISIBILITYSTATE_H
+#define TRENCHBROOM_VISIBILITYSTATE_H
 
 namespace TrenchBroom {
     namespace Model {
-        class Group;
-        class NodeSnapshot;
-
-        class GroupSnapshot : public NodeSnapshot {
-        private:
-            std::vector<NodeSnapshot*> m_snapshots;
-        public:
-            GroupSnapshot(Group* group);
-            ~GroupSnapshot() override;
-        private:
-            void takeSnapshot(Group* group);
-            void doRestore(const vm::bbox3& worldBounds) override;
+        enum class VisibilityState {
+            Visibility_Inherited = 1,
+            Visibility_Hidden    = 2,
+            Visibility_Shown     = 4
         };
     }
 }
 
-#endif /* defined(TrenchBroom_GroupSnapshot) */
+#endif //TRENCHBROOM_VISIBILITYSTATE_H

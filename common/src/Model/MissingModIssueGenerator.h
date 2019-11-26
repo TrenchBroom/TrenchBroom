@@ -21,7 +21,7 @@
 #define MissingModIssueGenerator_h
 
 #include "Model/IssueGenerator.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "StringList.h"
 
 #include <memory>

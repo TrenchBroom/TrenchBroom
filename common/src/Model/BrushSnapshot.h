@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_BrushSnapshot
 #define TrenchBroom_BrushSnapshot
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/NodeSnapshot.h"
 
 #include <vector>

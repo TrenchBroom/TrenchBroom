@@ -22,7 +22,7 @@
 
 #include "StringType.h"
 #include "StringList.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/ViewTypes.h"
 
 #include <QAbstractTableModel>

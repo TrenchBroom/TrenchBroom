@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_LayerListBox
 #define TrenchBroom_LayerListBox
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/ControlListBox.h"
 #include "View/ViewTypes.h"
 

@@ -22,7 +22,7 @@
 
 #include "Color.h"
 #include "Assets/ModelDefinition.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/Renderable.h"
 
 #include <map>

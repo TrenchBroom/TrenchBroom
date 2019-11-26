@@ -21,7 +21,7 @@
 #define TrenchBroom_BrushFaceReader
 
 #include "IO/MapReader.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vector>
 

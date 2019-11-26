@@ -22,7 +22,7 @@
 
 #include "View/ViewTypes.h"
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vector>
 

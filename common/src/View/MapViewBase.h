@@ -21,7 +21,7 @@
 #define TrenchBroom_MapViewBase
 
 #include "Assets/EntityDefinition.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/NodeCollection.h"
 #include "Renderer/RenderContext.h"
 #include "View/ActionContext.h"

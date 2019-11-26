@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_SmartAttributeEditorManager
 #define TrenchBroom_SmartAttributeEditorManager
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/ViewTypes.h"
 
 #include <vector>

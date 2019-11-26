@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_MergeNodesIntoWorldVisitor
 #define TrenchBroom_MergeNodesIntoWorldVisitor
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/NodeVisitor.h"
 
 #include <map>

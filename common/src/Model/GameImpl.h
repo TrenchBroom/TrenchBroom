@@ -25,7 +25,7 @@
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFileSystem.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <vector>

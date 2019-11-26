@@ -21,7 +21,7 @@
 #define TrenchBroom_ModelUtils
 
 #include "Model/CollectUniqueNodesVisitor.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/Node.h"
 
 #include <map>

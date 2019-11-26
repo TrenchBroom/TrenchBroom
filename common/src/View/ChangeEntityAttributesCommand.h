@@ -21,7 +21,7 @@
 #define TrenchBroom_ChangeEntityAttributesCommand
 
 #include "Model/EntityAttributeSnapshot.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
 
 namespace TrenchBroom {

@@ -21,7 +21,7 @@
 #define TrenchBroom_EntityAttributeIndex
 
 #include "StringType.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/EntityAttributes.h"
 #include "StringMap.h"
 

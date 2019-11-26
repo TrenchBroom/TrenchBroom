@@ -28,7 +28,7 @@
 #include "Model/EntityColor.h"
 #include "Model/MapFacade.h"
 #include "Model/MapFormat.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/NodeCollection.h"
 #include "Model/TexCoordSystem.h"
 #include "View/CachingLogger.h"

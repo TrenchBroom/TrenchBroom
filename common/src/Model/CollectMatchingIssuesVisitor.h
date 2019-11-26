@@ -25,7 +25,7 @@
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/World.h"
 
 #include <vector>

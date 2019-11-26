@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_IssueQuickFix
 #define TrenchBroom_IssueQuickFix
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vector>
 

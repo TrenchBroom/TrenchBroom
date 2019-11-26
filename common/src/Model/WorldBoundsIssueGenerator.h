@@ -22,7 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "Model/IssueGenerator.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vecmath/bbox.h>
 

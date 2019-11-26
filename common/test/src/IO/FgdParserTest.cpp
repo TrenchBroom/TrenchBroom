@@ -31,7 +31,7 @@
 #include "IO/Path.h"
 #include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <algorithm>
 

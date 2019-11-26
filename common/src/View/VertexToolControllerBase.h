@@ -21,7 +21,7 @@
 #define VertexToolControllerBase_h
 
 #include "Model/Hit.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "View/Lasso.h"

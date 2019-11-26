@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_DuplicateNodesCommand
 #define TrenchBroom_DuplicateNodesCommand
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
 
 #include <map>

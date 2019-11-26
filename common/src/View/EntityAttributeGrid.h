@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityAttributeGrid
 #define TrenchBroom_EntityAttributeGrid
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/ViewTypes.h"
 
 #include <set>

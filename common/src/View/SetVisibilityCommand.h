@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_SetVisibilityCommand
 #define TrenchBroom_SetVisibilityCommand
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/UndoableCommand.h"
 
 #include <map>

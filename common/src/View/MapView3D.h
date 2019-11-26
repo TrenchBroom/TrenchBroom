@@ -21,7 +21,7 @@
 #define TrenchBroom_MapView3D
 
 #include <vecmath/scalar.h>
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/PerspectiveCamera.h"
 #include "View/MapViewBase.h"
 #include "View/ViewTypes.h"

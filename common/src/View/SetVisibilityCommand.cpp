@@ -19,6 +19,7 @@
 
 #include "SetVisibilityCommand.h"
 #include "Macros.h"
+#include "Model/VisibilityState.h"
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom {
@@ -63,13 +64,13 @@ namespace TrenchBroom {
         bool SetVisibilityCommand::doPerformDo(MapDocumentCommandFacade* document) {
             switch (m_action) {
                 case Action_Reset:
-                    m_oldState = document->setVisibilityState(m_nodes, Model::Visibility_Inherited);
+                    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Visibility_Inherited);
                     break;
                 case Action_Hide:
-                    m_oldState = document->setVisibilityState(m_nodes, Model::Visibility_Hidden);
+                    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Visibility_Hidden);
                     break;
                 case Action_Show:
-                    m_oldState = document->setVisibilityState(m_nodes, Model::Visibility_Shown);
+                    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Visibility_Shown);
                     break;
                 case Action_Ensure:
                     m_oldState = document->setVisibilityEnsured(m_nodes);

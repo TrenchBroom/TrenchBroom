@@ -21,7 +21,7 @@
 #define TrenchBroom_NodeSerializer
 
 #include "Model/EntityAttributes.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "StringStream.h"
 
 #include <map>

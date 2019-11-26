@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_FaceAttribsEditor
 #define TrenchBroom_FaceAttribsEditor
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/ViewTypes.h"
 
 #include <QWidget>

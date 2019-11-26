@@ -21,7 +21,7 @@
 #define TrenchBroom_EntityRotationPolicy
 
 #include "TrenchBroom.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 

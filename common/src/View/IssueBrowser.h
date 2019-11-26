@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_IssueBrowser
 #define TrenchBroom_IssueBrowser
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/ViewTypes.h"
 #include "View/TabBook.h"
 

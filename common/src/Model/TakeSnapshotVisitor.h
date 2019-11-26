@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_TakeSnapshotVisitor
 #define TrenchBroom_TakeSnapshotVisitor
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/NodeVisitor.h"
 
 #include <vector>

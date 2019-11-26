@@ -25,7 +25,7 @@
 #include "IO/NodeSerializer.h"
 #include "IO/Path.h"
 #include "IO/IOUtils.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 

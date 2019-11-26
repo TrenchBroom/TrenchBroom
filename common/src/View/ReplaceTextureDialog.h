@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_ReplaceTextureDialog
 #define TrenchBroom_ReplaceTextureDialog
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/ViewTypes.h"
 
 #include <vector>

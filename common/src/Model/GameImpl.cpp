@@ -49,6 +49,7 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityAttributes.h"
+#include "Model/ExportFormat.h"
 #include "Model/GameConfig.h"
 #include "Model/Layer.h"
 #include "Model/World.h"
@@ -151,7 +152,7 @@ namespace TrenchBroom {
 
         void GameImpl::doExportMap(World& world, const Model::ExportFormat format, const IO::Path& path) const {
             switch (format) {
-                case Model::WavefrontObj:
+                case Model::ExportFormat::WavefrontObj:
                     IO::NodeWriter(world, new IO::ObjFileSerializer(path)).writeMap();
                     break;
             }

@@ -19,6 +19,7 @@
 
 #include "SetLockStateCommand.h"
 #include "Macros.h"
+#include "Model/LockState.h"
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom {
@@ -26,15 +27,15 @@ namespace TrenchBroom {
         const Command::CommandType SetLockStateCommand::Type = Command::freeType();
 
         SetLockStateCommand::Ptr SetLockStateCommand::lock(const std::vector<Model::Node*>& nodes) {
-            return Ptr(new SetLockStateCommand(nodes, Model::Lock_Locked));
+            return Ptr(new SetLockStateCommand(nodes, Model::LockState::Lock_Locked));
         }
 
         SetLockStateCommand::Ptr SetLockStateCommand::unlock(const std::vector<Model::Node*>& nodes) {
-            return Ptr(new SetLockStateCommand(nodes, Model::Lock_Unlocked));
+            return Ptr(new SetLockStateCommand(nodes, Model::LockState::Lock_Unlocked));
         }
 
         SetLockStateCommand::Ptr SetLockStateCommand::reset(const std::vector<Model::Node*>& nodes) {
-            return Ptr(new SetLockStateCommand(nodes, Model::Lock_Inherited));
+            return Ptr(new SetLockStateCommand(nodes, Model::LockState::Lock_Inherited));
         }
 
         SetLockStateCommand::SetLockStateCommand(const std::vector<Model::Node*>& nodes, const Model::LockState lockState) :
@@ -44,11 +45,11 @@ namespace TrenchBroom {
 
         String SetLockStateCommand::makeName(const Model::LockState state) {
             switch (state) {
-                case Model::Lock_Inherited:
+                case Model::LockState::Lock_Inherited:
                     return "Reset Locking";
-                case Model::Lock_Locked:
+                case Model::LockState::Lock_Locked:
                     return "Lock Objects";
-                case Model::Lock_Unlocked:
+                case Model::LockState::Lock_Unlocked:
                     return "Unlock Objects";
 		switchDefault()
             }

@@ -23,7 +23,7 @@
 #include "TrenchBroom.h"
 #include "Model/EntityAttributes.h"
 #include "Model/MapFormat.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 

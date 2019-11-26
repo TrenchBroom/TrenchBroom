@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_CreateBrushToolBase
 #define TrenchBroom_CreateBrushToolBase
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 

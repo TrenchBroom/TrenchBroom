@@ -23,7 +23,7 @@
 #include <gtest/gtest.h>
 
 #include "StringType.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>

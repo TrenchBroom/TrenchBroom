@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Issue
 #define TrenchBroom_Issue
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vector>
 

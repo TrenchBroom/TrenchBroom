@@ -21,7 +21,7 @@
 #define TrenchBroom_RenameGroupsCommand
 
 #include "StringType.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
 
 #include <map>

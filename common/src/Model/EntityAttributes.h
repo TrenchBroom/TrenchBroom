@@ -22,7 +22,7 @@
 
 #include "StringType.h"
 #include "Model/EntityAttributeSnapshot.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <list>
 #include <memory>

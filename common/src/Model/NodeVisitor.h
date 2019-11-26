@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_NodeVisitor
 #define TrenchBroom_NodeVisitor
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 namespace TrenchBroom {
     namespace Model {

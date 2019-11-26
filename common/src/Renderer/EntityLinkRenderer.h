@@ -21,7 +21,7 @@
 #define TrenchBroom_EntityLinkRenderer
 
 #include "Color.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/VertexArray.h"

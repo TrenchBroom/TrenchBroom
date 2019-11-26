@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_NodeCollection
 #define TrenchBroom_NodeCollection
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vector>
 

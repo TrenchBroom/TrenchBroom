@@ -21,7 +21,7 @@
 #define TrenchBroom_ObjectRenderer
 
 #include "Color.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/GroupRenderer.h"

@@ -20,7 +20,7 @@
 #ifndef PushSelection_h
 #define PushSelection_h
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vector>
 

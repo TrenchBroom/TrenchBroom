@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ModelTypes_h
-#define TrenchBroom_ModelTypes_h
+#ifndef TrenchBroom_Model_Forward_h
+#define TrenchBroom_Model_Forward_h
 
 #include "StringType.h"
 
@@ -26,8 +26,9 @@ namespace TrenchBroom {
     namespace Model {
         using IdType = size_t;
 
-        class Node;
+        class Object;
 
+        class Node;
         class AttributableNode;
         class World;
         class Layer;
@@ -36,21 +37,8 @@ namespace TrenchBroom {
         class Brush;
         class BrushFace;
 
-        class Object;
-
-        // TODO: replace with class based enum
-        typedef enum {
-            Visibility_Inherited = 1,
-            Visibility_Hidden    = 2,
-            Visibility_Shown     = 4
-        } VisibilityState;
-
-        // TODO: replace with class based enum
-        typedef enum {
-            Lock_Inherited = 1,
-            Lock_Locked    = 2,
-            Lock_Unlocked  = 4
-        } LockState;
+        enum class VisibilityState;
+        enum class LockState;
 
         class NodeVisitor;
         class ConstNodeVisitor;
@@ -58,24 +46,17 @@ namespace TrenchBroom {
         using AttributeName = String;
         using AttributeValue = String;
 
-        class BrushFaceSnapshot;
-
-        class NodeSnapshot;
-
-        using IssueType = int;
-
-        class Issue;
-
-        class IssueQuickFix;
-
-        class IssueGenerator;
-
         class Game;
 
-        // TODO: replace with class based enum
-        typedef enum {
-            WavefrontObj
-        } ExportFormat;
+        class NodeSnapshot;
+        class BrushFaceSnapshot;
+
+        using IssueType = int;
+        class Issue;
+        class IssueQuickFix;
+        class IssueGenerator;
+
+        enum class ExportFormat;
     }
 }
 

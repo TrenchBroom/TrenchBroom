@@ -28,6 +28,7 @@
 #include "Model/Brush.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
+#include "Model/ExportFormat.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/Group.h"
@@ -729,7 +730,7 @@ namespace TrenchBroom {
             if (newFileName.isEmpty())
                 return false;
 
-            return exportDocument(Model::WavefrontObj, IO::pathFromQString(newFileName));
+            return exportDocument(Model::ExportFormat::WavefrontObj, IO::pathFromQString(newFileName));
         }
 
         bool MapFrame::exportDocument(const Model::ExportFormat format, const IO::Path& path) {

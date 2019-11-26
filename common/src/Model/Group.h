@@ -23,7 +23,7 @@
 #include "TrenchBroom.h"
 #include "StringType.h"
 #include "Macros.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
 

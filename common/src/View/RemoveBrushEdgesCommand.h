@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_RemoveBrushEdgesCommand
 #define TrenchBroom_RemoveBrushEdgesCommand
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/RemoveBrushElementsCommand.h"
 
 #include <vector>

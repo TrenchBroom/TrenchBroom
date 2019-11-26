@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_IssueGeneratorRegistry
 #define TrenchBroom_IssueGeneratorRegistry
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vector>
 

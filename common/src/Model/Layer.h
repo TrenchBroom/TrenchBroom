@@ -23,7 +23,7 @@
 #include "Macros.h"
 #include "StringType.h"
 #include "TrenchBroom.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/Node.h"
 
 #include <vecmath/bbox.h>

@@ -21,7 +21,7 @@
 #define TrenchBroom_MapFrame
 
 #include "Model/MapFormat.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/Inspector.h"
 #include "View/Selection.h"
 #include "View/ViewTypes.h"
