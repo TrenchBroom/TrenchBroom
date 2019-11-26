@@ -20,7 +20,6 @@
 #ifndef ELParser_h
 #define ELParser_h
 
-#include "EL.h"
 #include "IO/Parser.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
@@ -32,6 +31,11 @@
 #endif
 
 namespace TrenchBroom {
+    namespace EL {
+        class Expression;
+        class ExpressionBase;
+    }
+
     namespace IO {
         namespace ELToken {
             using Type = uint64_t;

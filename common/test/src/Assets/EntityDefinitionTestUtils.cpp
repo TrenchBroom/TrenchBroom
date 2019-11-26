@@ -21,8 +21,9 @@
 
 #include <gtest/gtest.h>
 
-#include "EL.h"
 #include "Assets/EntityDefinition.h"
+#include "EL/EvaluationContext.h"
+#include "EL/Types.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/TestParserStatus.h"
@@ -58,7 +59,7 @@ namespace TrenchBroom {
             for (const auto& entry : entityPropertiesMap) {
                 const String& key = entry.first;
                 const EL::Value& value = entry.second;
-                attributes.addOrUpdateAttribute(key, value.convertTo(EL::Type_String).stringValue(), nullptr);
+                attributes.addOrUpdateAttribute(key, value.convertTo(EL::ValueType::String).stringValue(), nullptr);
             }
 
             ASSERT_EQ(expected, actual.modelSpecification(attributes));

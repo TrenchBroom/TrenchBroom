@@ -30,6 +30,8 @@
 
 #include <vecmath/plane.h>
 #include <vecmath/scalar.h>
+#include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 
 #include <iterator>
 #include <tuple>

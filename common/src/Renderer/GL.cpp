@@ -19,13 +19,15 @@
 
 #include "GL.h"
 
+#include "Exceptions.h"
+
+#include <string>
+
 namespace TrenchBroom {
     void glCheckError(const String& msg) {
         const GLenum error = glGetError();
         if (error != GL_NO_ERROR) {
-            RenderException e;
-            e << "OpenGL error: " << error << " (" << glGetErrorMessage(error) << ") " << msg;
-            throw e;
+            throw RenderException("OpenGL error: " + std::to_string(error) + " (" + glGetErrorMessage(error) + ") " + msg);
         }
     }
 
@@ -76,7 +78,7 @@ namespace TrenchBroom {
         } else if (name == "GL_SRC_ALPHA_SATURATE") {
             return GL_SRC_ALPHA_SATURATE;
         } else {
-            throw RenderException() << "Unknown GL enum: " << name;
+            throw RenderException("Unknown GL enum: " + name);
         }
     }
 

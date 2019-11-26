@@ -20,13 +20,14 @@
 #ifndef EvaluationContext_h
 #define EvaluationContext_h
 
-#include "EL/Value.h"
 #include "Macros.h"
+#include "StringType.h"
 
 #include <memory>
 
 namespace TrenchBroom {
     namespace EL {
+        class Value;
         class VariableStore;
 
         class EvaluationContext {

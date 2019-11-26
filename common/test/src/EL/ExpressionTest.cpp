@@ -22,7 +22,11 @@
 #include <cmath>
 
 #include "CollectionUtils.h"
-#include "EL.h"
+#include "EL/ELExceptions.h"
+#include "EL/EvaluationContext.h"
+#include "EL/Expression.h"
+#include "EL/Value.h"
+#include "EL/VariableStore.h"
 #include "IO/ELParser.h"
 
 namespace TrenchBroom {
@@ -39,7 +43,7 @@ namespace TrenchBroom {
         template <typename T, typename S>
         void evaluateAndAssert(const String& expression, const T& result, const String& n1, const S& v1) {
             VariableTable table;
-            table.declare(n1);
+            table.declare(n1, Value::Undefined);
             table.assign(n1, Value(v1));
             evaluateAndAssert(expression, result, EvaluationContext(table));
         }

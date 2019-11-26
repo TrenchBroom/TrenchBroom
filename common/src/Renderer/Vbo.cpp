@@ -86,9 +86,7 @@ namespace TrenchBroom {
             assert(checkBlockChain());
 
             if (!active()) {
-                VboException e;
-                e << "Vbo is inactive";
-                throw e;
+                throw VboException("Vbo is inactive");
             }
 
             auto it = findFreeBlock(capacity);
@@ -154,14 +152,14 @@ namespace TrenchBroom {
         void Vbo::enqueueBlockForFreeing(VboBlock* block) {
             m_blocksPendingFree.push_back(block);
         }
-        
+
         void Vbo::freePendingBlocks() {
             for (VboBlock* block : m_blocksPendingFree) {
                 freeBlock(block);
             }
             m_blocksPendingFree.clear();
         }
-        
+
         void Vbo::freeBlock(VboBlock* block) {
             ensure(block != nullptr, "block is null");
             assert(!block->isFree());

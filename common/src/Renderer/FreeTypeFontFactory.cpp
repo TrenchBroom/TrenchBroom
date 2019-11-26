@@ -20,13 +20,13 @@
 #include "FreeTypeFontFactory.h"
 
 #include "Exceptions.h"
-#include "IO/Path.h"
 #include "IO/SystemPaths.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontTexture.h"
 #include "Renderer/TextureFont.h"
 
 #include <algorithm>
+#include <string>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -35,10 +35,7 @@ namespace TrenchBroom {
             FT_Error error = FT_Init_FreeType(&m_library);
             if (error != 0) {
                 m_library = nullptr;
-
-                RenderException e;
-                e << "Error initializing FreeType: " << error;
-                throw e;
+                throw RenderException("Error initializing FreeType: " + std::to_string(error));
             }
         }
 
@@ -63,9 +60,7 @@ namespace TrenchBroom {
             FT_Face face;
             const FT_Error error = FT_New_Face(m_library, fontPath.asString().c_str(), 0, &face);
             if (error != 0) {
-                RenderException e;
-                e << "Error loading font '" << fontDescriptor.name() << "': " << error;
-                throw e;
+                throw RenderException("Error loading font '" + fontDescriptor.name() + "': " + std::to_string(error));
             }
 
             const auto fontSize = static_cast<FT_UInt>(fontDescriptor.size());

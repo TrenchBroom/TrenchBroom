@@ -23,6 +23,7 @@
 #include "Exceptions.h"
 #include <vecmath/scalar.h>
 #include <vecmath/bbox.h>
+#include <vecmath/bbox_io.h>
 #include <vecmath/ray.h>
 #include <vecmath/intersection.h>
 
@@ -495,13 +496,11 @@ public:
      * @throws NodeTreeException if a node with the given data already exists in this tree, or the bounds contains NaN
      */
     void insert(const Box& bounds, const U& data) {
-        check(bounds, data);
+        check(bounds);
 
         // Check that the data isn't already inserted
         if (m_leafForData.find(data) != m_leafForData.end()) {
-            NodeTreeException ex;
-            ex << "data already in tree: " << data;
-            throw ex;
+            throw NodeTreeException("Data already in tree");
         }
 
         if (empty()) {
@@ -547,21 +546,17 @@ public:
      * @throws NodeTreeException if no node with the given data can be found in this tree
      */
     void update(const Box& newBounds, const U& data) {
-        check(newBounds, data);
+        check(newBounds);
 
         if (!remove(data)) {
-            NodeTreeException ex;
-            ex << "AABB node not found: " << data;
-            throw ex;
+            throw NodeTreeException("AABB node not found");
         }
         insert(newBounds, data);
     }
 private:
-    void check(const Box& bounds, const U& data) const {
+    void check(const Box& bounds) const {
         if (vm::is_nan(bounds.min) || vm::is_nan(bounds.max)) {
-            NodeTreeException ex;
-            ex << "Cannot add node to AABB with invalid bounds [ ( " << bounds.min << " ) ( " << bounds.max << " ) ]: " << data;
-            throw ex;
+            throw NodeTreeException("Cannot add node to AABB tree with invalid bounds");
         }
     }
 public:

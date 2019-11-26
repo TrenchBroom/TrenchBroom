@@ -21,7 +21,6 @@
 
 #include "Exceptions.h"
 #include "Assets/Texture.h"
-#include "Assets/Palette.h"
 #include "IO/FileSystem.h"
 #include "IO/FileMatcher.h"
 #include "IO/Path.h"
@@ -31,6 +30,8 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/GLVertex.h"
 #include "StringUtils.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -239,10 +240,10 @@ namespace TrenchBroom {
             const int version = reader.readInt<int32_t>();
 
             if (ident != DkmLayout::Ident) {
-                throw AssetException() << "Unknown DKM model ident: " << ident;
+                throw AssetException("Unknown DKM model ident: " + std::to_string(ident));
             }
             if (version != DkmLayout::Version1 && version != DkmLayout::Version2) {
-                throw AssetException() << "Unknown DKM model version: " << version;
+                throw AssetException("Unknown DKM model version: " + std::to_string(version));
             }
 
             /* const auto origin = */ reader.readVec<float,3>();
@@ -276,10 +277,10 @@ namespace TrenchBroom {
             const int version = reader.readInt<int32_t>();
 
             if (ident != DkmLayout::Ident) {
-                throw AssetException() << "Unknown DKM model ident: " << ident;
+                throw AssetException("Unknown DKM model ident: " + std::to_string(ident));
             }
             if (version != DkmLayout::Version1 && version != DkmLayout::Version2) {
-                throw AssetException() << "Unknown DKM model version: " << version;
+                throw AssetException("Unknown DKM model version: " + std::to_string(version));
             }
 
             /* const auto origin = */ reader.readVec<float,3>();

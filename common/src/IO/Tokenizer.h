@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_Tokenizer_h
 #define TrenchBroom_Tokenizer_h
 
-#include "Exceptions.h"
 #include "Token.h"
 #include "SharedPointer.h"
 

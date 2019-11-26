@@ -38,30 +38,30 @@ namespace TrenchBroom {
             return str.str();
         }
 
-        const BooleanType& ValueHolder::booleanValue() const { throw DereferenceError(describe(), type(), Type_Boolean); }
-        const StringType&  ValueHolder::stringValue()  const { throw DereferenceError(describe(), type(), Type_String); }
-        const NumberType&  ValueHolder::numberValue()  const { throw DereferenceError(describe(), type(), Type_Number); }
+        const BooleanType& ValueHolder::booleanValue() const { throw DereferenceError(describe(), type(), ValueType::Boolean); }
+        const StringType&  ValueHolder::stringValue()  const { throw DereferenceError(describe(), type(), ValueType::String); }
+        const NumberType&  ValueHolder::numberValue()  const { throw DereferenceError(describe(), type(), ValueType::Number); }
               IntegerType  ValueHolder::integerValue() const { return static_cast<IntegerType>(numberValue()); }
-        const ArrayType&   ValueHolder::arrayValue()   const { throw DereferenceError(describe(), type(), Type_Array); }
-        const MapType&     ValueHolder::mapValue()     const { throw DereferenceError(describe(), type(), Type_Map); }
-        const RangeType&   ValueHolder::rangeValue()   const { throw DereferenceError(describe(), type(), Type_Range); }
+        const ArrayType&   ValueHolder::arrayValue()   const { throw DereferenceError(describe(), type(), ValueType::Array); }
+        const MapType&     ValueHolder::mapValue()     const { throw DereferenceError(describe(), type(), ValueType::Map); }
+        const RangeType&   ValueHolder::rangeValue()   const { throw DereferenceError(describe(), type(), ValueType::Range); }
 
         BooleanValueHolder::BooleanValueHolder(const BooleanType& value) : m_value(value) {}
-        ValueType BooleanValueHolder::type() const { return Type_Boolean; }
+        ValueType BooleanValueHolder::type() const { return ValueType::Boolean; }
         const BooleanType& BooleanValueHolder::booleanValue() const { return m_value; }
         size_t BooleanValueHolder::length() const { return 1; }
 
         bool BooleanValueHolder::convertibleTo(ValueType toType) const {
             switch (toType) {
-                case Type_Boolean:
-                case Type_String:
-                case Type_Number:
+                case ValueType::Boolean:
+                case ValueType::String:
+                case ValueType::Number:
                     return true;
-                case Type_Array:
-                case Type_Map:
-                case Type_Range:
-                case Type_Undefined:
-                case Type_Null:
+                case ValueType::Array:
+                case ValueType::Map:
+                case ValueType::Range:
+                case ValueType::Undefined:
+                case ValueType::Null:
                     break;
             }
 
@@ -70,17 +70,17 @@ namespace TrenchBroom {
 
         ValueHolder* BooleanValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
-                case Type_Boolean:
+                case ValueType::Boolean:
                     return new BooleanValueHolder(m_value);
-                case Type_String:
+                case ValueType::String:
                     return new StringValueHolder(m_value ? "true" : "false" );
-                case Type_Number:
+                case ValueType::Number:
                     return new NumberValueHolder(m_value ? 1.0 : 0.0);
-                case Type_Array:
-                case Type_Map:
-                case Type_Range:
-                case Type_Undefined:
-                case Type_Null:
+                case ValueType::Array:
+                case ValueType::Map:
+                case ValueType::Range:
+                case ValueType::Undefined:
+                case ValueType::Null:
                     break;
             }
 
@@ -91,16 +91,16 @@ namespace TrenchBroom {
         void BooleanValueHolder::appendToStream(std::ostream& str, const bool /* multiline */, const String& /* indent */) const { str << (m_value ? "true" : "false"); }
 
         StringHolder::~StringHolder() {}
-        ValueType StringHolder::type() const { return Type_String; }
+        ValueType StringHolder::type() const { return ValueType::String; }
         const StringType& StringHolder::stringValue() const { return doGetValue(); }
         size_t StringHolder::length() const { return doGetValue().length(); }
 
         bool StringHolder::convertibleTo(const ValueType toType) const {
             switch (toType) {
-                case Type_Boolean:
-                case Type_String:
+                case ValueType::Boolean:
+                case ValueType::String:
                     return true;
-                case Type_Number: {
+                case ValueType::Number: {
                     if (StringUtils::isBlank(doGetValue()))
                         return true;
                     const char* begin = doGetValue().c_str();
@@ -110,11 +110,11 @@ namespace TrenchBroom {
                         return false;
                     return true;
                 }
-                case Type_Array:
-                case Type_Map:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Array:
+                case ValueType::Map:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -123,11 +123,11 @@ namespace TrenchBroom {
 
         ValueHolder* StringHolder::convertTo(const ValueType toType) const {
             switch (toType) {
-                case Type_Boolean:
+                case ValueType::Boolean:
                     return new BooleanValueHolder(!StringUtils::caseSensitiveEqual(doGetValue(), "false") && !doGetValue().empty());
-                case Type_String:
+                case ValueType::String:
                     return new StringValueHolder(doGetValue());
-                case Type_Number: {
+                case ValueType::Number: {
                     if (StringUtils::isBlank(doGetValue()))
                         return new NumberValueHolder(0.0);
                     const char* begin = doGetValue().c_str();
@@ -137,11 +137,11 @@ namespace TrenchBroom {
                         throw ConversionError(describe(), type(), toType);
                     return new NumberValueHolder(value);
                 }
-                case Type_Array:
-                case Type_Map:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Array:
+                case ValueType::Map:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -168,21 +168,21 @@ namespace TrenchBroom {
 
 
         NumberValueHolder::NumberValueHolder(const NumberType& value) : m_value(value) {}
-        ValueType NumberValueHolder::type() const { return Type_Number; }
+        ValueType NumberValueHolder::type() const { return ValueType::Number; }
         const NumberType& NumberValueHolder::numberValue() const { return m_value; }
         size_t NumberValueHolder::length() const { return 1; }
 
         bool NumberValueHolder::convertibleTo(const ValueType toType) const {
             switch (toType) {
-                case Type_Boolean:
-                case Type_String:
-                case Type_Number:
+                case ValueType::Boolean:
+                case ValueType::String:
+                case ValueType::Number:
                     return true;
-                case Type_Array:
-                case Type_Map:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Array:
+                case ValueType::Map:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -191,17 +191,17 @@ namespace TrenchBroom {
 
         ValueHolder* NumberValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
-                case Type_Boolean:
+                case ValueType::Boolean:
                     return new BooleanValueHolder(m_value != 0.0);
-                case Type_String:
+                case ValueType::String:
                     return new StringValueHolder(describe());
-                case Type_Number:
+                case ValueType::Number:
                     return new NumberValueHolder(m_value);
-                case Type_Array:
-                case Type_Map:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Array:
+                case ValueType::Map:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -224,21 +224,21 @@ namespace TrenchBroom {
 
 
         ArrayValueHolder::ArrayValueHolder(const ArrayType& value) : m_value(value) {}
-        ValueType ArrayValueHolder::type() const { return Type_Array; }
+        ValueType ArrayValueHolder::type() const { return ValueType::Array; }
         const ArrayType& ArrayValueHolder::arrayValue() const { return m_value; }
         size_t ArrayValueHolder::length() const { return m_value.size(); }
 
         bool ArrayValueHolder::convertibleTo(const ValueType toType) const {
             switch (toType) {
-                case Type_Array:
+                case ValueType::Array:
                     return true;
-                case Type_Boolean:
-                case Type_String:
-                case Type_Number:
-                case Type_Map:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Boolean:
+                case ValueType::String:
+                case ValueType::Number:
+                case ValueType::Map:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -247,15 +247,15 @@ namespace TrenchBroom {
 
         ValueHolder* ArrayValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
-                case Type_Array:
+                case ValueType::Array:
                     return new ArrayValueHolder(m_value);
-                case Type_Boolean:
-                case Type_String:
-                case Type_Number:
-                case Type_Map:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Boolean:
+                case ValueType::String:
+                case ValueType::Number:
+                case ValueType::Map:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -295,21 +295,21 @@ namespace TrenchBroom {
 
 
         MapValueHolder::MapValueHolder(const MapType& value) : m_value(value) {}
-        ValueType MapValueHolder::type() const { return Type_Map; }
+        ValueType MapValueHolder::type() const { return ValueType::Map; }
         const MapType& MapValueHolder::mapValue() const { return m_value; }
         size_t MapValueHolder::length() const { return m_value.size(); }
 
         bool MapValueHolder::convertibleTo(const ValueType toType) const {
             switch (toType) {
-                case Type_Map:
+                case ValueType::Map:
                     return true;
-                case Type_Boolean:
-                case Type_String:
-                case Type_Number:
-                case Type_Array:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Boolean:
+                case ValueType::String:
+                case ValueType::Number:
+                case ValueType::Array:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -318,15 +318,15 @@ namespace TrenchBroom {
 
         ValueHolder* MapValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
-                case Type_Map:
+                case ValueType::Map:
                     return new MapValueHolder(m_value);
-                case Type_Boolean:
-                case Type_String:
-                case Type_Number:
-                case Type_Array:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Boolean:
+                case ValueType::String:
+                case ValueType::Number:
+                case ValueType::Array:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -368,21 +368,21 @@ namespace TrenchBroom {
 
 
         RangeValueHolder::RangeValueHolder(const RangeType& value) : m_value(value) {}
-        ValueType RangeValueHolder::type() const { return Type_Range; }
+        ValueType RangeValueHolder::type() const { return ValueType::Range; }
         const RangeType& RangeValueHolder::rangeValue() const { return m_value; }
         size_t RangeValueHolder::length() const { return m_value.size(); }
 
         bool RangeValueHolder::convertibleTo(const ValueType toType) const {
             switch (toType) {
-                case Type_Range:
+                case ValueType::Range:
                     return true;
-                case Type_Boolean:
-                case Type_String:
-                case Type_Number:
-                case Type_Array:
-                case Type_Map:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Boolean:
+                case ValueType::String:
+                case ValueType::Number:
+                case ValueType::Array:
+                case ValueType::Map:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -391,15 +391,15 @@ namespace TrenchBroom {
 
         ValueHolder* RangeValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
-                case Type_Range:
+                case ValueType::Range:
                     return new RangeValueHolder(m_value);
-                case Type_Boolean:
-                case Type_String:
-                case Type_Number:
-                case Type_Array:
-                case Type_Map:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Boolean:
+                case ValueType::String:
+                case ValueType::Number:
+                case ValueType::Array:
+                case ValueType::Map:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -419,7 +419,7 @@ namespace TrenchBroom {
         }
 
 
-        ValueType NullValueHolder::type() const { return Type_Null; }
+        ValueType NullValueHolder::type() const { return ValueType::Null; }
         size_t NullValueHolder::length() const { return 0; }
         const StringType& NullValueHolder::stringValue() const   { static const StringType result;         return result; }
         const BooleanType& NullValueHolder::booleanValue() const { static const BooleanType result(false); return result; }
@@ -429,15 +429,15 @@ namespace TrenchBroom {
 
         bool NullValueHolder::convertibleTo(const ValueType toType) const {
             switch (toType) {
-                case Type_Boolean:
-                case Type_Null:
-                case Type_Number:
-                case Type_String:
-                case Type_Array:
-                case Type_Map:
+                case ValueType::Boolean:
+                case ValueType::Null:
+                case ValueType::Number:
+                case ValueType::String:
+                case ValueType::Array:
+                case ValueType::Map:
                     return true;
-                case Type_Range:
-                case Type_Undefined:
+                case ValueType::Range:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -446,20 +446,20 @@ namespace TrenchBroom {
 
         ValueHolder* NullValueHolder::convertTo(const ValueType toType) const {
             switch (toType) {
-                case Type_Boolean:
+                case ValueType::Boolean:
                     return new BooleanValueHolder(false);
-                case Type_Null:
+                case ValueType::Null:
                     return new NullValueHolder();
-                case Type_Number:
+                case ValueType::Number:
                     return new NumberValueHolder(0.0);
-                case Type_String:
+                case ValueType::String:
                     return new StringValueHolder("");
-                case Type_Array:
+                case ValueType::Array:
                     return new ArrayValueHolder(ArrayType(0));
-                case Type_Map:
+                case ValueType::Map:
                     return new MapValueHolder(MapType());
-                case Type_Range:
-                case Type_Undefined:
+                case ValueType::Range:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -470,7 +470,7 @@ namespace TrenchBroom {
         void NullValueHolder::appendToStream(std::ostream& str, const bool /* multiline */, const String& /* indent */) const { str << "null"; }
 
 
-        ValueType UndefinedValueHolder::type() const { return Type_Undefined; }
+        ValueType UndefinedValueHolder::type() const { return ValueType::Undefined; }
         size_t UndefinedValueHolder::length() const { return 0; }
         bool UndefinedValueHolder::convertibleTo(const ValueType /* toType */) const { return false; }
         ValueHolder* UndefinedValueHolder::convertTo(const ValueType toType) const { throw ConversionError(describe(), type(), toType); }
@@ -575,11 +575,11 @@ namespace TrenchBroom {
         }
 
         bool Value::null() const {
-            return type() == Type_Null;
+            return type() == ValueType::Null;
         }
 
         bool Value::undefined() const {
-            return type() == Type_Undefined;
+            return type() == ValueType::Undefined;
         }
 
         const StringList Value::asStringList() const {
@@ -588,7 +588,7 @@ namespace TrenchBroom {
             result.reserve(array.size());
 
             std::transform(std::begin(array), std::end(array), std::back_inserter(result),
-                           [](const Value& entry) { return entry.convertTo(Type_String).stringValue(); });
+                           [](const Value& entry) { return entry.convertTo(ValueType::String).stringValue(); });
 
             return result;
         }
@@ -598,7 +598,7 @@ namespace TrenchBroom {
             StringSet result;
 
             std::transform(std::begin(array), std::end(array), std::inserter(result, result.begin()),
-                           [](const Value& entry) { return entry.convertTo(Type_String).stringValue(); });
+                           [](const Value& entry) { return entry.convertTo(ValueType::String).stringValue(); });
 
             return result;
         }
@@ -636,15 +636,15 @@ namespace TrenchBroom {
 
         bool Value::contains(const Value& indexValue) const {
             switch (type()) {
-                case Type_String: {
+                case ValueType::String: {
                     switch (indexValue.type()) {
-                        case Type_Boolean:
-                        case Type_Number: {
+                        case ValueType::Boolean:
+                        case ValueType::Number: {
                             const size_t index = computeIndex(indexValue, length());
                             return index < length();
                         }
-                        case Type_Array:
-                        case Type_Range: {
+                        case ValueType::Array:
+                        case ValueType::Range: {
                             const IndexList indices = computeIndexArray(indexValue, length());
                             for (size_t i = 0; i < indices.size(); ++i) {
                                 const size_t index = indices[i];
@@ -653,23 +653,23 @@ namespace TrenchBroom {
                             }
                             return true;
                         }
-                        case Type_String:
-                        case Type_Map:
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::String:
+                        case ValueType::Map:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             break;
                     }
                     break;
                 }
-                case Type_Array:
+                case ValueType::Array:
                     switch (indexValue.type()) {
-                        case Type_Boolean:
-                        case Type_Number: {
+                        case ValueType::Boolean:
+                        case ValueType::Number: {
                             const size_t index = computeIndex(indexValue, length());
                             return index < length();
                         }
-                        case Type_Array:
-                        case Type_Range: {
+                        case ValueType::Array:
+                        case ValueType::Range: {
                             const IndexList indices = computeIndexArray(indexValue, length());
                             for (size_t i = 0; i < indices.size(); ++i) {
                                 const size_t index = indices[i];
@@ -678,28 +678,28 @@ namespace TrenchBroom {
                             }
                             return true;
                         }
-                        case Type_String:
-                        case Type_Map:
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::String:
+                        case ValueType::Map:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             break;
                     }
                     break;
-                case Type_Map:
+                case ValueType::Map:
                     switch (indexValue.type()) {
-                        case Type_String: {
+                        case ValueType::String: {
                             const MapType& map = mapValue();
                             const String& key = indexValue.stringValue();
                             const MapType::const_iterator it = map.find(key);
                             return it != std::end(map);
                         }
-                        case Type_Array: {
+                        case ValueType::Array: {
                             const MapType& map = mapValue();
                             const ArrayType& keys = indexValue.arrayValue();
                             for (size_t i = 0; i < keys.size(); ++i) {
                                 const Value& keyValue = keys[i];
-                                if (keyValue.type() != Type_String)
-                                    throw ConversionError(keyValue.describe(), keyValue.type(), Type_String);
+                                if (keyValue.type() != ValueType::String)
+                                    throw ConversionError(keyValue.describe(), keyValue.type(), ValueType::String);
                                 const String& key = keyValue.stringValue();
                                 const MapType::const_iterator it = map.find(key);
                                 if (it == std::end(map))
@@ -707,20 +707,20 @@ namespace TrenchBroom {
                             }
                             return true;
                         }
-                        case Type_Boolean:
-                        case Type_Number:
-                        case Type_Map:
-                        case Type_Range:
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::Boolean:
+                        case ValueType::Number:
+                        case ValueType::Map:
+                        case ValueType::Range:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             break;
                     }
                     break;
-                case Type_Boolean:
-                case Type_Number:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Boolean:
+                case ValueType::Number:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
             return false;
@@ -728,15 +728,15 @@ namespace TrenchBroom {
 
         bool Value::contains(const size_t index) const {
             switch (type()) {
-                case Type_String:
-                case Type_Array:
+                case ValueType::String:
+                case ValueType::Array:
                     return index < length();
-                case Type_Map:
-                case Type_Boolean:
-                case Type_Number:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Map:
+                case ValueType::Boolean:
+                case ValueType::Number:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
             return false;
@@ -754,10 +754,10 @@ namespace TrenchBroom {
 
         Value Value::operator[](const Value& indexValue) const {
             switch (type()) {
-                case Type_String:
+                case ValueType::String:
                     switch (indexValue.type()) {
-                        case Type_Boolean:
-                        case Type_Number: {
+                        case ValueType::Boolean:
+                        case ValueType::Number: {
                             const StringType& str = stringValue();
                             const size_t index = computeIndex(indexValue, str.length());
                             StringStream result;
@@ -765,8 +765,8 @@ namespace TrenchBroom {
                                 result << str[index];
                             return Value(result.str(), m_line, m_column);
                         }
-                        case Type_Array:
-                        case Type_Range: {
+                        case ValueType::Array:
+                        case ValueType::Range: {
                             const StringType& str = stringValue();
                             const IndexList indices = computeIndexArray(indexValue, str.length());
                             StringStream result;
@@ -777,25 +777,25 @@ namespace TrenchBroom {
                             }
                             return Value(result.str(), m_line, m_column);
                         }
-                        case Type_String:
-                        case Type_Map:
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::String:
+                        case ValueType::Map:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             break;
                     }
                     break;
-                case Type_Array:
+                case ValueType::Array:
                     switch (indexValue.type()) {
-                        case Type_Boolean:
-                        case Type_Number: {
+                        case ValueType::Boolean:
+                        case ValueType::Number: {
                             const ArrayType& array = arrayValue();
                             const size_t index = computeIndex(indexValue, array.size());
                             if (index >= array.size())
                                 throw IndexOutOfBoundsError(*this, indexValue, index);
                             return array[index];
                         }
-                        case Type_Array:
-                        case Type_Range: {
+                        case ValueType::Array:
+                        case ValueType::Range: {
                             const ArrayType& array = arrayValue();
                             const IndexList indices = computeIndexArray(indexValue, array.size());
                             ArrayType result;
@@ -808,16 +808,16 @@ namespace TrenchBroom {
                             }
                             return Value(result, m_line, m_column);
                         }
-                        case Type_String:
-                        case Type_Map:
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::String:
+                        case ValueType::Map:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             break;
                     }
                     break;
-                case Type_Map:
+                case ValueType::Map:
                     switch (indexValue.type()) {
-                        case Type_String: {
+                        case ValueType::String: {
                             const MapType& map = mapValue();
                             const String& key = indexValue.stringValue();
                             const MapType::const_iterator it = map.find(key);
@@ -825,14 +825,14 @@ namespace TrenchBroom {
                                 return Value::Undefined;
                             return it->second;
                         }
-                        case Type_Array: {
+                        case ValueType::Array: {
                             const MapType& map = mapValue();
                             const ArrayType& keys = indexValue.arrayValue();
                             MapType result;
                             for (size_t i = 0; i < keys.size(); ++i) {
                                 const Value& keyValue = keys[i];
-                                if (keyValue.type() != Type_String)
-                                    throw ConversionError(keyValue.describe(), keyValue.type(), Type_String);
+                                if (keyValue.type() != ValueType::String)
+                                    throw ConversionError(keyValue.describe(), keyValue.type(), ValueType::String);
                                 const String& key = keyValue.stringValue();
                                 const MapType::const_iterator it = map.find(key);
                                 if (it != std::end(map))
@@ -840,20 +840,20 @@ namespace TrenchBroom {
                             }
                             return Value(result, m_line, m_column);
                         }
-                        case Type_Boolean:
-                        case Type_Number:
-                        case Type_Map:
-                        case Type_Range:
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::Boolean:
+                        case ValueType::Number:
+                        case ValueType::Map:
+                        case ValueType::Range:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             break;
                     }
                     break;
-                case Type_Boolean:
-                case Type_Number:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Boolean:
+                case ValueType::Number:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -862,25 +862,25 @@ namespace TrenchBroom {
 
         Value Value::operator[](const size_t index) const {
             switch (type()) {
-                case Type_String: {
+                case ValueType::String: {
                     const StringType& str = stringValue();
                     StringStream result;
                     if (index < str.length())
                         result << str[index];
                     return Value(result.str());
                 }
-                case Type_Array: {
+                case ValueType::Array: {
                     const ArrayType& array = arrayValue();
                     if (index >= array.size())
                         throw IndexOutOfBoundsError(*this, index);
                     return array[index];
                 }
-                case Type_Map:
-                case Type_Boolean:
-                case Type_Number:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Map:
+                case ValueType::Boolean:
+                case ValueType::Number:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -898,20 +898,20 @@ namespace TrenchBroom {
 
         Value Value::operator[](const char* key) const {
             switch (type()) {
-                case Type_Map: {
+                case ValueType::Map: {
                     const MapType& map = mapValue();
                     const MapType::const_iterator it = map.find(key);
                     if (it == std::end(map))
                         return Value::Null;
                     return it->second;
                 }
-                case Type_String:
-                case Type_Array:
-                case Type_Boolean:
-                case Type_Number:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::String:
+                case ValueType::Array:
+                case ValueType::Boolean:
+                case ValueType::Number:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -926,33 +926,33 @@ namespace TrenchBroom {
 
         void Value::computeIndexArray(const Value& indexValue, const size_t indexableSize, IndexList& result) const {
             switch (indexValue.type()) {
-                case Type_Array: {
+                case ValueType::Array: {
                     const ArrayType& indexArray = indexValue.arrayValue();
                     result.reserve(result.size() + indexArray.size());
                     for (size_t i = 0; i < indexArray.size(); ++i)
                         computeIndexArray(indexArray[i], indexableSize, result);
                     break;
                 }
-                case Type_Range: {
+                case ValueType::Range: {
                     const RangeType& range = indexValue.rangeValue();
                     result.reserve(result.size() + range.size());
                     for (size_t i = 0; i < range.size(); ++i)
                         result.push_back(computeIndex(range[i], indexableSize));
                     break;
                 }
-                case Type_Boolean:
-                case Type_Number:
-                case Type_String:
-                case Type_Map:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Boolean:
+                case ValueType::Number:
+                case ValueType::String:
+                case ValueType::Map:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     result.push_back(computeIndex(indexValue, indexableSize));
                     break;
             }
         }
 
         size_t Value::computeIndex(const Value& indexValue, const size_t indexableSize) const {
-            return computeIndex(static_cast<long>(indexValue.convertTo(Type_Number).numberValue()), indexableSize);
+            return computeIndex(static_cast<long>(indexValue.convertTo(ValueType::Number).numberValue()), indexableSize);
         }
 
         size_t Value::computeIndex(const long index, const size_t indexableSize) const {
@@ -965,15 +965,15 @@ namespace TrenchBroom {
 
         Value Value::operator+() const {
             switch (type()) {
-                case Type_Boolean:
-                case Type_Number:
-                    return Value(convertTo(Type_Number).numberValue());
-                case Type_String:
-                case Type_Array:
-                case Type_Map:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Boolean:
+                case ValueType::Number:
+                    return Value(convertTo(ValueType::Number).numberValue());
+                case ValueType::String:
+                case ValueType::Array:
+                case ValueType::Map:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
             throw EvaluationError("Cannot apply unary plus to value '" + describe() + "' of type '" + typeName());
@@ -981,15 +981,15 @@ namespace TrenchBroom {
 
         Value Value::operator-() const {
             switch (type()) {
-                case Type_Boolean:
-                case Type_Number:
-                    return Value(-convertTo(Type_Number).numberValue());
-                case Type_String:
-                case Type_Array:
-                case Type_Map:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Boolean:
+                case ValueType::Number:
+                    return Value(-convertTo(ValueType::Number).numberValue());
+                case ValueType::String:
+                case ValueType::Array:
+                case ValueType::Map:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
             throw EvaluationError("Cannot negate value '" + describe() + "' of type '" + typeName());
@@ -997,66 +997,66 @@ namespace TrenchBroom {
 
         Value operator+(const Value& lhs, const Value& rhs) {
             switch (lhs.type()) {
-                case Type_Boolean:
-                case Type_Number:
+                case ValueType::Boolean:
+                case ValueType::Number:
                     switch (rhs.type()) {
-                        case Type_Boolean:
-                        case Type_Number:
-                            return Value(lhs.convertTo(Type_Number).numberValue() + rhs.convertTo(Type_Number).numberValue());
-                        case Type_String:
-                        case Type_Array:
-                        case Type_Map:
-                        case Type_Range:
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::Boolean:
+                        case ValueType::Number:
+                            return Value(lhs.convertTo(ValueType::Number).numberValue() + rhs.convertTo(ValueType::Number).numberValue());
+                        case ValueType::String:
+                        case ValueType::Array:
+                        case ValueType::Map:
+                        case ValueType::Range:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             break;
                     }
                     break;
-                case Type_String:
+                case ValueType::String:
                     switch (rhs.type()) {
-                        case Type_String:
-                            return Value(lhs.convertTo(Type_String).stringValue() + rhs.convertTo(Type_String).stringValue());
-                        case Type_Boolean:
-                        case Type_Number:
-                        case Type_Array:
-                        case Type_Map:
-                        case Type_Range:
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::String:
+                            return Value(lhs.convertTo(ValueType::String).stringValue() + rhs.convertTo(ValueType::String).stringValue());
+                        case ValueType::Boolean:
+                        case ValueType::Number:
+                        case ValueType::Array:
+                        case ValueType::Map:
+                        case ValueType::Range:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             break;
                     }
                     break;
-                case Type_Array:
+                case ValueType::Array:
                     switch (rhs.type()) {
-                        case Type_Array:
+                        case ValueType::Array:
                             return Value(VectorUtils::concatenate(lhs.arrayValue(), rhs.arrayValue()));
-                        case Type_Boolean:
-                        case Type_Number:
-                        case Type_String:
-                        case Type_Map:
-                        case Type_Range:
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::Boolean:
+                        case ValueType::Number:
+                        case ValueType::String:
+                        case ValueType::Map:
+                        case ValueType::Range:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             break;
                     }
                     break;
-                case Type_Map:
+                case ValueType::Map:
                     switch (rhs.type()) {
-                        case Type_Map:
+                        case ValueType::Map:
                             return Value(MapUtils::concatenate(lhs.mapValue(), rhs.mapValue()));
-                        case Type_Boolean:
-                        case Type_Number:
-                        case Type_String:
-                        case Type_Array:
-                        case Type_Range:
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::Boolean:
+                        case ValueType::Number:
+                        case ValueType::String:
+                        case ValueType::Array:
+                        case ValueType::Range:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             break;
                     }
                     break;
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -1065,27 +1065,27 @@ namespace TrenchBroom {
 
         Value operator-(const Value& lhs, const Value& rhs) {
             switch (lhs.type()) {
-                case Type_Boolean:
-                case Type_Number:
+                case ValueType::Boolean:
+                case ValueType::Number:
                     switch (rhs.type()) {
-                        case Type_Boolean:
-                        case Type_Number:
-                            return Value(lhs.convertTo(Type_Number).numberValue() - rhs.convertTo(Type_Number).numberValue());
-                        case Type_String:
-                        case Type_Array:
-                        case Type_Map:
-                        case Type_Range:
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::Boolean:
+                        case ValueType::Number:
+                            return Value(lhs.convertTo(ValueType::Number).numberValue() - rhs.convertTo(ValueType::Number).numberValue());
+                        case ValueType::String:
+                        case ValueType::Array:
+                        case ValueType::Map:
+                        case ValueType::Range:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             break;
                     }
                     break;
-                case Type_String:
-                case Type_Array:
-                case Type_Map:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::String:
+                case ValueType::Array:
+                case ValueType::Map:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -1094,27 +1094,27 @@ namespace TrenchBroom {
 
         Value operator*(const Value& lhs, const Value& rhs) {
             switch (lhs.type()) {
-                case Type_Boolean:
-                case Type_Number:
+                case ValueType::Boolean:
+                case ValueType::Number:
                     switch (rhs.type()) {
-                        case Type_Boolean:
-                        case Type_Number:
-                            return Value(lhs.convertTo(Type_Number).numberValue() * rhs.convertTo(Type_Number).numberValue());
-                        case Type_String:
-                        case Type_Array:
-                        case Type_Map:
-                        case Type_Range:
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::Boolean:
+                        case ValueType::Number:
+                            return Value(lhs.convertTo(ValueType::Number).numberValue() * rhs.convertTo(ValueType::Number).numberValue());
+                        case ValueType::String:
+                        case ValueType::Array:
+                        case ValueType::Map:
+                        case ValueType::Range:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             break;
                     }
                     break;
-                case Type_String:
-                case Type_Array:
-                case Type_Map:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::String:
+                case ValueType::Array:
+                case ValueType::Map:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -1123,27 +1123,27 @@ namespace TrenchBroom {
 
         Value operator/(const Value& lhs, const Value& rhs) {
             switch (lhs.type()) {
-                case Type_Boolean:
-                case Type_Number:
+                case ValueType::Boolean:
+                case ValueType::Number:
                     switch (rhs.type()) {
-                        case Type_Boolean:
-                        case Type_Number:
-                            return Value(lhs.convertTo(Type_Number).numberValue() / rhs.convertTo(Type_Number).numberValue());
-                        case Type_String:
-                        case Type_Array:
-                        case Type_Map:
-                        case Type_Range:
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::Boolean:
+                        case ValueType::Number:
+                            return Value(lhs.convertTo(ValueType::Number).numberValue() / rhs.convertTo(ValueType::Number).numberValue());
+                        case ValueType::String:
+                        case ValueType::Array:
+                        case ValueType::Map:
+                        case ValueType::Range:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             break;
                     }
                     break;
-                case Type_String:
-                case Type_Array:
-                case Type_Map:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::String:
+                case ValueType::Array:
+                case ValueType::Map:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -1152,27 +1152,27 @@ namespace TrenchBroom {
 
         Value operator%(const Value& lhs, const Value& rhs) {
             switch (lhs.type()) {
-                case Type_Boolean:
-                case Type_Number:
+                case ValueType::Boolean:
+                case ValueType::Number:
                     switch (rhs.type()) {
-                        case Type_Boolean:
-                        case Type_Number:
-                            return Value(std::fmod(lhs.convertTo(Type_Number).numberValue(), rhs.convertTo(Type_Number).numberValue()));
-                        case Type_String:
-                        case Type_Array:
-                        case Type_Map:
-                        case Type_Range:
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::Boolean:
+                        case ValueType::Number:
+                            return Value(std::fmod(lhs.convertTo(ValueType::Number).numberValue(), rhs.convertTo(ValueType::Number).numberValue()));
+                        case ValueType::String:
+                        case ValueType::Array:
+                        case ValueType::Map:
+                        case ValueType::Range:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             break;
                     }
                     break;
-                case Type_String:
-                case Type_Array:
-                case Type_Map:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::String:
+                case ValueType::Array:
+                case ValueType::Map:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
 
@@ -1181,34 +1181,34 @@ namespace TrenchBroom {
 
         Value::operator bool() const {
             switch (type()) {
-                case Type_Boolean:
+                case ValueType::Boolean:
                     return booleanValue();
-                case Type_Number:
-                case Type_String:
-                case Type_Array:
-                case Type_Map:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Number:
+                case ValueType::String:
+                case ValueType::Array:
+                case ValueType::Map:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
-            throw ConversionError(describe(), type(), Type_Boolean);
+            throw ConversionError(describe(), type(), ValueType::Boolean);
         }
 
         Value Value::operator!() const {
             switch (type()) {
-                case Type_Boolean:
+                case ValueType::Boolean:
                     return Value(!booleanValue());
-                case Type_Number:
-                case Type_String:
-                case Type_Array:
-                case Type_Map:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Number:
+                case ValueType::String:
+                case ValueType::Array:
+                case ValueType::Map:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
-            throw ConversionError(describe(), type(), Type_Boolean);
+            throw ConversionError(describe(), type(), ValueType::Boolean);
         }
 
         bool operator==(const Value& lhs, const Value& rhs) {
@@ -1237,104 +1237,104 @@ namespace TrenchBroom {
 
         int compare(const Value& lhs, const Value& rhs) {
             switch (lhs.type()) {
-                case Type_Boolean:
+                case ValueType::Boolean:
                     switch (rhs.type()) {
-                        case Type_Boolean:
-                        case Type_Number:
-                        case Type_String:
+                        case ValueType::Boolean:
+                        case ValueType::Number:
+                        case ValueType::String:
                             return compareAsBooleans(lhs, rhs);
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             return 1;
-                        case Type_Array:
-                        case Type_Map:
-                        case Type_Range:
+                        case ValueType::Array:
+                        case ValueType::Map:
+                        case ValueType::Range:
                             break;
                     }
                     break;
-                case Type_Number:
+                case ValueType::Number:
                     switch (rhs.type()) {
-                        case Type_Boolean:
+                        case ValueType::Boolean:
                             return compareAsBooleans(lhs, rhs);
-                        case Type_Number:
-                        case Type_String:
+                        case ValueType::Number:
+                        case ValueType::String:
                             return compareAsNumbers(lhs, rhs);
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             return 1;
-                        case Type_Array:
-                        case Type_Map:
-                        case Type_Range:
+                        case ValueType::Array:
+                        case ValueType::Map:
+                        case ValueType::Range:
                             break;
                     }
                     break;
-                case Type_String:
+                case ValueType::String:
                     switch (rhs.type()) {
-                        case Type_Boolean:
+                        case ValueType::Boolean:
                             return compareAsBooleans(lhs, rhs);
-                        case Type_Number:
+                        case ValueType::Number:
                             return compareAsNumbers(lhs, rhs);
-                        case Type_String:
-                            return lhs.stringValue().compare(rhs.convertTo(Type_String).stringValue());
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::String:
+                            return lhs.stringValue().compare(rhs.convertTo(ValueType::String).stringValue());
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             return 1;
-                        case Type_Array:
-                        case Type_Map:
-                        case Type_Range:
+                        case ValueType::Array:
+                        case ValueType::Map:
+                        case ValueType::Range:
                             break;
                     }
                     break;
-                case Type_Null:
-                    if (rhs.type() == Type_Null)
+                case ValueType::Null:
+                    if (rhs.type() == ValueType::Null)
                         return 0;
                     return -1;
-                case Type_Undefined:
-                    if (rhs.type() == Type_Undefined)
+                case ValueType::Undefined:
+                    if (rhs.type() == ValueType::Undefined)
                         return 0;
                     return -1;
-                case Type_Array:
+                case ValueType::Array:
                     switch (rhs.type()) {
-                        case Type_Array:
+                        case ValueType::Array:
                             return VectorUtils::compare(lhs.arrayValue(), rhs.arrayValue());
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             return 1;
-                        case Type_Boolean:
-                        case Type_Number:
-                        case Type_String:
-                        case Type_Map:
-                        case Type_Range:
+                        case ValueType::Boolean:
+                        case ValueType::Number:
+                        case ValueType::String:
+                        case ValueType::Map:
+                        case ValueType::Range:
                             break;
                     }
                     break;
-                case Type_Map:
+                case ValueType::Map:
                     switch (rhs.type()) {
-                        case Type_Map:
+                        case ValueType::Map:
                             return MapUtils::compare(lhs.mapValue(), rhs.mapValue());
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             return 1;
-                        case Type_Boolean:
-                        case Type_Number:
-                        case Type_String:
-                        case Type_Array:
-                        case Type_Range:
+                        case ValueType::Boolean:
+                        case ValueType::Number:
+                        case ValueType::String:
+                        case ValueType::Array:
+                        case ValueType::Range:
                             break;
                     }
                     break;
-                case Type_Range:
+                case ValueType::Range:
                     switch (rhs.type()) {
-                        case Type_Range:
+                        case ValueType::Range:
                             return VectorUtils::compare(lhs.rangeValue(), rhs.rangeValue());
-                        case Type_Null:
-                        case Type_Undefined:
+                        case ValueType::Null:
+                        case ValueType::Undefined:
                             return 1;
-                        case Type_Boolean:
-                        case Type_Number:
-                        case Type_String:
-                        case Type_Array:
-                        case Type_Map:
+                        case ValueType::Boolean:
+                        case ValueType::Number:
+                        case ValueType::String:
+                        case ValueType::Array:
+                        case ValueType::Map:
                             break;
                     }
                     break;
@@ -1343,8 +1343,8 @@ namespace TrenchBroom {
         }
 
         int compareAsBooleans(const Value& lhs, const Value& rhs) {
-            const bool lhsValue = lhs.convertTo(Type_Boolean).booleanValue();
-            const bool rhsValue = rhs.convertTo(Type_Boolean).booleanValue();
+            const bool lhsValue = lhs.convertTo(ValueType::Boolean).booleanValue();
+            const bool rhsValue = rhs.convertTo(ValueType::Boolean).booleanValue();
             if (lhsValue == rhsValue)
                 return 0;
             if (lhsValue)
@@ -1353,7 +1353,7 @@ namespace TrenchBroom {
         }
 
         int compareAsNumbers(const Value& lhs, const Value& rhs) {
-            const NumberType diff = lhs.convertTo(Type_Number).numberValue() - rhs.convertTo(Type_Number).numberValue();
+            const NumberType diff = lhs.convertTo(ValueType::Number).numberValue() - rhs.convertTo(ValueType::Number).numberValue();
             if (diff < 0.0)
                 return -1;
             else if (diff > 0.0)
@@ -1363,60 +1363,60 @@ namespace TrenchBroom {
 
         Value Value::operator~() const {
             switch (type()) {
-                case Type_Number:
+                case ValueType::Number:
                     return Value(~integerValue());
-                case Type_Boolean:
-                case Type_String:
-                case Type_Array:
-                case Type_Map:
-                case Type_Range:
-                case Type_Null:
-                case Type_Undefined:
+                case ValueType::Boolean:
+                case ValueType::String:
+                case ValueType::Array:
+                case ValueType::Map:
+                case ValueType::Range:
+                case ValueType::Null:
+                case ValueType::Undefined:
                     break;
             }
-            throw ConversionError(describe(), type(), Type_Boolean);
+            throw ConversionError(describe(), type(), ValueType::Boolean);
         }
 
         Value operator&(const Value& lhs, const Value& rhs) {
-            if (lhs.convertibleTo(Type_Number) && rhs.convertibleTo(Type_Number)) {
-                const IntegerType lhsInt = lhs.convertTo(Type_Number).integerValue();
-                const IntegerType rhsInt = rhs.convertTo(Type_Number).integerValue();
+            if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number)) {
+                const IntegerType lhsInt = lhs.convertTo(ValueType::Number).integerValue();
+                const IntegerType rhsInt = rhs.convertTo(ValueType::Number).integerValue();
                 return Value(lhsInt & rhsInt);
             }
             throw EvaluationError("Cannot apply operator & to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
 
         Value operator|(const Value& lhs, const Value& rhs) {
-            if (lhs.convertibleTo(Type_Number) && rhs.convertibleTo(Type_Number)) {
-                const IntegerType lhsInt = lhs.convertTo(Type_Number).integerValue();
-                const IntegerType rhsInt = rhs.convertTo(Type_Number).integerValue();
+            if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number)) {
+                const IntegerType lhsInt = lhs.convertTo(ValueType::Number).integerValue();
+                const IntegerType rhsInt = rhs.convertTo(ValueType::Number).integerValue();
                 return Value(lhsInt | rhsInt);
             }
             throw EvaluationError("Cannot apply operator | to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
 
         Value operator^(const Value& lhs, const Value& rhs) {
-            if (lhs.convertibleTo(Type_Number) && rhs.convertibleTo(Type_Number)) {
-                const IntegerType lhsInt = lhs.convertTo(Type_Number).integerValue();
-                const IntegerType rhsInt = rhs.convertTo(Type_Number).integerValue();
+            if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number)) {
+                const IntegerType lhsInt = lhs.convertTo(ValueType::Number).integerValue();
+                const IntegerType rhsInt = rhs.convertTo(ValueType::Number).integerValue();
                 return Value(lhsInt ^ rhsInt);
             }
             throw EvaluationError("Cannot apply operator ^ to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
 
         Value operator<<(const Value& lhs, const Value& rhs) {
-            if (lhs.convertibleTo(Type_Number) && rhs.convertibleTo(Type_Number)) {
-                const IntegerType lhsInt = lhs.convertTo(Type_Number).integerValue();
-                const IntegerType rhsInt = rhs.convertTo(Type_Number).integerValue();
+            if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number)) {
+                const IntegerType lhsInt = lhs.convertTo(ValueType::Number).integerValue();
+                const IntegerType rhsInt = rhs.convertTo(ValueType::Number).integerValue();
                 return Value(lhsInt << rhsInt);
             }
             throw EvaluationError("Cannot apply operator << to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");
         }
 
         Value operator>>(const Value& lhs, const Value& rhs) {
-            if (lhs.convertibleTo(Type_Number) && rhs.convertibleTo(Type_Number)) {
-                const IntegerType lhsInt = lhs.convertTo(Type_Number).integerValue();
-                const IntegerType rhsInt = rhs.convertTo(Type_Number).integerValue();
+            if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number)) {
+                const IntegerType lhsInt = lhs.convertTo(ValueType::Number).integerValue();
+                const IntegerType rhsInt = rhs.convertTo(ValueType::Number).integerValue();
                 return Value(lhsInt >> rhsInt);
             }
             throw EvaluationError("Cannot apply operator >> to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'");

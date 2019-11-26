@@ -22,6 +22,9 @@
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
+
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>

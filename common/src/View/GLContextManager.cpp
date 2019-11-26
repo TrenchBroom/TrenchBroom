@@ -19,10 +19,13 @@
 
 #include "GLContextManager.h"
 
+#include "Exceptions.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/GL.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Vbo.h"
+
+#include <sstream>
 
 namespace TrenchBroom {
     namespace View {
@@ -47,9 +50,9 @@ namespace TrenchBroom {
             glewExperimental = GL_TRUE;
             const GLenum glewState = glewInit();
             if (glewState != GLEW_OK) {
-                RenderException e;
-                e << "Error initializing glew: " << glewGetErrorString(glewState);
-                throw e;
+                auto str = std::stringstream();
+                str << "Error initializing glew: " << glewGetErrorString(glewState);
+                throw RenderException(str.str());
             }
         }
 

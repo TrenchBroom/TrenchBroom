@@ -19,6 +19,7 @@
 
 #include "EvaluationContext.h"
 
+#include "EL/Value.h"
 #include "EL/VariableStore.h"
 
 namespace TrenchBroom {

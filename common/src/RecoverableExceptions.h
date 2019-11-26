@@ -24,12 +24,13 @@
 
 #include "IO/Path.h"
 
+#include <string>
 #include <string_view>
 
 namespace TrenchBroom {
     class RecoverableException : public Exception {
     protected:
-        RecoverableException(const std::string& str);
+        using Exception::Exception;
     public:
         virtual std::string_view query() const = 0;
         virtual void recover() const = 0;
@@ -39,7 +40,7 @@ namespace TrenchBroom {
     private:
         IO::Path m_path;
     public:
-        FileDeletingException(const std::string& str, const IO::Path& path) noexcept;
+        FileDeletingException(std::string&& str, const IO::Path& path);
 
         std::string_view query() const override;
         void recover() const override;

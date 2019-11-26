@@ -29,9 +29,9 @@
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/vec.h>
 
 #include <functional>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -328,7 +328,7 @@ namespace TrenchBroom {
             const auto token = m_tokenizer.peekToken();
             const auto index = parseSizeArgument();
             if (index >= faces.size()) {
-                throw ParserException(token.line(), token.column()) << "Invalid face index " << index;
+                throw ParserException(token.line(), token.column(), "Invalid face index " + std::to_string(index));
             }
 
             for (size_t i = 0; i < 3; ++i) {
@@ -400,7 +400,7 @@ namespace TrenchBroom {
             const auto token = expect(AseToken::ArgumentName, m_tokenizer.nextToken());
             const auto& actual = token.data();
             if (actual != expected) {
-                throw ParserException(token.line(), token.column()) << "Expected argument name '" << expected << "', but got '" << actual << "'";
+                throw ParserException(token.line(), token.column(), "Expected argument name '" + expected + "', but got '" + actual + "'");
             }
         }
 
@@ -408,7 +408,7 @@ namespace TrenchBroom {
             const auto token = m_tokenizer.peekToken();
             const auto actual = parseSizeArgument();
             if (actual != expected) {
-                throw ParserException(token.line(), token.column()) << "Expected value '" << expected << "', but got '" << actual << "'";
+                throw ParserException(token.line(), token.column(), "Expected value '" + std::to_string(expected) + "', but got '" + std::to_string(actual) + "'");
             }
         }
 
@@ -416,7 +416,7 @@ namespace TrenchBroom {
             const auto token = expect(AseToken::Integer, m_tokenizer.nextToken());
             auto i = token.toInteger<int>();
             if (i < 0) {
-                throw ParserException(token.line(), token.column()) << "Expected positive integer, but got '" << token.data() << "'";
+                throw ParserException(token.line(), token.column(), "Expected positive integer, but got '" + token.data() + "'");
             } else {
                 return static_cast<size_t>(i);
             }

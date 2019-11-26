@@ -9,6 +9,7 @@ Thumbs.db
 /build-debug
 /build-release
 /build
+/build-measure
 /codeblocks
 /Xcode*
 /vs2010

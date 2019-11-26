@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "EL/ELExceptions.h"
+#include "EL/Value.h"
 
 namespace TrenchBroom {
     namespace EL {

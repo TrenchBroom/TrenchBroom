@@ -46,6 +46,7 @@
 #include "View/CompilationDialog.h"
 #include "View/EdgeTool.h"
 #include "View/FaceTool.h"
+#include "View/FrameManager.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
 #include "View/InfoPanel.h"
@@ -61,6 +62,9 @@
 #include "View/ViewUtils.h"
 #include "View/QtUtils.h"
 #include "View/MapViewToolBox.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 
 #include <QtGlobal>
 #include <QTimer>

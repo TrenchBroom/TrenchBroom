@@ -20,8 +20,8 @@
 #ifndef CompilationContext_h
 #define CompilationContext_h
 
-#include "EL.h"
 #include "StringType.h"
+#include "EL/VariableStore.h"
 #include "View/TextOutputAdapter.h"
 #include "View/ViewTypes.h"
 

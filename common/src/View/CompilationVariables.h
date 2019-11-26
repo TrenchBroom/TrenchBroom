@@ -20,8 +20,8 @@
 #ifndef CompilationVariables_h
 #define CompilationVariables_h
 
-#include "EL.h"
 #include "StringType.h"
+#include "EL/VariableStore.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {

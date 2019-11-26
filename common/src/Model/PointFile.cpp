@@ -22,7 +22,7 @@
 #include "IO/Path.h"
 
 #include <vecmath/vec.h>
-#include <vecmath/vec_ext.h>
+#include <vecmath/vec_io.h>
 
 #include <cassert>
 #include <fstream>

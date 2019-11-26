@@ -19,7 +19,9 @@
 
 #include "Bsp29Parser.h"
 
-#include <Assets/EntityModel.h>
+#include "Exceptions.h"
+#include "StringStream.h"
+#include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
 #include "IO/File.h"
@@ -28,7 +30,8 @@
 #include "IO/IdMipTextureReader.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
-#include "StringStream.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -74,7 +77,7 @@ namespace TrenchBroom {
             auto reader = Reader::from(m_begin, m_end);
             const auto version = reader.readInt<int32_t>();
             if (version != 29) {
-                throw AssetException() << "Unsupported BSP model version: " << version;
+                throw AssetException("Unsupported BSP model version: " + std::to_string(version));
             }
 
             reader.seekFromBegin(BspLayout::DirTexturesAddress);
@@ -102,7 +105,7 @@ namespace TrenchBroom {
             auto reader = Reader::from(m_begin, m_end);
             const auto version = reader.readInt<int32_t>();
             if (version != 29) {
-                throw AssetException() << "Unsupported BSP model version: " << version;
+                throw AssetException("Unsupported BSP model version: " + std::to_string(version));
             }
 
             reader.seekFromBegin(BspLayout::DirTexturesAddress);

@@ -17,14 +17,17 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EL_h
-#define EL_h
+#ifndef TRENCHBROOM_READEREXCEPTION_H
+#define TRENCHBROOM_READEREXCEPTION_H
 
-#include "EL/EvaluationContext.h"
-#include "EL/ELExceptions.h"
-#include "EL/Expression.h"
-#include "EL/Types.h"
-#include "EL/Value.h"
-#include "EL/VariableStore.h"
+#include "Exceptions.h"
 
-#endif /* EL_h */
+namespace TrenchBroom {
+    namespace IO {
+        class ReaderException : public Exception {
+        public:
+            using Exception::Exception;
+        };
+    }
+}
+#endif //TRENCHBROOM_READEREXCEPTION_H

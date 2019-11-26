@@ -19,6 +19,7 @@
 
 #include "LaunchGameEngineDialog.h"
 
+#include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"

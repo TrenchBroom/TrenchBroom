@@ -20,7 +20,6 @@
 #ifndef Reader_h
 #define Reader_h
 
-#include "Exceptions.h"
 #include "StringType.h"
 
 #include <vecmath/vec.h>
@@ -30,11 +29,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class ReaderException : public ExceptionStream<ReaderException> {
-        public:
-            using ExceptionStream::ExceptionStream;
-        };
-
         class BufferedReader;
 
         /**

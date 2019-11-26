@@ -523,7 +523,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/Texture.h
         ${COMMON_SOURCE_DIR}/Assets/TextureCollection.h
         ${COMMON_SOURCE_DIR}/Assets/TextureManager.h
-        ${COMMON_SOURCE_DIR}/EL.h
         ${COMMON_SOURCE_DIR}/EL/ELExceptions.h
         ${COMMON_SOURCE_DIR}/EL/EvaluationContext.h
         ${COMMON_SOURCE_DIR}/EL/Expression.h
@@ -585,6 +584,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderParser.h
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/Reader.h
+        ${COMMON_SOURCE_DIR}/IO/ReaderException.h
         ${COMMON_SOURCE_DIR}/IO/ResourceUtils.h
         ${COMMON_SOURCE_DIR}/IO/SimpleParserStatus.h
         ${COMMON_SOURCE_DIR}/IO/SkinLoader.h

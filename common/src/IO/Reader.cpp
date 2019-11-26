@@ -20,10 +20,12 @@
 #include "Reader.h"
 
 #include "IO/IOUtils.h"
+#include "IO/ReaderException.h"
 
 #include <cassert>
 #include <cstring>
 #include <functional>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -53,7 +55,7 @@ namespace TrenchBroom {
 
         void Reader::Source::ensurePosition(const size_t position) const {
             if (position > size()) {
-                throw ReaderException() << "Position " << position << " is out of bounds for reader of size " << size();
+                throw ReaderException("Position " + std::to_string(position) + " is out of bounds for reader of size " + std::to_string(size()));
             }
         }
 
@@ -132,9 +134,9 @@ namespace TrenchBroom {
 
         void Reader::FileSource::throwError(const String& msg) const {
             if (std::feof(m_file)) {
-                throw ReaderException() << msg << ": unexpected end of file";
+                throw ReaderException(msg + ": unexpected end of file");
             } else {
-                throw ReaderException() << msg << ": " << std::strerror(errno);
+                throw ReaderException(msg + ": " + std::strerror(errno));
             }
         }
 
@@ -219,7 +221,7 @@ namespace TrenchBroom {
 
         void Reader::seekBackward(const size_t offset) {
             if (offset > position()) {
-                throw ReaderException() << "Cannot seek beyond start of reader at position " << position() << " with offset " << offset;
+                throw ReaderException("Cannot seek beyond start of reader at position " + std::to_string(position()) + " with offset " + std::to_string(offset));
             }
             seekFromBegin(position() - offset);
         }

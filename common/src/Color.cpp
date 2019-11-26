@@ -20,8 +20,9 @@
 
 #include "Color.h"
 
+#include <vecmath/scalar.h>
 #include <vecmath/vec.h>
-#include <vecmath/vec_ext.h>
+#include <vecmath/vec_io.h>
 
 bool Color::canParse(const std::string& str) {
     return vm::can_parse<float, 4>(str) || vm::can_parse<float, 3>(str);
@@ -79,8 +80,8 @@ void Color::rgbToHSB(const float r, const float g, const float b, float& h, floa
     assert(g >= 0.0f && g <= 1.0f);
     assert(b >= 0.0f && b <= 1.0f);
 
-    const float max = std::max(std::max(r, g), b);
-    const float min = std::min(std::min(r, g), b);
+    const float max = vm::max(r, g, b);
+    const float min = vm::min(r, g, b);
     const float dist = max - min;
 
     br = max;

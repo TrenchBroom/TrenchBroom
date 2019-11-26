@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_GL_h
 #define TrenchBroom_GL_h
 
-#include "Exceptions.h"
 #include "StringType.h"
 
 #include <vector>

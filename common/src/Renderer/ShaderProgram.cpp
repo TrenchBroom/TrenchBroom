@@ -27,6 +27,7 @@
 #include <vecmath/mat.h>
 
 #include <memory>
+#include <sstream>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -133,8 +134,8 @@ namespace TrenchBroom {
             glAssert(glGetProgramiv(m_programId, GL_LINK_STATUS, &linkStatus));
 
             if (linkStatus == 0) {
-                RenderException ex;
-                ex << "Could not link shader program " << m_name << ": ";
+                auto str = std::stringstream();
+                str << "Could not link shader program " << m_name << ": ";
 
                 GLint infoLogLength = 0;
                 glAssert(glGetProgramiv(m_programId, GL_INFO_LOG_LENGTH, &infoLogLength));
@@ -143,12 +144,12 @@ namespace TrenchBroom {
                     glAssert(glGetProgramInfoLog(m_programId, infoLogLength, &infoLogLength, infoLog.get()));
                     infoLog[static_cast<size_t>(infoLogLength-1)] = 0;
 
-                    ex << infoLog.get();
+                    str << infoLog.get();
                 } else {
-                    ex << "Unknown error";
+                    str << "Unknown error";
                 }
 
-                throw ex;
+                throw RenderException(str.str());
             }
 
             m_variableCache.clear();

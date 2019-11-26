@@ -112,8 +112,9 @@
 #include "View/TransformObjectsCommand.h"
 #include "View/ViewEffectsService.h"
 
-
 #include <vecmath/util.h>
+#include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 
 #include <cassert>
 #include <type_traits>

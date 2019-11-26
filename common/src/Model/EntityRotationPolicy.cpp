@@ -26,6 +26,8 @@
 #include <vecmath/forward.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
+#include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -129,19 +131,19 @@ namespace TrenchBroom {
                 case RotationType_Euler: {
                     const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const auto nPitchYawRoll = vm::vec3(-yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
-                    entity->addOrUpdateAttribute(info.attribute, StringUtils::toString(round(nPitchYawRoll)));
+                    entity->addOrUpdateAttribute(info.attribute, StringUtils::toString(vm::round(nPitchYawRoll)));
                     break;
                 }
                 case RotationType_Euler_PositivePitchDown: {
                     const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const auto nPitchYawRoll = vm::vec3(yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
-                    entity->addOrUpdateAttribute(info.attribute, StringUtils::toString(round(nPitchYawRoll)));
+                    entity->addOrUpdateAttribute(info.attribute, StringUtils::toString(vm::round(nPitchYawRoll)));
                     break;
                 }
                 case RotationType_Mangle: {
                     const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const auto yawNPitchRoll = vm::vec3(yawPitchRoll.x(), -yawPitchRoll.y(), yawPitchRoll.z());
-                    entity->addOrUpdateAttribute(info.attribute, StringUtils::toString(round(yawNPitchRoll)));
+                    entity->addOrUpdateAttribute(info.attribute, StringUtils::toString(vm::round(yawNPitchRoll)));
                     break;
                 }
                 case RotationType_None:

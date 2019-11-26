@@ -30,6 +30,8 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/GLVertex.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         const vm::vec3f Md2Parser::Normals[162] = {
@@ -233,10 +235,10 @@ namespace TrenchBroom {
             const int version = reader.readInt<int32_t>();
 
             if (ident != Md2Layout::Ident) {
-                throw AssetException() << "Unknown MD2 model ident: " << ident;
+                throw AssetException("Unknown MD2 model ident: " + std::to_string(ident));
             }
             if (version != Md2Layout::Version) {
-                throw AssetException() << "Unknown MD2 model version: " << version;
+                throw AssetException("Unknown MD2 model version: " + std::to_string(version));
             }
 
             /*const size_t skinWidth =*/ reader.readSize<int32_t>();
@@ -269,10 +271,10 @@ namespace TrenchBroom {
             const auto version = reader.readInt<int32_t>();
 
             if (ident != Md2Layout::Ident) {
-                throw AssetException() << "Unknown MD2 model ident: " << ident;
+                throw AssetException("Unknown MD2 model ident: " + std::to_string(ident));
             }
             if (version != Md2Layout::Version) {
-                throw AssetException() << "Unknown MD2 model version: " << version;
+                throw AssetException("Unknown MD2 model version: " + std::to_string(version));
             }
 
             /*const auto skinWidth =*/ reader.readSize<int32_t>();

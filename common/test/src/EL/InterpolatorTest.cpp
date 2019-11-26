@@ -19,8 +19,9 @@
 
 #include <gtest/gtest.h>
 
-#include "EL.h"
+#include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
+#include "EL/Value.h"
 
 namespace TrenchBroom {
     namespace EL {

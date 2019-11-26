@@ -20,6 +20,7 @@
 #include "BrushFace.h"
 
 #include "Constants.h"
+#include "Exceptions.h"
 #include "Polyhedron.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
@@ -39,6 +40,9 @@
 #include <vecmath/scalar.h>
 #include <vecmath/util.h>
 #include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
+
+#include <sstream>
 
 namespace TrenchBroom {
     namespace Model {
@@ -665,11 +669,6 @@ namespace TrenchBroom {
             }
         }
 
-        void BrushFace::printPoints() const {
-            std::for_each(std::begin(m_points), std::end(m_points), [](const vm::vec3& p) { std::cout << "( " << p << " ) "; });
-            std::cout << std::endl;
-        }
-
         void BrushFace::setPoints(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2) {
             m_points[0] = point0;
             m_points[1] = point1;
@@ -678,12 +677,12 @@ namespace TrenchBroom {
 
             const auto [result, plane] = vm::from_points(m_points[0], m_points[1], m_points[2]);
             if (!result) {
-                GeometryException e;
-                e << "Colinear face points: (" <<
+                auto str = std::stringstream();
+                str << "Colinear face points: (" <<
                 m_points[0] << ") (" <<
                 m_points[1] << ") (" <<
                 m_points[2] << ")";
-                throw e;
+                throw GeometryException(str.str());
             } else {
                 m_boundary = plane;
             }

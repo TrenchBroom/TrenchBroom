@@ -19,6 +19,7 @@
 
 #include "Tokenizer.h"
 
+#include "Exceptions.h"
 #include "StringUtils.h"
 
 namespace TrenchBroom {

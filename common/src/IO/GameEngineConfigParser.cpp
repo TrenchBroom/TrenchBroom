@@ -21,6 +21,9 @@
 
 #include "Macros.h"
 #include "CollectionUtils.h"
+#include "EL/EvaluationContext.h"
+#include "EL/Expression.h"
+#include "EL/Value.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -32,7 +35,7 @@ namespace TrenchBroom {
 
         Model::GameEngineConfig GameEngineConfigParser::parse() {
             const EL::Value root = parseConfigFile().evaluate(EL::EvaluationContext());
-            expectType(root, EL::Type_Map);
+            expectType(root, EL::ValueType::Map);
 
             expectStructure(root, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
 
