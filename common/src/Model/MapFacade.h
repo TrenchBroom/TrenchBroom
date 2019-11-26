@@ -103,7 +103,7 @@ namespace TrenchBroom {
             virtual Model::Entity* createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta) = 0;
             virtual Model::Entity* createBrushEntity(const Assets::BrushEntityDefinition* definition) = 0;
         public: // modifying transient node attributes
-            virtual void hide(const std::vector<Node*> nodes) = 0; // Don't take the nodes by reference!
+            virtual void hide(std::vector<Node*> nodes) = 0; // Don't take the nodes by reference!
             virtual void show(const std::vector<Node*>& nodes) = 0;
             virtual void resetVisibility(const std::vector<Node*>& nodes) = 0;
 

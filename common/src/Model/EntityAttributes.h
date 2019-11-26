@@ -27,6 +27,7 @@
 #include <list>
 #include <memory>
 #include <set>
+#include <vector>
 
 namespace TrenchBroom {
     template <typename V>
