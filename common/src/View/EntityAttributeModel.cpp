@@ -20,6 +20,7 @@
 #include "EntityAttributeModel.h"
 
 #include "Macros.h"
+#include "SharedPointer.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -33,6 +34,7 @@
 
 #include <iterator>
 #include <optional-lite/optional.hpp>
+#include <vector>
 
 #include <QDebug>
 #include <QBrush>
@@ -164,7 +166,7 @@ namespace TrenchBroom {
             return m_valueType == ValueType::SingleValueAndUnset;
         }
 
-        AttributeRow AttributeRow::rowForAttributableNodes(const String& key, const Model::AttributableNodeList& attributables) {
+        AttributeRow AttributeRow::rowForAttributableNodes(const String& key, const std::vector<Model::AttributableNode*>& attributables) {
             ensure(attributables.size() > 0, "rowForAttributableNodes requries a non-empty node list");
 
             nonstd::optional<AttributeRow> result;
@@ -185,7 +187,7 @@ namespace TrenchBroom {
             return result.value();
         }
 
-        std::set<String> AttributeRow::allKeys(const Model::AttributableNodeList& attributables, const bool showDefaultRows) {
+        std::set<String> AttributeRow::allKeys(const std::vector<Model::AttributableNode*>& attributables, const bool showDefaultRows) {
             std::set<String> result;
             for (const Model::AttributableNode* node : attributables) {
                 // this happens at startup when the world is still null
@@ -211,7 +213,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::map<String, AttributeRow> AttributeRow::rowsForAttributableNodes(const Model::AttributableNodeList& attributables, const bool showDefaultRows) {
+        std::map<String, AttributeRow> AttributeRow::rowsForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables, const bool showDefaultRows) {
             std::map<String, AttributeRow> result;
             for (const String& key : allKeys(attributables, showDefaultRows)) {
                 result[key] = rowForAttributableNodes(key, attributables);
@@ -219,7 +221,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        String AttributeRow::newAttributeNameForAttributableNodes(const Model::AttributableNodeList& attributables) {
+        String AttributeRow::newAttributeNameForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables) {
             const std::map<String, AttributeRow> rows = rowsForAttributableNodes(attributables, true);
 
             for (int i = 1; ; ++i) {
@@ -404,8 +406,8 @@ namespace TrenchBroom {
             }
         }
 
-        Model::AttributeNameList EntityAttributeModel::attributeNames(const int row, const int count) const {
-            Model::AttributeNameList result;
+        std::vector<Model::AttributeName> EntityAttributeModel::attributeNames(const int row, const int count) const {
+            std::vector<Model::AttributeName> result;
             for (int i = 0; i < count; ++i) {
                 result.push_back(this->attributeName(row + i));
             }
@@ -593,7 +595,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
 
             const size_t rowIndex = static_cast<size_t>(index.row());
-            const Model::AttributableNodeList attributables = document->allSelectedAttributableNodes();
+            const std::vector<Model::AttributableNode*> attributables = document->allSelectedAttributableNodes();
             if (attributables.empty()) {
                 return false;
             }
@@ -638,7 +640,7 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
 
-            const Model::AttributableNodeList attributables = document->allSelectedAttributableNodes();
+            const std::vector<Model::AttributableNode*> attributables = document->allSelectedAttributableNodes();
             ensure(!attributables.empty(), "no attributable nodes selected");
 
             const String newKey = AttributeRow::newAttributeNameForAttributableNodes(attributables);
@@ -674,7 +676,7 @@ namespace TrenchBroom {
             return rowForAttributeName(name) != -1;
         }
 
-        bool EntityAttributeModel::renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& /* attributables */) {
+        bool EntityAttributeModel::renameAttribute(const size_t rowIndex, const String& newName, const std::vector<Model::AttributableNode*>& /* attributables */) {
             ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
             const AttributeRow& row = m_rows.at(rowIndex);
@@ -708,7 +710,7 @@ namespace TrenchBroom {
             return document->renameAttribute(oldName, newName);
         }
 
-        bool EntityAttributeModel::updateAttribute(const size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables) {
+        bool EntityAttributeModel::updateAttribute(const size_t rowIndex, const String& newValue, const std::vector<Model::AttributableNode*>& attributables) {
             ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
             bool hasChange = false;

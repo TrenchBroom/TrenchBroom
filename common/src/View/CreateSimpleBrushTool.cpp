@@ -17,12 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TrenchBroom.h"
-
 #include "CreateSimpleBrushTool.h"
+
+#include "SharedPointer.h"
+#include "TrenchBroom.h"
 #include "Model/BrushBuilder.h"
-#include "View/MapDocument.h"
 #include "Model/World.h"
+#include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace View {

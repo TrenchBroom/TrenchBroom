@@ -25,6 +25,8 @@
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace View {
         SetBrushFaceAttributesTool::SetBrushFaceAttributesTool(MapDocumentWPtr document) :
@@ -54,7 +56,7 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
 
-            const Model::BrushFaceList& selectedFaces = document->selectedBrushFaces();
+            const std::vector<Model::BrushFace*>& selectedFaces = document->selectedBrushFaces();
             if (selectedFaces.size() != 1)
                 return false;
 
@@ -65,7 +67,7 @@ namespace TrenchBroom {
             Model::BrushFace* source = selectedFaces.front();
             Model::BrushFace* targetFace = Model::hitToFace(hit);
             Model::Brush* targetBrush = targetFace->brush();
-            const Model::BrushFaceList targetList = applyToBrush ? targetBrush->faces() : Model::BrushFaceList(1, targetFace);
+            const std::vector<Model::BrushFace*> targetList = applyToBrush ? targetBrush->faces() : std::vector<Model::BrushFace*>{};
 
             const Model::WrapStyle wrapStyle = inputState.modifierKeysDown(ModifierKeys::MKShift) ? Model::WrapStyle::Rotation : Model::WrapStyle::Projection;
 

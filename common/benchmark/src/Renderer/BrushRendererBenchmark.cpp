@@ -108,7 +108,7 @@ namespace TrenchBroom {
             }, "validate after removing one brush");
 
             // Large change: keep every second brush
-            Model::BrushList brushesToKeep;
+            std::vector<Model::Brush*> brushesToKeep;
             for (size_t i = 0; i < brushes.size(); ++i) {
                 if ((i % 2) == 0) {
                     brushesToKeep.push_back(brushes.at(i));

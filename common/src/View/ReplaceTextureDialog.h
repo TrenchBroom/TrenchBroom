@@ -20,8 +20,10 @@
 #ifndef TrenchBroom_ReplaceTextureDialog
 #define TrenchBroom_ReplaceTextureDialog
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/ViewTypes.h"
+
+#include <vector>
 
 #include <QDialog>
 
@@ -48,7 +50,7 @@ namespace TrenchBroom {
             ReplaceTextureDialog(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
         private:
             virtual void accept() override;
-            Model::BrushFaceList getApplicableFaces() const;
+            std::vector<Model::BrushFace*> getApplicableFaces() const;
             void createGui(GLContextManager& contextManager);
         private slots:
             void subjectSelected(Assets::Texture* subject);

@@ -20,8 +20,11 @@
 #ifndef TrenchBroom_RenameGroupsCommand
 #define TrenchBroom_RenameGroupsCommand
 
-#include "Model/ModelTypes.h"
+#include "StringType.h"
+#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
+
+#include <map>
 
 namespace TrenchBroom {
     namespace View {
@@ -33,7 +36,7 @@ namespace TrenchBroom {
             using Ptr = std::shared_ptr<RenameGroupsCommand>;
         private:
             const String m_newName;
-            Model::GroupNameMap m_oldNames;
+            std::map<Model::Group*, String> m_oldNames;
         public:
             static Ptr rename(const String& newName);
         private:

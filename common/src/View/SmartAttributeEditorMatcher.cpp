@@ -21,11 +21,14 @@
 
 #include "StringUtils.h"
 
+#include <set>
+#include <vector>
+
 namespace TrenchBroom {
     namespace View {
         SmartAttributeEditorMatcher::~SmartAttributeEditorMatcher() {}
 
-        bool SmartAttributeEditorMatcher::matches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const {
+        bool SmartAttributeEditorMatcher::matches(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const {
             return doMatches(name, attributables);
         }
 
@@ -35,7 +38,7 @@ namespace TrenchBroom {
         SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const std::initializer_list<String> patterns) :
         m_patterns(patterns) {}
 
-        bool SmartAttributeEditorKeyMatcher::doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const {
+        bool SmartAttributeEditorKeyMatcher::doMatches(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const {
             if (attributables.empty())
                 return false;
 
@@ -47,7 +50,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool SmartAttributeEditorDefaultMatcher::doMatches(const Model::AttributeName& /* name */, const Model::AttributableNodeList& /* attributables */) const {
+        bool SmartAttributeEditorDefaultMatcher::doMatches(const Model::AttributeName& /* name */, const std::vector<Model::AttributableNode*>& /* attributables */) const {
             return true;
         }
     }

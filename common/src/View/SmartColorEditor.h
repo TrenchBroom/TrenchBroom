@@ -21,10 +21,12 @@
 #define TrenchBroom_SmartColorEditor
 
 #include "SharedPointer.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/SmartAttributeEditor.h"
 #include "View/ViewTypes.h"
 #include "View/ColorButton.h"
+
+#include <vector>
 
 #include <QColor>
 
@@ -51,11 +53,11 @@ namespace TrenchBroom {
             explicit SmartColorEditor(View::MapDocumentWPtr document, QWidget* parent = nullptr);
         private:
             void createGui();
-            void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
+            void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) override;
 
             class CollectColorsVisitor;
 
-            void updateColorRange(const Model::AttributableNodeList& attributables);
+            void updateColorRange(const std::vector<Model::AttributableNode*>& attributables);
             void updateColorHistory();
 
             void setColor(const QColor& wxColor) const;

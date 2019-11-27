@@ -23,7 +23,7 @@
 #include "Bitset.h"
 #include "Notifier.h"
 #include "Model/Tag.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 namespace TrenchBroom {
     namespace Assets {
@@ -50,8 +50,7 @@ namespace TrenchBroom {
 
             Model::Group* m_currentGroup;
         public:
-            Notifier<>
-            editorContextDidChangeNotifier;
+            Notifier<> editorContextDidChangeNotifier;
         public:
             EditorContext();
 

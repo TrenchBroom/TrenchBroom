@@ -22,7 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "Model/Hit.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
@@ -30,6 +30,7 @@
 #include <vecmath/polygon.h>
 
 #include <tuple>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -70,14 +71,14 @@ namespace TrenchBroom {
             Model::Hit pickProximateFace(Model::Hit::HitType hitType, const vm::ray3& pickRay) const;
         public:
             bool hasDragFaces() const;
-            Model::BrushFaceList dragFaces() const;
+            std::vector<Model::BrushFace*> dragFaces() const;
             void updateDragFaces(const Model::PickResult& pickResult);
         private:
             std::vector<FaceHandle> getDragHandles(const Model::Hit& hit) const;
             class MatchFaceBoundary;
             std::vector<FaceHandle> collectDragHandles(const Model::Hit& hit) const;
-            Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;
-            std::vector<FaceHandle> getDragHandles(const Model::BrushFaceList& faces) const;
+            std::vector<Model::BrushFace*> collectDragFaces(Model::BrushFace* face) const;
+            std::vector<FaceHandle> getDragHandles(const std::vector<Model::BrushFace*>& faces) const;
         public:
             bool beginResize(const Model::PickResult& pickResult, bool split);
             bool resize(const vm::ray3& pickRay, const Renderer::Camera& camera);
@@ -95,7 +96,7 @@ namespace TrenchBroom {
         private:
             void bindObservers();
             void unbindObservers();
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void selectionDidChange(const Selection& selection);
         };
     }

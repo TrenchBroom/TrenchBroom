@@ -39,6 +39,7 @@
 #include "View/MapDocument.h"
 
 #include <unordered_set>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -218,7 +219,7 @@ namespace TrenchBroom {
             return inputState.pickResult().query().pickable().type(type).occluded().first();
         }
 
-        Model::NodeList SelectionTool::collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) const {
+        std::vector<Model::Node*> SelectionTool::collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) const {
             Model::CollectSelectableNodesVisitor collect(editorContext);
             Model::Node::accept(std::begin(node->children()), std::end(node->children()), collect);
             return collect.nodes();
@@ -285,8 +286,8 @@ namespace TrenchBroom {
             }
         }
 
-        Model::NodeList hitsToNodesWithGroupPicking(const Model::Hit::List& hits) {
-            Model::NodeList hitNodes;
+        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const Model::Hit::List& hits) {
+            std::vector<Model::Node*> hitNodes;
             std::unordered_set<Model::Node*> duplicateCheck;
 
             for (const auto& hit : hits) {

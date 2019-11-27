@@ -22,9 +22,7 @@
 
 #include "TemporarilySetAny.h"
 
-#include <algorithm>
 #include <cassert>
-#include <functional>
 #include <list>
 #include <memory>
 
@@ -37,17 +35,6 @@ namespace TrenchBroom {
     template <typename O>
     class NotifierState {
     private:
-        struct CompareObservers {
-        private:
-            const O* m_lhs;
-        public:
-            explicit CompareObservers(const O* lhs) : m_lhs(lhs) {}
-
-            bool operator()(const std::unique_ptr<O>& rhs) const {
-                return (*m_lhs) == (*rhs);
-            }
-        };
-
         std::list<std::unique_ptr<O>> m_observers;
         std::list<std::unique_ptr<O>> m_toAdd;
         std::list<std::unique_ptr<O>> m_toRemove;
@@ -68,7 +55,7 @@ namespace TrenchBroom {
          */
         bool addObserver(std::unique_ptr<O> observer) {
             if (!m_observers.empty()) {
-                auto it = std::find_if(std::begin(m_observers), std::end(m_observers), CompareObservers(observer.get()));
+                auto it = findObserver(observer);
                 if (it != std::end(m_observers)) {
                     return false;
                 }
@@ -90,7 +77,7 @@ namespace TrenchBroom {
          * @return true if the given observer could be removed successfully and false otherwise
          */
         bool removeObserver(std::unique_ptr<O> observer) {
-            auto it = std::find_if(std::begin(m_observers), std::end(m_observers), CompareObservers(observer.get()));
+            auto it = findObserver(observer);
             if (it == std::end(m_observers)) {
                 return false;
             } else {
@@ -133,10 +120,19 @@ namespace TrenchBroom {
         void removePending() {
             while (!m_toRemove.empty()) {
                 auto observer = std::move(m_toRemove.front()); m_toRemove.pop_front();
-                auto it = std::find_if(std::begin(m_observers), std::end(m_observers), CompareObservers(observer.get()));
+                auto it = findObserver(observer);
                 assert(it != std::end(m_observers));
                 m_observers.erase(it);
             }
+        }
+
+        auto findObserver(const std::unique_ptr<O>& observer) const {
+            for (auto it = std::begin(m_observers), end = std::end(m_observers); it != end; ++it) {
+                if (*observer == **it) {
+                    return it;
+                }
+            }
+            return std::end(m_observers);
         }
     };
 
@@ -232,7 +228,28 @@ namespace TrenchBroom {
          */
         class NotifyAfter {
         private:
-            std::function<void()> m_after;
+            /**
+             * Holds a lambda; used in favor of std::function to keep compilation times low.
+             */
+            class BaseHolder {
+            public:
+                virtual ~BaseHolder() = default;
+                virtual void apply() = 0;
+            };
+
+            template <typename T>
+            class Holder : public BaseHolder {
+            private:
+                T m_func;
+            public:
+                Holder(T&& func) : m_func(std::move(func)) {}
+
+                void apply() override {
+                    m_func();
+                }
+            };
+
+            std::unique_ptr<BaseHolder> m_after;
         public:
             /**
              * Creates a new instance to notify the given notifier. The given arguments are passed to the notifier.
@@ -241,10 +258,15 @@ namespace TrenchBroom {
              * @param a the arguments to pass to the notifier
              */
             explicit NotifyAfter(N& after, A... a) :
-            m_after([&]() { after(a...); }) {}
+            m_after(createLambda(after, std::move(a)...)) {}
 
             virtual ~NotifyAfter() {
-                m_after();
+                m_after->apply();
+            }
+        private:
+            static std::unique_ptr<BaseHolder> createLambda(N& after, A... a) {
+                auto lambda = [&]() { after(a...); };
+                return std::make_unique<Holder<decltype(lambda)>>(std::move(lambda));
             }
         };
 

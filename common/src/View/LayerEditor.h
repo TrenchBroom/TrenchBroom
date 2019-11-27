@@ -21,7 +21,7 @@
 #define TrenchBroom_LayerEditor
 
 #include "StringType.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/ViewTypes.h"
 
 #include <QWidget>

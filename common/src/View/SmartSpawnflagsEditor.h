@@ -21,9 +21,11 @@
 #define TrenchBroom_SmartSpawnflagsEditor
 
 #include "Assets/AssetTypes.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/SmartAttributeEditor.h"
 #include "View/ViewTypes.h"
+
+#include <vector>
 
 #include <QPoint>
 
@@ -52,11 +54,11 @@ namespace TrenchBroom {
             explicit SmartSpawnflagsEditor(View::MapDocumentWPtr document, QWidget* parent = nullptr);
         private:
             void createGui();
-            void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
+            void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) override;
             void resetScrollPos();
 
-            void getFlags(const Model::AttributableNodeList& attributables, QStringList& labels, QStringList& tooltips) const;
-            void getFlagValues(const Model::AttributableNodeList& attributables, int& setFlags, int& mixedFlags) const;
+            void getFlags(const std::vector<Model::AttributableNode*>& attributables, QStringList& labels, QStringList& tooltips) const;
+            void getFlagValues(const std::vector<Model::AttributableNode*>& attributables, int& setFlags, int& mixedFlags) const;
             int getFlagValue(const Model::AttributableNode* attributable) const;
 
             void flagChanged(size_t index, int setFlag, int mixedFlag);

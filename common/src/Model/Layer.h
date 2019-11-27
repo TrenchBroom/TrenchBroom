@@ -20,10 +20,15 @@
 #ifndef TrenchBroom_Layer
 #define TrenchBroom_Layer
 
-#include "StringType.h"
 #include "Macros.h"
-#include "Model/ModelTypes.h"
+#include "StringType.h"
+#include "TrenchBroom.h"
+#include "Model/Model_Forward.h"
 #include "Model/Node.h"
+
+#include <vecmath/bbox.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -52,9 +57,9 @@ namespace TrenchBroom {
             bool doSelectable() const override;
 
             void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
-            void doFindNodesContaining(const vm::vec3& point, NodeList& result) override;
+            void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
 
-            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
+            void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
         private:

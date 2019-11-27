@@ -20,13 +20,12 @@
 #include "RotateObjectsTool.h"
 
 #include "CollectionUtils.h"
+#include "SharedPointer.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/RotateObjectsHandle.h"
 #include "View/RotateObjectsToolPage.h"
 
-#include <vecmath/vec.h>
-#include <vecmath/bbox.h>
 #include <vecmath/scalar.h>
 
 namespace TrenchBroom {

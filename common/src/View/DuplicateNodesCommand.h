@@ -20,8 +20,11 @@
 #ifndef TrenchBroom_DuplicateNodesCommand
 #define TrenchBroom_DuplicateNodesCommand
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
+
+#include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -30,9 +33,9 @@ namespace TrenchBroom {
             static const CommandType Type;
             using Ptr = std::shared_ptr<DuplicateNodesCommand>;
         private:
-            Model::NodeList m_previouslySelectedNodes;
-            Model::NodeList m_nodesToSelect;
-            Model::ParentChildrenMap m_addedNodes;
+            std::vector<Model::Node*> m_previouslySelectedNodes;
+            std::vector<Model::Node*> m_nodesToSelect;
+            std::map<Model::Node*, std::vector<Model::Node*>> m_addedNodes;
             bool m_firstExecution;
         public:
             static Ptr duplicate();

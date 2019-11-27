@@ -33,7 +33,6 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SelectionBoundsRenderer.h"
-#include "View/Animation.h"
 #include "View/CameraAnimation.h"
 #include "View/CameraLinkHelper.h"
 #include "View/CameraTool2D.h"
@@ -58,6 +57,8 @@
 #include "View/VertexToolController.h"
 
 #include <vecmath/util.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -193,15 +194,15 @@ namespace TrenchBroom {
             const vm::plane3 minPlane(min, vm::vec3(m_camera.direction()));
             const vm::plane3 maxPlane(max, vm::vec3(m_camera.direction()));
 
-            const Model::BrushList& selectionBrushes = document->selectedNodes().brushes();
+            const std::vector<Model::Brush*>& selectionBrushes = document->selectedNodes().brushes();
             assert(!selectionBrushes.empty());
 
             const Model::BrushBuilder brushBuilder(document->world(), worldBounds);
-            Model::BrushList tallBrushes(0);
+            std::vector<Model::Brush*> tallBrushes;
             tallBrushes.reserve(selectionBrushes.size());
 
             for (const Model::Brush* selectionBrush : selectionBrushes) {
-                std::vector<vm::vec3> tallVertices(0);
+                std::vector<vm::vec3> tallVertices;
                 tallVertices.reserve(2 * selectionBrush->vertexCount());
 
                 for (const Model::BrushVertex* vertex : selectionBrush->vertices()) {
@@ -216,7 +217,7 @@ namespace TrenchBroom {
             Transaction transaction(document, "Select Tall");
             document->deleteObjects();
 
-            Model::CollectContainedNodesVisitor<Model::BrushList::const_iterator> visitor(std::begin(tallBrushes), std::end(tallBrushes), document->editorContext());
+            Model::CollectContainedNodesVisitor<std::vector<Model::Brush*>::const_iterator> visitor(std::begin(tallBrushes), std::end(tallBrushes), document->editorContext());
             document->world()->acceptAndRecurse(visitor);
             document->select(visitor.nodes());
 

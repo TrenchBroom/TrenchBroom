@@ -20,10 +20,11 @@
 #ifndef TrenchBroom_SetVisibilityCommand
 #define TrenchBroom_SetVisibilityCommand
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/UndoableCommand.h"
 
 #include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -39,16 +40,16 @@ namespace TrenchBroom {
                 Action_Ensure
             } Action;
 
-            Model::NodeList m_nodes;
+            std::vector<Model::Node*> m_nodes;
             CommandType m_action;
-            Model::VisibilityMap m_oldState;
+            std::map<Model::Node*, Model::VisibilityState> m_oldState;
         public:
-            static Ptr show(const Model::NodeList& nodes);
-            static Ptr hide(const Model::NodeList& nodes);
-            static Ptr ensureVisible(const Model::NodeList& nodes);
-            static Ptr reset(const Model::NodeList& nodes);
+            static Ptr show(const std::vector<Model::Node*>& nodes);
+            static Ptr hide(const std::vector<Model::Node*>& nodes);
+            static Ptr ensureVisible(const std::vector<Model::Node*>& nodes);
+            static Ptr reset(const std::vector<Model::Node*>& nodes);
         private:
-            SetVisibilityCommand(const Model::NodeList& nodes, Action action);
+            SetVisibilityCommand(const std::vector<Model::Node*>& nodes, Action action);
             static String makeName(Action action);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;

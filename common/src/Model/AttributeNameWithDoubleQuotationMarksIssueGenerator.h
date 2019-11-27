@@ -21,7 +21,9 @@
 #define AttributeNameWithDoubleQuotationMarksIssueGenerator_h
 
 #include "Model/IssueGenerator.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {

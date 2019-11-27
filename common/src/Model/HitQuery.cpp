@@ -24,6 +24,8 @@
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
 
+#include <vecmath/scalar.h>
+
 namespace TrenchBroom {
     namespace Model {
         HitQuery::HitQuery(const Hit::List& hits, const EditorContext& editorContext) :
@@ -124,7 +126,7 @@ namespace TrenchBroom {
                                 bestMatchError = hit.error();
                             }
                         } else if (!m_exclude->matches(hit)) {
-                            bestOccluderError = std::min(bestOccluderError, hit.error());
+                            bestOccluderError = vm::min(bestOccluderError, hit.error());
                             containsOccluder = true;
                         }
                         ++it;

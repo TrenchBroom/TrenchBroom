@@ -31,10 +31,10 @@
 #include "Renderer/BrushRendererArrays.h"
 #include "Renderer/BrushRendererBrushCache.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/RenderUtils.h"
 
 #include <cassert>
 #include <cstring>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -125,13 +125,13 @@ namespace TrenchBroom {
             clear();
         }
 
-        void BrushRenderer::addBrushes(const Model::BrushList& brushes) {
+        void BrushRenderer::addBrushes(const std::vector<Model::Brush*>& brushes) {
             for (auto* brush : brushes) {
                 addBrush(brush);
             }
         }
 
-        void BrushRenderer::setBrushes(const Model::BrushList& brushes) {
+        void BrushRenderer::setBrushes(const std::vector<Model::Brush*>& brushes) {
             // start with adding nothing, and removing everything
             std::set<const Model::Brush*> toAdd;
             std::set<const Model::Brush*> toRemove = m_allBrushes;
@@ -167,7 +167,7 @@ namespace TrenchBroom {
             assert(m_opaqueFaces->empty());
         }
 
-        void BrushRenderer::invalidateBrushes(const Model::BrushList& brushes) {
+        void BrushRenderer::invalidateBrushes(const std::vector<Model::Brush*>& brushes) {
             for (auto& brush : brushes) {
                 // skip brushes that are not in the renderer
                 if (m_allBrushes.find(brush) == m_allBrushes.end()) {

@@ -22,7 +22,7 @@
 #include <memory>
 
 #include "CollectionUtils.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/PortalFile.h"
 #include "IO/DiskIO.h"
 #include "IO/Path.h"

@@ -24,26 +24,29 @@
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/EntityAttributes.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/Node.h"
+
+#include <set>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class AttributableNode : public Node {
         public: // some helper methods
-            static Assets::EntityDefinition* selectEntityDefinition(const AttributableNodeList& attributables);
-            static const Assets::AttributeDefinition* selectAttributeDefinition(const AttributeName& name, const AttributableNodeList& attributables);
-            static AttributeValue selectAttributeValue(const AttributeName& name, const AttributableNodeList& attributables);
+            static Assets::EntityDefinition* selectEntityDefinition(const std::vector<AttributableNode*>& attributables);
+            static const Assets::AttributeDefinition* selectAttributeDefinition(const AttributeName& name, const std::vector<AttributableNode*>& attributables);
+            static AttributeValue selectAttributeValue(const AttributeName& name, const std::vector<AttributableNode*>& attributables);
         protected:
             static const String DefaultAttributeValue;
 
             Assets::EntityDefinition* m_definition;
             EntityAttributes m_attributes;
 
-            AttributableNodeList m_linkSources;
-            AttributableNodeList m_linkTargets;
-            AttributableNodeList m_killSources;
-            AttributableNodeList m_killTargets;
+            std::vector<AttributableNode*> m_linkSources;
+            std::vector<AttributableNode*> m_linkTargets;
+            std::vector<AttributableNode*> m_killSources;
+            std::vector<AttributableNode*> m_killTargets;
 
             // cache the classname for faster access
             AttributeValue m_classname;
@@ -65,7 +68,7 @@ namespace TrenchBroom {
             const EntityAttribute::List& attributes() const;
             void setAttributes(const EntityAttribute::List& attributes);
 
-            AttributeNameSet attributeNames() const;
+            std::set<AttributeName> attributeNames() const;
 
             bool hasAttribute(const AttributeName& name) const;
             bool hasAttribute(const AttributeName& name, const AttributeValue& value) const;
@@ -117,19 +120,19 @@ namespace TrenchBroom {
             void removeAttributeFromIndex(const AttributeName& name, const AttributeValue& value);
             void updateAttributeIndex(const AttributeName& oldName, const AttributeValue& oldValue, const AttributeName& newName, const AttributeValue& newValue);
         public: // link management
-            const AttributableNodeList& linkSources() const;
-            const AttributableNodeList& linkTargets() const;
-            const AttributableNodeList& killSources() const;
-            const AttributableNodeList& killTargets() const;
+            const std::vector<AttributableNode*>& linkSources() const;
+            const std::vector<AttributableNode*>& linkTargets() const;
+            const std::vector<AttributableNode*>& killSources() const;
+            const std::vector<AttributableNode*>& killTargets() const;
 
             vm::vec3 linkSourceAnchor() const;
             vm::vec3 linkTargetAnchor() const;
 
             bool hasMissingSources() const;
-            AttributeNameList findMissingLinkTargets() const;
-            AttributeNameList findMissingKillTargets() const;
+            std::vector<AttributeName> findMissingLinkTargets() const;
+            std::vector<AttributeName> findMissingKillTargets() const;
         private: // link management internals
-            void findMissingTargets(const AttributeName& prefix, AttributeNameList& result) const;
+            void findMissingTargets(const AttributeName& prefix, std::vector<AttributeName>& result) const;
 
             void addLinks(const AttributeName& name, const AttributeValue& value);
             void removeLinks(const AttributeName& name, const AttributeValue& value);
@@ -146,10 +149,10 @@ namespace TrenchBroom {
             void addAllKillSources(const AttributeValue& targetname);
             void addAllKillTargets();
 
-            void addLinkTargets(const AttributableNodeList& targets);
-            void addKillTargets(const AttributableNodeList& targets);
-            void addLinkSources(const AttributableNodeList& sources);
-            void addKillSources(const AttributableNodeList& sources);
+            void addLinkTargets(const std::vector<AttributableNode*>& targets);
+            void addKillTargets(const std::vector<AttributableNode*>& targets);
+            void addLinkSources(const std::vector<AttributableNode*>& sources);
+            void addKillSources(const std::vector<AttributableNode*>& sources);
 
             void removeAllLinkSources();
             void removeAllLinkTargets();

@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        RemoveBrushElementsCommand::RemoveBrushElementsCommand(const CommandType type, const String& name, const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices) :
+        RemoveBrushElementsCommand::RemoveBrushElementsCommand(const CommandType type, const String& name, const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices) :
         VertexCommand(type, name, brushes),
         m_vertices(vertices) {}
 

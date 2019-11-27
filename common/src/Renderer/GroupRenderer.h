@@ -22,8 +22,10 @@
 
 #include "AttrString.h"
 #include "Color.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/EdgeRenderer.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -39,7 +41,7 @@ namespace TrenchBroom {
             class GroupNameAnchor;
 
             const Model::EditorContext& m_editorContext;
-            Model::GroupList m_groups;
+            std::vector<Model::Group*> m_groups;
 
             DirectEdgeRenderer m_boundsRenderer;
             bool m_boundsValid;
@@ -55,7 +57,7 @@ namespace TrenchBroom {
         public:
             GroupRenderer(const Model::EditorContext& editorContext);
 
-            void setGroups(const Model::GroupList& groups);
+            void setGroups(const std::vector<Model::Group*>& groups);
             void invalidate();
             void clear();
 

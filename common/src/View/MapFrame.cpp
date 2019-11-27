@@ -19,16 +19,17 @@
 
 #include "MapFrame.h"
 
-#include "TrenchBroomApp.h"
+#include "Console.h"
+#include "FileLogger.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
-#include "Console.h"
-#include "IO/ResourceUtils.h"
+#include "TrenchBroomApp.h"
 #include "IO/PathQt.h"
 #include "Model/AttributableNode.h"
 #include "Model/Brush.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
+#include "Model/ExportFormat.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/Group.h"
@@ -38,10 +39,10 @@
 #include "Model/World.h"
 #include "View/Actions.h"
 #include "View/Autosaver.h"
+#if !defined __APPLE__
 #include "View/BorderLine.h"
-#include "View/CachingLogger.h"
+#endif
 #include "View/MapViewBase.h"
-#include "FileLogger.h"
 #include "View/ClipTool.h"
 #include "View/CompilationDialog.h"
 #include "View/EdgeTool.h"
@@ -66,6 +67,10 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
+#include <cassert>
+#include <iterator>
+#include <vector>
+
 #include <QtGlobal>
 #include <QTimer>
 #include <QLabel>
@@ -76,13 +81,9 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QStatusBar>
-#include <QTimer>
 #include <QToolBar>
 #include <QComboBox>
 #include <QVBoxLayout>
-
-#include <cassert>
-#include <iterator>
 
 namespace TrenchBroom {
     namespace View {
@@ -413,7 +414,7 @@ namespace TrenchBroom {
             statusBar()->addWidget(m_statusBarLabel);
         }
 
-        static Model::AttributableNode* commonEntityForBrushList(const Model::BrushList& list) {
+        static Model::AttributableNode* commonEntityForBrushList(const std::vector<Model::Brush*>& list) {
             if (list.empty())
                 return nullptr;
 
@@ -433,7 +434,7 @@ namespace TrenchBroom {
             }
         }
 
-        static String commonClassnameForEntityList(const Model::EntityList& list) {
+        static String commonClassnameForEntityList(const std::vector<Model::Entity*>& list) {
             if (list.empty())
                 return "";
 
@@ -666,7 +667,7 @@ namespace TrenchBroom {
             });
         }
 
-        bool MapFrame::newDocument(Model::GameSPtr game, const Model::MapFormat mapFormat) {
+        bool MapFrame::newDocument(std::shared_ptr<Model::Game> game, const Model::MapFormat mapFormat) {
             if (!confirmOrDiscardChanges()) {
                 return false;
             }
@@ -674,7 +675,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MapFrame::openDocument(Model::GameSPtr game, const Model::MapFormat mapFormat, const IO::Path& path) {
+        bool MapFrame::openDocument(std::shared_ptr<Model::Game> game, const Model::MapFormat mapFormat, const IO::Path& path) {
             if (!confirmOrDiscardChanges()) {
                 return false;
             }
@@ -732,7 +733,7 @@ namespace TrenchBroom {
             if (newFileName.isEmpty())
                 return false;
 
-            return exportDocument(Model::WavefrontObj, IO::pathFromQString(newFileName));
+            return exportDocument(Model::ExportFormat::WavefrontObj, IO::pathFromQString(newFileName));
         }
 
         bool MapFrame::exportDocument(const Model::ExportFormat format, const IO::Path& path) {
@@ -932,7 +933,7 @@ namespace TrenchBroom {
 
                     // The pasted objects must be hidden to prevent the picking done in pasteObjectsDelta
                     // from hitting them (https://github.com/kduske/TrenchBroom/issues/2755)
-                    const Model::NodeList nodes = m_document->selectedNodes().nodes();
+                    const std::vector<Model::Node*> nodes = m_document->selectedNodes().nodes();
                     m_document->hide(nodes);
                     const vm::vec3 delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
                     m_document->show(nodes);

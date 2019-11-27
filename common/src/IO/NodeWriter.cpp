@@ -29,6 +29,8 @@
 #include "Model/Node.h"
 #include "Model/World.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace IO {
         class NodeWriter::CollectEntityBrushesStrategy {
@@ -36,15 +38,15 @@ namespace TrenchBroom {
             using AssortNodesVisitor = Model::AssortNodesVisitorT<Model::SkipLayersStrategy, Model::CollectGroupsStrategy, Model::CollectEntitiesStrategy, CollectEntityBrushesStrategy>;
         private:
             EntityBrushesMap m_entityBrushes;
-            Model::BrushList m_worldBrushes;
+            std::vector<Model::Brush*> m_worldBrushes;
 
             class VisitParent : public Model::NodeVisitor {
             private:
                 Model::Brush* m_brush;
                 EntityBrushesMap& m_entityBrushes;
-                Model::BrushList& m_worldBrushes;
+                std::vector<Model::Brush*>& m_worldBrushes;
             public:
-                VisitParent(Model::Brush* brush, EntityBrushesMap& entityBrushes, Model::BrushList& worldBrushes) :
+                VisitParent(Model::Brush* brush, EntityBrushesMap& entityBrushes, std::vector<Model::Brush*>& worldBrushes) :
                 m_brush(brush),
                 m_entityBrushes(entityBrushes),
                 m_worldBrushes(worldBrushes) {}
@@ -60,7 +62,7 @@ namespace TrenchBroom {
                 return m_entityBrushes;
             }
 
-            const Model::BrushList& worldBrushes() const {
+            const std::vector<Model::Brush*>& worldBrushes() const {
                 return m_worldBrushes;
             }
 
@@ -120,26 +122,27 @@ namespace TrenchBroom {
         void NodeWriter::writeDefaultLayer() {
             m_serializer->defaultLayer(m_world);
 
-            const Model::NodeList& children = m_world.defaultLayer()->children();
+            const std::vector<Model::Node*>& children = m_world.defaultLayer()->children();
             WriteNode visitor(*m_serializer);
             Model::Node::accept(std::begin(children), std::end(children), visitor);
         }
 
         void NodeWriter::writeCustomLayers() {
-            const Model::LayerList customLayers = m_world.customLayers();
-            std::for_each(std::begin(customLayers), std::end(customLayers),
-                          [this](Model::Layer* layer) { writeCustomLayer(layer); });
+            const std::vector<Model::Layer*> customLayers = m_world.customLayers();
+            for (auto* layer : customLayers) {
+                writeCustomLayer(layer);
+            }
         }
 
         void NodeWriter::writeCustomLayer(Model::Layer* layer) {
             m_serializer->customLayer(layer);
 
-            const Model::NodeList& children = layer->children();
+            const std::vector<Model::Node*>& children = layer->children();
             WriteNode visitor(*m_serializer, layer);
             Model::Node::accept(std::begin(children), std::end(children), visitor);
         }
 
-        void NodeWriter::writeNodes(const Model::NodeList& nodes) {
+        void NodeWriter::writeNodes(const std::vector<Model::Node*>& nodes) {
             using CollectNodes = Model::AssortNodesVisitorT<Model::SkipLayersStrategy, Model::CollectGroupsStrategy, Model::CollectEntitiesStrategy, CollectEntityBrushesStrategy>;
 
             m_serializer->beginFile();
@@ -150,8 +153,8 @@ namespace TrenchBroom {
             writeWorldBrushes(collect.worldBrushes());
             writeEntityBrushes(collect.entityBrushes());
 
-            const Model::GroupList& groups = collect.groups();
-            const Model::EntityList& entities = collect.entities();
+            const std::vector<Model::Group*>& groups = collect.groups();
+            const std::vector<Model::Entity*>& entities = collect.entities();
 
             WriteNode visitor(*m_serializer);
             Model::Node::accept(std::begin(groups), std::end(groups), visitor);
@@ -160,22 +163,19 @@ namespace TrenchBroom {
             m_serializer->endFile();
         }
 
-        void NodeWriter::writeWorldBrushes(const Model::BrushList& brushes) {
+        void NodeWriter::writeWorldBrushes(const std::vector<Model::Brush*>& brushes) {
             if (!brushes.empty()) {
                 m_serializer->entity(&m_world, m_world.attributes(), Model::EntityAttribute::EmptyList, brushes);
             }
         }
 
         void NodeWriter::writeEntityBrushes(const EntityBrushesMap& entityBrushes) {
-            std::for_each(std::begin(entityBrushes), std::end(entityBrushes),
-                          [this](const EntityBrushesMap::value_type& entry) {
-                              Model::Entity* entity = entry.first;
-                              const Model::BrushList& brushes = entry.second;
-                              m_serializer->entity(entity, entity->attributes(), Model::EntityAttribute::EmptyList, brushes);
-                          });
+            for (const auto [entity, brushes] : entityBrushes) {
+                m_serializer->entity(entity, entity->attributes(), {}, brushes);
+            }
         }
 
-        void NodeWriter::writeBrushFaces(const Model::BrushFaceList& faces) {
+        void NodeWriter::writeBrushFaces(const std::vector<Model::BrushFace*>& faces) {
             m_serializer->beginFile();
             m_serializer->brushFaces(faces);
             m_serializer->endFile();

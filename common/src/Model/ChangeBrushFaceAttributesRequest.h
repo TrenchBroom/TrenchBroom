@@ -22,9 +22,11 @@
 
 #include "Color.h"
 #include "StringType.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -95,7 +97,7 @@ namespace TrenchBroom {
             void clear();
 
             const String name() const;
-            bool evaluate(const BrushFaceList& faces) const;
+            bool evaluate(const std::vector<BrushFace*>& faces) const;
 
             void resetAll();
 

@@ -26,7 +26,7 @@
 #include "Model/Issue.h"
 #include "Model/MapFacade.h"
 
-#include <cassert>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {

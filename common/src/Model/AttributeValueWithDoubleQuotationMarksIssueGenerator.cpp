@@ -26,7 +26,7 @@
 #include "Model/RemoveEntityAttributesQuickFix.h"
 #include "Model/TransformEntityAttributesQuickFix.h"
 
-#include <cassert>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {

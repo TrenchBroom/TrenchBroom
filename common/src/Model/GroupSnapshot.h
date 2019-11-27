@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_GroupSnapshot
 #define TrenchBroom_GroupSnapshot
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/NodeSnapshot.h"
 
 #include <vector>
@@ -28,10 +28,11 @@
 namespace TrenchBroom {
     namespace Model {
         class Group;
+        class NodeSnapshot;
 
         class GroupSnapshot : public NodeSnapshot {
         private:
-            NodeSnapshotList m_snapshots;
+            std::vector<NodeSnapshot*> m_snapshots;
         public:
             GroupSnapshot(Group* group);
             ~GroupSnapshot() override;

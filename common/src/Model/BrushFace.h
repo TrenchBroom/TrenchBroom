@@ -27,7 +27,7 @@
 #include "Assets/AssetTypes.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/Tag.h"
 #include "Model/TexCoordSystem.h"
 
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             static BrushFace* createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName = "");
             static BrushFace* createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName = "");
 
-            static void sortFaces(BrushFaceList& faces);
+            static void sortFaces(std::vector<BrushFace*>& faces);
 
             virtual ~BrushFace() override;
 

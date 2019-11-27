@@ -21,7 +21,9 @@
 #define TrenchBroom_BrushFaceReader
 
 #include "IO/MapReader.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -34,11 +36,11 @@ namespace TrenchBroom {
         class BrushFaceReader : public MapReader {
         private:
             Model::ModelFactory& m_factory;
-            Model::BrushFaceList m_brushFaces;
+            std::vector<Model::BrushFace*> m_brushFaces;
         public:
             BrushFaceReader(const String& str, Model::ModelFactory& factory);
 
-            const Model::BrushFaceList& read(const vm::bbox3& worldBounds, ParserStatus& status);
+            const std::vector<Model::BrushFace*>& read(const vm::bbox3& worldBounds, ParserStatus& status);
         private: // implement MapReader interface
             Model::ModelFactory& initialize(Model::MapFormat format) override;
             Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;

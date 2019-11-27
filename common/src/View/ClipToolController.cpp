@@ -310,7 +310,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        Model::BrushFaceList ClipToolController3D::selectIncidentFaces(Model::BrushFace* face, const vm::vec3& hitPoint) {
+        std::vector<Model::BrushFace*> ClipToolController3D::selectIncidentFaces(Model::BrushFace* face, const vm::vec3& hitPoint) {
             static const auto MaxDistance = vm::constants<FloatType>::almost_zero();
 
             // First, try to see if the clip point is almost equal to a vertex:
@@ -341,13 +341,13 @@ namespace TrenchBroom {
             }
 
             if (closestEdge != nullptr) {
-                return Model::BrushFaceList {
+                return {
                     closestEdge->firstFace()->payload(),
                     closestEdge->secondFace()->payload()
                 };
             }
 
-            return Model::BrushFaceList(1, face);
+            return { face };
         }
 
         class ClipToolController3D::Callback3D : public Callback {

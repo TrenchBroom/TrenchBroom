@@ -18,8 +18,10 @@
  */
 
 #include "CreateBrushToolBase.h"
+
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
 #include "Model/Brush.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/SelectionBoundsRenderer.h"
@@ -78,7 +80,7 @@ namespace TrenchBroom {
             m_brushRenderer->setForceTransparent(true);
             m_brushRenderer->setTransparencyAlpha(0.7f);
 
-            m_brushRenderer->setBrushes(Model::BrushList(1, m_brush));
+            m_brushRenderer->setBrushes({ m_brush });
             m_brushRenderer->render(renderContext, renderBatch);
 
             Renderer::SelectionBoundsRenderer boundsRenderer(m_brush->logicalBounds());

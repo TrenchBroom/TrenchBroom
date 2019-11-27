@@ -21,7 +21,9 @@
 #define TrenchBroom_NodeReader
 
 #include "IO/MapReader.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -34,12 +36,12 @@ namespace TrenchBroom {
         class NodeReader : public MapReader {
         private:
             Model::ModelFactory& m_factory;
-            Model::NodeList m_nodes;
+            std::vector<Model::Node*> m_nodes;
         public:
             NodeReader(const String& str, Model::ModelFactory& factory);
 
-            static Model::NodeList read(const String& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status);
-            const Model::NodeList& read(const vm::bbox3& worldBounds, ParserStatus& status);
+            static std::vector<Model::Node*> read(const String& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status);
+            const std::vector<Model::Node*>& read(const vm::bbox3& worldBounds, ParserStatus& status);
         private: // implement MapReader interface
             Model::ModelFactory& initialize(Model::MapFormat format) override;
             Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;

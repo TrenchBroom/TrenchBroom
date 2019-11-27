@@ -21,7 +21,6 @@
 #define TrenchBroom_Console
 
 #include "StringType.h"
-#include "Notifier.h"
 #include "Logger.h"
 #include "View/TabBook.h"
 

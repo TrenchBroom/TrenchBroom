@@ -19,6 +19,7 @@
 
 #include "EntityAttributeEditor.h"
 
+#include "SharedPointer.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/AttributableNode.h"
@@ -76,7 +77,7 @@ namespace TrenchBroom {
             updateIfSelectedEntityDefinitionChanged();
         }
 
-        void EntityAttributeEditor::nodesDidChange(const Model::NodeList&) {
+        void EntityAttributeEditor::nodesDidChange(const std::vector<Model::Node*>&) {
             updateIfSelectedEntityDefinitionChanged();
         }
 

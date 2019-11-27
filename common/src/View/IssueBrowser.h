@@ -20,9 +20,11 @@
 #ifndef TrenchBroom_IssueBrowser
 #define TrenchBroom_IssueBrowser
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/ViewTypes.h"
 #include "View/TabBook.h"
+
+#include <vector>
 
 class QCheckBox;
 class QStackedLayout;
@@ -60,10 +62,10 @@ namespace TrenchBroom {
             void unbindObservers();
             void documentWasNewedOrLoaded(MapDocument* document);
             void documentWasSaved(MapDocument* document);
-            void nodesWereAdded(const Model::NodeList& nodes);
-            void nodesWereRemoved(const Model::NodeList& nodes);
-            void nodesDidChange(const Model::NodeList& nodes);
-            void brushFacesDidChange(const Model::BrushFaceList& faces);
+            void nodesWereAdded(const std::vector<Model::Node*>& nodes);
+            void nodesWereRemoved(const std::vector<Model::Node*>& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
+            void brushFacesDidChange(const std::vector<Model::BrushFace*>& faces);
             void issueIgnoreChanged(Model::Issue* issue);
 
             void updateFilterFlags();

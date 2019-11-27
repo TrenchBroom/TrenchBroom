@@ -20,7 +20,10 @@
 #ifndef PushSelection_h
 #define PushSelection_h
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
+
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -29,8 +32,8 @@ namespace TrenchBroom {
         class PushSelection {
         private:
             MapFacade* m_facade;
-            NodeList m_nodes;
-            BrushFaceList m_faces;
+            std::vector<Node*> m_nodes;
+            std::vector<BrushFace*> m_faces;
         public:
             template <typename T>
             explicit PushSelection(std::shared_ptr<T> facade) {

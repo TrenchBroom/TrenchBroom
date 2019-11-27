@@ -20,9 +20,11 @@
 #ifndef TrenchBroom_SmartChoiceEditor
 #define TrenchBroom_SmartChoiceEditor
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/SmartAttributeEditor.h"
 #include "View/ViewTypes.h"
+
+#include <vector>
 
 class QComboBox;
 class QWidget;
@@ -47,7 +49,7 @@ namespace TrenchBroom {
             void comboBoxEditTextChanged(const QString& text);
         private:
             void createGui();
-            void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
+            void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) override;
         };
     }
 }

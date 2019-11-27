@@ -30,6 +30,8 @@
 #include "Model/MapFormat.h"
 #include "Model/World.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace IO {
         TEST(NodeWriterTest, writeEmptyMap) {
@@ -370,7 +372,7 @@ R"(// entity 0
             map.defaultLayer()->addChild(worldBrush);
             map.defaultLayer()->addChild(outer);
 
-            Model::NodeList nodes;
+            std::vector<Model::Node*> nodes;
             nodes.push_back(inner);
             nodes.push_back(worldBrush);
 

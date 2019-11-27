@@ -19,6 +19,7 @@
 
 #include "GameImpl.h"
 
+#include "Exceptions.h"
 #include "Macros.h"
 #include "Assets/Palette.h"
 #include "IO/AseParser.h"
@@ -48,11 +49,12 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityAttributes.h"
+#include "Model/ExportFormat.h"
 #include "Model/GameConfig.h"
 #include "Model/Layer.h"
 #include "Model/World.h"
 
-#include "Exceptions.h"
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -150,30 +152,30 @@ namespace TrenchBroom {
 
         void GameImpl::doExportMap(World& world, const Model::ExportFormat format, const IO::Path& path) const {
             switch (format) {
-                case Model::WavefrontObj:
+                case Model::ExportFormat::WavefrontObj:
                     IO::NodeWriter(world, new IO::ObjFileSerializer(path)).writeMap();
                     break;
             }
         }
 
-        NodeList GameImpl::doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
+        std::vector<Node*> GameImpl::doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             IO::NodeReader reader(str, world);
             return reader.read(worldBounds, parserStatus);
         }
 
-        BrushFaceList GameImpl::doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
+        std::vector<BrushFace*> GameImpl::doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             IO::BrushFaceReader reader(str, world);
             return reader.read(worldBounds, parserStatus);
         }
 
-        void GameImpl::doWriteNodesToStream(World& world, const Model::NodeList& nodes, std::ostream& stream) const {
+        void GameImpl::doWriteNodesToStream(World& world, const std::vector<Node*>& nodes, std::ostream& stream) const {
             IO::NodeWriter writer(world, stream);
             writer.writeNodes(nodes);
         }
 
-        void GameImpl::doWriteBrushFacesToStream(World& world, const BrushFaceList& faces, std::ostream& stream) const {
+        void GameImpl::doWriteBrushFacesToStream(World& world, const std::vector<BrushFace*>& faces, std::ostream& stream) const {
             IO::NodeWriter writer(world, stream);
             writer.writeBrushFaces(faces);
         }

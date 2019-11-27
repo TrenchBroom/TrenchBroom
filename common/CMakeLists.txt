@@ -649,6 +649,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/EntityColor.h
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.h
         ${COMMON_SOURCE_DIR}/Model/EntitySnapshot.h
+        ${COMMON_SOURCE_DIR}/Model/ExportFormat.h
         ${COMMON_SOURCE_DIR}/Model/FindContainerVisitor.h
         ${COMMON_SOURCE_DIR}/Model/FindGroupVisitor.h
         ${COMMON_SOURCE_DIR}/Model/FindLayerVisitor.h
@@ -674,6 +675,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/Layer.h
         ${COMMON_SOURCE_DIR}/Model/LinkSourceIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/LinkTargetIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/LockState.h
         ${COMMON_SOURCE_DIR}/Model/LongAttributeNameIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/LongAttributeValueIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MapFacade.h
@@ -686,9 +688,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/MissingDefinitionIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MissingModIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MixedBrushContentsIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/Model_Forward.h
         ${COMMON_SOURCE_DIR}/Model/ModelFactory.h
         ${COMMON_SOURCE_DIR}/Model/ModelFactoryImpl.h
-        ${COMMON_SOURCE_DIR}/Model/ModelTypes.h
         ${COMMON_SOURCE_DIR}/Model/ModelUtils.h
         ${COMMON_SOURCE_DIR}/Model/Node.h
         ${COMMON_SOURCE_DIR}/Model/NodeCollection.h
@@ -718,6 +720,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.h
         ${COMMON_SOURCE_DIR}/Model/TransformEntityAttributesQuickFix.h
         ${COMMON_SOURCE_DIR}/Model/TransformObjectVisitor.h
+        ${COMMON_SOURCE_DIR}/Model/VisibilityState.h
         ${COMMON_SOURCE_DIR}/Model/World.h
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Renderer/AllocationTracker.h

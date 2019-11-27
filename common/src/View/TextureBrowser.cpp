@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
 #include "Assets/TextureManager.h"
 #include "Assets/Texture.h"
 #include "View/ViewConstants.h"
@@ -99,7 +100,7 @@ namespace TrenchBroom {
             auto* browserPanel = new QWidget();
             m_scrollBar = new QScrollBar(Qt::Vertical);
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             m_view = new TextureBrowserView(m_scrollBar, contextManager, document);
 
             auto* browserPanelSizer = new QHBoxLayout();
@@ -163,7 +164,7 @@ namespace TrenchBroom {
         }
 
         void TextureBrowser::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &TextureBrowser::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &TextureBrowser::documentWasLoaded);
             document->nodesWereAddedNotifier.addObserver(this, &TextureBrowser::nodesWereAdded);
@@ -179,7 +180,7 @@ namespace TrenchBroom {
 
         void TextureBrowser::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &TextureBrowser::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &TextureBrowser::documentWasLoaded);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &TextureBrowser::textureCollectionsDidChange);
@@ -202,19 +203,19 @@ namespace TrenchBroom {
             reload();
         }
 
-        void TextureBrowser::nodesWereAdded(const Model::NodeList&) {
+        void TextureBrowser::nodesWereAdded(const std::vector<Model::Node*>&) {
             reload();
         }
 
-        void TextureBrowser::nodesWereRemoved(const Model::NodeList&) {
+        void TextureBrowser::nodesWereRemoved(const std::vector<Model::Node*>&) {
             reload();
         }
 
-        void TextureBrowser::nodesDidChange(const Model::NodeList&) {
+        void TextureBrowser::nodesDidChange(const std::vector<Model::Node*>&) {
             reload();
         }
 
-        void TextureBrowser::brushFacesDidChange(const Model::BrushFaceList&) {
+        void TextureBrowser::brushFacesDidChange(const std::vector<Model::BrushFace*>&) {
             reload();
         }
 
@@ -227,7 +228,7 @@ namespace TrenchBroom {
         }
 
         void TextureBrowser::preferenceDidChange(const IO::Path& path) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (path == Preferences::TextureBrowserIconSize.path() ||
                 document->isGamePathPreference(path)) {
                 reload();
@@ -245,7 +246,7 @@ namespace TrenchBroom {
         }
 
         void TextureBrowser::updateSelectedTexture() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const String& textureName = document->currentTextureName();
             Assets::Texture* texture = document->textureManager().texture(textureName);
             m_view->setSelectedTexture(texture);

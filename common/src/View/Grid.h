@@ -23,7 +23,7 @@
 #include "Macros.h"
 #include "TrenchBroom.h"
 #include "Notifier.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>

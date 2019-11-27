@@ -43,6 +43,8 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         const Hit::HitType Entity::EntityHit = Hit::freeHitType();
@@ -271,7 +273,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Entity::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
+        void Entity::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) {
             if (hasChildren()) {
                 for (Node* child : Node::children())
                     child->findNodesContaining(point, result);
@@ -281,7 +283,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Entity::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+        void Entity::doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) {
             generator->generate(this, issues);
         }
 
@@ -293,12 +295,12 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
 
-        NodeList Entity::nodesRequiredForViewSelection() {
+        std::vector<Node*> Entity::nodesRequiredForViewSelection() {
             if (hasChildren()) {
                 // Selecting a brush entity means selecting the children
                 return children();
             } else {
-                return NodeList{this};
+                return std::vector<Node*>{this};
             }
         }
 

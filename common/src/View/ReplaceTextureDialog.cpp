@@ -33,8 +33,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-#include <algorithm>
-#include <iterator>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -55,7 +54,7 @@ namespace TrenchBroom {
             ensure(replacement != nullptr, "replacement is null");
 
             MapDocumentSPtr document = lock(m_document);
-            const Model::BrushFaceList faces = getApplicableFaces();
+            const std::vector<Model::BrushFace*> faces = getApplicableFaces();
 
             if (faces.empty()) {
                 QMessageBox::warning(this, tr("Replace Failed"), tr("None of the selected faces has the selected texture"));
@@ -72,9 +71,9 @@ namespace TrenchBroom {
             QMessageBox::information(this, tr("Replace Succeeded"), QString::fromStdString(msg.str()));
         }
 
-        Model::BrushFaceList ReplaceTextureDialog::getApplicableFaces() const {
+        std::vector<Model::BrushFace*> ReplaceTextureDialog::getApplicableFaces() const {
             MapDocumentSPtr document = lock(m_document);
-            Model::BrushFaceList faces = document->allSelectedBrushFaces();
+            std::vector<Model::BrushFace*> faces = document->allSelectedBrushFaces();
             if (faces.empty()) {
                 Model::CollectBrushFacesVisitor collect;
                 document->world()->acceptAndRecurse(collect);
@@ -84,8 +83,12 @@ namespace TrenchBroom {
             const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
             ensure(subject != nullptr, "subject is null");
 
-            Model::BrushFaceList result;
-            std::copy_if(std::begin(faces), std::end(faces), std::back_inserter(result), [&subject](const Model::BrushFace* face) { return face->texture() == subject; });
+            std::vector<Model::BrushFace*> result;
+            for (auto* face : faces) {
+                if (face->texture() == subject) {
+                    result.push_back(face);
+                }
+            }
             return result;
         }
 

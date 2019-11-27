@@ -21,7 +21,7 @@
 #define TrenchBroom_MapViewBase
 
 #include "Assets/EntityDefinition.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/NodeCollection.h"
 #include "Renderer/RenderContext.h"
 #include "View/ActionContext.h"
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
 
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void toolChanged(Tool* tool);
             void commandDone(Command::Ptr command);
             void commandUndone(UndoableCommand::Ptr command);
@@ -163,7 +163,7 @@ namespace TrenchBroom {
         public: // reparenting objects
             void addSelectedObjectsToGroup();
             void removeSelectedObjectsFromGroup();
-            Model::Node* findNewGroupForObjects(const Model::NodeList& nodes) const;
+            Model::Node* findNewGroupForObjects(const std::vector<Model::Node*>& nodes) const;
 
             void mergeSelectedGroups();
             Model::Group* findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const;
@@ -178,9 +178,9 @@ namespace TrenchBroom {
             bool canReparentNode(const Model::Node* node, const Model::Node* newParent) const;
 
             void moveSelectedBrushesToEntity();
-            Model::Node* findNewParentEntityForBrushes(const Model::NodeList& nodes) const;
+            Model::Node* findNewParentEntityForBrushes(const std::vector<Model::Node*>& nodes) const;
 
-            bool canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
+            bool canReparentNodes(const std::vector<Model::Node*>& nodes, const Model::Node* newParent) const;
             /**
              * Reparents nodes, and deselects everything as a side effect.
              *
@@ -191,8 +191,8 @@ namespace TrenchBroom {
              *                         if false, only the brushes listed in `nodes` are reparented, not any
              *                         parent entities.
              */
-            void reparentNodes(const Model::NodeList& nodes, Model::Node* newParent, bool preserveEntities);
-            Model::NodeList collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
+            void reparentNodes(const std::vector<Model::Node*>& nodes, Model::Node* newParent, bool preserveEntities);
+            std::vector<Model::Node*> collectReparentableNodes(const std::vector<Model::Node*>& nodes, const Model::Node* newParent) const;
 
             void createPointEntity();
             void createBrushEntity();

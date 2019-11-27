@@ -20,10 +20,11 @@
 #ifndef TrenchBroom_SetLockStateCommand
 #define TrenchBroom_SetLockStateCommand
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/UndoableCommand.h"
 
 #include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -32,15 +33,15 @@ namespace TrenchBroom {
             static const CommandType Type;
             using Ptr = std::shared_ptr<SetLockStateCommand>;
         private:
-            Model::NodeList m_nodes;
+            std::vector<Model::Node*> m_nodes;
             Model::LockState m_lockState;
-            Model::LockStateMap m_oldLockState;
+            std::map<Model::Node*, Model::LockState> m_oldLockState;
         public:
-            static Ptr lock(const Model::NodeList& nodes);
-            static Ptr unlock(const Model::NodeList& nodes);
-            static Ptr reset(const Model::NodeList& nodes);
+            static Ptr lock(const std::vector<Model::Node*>& nodes);
+            static Ptr unlock(const std::vector<Model::Node*>& nodes);
+            static Ptr reset(const std::vector<Model::Node*>& nodes);
         private:
-            SetLockStateCommand(const Model::NodeList& nodes, Model::LockState lockState);
+            SetLockStateCommand(const std::vector<Model::Node*>& nodes, Model::LockState lockState);
             static String makeName(Model::LockState lockState);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;

@@ -20,8 +20,11 @@
 #ifndef TrenchBroom_ReparentNodesCommand
 #define TrenchBroom_ReparentNodesCommand
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
+
+#include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -30,12 +33,12 @@ namespace TrenchBroom {
             static const CommandType Type;
             using Ptr = std::shared_ptr<ReparentNodesCommand>;
         private:
-            Model::ParentChildrenMap m_nodesToAdd;
-            Model::ParentChildrenMap m_nodesToRemove;
+            std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
+            std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;
         public:
-            static Ptr reparent(const Model::ParentChildrenMap& nodesToAdd, const Model::ParentChildrenMap& nodesToRemove);
+            static Ptr reparent(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove);
         private:
-            ReparentNodesCommand(const Model::ParentChildrenMap& nodesToAdd, const Model::ParentChildrenMap& nodesToRemove);
+            ReparentNodesCommand(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

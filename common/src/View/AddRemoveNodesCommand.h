@@ -20,8 +20,11 @@
 #ifndef TrenchBroom_AddRemoveNodesCommand
 #define TrenchBroom_AddRemoveNodesCommand
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
+
+#include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -36,15 +39,15 @@ namespace TrenchBroom {
             } Action;
 
             Action m_action;
-            Model::ParentChildrenMap m_nodesToAdd;
-            Model::ParentChildrenMap m_nodesToRemove;
+            std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
+            std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;
         public:
-            static Ptr add(Model::Node* parent, const Model::NodeList& children);
-            static Ptr add(const Model::ParentChildrenMap& nodes);
-            static Ptr remove(const Model::ParentChildrenMap& nodes);
+            static Ptr add(Model::Node* parent, const std::vector<Model::Node*>& children);
+            static Ptr add(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
+            static Ptr remove(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
             ~AddRemoveNodesCommand() override;
         private:
-            AddRemoveNodesCommand(Action action, const Model::ParentChildrenMap& nodes);
+            AddRemoveNodesCommand(Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
             static String makeName(Action action);
 
             bool doPerformDo(MapDocumentCommandFacade* document) override;

@@ -24,7 +24,7 @@
 #include "Model/BrushFace.h"
 #include "Model/MapFormat.h"
 #include "Model/World.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,7 +37,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(cube != nullptr);
             ASSERT_EQ(vm::bbox3d(-64.0, +64.0), cube->logicalBounds());
 
-            const BrushFaceList& faces = cube->faces();
+            const std::vector<BrushFace*>& faces = cube->faces();
             ASSERT_EQ(6u, faces.size());
 
             for (size_t i = 0; i < faces.size(); ++i)

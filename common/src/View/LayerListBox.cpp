@@ -19,6 +19,7 @@
 
 #include "LayerListBox.h"
 
+#include "SharedPointer.h"
 #include "Model/Layer.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"
@@ -47,7 +48,7 @@ namespace TrenchBroom {
             m_hiddenButton = createBitmapToggleButton("Hidden.png", "");
             m_lockButton = createBitmapToggleButton("Lock.png", "");
 
-            MapDocumentSPtr documentS = lock(m_document);
+            auto documentS = lock(m_document);
             connect(m_hiddenButton, &QAbstractButton::clicked, this, [this](){
                 emit layerVisibilityToggled(m_layer);
             });
@@ -105,7 +106,7 @@ namespace TrenchBroom {
             m_lockButton->setChecked(m_layer->locked());
             m_hiddenButton->setChecked(m_layer->hidden());
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             m_lockButton->setEnabled(m_layer->locked() || m_layer != document->currentLayer());
             m_hiddenButton->setEnabled(m_layer->hidden() || m_layer != document->currentLayer());
         }
@@ -158,7 +159,7 @@ namespace TrenchBroom {
         }
 
         void LayerListBox::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &LayerListBox::documentDidChange);
             document->documentWasLoadedNotifier.addObserver(this, &LayerListBox::documentDidChange);
             document->documentWasClearedNotifier.addObserver(this, &LayerListBox::documentDidChange);
@@ -171,7 +172,7 @@ namespace TrenchBroom {
 
         void LayerListBox::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
                 document->documentWasLoadedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
                 document->documentWasClearedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
@@ -187,7 +188,7 @@ namespace TrenchBroom {
             reload();
         }
 
-        void LayerListBox::nodesWereAddedOrRemoved(const Model::NodeList& nodes) {
+        void LayerListBox::nodesWereAddedOrRemoved(const std::vector<Model::Node*>& nodes) {
             for (const auto* node : nodes) {
                 if (dynamic_cast<const Model::Layer*>(node) != nullptr) {
                     // A layer was added or removed, so we need to clear and repopulate the list
@@ -198,7 +199,7 @@ namespace TrenchBroom {
             updateItems();
         }
 
-        void LayerListBox::nodesDidChange(const Model::NodeList&) {
+        void LayerListBox::nodesDidChange(const std::vector<Model::Node*>&) {
             updateItems();
         }
 
@@ -207,7 +208,7 @@ namespace TrenchBroom {
         }
 
         size_t LayerListBox::itemCount() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const auto* world = document->world();
             if (world == nullptr) {
                 return 0;
@@ -216,7 +217,7 @@ namespace TrenchBroom {
         }
 
         ControlListBoxItemRenderer* LayerListBox::createItemRenderer(QWidget* parent, const size_t index) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const auto* world = document->world();
             const auto layers = world->allLayers();
             auto* renderer = new LayerListBoxWidget(document, layers[index], parent);

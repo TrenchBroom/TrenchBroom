@@ -20,33 +20,35 @@
 #ifndef TrenchBroom_SmartAttributeEditorMatcher
 #define TrenchBroom_SmartAttributeEditorMatcher
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <initializer_list>
+#include <set>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
         class SmartAttributeEditorMatcher {
         public:
             virtual ~SmartAttributeEditorMatcher();
-            bool matches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const;
+            bool matches(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const;
         private:
-            virtual bool doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const = 0;
+            virtual bool doMatches(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const = 0;
         };
 
         class SmartAttributeEditorKeyMatcher : public SmartAttributeEditorMatcher {
         private:
-            Model::AttributeNameSet m_patterns;
+            std::set<Model::AttributeName> m_patterns;
         public:
             SmartAttributeEditorKeyMatcher(const String& pattern);
             SmartAttributeEditorKeyMatcher(std::initializer_list<String> patterns);
         private:
-            bool doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const override;
+            bool doMatches(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const override;
         };
 
         class SmartAttributeEditorDefaultMatcher : public SmartAttributeEditorMatcher {
         private:
-            bool doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const override;
+            bool doMatches(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const override;
         };
     }
 }

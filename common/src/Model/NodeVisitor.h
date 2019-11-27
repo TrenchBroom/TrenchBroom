@@ -20,7 +20,9 @@
 #ifndef TrenchBroom_NodeVisitor
 #define TrenchBroom_NodeVisitor
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
+
+#include <cassert>
 
 namespace TrenchBroom {
     namespace Model {
@@ -43,7 +45,7 @@ namespace TrenchBroom {
         protected:
             NodeVisitor();
         public:
-            virtual ~NodeVisitor();
+            ~NodeVisitor() override;
 
             virtual void visit(World* world);
             virtual void visit(Layer* layer);
@@ -62,7 +64,7 @@ namespace TrenchBroom {
         protected:
             ConstNodeVisitor();
         public:
-            virtual ~ConstNodeVisitor();
+            ~ConstNodeVisitor() override;
 
             virtual void visit(const World* world);
             virtual void visit(const Layer* layer);
@@ -92,9 +94,9 @@ namespace TrenchBroom {
             P m_p;
             S m_s;
         protected:
-            MatchingNodeVisitor(const P& p = P(), const S& s = S()) : m_p(p), m_s(s) {}
+            explicit MatchingNodeVisitor(const P& p = P(), const S& s = S()) : m_p(p), m_s(s) {}
         public:
-            virtual ~MatchingNodeVisitor() override {}
+            ~MatchingNodeVisitor() override = default;
 
             void visit(World* world) override {
                 const bool match = m_p(world);
@@ -133,35 +135,35 @@ namespace TrenchBroom {
             P m_p;
             S m_s;
         protected:
-            ConstMatchingNodeVisitor(const P& p = P(), const S& s = S()) : m_p(p), m_s(s) {}
+            explicit ConstMatchingNodeVisitor(const P& p = P(), const S& s = S()) : m_p(p), m_s(s) {}
         public:
-            virtual ~ConstMatchingNodeVisitor() {}
+            ~ConstMatchingNodeVisitor() override = default;
 
-            void visit(const World* world) {
+            void visit(const World* world) override {
                 const bool match = m_p(world);
                 if (match) ConstNodeVisitor::visit(world);
                 if (m_s(world, match)) stopRecursion();
             }
 
-            void visit(const Layer* layer) {
+            void visit(const Layer* layer) override {
                 const bool match = m_p(layer);
                 if (match) ConstNodeVisitor::visit(layer);
                 if (m_s(layer, match)) stopRecursion();
             }
 
-            void visit(const Group* group) {
+            void visit(const Group* group) override {
                 const bool match = m_p(group);
                 if (match) ConstNodeVisitor::visit(group);
                 if (m_s(group, match)) stopRecursion();
             }
 
-            void visit(const Entity* entity) {
+            void visit(const Entity* entity) override {
                 const bool match = m_p(entity);
                 if (match) ConstNodeVisitor::visit(entity);
                 if (m_s(entity, match)) stopRecursion();
             }
 
-            void visit(const Brush* brush) {
+            void visit(const Brush* brush) override {
                 const bool match = m_p(brush);
                 if (match) ConstNodeVisitor::visit(brush);
                 if (m_s(brush, match)) stopRecursion();
@@ -174,11 +176,11 @@ namespace TrenchBroom {
             bool m_hasResult;
             T m_result;
         public:
-            NodeQuery(const T& defaultResult = T()) :
+            explicit NodeQuery(const T& defaultResult = T()) :
             m_hasResult(false),
             m_result(defaultResult) {}
 
-            virtual ~NodeQuery() {}
+            virtual ~NodeQuery() = default;
 
             bool hasResult() const {
                 return m_hasResult;

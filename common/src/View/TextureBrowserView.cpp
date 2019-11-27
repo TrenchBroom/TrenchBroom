@@ -20,19 +20,20 @@
 #include "TextureBrowserView.h"
 
 #include "CollectionUtils.h"
-#include "StepIterator.h"
-#include "Renderer/GL.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
+#include "StepIterator.h"
+#include "StringUtils.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
+#include "Renderer/GL.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/TextureFont.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
-#include "StringUtils.h"
 #include "View/MapDocument.h"
 
 #include <vecmath/vec.h>
@@ -56,13 +57,13 @@ namespace TrenchBroom {
         m_hideUnused(false),
         m_sortOrder(SO_Name),
         m_selectedTexture(nullptr) {
-            MapDocumentSPtr doc = lock(m_document);
+            auto doc = lock(m_document);
             doc->textureManager().usageCountDidChange.addObserver(this, &TextureBrowserView::usageCountDidChange);
         }
 
         TextureBrowserView::~TextureBrowserView() {
             if (!expired(m_document)) {
-                MapDocumentSPtr doc = lock(m_document);
+                auto doc = lock(m_document);
                 doc->textureManager().usageCountDidChange.removeObserver(this, &TextureBrowserView::usageCountDidChange);
             }
             clear();
@@ -229,7 +230,7 @@ namespace TrenchBroom {
         };
 
         Assets::TextureCollectionList TextureBrowserView::getCollections() const {
-            MapDocumentSPtr doc = lock(m_document);
+            auto doc = lock(m_document);
             Assets::TextureCollectionList collections = doc->textureManager().collections();
             if (m_hideUnused)
                 VectorUtils::eraseIf(collections, MatchUsageCount());
@@ -246,7 +247,7 @@ namespace TrenchBroom {
         }
 
         Assets::TextureList TextureBrowserView::getTextures() const {
-            MapDocumentSPtr doc = lock(m_document);
+            auto doc = lock(m_document);
             Assets::TextureList textures = doc->textureManager().textures();
             filterTextures(textures);
             sortTextures(textures);
@@ -274,7 +275,7 @@ namespace TrenchBroom {
         void TextureBrowserView::doClear() {}
 
         void TextureBrowserView::doRender(Layout& layout, const float y, const float height) {
-            MapDocumentSPtr doc = lock(m_document);
+            auto doc = lock(m_document);
             doc->textureManager().commitChanges();
 
             const float viewLeft      = static_cast<float>(0);
@@ -548,7 +549,7 @@ namespace TrenchBroom {
 
                     QMenu menu(this);
                     menu.addAction(tr("Select Faces"), this, [=]() {
-                        MapDocumentSPtr doc = lock(m_document);
+                        auto doc = lock(m_document);
                         doc->selectFacesWithTexture(texture);
                     });
                     menu.exec(event->globalPos());

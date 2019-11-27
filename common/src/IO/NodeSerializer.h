@@ -21,11 +21,12 @@
 #define TrenchBroom_NodeSerializer
 
 #include "Model/EntityAttributes.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "StringStream.h"
 
 #include <map>
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -88,7 +89,7 @@ namespace TrenchBroom {
             void group(Model::Group* group, const Model::EntityAttribute::List& parentAttributes);
 
             void entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, Model::Node* brushParent);
-            void entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, const Model::BrushList& entityBrushes);
+            void entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, const std::vector<Model::Brush*>& entityBrushes);
         private:
             void beginEntity(const Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& extraAttributes);
             void beginEntity(const Model::Node* node);
@@ -97,13 +98,13 @@ namespace TrenchBroom {
             void entityAttributes(const Model::EntityAttribute::List& attributes);
             void entityAttribute(const Model::EntityAttribute& attribute);
 
-            void brushes(const Model::BrushList& brushes);
+            void brushes(const std::vector<Model::Brush*>& brushes);
             void brush(Model::Brush* brush);
 
             void beginBrush(const Model::Brush* brush);
             void endBrush(Model::Brush* brush);
         public:
-            void brushFaces(const Model::BrushFaceList& faces);
+            void brushFaces(const std::vector<Model::BrushFace*>& faces);
         private:
             void brushFace(Model::BrushFace* face);
         private:

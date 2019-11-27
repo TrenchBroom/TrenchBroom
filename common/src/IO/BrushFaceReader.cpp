@@ -32,7 +32,7 @@ namespace TrenchBroom {
         MapReader(str),
         m_factory(factory) {}
 
-        const Model::BrushFaceList& BrushFaceReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
+        const std::vector<Model::BrushFace*>& BrushFaceReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
             try {
                 readBrushFaces(m_factory.format(), worldBounds, status);
                 return m_brushFaces;

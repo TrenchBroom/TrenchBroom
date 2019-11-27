@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_MatchNodesByVisibility
 #define TrenchBroom_MatchNodesByVisibility
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 namespace TrenchBroom {
     namespace Model {

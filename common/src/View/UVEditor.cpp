@@ -18,6 +18,8 @@
  */
 
 #include "UVEditor.h"
+
+#include "SharedPointer.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "View/MapDocument.h"
 #include "View/UVView.h"
@@ -51,7 +53,7 @@ namespace TrenchBroom {
         }
 
         void UVEditor::updateButtons() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const bool enabled = !document->allSelectedBrushFaces().empty();
 
             m_resetTextureButton->setEnabled(enabled);
@@ -125,13 +127,13 @@ namespace TrenchBroom {
         }
 
         void UVEditor::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &UVEditor::selectionDidChange);
         }
 
         void UVEditor::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->selectionDidChangeNotifier.removeObserver(this, &UVEditor::selectionDidChange);
             }
         }
@@ -141,7 +143,7 @@ namespace TrenchBroom {
             Model::ChangeBrushFaceAttributesRequest request;
             request.resetAll();
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->setFaceAttributes(request);
         }
 
@@ -149,7 +151,7 @@ namespace TrenchBroom {
             Model::ChangeBrushFaceAttributesRequest request;
             request.mulXScale(-1.0f);
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->setFaceAttributes(request);
         }
 
@@ -157,7 +159,7 @@ namespace TrenchBroom {
             Model::ChangeBrushFaceAttributesRequest request;
             request.mulYScale(-1.0f);
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->setFaceAttributes(request);
         }
 
@@ -165,7 +167,7 @@ namespace TrenchBroom {
             Model::ChangeBrushFaceAttributesRequest request;
             request.addRotation(90.0f);
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->setFaceAttributes(request);
         }
 
@@ -173,7 +175,7 @@ namespace TrenchBroom {
             Model::ChangeBrushFaceAttributesRequest request;
             request.addRotation(-90.0f);
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->setFaceAttributes(request);
         }
 

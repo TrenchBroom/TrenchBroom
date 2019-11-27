@@ -22,6 +22,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
@@ -110,7 +111,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             if (vertical != m_tool->constrainVertical()) {
                 m_tool->setConstrainVertical(vertical);
@@ -148,7 +149,7 @@ namespace TrenchBroom {
                 return DragInfo();
             }
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             const Model::PickResult& pickResult = inputState.pickResult();
             const Model::Hit& hit = pickResult.query().type(ShearObjectsTool::ShearToolSideHit).occluded().first();

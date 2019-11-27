@@ -23,7 +23,7 @@
 #include "SharedPointer.h"
 #include "Model/EntityAttributeSnapshot.h"
 #include "Model/EntityColor.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
 
 #include <map>

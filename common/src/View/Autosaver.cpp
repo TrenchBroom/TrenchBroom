@@ -20,11 +20,12 @@
 #include "Autosaver.h"
 
 #include "Exceptions.h"
+#include "SharedPointer.h"
 #include "StringUtils.h"
 #include "IO/DiskFileSystem.h"
 #include "View/MapDocument.h"
 
-#include <algorithm>
+#include <algorithm> // for std::sort
 #include <cassert>
 
 namespace TrenchBroom {

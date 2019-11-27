@@ -21,32 +21,39 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const LayerList& CollectLayersStrategy::layers() const { return m_layers; }
+        const std::vector<Layer*>& CollectLayersStrategy::layers() const { return m_layers; }
         void CollectLayersStrategy::addLayer(TrenchBroom::Model::Layer* layer) { m_layers.push_back(layer); }
 
-        const LayerList& SkipLayersStrategy::layers() const { return EmptyLayerList; }
+        const std::vector<Layer*> SkipLayersStrategy::m_layers{};
+
+        const std::vector<Layer*>& SkipLayersStrategy::layers() const { return m_layers; }
         void SkipLayersStrategy::addLayer(TrenchBroom::Model::Layer* /* layer */) {}
 
 
-        const GroupList& CollectGroupsStrategy::groups() const { return m_groups; }
+        const std::vector<Group*>& CollectGroupsStrategy::groups() const { return m_groups; }
         void CollectGroupsStrategy::addGroup(Group* group) { m_groups.push_back(group); }
 
-        const GroupList& SkipGroupsStrategy::groups() const { return EmptyGroupList; }
+        const std::vector<Group*> SkipGroupsStrategy::m_groups{};
+
+        const std::vector<Group*>& SkipGroupsStrategy::groups() const { return m_groups; }
         void SkipGroupsStrategy::addGroup(Group* /* group */) {}
 
 
-        const EntityList& CollectEntitiesStrategy::entities() const { return m_entities; }
+        const std::vector<Entity*>& CollectEntitiesStrategy::entities() const { return m_entities; }
         void CollectEntitiesStrategy::addEntity(Entity* entity) { m_entities.push_back(entity); }
 
-        const EntityList& SkipEntitiesStrategy::entities() const { return EmptyEntityList; }
+        const std::vector<Entity*> SkipEntitiesStrategy::m_entities{};
+
+        const std::vector<Entity*>& SkipEntitiesStrategy::entities() const { return m_entities; }
         void SkipEntitiesStrategy::addEntity(Entity* /* entity */) {}
 
 
-        const BrushList& CollectBrushesStrategy::brushes() const { return m_brushes; }
+        const std::vector<Brush*>& CollectBrushesStrategy::brushes() const { return m_brushes; }
         void CollectBrushesStrategy::addBrush(Brush* brush) { m_brushes.push_back(brush); }
 
+        const std::vector<Brush*> SkipBrushesStrategy::m_brushes{};
 
-        const BrushList& SkipBrushesStrategy::brushes() const { return EmptyBrushList; }
+        const std::vector<Brush*>& SkipBrushesStrategy::brushes() const { return m_brushes; }
         void SkipBrushesStrategy::addBrush(Brush* /* brush */) {}
     }
 }

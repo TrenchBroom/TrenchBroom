@@ -19,6 +19,7 @@
 
 #include "MoveObjectsToolPage.h"
 
+#include "SharedPointer.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 

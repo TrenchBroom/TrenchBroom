@@ -24,6 +24,7 @@
 #include "TrenchBroom.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
+#include "SharedPointer.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
@@ -490,7 +491,7 @@ namespace TrenchBroom {
         }
 
         bool ScaleObjectsTool::applies() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             return !document->selectedNodes().empty();
         }
 
@@ -635,7 +636,7 @@ namespace TrenchBroom {
 
 
         vm::bbox3 ScaleObjectsTool::bounds() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             return document->selectionBounds();
         }
 
@@ -887,7 +888,7 @@ namespace TrenchBroom {
             m_dragStartHit = hit;
             m_dragCumulativeDelta = vm::vec3::zero();
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->beginTransaction("Scale Objects");
             m_resizing = true;
         }
@@ -897,7 +898,7 @@ namespace TrenchBroom {
 
             m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             const auto newBox = moveBBoxForHit(m_bboxAtDragStart, m_dragStartHit, m_dragCumulativeDelta,
                                                m_proportionalAxes, m_anchorPos);
@@ -908,7 +909,7 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsTool::commitScale() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (vm::is_zero(m_dragCumulativeDelta, vm::C::almost_zero())) {
                 document->cancelTransaction();
             } else {
@@ -918,7 +919,7 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsTool::cancelScale() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->cancelTransaction();
             m_resizing = false;
         }

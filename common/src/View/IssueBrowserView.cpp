@@ -19,12 +19,14 @@
 
 #include "IssueBrowserView.h"
 
+#include "SharedPointer.h"
 #include "Model/CollectMatchingIssuesVisitor.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"
-#include "View/QtUtils.h"
+
+#include <vector>
 
 #include <QHBoxLayout>
 #include <QTableView>
@@ -109,9 +111,9 @@ namespace TrenchBroom {
          * Updates the MapDocument selection to match the table view
          */
         void IssueBrowserView::updateSelection() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
-            Model::NodeList nodes;
+            std::vector<Model::Node*> nodes;
             for (Model::Issue* issue : collectIssues(getSelection())) {
                 if (!issue->addSelectableNodes(document->editorContext(), nodes)) {
                     nodes.clear();
@@ -124,14 +126,14 @@ namespace TrenchBroom {
         }
 
         void IssueBrowserView::updateIssues() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Model::World* world = document->world();
             if (world != nullptr) {
-                const Model::IssueGeneratorList& issueGenerators = world->registeredIssueGenerators();
+                const std::vector<Model::IssueGenerator*>& issueGenerators = world->registeredIssueGenerators();
                 Model::CollectMatchingIssuesVisitor<IssueVisible> visitor(issueGenerators, IssueVisible(m_hiddenGenerators, m_showHiddenIssues));
                 world->acceptAndRecurse(visitor);
 
-                Model::IssueList issues = visitor.issues();
+                std::vector<Model::Issue*> issues = visitor.issues();
                 VectorUtils::sort(issues, IssueCmp());
                 m_tableModel->setIssues(std::move(issues));
             }
@@ -140,16 +142,16 @@ namespace TrenchBroom {
         void IssueBrowserView::applyQuickFix(const Model::IssueQuickFix* quickFix) {
             ensure(quickFix != nullptr, "quickFix is null");
 
-            MapDocumentSPtr document = lock(m_document);
-            const Model::IssueList issues = collectIssues(getSelection());
+            auto document = lock(m_document);
+            const std::vector<Model::Issue*> issues = collectIssues(getSelection());
 
             const Transaction transaction(document, "Apply Quick Fix (" + quickFix->description() + ")");
             updateSelection();
             quickFix->apply(document.get(), issues);
         }
 
-        Model::IssueList IssueBrowserView::collectIssues(const QList<QModelIndex>& indices) const {
-            Model::IssueList result;
+        std::vector<Model::Issue*> IssueBrowserView::collectIssues(const QList<QModelIndex>& indices) const {
+            std::vector<Model::Issue*> result;
             for (QModelIndex index : indices) {
                 if (index.isValid()) {
                     const auto row = static_cast<size_t>(index.row());
@@ -159,9 +161,9 @@ namespace TrenchBroom {
             return result;
         }
 
-        Model::IssueQuickFixList IssueBrowserView::collectQuickFixes(const QList<QModelIndex>& indices) const {
+        std::vector<Model::IssueQuickFix*> IssueBrowserView::collectQuickFixes(const QList<QModelIndex>& indices) const {
             if (indices.empty()) {
-                return Model::IssueQuickFixList(0);
+                return {};
             }
 
             Model::IssueType issueTypes = ~0;
@@ -173,7 +175,7 @@ namespace TrenchBroom {
                 issueTypes &= issue->type();
             }
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const Model::World* world = document->world();
             return world->quickFixes(issueTypes);
         }
@@ -187,7 +189,7 @@ namespace TrenchBroom {
         }
 
         void IssueBrowserView::setIssueVisibility(const bool show) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             for (Model::Issue* issue : collectIssues(getSelection())) {
                 document->setIssueHidden(issue, !show);
             }
@@ -217,7 +219,7 @@ namespace TrenchBroom {
             popupMenu->addAction(tr("Show"), this, &IssueBrowserView::showIssues);
             popupMenu->addAction(tr("Hide"), this, &IssueBrowserView::hideIssues);
 
-            const Model::IssueQuickFixList quickFixes = collectQuickFixes(selectedIndexes);
+            const std::vector<Model::IssueQuickFix*> quickFixes = collectQuickFixes(selectedIndexes);
             if (!quickFixes.empty()) {
                 auto* quickFixMenu = new QMenu();
                 quickFixMenu->setTitle(tr("Fix"));
@@ -268,13 +270,13 @@ namespace TrenchBroom {
         : QAbstractTableModel(parent),
           m_issues() {}
 
-        void IssueBrowserModel::setIssues(Model::IssueList issues) {
+        void IssueBrowserModel::setIssues(std::vector<Model::Issue*> issues) {
             beginResetModel();
             m_issues = std::move(issues);
             endResetModel();
         }
 
-        const Model::IssueList& IssueBrowserModel::issues() {
+        const std::vector<Model::Issue*>& IssueBrowserModel::issues() {
             return m_issues;
         }
 

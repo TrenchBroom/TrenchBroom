@@ -19,14 +19,13 @@
 
 #include "MissingDefinitionIssueGenerator.h"
 
-#include "StringUtils.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 
-#include <cassert>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {

@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "PreferenceManager.h"
+#include "SharedPointer.h"
 #include "Assets/TextureManager.h"
 #include "IO/PathQt.h"
 #include "View/BorderLine.h"

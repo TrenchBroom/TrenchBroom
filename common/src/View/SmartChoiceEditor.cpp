@@ -79,7 +79,7 @@ namespace TrenchBroom {
             setLayout(layout);
         }
 
-        void SmartChoiceEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
+        void SmartChoiceEditor::doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) {
             ensure(m_comboBox != nullptr, "comboBox is null");
 
             TemporarilySetBool ignoreTextChanged(m_ignoreEditTextChanged);

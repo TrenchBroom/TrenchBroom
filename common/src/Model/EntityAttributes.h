@@ -22,10 +22,12 @@
 
 #include "StringType.h"
 #include "Model/EntityAttributeSnapshot.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <list>
 #include <memory>
+#include <set>
+#include <vector>
 
 namespace TrenchBroom {
     template <typename V>
@@ -137,7 +139,7 @@ namespace TrenchBroom {
             bool containsValue(const std::vector<IndexValue>& matches, const AttributeValue& value) const;
             EntityAttribute::List listFromQueryResult(const std::vector<IndexValue>& matches) const;
         public:
-            const AttributeNameSet names() const;
+            const std::set<AttributeName> names() const;
             const AttributeValue* attribute(const AttributeName& name) const;
             const AttributeValue& safeAttribute(const AttributeName& name, const AttributeValue& defaultValue) const;
 

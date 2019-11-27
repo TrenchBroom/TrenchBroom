@@ -21,10 +21,11 @@
 #define ObjSerializer_h
 
 #include "CollectionUtils.h"
+#include "TrenchBroom.h"
 #include "IO/NodeSerializer.h"
-#include "Model/ModelTypes.h"
 #include "IO/Path.h"
 #include "IO/IOUtils.h"
+#include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -77,11 +78,11 @@ namespace TrenchBroom {
             };
 
             using IndexedVertexList = std::vector<IndexedVertex>;
-            
+
             struct Face {
                 IndexedVertexList verts;
                 String texture;
-                
+
                 Face(IndexedVertexList i_verts, String i_texture);
             };
 

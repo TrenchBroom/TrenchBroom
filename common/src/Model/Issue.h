@@ -20,7 +20,9 @@
 #ifndef TrenchBroom_Issue
 #define TrenchBroom_Issue
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -43,7 +45,7 @@ namespace TrenchBroom {
 
 
             class MatchSelectableIssueNodes;
-            bool addSelectableNodes(const EditorContext& editorContext, Model::NodeList& nodes) const;
+            bool addSelectableNodes(const EditorContext& editorContext, std::vector<Model::Node*>& nodes) const;
 
             bool hidden() const;
             void setHidden(bool hidden);

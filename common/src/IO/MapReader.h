@@ -22,10 +22,12 @@
 
 #include "TrenchBroom.h"
 #include "IO/StandardMapParser.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -76,7 +78,7 @@ namespace TrenchBroom {
 
             Model::Node* m_brushParent;
             Model::Node* m_currentNode;
-            Model::BrushFaceList m_faces;
+            std::vector<Model::BrushFace*> m_faces;
 
             LayerMap m_layers;
             GroupMap m_groups;

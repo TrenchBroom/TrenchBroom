@@ -20,7 +20,9 @@
 #ifndef TrenchBroom_NodeCollection
 #define TrenchBroom_NodeCollection
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -29,11 +31,11 @@ namespace TrenchBroom {
             class AddNode;
             class RemoveNode;
         private:
-            NodeList m_nodes;
-            LayerList m_layers;
-            GroupList m_groups;
-            EntityList m_entities;
-            BrushList m_brushes;
+            std::vector<Node*> m_nodes;
+            std::vector<Layer*> m_layers;
+            std::vector<Group*> m_groups;
+            std::vector<Entity*> m_entities;
+            std::vector<Brush*> m_brushes;
         public:
             bool empty() const;
             size_t nodeCount() const;
@@ -51,21 +53,21 @@ namespace TrenchBroom {
             bool hasBrushes() const;
             bool hasOnlyBrushes() const;
 
-            NodeList::iterator begin();
-            NodeList::iterator end();
-            NodeList::const_iterator begin() const;
-            NodeList::const_iterator end() const;
+            std::vector<Node*>::iterator begin();
+            std::vector<Node*>::iterator end();
+            std::vector<Node*>::const_iterator begin() const;
+            std::vector<Node*>::const_iterator end() const;
 
-            const NodeList& nodes() const;
-            const LayerList& layers() const;
-            const GroupList& groups() const;
-            const EntityList& entities() const;
-            const BrushList& brushes() const;
+            const std::vector<Node*>& nodes() const;
+            const std::vector<Layer*>& layers() const;
+            const std::vector<Group*>& groups() const;
+            const std::vector<Entity*>& entities() const;
+            const std::vector<Brush*>& brushes() const;
 
-            void addNodes(const NodeList& nodes);
+            void addNodes(const std::vector<Node*>& nodes);
             void addNode(Node* node);
 
-            void removeNodes(const NodeList& nodes);
+            void removeNodes(const std::vector<Node*>& nodes);
             void removeNode(Node* node);
 
             void clear();

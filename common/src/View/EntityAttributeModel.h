@@ -22,14 +22,15 @@
 
 #include "StringType.h"
 #include "StringList.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/ViewTypes.h"
 
 #include <QAbstractTableModel>
 
-#include <vector>
-#include <tuple>
 #include <map>
+#include <set>
+#include <tuple>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -87,13 +88,13 @@ namespace TrenchBroom {
             bool multi() const;
             bool subset() const;
 
-            static AttributeRow rowForAttributableNodes(const String& key, const Model::AttributableNodeList& attributables);
-            static std::set<String> allKeys(const Model::AttributableNodeList& attributables, bool showDefaultRows);
-            static std::map<String, AttributeRow> rowsForAttributableNodes(const Model::AttributableNodeList& attributables, bool showDefaultRows);
+            static AttributeRow rowForAttributableNodes(const String& key, const std::vector<Model::AttributableNode*>& attributables);
+            static std::set<String> allKeys(const std::vector<Model::AttributableNode*>& attributables, bool showDefaultRows);
+            static std::map<String, AttributeRow> rowsForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables, bool showDefaultRows);
             /**
              * Suggests a new, unused attribute name of the form "property X".
              */
-            static String newAttributeNameForAttributableNodes(const Model::AttributableNodeList& attributables);
+            static String newAttributeNameForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables);
         };
 
         /**
@@ -129,7 +130,7 @@ namespace TrenchBroom {
         public: // for autocompletion
             QStringList getCompletions(const QModelIndex& index) const;
         private: // autocompletion helpers
-            Model::AttributeNameList attributeNames(int row, int count) const;
+            std::vector<Model::AttributeName> attributeNames(int row, int count) const;
             StringList getAllAttributeNames() const;
             StringList getAllValuesForAttributeNames(const StringList& names) const;
             StringList getAllClassnames() const;
@@ -149,8 +150,8 @@ namespace TrenchBroom {
             bool AppendRow();
             int rowForName(const Model::AttributeName& name) const;
             bool hasRowWithAttributeName(const Model::AttributeName& name) const;
-            bool renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables);
-            bool updateAttribute(const size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables);
+            bool renameAttribute(const size_t rowIndex, const String& newName, const std::vector<Model::AttributableNode*>& attributables);
+            bool updateAttribute(const size_t rowIndex, const String& newValue, const std::vector<Model::AttributableNode*>& attributables);
 
         public: // EntityAttributeGrid helpers
             Model::AttributeName attributeName(int row) const;

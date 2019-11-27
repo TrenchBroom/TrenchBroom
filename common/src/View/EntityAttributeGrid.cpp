@@ -19,8 +19,9 @@
 
 #include "EntityAttributeGrid.h"
 
-#include "Model/EntityAttributes.h"
+#include "SharedPointer.h"
 #include "StringUtils.h"
+#include "Model/EntityAttributes.h"
 #include "View/BorderLine.h"
 #include "View/EntityAttributeItemDelegate.h"
 #include "View/EntityAttributeModel.h"
@@ -249,7 +250,7 @@ namespace TrenchBroom {
             updateControls();
         }
 
-        void EntityAttributeGrid::nodesDidChange(const Model::NodeList&) {
+        void EntityAttributeGrid::nodesDidChange(const std::vector<Model::Node*>&) {
             updateControls();
         }
 

@@ -25,7 +25,10 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 
+#include <vecmath/bbox.h>
 #include <vecmath/ray.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -90,7 +93,7 @@ namespace TrenchBroom {
                 mockDoPick(ray, pickResult);
             }
 
-            void doFindNodesContaining(const vm::vec3& point, NodeList& result) override {
+            void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override {
                 mockDoFindNodesContaining(point, result);
             }
 
@@ -102,7 +105,7 @@ namespace TrenchBroom {
                 mockDoAccept(visitor);
             }
 
-            void doGenerateIssues(const IssueGenerator* /* generator */, IssueList& /* issues */) override {}
+            void doGenerateIssues(const IssueGenerator* /* generator */, std::vector<Issue*>& /* issues */) override {}
 
             void doAcceptTagVisitor(TagVisitor& /* visitor */) override {}
             void doAcceptTagVisitor(ConstTagVisitor& /* visitor */) const override {}
@@ -117,7 +120,7 @@ namespace TrenchBroom {
             MOCK_METHOD0(mockDoAncestorDidChange, void());
 
             MOCK_CONST_METHOD2(mockDoPick, void(const vm::ray3&, PickResult&));
-            MOCK_CONST_METHOD2(mockDoFindNodesContaining, void(const vm::vec3&, NodeList&));
+            MOCK_CONST_METHOD2(mockDoFindNodesContaining, void(const vm::vec3&, std::vector<Node*>&));
             MOCK_CONST_METHOD1(mockDoIntersectWithRay, FloatType(const vm::ray3&));
 
             MOCK_METHOD1(mockDoAccept, void(NodeVisitor&));
@@ -171,11 +174,11 @@ namespace TrenchBroom {
             void doAncestorDidChange() override {}
 
             void doPick(const vm::ray3& /* ray */, PickResult& /* pickResult */) const override {}
-            void doFindNodesContaining(const vm::vec3& /* point */, NodeList& /* result */) override {}
+            void doFindNodesContaining(const vm::vec3& /* point */, std::vector<Node*>& /* result */) override {}
 
             void doAccept(NodeVisitor& /* visitor */) override {}
             void doAccept(ConstNodeVisitor& /* visitor */) const override {}
-            void doGenerateIssues(const IssueGenerator* /* generator */, IssueList& /* issues */) override {}
+            void doGenerateIssues(const IssueGenerator* /* generator */, std::vector<Issue*>& /* issues */) override {}
 
             void doAcceptTagVisitor(TagVisitor& /* visitor */) override {}
             void doAcceptTagVisitor(ConstTagVisitor& /* visitor */) const override {}
@@ -381,11 +384,11 @@ namespace TrenchBroom {
             ASSERT_FALSE(grandChild1_2->isAncestorOf(grandChild1_1));
             ASSERT_FALSE(grandChild1_2->isAncestorOf(grandChild1_2));
 
-            ASSERT_TRUE(root.isAncestorOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
-            ASSERT_TRUE(child1->isAncestorOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
-            ASSERT_FALSE(child2->isAncestorOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
-            ASSERT_FALSE(grandChild1_1->isAncestorOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
-            ASSERT_FALSE(grandChild1_1->isAncestorOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_TRUE(root.isAncestorOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_TRUE(child1->isAncestorOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_FALSE(child2->isAncestorOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_FALSE(grandChild1_1->isAncestorOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_FALSE(grandChild1_1->isAncestorOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
         }
 
         TEST(NodeTest, isDescendantOf) {
@@ -430,11 +433,11 @@ namespace TrenchBroom {
             ASSERT_FALSE(grandChild1_2->isDescendantOf(grandChild1_1));
             ASSERT_FALSE(grandChild1_2->isDescendantOf(grandChild1_2));
 
-            ASSERT_FALSE(root.isDescendantOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
-            ASSERT_TRUE(child1->isDescendantOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
-            ASSERT_TRUE(child2->isDescendantOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
-            ASSERT_TRUE(grandChild1_1->isDescendantOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
-            ASSERT_TRUE(grandChild1_1->isDescendantOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_FALSE(root.isDescendantOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_TRUE(child1->isDescendantOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_TRUE(child2->isDescendantOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_TRUE(grandChild1_1->isDescendantOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_TRUE(grandChild1_1->isDescendantOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
         }
     }
 }

@@ -22,7 +22,7 @@
 
 #include "View/ViewTypes.h"
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vector>
 
@@ -66,8 +66,8 @@ namespace TrenchBroom {
 
             void updateIssues();
 
-            Model::IssueList collectIssues(const QList<QModelIndex>& indices) const;
-            Model::IssueQuickFixList collectQuickFixes(const QList<QModelIndex>& indices) const;
+            std::vector<Model::Issue*> collectIssues(const QList<QModelIndex>& indices) const;
+            std::vector<Model::IssueQuickFix*> collectQuickFixes(const QList<QModelIndex>& indices) const;
             Model::IssueType issueTypeMask() const;
 
             void setIssueVisibility(bool show);
@@ -94,12 +94,12 @@ namespace TrenchBroom {
         class IssueBrowserModel : public QAbstractTableModel {
             Q_OBJECT
         private:
-            Model::IssueList m_issues;
+            std::vector<Model::Issue*> m_issues;
         public:
             explicit IssueBrowserModel(QObject* parent);
 
-            void setIssues(Model::IssueList issues);
-            const Model::IssueList& issues();
+            void setIssues(std::vector<Model::Issue*> issues);
+            const std::vector<Model::Issue*>& issues();
         public: // QAbstractTableModel overrides
             int rowCount(const QModelIndex& parent) const override;
             int columnCount(const QModelIndex& parent) const override;

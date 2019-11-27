@@ -21,9 +21,12 @@
 #define TrenchBroom_EntityAttributeIndex
 
 #include "StringType.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/EntityAttributes.h"
 #include "StringMap.h"
+
+#include <set>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -47,7 +50,7 @@ namespace TrenchBroom {
             static AttributableNodeIndexQuery numbered(const String& pattern);
             static AttributableNodeIndexQuery any();
 
-            AttributableNodeSet execute(const AttributableNodeStringIndex& index) const;
+            std::set<AttributableNode*> execute(const AttributableNodeStringIndex& index) const;
             bool execute(const AttributableNode* node, const String& value) const;
             Model::EntityAttribute::List execute(const AttributableNode* node) const;
         private:
@@ -65,7 +68,7 @@ namespace TrenchBroom {
             void addAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
             void removeAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
 
-            AttributableNodeList findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const AttributeValue& value) const;
+            std::vector<AttributableNode*> findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const AttributeValue& value) const;
             StringList allNames() const;
             StringList allValuesForNames(const AttributableNodeIndexQuery& keyQuery) const;
         };

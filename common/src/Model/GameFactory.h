@@ -25,7 +25,7 @@
 #include "IO/Path.h"
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <vector>
@@ -81,7 +81,7 @@ namespace TrenchBroom {
 
             const StringList& gameList() const;
             size_t gameCount() const;
-            GameSPtr createGame(const String& gameName, Logger& logger);
+            std::shared_ptr<Game> createGame(const String& gameName, Logger& logger);
 
             StringList fileFormats(const String& gameName) const;
             IO::Path iconPath(const String& gameName) const;

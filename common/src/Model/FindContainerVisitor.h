@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_FindContainerVisitor
 #define TrenchBroom_FindContainerVisitor
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {

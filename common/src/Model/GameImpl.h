@@ -25,9 +25,10 @@
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFileSystem.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     class Logger;
@@ -61,11 +62,11 @@ namespace TrenchBroom {
             void doWriteMap(World& world, const IO::Path& path) const override;
             void doExportMap(World& world, Model::ExportFormat format, const IO::Path& path) const override;
 
-            NodeList doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
-            BrushFaceList doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
+            std::vector<Node*> doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
+            std::vector<BrushFace*> doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
 
-            void doWriteNodesToStream(World& world, const Model::NodeList& nodes, std::ostream& stream) const override;
-            void doWriteBrushFacesToStream(World& world, const BrushFaceList& faces, std::ostream& stream) const override;
+            void doWriteNodesToStream(World& world, const std::vector<Node*>& nodes, std::ostream& stream) const override;
+            void doWriteBrushFacesToStream(World& world, const std::vector<BrushFace*>& faces, std::ostream& stream) const override;
 
             TexturePackageType doTexturePackageType() const override;
             void doLoadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const override;

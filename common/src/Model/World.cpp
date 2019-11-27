@@ -30,6 +30,7 @@
 #include <vecmath/bbox_io.h>
 
 #include <sstream>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -49,16 +50,16 @@ namespace TrenchBroom {
             return m_defaultLayer;
         }
 
-        LayerList World::allLayers() const {
+        std::vector<Layer*> World::allLayers() const {
             CollectLayersVisitor visitor;
             iterate(visitor);
             return visitor.layers();
         }
 
-        LayerList World::customLayers() const {
-            const NodeList& children = Node::children();
+        std::vector<Layer*> World::customLayers() const {
+            const std::vector<Node*>& children = Node::children();
             CollectLayersVisitor visitor;
-            accept(std::begin(children) + 1, std::end(children), visitor);
+            accept(std::next(std::begin(children)), std::end(children), visitor);
             return visitor.layers();
         }
 
@@ -71,11 +72,11 @@ namespace TrenchBroom {
             return m_attributableIndex;
         }
 
-        const IssueGeneratorList& World::registeredIssueGenerators() const {
+        const std::vector<IssueGenerator*>& World::registeredIssueGenerators() const {
             return m_issueGeneratorRegistry.registeredGenerators();
         }
 
-        IssueQuickFixList World::quickFixes(const IssueType issueTypes) const {
+        std::vector<IssueQuickFix*> World::quickFixes(const IssueType issueTypes) const {
             return m_issueGeneratorRegistry.quickFixes(issueTypes);
         }
 
@@ -194,7 +195,7 @@ namespace TrenchBroom {
         }
 
         Node* World::doCloneRecursively(const vm::bbox3& worldBounds) const {
-            const NodeList& myChildren = children();
+            const std::vector<Node*>& myChildren = children();
             assert(myChildren[0] == m_defaultLayer);
 
             World* world = m_factory.createWorld();
@@ -203,7 +204,7 @@ namespace TrenchBroom {
             world->defaultLayer()->addChildren(cloneRecursively(worldBounds, m_defaultLayer->children()));
 
             if (myChildren.size() > 1) {
-                NodeList childClones;
+                std::vector<Node*> childClones;
                 childClones.reserve(myChildren.size() - 1);
                 cloneRecursively(worldBounds, std::begin(myChildren) + 1, std::end(myChildren), std::back_inserter(childClones));
                 world->addChildren(childClones);
@@ -289,13 +290,13 @@ namespace TrenchBroom {
             }
         }
 
-        void World::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
+        void World::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) {
             for (auto* node : m_nodeTree->findContainers(point)) {
                 node->findNodesContaining(point, result);
             }
         }
 
-        void World::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+        void World::doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) {
             generator->generate(this, issues);
         }
 
@@ -307,11 +308,11 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
 
-        void World::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {
+        void World::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<Model::AttributableNode*>& result) const {
             VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::exact(name), value));
         }
 
-        void World::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const {
+        void World::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, std::vector<Model::AttributableNode*>& result) const {
             VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix), value));
         }
 
@@ -379,7 +380,7 @@ namespace TrenchBroom {
             return m_factory.createEntity();
         }
 
-        Brush* World::doCreateBrush(const vm::bbox3& worldBounds, const BrushFaceList& faces) const {
+        Brush* World::doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
             return m_factory.createBrush(worldBounds, faces);
         }
 

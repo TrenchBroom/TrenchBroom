@@ -26,6 +26,8 @@
 
 #include <vecmath/bbox.h>
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         enum class BoundsType {
@@ -57,7 +59,7 @@ namespace TrenchBroom {
             void mergeWith(const vm::bbox3& bounds);
         };
 
-        vm::bbox3 computeLogicalBounds(const Model::NodeList& nodes);
+        vm::bbox3 computeLogicalBounds(const std::vector<Node*>& nodes);
 
         template <typename I>
         vm::bbox3 computeLogicalBounds(I cur, I end) {
@@ -66,7 +68,7 @@ namespace TrenchBroom {
             return visitor.bounds();
         }
 
-        vm::bbox3 computePhysicalBounds(const Model::NodeList& nodes);
+        vm::bbox3 computePhysicalBounds(const std::vector<Node*>& nodes);
 
         template <typename I>
         vm::bbox3 computePhysicalBounds(I cur, I end) {

@@ -21,7 +21,7 @@
 #define VertexToolControllerBase_h
 
 #include "Model/Hit.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "View/Lasso.h"
@@ -30,7 +30,7 @@
 
 #include <vecmath/intersection.h>
 
-#include <algorithm>
+#include <set>
 
 namespace TrenchBroom {
     namespace View {
@@ -72,12 +72,12 @@ namespace TrenchBroom {
                     const auto query = inputState.pickResult().query().type(hitType).occluded();
                     if (!query.empty()) {
                         const auto hits = query.all();
-                        const auto it = std::find_if(std::begin(hits), std::end(hits), [this](const auto& hit){ return this->selected(hit); });
-                        if (it != std::end(hits)) {
-                            return *it;
-                        } else {
-                            return query.first();
+                        for (const auto& hit : hits) {
+                            if (this->selected(hit)) {
+                                return hit;
+                            }
                         }
+                        return query.first();
                     }
                     return Model::Hit::NoHit;
                 }
@@ -202,7 +202,7 @@ namespace TrenchBroom {
             protected:
                 Model::Hit::List firstHits(const Model::PickResult& pickResult) const {
                     Model::Hit::List result;
-                    Model::BrushSet visitedBrushes;
+                    std::set<Model::Brush*> visitedBrushes;
 
                     const Model::Hit& first = pickResult.query().type(m_hitType).occluded().first();
                     if (first.isMatch()) {
@@ -222,7 +222,7 @@ namespace TrenchBroom {
                     return result;
                 }
 
-                bool allIncidentBrushesVisited(const H& handle, Model::BrushSet& visitedBrushes) const {
+                bool allIncidentBrushesVisited(const H& handle, std::set<Model::Brush*>& visitedBrushes) const {
                     bool result = true;
                     for (auto brush : m_tool->findIncidentBrushes(handle)) {
                         const bool unvisited = visitedBrushes.insert(brush).second;

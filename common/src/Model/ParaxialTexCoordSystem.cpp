@@ -26,6 +26,7 @@
 
 #include <vecmath/vec.h>
 #include <vecmath/plane.h>
+#include <vecmath/quat.h>
 
 namespace TrenchBroom {
     namespace Model {

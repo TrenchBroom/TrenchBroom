@@ -20,8 +20,11 @@
 #include "SmartAttributeEditor.h"
 
 #include "Notifier.h"
+#include "SharedPointer.h"
 #include "Model/Object.h"
 #include "View/MapDocument.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -38,7 +41,7 @@ namespace TrenchBroom {
             m_active = true;
         }
 
-        void SmartAttributeEditor::update(const Model::AttributableNodeList& attributables) {
+        void SmartAttributeEditor::update(const std::vector<Model::AttributableNode*>& attributables) {
             m_attributables = attributables;
             doUpdateVisual(m_attributables);
         }
@@ -60,7 +63,7 @@ namespace TrenchBroom {
             return m_name;
         }
 
-        const Model::AttributableNodeList SmartAttributeEditor::attributables() const {
+        const std::vector<Model::AttributableNode*> SmartAttributeEditor::attributables() const {
             return m_attributables;
         }
 

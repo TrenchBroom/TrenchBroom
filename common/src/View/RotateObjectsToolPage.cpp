@@ -19,6 +19,7 @@
 
 #include "RotateObjectsToolPage.h"
 
+#include "SharedPointer.h"
 #include "StringUtils.h"
 #include "TrenchBroom.h"
 #include "View/BorderLine.h"

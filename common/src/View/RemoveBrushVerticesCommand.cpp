@@ -23,20 +23,22 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType RemoveBrushVerticesCommand::Type = Command::freeType();
 
-        RemoveBrushVerticesCommand::Ptr RemoveBrushVerticesCommand::remove(const Model::VertexToBrushesMap& vertices) {
-            Model::BrushList brushes;
-            Model::BrushVerticesMap brushVertices;
+        RemoveBrushVerticesCommand::Ptr RemoveBrushVerticesCommand::remove(const VertexToBrushesMap& vertices) {
+            std::vector<Model::Brush*> brushes;
+            BrushVerticesMap brushVertices;
             std::vector<vm::vec3> vertexPositions;
             extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
 
             return Ptr(new RemoveBrushVerticesCommand(brushes, brushVertices, vertexPositions));
         }
 
-        RemoveBrushVerticesCommand::RemoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions) :
+        RemoveBrushVerticesCommand::RemoveBrushVerticesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions) :
         RemoveBrushElementsCommand(Type, "Remove Brush Vertices", brushes, vertices),
         m_oldVertexPositions(vertexPositions) {}
     }

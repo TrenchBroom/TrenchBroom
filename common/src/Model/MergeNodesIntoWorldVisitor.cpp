@@ -28,6 +28,8 @@
 #include "Model/World.h"
 
 #include <cassert>
+#include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -38,7 +40,7 @@ namespace TrenchBroom {
             assert(m_parent->isDescendantOf(m_world));
         }
 
-        const ParentChildrenMap& MergeNodesIntoWorldVisitor::result() const {
+        const std::map<Node*, std::vector<Node*>>& MergeNodesIntoWorldVisitor::result() const {
             detachNodes();
             deleteNodes();
             return m_result;

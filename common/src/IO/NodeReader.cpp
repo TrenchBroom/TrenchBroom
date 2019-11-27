@@ -25,18 +25,20 @@
 #include "Model/ModelFactory.h"
 #include "Model/World.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace IO {
         NodeReader::NodeReader(const String& str, Model::ModelFactory& factory) :
         MapReader(str),
         m_factory(factory) {}
 
-        Model::NodeList NodeReader::read(const String& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status) {
+        std::vector<Model::Node*> NodeReader::read(const String& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status) {
             NodeReader reader(str, factory);
             return reader.read(worldBounds, status);
         }
 
-        const Model::NodeList& NodeReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
+        const std::vector<Model::Node*>& NodeReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
             try {
                 readEntities(m_factory.format(), worldBounds, status);
             } catch (const ParserException&) {

@@ -21,7 +21,7 @@
 #define BrushFaceReference_h
 
 #include "TrenchBroom.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vecmath/plane.h>
 

@@ -20,7 +20,10 @@
 #ifndef TrenchBroom_EntityRotationPolicy
 #define TrenchBroom_EntityRotationPolicy
 
-#include "Model/ModelTypes.h"
+#include "TrenchBroom.h"
+#include "Model/Model_Forward.h"
+
+#include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace Model {

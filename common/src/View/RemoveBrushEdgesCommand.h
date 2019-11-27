@@ -20,8 +20,10 @@
 #ifndef TrenchBroom_RemoveBrushEdgesCommand
 #define TrenchBroom_RemoveBrushEdgesCommand
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/RemoveBrushElementsCommand.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -36,9 +38,9 @@ namespace TrenchBroom {
         private:
             std::vector<vm::segment3> m_oldEdgePositions;
         public:
-            static Ptr remove(const Model::EdgeToBrushesMap& edges);
+            static Ptr remove(const EdgeToBrushesMap& edges);
         private:
-            RemoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const std::vector<vm::segment3>& edgePositions);
+            RemoveBrushEdgesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::segment3>& edgePositions);
 
             void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const override;
         };

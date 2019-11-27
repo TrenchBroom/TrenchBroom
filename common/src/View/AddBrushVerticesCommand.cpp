@@ -24,23 +24,27 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <map>
+#include <set>
+#include <vector>
+
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType AddBrushVerticesCommand::Type = Command::freeType();
 
-        AddBrushVerticesCommand::Ptr AddBrushVerticesCommand::add(const Model::VertexToBrushesMap& vertices) {
-            Model::BrushSet allBrushSet;
+        AddBrushVerticesCommand::Ptr AddBrushVerticesCommand::add(const VertexToBrushesMap& vertices) {
+            std::set<Model::Brush*> allBrushSet;
             for (const auto& entry : vertices) {
-                const Model::BrushSet& brushes = entry.second;
+                const std::set<Model::Brush*>& brushes = entry.second;
                 SetUtils::merge(allBrushSet, brushes);
             }
 
-            const Model::BrushList allBrushList(std::begin(allBrushSet), std::end(allBrushSet));
+            const std::vector<Model::Brush*> allBrushList(std::begin(allBrushSet), std::end(allBrushSet));
             const String actionName = StringUtils::safePlural(vertices.size(), "Add Vertex", "Add Vertices");
             return Ptr(new AddBrushVerticesCommand(Type, actionName, allBrushList, vertices));
         }
 
-        AddBrushVerticesCommand::AddBrushVerticesCommand(CommandType type, const String& name, const Model::BrushList& brushes, const Model::VertexToBrushesMap& vertices) :
+        AddBrushVerticesCommand::AddBrushVerticesCommand(CommandType type, const String& name, const std::vector<Model::Brush*>& brushes, const VertexToBrushesMap& vertices) :
         VertexCommand(type, name, brushes),
         m_vertices(vertices) {}
 
@@ -48,7 +52,7 @@ namespace TrenchBroom {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
                 const vm::vec3& position = entry.first;
-                const Model::BrushSet& brushes = entry.second;
+                const std::set<Model::Brush*>& brushes = entry.second;
                 for (const Model::Brush* brush : brushes) {
                     if (!brush->canAddVertex(worldBounds, position))
                         return false;

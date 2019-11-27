@@ -122,7 +122,7 @@ namespace TrenchBroom {
 
             // Check the clip result
             // TODO: would be better to check the clip plane but it's not public
-            const Model::NodeList& objects = document->world()->defaultLayer()->children();
+            const std::vector<Model::Node*>& objects = document->world()->defaultLayer()->children();
             ASSERT_EQ(1u, objects.size());
 
             auto* brush = dynamic_cast<Model::Brush*>(objects.at(0));

@@ -32,7 +32,7 @@
 namespace TrenchBroom {
     namespace IO {
         inline Model::BrushFace*
-        findFaceByPoints(const Model::BrushFaceList& faces, const vm::vec3& point0, const vm::vec3& point1,
+        findFaceByPoints(const std::vector<Model::BrushFace*>& faces, const vm::vec3& point0, const vm::vec3& point1,
                          const vm::vec3& point2) {
             for (Model::BrushFace* face : faces) {
                 if (face->points()[0] == point0 &&
@@ -180,7 +180,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
 
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
-            const Model::BrushFaceList& faces = brush->faces();
+            const std::vector<Model::BrushFace*>& faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
 
             const Model::BrushFace* face1 = findFaceByPoints(faces, vm::vec3(0.0, 0.0, -16.0), vm::vec3(0.0, 0.0, 0.0),
@@ -230,7 +230,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
 
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
-            const Model::BrushFaceList& faces = brush->faces();
+            const std::vector<Model::BrushFace*>& faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
 
             Model::BrushFace* face = findFaceByPoints(faces, vm::vec3(0.0, 0.0, -16.0), vm::vec3(0.0, 0.0, 0.0),
@@ -268,7 +268,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
 
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
-            const Model::BrushFaceList faces = brush->faces();
+            const std::vector<Model::BrushFace*> faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
 
             ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(0.0, 0.0, -16.0), vm::vec3(0.0, 0.0, 0.0),
@@ -310,7 +310,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
 
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
-            const Model::BrushFaceList faces = brush->faces();
+            const std::vector<Model::BrushFace*> faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
             ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(308.0, 108.0, 176.0), vm::vec3(308.0, 132.0, 176.0),
                                          vm::vec3(252.0, 132.0, 176.0)) != nullptr);

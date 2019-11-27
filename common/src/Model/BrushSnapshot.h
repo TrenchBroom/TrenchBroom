@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_BrushSnapshot
 #define TrenchBroom_BrushSnapshot
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/NodeSnapshot.h"
 
 #include <vector>
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class BrushSnapshot : public NodeSnapshot {
         private:
             Brush* m_brush;
-            BrushFaceList m_faces;
+            std::vector<BrushFace*> m_faces;
         public:
             BrushSnapshot(Brush* brush);
             ~BrushSnapshot() override;

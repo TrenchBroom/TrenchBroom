@@ -19,7 +19,6 @@
 
 #include "Layer.h"
 
-#include "Model/TagMatcher.h"
 #include "Model/Brush.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/Group.h"
@@ -100,12 +99,12 @@ namespace TrenchBroom {
 
         void Layer::doPick(const vm::ray3& /* ray */, PickResult&) const {}
 
-        void Layer::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
+        void Layer::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) {
             for (Node* child : Node::children())
                 child->findNodesContaining(point, result);
         }
 
-        void Layer::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+        void Layer::doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) {
             generator->generate(this, issues);
         }
 

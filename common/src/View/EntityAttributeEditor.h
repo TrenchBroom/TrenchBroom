@@ -21,8 +21,10 @@
 #define TrenchBroom_EntityAttributeEditor
 
 #include "StringType.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/ViewTypes.h"
+
+#include <vector>
 
 #include <QWidget>
 
@@ -63,7 +65,7 @@ namespace TrenchBroom {
             void unbindObservers();
 
             void selectionDidChange(const Selection& selection);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
 
             void updateIfSelectedEntityDefinitionChanged();
             void updateDocumentationAndSmartEditor();

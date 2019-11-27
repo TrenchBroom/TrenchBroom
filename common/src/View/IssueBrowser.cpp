@@ -19,6 +19,7 @@
 
 #include "IssueBrowser.h"
 
+#include "SharedPointer.h"
 #include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
 #include "Model/World.h"
@@ -105,19 +106,19 @@ namespace TrenchBroom {
             m_view->update();
         }
 
-        void IssueBrowser::nodesWereAdded(const Model::NodeList&) {
+        void IssueBrowser::nodesWereAdded(const std::vector<Model::Node*>&) {
             m_view->reload();
         }
 
-        void IssueBrowser::nodesWereRemoved(const Model::NodeList&) {
+        void IssueBrowser::nodesWereRemoved(const std::vector<Model::Node*>&) {
             m_view->reload();
         }
 
-        void IssueBrowser::nodesDidChange(const Model::NodeList&) {
+        void IssueBrowser::nodesDidChange(const std::vector<Model::Node*>&) {
             m_view->reload();
         }
 
-        void IssueBrowser::brushFacesDidChange(const Model::BrushFaceList&) {
+        void IssueBrowser::brushFacesDidChange(const std::vector<Model::BrushFace*>&) {
             m_view->reload();
         }
 
@@ -128,7 +129,7 @@ namespace TrenchBroom {
         void IssueBrowser::updateFilterFlags() {
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
-            const Model::IssueGeneratorList& generators = world->registeredIssueGenerators();
+            const std::vector<Model::IssueGenerator*>& generators = world->registeredIssueGenerators();
 
             QList<int> flags;
             QStringList labels;

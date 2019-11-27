@@ -19,6 +19,7 @@
 
 #include "FaceAttribsEditor.h"
 
+#include "Color.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/Texture.h"
 #include "IO/ResourceUtils.h"
@@ -41,11 +42,12 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
+#include <memory>
+
 #include <QtGlobal>
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
-#include <QGridLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -405,7 +407,7 @@ namespace TrenchBroom {
             updateControls();
         }
 
-        void FaceAttribsEditor::brushFacesDidChange(const Model::BrushFaceList&) {
+        void FaceAttribsEditor::brushFacesDidChange(const std::vector<Model::BrushFace*>&) {
             MapDocumentSPtr document = lock(m_document);
             m_faces = document->allSelectedBrushFaces();
             updateControls();
@@ -582,7 +584,7 @@ namespace TrenchBroom {
 
         bool FaceAttribsEditor::hasSurfaceAttribs() const {
             MapDocumentSPtr document = lock(m_document);
-            const Model::GameSPtr game = document->game();
+            const auto game = document->game();
             const Model::GameConfig::FlagsConfig& surfaceFlags = game->surfaceFlags();
             const Model::GameConfig::FlagsConfig& contentFlags = game->contentFlags();
 
@@ -632,14 +634,14 @@ namespace TrenchBroom {
 
         void FaceAttribsEditor::getSurfaceFlags(QStringList& names, QStringList& descriptions) const {
             MapDocumentSPtr document = lock(m_document);
-            const Model::GameSPtr game = document->game();
+            const auto game = document->game();
             const Model::GameConfig::FlagsConfig& surfaceFlags = game->surfaceFlags();
             getFlags(surfaceFlags.flags, names, descriptions);
         }
 
         void FaceAttribsEditor::getContentFlags(QStringList& names, QStringList& descriptions) const {
             MapDocumentSPtr document = lock(m_document);
-            const Model::GameSPtr game = document->game();
+            const auto game = document->game();
             const Model::GameConfig::FlagsConfig& contentFlags = game->contentFlags();
             getFlags(contentFlags.flags, names, descriptions);
         }

@@ -22,7 +22,7 @@
 
 #include "AttrString.h"
 #include "Color.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/EntityModelRenderer.h"
 #include "Renderer/Renderable.h"
@@ -31,6 +31,7 @@
 #include <vecmath/forward.h>
 
 #include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -51,7 +52,7 @@ namespace TrenchBroom {
 
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;
-            Model::EntityList m_entities;
+            std::vector<Model::Entity*> m_entities;
 
             DirectEdgeRenderer m_pointEntityWireframeBoundsRenderer;
             DirectEdgeRenderer m_brushEntityWireframeBoundsRenderer;
@@ -76,7 +77,7 @@ namespace TrenchBroom {
         public:
             EntityRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
 
-            void setEntities(const Model::EntityList& entities);
+            void setEntities(const std::vector<Model::Entity*>& entities);
             void invalidate();
             void clear();
             void reloadModels();

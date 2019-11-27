@@ -73,13 +73,13 @@ namespace TrenchBroom {
             using EdgeList = ProjectingSequence<BrushEdgeList, ProjectToEdge>;
 
         private:
-            BrushFaceList m_faces;
+            std::vector<BrushFace*> m_faces;
             BrushGeometry* m_geometry;
 
             mutable bool m_transparent;
             mutable std::unique_ptr<Renderer::BrushRendererBrushCache> m_brushRendererBrushCache; // unique_ptr for breaking header dependencies
         public:
-            Brush(const vm::bbox3& worldBounds, const BrushFaceList& faces);
+            Brush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);
             ~Brush() override;
         private:
             void cleanup();
@@ -95,15 +95,15 @@ namespace TrenchBroom {
             BrushFace* findFace(const std::vector<vm::polygon3>& candidates, FloatType epsilon = static_cast<FloatType>(0.0)) const;
 
             size_t faceCount() const;
-            const BrushFaceList& faces() const;
-            void setFaces(const vm::bbox3& worldBounds, const BrushFaceList& faces);
+            const std::vector<BrushFace*>& faces() const;
+            void setFaces(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);
 
             bool closed() const;
             bool fullySpecified() const;
 
             void faceDidChange();
         private:
-            void addFaces(const BrushFaceList& faces);
+            void addFaces(const std::vector<BrushFace*>& faces);
             template <typename I>
             void addFaces(I cur, I end, size_t count) {
                 m_faces.reserve(m_faces.size() + count);
@@ -126,14 +126,14 @@ namespace TrenchBroom {
             }
 
             void removeFace(BrushFace* face);
-            BrushFaceList::iterator doRemoveFace(BrushFaceList::iterator begin, BrushFaceList::iterator end, BrushFace* face);
+            std::vector<BrushFace*>::iterator doRemoveFace(std::vector<BrushFace*>::iterator begin, std::vector<BrushFace*>::iterator end, BrushFace* face);
 
-            void detachFaces(const BrushFaceList& faces);
+            void detachFaces(const std::vector<BrushFace*>& faces);
             void detachFace(BrushFace* face);
         public: // clone face attributes from matching faces of other brushes
-            void cloneFaceAttributesFrom(const BrushList& brushes);
+            void cloneFaceAttributesFrom(const std::vector<Brush*>& brushes);
             void cloneFaceAttributesFrom(const Brush* brush);
-            void cloneInvertedFaceAttributesFrom(const BrushList& brushes);
+            void cloneInvertedFaceAttributesFrom(const std::vector<Brush*>& brushes);
             void cloneInvertedFaceAttributesFrom(const Brush* brush);
         public: // clipping
             bool clip(const vm::bbox3& worldBounds, BrushFace* face);
@@ -168,7 +168,7 @@ namespace TrenchBroom {
             EdgeList edges() const;
             bool containsPoint(const vm::vec3& point) const;
 
-            BrushFaceList incidentFaces(const BrushVertex* vertex) const;
+            std::vector<BrushFace*> incidentFaces(const BrushVertex* vertex) const;
 
             // vertex operations
             bool canMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertices, const vm::vec3& delta) const;
@@ -241,8 +241,8 @@ namespace TrenchBroom {
              * @param subtrahends brushes to subtract from `this`. The passed-in brushes are not modified.
              * @return the subtraction result
              */
-            BrushList subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushList& subtrahends) const;
-            BrushList subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, Brush* subtrahend) const;
+            std::vector<Brush*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const std::vector<Brush*>& subtrahends) const;
+            std::vector<Brush*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, Brush* subtrahend) const;
             void intersect(const vm::bbox3& worldBounds, const Brush* brush);
 
             // transformation
@@ -260,7 +260,7 @@ namespace TrenchBroom {
              * @param subtrahends used as a source of texture alignment only
              * @return the newly created brush
              */
-            Brush* createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const BrushList& subtrahends) const;
+            Brush* createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const std::vector<Brush*>& subtrahends) const;
         private:
             void updateFacesFromGeometry(const vm::bbox3& worldBounds, const BrushGeometry& geometry);
             void updatePointsFromVertices(const vm::bbox3& worldBounds);
@@ -288,12 +288,12 @@ namespace TrenchBroom {
 
             bool doSelectable() const override;
 
-            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
+            void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
         private: // implement Object interface
             void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
-            void doFindNodesContaining(const vm::vec3& point, NodeList& result) override;
+            void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
 
             struct BrushFaceHit {
                 BrushFace* face;

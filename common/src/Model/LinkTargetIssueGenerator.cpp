@@ -25,8 +25,8 @@
 #include "Model/MapFacade.h"
 #include "Model/PushSelection.h"
 
-#include <cassert>
 #include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -56,7 +56,7 @@ namespace TrenchBroom {
 
         class LinkTargetIssueGenerator::LinkTargetIssueQuickFix : public IssueQuickFix {
         private:
-            using AttributeNameMap = std::map<AttributeName, NodeList>;
+            using AttributeNameMap = std::map<AttributeName, std::vector<Node*>>;
         public:
             LinkTargetIssueQuickFix() :
             IssueQuickFix(LinkTargetIssue::Type, "Delete property") {}
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             processKeys(node, node->findMissingKillTargets(), issues);
         }
 
-        void LinkTargetIssueGenerator::processKeys(AttributableNode* node, const Model::AttributeNameList& names, IssueList& issues) const {
+        void LinkTargetIssueGenerator::processKeys(AttributableNode* node, const std::vector<Model::AttributeName>& names, IssueList& issues) const {
             issues.reserve(issues.size() + names.size());
             for (const Model::AttributeName& name : names)
                 issues.push_back(new LinkTargetIssue(node, name));

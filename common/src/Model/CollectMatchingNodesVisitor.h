@@ -27,16 +27,19 @@
 #include "Model/Layer.h"
 #include "Model/World.h"
 
+#include <set>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class NodeCollectionStrategy {
         protected:
-            NodeList m_nodes;
+            std::vector<Node*> m_nodes;
         public:
             virtual ~NodeCollectionStrategy();
 
             virtual void addNode(Node* node) = 0;
-            const NodeList& nodes() const;
+            const std::vector<Node*>& nodes() const;
         };
 
         class StandardNodeCollectionStrategy : public NodeCollectionStrategy {
@@ -48,7 +51,7 @@ namespace TrenchBroom {
 
         class UniqueNodeCollectionStrategy : public NodeCollectionStrategy {
         private:
-            NodeSet m_addedNodes;
+            std::set<Node*> m_addedNodes;
         public:
             virtual ~UniqueNodeCollectionStrategy() override;
         public:
@@ -62,7 +65,7 @@ namespace TrenchBroom {
         public:
             virtual ~FilteringNodeCollectionStrategy() {}
 
-            const NodeList& nodes() const {
+            const std::vector<Node*>& nodes() const {
                 return m_delegate.nodes();
             }
 
@@ -97,8 +100,8 @@ namespace TrenchBroom {
         };
 
         template <typename V, typename I>
-        Model::NodeList collectMatchingNodes(I cur, I end, Node* root) {
-            NodeList result;
+        std::vector<Node*> collectMatchingNodes(I cur, I end, Node* root) {
+            std::vector<Node*> result;
             while (cur != end) {
                 V visitor(*cur);
                 root->acceptAndRecurse(visitor);

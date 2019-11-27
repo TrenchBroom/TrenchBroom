@@ -30,10 +30,9 @@
 
 #include <vecmath/segment.h>
 
-#include <algorithm>
-#include <functional>
 #include <iterator>
 #include <map>
+#include <set>
 
 namespace TrenchBroom {
     namespace Model {
@@ -56,12 +55,15 @@ namespace TrenchBroom {
              * Adds all handles of the the given range of brushes to this handle manager.
              *
              * @tparam I the type of the given range iterators
-             * @param begin the beginning of the range
+             * @param cur the beginning of the range
              * @param end the end of the range
              */
             template <typename I>
-            void addHandles(I begin, I end) {
-                std::for_each(begin, end, [this](const Model::Brush* brush) { addHandles(brush); });
+            void addHandles(I cur, I end) {
+                while (cur != end) {
+                    addHandles(*cur);
+                    ++cur;
+                }
             }
 
             /**
@@ -75,12 +77,15 @@ namespace TrenchBroom {
              * Removes all handles of the given range of brushes from this handle manager.
              *
              * @tparam I the type of the range iterators
-             * @param begin the beginning of the range
+             * @param cur the beginning of the range
              * @param end the end of the range
              */
             template <typename I>
-            void removeHandles(I begin, I end) {
-                std::for_each(begin, end, [this](const Model::Brush* brush) { removeHandles(brush); });
+            void removeHandles(I cur, I end) {
+                while (cur != end) {
+                    removeHandles(*cur);
+                    ++cur;
+                }
             }
 
             /**
@@ -338,12 +343,15 @@ namespace TrenchBroom {
              * Selects the given range of handles.
              *
              * @tparam I the type of the range iterator
-             * @param begin the beginning of the range
+             * @param cur the beginning of the range
              * @param end the end of the range
              */
             template <typename I>
-            void select(I begin, I end) {
-                std::for_each(begin, end, [this](const Handle& handle) { select(handle); });
+            void select(I cur, I end) {
+                while (cur != end) {
+                    select(*cur);
+                    ++cur;
+                }
             }
 
             /**
@@ -360,12 +368,15 @@ namespace TrenchBroom {
              * Deselects the given range of handles.
              *
              * @tparam I the type of the range iterators
-             * @param begin the beginning of the range
+             * @param cur the beginning of the range
              * @param end the end of the range
              */
             template <typename I>
-            void deselect(I begin, I end) {
-                std::for_each(begin, end, [this](const Handle& handle) { deselect(handle); });
+            void deselect(I cur, I end) {
+                while (cur != end) {
+                    deselect(*cur);
+                    ++cur;
+                }
             }
 
             /**
@@ -382,9 +393,9 @@ namespace TrenchBroom {
              * Deselects all currently selected handles
              */
             void deselectAll() {
-                std::for_each(std::begin(m_handles), std::end(m_handles), [this](HandleEntry& entry) {
+                for (auto& entry : m_handles) {
                     deselect(entry.second);
-                });
+                }
             }
 
             /**
@@ -399,17 +410,21 @@ namespace TrenchBroom {
                 using SelectionState = std::map<Handle, bool>;
                 SelectionState selectionState;
 
-                std::for_each(begin, end, [&](const Handle& handle) { selectionState[handle] = selected(handle); });
-                std::for_each(begin, end, [&](const Handle& handle) {
-                    if (selectionState[handle]) {
-                        deselect(handle);
+                for (auto cur = begin; cur != end; ++cur) {
+                    selectionState[*cur] = selected(*cur);
+                }
+
+                for (auto cur = begin; cur != end; ++cur) {
+                    if (selectionState[*cur]) {
+                        deselect(*cur);
                     } else {
-                        select(handle);
+                        select(*cur);
                     }
-                });
+                }
             }
         private:
-            void forEachCloseHandle(const H& handle, std::function<void(HandleInfo&)> fun) {
+            template <typename F>
+            void forEachCloseHandle(const H& handle, F fun) {
                 static const auto epsilon = 0.001 * 0.001;
                 for (auto& entry : m_handles) {
                     if (compare(handle, entry.first, epsilon) == 0) {
@@ -452,11 +467,12 @@ namespace TrenchBroom {
              */
             template <typename P>
             void pick(const P& test, Model::PickResult& pickResult) const {
-                std::for_each(std::begin(m_handles), std::end(m_handles), [&test, &pickResult](const HandleEntry& entry) {
-                    const Model::Hit hit = test(entry.first);
-                    if (hit.isMatch())
+                for (const auto& entry : m_handles) {
+                    const auto hit = test(entry.first);
+                    if (hit.isMatch()) {
                         pickResult.addHit(hit);
-                });
+                    }
+                }
             }
         public:
             /**
@@ -469,8 +485,8 @@ namespace TrenchBroom {
              * @return a set of all brushes that are incident to the given handle
              */
             template <typename I>
-            Model::BrushSet findIncidentBrushes(const Handle& handle, I begin, I end) const {
-                Model::BrushSet result;
+            std::set<Model::Brush*> findIncidentBrushes(const Handle& handle, I begin, I end) const {
+                std::set<Model::Brush*> result;
                 findIncidentBrushes(handle, begin, end, std::inserter(result, result.end()));
                 return result;
             }
@@ -487,12 +503,12 @@ namespace TrenchBroom {
              * @return a set containing all incident brushes
              */
             template <typename I1, typename I2>
-            Model::BrushSet findIncidentBrushes(I1 hBegin, I1 hEnd, I2 bBegin, I2 bEnd) const {
-                Model::BrushSet result;
+            std::set<Model::Brush*> findIncidentBrushes(I1 hBegin, I1 hEnd, I2 bBegin, I2 bEnd) const {
+                std::set<Model::Brush*> result;
                 auto out = std::inserter(result, std::end(result));
-                std::for_each(hBegin, hEnd, [this, bBegin, bEnd, out](const Handle& handle) {
-                    findIncidentBrushes(handle, bBegin, bEnd, out);
-                });
+                for (auto hCur = hBegin; hCur != hEnd; ++hCur) {
+                    findIncidentBrushes(*hCur, bBegin, bEnd, out);
+                }
                 return result;
             }
 
@@ -508,7 +524,11 @@ namespace TrenchBroom {
              */
             template <typename I, typename O>
             void findIncidentBrushes(const Handle& handle, I begin, I end, O out) const {
-                std::copy_if(begin, end, out, [this, &handle](const Model::Brush* brush) { return this->isIncident(handle, brush); });
+                for (auto cur = begin; cur != end; ++cur) {
+                    if (isIncident(handle, *cur)) {
+                        out++ = *cur;
+                    }
+                }
             }
         private:
             /**

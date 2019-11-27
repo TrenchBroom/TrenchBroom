@@ -23,13 +23,15 @@
 #include "TrenchBroom.h"
 #include "Model/Hit.h"
 #include "Model/PickResult.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/OrthographicCamera.h"
 #include "View/RenderView.h"
 #include "View/ToolBox.h"
 #include "View/ToolBoxConnector.h"
 #include "View/UVViewHelper.h"
 #include "View/ViewTypes.h"
+
+#include <vector>
 
 class QWidget;
 
@@ -82,8 +84,8 @@ namespace TrenchBroom {
 
             void selectionDidChange(const Selection& selection);
             void documentWasCleared(MapDocument* document);
-            void nodesDidChange(const Model::NodeList& nodes);
-            void brushFacesDidChange(const Model::BrushFaceList& faces);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
+            void brushFacesDidChange(const std::vector<Model::BrushFace*>& faces);
             void gridDidChange();
             void cameraDidChange(const Renderer::Camera* camera);
             void preferenceDidChange(const IO::Path& path);

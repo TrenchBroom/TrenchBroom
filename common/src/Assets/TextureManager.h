@@ -23,7 +23,7 @@
 #include "Notifier.h"
 #include "Assets/AssetTypes.h"
 #include "IO/Path.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <map>
 #include <vector>

@@ -24,6 +24,7 @@
 #include "Model/Issue.h"
 
 #include <cassert>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -51,9 +52,9 @@ namespace TrenchBroom {
         IssueGenerator(MixedBrushContentsIssue::Type, "Mixed brush content flags") {}
 
         void MixedBrushContentsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
-            const BrushFaceList& faces = brush->faces();
-            BrushFaceList::const_iterator it = std::begin(faces);
-            BrushFaceList::const_iterator end = std::end(faces);
+            const std::vector<BrushFace*>& faces = brush->faces();
+            auto it = std::begin(faces);
+            auto end = std::end(faces);
             assert(it != end);
 
             const int contentFlags = (*it)->surfaceContents();

@@ -20,6 +20,7 @@
 #include "MissingModIssueGenerator.h"
 
 #include "CollectionUtils.h"
+#include "SharedPointer.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Issue.h"
@@ -28,9 +29,9 @@
 #include "Model/MapFacade.h"
 #include "Model/PushSelection.h"
 
-#include <algorithm>
 #include <cassert>
-#include <iterator>
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -89,7 +90,7 @@ namespace TrenchBroom {
             }
         };
 
-        MissingModIssueGenerator::MissingModIssueGenerator(GameWPtr game) :
+        MissingModIssueGenerator::MissingModIssueGenerator(std::weak_ptr<Game> game) :
         IssueGenerator(MissingModIssue::Type, "Missing mod directory"),
         m_game(game) {
             addQuickFix(new MissingModIssueQuickFix());
@@ -106,22 +107,19 @@ namespace TrenchBroom {
                 return;
             }
 
-            GameSPtr game = lock(m_game);
+            auto game = lock(m_game);
             const StringList mods = game->extractEnabledMods(*node);
 
             if (mods == m_lastMods) {
                 return;
             }
 
-            const IO::Path::List additionalSearchPaths = IO::Path::asPaths(mods);
-            const Game::PathErrors errors = game->checkAdditionalSearchPaths(additionalSearchPaths);
-            using PathError = Game::PathErrors::value_type;
+            const auto additionalSearchPaths = IO::Path::asPaths(mods);
+            const auto errors = game->checkAdditionalSearchPaths(additionalSearchPaths);
 
-            std::transform(std::begin(errors), std::end(errors), std::back_inserter(issues), [node](const PathError& error) {
-                const IO::Path& searchPath = error.first;
-                const String& message = error.second;
-                return new MissingModIssue(node, searchPath.asString(), message);
-            });
+            for (const auto& [searchPath, message] : errors) {
+                issues.push_back(new MissingModIssue(node, searchPath.asString(), message));
+            }
 
             m_lastMods = mods;
         }

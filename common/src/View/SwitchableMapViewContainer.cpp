@@ -20,9 +20,9 @@
 #include "SwitchableMapViewContainer.h"
 
 #include "TrenchBroom.h"
-
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
 #include "Model/PointFile.h"
 #include "Renderer/MapRenderer.h"
 #include "View/CyclingMapView.h"

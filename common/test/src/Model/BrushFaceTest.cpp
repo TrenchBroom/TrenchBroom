@@ -32,7 +32,7 @@
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/MapFormat.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Model/NodeSnapshot.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"
@@ -44,6 +44,7 @@
 #include <vecmath/mat_ext.h>
 
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -440,7 +441,7 @@ namespace TrenchBroom {
 
             BrushBuilder builder(&world, worldBounds);
             const Brush* cube = builder.createCube(128.0, "");
-            const BrushFaceList& faces = cube->faces();
+            const std::vector<BrushFace*>& faces = cube->faces();
 
             for (size_t i = 0; i < faces.size(); ++i) {
                 BrushFace *face = faces[i];
@@ -461,7 +462,7 @@ namespace TrenchBroom {
 
             BrushBuilder builder(&world, worldBounds);
             const Brush* cube = builder.createCube(128.0, "");
-            const BrushFaceList& faces = cube->faces();
+            const std::vector<BrushFace*>& faces = cube->faces();
 
             for (size_t i = 0; i < faces.size(); ++i) {
                 BrushFace *face = faces[i];
@@ -533,7 +534,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            NodeList nodes = reader.read(worldBounds, status);
+            std::vector<Node*> nodes = reader.read(worldBounds, status);
             Brush* pyramidLight = static_cast<Brush*>(nodes.at(0)->children().at(0));
             ASSERT_NE(nullptr, pyramidLight);
 
@@ -589,7 +590,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            NodeList nodes = reader.read(worldBounds, status);
+            std::vector<Node*> nodes = reader.read(worldBounds, status);
             Brush* pyramidLight = static_cast<Brush*>(nodes.at(0)->children().at(0));
             ASSERT_NE(nullptr, pyramidLight);
 
@@ -649,7 +650,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
 
-            NodeList nodes = reader.read(worldBounds, status);
+            std::vector<Node*> nodes = reader.read(worldBounds, status);
             Brush* brush = static_cast<Brush*>(nodes.at(0)->children().at(0));
             ASSERT_NE(nullptr, brush);
 
