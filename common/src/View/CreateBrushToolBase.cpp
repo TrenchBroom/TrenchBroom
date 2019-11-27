@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        CreateBrushToolBase::CreateBrushToolBase(const bool initiallyActive, MapDocumentWPtr document) :
+        CreateBrushToolBase::CreateBrushToolBase(const bool initiallyActive, std::weak_ptr<MapDocument> document) :
         Tool(initiallyActive),
         m_document(document),
         m_brush(nullptr),
@@ -46,7 +46,7 @@ namespace TrenchBroom {
 
         void CreateBrushToolBase::createBrush() {
             if (m_brush != nullptr) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 const Transaction transaction(document, "Create Brush");
                 document->deselectAll();
                 document->addNode(m_brush, document->currentParent());

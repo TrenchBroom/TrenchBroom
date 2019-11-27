@@ -94,6 +94,7 @@
 #include "View/MoveBrushFacesCommand.h"
 #include "View/MoveBrushVerticesCommand.h"
 #include "View/MoveTexturesCommand.h"
+#include "View/PasteType.h"
 #include "View/RemoveBrushEdgesCommand.h"
 #include "View/RemoveBrushFacesCommand.h"
 #include "View/RemoveBrushVerticesCommand.h"
@@ -355,17 +356,17 @@ namespace TrenchBroom {
             try {
                 const std::vector<Model::Node*> nodes = m_game->parseNodes(str, *m_world, m_worldBounds, logger());
                 if (!nodes.empty() && pasteNodes(nodes))
-                    return PT_Node;
+                    return PasteType::Node;
             } catch (const ParserException& e) {
                 try {
                     const std::vector<Model::BrushFace*> faces = m_game->parseBrushFaces(str, *m_world, m_worldBounds, logger());
                     if (!faces.empty() && pasteBrushFaces(faces))
-                        return PT_BrushFace;
+                        return PasteType::BrushFace;
                 } catch (const ParserException&) {
                     error("Could not parse clipboard contents: %s", e.what());
                 }
             }
-            return PT_Failed;
+            return PasteType::Failed;
         }
 
         bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes) {
@@ -2130,13 +2131,13 @@ namespace TrenchBroom {
             debug("Command '%s' undone", command->name().c_str());
         }
 
-        Transaction::Transaction(MapDocumentWPtr document, const String& name) :
+        Transaction::Transaction(std::weak_ptr<MapDocument> document, const String& name) :
         m_document(lock(document).get()),
         m_cancelled(false) {
             begin(name);
         }
 
-        Transaction::Transaction(MapDocumentSPtr document, const String& name) :
+        Transaction::Transaction(std::shared_ptr<MapDocument> document, const String& name) :
         m_document(document.get()),
         m_cancelled(false) {
             begin(name);

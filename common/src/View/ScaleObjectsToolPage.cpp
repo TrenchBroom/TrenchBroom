@@ -40,7 +40,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        ScaleObjectsToolPage::ScaleObjectsToolPage(MapDocumentWPtr document, QWidget* parent) :
+        ScaleObjectsToolPage::ScaleObjectsToolPage(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)),
         m_book(nullptr),
@@ -78,7 +78,7 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsToolPage::createGui() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             auto* text = new QLabel(tr("Scale objects"));
 
@@ -115,7 +115,7 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsToolPage::updateGui() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             m_button->setEnabled(canScale());
         }
 

@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        CreateComplexBrushTool::CreateComplexBrushTool(MapDocumentWPtr document) :
+        CreateComplexBrushTool::CreateComplexBrushTool(std::weak_ptr<MapDocument> document) :
         CreateBrushToolBase(false, document),
         m_polyhedron(std::make_unique<Polyhedron3>()){}
 

@@ -25,6 +25,8 @@
 #include "Model/MapFormat.h"
 #include "View/MapDocument.h"
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace Assets {
         class PointEntityDefinition;
@@ -41,7 +43,7 @@ namespace TrenchBroom {
             Model::MapFormat m_mapFormat;
         protected:
             std::shared_ptr<Model::TestGame> game;
-            MapDocumentSPtr document;
+            std::shared_ptr<MapDocument> document;
             Assets::PointEntityDefinition* m_pointEntityDef;
             Assets::BrushEntityDefinition* m_brushEntityDef;
         protected:

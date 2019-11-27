@@ -23,9 +23,10 @@
 #include "TrenchBroom.h"
 #include "StringType.h"
 #include "View/Tool.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/bbox.h>
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace Model {
@@ -34,13 +35,15 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+
         class CreateEntityTool : public Tool {
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             Model::Entity* m_entity;
             vm::bbox3 m_referenceBounds;
         public:
-            CreateEntityTool(MapDocumentWPtr document);
+            CreateEntityTool(std::weak_ptr<MapDocument> document);
 
             bool createEntity(const String& classname);
             void removeEntity();

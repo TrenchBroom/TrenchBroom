@@ -36,7 +36,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        FaceInspector::FaceInspector(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
+        FaceInspector::FaceInspector(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent) :
         TabBookPage(parent),
         m_document(document),
         m_splitter(nullptr),
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             return m_faceAttribsEditor->cancelMouseDrag();
         }
 
-        void FaceInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
+        void FaceInspector::createGui(std::weak_ptr<MapDocument> document, GLContextManager& contextManager) {
             m_splitter = new Splitter(Qt::Vertical);
             m_splitter->setObjectName("FaceInspector_Splitter");
 
@@ -77,12 +77,12 @@ namespace TrenchBroom {
             restoreWindowState(m_splitter);
         }
 
-        QWidget* FaceInspector::createFaceAttribsEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
+        QWidget* FaceInspector::createFaceAttribsEditor(QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager) {
             m_faceAttribsEditor = new FaceAttribsEditor(std::move(document), contextManager, parent);
             return m_faceAttribsEditor;
         }
 
-        QWidget* FaceInspector::createTextureBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
+        QWidget* FaceInspector::createTextureBrowser(QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager) {
             TitledPanel* panel = new TitledPanel(tr("Texture Browser"), parent);
             m_textureBrowser = new TextureBrowser(std::move(document), contextManager);
 
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             return panel;
         }
 
-        QWidget* FaceInspector::createTextureCollectionEditor(QWidget* parent, MapDocumentWPtr document) {
+        QWidget* FaceInspector::createTextureCollectionEditor(QWidget* parent, std::weak_ptr<MapDocument> document) {
             auto* panel = new CollapsibleTitledPanel(tr("Texture Collections"), false, parent);
             auto* collectionEditor = new TextureCollectionEditor(std::move(document));
 
@@ -108,7 +108,7 @@ namespace TrenchBroom {
         }
 
         void FaceInspector::textureSelected(Assets::Texture* texture) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->setTexture(texture);
         }
     }

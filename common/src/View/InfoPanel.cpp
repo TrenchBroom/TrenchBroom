@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        InfoPanel::InfoPanel(MapDocumentWPtr document, QWidget* parent) :
+        InfoPanel::InfoPanel(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_tabBook(nullptr),
         m_console(nullptr),

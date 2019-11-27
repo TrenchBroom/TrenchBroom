@@ -29,7 +29,7 @@ namespace TrenchBroom {
     namespace Renderer {
         const FloatType PointGuideRenderer::SpikeLength = 512.0;
 
-        PointGuideRenderer::PointGuideRenderer(View::MapDocumentWPtr document) :
+        PointGuideRenderer::PointGuideRenderer(std::weak_ptr<View::MapDocument> document) :
         m_document(document) {}
 
         void PointGuideRenderer::setColor(const Color& color) {
@@ -46,7 +46,7 @@ namespace TrenchBroom {
 
             m_spikeRenderer.clear();
 
-            View::MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             m_spikeRenderer.add(vm::ray3(position, vm::vec3::pos_x()), SpikeLength, document);
             m_spikeRenderer.add(vm::ray3(position, vm::vec3::neg_x()), SpikeLength, document);
             m_spikeRenderer.add(vm::ray3(position, vm::vec3::pos_y()), SpikeLength, document);

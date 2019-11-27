@@ -32,6 +32,7 @@
 #include <vecmath/segment.h>
 
 #include <map>
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -46,7 +47,7 @@ namespace TrenchBroom {
         private:
             CommandProcessor m_commandProcessor;
         public:
-            static MapDocumentSPtr newMapDocument();
+            static std::shared_ptr<MapDocument> newMapDocument();
         private:
             MapDocumentCommandFacade();
         public: // selection modification

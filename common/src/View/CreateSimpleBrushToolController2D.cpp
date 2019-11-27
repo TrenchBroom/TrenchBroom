@@ -33,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        CreateSimpleBrushToolController2D::CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, MapDocumentWPtr document) :
+        CreateSimpleBrushToolController2D::CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, std::weak_ptr<MapDocument> document) :
         m_tool(tool),
         m_document(document) {
             ensure(m_tool != nullptr, "tool is null");
@@ -109,7 +109,7 @@ namespace TrenchBroom {
             bounds = merge(bounds, currentPoint);
             snapBounds(inputState, bounds);
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             bounds = vm::intersect(bounds, document->worldBounds());
 
             if (bounds.is_empty() || bounds == m_bounds)

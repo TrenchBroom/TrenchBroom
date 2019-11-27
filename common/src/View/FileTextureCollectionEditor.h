@@ -20,7 +20,8 @@
 #ifndef TrenchBroom_FileTextureCollectionEditor
 #define TrenchBroom_FileTextureCollectionEditor
 
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 #include <QWidget>
 
@@ -33,10 +34,12 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+
         class FileTextureCollectionEditor : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             QListWidget* m_collections;
 
@@ -46,7 +49,7 @@ namespace TrenchBroom {
             QAbstractButton* m_moveTextureCollectionDownButton;
             QAbstractButton* m_reloadTextureCollectionsButton;
         public:
-            explicit FileTextureCollectionEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit FileTextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~FileTextureCollectionEditor() override;
 
             bool debugUIConsistency() const;

@@ -44,7 +44,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        ModEditor::ModEditor(MapDocumentWPtr document, QWidget* parent) :
+        ModEditor::ModEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_availableModList(nullptr),

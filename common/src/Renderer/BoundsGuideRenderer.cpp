@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace Renderer {
         const FloatType BoundsGuideRenderer::SpikeLength = 512.0;
 
-        BoundsGuideRenderer::BoundsGuideRenderer(View::MapDocumentWPtr document) :
+        BoundsGuideRenderer::BoundsGuideRenderer(std::weak_ptr<View::MapDocument> document) :
         m_document(document) {}
 
         void BoundsGuideRenderer::setColor(const Color& color) {
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             m_bounds = bounds;
             m_spikeRenderer.clear();
 
-            View::MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             m_spikeRenderer.add(vm::ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::min, vm::bbox3::Corner::min), vm::vec3::neg_x()), SpikeLength, document);
             m_spikeRenderer.add(vm::ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::min, vm::bbox3::Corner::min), vm::vec3::neg_y()), SpikeLength, document);
             m_spikeRenderer.add(vm::ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::min, vm::bbox3::Corner::min), vm::vec3::neg_z()), SpikeLength, document);

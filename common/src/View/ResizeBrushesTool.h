@@ -24,11 +24,11 @@
 #include "Model/Hit.h"
 #include "Model/Model_Forward.h"
 #include "View/Tool.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/polygon.h>
 
+#include <memory>
 #include <tuple>
 #include <vector>
 
@@ -42,6 +42,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
         class Selection;
 
         class ResizeBrushesTool : public Tool {
@@ -51,7 +52,7 @@ namespace TrenchBroom {
 
             using FaceHandle = std::tuple<Model::Brush*, vm::vec3>;
 
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             std::vector<FaceHandle> m_dragHandles;
             vm::vec3 m_dragOrigin;
             vm::vec3 m_lastPoint;
@@ -59,7 +60,7 @@ namespace TrenchBroom {
             vm::vec3 m_totalDelta;
             bool m_dragging;
         public:
-            explicit ResizeBrushesTool(MapDocumentWPtr document);
+            explicit ResizeBrushesTool(std::weak_ptr<MapDocument> document);
             ~ResizeBrushesTool() override;
 
             bool applies() const;

@@ -67,7 +67,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapView3D::MapView3D(MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
+        MapView3D::MapView3D(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
                              GLContextManager& contextManager, Logger* logger) :
         MapViewBase(logger, document, toolBox, renderer, contextManager),
         m_flyModeHelper(new FlyModeHelper(m_camera)),
@@ -184,7 +184,7 @@ namespace TrenchBroom {
         }
 
         Model::PickResult MapView3D::doPick(const vm::ray3& pickRay) const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
             Model::PickResult pickResult = Model::PickResult::byDistance(editorContext);
 
@@ -375,7 +375,7 @@ namespace TrenchBroom {
         }
 
         void MapView3D::doMoveCameraToCurrentTracePoint() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             assert(document->isPointFileLoaded());
             Model::PointFile* pointFile = document->pointFile();
@@ -467,7 +467,7 @@ namespace TrenchBroom {
         void MapView3D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderer.render(renderContext, renderBatch);
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (renderContext.showSelectionGuide() && document->hasSelectedNodes()) {
                 const vm::bbox3& bounds = document->selectionBounds();
                 Renderer::SelectionBoundsRenderer boundsRenderer(bounds);

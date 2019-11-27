@@ -36,7 +36,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        IssueBrowser::IssueBrowser(MapDocumentWPtr document, QWidget* parent) :
+        IssueBrowser::IssueBrowser(std::weak_ptr<MapDocument> document, QWidget* parent) :
         TabBookPage(parent),
         m_document(document),
         m_view(new IssueBrowserView(m_document)),
@@ -74,7 +74,7 @@ namespace TrenchBroom {
         }
 
         void IssueBrowser::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->documentWasSavedNotifier.addObserver(this, &IssueBrowser::documentWasSaved);
             document->documentWasNewedNotifier.addObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
@@ -86,7 +86,7 @@ namespace TrenchBroom {
 
         void IssueBrowser::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->documentWasSavedNotifier.removeObserver(this, &IssueBrowser::documentWasSaved);
                 document->documentWasNewedNotifier.removeObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.removeObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
@@ -127,7 +127,7 @@ namespace TrenchBroom {
         }
 
         void IssueBrowser::updateFilterFlags() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const Model::World* world = document->world();
             const std::vector<Model::IssueGenerator*>& generators = world->registeredIssueGenerators();
 

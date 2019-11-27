@@ -44,13 +44,15 @@
 #include "View/Selection.h"
 
 #include <map>
+#include <memory>
 #include <set>
 #include <vector>
 
 namespace TrenchBroom {
     namespace View {
-        MapDocumentSPtr MapDocumentCommandFacade::newMapDocument() {
-            return MapDocumentSPtr(new MapDocumentCommandFacade());
+        std::shared_ptr<MapDocument> MapDocumentCommandFacade::newMapDocument() {
+            // can't use std::make_shared here because the constructor is private
+            return std::shared_ptr<MapDocument>(new MapDocumentCommandFacade());
         }
 
         MapDocumentCommandFacade::MapDocumentCommandFacade() :

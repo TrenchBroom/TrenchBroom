@@ -28,6 +28,8 @@
 #include "Renderer/Vbo.h"
 #include "View/MapDocument.h"
 
+#include <memory>
+
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/ray.h>
@@ -42,7 +44,7 @@ namespace TrenchBroom {
             m_valid = false;
         }
 
-        void SpikeGuideRenderer::add(const vm::ray3& ray, const FloatType length, View::MapDocumentSPtr document) {
+        void SpikeGuideRenderer::add(const vm::ray3& ray, const FloatType length, std::shared_ptr<View::MapDocument> document) {
             Model::PickResult pickResult = Model::PickResult::byDistance(document->editorContext());
             document->pick(ray, pickResult);
 

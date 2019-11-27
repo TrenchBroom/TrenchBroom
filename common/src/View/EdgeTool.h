@@ -24,6 +24,7 @@
 #include "View/VertexHandleManager.h"
 #include "View/VertexToolBase.h"
 
+#include <memory>
 #include <set>
 
 namespace TrenchBroom {
@@ -36,11 +37,13 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+
         class EdgeTool : public VertexToolBase<vm::segment3> {
         private:
             EdgeHandleManager m_edgeHandles;
         public:
-            EdgeTool(MapDocumentWPtr document);
+            EdgeTool(std::weak_ptr<MapDocument> document);
         public:
             std::set<Model::Brush*> findIncidentBrushes(const vm::segment3& handle) const;
         private:

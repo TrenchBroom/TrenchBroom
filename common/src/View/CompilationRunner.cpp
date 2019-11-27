@@ -74,7 +74,7 @@ namespace TrenchBroom {
                             IO::Disk::createDirectory(directoryPath);
                         }
 
-                        const MapDocumentSPtr document = m_context.document();
+                        const auto document = m_context.document();
                         document->saveDocumentTo(targetPath);
                     }
                     emit end();

@@ -46,7 +46,7 @@ namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType ShearObjectsTool::ShearToolSideHit = Model::Hit::freeHitType();
 
-        ShearObjectsTool::ShearObjectsTool(MapDocumentWPtr document) :
+        ShearObjectsTool::ShearObjectsTool(std::weak_ptr<MapDocument> document) :
         Tool(false),
         m_document(document),
         m_resizing(false),
@@ -56,7 +56,7 @@ namespace TrenchBroom {
         ShearObjectsTool::~ShearObjectsTool() = default;
 
         bool ShearObjectsTool::applies() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             return !document->selectedNodes().empty();
         }
 
@@ -162,7 +162,7 @@ namespace TrenchBroom {
             m_dragStartHit = hit;
             m_dragCumulativeDelta = vm::vec3::zero();
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->beginTransaction("Shear Objects");
             m_resizing = true;
         }
@@ -170,7 +170,7 @@ namespace TrenchBroom {
         void ShearObjectsTool::commitShear() {
             ensure(m_resizing, "must be resizing already");
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (vm::is_zero(m_dragCumulativeDelta, vm::C::almost_zero())) {
                 document->cancelTransaction();
             } else {
@@ -182,7 +182,7 @@ namespace TrenchBroom {
         void ShearObjectsTool::cancelShear() {
             ensure(m_resizing, "must be resizing already");
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->cancelTransaction();
 
             m_resizing = false;
@@ -193,7 +193,7 @@ namespace TrenchBroom {
 
             m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             if (!vm::is_zero(delta, vm::C::almost_zero())) {
                 const BBoxSide side = m_dragStartHit.target<BBoxSide>();

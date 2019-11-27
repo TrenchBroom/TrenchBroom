@@ -52,7 +52,7 @@ namespace TrenchBroom {
     namespace View {
         TextureBrowserView::TextureBrowserView(QScrollBar* scrollBar,
                                                GLContextManager& contextManager,
-                                               MapDocumentWPtr document) :
+                                               std::weak_ptr<MapDocument> document) :
         CellView(contextManager, scrollBar),
         m_document(document),
         m_group(false),

@@ -22,14 +22,15 @@
 
 #include "MapDocumentTest.h"
 
-#include "Renderer/PerspectiveCamera.h"
-#include "View/Grid.h"
-#include "View/ClipToolController.h"
-#include "View/ClipTool.h"
-#include "View/Tool.h"
-#include "Model/World.h"
-#include "Model/Layer.h"
 #include "Model/Brush.h"
+#include "Model/Layer.h"
+#include "Model/World.h"
+#include "Renderer/PerspectiveCamera.h"
+#include "View/ClipTool.h"
+#include "View/ClipToolController.h"
+#include "View/Grid.h"
+#include "View/PasteType.h"
+#include "View/Tool.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -66,7 +67,7 @@ namespace TrenchBroom {
 }
 }
             )";
-            ASSERT_EQ(PT_Node, document->paste(data));
+            ASSERT_EQ(PasteType::Node, document->paste(data));
 
             ClipTool tool(document);
             ClipToolController3D controller(&tool);

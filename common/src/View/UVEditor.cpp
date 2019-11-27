@@ -34,7 +34,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        UVEditor::UVEditor(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
+        UVEditor::UVEditor(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_uvView(nullptr),

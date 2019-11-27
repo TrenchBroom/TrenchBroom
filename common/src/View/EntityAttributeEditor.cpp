@@ -38,7 +38,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityAttributeEditor::EntityAttributeEditor(MapDocumentWPtr document, QWidget* parent) :
+        EntityAttributeEditor::EntityAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_splitter(nullptr),
@@ -60,14 +60,14 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeEditor::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &EntityAttributeEditor::selectionDidChange);
             document->nodesDidChangeNotifier.addObserver(this, &EntityAttributeEditor::nodesDidChange);
         }
 
         void EntityAttributeEditor::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->selectionDidChangeNotifier.removeObserver(this, &EntityAttributeEditor::selectionDidChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &EntityAttributeEditor::nodesDidChange);
             }
@@ -82,7 +82,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeEditor::updateIfSelectedEntityDefinitionChanged() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(document->allSelectedAttributableNodes());
 
             if (entityDefinition != m_currentDefinition) {
@@ -93,7 +93,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeEditor::updateDocumentationAndSmartEditor() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const String& attributeName = m_attributeGrid->selectedRowName();
 
             m_smartEditorManager->switchEditor(attributeName, document->allSelectedAttributableNodes());
@@ -159,7 +159,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeEditor::updateDocumentation(const String &attributeName) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(document->allSelectedAttributableNodes());
 
             m_documentationText->clear();
@@ -231,7 +231,7 @@ namespace TrenchBroom {
             m_documentationText->moveCursor(QTextCursor::MoveOperation::Start);
         }
 
-        void EntityAttributeEditor::createGui(MapDocumentWPtr document) {
+        void EntityAttributeEditor::createGui(std::weak_ptr<MapDocument> document) {
             m_splitter = new Splitter(Qt::Vertical);
             m_splitter->setObjectName("EntityAttributeEditor_Splitter");
 

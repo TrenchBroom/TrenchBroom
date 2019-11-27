@@ -26,9 +26,9 @@
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
-#include "View/ViewTypes.h"
 
 #include <map>
+#include <memory>
 #include <vector>
 
 class QScrollBar;
@@ -41,6 +41,7 @@ namespace TrenchBroom {
 
     namespace View {
         class GLContextManager;
+        class MapDocument;
         using TextureGroupData = String;
 
         struct TextureCellData {
@@ -64,7 +65,7 @@ namespace TrenchBroom {
             using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
             using StringMap = std::map<Renderer::FontDescriptor, TextVertex::List>;
 
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             bool m_group;
             bool m_hideUnused;
             SortOrder m_sortOrder;
@@ -74,7 +75,7 @@ namespace TrenchBroom {
         public:
             TextureBrowserView(QScrollBar* scrollBar,
                                GLContextManager& contextManager,
-                               MapDocumentWPtr document);
+                               std::weak_ptr<MapDocument> document);
             ~TextureBrowserView() override;
 
             void setSortOrder(SortOrder sortOrder);

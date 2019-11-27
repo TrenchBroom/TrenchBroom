@@ -238,7 +238,7 @@ namespace TrenchBroom {
 
         // EntityAttributeModel
 
-        EntityAttributeModel::EntityAttributeModel(MapDocumentWPtr document, QObject* parent) :
+        EntityAttributeModel::EntityAttributeModel(std::weak_ptr<MapDocument> document, QObject* parent) :
         QAbstractTableModel(parent),
         m_showDefaultRows(true),
         m_document(std::move(document)) {
@@ -470,7 +470,7 @@ namespace TrenchBroom {
         void EntityAttributeModel::updateFromMapDocument() {
             qDebug() << "updateFromMapDocument";
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             const std::map<String, AttributeRow> rowsMap =
                 AttributeRow::rowsForAttributableNodes(document->allSelectedAttributableNodes(), m_showDefaultRows);
@@ -592,7 +592,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             const size_t rowIndex = static_cast<size_t>(index.row());
             const std::vector<Model::AttributableNode*> attributables = document->allSelectedAttributableNodes();
@@ -638,7 +638,7 @@ namespace TrenchBroom {
         bool EntityAttributeModel::InsertRow(const size_t pos) {
             ensure(pos <= m_rows.size(), "insertion position out of bounds");
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             const std::vector<Model::AttributableNode*> attributables = document->allSelectedAttributableNodes();
             ensure(!attributables.empty(), "no attributable nodes selected");
@@ -706,7 +706,7 @@ namespace TrenchBroom {
                 }
             }
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             return document->renameAttribute(oldName, newName);
         }
 
@@ -729,7 +729,7 @@ namespace TrenchBroom {
             if (!hasChange)
                 return true;
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             return document->setAttribute(name, newValue);
         }
 

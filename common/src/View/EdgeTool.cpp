@@ -23,7 +23,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EdgeTool::EdgeTool(MapDocumentWPtr document) :
+        EdgeTool::EdgeTool(std::weak_ptr<MapDocument> document) :
         VertexToolBase(document) {}
 
         std::set<Model::Brush*> EdgeTool::findIncidentBrushes(const vm::segment3& handle) const {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
         }
 
         EdgeTool::MoveResult EdgeTool::move(const vm::vec3& delta) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             const auto handles = m_edgeHandles.selectedHandles();
             const auto brushMap = buildBrushMap(m_edgeHandles, std::begin(handles), std::end(handles));

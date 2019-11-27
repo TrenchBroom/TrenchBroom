@@ -22,8 +22,8 @@
 
 #include "Model/Model_Forward.h"
 #include "View/ControlListBox.h"
-#include "View/ViewTypes.h"
 
+#include <memory>
 #include <vector>
 
 class QLabel;
@@ -32,17 +32,19 @@ class QListWidget;
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+
         class LayerListBoxWidget : public ControlListBoxItemRenderer {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             Model::Layer* m_layer;
             QLabel* m_nameText;
             QLabel* m_infoText;
             QAbstractButton* m_hiddenButton;
             QAbstractButton* m_lockButton;
         public:
-            LayerListBoxWidget(MapDocumentWPtr document, Model::Layer* layer, QWidget* parent = nullptr);
+            LayerListBoxWidget(std::weak_ptr<MapDocument> document, Model::Layer* layer, QWidget* parent = nullptr);
 
             void updateItem() override;
         private:
@@ -61,9 +63,9 @@ namespace TrenchBroom {
         class LayerListBox : public ControlListBox {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
         public:
-            explicit LayerListBox(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit LayerListBox(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~LayerListBox() override;
 
             Model::Layer* selectedLayer() const;

@@ -23,7 +23,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        FaceTool::FaceTool(MapDocumentWPtr document) :
+        FaceTool::FaceTool(std::weak_ptr<MapDocument> document) :
         VertexToolBase(document) {}
 
         std::set<Model::Brush*> FaceTool::findIncidentBrushes(const vm::polygon3& handle) const {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
         }
 
         FaceTool::MoveResult FaceTool::move(const vm::vec3& delta) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             const auto handles = m_faceHandles.selectedHandles();
             const auto brushMap = buildBrushMap(m_faceHandles, std::begin(handles), std::end(handles));

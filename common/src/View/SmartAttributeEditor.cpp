@@ -24,11 +24,12 @@
 #include "Model/Object.h"
 #include "View/MapDocument.h"
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
     namespace View {
-        SmartAttributeEditor::SmartAttributeEditor(View::MapDocumentWPtr document, QWidget* parent) :
+        SmartAttributeEditor::SmartAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_active(false) {}
@@ -55,7 +56,7 @@ namespace TrenchBroom {
             return m_name == name;
         }
 
-        View::MapDocumentSPtr SmartAttributeEditor::document() const {
+        std::shared_ptr<MapDocument> SmartAttributeEditor::document() const {
             return lock(m_document);
         }
 

@@ -51,7 +51,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        FaceAttribsEditor::FaceAttribsEditor(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
+        FaceAttribsEditor::FaceAttribsEditor(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)),
         m_uvEditor(nullptr),
@@ -84,7 +84,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::xOffsetChanged(const double value) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
             }
@@ -97,7 +97,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::yOffsetChanged(const double value) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
             }
@@ -110,7 +110,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::rotationChanged(const double value) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
             }
@@ -123,7 +123,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::xScaleChanged(const double value) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
             }
@@ -136,7 +136,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::yScaleChanged(const double value) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
             }
@@ -149,7 +149,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::surfaceFlagChanged(const size_t index, const int setFlag, const int /* mixedFlag */) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
             }
@@ -166,7 +166,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::contentFlagChanged(const size_t index, const int setFlag, const int /* mixedFlag */) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
             }
@@ -183,7 +183,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::surfaceValueChanged(const double value) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
             }
@@ -196,7 +196,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::colorValueChanged(const QString& /* text */) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (!document->hasSelectedBrushFaces()) {
                 return;
             }
@@ -220,7 +220,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::gridDidChange() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Grid& grid = document->grid();
 
             m_xOffsetEditor->setIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
@@ -376,7 +376,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &FaceAttribsEditor::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &FaceAttribsEditor::documentWasLoaded);
             document->brushFacesDidChangeNotifier.addObserver(this, &FaceAttribsEditor::brushFacesDidChange);
@@ -387,7 +387,7 @@ namespace TrenchBroom {
 
         void FaceAttribsEditor::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasLoaded);
                 document->brushFacesDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::brushFacesDidChange);
@@ -408,13 +408,13 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::brushFacesDidChange(const std::vector<Model::BrushFace*>&) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             m_faces = document->allSelectedBrushFaces();
             updateControls();
         }
 
         void FaceAttribsEditor::selectionDidChange(const Selection&) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             m_faces = document->allSelectedBrushFaces();
             updateControls();
         }
@@ -583,7 +583,7 @@ namespace TrenchBroom {
 
 
         bool FaceAttribsEditor::hasSurfaceAttribs() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const auto game = document->game();
             const Model::GameConfig::FlagsConfig& surfaceFlags = game->surfaceFlags();
             const Model::GameConfig::FlagsConfig& contentFlags = game->contentFlags();
@@ -610,7 +610,7 @@ namespace TrenchBroom {
         }
 
         bool FaceAttribsEditor::hasColorAttribs() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             return document->world()->format() == Model::MapFormat::Daikatana;
         }
 
@@ -633,14 +633,14 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::getSurfaceFlags(QStringList& names, QStringList& descriptions) const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const auto game = document->game();
             const Model::GameConfig::FlagsConfig& surfaceFlags = game->surfaceFlags();
             getFlags(surfaceFlags.flags, names, descriptions);
         }
 
         void FaceAttribsEditor::getContentFlags(QStringList& names, QStringList& descriptions) const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const auto game = document->game();
             const Model::GameConfig::FlagsConfig& contentFlags = game->contentFlags();
             getFlags(contentFlags.flags, names, descriptions);

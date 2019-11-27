@@ -30,6 +30,7 @@
 #include "View/ViewUtils.h"
 
 #include <cassert>
+#include <memory>
 #include <vector>
 
 #include <QScrollArea>
@@ -37,14 +38,16 @@
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+
         class SmartSpawnflagsEditor::UpdateSpawnflag : public Model::NodeVisitor {
         private:
-            MapDocumentSPtr m_document;
+            std::shared_ptr<MapDocument> m_document;
             const Model::AttributeName& m_name;
             size_t m_flagIndex;
             bool m_setFlag;
         public:
-            UpdateSpawnflag(MapDocumentSPtr document, const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) :
+            UpdateSpawnflag(std::shared_ptr<MapDocument> document, const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) :
             m_document(document),
             m_name(name),
             m_flagIndex(flagIndex),
@@ -57,7 +60,7 @@ namespace TrenchBroom {
             void doVisit(Model::Brush*) override  {}
         };
 
-        SmartSpawnflagsEditor::SmartSpawnflagsEditor(View::MapDocumentWPtr document, QWidget* parent) :
+        SmartSpawnflagsEditor::SmartSpawnflagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         SmartAttributeEditor(document, parent),
         m_scrolledWindow(nullptr),
         m_flagsEditor(nullptr),

@@ -21,7 +21,8 @@
 #define TrenchBroom_MapInspector
 
 #include "View/TabBook.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 class QWidget;
 
@@ -32,17 +33,17 @@ namespace TrenchBroom {
 
     namespace View {
         class GLContextManager;
-        class MapTreeView;
+        class MapDocument;
         class ModEditor;
 
         class MapInspector : public TabBookPage {
             Q_OBJECT
         public:
-            MapInspector(MapDocumentWPtr document, QWidget* parent = nullptr);
+            MapInspector(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
-            void createGui(MapDocumentWPtr document);
-            QWidget* createLayerEditor(QWidget* parent, MapDocumentWPtr document);
-            QWidget* createModEditor(QWidget* parent, MapDocumentWPtr document);
+            void createGui(std::weak_ptr<MapDocument> document);
+            QWidget* createLayerEditor(QWidget* parent, std::weak_ptr<MapDocument> document);
+            QWidget* createModEditor(QWidget* parent, std::weak_ptr<MapDocument> document);
         };
     }
 }

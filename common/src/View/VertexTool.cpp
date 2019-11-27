@@ -35,7 +35,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        VertexTool::VertexTool(MapDocumentWPtr document) :
+        VertexTool::VertexTool(std::weak_ptr<MapDocument> document) :
         VertexToolBase(document),
         m_mode(Mode_Move),
         m_guideRenderer(document) {}
@@ -53,7 +53,7 @@ namespace TrenchBroom {
         }
 
         void VertexTool::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const Grid& grid = document->grid();
 
             m_vertexHandles.pick(pickRay, camera, pickResult);
@@ -104,7 +104,7 @@ namespace TrenchBroom {
         }
 
         VertexTool::MoveResult VertexTool::move(const vm::vec3& delta) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             if (m_mode == Mode_Move) {
                 const auto handles = m_vertexHandles.selectedHandles();

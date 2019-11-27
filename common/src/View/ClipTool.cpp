@@ -492,7 +492,7 @@ namespace TrenchBroom {
             }
         };
 
-        ClipTool::ClipTool(MapDocumentWPtr document) :
+        ClipTool::ClipTool(std::weak_ptr<MapDocument> document) :
         Tool(false),
         m_document(document),
         m_clipSide(ClipSide_Front),
@@ -748,7 +748,7 @@ namespace TrenchBroom {
         }
 
         void ClipTool::updateBrushes() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const auto& brushes = document->selectedNodes().brushes();
             const auto& worldBounds = document->worldBounds();
 
@@ -891,7 +891,7 @@ namespace TrenchBroom {
         }
 
         void ClipTool::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &ClipTool::selectionDidChange);
             document->nodesWillChangeNotifier.addObserver(this, &ClipTool::nodesWillChange);
             document->nodesDidChangeNotifier.addObserver(this, &ClipTool::nodesDidChange);
@@ -900,7 +900,7 @@ namespace TrenchBroom {
 
         void ClipTool::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->selectionDidChangeNotifier.removeObserver(this, &ClipTool::selectionDidChange);
                 document->nodesWillChangeNotifier.removeObserver(this, &ClipTool::nodesWillChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &ClipTool::nodesDidChange);

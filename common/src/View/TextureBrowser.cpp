@@ -37,7 +37,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        TextureBrowser::TextureBrowser(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
+        TextureBrowser::TextureBrowser(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)),
         m_sortOrderChoice(nullptr),

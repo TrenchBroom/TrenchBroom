@@ -21,8 +21,8 @@
 #define TrenchBroom_EntityAttributeGrid
 
 #include "Model/Model_Forward.h"
-#include "View/ViewTypes.h"
 
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -38,6 +38,7 @@ namespace TrenchBroom {
     namespace View {
         class EntityAttributeModel;
         class EntityAttributeTable;
+        class MapDocument;
         class Selection;
 
         /**
@@ -47,7 +48,7 @@ namespace TrenchBroom {
         class EntityAttributeGrid : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             EntityAttributeModel* m_model;
             QSortFilterProxyModel* m_proxyModel;
@@ -56,7 +57,7 @@ namespace TrenchBroom {
             QAbstractButton* m_removePropertiesButton;
             QCheckBox* m_showDefaultPropertiesCheckBox;
         public:
-            explicit EntityAttributeGrid(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit EntityAttributeGrid(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~EntityAttributeGrid() override;
         private:
             void addAttribute();
@@ -65,7 +66,7 @@ namespace TrenchBroom {
             bool canRemoveSelectedAttributes() const;
             std::set<int> selectedRowsAndCursorRow() const;
         private:
-            void createGui(MapDocumentWPtr document);
+            void createGui(std::weak_ptr<MapDocument> document);
 
             void bindObservers();
             void unbindObservers();

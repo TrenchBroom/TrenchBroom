@@ -20,7 +20,8 @@
 #ifndef TrenchBroom_PreferenceDialog
 #define TrenchBroom_PreferenceDialog
 
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 #include <QDialog>
 
@@ -31,6 +32,7 @@ class QWidget;
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
         class PreferencePane;
 
         class PreferenceDialog : public QDialog {
@@ -45,12 +47,12 @@ namespace TrenchBroom {
                 PrefPane_Last = 3
             } PrefPane;
 
-            MapDocumentSPtr m_document;
+            std::shared_ptr<MapDocument> m_document;
             QToolBar* m_toolBar;
             QStackedWidget* m_stackedWidget;
             QDialogButtonBox* m_buttonBox;
         public:
-            explicit PreferenceDialog(MapDocumentSPtr document, QWidget* parent = nullptr);
+            explicit PreferenceDialog(std::shared_ptr<MapDocument> document, QWidget* parent = nullptr);
 
         protected: // QWidget overrides
             void closeEvent(QCloseEvent* event) override;

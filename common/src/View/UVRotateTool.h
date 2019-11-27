@@ -23,7 +23,8 @@
 #include "Model/Hit.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace Model {
@@ -36,6 +37,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
         class UVViewHelper;
 
         class UVRotateTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
@@ -46,12 +48,12 @@ namespace TrenchBroom {
             static const FloatType RotateHandleRadius;
             static const FloatType RotateHandleWidth;
 
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             UVViewHelper& m_helper;
 
             float m_initalAngle;
         public:
-            UVRotateTool(MapDocumentWPtr document, UVViewHelper& helper);
+            UVRotateTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;

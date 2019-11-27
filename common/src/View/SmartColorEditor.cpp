@@ -41,7 +41,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        SmartColorEditor::SmartColorEditor(View::MapDocumentWPtr document, QWidget* parent) :
+        SmartColorEditor::SmartColorEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         SmartAttributeEditor(document, parent),
         m_floatRadio(nullptr),
         m_byteRadio(nullptr),

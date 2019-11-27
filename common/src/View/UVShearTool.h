@@ -23,10 +23,12 @@
 #include "Model/Hit.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
         class UVViewHelper;
 
         class UVShearTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
@@ -34,7 +36,7 @@ namespace TrenchBroom {
             static const Model::Hit::HitType XHandleHit;
             static const Model::Hit::HitType YHandleHit;
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             UVViewHelper& m_helper;
 
             vm::vec2b m_selector;
@@ -43,7 +45,7 @@ namespace TrenchBroom {
             vm::vec2f m_initialHit;
             vm::vec2f m_lastHit;
         public:
-            UVShearTool(MapDocumentWPtr document, UVViewHelper& helper);
+            UVShearTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;

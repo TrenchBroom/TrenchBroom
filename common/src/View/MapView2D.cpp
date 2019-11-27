@@ -62,7 +62,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapView2D::MapView2D(MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
+        MapView2D::MapView2D(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
                              GLContextManager& contextManager, ViewPlane viewPlane, Logger* logger) :
         MapViewBase(logger, document, toolBox, renderer, contextManager),
         m_camera(){
@@ -185,7 +185,7 @@ namespace TrenchBroom {
         }
 
         void MapView2D::doSelectTall() {
-            const MapDocumentSPtr document = lock(m_document);
+            const auto document = lock(m_document);
             const vm::bbox3& worldBounds = document->worldBounds();
 
             const FloatType min = dot(worldBounds.min, vm::vec3(m_camera.direction()));
@@ -326,14 +326,14 @@ namespace TrenchBroom {
         }
 
         void MapView2D::doRenderGrid(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             renderBatch.addOneShot(new Renderer::GridRenderer(m_camera, document->worldBounds()));
         }
 
         void MapView2D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderer.render(renderContext, renderBatch);
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (renderContext.showSelectionGuide() && document->hasSelectedNodes()) {
                 const vm::bbox3& bounds = document->selectionBounds();
                 Renderer::SelectionBoundsRenderer boundsRenderer(bounds);

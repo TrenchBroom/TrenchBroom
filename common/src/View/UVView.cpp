@@ -51,7 +51,7 @@ namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType UVView::FaceHit = Model::Hit::freeHitType();
 
-        UVView::UVView(MapDocumentWPtr document, GLContextManager& contextManager) :
+        UVView::UVView(std::weak_ptr<MapDocument> document, GLContextManager& contextManager) :
         RenderView(contextManager),
         m_document(document),
         m_helper(m_camera) {
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         }
 
         void UVView::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->documentWasClearedNotifier.addObserver(this, &UVView::documentWasCleared);
             document->nodesDidChangeNotifier.addObserver(this, &UVView::nodesDidChange);
             document->brushFacesDidChangeNotifier.addObserver(this, &UVView::brushFacesDidChange);
@@ -95,7 +95,7 @@ namespace TrenchBroom {
 
         void UVView::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->documentWasClearedNotifier.removeObserver(this, &UVView::documentWasCleared);
                 document->nodesDidChangeNotifier.removeObserver(this, &UVView::nodesDidChange);
                 document->brushFacesDidChangeNotifier.removeObserver(this, &UVView::brushFacesDidChange);
@@ -110,7 +110,7 @@ namespace TrenchBroom {
         }
 
         void UVView::selectionDidChange(const Selection&) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const std::vector<Model::BrushFace*>& faces = document->selectedBrushFaces();
             if (faces.size() != 1) {
                 m_helper.setFace(nullptr);
@@ -161,7 +161,7 @@ namespace TrenchBroom {
 
         void UVView::doRender() {
             if (m_helper.valid()) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->commitPendingAssets();
 
                 Renderer::RenderContext renderContext(Renderer::RenderContext::RenderMode_2D, m_camera, fontManager(), shaderManager());

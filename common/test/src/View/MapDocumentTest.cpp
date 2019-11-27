@@ -37,6 +37,7 @@
 #include "Model/World.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "View/PasteType.h"
 #include "View/SelectionTool.h"
 
 #include <vecmath/bbox.h>
@@ -943,7 +944,7 @@ namespace TrenchBroom {
             const String copied = document->serializeSelectedNodes();
 
             const auto delta = vm::vec3(16, 16, 16);
-            ASSERT_EQ(PT_Node, document->paste(copied));
+            ASSERT_EQ(PasteType::Node, document->paste(copied));
             ASSERT_EQ(1u, document->selectedNodes().groupCount());
             ASSERT_EQ(groupName, document->selectedNodes().groups().at(0)->name());
             ASSERT_TRUE(document->translateObjects(delta));

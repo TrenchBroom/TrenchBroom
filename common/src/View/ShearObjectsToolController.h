@@ -23,7 +23,8 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Renderer/EdgeRenderer.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,16 +38,17 @@ namespace TrenchBroom {
 
     namespace View {
         class InputState;
+        class MapDocument;
         class ShearObjectsTool;
 
         class ShearObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:
             ShearObjectsTool* m_tool;
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
         public:
-            explicit ShearObjectsToolController(ShearObjectsTool* tool, MapDocumentWPtr document);
+            explicit ShearObjectsToolController(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document);
             ~ShearObjectsToolController() override;
         private:
             Tool* doGetTool() override;
@@ -73,14 +75,14 @@ namespace TrenchBroom {
 
         class ShearObjectsToolController2D : public ShearObjectsToolController {
         public:
-            explicit ShearObjectsToolController2D(ShearObjectsTool* tool, MapDocumentWPtr document);
+            explicit ShearObjectsToolController2D(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document);
         private:
             void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) override;
         };
 
         class ShearObjectsToolController3D : public ShearObjectsToolController {
         public:
-            explicit ShearObjectsToolController3D(ShearObjectsTool* tool, MapDocumentWPtr document);
+            explicit ShearObjectsToolController3D(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document);
         private:
             void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) override;
         };

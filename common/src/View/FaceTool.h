@@ -40,7 +40,7 @@ namespace TrenchBroom {
         private:
             FaceHandleManager m_faceHandles;
         public:
-            FaceTool(MapDocumentWPtr document);
+            FaceTool(std::weak_ptr<MapDocument> document);
         public:
             std::set<Model::Brush*> findIncidentBrushes(const vm::polygon3& handle) const;
         private:

@@ -22,6 +22,7 @@
 
 #include "View/SmartAttributeEditor.h"
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -30,13 +31,15 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+
         /**
          * Placeholder for when there is no smart editor. Just an empty QWidget.
          */
         class SmartDefaultAttributeEditor : public SmartAttributeEditor {
             Q_OBJECT
         public:
-            explicit SmartDefaultAttributeEditor(View::MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit SmartDefaultAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
             void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) override;
         };

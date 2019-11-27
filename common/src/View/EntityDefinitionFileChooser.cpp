@@ -69,7 +69,7 @@ namespace TrenchBroom {
 
         // EntityDefinitionFileChooser
 
-        EntityDefinitionFileChooser::EntityDefinitionFileChooser(MapDocumentWPtr document, QWidget* parent) :
+        EntityDefinitionFileChooser::EntityDefinitionFileChooser(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(document) {
             createGui();
@@ -132,7 +132,7 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &EntityDefinitionFileChooser::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &EntityDefinitionFileChooser::documentWasLoaded);
             document->entityDefinitionsDidChangeNotifier.addObserver(this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
@@ -140,7 +140,7 @@ namespace TrenchBroom {
 
         void EntityDefinitionFileChooser::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &EntityDefinitionFileChooser::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &EntityDefinitionFileChooser::documentWasLoaded);
                 document->entityDefinitionsDidChangeNotifier.removeObserver(this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
@@ -218,7 +218,7 @@ namespace TrenchBroom {
             QListWidgetItem* item = m_builtin->selectedItems().first();
             auto spec = item->data(Qt::UserRole).value<Assets::EntityDefinitionFileSpec>();
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (document->entityDefinitionFile() == spec) {
                 return;
             }
@@ -243,7 +243,7 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::reloadExternalClicked() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const Assets::EntityDefinitionFileSpec& spec = document->entityDefinitionFile();
             document->setEntityDefinitionFile(spec);
         }

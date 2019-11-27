@@ -22,6 +22,7 @@
 
 #include "IO/Path.h"
 
+// FIXME: there must not be dependencies from Assets or Model or Renderer to Qt
 #include <QMetaType>
 
 #include <vector>

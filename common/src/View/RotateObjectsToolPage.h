@@ -21,10 +21,11 @@
 #define TrenchBroom_RotateObjectsToolPage
 
 #include "TrenchBroom.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/util.h>
+
+#include <memory>
 
 #include <QWidget>
 
@@ -33,14 +34,15 @@ class QComboBox;
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
         class RotateObjectsTool;
-        class SpinControl;
         class Selection;
+        class SpinControl;
 
         class RotateObjectsToolPage : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             RotateObjectsTool* m_tool;
 
             QComboBox* m_recentlyUsedCentersList;
@@ -50,7 +52,7 @@ namespace TrenchBroom {
             QComboBox* m_axis;
             QAbstractButton* m_rotateButton;
         public:
-            RotateObjectsToolPage(MapDocumentWPtr document, RotateObjectsTool* tool, QWidget* parent = nullptr);
+            RotateObjectsToolPage(std::weak_ptr<MapDocument> document, RotateObjectsTool* tool, QWidget* parent = nullptr);
             ~RotateObjectsToolPage() override;
 
             void setAxis(vm::axis::type axis);

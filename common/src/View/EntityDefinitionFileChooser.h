@@ -20,7 +20,8 @@
 #ifndef TrenchBroom_EntityDefinitionFileChooser
 #define TrenchBroom_EntityDefinitionFileChooser
 
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 #include <QListWidget>
 
@@ -30,6 +31,8 @@ class QLabel;
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+
         class SingleSelectionListWidget : public QListWidget {
             Q_OBJECT
         private:
@@ -46,14 +49,14 @@ namespace TrenchBroom {
         class EntityDefinitionFileChooser : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             SingleSelectionListWidget* m_builtin;
             QLabel* m_external;
             QPushButton* m_chooseExternal;
             QPushButton* m_reloadExternal;
         public:
-            explicit EntityDefinitionFileChooser(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit EntityDefinitionFileChooser(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~EntityDefinitionFileChooser() override;
         private:
             void createGui();

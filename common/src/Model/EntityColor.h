@@ -20,11 +20,12 @@
 #ifndef TrenchBroom_EntityColor
 #define TrenchBroom_EntityColor
 
-#include "Color.h"
 #include "StringType.h"
 #include "Model/Model_Forward.h"
 
 #include <vector>
+
+class Color;
 
 namespace TrenchBroom {
     namespace Assets {

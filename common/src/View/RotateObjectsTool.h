@@ -24,8 +24,8 @@
 #include "Model/Hit.h"
 #include "View/Tool.h"
 #include "View/RotateObjectsHandle.h"
-#include "View/ViewTypes.h"
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -35,18 +35,19 @@ namespace TrenchBroom {
 
     namespace View {
         class Grid;
+        class MapDocument;
         class RotateObjectsHandle;
         class RotateObjectsToolPage;
 
         class RotateObjectsTool : public Tool {
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             RotateObjectsToolPage* m_toolPage;
             RotateObjectsHandle m_handle;
             double m_angle;
             std::vector<vm::vec3> m_recentlyUsedCenters;
         public:
-            explicit RotateObjectsTool(MapDocumentWPtr document);
+            explicit RotateObjectsTool(std::weak_ptr<MapDocument> document);
 
             bool doActivate() override;
 

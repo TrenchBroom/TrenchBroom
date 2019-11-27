@@ -21,9 +21,9 @@
 #define TrenchBroom_Autosaver
 
 #include "IO/Path.h"
-#include "View/ViewTypes.h"
 
 #include <ctime>
+#include <memory>
 
 namespace TrenchBroom {
     class Logger;
@@ -34,6 +34,7 @@ namespace TrenchBroom {
 
     namespace View {
         class Command;
+        class MapDocument;
 
         class Autosaver {
         public:
@@ -45,7 +46,7 @@ namespace TrenchBroom {
                 bool operator()(const IO::Path& path, bool directory) const;
             };
         private:
-            View::MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             /**
              * The time after which a new autosave is attempted, in seconds.
@@ -78,12 +79,12 @@ namespace TrenchBroom {
              */
             size_t m_lastModificationCount;
         public:
-            explicit Autosaver(View::MapDocumentWPtr document, std::time_t saveInterval = 10 * 60, std::time_t idleInterval = 3, size_t maxBackups = 50);
+            explicit Autosaver(std::weak_ptr<MapDocument> document, std::time_t saveInterval = 10 * 60, std::time_t idleInterval = 3, size_t maxBackups = 50);
             ~Autosaver();
 
             void triggerAutosave(Logger& logger);
         private:
-            void autosave(Logger& logger, View::MapDocumentSPtr document);
+            void autosave(Logger& logger, std::shared_ptr<View::MapDocument> document);
             IO::WritableDiskFileSystem createBackupFileSystem(Logger& logger, const IO::Path& mapPath) const;
             IO::Path::List collectBackups(const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const;
             void thinBackups(Logger& logger, IO::WritableDiskFileSystem& fs, IO::Path::List& backups) const;

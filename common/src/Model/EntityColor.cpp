@@ -19,6 +19,7 @@
 
 #include "EntityColor.h"
 
+#include "Color.h"
 #include "Model/AttributableNode.h"
 #include "Assets/ColorRange.h"
 #include "Model/Entity.h"

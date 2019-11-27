@@ -22,7 +22,8 @@
 
 #include "StringType.h"
 #include "EL/VariableStore.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {
@@ -37,29 +38,31 @@ namespace TrenchBroom {
             extern const String APP_DIR_PATH;
         }
 
+        class MapDocument;
+
         class CommonVariables : public EL::VariableTable {
         protected:
-            explicit CommonVariables(MapDocumentSPtr document);
+            explicit CommonVariables(std::shared_ptr<MapDocument> document);
         };
 
         class CommonCompilationVariables : public CommonVariables {
         protected:
-            explicit CommonCompilationVariables(MapDocumentSPtr document);
+            explicit CommonCompilationVariables(std::shared_ptr<MapDocument> document);
         };
 
         class CompilationWorkDirVariables : public CommonCompilationVariables {
         public:
-            explicit CompilationWorkDirVariables(MapDocumentSPtr document);
+            explicit CompilationWorkDirVariables(std::shared_ptr<MapDocument> document);
         };
 
         class CompilationVariables : public CommonCompilationVariables {
         public:
-            CompilationVariables(MapDocumentSPtr document, const String& workDir);
+            CompilationVariables(std::shared_ptr<MapDocument> document, const String& workDir);
         };
 
         class LaunchGameEngineVariables : public CommonVariables {
         public:
-            explicit LaunchGameEngineVariables(MapDocumentSPtr document);
+            explicit LaunchGameEngineVariables(std::shared_ptr<MapDocument> document);
         };
     }
 }

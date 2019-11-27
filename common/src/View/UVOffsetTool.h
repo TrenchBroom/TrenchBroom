@@ -22,19 +22,21 @@
 
 #include "View/Tool.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
         class UVViewHelper;
 
         class UVOffsetTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             const UVViewHelper& m_helper;
             vm::vec2f m_lastPoint;
         public:
-            UVOffsetTool(MapDocumentWPtr document, const UVViewHelper& helper);
+            UVOffsetTool(std::weak_ptr<MapDocument> document, const UVViewHelper& helper);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;

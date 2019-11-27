@@ -31,7 +31,6 @@
 #include "View/RenderView.h"
 #include "View/ToolBoxConnector.h"
 #include "View/UndoableCommand.h"
-#include "View/ViewTypes.h"
 
 #include <memory>
 #include <utility>
@@ -69,6 +68,7 @@ namespace TrenchBroom {
         class Command;
         class FlyModeHelper;
         class GLContextManager;
+        class MapDocument;
         class MapViewToolBox;
         class MovementRestriction;
         class Selection;
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             static const int DefaultCameraAnimationDuration;
         protected:
             Logger* m_logger;
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             MapViewToolBox& m_toolBox;
 
             std::unique_ptr<AnimationManager> m_animationManager;
@@ -97,7 +97,7 @@ namespace TrenchBroom {
         private: // shortcuts
             std::vector<std::pair<QShortcut*, const Action*>> m_shortcuts;
         protected:
-            MapViewBase(Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
+            MapViewBase(Logger* logger, std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
 
             void setCompass(std::unique_ptr<Renderer::Compass> compass);
         public:

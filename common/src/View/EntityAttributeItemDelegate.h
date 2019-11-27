@@ -20,7 +20,6 @@
 #ifndef TRENCHBROOM_ENTITYATTRIBUTEITEMDELEGATE_H
 #define TRENCHBROOM_ENTITYATTRIBUTEITEMDELEGATE_H
 
-#include "View/ViewTypes.h"
 
 #include <QStyledItemDelegate>
 

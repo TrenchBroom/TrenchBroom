@@ -196,7 +196,7 @@ namespace TrenchBroom {
 
         // ViewEditor
 
-        ViewEditor::ViewEditor(MapDocumentWPtr document, QWidget* parent) :
+        ViewEditor::ViewEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)),
         m_showEntityClassnamesCheckBox(nullptr),
@@ -617,7 +617,7 @@ namespace TrenchBroom {
             }
         }
 
-        ViewPopupEditor::ViewPopupEditor(MapDocumentWPtr document, QWidget* parent) :
+        ViewPopupEditor::ViewPopupEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_button(nullptr),
         m_editor(nullptr) {

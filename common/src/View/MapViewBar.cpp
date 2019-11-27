@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapViewBar::MapViewBar(MapDocumentWPtr document, QWidget* parent) :
+        MapViewBar::MapViewBar(std::weak_ptr<MapDocument> document, QWidget* parent) :
         ContainerBar(Sides::BottomSide, parent),
         m_document(document),
         m_toolBook(nullptr),
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             return m_toolBook;
         }
 
-        void MapViewBar::createGui(MapDocumentWPtr document) {
+        void MapViewBar::createGui(std::weak_ptr<MapDocument> document) {
             m_toolBook = new QStackedLayout();
             m_toolBook->setContentsMargins(0, 0, 0, 0);
 

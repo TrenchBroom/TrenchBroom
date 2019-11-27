@@ -25,13 +25,18 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/VertexArray.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 #include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace Model {
         class EditorContext;
+    }
+
+    namespace View {
+        class MapDocument; // FIXME: Renderer should not depend on View
     }
 
     namespace Renderer {
@@ -51,7 +56,7 @@ namespace TrenchBroom {
                     T03,                 // arrow position (exposed in shader as gl_MultiTexCoord0)
                     T13>::Vertex;        // direction the arrow is pointing (exposed in shader as gl_MultiTexCoord1)
 
-            View::MapDocumentWPtr m_document;
+            std::weak_ptr<View::MapDocument> m_document;
 
             Color m_defaultColor;
             Color m_selectedColor;
@@ -61,7 +66,7 @@ namespace TrenchBroom {
 
             bool m_valid;
         public:
-            EntityLinkRenderer(View::MapDocumentWPtr document);
+            EntityLinkRenderer(std::weak_ptr<View::MapDocument> document);
 
             void setDefaultColor(const Color& color);
             void setSelectedColor(const Color& color);

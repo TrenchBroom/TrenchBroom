@@ -22,7 +22,8 @@
 
 #include "TrenchBroom.h"
 #include "View/Tool.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace Model {
@@ -32,6 +33,7 @@ namespace TrenchBroom {
     namespace View {
         class Grid;
         class InputState;
+        class MapDocument;
 
         class MoveObjectsTool : public Tool {
         public:
@@ -41,10 +43,10 @@ namespace TrenchBroom {
                 MR_Cancel
             } MoveResult;
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             bool m_duplicateObjects;
         public:
-            MoveObjectsTool(MapDocumentWPtr document);
+            MoveObjectsTool(std::weak_ptr<MapDocument> document);
         public:
             const Grid& grid() const;
 

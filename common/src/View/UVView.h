@@ -29,8 +29,8 @@
 #include "View/ToolBox.h"
 #include "View/ToolBoxConnector.h"
 #include "View/UVViewHelper.h"
-#include "View/ViewTypes.h"
 
+#include <memory>
 #include <vector>
 
 class QWidget;
@@ -47,6 +47,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
         class Selection;
         class UVRotateTool;
         class UVOriginTool;
@@ -65,14 +66,14 @@ namespace TrenchBroom {
         public:
             static const Model::Hit::HitType FaceHit;
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             Renderer::OrthographicCamera m_camera;
             UVViewHelper m_helper;
 
             ToolBox m_toolBox;
         public:
-            UVView(MapDocumentWPtr document, GLContextManager& contextManager);
+            UVView(std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
             ~UVView() override;
 
             void setSubDivisions(const vm::vec2i& subDivisions);
