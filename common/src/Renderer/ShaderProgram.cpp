@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,17 +26,20 @@
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
 
+#include <memory>
+#include <sstream>
+
 namespace TrenchBroom {
     namespace Renderer {
         ShaderProgram::ShaderProgram(const String& name) :
         m_name(name),
-        m_programId(0),
+        m_programId(glCreateProgram()),
         m_needsLinking(true) {
-            glAssert(m_programId = glCreateProgram());
-            if (m_programId == 0)
+            if (m_programId == 0) {
                 throw RenderException("Cannot create shader program " + m_name);
+            }
         }
-        
+
         ShaderProgram::~ShaderProgram() {
             if (m_programId != 0) {
                 glAssert(glDeleteProgram(m_programId));
@@ -49,7 +52,7 @@ namespace TrenchBroom {
             shader.attach(m_programId);
             m_needsLinking = true;
         }
-        
+
         void ShaderProgram::detach(Shader& shader) {
             assert(m_programId != 0);
             shader.detach(m_programId);
@@ -58,10 +61,10 @@ namespace TrenchBroom {
 
         void ShaderProgram::activate() {
             assert(m_programId != 0);
-            
+
             if (m_needsLinking)
                 link();
-            
+
             glAssert(glUseProgram(m_programId));
             assert(checkActive());
         }
@@ -90,15 +93,10 @@ namespace TrenchBroom {
         }
 
         void ShaderProgram::set(const String& name, const double value) {
-            /* FIXME using glUniform1d gives undefined references on Linux and Windows builds
             assert(checkActive());
-            glUniform1d(findUniformLocation(name), value);
-            assert(glGetError() == GL_NO_ERROR);
-             */
-
-            set(name, static_cast<float>(value));
+            glAssert(glUniform1d(findUniformLocation(name), value));
         }
-        
+
         void ShaderProgram::set(const String& name, const vm::vec2f& value) {
             assert(checkActive());
             glAssert(glUniform2f(findUniformLocation(name), value.x(), value.y()));
@@ -131,28 +129,27 @@ namespace TrenchBroom {
 
         void ShaderProgram::link() {
             glAssert(glLinkProgram(m_programId));
-            
+
             GLint linkStatus = 0;
             glAssert(glGetProgramiv(m_programId, GL_LINK_STATUS, &linkStatus));
-            
+
             if (linkStatus == 0) {
-                RenderException ex;
-                ex << "Cannot link shader program " << m_name << ": ";
+                auto str = std::stringstream();
+                str << "Could not link shader program " << m_name << ": ";
 
                 GLint infoLogLength = 0;
                 glAssert(glGetProgramiv(m_programId, GL_INFO_LOG_LENGTH, &infoLogLength));
                 if (infoLogLength > 0) {
-                    char* infoLog = new char[static_cast<size_t>(infoLogLength)];
-                    glAssert(glGetProgramInfoLog(m_programId, infoLogLength, &infoLogLength, infoLog));
-                    infoLog[infoLogLength-1] = 0;
+                    auto infoLog = std::make_unique<char[]>(static_cast<size_t>(infoLogLength));
+                    glAssert(glGetProgramInfoLog(m_programId, infoLogLength, &infoLogLength, infoLog.get()));
+                    infoLog[static_cast<size_t>(infoLogLength-1)] = 0;
 
-                    ex << infoLog;
-                    delete [] infoLog;
+                    str << infoLog.get();
                 } else {
-                    ex << "Unknown error";
+                    str << "Unknown error";
                 }
-                
-                throw ex;
+
+                throw RenderException(str.str());
             }
 
             m_variableCache.clear();
@@ -160,12 +157,14 @@ namespace TrenchBroom {
         }
 
         GLint ShaderProgram::findUniformLocation(const String& name) const {
-            UniformVariableCache::iterator it = m_variableCache.find(name);
+            auto it = m_variableCache.find(name);
             if (it == std::end(m_variableCache)) {
-                const GLint index = glGetUniformLocation(m_programId, name.c_str());
-                if (index == -1)
+                GLint index = -1;
+                glAssert(index = glGetUniformLocation(m_programId, name.c_str()));
+                if (index == -1) {
                     throw RenderException("Location of uniform variable '" + name + "' could not be found in shader program " + m_name);
-                
+                }
+
                 m_variableCache[name] = index;
                 return index;
             }

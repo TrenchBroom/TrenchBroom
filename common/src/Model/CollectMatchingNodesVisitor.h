@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_CollectMatchingNodesVisitor
 #define TrenchBroom_CollectMatchingNodesVisitor
 
-#include "CollectionUtils.h"
 #include "Model/NodeVisitor.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
@@ -28,28 +27,31 @@
 #include "Model/Layer.h"
 #include "Model/World.h"
 
+#include <set>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class NodeCollectionStrategy {
         protected:
-            NodeList m_nodes;
+            std::vector<Node*> m_nodes;
         public:
             virtual ~NodeCollectionStrategy();
-            
+
             virtual void addNode(Node* node) = 0;
-            const NodeList& nodes() const;
+            const std::vector<Node*>& nodes() const;
         };
-        
+
         class StandardNodeCollectionStrategy : public NodeCollectionStrategy {
         public:
             virtual ~StandardNodeCollectionStrategy() override;
         public:
             void addNode(Node* node) override;
         };
-        
+
         class UniqueNodeCollectionStrategy : public NodeCollectionStrategy {
         private:
-            NodeSet m_addedNodes;
+            std::set<Node*> m_addedNodes;
         public:
             virtual ~UniqueNodeCollectionStrategy() override;
         public:
@@ -62,11 +64,11 @@ namespace TrenchBroom {
             D m_delegate;
         public:
             virtual ~FilteringNodeCollectionStrategy() {}
-            
-            const NodeList& nodes() const {
+
+            const std::vector<Node*>& nodes() const {
                 return m_delegate.nodes();
             }
-            
+
             template <typename T>
             void addNode(T* node) {
                 Node* actual = getNode(node);
@@ -80,7 +82,7 @@ namespace TrenchBroom {
             virtual Node* getNode(Entity* entity) const { return entity; }
             virtual Node* getNode(Brush* brush) const   { return brush;  }
         };
-        
+
         template <
             typename P,
             typename C = StandardNodeCollectionStrategy,
@@ -98,8 +100,8 @@ namespace TrenchBroom {
         };
 
         template <typename V, typename I>
-        Model::NodeList collectMatchingNodes(I cur, I end, Node* root) {
-            NodeList result;
+        std::vector<Node*> collectMatchingNodes(I cur, I end, Node* root) {
+            std::vector<Node*> result;
             while (cur != end) {
                 V visitor(*cur);
                 root->acceptAndRecurse(visitor);
@@ -108,7 +110,7 @@ namespace TrenchBroom {
             }
             return result;
         }
-        
+
     }
 }
 

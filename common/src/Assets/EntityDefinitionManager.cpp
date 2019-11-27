@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,8 +24,6 @@
 #include "IO/EntityDefinitionLoader.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
-
-#include <cassert>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -58,9 +56,9 @@ namespace TrenchBroom {
             ensure(attributable != nullptr, "attributable is null");
             return definition(attributable->attribute(Model::AttributeNames::Classname));
         }
-        
+
         EntityDefinition* EntityDefinitionManager::definition(const Model::AttributeValue& classname) const {
-            Cache::const_iterator it = m_cache.find(classname);
+            auto it = m_cache.find(classname);
             if (it == std::end(m_cache))
                 return nullptr;
             return it->second;
@@ -69,7 +67,11 @@ namespace TrenchBroom {
         EntityDefinitionList EntityDefinitionManager::definitions(const EntityDefinition::Type type, const EntityDefinition::SortOrder order) const {
             return EntityDefinition::filterAndSort(m_definitions, type, order);
         }
-        
+
+        const EntityDefinitionList& EntityDefinitionManager::definitions() const {
+            return m_definitions;
+        }
+
         const EntityDefinitionGroup::List& EntityDefinitionManager::groups() const {
             return m_groups;
         }
@@ -81,16 +83,16 @@ namespace TrenchBroom {
 
         void EntityDefinitionManager::updateGroups() {
             clearGroups();
-            
-            typedef std::map<String, EntityDefinitionList> GroupMap;
+
+            using GroupMap = std::map<String, EntityDefinitionList>;
             GroupMap groupMap;
-            
+
             for (size_t i = 0; i < m_definitions.size(); ++i) {
                 EntityDefinition* definition = m_definitions[i];
                 const String groupName = definition->groupName();
                 groupMap[groupName].push_back(definition);
             }
-            
+
             for (const auto& entry : groupMap) {
                 const String& groupName = entry.first;
                 const EntityDefinitionList& definitions = entry.second;
@@ -103,7 +105,7 @@ namespace TrenchBroom {
             for (EntityDefinition* definition : m_definitions)
                 m_cache[definition->name()] = definition;
         }
-        
+
         void EntityDefinitionManager::bindObservers() {
             for (EntityDefinition* definition : m_definitions)
                 definition->usageCountDidChangeNotifier.addObserver(usageCountDidChangeNotifier);

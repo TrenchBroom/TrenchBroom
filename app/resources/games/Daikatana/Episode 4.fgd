@@ -1,0 +1,86 @@
+//
+// Daikatana game definition file (.fgd)
+// Episode 4 entities
+// for Trenchbroom
+// last update: 6 Oct, 2018
+// Version: 1
+//
+// written by Dekonega <dekonega(at)windowslive.com>
+// email me with improvements and suggestions
+//
+
+@include "Common.fgd"
+
+
+//
+// Items (Episode 4)
+//
+@PointClass base(Appearflags, Sidekickflags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e4/a4_ar2.dkm" }) = item_ebonite_armor : "Ebonite armor" []
+@PointClass base(Appearflags, Sidekickflags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e4/a4_ar1.dkm" }) = item_kevlar_armor : "Kevlar armor" []
+@PointClass base(Appearflags, KeyFlags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e4/a4_clcgr.dkm" }) = item_control_card_green : "Green control card" []
+@PointClass base(Appearflags, KeyFlags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e4/a4_clcyl.dkm" }) = item_control_card_yellow : "Yellow control card" []
+@PointClass base(Appearflags, KeyFlags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e4/a4_clcbl.dkm" }) = item_control_card_blue : "Blue control card" []
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-16 -16 -24, 16 16 8) model({ "path": "models/e4/a_saltp.dkm" }) = item_saltpeter : "Saltpeter for e4m1 explosives." []
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-16 -16 -24, 16 16 8) model({ "path": "models/e4/a_charcoal.dkm" }) = item_charcoal : "Charcoal for e4m1 explosives." []
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-16 -16 -24, 16 16 8) model({ "path": "models/e4/a_sulphur.dkm" }) = item_sulphur : "Sulphur pouch for e4m1 explosives." []
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-16 -16 -24, 16 16 8) model({ "path": "models/e4/a_bottle.dkm" }) = item_bottle : "Bottle for e4m1 explosives." []
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e4/a_envsuit.dkm" }) = item_envirosuit : "60 seconds of air and protection from harmful liquids." []
+
+
+//
+// Monsters (Episode 4)
+//
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 32) model({ "path": "models/e4/m_kage.dkm" }) = monster_kage : "Kage Mishima" []
+@PointClass base(AppearFlags, MonsterFlags) color(1 0.5 0) size(-16 -16 -8, 16 16 16) model({ "path": "models/e4/m_shark.dkm" }) = monster_shark : "Shark" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 32) model({ "path": "models/e4/m_rocketmp.dkm" }) = monster_rocketmp : "Rocket MP" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 32) model({ "path": "models/e4/m_sgirl.dkm" }) = monster_sealgirl : "SEAL Girl" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 32) model({ "path": "models/e4/m_sealcap.dkm" }) = monster_sealcaptain : "SEAL Captain" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 32) model({ "path": "models/e4/m_scomndo.dkm" }) = monster_sealcommando : "SEAL Commando" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-24 -24 -24, 24 24 24) model({ "path": "models/e4/m_labmonkey.dkm" }) = monster_labmonkey : "Lab Monkey" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 32) model({ "path": "models/e4/m_uzi.dkm" }) = monster_uzigang : "Uzi Gang Member" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-20 -20 -24, 20 20 32) model({ "path": "models/e4/m_chgang.dkm" }) = monster_chaingang : "Chaingun Gang Member" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 32) model({ "path": "models/e4/m_rockgang.dkm" }) = monster_rocketdude : "Rocket Dude" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 32) model({ "path": "models/e4/m_femgang.dkm" }) = monster_femgang : "Female Gang Member" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 40) model({ "path": "models/e4/m_wpris.dkm" }) = monster_whiteprisoner : "White prisoner" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 40) model({ "path": "models/e4/m_bpris.dkm" }) = monster_blackprisoner : "Black prisoner" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-8 -8 -16, 8 8 8) model({ "path": "models/e4/m_piperat.dkm" }) = monster_piperat : "Pipe rat - I broke you!" []
+
+
+//
+// Decorations (Episode 4)
+//
+@PointClass base(Appearflags, DecorationFlags) color(1 0 0) size(-8 -8 -32, 8 8 32) = deco_e4 : "Episode 4 decoration"
+[
+	damage(integer): "damage applied when exploding. Default is 15." : 15
+	scale(float): "Scale of deco. Default 1.0." : 1.0
+	model(string): "choose model # -- see list."
+	mass(float): "*optional* - including this overrides the mass value in decoinfo.txt" 
+	frame(integer): "allows you to specify the starting frame for the model."
+	animseq(integer): "allows you to specify an animation sequence for the model"
+	x_speed(integer): "speed to rotate along x axis in degrees per second"
+	y_speed(integer): "speed to rotate along y axis in degrees per second"
+	z_speed(integer): "speed to rotate along z axis in degrees per second"
+	alpha(float): "range 0.0-1.0. Only used if TRANSLUCENT is flagged"
+	spawnname(string): "classname of entity to throw out upon death"
+    movetype(string): "none, toss, bounce, float, overrides value in e1decoinfo.csv" : "none"
+]
+
+//
+// Weapons (Episode 4)
+//
+@PointClass base(Weapons) model({ "path": ":models/e4/a_glock.dkm" }) = weapon_glock : "Glock - Glock Pistol of Love"[]
+@PointClass base(Weapons) model({ "path": ":models/e4/a_slugger.dkm" }) = weapon_slugger : "Slugger" []
+@PointClass base(Weapons) model({ "path": ":models/e4/a_kcore.dkm" }) = weapon_kineticore : "Kineticore" []
+@PointClass base(Weapons) model({ "path": ":models/e4/a_ripgun.dkm" }) = weapon_ripgun : "Ripgun - Pulse Rifle" []
+@PointClass base(Weapons) model({ "path": ":models/e4/a_nova.dkm" }) = weapon_novabeam : "Novabeam" []
+@PointClass base(Weapons) model({ "path": ":models/e4/a_mmaser.dkm" }) = weapon_metamaser : "Metamaser" []
+
+//
+// Ammo (Episode 4)
+//
+@PointClass base(Ammo) model({ "path": ":models/e4/wa_glock.dkm" }) = ammo_bullets : "A loaded magazine for the glock." []
+@PointClass base(Ammo) model({ "path": ":models/e4/wa_rip.dkm" }) = ammo_slugger : "15 slugs." []
+@PointClass base(Ammo) model({ "path": ":models/e4/wa_rip2.dkm" }) = ammo_cordite : "4 cordite grenades." []
+@PointClass base(Ammo) model({ "path": ":models/e4/wa_kcore.dkm" }) = ammo_kineticore : "50 freeze things." []
+@PointClass base(Ammo) model({ "path": ":models/e4/wa_slug.dkm" }) = ammo_ripgun : "50 Rip-Ups (tm)." []
+@PointClass base(Ammo) model({ "path": ":models/e4/wa_nova.dkm" }) = ammo_novabeam : "50 nova cell units." []

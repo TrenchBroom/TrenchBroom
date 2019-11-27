@@ -24,31 +24,24 @@
 #include <memory>
 
 template <typename T>
+bool expired(const std::shared_ptr<T>& /* ptr */) {
+    return false;
+}
+
+template <typename T>
+bool expired(const std::weak_ptr<T>& ptr) {
+    return ptr.expired();
+}
+
+template <typename T>
 std::shared_ptr<T> lock(std::shared_ptr<T> ptr) {
     return ptr;
 }
 
 template <typename T>
-bool expired(std::shared_ptr<T> ptr) {
-    return false;
-}
-
-template <typename T>
 std::shared_ptr<T> lock(std::weak_ptr<T> ptr) {
-    assert(!ptr.expired());
+    assert(!expired(ptr));
     return ptr.lock();
 }
-
-template <typename T>
-bool expired(std::weak_ptr<T> ptr) {
-    return ptr.expired();
-}
-
-template <typename T>
-struct ArrayDeleter {
-    void operator ()(T const* p) const {
-        delete[] p;
-    }
-};
 
 #endif

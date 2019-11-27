@@ -1,0 +1,106 @@
+//
+// Daikatana game definition file (.fgd)
+// Episode 3 entities
+// for Trenchbroom
+// last update: 6 Oct, 2018
+// Version: 1
+//
+// written by Dekonega <dekonega(at)windowslive.com>
+// email me with improvements and suggestions
+//
+
+@include "Common.fgd"
+
+
+//
+// Items (Episode 3)
+//
+@PointClass base(Appearflags, Sidekickflags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e3/a3_ar2.dkm" }) = item_black_adamant_armor : "Black adamant armor" []
+@PointClass base(Appearflags, Sidekickflags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e3/a3_ar1.dkm" }) = item_chainmail_armor : "Chainmail armor" []
+@PointClass base(Appearflags, KeyFlags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e3/a_tri.dkm" }) = item_trigon_keystone : "Trigon keystone" []
+@PointClass base(Appearflags, KeyFlags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e3/a_quad.dkm" }) = item_quad_keystone : "Quad keystone" []
+@PointClass base(Appearflags, KeyFlags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e3/a_hex.dkm" }) = item_hex_keystone : "Hex keystone" []
+@PointClass base(Appearflags, Sidekickflags, KeyFlags) color(0 0.5 0.8) size(-16 -16 0, 16 16 40) model({ "path": "models/e3/a3_bookw.dkm" }) = item_spellbook : "E3 Wyndrax spell book" []
+@PointClass base(Appearflags, KeyFlags) color(0 0.5 0.8) size(-16 -16 0, 16 16 40) model({ "path": "models/e3/a3_ltkey.dkm" }) = item_wyndrax_key : "E3 wyndrax key" []
+@PointClass base(Appearflags, KeyFlags) color(0 0.5 0.8) size(-16 -16 0, 16 16 40) model({ "path": "models/e3/a3_crkey.dkm" }) = item_crypt_key : "E3 crypt key" []
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e3/a_ringlig.dkm" }) = item_ring_of_lightning : "Ring of lightning" []
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e3/a_ringund.dkm" }) = item_ring_of_undead : "Ring of undead" []
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e3/a_ring_fire.dkm" }) = item_ring_of_fire : "Ring of fire" []
+@PointClass base(Appearflags) color(0 0.5 0.8) size(-16 -16 0, 16 16 32) model({ "path": "models/e3/a_chest.dkm" }) = item_wood_chest : "Wooden chest" []
+@PointClass base(Appearflags, Sidekickflags) color(0 0.5 0.8) size(-16 -16 0, 16 16 32) model({ "path": "models/e3/a_blackchest.dkm" }) = item_black_chest : "Black chest" []
+@PointClass base(Appearflags, PurifierShard) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e3/purifier_3.dkm" }) = item_purifier_shard3 : "Purifier shard 3" []
+@PointClass base(Appearflags, PurifierShard) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e3/purifier_2.dkm" }) = item_purifier_shard2_5 : "Purifier shard 2.5" []
+@PointClass base(Appearflags, PurifierShard) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e3/purifier_2.dkm" }) = item_purifier_shard2_4 : "Purifier shard 2.4" []
+@PointClass base(Appearflags, PurifierShard) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e3/purifier_2.dkm" }) = item_purifier_shard2_3 : "Purifier shard 2.3" []
+@PointClass base(Appearflags, PurifierShard) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e3/purifier_2.dkm" }) = item_purifier_shard2_2 : "Purifier shard 2.2" []
+@PointClass base(Appearflags, PurifierShard) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e3/purifier_2.dkm" }) = item_purifier_shard2_1 : "Purifier shard 2.1" []
+@PointClass base(Appearflags, PurifierShard) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e3/purifier_1.dkm" }) = item_purifier_shard1 : "Purifier shard 1" []
+
+
+//
+// Monsters (Episode 3)
+//
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 36) model({ "path": "models/e3/m_wyndrax.dkm" }) = monster_wyndrax : "Wyndrax" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-20 -20 -24, 20 20 40) model({ "path": "models/e3/m_stavros.dkm" }) = monster_stavros : "Stavros" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-20 -20 -24, 20 20 36) model({ "path": "models/e3/m_nharre.dkm" }) = monster_nharre : "Nharre" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 32) model({ "path": "models/e3/m_knight2.dkm" }) = monster_knight2 : "Blue Knight" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 32) model({ "path": "models/e3/m_knight1.dkm" }) = monster_knight1 : "Red Knight" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-20 -20 -24, 20 20 40) model({ "path": "models/e3/m_gharroth.dkm" }) = monster_garroth : "King Gharroth" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-40 -40 -24, 40 40 96) model({ "path": "models/e3/m_dragon.dkm" }) = monster_dragon : "Dragon" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-20 -20 -24, 20 20 16) model({ "path": "models/e3/m_dwarf.dkm" }) = monster_dwarf : "Dwarf" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 40) model({ "path": "models/e3/m_fletcher.dkm" }) = monster_fletcher : "Fletcher" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-20 -20 -24, 20 20 32) model({ "path": "models/e3/m_lycanthir.dkm" }) = monster_lycanthir : "Lycanthir" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-12 -12 -8, 12 12 8) model({ "path": "models/e3/m_doombat.dkm" }) = monster_doombat : "Doombat" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 56) model({ "path": "models/e3/m_priest.dkm" }) = monster_priest : "Priest" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 32) model({ "path": "models/e3/m_buboid.dkm" }) = monster_buboid : "Buboid" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-12 -12 -8, 12 12 8) model({ "path": "models/e3/m_rotworm.dkm" }) = monster_rotworm : "Rotworm" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -16, 16 16 8) model({ "path": "models/e3/m_prat.dkm" }) = monster_plague_rat : "Plague Rat - I broke you!" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-8 -8 -8, 8 8 8) model({ "path": "models/global/e_sflblue.sp2" }) = monster_wisp : "Wisp"
+[
+	count(integer): "Number of wisps(Max=10)"
+	distance(integer): "How far the wisps will fly from point of placement(Max=200)"
+	velocity(integer): "How fast the wisps will move(Max=200)"
+	scale(float): "How big the wisps will be(1 = normal, 0.5 = half, 2 = twice as big)"
+	delta_alpha(integer): "frequency of Alpha blending change(0-100%) where 0% means no change"
+	alpha_level(integer): "Initial Setting for Alpha blending change(1-100%)"
+]
+
+
+//
+// Decorations (Episode 3)
+//
+@PointClass base(Appearflags, DecorationFlags) color(1 0 0) size(-8 -8 -32, 8 8 32) = deco_e3 : "Episode 3 decoration"
+[
+	damage(integer): "damage applied when exploding. Default is 15." : 15
+	scale(float): "Scale of deco. Default 1.0." : 1.0
+	model(string): "choose model # -- see list."
+	mass(float): "*optional* - including this overrides the mass value in decoinfo.txt" 
+	frame(integer): "allows you to specify the starting frame for the model."
+	animseq(integer): "allows you to specify an animation sequence for the model"
+	x_speed(integer): "speed to rotate along x axis in degrees per second"
+	y_speed(integer): "speed to rotate along y axis in degrees per second"
+	z_speed(integer): "speed to rotate along z axis in degrees per second"
+	alpha(float): "range 0.0-1.0. Only used if TRANSLUCENT is flagged"
+	spawnname(string): "classname of entity to throw out upon death"
+    movetype(string): "none, toss, bounce, float, overrides value in e1decoinfo.csv" : "none"
+]
+
+
+//
+// Weapons (Episode 3)
+//
+@PointClass base(Weapons) model({ "path": ":models/e3/a_claw.dkm" }) = weapon_silverclaw : "Silverclaw" []
+@PointClass base(Weapons) model({ "path": ":models/e3/a_bolter.dkm" }) = weapon_bolter : "Bolter" []
+@PointClass base(Weapons) model({ "path": ":models/e3/a_bal.dkm" }) = weapon_ballista : "Ballista" []
+@PointClass base(Weapons) model({ "path": ":models/e3/a_stav.dkm" }) = weapon_stavros : "Stave of Stavros" []
+@PointClass base(Weapons) model({ "path": ":models/e3/a_wyndrx.dkm" }) = weapon_wyndrax : "Wyndrax's Wisp" []
+@PointClass base(Weapons) model({ "path": ":models/e3/a_nmare.dkm" }) = weapon_nightmare : "Nharre's Nightmare" []
+
+
+//
+// Ammo (Episode 3)
+//
+@PointClass base(Ammo) model({ "path": ":models/e3/wa_bolt.dkm" }) = ammo_bolts : "50 crossbow bolts." []
+@PointClass base(Ammo) model({ "path": ":models/e3/wa_stav.dkm" }) = ammo_stavros : "2 lava rocks." []
+@PointClass base(Ammo) model({ "path": ":models/e3/wa_bal.dkm" }) = ammo_ballista : "10 Ballista logs." []
+@PointClass base(Ammo) model({ "path": ":models/e3/we_wisp.dkm" }) = ammo_wisp : "Wyndrax ammo." []

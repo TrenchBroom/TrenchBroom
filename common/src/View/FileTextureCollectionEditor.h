@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,10 +22,10 @@
 
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxBitmapButton;
-class wxListBox;
+class QListWidget;
+class QAbstractButton;
 
 namespace TrenchBroom {
     namespace IO {
@@ -33,33 +33,44 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class FileTextureCollectionEditor : public wxPanel {
+        class FileTextureCollectionEditor : public QWidget {
+            Q_OBJECT
         private:
             MapDocumentWPtr m_document;
-            
-            wxListBox* m_collections;
+
+            QListWidget* m_collections;
+
+            QAbstractButton* m_addTextureCollectionsButton;
+            QAbstractButton* m_removeTextureCollectionsButton;
+            QAbstractButton* m_moveTextureCollectionUpButton;
+            QAbstractButton* m_moveTextureCollectionDownButton;
+            QAbstractButton* m_reloadTextureCollectionsButton;
         public:
-            FileTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document);
-            ~FileTextureCollectionEditor();
-            
-            void OnAddTextureCollectionsClicked(wxCommandEvent& event);
-            void OnRemoveTextureCollectionsClicked(wxCommandEvent& event);
-            void OnMoveTextureCollectionUpClicked(wxCommandEvent& event);
-            void OnMoveTextureCollectionDownClicked(wxCommandEvent& event);
-            void OnReloadTextureCollectionsClicked(wxCommandEvent& event);
-            void OnUpdateRemoveButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateReloadTextureCollectionsButtonUI(wxUpdateUIEvent& event);
+            explicit FileTextureCollectionEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
+            ~FileTextureCollectionEditor() override;
+
+            bool debugUIConsistency() const;
+            bool canRemoveTextureCollections() const;
+            bool canMoveTextureCollectionsUp() const;
+            bool canMoveTextureCollectionsDown() const;
+            bool canReloadTextureCollections() const;
+
+            void addTextureCollections();
+            void removeSelectedTextureCollections();
+            void moveSelectedTextureCollectionsUp();
+            void moveSelectedTextureCollectionsDown();
+            void reloadTextureCollections();
         private:
             void createGui();
-            
+        private slots:
+            void updateButtons();
+        private:
             void bindObservers();
             void unbindObservers();
-            
+
             void textureCollectionsDidChange();
             void preferenceDidChange(const IO::Path& path);
-            
+
             void updateControls();
         };
     }

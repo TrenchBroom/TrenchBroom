@@ -20,12 +20,13 @@
 #ifndef TrenchBroom_CellLayout_h
 #define TrenchBroom_CellLayout_h
 
+#include "Ensure.h"
 #include "Macros.h"
+
+#include <QVariant>
 
 #include <algorithm>
 #include <cassert>
-#include <limits>
-#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -65,6 +66,14 @@ namespace TrenchBroom {
                 return m_y + m_height;
             }
 
+            vm::vec2f topLeft() const {
+                return vm::vec2f(left(), top());
+            }
+
+            vm::vec2f bottomLeft() const {
+                return vm::vec2f(left(), bottom());
+            }
+
             float midX() const {
                 return m_x + m_width / 2.0f;
             }
@@ -72,7 +81,7 @@ namespace TrenchBroom {
             float midY() const {
                 return m_y + m_height / 2.0f;
             }
-            
+
             float width() const {
                 return m_width;
             }
@@ -90,11 +99,10 @@ namespace TrenchBroom {
             }
         };
 
-        template <typename CellType>
         class LayoutCell {
         public:
         private:
-            CellType m_item;
+            QVariant m_item;
             float m_x;
             float m_y;
             float m_itemWidth;
@@ -106,7 +114,7 @@ namespace TrenchBroom {
             LayoutBounds m_cellBounds;
             LayoutBounds m_itemBounds;
             LayoutBounds m_titleBounds;
-            
+
             void doLayout(const float maxUpScale,
                                  const float minWidth, const float maxWidth,
                                  const float minHeight, const float maxHeight) {
@@ -122,7 +130,7 @@ namespace TrenchBroom {
                 const float cellWidth = std::max(minWidth, std::max(scaledItemWidth, clippedTitleWidth));
                 const float cellHeight = std::max(minHeight, std::max(minHeight, scaledItemHeight) + m_titleHeight + m_titleMargin);
                 const float itemY = m_y + std::max(0.0f, cellHeight - m_titleHeight - scaledItemHeight - m_titleMargin);
-                    
+
                 m_cellBounds = LayoutBounds(m_x,
                                             m_y,
                                             cellWidth,
@@ -137,7 +145,7 @@ namespace TrenchBroom {
                                              m_titleHeight);
             }
         public:
-            LayoutCell(const CellType item,
+            LayoutCell(QVariant item,
                        const float x, const float y,
                        const float itemWidth, const float itemHeight,
                        const float titleWidth, const float titleHeight,
@@ -145,7 +153,7 @@ namespace TrenchBroom {
                        const float maxUpScale,
                        const float minWidth, const float maxWidth,
                        const float minHeight, const float maxHeight) :
-            m_item(item),
+            m_item(std::move(item)),
             m_x(x),
             m_y(y),
             m_itemWidth(itemWidth),
@@ -157,17 +165,17 @@ namespace TrenchBroom {
             }
 
             bool hitTest(const float x, const float y) const {
-                return m_itemBounds.containsPoint(x, y) || m_titleBounds.containsPoint(x, y);
+                return bounds().containsPoint(x, y);
             }
 
             float scale() const {
                 return m_scale;
             }
-            
+
             const LayoutBounds& bounds() const {
                 return cellBounds();
             }
-            
+
             const LayoutBounds& cellBounds() const {
                 return m_cellBounds;
             }
@@ -186,17 +194,15 @@ namespace TrenchBroom {
                 doLayout(maxUpScale, minWidth, maxWidth, minHeight, maxHeight);
             }
 
-            CellType item() const {
+            QVariant item() const {
                 return m_item;
             }
 
         };
 
-        template <typename CellType>
         class LayoutRow {
-        public:
-            typedef LayoutCell<CellType> Cell;
-            typedef std::vector<Cell> CellList;
+        private:
+            using Cell = LayoutCell;
         private:
             float m_cellMargin;
             float m_titleMargin;
@@ -209,7 +215,7 @@ namespace TrenchBroom {
             float m_maxCellHeight;
             LayoutBounds m_bounds;
 
-            CellList m_cells;
+            std::vector<Cell> m_cells;
 
             void readjustItems() {
                 for (size_t i = 0; i < m_cells.size(); ++i)
@@ -236,11 +242,11 @@ namespace TrenchBroom {
             m_bounds(x, y, 0.0f, 0.0f) {}
 
             const Cell& operator[] (const size_t index) const {
-                ensure(index >= 0 && index < m_cells.size(), "index out of range");
+                ensure(index < m_cells.size(), "index out of range");
                 return m_cells[index];
             }
 
-            bool addItem(CellType item,
+            bool addItem(QVariant item,
                                 const float itemWidth, const float itemHeight,
                                 const float titleWidth, const float titleHeight) {
                 float x = m_bounds.right();
@@ -265,7 +271,7 @@ namespace TrenchBroom {
                     assert(m_minCellHeight <= m_maxCellHeight);
                     readjustItems();
                 }
-                
+
                 m_bounds = LayoutBounds(m_bounds.left(), m_bounds.top(), width, std::max(m_bounds.height(), cell.cellBounds().height()));
 
                 m_cells.push_back(cell);
@@ -273,7 +279,7 @@ namespace TrenchBroom {
             }
 
 
-            const CellList& cells() const {
+            const std::vector<Cell>& cells() const {
                 return m_cells;
             }
 
@@ -306,11 +312,11 @@ namespace TrenchBroom {
             }
         };
 
-        template <typename CellType, typename GroupType>
         class LayoutGroup {
-        public:
-            typedef LayoutRow<CellType> Row;
-            typedef std::vector<Row> RowList;
+        private:
+            using Row = LayoutRow;
+            using GroupType = std::string;
+            using CellType = QVariant;
         private:
             GroupType m_item;
             float m_cellMargin;
@@ -325,10 +331,10 @@ namespace TrenchBroom {
             LayoutBounds m_titleBounds;
             LayoutBounds m_contentBounds;
 
-            RowList m_rows;
+            std::vector<Row> m_rows;
         public:
             const Row& operator[] (const size_t index) const {
-                ensure(index >= 0 && index < m_rows.size(), "index out of range");
+                ensure(index < m_rows.size(), "index out of range");
                 return m_rows[index];
             }
 
@@ -408,20 +414,20 @@ namespace TrenchBroom {
                     if (y < rowBounds.bottom())
                         return i;
                 }
-                
+
                 return m_rows.size();
             }
-            
+
             bool rowAt(const float y, const Row** result) const {
                 size_t index = indexOfRowAt(y);
                 if (index == m_rows.size())
                     return false;
-                
+
                 *result = &m_rows[index];
                 return true;
             }
-            
-            bool cellAt(const float x, const float y, const typename Row::Cell** result) const {
+
+            bool cellAt(const float x, const float y, const LayoutCell** result) const {
                 for (size_t i = 0; i < m_rows.size(); ++i) {
                     const Row& row = m_rows[i];
                     const LayoutBounds& rowBounds = row.bounds();
@@ -474,11 +480,11 @@ namespace TrenchBroom {
             }
         };
 
-        template <typename CellType, typename GroupType>
         class CellLayout {
-        public:
-            typedef LayoutGroup<CellType, GroupType> Group;
-            typedef std::vector<Group> GroupList;
+        private:
+            using Group = LayoutGroup;
+            using GroupType = std::string;
+            using CellType = QVariant;
         private:
             float m_width;
             float m_cellMargin;
@@ -493,7 +499,7 @@ namespace TrenchBroom {
             float m_minCellHeight;
             float m_maxCellHeight;
 
-            GroupList m_groups;
+            std::vector<Group> m_groups;
             bool m_valid;
             float m_height;
 
@@ -504,16 +510,16 @@ namespace TrenchBroom {
                 m_height = 2.0f * m_outerMargin;
                 m_valid = true;
                 if (!m_groups.empty()) {
-                    GroupList copy = m_groups;
+                    auto copy = m_groups;
                     m_groups.clear();
 
                     for (size_t i = 0; i < copy.size(); ++i) {
                         Group& group = copy[i];
                         addGroup(group.item(), group.titleBounds().height());
                         for (size_t j = 0; j < group.size(); ++j) {
-                            const typename Group::Row& row = group[j];
+                            const LayoutRow& row = group[j];
                             for (size_t k = 0; k < row.size(); k++) {
-                                const typename Group::Row::Cell& cell = row[k];
+                                const LayoutCell& cell = row[k];
                                 const LayoutBounds& itemBounds = cell.itemBounds();
                                 const LayoutBounds& titleBounds = cell.titleBounds();
                                 float scale = cell.scale();
@@ -527,7 +533,7 @@ namespace TrenchBroom {
             }
         public:
             const Group& operator[] (const size_t index) {
-                ensure(index >= 0 && index < m_groups.size(), "index out of range");
+                ensure(index < m_groups.size(), "index out of range");
                 if (!m_valid)
                     validate();
                 return m_groups[index];
@@ -558,7 +564,7 @@ namespace TrenchBroom {
                 m_cellMargin = cellMargin;
                 invalidate();
             }
-            
+
             void setTitleMargin(const float titleMargin) {
                 if (m_titleMargin == titleMargin)
                     return;
@@ -601,7 +607,7 @@ namespace TrenchBroom {
                 m_height += m_groups.back().bounds().height();
             }
 
-            void addItem(const CellType item,
+            void addItem(CellType item,
                          const float itemWidth, const float itemHeight,
                          const float titleWidth, const float titleHeight) {
                 if (!m_valid)
@@ -626,7 +632,7 @@ namespace TrenchBroom {
                 invalidate();
             }
 
-            bool cellAt(const float x, const float y, const typename Group::Row::Cell** result) {
+            bool cellAt(const float x, const float y, const LayoutCell** result) {
                 if (!m_valid)
                     validate();
 
@@ -644,12 +650,12 @@ namespace TrenchBroom {
                 return false;
             }
 
-            bool groupAt(const float x, const float y, Group* result) {
+            bool groupAt(const float x, const float y, Group*& result) {
                 if (!m_valid)
                     validate();
 
                 for (size_t i = 0; i < m_groups.size(); ++i) {
-                    Group* group = m_groups[i];
+                    Group* group = &m_groups[i];
                     const LayoutBounds groupBounds = group->bounds();
                     if (y > groupBounds.bottom())
                         continue;
@@ -684,10 +690,10 @@ namespace TrenchBroom {
 
                 if (groupIndex == m_groups.size())
                     return y;
-                
+
                 if (offset == 0)
                     return y;
-                
+
                 size_t rowIndex = m_groups[groupIndex].indexOfRowAt(y);
                 int newIndex = static_cast<int>(rowIndex) + offset;
                 if (newIndex < 0) {
@@ -697,7 +703,7 @@ namespace TrenchBroom {
                     while (newIndex >= static_cast<int>(m_groups[groupIndex].size()) && groupIndex < m_groups.size() - 1)
                         newIndex -= m_groups[groupIndex++].size();
                 }
-                
+
                 if (groupIndex < m_groups.size()) {
                     if (newIndex >= 0) {
                         rowIndex = static_cast<size_t>(newIndex);
@@ -706,11 +712,11 @@ namespace TrenchBroom {
                         }
                     }
                 }
-                
-                
+
+
                 return y;
             }
-            
+
             size_t size() {
                 if (!m_valid)
                     validate();
@@ -731,41 +737,41 @@ namespace TrenchBroom {
             float minCellWidth() const {
                 return m_minCellWidth;
             }
-            
+
             float maxCellWidth() const {
                 return m_maxCellWidth;
             }
-            
+
             void setCellWidth(const float minCellWidth, const float maxCellWidth) {
                 assert(0.0f < minCellWidth);
                 assert(minCellWidth <= maxCellWidth);
-                
+
                 if (m_minCellWidth == minCellWidth && m_maxCellWidth == maxCellWidth)
                     return;
                 m_minCellWidth = minCellWidth;
                 m_maxCellWidth = maxCellWidth;
                 invalidate();
             }
-            
+
             float minCellHeight() const {
                 return m_minCellHeight;
             }
-            
+
             float maxCellHeight() const {
                 return m_maxCellHeight;
             }
-            
+
             void setCellHeight(const float minCellHeight, const float maxCellHeight) {
                 assert(0.0f < minCellHeight);
                 assert(minCellHeight <= maxCellHeight);
-                
+
                 if (m_minCellHeight == minCellHeight && m_maxCellHeight == maxCellHeight)
                     return;
                 m_minCellHeight = minCellHeight;
                 m_maxCellHeight = maxCellHeight;
                 invalidate();
             }
-            
+
             void setMaxUpScale(const float maxUpScale) {
                 if (m_maxUpScale == maxUpScale)
                     return;
@@ -782,19 +788,19 @@ namespace TrenchBroom {
                     validate();
                 return m_height;
             }
-            
+
             float outerMargin() const {
                 return m_outerMargin;
             }
-            
+
             float groupMargin() const {
                 return m_groupMargin;
             }
-            
+
             float rowMargin() const {
                 return m_rowMargin;
             }
-            
+
             float cellMargin() const {
                 return m_cellMargin;
             }

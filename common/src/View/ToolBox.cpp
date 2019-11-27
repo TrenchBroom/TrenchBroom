@@ -19,14 +19,13 @@
 
 #include "CollectionUtils.h"
 #include "ToolBox.h"
-#include "TemporarilySetAny.h"
 #include "View/InputState.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
 #include "View/ToolChain.h"
 
-#include <wx/window.h>
-#include <wx/event.h>
+#include <QDateTime>
+#include <QDebug>
 
 #include <cassert>
 
@@ -35,70 +34,8 @@ namespace TrenchBroom {
         ToolBox::ToolBox() :
         m_dragReceiver(nullptr),
         m_dropReceiver(nullptr),
-        m_savedDropReceiver(nullptr),
         m_modalTool(nullptr),
-        m_clickToActivate(true),
-        m_ignoreNextClick(false),
-        m_lastActivation(wxDateTime::Now()),
         m_enabled(true) {}
-
-        void ToolBox::addWindow(wxWindow* window) {
-            ensure(window != nullptr, "window is null");
-
-            window->Bind(wxEVT_SET_FOCUS, &ToolBox::OnSetFocus, this);
-            window->Bind(wxEVT_KILL_FOCUS, &ToolBox::OnKillFocus, this);
-            window->Bind(wxEVT_ENTER_WINDOW, &ToolBox::OnEnterWindow, this);
-            window->Bind(wxEVT_LEAVE_WINDOW, &ToolBox::OnLeaveWindow, this);
-            m_focusGroup.push_back(window);
-        }
-
-        void ToolBox::removeWindow(wxWindow* window) {
-            window->Unbind(wxEVT_SET_FOCUS, &ToolBox::OnSetFocus, this);
-            window->Unbind(wxEVT_KILL_FOCUS, &ToolBox::OnKillFocus, this);
-            window->Unbind(wxEVT_ENTER_WINDOW, &ToolBox::OnEnterWindow, this);
-            window->Unbind(wxEVT_LEAVE_WINDOW, &ToolBox::OnLeaveWindow, this);
-            VectorUtils::erase(m_focusGroup, window);
-        }
-
-        void ToolBox::OnSetFocus(wxFocusEvent& event) {
-            if ((wxDateTime::Now() - m_lastActivation).IsShorterThan(wxTimeSpan(0, 0, 0, 100)))
-                m_ignoreNextClick = false;
-            clearFocusCursor();
-            event.Skip();
-        }
-
-        void ToolBox::OnKillFocus(wxFocusEvent& event) {
-            if (m_clickToActivate) {
-                const wxWindow* focusedWindow = event.GetWindow();
-                if (!VectorUtils::contains(m_focusGroup, focusedWindow)) {
-                    m_ignoreNextClick = true;
-                    setFocusCursor();
-                }
-            }
-            event.Skip();
-        }
-
-        void ToolBox::OnEnterWindow(wxMouseEvent& event) {
-            wxWindow* newFocus = static_cast<wxWindow*>(event.GetEventObject());
-            wxWindow* currentFocus = newFocus->FindFocus();
-            if (VectorUtils::contains(m_focusGroup, currentFocus) && !currentFocus->HasCapture())
-                newFocus->SetFocus();
-            event.Skip();
-        }
-
-        void ToolBox::OnLeaveWindow(wxMouseEvent& event) {
-            event.Skip();
-        }
-
-        void ToolBox::setFocusCursor() {
-            for (size_t i = 0; i < m_focusGroup.size(); ++i)
-                m_focusGroup[i]->SetCursor(wxCursor(wxCURSOR_HAND));
-        }
-
-        void ToolBox::clearFocusCursor() {
-            for (size_t i = 0; i < m_focusGroup.size(); ++i)
-                m_focusGroup[i]->SetCursor(wxCursor(wxCURSOR_ARROW));
-        }
 
         void ToolBox::addTool(Tool* tool) {
             ensure(tool != nullptr, "tool is null");
@@ -109,120 +46,88 @@ namespace TrenchBroom {
             chain->pick(inputState, pickResult);
         }
 
-        bool ToolBox::clickToActivate() const {
-            return m_clickToActivate;
-        }
-
-        void ToolBox::setClickToActivate(const bool clickToActivate) {
-            m_clickToActivate = clickToActivate;
-            if (!m_clickToActivate)
-                m_ignoreNextClick = false;
-        }
-
-        void ToolBox::updateLastActivation() {
-            m_lastActivation = wxDateTime::Now();
-        }
-
-        bool ToolBox::ignoreNextClick() const {
-            return m_ignoreNextClick;
-        }
-
-        void ToolBox::clearIgnoreNextClick() {
-            m_ignoreNextClick = false;
-        }
-
         bool ToolBox::dragEnter(ToolChain* chain, const InputState& inputState, const String& text) {
-            // On XFCE, this crashes when dragging an entity across a 2D view into the 3D view
-            // I assume that the drag leave event is swallowed somehow.
-            // assert(m_dropReceiver == nullptr);
-
-            if (!m_enabled)
+            if (!m_enabled) {
                 return false;
+            }
 
-            if (m_dropReceiver != nullptr)
+            if (m_dropReceiver != nullptr) {
                 dragLeave(chain, inputState);
-            
+            }
+
             deactivateAllTools();
             m_dropReceiver = chain->dragEnter(inputState, text);
             return m_dropReceiver != nullptr;
         }
 
-        bool ToolBox::dragMove(ToolChain* chain, const InputState& inputState, const String& text) {
-            if (m_dropReceiver == nullptr)
+        bool ToolBox::dragMove(ToolChain* /* chain */, const InputState& inputState, const String& /* text */) {
+            if (!m_enabled || m_dropReceiver == nullptr) {
                 return false;
-
-            if (!m_enabled)
-                return false;
+            }
 
             m_dropReceiver->dragMove(inputState);
             return true;
         }
 
-        void ToolBox::dragLeave(ToolChain* chain, const InputState& inputState) {
-            if (m_dropReceiver == nullptr)
+        void ToolBox::dragLeave(ToolChain* /* chain */, const InputState& inputState) {
+            if (!m_enabled || m_dropReceiver == nullptr) {
                 return;
-            if (!m_enabled)
-                return;
-
-            // This is a workaround for a bug in wxWidgets 3.0.0 on GTK2, where a drag leave event
-            // is sent right before the drop event. So we save the drag receiver in an instance variable
-            // and if dragDrop() is called, it can use that variable to find out who the drop receiver is.
-            m_savedDropReceiver = m_dropReceiver;
+            }
 
             m_dropReceiver->dragLeave(inputState);
             m_dropReceiver = nullptr;
         }
 
-        bool ToolBox::dragDrop(ToolChain* chain, const InputState& inputState, const String& text) {
-            if (m_dropReceiver == nullptr && m_savedDropReceiver == nullptr)
+        bool ToolBox::dragDrop(ToolChain* /* chain */, const InputState& inputState, const String& /* text */) {
+            if (!m_enabled || m_dropReceiver == nullptr) {
                 return false;
-
-            if (!m_enabled)
-                return false;
-
-            if (m_dropReceiver == nullptr) {
-                m_dropReceiver = m_savedDropReceiver;
-                Tool* tool = m_dropReceiver->tool();
-                if (!tool->active()) // GTK2 fix: has been deactivated by dragLeave()
-                    tool->activate();
-                m_dropReceiver->dragEnter(inputState, text);
             }
 
-            const bool result = m_dropReceiver->dragDrop(inputState);
+            const auto result = m_dropReceiver->dragDrop(inputState);
             m_dropReceiver = nullptr;
-            m_savedDropReceiver = nullptr;
             return result;
         }
 
         void ToolBox::modifierKeyChange(ToolChain* chain, const InputState& inputState) {
-            if (m_enabled)
-                chain->modifierKeyChange(inputState);
+            if (!m_enabled) {
+                return;
+            }
+            chain->modifierKeyChange(inputState);
         }
 
         void ToolBox::mouseDown(ToolChain* chain, const InputState& inputState) {
-            if (m_enabled)
-                chain->mouseDown(inputState);
+            if (!m_enabled) {
+                return;
+            }
+            chain->mouseDown(inputState);
         }
 
         void ToolBox::mouseUp(ToolChain* chain, const InputState& inputState) {
-            if (m_enabled)
-                chain->mouseUp(inputState);
+            if (!m_enabled) {
+                return;
+            }
+            chain->mouseUp(inputState);
         }
 
         bool ToolBox::mouseClick(ToolChain* chain, const InputState& inputState) {
-            if (m_enabled)
-                return chain->mouseClick(inputState);
-            return false;
+            if (!m_enabled) {
+                return false;
+            }
+            return chain->mouseClick(inputState);
         }
 
         void ToolBox::mouseDoubleClick(ToolChain* chain, const InputState& inputState) {
-            if (m_enabled)
-                chain->mouseDoubleClick(inputState);
+            if (!m_enabled) {
+                return;
+            }
+            chain->mouseDoubleClick(inputState);
         }
 
         void ToolBox::mouseMove(ToolChain* chain, const InputState& inputState) {
-            if (m_enabled)
-                chain->mouseMove(inputState);
+            if (!m_enabled) {
+                return;
+            }
+            chain->mouseMove(inputState);
         }
 
         bool ToolBox::dragging() const {
@@ -230,8 +135,9 @@ namespace TrenchBroom {
         }
 
         bool ToolBox::startMouseDrag(ToolChain* chain, const InputState& inputState) {
-            if (!m_enabled)
+            if (!m_enabled) {
                 return false;
+            }
             m_dragReceiver = chain->startMouseDrag(inputState);
             return m_dragReceiver != nullptr;
         }
@@ -254,8 +160,10 @@ namespace TrenchBroom {
         }
 
         void ToolBox::mouseScroll(ToolChain* chain, const InputState& inputState) {
-            if (m_enabled)
-                chain->mouseScroll(inputState);
+            if (!m_enabled) {
+                return;
+            }
+            chain->mouseScroll(inputState);
         }
 
         bool ToolBox::cancel(ToolChain* chain) {
@@ -287,9 +195,11 @@ namespace TrenchBroom {
         }
 
         bool ToolBox::toolActive(const Tool* tool) const {
-            if (tool == nullptr)
+            if (tool == nullptr) {
                 return false;
-            return tool->active();
+            } else {
+                return tool->active();
+            }
         }
 
         void ToolBox::toggleTool(Tool* tool) {
@@ -307,8 +217,9 @@ namespace TrenchBroom {
                         deactivateTool(m_modalTool);
                         m_modalTool = nullptr;
                     }
-                    if (activateTool(tool))
+                    if (activateTool(tool)) {
                         m_modalTool = tool;
+                    }
                 }
             }
         }
@@ -342,12 +253,13 @@ namespace TrenchBroom {
         }
 
         bool ToolBox::activateTool(Tool* tool) {
-            if (!tool->activate())
+            if (!tool->activate()) {
                 return false;
+            }
 
-            ToolMap::iterator it = m_deactivateWhen.find(tool);
+            auto it = m_deactivateWhen.find(tool);
             if (it != std::end(m_deactivateWhen)) {
-                const ToolList& slaves = it->second;
+                const auto& slaves = it->second;
                 for (Tool* slave : slaves) {
                     slave->deactivate();
                     toolDeactivatedNotifier(slave);
@@ -359,12 +271,13 @@ namespace TrenchBroom {
         }
 
         void ToolBox::deactivateTool(Tool* tool) {
-            if (dragging())
+            if (dragging()) {
                 cancelMouseDrag();
-                
-            ToolMap::iterator it = m_deactivateWhen.find(tool);
+            }
+
+            auto it = m_deactivateWhen.find(tool);
             if (it != std::end(m_deactivateWhen)) {
-                const ToolList& slaves = it->second;
+                const auto& slaves = it->second;
                 for (Tool* slave : slaves) {
                     slave->activate();
                     toolActivatedNotifier(slave);

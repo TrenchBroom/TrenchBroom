@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,8 +25,7 @@
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 
-#include <cassert>
-#include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -38,16 +37,16 @@ namespace TrenchBroom {
         public:
             NonIntegerPlanePointsIssue(Brush* brush) :
             Issue(brush) {}
-            
+
             IssueType doGetType() const override {
                 return Type;
             }
-            
+
             const String doGetDescription() const override {
                 return "Brush has non-integer plane points";
             }
         };
-        
+
         const IssueType NonIntegerPlanePointsIssueGenerator::NonIntegerPlanePointsIssue::Type = Issue::freeType();
 
         class NonIntegerPlanePointsIssueGenerator::NonIntegerPlanePointsIssueQuickFix : public IssueQuickFix {
@@ -55,11 +54,11 @@ namespace TrenchBroom {
             NonIntegerPlanePointsIssueQuickFix() :
             IssueQuickFix(NonIntegerPlanePointsIssue::Type, "Convert plane points to integer") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const override {
+            void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
                 facade->findPlanePoints();
             }
         };
-        
+
         NonIntegerPlanePointsIssueGenerator::NonIntegerPlanePointsIssueGenerator() :
         IssueGenerator(NonIntegerPlanePointsIssue::Type, "Non-integer plane points") {
             addQuickFix(new NonIntegerPlanePointsIssueQuickFix());
@@ -70,7 +69,7 @@ namespace TrenchBroom {
                 const BrushFace::Points& points = face->points();
                 for (size_t i = 0; i < 3; ++i) {
                     const vm::vec3& point = points[i];
-                    if (!isIntegral(point)) {
+                    if (!vm::is_integral(point)) {
                         issues.push_back(new NonIntegerPlanePointsIssue(brush));
                         return;
                     }

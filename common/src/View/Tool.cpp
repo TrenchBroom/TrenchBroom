@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,8 +21,8 @@
 
 #include "IO/ResourceUtils.h"
 
-#include <wx/bookctrl.h>
-#include <wx/panel.h>
+#include <QWidget>
+#include <QStackedLayout>
 
 #include <cassert>
 
@@ -34,11 +34,11 @@ namespace TrenchBroom {
         m_pageIndex(0) {}
 
         Tool::~Tool() {}
-        
+
         bool Tool::active() const {
             return m_active;
         }
-        
+
         bool Tool::activate() {
             assert(!active());
             if (doActivate()) {
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             }
             return m_active;
         }
-        
+
         bool Tool::deactivate() {
             assert(active());
             if (doDeactivate()) {
@@ -56,33 +56,33 @@ namespace TrenchBroom {
             }
             return !m_active;
         }
-        
+
         void Tool::refreshViews() {
             refreshViewsNotifier(this);
         }
 
-        void Tool::createPage(wxBookCtrlBase* book) {
+        void Tool::createPage(QStackedLayout* book) {
             assert(m_book == nullptr);
-            
+
             m_book = book;
-            m_pageIndex = m_book->GetPageCount();
-            m_book->AddPage(doCreatePage(m_book), "");
+            m_pageIndex = m_book->count();
+            m_book->addWidget(doCreatePage(m_book->parentWidget()));
         }
-        
+
         void Tool::showPage() {
-            m_book->SetSelection(m_pageIndex);
+            m_book->setCurrentIndex(m_pageIndex);
         }
 
         bool Tool::doActivate() {
             return true;
         }
-        
+
         bool Tool::doDeactivate() {
             return true;
         }
 
-        wxWindow* Tool::doCreatePage(wxWindow* parent) {
-            return new wxPanel(parent);
+        QWidget* Tool::doCreatePage(QWidget* parent) {
+            return new QWidget(parent);
         }
     }
 }

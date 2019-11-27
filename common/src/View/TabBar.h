@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,50 +22,58 @@
 
 #include "View/ContainerBar.h"
 
-#include <wx/stattext.h>
-
 #include <vector>
 
-class wxBookCtrlEvent;
-class wxSimplebook;
+#include <QLabel>
+
+class QStackedLayout;
+class QHBoxLayout;
 
 namespace TrenchBroom {
     namespace View {
         class TabBook;
         class TabBookPage;
-        
-        class TabBarButton : public wxStaticText {
+
+        class TabBarButton : public QLabel {
+            Q_OBJECT
         private:
             bool m_pressed;
         public:
-            TabBarButton(wxWindow* parent, const wxString& label);
-            
+            explicit TabBarButton(const QString& label = "", QWidget* parent = nullptr);
+            /**
+             * Update the label color
+             */
             void setPressed(bool pressed);
-            
-            void OnClick(wxMouseEvent& event);
+        protected:
+            void mousePressEvent(QMouseEvent *event) override;
+
+        signals:
+            void clicked();
+
         private:
             void updateLabel();
         };
-        
+
         class TabBar : public ContainerBar {
+            Q_OBJECT
         private:
-            typedef std::vector<TabBarButton*> ButtonList;
-            
+            using ButtonList = std::vector<TabBarButton*>;
+
             TabBook* m_tabBook;
-            wxSimplebook* m_barBook;
-            wxSizer* m_controlSizer;
+
+            QStackedLayout* m_barBook;
+            QHBoxLayout* m_controlLayout;
             ButtonList m_buttons;
         public:
-            TabBar(TabBook* tabBook);
-            
-            void addTab(TabBookPage* bookPage, const wxString& title);
-            
-            void OnButtonClicked(wxCommandEvent& event);
-            void OnTabBookPageChanged(wxBookCtrlEvent& event);
+            explicit TabBar(TabBook* tabBook);
+
+            void addTab(TabBookPage* bookPage, const QString& title);
         private:
-            size_t findButtonIndex(wxWindow* button) const;
+            size_t findButtonIndex(QWidget* button) const;
             void setButtonActive(int index);
-            void setButtonInactive(int index);
+
+            void buttonClicked();
+            void tabBookPageChanged(int newIndex);
         };
     }
 }

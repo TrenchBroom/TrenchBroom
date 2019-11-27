@@ -1,231 +1,215 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "SmartColorEditor.h"
 
+#include "Assets/ColorRange.h"
 #include "CollectionUtils.h"
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityColor.h"
+#include "Model/NodeVisitor.h"
 #include "Model/World.h"
 #include "View/BorderLine.h"
 #include "View/ColorTable.h"
-#include "View/ColorTableSelectedCommand.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
+#include "View/QtUtils.h"
 
-#include <wx/clrpicker.h>
-#include <wx/panel.h>
-#include <wx/radiobut.h>
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-#include <wx/wupdlock.h>
+#include <QLabel>
+#include <QHBoxLayout>
+#include <QRadioButton>
+#include <QScrollArea>
 
 #include <iomanip>
 
 namespace TrenchBroom {
     namespace View {
-        SmartColorEditor::SmartColorEditor(View::MapDocumentWPtr document) :
-        SmartAttributeEditor(document),
-        m_panel(nullptr),
+        SmartColorEditor::SmartColorEditor(View::MapDocumentWPtr document, QWidget* parent) :
+        SmartAttributeEditor(document, parent),
         m_floatRadio(nullptr),
         m_byteRadio(nullptr),
         m_colorPicker(nullptr),
-        m_colorHistory(nullptr) {}
-        
-        void SmartColorEditor::OnFloatRangeRadioButton(wxCommandEvent& event) {
-            if (m_panel->IsBeingDeleted()) return;
-            document()->convertEntityColorRange(name(), Assets::ColorRange::Float);
-        }
-        
-        void SmartColorEditor::OnByteRangeRadioButton(wxCommandEvent& event) {
-            if (m_panel->IsBeingDeleted()) return;
-            document()->convertEntityColorRange(name(), Assets::ColorRange::Byte);
-        }
-        
-        void SmartColorEditor::OnColorPickerChanged(wxColourPickerEvent& event) {
-            if (m_panel->IsBeingDeleted()) return;
-            setColor(event.GetColour());
-        }
-        
-        void SmartColorEditor::OnColorTableSelected(ColorTableSelectedCommand& event) {
-            if (m_panel->IsBeingDeleted()) return;
-            setColor(event.color());
+        m_colorHistory(nullptr) {
+            createGui();
         }
 
-        wxWindow* SmartColorEditor::doCreateVisual(wxWindow* parent) {
-            assert(m_panel == nullptr);
+        void SmartColorEditor::createGui() {
             assert(m_floatRadio == nullptr);
             assert(m_byteRadio == nullptr);
             assert(m_colorPicker == nullptr);
             assert(m_colorHistory == nullptr);
-            
-            m_panel = new wxPanel(parent);
-            wxStaticText* rangeTxt = new wxStaticText(m_panel, wxID_ANY, "Color range");
-            rangeTxt->SetFont(rangeTxt->GetFont().Bold());
-            m_floatRadio = new wxRadioButton(m_panel, wxID_ANY, "Float [0,1]", wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
-            m_byteRadio = new wxRadioButton(m_panel, wxID_ANY, "Byte [0,255]");
-            m_colorPicker = new wxColourPickerCtrl(m_panel, wxID_ANY);
-            m_colorHistory = new ColorTable(m_panel, wxID_ANY, ColorHistoryCellSize);
-            
-            wxSizer* leftSizer = new wxBoxSizer(wxVERTICAL);
-            leftSizer->AddSpacer(LayoutConstants::WideVMargin);
-            leftSizer->Add(rangeTxt);
-            leftSizer->AddSpacer(LayoutConstants::WideVMargin);
-            leftSizer->Add(m_floatRadio);
-            leftSizer->AddSpacer(LayoutConstants::WideVMargin);
-            leftSizer->Add(m_byteRadio);
-            leftSizer->AddSpacer(LayoutConstants::WideVMargin);
-            leftSizer->Add(m_colorPicker);
-            leftSizer->AddStretchSpacer();
-            
-            wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
-            outerSizer->AddSpacer(LayoutConstants::WideHMargin);
-            outerSizer->Add(leftSizer);
-            outerSizer->AddSpacer(LayoutConstants::WideHMargin);
-            outerSizer->Add(new BorderLine(m_panel, BorderLine::Direction_Vertical), 0, wxEXPAND);
-            outerSizer->Add(m_colorHistory, 1, wxEXPAND);
-            m_panel->SetSizer(outerSizer);
-            
-            m_floatRadio->Bind(wxEVT_RADIOBUTTON, &SmartColorEditor::OnFloatRangeRadioButton, this);
-            m_byteRadio->Bind(wxEVT_RADIOBUTTON, &SmartColorEditor::OnByteRangeRadioButton, this);
-            m_colorPicker->Bind(wxEVT_COLOURPICKER_CHANGED, &SmartColorEditor::OnColorPickerChanged, this);
-            m_colorHistory->Bind(COLOR_TABLE_SELECTED_EVENT, &SmartColorEditor::OnColorTableSelected, this);
-            
-            return m_panel;
+
+            auto* rangeTxt = new QLabel(tr("Color range"));
+            makeEmphasized(rangeTxt);
+
+            m_floatRadio = new QRadioButton(tr("Float [0,1]"));
+            m_byteRadio = new QRadioButton(tr("Byte [0,255]"));
+            m_colorPicker = new ColorButton();
+            m_colorHistory = new ColorTable(ColorHistoryCellSize);
+
+            auto* colorHistoryScroller = new QScrollArea();
+            colorHistoryScroller->setWidget(m_colorHistory);
+            colorHistoryScroller->setWidgetResizable(true);
+            colorHistoryScroller->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+
+            auto* leftLayout = new QVBoxLayout();
+            leftLayout->setContentsMargins(0, 0, 0, 0);
+            leftLayout->setSpacing(LayoutConstants::NarrowVMargin);
+            leftLayout->addWidget(rangeTxt);
+            leftLayout->addWidget(m_floatRadio);
+            leftLayout->addWidget(m_byteRadio);
+            leftLayout->addWidget(m_colorPicker);
+            leftLayout->addStretch(1);
+
+            auto* outerLayout = new QHBoxLayout();
+            outerLayout->setContentsMargins(LayoutConstants::WideHMargin, 0, 0, 0);
+            outerLayout->setSpacing(0);
+            outerLayout->addLayout(leftLayout);
+            outerLayout->addSpacing(LayoutConstants::WideHMargin);
+            outerLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical));
+            outerLayout->addWidget(colorHistoryScroller, 1);
+            setLayout(outerLayout);
+
+            connect(m_floatRadio, &QAbstractButton::clicked, this, &SmartColorEditor::floatRangeRadioButtonClicked);
+            connect(m_byteRadio, &QAbstractButton::clicked, this, &SmartColorEditor::byteRangeRadioButtonClicked);
+            connect(m_colorPicker, &ColorButton::colorChangedByUser, this, &SmartColorEditor::colorPickerChanged);
+            connect(m_colorHistory, &ColorTable::colorTableSelected, this, &SmartColorEditor::colorTableSelected);
         }
-        
-        void SmartColorEditor::doDestroyVisual() {
-            ensure(m_panel != nullptr, "panel is null");
+
+        void SmartColorEditor::doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) {
             ensure(m_floatRadio != nullptr, "floatRadio is null");
             ensure(m_byteRadio != nullptr, "byteRadio is null");
             ensure(m_colorPicker != nullptr, "colorPicker is null");
             ensure(m_colorHistory != nullptr, "colorHistory is null");
-            
-            m_panel->Destroy();
-            m_panel = nullptr;
-            m_floatRadio = nullptr;
-            m_byteRadio = nullptr;
-            m_colorPicker = nullptr;
-            m_colorHistory = nullptr;
-        }
-        
-        void SmartColorEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
-            ensure(m_panel != nullptr, "panel is null");
-            ensure(m_floatRadio != nullptr, "floatRadio is null");
-            ensure(m_byteRadio != nullptr, "byteRadio is null");
-            ensure(m_colorPicker != nullptr, "colorPicker is null");
-            ensure(m_colorHistory != nullptr, "colorHistory is null");
-            
-            wxWindowUpdateLocker locker(m_panel);
+
             updateColorRange(attributables);
             updateColorHistory();
         }
-        
-        void SmartColorEditor::updateColorRange(const Model::AttributableNodeList& attributables) {
-            const Assets::ColorRange::Type range = detectColorRange(name(), attributables);
+
+        void SmartColorEditor::updateColorRange(const std::vector<Model::AttributableNode*>& attributables) {
+            const auto range = detectColorRange(name(), attributables);
             if (range == Assets::ColorRange::Float) {
-                m_floatRadio->SetValue(true);
-                m_byteRadio->SetValue(false);
+                m_floatRadio->setChecked(true);
+                m_byteRadio->setChecked(false);
             } else if (range == Assets::ColorRange::Byte) {
-                m_floatRadio->SetValue(false);
-                m_byteRadio->SetValue(true);
+                m_floatRadio->setChecked(false);
+                m_byteRadio->setChecked(true);
             } else {
-                m_floatRadio->SetValue(false);
-                m_byteRadio->SetValue(false);
+                m_floatRadio->setChecked(false);
+                m_byteRadio->setChecked(false);
             }
         }
-        
+
         struct ColorCmp {
-            bool operator()(const wxColor& lhs, const wxColor& rhs) const {
-                const float lr = lhs.Red() / 255.0f;
-                const float lg = lhs.Green() / 255.0f;
-                const float lb = lhs.Blue() / 255.0f;
-                const float rr = rhs.Red() / 255.0f;
-                const float rg = rhs.Green() / 255.0f;
-                const float rb = rhs.Blue() / 255.0f;
-                
+            bool operator()(const QColor& lhs, const QColor& rhs) const {
+                const auto lr = lhs.red() / 255.0f;
+                const auto lg = lhs.green() / 255.0f;
+                const auto lb = lhs.blue() / 255.0f;
+                const auto rr = rhs.red() / 255.0f;
+                const auto rg = rhs.green() / 255.0f;
+                const auto rb = rhs.blue() / 255.0f;
+
                 float lh, ls, lbr, rh, rs, rbr;
                 Color::rgbToHSB(lr, lg, lb, lh, ls, lbr);
                 Color::rgbToHSB(rr, rg, rb, rh, rs, rbr);
-                
-                if (vm::lt(lh, rh))
+
+                if (lh < rh) {
                     return true;
-                if (vm::gt(lh, rh))
+                } else if (lh > rh) {
                     return false;
-                if (vm::lt(ls, rs))
+                } else if (ls < rs) {
                     return true;
-                if (vm::gt(ls, rs))
+                } else if (ls > rs) {
                     return false;
-                if (vm::lt(lbr, rbr))
+                } else if (lbr < rbr) {
                     return true;
-                return false;
+                } else {
+                    return false;
+                }
             }
         };
-        
+
         class SmartColorEditor::CollectColorsVisitor : public Model::ConstNodeVisitor {
         private:
             const Model::AttributeName& m_name;
-            wxColorList m_colors;
+            std::vector<QColor> m_colors;
         public:
-            CollectColorsVisitor(const Model::AttributeName& name) : m_name(name) {}
-            
-            const wxColorList& colors() const { return m_colors; }
+            explicit CollectColorsVisitor(const Model::AttributeName& name) :
+            m_name(name) {}
+
+            const std::vector<QColor>& colors() const { return m_colors; }
         private:
             void doVisit(const Model::World* world) override   { visitAttributableNode(world); }
-            void doVisit(const Model::Layer* layer) override   {}
-            void doVisit(const Model::Group* group) override   {}
+            void doVisit(const Model::Layer*) override         {}
+            void doVisit(const Model::Group*) override         {}
             void doVisit(const Model::Entity* entity) override { visitAttributableNode(entity); stopRecursion(); }
-            void doVisit(const Model::Brush* brush) override   {}
+            void doVisit(const Model::Brush*) override         {}
 
             void visitAttributableNode(const Model::AttributableNode* attributable) {
-                static const Model::AttributeValue NullValue("");
-                const Model::AttributeValue& value = attributable->attribute(m_name, NullValue);
+                static const auto NullValue("");
+                const auto& value = attributable->attribute(m_name, NullValue);
                 if (value != NullValue)
                     addColor(Model::parseEntityColor(value));
             }
 
-            void addColor(const wxColor& color) {
-                VectorUtils::setInsert(m_colors, color, ColorCmp());
+            void addColor(const Color& color) {
+                VectorUtils::setInsert(m_colors, toQColor(color), ColorCmp());
             }
         };
-        
+
         void SmartColorEditor::updateColorHistory() {
             CollectColorsVisitor collectAllColors(name());
             document()->world()->acceptAndRecurse(collectAllColors);
             m_colorHistory->setColors(collectAllColors.colors());
-            
+
             CollectColorsVisitor collectSelectedColors(name());
-            const Model::AttributableNodeList nodes = document()->allSelectedAttributableNodes();
+            const auto nodes = document()->allSelectedAttributableNodes();
             Model::Node::accept(std::begin(nodes), std::end(nodes), collectSelectedColors);
-            
-            const wxColorList& selectedColors = collectSelectedColors.colors();
+
+            const auto& selectedColors = collectSelectedColors.colors();
             m_colorHistory->setSelection(selectedColors);
-            
-            const wxColor& color = !selectedColors.empty() ? selectedColors.back() : *wxBLACK;
-            m_colorPicker->SetColour(color);
+
+            const QColor color = !selectedColors.empty() ? selectedColors.back() : QColor(Qt::black);
+            m_colorPicker->setColor(color);
         }
-        
-        void SmartColorEditor::setColor(const wxColor& color) const {
-            const Assets::ColorRange::Type colorRange = m_floatRadio->GetValue() ? Assets::ColorRange::Float : Assets::ColorRange::Byte;
-            const Model::AttributeValue value = Model::entityColorAsString(color, colorRange);
+
+        void SmartColorEditor::setColor(const QColor& color) const {
+            const auto colorRange = m_floatRadio->isChecked() ? Assets::ColorRange::Float : Assets::ColorRange::Byte;
+            const auto value = Model::entityColorAsString(fromQColor(color), colorRange);
             document()->setAttribute(name(), value);
+        }
+
+        void SmartColorEditor::floatRangeRadioButtonClicked() {
+            document()->convertEntityColorRange(name(), Assets::ColorRange::Float);
+        }
+
+        void SmartColorEditor::byteRangeRadioButtonClicked() {
+            document()->convertEntityColorRange(name(), Assets::ColorRange::Byte);
+        }
+
+        void SmartColorEditor::colorPickerChanged(const QColor& color) {
+            setColor(color);
+        }
+
+        void SmartColorEditor::colorTableSelected(QColor color) {
+            setColor(color);
         }
     }
 }

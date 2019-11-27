@@ -2,21 +2,27 @@ Version.h
 .DS_STORE
 Thumbs.db
 *.sublime-workspace
+*.orig
 
 /cmake-build-debug
 /cmake-build-release
+/cmake-build-relwithdebinfo
 /build-debug
 /build-release
+/build
+/build-measure
 /codeblocks
-/Xcode
+/Xcode*
 /vs2010
 /vs2012
 /vs2013
 /vs2015
 /vs2017
 /.idea
+/.vscode
+/coverity
 
 app/resources/documentation/help/index.html
 
-build/*
-.vscode/*
+app/resources/games-testing/Wrath
+app/resources/games-testing/SteelStorm

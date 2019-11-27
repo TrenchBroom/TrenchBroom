@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -51,19 +51,20 @@
  * each face of the right polyhedron. If multiple faces of the left polyhedron have a maximal matching score, the
  * matcher selects a face such that its normal is closest to the normal of the right face.
  */
+
 template <typename P>
 class PolyhedronMatcher {
 private:
-    using V = typename P::V;
+    using V = vm::vec<typename P::FloatType,3u>;
     using Vertex = typename P::Vertex;
     using VertexList = typename P::VertexList;
-    using VertexSet = typename P::Vertex::Set;
+    using VertexSet = std::set<Vertex*>;
     using HalfEdge = typename P::HalfEdge;
     using Face = typename P::Face;
     using VMap = std::map<V,V>;
-    
-    typedef relation<Vertex*, Vertex*> VertexRelation;
-    
+
+    using VertexRelation = relation<Vertex*, Vertex*>;
+
     const P& m_left;
     const P& m_right;
     const VertexRelation m_vertexRelation;
@@ -72,7 +73,7 @@ public:
     m_left(left),
     m_right(right),
     m_vertexRelation(buildVertexRelation(m_left, m_right)) {}
-    
+
     PolyhedronMatcher(const P& left, const P& right, const std::vector<V>& vertices, const V& delta) :
     m_left(left),
     m_right(right),
@@ -101,8 +102,8 @@ public:
             currentRightFace = currentRightFace->next();
         } while (currentRightFace != firstRightFace);
     }
-    
-    typedef std::list<Face*> MatchingFaces;
+
+    using MatchingFaces = std::list<Face*>;
 private:
     /**
      * Find the best matching face from the left polyhedron for the given face of the right polyhedron. The best match
@@ -119,7 +120,7 @@ private:
 
         // Among all matching faces, select one such its normal is the most similar to the given face's normal.
         auto it = std::begin(matchingFaces);
-        
+
         auto* result = *it++;
         auto bestDot = dot(rightFace->normal(), result->normal());
 
@@ -133,7 +134,7 @@ private:
             }
             ++it;
         }
-        
+
         return result;
     }
 
@@ -147,7 +148,7 @@ private:
     MatchingFaces findMatchingLeftFaces(Face* rightFace) const {
         MatchingFaces result;
         size_t bestMatchScore = 0;
-        
+
         auto* firstLeftFace = m_left.faces().front();
         auto* currentLeftFace = firstLeftFace;
         do {
@@ -161,8 +162,41 @@ private:
             }
             currentLeftFace = currentLeftFace->next();
         } while (currentLeftFace != firstLeftFace);
-        
+
         return result;
+    }
+public:
+    /**
+     * Visits all pairs of vertices in the vertex relation where the left vertex is in the given leftFace and the
+     * right vertex is in the given rightFace.
+     *
+     * @tparam L visitor type
+     * @param leftFace a face of the left polyhedron
+     * @param rightFace a face of the right polyhedron
+     * @param lambda visitor to run on each pair of vertices
+     */
+    template <typename L>
+    void visitMatchingVertexPairs(Face* leftFace, Face* rightFace, L&& lambda) const {
+        auto* firstLeftEdge = leftFace->boundary().front();
+        auto* firstRightEdge = rightFace->boundary().front();
+
+        auto* currentLeftEdge = firstLeftEdge;
+        do {
+            auto* leftVertex = currentLeftEdge->origin();
+
+            auto* currentRightEdge = firstRightEdge;
+            do {
+                auto* rightVertex = currentRightEdge->origin();
+
+                if (m_vertexRelation.contains(leftVertex, rightVertex)) {
+                    lambda(leftVertex, rightVertex);
+                }
+
+                currentRightEdge = currentRightEdge->next();
+            } while (currentRightEdge != firstRightEdge);
+
+            currentLeftEdge = currentLeftEdge->next();
+        } while (currentLeftEdge != firstLeftEdge);
     }
 private:
     /**
@@ -182,27 +216,9 @@ private:
         }
 
         size_t result = 0;
-        
-        auto* firstLeftEdge = leftFace->boundary().front();
-        auto* firstRightEdge = rightFace->boundary().front();
-
-        auto* currentLeftEdge = firstLeftEdge;
-        do {
-            auto* leftVertex = currentLeftEdge->origin();
-
-            auto* currentRightEdge = firstRightEdge;
-            do {
-                auto* rightVertex = currentRightEdge->origin();
-
-                if (m_vertexRelation.contains(leftVertex, rightVertex))
-                    ++result;
-
-                currentRightEdge = currentRightEdge->next();
-            } while (currentRightEdge != firstRightEdge);
-
-            currentLeftEdge = currentLeftEdge->next();
-        } while (currentLeftEdge != firstLeftEdge);
-        
+        visitMatchingVertexPairs(leftFace, rightFace, [&result](Vertex* /* leftVertex */, Vertex* /* rightVertex */){
+            ++result;
+        });
         return result;
     }
 private:
@@ -219,7 +235,7 @@ private:
      */
     static VertexRelation buildVertexRelation(const P& left, const P& right) {
         VertexRelation result;
-        
+
         auto* firstLeftVertex = left.vertices().front();
         auto* currentLeftVertex = firstLeftVertex;
         do {
@@ -259,7 +275,7 @@ private:
         do {
             const auto& position = currentVertex->position();
             // vertices are expected to be exact positions of vertices in left, whereas the vertex positions searched for
-            // in right allow an epsilon of vm::Constants<T>::almostZero()
+            // in right allow an epsilon of vm::Constants<T>::almost_zero()
             if (VectorUtils::setContains(vertices, position)) {
                 if (right.hasVertex(position)) {
                     vertexMap.insert(std::make_pair(position, position));
@@ -284,14 +300,14 @@ private:
      */
     static VertexRelation buildVertexRelation(const P& left, const P& right, const VMap& vertexMap) {
         VertexRelation result;
-        
+
         for (const auto& entry : vertexMap) {
             const auto& leftPosition = entry.first;
             const auto& rightPosition = entry.second;
-            
+
             auto* leftVertex = left.findVertexByPosition(leftPosition);
             auto* rightVertex = right.findVertexByPosition(rightPosition);
-            
+
             assert(leftVertex != nullptr);
             assert(rightVertex != nullptr);
             result.insert(leftVertex, rightVertex);
@@ -349,7 +365,7 @@ private:
                 } while (currentEdge != firstEdge);
             }
         } while (result.size() > previousSize);
-        
+
         return result;
     }
 
@@ -386,7 +402,7 @@ private:
                 } while (currentEdge != firstEdge);
             }
         } while (result.size() > previousSize);
-        
+
         return result;
     }
 
@@ -400,7 +416,7 @@ private:
      */
     static VertexSet findAddedVertices(const P& right, const VertexRelation& vertexRelation) {
         VertexSet result;
-        
+
         const auto& rightVertices = right.vertices();
         auto* firstVertex = rightVertices.front();
         auto* currentVertex = firstVertex;
@@ -409,7 +425,7 @@ private:
                 result.insert(currentVertex);
             currentVertex = currentVertex->next();
         } while (currentVertex != firstVertex);
-        
+
         return result;
     }
 
@@ -423,7 +439,7 @@ private:
      */
     static VertexSet findRemovedVertices(const P& left, const VertexRelation& vertexRelation) {
         VertexSet result;
-        
+
         const auto& leftVertices = left.vertices();
         auto* firstVertex = leftVertices.front();
         auto* currentVertex = firstVertex;
@@ -432,7 +448,7 @@ private:
                 result.insert(currentVertex);
             currentVertex = currentVertex->next();
         } while (currentVertex != firstVertex);
-        
+
         return result;
     }
 };

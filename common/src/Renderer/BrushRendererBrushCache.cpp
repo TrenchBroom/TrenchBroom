@@ -19,6 +19,7 @@
 
 #include "BrushRendererBrushCache.h"
 
+#include "Polyhedron.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -67,10 +68,11 @@ namespace TrenchBroom {
             for (Model::BrushFace* face : brush->faces()) {
                 const auto indexOfFirstVertexRelativeToBrush = m_cachedVertices.size();
 
-                const auto* first = face->geometry()->boundary().front();
-                const auto* current = first;
-                do {
-                    auto* vertex = current->origin();
+                // The boundary is in CCW order, but the renderer expects CW order:
+                auto& boundary = face->geometry()->boundary();
+                for (auto it = std::rbegin(boundary), end = std::rend(boundary); it != end; ++it) {
+                    Model::BrushHalfEdge* current = *it;
+                    Model::BrushVertex* vertex = current->origin();
 
                     // Set the vertex payload to the index, relative to the brush's first vertex being 0.
                     // This is used below when building the edge cache.
@@ -82,9 +84,8 @@ namespace TrenchBroom {
                     const auto& position = vertex->position();
                     m_cachedVertices.emplace_back(vm::vec3f(position), vm::vec3f(face->boundary().normal), face->textureCoords(position));
 
-                    // The boundary is in CCW order, but the renderer expects CW order:
                     current = current->previous();
-                } while (current != first);
+                }
 
                 // face cache
                 m_cachedFacesSortedByTexture.emplace_back(face, indexOfFirstVertexRelativeToBrush);

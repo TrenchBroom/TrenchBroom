@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,21 +21,22 @@
 #define TrenchBroom_BrushRenderer
 
 #include "Color.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/FaceRenderer.h"
 #include "Model/Brush.h"
 #include "Renderer/AllocationTracker.h"
 
+#include <memory>
 #include <tuple>
-#include <map>
 #include <unordered_map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class EditorContext;
     }
-    
+
     namespace Renderer {
         class RenderBatch;
         class RenderContext;
@@ -45,11 +46,6 @@ namespace TrenchBroom {
         public:
             class Filter {
             public:
-                enum class RenderOpacity {
-                    Opaque,
-                    Transparent
-                };
-
                 enum class FaceRenderPolicy {
                     RenderMarked,
                     RenderNone
@@ -62,12 +58,12 @@ namespace TrenchBroom {
                     RenderNone
                 };
 
-                using RenderSettings = std::tuple<RenderOpacity, FaceRenderPolicy, EdgeRenderPolicy>;
+                using RenderSettings = std::tuple<FaceRenderPolicy, EdgeRenderPolicy>;
 
                 Filter();
                 Filter(const Filter& other);
                 virtual ~Filter();
-                
+
                 Filter& operator=(const Filter& other);
 
                 /**
@@ -87,23 +83,23 @@ namespace TrenchBroom {
                  */
                 static RenderSettings renderNothing();
             };
-            
+
             class DefaultFilter : public Filter {
             private:
                 const Model::EditorContext& m_context;
             public:
-                virtual ~DefaultFilter();
+                ~DefaultFilter() override;
             protected:
-                DefaultFilter(const Model::EditorContext& context);
+                explicit DefaultFilter(const Model::EditorContext& context);
                 DefaultFilter(const DefaultFilter& other);
-                
+
                 bool visible(const Model::Brush* brush) const;
                 bool visible(const Model::BrushFace* face) const;
                 bool visible(const Model::BrushEdge* edge) const;
-                
+
                 bool editable(const Model::Brush* brush) const;
                 bool editable(const Model::BrushFace* face) const;
-                
+
                 bool selected(const Model::Brush* brush) const;
                 bool selected(const Model::BrushFace* face) const;
                 bool selected(const Model::BrushEdge* edge) const;
@@ -111,22 +107,18 @@ namespace TrenchBroom {
             private:
                 DefaultFilter& operator=(const DefaultFilter& other);
             };
-            
-            class NoFilter : public Filter {
-            private:
-                bool m_transparent;
-            public:
-                NoFilter(bool transparent);
 
+            class NoFilter : public Filter {
+            public:
+                using Filter::Filter;
                 RenderSettings markFaces(const Model::Brush* brush) const override;
             private:
-                NoFilter(const NoFilter& other);
-                NoFilter& operator=(const NoFilter& other);
+                deleteCopyAndMove(NoFilter)
             };
         private:
             class FilterWrapper;
         private:
-            Filter* m_filter;
+            std::unique_ptr<Filter> m_filter;
 
             struct BrushInfo {
                 AllocationTracker::Block* vertexHolderKey;
@@ -155,7 +147,7 @@ namespace TrenchBroom {
             FaceRenderer m_opaqueFaceRenderer;
             FaceRenderer m_transparentFaceRenderer;
             IndexedEdgeRenderer m_edgeRenderer;
-            
+
             Color m_faceColor;
             bool m_showEdges;
             Color m_edgeColor;
@@ -164,34 +156,34 @@ namespace TrenchBroom {
             Color m_tintColor;
             bool m_showOccludedEdges;
             Color m_occludedEdgeColor;
+            bool m_transparent;
             float m_transparencyAlpha;
-            
+
             bool m_showHiddenBrushes;
         public:
             template <typename FilterT>
-            BrushRenderer(const FilterT& filter) :
-            m_filter(new FilterT(filter)),
+            explicit BrushRenderer(const FilterT& filter) :
+            m_filter(std::make_unique<FilterT>(filter)),
             m_showEdges(false),
             m_grayscale(false),
             m_tint(false),
             m_showOccludedEdges(false),
+            m_transparent(false),
             m_transparencyAlpha(1.0f),
             m_showHiddenBrushes(false) {
                 clear();
             }
-            
-            BrushRenderer(bool transparent);
-            
-            ~BrushRenderer();
+
+            BrushRenderer();
 
             /**
              * New brushes are invalidated, brushes already in the BrushRenderer are not invalidated.
              */
-            void addBrushes(const Model::BrushList& brushes);
+            void addBrushes(const std::vector<Model::Brush*>& brushes);
             /**
              * New brushes are invalidated, brushes already in the BrushRenderer are not invalidated.
              */
-            void setBrushes(const Model::BrushList& brushes);
+            void setBrushes(const std::vector<Model::Brush*>& brushes);
             void clear();
 
             /**
@@ -200,20 +192,72 @@ namespace TrenchBroom {
              * - all brushes vertices will be re-fetched from the Brush object.
              *
              * Until a brush is invalidated, we don't re-evaluate the Filter, and don't check the Brush object for modification.
+             *
+             * Additionally, calling `invalidate()` guarantees the m_brushInfo, m_transparentFaces, and m_opaqueFaces
+             * maps will be empty, so the BrushRenderer will not have any lingering Texture* pointers.
              */
             void invalidate();
-            void invalidateBrushes(const Model::BrushList& brushes);
+            void invalidateBrushes(const std::vector<Model::Brush*>& brushes);
             bool valid() const;
 
+            /**
+             * Sets the color to render untextured faces with.
+             */
             void setFaceColor(const Color& faceColor);
+
+            /**
+             * Specifies whether or not brush edges should be rendered.
+             */
             void setShowEdges(bool showEdges);
+
+            /**
+             * The color to render brush edges with.
+             */
             void setEdgeColor(const Color& edgeColor);
+
+            /**
+             * Specifies whether or not to render faces in grayscale.
+             */
             void setGrayscale(bool grayscale);
+
+            /**
+             * Specifies whether or not to render faces with a tint.
+             *
+             * @see setTintColor
+             */
             void setTint(bool tint);
+
+            /**
+             * Sets the color to tint faces with.
+             */
             void setTintColor(const Color& tintColor);
+
+            /**
+             * Specifies whether or not occluded edges should be visible.
+             */
             void setShowOccludedEdges(bool showOccludedEdges);
+
+            /**
+             * The color to render occluded edges with.
+             */
             void setOccludedEdgeColor(const Color& occludedEdgeColor);
+
+            /**
+             * Specifies whether or not faces should be rendered transparent. Overrides any transparency settings from
+             * the face itself or its material.
+             *
+             * @see setTransparencyAlpha
+             */
+            void setForceTransparent(bool transparent);
+
+            /**
+             * The alpha value to render transparent faces with.
+             */
             void setTransparencyAlpha(float transparencyAlpha);
+
+            /**
+             * Specifies whether or not brushes which are currently hidden should be rendered regardless.
+             */
             void setShowHiddenBrushes(bool showHiddenBrushes);
         public: // rendering
             void render(RenderContext& renderContext, RenderBatch& renderBatch);

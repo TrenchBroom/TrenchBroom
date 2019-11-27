@@ -1,26 +1,24 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TrenchBroom_NodePredicates
 #define TrenchBroom_NodePredicates
-
-#include <stdio.h>
 
 #undef True
 #undef False
@@ -34,16 +32,16 @@ namespace TrenchBroom {
         class Node;
         class Object;
         class World;
-        
+
         namespace NodePredicates {
             struct True {
                 bool operator()(const Node* node) const;
             };
-            
+
             struct False {
                 bool operator()(const Node* node) const;
             };
-            
+
             template <typename P>
             class Id {
             private:
@@ -51,7 +49,7 @@ namespace TrenchBroom {
             public:
                 Id(const P& p) :
                 m_p(p) {}
-                
+
                 bool operator()(const World* world) const   { return m_p(world);  }
                 bool operator()(World* world) const         { return m_p(world);  }
                 bool operator()(const Layer* layer) const   { return m_p(layer);  }
@@ -63,7 +61,7 @@ namespace TrenchBroom {
                 bool operator()(const Brush* brush) const   { return m_p(brush);  }
                 bool operator()(Brush* brush) const         { return m_p(brush);  }
             };
-            
+
             template <typename P>
             class Not {
             private:
@@ -71,7 +69,7 @@ namespace TrenchBroom {
             public:
                 Not(const P& p) :
                 m_p(p) {}
-                
+
                 bool operator()(const World* world) const   { return !m_p(world);  }
                 bool operator()(World* world) const         { return !m_p(world);  }
                 bool operator()(const Layer* layer) const   { return !m_p(layer);  }
@@ -83,7 +81,7 @@ namespace TrenchBroom {
                 bool operator()(const Brush* brush) const   { return !m_p(brush);  }
                 bool operator()(Brush* brush) const         { return !m_p(brush);  }
             };
-            
+
             template <typename P1, typename P2>
             class And {
             private:
@@ -93,7 +91,7 @@ namespace TrenchBroom {
                 And(const P1& p1, const P2& p2) :
                 m_p1(p1),
                 m_p2(p2) {}
-                
+
                 bool operator()(const World* world) const   { return m_p1(world)  && m_p2(world);  }
                 bool operator()(World* world) const         { return m_p1(world)  && m_p2(world);  }
                 bool operator()(const Layer* layer) const   { return m_p1(layer)  && m_p2(layer);  }
@@ -105,7 +103,7 @@ namespace TrenchBroom {
                 bool operator()(const Brush* brush) const   { return m_p1(brush)  && m_p2(brush);  }
                 bool operator()(Brush* brush) const         { return m_p1(brush)  && m_p2(brush);  }
             };
-            
+
             template <typename P1, typename P2>
             class Or {
             private:
@@ -115,7 +113,7 @@ namespace TrenchBroom {
                 Or(const P1& p1, const P2& p2) :
                 m_p1(p1),
                 m_p2(p2) {}
-                
+
                 bool operator()(const World* world) const   { return m_p1(world)  || m_p2(world);  }
                 bool operator()(World* world) const         { return m_p1(world)  || m_p2(world);  }
                 bool operator()(const Layer* layer) const   { return m_p1(layer)  || m_p2(layer);  }
@@ -127,14 +125,14 @@ namespace TrenchBroom {
                 bool operator()(const Brush* brush) const   { return m_p1(brush)  || m_p2(brush);  }
                 bool operator()(Brush* brush) const         { return m_p1(brush)  || m_p2(brush);  }
             };
-            
+
             class EqualsNode {
             private:
                 const Node* m_node;
             public:
                 EqualsNode(const Node* node) :
                 m_node(node) {}
-                
+
                 bool operator()(const World* world) const;
                 bool operator()(World* world) const;
                 bool operator()(const Layer* layer) const;
@@ -146,14 +144,14 @@ namespace TrenchBroom {
                 bool operator()(const Brush* brush) const;
                 bool operator()(Brush* brush) const;
             };
-            
+
             class EqualsObject {
             private:
                 const Object* m_object;
             public:
                 EqualsObject(const Object* object) :
                 m_object(object) {}
-                
+
                 bool operator()(const World* world) const;
                 bool operator()(World* world) const;
                 bool operator()(const Layer* layer) const;

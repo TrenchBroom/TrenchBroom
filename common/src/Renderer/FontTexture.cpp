@@ -1,23 +1,26 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "FontTexture.h"
+
+#include "Ensure.h"
+#include "Macros.h"
 
 #include <cassert>
 #include <cstring>
@@ -29,7 +32,7 @@ namespace TrenchBroom {
         m_size(0),
         m_buffer(nullptr),
         m_textureId(0) {}
-        
+
         FontTexture::FontTexture(const size_t cellCount, const size_t cellSize, const size_t margin) :
         m_size(computeTextureSize(cellCount, cellSize, margin)),
         m_buffer(nullptr),
@@ -37,7 +40,7 @@ namespace TrenchBroom {
             m_buffer = new char[m_size * m_size];
             std::memset(m_buffer, 0, m_size * m_size);
         }
-        
+
         FontTexture::FontTexture(const FontTexture& other) :
         m_size(other.m_size),
         m_buffer(nullptr),
@@ -45,7 +48,7 @@ namespace TrenchBroom {
             m_buffer = new char[m_size * m_size];
             std::memcpy(m_buffer, other.m_buffer, m_size * m_size);
         }
-        
+
         FontTexture& FontTexture::operator=(FontTexture other) {
             using std::swap;
             swap(m_size, other.m_size);
@@ -53,7 +56,7 @@ namespace TrenchBroom {
             swap(m_textureId, other.m_textureId);
             return *this;
         }
-        
+
         FontTexture::~FontTexture() {
             m_size = 0;
             if (m_textureId != 0) {
@@ -63,11 +66,11 @@ namespace TrenchBroom {
             delete [] m_buffer;
             m_buffer = nullptr;
         }
-        
+
         size_t FontTexture::size() const {
             return m_size;
         }
- 
+
         void FontTexture::activate() {
             if (m_textureId == 0) {
                 ensure(m_buffer != nullptr, "buffer is null");
@@ -81,11 +84,11 @@ namespace TrenchBroom {
                 delete [] m_buffer;
                 m_buffer = nullptr;
             }
-            
+
             assert(m_textureId > 0);
             glAssert(glBindTexture(GL_TEXTURE_2D, m_textureId));
         }
-        
+
         void FontTexture::deactivate() {
             glAssert(glBindTexture(GL_TEXTURE_2D, 0));
         }

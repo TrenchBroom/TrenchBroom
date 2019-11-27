@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,7 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "Color.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Assets/AssetTypes.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
@@ -36,7 +36,7 @@
 namespace TrenchBroom {
     namespace IO {
         namespace DefToken {
-            typedef unsigned int Type;
+            using Type = unsigned int;
             static const Type Integer         = 1 <<  0; // integer number
             static const Type Decimal         = 1 <<  1; // decimal number
             static const Type QuotedString    = 1 <<  2; // string
@@ -63,11 +63,11 @@ namespace TrenchBroom {
             static const String WordDelims;
             Token emitToken() override;
         };
-        
+
         class DefParser : public EntityDefinitionParser, public Parser<DefToken::Type> {
         private:
-            typedef DefTokenizer::Token Token;
-            
+            using Token = DefTokenizer::Token;
+
             Color m_defaultEntityColor;
             DefTokenizer m_tokenizer;
             EntityDefinitionClassInfoMap m_baseClasses;
@@ -77,23 +77,23 @@ namespace TrenchBroom {
         private:
             TokenNameMap tokenNames() const override;
             Assets::EntityDefinitionList doParseDefinitions(ParserStatus& status) override;
-            
+
             Assets::EntityDefinition* parseDefinition(ParserStatus& status);
             Assets::AttributeDefinitionPtr parseSpawnflags(ParserStatus& status);
             void parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses);
             bool parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses);
-            
+
             void parseDefaultAttribute(ParserStatus& status);
             String parseBaseAttribute(ParserStatus& status);
             Assets::AttributeDefinitionPtr parseChoiceAttribute(ParserStatus& status);
             Assets::ModelDefinition parseModel(ParserStatus& status);
-            
+
             String parseDescription();
 
             vm::vec3 parseVector(ParserStatus& status);
             vm::bbox3 parseBounds(ParserStatus& status);
             Color parseColor(ParserStatus& status);
-            
+
             Token nextTokenIgnoringNewlines();
         };
     }

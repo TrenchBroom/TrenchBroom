@@ -1,77 +1,72 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "TabBook.h"
 
+#include "Ensure.h"
 #include "Macros.h"
 #include "View/TabBar.h"
 
-#include <wx/simplebook.h>
-#include <wx/sizer.h>
+#include <QStackedLayout>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
-        TabBookPage::TabBookPage(wxWindow* parent) :
-        wxPanel(parent) {}
+        TabBookPage::TabBookPage(QWidget* parent) :
+        QWidget(parent) {}
         TabBookPage::~TabBookPage() {}
-        
-        wxWindow* TabBookPage::createTabBarPage(wxWindow* parent) {
-            return new wxPanel(parent);
+
+        QWidget* TabBookPage::createTabBarPage(QWidget* parent) {
+            return new QWidget(parent);
         }
 
-        TabBook::TabBook(wxWindow* parent) :
-        wxPanel(parent),
-        m_tabBar(new TabBar(this)),
-        m_tabBook(new wxSimplebook(this)) {
-            m_tabBook->Bind(wxEVT_COMMAND_BOOKCTRL_PAGE_CHANGED, &TabBook::OnTabBookPageChanged, this);
+        TabBook::TabBook(QWidget* parent) :
+        QWidget(parent),
+        m_tabBar(new TabBar(this)) {
+            m_tabBook = new QStackedLayout();
+            m_tabBook->setContentsMargins(0, 0, 0, 0);
 
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_tabBar, 0, wxEXPAND);
-            sizer->Add(m_tabBook, 1, wxEXPAND);
-            SetSizer(sizer);
+            QVBoxLayout* sizer = new QVBoxLayout();
+            sizer->setSpacing(0);
+            sizer->setContentsMargins(0,0,0,0);
+            sizer->addWidget(m_tabBar, 0);
+            sizer->addLayout(m_tabBook, 1);
+            setLayout(sizer);
+
+            // Forward the signal, so we don't have to expose the QStackedLayout
+            connect(m_tabBook, &QStackedLayout::currentChanged, this, &TabBook::pageChanged);
         }
-        
-        void TabBook::addPage(TabBookPage* page, const wxString& title) {
+
+        void TabBook::addPage(TabBookPage* page, const QString& title) {
             ensure(page != nullptr, "page is null");
-            assert(page->GetParent() == this);
-            
-            RemoveChild(page);
-            page->Reparent(m_tabBook);
-            m_tabBook->AddPage(page, title);
+
             m_tabBar->addTab(page, title);
+            m_tabBook->addWidget(page);
         }
 
-        void TabBook::switchToPage(const size_t index) {
-            assert(index < m_tabBook->GetPageCount());
-            m_tabBook->SetSelection(index);
+        void TabBook::switchToPage(const int index) {
+            assert(index < m_tabBook->count());
+            m_tabBook->setCurrentIndex(index);
         }
 
         void TabBook::setTabBarHeight(const int height) {
-            GetSizer()->SetItemMinSize(m_tabBar, wxDefaultCoord, height);
-            Layout();
-        }
-
-        void TabBook::OnTabBookPageChanged(wxBookCtrlEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            ProcessEvent(event);
-            event.Skip();
+            m_tabBar->setMinimumSize(0, height);
         }
     }
 }

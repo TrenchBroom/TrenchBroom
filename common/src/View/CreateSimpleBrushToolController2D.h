@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,14 +20,18 @@
 #ifndef TrenchBroom_CreateBrushToolController2D
 #define TrenchBroom_CreateBrushToolController2D
 
+#include "TrenchBroom.h"
 #include "View/ToolController.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace View {
         class CreateSimpleBrushTool;
         class Grid;
-        
+
         class CreateSimpleBrushToolController2D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
             CreateSimpleBrushTool* m_tool;
@@ -38,7 +42,8 @@ namespace TrenchBroom {
             CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, MapDocumentWPtr document);
         private:
             Tool* doGetTool() override;
-            
+            const Tool* doGetTool() const override;
+
             DragInfo doStartDrag(const InputState& inputState) override;
             DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override;
             void doEndDrag(const InputState& inputState) override;
@@ -46,7 +51,7 @@ namespace TrenchBroom {
 
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
-            
+
             bool doCancel() override;
         private:
             bool updateBounds(const InputState& inputState, const vm::vec3& currentPoint);

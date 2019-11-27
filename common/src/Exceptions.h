@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,114 +22,93 @@
 
 #include <exception>
 #include <string>
-#include <sstream>
 
 class Exception : public std::exception {
 protected:
     std::string m_msg;
 public:
-    Exception() noexcept {}
+    Exception() noexcept;
+    explicit Exception(std::string&& str) noexcept;
 
-    explicit Exception(std::string str) noexcept :
-            m_msg(std::move(str)) {}
-    
-    const char* what() const noexcept override {
-        return m_msg.c_str();
-    }
+    const char* what() const noexcept override;
 };
 
-template <class C>
-class ExceptionStream : public Exception {
+class GeometryException : public Exception {
 public:
-    ExceptionStream() noexcept {}
-
-    explicit ExceptionStream(std::string str) noexcept :
-            Exception(std::move(str)) {}
-
-    template <typename T>
-    C& operator<< (T value) {
-        std::stringstream stream;
-        stream << m_msg << value;
-        m_msg = stream.str();
-        return static_cast<C&>(*this);
-    }
+    using Exception::Exception;
 };
 
-class GeometryException : public ExceptionStream<GeometryException> {
+class EntityAttributeException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
 };
 
-class EntityAttributeException : public ExceptionStream<EntityAttributeException> {
+class ParserException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
+    ParserException(size_t line, size_t column, const std::string& str = "");
+    explicit ParserException(size_t line, const std::string& str = "");
+private:
+    static std::string buildMessage(size_t line, size_t column, const std::string& str);
+    static std::string buildMessage(size_t line, const std::string& str);
 };
 
-class ParserException : public ExceptionStream<ParserException> {
+class VboException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
-    ParserException(const size_t line, const size_t column, const std::string& str = "") noexcept : ExceptionStream() {
-        if (!str.empty())
-            *this << str << " ";
-        *this << "[line " << line << ", column " << column << "]";
-    }
+    using Exception::Exception;
 };
 
-class VboException : public ExceptionStream<VboException> {
+class PathException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
 };
 
-class PathException : public ExceptionStream<PathException> {
+class FileSystemException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
+    FileSystemException(const std::string& str, const PathException& e);
 };
 
-class FileSystemException : public ExceptionStream<FileSystemException> {
+class FileNotFoundException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
-    FileSystemException(const std::string& str, const PathException& e) noexcept : ExceptionStream(str + " (" + e.what() + ")") {}
+    using Exception::Exception;
+    FileNotFoundException(const std::string& path);
+    FileNotFoundException(const std::string& path, const PathException& e);
 };
 
-class FileNotFoundException : public ExceptionStream<FileNotFoundException> {
+class AssetException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
-    FileNotFoundException(const std::string& str, const PathException& e) noexcept : ExceptionStream(str + " (" + e.what() + ")") {}
+    using Exception::Exception;
 };
 
-class AssetException : public ExceptionStream<AssetException> {
+class CommandProcessorException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
 };
 
-class CommandProcessorException : public ExceptionStream<CommandProcessorException> {
+class RenderException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
 };
 
-class RenderException : public ExceptionStream<RenderException> {
+class NodeTreeException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
 };
 
-class NodeTreeException : public ExceptionStream<NodeTreeException> {
+class GameException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
 };
 
-class GameException : public ExceptionStream<GameException> {
+class ResourceNotFoundException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
 };
 
-class ResourceNotFoundException : public ExceptionStream<ResourceNotFoundException> {
+class FileFormatException : public Exception {
 public:
-    using ExceptionStream::ExceptionStream;
-};
-
-class FileFormatException : public ExceptionStream<FileFormatException> {
-public:
-    using ExceptionStream::ExceptionStream;
+    using Exception::Exception;
 };
 
 #endif

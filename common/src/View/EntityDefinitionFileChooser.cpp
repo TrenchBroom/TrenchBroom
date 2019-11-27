@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,126 +21,114 @@
 
 #include "CollectionUtils.h"
 #include "Notifier.h"
+#include "SharedPointer.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/Path.h"
+#include "IO/PathQt.h"
 #include "Model/Game.h"
-#include "Model/GameFactory.h"
 #include "View/BorderLine.h"
-#include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
+#include "View/QtUtils.h"
 
-#include <wx/button.h>
-#include <wx/filedlg.h>
-#include <wx/listbox.h>
-#include <wx/settings.h>
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-
-#include <cassert>
+#include <QPushButton>
+#include <QListWidget>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QFileDialog>
+#include <QDebug>
 
 namespace TrenchBroom {
     namespace View {
-        EntityDefinitionFileChooser::EntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
+        // SingleSelectionListWidget
+
+        SingleSelectionListWidget::SingleSelectionListWidget(QWidget* parent) :
+        QListWidget(parent),
+        m_allowDeselectAll(true) {}
+
+        void SingleSelectionListWidget::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
+            QListWidget::selectionChanged(selected, deselected);
+
+            if (!m_allowDeselectAll) {
+                if (selectedIndexes().isEmpty() && !deselected.isEmpty()) {
+                    // reselect the items that were just deselected
+                    selectionModel()->select(deselected, QItemSelectionModel::Select);
+                }
+            }
+        }
+
+        void SingleSelectionListWidget::setAllowDeselectAll(bool allow) {
+            m_allowDeselectAll = allow;
+        }
+
+        bool SingleSelectionListWidget::allowDeselectAll() const {
+            return m_allowDeselectAll;
+        }
+
+        // EntityDefinitionFileChooser
+
+        EntityDefinitionFileChooser::EntityDefinitionFileChooser(MapDocumentWPtr document, QWidget* parent) :
+        QWidget(parent),
         m_document(document) {
             createGui();
             bindEvents();
             bindObservers();
         }
-        
+
         EntityDefinitionFileChooser::~EntityDefinitionFileChooser() {
             unbindObservers();
         }
 
-        void EntityDefinitionFileChooser::OnBuiltinSelectionChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            assert(m_builtin->GetSelection() != wxNOT_FOUND);
-
-            MapDocumentSPtr document = lock(m_document);
-
-            Assets::EntityDefinitionFileSpec::List specs = document->allEntityDefinitionFiles();
-            VectorUtils::sort(specs);
-            
-            const size_t index = static_cast<size_t>(m_builtin->GetSelection());
-            ensure(index < specs.size(), "index out of range");
-            const Assets::EntityDefinitionFileSpec& spec = specs[index];
-            
-            document->setEntityDefinitionFile(spec);
-        }
-        
-        void EntityDefinitionFileChooser::OnChooseExternalClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            const wxString pathWxStr = ::wxFileSelector("Load Entity Definition File",
-                                                        wxEmptyString, wxEmptyString, wxEmptyString,
-                                                        "Worldcraft / Hammer files (*.fgd)|*.fgd|QuakeC files (*.def)|*.def",
-                                                        wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-            if (pathWxStr.empty())
-                return;
-            
-            loadEntityDefinitionFile(m_document, this, pathWxStr);
-        }
-
-        void EntityDefinitionFileChooser::OnReloadExternalClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            MapDocumentSPtr document = lock(m_document);
-            const Assets::EntityDefinitionFileSpec& spec = document->entityDefinitionFile();
-            document->setEntityDefinitionFile(spec);
-        }
-        
-        void EntityDefinitionFileChooser::OnUpdateReloadExternal(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            event.Enable(lock(m_document)->entityDefinitionFile().external());
-        }
-
         void EntityDefinitionFileChooser::createGui() {
-            TitledPanel* builtinContainer = new TitledPanel(this, "Builtin", false);
-            builtinContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            m_builtin = new wxListBox(builtinContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxBORDER_NONE);
-            
-            wxSizer* builtinSizer = new wxBoxSizer(wxVERTICAL);
-            builtinSizer->Add(m_builtin, 1, wxEXPAND);
-            
-            builtinContainer->getPanel()->SetSizer(builtinSizer);
-            
-            TitledPanel* externalContainer = new TitledPanel(this, "External", false);
-            m_external = new wxStaticText(externalContainer->getPanel(), wxID_ANY, "use builtin", wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
-            m_chooseExternal = new wxButton(externalContainer->getPanel(), wxID_ANY, "Browse...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-            m_chooseExternal->SetToolTip("Click to browse for an entity definition file");
-            m_reloadExternal = new wxButton(externalContainer->getPanel(), wxID_ANY, "Reload", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-            m_reloadExternal->SetToolTip("Reload the currently loaded entity definition file");
+            TitledPanel* builtinContainer = new TitledPanel(tr("Builtin"), false, false);
+            //builtinContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
+            m_builtin = new SingleSelectionListWidget(); //builtinContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxBORDER_NONE);
+            m_builtin->setAllowDeselectAll(false);
 
-            wxSizer* externalSizer = new wxBoxSizer(wxHORIZONTAL);
-            externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            externalSizer->Add(m_external, 1, wxEXPAND | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            externalSizer->Add(m_chooseExternal, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            externalSizer->Add(m_reloadExternal, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            
-            externalContainer->getPanel()->SetSizer(externalSizer);
-            
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(builtinContainer, 1, wxEXPAND);
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->Add(externalContainer, 0, wxEXPAND);
-            sizer->SetItemMinSize(m_builtin, 100, 70);
-            
-            SetSizerAndFit(sizer);
+            auto* builtinSizer = new QVBoxLayout();
+            builtinSizer->setContentsMargins(0, 0, 0, 0);
+            builtinSizer->addWidget(m_builtin, 1);
+
+            builtinContainer->getPanel()->setLayout(builtinSizer);
+
+            TitledPanel* externalContainer = new TitledPanel(tr("External"), false, false);
+            m_external = new QLabel(tr("use builtin"));
+            m_chooseExternal = new QPushButton(tr("Browse..."));
+            m_chooseExternal->setToolTip(tr("Click to browse for an entity definition file"));
+            m_reloadExternal = new QPushButton(tr("Reload"));
+            m_reloadExternal->setToolTip(tr("Reload the currently loaded entity definition file"));
+
+            auto* externalSizer = new QHBoxLayout();
+            //externalSizer->addSpacing(LayoutConstants::NarrowHMargin);
+            externalSizer->addWidget(m_external, 1);//, wxEXPAND | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            //externalSizer->addSpacing(LayoutConstants::NarrowHMargin);
+            externalSizer->addWidget(m_chooseExternal, 0);//, Qt::AlignVCenter | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            //externalSizer->addSpacing(LayoutConstants::NarrowHMargin);
+            externalSizer->addWidget(m_reloadExternal, 0);//, Qt::AlignVCenter | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            //externalSizer->addSpacing(LayoutConstants::NarrowHMargin);
+
+            externalContainer->getPanel()->setLayout(externalSizer);
+
+            auto* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->setSpacing(0);
+            sizer->addWidget(builtinContainer, 1);
+            sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
+            sizer->addWidget(externalContainer, 0);
+            m_builtin->setMinimumSize(100, 70);
+
+            setLayout(sizer);
         }
-        
+
         void EntityDefinitionFileChooser::bindEvents() {
-            m_builtin->Bind(wxEVT_LISTBOX, &EntityDefinitionFileChooser::OnBuiltinSelectionChanged, this);
-            m_chooseExternal->Bind(wxEVT_BUTTON, &EntityDefinitionFileChooser::OnChooseExternalClicked, this);
-            m_reloadExternal->Bind(wxEVT_BUTTON, &EntityDefinitionFileChooser::OnReloadExternalClicked, this);
-            m_reloadExternal->Bind(wxEVT_UPDATE_UI, &EntityDefinitionFileChooser::OnUpdateReloadExternal, this);
+            connect(m_builtin, &QListWidget::itemSelectionChanged, this,
+                &EntityDefinitionFileChooser::builtinSelectionChanged);
+            connect(m_chooseExternal, &QAbstractButton::clicked, this,
+                &EntityDefinitionFileChooser::chooseExternalClicked);
+            connect(m_reloadExternal, &QAbstractButton::clicked, this,
+                &EntityDefinitionFileChooser::reloadExternalClicked);
         }
 
         void EntityDefinitionFileChooser::bindObservers() {
@@ -149,7 +137,7 @@ namespace TrenchBroom {
             document->documentWasLoadedNotifier.addObserver(this, &EntityDefinitionFileChooser::documentWasLoaded);
             document->entityDefinitionsDidChangeNotifier.addObserver(this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
         }
-        
+
         void EntityDefinitionFileChooser::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
@@ -158,51 +146,106 @@ namespace TrenchBroom {
                 document->entityDefinitionsDidChangeNotifier.removeObserver(this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
             }
         }
-        
-        void EntityDefinitionFileChooser::documentWasNewed(MapDocument* document) {
+
+        void EntityDefinitionFileChooser::documentWasNewed(MapDocument*) {
             updateControls();
         }
-        
-        void EntityDefinitionFileChooser::documentWasLoaded(MapDocument* document) {
+
+        void EntityDefinitionFileChooser::documentWasLoaded(MapDocument*) {
             updateControls();
         }
-        
+
         void EntityDefinitionFileChooser::entityDefinitionsDidChange() {
             updateControls();
         }
 
         void EntityDefinitionFileChooser::updateControls() {
-            m_builtin->Clear();
-            
-            MapDocumentSPtr document = lock(m_document);
-            Assets::EntityDefinitionFileSpec::List specs = document->allEntityDefinitionFiles();
+            m_builtin->setAllowDeselectAll(true);
+            m_builtin->clear();
+            m_builtin->setAllowDeselectAll(false);
+
+            auto document = lock(m_document);
+            auto specs = document->allEntityDefinitionFiles();
             VectorUtils::sort(specs);
-            
-            for (const Assets::EntityDefinitionFileSpec& spec : specs) {
-                const IO::Path& path = spec.path();
-                m_builtin->Append(path.lastComponent().asString());
+
+            for (const auto& spec : specs) {
+                const auto& path = spec.path();
+
+                auto* item = new QListWidgetItem();
+                item->setData(Qt::DisplayRole, IO::pathAsQString(path.lastComponent()));
+                item->setData(Qt::UserRole, QVariant::fromValue(spec));
+
+                m_builtin->addItem(item);
             }
-            
+
             const Assets::EntityDefinitionFileSpec spec = document->entityDefinitionFile();
             if (spec.builtin()) {
-                const size_t index = VectorUtils::indexOf(specs, spec);
-                if (index < specs.size())
-                    m_builtin->SetSelection(static_cast<int>(index));
-                m_external->SetLabel("use builtin");
-                m_external->SetForegroundColour(Colors::disabledText());
-                
-                wxFont font = m_external->GetFont();
-                font.SetStyle(wxFONTSTYLE_ITALIC);
-                m_external->SetFont(font);
-            } else {
-                m_builtin->DeselectAll();
-                m_external->SetLabel(spec.path().asString());
-                m_external->SetForegroundColour(*wxBLACK);
+                const auto index = VectorUtils::indexOf(specs, spec);
+                if (index < specs.size()) {
+                    // the chosen builtin entity definition file might not be in the game config anymore if the config
+                    // has changed after the definition file was chosen
+                    m_builtin->setCurrentRow(static_cast<int>(index));
+                }
+                m_external->setText(tr("use builtin"));
 
-                wxFont font = m_external->GetFont();
-                font.SetStyle(wxFONTSTYLE_NORMAL);
-                m_external->SetFont(font);
+                QPalette lightText;
+                lightText.setColor(QPalette::WindowText, Colors::disabledText());
+                m_external->setPalette(lightText);
+
+                QFont font = m_external->font();
+                font.setStyle(QFont::StyleOblique);
+                m_external->setFont(font);
+            } else {
+                m_builtin->clearSelection();
+                m_external->setText(IO::pathAsQString(spec.path()));
+
+                QPalette normalPal;
+                m_external->setPalette(normalPal);
+
+                QFont font = m_external->font();
+                font.setStyle(QFont::StyleNormal);
+                m_external->setFont(font);
             }
+
+            m_reloadExternal->setEnabled(document->entityDefinitionFile().external());
+        }
+
+        void EntityDefinitionFileChooser::builtinSelectionChanged() {
+            if (m_builtin->selectedItems().isEmpty()) {
+                return;
+            }
+
+            QListWidgetItem* item = m_builtin->selectedItems().first();
+            auto spec = item->data(Qt::UserRole).value<Assets::EntityDefinitionFileSpec>();
+
+            MapDocumentSPtr document = lock(m_document);
+            if (document->entityDefinitionFile() == spec) {
+                return;
+            }
+
+            document->setEntityDefinitionFile(spec);
+        }
+
+        void EntityDefinitionFileChooser::chooseExternalClicked() {
+            const QString fileName = QFileDialog::getOpenFileName(nullptr,
+                tr("Load Entity Definition File"),
+                fileDialogDefaultDirectory(FileDialogDir::EntityDefinition),
+                "All supported entity definition files (*.fgd *.def *.ent);;"
+                "Worldcraft / Hammer files (*.fgd);;"
+                "QuakeC files (*.def);;"
+                "Radiant XML files (*.ent)");
+
+            if (fileName.isEmpty())
+                return;
+
+            updateFileDialogDefaultDirectoryWithFilename(FileDialogDir::EntityDefinition, fileName);
+            loadEntityDefinitionFile(m_document, this, fileName);
+        }
+
+        void EntityDefinitionFileChooser::reloadExternalClicked() {
+            MapDocumentSPtr document = lock(m_document);
+            const Assets::EntityDefinitionFileSpec& spec = document->entityDefinitionFile();
+            document->setEntityDefinitionFile(spec);
         }
     }
 }

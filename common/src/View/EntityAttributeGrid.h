@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,87 +20,68 @@
 #ifndef TrenchBroom_EntityAttributeGrid
 #define TrenchBroom_EntityAttributeGrid
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/ViewTypes.h"
 
-#include <wx/grid.h>
-#include <wx/panel.h>
+#include <set>
+#include <vector>
 
-class wxButton;
-class wxCheckBox;
-class wxWindow;
+#include <QWidget>
+
+class QTableView;
+class QCheckBox;
+class QAbstractButton;
+class QShortcut;
+class QSortFilterProxyModel;
 
 namespace TrenchBroom {
     namespace View {
-        class EntityAttributeGridTable;
+        class EntityAttributeModel;
+        class EntityAttributeTable;
         class Selection;
-        
-        class EntityAttributeGrid : public wxPanel {
+
+        /**
+         * Panel with the entity attribute table, and the toolbar below it (add/remove icons,
+         * "show default properties" checkbox, etc.)
+         */
+        class EntityAttributeGrid : public QWidget {
+            Q_OBJECT
         private:
             MapDocumentWPtr m_document;
-            
-            EntityAttributeGridTable* m_table;
-            wxGrid* m_grid;
-            wxGridCellCoords m_lastHoveredCell;
-            
-            bool m_ignoreSelection;
-            Model::AttributeName m_lastSelectedName;
-            int m_lastSelectedCol;
-        public:
-            EntityAttributeGrid(wxWindow* parent, MapDocumentWPtr document);
-            ~EntityAttributeGrid();
-        private:
-            void OnAttributeGridSize(wxSizeEvent& event);
-            void OnAttributeGridSelectCell(wxGridEvent& event);
-            void OnAttributeGridTab(wxGridEvent& event);
-        public:
-            void tabNavigate(int row, int col, bool forward);
-            void setLastSelectedNameAndColumn(const Model::AttributeName& name, const int col);
-        private:
-            void moveCursorTo(int row, int col);
-            void fireSelectionEvent(int row, int col);
-        private:
-            void OnAttributeGridKeyDown(wxKeyEvent& event);
-            void OnAttributeGridKeyUp(wxKeyEvent& event);
-            bool isInsertRowShortcut(const wxKeyEvent& event) const;
-            bool isRemoveRowShortcut(const wxKeyEvent& event) const;
-            bool isOpenCellEditorShortcut(const wxKeyEvent& event) const;
-        private:
-            void OnAttributeGridMouseMove(wxMouseEvent& event);
 
-            void OnUpdateAttributeView(wxUpdateUIEvent& event);
-
-            void OnAddAttributeButton(wxCommandEvent& event);
-            void OnRemovePropertiesButton(wxCommandEvent& event);
-            
+            EntityAttributeModel* m_model;
+            QSortFilterProxyModel* m_proxyModel;
+            EntityAttributeTable* m_table;
+            QAbstractButton* m_addAttributeButton;
+            QAbstractButton* m_removePropertiesButton;
+            QCheckBox* m_showDefaultPropertiesCheckBox;
+        public:
+            explicit EntityAttributeGrid(MapDocumentWPtr document, QWidget* parent = nullptr);
+            ~EntityAttributeGrid() override;
+        private:
             void addAttribute();
             void removeSelectedAttributes();
-            void removeAttribute(const String& key);
-            
-            void OnShowDefaultPropertiesCheckBox(wxCommandEvent& event);
-            void OnUpdateAddAttributeButton(wxUpdateUIEvent& event);
-            void OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event);
-            void OnUpdateShowDefaultPropertiesCheckBox(wxUpdateUIEvent& event);
 
             bool canRemoveSelectedAttributes() const;
             std::set<int> selectedRowsAndCursorRow() const;
         private:
             void createGui(MapDocumentWPtr document);
-            
+
             void bindObservers();
             void unbindObservers();
-            
+
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void selectionWillChange();
             void selectionDidChange(const Selection& selection);
+            void entityDefinitionsOrModsDidChange();
         private:
             void updateControls();
         public:
-            wxGrid* gridWindow() const;
-        public:
             Model::AttributeName selectedRowName() const;
+        signals:
+            void selectedRow();
         };
     }
 }

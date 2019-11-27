@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,45 +23,32 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapViewContainer::MapViewContainer(wxWindow* parent) :
-        wxPanel(parent),
+        MapViewContainer::MapViewContainer(QWidget* parent) :
+        QWidget(parent),
         MapView() {}
-        
+
         MapViewContainer::~MapViewContainer() {}
 
         bool MapViewContainer::canMaximizeCurrentView() const {
             return doCanMaximizeCurrentView();
         }
-        
+
         bool MapViewContainer::currentViewMaximized() const {
             return doCurrentViewMaximized();
         }
-        
+
         void MapViewContainer::toggleMaximizeCurrentView() {
             doToggleMaximizeCurrentView();
         }
 
-        bool MapViewContainer::doCanFlipObjects() const {
-            MapView* current = currentMapView();
-            if (current == nullptr)
-                return false;
-            return current->canFlipObjects();
-        }
-        
-        void MapViewContainer::doFlipObjects(const vm::direction direction) {
-            MapView* current = currentMapView();
-            ensure(current != nullptr, "current is nullptr");
-            current->flipObjects(direction);
+        MapView* MapViewContainer::currentMapView() const {
+            return doGetCurrentMapView();
         }
 
         vm::vec3 MapViewContainer::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
             MapView* current = currentMapView();
             ensure(current != nullptr, "current is nullptr");
             return current->pasteObjectsDelta(bounds, referenceBounds);
-        }
-
-        MapView* MapViewContainer::currentMapView() const {
-            return doGetCurrentMapView();
         }
     }
 }

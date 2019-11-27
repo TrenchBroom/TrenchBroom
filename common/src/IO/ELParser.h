@@ -20,12 +20,9 @@
 #ifndef ELParser_h
 #define ELParser_h
 
-#include "EL.h"
 #include "IO/Parser.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
-
-#include <list>
 
 #ifdef _MSC_VER
 #include <cstdint>
@@ -34,10 +31,15 @@
 #endif
 
 namespace TrenchBroom {
+    namespace EL {
+        class Expression;
+        class ExpressionBase;
+    }
+
     namespace IO {
         namespace ELToken {
-            typedef uint64_t Type;
-            static const Type Variable              = Type(1) <<  1;
+            using Type = uint64_t;
+            static const Type Name              = Type(1) <<  1;
             static const Type String                = Type(1) <<  2;
             static const Type Number                = Type(1) <<  3;
             static const Type Boolean               = Type(1) <<  4;
@@ -77,7 +79,7 @@ namespace TrenchBroom {
             static const Type Eof                   = Type(1) << 38;
             static const Type Literal               = String | Number | Boolean | Null;
             static const Type UnaryOperator         = Addition | Subtraction | LogicalNegation | BitwiseNegation;
-            static const Type SimpleTerm            = Variable | Literal | OParen | OBracket | OBrace | UnaryOperator;
+            static const Type SimpleTerm            = Name | Literal | OParen | OBracket | OBrace | UnaryOperator;
             static const Type CompoundTerm          = Addition | Subtraction | Multiplication | Division | Modulus | LogicalAnd | LogicalOr | Less | LessOrEqual | Equal | Inequal | GreaterOrEqual | Greater | Case | BitwiseAnd | BitwiseXor | BitwiseOr | BitwiseShiftLeft | BitwiseShiftRight;
         }
 
@@ -107,7 +109,7 @@ namespace TrenchBroom {
         protected:
             ELParser::Mode m_mode;
             ELTokenizer m_tokenizer;
-            typedef ELTokenizer::Token Token;
+            using Token = ELTokenizer::Token;
         public:
             ELParser(ELParser::Mode mode, const char* begin, const char* end);
             ELParser(ELParser::Mode mode, const String& str);

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,7 +23,7 @@
 #include "Macros.h"
 #include "TrenchBroom.h"
 #include "Notifier.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -44,47 +44,58 @@ namespace TrenchBroom {
             bool m_snap;
             bool m_visible;
         public:
-            Notifier0 gridDidChangeNotifier;
+            Notifier<> gridDidChangeNotifier;
         public:
-            explicit Grid(const int size);
-            
+            explicit Grid(int size);
+
+            static FloatType actualSize(int size);
+
             int size() const;
-            void setSize(const int size);
+            void setSize(int size);
             void incSize();
             void decSize();
             FloatType actualSize() const;
             FloatType angle() const;
-        
+
             bool visible() const;
             void toggleVisible();
-            
+
             bool snap() const;
             void toggleSnap();
-            
+
             template <typename T>
             T snapAngle(const T a) const {
-                if (!snap())
+                return snapAngle(a, angle());
+            }
+
+            template <typename T>
+            T snapAngle(const T a, const T snapAngle) const {
+                if (!snap()) {
                     return a;
-                return angle() * vm::round(a / angle());
+                } else {
+                    return snapAngle * vm::round(a / snapAngle);
+                }
             }
         public: // Snap scalars.
             template <typename T>
             T snap(const T f) const {
                 return snap(f, SnapDir_None);
             }
-            
+
             template <typename T>
             T offset(const T f) const {
-                if (!snap())
+                if (!snap()) {
                     return static_cast<T>(0.0);
-                return f - snap(f);
+                } else {
+                    return f - snap(f);
+                }
             }
-            
+
             template <typename T>
             T snapUp(const T f, const bool skip) const {
                 return snap(f, SnapDir_Up, skip);
             }
-            
+
             template <typename T>
             T snapDown(const T f, const bool skip) const {
                 return snap(f, SnapDir_Down, skip);
@@ -95,11 +106,12 @@ namespace TrenchBroom {
                 SnapDir_Up,
                 SnapDir_Down
             } SnapDir;
-            
+
             template <typename T>
             T snap(const T f, const SnapDir snapDir, const bool skip = false) const {
-                if (!snap())
+                if (!snap()) {
                     return f;
+                }
 
                 const T actSize = static_cast<T>(actualSize());
                 switch (snapDir) {
@@ -107,13 +119,13 @@ namespace TrenchBroom {
                         return vm::snap(f, actSize);
                     case SnapDir_Up: {
                         const T s = actSize * std::ceil(f / actSize);
-                        return (skip && vm::isEqual(s, f)) ? s + static_cast<T>(actualSize()) : s;
+                        return (skip && vm::is_equal(s, f, vm::constants<T>::almost_zero())) ? s + static_cast<T>(actualSize()) : s;
                     }
                     case SnapDir_Down: {
                         const T s = actSize * std::floor(f / actSize);
-                        return (skip && vm::isEqual(s, f)) ? s - static_cast<T>(actualSize()) : s;
+                        return (skip && vm::is_equal(s, f, vm::constants<T>::almost_zero())) ? s - static_cast<T>(actualSize()) : s;
                     }
-					switchDefault()
+                    switchDefault()
                 }
             }
         public: // Snap vectors.
@@ -121,19 +133,21 @@ namespace TrenchBroom {
             vm::vec<T,S> snap(const vm::vec<T,S>& p) const {
                 return snap(p, SnapDir_None);
             }
-            
+
             template <typename T, size_t S>
             vm::vec<T,S> offset(const vm::vec<T,S>& p) const {
-                if (!snap())
-                    return vm::vec<T,S>::zero;
-                return p - snap(p);
+                if (!snap()) {
+                    return vm::vec<T, S>::zero();
+                } else {
+                    return p - snap(p);
+                }
             }
-            
+
             template <typename T, size_t S>
             vm::vec<T,S> snapUp(const vm::vec<T,S>& p, const bool skip = false) const {
                 return snap(p, SnapDir_Up, skip);
             }
-            
+
             template <typename T, size_t S>
             vm::vec<T,S> snapDown(const vm::vec<T,S>& p, const bool skip = false) const {
                 return snap(p, SnapDir_Down, skip);
@@ -158,9 +172,9 @@ namespace TrenchBroom {
                 }
                 vm::vec3 result;
                 for (size_t i = 0; i < S; ++i) {
-                    if (vm::isPositive(d[i])) {
+                    if (d[i] > T(0.0)) {
                         result[i] = snapUp(p[i], skip);
-                    } else if(vm::isNegative(d[i])) {
+                    } else if(d[i] < T(0.0)) {
                         result[i] = snapDown(p[i], skip);
                     } else {
                         result[i] = snap(p[i]);
@@ -173,12 +187,12 @@ namespace TrenchBroom {
             vm::vec<T,3> snap(const vm::vec<T,3>& p, const vm::plane<T,3>& onPlane) const {
                 return snap(p, onPlane, SnapDir_None, false);
             }
-            
+
             template <typename T>
             vm::vec<T,3> snapUp(const vm::vec<T,3>& p, const vm::plane<T,3>& onPlane, const bool skip = false) const {
                 return snap(p, onPlane, SnapDir_Up, skip);
             }
-            
+
             template <typename T>
             vm::vec<T,3> snapDown(const vm::vec<T,3>& p, const vm::plane<T,3>& onPlane, const bool skip = false) const {
                 return snap(p, onPlane, SnapDir_Down, skip);
@@ -186,7 +200,7 @@ namespace TrenchBroom {
 
             template <typename T, size_t S>
             vm::vec<T,S> snapTowards(const vm::vec<T,S>& p, const vm::plane<T,3>& onPlane, const vm::vec<T,S>& d, const bool skip = false) const {
-                
+
                 SnapDir snapDirs[S];
                 for (size_t i = 0; i < S; ++i) {
                     snapDirs[i] = (d[i] < 0.0 ? SnapDir_Down : (d[i] > 0.0 ? SnapDir_Up : SnapDir_None));
@@ -204,12 +218,12 @@ namespace TrenchBroom {
 
                 return snap(p, onPlane, snapDirs, skip);
             }
-            
+
             template <typename T, size_t S>
             vm::vec<T,S> snap(const vm::vec<T,S>& p, const vm::plane<T,3>& onPlane, const SnapDir snapDirs[], const bool skip = false) const {
-                
+
                 vm::vec<T,3> result;
-                switch(firstComponent(onPlane.normal)) {
+                switch(vm::find_abs_max_component(onPlane.normal)) {
                     case vm::axis::x:
                         result[1] = snap(p.y(), snapDirs[1], skip);
                         result[2] = snap(p.z(), snapDirs[2], skip);
@@ -234,9 +248,9 @@ namespace TrenchBroom {
             template <typename T>
             vm::vec<T,3> snap(const vm::vec<T,3>& p, const vm::line<T,3> line) const {
                 // Project the point onto the line.
-                const auto pr = line.projectPoint(p);
-                const auto prDist = line.distanceToProjectedPoint(pr);
-                
+                const auto pr = vm::project_point(line, p);
+                const auto prDist = vm::distance_to_projected_point(line, pr);
+
                 auto result = pr;
                 auto bestDiff = std::numeric_limits<T>::max();
                 for (size_t i = 0; i < 3; ++i) {
@@ -244,84 +258,84 @@ namespace TrenchBroom {
                         const std::array<T,2> v = { {snapDown(pr[i], false) - line.point[i], snapUp(pr[i], false) - line.point[i]} };
                         for (size_t j = 0; j < 2; ++j) {
                             const auto s = v[j] / line.direction[i];
-                            const auto diff = vm::absDifference(s, prDist);
+                            const auto diff = vm::abs_difference(s, prDist);
                             if (diff < bestDiff) {
-                                result = line.pointAtDistance(s);
+                                result = vm::point_at_distance(line, s);
                                 bestDiff = diff;
                             }
                         }
                     }
                 }
-                
+
                 return result;
             }
-            
+
             template <typename T>
             vm::vec<T,3> snap(const vm::vec<T,3>& p, const vm::segment<T,3> edge) const {
                 const auto v = edge.end() - edge.start();
                 const auto len = length(v);
-                
+
                 const auto orig = edge.start();
                 const auto dir = v / len;
-                
+
                 const auto snapped = snap(p, vm::line<T,3>(orig, dir));
-                const auto dist = dot(dir, snapped - orig);
+                const auto dist = vm::dot(dir, snapped - orig);
 
                 if (dist < 0.0 || dist > len) {
-                    return vm::vec<T,3>::NaN;
+                    return vm::vec<T,3>::nan();
                 } else {
                     return snapped;
                 }
             }
-            
+
             template <typename T>
             vm::vec<T,3> snap(const vm::vec<T,3>& p, const vm::polygon<T,3>& polygon, const vm::vec<T,3>& normal) const {
                 ensure(polygon.vertexCount() >= 3, "polygon has too few vertices");
-                
+
                 const auto plane = vm::plane<T,3>(polygon.vertices().front(), normal);
                 auto ps = snap(p, plane);
-                auto err = squaredLength(p - ps);
+                auto err = vm::squared_length(p - ps);
 
-                if (!vm::contains(ps, plane.normal, std::begin(polygon), std::end(polygon))) {
-                    ps = vm::vec<T,3>::NaN;
+                if (!vm::polygon_contains_point(ps, plane.normal, std::begin(polygon), std::end(polygon))) {
+                    ps = vm::vec<T,3>::nan();
                     err = std::numeric_limits<T>::max();
                 }
-                
+
                 auto last = std::begin(polygon);
                 auto cur = std::next(last);
                 auto end = std::end(polygon);
-                
+
                 while (cur != end) {
                     const auto cand = snap(p, vm::segment<T,3>(*last, *cur));
-                    if (!isNaN(cand)) {
-                        const auto cerr = squaredLength(p - cand);
+                    if (!vm::is_nan(cand)) {
+                        const auto cerr = vm::squared_length(p - cand);
                         if (cerr < err) {
                             err = cerr;
                             ps = cand;
                         }
                     }
-                    
+
                     last = cur;
                     ++cur;
                 }
-                
+
                 return ps;
             }
         public:
             FloatType intersectWithRay(const vm::ray3& ray, const size_t skip) const;
-            
+
             /**
              * Returns a copy of `delta` that snaps the result to grid, if the grid snapping moves the result in the same direction as delta (tested on each axis).
              * Otherwise, returns the original point for that axis.
              */
-            vm::vec3 moveDeltaForPoint(const vm::vec3& point, const vm::bbox3& worldBounds, const vm::vec3& delta) const;
+            vm::vec3 moveDeltaForPoint(const vm::vec3& point, const vm::vec3& delta) const;
             /**
              * Returns a delta to `bounds.mins` which moves the box to point where `ray` impacts `dragPlane`, grid snapped.
              * The box is positioned so it is in front of `dragPlane`.
              */
-            vm::vec3 moveDeltaForBounds(const vm::plane3& dragPlane, const vm::bbox3& bounds, const vm::bbox3& worldBounds, const vm::ray3& ray, const vm::vec3& position) const;
-            vm::vec3 moveDelta(const vm::bbox3& bounds, const vm::bbox3& worldBounds, const vm::vec3& delta) const;
-            vm::vec3 moveDelta(const vm::vec3& point, const vm::bbox3& worldBounds, const vm::vec3& delta) const;
+            vm::vec3 moveDeltaForBounds(const vm::plane3& dragPlane, const vm::bbox3& bounds, const vm::bbox3& worldBounds, const vm::ray3& ray) const;
+            vm::vec3 moveDelta(const vm::bbox3& bounds, const vm::vec3& delta) const;
+            vm::vec3 moveDelta(const vm::vec3& point, const vm::vec3& delta) const;
             vm::vec3 moveDelta(const vm::vec3& delta) const;
             /**
              * Given `delta`, a vector in the direction of the face's normal,

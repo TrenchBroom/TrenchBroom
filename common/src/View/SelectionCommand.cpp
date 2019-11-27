@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,10 +22,7 @@
 #include "Macros.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/EditorContext.h"
 #include "Model/Entity.h"
-#include "Model/Group.h"
-#include "Model/NodeVisitor.h"
 #include "Model/World.h"
 #include "View/MapDocumentCommandFacade.h"
 
@@ -33,59 +30,59 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SelectionCommand::Type = Command::freeType();
 
-        SelectionCommand::Ptr SelectionCommand::select(const Model::NodeList& nodes) {
-            return Ptr(new SelectionCommand(Action_SelectNodes, nodes, Model::EmptyBrushFaceList));
-        }
-        
-        SelectionCommand::Ptr SelectionCommand::select(const Model::BrushFaceList& faces) {
-            return Ptr(new SelectionCommand(Action_SelectFaces, Model::EmptyNodeList, faces));
-        }
-        
-        SelectionCommand::Ptr SelectionCommand::convertToFaces() {
-            return Ptr(new SelectionCommand(Action_ConvertToFaces, Model::EmptyNodeList, Model::EmptyBrushFaceList));
-        }
-        
-        SelectionCommand::Ptr SelectionCommand::selectAllNodes() {
-            return Ptr(new SelectionCommand(Action_SelectAllNodes, Model::EmptyNodeList, Model::EmptyBrushFaceList));
-        }
-        
-        SelectionCommand::Ptr SelectionCommand::selectAllFaces() {
-            return Ptr(new SelectionCommand(Action_SelectAllFaces, Model::EmptyNodeList, Model::EmptyBrushFaceList));
-        }
-        
-        SelectionCommand::Ptr SelectionCommand::deselect(const Model::NodeList& nodes) {
-            return Ptr(new SelectionCommand(Action_DeselectNodes, nodes, Model::EmptyBrushFaceList));
-        }
-        
-        SelectionCommand::Ptr SelectionCommand::deselect(const Model::BrushFaceList& faces) {
-            return Ptr(new SelectionCommand(Action_DeselectFaces, Model::EmptyNodeList, faces));
-        }
-        
-        SelectionCommand::Ptr SelectionCommand::deselectAll() {
-            return Ptr(new SelectionCommand(Action_DeselectAll, Model::EmptyNodeList, Model::EmptyBrushFaceList));
+        SelectionCommand::Ptr SelectionCommand::select(const std::vector<Model::Node*>& nodes) {
+            return Ptr(new SelectionCommand(Action_SelectNodes, nodes, {}));
         }
 
-        static Model::BrushFaceReference::List faceRefs(const Model::BrushFaceList& faces) {
+        SelectionCommand::Ptr SelectionCommand::select(const std::vector<Model::BrushFace*>& faces) {
+            return Ptr(new SelectionCommand(Action_SelectFaces, {}, faces));
+        }
+
+        SelectionCommand::Ptr SelectionCommand::convertToFaces() {
+            return Ptr(new SelectionCommand(Action_ConvertToFaces, {}, {}));
+        }
+
+        SelectionCommand::Ptr SelectionCommand::selectAllNodes() {
+            return Ptr(new SelectionCommand(Action_SelectAllNodes, {}, {}));
+        }
+
+        SelectionCommand::Ptr SelectionCommand::selectAllFaces() {
+            return Ptr(new SelectionCommand(Action_SelectAllFaces, {}, {}));
+        }
+
+        SelectionCommand::Ptr SelectionCommand::deselect(const std::vector<Model::Node*>& nodes) {
+            return Ptr(new SelectionCommand(Action_DeselectNodes, nodes, {}));
+        }
+
+        SelectionCommand::Ptr SelectionCommand::deselect(const std::vector<Model::BrushFace*>& faces) {
+            return Ptr(new SelectionCommand(Action_DeselectFaces, {}, faces));
+        }
+
+        SelectionCommand::Ptr SelectionCommand::deselectAll() {
+            return Ptr(new SelectionCommand(Action_DeselectAll, {}, {}));
+        }
+
+        static Model::BrushFaceReference::List faceRefs(const std::vector<Model::BrushFace*>& faces) {
             Model::BrushFaceReference::List result;
             for (Model::BrushFace* face : faces)
                 result.push_back(Model::BrushFaceReference(face));
             return result;
         }
-        
-        static Model::BrushFaceList resolveFaceRefs(const Model::BrushFaceReference::List& refs) {
-            Model::BrushFaceList result;
+
+        static std::vector<Model::BrushFace*> resolveFaceRefs(const Model::BrushFaceReference::List& refs) {
+            std::vector<Model::BrushFace*> result;
             for (const Model::BrushFaceReference& ref : refs)
                 result.push_back(ref.resolve());
             return result;
         }
-        
-        SelectionCommand::SelectionCommand(const Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces) :
+
+        SelectionCommand::SelectionCommand(const Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces) :
         UndoableCommand(Type, makeName(action, nodes, faces)),
         m_action(action),
         m_nodes(nodes),
         m_faceRefs(faceRefs(faces)) {}
 
-        String SelectionCommand::makeName(const Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces) {
+        String SelectionCommand::makeName(const Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces) {
             StringStream result;
             switch (action) {
                 case Action_SelectNodes:
@@ -119,7 +116,7 @@ namespace TrenchBroom {
         bool SelectionCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_previouslySelectedNodes = document->selectedNodes().nodes();
             m_previouslySelectedFaceRefs = faceRefs(document->selectedBrushFaces());
-            
+
             switch (m_action) {
                 case Action_SelectNodes:
                     document->performSelect(m_nodes);
@@ -148,7 +145,7 @@ namespace TrenchBroom {
             }
             return true;
         }
-        
+
         bool SelectionCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performDeselectAll();
             if (!m_previouslySelectedNodes.empty())
@@ -157,16 +154,16 @@ namespace TrenchBroom {
                 document->performSelect(resolveFaceRefs(m_previouslySelectedFaceRefs));
             return true;
         }
-        
+
         bool SelectionCommand::doIsRepeatDelimiter() const {
             return true;
         }
-        
-        bool SelectionCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+
+        bool SelectionCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
-        
-        bool SelectionCommand::doCollateWith(UndoableCommand::Ptr command) {
+
+        bool SelectionCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
     }

@@ -21,230 +21,134 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "TemporarilySetAny.h"
 #include "Renderer/Camera.h"
-#include "View/ExecutableEvent.h"
-#include "View/KeyboardShortcut.h"
 
 #include <vecmath/vec.h>
 
-#include <wx/time.h>
-#include <wx/window.h>
-#include <wx/app.h>
-
-#include <array>
+#include <QElapsedTimer>
+#include <QMouseEvent>
 
 namespace TrenchBroom {
     namespace View {
-        class FlyModeHelper::CameraEvent : public ExecutableEvent::Executable {
-        private:
-            FlyModeHelper& m_helper;
-            Renderer::Camera& m_camera;
-            vm::vec3f m_moveDelta;
-            vm::vec2f m_rotateAngles;
-        public:
-            CameraEvent(FlyModeHelper& helper, Renderer::Camera& camera) :
-            m_helper(helper),
-            m_camera(camera) {}
+        static qint64 msecsSinceReference() {
+            QElapsedTimer timer;
+            timer.start();
+            return timer.msecsSinceReference();
+        }
 
-            void setMoveDelta(const vm::vec3f& moveDelta) {
-                m_moveDelta = moveDelta;
-            }
-
-            void setRotateAngles(const vm::vec2f& rotateAngles) {
-                m_rotateAngles = rotateAngles;
-            }
-        private:
-            void execute() override {
-                m_camera.moveBy(m_moveDelta);
-                m_camera.rotate(m_rotateAngles.x(), m_rotateAngles.y());
-                m_helper.resetMouse();
-            }
-        };
-
-        FlyModeHelper::FlyModeHelper(wxWindow* window, Renderer::Camera& camera) :
-        m_window(window),
+        FlyModeHelper::FlyModeHelper(Renderer::Camera& camera) :
         m_camera(camera),
-        m_enabled(false),
-        m_ignoreMotionEvents(false) {
-            resetKeys();
-            m_lastPollTime = ::wxGetLocalTimeMillis();
+        m_forward(false),
+        m_backward(false),
+        m_left(false),
+        m_right(false),
+        m_up(false),
+        m_down(false),
+        m_lastPollTime(msecsSinceReference()) {}
 
-            Run();
+        void FlyModeHelper::pollAndUpdate() {
+            const auto currentTime = msecsSinceReference();
+            const auto time = float(currentTime - m_lastPollTime);
+            m_lastPollTime = currentTime;
+
+            if (anyKeyDown()) {
+                const auto delta = moveDelta(time);
+                if (!vm::is_zero(delta, vm::Cf::almost_zero())) {
+                    m_camera.moveBy(delta);
+                }
+            }
         }
 
-        FlyModeHelper::~FlyModeHelper() {
-            /* Since the window is already deleted when this destructor is called, we omit the cleanup.
-            if (enabled())
-                disable();
-             */
+        static bool eventMatchesShortcut(const QKeySequence& shortcut, QKeyEvent* event) {
+            if (shortcut.isEmpty()) {
+                return false;
+            }
+
+            // NOTE: For triggering fly mode we only support single keys.
+            // e.g. you can't bind Shift+W to fly forward, only Shift or W.
+            const int ourKey = shortcut[0];
+            const int theirKey = event->key();
+            return ourKey == theirKey;
         }
 
-        void FlyModeHelper::enable() {
-            wxCriticalSectionLocker lock(m_critical);
-            assert(!enabled());
-            lockMouse();
-            m_enabled = true;
-        }
+        void FlyModeHelper::keyDown(QKeyEvent* event) {
+            const QKeySequence& forward = pref(Preferences::CameraFlyForward());
+            const QKeySequence& backward = pref(Preferences::CameraFlyBackward());
+            const QKeySequence& left = pref(Preferences::CameraFlyLeft());
+            const QKeySequence& right = pref(Preferences::CameraFlyRight());
+            const QKeySequence& up = pref(Preferences::CameraFlyUp());
+            const QKeySequence& down = pref(Preferences::CameraFlyDown());
 
-        void FlyModeHelper::disable() {
-            wxCriticalSectionLocker lock(m_critical);
-            assert(enabled());
-            unlockMouse();
-            m_enabled = false;
-        }
+            const auto wasAnyKeyDown = anyKeyDown();
 
-        bool FlyModeHelper::enabled() const {
-            return m_enabled;
-        }
-
-        void FlyModeHelper::lockMouse() {
-            m_window->SetCursor(wxCursor(wxCURSOR_BLANK));
-
-            m_originalMousePos = m_window->ScreenToClient(::wxGetMousePosition());
-            m_currentMouseDelta = wxPoint(0,0);
-            m_lastMousePos = m_originalMousePos;
-            resetMouse();
-        }
-
-        void FlyModeHelper::unlockMouse() {
-            m_window->WarpPointer(m_originalMousePos.x, m_originalMousePos.y);
-            m_window->SetCursor(wxNullCursor);
-        }
-
-        bool FlyModeHelper::keyDown(wxKeyEvent& event) {
-            const KeyboardShortcut& forward = pref(Preferences::CameraFlyForward);
-            const KeyboardShortcut& backward = pref(Preferences::CameraFlyBackward);
-            const KeyboardShortcut& left = pref(Preferences::CameraFlyLeft);
-            const KeyboardShortcut& right = pref(Preferences::CameraFlyRight);
-            const KeyboardShortcut& up = pref(Preferences::CameraFlyUp);
-            const KeyboardShortcut& down = pref(Preferences::CameraFlyDown);
-
-            wxCriticalSectionLocker lock(m_critical);
-
-            bool anyMatch = false;
-            if (forward.matchesKeyDown(event)) {
+            if (eventMatchesShortcut(forward, event)) {
                 m_forward = true;
-                anyMatch = true;
             }
-            if (backward.matchesKeyDown(event)) {
+            if (eventMatchesShortcut(backward, event)) {
                 m_backward = true;
-                anyMatch = true;
             }
-            if (left.matchesKeyDown(event)) {
+            if (eventMatchesShortcut(left, event)) {
                 m_left = true;
-                anyMatch = true;
             }
-            if (right.matchesKeyDown(event)) {
+            if (eventMatchesShortcut(right, event)) {
                 m_right = true;
-                anyMatch = true;
             }
-            if (up.matchesKeyDown(event)) {
+            if (eventMatchesShortcut(up, event)) {
                 m_up = true;
-                anyMatch = true;
             }
-            if (down.matchesKeyDown(event)) {
+            if (eventMatchesShortcut(down, event)) {
                 m_down = true;
-                anyMatch = true;
             }
-            return anyMatch;
+
+            if (anyKeyDown() && !wasAnyKeyDown) {
+                // Reset the last polling time, otherwise the view will jump!
+                m_lastPollTime = msecsSinceReference();
+            }
         }
 
-        bool FlyModeHelper::keyUp(wxKeyEvent& event) {
-            const KeyboardShortcut& forward = pref(Preferences::CameraFlyForward);
-            const KeyboardShortcut& backward = pref(Preferences::CameraFlyBackward);
-            const KeyboardShortcut& left = pref(Preferences::CameraFlyLeft);
-            const KeyboardShortcut& right = pref(Preferences::CameraFlyRight);
-            const KeyboardShortcut& up = pref(Preferences::CameraFlyUp);
-            const KeyboardShortcut& down = pref(Preferences::CameraFlyDown);
+        void FlyModeHelper::keyUp(QKeyEvent* event) {
+            const QKeySequence& forward = pref(Preferences::CameraFlyForward());
+            const QKeySequence& backward = pref(Preferences::CameraFlyBackward());
+            const QKeySequence& left = pref(Preferences::CameraFlyLeft());
+            const QKeySequence& right = pref(Preferences::CameraFlyRight());
+            const QKeySequence& up = pref(Preferences::CameraFlyUp());
+            const QKeySequence& down = pref(Preferences::CameraFlyDown());
 
-            wxCriticalSectionLocker lock(m_critical);
+            if (event->isAutoRepeat()) {
+                // If it's an auto-repeat event, exit early without clearing the key down state.
+                // Otherwise, the fake keyUp()/keyDown() calls would introduce movement stutters.
+                return;
+            }
 
-            bool anyMatch = false;
-            if (forward.matchesKeyUp(event)) {
+            if (eventMatchesShortcut(forward, event)) {
                 m_forward = false;
-                anyMatch = true;
             }
-            if (backward.matchesKeyUp(event)) {
+            if (eventMatchesShortcut(backward, event)) {
                 m_backward = false;
-                anyMatch = true;
             }
-            if (left.matchesKeyUp(event)) {
+            if (eventMatchesShortcut(left, event)) {
                 m_left = false;
-                anyMatch = true;
             }
-            if (right.matchesKeyUp(event)) {
+            if (eventMatchesShortcut(right, event)) {
                 m_right = false;
-                anyMatch = true;
             }
-            if (up.matchesKeyUp(event)) {
+            if (eventMatchesShortcut(up, event)) {
                 m_up = false;
-                anyMatch = true;
             }
-            if (down.matchesKeyUp(event)) {
+            if (eventMatchesShortcut(down, event)) {
                 m_down = false;
-                anyMatch = true;
             }
-            return anyMatch;
+        }
+
+        bool FlyModeHelper::anyKeyDown() const {
+            return m_forward || m_backward || m_left || m_right || m_up || m_down;
         }
 
         void FlyModeHelper::resetKeys() {
-            wxCriticalSectionLocker lock(m_critical);
             m_forward = m_backward = m_left = m_right = m_up = m_down = false;
         }
 
-        void FlyModeHelper::motion(wxMouseEvent& event) {
-            wxCriticalSectionLocker lock(m_critical);
-            if (m_enabled && !m_ignoreMotionEvents) {
-                const wxPoint currentMousePos = m_window->ScreenToClient(::wxGetMousePosition());
-                const wxPoint delta = currentMousePos - m_lastMousePos;
-                m_currentMouseDelta += delta;
-                m_lastMousePos = currentMousePos;
-            }
-        }
-
-        void FlyModeHelper::resetMouse() {
-            wxCriticalSectionLocker lock(m_critical);
-            if (m_enabled) {
-                const TemporarilySetBool ignoreMotion(m_ignoreMotionEvents);
-                m_lastMousePos = windowCenter();
-                m_window->WarpPointer(m_lastMousePos.x, m_lastMousePos.y);
-            }
-        }
-
-        wxPoint FlyModeHelper::windowCenter() const {
-            const wxSize size = m_window->GetSize();
-            return wxPoint(size.x / 2, size.y / 2);
-        }
-
-        wxThread::ExitCode FlyModeHelper::Entry() {
-            while (!TestDestroy()) {
-                const vm::vec3f delta = moveDelta();
-                const vm::vec2f angles = lookDelta();
-
-                if (!isZero(delta) || !isZero(angles)) {
-                    if (!TestDestroy() && wxTheApp != nullptr) {
-                        CameraEvent* event = new CameraEvent(*this, m_camera);
-                        event->setMoveDelta(delta);
-                        event->setRotateAngles(angles);
-
-                        ExecutableEvent* executable = new ExecutableEvent(event);
-                        wxTheApp->QueueEvent(executable);
-                    }
-                }
-
-                Sleep(20);
-            }
-            return static_cast<ExitCode>(nullptr);
-        }
-
-        vm::vec3f FlyModeHelper::moveDelta() {
-            wxCriticalSectionLocker lock(m_critical);
-
-            const wxLongLong currentTime = ::wxGetLocalTimeMillis();
-            const float time = static_cast<float>((currentTime - m_lastPollTime).ToLong());
-            m_lastPollTime = currentTime;
-
+        vm::vec3f FlyModeHelper::moveDelta(const float time) {
             const float dist = moveSpeed() * time;
 
             vm::vec3f delta;
@@ -261,34 +165,12 @@ namespace TrenchBroom {
                 delta = delta + m_camera.right() * dist;
             }
             if (m_up) {
-                delta = delta + vm::vec3f::pos_z * dist;
+                delta = delta + vm::vec3f::pos_z() * dist;
             }
             if (m_down) {
-                delta = delta - vm::vec3f::pos_z * dist;
+                delta = delta - vm::vec3f::pos_z() * dist;
             }
             return delta;
-        }
-
-        vm::vec2f FlyModeHelper::lookDelta() {
-            if (!m_enabled)
-                return vm::vec2f::zero;
-
-            wxCriticalSectionLocker lock(m_critical);
-
-            const vm::vec2f speed = lookSpeed();
-            const float hAngle = static_cast<float>(m_currentMouseDelta.x) * speed.x();
-            const float vAngle = static_cast<float>(m_currentMouseDelta.y) * speed.y();
-            m_currentMouseDelta.x = m_currentMouseDelta.y = 0;
-            return vm::vec2f(hAngle, vAngle);
-        }
-
-        vm::vec2f FlyModeHelper::lookSpeed() const {
-            vm::vec2f speed(pref(Preferences::CameraFlyLookSpeed), pref(Preferences::CameraFlyLookSpeed));
-            speed = speed / -50.0f;
-            if (pref(Preferences::CameraFlyInvertV)) {
-                speed[1] *= -1.0f;
-            }
-            return speed;
         }
 
         float FlyModeHelper::moveSpeed() const {

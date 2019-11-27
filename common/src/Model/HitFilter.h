@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,7 +21,6 @@
 #define TrenchBroom_HitFilter
 
 #include "Hit.h"
-#include "SharedPointer.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -32,17 +31,17 @@ namespace TrenchBroom {
         public:
             static HitFilter* always();
             static HitFilter* never();
-            
+
             virtual ~HitFilter();
-            
+
             HitFilter* clone() const;
-            
+
             bool matches(const Hit& hit) const;
         private:
             virtual HitFilter* doClone() const = 0;
             virtual bool doMatches(const Hit& hit) const = 0;
         };
-        
+
         class HitFilterChain : public HitFilter {
         private:
             const HitFilter* m_filter;
@@ -54,7 +53,7 @@ namespace TrenchBroom {
             HitFilter* doClone() const override;
             bool doMatches(const Hit& hit) const override;
         };
-        
+
         class TypedHitFilter : public HitFilter {
         private:
             Hit::HitType m_typeMask;
@@ -70,7 +69,13 @@ namespace TrenchBroom {
             HitFilter* doClone() const override;
             bool doMatches(const Hit& hit) const override;
         };
-        
+
+        class TransitivelySelectedHitFilter : public HitFilter {
+        private:
+            HitFilter* doClone() const override;
+            bool doMatches(const Hit& hit) const override;
+        };
+
         class MinDistanceHitFilter : public HitFilter {
         private:
             FloatType m_minDistance;
@@ -80,7 +85,7 @@ namespace TrenchBroom {
             HitFilter* doClone() const override;
             bool doMatches(const Hit& hit) const override;
         };
-        
+
         class EditorContext;
 
         class ContextHitFilter : public HitFilter {

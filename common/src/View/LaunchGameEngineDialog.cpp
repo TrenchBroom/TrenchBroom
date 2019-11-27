@@ -1,223 +1,222 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "LaunchGameEngineDialog.h"
 
+#include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
+#include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
-#include "View/AutoCompleteTextControl.h"
-#include "View/ELAutoCompleteHelper.h"
 #include "View/BorderLine.h"
 #include "View/CompilationVariables.h"
 #include "View/CurrentGameIndicator.h"
 #include "View/GameEngineDialog.h"
 #include "View/GameEngineProfileListBox.h"
 #include "View/MapDocument.h"
+#include "View/MultiCompletionLineEdit.h"
+#include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
-#include <wx/button.h>
-#include <wx/msgdlg.h>
-#include <wx/panel.h>
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-#include <wx/utils.h>
+#include <QCompleter>
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QMessageBox>
+#include <QProcess>
+#include <QPushButton>
 
 namespace TrenchBroom {
     namespace View {
-        LaunchGameEngineDialog::LaunchGameEngineDialog(wxWindow* parent, MapDocumentWPtr document) :
-        wxDialog(parent, wxID_ANY, "Launch Engine"),
-        m_document(document),
+        LaunchGameEngineDialog::LaunchGameEngineDialog(MapDocumentWPtr document, QWidget* parent) :
+        QDialog(parent),
+        m_document(std::move(document)),
         m_gameEngineList(nullptr),
         m_parameterText(nullptr),
+        m_launchButton(nullptr),
         m_lastProfile(nullptr) {
             createGui();
         }
-        
+
         void LaunchGameEngineDialog::createGui() {
-            setWindowIcon(this);
+            setWindowIconTB(this);
+            setWindowTitle("Launch Engine");
 
-            MapDocumentSPtr document = lock(m_document);
-            const String& gameName = document->game()->gameName();
-            CurrentGameIndicator* gameIndicator = new CurrentGameIndicator(this, gameName);
-            
-            wxPanel* midPanel = new wxPanel(this);
-            
-            Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            const Model::GameConfig& gameConfig = gameFactory.gameConfig(gameName);
-            const Model::GameEngineConfig& gameEngineConfig = gameConfig.gameEngineConfig();
-            m_gameEngineList = new GameEngineProfileListBox(midPanel, gameEngineConfig);
-            m_gameEngineList->SetEmptyText("Click the 'Configure engines...' button to create a game engine profile.");
-            
-            wxStaticText* header = new wxStaticText(midPanel, wxID_ANY, "Launch Engine");
-            header->SetFont(header->GetFont().Larger().Larger().Bold());
-            
-            wxStaticText* message = new wxStaticText(midPanel, wxID_ANY, "Select a game engine from the list on the right and edit the commandline parameters in the text box below. You can use variables to refer to the map name and other values.");
-            message->Wrap(350);
-            
-            wxButton* openPreferencesButton = new wxButton(midPanel, wxID_ANY, "Configure engines...");
-            openPreferencesButton->Bind(wxEVT_BUTTON, &LaunchGameEngineDialog::OnEditGameEnginesButton, this);
-            
-            wxStaticText* parameterLabel = new wxStaticText(midPanel, wxID_ANY, "Parameters");
-            parameterLabel->SetFont(parameterLabel->GetFont().Bold());
-            
-            m_parameterText = new AutoCompleteTextControl(midPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-            m_parameterText->Bind(wxEVT_TEXT_ENTER, &LaunchGameEngineDialog::OnLaunch, this);
-            m_parameterText->Bind(wxEVT_TEXT, &LaunchGameEngineDialog::OnParameterTextChanged, this);
-            m_parameterText->Bind(wxEVT_UPDATE_UI, &LaunchGameEngineDialog::OnUpdateParameterTextUI, this);
-            
-            m_parameterText->SetHelper(new ELAutoCompleteHelper(variables()));
-            
-            wxSizer* midLeftSizer = new wxBoxSizer(wxVERTICAL);
-            midLeftSizer->AddSpacer(20);
-            midLeftSizer->Add(header, wxSizerFlags().Expand());
-            midLeftSizer->AddSpacer(20);
-            midLeftSizer->Add(message, wxSizerFlags().Expand());
-            midLeftSizer->AddSpacer(10);
-            midLeftSizer->Add(openPreferencesButton, wxSizerFlags().CenterHorizontal());
-            midLeftSizer->AddStretchSpacer();
-            midLeftSizer->Add(parameterLabel);
-            midLeftSizer->AddSpacer(LayoutConstants::NarrowVMargin);
-            midLeftSizer->Add(m_parameterText, wxSizerFlags().Expand());
-            midLeftSizer->AddSpacer(20);
-            
-            wxSizer* midSizer = new wxBoxSizer(wxHORIZONTAL);
-            midSizer->AddSpacer(20);
-            midSizer->Add(midLeftSizer, wxSizerFlags().Expand().Proportion(1));
-            midSizer->AddSpacer(20);
-            midSizer->Add(new BorderLine(midPanel, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
-            midSizer->Add(m_gameEngineList, wxSizerFlags().Expand());
-            midSizer->SetItemMinSize(m_gameEngineList, wxSize(250, 280));
-            midPanel->SetSizer(midSizer);
-            
-            wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Cancel");
-            closeButton->Bind(wxEVT_BUTTON, &LaunchGameEngineDialog::OnCloseButton, this);
-            closeButton->Bind(wxEVT_UPDATE_UI, &LaunchGameEngineDialog::OnUpdateCloseButtonUI, this);
+            auto document = lock(m_document);
+            const auto& gameName = document->game()->gameName();
+            auto* gameIndicator = new CurrentGameIndicator(gameName);
 
-            wxButton* launchButton = new wxButton(this, wxID_OK, "Launch");
-            launchButton->Bind(wxEVT_BUTTON, &LaunchGameEngineDialog::OnLaunch, this);
-            launchButton->Bind(wxEVT_UPDATE_UI, &LaunchGameEngineDialog::OnUpdateLaunchButtonUI, this);
-            
-            wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
-            buttonSizer->SetCancelButton(closeButton);
-            buttonSizer->SetAffirmativeButton(launchButton);
-            buttonSizer->Realize();
+            auto* midPanel = new QWidget(this);
 
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(gameIndicator, wxSizerFlags().Expand());
-            outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-            outerSizer->Add(midPanel, wxSizerFlags().Expand().Proportion(1));
-            outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
-            
-            SetSizerAndFit(outerSizer);
+            auto& gameFactory = Model::GameFactory::instance();
+            const auto& gameConfig = gameFactory.gameConfig(gameName);
+            const auto& gameEngineConfig = gameConfig.gameEngineConfig();
+            m_gameEngineList = new GameEngineProfileListBox(gameEngineConfig);
+            m_gameEngineList->setEmptyText("Click the 'Configure engines...' button to create a game engine profile.");
+            m_gameEngineList->setMinimumSize(250, 280);
 
-            m_gameEngineList->Bind(wxEVT_LISTBOX, &LaunchGameEngineDialog::OnSelectGameEngineProfile, this);
-            m_gameEngineList->Bind(wxEVT_LISTBOX_DCLICK, &LaunchGameEngineDialog::OnLaunch, this);
-            Bind(wxEVT_CLOSE_WINDOW, &LaunchGameEngineDialog::OnClose, this);
-            
-            if (m_gameEngineList->GetItemCount() > 0)
-                m_gameEngineList->SetSelection(0);
+            auto* header = new QLabel("Launch Engine");
+            makeHeader(header);
+
+            auto* message = new QLabel("Select a game engine from the list on the right and edit the commandline parameters in the text box below. You can use variables to refer to the map name and other values.");
+            message->setWordWrap(true);
+
+            auto* openPreferencesButton = new QPushButton("Configure engines...");
+
+            auto* parameterLabel = new QLabel("Parameters");
+            makeEmphasized(parameterLabel);
+
+            m_parameterText = new MultiCompletionLineEdit();
+            m_parameterText->setMultiCompleter(new QCompleter(new VariableStoreModel(variables())));
+            m_parameterText->setWordDelimiters(QRegularExpression("\\$"), QRegularExpression("\\}"));
+
+            auto* midLeftLayout = new QVBoxLayout();
+            midLeftLayout->setContentsMargins(0, 0, 0, 0);
+            midLeftLayout->setSpacing(0);
+            midLeftLayout->addSpacing(20);
+            midLeftLayout->addWidget(header);
+            midLeftLayout->addSpacing(20);
+            midLeftLayout->addWidget(message);
+            midLeftLayout->addSpacing(10);
+            midLeftLayout->addWidget(openPreferencesButton, 0, Qt::AlignHCenter);
+            midLeftLayout->addStretch(1);
+            midLeftLayout->addWidget(parameterLabel);
+            midLeftLayout->addSpacing(LayoutConstants::NarrowVMargin);
+            midLeftLayout->addWidget(m_parameterText);
+            midLeftLayout->addSpacing(20);
+
+            auto* midLayout = new QHBoxLayout();
+            midLayout->setContentsMargins(0, 0, 0, 0);
+            midLayout->setSpacing(0);
+            midLayout->addSpacing(20);
+            midLayout->addLayout(midLeftLayout, 1);
+            midLayout->addSpacing(20);
+            midLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical));
+            midLayout->addWidget(m_gameEngineList);
+            midPanel->setLayout(midLayout);
+
+            auto* buttonBox = new QDialogButtonBox();
+            m_launchButton = buttonBox->addButton("Launch", QDialogButtonBox::AcceptRole);
+            auto* closeButton = buttonBox->addButton("Close", QDialogButtonBox::RejectRole);
+
+            auto* outerLayout = new QVBoxLayout();
+            outerLayout->setContentsMargins(0, 0, 0, 0);
+            outerLayout->setSpacing(0);
+            outerLayout->addWidget(gameIndicator);
+            outerLayout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            outerLayout->addWidget(midPanel, 1);
+            outerLayout->addLayout(wrapDialogButtonBox(buttonBox));
+            setLayout(outerLayout);
+
+            m_parameterText->setEnabled(false);
+            m_launchButton->setEnabled(false);
+
+            connect(openPreferencesButton, &QPushButton::clicked, this, &LaunchGameEngineDialog::editGameEngines);
+
+            connect(m_parameterText, &QLineEdit::textChanged, this, &LaunchGameEngineDialog::parametersChanged);
+            connect(m_parameterText, &QLineEdit::returnPressed, this, &LaunchGameEngineDialog::launchEngine);
+
+            connect(m_launchButton, &QPushButton::clicked, this, &LaunchGameEngineDialog::launchEngine);
+            connect(closeButton, &QPushButton::clicked, this, &LaunchGameEngineDialog::close);
+
+            connect(m_gameEngineList, &GameEngineProfileListBox::currentProfileChanged, this,
+                &LaunchGameEngineDialog::gameEngineProfileChanged);
+            connect(m_gameEngineList, &GameEngineProfileListBox::profileSelected, this,
+                &LaunchGameEngineDialog::launchEngine);
+
+            if (m_gameEngineList->count() > 0) {
+                m_gameEngineList->setCurrentRow(0);
+            }
         }
 
         LaunchGameEngineVariables LaunchGameEngineDialog::variables() const {
             return LaunchGameEngineVariables(lock(m_document));
         }
 
-        void LaunchGameEngineDialog::OnSelectGameEngineProfile(wxCommandEvent& event) {
+        void LaunchGameEngineDialog::gameEngineProfileChanged() {
             m_lastProfile = m_gameEngineList->selectedProfile();
             if (m_lastProfile != nullptr) {
-                m_parameterText->ChangeValue(m_lastProfile->parameterSpec());
+                m_parameterText->setText(QString::fromStdString(m_lastProfile->parameterSpec()));
+                m_parameterText->setEnabled(true);
+                m_launchButton->setEnabled(true);
             } else {
-                m_parameterText->ChangeValue("");
+                m_parameterText->setText("");
+                m_parameterText->setEnabled(false);
+                m_launchButton->setEnabled(false);
             }
         }
 
-        void LaunchGameEngineDialog::OnUpdateParameterTextUI(wxUpdateUIEvent& event) {
-            event.Enable(m_gameEngineList->GetSelection() != wxNOT_FOUND);
-        }
-
-        void LaunchGameEngineDialog::OnParameterTextChanged(wxCommandEvent& event) {
+        void LaunchGameEngineDialog::parametersChanged(const QString& text) {
             Model::GameEngineProfile* profile = m_gameEngineList->selectedProfile();
-            if (profile != nullptr)
-                profile->setParameterSpec(m_parameterText->GetValue().ToStdString());
+            if (profile != nullptr) {
+                const auto parameterSpec = text.toStdString();
+                if (profile->parameterSpec() != parameterSpec) {
+                    profile->setParameterSpec(parameterSpec);
+                }
+            }
         }
 
-        void LaunchGameEngineDialog::OnEditGameEnginesButton(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void LaunchGameEngineDialog::editGameEngines() {
+            const bool wasEmpty = m_gameEngineList->count() == 0;
 
-            const bool wasEmpty = m_gameEngineList->GetItemCount() == 0;
-            
-            GameEngineDialog dialog(this, lock(m_document)->game()->gameName());
-            dialog.ShowModal();
+            GameEngineDialog dialog(lock(m_document)->game()->gameName(), this);
+            dialog.exec();
 
-            if (wasEmpty && m_gameEngineList->GetItemCount() > 0)
-                m_gameEngineList->SetSelection(0);
+            if (wasEmpty && m_gameEngineList->count() > 0) {
+                m_gameEngineList->setCurrentRow(0);
+            }
         }
-        
-        void LaunchGameEngineDialog::OnCloseButton(wxCommandEvent& event) {
-            EndModal(wxCANCEL);
-        }
-        
-        void LaunchGameEngineDialog::OnUpdateCloseButtonUI(wxUpdateUIEvent& event) {
-            event.Enable(true);
-        }
-        
-        void LaunchGameEngineDialog::OnLaunch(wxCommandEvent& event) {
+
+        void LaunchGameEngineDialog::launchEngine() {
             try {
-                const Model::GameEngineProfile* profile = m_gameEngineList->selectedProfile();
+                const auto* profile = m_gameEngineList->selectedProfile();
                 ensure(profile != nullptr, "profile is null");
-                
-                const IO::Path& executablePath = profile->path();
-                const String escapedExecutablePath = "\"" + executablePath.asString() + "\"";
+
+                const auto& executablePath = profile->path();
 
                 const String& parameterSpec = profile->parameterSpec();
-                const String parameters = EL::interpolate(parameterSpec, variables());
+                const String parameters = EL::interpolate(parameterSpec, EL::EvaluationContext(variables()));
 
-                wxString launchStr;
+                QString program;
+                QStringList arguments;
 #ifdef __APPLE__
                 // We have to launch apps via the 'open' command so that we can properly pass parameters.
-                launchStr << "/usr/bin/open" << " " << escapedExecutablePath << " --args " << parameters;
+                program = "/usr/bin/open";
+                arguments.append("-a");
+                arguments.append(IO::pathAsQString(executablePath));
+                arguments.append("--args");
 #else
-                launchStr << escapedExecutablePath << " " << parameters;
+                program = IO::pathAsQString(executablePath);
 #endif
-                
-                wxExecuteEnv env;
-                env.cwd = executablePath.deleteLastComponent().asString();
-                
-                wxExecute(launchStr, wxEXEC_ASYNC, nullptr, &env);
-                EndModal(wxOK);
+                arguments.append(QString::fromStdString(parameters));
+
+                const auto workDir = IO::pathAsQString(executablePath.deleteLastComponent());
+
+                if (!QProcess::startDetached(program, arguments, workDir)) {
+                    throw Exception("Unknown error");
+                }
+                accept();
             } catch (const Exception& e) {
                 StringStream message;
                 message << "Could not launch game engine: " << e.what();
-                ::wxMessageBox(message.str(), "TrenchBroom", wxOK | wxICON_ERROR, this);
+                QMessageBox::critical(this, "TrenchBroom", QString::fromStdString(message.str()), QMessageBox::Ok);
             }
-        }
-        
-        void LaunchGameEngineDialog::OnUpdateLaunchButtonUI(wxUpdateUIEvent& event) {
-            event.Enable(m_gameEngineList->GetSelection() != wxNOT_FOUND);
-        }
-
-        void LaunchGameEngineDialog::OnClose(wxCloseEvent& event) {
-            if (GetParent() != nullptr)
-                GetParent()->Raise();
-            event.Skip();
         }
     }
 }

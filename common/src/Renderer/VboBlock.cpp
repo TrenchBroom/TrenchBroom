@@ -1,23 +1,25 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "VboBlock.h"
+
+#include "Ensure.h"
 
 #include <cassert>
 
@@ -28,7 +30,7 @@ namespace TrenchBroom {
             ensure(m_block != nullptr, "block is null");
             m_block->map();
         }
-        
+
         MapVboBlock::~MapVboBlock() {
             m_block->unmap();
         }
@@ -41,33 +43,33 @@ namespace TrenchBroom {
         m_previous(previous),
         m_next(next),
         m_mapped(false) {}
-        
+
         Vbo& VboBlock::vbo() const {
             return m_vbo;
         }
-        
+
         size_t VboBlock::offset() const {
             return m_offset;
         }
-        
+
         size_t VboBlock::capacity() const {
             return m_capacity;
         }
 
         void VboBlock::free() {
-            m_vbo.freeBlock(this);
+            m_vbo.enqueueBlockForFreeing(this);
         }
-        
+
         bool VboBlock::mapped() const {
             return m_mapped;
         }
-        
+
         void VboBlock::map() {
             assert(!mapped());
             m_mapped = true;
             m_vbo.mapPartially();
         }
-        
+
         void VboBlock::unmap() {
             assert(mapped());
             m_mapped = false;
@@ -77,34 +79,34 @@ namespace TrenchBroom {
         VboBlock* VboBlock::previous() const {
             return m_previous;
         }
-        
+
         void VboBlock::setPrevious(VboBlock* previous) {
             m_previous = previous;
         }
-        
+
         VboBlock* VboBlock::next() const {
             return m_next;
         }
-        
+
         void VboBlock::setNext(VboBlock* next) {
             m_next = next;
         }
-        
+
         bool VboBlock::isFree() const {
             return m_free;
         }
-        
+
         void VboBlock::setFree(const bool free) {
             m_free = free;
         }
-        
+
         void VboBlock::setCapacity(const size_t capacity) {
             m_capacity = capacity;
         }
 
         VboBlock* VboBlock::mergeWithSuccessor() {
             ensure(m_next != nullptr, "next is null");
-            
+
             VboBlock* next = m_next;
             VboBlock* nextNext = next->next();
             m_next = nextNext;
@@ -118,12 +120,12 @@ namespace TrenchBroom {
             assert(m_capacity > capacity);
             const size_t remainderCapacity = m_capacity - capacity;
             m_capacity = capacity;
-            
+
             VboBlock* remainder = createSuccessor(remainderCapacity);
             remainder->setFree(m_free);
             return remainder;
         }
-        
+
         VboBlock* VboBlock::createSuccessor(const size_t capacity) {
             VboBlock* successor = new VboBlock(m_vbo, m_offset + m_capacity, capacity, this, m_next);
             if (m_next != nullptr)

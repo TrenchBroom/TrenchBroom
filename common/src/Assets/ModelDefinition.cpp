@@ -1,28 +1,32 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "ModelDefinition.h"
 
+#include "StringUtils.h"
+#include "EL/ELExceptions.h"
+#include "EL/EvaluationContext.h"
+#include "EL/Types.h"
+#include "EL/Value.h"
 #include "Model/EntityAttributesVariableStore.h"
 
-#include <cassert>
-#include <cmath>
+#include <vecmath/scalar.h>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -71,10 +75,9 @@ namespace TrenchBroom {
             return 0;
         }
 
-        const String ModelSpecification::asString() const {
-            StringStream str;
-            str << path.asString() << ":" << skinIndex << ":" << frameIndex;
-            return str.str();
+        std::ostream& operator<<(std::ostream& stream, const ModelSpecification& spec) {
+            stream << spec.path << ":" << spec.skinIndex << ":" << spec.frameIndex;
+            return stream;
         }
 
         ModelDefinition::ModelDefinition() :
@@ -115,18 +118,18 @@ namespace TrenchBroom {
 
         ModelSpecification ModelDefinition::convertToModel(const EL::Value& value) const {
             switch (value.type()) {
-                case EL::Type_Map:
+                case EL::ValueType::Map:
                     return ModelSpecification( path(value["path"]),
                                               index(value["skin"]),
                                               index(value["frame"]));
-                case EL::Type_String:
+                case EL::ValueType::String:
                     return ModelSpecification(path(value));
-                case EL::Type_Boolean:
-                case EL::Type_Number:
-                case EL::Type_Array:
-                case EL::Type_Range:
-                case EL::Type_Null:
-                case EL::Type_Undefined:
+                case EL::ValueType::Boolean:
+                case EL::ValueType::Number:
+                case EL::ValueType::Array:
+                case EL::ValueType::Range:
+                case EL::ValueType::Null:
+                case EL::ValueType::Undefined:
                     break;
             }
 
@@ -134,17 +137,17 @@ namespace TrenchBroom {
         }
 
         IO::Path ModelDefinition::path(const EL::Value& value) const {
-            if (value.type() != EL::Type_String)
+            if (value.type() != EL::ValueType::String)
                 return IO::Path();
             const String& path = value.stringValue();
             return IO::Path(StringUtils::isPrefix(path, ":") ? path.substr(1) : path);
         }
 
         size_t ModelDefinition::index(const EL::Value& value) const {
-            if (!value.convertibleTo(EL::Type_Number))
+            if (!value.convertibleTo(EL::ValueType::Number))
                 return 0;
-            const EL::IntegerType intValue = value.convertTo(EL::Type_Number).integerValue();
-            return static_cast<size_t>(std::max(0l, intValue));
+            const EL::IntegerType intValue = value.convertTo(EL::ValueType::Number).integerValue();
+            return static_cast<size_t>(vm::max(0l, intValue));
         }
     }
 }

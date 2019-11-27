@@ -1,27 +1,30 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "HitQuery.h"
 
+#include "Constants.h"
 #include "Model/EditorContext.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
+
+#include <vecmath/scalar.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -30,13 +33,13 @@ namespace TrenchBroom {
         m_editorContext(&editorContext),
         m_include(HitFilter::always()),
         m_exclude(HitFilter::never()) {}
-        
+
         HitQuery::HitQuery(const Hit::List& hits) :
         m_hits(&hits),
         m_editorContext(nullptr),
         m_include(HitFilter::always()),
         m_exclude(HitFilter::never()) {}
-        
+
         HitQuery::HitQuery(const HitQuery& other) :
         m_hits(other.m_hits),
         m_editorContext(other.m_editorContext),
@@ -47,13 +50,13 @@ namespace TrenchBroom {
             delete m_include;
             delete m_exclude;
         }
-        
+
         HitQuery& HitQuery::operator=(HitQuery other) {
             using std::swap;
             swap(*this, other);
             return *this;
         }
-        
+
         void swap(HitQuery& lhs, HitQuery& rhs) {
             using std::swap;
             swap(lhs.m_hits, rhs.m_hits);
@@ -63,8 +66,9 @@ namespace TrenchBroom {
         }
 
         HitQuery& HitQuery::pickable() {
-            if (m_editorContext != nullptr)
+            if (m_editorContext != nullptr) {
                 m_include = new HitFilterChain(new ContextHitFilter(*m_editorContext), m_include);
+            }
             return *this;
         }
 
@@ -72,18 +76,23 @@ namespace TrenchBroom {
             m_include = new HitFilterChain(new TypedHitFilter(type), m_include);
             return *this;
         }
-        
+
         HitQuery& HitQuery::occluded(const Hit::HitType type) {
             delete m_exclude;
             m_exclude = new TypedHitFilter(type);
             return *this;
         }
-        
+
         HitQuery& HitQuery::selected() {
             m_include = new HitFilterChain(new Model::SelectionHitFilter(), m_include);
             return *this;
         }
-        
+
+        HitQuery& HitQuery::transitivelySelected() {
+            m_include = new HitFilterChain(new Model::TransitivelySelectedHitFilter(), m_include);
+            return *this;
+        }
+
         HitQuery& HitQuery::minDistance(const FloatType minDistance) {
             m_include = new HitFilterChain(new Model::MinDistanceHitFilter(minDistance), m_include);
             return *this;
@@ -100,14 +109,14 @@ namespace TrenchBroom {
                 Hit::List::const_iterator bestMatch = end;
                 FloatType bestMatchError = std::numeric_limits<FloatType>::max();
                 FloatType bestOccluderError = std::numeric_limits<FloatType>::max();
-                
+
                 bool containsOccluder = false;
                 while (it != end && !containsOccluder) {
                     if (!visible(*it)) { // Don't consider hidden objects during picking at all.
                         ++it;
                         continue;
                     }
-                    
+
                     const FloatType distance = it->distance();
                     do {
                         const Hit& hit = *it;
@@ -117,19 +126,19 @@ namespace TrenchBroom {
                                 bestMatchError = hit.error();
                             }
                         } else if (!m_exclude->matches(hit)) {
-                            bestOccluderError = std::min(bestOccluderError, hit.error());
+                            bestOccluderError = vm::min(bestOccluderError, hit.error());
                             containsOccluder = true;
                         }
                         ++it;
-                    } while (it != end && vm::isEqual(it->distance(), distance));
+                    } while (it != end && vm::is_equal(it->distance(), distance, vm::C::almost_zero()));
                 }
-                
+
                 if (bestMatch != end && bestMatchError <= bestOccluderError)
                     return *bestMatch;
             }
             return Hit::NoHit;
         }
-        
+
         Hit::List HitQuery::all() const {
             Hit::List result;
             for (const Hit& hit : *m_hits) {

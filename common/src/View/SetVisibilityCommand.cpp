@@ -1,47 +1,48 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "SetVisibilityCommand.h"
 #include "Macros.h"
+#include "Model/VisibilityState.h"
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetVisibilityCommand::Type = Command::freeType();
 
-        SetVisibilityCommand::Ptr SetVisibilityCommand::show(const Model::NodeList& nodes) {
+        SetVisibilityCommand::Ptr SetVisibilityCommand::show(const std::vector<Model::Node*>& nodes) {
             return Ptr(new SetVisibilityCommand(nodes, Action_Show));
         }
-        
-        SetVisibilityCommand::Ptr SetVisibilityCommand::hide(const Model::NodeList& nodes) {
+
+        SetVisibilityCommand::Ptr SetVisibilityCommand::hide(const std::vector<Model::Node*>& nodes) {
             return Ptr(new SetVisibilityCommand(nodes, Action_Hide));
         }
-        
-        SetVisibilityCommand::Ptr SetVisibilityCommand::ensureVisible(const Model::NodeList& nodes) {
+
+        SetVisibilityCommand::Ptr SetVisibilityCommand::ensureVisible(const std::vector<Model::Node*>& nodes) {
             return Ptr(new SetVisibilityCommand(nodes, Action_Ensure));
         }
 
-        SetVisibilityCommand::Ptr SetVisibilityCommand::reset(const Model::NodeList& nodes) {
+        SetVisibilityCommand::Ptr SetVisibilityCommand::reset(const std::vector<Model::Node*>& nodes) {
             return Ptr(new SetVisibilityCommand(nodes, Action_Reset));
         }
 
-        SetVisibilityCommand::SetVisibilityCommand(const Model::NodeList& nodes, const Action action) :
+        SetVisibilityCommand::SetVisibilityCommand(const std::vector<Model::Node*>& nodes, const Action action) :
         UndoableCommand(Type, makeName(action)),
         m_nodes(nodes),
         m_action(action) {}
@@ -59,17 +60,17 @@ namespace TrenchBroom {
                 switchDefault()
             }
         }
-        
+
         bool SetVisibilityCommand::doPerformDo(MapDocumentCommandFacade* document) {
             switch (m_action) {
                 case Action_Reset:
-                    m_oldState = document->setVisibilityState(m_nodes, Model::Visibility_Inherited);
+                    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Visibility_Inherited);
                     break;
                 case Action_Hide:
-                    m_oldState = document->setVisibilityState(m_nodes, Model::Visibility_Hidden);
+                    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Visibility_Hidden);
                     break;
                 case Action_Show:
-                    m_oldState = document->setVisibilityState(m_nodes, Model::Visibility_Shown);
+                    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Visibility_Shown);
                     break;
                 case Action_Ensure:
                     m_oldState = document->setVisibilityEnsured(m_nodes);
@@ -84,11 +85,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SetVisibilityCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool SetVisibilityCommand::doCollateWith(UndoableCommand::Ptr) {
             return false;
         }
 
-        bool SetVisibilityCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool SetVisibilityCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
     }

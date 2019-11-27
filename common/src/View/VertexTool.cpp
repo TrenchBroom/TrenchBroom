@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,16 +24,14 @@
 #include "Preferences.h"
 #include "Model/Brush.h"
 #include "Renderer/RenderBatch.h"
-#include "Renderer/RenderService.h"
 #include "View/Grid.h"
-#include "View/Lasso.h"
 #include "View/MapDocument.h"
-#include "View/VertexCommand.h"
 #include "View/VertexCommand.h"
 
 #include <cassert>
-#include <numeric>
+#include <set>
 #include <tuple>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -42,15 +40,15 @@ namespace TrenchBroom {
         m_mode(Mode_Move),
         m_guideRenderer(document) {}
 
-        Model::BrushSet VertexTool::findIncidentBrushes(const vm::vec3& handle) const {
+        std::set<Model::Brush*> VertexTool::findIncidentBrushes(const vm::vec3& handle) const {
             return findIncidentBrushes(m_vertexHandles, handle);
         }
 
-        Model::BrushSet VertexTool::findIncidentBrushes(const vm::segment3& handle) const {
+        std::set<Model::Brush*> VertexTool::findIncidentBrushes(const vm::segment3& handle) const {
             return findIncidentBrushes(m_edgeHandles, handle);
         }
-        
-        Model::BrushSet VertexTool::findIncidentBrushes(const vm::polygon3& handle) const {
+
+        std::set<Model::Brush*> VertexTool::findIncidentBrushes(const vm::polygon3& handle) const {
             return findIncidentBrushes(m_faceHandles, handle);
         }
 
@@ -74,7 +72,7 @@ namespace TrenchBroom {
         VertexHandleManager& VertexTool::handleManager() {
             return m_vertexHandles;
         }
-        
+
         const VertexHandleManager& VertexTool::handleManager() const {
             return m_vertexHandles;
         }
@@ -104,27 +102,27 @@ namespace TrenchBroom {
                 return true;
             }
         }
-        
+
         VertexTool::MoveResult VertexTool::move(const vm::vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
-            
+
             if (m_mode == Mode_Move) {
                 const auto handles = m_vertexHandles.selectedHandles();
                 const auto brushMap = buildBrushMap(m_vertexHandles, std::begin(handles), std::end(handles));
-                
+
                 const MapDocument::MoveVerticesResult result = document->moveVertices(brushMap, delta);
                 if (result.success) {
-					if (!result.hasRemainingVertices) {
-						return MR_Cancel;
-					} else {
-						m_dragHandlePosition = m_dragHandlePosition + delta;
-						return MR_Continue;
-					}
-				} else {
-					return MR_Deny;
-				}
+                    if (!result.hasRemainingVertices) {
+                        return MR_Cancel;
+                    } else {
+                        m_dragHandlePosition = m_dragHandlePosition + delta;
+                        return MR_Continue;
+                    }
+                } else {
+                    return MR_Deny;
+                }
             } else {
-                Model::BrushSet brushes;
+                std::set<Model::Brush*> brushes;
                 if (m_mode == Mode_Split_Edge) {
                     if (m_edgeHandles.selectedHandleCount() == 1) {
                         const vm::segment3 handle = m_edgeHandles.selectedHandles().front();
@@ -139,7 +137,7 @@ namespace TrenchBroom {
                 }
 
                 if (!brushes.empty()) {
-                    const Model::VertexToBrushesMap vertices { std::make_pair(m_dragHandlePosition + delta, brushes) };
+                    const std::map<vm::vec3, std::set<Model::Brush*>> vertices { std::make_pair(m_dragHandlePosition + delta, brushes) };
                     if (document->addVertices(vertices)) {
                         m_mode = Mode_Move;
                         m_edgeHandles.deselectAll();
@@ -162,7 +160,7 @@ namespace TrenchBroom {
             m_mode = Mode_Move;
         }
         void VertexTool::cancelMove() {
-			VertexToolBase::cancelMove();
+            VertexToolBase::cancelMove();
             m_edgeHandles.deselectAll();
             m_faceHandles.deselectAll();
             m_mode = Mode_Move;
@@ -171,7 +169,7 @@ namespace TrenchBroom {
         const vm::vec3& VertexTool::getHandlePosition(const Model::Hit& hit) const {
             assert(hit.isMatch());
             assert(hit.hasType(VertexHandleManager::HandleHit | EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit));
-            
+
             if (hit.hasType(VertexHandleManager::HandleHit)) {
                 return hit.target<vm::vec3>();
             } else if (hit.hasType(EdgeHandleManager::HandleHit)) {
@@ -180,7 +178,7 @@ namespace TrenchBroom {
                 return std::get<1>(hit.target<FaceHandleManager::HitType>());
             }
         }
-        
+
         String VertexTool::actionName() const {
             switch (m_mode) {
                 case Mode_Move:
@@ -192,63 +190,63 @@ namespace TrenchBroom {
                 switchDefault();
             }
         }
-        
+
         void VertexTool::removeSelection() {
             assert(canRemoveSelection());
-            
+
             const auto handles = m_vertexHandles.selectedHandles();
             const auto brushMap = buildBrushMap(m_vertexHandles, std::begin(handles), std::end(handles));
-            
+
             Transaction transaction(m_document, StringUtils::safePlural(handleManager().selectedHandleCount(), "Remove Vertex", "Remove Vertices"));
             lock(m_document)->removeVertices(brushMap);
         }
 
-        void VertexTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& position) const {
+        void VertexTool::renderGuide(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch, const vm::vec3& position) const {
             m_guideRenderer.setPosition(position);
             m_guideRenderer.setColor(Color(pref(Preferences::HandleColor), 0.5f));
             renderBatch.add(&m_guideRenderer);
         }
-        
+
         bool VertexTool::doActivate() {
             VertexToolBase::doActivate();
-            
+
             m_edgeHandles.clear();
             m_faceHandles.clear();
-            
-            const Model::BrushList& brushes = selectedBrushes();
+
+            const std::vector<Model::Brush*>& brushes = selectedBrushes();
             m_edgeHandles.addHandles(std::begin(brushes), std::end(brushes));
             m_faceHandles.addHandles(std::begin(brushes), std::end(brushes));
-            
+
             m_mode = Mode_Move;
             return true;
         }
-        
+
         bool VertexTool::doDeactivate() {
             VertexToolBase::doDeactivate();
-            
+
             m_edgeHandles.clear();
             m_faceHandles.clear();
             return true;
         }
 
-        void VertexTool::addHandles(const Model::NodeList& nodes) {
+        void VertexTool::addHandles(const std::vector<Model::Node*>& nodes) {
             AddHandles<vm::vec3> addVertexHandles(m_vertexHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), addVertexHandles);
 
             AddHandles<vm::segment3> addEdgeHandles(m_edgeHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), addEdgeHandles);
-            
+
             AddHandles<vm::polygon3> addFaceHandles(m_faceHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), addFaceHandles);
         }
-        
-        void VertexTool::removeHandles(const Model::NodeList& nodes) {
+
+        void VertexTool::removeHandles(const std::vector<Model::Node*>& nodes) {
             RemoveHandles<vm::vec3> removeVertexHandles(m_vertexHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), removeVertexHandles);
-            
+
             RemoveHandles<vm::segment3> removeEdgeHandles(m_edgeHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), removeEdgeHandles);
-            
+
             RemoveHandles<vm::polygon3> removeFaceHandles(m_faceHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), removeFaceHandles);
         }
@@ -258,7 +256,7 @@ namespace TrenchBroom {
             command->addHandles(m_edgeHandles);
             command->addHandles(m_faceHandles);
         }
-        
+
         void VertexTool::removeHandles(VertexCommand* command) {
             command->removeHandles(m_vertexHandles);
             command->removeHandles(m_edgeHandles);

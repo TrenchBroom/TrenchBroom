@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,14 +22,16 @@
 
 #include "AttrString.h"
 #include "Color.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/EdgeRenderer.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class EditorContext;
     }
-    
+
     namespace Renderer {
         class RenderBatch;
         class RenderContext;
@@ -37,10 +39,10 @@ namespace TrenchBroom {
         class GroupRenderer {
         private:
             class GroupNameAnchor;
-            
+
             const Model::EditorContext& m_editorContext;
-            Model::GroupList m_groups;
-            
+            std::vector<Model::Group*> m_groups;
+
             DirectEdgeRenderer m_boundsRenderer;
             bool m_boundsValid;
 
@@ -55,7 +57,7 @@ namespace TrenchBroom {
         public:
             GroupRenderer(const Model::EditorContext& editorContext);
 
-            void setGroups(const Model::GroupList& groups);
+            void setGroups(const std::vector<Model::Group*>& groups);
             void invalidate();
             void clear();
 
@@ -73,7 +75,7 @@ namespace TrenchBroom {
                     ++cur;
                 }
             }
-            
+
             template <typename Iter>
             void removeGroups(Iter cur, const Iter end) {
                 while (cur != end) {
@@ -81,7 +83,7 @@ namespace TrenchBroom {
                     ++cur;
                 }
             }
-            
+
             void setShowOverlays(bool showOverlays);
             void setOverlayTextColor(const Color& overlayTextColor);
             void setOverlayBackgroundColor(const Color& overlayBackgroundColor);
@@ -89,7 +91,7 @@ namespace TrenchBroom {
 
             void setOverrideBoundsColor(bool overrideBoundsColor);
             void setBoundsColor(const Color& boundsColor);
-            
+
             void setShowOccludedBounds(bool showOccludedBounds);
             void setOccludedBoundsColor(const Color& occludedBoundsColor);
         public: // rendering
@@ -97,7 +99,7 @@ namespace TrenchBroom {
         private:
             void renderBounds(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderNames(RenderContext& renderContext, RenderBatch& renderBatch);
-            
+
             struct BuildColoredBoundsVertices;
             struct BuildBoundsVertices;
 

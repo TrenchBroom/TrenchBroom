@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,32 +20,42 @@
 #ifndef TrenchBroom_ReplaceTextureDialog
 #define TrenchBroom_ReplaceTextureDialog
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/ViewTypes.h"
 
-#include <wx/dialog.h>
+#include <vector>
+
+#include <QDialog>
+
+class QPushButton;
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+
     namespace View {
         class GLContextManager;
         class TextureBrowser;
-        
-        class ReplaceTextureDialog : public wxDialog {
+
+        class ReplaceTextureDialog : public QDialog {
+            Q_OBJECT
         private:
             MapDocumentWPtr m_document;
-            
+
             TextureBrowser* m_subjectBrowser;
             TextureBrowser* m_replacementBrowser;
+            QPushButton* m_replaceButton;
         public:
-            ReplaceTextureDialog(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-            
-            void OnReplace(wxCommandEvent& event);
+            ReplaceTextureDialog(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
         private:
-            Model::BrushFaceList getApplicableFaces() const;
-        public:
-            void OnUpdateReplaceButton(wxUpdateUIEvent& event);
-        private:
+            virtual void accept() override;
+            std::vector<Model::BrushFace*> getApplicableFaces() const;
             void createGui(GLContextManager& contextManager);
+        private slots:
+            void subjectSelected(Assets::Texture* subject);
+            void replacementSelected(Assets::Texture* replacement);
+            void updateReplaceButton();
         };
     }
 }

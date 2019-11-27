@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,9 +21,10 @@
 
 #include "IO/SystemPaths.h"
 #include "Model/Game.h"
+#include "VectorUtilsMinimal.h"
 #include "View/MapDocument.h"
 
-#include <wx/thread.h>
+#include <thread>
 
 namespace TrenchBroom {
     namespace View {
@@ -41,11 +42,11 @@ namespace TrenchBroom {
         CommonVariables::CommonVariables(MapDocumentSPtr document) {
             const IO::Path filename = document->path().lastComponent();
             const IO::Path gamePath = document->game()->gamePath();
-            
+
             StringList mods;
             mods.push_back(document->defaultMod());
             VectorUtils::append(mods, document->mods());
- 
+
             using namespace CompilationVariableNames;
             declare(MAP_BASE_NAME, EL::Value(filename.deleteExtension().asString()));
             declare(GAME_DIR_PATH, EL::Value(gamePath.asString()));
@@ -61,19 +62,21 @@ namespace TrenchBroom {
             declare(MAP_FULL_NAME, EL::Value(filename.asString()));
             declare(APP_DIR_PATH, EL::Value(appPath.asString()));
         }
-        
+
         CompilationWorkDirVariables::CompilationWorkDirVariables(MapDocumentSPtr document) :
         CommonCompilationVariables(document) {
             const IO::Path filePath = document->path().deleteLastComponent();
-            
+
             using namespace CompilationVariableNames;
             declare(MAP_DIR_PATH, EL::Value(filePath.asString()));
         }
 
         CompilationVariables::CompilationVariables(MapDocumentSPtr document, const String& workDir) :
         CommonCompilationVariables(document) {
+            const auto cpuCount = static_cast<size_t>(std::max(std::thread::hardware_concurrency(), 1u));
+
             using namespace CompilationVariableNames;
-            declare(CPU_COUNT, EL::Value(wxThread::GetCPUCount()));
+            declare(CPU_COUNT, EL::Value(cpuCount));
             declare(WORK_DIR_PATH, EL::Value(workDir));
         }
 

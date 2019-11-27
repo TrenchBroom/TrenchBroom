@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,55 +20,52 @@
 #ifndef TrenchBroom_ModEditor
 #define TrenchBroom_ModEditor
 
-#include "StringUtils.h"
+#include "StringType.h"
+#include "StringList.h"
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxBitmapButton;
-class wxListBox;
-class wxSearchCtrl;
-class wxWindow;
+class QLineEdit;
+class QListWidget;
+class QWidget;
+class QAbstractButton;
 
 namespace TrenchBroom {
     namespace IO {
         class Path;
     }
-    
+
     namespace Model {
         class Object;
     }
-    
+
     namespace View {
-        class ModEditor : public wxPanel {
+        class ModEditor : public QWidget {
+            Q_OBJECT
         private:
             MapDocumentWPtr m_document;
-            
-            wxListBox* m_availableModList;
-            wxListBox* m_enabledModList;
-            wxSearchCtrl* m_filterBox;
-            
+
+            QListWidget* m_availableModList;
+            QListWidget* m_enabledModList;
+            QLineEdit* m_filterBox;
+            QAbstractButton* m_addModsButton;
+            QAbstractButton* m_removeModsButton;
+            QAbstractButton* m_moveModUpButton;
+            QAbstractButton* m_moveModDownButton;
+
             StringList m_availableMods;
-            bool m_ignoreNotifier;
         public:
-            ModEditor(wxWindow* parent, MapDocumentWPtr document);
-            ~ModEditor();
-            
-            void OnAddModClicked(wxCommandEvent& event);
-            void OnRemoveModClicked(wxCommandEvent& event);
-            void OnMoveModUpClicked(wxCommandEvent& event);
-            void OnMoveModDownClicked(wxCommandEvent& event);
-            void OnUpdateAddButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateRemoveButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event);
-            void OnFilterBoxChanged(wxCommandEvent& event);
+            explicit ModEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
+            ~ModEditor() override;
         private:
             void createGui();
-
+        private slots:
+            void updateButtons();
+        private:
             void bindObservers();
             void unbindObservers();
-            
+
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
             void modsDidChange();
@@ -76,6 +73,16 @@ namespace TrenchBroom {
 
             void updateAvailableMods();
             void updateMods();
+
+            void addModClicked();
+            void removeModClicked();
+            void moveModUpClicked();
+            void moveModDownClicked();
+            bool canEnableAddButton() const;
+            bool canEnableRemoveButton() const;
+            bool canEnableMoveUpButton() const;
+            bool canEnableMoveDownButton() const;
+            void filterBoxChanged();
         };
     }
 }

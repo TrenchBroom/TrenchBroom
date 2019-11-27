@@ -3,23 +3,24 @@
  Copyright (C) 2018 Eric Wasylishen
 
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "ShearObjectsTool.h"
 
+#include "Constants.h"
 #include "TrenchBroom.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
@@ -27,11 +28,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
-#include "Model/CollectMatchingBrushFacesVisitor.h"
-#include "Model/FindMatchingBrushFaceVisitor.h"
-#include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
-#include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
@@ -43,9 +40,7 @@
 #include <vecmath/polygon.h>
 #include <vecmath/intersection.h>
 
-#include <algorithm>
 #include <iterator>
-#include <array>
 
 namespace TrenchBroom {
     namespace View {
@@ -57,9 +52,9 @@ namespace TrenchBroom {
         m_resizing(false),
         m_constrainVertical(false),
         m_dragStartHit(Model::Hit::NoHit) {}
-        
+
         ShearObjectsTool::~ShearObjectsTool() = default;
-        
+
         bool ShearObjectsTool::applies() const {
             MapDocumentSPtr document = lock(m_document);
             return !document->selectedNodes().empty();
@@ -72,8 +67,8 @@ namespace TrenchBroom {
 
                 // The hit point is the closest point on the pick ray to one of the edges of the face.
                 // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
-                assert(result.pickedSideNormal != vm::vec3::zero);
-                pickResult.addHit(Model::Hit(ShearToolSideHit, result.distAlongRay, pickRay.pointAtDistance(result.distAlongRay), BBoxSide{result.pickedSideNormal}));
+                assert(result.pickedSideNormal != vm::vec3::zero());
+                pickResult.addHit(Model::Hit(ShearToolSideHit, result.distAlongRay, vm::point_at_distance(pickRay, result.distAlongRay), BBoxSide{result.pickedSideNormal}));
             }
         }
 
@@ -113,9 +108,9 @@ namespace TrenchBroom {
             for (const auto& side : allSides()) {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
-                const auto dist = vm::intersect(pickRay, poly.begin(), poly.end());
-                if (!vm::isNan(dist)) {
-                    localPickResult.addHit(Model::Hit(ShearToolSideHit, dist, pickRay.pointAtDistance(dist), side));
+                const auto dist = vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly));
+                if (!vm::is_nan(dist)) {
+                    localPickResult.addHit(Model::Hit(ShearToolSideHit, dist, vm::point_at_distance(pickRay, dist), side));
                 }
             }
 
@@ -133,9 +128,9 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             return document->selectionBounds();
         }
-        
+
         // used for rendering
-        
+
         bool ShearObjectsTool::hasDragPolygon() const {
             return dragPolygon().vertexCount() > 0;
         }
@@ -145,7 +140,7 @@ namespace TrenchBroom {
                 const auto side = m_dragStartHit.target<BBoxSide>();
                 return vm::polygon3f(polygonForBBoxSide(bounds(), side));
             }
-                                                            
+
             return vm::polygon3f();
         }
 
@@ -165,7 +160,7 @@ namespace TrenchBroom {
 
             m_bboxAtDragStart = bounds();
             m_dragStartHit = hit;
-            m_dragCumulativeDelta = vm::vec3::zero;
+            m_dragCumulativeDelta = vm::vec3::zero();
 
             MapDocumentSPtr document = lock(m_document);
             document->beginTransaction("Shear Objects");
@@ -176,7 +171,7 @@ namespace TrenchBroom {
             ensure(m_resizing, "must be resizing already");
 
             MapDocumentSPtr document = lock(m_document);
-            if (isZero(m_dragCumulativeDelta)) {
+            if (vm::is_zero(m_dragCumulativeDelta, vm::C::almost_zero())) {
                 document->cancelTransaction();
             } else {
                 document->commitTransaction();
@@ -200,12 +195,9 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
 
-            if (!isZero(delta)) {
+            if (!vm::is_zero(delta, vm::C::almost_zero())) {
                 const BBoxSide side = m_dragStartHit.target<BBoxSide>();
-
-                if (document->shearObjects(bounds(), side.normal, delta)) {
-                    // FIXME: What are we supposed to do if this returns false?
-                }
+                document->shearObjects(bounds(), side.normal, delta);
             }
         }
 
@@ -215,19 +207,16 @@ namespace TrenchBroom {
 
         vm::mat4x4 ShearObjectsTool::bboxShearMatrix() const {
             if (!m_resizing) {
-                return vm::mat4x4::identity;
+                return vm::mat4x4::identity();
             }
 
             // happens if you cmd+drag on an edge or corner
             if (m_dragStartHit.type() != ShearToolSideHit) {
-                return vm::mat4x4::identity;
+                return vm::mat4x4::identity();
             }
-            
+
             const BBoxSide side = m_dragStartHit.target<BBoxSide>();
-            
-            return shearBBoxMatrix(m_bboxAtDragStart,
-                                   side.normal,
-                                   m_dragCumulativeDelta);
+            return vm::shear_bbox_matrix(m_bboxAtDragStart, side.normal, m_dragCumulativeDelta);
         }
 
         vm::polygon3f ShearObjectsTool::shearHandle() const {
@@ -235,11 +224,11 @@ namespace TrenchBroom {
             if (m_dragStartHit.type() != ShearToolSideHit) {
                 return vm::polygon3f();
             }
-            
+
             const BBoxSide side = m_dragStartHit.target<BBoxSide>();
             // use the bboxAtDragStart() function so we get bounds() if we're not currently inside a drag.
             const vm::polygon3 polyAtDragStart = polygonForBBoxSide(bboxAtDragStart(), side);
-            
+
             const vm::polygon3 handle = polyAtDragStart.transform(bboxShearMatrix());
             return vm::polygon3f(handle);
         }

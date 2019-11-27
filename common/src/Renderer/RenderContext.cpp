@@ -1,25 +1,24 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "RenderContext.h"
 #include "Renderer/Camera.h"
-#include "View/MapViewConfig.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -45,11 +44,11 @@ namespace TrenchBroom {
         m_hideSelection(false),
         m_tintSelection(true),
         m_showSelectionGuide(ShowSelectionGuide_Hide) {}
-        
+
         bool RenderContext::render2D() const {
             return m_renderMode == RenderMode_2D;
         }
-        
+
         bool RenderContext::render3D() const {
             return m_renderMode == RenderMode_3D;
         }
@@ -73,7 +72,7 @@ namespace TrenchBroom {
         bool RenderContext::showTextures() const {
             return m_showTextures;
         }
-        
+
         void RenderContext::setShowTextures(const bool showTextures) {
             m_showTextures = showTextures;
         }
@@ -81,7 +80,7 @@ namespace TrenchBroom {
         bool RenderContext::showFaces() const {
             return m_renderMode == RenderMode_3D && m_showFaces;
         }
-        
+
         void RenderContext::setShowFaces(const bool showFaces) {
             m_showFaces = showFaces;
         }
@@ -97,7 +96,7 @@ namespace TrenchBroom {
         bool RenderContext::shadeFaces() const {
             return m_shadeFaces;
         }
-        
+
         void RenderContext::setShadeFaces(const bool shadeFaces) {
             m_shadeFaces = shadeFaces;
         }
@@ -105,7 +104,7 @@ namespace TrenchBroom {
         bool RenderContext::showPointEntities() const {
             return m_showPointEntities;
         }
-        
+
         void RenderContext::setShowPointEntities(const bool showPointEntities) {
             m_showPointEntities = showPointEntities;
         }
@@ -113,7 +112,7 @@ namespace TrenchBroom {
         bool RenderContext::showPointEntityModels() const {
             return m_showPointEntityModels;
         }
-        
+
         void RenderContext::setShowPointEntityModels(const bool showPointEntityModels) {
             m_showPointEntityModels = showPointEntityModels;
         }
@@ -153,7 +152,7 @@ namespace TrenchBroom {
         bool RenderContext::showFog() const {
             return m_showFog;
         }
-       
+
         void RenderContext::setShowFog(const bool showFog) {
             m_showFog = showFog;
         }
@@ -161,15 +160,15 @@ namespace TrenchBroom {
         bool RenderContext::showGrid() const {
             return m_showGrid;
         }
-        
+
         void RenderContext::setShowGrid(const bool showGrid) {
             m_showGrid = showGrid;
         }
-        
+
         FloatType RenderContext::gridSize() const {
             return m_gridSize;
         }
-        
+
         void RenderContext::setGridSize(const FloatType gridSize) {
             m_gridSize = gridSize;
         }
@@ -177,31 +176,31 @@ namespace TrenchBroom {
         bool RenderContext::hideSelection() const {
             return m_hideSelection;
         }
-        
+
         void RenderContext::setHideSelection() {
             m_hideSelection = true;
         }
-        
+
         bool RenderContext::tintSelection() const {
             return m_tintSelection;
         }
-        
+
         void RenderContext::clearTintSelection() {
             m_tintSelection = false;
         }
-        
+
         bool RenderContext::showSelectionGuide() const {
             return m_showSelectionGuide == ShowSelectionGuide_Show || m_showSelectionGuide == ShowSelectionGuide_ForceShow;
         }
-        
+
         void RenderContext::setShowSelectionGuide() {
             setShowSelectionGuide(ShowSelectionGuide_Show);
         }
-        
+
         void RenderContext::setHideSelectionGuide() {
             setShowSelectionGuide(ShowSelectionGuide_Hide);
         }
-        
+
         void RenderContext::setForceShowSelectionGuide() {
             setShowSelectionGuide(ShowSelectionGuide_ForceShow);
         }
@@ -209,7 +208,7 @@ namespace TrenchBroom {
         void RenderContext::setForceHideSelectionGuide() {
             setShowSelectionGuide(ShowSelectionGuide_ForceHide);
         }
-        
+
         void RenderContext::setShowSelectionGuide(const ShowSelectionGuide showSelectionGuide) {
             switch (showSelectionGuide) {
                 case ShowSelectionGuide_Show:

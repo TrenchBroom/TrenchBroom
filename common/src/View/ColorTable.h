@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,34 +20,42 @@
 #ifndef TrenchBroom_ColorTable
 #define TrenchBroom_ColorTable
 
-#include <wx/scrolwin.h>
+#include <QWidget>
+#include <QColor>
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace View {
-        class ColorTable : public wxScrolledWindow {
+        class ColorTable : public QWidget {
+            Q_OBJECT
         public:
-            typedef std::vector<wxColour> ColorList;
+            using ColorList = std::vector<QColor>;
         private:
             int m_cellSize;
-            int m_margin;
+            int m_cellSpacing;
             ColorList m_colors;
             ColorList m_selectedColors;
         public:
-            ColorTable(wxWindow* parent, wxWindowID winId, int cellSize, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxTAB_TRAVERSAL | wxBORDER_NONE);
-            
+            explicit ColorTable(int cellSize, QWidget* parent = nullptr);
+
             void setColors(const ColorList& colors);
             void setSelection(const ColorList& colors);
-            
-            void OnSize(wxSizeEvent& event);
-            void OnPaint(wxPaintEvent& event);
-            void OnMouseUp(wxMouseEvent& event);
+        protected: // QWidget overrides
+            void paintEvent(QPaintEvent* event) override;
+            void mouseReleaseEvent(QMouseEvent* event) override;
+
+        public: // QWidget overrides
+            bool hasHeightForWidth() const override;
+            int heightForWidth(int w) const override;
+
         private:
-            void updateVirtualSize();
             int computeCols(int width) const;
             int computeRows(int cols) const;
             int computeHeight(int rows) const;
+
+        signals:
+            void colorTableSelected(QColor color);
         };
     }
 }

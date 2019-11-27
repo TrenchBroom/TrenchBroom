@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,7 +20,8 @@
 #ifndef BrushRendererArray_h
 #define BrushRendererArray_h
 
-#include "Renderer/VertexSpec.h"
+#include "Ensure.h"
+#include "Renderer/GLVertexType.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/AllocationTracker.h"
 #include "Renderer/GL.h"
@@ -28,7 +29,6 @@
 
 #include <vecmath/vec.h>
 
-#include <algorithm>
 #include <vector>
 #include <cassert>
 #include <unordered_map>
@@ -223,7 +223,10 @@ namespace TrenchBroom {
         public:
             BrushIndexArray();
 
-            bool empty() const;
+            /**
+             * Returns true if there are any valid indices to render. Ranges zeroed by zeroElementsWithKey() do not count.
+             */
+            bool hasValidIndices() const;
 
             /**
              * Call this to request writing the given number of indices.
@@ -267,7 +270,7 @@ namespace TrenchBroom {
 
             bool setupVertices() override {
                 ensure(VboBlockHolder<V>::m_block != nullptr, "block is null");
-                V::Spec::setup(VboBlockHolder<V>::m_block->offset());
+                V::Type::setup(VboBlockHolder<V>::m_block->offset());
                 return true;
             }
 
@@ -276,7 +279,7 @@ namespace TrenchBroom {
             }
 
             void cleanupVertices() override {
-                V::Spec::cleanup();
+                V::Type::cleanup();
             }
 
             static std::shared_ptr<VertexHolder<V>> swap(std::vector<V>& elements) {
@@ -291,7 +294,7 @@ namespace TrenchBroom {
          */
         class BrushVertexArray {
         private:
-            using Vertex = Renderer::VertexSpecs::P3NT2::Vertex;
+            using Vertex = Renderer::GLVertexTypes::P3NT2::Vertex;
 
             VertexHolder<Vertex> m_vertexHolder;
             AllocationTracker m_allocationTracker;

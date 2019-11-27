@@ -1,19 +1,19 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
  Copyright (C) 2018 Eric Wasylishen
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,16 +22,17 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Reference.h"
+#include "SharedPointer.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
-#include "Renderer/VertexSpec.h"
 #include "Renderer/Camera.h"
 #include "View/InputState.h"
 #include "View/ScaleObjectsTool.h"
 #include "View/MapDocument.h"
+
+#include <vecmath/segment.h>
 
 #include <cassert>
 
@@ -39,14 +40,17 @@ namespace TrenchBroom {
     namespace View {
         ScaleObjectsToolController::ScaleObjectsToolController(ScaleObjectsTool* tool, MapDocumentWPtr document) :
         m_tool(tool),
-        m_document(document)
-        {
+        m_document(document) {
             ensure(m_tool != nullptr, "tool is null");
         }
-        
+
         ScaleObjectsToolController::~ScaleObjectsToolController() = default;
-        
+
         Tool* ScaleObjectsToolController::doGetTool() {
+            return m_tool;
+        }
+
+        const Tool* ScaleObjectsToolController::doGetTool() const {
             return m_tool;
         }
 
@@ -89,11 +93,11 @@ namespace TrenchBroom {
             const vm::vec3 initialPoint = [&]() {
                 vm::vec3 p = dragStartHit.hitPoint();
                 restricter->hitPoint(inputState, p);
-                snapper->snap(inputState, vm::vec3::zero, vm::vec3::zero, p);
+                snapper->snap(inputState, vm::vec3::zero(), vm::vec3::zero(), p);
                 return p;
             }();
 
-            return {restricter, snapper, initialPoint};
+            return std::make_tuple(restricter, snapper, initialPoint);
         }
 
         static std::pair<AnchorPos, ProportionalAxes> modifierSettingsForInputState(const InputState& inputState) {
@@ -106,7 +110,7 @@ namespace TrenchBroom {
                 const auto& camera = inputState.camera();
                 if (camera.orthographicProjection()) {
                     // special case for 2D: don't scale along the axis of the camera
-                    const size_t cameraComponent = firstComponent(camera.direction());
+                    const size_t cameraComponent = vm::find_abs_max_component(camera.direction());
                     scaleAllAxes.setAxisProportional(cameraComponent, false);
                 }
             }
@@ -138,7 +142,7 @@ namespace TrenchBroom {
             // Mouse might be over a different handle now
             m_tool->refreshViews();
         }
-        
+
         void ScaleObjectsToolController::doMouseMove(const InputState& inputState) {
             if (handleInput(inputState) && !anyToolDragging(inputState)) {
                 m_tool->updatePickedHandle(inputState.pickResult());
@@ -157,7 +161,7 @@ namespace TrenchBroom {
                 return DragInfo();
             }
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             const Model::PickResult& pickResult = inputState.pickResult();
 
@@ -183,7 +187,7 @@ namespace TrenchBroom {
                             std::get<2>(tuple));
         }
 
-        RestrictedDragPolicy::DragResult ScaleObjectsToolController::doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
+        RestrictedDragPolicy::DragResult ScaleObjectsToolController::doDrag(const InputState&, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
             const auto delta = nextHandlePosition - lastHandlePosition;
             m_tool->scaleByDelta(delta);
 
@@ -201,16 +205,16 @@ namespace TrenchBroom {
             m_tool->cancelScale();
         }
 
-        void ScaleObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+        void ScaleObjectsToolController::doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
             renderContext.setForceHideSelectionGuide();
         }
-        
-        void ScaleObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+
+        void ScaleObjectsToolController::doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             const auto& camera = renderContext.camera();
 
             // bounds and corner handles
 
-            if (!m_tool->bounds().empty())  {
+            if (!m_tool->bounds().is_empty())  {
                 // bounds
                 {
                     Renderer::RenderService renderService(renderContext, renderBatch);
@@ -268,12 +272,12 @@ namespace TrenchBroom {
                 renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
                 renderService.renderPolygonOutline(m_tool->dragSide().vertices());
             }
-            
+
             if (m_tool->hasDragEdge()) {
                 const auto line = m_tool->dragEdge();
 
                 if (camera.orthographicProjection()
-                    && parallel(line.direction(), camera.direction())) {
+                    && vm::is_parallel(line.direction(), camera.direction())) {
                     // for the 2D view, for drag edges that are parallel to the camera,
                     // render the highlight with a ring around the handle
                     Renderer::RenderService renderService(renderContext, renderBatch);
@@ -287,7 +291,7 @@ namespace TrenchBroom {
                     renderService.renderLine(line.start(), line.end());
                 }
             }
-            
+
             if (m_tool->hasDragCorner()) {
                 const auto corner = m_tool->dragCorner();
 
@@ -306,12 +310,12 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         bool ScaleObjectsToolController::doCancel() {
             return false;
         }
-        
-        bool ScaleObjectsToolController::handleInput(const InputState& inputState) const {
+
+        bool ScaleObjectsToolController::handleInput(const InputState&) const {
             return m_tool->applies();
         }
 
@@ -319,7 +323,7 @@ namespace TrenchBroom {
 
         ScaleObjectsToolController2D::ScaleObjectsToolController2D(ScaleObjectsTool* tool, MapDocumentWPtr document) :
         ScaleObjectsToolController(tool, document) {}
-        
+
         void ScaleObjectsToolController2D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
             m_tool->pick2D(pickRay, camera, pickResult);
@@ -329,7 +333,7 @@ namespace TrenchBroom {
 
         ScaleObjectsToolController3D::ScaleObjectsToolController3D(ScaleObjectsTool* tool, MapDocumentWPtr document) :
         ScaleObjectsToolController(tool, document) {}
-        
+
         void ScaleObjectsToolController3D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
             m_tool->pick3D(pickRay, camera, pickResult);

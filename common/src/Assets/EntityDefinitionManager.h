@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,7 +24,7 @@
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <map>
 
@@ -34,26 +34,27 @@ namespace TrenchBroom {
         class ParserStatus;
         class Path;
     }
-    
+
     namespace Assets {
         class EntityDefinitionManager {
         private:
-            typedef std::map<String, EntityDefinition*> Cache;
+            using Cache = std::map<String, EntityDefinition*>;
             EntityDefinitionList m_definitions;
             EntityDefinitionGroup::List m_groups;
             Cache m_cache;
         public:
-            Notifier0 usageCountDidChangeNotifier;
+            Notifier<> usageCountDidChangeNotifier;
         public:
             ~EntityDefinitionManager();
 
             void loadDefinitions(const IO::Path& path, const IO::EntityDefinitionLoader& loader, IO::ParserStatus& status);
             void setDefinitions(const EntityDefinitionList& newDefinitions);
             void clear();
-            
+
             EntityDefinition* definition(const Model::AttributableNode* attributable) const;
             EntityDefinition* definition(const Model::AttributeValue& classname) const;
-            EntityDefinitionList definitions(EntityDefinition::Type type, const EntityDefinition::SortOrder order = EntityDefinition::Name) const;
+            EntityDefinitionList definitions(EntityDefinition::Type type, EntityDefinition::SortOrder order = EntityDefinition::Name) const;
+            const EntityDefinitionList& definitions() const;
 
             const EntityDefinitionGroup::List& groups() const;
         private:

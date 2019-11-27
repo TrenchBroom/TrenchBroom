@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,38 +24,257 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
-#include "Renderer/Circle.h"
-#include "Renderer/Renderable.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
-#include "Renderer/RenderUtils.h"
-#include "Renderer/Shaders.h"
-#include "Renderer/ShaderManager.h"
-#include "Renderer/Transformation.h"
-#include "Renderer/VertexArray.h"
-#include "View/InputState.h"
+#include "StringUtils.h"
 
+#include <vecmath/intersection.h>
+#include <vecmath/mat.h>
 #include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
+#include <vecmath/scalar.h>
 
-#include <cassert>
+#include <tuple>
 
 namespace TrenchBroom {
     namespace View {
         template <typename T>
-        void computeAxes(const vm::vec3& handlePos, const vm::vec<T,3>& cameraPos, vm::vec<T,3>& xAxis, vm::vec<T,3>& yAxis, vm::vec<T,3>& zAxis) {
-            const auto viewDir = vm::vec<T,3>(vm::normalize(vm::vec<T,3>(handlePos) - cameraPos));
-            if (vm::isEqual(std::abs(viewDir.z()), static_cast<T>(1.0))) {
-                xAxis = vm::vec<T,3>::pos_x;
-                yAxis = vm::vec<T,3>::pos_y;
+        std::tuple<vm::vec<T,3>, vm::vec<T,3>, vm::vec<T,3>> computeAxes(const vm::vec3& handlePos, const vm::vec<T,3>& cameraPos) {
+            vm::vec<T,3> xAxis, yAxis, zAxis;
+            const auto viewDir = vm::normalize(vm::vec<T,3>(handlePos) - cameraPos);
+            if (vm::is_equal(std::abs(viewDir.z()), T(1.0), vm::constants<T>::almost_zero())) {
+                xAxis = vm::vec<T,3>::pos_x();
+                yAxis = vm::vec<T,3>::pos_y();
             } else {
-                xAxis = vm::isPositive(viewDir.x()) ? vm::vec<T,3>::neg_x : vm::vec<T,3>::pos_x;
-                yAxis = vm::isPositive(viewDir.y()) ? vm::vec<T,3>::neg_y : vm::vec<T,3>::pos_y;
+                xAxis = viewDir.x() > T(0.0) ? vm::vec<T,3>::neg_x() : vm::vec<T,3>::pos_x();
+                yAxis = viewDir.y() > T(0.0) ? vm::vec<T,3>::neg_y() : vm::vec<T,3>::pos_y();
             }
-            zAxis = vm::isPositive(viewDir.z()) ? vm::vec<T,3>::neg_z : vm::vec<T,3>::pos_z;
+            zAxis = viewDir.z() > T(0.0) ? vm::vec<T,3>::neg_z() : vm::vec<T,3>::pos_z();
+
+            return { xAxis, yAxis, zAxis };
         }
 
         const Model::Hit::HitType RotateObjectsHandle::HandleHit = Model::Hit::freeHitType();
+
+        RotateObjectsHandle::Handle::Handle(const vm::vec3& position) :
+        m_position(position) {}
+
+        RotateObjectsHandle::Handle::~Handle() = default;
+
+        FloatType RotateObjectsHandle::Handle::scalingFactor(const Renderer::Camera& camera) const {
+            return static_cast<FloatType>(camera.perspectiveScalingFactor(vm::vec3f(m_position)));
+        }
+
+        FloatType RotateObjectsHandle::Handle::majorRadius() {
+            return static_cast<FloatType>(pref(Preferences::RotateHandleRadius));
+        }
+
+        FloatType RotateObjectsHandle::Handle::minorRadius() {
+            return static_cast<FloatType>(pref(Preferences::HandleRadius));
+        }
+
+        Model::Hit RotateObjectsHandle::Handle::pickCenterHandle(const vm::ray3& pickRay, const Renderer::Camera& camera) const {
+            const FloatType distance = camera.pickPointHandle(pickRay, m_position, static_cast<FloatType>(pref(Preferences::HandleRadius)));
+            if (vm::is_nan(distance)) {
+                return Model::Hit::NoHit;
+            } else {
+                return Model::Hit(HandleHit, distance, vm::point_at_distance(pickRay, distance), HitArea::HitArea_Center);
+            }
+        }
+
+        Model::Hit RotateObjectsHandle::Handle::pickRotateHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const HitArea area) const {
+            const auto transform = handleTransform(camera, area);
+
+            const auto [invertible, inverse] = vm::invert(transform);
+            if (!invertible) {
+                return Model::Hit::NoHit;
+            }
+
+            if (invertible) {
+                const auto transformedRay = pickRay.transform(inverse);
+                const auto transformedPosition = inverse * m_position;
+                const auto transformedDistance = vm::intersect_ray_torus(transformedRay, transformedPosition, majorRadius(), minorRadius());
+                if (!vm::is_nan(transformedDistance)) {
+                    const auto transformedHitPoint = vm::point_at_distance(transformedRay, transformedDistance);
+                    const auto hitPoint = transform * transformedHitPoint;
+                    const auto distance = vm::dot(hitPoint - pickRay.origin, pickRay.direction);
+                    return Model::Hit(HandleHit, distance, hitPoint, area);
+                }
+            }
+
+            return Model::Hit::NoHit;
+        }
+
+        vm::mat4x4 RotateObjectsHandle::Handle::handleTransform(const Renderer::Camera& camera, const HitArea area) const {
+            const auto scalingFactor = this->scalingFactor(camera);
+            if (scalingFactor <= FloatType(0.0)) {
+                return vm::mat4x4::zero();
+            }
+
+            const auto scalingMatrix = vm::scaling_matrix(vm::vec3(scalingFactor, scalingFactor, scalingFactor));
+            switch (area) {
+                case HitArea::HitArea_XAxis:
+                    return vm::mat4x4::rot_90_y_ccw() * scalingMatrix;
+                case HitArea::HitArea_YAxis:
+                    return vm::mat4x4::rot_90_x_cw() * scalingMatrix;
+                case HitArea::HitArea_ZAxis:
+                case HitArea::HitArea_Center:
+                case HitArea::HitArea_None:
+                    return vm::mat4x4::identity() * scalingMatrix;
+                switchDefault();
+            }
+        }
+
+        Model::Hit RotateObjectsHandle::Handle2D::pick(const vm::ray3& pickRay, const Renderer::Camera& camera) const {
+            switch (vm::find_abs_max_component(camera.direction())) {
+                case vm::axis::x:
+                    return Model::selectClosest(pickCenterHandle(pickRay, camera),
+                                                pickRotateHandle(pickRay, camera, HitArea::HitArea_XAxis));
+                case vm::axis::y:
+                    return Model::selectClosest(pickCenterHandle(pickRay, camera),
+                                                pickRotateHandle(pickRay, camera, HitArea::HitArea_YAxis));
+                default:
+                    return Model::selectClosest(pickCenterHandle(pickRay, camera),
+                                                pickRotateHandle(pickRay, camera, HitArea::HitArea_ZAxis));
+            }
+        }
+
+        void RotateObjectsHandle::Handle2D::renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
+            const auto& camera = renderContext.camera();
+            const auto radius = static_cast<float>(majorRadius() * scalingFactor(renderContext.camera()));
+            if (radius <= 0.0f) {
+                return;
+            }
+
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setShowOccludedObjects();
+
+            renderService.setForegroundColor(pref(Preferences::axisColor(vm::find_abs_max_component(camera.direction()))));
+            renderService.renderCircle(vm::vec3f(m_position), vm::find_abs_max_component(camera.direction()), 64, radius);
+
+            renderService.setForegroundColor(pref(Preferences::HandleColor));
+            renderService.renderHandle(vm::vec3f(m_position));
+        }
+
+        void RotateObjectsHandle::Handle2D::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) const {
+            const auto radius = static_cast<float>(majorRadius() * scalingFactor(renderContext.camera()));
+            if (radius <= 0.0f) {
+                return;
+            }
+
+            const auto& camera = renderContext.camera();
+
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setShowOccludedObjects();
+
+            switch (area) {
+                case HitArea::HitArea_Center:
+                    renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
+                    renderService.renderHandleHighlight(vm::vec3f(m_position));
+                    break;
+                case HitArea::HitArea_XAxis:
+                case HitArea::HitArea_YAxis:
+                case HitArea::HitArea_ZAxis:
+                    renderService.setLineWidth(2.0f);
+                    renderService.setForegroundColor(pref(Preferences::axisColor(vm::find_abs_max_component(camera.direction()))));
+                    renderService.renderCircle(vm::vec3f(m_position), vm::find_abs_max_component(camera.direction()), 64, radius);
+                    break;
+                case HitArea::HitArea_None:
+                    break;
+                switchDefault()
+            }
+        }
+
+        Model::Hit RotateObjectsHandle::Handle3D::pick(const vm::ray3& pickRay, const Renderer::Camera& camera) const {
+            return Model::selectClosest(
+                pickCenterHandle(pickRay, camera),
+                pickRotateHandle(pickRay, camera, HitArea::HitArea_XAxis),
+                pickRotateHandle(pickRay, camera, HitArea::HitArea_YAxis),
+                pickRotateHandle(pickRay, camera, HitArea::HitArea_ZAxis));
+        }
+
+        void RotateObjectsHandle::Handle3D::renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
+            const auto radius = static_cast<float>(majorRadius() * scalingFactor(renderContext.camera()));
+            if (radius <= 0.0f) {
+                return;
+            }
+
+            const auto [xAxis, yAxis, zAxis] = computeAxes(m_position, renderContext.camera().position());
+
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setShowOccludedObjects();
+
+            renderService.renderCoordinateSystem(vm::bbox3f(radius).translate(vm::vec3f(m_position)));
+
+            renderService.setForegroundColor(pref(Preferences::XAxisColor));
+            renderService.renderCircle(vm::vec3f(m_position), vm::axis::x, 64, radius, zAxis, yAxis);
+            renderService.setForegroundColor(pref(Preferences::YAxisColor));
+            renderService.renderCircle(vm::vec3f(m_position), vm::axis::y, 64, radius, xAxis, zAxis);
+            renderService.setForegroundColor(pref(Preferences::ZAxisColor));
+            renderService.renderCircle(vm::vec3f(m_position), vm::axis::z, 64, radius, xAxis, yAxis);
+
+            renderService.setForegroundColor(pref(Preferences::HandleColor));
+            renderService.renderHandle(vm::vec3f(m_position));
+        }
+
+        void RotateObjectsHandle::Handle3D::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) const {
+            const auto radius = static_cast<float>(majorRadius() * scalingFactor(renderContext.camera()));
+            if (radius <= 0.0f) {
+                return;
+            }
+
+            const auto [xAxis, yAxis, zAxis] = computeAxes(m_position, renderContext.camera().position());
+
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setShowOccludedObjects();
+
+            switch (area) {
+                case HitArea::HitArea_Center:
+                    renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
+                    renderService.renderHandleHighlight(vm::vec3f(m_position));
+                    renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
+                    renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
+                    renderService.renderString(StringUtils::toString(m_position), vm::vec3f(m_position));
+                    break;
+                case HitArea::HitArea_XAxis:
+                    renderService.setForegroundColor(pref(Preferences::XAxisColor));
+                    renderService.setLineWidth(2.0f);
+                    renderService.renderCircle(vm::vec3f(m_position), vm::axis::x, 64, radius, zAxis, yAxis);
+                    break;
+                case HitArea::HitArea_YAxis:
+                    renderService.setForegroundColor(pref(Preferences::YAxisColor));
+                    renderService.setLineWidth(2.0f);
+                    renderService.renderCircle(vm::vec3f(m_position), vm::axis::y, 64, radius, xAxis, zAxis);
+                    break;
+                case HitArea::HitArea_ZAxis:
+                    renderService.setForegroundColor(pref(Preferences::ZAxisColor));
+                    renderService.setLineWidth(2.0f);
+                    renderService.renderCircle(vm::vec3f(m_position), vm::axis::z, 64, radius, xAxis, yAxis);
+                    break;
+                case HitArea::HitArea_None:
+                    break;
+                    switchDefault()
+            }
+        }
+
+        Model::Hit RotateObjectsHandle::Handle3D::pickRotateHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const HitArea area) const {
+            const auto hit = Handle::pickRotateHandle(pickRay, camera, area);
+            if (hit.isMatch()) {
+                const auto hitVector = hit.hitPoint() - m_position;
+
+                const auto [xAxis, yAxis, zAxis] = computeAxes(m_position, pickRay.origin);
+                if (vm::dot(hitVector, xAxis) >= 0.0 && vm::dot(hitVector, yAxis) >= 0.0 && vm::dot(hitVector, zAxis) >= 0.0) {
+                    return hit;
+                }
+            }
+
+            return Model::Hit::NoHit;
+        }
+
+        RotateObjectsHandle::RotateObjectsHandle() :
+        m_handle2D(m_position),
+        m_handle3D(m_position) {}
 
         const vm::vec3& RotateObjectsHandle::position() const {
             return m_position;
@@ -64,295 +283,52 @@ namespace TrenchBroom {
         void RotateObjectsHandle::setPosition(const vm::vec3& position) {
             m_position = position;
         }
-        
+
         Model::Hit RotateObjectsHandle::pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera) const {
-            vm::vec3 xAxis, yAxis, zAxis;
-            computeAxes(m_position, pickRay.origin, xAxis, yAxis, zAxis);
-            
-            auto hit = pickPointHandle(pickRay, camera, m_position, HitArea_Center);
-            switch (firstComponent(camera.direction())) {
-                case vm::axis::x:
-                    hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(yAxis), HitArea_YAxis));
-                    break;
-                case vm::axis::y:
-                    hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(zAxis), HitArea_ZAxis));
-                    break;
-                case vm::axis::z:
-                default:
-                    hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(xAxis), HitArea_XAxis));
-                    break;
-            }
-            return hit;
+            return m_handle2D.pick(pickRay, camera);
         }
-        
+
         Model::Hit RotateObjectsHandle::pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera) const {
-            vm::vec3 xAxis, yAxis, zAxis;
-            computeAxes(m_position, pickRay.origin, xAxis, yAxis, zAxis);
-            
-            Model::Hit hit = pickPointHandle(pickRay, camera, m_position, HitArea_Center);
-            hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(xAxis), HitArea_XAxis));
-            hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(yAxis), HitArea_YAxis));
-            hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(zAxis), HitArea_ZAxis));
-            return hit;
+            return m_handle3D.pick(pickRay, camera);
         }
 
-        vm::vec3 RotateObjectsHandle::pointHandlePosition(const HitArea area, const vm::vec3& cameraPos) const {
-            vm::vec3 xAxis, yAxis, zAxis;
-            computeAxes(m_position, cameraPos, xAxis, yAxis, zAxis);
-            switch (area) {
-                case HitArea_XAxis:
-                    return getPointHandlePosition(xAxis);
-                case HitArea_YAxis:
-                    return getPointHandlePosition(yAxis);
-                case HitArea_ZAxis:
-                    return getPointHandlePosition(zAxis);
-                case HitArea_None:
-                case HitArea_Center:
-                    return m_position;
-                switchDefault()
-            }
-        }
-        
-        FloatType RotateObjectsHandle::handleRadius() const {
-            return pref(Preferences::RotateHandleRadius);
+        FloatType RotateObjectsHandle::majorHandleRadius(const Renderer::Camera& camera) const {
+            return Handle::majorRadius() * m_handle3D.scalingFactor(camera);
         }
 
-        vm::vec3 RotateObjectsHandle::pointHandleAxis(const HitArea area, const vm::vec3& cameraPos) const {
-            vm::vec3 xAxis, yAxis, zAxis;
-            computeAxes(m_position, cameraPos, xAxis, yAxis, zAxis);
-            switch (area) {
-                case HitArea_XAxis:
-                    return xAxis;
-                case HitArea_YAxis:
-                    return yAxis;
-                case HitArea_ZAxis:
-                    return zAxis;
-                case HitArea_None:
-                case HitArea_Center:
-                    return vm::vec3::pos_z;
-                switchDefault()
-            }
+        FloatType RotateObjectsHandle::minorHandleRadius(const Renderer::Camera& camera) const {
+            return Handle::minorRadius() * m_handle3D.scalingFactor(camera);
         }
-        
+
         vm::vec3 RotateObjectsHandle::rotationAxis(const HitArea area) const {
             switch (area) {
-                case HitArea_XAxis:
-                    return vm::vec3::pos_z;
-                case HitArea_YAxis:
-                    return vm::vec3::pos_x;
-                case HitArea_ZAxis:
-                    return vm::vec3::pos_y;
-                case HitArea_None:
-                case HitArea_Center:
-                    return vm::vec3::pos_z;
+                case HitArea::HitArea_XAxis:
+                    return vm::vec3::pos_x();
+                case HitArea::HitArea_YAxis:
+                    return vm::vec3::pos_y();
+                case HitArea::HitArea_ZAxis:
+                    return vm::vec3::pos_z();
+                case HitArea::HitArea_None:
+                case HitArea::HitArea_Center:
+                    return vm::vec3::pos_z();
                 switchDefault()
             }
         }
-        
+
         void RotateObjectsHandle::renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            const auto& camera = renderContext.camera();
-            const auto radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
-            
-            Renderer::RenderService renderService(renderContext, renderBatch);
-            renderService.setShowOccludedObjects();
-            
-            renderService.setForegroundColor(pref(Preferences::axisColor(firstComponent(camera.direction()))));
-            renderService.renderCircle(vm::vec3f(m_position), firstComponent(camera.direction()), 64, radius);
-            
-            renderService.setForegroundColor(pref(Preferences::HandleColor));
-            renderService.renderHandle(vm::vec3f(m_position));
-            
-            const auto viewDirection = camera.direction();
-            switch (firstComponent(viewDirection)) {
-                case vm::axis::x:
-                case vm::axis::z:
-                    renderService.renderHandle(vm::vec3f(m_position) + radius * camera.right());
-                    break;
-                case vm::axis::y:
-                    renderService.renderHandle(vm::vec3f(m_position) + radius * camera.up());
-                    break;
-               switchDefault()
-            };
+            m_handle2D.renderHandle(renderContext, renderBatch);
         }
-        
+
         void RotateObjectsHandle::renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            const auto radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
-
-            vm::vec3f xAxis, yAxis, zAxis;
-            computeAxes(m_position, renderContext.camera().position(), xAxis, yAxis, zAxis);
-
-            Renderer::RenderService renderService(renderContext, renderBatch);
-            renderService.setShowOccludedObjects();
-            
-            renderService.renderCoordinateSystem(vm::bbox3f(radius).translate(vm::vec3f(m_position)));
-            
-            renderService.setForegroundColor(pref(Preferences::XAxisColor));
-            renderService.renderCircle(vm::vec3f(m_position), vm::axis::x, 64, radius, zAxis, yAxis);
-            renderService.setForegroundColor(pref(Preferences::YAxisColor));
-            renderService.renderCircle(vm::vec3f(m_position), vm::axis::y, 64, radius, xAxis, zAxis);
-            renderService.setForegroundColor(pref(Preferences::ZAxisColor));
-            renderService.renderCircle(vm::vec3f(m_position), vm::axis::z, 64, radius, xAxis, yAxis);
-
-            /*
-            renderService.renderCircle(m_position, vm::Axis::AX, 8, radius,
-                                       vm::quatf(vm::vec3f::pos_x, vm::radians(+15.0f)) * yAxis,
-                                       vm::quatf(vm::vec3f::pos_x, vm::radians(-15.0f)) * yAxis);
-            renderService.renderCircle(m_position, vm::Axis::AY, 8, radius,
-                                       vm::quatf(vm::vec3f::pos_y, vm::radians(+15.0f)) * zAxis,
-                                       vm::quatf(vm::vec3f::pos_y, vm::radians(-15.0f)) * zAxis);
-            renderService.renderCircle(m_position, vm::Axis::AZ, 8, radius,
-                                       vm::quatf(vm::vec3f::pos_z, vm::radians(+15.0f)) * xAxis,
-                                       vm::quatf(vm::vec3f::pos_z, vm::radians(-15.0f)) * xAxis);
-
-             */
-            renderService.setForegroundColor(pref(Preferences::HandleColor));
-            renderService.renderHandle(vm::vec3f(m_position));
-
-            renderService.setForegroundColor(pref(Preferences::ZAxisColor));
-            renderService.renderHandle(vm::vec3f(m_position) + radius * xAxis);
-
-            renderService.setForegroundColor(pref(Preferences::XAxisColor));
-            renderService.renderHandle(vm::vec3f(m_position) + radius * yAxis);
-
-            renderService.setForegroundColor(pref(Preferences::YAxisColor));
-            renderService.renderHandle(vm::vec3f(m_position) + radius * zAxis);
-
+            m_handle3D.renderHandle(renderContext, renderBatch);
         }
 
         void RotateObjectsHandle::renderHighlight2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea area) {
-            const auto radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
-            const auto& camera = renderContext.camera();
-
-            Renderer::RenderService renderService(renderContext, renderBatch);
-            renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-            renderService.setShowOccludedObjects();
-
-            switch (area) {
-                case RotateObjectsHandle::HitArea_Center:
-                    renderService.renderHandleHighlight(vm::vec3f(m_position));
-                    break;
-                case RotateObjectsHandle::HitArea_XAxis:
-                case RotateObjectsHandle::HitArea_YAxis:
-                    renderService.renderHandleHighlight(vm::vec3f(m_position) + radius * camera.right());
-                    break;
-                case RotateObjectsHandle::HitArea_ZAxis:
-                    renderService.renderHandleHighlight(vm::vec3f(m_position) + radius * camera.up());
-                    break;
-                case RotateObjectsHandle::HitArea_None:
-                    break;
-                    switchDefault()
-            };
+            m_handle2D.renderHighlight(renderContext, renderBatch, area);
         }
 
         void RotateObjectsHandle::renderHighlight3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea area) {
-            const auto radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
-            vm::vec3f xAxis, yAxis, zAxis;
-            computeAxes(m_position, renderContext.camera().position(), xAxis, yAxis, zAxis);
-
-            Renderer::RenderService renderService(renderContext, renderBatch);
-            renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-            renderService.setShowOccludedObjects();
-
-            switch (area) {
-                case RotateObjectsHandle::HitArea_Center:
-                    renderService.renderHandleHighlight(vm::vec3f(m_position));
-                    renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
-                    renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
-                    renderService.renderString(StringUtils::toString(m_position), vm::vec3f(m_position));
-                    break;
-                case RotateObjectsHandle::HitArea_XAxis:
-                    renderService.renderHandleHighlight(vm::vec3f(m_position) + radius * xAxis);
-                    break;
-                case RotateObjectsHandle::HitArea_YAxis:
-                    renderService.renderHandleHighlight(vm::vec3f(m_position) + radius * yAxis);
-                    break;
-                case RotateObjectsHandle::HitArea_ZAxis:
-                    renderService.renderHandleHighlight(vm::vec3f(m_position) + radius * zAxis);
-                    break;
-                case RotateObjectsHandle::HitArea_None:
-                    break;
-                switchDefault()
-            };
-        }
-
-        /*
-        void RotateObjectsHandle::renderAngle(Renderer::RenderContext& renderContext, const HitArea handle, const FloatType angle) {
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
-            const Color& pointHandleColor = prefs.get(Preferences::RotateHandleColor);
-            
-            const vm::vec3f rotationAxis(getRotationAxis(handle));
-            const vm::vec3f startAxis(getPointHandleAxis(handle));
-            const vm::vec3f endAxis(vm::quat3(rotationAxis, angle) * startAxis);
-            
-            Renderer::SetVboState setVboState(m_vbo);
-            setVboState.active();
-            
-            glAssert(glDisable(GL_DEPTH_TEST));
-            {
-                glAssert(glDisable(GL_CULL_FACE));
-                glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
-                Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(m_position));
-                Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
-                shader.set("Color", getAngleIndicatorColor(handle));
-                
-                Renderer::Circle circle(handleRadius, 24, true, rotationAxis.firstComponent(), startAxis, endAxis);
-                
-                setVboState.mapped();
-                circle.prepare(m_vbo);
-                
-                setVboState.active();
-                circle.render();
-                
-                glAssert(glPolygonMode(GL_FRONT, GL_FILL));
-                glAssert(glEnable(GL_CULL_FACE));
-            }
-
-            m_pointHandleRenderer.setColor(pointHandleColor);
-            m_pointHandleRenderer.renderSingleHandle(renderContext, m_position);
-            m_pointHandleRenderer.renderSingleHandle(renderContext, getPointHandlePosition(handle));
-
-            glAssert(glEnable(GL_DEPTH_TEST));
-        }
-        */
-        
-        Model::Hit RotateObjectsHandle::pickPointHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const vm::vec3& position, const HitArea area) const {
-            const FloatType distance = camera.pickPointHandle(pickRay, position, pref(Preferences::HandleRadius));
-            if (vm::isNan(distance))
-                return Model::Hit::NoHit;
-            return Model::Hit(HandleHit, distance, pickRay.pointAtDistance(distance), area);
-        }
-        
-        Model::Hit RotateObjectsHandle::selectHit(const Model::Hit& closest, const Model::Hit& hit) const {
-            if (!closest.isMatch())
-                return hit;
-            if (hit.isMatch()) {
-                if (hit.distance() < closest.distance())
-                    return hit;
-            }
-            return closest;
-        }
-        
-        vm::vec3 RotateObjectsHandle::getPointHandlePosition(const vm::vec3& axis) const {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            return m_position + axis * FloatType(prefs.get(Preferences::RotateHandleRadius));
-        }
-        
-        Color RotateObjectsHandle::getAngleIndicatorColor(const HitArea area) const {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            switch (area) {
-                case HitArea_XAxis:
-                    return Color(prefs.get(Preferences::ZAxisColor), 0.5f);
-                case HitArea_YAxis:
-                    return Color(prefs.get(Preferences::XAxisColor), 0.5f);
-                case HitArea_ZAxis:
-                    return Color(prefs.get(Preferences::YAxisColor), 0.5f);
-                case HitArea_Center:
-                case HitArea_None:
-                    return Color(1.0f, 1.0f, 1.0f, 1.0f);
-                switchDefault()
-            };
+            m_handle3D.renderHighlight(renderContext, renderBatch, area);
         }
     }
 }

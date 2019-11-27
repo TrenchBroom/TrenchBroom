@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,149 +21,188 @@
 
 #include "CollectionUtils.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/File.h"
 #include "IO/IOUtils.h"
 
 #include <cassert>
+#include <memory>
 
 namespace TrenchBroom {
     namespace IO {
-        ImageFileSystem::File::~File() {}
-        
-        MappedFile::Ptr ImageFileSystem::File::open() {
+        ImageFileSystemBase::FileEntry::~FileEntry() = default;
+
+       std::shared_ptr<File> ImageFileSystemBase::FileEntry::open() const {
             return doOpen();
         }
-        
-        ImageFileSystem::SimpleFile::SimpleFile(MappedFile::Ptr file) :
-        m_file(file) {}
-        
-        MappedFile::Ptr ImageFileSystem::SimpleFile::doOpen() {
+
+        ImageFileSystemBase::SimpleFileEntry::SimpleFileEntry(std::shared_ptr<File> file) :
+        m_file(std::move(file)) {}
+
+        std::shared_ptr<File> ImageFileSystemBase::SimpleFileEntry::doOpen() const {
             return m_file;
         }
-        
-        ImageFileSystem::Directory::Directory(const Path& path) :
-        m_path(path) {}
-        
-        ImageFileSystem::Directory::~Directory() {
-            MapUtils::clearAndDelete(m_directories);
-            MapUtils::clearAndDelete(m_files);
-        }
-        
-        void ImageFileSystem::Directory::addFile(const Path& path, MappedFile::Ptr file) {
-            addFile(path, new SimpleFile(file));
+
+        ImageFileSystemBase::CompressedFileEntry::CompressedFileEntry(std::shared_ptr<File> file, const size_t uncompressedSize) :
+        m_file(file),
+        m_uncompressedSize(uncompressedSize) {}
+
+        std::shared_ptr<File> ImageFileSystemBase::CompressedFileEntry::doOpen() const {
+            auto data = decompress(m_file, m_uncompressedSize);
+            return std::make_shared<OwningBufferFile>(m_file->path(), std::move(data), m_uncompressedSize);
         }
 
-        void ImageFileSystem::Directory::addFile(const Path& path, File* file) {
+        ImageFileSystemBase::Directory::Directory(const Path& path) :
+        m_path(path) {}
+
+        void ImageFileSystemBase::Directory::addFile(const Path& path, std::shared_ptr<File> file) {
+            addFile(path, std::make_unique<SimpleFileEntry>(file));
+        }
+
+        void ImageFileSystemBase::Directory::addFile(const Path& path, std::unique_ptr<FileEntry> file) {
             ensure(file != nullptr, "file is null");
-            const Path filename = path.lastComponent();
+            const auto filename = path.lastComponent();
             if (path.length() == 1) {
                 // silently overwrite duplicates, the latest entries win
-                MapUtils::insertOrReplaceAndDelete(m_files, filename, file);
+                MapUtils::insertOrReplace(m_files, filename, std::move(file));
             } else {
-                Directory& dir = findOrCreateDirectory(path.deleteLastComponent());
-                dir.addFile(filename, file);
+                auto& dir = findOrCreateDirectory(path.deleteLastComponent());
+                dir.addFile(filename, std::move(file));
             }
         }
-        
-        bool ImageFileSystem::Directory::directoryExists(const Path& path) const {
-            if (path.isEmpty())
+
+        bool ImageFileSystemBase::Directory::directoryExists(const Path& path) const {
+            if (path.isEmpty()) {
                 return true;
-            DirMap::const_iterator it = m_directories.find(path.firstComponent());
-            if (it == std::end(m_directories))
-                return false;
-            return it->second->directoryExists(path.deleteFirstComponent());
-        }
-        
-        bool ImageFileSystem::Directory::fileExists(const Path& path) const {
-            if (path.length() == 1)
-                return m_files.count(path) > 0;
-            DirMap::const_iterator it = m_directories.find(path.firstComponent());
-            if (it == std::end(m_directories))
-                return false;
-            return it->second->fileExists(path.deleteFirstComponent());
-        }
-        
-        const ImageFileSystem::Directory& ImageFileSystem::Directory::findDirectory(const Path& path) const {
-            if (path.isEmpty())
-                return *this;
-            DirMap::const_iterator it = m_directories.find(path.firstComponent());
-            if (it == std::end(m_directories))
-                throw FileSystemException("Path does not exist: '" + (m_path + path).asString() + "'");
-            return it->second->findDirectory(path.deleteFirstComponent());
-        }
-        
-        const MappedFile::Ptr ImageFileSystem::Directory::findFile(const Path& path) const {
-            assert(!path.isEmpty());
-            
-            const Path name = path.firstComponent();
-            if (path.length() == 1) {
-                FileMap::const_iterator it = m_files.find(name);
-                if (it == std::end(m_files))
-                    throw FileSystemException("File not found: '" + (m_path + path).asString() + "'");
-                return it->second->open();
             }
-            DirMap::const_iterator it = m_directories.find(name);
-            if (it == std::end(m_directories))
-                throw FileSystemException("File not found: '" + (m_path + path).asString() + "'");
-            return it->second->findFile(path.deleteFirstComponent());
+
+            auto it = m_directories.find(path.firstComponent());
+            if (it == std::end(m_directories)) {
+                return false;
+            } else {
+                return it->second->directoryExists(path.deleteFirstComponent());
+            }
         }
-        
-        Path::List ImageFileSystem::Directory::contents() const {
+
+        bool ImageFileSystemBase::Directory::fileExists(const Path& path) const {
+            if (path.length() == 1) {
+                return m_files.count(path) > 0;
+            }
+
+            auto it = m_directories.find(path.firstComponent());
+            if (it == std::end(m_directories)) {
+                return false;
+            } else {
+                return it->second->fileExists(path.deleteFirstComponent());
+            }
+        }
+
+        const ImageFileSystemBase::Directory& ImageFileSystemBase::Directory::findDirectory(const Path& path) const {
+            if (path.isEmpty()) {
+                return *this;
+            }
+
+            auto it = m_directories.find(path.firstComponent());
+            if (it == std::end(m_directories)) {
+                throw FileSystemException("Path does not exist: '" + (m_path + path).asString() + "'");
+            } else {
+                return it->second->findDirectory(path.deleteFirstComponent());
+            }
+        }
+
+        const ImageFileSystemBase::FileEntry& ImageFileSystemBase::Directory::findFile(const Path& path) const {
+            assert(!path.isEmpty());
+
+            const auto name = path.firstComponent();
+            if (path.length() == 1) {
+                auto it = m_files.find(name);
+                if (it == std::end(m_files)) {
+                    throw FileSystemException("File not found: '" + (m_path + path).asString() + "'");
+                } else {
+                    return *it->second;
+                }
+            } else {
+                auto it = m_directories.find(name);
+                if (it == std::end(m_directories)) {
+                    throw FileSystemException("File not found: '" + (m_path + path).asString() + "'");
+                } else {
+                    return it->second->findFile(path.deleteFirstComponent());
+                }
+            }
+        }
+
+        Path::List ImageFileSystemBase::Directory::contents() const {
             Path::List contents;
-            
-            for (const auto& entry : m_directories)
+
+            for (const auto& entry : m_directories) {
                 contents.push_back(Path(entry.first));
-            
-            for (const auto& entry : m_files)
+            }
+
+            for (const auto& entry : m_files) {
                 contents.push_back(Path(entry.first));
-            
+            }
+
             return contents;
         }
-        
-        ImageFileSystem::Directory& ImageFileSystem::Directory::findOrCreateDirectory(const Path& path) {
-            if (path.isEmpty())
+
+        ImageFileSystemBase::Directory& ImageFileSystemBase::Directory::findOrCreateDirectory(const Path& path) {
+            if (path.isEmpty()) {
                 return *this;
-            const Path name = path.firstComponent();
-            DirMap::iterator it = m_directories.lower_bound(name);
-            if (it == std::end(m_directories) || name != it->first)
+            }
+
+            const auto name = path.firstComponent();
+            auto it = m_directories.lower_bound(name);
+            if (it == std::end(m_directories) || name != it->first) {
                 it = m_directories.insert(it, std::make_pair(name, new Directory(m_path + Path(name))));
+            }
             return it->second->findOrCreateDirectory(path.deleteFirstComponent());
         }
-        
-        ImageFileSystem::ImageFileSystem(const Path& path, MappedFile::Ptr file) :
-        m_path(path),
-        m_file(file),
-        m_root(Path("")) {}
-        
-        
-        ImageFileSystem::~ImageFileSystem() {}
 
-        void ImageFileSystem::initialize() {
-            doReadDirectory();
+        ImageFileSystemBase::ImageFileSystemBase(std::shared_ptr<FileSystem> next, const Path& path) :
+        FileSystem(std::move(next)),
+        m_path(path),
+        m_root(Path()) {}
+
+
+        ImageFileSystemBase::~ImageFileSystemBase() = default;
+
+        void ImageFileSystemBase::initialize() {
+            try {
+                doReadDirectory();
+            } catch (const std::exception& e) {
+                throw FileSystemException("Could not initialize image file system '" + m_path.asString() + "': " + e.what());
+            }
         }
-        
-        Path ImageFileSystem::doMakeAbsolute(const Path& relPath) const {
-            return m_path + relPath.makeCanonical();
+
+        void ImageFileSystemBase::reload() {
+            m_root = Directory(Path());
+            initialize();
         }
-        
-        bool ImageFileSystem::doDirectoryExists(const Path& path) const {
-            const Path searchPath = path.makeLowerCase();
+
+        bool ImageFileSystemBase::doDirectoryExists(const Path& path) const {
+            const auto searchPath = path.makeLowerCase().makeCanonical();
             return m_root.directoryExists(searchPath);
         }
-        
-        bool ImageFileSystem::doFileExists(const Path& path) const {
-            const Path searchPath = path.makeLowerCase();
+
+        bool ImageFileSystemBase::doFileExists(const Path& path) const {
+            const auto searchPath = path.makeLowerCase().makeCanonical();
             return m_root.fileExists(searchPath);
         }
-        
-        Path::List ImageFileSystem::doGetDirectoryContents(const Path& path) const {
-            const Path searchPath = path.makeLowerCase();
-            const Directory& directory = m_root.findDirectory(path);
+
+        Path::List ImageFileSystemBase::doGetDirectoryContents(const Path& path) const {
+            const auto searchPath = path.makeLowerCase().makeCanonical();
+            const auto& directory = m_root.findDirectory(path);
             return directory.contents();
         }
-        
-        const MappedFile::Ptr ImageFileSystem::doOpenFile(const Path& path) const {
-            const Path searchPath = path.makeLowerCase();
-            return m_root.findFile(path);
+
+        std::shared_ptr<File> ImageFileSystemBase::doOpenFile(const Path& path) const {
+            const auto searchPath = path.makeLowerCase().makeCanonical();
+            return m_root.findFile(path).open();
+        }
+
+        ImageFileSystem::ImageFileSystem(std::shared_ptr<FileSystem> next, const Path& path) :
+        ImageFileSystemBase(std::move(next), path),
+        m_file(std::make_shared<CFile>(path)) {
+            ensure(m_path.isAbsolute(), "path must be absolute");
         }
     }
 }

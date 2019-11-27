@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,23 +20,30 @@
 #ifndef TrenchBroom_EntityProperties
 #define TrenchBroom_EntityProperties
 
-#include "StringUtils.h"
-#include "StringMap.h"
+#include "StringType.h"
 #include "Model/EntityAttributeSnapshot.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 
-#include <map>
 #include <list>
+#include <memory>
+#include <set>
+#include <vector>
 
 namespace TrenchBroom {
+    template <typename V>
+    class StringMapValueContainer;
+
+    template <typename V, typename P>
+    class StringMap;
+
     namespace Assets {
         class EntityDefinition;
         class AttributeDefinition;
     }
-    
+
     namespace Model {
         extern const String AttributeEscapeChars;
-        
+
         namespace AttributeNames {
             extern const AttributeName Classname;
             extern const AttributeName Origin;
@@ -60,8 +67,9 @@ namespace TrenchBroom {
             extern const AttributeName GroupName;
             extern const AttributeName Group;
             extern const AttributeName Message;
+            extern const AttributeName ValveVersion;
         }
-        
+
         namespace AttributeValues {
             extern const AttributeValue WorldspawnClassname;
             extern const AttributeValue NoClassname;
@@ -73,11 +81,10 @@ namespace TrenchBroom {
 
         String numberedAttributePrefix(const String& name);
         bool isNumberedAttribute(const String& prefix, const AttributeName& name);
-        
+
         class EntityAttribute {
         public:
-            typedef std::map<AttributableNode*, EntityAttribute> Map;
-            typedef std::list<EntityAttribute> List;
+            using List = std::list<EntityAttribute>;
             static const List EmptyList;
         private:
             AttributeName m_name;
@@ -88,11 +95,11 @@ namespace TrenchBroom {
             EntityAttribute(const AttributeName& name, const AttributeValue& value, const Assets::AttributeDefinition* definition = nullptr);
             bool operator<(const EntityAttribute& rhs) const;
             int compare(const EntityAttribute& rhs) const;
-            
+
             const AttributeName& name() const;
             const AttributeValue& value() const;
             const Assets::AttributeDefinition* definition() const;
-            
+
             void setName(const AttributeName& name, const Assets::AttributeDefinition* definition);
             void setValue(const AttributeValue& value);
         };
@@ -101,16 +108,19 @@ namespace TrenchBroom {
         bool isGroup(const String& classname, const EntityAttribute::List& attributes);
         bool isWorldspawn(const String& classname, const EntityAttribute::List& attributes);
         const AttributeValue& findAttribute(const EntityAttribute::List& attributes, const AttributeName& name, const AttributeValue& defaultValue = EmptyString);
-        
+
         class EntityAttributes {
         private:
             EntityAttribute::List m_attributes;
-            
-            typedef EntityAttribute::List::iterator IndexValue;
-            typedef StringMapValueContainer<IndexValue> IndexValueContainer;
-            typedef StringMap<IndexValue, IndexValueContainer> AttributeIndex;
-            AttributeIndex m_index;
+
+            using IndexValue = EntityAttribute::List::iterator;
+            using IndexValueContainer = StringMapValueContainer<IndexValue>;
+            using AttributeIndex = StringMap<IndexValue, IndexValueContainer>;
+            std::unique_ptr<AttributeIndex> m_index;
         public:
+            explicit EntityAttributes();
+            ~EntityAttributes();
+
             const EntityAttribute::List& attributes() const;
             void setAttributes(const EntityAttribute::List& attributes);
 
@@ -118,28 +128,28 @@ namespace TrenchBroom {
             void renameAttribute(const AttributeName& name, const AttributeName& newName, const Assets::AttributeDefinition* newDefinition);
             void removeAttribute(const AttributeName& name);
             void updateDefinitions(const Assets::EntityDefinition* entityDefinition);
-            
+
             bool hasAttribute(const AttributeName& name) const;
             bool hasAttribute(const AttributeName& name, const AttributeValue& value) const;
             bool hasAttributeWithPrefix(const AttributeName& prefix, const AttributeValue& value) const;
             bool hasNumberedAttribute(const AttributeName& prefix, const AttributeValue& value) const;
-            
+
             EntityAttributeSnapshot snapshot(const AttributeName& name) const;
         private:
-            bool containsValue(const AttributeIndex::QueryResult& matches, const AttributeValue& value) const;
-            EntityAttribute::List listFromQueryResult(const AttributeIndex::QueryResult& matches) const;
+            bool containsValue(const std::vector<IndexValue>& matches, const AttributeValue& value) const;
+            EntityAttribute::List listFromQueryResult(const std::vector<IndexValue>& matches) const;
         public:
-            const AttributeNameSet names() const;
+            const std::set<AttributeName> names() const;
             const AttributeValue* attribute(const AttributeName& name) const;
             const AttributeValue& safeAttribute(const AttributeName& name, const AttributeValue& defaultValue) const;
-            
+
             EntityAttribute::List attributeWithName(const AttributeName& name) const;
             EntityAttribute::List attributesWithPrefix(const AttributeName& prefix) const;
             EntityAttribute::List numberedAttributes(const String& prefix) const;
         private:
             EntityAttribute::List::const_iterator findAttribute(const AttributeName& name) const;
             EntityAttribute::List::iterator findAttribute(const AttributeName& name);
-            
+
             void rebuildIndex();
         };
     }

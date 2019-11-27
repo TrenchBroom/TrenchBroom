@@ -1,60 +1,91 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "ResourceUtils.h"
 
+#include "Ensure.h"
 #include "IO/Path.h"
+#include "IO/PathQt.h"
 #include "IO/SystemPaths.h"
+#include "Macros.h"
 
-#include <wx/log.h>
+#include <QApplication>
+#include <QThread>
+#include <QDebug>
+
+#include <map>
 
 namespace TrenchBroom {
     namespace IO {
-        wxBitmap loadImageResource(const String& name) {
-            return loadImageResource(IO::Path(name));
+        static QString imagePathToString(const IO::Path& imagePath) {
+            const IO::Path fullPath = imagePath.isAbsolute() ? imagePath : IO::SystemPaths::findResourceFile(IO::Path("images") + imagePath);
+            return IO::pathAsQString(fullPath);
         }
 
-        wxBitmap loadImageResource(const IO::Path& imagePath) {
-            wxLogNull logNull; // need this to suppress errors when loading PNG files, see http://trac.wxwidgets.org/ticket/15331
-            const IO::Path fullPath = imagePath.isAbsolute() ? imagePath : IO::SystemPaths::resourceDirectory() + IO::Path("images") + imagePath;
-            if (!::wxFileExists(fullPath.asString()))
-                return wxNullBitmap;
-            return wxBitmap(fullPath.asString(), wxBITMAP_TYPE_PNG);
+        QPixmap loadPixmapResource(const String& name) {
+            return loadPixmapResource(IO::Path(name));
         }
 
-        wxIcon loadIconResource(const IO::Path& imagePath) {
-            wxLogNull logNull; // need this to suppress errors when loading PNG files, see http://trac.wxwidgets.org/ticket/15331
-            
-            wxBitmapType type = wxICON_DEFAULT_TYPE;
-            IO::Path fullPath = imagePath.isAbsolute() ? imagePath : IO::SystemPaths::resourceDirectory() + imagePath;
-#if defined __APPLE__
-            fullPath = fullPath.addExtension("icns");
-#elif defined _WIN32
-			type = wxBITMAP_TYPE_ICO;
-            fullPath = fullPath.addExtension("ico");
-#else
-            type = wxBITMAP_TYPE_PNG;
-            fullPath = fullPath.addExtension("png");
-#endif
-            if (!::wxFileExists(fullPath.asString()))
-                return wxNullIcon;
-            return wxIcon(fullPath.asString(), type, 16, 16);
+        QPixmap loadPixmapResource(const IO::Path& imagePath) {
+            const QString imagePathString = imagePathToString(imagePath);
+            return QPixmap(imagePathString);
+        }
+
+        QIcon loadIconResourceQt(const IO::Path& imagePath) {
+            // Simple caching layer.
+            // Without it, the .png files would be read from disk and decoded each time this is called, which is slow.
+            // We never evict from the cache which is assumed to be OK because this is just used for icons
+            // and there's a relatively small set of them.
+
+            ensure(qApp->thread() == QThread::currentThread(), "loadIconResourceQt can only be used on the main thread");
+
+            static std::map<IO::Path, QIcon> cache;
+            {
+                auto it = cache.find(imagePath);
+                if (it != cache.end()) {
+                    return it->second;
+                }
+            }
+
+            // Cache miss, load the icon
+            QIcon result;
+            if (!imagePath.isEmpty()) {
+                const auto onPath = imagePathToString(imagePath.replaceBasename(imagePath.basename() + "_on"));
+                const auto offPath = imagePathToString(imagePath.replaceBasename(imagePath.basename() + "_off"));
+
+                if (!onPath.isEmpty() && !offPath.isEmpty()) {
+                    result.addFile(onPath, QSize(), QIcon::Normal, QIcon::On);
+                    result.addFile(offPath, QSize(), QIcon::Normal, QIcon::Off);
+                } else {
+                    const auto imagePathString = imagePathToString(imagePath);
+
+                    if (imagePathString.isEmpty()) {
+                        qWarning() << "Couldn't find image for path: " << IO::pathAsQString(imagePath);
+                    }
+
+                    result.addFile(imagePathString, QSize(), QIcon::Normal);
+                }
+            }
+
+            cache[imagePath] = result;
+
+            return result;
         }
     }
 }

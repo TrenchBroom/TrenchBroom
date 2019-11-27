@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,6 +22,7 @@
 
 #include "CollectionUtils.h"
 #include "Exceptions.h"
+#include "StringType.h"
 #include "StringUtils.h"
 
 #include <cassert>
@@ -33,36 +34,36 @@ namespace TrenchBroom {
     template <typename V>
     class StringMapValueContainer {
     public:
-        typedef std::vector<V> ValueContainer;
-        typedef std::vector<V> QueryResult;
+        using ValueContainer = std::vector<V>;
+        using QueryResult = std::vector<V>;
 
         static void insertValue(ValueContainer& values, const V& value) {
             values.push_back(value);
         }
-        
+
         static void removeValue(ValueContainer& values, const V& value) {
             typename ValueContainer::iterator it = std::find(std::begin(values), std::end(values), value);
             if (it == std::end(values))
                 throw Exception("Cannot remove value (does not belong to this node)");
             values.erase(it);
         }
-        
+
         static void getValues(const ValueContainer& values, QueryResult& result) {
             VectorUtils::append(result, values);
         }
     };
-    
+
     template <typename V>
     class StringMultiMapValueContainer {
     public:
-        typedef std::map<V, size_t> ValueContainer;
-        typedef std::set<V> QueryResult;
-        
+        using ValueContainer = std::map<V, size_t>;
+        using QueryResult = std::set<V>;
+
         static void insertValue(ValueContainer& values, const V& value) {
             typename ValueContainer::iterator it = MapUtils::findOrInsert(values, value, 0u);
             ++it->second;
         }
-        
+
         static void removeValue(ValueContainer& values, const V& value) {
             typename ValueContainer::iterator it = values.find(value);
             if (it == std::end(values))
@@ -72,7 +73,7 @@ namespace TrenchBroom {
             else
                 --it->second;
         }
-        
+
         static void getValues(const ValueContainer& values, QueryResult& result) {
             for (const auto& entry : values)
                 result.insert(entry.first);
@@ -82,13 +83,13 @@ namespace TrenchBroom {
     template <typename V, typename P>
     class StringMap {
     public:
-        typedef typename P::QueryResult QueryResult;
+        using QueryResult = typename P::QueryResult;
     private:
         class Node {
         private:
-            typedef std::set<Node> NodeSet;
-            typedef typename P::ValueContainer ValueContainer;
-            
+            using NodeSet = std::set<Node>;
+            using ValueContainer = typename P::ValueContainer;
+
             // The key is declared mutable because we must change it in splitNode and mergeNode, but the resulting new key
             // will still compare equal to the old key.
             mutable String m_key;
@@ -97,7 +98,7 @@ namespace TrenchBroom {
         public:
             explicit Node(const String& key) :
             m_key(key) {}
-            
+
             bool operator<(const Node& rhs) const {
                 const size_t firstDiff = StringUtils::findFirstDifference(m_key, rhs.m_key);
                 if (firstDiff == 0)
@@ -105,7 +106,7 @@ namespace TrenchBroom {
                 // both keys share a common prefix and are thus treated as the same
                 return false;
             }
-            
+
             /*
              Possible cases for insertion:
               index: 01234567 |   | #m_key: 6
@@ -152,7 +153,7 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
+
             bool remove(const String& key, const V& value) const {
                 const size_t firstDiff = StringUtils::findFirstDifference(key, m_key);
                 if (m_key.size() <= key.size() && firstDiff == m_key.size()) {
@@ -169,13 +170,13 @@ namespace TrenchBroom {
                     } else {
                         removeValue(value);
                     }
-                    
+
                     if (!m_key.empty() && m_values.empty() && m_children.size() == 1)
                         mergeNode();
                 }
                 return !m_key.empty() && m_values.empty() && m_children.empty();
             }
-            
+
             void queryExact(const String& key, QueryResult& result) const {
                 const size_t firstDiff = StringUtils::findFirstDifference(key, m_key);
                 if (firstDiff == 0 && !m_key.empty())
@@ -196,7 +197,7 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
+
             void queryPrefix(const String& prefix, QueryResult& result) const {
                 const size_t firstDiff = StringUtils::findFirstDifference(prefix, m_key);
                 if (firstDiff == 0 && !m_key.empty())
@@ -217,13 +218,13 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
+
             void collectValues(QueryResult& result) const {
                 getValues(result);
                 for (const Node& child : m_children)
                     child.collectValues(result);
             }
-            
+
             void queryNumbered(const String& prefix, QueryResult& result) const {
                 const size_t firstDiff = StringUtils::findFirstDifference(prefix, m_key);
                 if (firstDiff == 0 && !m_key.empty())
@@ -247,7 +248,7 @@ namespace TrenchBroom {
                         child.queryNumbered(remainder, result);
                 }
             }
-            
+
             void collectIfNumbered(QueryResult& result) const {
                 if (StringUtils::isNumber(m_key)) {
                     getValues(result);
@@ -255,7 +256,7 @@ namespace TrenchBroom {
                         child.collectIfNumbered(result);
                 }
             }
-            
+
             void getKeys(const String& prefix, StringList& result) const {
                 const String prefixAndKey = prefix + m_key;
                 if (!m_values.empty()) {
@@ -269,23 +270,23 @@ namespace TrenchBroom {
             void insertValue(const V& value) const {
                 P::insertValue(m_values, value);
             }
-            
+
             void removeValue(const V& value) const {
                 P::removeValue(m_values, value);
             }
-            
+
             const Node& findOrCreateChild(const String& key) const {
                 std::pair<typename NodeSet::iterator, bool> result = m_children.insert(Node(key));
                 typename NodeSet::iterator it = result.first;
                 return *it;
             }
-            
+
             void splitNode(const size_t index) const {
                 using std::swap;
 
                 assert(m_key.size() > 1);
                 ensure(index < m_key.size(), "index out of range");
-                
+
                 const String newKey = m_key.substr(0, index);
                 const String remainder = m_key.substr(index);
 
@@ -297,77 +298,77 @@ namespace TrenchBroom {
                 const Node& newChild = findOrCreateChild(remainder);
                 swap(newChild.m_children, newChildren);
                 swap(newChild.m_values, m_values);
-                
+
                 m_key = newKey;
             }
-            
+
             void mergeNode() const {
                 using std::swap;
 
                 assert(m_children.size() == 1);
                 assert(m_values.empty());
-                
+
                 NodeSet oldChildren;
                 swap(oldChildren, m_children);
-                
+
                 const Node& child = *std::begin(oldChildren);
                 swap(m_children, child.m_children);
                 swap(m_values, child.m_values);
-                
+
                 m_key += child.m_key;
             }
-            
+
             void getValues(QueryResult& result) const {
                 P::getValues(m_values, result);
             }
         };
-        
+
         Node* m_root;
     public:
         StringMap() :
         m_root(new Node("")) {}
-        
+
         ~StringMap() {
             delete m_root;
             m_root = nullptr;
         }
-        
+
         void insert(const String& key, const V& value) {
             ensure(m_root != nullptr, "root is null");
             m_root->insert(key, value);
         }
-        
+
         void remove(const String& key, const V& value) {
             ensure(m_root != nullptr, "root is null");
             m_root->remove(key, value);
         }
-        
+
         void clear() {
             delete m_root;
             m_root = new Node("");
         }
-        
+
         QueryResult queryPrefixMatches(const String& prefix) const {
             ensure(m_root != nullptr, "root is null");
             QueryResult result;
             m_root->queryPrefix(prefix, result);
             return result;
         }
-        
+
         QueryResult queryNumberedMatches(const String& prefix) const {
             ensure(m_root != nullptr, "root is null");
             QueryResult result;
             m_root->queryNumbered(prefix, result);
             return result;
         }
-        
+
         QueryResult queryExactMatches(const String& prefix) const {
             ensure(m_root != nullptr, "root is null");
             QueryResult result;
             m_root->queryExact(prefix, result);
             return result;
         }
-        
+
         StringList getKeys() const {
             ensure(m_root != nullptr, "root is null");
             StringList result;

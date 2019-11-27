@@ -1,27 +1,27 @@
 /*
  Copyright (C) 2018 Eric Wasylishen
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "AllocationTracker.h"
 
-#include <exception>
 #include <cassert>
 #include <algorithm>
+#include <stdexcept>
 
 //#define EXPENSIVE_CHECKS
 
@@ -407,6 +407,16 @@ namespace TrenchBroom {
             m_capacity += increase;
 
             checkInvariants();
+        }
+
+        bool AllocationTracker::hasAllocations() const {
+            // NOTE: this loop should execute at most 2 iterations, because adjacent free blocks are always merged
+            for (Block* block = m_leftmostBlock; block != nullptr; block = block->right) {
+                if (!block->free) {
+                    return true;
+                }
+            }
+            return false;
         }
 
 // Testing / debugging

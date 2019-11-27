@@ -22,32 +22,28 @@
 
 #include "Exceptions.h"
 
-#include <functional>
+#include "IO/Path.h"
+
+#include <string>
+#include <string_view>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     class RecoverableException : public Exception {
-    public:
-        using Op = std::function<void()>;
-    private:
-        std::string m_query;
-        Op m_op;
     protected:
-        RecoverableException(const std::string& str, const std::string& query, const Op& op);
+        using Exception::Exception;
     public:
-        const std::string& query() const;
-        void recover() const;
+        virtual std::string_view query() const = 0;
+        virtual void recover() const = 0;
     };
 
     class FileDeletingException : public RecoverableException {
-    public:
-        FileDeletingException(const std::string& str, const IO::Path& path) noexcept;
     private:
-        static std::string getQuery(const IO::Path& path);
-        static Op getOp(const IO::Path& path);
+        IO::Path m_path;
+    public:
+        FileDeletingException(std::string&& str, const IO::Path& path);
+
+        std::string_view query() const override;
+        void recover() const override;
     };
 }
 

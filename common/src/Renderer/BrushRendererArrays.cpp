@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -97,12 +97,13 @@ namespace TrenchBroom {
         BrushIndexArray::BrushIndexArray() : m_indexHolder(),
                                              m_allocationTracker(0) {}
 
-        bool BrushIndexArray::empty() const {
-            return m_indexHolder.empty();
+        bool BrushIndexArray::hasValidIndices() const {
+            return m_allocationTracker.hasAllocations();
         }
 
         std::pair<AllocationTracker::Block*, GLuint*> BrushIndexArray::getPointerToInsertElementsAt(const size_t elementCount) {
-            if (auto block = m_allocationTracker.allocate(elementCount); block != nullptr) {
+            auto block = m_allocationTracker.allocate(elementCount);
+            if (block != nullptr) {
                 GLuint* dest = m_indexHolder.getPointerToWriteElementsTo(block->pos, elementCount);
                 return {block, dest};
             }
@@ -114,8 +115,9 @@ namespace TrenchBroom {
             m_indexHolder.resize(newSize);
 
             // insert again
-            auto block = m_allocationTracker.allocate(elementCount);
+            block = m_allocationTracker.allocate(elementCount);
             assert(block != nullptr);
+
             GLuint* dest = m_indexHolder.getPointerToWriteElementsTo(block->pos, elementCount);
             return {block, dest};
         }
@@ -148,7 +150,8 @@ namespace TrenchBroom {
                                                m_allocationTracker(0) {}
 
         std::pair<AllocationTracker::Block*, BrushVertexArray::Vertex*> BrushVertexArray::getPointerToInsertVerticesAt(const size_t vertexCount) {
-            if (auto block = m_allocationTracker.allocate(vertexCount); block != nullptr) {
+            auto block = m_allocationTracker.allocate(vertexCount);
+            if (block != nullptr) {
                 Vertex* dest = m_vertexHolder.getPointerToWriteElementsTo(block->pos, vertexCount);
                 return {block, dest};
             }
@@ -160,7 +163,7 @@ namespace TrenchBroom {
             m_vertexHolder.resize(newSize);
 
             // insert again
-            auto block = m_allocationTracker.allocate(vertexCount);
+            block = m_allocationTracker.allocate(vertexCount);
             assert(block != nullptr);
 
             Vertex* dest = m_vertexHolder.getPointerToWriteElementsTo(block->pos, vertexCount);

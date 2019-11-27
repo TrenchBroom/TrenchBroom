@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,31 +21,31 @@
 #define TrenchBroom_ModelFactoryImpl
 
 #include "TrenchBroom.h"
-#include "StringUtils.h"
+#include "StringType.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelFactory.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushContentTypeBuilder;
         class BrushFaceAttributes;
-        
+
         class ModelFactoryImpl : public ModelFactory {
         private:
-            MapFormat::Type m_format;
-            const BrushContentTypeBuilder* m_brushContentTypeBuilder;
+            MapFormat m_format;
         public:
             ModelFactoryImpl();
-            ModelFactoryImpl(MapFormat::Type format, const BrushContentTypeBuilder* brushContentTypeBuilder);
+            ModelFactoryImpl(MapFormat format);
         private: // implement ModelFactory interface
-            MapFormat::Type doGetFormat() const override;
-            World* doCreateWorld(const vm::bbox3& worldBounds) const override;
-            Layer* doCreateLayer(const String& name, const vm::bbox3& worldBounds) const override;
+            MapFormat doGetFormat() const override;
+            World* doCreateWorld() const override;
+            Layer* doCreateLayer(const String& name) const override;
             Group* doCreateGroup(const String& name) const override;
             Entity* doCreateEntity() const override;
-            Brush* doCreateBrush(const vm::bbox3& worldBounds, const BrushFaceList& faces) const override;
-            
+            Brush* doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const override;
+
             BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
             BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const override;
         };

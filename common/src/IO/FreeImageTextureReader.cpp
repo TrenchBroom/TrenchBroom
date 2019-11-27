@@ -20,56 +20,102 @@
 #include "FreeImageTextureReader.h"
 
 #include "Color.h"
+#include "Ensure.h"
 #include "FreeImage.h"
 #include "StringUtils.h"
 #include "Assets/Texture.h"
-#include "IO/CharArrayReader.h"
+#include "IO/File.h"
+#include "IO/Reader.h"
 #include "IO/Path.h"
-
-#include <cstring>
+#include "IO/ImageLoaderImpl.h"
 
 namespace TrenchBroom {
     namespace IO {
         FreeImageTextureReader::FreeImageTextureReader(const NameStrategy& nameStrategy) :
-            TextureReader(nameStrategy) {}
+        TextureReader(nameStrategy) {}
 
-        Assets::Texture* FreeImageTextureReader::doReadTexture(const char* const begin, const char* const end, const Path& path) const {
-            const size_t                imageSize       = static_cast<size_t>(end - begin);
-            BYTE*                       imageBegin      = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
-            FIMEMORY*                   imageMemory     = FreeImage_OpenMemory(imageBegin, static_cast<DWORD>(imageSize));
-            const FREE_IMAGE_FORMAT     imageFormat     = FreeImage_GetFileTypeFromMemory(imageMemory);
-            FIBITMAP*                   image           = FreeImage_LoadFromMemory(imageFormat, imageMemory);
+        /**
+         * The byte order of a 32bpp FIBITMAP is defined by the macros FI_RGBA_RED,
+         * FI_RGBA_GREEN, FI_RGBA_BLUE, FI_RGBA_ALPHA.
+         * From looking at FreeImage.h, there are only two possible orders,
+         * so we can handle both possible orders and map them to the relevant GL_RGBA
+         * or GL_BGRA constant.
+         */
+        static constexpr GLenum freeImage32BPPFormatToGLFormat() {
+            if constexpr (FI_RGBA_RED == 0
+                && FI_RGBA_GREEN == 1
+                && FI_RGBA_BLUE == 2
+                && FI_RGBA_ALPHA == 3) {
 
-            const String                imageName       = path.filename();
-            const size_t                imageWidth      = static_cast<size_t>(FreeImage_GetWidth(image));
-            const size_t                imageHeight     = static_cast<size_t>(FreeImage_GetHeight(image));
-            const FREE_IMAGE_COLOR_TYPE imageColourType = FreeImage_GetColorType(image);
+                return GL_RGBA;
+            } else if constexpr (FI_RGBA_BLUE == 0
+                && FI_RGBA_GREEN == 1
+                && FI_RGBA_RED == 2
+                && FI_RGBA_ALPHA == 3) {
 
-            const auto format = GL_BGR;
-            Assets::TextureBuffer::List buffers(4);
-            Assets::setMipBufferSize(buffers, imageWidth, imageHeight, format);
+                return GL_BGRA;
+            } else {
+                throw std::runtime_error("Expected FreeImage to use RGBA or BGRA");
+            }
+        }
 
-            // TODO: Alpha channel seems to be unsupported by the Texture class
-            if (imageColourType != FIC_RGB) {
-                FIBITMAP* tempImage = FreeImage_ConvertTo24Bits(image);
+        Assets::Texture* FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file) const {
+            auto reader = file->reader().buffer();
+
+            InitFreeImage::initialize();
+
+            const auto& path            = file->path();
+            const auto* begin           = reader.begin();
+            const auto* end             = reader.end();
+            const auto  imageSize       = static_cast<size_t>(end - begin);
+                  auto* imageBegin      = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
+                  auto* imageMemory     = FreeImage_OpenMemory(imageBegin, static_cast<DWORD>(imageSize));
+            const auto  imageFormat     = FreeImage_GetFileTypeFromMemory(imageMemory);
+                  auto* image           = FreeImage_LoadFromMemory(imageFormat, imageMemory);
+
+            if (image == nullptr) {
+                FreeImage_CloseMemory(imageMemory);
+                return new Assets::Texture(textureName(path), 64, 64);
+            }
+
+            const auto imageWidth      = static_cast<size_t>(FreeImage_GetWidth(image));
+            const auto imageHeight     = static_cast<size_t>(FreeImage_GetHeight(image));
+
+            if (!checkTextureDimensions(imageWidth, imageHeight)) {
+                FreeImage_CloseMemory(imageMemory);
+                return new Assets::Texture(textureName(path), 64, 64);
+            }
+
+            const auto imageColourType = FreeImage_GetColorType(image);
+
+            // This is supposed to indicate whether any pixels are transparent (alpha < 100%)
+            const auto masked = FreeImage_IsTransparent(image);
+
+            const size_t mipCount = 1;
+            constexpr auto format = freeImage32BPPFormatToGLFormat();
+            Assets::TextureBuffer::List buffers(mipCount);
+            Assets::setMipBufferSize(buffers, mipCount, imageWidth, imageHeight, format);
+
+            const auto inputBytesPerPixel = FreeImage_GetLine(image) / FreeImage_GetWidth(image);
+            if (imageColourType != FIC_RGBALPHA || inputBytesPerPixel != 4) {
+                FIBITMAP* tempImage = FreeImage_ConvertTo32Bits(image);
                 FreeImage_Unload(image);
                 image = tempImage;
             }
 
-            FreeImage_FlipVertical(image);
+            const auto bytesPerPixel = FreeImage_GetLine(image) / FreeImage_GetWidth(image);
+            ensure(bytesPerPixel == 4, "expected to have converted image to 32-bit");
 
-            std::memcpy(buffers[0].ptr(), FreeImage_GetBits(image), buffers[0].size());
-            for (size_t mip = 1; mip < buffers.size(); ++mip) {
-                FIBITMAP* mipImage = FreeImage_Rescale(image, static_cast<int>(imageWidth >> mip), static_cast<int>(imageHeight >> mip), FILTER_BICUBIC);
-                std::memcpy(buffers[mip].ptr(), FreeImage_GetBits(mipImage), buffers[mip].size());
-                FreeImage_Unload(mipImage);
-            }
+                  auto* outBytes = buffers.at(0).ptr();
+            const auto  outBytesPerRow = static_cast<int>(imageWidth * 4);
+
+            FreeImage_ConvertToRawBits(outBytes, image, outBytesPerRow, 32, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, TRUE);
 
             FreeImage_Unload(image);
             FreeImage_CloseMemory(imageMemory);
 
-            return new Assets::Texture(textureName(imageName, path), imageWidth, imageHeight, Color(), buffers, format, Assets::TextureType::Opaque);
+            const auto textureType = Assets::Texture::selectTextureType(masked);
+            return new Assets::Texture(textureName(path), imageWidth, imageHeight, Color(), buffers, format, textureType);
         }
     }
-
 }

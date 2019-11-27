@@ -1,78 +1,76 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "TextureCollectionEditor.h"
 
+#include "SharedPointer.h"
 #include "Model/Game.h"
 #include "View/DirectoryTextureCollectionEditor.h"
 #include "View/FileTextureCollectionEditor.h"
 #include "View/MapDocument.h"
+#include "View/QtUtils.h"
 
-#include <wx/sizer.h>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
-        TextureCollectionEditor::TextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
-        m_document(document) {
-            MapDocumentSPtr doc = lock(m_document);
-            doc->documentWasNewedNotifier.addObserver(this, &TextureCollectionEditor::documentWasNewed);
-            doc->documentWasLoadedNotifier.addObserver(this, &TextureCollectionEditor::documentWasLoaded);
+        TextureCollectionEditor::TextureCollectionEditor(MapDocumentWPtr document, QWidget* parent) :
+        QWidget(parent),
+        m_document(std::move(document)) {
+            auto doc = lock(m_document);
+            doc->documentWasNewedNotifier.addObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
+            doc->documentWasLoadedNotifier.addObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
         }
-        
+
         TextureCollectionEditor::~TextureCollectionEditor() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasNewed);
-                document->documentWasLoadedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasLoaded);
+                auto document = lock(m_document);
+                document->documentWasNewedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
+                document->documentWasLoadedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
             }
         }
 
-        void TextureCollectionEditor::documentWasNewed(MapDocument* document) {
-            DestroyChildren();
+        void TextureCollectionEditor::documentWasNewedOrLoaded(MapDocument*) {
             createGui();
         }
-        
-        void TextureCollectionEditor::documentWasLoaded(MapDocument* document) {
-            DestroyChildren();
-            createGui();
-        }
-        
+
         void TextureCollectionEditor::createGui() {
-            wxWindow* collectionEditor = nullptr;
-            
-			auto document = lock(m_document);
-            const Model::Game::TexturePackageType type = document->game()->texturePackageType();
+            deleteChildWidgetsAndLayout(this);
+
+            QWidget* collectionEditor = nullptr;
+
+            auto document = lock(m_document);
+            const auto type = document->game()->texturePackageType();
             switch (type) {
-                case Model::Game::TP_File:
-                    collectionEditor = new FileTextureCollectionEditor(this, m_document);
+                case Model::Game::TexturePackageType::File:
+                    collectionEditor = new FileTextureCollectionEditor(m_document);
                     break;
-                case Model::Game::TP_Directory:
-                    collectionEditor = new DirectoryTextureCollectionEditor(this, m_document);
+                case Model::Game::TexturePackageType::Directory:
+                    collectionEditor = new DirectoryTextureCollectionEditor(m_document);
                     break;
             }
-            
-            auto* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(collectionEditor, wxSizerFlags().Expand().Proportion(1));
-            
-            SetSizer(sizer);
-			GetParent()->Layout();
-		}
+
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(collectionEditor, 1);
+            setLayout(layout);
+        }
     }
 }

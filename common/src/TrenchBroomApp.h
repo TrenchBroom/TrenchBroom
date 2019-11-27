@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,91 +21,83 @@
 #define TrenchBroom_TrenchBroomApp
 
 #include "Notifier.h"
-#include "IO/Path.h"
-#include "View/FrameManager.h"
-#include "View/RecentDocuments.h"
-#include <wx/app.h>
+#include "StringType.h"
 
-#include <functional>
+#include <memory>
+#include <vector>
 
-class wxExtHelpController;
+#include <QApplication>
+
+class QMenu;
+class QSettings;
 
 namespace TrenchBroom {
     class Logger;
     class RecoverableException;
 
+    namespace IO {
+        class Path;
+    }
+
     namespace View {
         class ExecutableEvent;
-        
-        class TrenchBroomApp : public wxApp {
+        class FrameManager;
+        class RecentDocuments;
+        class WelcomeWindow;
+
+        class TrenchBroomApp : public QApplication {
+            Q_OBJECT
         private:
-            FrameManager* m_frameManager;
-            RecentDocuments<TrenchBroomApp>* m_recentDocuments;
-            wxLongLong m_lastActivation;
+            std::unique_ptr<FrameManager> m_frameManager;
+            std::unique_ptr<RecentDocuments> m_recentDocuments;
+            std::unique_ptr<WelcomeWindow> m_welcomeWindow; // must be destroyed before recent documents!
         public:
-            Notifier0 recentDocumentsDidChangeNotifier;
+            Notifier<> recentDocumentsDidChangeNotifier;
         public:
             static TrenchBroomApp& instance();
 
-            TrenchBroomApp();
-            ~TrenchBroomApp() override;
-            
-            void detectAndSetupUbuntu();
-        protected:
-            wxAppTraits* CreateTraits() override;
+            TrenchBroomApp(int& argc, char** argv);
+            ~TrenchBroomApp();
         public:
+            void parseCommandLineAndShowFrame();
+            QSettings& settings();
+
             FrameManager* frameManager();
-            
-            const IO::Path::List& recentDocuments() const;
-            void addRecentDocumentMenu(wxMenu* menu);
-            void removeRecentDocumentMenu(wxMenu* menu);
+
+            const std::vector<IO::Path>& recentDocuments() const;
+            void addRecentDocumentMenu(QMenu* menu);
+            void removeRecentDocumentMenu(QMenu* menu);
             void updateRecentDocument(const IO::Path& path);
-            
-            bool newDocument();
-            bool openDocument(const String& pathStr);
-            bool recoverFromException(const RecoverableException& e, const std::function<bool()>& op);
+
+            bool openDocument(const IO::Path& path);
+            bool recoverFromException(const RecoverableException& e, const std::function<bool()>& retry);
             void openPreferences();
             void openAbout();
-
-            bool OnInit() override;
-            
-            bool OnExceptionInMainLoop() override;
-            void OnUnhandledException() override;
-            void OnFatalException() override;
-        private:
-            void handleException();
+            bool initializeGameFactory();
         public:
-            
-            int OnRun() override;
-            
-            void OnFileNew(wxCommandEvent& event);
-            void OnFileOpen(wxCommandEvent& event);
-            void OnFileOpenRecent(wxCommandEvent& event);
-            void OnHelpShowManual(wxCommandEvent& event);
-            void OnOpenPreferences(wxCommandEvent& event);
-            void OnOpenAbout(wxCommandEvent& event);
-            void OnDebugShowCrashReportDialog(wxCommandEvent& event);
+            bool newDocument();
+            void openDocument();
+            void showManual();
+            void showPreferences();
+            void showAboutDialog();
+            void debugShowCrashReportDialog();
 
-            void OnExecutableEvent(ExecutableEvent& event);
-            
-            int FilterEvent(wxEvent& event) override;
+            bool notify(QObject* receiver, QEvent* event) override;
+
 #ifdef __APPLE__
-            void OnFileExit(wxCommandEvent& event);
-            void OnUpdateUI(wxUpdateUIEvent& event);
-
-            void MacNewFile() override;
-            void MacOpenFiles(const wxArrayString& filenames) override;
-#else
-            void OnInitCmdLine(wxCmdLineParser& parser) override;
-            bool OnCmdLineParsed(wxCmdLineParser& parser) override;
+            bool event(QEvent* event) override;
 #endif
+            bool openFilesOrWelcomeFrame(const QStringList& fileNames);
+        public:
+            void showWelcomeWindow();
+            void hideWelcomeWindow();
+            void closeWelcomeWindow();
         private:
             static bool useSDI();
-            void showWelcomeFrame();
         };
 
-        void setCrashReportGUIEnbled(const bool guiEnabled);
-        void reportCrashAndExit(const String &stacktrace, const String &reason);
+        void setCrashReportGUIEnbled(bool guiEnabled);
+        [[noreturn]] void reportCrashAndExit(const String &stacktrace, const String &reason);
         bool isReportingCrash();
     }
 }

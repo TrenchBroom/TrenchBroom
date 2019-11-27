@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,10 +20,13 @@
 #ifndef TrenchBroom_ChangeBrushFaceAttributesRequest
 #define TrenchBroom_ChangeBrushFaceAttributesRequest
 
-#include "StringUtils.h"
-#include "Model/ModelTypes.h"
+#include "Color.h"
+#include "StringType.h"
+#include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -32,7 +35,7 @@ namespace TrenchBroom {
 
     namespace Model {
         class BrushFaceAttributes;
-        
+
         class ChangeBrushFaceAttributesRequest {
         public:
             // TODO: replace with class based enum
@@ -75,7 +78,8 @@ namespace TrenchBroom {
             int m_surfaceFlags;
             int m_contentFlags;
             float m_surfaceValue;
-            
+            Color m_colorValue;
+
             TextureOp m_textureOp;
             AxisOp m_axisOp;
             ValueOp m_xOffsetOp;
@@ -86,63 +90,70 @@ namespace TrenchBroom {
             FlagOp m_surfaceFlagsOp;
             FlagOp m_contentFlagsOp;
             ValueOp m_surfaceValueOp;
+            ValueOp m_colorValueOp;
         public:
             ChangeBrushFaceAttributesRequest();
-            
+
             void clear();
-            
+
             const String name() const;
-            void evaluate(const BrushFaceList& faces) const;
-            
+            bool evaluate(const std::vector<BrushFace*>& faces) const;
+
             void resetAll();
-            
+
             void setTexture(Assets::Texture* texture);
             void unsetTexture();
-            
+
             void resetTextureAxes();
             void resetTextureAxesToParaxial();
             void resetTextureAxesToParallel();
-            
+
             void setOffset(const vm::vec2f& offset);
             void addOffset(const vm::vec2f& offset);
             void mulOffset(const vm::vec2f& offset);
-            
+
             void setXOffset(float xOffset);
             void addXOffset(float xOffset);
             void mulXOffset(float xOffset);
-            
+
             void setYOffset(float yOffset);
             void addYOffset(float yOffset);
             void mulYOffset(float yOffset);
-            
+
             void setRotation(float rotation);
             void addRotation(float rotation);
             void mulRotation(float rotation);
-            
+
             void setScale(const vm::vec2f& scale);
             void addScale(const vm::vec2f& scale);
             void mulScale(const vm::vec2f& scale);
-            
+
             void setXScale(float xScale);
             void addXScale(float xScale);
             void mulXScale(float xScale);
-            
+
             void setYScale(float yScale);
             void addYScale(float yScale);
             void mulYScale(float yScale);
-            
+
+            void setSurfaceFlags(int surfaceFlags);
+            void unsetSurfaceFlags(int surfaceFlags);
             void replaceSurfaceFlags(int surfaceFlags);
             void setSurfaceFlag(size_t surfaceFlag);
             void unsetSurfaceFlag(size_t surfaceFlag);
-            
+
+            void setContentFlags(int contentFlags);
+            void unsetContentFlags(int contentFlags);
             void replaceContentFlags(int contentFlags);
             void setContentFlag(size_t contentFlag);
             void unsetContentFlag(size_t contentFlag);
-            
+
             void setSurfaceValue(float surfaceValue);
             void addSurfaceValue(float surfaceValue);
             void mulSurfaceValue(float surfaceValue);
-            
+
+            void setColor(const Color& colorValue);
+
             void setAll(const Model::BrushFace* face);
             void setAll(const Model::BrushFaceAttributes& attributes);
 

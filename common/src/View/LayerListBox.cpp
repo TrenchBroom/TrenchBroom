@@ -19,157 +19,125 @@
 
 #include "LayerListBox.h"
 
+#include "SharedPointer.h"
 #include "Model/Layer.h"
 #include "Model/World.h"
-#include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
-#include <wx/scrolwin.h>
-#include <wx/settings.h>
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-#include <wx/tglbtn.h>
-#include <wx/wupdlock.h>
-
-wxDEFINE_EVENT(LAYER_SELECTED_EVENT, TrenchBroom::View::LayerCommand);
-wxDEFINE_EVENT(LAYER_SET_CURRENT_EVENT, TrenchBroom::View::LayerCommand);
-wxDEFINE_EVENT(LAYER_RIGHT_CLICK_EVENT, TrenchBroom::View::LayerCommand);
-wxDEFINE_EVENT(LAYER_TOGGLE_VISIBLE_EVENT, TrenchBroom::View::LayerCommand);
-wxDEFINE_EVENT(LAYER_TOGGLE_LOCKED_EVENT, TrenchBroom::View::LayerCommand);
+#include <QLabel>
+#include <QHBoxLayout>
+#include <QAbstractButton>
+#include <QListWidgetItem>
+#include <QMouseEvent>
 
 namespace TrenchBroom {
     namespace View {
-        LayerCommand::LayerCommand(const wxEventType commandType, const int id) :
-        wxCommandEvent(commandType, id),
-        m_layer(nullptr) {}
+        LayerListBoxWidget::LayerListBoxWidget(MapDocumentWPtr document, Model::Layer* layer, QWidget* parent) :
+        ControlListBoxItemRenderer(parent),
+        m_document(std::move(document)),
+        m_layer(layer) {
+            m_nameText = new QLabel(QString::fromStdString(m_layer->name()));
+            // Ignore the label's minimum width, this prevents a horizontal scroll bar from appearing on the list widget,
+            // and instead just cuts off the label for long layer names.
+            m_nameText->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+            m_infoText = new QLabel("");
+            makeInfo(m_infoText);
 
-        Model::Layer* LayerCommand::layer() const {
+            m_hiddenButton = createBitmapToggleButton("Hidden.png", "");
+            m_lockButton = createBitmapToggleButton("Lock.png", "");
+
+            auto documentS = lock(m_document);
+            connect(m_hiddenButton, &QAbstractButton::clicked, this, [this](){
+                emit layerVisibilityToggled(m_layer);
+            });
+            connect(m_lockButton, &QAbstractButton::clicked, this, [this]() {
+                emit layerLockToggled(m_layer);
+            });
+
+            installEventFilter(this);
+            m_nameText->installEventFilter(this);
+            m_infoText->installEventFilter(this);
+
+            auto* itemPanelBottomLayout = new QHBoxLayout();
+            itemPanelBottomLayout->setContentsMargins(0, 0, 0, 0);
+            itemPanelBottomLayout->setSpacing(0);
+
+            itemPanelBottomLayout->addWidget(m_hiddenButton, 0, Qt::AlignVCenter);
+            itemPanelBottomLayout->addWidget(m_lockButton, 0, Qt::AlignVCenter);
+            itemPanelBottomLayout->addWidget(m_infoText, 0, Qt::AlignVCenter);
+            itemPanelBottomLayout->addStretch(1);
+            itemPanelBottomLayout->addSpacing(LayoutConstants::NarrowHMargin);
+
+            auto* itemPanelLayout = new QVBoxLayout();
+            itemPanelLayout->setContentsMargins(0, 0, 0, 0);
+            itemPanelLayout->setSpacing(0);
+
+            itemPanelLayout->addSpacing(LayoutConstants::NarrowVMargin);
+            itemPanelLayout->addWidget(m_nameText);
+            itemPanelLayout->addLayout(itemPanelBottomLayout);
+            itemPanelLayout->addSpacing(LayoutConstants::NarrowVMargin);
+            setLayout(itemPanelLayout);
+
+            updateLayerItem();
+        }
+
+        void LayerListBoxWidget::updateItem() {
+            updateLayerItem();
+        }
+
+        /**
+         * This is factored out from updateItem() so the constructor can call it without doing a virtual function call
+         */
+        void LayerListBoxWidget::updateLayerItem() {
+            // Update labels
+            m_nameText->setText(QString::fromStdString(m_layer->name()));
+            if (lock(m_document)->currentLayer() == m_layer) {
+                makeEmphasized(m_nameText);
+            } else {
+                makeUnemphasized(m_nameText);
+            }
+
+            const auto info = tr("%1 %2").arg(m_layer->childCount()).arg(QString::fromStdString(StringUtils::safePlural(m_layer->childCount(), "object", "objects")));
+            m_infoText->setText(info);
+
+            // Update buttons
+            m_lockButton->setChecked(m_layer->locked());
+            m_hiddenButton->setChecked(m_layer->hidden());
+
+            auto document = lock(m_document);
+            m_lockButton->setEnabled(m_layer->locked() || m_layer != document->currentLayer());
+            m_hiddenButton->setEnabled(m_layer->hidden() || m_layer != document->currentLayer());
+        }
+
+        Model::Layer* LayerListBoxWidget::layer() const {
             return m_layer;
         }
 
-        void LayerCommand::setLayer(Model::Layer* layer) {
-            m_layer = layer;
+        bool LayerListBoxWidget::eventFilter(QObject* target, QEvent* event) {
+            if (event->type() == QEvent::MouseButtonDblClick) {
+                auto* mouseEvent = static_cast<QMouseEvent*>(event);
+                if (mouseEvent->button() == Qt::LeftButton) {
+                    emit layerDoubleClicked(m_layer);
+                    return true;
+                }
+            } else if (event->type() == QEvent::MouseButtonRelease) {
+                auto* mouseEvent = static_cast<QMouseEvent*>(event);
+                if (mouseEvent->button() == Qt::RightButton) {
+                    emit layerRightClicked(m_layer);
+                    return true;
+                }
+            }
+            return QObject::eventFilter(target, event);
         }
 
-        wxEvent* LayerCommand::Clone() const {
-            return new LayerCommand(*this);
-        }
+        // LayerListBox
 
-        class LayerListBox::LayerItem : public Item {
-        private:
-            MapDocumentWPtr m_document;
-            Model::Layer* m_layer;
-            wxStaticText* m_nameText;
-            wxStaticText* m_infoText;
-        public:
-            LayerItem(wxWindow* parent, MapDocumentWPtr document, Model::Layer* layer, const wxSize& margins) :
-            Item(parent),
-            m_document(document),
-            m_layer(layer) {
-                m_nameText = new wxStaticText(this, wxID_ANY, m_layer->name());
-                m_infoText = new wxStaticText(this, wxID_ANY, "");
-                m_infoText->SetForegroundColour(makeLighter(m_infoText->GetForegroundColour()));
-                refresh();
-
-                wxWindow* hiddenText = new wxStaticText(this, wxID_ANY, "yGp"); // this is just for keeping the correct height of the name text
-                hiddenText->SetFont(GetFont().Bold());
-                hiddenText->Hide();
-                
-                wxWindow* hiddenButton = createBitmapToggleButton(this, "Visible.png", "Invisible.png", "");
-                wxWindow* lockButton = createBitmapToggleButton(this, "Unlocked.png", "Locked.png", "");
-
-                MapDocumentSPtr documentS = lock(m_document);
-                hiddenButton->Enable(m_layer->hidden() || m_layer != documentS->currentLayer());
-                lockButton->Enable(m_layer->locked() || m_layer != documentS->currentLayer());
-
-                hiddenButton->Bind(wxEVT_BUTTON, &LayerItem::OnToggleVisible, this);
-                hiddenButton->Bind(wxEVT_UPDATE_UI, &LayerItem::OnUpdateVisibleButton, this);
-                lockButton->Bind(wxEVT_BUTTON, &LayerItem::OnToggleLocked, this);
-                lockButton->Bind(wxEVT_UPDATE_UI, &LayerItem::OnUpdateLockButton, this);
-
-                wxSizer* itemPanelTopSizer = new wxBoxSizer(wxHORIZONTAL);
-                itemPanelTopSizer->Add(m_nameText, 0, wxALIGN_BOTTOM);
-                itemPanelTopSizer->Add(hiddenText, 0, wxALIGN_BOTTOM | wxRESERVE_SPACE_EVEN_IF_HIDDEN);
-                
-                wxSizer* itemPanelBottomSizer = new wxBoxSizer(wxHORIZONTAL);
-                itemPanelBottomSizer->Add(hiddenButton, 0, wxALIGN_CENTRE_VERTICAL);
-                itemPanelBottomSizer->Add(lockButton, 0, wxALIGN_CENTRE_VERTICAL);
-                itemPanelBottomSizer->Add(m_infoText, 0, wxALIGN_CENTRE_VERTICAL);
-                itemPanelBottomSizer->AddStretchSpacer();
-                itemPanelBottomSizer->AddSpacer(LayoutConstants::NarrowHMargin);
-
-                wxSizer* itemPanelSizer = new wxBoxSizer(wxVERTICAL);
-                itemPanelSizer->AddSpacer(LayoutConstants::NarrowVMargin);
-                itemPanelSizer->Add(itemPanelTopSizer,    0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
-                itemPanelSizer->Add(itemPanelBottomSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
-                itemPanelSizer->AddSpacer(LayoutConstants::NarrowVMargin);
-                SetSizer(itemPanelSizer);
-            }
-
-            Model::Layer* layer() const {
-                return m_layer;
-            }
-
-            void refresh() {
-                wxWindowUpdateLocker locker(this);
-                
-                m_nameText->SetLabel(m_layer->name());
-                if (lock(m_document)->currentLayer() == m_layer)
-                    m_nameText->SetFont(GetFont().Bold());
-                else
-                    m_nameText->SetFont(GetFont());
-
-                wxString info;
-                info << m_layer->childCount() << " " << StringUtils::safePlural(m_layer->childCount(), "object", "objects");
-                m_infoText->SetLabel(info);
-                m_infoText->SetFont(GetFont());
-                
-                Layout();
-            }
-
-            void OnToggleVisible(wxCommandEvent& event) {
-                LayerCommand* command = new LayerCommand(LAYER_TOGGLE_VISIBLE_EVENT);
-                command->SetId(GetId());
-                command->SetEventObject(this);
-                command->setLayer(m_layer);
-                QueueEvent(command);
-            }
-
-            void OnUpdateVisibleButton(wxUpdateUIEvent& event) {
-                event.Check(m_layer->hidden());
-
-                MapDocumentSPtr document = lock(m_document);
-                event.Enable(m_layer->hidden() || m_layer != document->currentLayer());
-            }
-
-            void OnToggleLocked(wxCommandEvent& event) {
-                LayerCommand* command = new LayerCommand(LAYER_TOGGLE_LOCKED_EVENT);
-                command->SetId(GetId());
-                command->SetEventObject(this);
-                command->setLayer(m_layer);
-                QueueEvent(command);
-            }
-
-            void OnUpdateLockButton(wxUpdateUIEvent& event) {
-                event.Check(m_layer->locked());
-
-                MapDocumentSPtr document = lock(m_document);
-                event.Enable(m_layer->locked() || m_layer != document->currentLayer());
-            }
-        private:
-            void setDefaultColours(const wxColour& foreground, const wxColour& background) override {
-                Item::setDefaultColours(foreground, background);
-                m_infoText->SetForegroundColour(makeLighter(m_infoText->GetForegroundColour()));
-            }
-        };
-
-        LayerListBox::LayerListBox(wxWindow* parent, MapDocumentWPtr document) :
-        ControlListBox(parent, true),
-        m_document(document) {
+        LayerListBox::LayerListBox(MapDocumentWPtr document, QWidget* parent) :
+        ControlListBox("", true, parent),
+        m_document(std::move(document)) {
             bindObservers();
-            bindEvents();
         }
 
         LayerListBox::~LayerListBox() {
@@ -177,124 +145,119 @@ namespace TrenchBroom {
         }
 
         Model::Layer* LayerListBox::selectedLayer() const {
-            if (GetSelection() == wxNOT_FOUND)
-                return nullptr;
-
-            const Model::World* world = lock(m_document)->world();
-            const Model::LayerList layers = world->allLayers();
-
-            const size_t index = static_cast<size_t>(GetSelection());
-            ensure(index < layers.size(), "index out of range");
-            return layers[index];
+            return layerForRow(currentRow());
         }
 
         void LayerListBox::setSelectedLayer(Model::Layer* layer) {
-            SetSelection(wxNOT_FOUND);
-            for (size_t i = 0; i < m_items.size(); ++i) {
-                LayerItem* item = static_cast<LayerItem*>(m_items[i]);
-                if (item->layer() == layer) {
-                    SetSelection(static_cast<int>(i));
+            for (int i = 0; i < count(); ++i) {
+                if (layerForRow(i) == layer) {
+                    setCurrentRow(i);
                     break;
                 }
             }
-            Refresh();
-        }
-
-        void LayerListBox::OnSelectionChanged(wxCommandEvent& event) {
-            LayerCommand* command = new LayerCommand(LAYER_SELECTED_EVENT);
-            command->SetId(GetId());
-            command->SetEventObject(this);
-            command->setLayer(selectedLayer());
-            QueueEvent(command);
-        }
-        
-        void LayerListBox::OnDoubleClick(wxCommandEvent& event) {
-            LayerCommand* command = new LayerCommand(LAYER_SET_CURRENT_EVENT);
-            command->SetId(GetId());
-            command->SetEventObject(this);
-            command->setLayer(selectedLayer());
-            QueueEvent(command);
-        }
-
-        void LayerListBox::OnRightClick(wxCommandEvent& event) {
-            Model::Layer* layer = selectedLayer();
-            if (layer != nullptr) {
-                LayerCommand* command = new LayerCommand(LAYER_RIGHT_CLICK_EVENT);
-                command->SetId(GetId());
-                command->SetEventObject(this);
-                command->setLayer(layer);
-                QueueEvent(command);
-            }
+            setCurrentRow(-1);
         }
 
         void LayerListBox::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &LayerListBox::documentDidChange);
             document->documentWasLoadedNotifier.addObserver(this, &LayerListBox::documentDidChange);
             document->documentWasClearedNotifier.addObserver(this, &LayerListBox::documentDidChange);
             document->currentLayerDidChangeNotifier.addObserver(this, &LayerListBox::currentLayerDidChange);
-            document->nodesWereAddedNotifier.addObserver(this, &LayerListBox::nodesDidChange);
-            document->nodesWereRemovedNotifier.addObserver(this, &LayerListBox::nodesDidChange);
+            document->nodesWereAddedNotifier.addObserver(this, &LayerListBox::nodesWereAddedOrRemoved);
+            document->nodesWereRemovedNotifier.addObserver(this, &LayerListBox::nodesWereAddedOrRemoved);
             document->nodesDidChangeNotifier.addObserver(this, &LayerListBox::nodesDidChange);
+            document->nodeVisibilityDidChangeNotifier.addObserver(this, &LayerListBox::nodesDidChange);
         }
 
         void LayerListBox::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
                 document->documentWasLoadedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
                 document->documentWasClearedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
                 document->currentLayerDidChangeNotifier.removeObserver(this, &LayerListBox::currentLayerDidChange);
-                document->nodesWereAddedNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
-                document->nodesWereRemovedNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
+                document->nodesWereAddedNotifier.removeObserver(this, &LayerListBox::nodesWereAddedOrRemoved);
+                document->nodesWereRemovedNotifier.removeObserver(this, &LayerListBox::nodesWereAddedOrRemoved);
                 document->nodesDidChangeNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
+                document->nodeVisibilityDidChangeNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
             }
         }
 
-        void LayerListBox::documentDidChange(MapDocument* document) {
-            const Model::World* world = document->world();
-            if (world != nullptr) {
-                SetItemCount(world->allLayers().size());
+        void LayerListBox::documentDidChange(MapDocument*) {
+            reload();
+        }
+
+        void LayerListBox::nodesWereAddedOrRemoved(const std::vector<Model::Node*>& nodes) {
+            for (const auto* node : nodes) {
+                if (dynamic_cast<const Model::Layer*>(node) != nullptr) {
+                    // A layer was added or removed, so we need to clear and repopulate the list
+                    reload();
+                    return;
+                }
+            }
+            updateItems();
+        }
+
+        void LayerListBox::nodesDidChange(const std::vector<Model::Node*>&) {
+            updateItems();
+        }
+
+        void LayerListBox::currentLayerDidChange(const Model::Layer*) {
+            updateItems();
+        }
+
+        size_t LayerListBox::itemCount() const {
+            auto document = lock(m_document);
+            const auto* world = document->world();
+            if (world == nullptr) {
+                return 0;
+            }
+            return world->allLayers().size();
+        }
+
+        ControlListBoxItemRenderer* LayerListBox::createItemRenderer(QWidget* parent, const size_t index) {
+            auto document = lock(m_document);
+            const auto* world = document->world();
+            const auto layers = world->allLayers();
+            auto* renderer = new LayerListBoxWidget(document, layers[index], parent);
+
+            connect(renderer, &LayerListBoxWidget::layerDoubleClicked, this, [this](auto* layer){
+                emit layerSetCurrent(layer);
+            });
+            connect(renderer, &LayerListBoxWidget::layerRightClicked, this, [this](auto* layer) {
+                emit layerRightClicked(layer);
+            });
+            connect(renderer, &LayerListBoxWidget::layerVisibilityToggled, this, [this](auto* layer) {
+                emit layerVisibilityToggled(layer);
+            });
+            connect(renderer, &LayerListBoxWidget::layerLockToggled, this, [this](auto* layer) {
+                emit layerLockToggled(layer);
+            });
+
+            return renderer;
+        }
+
+        void LayerListBox::selectedRowChanged(const int index) {
+            emit layerSelected(layerForRow(index));
+        }
+
+        const LayerListBoxWidget* LayerListBox::widgetAtRow(const int row) const {
+            auto* renderer = this->renderer(row);
+            if (renderer == nullptr) {
+                return nullptr;
             } else {
-                SetItemCount(0);
+                return static_cast<const LayerListBoxWidget*>(renderer);
             }
         }
 
-        void LayerListBox::nodesDidChange(const Model::NodeList& nodes) {
-            MapDocumentSPtr document = lock(m_document);
-            const Model::World* world = document->world();
-            if (world != nullptr) {
-                SetItemCount(world->allLayers().size());
+        Model::Layer* LayerListBox::layerForRow(const int row) const {
+            const auto* widget = widgetAtRow(row);
+            if (widget == nullptr) {
+                return nullptr;
             } else {
-                SetItemCount(0);
+                return widget->layer();
             }
-        }
-
-        void LayerListBox::currentLayerDidChange(const Model::Layer* layer) {
-            MapDocumentSPtr document = lock(m_document);
-            const Model::World* world = document->world();
-            if (world != nullptr) {
-                SetItemCount(world->allLayers().size());
-            } else {
-                SetItemCount(0);
-            }
-        }
-
-        void LayerListBox::bindEvents() {
-            Bind(wxEVT_LISTBOX, &LayerListBox::OnSelectionChanged, this);
-            Bind(wxEVT_LISTBOX_DCLICK, &LayerListBox::OnDoubleClick, this);
-            Bind(wxEVT_LISTBOX_RCLICK, &LayerListBox::OnRightClick, this);
-        }
-        
-        ControlListBox::Item* LayerListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
-            MapDocumentSPtr document = lock(m_document);
-            const Model::World* world = document->world();
-            ensure(world != nullptr, "world is null");
-            
-            const Model::LayerList layers = world->allLayers();
-            ensure(index < layers.size(), "index out of range");
-            
-            return new LayerItem(parent, document, layers[index], margins);
         }
     }
 }

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,42 +22,55 @@
 
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
+#include <QListWidget>
 
-class wxButton;
-class wxListBox;
-class wxStaticText;
+class QPushButton;
+class QListWidget;
+class QLabel;
 
 namespace TrenchBroom {
     namespace View {
-        class EntityDefinitionFileChooser : public wxPanel {
+        class SingleSelectionListWidget : public QListWidget {
+            Q_OBJECT
+        private:
+            bool m_allowDeselectAll;
+        public:
+            explicit SingleSelectionListWidget(QWidget* parent = nullptr);
+            void setAllowDeselectAll(bool allow);
+            bool allowDeselectAll() const;
+        protected: // QAbstractItemView overrides
+            void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;
+            //QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex& index, const QEvent* event) const override;
+        };
+
+        class EntityDefinitionFileChooser : public QWidget {
+            Q_OBJECT
         private:
             MapDocumentWPtr m_document;
-            
-            wxListBox* m_builtin;
-            wxStaticText* m_external;
-            wxButton* m_chooseExternal;
-            wxButton* m_reloadExternal;
+
+            SingleSelectionListWidget* m_builtin;
+            QLabel* m_external;
+            QPushButton* m_chooseExternal;
+            QPushButton* m_reloadExternal;
         public:
-            EntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document);
-            ~EntityDefinitionFileChooser();
-            
-            void OnBuiltinSelectionChanged(wxCommandEvent& event);
-            void OnChooseExternalClicked(wxCommandEvent& event);
-            void OnReloadExternalClicked(wxCommandEvent& event);
-            void OnUpdateReloadExternal(wxUpdateUIEvent& event);
+            explicit EntityDefinitionFileChooser(MapDocumentWPtr document, QWidget* parent = nullptr);
+            ~EntityDefinitionFileChooser() override;
         private:
             void createGui();
             void bindEvents();
-            
+
             void bindObservers();
             void unbindObservers();
-            
+
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
             void entityDefinitionsDidChange();
-            
+
             void updateControls();
+
+            void builtinSelectionChanged();
+            void chooseExternalClicked();
+            void reloadExternalClicked();
         };
     }
 }

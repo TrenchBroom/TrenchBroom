@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,48 +21,47 @@
 #define TrenchBroom_SmartSpawnflagsEditor
 
 #include "Assets/AssetTypes.h"
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
 #include "View/SmartAttributeEditor.h"
 #include "View/ViewTypes.h"
 
-#include <wx/gdicmn.h>
+#include <vector>
 
-class wxCheckBox;
-class wxColor;
-class wxCommandEvent;
-class wxScrolledWindow;
-class wxString;
-class wxWindow;
+#include <QPoint>
+
+class QString;
+class QWidget;
+class QScrollArea;
 
 namespace TrenchBroom {
     namespace View {
         class FlagsEditor;
         class FlagChangedCommand;
-        
+
         class SmartSpawnflagsEditor : public SmartAttributeEditor {
+            Q_OBJECT
         private:
             static const size_t NumFlags = 24;
             static const size_t NumCols = 3;
-            
+
             class UpdateSpawnflag;
-            
-            wxScrolledWindow* m_scrolledWindow;
-            wxPoint m_lastScrollPos;
+
+            QScrollArea* m_scrolledWindow;
+            QPoint m_lastScrollPos;
             FlagsEditor* m_flagsEditor;
             bool m_ignoreUpdates;
         public:
-            SmartSpawnflagsEditor(View::MapDocumentWPtr document);
-            
-            void OnFlagChanged(FlagChangedCommand& event);
+            explicit SmartSpawnflagsEditor(View::MapDocumentWPtr document, QWidget* parent = nullptr);
         private:
-            wxWindow* doCreateVisual(wxWindow* parent) override;
-            void doDestroyVisual() override;
-            void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
+            void createGui();
+            void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) override;
             void resetScrollPos();
-            
-            void getFlags(const Model::AttributableNodeList& attributables, wxArrayString& labels, wxArrayString& tooltips) const;
-            void getFlagValues(const Model::AttributableNodeList& attributables, int& setFlags, int& mixedFlags) const;
+
+            void getFlags(const std::vector<Model::AttributableNode*>& attributables, QStringList& labels, QStringList& tooltips) const;
+            void getFlagValues(const std::vector<Model::AttributableNode*>& attributables, int& setFlags, int& mixedFlags) const;
             int getFlagValue(const Model::AttributableNode* attributable) const;
+
+            void flagChanged(size_t index, int setFlag, int mixedFlag);
         };
     }
 }

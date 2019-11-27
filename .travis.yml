@@ -2,12 +2,28 @@ language: cpp
 matrix:
   include:
     - os: linux
-      dist: trusty
-      sudo: required
+      dist: xenial
+      addons:
+        apt:
+          sources:
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
+            - sourceline: "ppa:beineri/opt-qt595-xenial"
+          packages:
+            - g++-7 qt59base freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm cppcheck
+    - os: linux
+      dist: xenial
+      env: TB_GCC8=true
+      addons:
+        apt:
+          sources:
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
+            - sourceline: "ppa:beineri/opt-qt595-xenial"
+          packages:
+            - g++-8 qt59base freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm cppcheck
     - os: osx
-      osx_image: xcode9.3
+      osx_image: xcode10.2
     - os: osx
-      osx_image: xcode9.3
+      osx_image: xcode10.2
       env: TB_DEBUG_BUILD=true
 script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./travis-macos.sh; fi
@@ -26,4 +42,4 @@ deploy:
   on:
     repo: kduske/TrenchBroom
     tags: true
-    condition: $TB_DEBUG_BUILD != true
+    condition: $TB_DEBUG_BUILD != 'true' && $TB_GCC8 != 'true'

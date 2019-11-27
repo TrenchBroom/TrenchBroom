@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,9 +21,9 @@
 #define TrenchBroom_EntityBrowserView
 
 #include "Assets/EntityDefinitionManager.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/FontDescriptor.h"
+#include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/quat.h>
@@ -36,49 +36,49 @@ namespace TrenchBroom {
         class EntityModelManager;
         class PointEntityDefinition;
     }
-    
+
     namespace Renderer {
         class FontDescriptor;
-        class TexturedIndexRangeRenderer;
+        class TexturedRenderer;
         class Transformation;
     }
-    
+
     namespace View {
         class GLContextManager;
-        
-        typedef String EntityGroupData;
-        
+
+        using EntityGroupData = String;
+
         class EntityCellData {
         private:
-            typedef Renderer::TexturedIndexRangeRenderer EntityRenderer;
+            using EntityRenderer = Renderer::TexturedRenderer;
         public:
-            Assets::PointEntityDefinition* entityDefinition;
+            const Assets::PointEntityDefinition* entityDefinition;
             EntityRenderer* modelRenderer;
             Renderer::FontDescriptor fontDescriptor;
             vm::bbox3f bounds;
-            
-            EntityCellData(Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds);
+
+            EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds);
         };
 
-        class EntityBrowserView : public CellView<EntityCellData, EntityGroupData> {
+        class EntityBrowserView : public CellView {
+            Q_OBJECT
         private:
-            typedef Renderer::TexturedIndexRangeRenderer EntityRenderer;
-            
-            typedef Renderer::VertexSpecs::P2T2C4::Vertex TextVertex;
-            typedef std::map<Renderer::FontDescriptor, TextVertex::List> StringMap;
+            using EntityRenderer = Renderer::TexturedRenderer;
+
+            using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
+            using StringMap = std::map<Renderer::FontDescriptor, TextVertex::List>;
 
             Assets::EntityDefinitionManager& m_entityDefinitionManager;
             Assets::EntityModelManager& m_entityModelManager;
             Logger& m_logger;
             vm::quatf m_rotation;
-            
+
             bool m_group;
             bool m_hideUnused;
             Assets::EntityDefinition::SortOrder m_sortOrder;
             String m_filterText;
         public:
-            EntityBrowserView(wxWindow* parent,
-                              wxScrollBar* scrollBar,
+            EntityBrowserView(QScrollBar* scrollBar,
                               GLContextManager& contextManager,
                               Assets::EntityDefinitionManager& entityDefinitionManager,
                               Assets::EntityModelManager& entityModelManager,
@@ -91,34 +91,34 @@ namespace TrenchBroom {
             void setFilterText(const String& filterText);
         private:
             void usageCountDidChange();
-            
+
             void doInitLayout(Layout& layout) override;
             void doReloadLayout(Layout& layout) override;
 
             bool dndEnabled() override;
-            void dndWillStart() override;
-            void dndDidEnd() override;
-            wxString dndData(const Layout::Group::Row::Cell& cell) override;
+            QString dndData(const Cell& cell) override;
 
-            void addEntityToLayout(Layout& layout, Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font);
-            
+            void addEntityToLayout(Layout& layout, const Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font);
+
             void doClear() override;
             void doRender(Layout& layout, float y, float height) override;
             bool doShouldRenderFocusIndicator() const override;
 
             void renderBounds(Layout& layout, float y, float height);
-            
+
             class MeshFunc;
             void renderModels(Layout& layout, float y, float height, Renderer::Transformation& transformation);
-            
+
             void renderNames(Layout& layout, float y, float height, const vm::mat4x4f& projection);
             void renderGroupTitleBackgrounds(Layout& layout, float y, float height);
             void renderStrings(Layout& layout, float y, float height);
             StringMap collectStringVertices(Layout& layout, float y, float height);
-            
-            vm::mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, float y, float height) const;
-            
-            wxString tooltip(const Layout::Group::Row::Cell& cell) override;
+
+            vm::mat4x4f itemTransformation(const Cell& cell, float y, float height) const;
+
+            QString tooltip(const Cell& cell) override;
+
+            const EntityCellData& cellData(const Cell& cell) const;
         };
     }
 }

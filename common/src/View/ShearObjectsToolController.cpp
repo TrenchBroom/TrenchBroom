@@ -1,19 +1,19 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
  Copyright (C) 2018 Eric Wasylishen
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,12 +22,11 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Reference.h"
+#include "SharedPointer.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
-#include "Renderer/VertexSpec.h"
 #include "Renderer/Camera.h"
 #include "View/InputState.h"
 #include "View/ShearObjectsTool.h"
@@ -42,10 +41,14 @@ namespace TrenchBroom {
         m_document(document) {
             ensure(m_tool != nullptr, "tool is null");
         }
-        
+
         ShearObjectsToolController::~ShearObjectsToolController() = default;
-        
+
         Tool* ShearObjectsToolController::doGetTool() {
+            return m_tool;
+        }
+
+        const Tool* ShearObjectsToolController::doGetTool() const {
             return m_tool;
         }
 
@@ -64,16 +67,16 @@ namespace TrenchBroom {
             const vm::vec3 sideCenter = centerForBBoxSide(bboxAtDragStart, side);
 
             if (camera.perspectiveProjection()) {
-                if (side.normal == vm::vec3::pos_z || side.normal == vm::vec3::neg_z) {
+                if (side.normal == vm::vec3::pos_z() || side.normal == vm::vec3::neg_z()) {
                     restricter = new PlaneDragRestricter(vm::plane3(sideCenter, side.normal));
                     snapper = new DeltaDragSnapper(grid);
                 } else if (!vertical) {
-                    const vm::line3 sideways(sideCenter, normalize(cross(side.normal, vm::vec3::pos_z)));
+                    const vm::line3 sideways(sideCenter, normalize(cross(side.normal, vm::vec3::pos_z())));
 
                     restricter = new LineDragRestricter(sideways);
                     snapper = new LineDragSnapper(grid, sideways);
                 } else {
-                    const vm::line3 verticalLine(sideCenter, vm::vec3::pos_z);
+                    const vm::line3 verticalLine(sideCenter, vm::vec3::pos_z());
 
                     restricter = new LineDragRestricter(verticalLine);
                     snapper = new LineDragSnapper(grid, verticalLine);
@@ -86,7 +89,7 @@ namespace TrenchBroom {
                 snapper = new LineDragSnapper(grid, sideways);
             }
 
-            return {restricter, snapper};
+            return std::make_tuple(restricter, snapper);
         }
 
         void ShearObjectsToolController::doModifierKeyChange(const InputState& inputState) {
@@ -104,11 +107,11 @@ namespace TrenchBroom {
             const BBoxSide side = m_tool->dragStartHit().target<BBoxSide>();
 
             // Can't do vertical restraint on these
-            if (side.normal == vm::vec3::pos_z || side.normal == vm::vec3::neg_z) {
+            if (side.normal == vm::vec3::pos_z() || side.normal == vm::vec3::neg_z()) {
                 return;
             }
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             if (vertical != m_tool->constrainVertical()) {
                 m_tool->setConstrainVertical(vertical);
@@ -122,7 +125,7 @@ namespace TrenchBroom {
             // Mouse might be over a different handle now
             m_tool->refreshViews();
         }
-        
+
         void ShearObjectsToolController::doMouseMove(const InputState& inputState) {
             if (m_tool->applies() && !anyToolDragging(inputState)) {
                 m_tool->updatePickedSide(inputState.pickResult());
@@ -146,7 +149,7 @@ namespace TrenchBroom {
                 return DragInfo();
             }
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             const Model::PickResult& pickResult = inputState.pickResult();
             const Model::Hit& hit = pickResult.query().type(ShearObjectsTool::ShearToolSideHit).occluded().first();
@@ -168,14 +171,14 @@ namespace TrenchBroom {
             const vm::vec3 initialPoint = [&]() {
                 vm::vec3 p = hit.hitPoint();
                 restricter->hitPoint(inputState, p);
-                snapper->snap(inputState, vm::vec3::zero, vm::vec3::zero, p);
+                snapper->snap(inputState, vm::vec3::zero(), vm::vec3::zero(), p);
                 return p;
             }();
 
             return DragInfo(restricter, snapper, initialPoint);
         }
 
-        RestrictedDragPolicy::DragResult ShearObjectsToolController::doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
+        RestrictedDragPolicy::DragResult ShearObjectsToolController::doDrag(const InputState&, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
             const auto delta = nextHandlePosition - lastHandlePosition;
             m_tool->shearByDelta(delta);
 
@@ -194,11 +197,11 @@ namespace TrenchBroom {
         }
 
 
-        void ShearObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+        void ShearObjectsToolController::doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
             renderContext.setForceHideSelectionGuide();
         }
-        
-        void ShearObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+
+        void ShearObjectsToolController::doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             // render sheared box
             {
                 Renderer::RenderService renderService(renderContext, renderBatch);
@@ -207,7 +210,7 @@ namespace TrenchBroom {
                 const auto op = [&](const vm::vec3& start, const vm::vec3& end) {
                     renderService.renderLine(vm::vec3f(mat * start), vm::vec3f(mat * end));
                 };
-                m_tool->bboxAtDragStart().forEachEdge(op);
+                m_tool->bboxAtDragStart().for_each_edge(op);
             }
 
             // render shear handle
@@ -232,7 +235,7 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         bool ShearObjectsToolController::doCancel() {
             return false;
         }
@@ -241,7 +244,7 @@ namespace TrenchBroom {
 
         ShearObjectsToolController2D::ShearObjectsToolController2D(ShearObjectsTool* tool, MapDocumentWPtr document) :
         ShearObjectsToolController(tool, document) {}
-        
+
         void ShearObjectsToolController2D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
             m_tool->pick2D(pickRay, camera, pickResult);
@@ -251,7 +254,7 @@ namespace TrenchBroom {
 
         ShearObjectsToolController3D::ShearObjectsToolController3D(ShearObjectsTool* tool, MapDocumentWPtr document) :
         ShearObjectsToolController(tool, document) {}
-        
+
         void ShearObjectsToolController3D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
             m_tool->pick3D(pickRay, camera, pickResult);

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,67 +24,45 @@
 #include "View/BorderLine.h"
 #include "View/CurrentGameIndicator.h"
 #include "View/GameEngineProfileManager.h"
-#include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
-#include <wx/button.h>
-#include <wx/settings.h>
-#include <wx/simplebook.h>
-#include <wx/sizer.h>
-#include <wx/statbmp.h>
-#include <wx/stattext.h>
-#include <wx/textctrl.h>
+#include <QBoxLayout>
+#include <QDialogButtonBox>
 
 namespace TrenchBroom {
     namespace View {
-        GameEngineDialog::GameEngineDialog(wxWindow* parent, const String& gameName) :
-        wxDialog(parent, wxID_ANY, "Game Engines"),
+        GameEngineDialog::GameEngineDialog(const String& gameName, QWidget* parent) :
+        QDialog(parent),
         m_gameName(gameName),
         m_profileManager(nullptr) {
+            setWindowTitle("Game Engines");
+            setWindowIconTB(this);
             createGui();
-            SetSize(600, 400);
-            CentreOnParent();
         }
 
         void GameEngineDialog::createGui() {
-            setWindowIcon(this);
+            auto* gameIndicator = new CurrentGameIndicator(m_gameName);
 
-            CurrentGameIndicator* gameIndicator = new CurrentGameIndicator(this, m_gameName);
-            
-            Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            Model::GameConfig& gameConfig = gameFactory.gameConfig(m_gameName);
-            m_profileManager = new GameEngineProfileManager(this, gameConfig.gameEngineConfig());
-            
-            wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
-            closeButton->Bind(wxEVT_BUTTON, &GameEngineDialog::OnCloseButtonClicked, this);
-            closeButton->Bind(wxEVT_UPDATE_UI, &GameEngineDialog::OnUpdateCloseButtonUI, this);
-            
-            wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
-            buttonSizer->SetCancelButton(closeButton);
-            buttonSizer->Realize();
-            
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(gameIndicator, wxSizerFlags().Expand());
-            outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-            outerSizer->Add(m_profileManager, wxSizerFlags().Expand().Proportion(1));
-            outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
-            SetSizer(outerSizer);
+            auto& gameFactory = Model::GameFactory::instance();
+            auto& gameConfig = gameFactory.gameConfig(m_gameName);
+            m_profileManager = new GameEngineProfileManager(gameConfig.gameEngineConfig());
 
-            Bind(wxEVT_CLOSE_WINDOW, &GameEngineDialog::OnClose, this);
-        }
+            auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close);
 
-        void GameEngineDialog::OnUpdateCloseButtonUI(wxUpdateUIEvent& event) {
-            event.Enable(true);
-        }
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(QMargins());
+            layout->setSpacing(0);
+            setLayout(layout);
 
-        void GameEngineDialog::OnCloseButtonClicked(wxCommandEvent& event) {
-            EndModal(wxID_OK);
-        }
+            layout->addWidget(gameIndicator);
+            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            layout->addWidget(m_profileManager, 1);
+            layout->addLayout(wrapDialogButtonBox(buttons));
 
-        void GameEngineDialog::OnClose(wxCloseEvent& event) {
-            if (GetParent() != nullptr)
-                GetParent()->Raise();
-            event.Skip();
+            setFixedSize(600, 400);
+
+            connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+            connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::accept);
         }
     }
 }

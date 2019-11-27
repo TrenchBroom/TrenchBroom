@@ -20,8 +20,8 @@
 #ifndef CompilationVariables_h
 #define CompilationVariables_h
 
-#include "EL.h"
-#include "StringUtils.h"
+#include "StringType.h"
+#include "EL/VariableStore.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -39,27 +39,27 @@ namespace TrenchBroom {
 
         class CommonVariables : public EL::VariableTable {
         protected:
-            CommonVariables(MapDocumentSPtr document);
+            explicit CommonVariables(MapDocumentSPtr document);
         };
-        
+
         class CommonCompilationVariables : public CommonVariables {
         protected:
-            CommonCompilationVariables(MapDocumentSPtr document);
+            explicit CommonCompilationVariables(MapDocumentSPtr document);
         };
-        
+
         class CompilationWorkDirVariables : public CommonCompilationVariables {
         public:
-            CompilationWorkDirVariables(MapDocumentSPtr document);
+            explicit CompilationWorkDirVariables(MapDocumentSPtr document);
         };
-        
+
         class CompilationVariables : public CommonCompilationVariables {
         public:
             CompilationVariables(MapDocumentSPtr document, const String& workDir);
         };
-        
+
         class LaunchGameEngineVariables : public CommonVariables {
         public:
-            LaunchGameEngineVariables(MapDocumentSPtr document);
+            explicit LaunchGameEngineVariables(MapDocumentSPtr document);
         };
     }
 }

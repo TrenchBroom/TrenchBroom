@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,7 +20,9 @@
 #ifndef TrenchBroom_NodeVisitor
 #define TrenchBroom_NodeVisitor
 
-#include "Model/ModelTypes.h"
+#include "Model/Model_Forward.h"
+
+#include <cassert>
 
 namespace TrenchBroom {
     namespace Model {
@@ -38,13 +40,13 @@ namespace TrenchBroom {
             void cancel();
             void stopRecursion();
         };
-        
+
         class NodeVisitor : public BaseNodeVisitor {
         protected:
             NodeVisitor();
         public:
-            virtual ~NodeVisitor();
-            
+            ~NodeVisitor() override;
+
             virtual void visit(World* world);
             virtual void visit(Layer* layer);
             virtual void visit(Group* group);
@@ -57,13 +59,13 @@ namespace TrenchBroom {
             virtual void doVisit(Entity* entity) = 0;
             virtual void doVisit(Brush* brush)   = 0;
         };
-        
+
         class ConstNodeVisitor : public BaseNodeVisitor {
         protected:
             ConstNodeVisitor();
         public:
-            virtual ~ConstNodeVisitor();
-            
+            ~ConstNodeVisitor() override;
+
             virtual void visit(const World* world);
             virtual void visit(const Layer* layer);
             virtual void visit(const Group* group);
@@ -76,50 +78,50 @@ namespace TrenchBroom {
             virtual void doVisit(const Entity* entity) = 0;
             virtual void doVisit(const Brush* brush)   = 0;
         };
-        
-        
+
+
         struct NeverStopRecursion {
             bool operator()(const Node* node, bool matched) const;
         };
-        
+
         struct StopRecursionIfMatched {
             bool operator()(const Node* node, bool matched) const;
         };
-        
+
         template <class P, class S = NeverStopRecursion>
         class MatchingNodeVisitor : public NodeVisitor {
         private:
             P m_p;
             S m_s;
         protected:
-            MatchingNodeVisitor(const P& p = P(), const S& s = S()) : m_p(p), m_s(s) {}
+            explicit MatchingNodeVisitor(const P& p = P(), const S& s = S()) : m_p(p), m_s(s) {}
         public:
-            virtual ~MatchingNodeVisitor() override {}
-            
+            ~MatchingNodeVisitor() override = default;
+
             void visit(World* world) override {
                 const bool match = m_p(world);
                 if (match) NodeVisitor::visit(world);
                 if (m_s(world, match)) stopRecursion();
             }
-            
+
             void visit(Layer* layer) override {
                 const bool match = m_p(layer);
                 if (match) NodeVisitor::visit(layer);
                 if (m_s(layer, match)) stopRecursion();
             }
-            
+
             void visit(Group* group) override {
                 const bool match = m_p(group);
                 if (match) NodeVisitor::visit(group);
                 if (m_s(group, match)) stopRecursion();
             }
-            
+
             void visit(Entity* entity) override {
                 const bool match = m_p(entity);
                 if (match) NodeVisitor::visit(entity);
                 if (m_s(entity, match)) stopRecursion();
             }
-            
+
             void visit(Brush* brush) override {
                 const bool match = m_p(brush);
                 if (match) NodeVisitor::visit(brush);
@@ -133,57 +135,57 @@ namespace TrenchBroom {
             P m_p;
             S m_s;
         protected:
-            ConstMatchingNodeVisitor(const P& p = P(), const S& s = S()) : m_p(p), m_s(s) {}
+            explicit ConstMatchingNodeVisitor(const P& p = P(), const S& s = S()) : m_p(p), m_s(s) {}
         public:
-            virtual ~ConstMatchingNodeVisitor() {}
-            
-            void visit(const World* world) {
+            ~ConstMatchingNodeVisitor() override = default;
+
+            void visit(const World* world) override {
                 const bool match = m_p(world);
                 if (match) ConstNodeVisitor::visit(world);
                 if (m_s(world, match)) stopRecursion();
             }
-            
-            void visit(const Layer* layer) {
+
+            void visit(const Layer* layer) override {
                 const bool match = m_p(layer);
                 if (match) ConstNodeVisitor::visit(layer);
                 if (m_s(layer, match)) stopRecursion();
             }
-            
-            void visit(const Group* group) {
+
+            void visit(const Group* group) override {
                 const bool match = m_p(group);
                 if (match) ConstNodeVisitor::visit(group);
                 if (m_s(group, match)) stopRecursion();
             }
-            
-            void visit(const Entity* entity) {
+
+            void visit(const Entity* entity) override {
                 const bool match = m_p(entity);
                 if (match) ConstNodeVisitor::visit(entity);
                 if (m_s(entity, match)) stopRecursion();
             }
-            
-            void visit(const Brush* brush) {
+
+            void visit(const Brush* brush) override {
                 const bool match = m_p(brush);
                 if (match) ConstNodeVisitor::visit(brush);
                 if (m_s(brush, match)) stopRecursion();
             }
         };
-        
+
         template <typename T>
         class NodeQuery {
         private:
             bool m_hasResult;
             T m_result;
         public:
-            NodeQuery(const T& defaultResult = T()) :
+            explicit NodeQuery(const T& defaultResult = T()) :
             m_hasResult(false),
             m_result(defaultResult) {}
-            
-            virtual ~NodeQuery() {}
-            
+
+            virtual ~NodeQuery() = default;
+
             bool hasResult() const {
                 return m_hasResult;
             }
-            
+
             T result() const {
                 assert(hasResult());
                 return m_result;
@@ -198,7 +200,7 @@ namespace TrenchBroom {
                 }
             }
         private:
-            virtual T doCombineResults(T oldResult, T newResult) const { return newResult; }
+            virtual T doCombineResults(T /* oldResult */, T newResult) const { return newResult; }
         };
     }
 }

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,18 +20,21 @@
 #ifndef TrenchBroom_PreferenceDialog
 #define TrenchBroom_PreferenceDialog
 
-#include <wx/dialog.h>
+#include "View/ViewTypes.h"
 
-class wxPanel;
-class wxSimplebook;
-class wxToolBar;
-class wxToolBarToolBase;
+#include <QDialog>
+
+class QDialogButtonBox;
+class QStackedWidget;
+class QToolBar;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
         class PreferencePane;
-        
-        class PreferenceDialog : public wxDialog {
+
+        class PreferenceDialog : public QDialog {
+            Q_OBJECT
         private:
             typedef enum {
                 PrefPane_First = 0,
@@ -42,36 +45,21 @@ namespace TrenchBroom {
                 PrefPane_Last = 3
             } PrefPane;
 
-            wxToolBar* m_toolBar;
-            wxSimplebook* m_book;
+            MapDocumentSPtr m_document;
+            QToolBar* m_toolBar;
+            QStackedWidget* m_stackedWidget;
+            QDialogButtonBox* m_buttonBox;
         public:
-            PreferenceDialog();
-            bool Create();
-        private:
-            void OnToolClicked(wxCommandEvent& event);
-            void OnOKClicked(wxCommandEvent& event);
-            void OnApplyClicked(wxCommandEvent& event);
-            void OnCancelClicked(wxCommandEvent& event);
-            void OnFileClose(wxCommandEvent& event);
-            void OnUpdateFileClose(wxUpdateUIEvent& event);
+            explicit PreferenceDialog(MapDocumentSPtr document, QWidget* parent = nullptr);
 
-            void OnResetClicked(wxCommandEvent& event);
-            void OnUpdateReset(wxUpdateUIEvent& event);
-            
-            void OnClose(wxCloseEvent& event);
+        protected: // QWidget overrides
+            void closeEvent(QCloseEvent* event) override;
         private:
             void createGui();
-            void bindEvents();
-            
-            void switchToPane(const PrefPane pane);
-            void toggleTools(const PrefPane pane);
-
+            void switchToPane(PrefPane pane);
             PreferencePane* currentPane() const;
-            PrefPane currentPaneId() const;
-
-            void updateAcceleratorTable(const PrefPane pane);
-        public:
-            wxDECLARE_DYNAMIC_CLASS(PreferenceDialog);
+        private slots:
+            void resetToDefaults();
         };
     }
 }

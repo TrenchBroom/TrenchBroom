@@ -1,33 +1,37 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Bsp29Parser.h"
 
-#include "Macros.h"
-#include "ByteBuffer.h"
+#include "Exceptions.h"
+#include "StringStream.h"
+#include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
-#include "Assets/TextureCollection.h"
-#include "Assets/Bsp29Model.h"
 #include "Assets/Palette.h"
-#include "IO/MappedFile.h"
-#include "IO/IOUtils.h"
+#include "IO/File.h"
+#include "IO/Reader.h"
+#include "IO/MipTextureReader.h"
 #include "IO/IdMipTextureReader.h"
+#include "Renderer/TexturedIndexRangeMap.h"
+#include "Renderer/TexturedIndexRangeMapBuilder.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -46,224 +50,258 @@ namespace TrenchBroom {
             // static const size_t DirFaceEdgesSize      = 0x70;
             static const size_t DirModelAddress       = 0x74;
             // static const size_t DirModelSize          = 0x78;
-            
-            static const size_t TextureNameLength     = 0x10;
-            
+
+            // static const size_t TextureNameLength     = 0x10;
+
             static const size_t FaceSize              = 0x14;
             static const size_t FaceEdgeIndex         = 0x4;
             static const size_t FaceRest              = 0x8;
-            
+
             static const size_t TexInfoSize           = 0x28;
             static const size_t TexInfoRest           = 0x4;
-            
+
             static const size_t FaceEdgeSize          = 0x4;
             static const size_t ModelSize             = 0x40;
             // static const size_t ModelOrigin           = 0x18;
             static const size_t ModelFaceIndex        = 0x38;
             // static const size_t ModelFaceCount        = 0x3c;
         }
-        
+
         Bsp29Parser::Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette) :
         m_name(name),
         m_begin(begin),
-        // m_end(end),
+        m_end(end),
         m_palette(palette) {}
-        
-        Assets::EntityModel* Bsp29Parser::doParseModel() {
-            const char* cursor = m_begin;
-            const int version = readInt<int32_t>(cursor);
-            assert(version == 29);
-            unused(version);
-            
-            Assets::TextureCollection* textures = parseTextures();
-            const TextureInfoList textureInfos = parseTextureInfos();
-            const std::vector<vm::vec3f> vertices = parseVertices();
-            const EdgeInfoList edgeInfos = parseEdgeInfos();
-            const FaceInfoList faceInfos = parseFaceInfos();
-            const FaceEdgeIndexList faceEdges = parseFaceEdges();
-            
-            return parseModels(textures, textureInfos, vertices, edgeInfos, faceInfos, faceEdges);
+
+        std::unique_ptr<Assets::EntityModel> Bsp29Parser::doInitializeModel(Logger& /* logger */) {
+            auto reader = Reader::from(m_begin, m_end);
+            const auto version = reader.readInt<int32_t>();
+            if (version != 29) {
+                throw AssetException("Unsupported BSP model version: " + std::to_string(version));
+            }
+
+            reader.seekFromBegin(BspLayout::DirTexturesAddress);
+            const auto textureOffset = reader.readSize<int32_t>();
+
+            reader.seekFromBegin(BspLayout::DirModelAddress);
+            /* const auto modelsOffset = */ reader.readSize<int32_t>();
+            const auto modelsLength = reader.readSize<int32_t>();
+            const auto frameCount = modelsLength / BspLayout::ModelSize;
+
+            const auto textures = parseTextures(reader.subReaderFromBegin(textureOffset));
+
+            auto model = std::make_unique<Assets::EntityModel>(m_name);
+            model->addFrames(frameCount);
+
+            auto& surface = model->addSurface(m_name);
+            for (auto* texture : textures) {
+                surface.addSkin(texture);
+            }
+
+            return model;
         }
-        
-        Assets::TextureCollection* Bsp29Parser::parseTextures() {
-            char textureName[BspLayout::TextureNameLength + 1];
-            textureName[BspLayout::TextureNameLength] = 0;
-            Color averageColor;
-            
-            const char* cursor = m_begin + BspLayout::DirTexturesAddress;
-            const size_t textureAddr = readSize<int32_t>(cursor);
-            cursor = m_begin + textureAddr;
-            const size_t textureCount = readSize<int32_t>(cursor);
-            cursor -= sizeof(int32_t);
-            
-            Assets::TextureList textures;
-            textures.reserve(textureCount);
-            
+
+        void Bsp29Parser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */) {
+            auto reader = Reader::from(m_begin, m_end);
+            const auto version = reader.readInt<int32_t>();
+            if (version != 29) {
+                throw AssetException("Unsupported BSP model version: " + std::to_string(version));
+            }
+
+            reader.seekFromBegin(BspLayout::DirTexturesAddress);
+            /* const auto textureOffset = */ reader.readSize<int32_t>();
+            /* const auto textureLength = */ reader.readSize<int32_t>();
+
+            reader.seekFromBegin(BspLayout::DirTexInfosAddress);
+            const auto textureInfoOffset = reader.readSize<int32_t>();
+            const auto textureInfoLength = reader.readSize<int32_t>();
+            const auto textureInfoCount  = textureInfoLength / BspLayout::TexInfoSize;
+
+            reader.seekFromBegin(BspLayout::DirVerticesAddress);
+            const auto vertexOffset = reader.readSize<int32_t>();
+            const auto vertexLength = reader.readSize<int32_t>();
+            const auto vertexCount = vertexLength / (3 * sizeof(float));
+
+            reader.seekFromBegin(BspLayout::DirEdgesAddress);
+            const auto edgeInfoOffset = reader.readSize<int32_t>();
+            const auto edgeInfoLength = reader.readSize<int32_t>();
+            const auto edgeInfoCount = edgeInfoLength / (2 * sizeof(uint16_t));
+
+            reader.seekFromBegin(BspLayout::DirFacesAddress);
+            const auto faceInfoOffset = reader.readSize<int32_t>();
+            const auto faceInfoLength = reader.readSize<int32_t>();
+            const auto faceInfoCount = faceInfoLength / BspLayout::FaceSize;
+
+            reader.seekFromBegin(BspLayout::DirFaceEdgesAddress);
+            const auto faceEdgesOffset = reader.readSize<int32_t>();
+            const auto faceEdgesLength = reader.readSize<int32_t>();
+            const auto faceEdgesCount = faceEdgesLength / BspLayout::FaceEdgeSize;
+
+            reader.seekFromBegin(BspLayout::DirModelAddress);
+            const auto modelsOffset = reader.readSize<int32_t>();
+
+            const auto textureInfos = parseTextureInfos(reader.subReaderFromBegin(textureInfoOffset), textureInfoCount);
+            const auto vertices = parseVertices(reader.subReaderFromBegin(vertexOffset), vertexCount);
+            const auto edgeInfos = parseEdgeInfos(reader.subReaderFromBegin(edgeInfoOffset), edgeInfoCount);
+            const auto faceInfos = parseFaceInfos(reader.subReaderFromBegin(faceInfoOffset), faceInfoCount);
+            const auto faceEdges = parseFaceEdges(reader.subReaderFromBegin(faceEdgesOffset), faceEdgesCount);
+
+            parseFrame(reader.subReaderFromBegin(modelsOffset + frameIndex * BspLayout::ModelSize, BspLayout::ModelSize), frameIndex, model, textureInfos, vertices, edgeInfos, faceInfos, faceEdges);
+        }
+
+        Assets::TextureList Bsp29Parser::parseTextures(Reader reader) {
             const TextureReader::TextureNameStrategy nameStrategy;
             IdMipTextureReader textureReader(nameStrategy, m_palette);
 
-            const char* base = cursor;
+            const auto textureCount = reader.readSize<int32_t>();
+            Assets::TextureList result(textureCount);
+
             for (size_t i = 0; i < textureCount; ++i) {
-                cursor = base + (i + 1)*sizeof(int32_t);
-                const int textureOffset = readInt<int32_t>(cursor);
+                const auto textureOffset = reader.readInt<int32_t>();
+                // 2153: Some BSPs contain negative texture offsets.
                 if (textureOffset < 0) {
                     continue;
                 }
-                cursor = base + textureOffset;
-                readBytes(cursor, textureName, BspLayout::TextureNameLength);
-                const size_t width = readSize<int32_t>(cursor);
-                const size_t height = readSize<int32_t>(cursor);
-                const size_t mipFileSize = IdMipTextureReader::mipFileSize(width, height, 4);
-                
-                const char* const begin = base + textureOffset;
-                const char* const end = begin + mipFileSize;
-                
-                Assets::Texture* texture = textureReader.readTexture(begin, end, Path(""));
-                textures.push_back(texture);
-            }
-            
-            return new Assets::TextureCollection(IO::Path(m_name), textures);
-        }
-        
-        Bsp29Parser::TextureInfoList Bsp29Parser::parseTextureInfos() {
-            const char* cursor = m_begin + BspLayout::DirTexInfosAddress;
-            const size_t texInfosAddr = readSize<int32_t>(cursor);
-            const size_t texInfosLength = readSize<int32_t>(cursor);
-            const size_t texInfoCount = texInfosLength/BspLayout::TexInfoSize;
-            
-            TextureInfoList textureInfos(texInfoCount);
-            cursor = m_begin + texInfosAddr;
-            for (size_t i = 0; i < texInfoCount; ++i) {
-                textureInfos[i].sAxis = readVec3f(cursor);
-                textureInfos[i].sOffset = readFloat<float>(cursor);
-                textureInfos[i].tAxis = readVec3f(cursor);
-                textureInfos[i].tOffset = readFloat<float>(cursor);
-                textureInfos[i].textureIndex = readSize<uint32_t>(cursor);
-                cursor += BspLayout::TexInfoRest;
-            }
-            return textureInfos;
-        }
-        
-        std::vector<vm::vec3f> Bsp29Parser::parseVertices() {
-            const char* cursor = m_begin + BspLayout::DirVerticesAddress;
-            const size_t verticesAddr = readSize<int32_t>(cursor);
-            const size_t verticesLength = readSize<int32_t>(cursor);
-            const size_t vertexCount = verticesLength/(3*sizeof(float));
-            
-            std::vector<vm::vec3f> vertices(vertexCount);
-            cursor = m_begin + verticesAddr;
-            for (size_t i = 0; i < vertexCount; ++i)
-                vertices[i] = readVec3f(cursor);
-            return vertices;
-        }
-        
-        Bsp29Parser::EdgeInfoList Bsp29Parser::parseEdgeInfos() {
-            const char* cursor = m_begin + BspLayout::DirEdgesAddress;
-            const size_t edgesAddr = readSize<int32_t>(cursor);
-            const size_t edgesLength = readSize<int32_t>(cursor);
-            const size_t edgeCount = edgesLength / (2*sizeof(uint16_t));
-            
-            EdgeInfoList edgeInfos(edgeCount);
-            cursor = m_begin + edgesAddr;
-            for (size_t i = 0; i < edgeCount; ++i) {
-                edgeInfos[i].vertexIndex1 = readSize<uint16_t>(cursor);
-                edgeInfos[i].vertexIndex2 = readSize<uint16_t>(cursor);
-            }
-            return edgeInfos;
-        }
-        
-        Bsp29Parser::FaceInfoList Bsp29Parser::parseFaceInfos() {
-            const char* cursor = m_begin + BspLayout::DirFacesAddress;
-            const size_t facesAddr = readSize<int32_t>(cursor);
-            const size_t facesLength = readSize<int32_t>(cursor);
-            const size_t faceCount = facesLength / BspLayout::FaceSize;
-            
-            cursor = m_begin + facesAddr;
-            FaceInfoList faceInfos(faceCount);
-            for (size_t i = 0; i < faceCount; ++i) {
-                cursor += BspLayout::FaceEdgeIndex;
-                faceInfos[i].edgeIndex = readSize<int32_t>(cursor);
-                faceInfos[i].edgeCount = readSize<uint16_t>(cursor);
-                faceInfos[i].textureInfoIndex = readSize<uint16_t>(cursor);
-                cursor += BspLayout::FaceRest;
-            }
-            return faceInfos;
-        }
-        
-        Bsp29Parser::FaceEdgeIndexList Bsp29Parser::parseFaceEdges() {
-            const char* cursor = m_begin + BspLayout::DirFaceEdgesAddress;
-            const size_t faceEdgesAddr = readSize<int32_t>(cursor);
-            const size_t faceEdgesLength = readSize<int32_t>(cursor);
-            const size_t faceEdgesCount = faceEdgesLength / BspLayout::FaceEdgeSize;
-            
-            cursor = m_begin + faceEdgesAddr;
-            FaceEdgeIndexList faceEdges(faceEdgesCount);
-            for (size_t i = 0; i < faceEdgesCount; ++i)
-                faceEdges[i] = readInt<int32_t>(cursor);
-            return faceEdges;
-        }
-        
-        Assets::Bsp29Model* Bsp29Parser::parseModels(Assets::TextureCollection* textureCollection, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
-            
-            auto* model = new Assets::Bsp29Model(m_name, textureCollection);
-            try {
-                VertexMarkList vertexMarks(vertices.size(), false);
-                std::vector<vm::vec3f> modelVertices;
-                
-                const char* cursor = m_begin + BspLayout::DirModelAddress;
-                const size_t modelsAddr = readSize<int32_t>(cursor);
-                const size_t modelsLength = readSize<int32_t>(cursor);
-                const size_t modelCount = modelsLength / BspLayout::ModelSize;
-                
-                cursor = m_begin + modelsAddr;
-                for (size_t i = 0; i < modelCount; ++i) {
-                    cursor += BspLayout::ModelFaceIndex;
-                    const size_t modelFaceIndex = readSize<int32_t>(cursor);
-                    const size_t modelFaceCount = readSize<int32_t>(cursor);
-                    size_t totalVertexCount = 0;
-                    
-                    Assets::Bsp29Model::FaceList faces;
-                    faces.reserve(modelFaceCount);
-                    for (size_t j = 0; j < modelFaceCount; ++j) {
-                        const FaceInfo& faceInfo = faceInfos[modelFaceIndex + j];
-                        const TextureInfo& textureInfo = textureInfos[faceInfo.textureInfoIndex];
-                        Assets::Texture* texture = textureCollection->textures()[textureInfo.textureIndex];
-                        const size_t faceVertexCount = faceInfo.edgeCount;
 
-                        Assets::Bsp29Model::Face face(texture, faceVertexCount);
-                        for (size_t k = 0; k < faceVertexCount; ++k) {
-                            const int faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
-                            size_t vertexIndex;
-                            if (faceEdgeIndex < 0)
-                                vertexIndex = edgeInfos[static_cast<size_t>(-faceEdgeIndex)].vertexIndex2;
-                            else
-                                vertexIndex = edgeInfos[static_cast<size_t>(faceEdgeIndex)].vertexIndex1;
-                            
-                            const vm::vec3f& vertex = vertices[vertexIndex];
-                            const vm::vec2f texCoords = textureCoords(vertex, textureInfo, *texture);
-                            face.addVertex(vertex, texCoords);
-                            
-                            if (!vertexMarks[vertexIndex]) {
-                                modelVertices.push_back(vertex);
-                            }
-                        }
-                        faces.push_back(face);
-                        totalVertexCount += faceVertexCount;
-                    }
-                    
-                    const auto bounds = vm::bbox3f::mergeAll(std::begin(modelVertices), std::end(modelVertices));
-                    model->addModel(faces, bounds);
+                auto subReader = reader.subReaderFromBegin(static_cast<size_t>(textureOffset)).buffer();
+
+                // MipTextureReader::doReadTexture requires a texture name to be provided in the File's Path.
+                // So we must peek into the mip data to get a name.
+                auto texturePath = Path(MipTextureReader::getTextureName(subReader));
+                if (texturePath.isEmpty()) {
+                    texturePath = Path("unknown");
                 }
-            } catch (...) {
-                delete model;
-                throw;
+
+                // We can't easily tell where the texture ends without duplicating all of the parsing code (including HlMip) here.
+                // Just prevent the texture reader from reading past the end of the .bsp file.
+                auto fileView = std::make_shared<NonOwningBufferFile>(texturePath, subReader.begin(), subReader.end());
+                result[i] = textureReader.readTexture(fileView);
             }
-            return model;
+
+            return result;
         }
-        
-        vm::vec2f Bsp29Parser::textureCoords(const vm::vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture& texture) const {
-            return vm::vec2f((dot(vertex, textureInfo.sAxis) + textureInfo.sOffset) / texture.width(),
-                         (dot(vertex, textureInfo.tAxis) + textureInfo.tOffset) / texture.height());
+
+        Bsp29Parser::TextureInfoList Bsp29Parser::parseTextureInfos(Reader reader, const size_t textureInfoCount) {
+            TextureInfoList result(textureInfoCount);
+            for (size_t i = 0; i < textureInfoCount; ++i) {
+                result[i].sAxis = reader.readVec<float, 3>();
+                result[i].sOffset = reader.readFloat<float>();
+                result[i].tAxis = reader.readVec<float, 3>();
+                result[i].tOffset = reader.readFloat<float>();
+                result[i].textureIndex = reader.readSize<uint32_t>();
+                reader.seekForward(BspLayout::TexInfoRest);
+            }
+            return result;
+        }
+
+        std::vector<vm::vec3f> Bsp29Parser::parseVertices(Reader reader, const size_t vertexCount) {
+            std::vector<vm::vec3f> result(vertexCount);
+            for (size_t i = 0; i < vertexCount; ++i) {
+                result[i] = reader.readVec<float, 3>();
+            }
+            return result;
+        }
+
+        Bsp29Parser::EdgeInfoList Bsp29Parser::parseEdgeInfos(Reader reader, const size_t edgeInfoCount) {
+            EdgeInfoList result(edgeInfoCount);
+            for (size_t i = 0; i < edgeInfoCount; ++i) {
+                result[i].vertexIndex1 = reader.readSize<uint16_t>();
+                result[i].vertexIndex2 = reader.readSize<uint16_t>();
+            }
+            return result;
+        }
+
+        Bsp29Parser::FaceInfoList Bsp29Parser::parseFaceInfos(Reader reader, const size_t faceInfoCount) {
+            FaceInfoList result(faceInfoCount);
+            for (size_t i = 0; i < faceInfoCount; ++i) {
+                reader.seekForward(BspLayout::FaceEdgeIndex);
+                result[i].edgeIndex = reader.readSize<int32_t>();
+                result[i].edgeCount = reader.readSize<uint16_t>();
+                result[i].textureInfoIndex = reader.readSize<uint16_t>();
+                reader.seekForward(BspLayout::FaceRest);
+            }
+            return result;
+        }
+
+        Bsp29Parser::FaceEdgeIndexList Bsp29Parser::parseFaceEdges(Reader reader, const size_t faceEdgeCount) {
+            FaceEdgeIndexList result(faceEdgeCount);
+            for (size_t i = 0; i < faceEdgeCount; ++i) {
+                result[i] = reader.readInt<int32_t>();
+            }
+            return result;
+        }
+
+        void Bsp29Parser::parseFrame(Reader reader, const size_t frameIndex, Assets::EntityModel& model, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
+            using Vertex = Assets::EntityModel::Vertex;
+            using VertexList = Vertex::List;
+
+            auto& surface = model.surface(0);
+
+            reader.seekForward(BspLayout::ModelFaceIndex);
+            const auto modelFaceIndex = reader.readSize<int32_t>();
+            const auto modelFaceCount = reader.readSize<int32_t>();
+            size_t totalVertexCount = 0;
+            Renderer::TexturedIndexRangeMap::Size size;
+
+            for (size_t i = 0; i < modelFaceCount; ++i) {
+                const auto& faceInfo = faceInfos[modelFaceIndex + i];
+                const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];
+                auto* skin = surface.skin(textureInfo.textureIndex);
+                if (skin != nullptr) {
+                    const auto faceVertexCount = faceInfo.edgeCount;
+                    size.inc(skin, GL_POLYGON, faceVertexCount);
+                    totalVertexCount += faceVertexCount;
+                }
+            }
+
+            vm::bbox3f::builder bounds;
+
+            Renderer::TexturedIndexRangeMapBuilder<Vertex::Type> builder(totalVertexCount, size);
+            for (size_t i = 0; i < modelFaceCount; ++i) {
+                const auto& faceInfo = faceInfos[modelFaceIndex + i];
+                const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];
+                auto* skin = surface.skin(textureInfo.textureIndex);
+                if (skin != nullptr) {
+                    const auto faceVertexCount = faceInfo.edgeCount;
+
+                    VertexList faceVertices;
+                    faceVertices.reserve(faceVertexCount);
+                    for (size_t k = 0; k < faceVertexCount; ++k) {
+                        const int faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
+                        size_t vertexIndex;
+                        if (faceEdgeIndex < 0) {
+                            vertexIndex = edgeInfos[static_cast<size_t>(-faceEdgeIndex)].vertexIndex2;
+                        } else {
+                            vertexIndex = edgeInfos[static_cast<size_t>(faceEdgeIndex)].vertexIndex1;
+                        }
+
+                        const auto& position = vertices[vertexIndex];
+                        const auto texCoords = textureCoords(position, textureInfo, skin);
+
+                        bounds.add(position);
+
+                        faceVertices.push_back(Vertex(position, texCoords));
+                    }
+
+                    builder.addPolygon(skin, faceVertices);
+                }
+            }
+
+            StringStream frameName;
+            frameName << m_name << "_" << frameIndex;
+
+            auto& frame = model.loadFrame(frameIndex, frameName.str(), bounds.bounds());
+            surface.addTexturedMesh(frame, builder.vertices(), builder.indices());
+
+        }
+
+        vm::vec2f Bsp29Parser::textureCoords(const vm::vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture* texture) const {
+            if (texture == nullptr) {
+                return vm::vec2f::zero();
+            } else {
+                return vm::vec2f((dot(vertex, textureInfo.sAxis) + textureInfo.sOffset) / texture->width(),
+                                 (dot(vertex, textureInfo.tAxis) + textureInfo.tOffset) / texture->height());
+            }
         }
     }
 }

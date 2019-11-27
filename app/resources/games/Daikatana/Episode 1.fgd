@@ -1,0 +1,117 @@
+//
+// Daikatana game definition file (.fgd)
+// Episode 1 entities
+// for Trenchbroom
+// last update: 6 Oct, 2018
+// Version: 1
+//
+// written by Dekonega <dekonega(at)windowslive.com>
+// email me with improvements and suggestions
+//
+
+@include "Common.fgd"
+
+
+//
+// Items (Episode 1)
+//
+@PointClass base(Appearflags, KeyFlags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e1/a1_clcrd.dkm" }) = item_keycard_cell : "E1 prison cell key" []
+@PointClass base(Appearflags, Sidekickflags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e1/a1_ar2.dkm" }) = item_chromatic_armor : "Chromatic armor" []
+@PointClass base(Appearflags, Sidekickflags) color(0 0.5 0.8) size(-16 -16 -16, 16 16 16) model({ "path": "models/e1/a1_ar1.dkm" }) = item_plasteel_armor : "Plasteel armor" []
+
+
+//
+// Monsters (Episode 1)
+//
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 8) model({ "path": "models/e1/m_croco.dkm" }) = monster_crox : "Crox" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 40) model({ "path": "models/e1/m_mwsurgeon.dkm" }) = monster_surgeon : "Surgeon" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 40) model({ "path": "models/e1/m_mwguard.dkm" }) = monster_mishimaguard : "Mishima guard" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 32) model({ "path": "models/e1/m_MWFaty.dkm" }) = monster_fatworker : "Fat worker" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 40) model({ "path": "models/e1/m_MWSkny.dkm" }) = monster_skinnyworker : "Skinny worker" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-12 -12 0, 12 12 24) model({ "path": "models/e1/m_proto.dkm" }) = monster_protopod : "Protopod" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-24 -24 -16, 24 24 32) model({ "path": "models/e1/m_dsphere.dkm" }) = monster_deathsphere : "Deathsphere" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-24 -24 -24, 24 24 24) model({ "path": "models/e1/m_cambot.dkm" }) = monster_cambot : "Cambot" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-40 -40 -40, 40 40 48) model({ "path": "models/e1/m_ragemaster.dkm" }) = monster_ragemaster : "Ragemaster" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-24 -24 -16, 24 24 24) model({ "path": "models/e1/m_bboar.dkm" }) = monster_battleboar : "Battle boar" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 36) model({ "path": "models/e1/m_cryotech.dkm" }) = monster_cryotech : "Cryotech" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-24 -24 -24, 24 24 32)  model({ "path": "models/e1/m_psyclaw.dkm" }) = monster_psyclaw : "Psyclaw" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -8, 16 16 8) model({ "path": "models/e1/m_trakatak.dkm" }) = monster_lasergat : "Lasergat" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-32 -32 -40, 32 32 48) model({ "path": "models/e1/m_inmater.dkm" }) = monster_inmater : "Inmater" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 32) model({ "path": "models/e1/m_prizb.dkm" }) = monster_prisonerb : "Prisoner B" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 32) model({ "path": "models/e1/m_priza.dkm" }) = monster_prisoner : "Prisoner" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-40 -40 -40, 40 40 56) model({ "path": "models/e1/m_sludgeminion.dkm" }) = monster_sludgeminion : "Sludgeminion" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -8, 16 16 16) model({ "path": "models/e1/m_vermin.dkm" }) = monster_venomvermin : "Venomvermin" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-40 -40 0, 40 40 96) model({ "path": "models/e1/m_tskeet.dkm" }) = monster_thunderskeet : "Thunderskeet" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -8, 16 16 8) model({ "path": "models/e1/m_skeeter.dkm" }) = monster_slaughterskeet : "Roboskeet" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-8 -8 -16, 8 8 16) model({ "path": "models/e1/m_frog.dkm" }) = monster_froginator : "Froginator" []
+
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -16, 16 16 16) model({ "path": "models/e1/a1_rockgun.dkm" }) = monster_rockgat : "Rockgat"
+[
+	fire_rate(float): "secs between firing default = 0.20" : 0.20
+	range(integer): "attack radius default = 512" : 512
+	basedmg(integer): "dmg done with a hit"
+	rnddmg(integer): "random damage amount added on"
+	health(integer): "health value"
+]
+
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-8 -8 -8, 8 8 8) model({ "path": "models/global/e_flare.sp2" }) = monster_firefly : "Firefly"
+[
+	spawnflags(Flags) =
+	[
+		1: "YELLOW" : 0
+		2: "GREEN" : 0
+		4: "BLUE" : 0
+		8: "WHITE" : 0
+		16: "RED" : 0
+	]
+
+	count(integer): "Number of fireflies(Max=10)"
+	distance(integer): "How far the fireflies will fly from point of placement(Max=200)"
+	velocity(integer): "How fast the fireflies will move(Max=200)"
+	scale(float): "How big the fireflies will be<float value>(1 = normal, 0.5 = half, 2 = twice as big)"
+	delta_alpha(float): "frequency of Alpha blending change. <scalar>"
+	alpha_level(float): "Initial Setting for Alpha blending change.<scalar>"
+]
+
+
+//
+// Decorations (Episode 1)
+//
+@PointClass base(Appearflags, DecorationFlags) color(1 0 0) size(-8 -8 -32, 8 8 32) = deco_e1 : "Episode 1 decoration"
+[
+	damage(integer): "damage applied when exploding. Default is 15." : 15
+	scale(float): "Scale of deco. Default 1.0." : 1.0
+	model(string): "choose model # -- see list."
+	mass(float): "*optional* - including this overrides the mass value in decoinfo.txt" 
+	frame(integer): "allows you to specify the starting frame for the model."
+	animseq(integer): "allows you to specify an animation sequence for the model"
+	x_speed(integer): "speed to rotate along x axis in degrees per second"
+	y_speed(integer): "speed to rotate along y axis in degrees per second"
+	z_speed(integer): "speed to rotate along z axis in degrees per second"
+	alpha(float): "range 0.0-1.0. Only used if TRANSLUCENT is flagged"
+	spawnname(string): "classname of entity to throw out upon death"
+    movetype(string): "none, toss, bounce, float, overrides value in e1decoinfo.csv" : "none"
+]
+
+
+//
+// Weapons (Episode 1)
+//
+@PointClass base(Weapons) model({ "path": ":models/e1/a_tazer.dkm" }) = weapon_disruptor : "Disruptor Glove" []
+@PointClass base(Weapons) model({ "path": ":models/e1/a_ion.dkm" }) = weapon_ionblaster : "Ion Blaster - ION blaster thingy" []
+@PointClass base(Weapons) model({ "path": ":models/e1/a_shot.dkm" }) = weapon_shotcycler : "Shotcycler-6" []
+@PointClass base(Weapons) model({ "path": ":models/e1/a_c4.dkm" }) = weapon_c4viz : "C4 Vizatergo" []
+@PointClass base(Weapons) model({ "path": ":models/e1/a_swindr.dkm" }) = weapon_sidewinder : "Sidewinder" []
+@PointClass base(Weapons) model({ "path": ":models/e1/a_shokwv.dkm" }) = weapon_shockwave : "Shockwave" []
+@PointClass base(Weapons) model({ "path": ":models/e1/a_gashand.dkm" }) = weapon_gashands : "Ultimate Gashands" []
+@PointClass base(Weapons) model({ "path": ":models/global/a_daikatana.dkm" }) = weapon_daikatana : "Daikatana" []
+
+
+//
+// Ammo (Episode 1)
+//
+@PointClass base(Ammo) model({ "path": ":models/e1/wa_ion.dkm" }) = ammo_ionpack : "50 ion cells." []
+@PointClass base(Ammo) model({ "path": ":models/e1/wa_c4.dkm" }) = ammo_c4 : "8 C4 Modules." []
+@PointClass base(Ammo) model({ "path": ":models/e1/wa_shot6.dkm" }) = ammo_shells : "24 shotcycler shells." []
+@PointClass base(Ammo) model({ "path": ":models/e1/wa_swindr.dkm" }) = ammo_rockets : "18 rockets." []
+@PointClass base(Ammo) model({ "path": ":models/e1/wa_shokwv.dkm" }) = ammo_shocksphere : "2 ShockSpheres." []

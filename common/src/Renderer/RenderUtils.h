@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,9 +20,7 @@
 #ifndef TrenchBroom_RenderUtils_h
 #define TrenchBroom_RenderUtils_h
 
-#include "Color.h"
-#include "Renderer/Vertex.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/GLVertexType.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/util.h>
@@ -34,24 +32,24 @@ namespace TrenchBroom {
     namespace Assets {
         class Texture;
     }
-    
+
     namespace Renderer {
         class Vbo;
-        
-        void glSetEdgeOffset(float f);
+
+        void glSetEdgeOffset(double f);
         void glResetEdgeOffset();
 
         void coordinateSystemVerticesX(const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end);
         void coordinateSystemVerticesY(const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end);
         void coordinateSystemVerticesZ(const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end);
-        
+
         class TextureRenderFunc {
         public:
             virtual ~TextureRenderFunc();
             virtual void before(const Assets::Texture* texture);
             virtual void after(const Assets::Texture* texture);
         };
-        
+
         class DefaultTextureRenderFunc : public TextureRenderFunc {
         public:
             void before(const Assets::Texture* texture) override;
@@ -66,14 +64,14 @@ namespace TrenchBroom {
         size_t roundedRect2DVertexCount(size_t cornerSegments);
         std::vector<vm::vec2f> roundedRect2D(const vm::vec2f& size, float cornerRadius, size_t cornerSegments);
         std::vector<vm::vec2f> roundedRect2D(float width, float height, float cornerRadius, size_t cornerSegments);
-        
+
         struct VertsAndNormals {
             std::vector<vm::vec3f> vertices;
             std::vector<vm::vec3f> normals;
-            
+
             explicit VertsAndNormals(size_t vertexCount);
         };
-        
+
         std::vector<vm::vec3f> sphere3D(float radius, size_t iterations);
         VertsAndNormals circle3D(float radius, size_t segments);
         VertsAndNormals cylinder3D(float radius, float length, size_t segments);
