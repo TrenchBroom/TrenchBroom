@@ -35,8 +35,9 @@ namespace TrenchBroom {
             if (optimized != nullptr && optimized != m_expression.get()) {
                 m_expression.reset(optimized);
                 return true;
+            } else {
+                return false;
             }
-            return false;
         }
 
         Value Expression::evaluate(const EvaluationContext& context) const {
@@ -63,11 +64,11 @@ namespace TrenchBroom {
             return stream << *(expression.m_expression.get());
         }
 
-        void ExpressionBase::replaceExpression(ExpressionBase*& oldExpression, ExpressionBase* newExpression) {
-            if (newExpression != nullptr && newExpression != oldExpression) {
-                delete oldExpression;
-                oldExpression = newExpression;
+        bool ExpressionBase::replaceExpression(std::unique_ptr<ExpressionBase>& oldExpression, ExpressionBase* newExpression) {
+            if (newExpression != nullptr && newExpression != oldExpression.get()) {
+                oldExpression.reset(newExpression);
             }
+            return newExpression != nullptr;
         }
 
         ExpressionBase::ExpressionBase(const size_t line, const size_t column) : m_line(line), m_column(column) {}
@@ -164,44 +165,42 @@ namespace TrenchBroom {
             str << m_variableName;
         }
 
-        ArrayExpression::ArrayExpression(const ExpressionBase::List& elements, const size_t line, const size_t column) :
+        ArrayExpression::ArrayExpression(ExpressionBase::List&& elements, const size_t line, const size_t column) :
         ExpressionBase(line, column),
-        m_elements(elements) {}
+        m_elements(std::move(elements)) {}
 
-        ExpressionBase* ArrayExpression::create(const ExpressionBase::List& elements, const size_t line, const size_t column) {
-            return new ArrayExpression(elements, line, column);
+        ExpressionBase* ArrayExpression::create(ExpressionBase::List&& elements, const size_t line, const size_t column) {
+            return new ArrayExpression(std::move(elements), line, column);
         }
 
-        ArrayExpression::~ArrayExpression() {
-            ListUtils::clearAndDelete(m_elements);
-        }
+        ArrayExpression::~ArrayExpression() = default;
 
         ExpressionBase* ArrayExpression::doClone() const {
             ExpressionBase::List clones;
-            for (const ExpressionBase* element : m_elements)
-                clones.push_back(element->clone());
+            for (const auto& element : m_elements) {
+                clones.emplace_back(element->clone());
+            }
 
-            return new ArrayExpression(clones, m_line, m_column);
+            return new ArrayExpression(std::move(clones), m_line, m_column);
         }
 
         ExpressionBase* ArrayExpression::doOptimize() {
             bool allOptimized = true;
 
-            for (ExpressionBase*& expression : m_elements) {
-                ExpressionBase* optimized = expression->optimize();
-                replaceExpression(expression, optimized);
-                allOptimized &= optimized != nullptr;
+            for (auto& expression : m_elements) {
+                allOptimized &= replaceExpression(expression, expression->optimize());
             }
 
-            if (allOptimized)
+            if (allOptimized) {
                 return LiteralExpression::create(evaluate(EvaluationContext()), m_line, m_column);
+            }
 
             return nullptr;
         }
 
         Value ArrayExpression::doEvaluate(const EvaluationContext& context) const {
             ArrayType array;
-            for (const ExpressionBase* element : m_elements) {
+            for (const auto& element : m_elements) {
                 const Value value = element->evaluate(context);
                 if (value.type() == ValueType::Range) {
                     const RangeType& range = value.rangeValue();
@@ -220,7 +219,7 @@ namespace TrenchBroom {
             str << "[ ";
 
             size_t i = 0;
-            for (const ExpressionBase* expression : m_elements) {
+            for (const auto& expression : m_elements) {
                 str << *expression;
                 if (i < m_elements.size() - 1)
                     str << ", ";
@@ -230,27 +229,25 @@ namespace TrenchBroom {
             str << "] ";
         }
 
-        MapExpression::MapExpression(const ExpressionBase::Map& elements, const size_t line, const size_t column) :
+        MapExpression::MapExpression(ExpressionBase::Map&& elements, const size_t line, const size_t column) :
         ExpressionBase(line, column),
-        m_elements(elements) {}
+        m_elements(std::move(elements)) {}
 
-        ExpressionBase* MapExpression::create(const ExpressionBase::Map& elements, const size_t line, const size_t column) {
-            return new MapExpression(elements, line, column);
+        ExpressionBase* MapExpression::create(ExpressionBase::Map&& elements, const size_t line, const size_t column) {
+            return new MapExpression(std::move(elements), line, column);
         }
 
-        MapExpression::~MapExpression() {
-            MapUtils::clearAndDelete(m_elements);
-        }
+        MapExpression::~MapExpression() = default;
 
         ExpressionBase* MapExpression::doClone() const {
             ExpressionBase::Map clones;
             for (const auto& entry : m_elements) {
                 const String& key = entry.first;
-                const ExpressionBase* value = entry.second;
+                const auto& value = entry.second;
                 clones.insert(std::make_pair(key, value->clone()));
             }
 
-            return new MapExpression(clones, m_line, m_column);
+            return new MapExpression(std::move(clones), m_line, m_column);
         }
 
 
@@ -258,23 +255,22 @@ namespace TrenchBroom {
             bool allOptimized = true;
 
             for (auto& entry : m_elements) {
-                ExpressionBase*& expression = entry.second;
-                ExpressionBase* optimized = expression->optimize();
-                replaceExpression(expression, optimized);
-                allOptimized &= optimized != nullptr;
+                auto& expression = entry.second;
+                allOptimized &= replaceExpression(expression, expression->optimize());
             }
 
-            if (allOptimized)
+            if (allOptimized) {
                 return LiteralExpression::create(evaluate(EvaluationContext()), m_line, m_column);
-
-            return nullptr;
+            } else {
+                return nullptr;
+            }
         }
 
         Value MapExpression::doEvaluate(const EvaluationContext& context) const {
             MapType map;
             for (const auto& entry : m_elements) {
                 const String& key = entry.first;
-                const ExpressionBase* expression = entry.second;
+                const auto& expression = entry.second;
                 map.insert(std::make_pair(key, expression->evaluate(context)));
             }
 
@@ -286,7 +282,7 @@ namespace TrenchBroom {
             size_t i = 0;
             for (const auto& entry : m_elements) {
                 const String& key = entry.first;
-                const ExpressionBase* value = entry.second;
+                const auto& value = entry.second;
 
                 str << "\"" << key << "\": " << *value;
                 if (i < m_elements.size() - 1)
@@ -302,16 +298,12 @@ namespace TrenchBroom {
             ensure(m_operand != nullptr, "operand is null");
         }
 
-        UnaryOperator::~UnaryOperator() {
-            delete m_operand;
-        }
+        UnaryOperator::~UnaryOperator() = default;
 
         ExpressionBase* UnaryOperator::doOptimize() {
-            ExpressionBase* optimized = m_operand->optimize();
-            replaceExpression(m_operand, optimized);
-
-            if (optimized != nullptr)
+            if (replaceExpression(m_operand, m_operand->optimize())) {
                 return LiteralExpression::create(evaluate(EvaluationContext()), m_line, m_column);
+            }
 
             return nullptr;
         }
@@ -419,10 +411,7 @@ namespace TrenchBroom {
             ensure(m_indexOperand != nullptr, "indexOperand is null");
         }
 
-        SubscriptOperator::~SubscriptOperator() {
-            delete m_indexableOperand;
-            delete m_indexOperand;
-        }
+        SubscriptOperator::~SubscriptOperator() = default;
 
         ExpressionBase* SubscriptOperator::create(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, const size_t line, const size_t column) {
             return (new SubscriptOperator(indexableOperand, indexOperand, line, column))->reorderByPrecedence();
@@ -467,42 +456,44 @@ namespace TrenchBroom {
             ensure(m_rightOperand != nullptr, "rightOperand is null");
         }
 
-        BinaryOperator::~BinaryOperator() {
-            delete m_leftOperand;
-            delete m_rightOperand;
-        }
+        BinaryOperator::~BinaryOperator() = default;
 
         ExpressionBase* BinaryOperator::doReorderByPrecedence() {
             ExpressionBase* result = m_leftOperand->reorderByPrecedence(this);
-            if (result == this)
+            if (result == this) {
                 result = m_rightOperand->reorderByPrecedence(this);
+            }
             return result;
         }
 
         ExpressionBase* BinaryOperator::doReorderByPrecedence(BinaryOperator* parent) {
-            assert(parent->m_leftOperand == this || parent->m_rightOperand == this);
-            if (parent->m_leftOperand == this && precedence() < parent->precedence())
+            assert(parent->m_leftOperand.get() == this || parent->m_rightOperand.get() == this);
+            if (parent->m_leftOperand.get() == this && precedence() < parent->precedence()) {
                 return parent->rotateLeftUp(this);
-            if (parent->m_rightOperand == this && precedence() < parent->precedence())
+            }
+            if (parent->m_rightOperand.get() == this && precedence() < parent->precedence()) {
                 return parent->rotateRightUp(this);
+            }
             return parent;
         }
 
 
         BinaryOperator* BinaryOperator::rotateLeftUp(BinaryOperator* leftOperand) {
-            assert(m_leftOperand == leftOperand);
+            assert(m_leftOperand.get() == leftOperand);
 
-            m_leftOperand = leftOperand->m_rightOperand;
-            leftOperand->m_rightOperand = this;
+            m_leftOperand.release();
+            m_leftOperand = std::move(leftOperand->m_rightOperand);
+            leftOperand->m_rightOperand.reset(this);
 
             return leftOperand;
         }
 
         BinaryOperator* BinaryOperator::rotateRightUp(BinaryOperator* rightOperand) {
-            assert(m_rightOperand == rightOperand);
+            assert(m_rightOperand.get() == rightOperand);
 
-            m_rightOperand = rightOperand->m_leftOperand;
-            rightOperand->m_leftOperand = this;
+            m_rightOperand.release();
+            m_rightOperand = std::move(rightOperand->m_leftOperand);
+            rightOperand->m_leftOperand.reset(this);
 
             return rightOperand;
         }
@@ -1007,29 +998,27 @@ namespace TrenchBroom {
             return Traits(0, false, false);
         }
 
-        SwitchOperator::SwitchOperator(const ExpressionBase::List& cases, size_t line, size_t column) :
+        SwitchOperator::SwitchOperator(ExpressionBase::List&& cases, size_t line, size_t column) :
         ExpressionBase(line, column),
-        m_cases(cases) {}
+        m_cases(std::move(cases)) {}
 
-        SwitchOperator::~SwitchOperator() {
-            ListUtils::clearAndDelete(m_cases);
-        }
+        SwitchOperator::~SwitchOperator() = default;
 
-        ExpressionBase* SwitchOperator::create(const ExpressionBase::List& cases, size_t line, size_t column) {
-            return new SwitchOperator(cases, line, column);
+        ExpressionBase* SwitchOperator::create(ExpressionBase::List&& cases, size_t line, size_t column) {
+            return new SwitchOperator(std::move(cases), line, column);
         }
 
         ExpressionBase* SwitchOperator::doOptimize() {
-            for (ExpressionBase* case_ : m_cases) {
+            for (auto& case_ : m_cases) {
                 ExpressionBase* optimized = case_->optimize();
 
-                if (optimized != nullptr && optimized != case_) {
+                if (optimized != nullptr && optimized != case_.get()) {
                     const Value result = optimized->evaluate(EvaluationContext());
-                    if (!result.undefined())
+                    if (!result.undefined()) {
                         return LiteralExpression::create(result, m_line, m_column);
+                    }
 
-                    delete case_;
-                    case_ = optimized;
+                    case_.reset(optimized);
                 }
             }
 
@@ -1038,13 +1027,14 @@ namespace TrenchBroom {
 
         ExpressionBase* SwitchOperator::doClone() const {
             ExpressionBase::List caseClones;
-            for (const ExpressionBase* case_ : m_cases)
-                caseClones.push_back(case_->clone());
-            return new SwitchOperator(caseClones, m_line, m_column);
+            for (const auto& case_ : m_cases) {
+                caseClones.emplace_back(case_->clone());
+            }
+            return new SwitchOperator(std::move(caseClones), m_line, m_column);
         }
 
         Value SwitchOperator::doEvaluate(const EvaluationContext& context) const {
-            for (const ExpressionBase* case_ : m_cases) {
+            for (const auto& case_ : m_cases) {
                 const Value result = case_->evaluate(context);
                 if (!result.undefined())
                     return result;
@@ -1055,7 +1045,7 @@ namespace TrenchBroom {
         void SwitchOperator::doAppendToStream(std::ostream& str) const {
             str << "{{ ";
             size_t i = 0;
-            for (const ExpressionBase* expression : m_cases) {
+            for (const auto& expression : m_cases) {
                 str << *expression;
                 if (i < m_cases.size() - 1)
                     str << ", ";
