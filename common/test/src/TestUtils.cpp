@@ -21,9 +21,6 @@
 
 #include <vecmath/scalar.h>
 
-#include <gmock/gmock.h>
-
-#include "CollectionUtils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 
@@ -122,11 +119,11 @@ namespace TrenchBroom {
         }
 
         void assertTexture(const String& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3) {
-            return assertTexture(expected, brush, VectorUtils::create<vm::vec3d>(v1, v2, v3));
+            return assertTexture(expected, brush, std::vector<vm::vec3d>({ v1, v2, v3 }));
         }
 
         void assertTexture(const String& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3, const vm::vec3d& v4) {
-            return assertTexture(expected, brush, VectorUtils::create<vm::vec3d>(v1, v2, v3, v4));
+            return assertTexture(expected, brush, std::vector<vm::vec3d>({ v1, v2, v3, v4 }));
         }
 
         void assertTexture(const String& expected, const Brush* brush, const std::vector<vm::vec3d>& vertices) {

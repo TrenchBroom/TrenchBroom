@@ -174,7 +174,7 @@ namespace TrenchBroom {
             auto collections = document->enabledTextureCollections();
 
             const auto index = static_cast<size_t>(m_collections->currentRow());
-            VectorUtils::swapPred(collections, index);
+            using std::swap; swap(collections[index], collections[index-1]);
 
             document->setEnabledTextureCollections(collections);
             m_collections->setCurrentRow(static_cast<int>(index - 1));
@@ -192,7 +192,7 @@ namespace TrenchBroom {
             auto collections = document->enabledTextureCollections();
 
             const auto index = static_cast<size_t>(m_collections->currentRow());
-            VectorUtils::swapSucc(collections, index);
+            using std::swap; swap(collections[index], collections[index+1]);
 
             document->setEnabledTextureCollections(collections);
             m_collections->setCurrentRow(static_cast<int>(index + 1));

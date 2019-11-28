@@ -288,7 +288,7 @@ namespace TrenchBroom {
 
         void EntityAttributeModel::setRows(const std::map<String, AttributeRow>& newRowsKeyMap) {
             const std::set<AttributeRow> newRowSet = MapUtils::valueSet(newRowsKeyMap);
-            const std::set<AttributeRow> oldRowSet = SetUtils::makeSet(m_rows);
+            const std::set<AttributeRow> oldRowSet(std::begin(m_rows), std::end(m_rows));
 
             if (newRowSet == oldRowSet) {
                 qDebug() << "EntityAttributeModel::setRows: no change";

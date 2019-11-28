@@ -23,21 +23,6 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        ShaderConfig::ShaderConfig(const String& name, const String& vertexShader, const String& fragmentShader) :
-        m_name(name),
-        m_vertexShaders(1, vertexShader),
-        m_fragmentShaders(1, fragmentShader) {}
-
-        ShaderConfig::ShaderConfig(const String& name, const String& vertexShader, const StringList& fragmentShaders) :
-        m_name(name),
-        m_vertexShaders(1, vertexShader),
-        m_fragmentShaders(fragmentShaders) {}
-
-        ShaderConfig::ShaderConfig(const String& name, const StringList& vertexShaders, const String& fragmentShader) :
-        m_name(name),
-        m_vertexShaders(vertexShaders),
-        m_fragmentShaders(1, fragmentShader) {}
-
         ShaderConfig::ShaderConfig(const String& name, const StringList& vertexShaders, const StringList& fragmentShaders) :
         m_name(name),
         m_vertexShaders(vertexShaders),

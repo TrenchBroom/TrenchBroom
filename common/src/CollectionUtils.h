@@ -59,16 +59,6 @@ namespace Utils {
         }
     };
 
-    template <typename T, typename Cmp = std::equal_to<T> >
-    struct PtrCmp {
-    private:
-        Cmp m_cmp;
-    public:
-        bool operator()(const T* lhs, const T* rhs) const {
-            return m_cmp(*lhs, *rhs);
-        }
-    };
-
     template <typename T, typename Less>
     struct EqualsUsingLess {
     private:
@@ -84,6 +74,7 @@ namespace Utils {
 }
 
 namespace CollectionUtils {
+    // only used in CollectionUtils
     template <typename I, typename C>
     I removeAll(const I vecBegin, const I vecEnd, C curItem, C endItem) {
         I last = vecEnd;
@@ -110,110 +101,9 @@ namespace CollectionUtils {
                 ++cur;
         }
     }
-
-    template <typename Col, typename Cmp>
-    Col& retainMaximalElements(Col& col, const Cmp& cmp = Cmp()) {
-        auto it = std::begin(col);
-        while (it != std::end(col)) {
-            const auto& cand = *it;
-            bool erased = false;
-
-            auto ne = std::next(it);
-            while (!erased && ne != std::end(col)) {
-                const auto& cur = *ne;
-
-                if (cmp(cand, cur)) {
-                    it = col.erase(it);
-                    erased = true;
-                } else if (cmp(cur, cand)) {
-                    ne = col.erase(ne);
-                } else {
-                    ++ne;
-                }
-            }
-
-            if (!erased)
-                ++it;
-        }
-
-        return col;
-    }
-
-    template <typename Col, typename Cmp>
-    Col findMaximalElements(const Col& col, const Cmp& cmp = Cmp()) {
-        Col result(col);
-        return retainMaximalElements(result, cmp);
-    }
-
-    template <typename I, typename Fac, typename Cmp>
-    void equivalenceClasses(I rangeStart, I rangeEnd, const Fac& fac, const Cmp& cmp) {
-        using E = typename I::value_type;
-
-        std::list<I> workList;
-        while (rangeStart != rangeEnd)
-            workList.push_back(rangeStart++);
-
-        while (!workList.empty()) {
-            const E& root = *workList.front(); workList.pop_front();
-            auto cls = fac();
-            cls = root;
-
-            auto cur = std::begin(workList);
-            while (cur != std::end(workList)) {
-                const E& cand = **cur;
-                if (cmp(root, cand)) {
-                    cls = cand;
-                    cur = workList.erase(cur);
-                } else {
-                    ++cur;
-                }
-            }
-        }
-    }
-
-    template <typename I, typename Cmp>
-    std::list<std::list<typename I::value_type>> equivalenceClasses(I rangeStart, I rangeEnd, const Cmp& cmp) {
-        using E = typename I::value_type;
-        using Class = std::list<E>;
-        using Result = std::list<Class>;
-
-        Result result;
-        equivalenceClasses(rangeStart, rangeEnd, [&result]() {
-            result.emplace_back();
-            return std::back_inserter(result.back());
-        }, cmp);
-
-        return result;
-    }
-
-    template <typename C, typename Cmp>
-    std::list<std::list<typename C::value_type>> equivalenceClasses(C collection, const Cmp& cmp) {
-        return equivalenceClasses(std::begin(collection), std::end(collection), cmp);
-    }
 }
 
 namespace ListUtils {
-    template <typename T>
-    void append(std::list<T>& vec, const std::list<T>& items) {
-        vec.insert(std::end(vec), std::begin(items), std::end(items));
-    }
-
-    template <typename T>
-    void eraseAll(std::list<T>& vec, const std::list<T>& items) {
-        vec.erase(removeAll(std::begin(vec), std::end(vec), std::begin(items), std::end(items)), std::end(vec));
-    }
-
-    template <typename T>
-    void remove(std::vector<T>& list, const T item) {
-        list.erase(std::remove(std::begin(list), std::end(list), item), std::end(list));
-    }
-
-    template <typename T>
-    void removeAndDelete(std::vector<T*>& list, const T* item) {
-        remove(list, item);
-        delete item;
-    }
-
     /**
      Removes the element at `pos` in `list`, and replaces it with the contents of list `other`.
      The list `other` is cleared as a side effect.
@@ -240,53 +130,7 @@ namespace ListUtils {
 }
 
 namespace VectorUtils {
-    template <typename O, typename I>
-    std::vector<O> create(const I& item) {
-        return std::vector<O>(1, item);
-    }
-
-    template <typename O, typename I1, typename I2>
-    std::vector<O> create(const I1& item1, const I2& item2) {
-        std::vector<O> result;
-        result.reserve(2);
-        result.push_back(item1);
-        result.push_back(item2);
-        return result;
-    }
-
-    template <typename O, typename I1, typename I2, typename I3>
-    std::vector<O> create(const I1& item1, const I2& item2, const I3& item3) {
-        std::vector<O> result;
-        result.reserve(3);
-        result.push_back(item1);
-        result.push_back(item2);
-        result.push_back(item3);
-        return result;
-    }
-
-    template <typename O, typename I1, typename I2, typename I3, typename I4>
-    std::vector<O> create(const I1& item1, const I2& item2, const I3& item3, const I4& item4) {
-        std::vector<O> result;
-        result.reserve(4);
-        result.push_back(item1);
-        result.push_back(item2);
-        result.push_back(item3);
-        result.push_back(item4);
-        return result;
-    }
-
-    template <typename O, typename I1, typename I2, typename I3, typename I4, typename I5>
-    std::vector<O> create(const I1& item1, const I2& item2, const I3& item3, const I4& item4, const I5& item5) {
-        std::vector<O> result;
-        result.reserve(5);
-        result.push_back(item1);
-        result.push_back(item2);
-        result.push_back(item3);
-        result.push_back(item4);
-        result.push_back(item5);
-        return result;
-    }
-
+    // this is just std::lexicographical_compare, should we remove it?
     template <typename T, typename C>
     int compare(const std::vector<T>& lhs, const std::vector<T>& rhs, const C& cmp) {
         using Vec = std::vector<T>;
@@ -313,56 +157,21 @@ namespace VectorUtils {
         return 0;
     }
 
+    // this is just std::lexicographical_compare, should we remove it?
     template <typename T>
     int compare(const std::vector<T>& lhs, const std::vector<T>& rhs) {
         return compare(lhs, rhs, std::less<T>());
     }
 
-    template <typename T, typename C>
-    bool equals(const std::vector<T>& lhs, const std::vector<T>& rhs, const C& cmp) {
+    // should be called equivalent, not equals; the elements just have to be equivalent by the given comparator
+    template <typename T, typename C = std::less<T>>
+    bool equals(const std::vector<T>& lhs, const std::vector<T>& rhs, const C& cmp = C()) {
         if (lhs.size() != rhs.size())
             return false;
         return compare(lhs, rhs, cmp) == 0;
     }
 
-    template <typename T>
-    bool equals(const std::vector<T>& lhs, const std::vector<T>& rhs) {
-        return equals(lhs, rhs, std::less<T>());
-    }
-
-    template <typename T>
-    typename std::vector<T>::const_iterator find(const std::vector<T>& vec, const T& item) {
-        return std::find(std::begin(vec), std::end(vec), item);
-    }
-
-    template <typename T>
-    typename std::vector<T>::iterator find(std::vector<T>& vec, const T& item) {
-        return std::find(std::begin(vec), std::end(vec), item);
-    }
-
-    template <typename T>
-    typename std::vector<T*>::const_iterator find(const std::vector<T*>& vec, const T* item) {
-        return std::find(std::begin(vec), std::end(vec), item);
-    }
-
-    template <typename T>
-    typename std::vector<T*>::iterator find(std::vector<T*>& vec, const T* item) {
-        return std::find(std::begin(vec), std::end(vec), item);
-    }
-
-    template <typename T>
-    typename std::vector<T*>::const_iterator findOther(const std::vector<T*>& vec, const T* item) {
-        using Iter = typename std::vector<T*>::const_iterator;
-        Iter cur = std::begin(vec);
-        Iter end = std::end(vec);
-        while (cur != end) {
-            if (*cur != item)
-                return cur;
-            ++cur;
-        }
-        return end;
-    }
-
+    // remove this, it's odd
     template <typename T, class P>
     T* findIf(const std::vector<T*>& vec, const P& predicate) {
         typename std::vector<T*>::const_iterator it = std::find_if(std::begin(vec), std::end(vec), predicate);
@@ -371,6 +180,7 @@ namespace VectorUtils {
         return *it;
     }
 
+    // remove this, it's odd
     template <typename T, class P>
     const std::shared_ptr<T> findIf(const std::vector<std::shared_ptr<T> >& vec, const P& predicate) {
         typename std::vector<std::shared_ptr<T> >::const_iterator it = std::find_if(std::begin(vec), std::end(vec), predicate);
@@ -379,6 +189,7 @@ namespace VectorUtils {
         return *it;
     }
 
+    // remove this, it's odd
     template <typename T, class P>
     const T* findIf(const std::vector<T>& vec, const P& predicate) {
         typename std::vector<T>::const_iterator it = std::find_if(std::begin(vec), std::end(vec), predicate);
@@ -387,6 +198,7 @@ namespace VectorUtils {
         return &(*it);
     }
 
+    // merge all of the contains functions, also they should just be using std::find?
     template <typename T, typename Cmp>
     bool contains(const std::vector<T>& vec, const T& item, const Cmp& cmp) {
         auto first = std::begin(vec);
@@ -403,70 +215,11 @@ namespace VectorUtils {
     }
 
     template <typename T>
-    bool containsPtr(const std::vector<T*>& vec, const T* item) {
-        // this const_cast is okay because we won't modify *item
-        return contains(vec, const_cast<T*>(item), Utils::PtrCmp<T, std::equal_to<T> >());
-    }
-
-    template <typename T>
     size_t indexOf(const std::vector<T>& vec, const T& item) {
         for (size_t i = 0; i < vec.size(); ++i)
             if (vec[i] == item)
                 return i;
         return vec.size();
-    }
-
-    template <typename T, typename O>
-    void shiftLeft(std::vector<T>& vec, const O offset) {
-        if (vec.empty() || offset == 0)
-            return;
-
-        // (offset > 0) is used to silence a compiler warning
-        using DiffType = typename std::vector<T>::iterator::difference_type;
-        const DiffType modOffset = static_cast<DiffType>(offset) % static_cast<DiffType>(vec.size());
-        if (modOffset == 0)
-            return;
-
-        std::rotate(std::begin(vec), std::begin(vec) + modOffset, std::end(vec));
-    }
-
-    template <typename T>
-    void shiftRight(std::vector<T>& vec, const size_t offset) {
-        if (vec.empty() || offset == 0)
-            return;
-
-        using DiffType = typename std::vector<T>::iterator::difference_type;
-        const DiffType modOffset = static_cast<DiffType>(offset) % static_cast<DiffType>(vec.size());
-        const DiffType size = static_cast<DiffType>(vec.size());
-		shiftLeft(vec, size - modOffset);
-    }
-
-    template <typename T>
-    void swapPred([[maybe_unused]] std::vector<T>& vec, typename std::vector<T>::iterator i) {
-        assert(i > std::begin(vec) && i < std::end(vec));
-        std::iter_swap(i, std::prev(i));
-    }
-
-    template <typename T>
-    void swapPred(std::vector<T>& vec, const size_t i) {
-        typename std::vector<T>::iterator it = std::begin(vec);
-        using DiffType = typename std::vector<T>::iterator::difference_type;
-        std::advance(it, static_cast<DiffType>(i));
-        swapPred(vec, it);
-    }
-
-    template <typename T>
-    void swapSucc([[maybe_unused]] std::vector<T>& vec, typename std::vector<T>::iterator i) {
-        assert(i >= std::begin(vec) && i < std::prev(std::end(vec)));
-        std::iter_swap(i, std::next(i));
-    }
-
-    template <typename T>
-    void swapSucc(std::vector<T>& vec, const size_t i) {
-        typename std::vector<T>::iterator it = std::begin(vec);
-        using DiffType = typename std::vector<T>::iterator::difference_type;
-        std::advance(it, static_cast<DiffType>(i));
-        swapSucc(vec, it);
     }
 
     template <typename T>
@@ -524,25 +277,6 @@ namespace VectorUtils {
         return result;
     }
 
-    template <typename T>
-    bool eraseAndDelete(std::vector<T*>& vec, const T* item) {
-        if (!erase(vec, item))
-            return false;
-        delete item;
-        return true;
-    }
-
-    template <typename T>
-    void eraseAndDelete(std::vector<T*>& vec, typename std::vector<T*>::iterator first, typename std::vector<T*>::iterator last) {
-        std::for_each(first, last, Utils::Deleter<T>());
-        vec.erase(first, last);
-    }
-
-    template <typename T>
-    void eraseAndDelete(std::vector<T*>& vec, typename std::vector<T*>::iterator first) {
-        eraseAndDelete(vec, first, std::end(vec));
-    }
-
     template <typename T1, typename T2, typename R>
     void concatenate(const std::vector<T1>& vec1, const std::vector<T2>& vec2, std::vector<R>& result) {
         result.clear();
@@ -574,26 +308,19 @@ namespace VectorUtils {
         }
     }
 
+    // remove, use std::sort instead
     template <typename T, class Cmp = std::less<T>>
     void sort(std::vector<T>& vec, const Cmp cmp = Cmp()) {
         std::sort(std::begin(vec), std::end(vec), cmp);
     }
 
+    // this is odd, why does it take a strict weak order? it should take a notion of equality
+    // also, with vector_set, this is not necessary anymore
     template <typename T, class Cmp = std::less<T>>
     void sortAndRemoveDuplicates(std::vector<T>& vec, const Cmp cmp = Cmp()) {
         std::sort(std::begin(vec), std::end(vec), cmp);
         auto it = std::unique(std::begin(vec), std::end(vec), Utils::EqualsUsingLess<T, Cmp>(cmp));
         vec.erase(it, std::end(vec));
-    }
-
-    template <typename T>
-    std::vector<T> difference(const std::vector<T>& vec1, const std::vector<T>& vec2) {
-        std::vector<T> result;
-        for (const T& elem : vec1) {
-            if (!VectorUtils::contains(vec2, elem))
-                result.push_back(elem);
-        }
-        return result;
     }
 
     template <typename O, typename I>
@@ -605,25 +332,7 @@ namespace VectorUtils {
         return output;
     }
 
-    template <typename T, typename Cmp = std::less<T>>
-    void orderedDifference(std::vector<T>& minuend, const std::vector<T>& subtrahend, const Cmp cmp = Cmp()) {
-        auto mIt = std::begin(minuend);
-        auto sIt = std::begin(subtrahend);
-        auto sEnd = std::end(subtrahend);
-
-        while (mIt != std::end(minuend) && sIt != sEnd) {
-            const T& m = *mIt;
-            const T& s = *sIt;
-            if (cmp(m, s)) { // m < s
-                ++mIt;
-            } else if (cmp(s, m)) { // s < m
-                ++sIt;
-            } else { // s == m
-                mIt = minuend.erase(mIt);
-            }
-        }
-    }
-
+    // remove in favor of vector_set
     template <typename T, typename Cmp = std::less<T>>
     bool setIsSet(const std::vector<T>& set, const Cmp cmp = Cmp()) {
         if (set.size() < 2) {
@@ -643,6 +352,7 @@ namespace VectorUtils {
         return true;
     }
 
+    // remove in favor of vector_set
     template <typename T, typename Cmp = std::less<T>>
     void setCreate(std::vector<T>& vec, const Cmp cmp = Cmp()) {
         std::sort(std::begin(vec), std::end(vec), cmp);
@@ -650,6 +360,7 @@ namespace VectorUtils {
         vec.erase(end, std::end(vec));
     }
 
+    // remove in favor of vector_set
     template <typename T, typename Cmp = std::less<T>>
     std::vector<T> setCreate(const std::vector<T>& vec, const Cmp cmp = Cmp()) {
         auto result = vec;
@@ -657,6 +368,7 @@ namespace VectorUtils {
         return result;
     }
 
+    // remove in favor of vector_set
     template <typename T1, typename T2, typename Cmp = std::less<T1>>
     bool setInsert(std::vector<T1>& vec, T2&& object, const Cmp& cmp = Cmp()) {
         auto it = std::lower_bound(std::begin(vec), std::end(vec), object, cmp);
@@ -672,6 +384,7 @@ namespace VectorUtils {
         }
     }
 
+    // remove in favor of vector_set
     template <typename T, typename I, typename Cmp = std::less<T>>
     void setInsert(std::vector<T>& vec, I cur, const I end, const Cmp& cmp = Cmp()) {
         while (cur != end) {
@@ -686,6 +399,7 @@ namespace VectorUtils {
         }
     }
 
+    // remove in favor of vector_set
     template <typename T1, typename T2, typename Cmp = std::less<T1>>
     bool setRemove(std::vector<T1>& vec, const T2& object, const Cmp cmp = Cmp()) {
         typename std::vector<T1>::iterator it = std::lower_bound(std::begin(vec), std::end(vec), object, cmp);
@@ -696,6 +410,7 @@ namespace VectorUtils {
         return false;
     }
 
+    // remove in favor of vector_set
     template <typename T, typename I, typename Cmp = std::less<T>>
     void setRemove(std::vector<T>& vec, I cur, const I end, const Cmp cmp = Cmp()) {
         while (cur != end) {
@@ -707,11 +422,13 @@ namespace VectorUtils {
         }
     }
 
+    // remove in favor of vector_set
     template <typename T, typename Cmp = std::less<T>>
     bool setContains(const std::vector<T>& vec, const T& object, const Cmp cmp = Cmp()) {
         return std::binary_search(std::begin(vec), std::end(vec), object, cmp);
     }
 
+    // remove in favor of vector_set
     template <typename T, typename Cmp = std::less<T>>
     std::vector<T> setUnion(const std::vector<T>& vec1, const std::vector<T>& vec2, const Cmp cmp = Cmp()) {
         std::vector<T> result;
@@ -721,6 +438,7 @@ namespace VectorUtils {
         return result;
     }
 
+    // remove in favor of vector_set
     template <typename T, typename Cmp = std::less<T>>
     std::vector<T> setMinus(const std::vector<T>& minuend, const std::vector<T>& subtrahend, const Cmp cmp = Cmp()) {
         std::vector<T> result;
@@ -730,6 +448,7 @@ namespace VectorUtils {
         return result;
     }
 
+    // remove in favor of vector_set
     template <typename T, typename Cmp = std::less<T>>
     std::vector<T> setIntersection(const std::vector<T>& vec1, const std::vector<T>& vec2, const Cmp cmp = Cmp()) {
         std::vector<T> result;
@@ -739,6 +458,8 @@ namespace VectorUtils {
         return result;
     }
 
+    // generalize this for ranges, use output iterator to store result of applying lambda -- but then it's just
+    // std::transform...
     /**
      * Returns a std::vector which contains `lambda` applied to each element in `vec`.
      *
@@ -763,26 +484,13 @@ namespace VectorUtils {
 }
 
 namespace SetUtils {
-    template <typename S>
-    bool subset(const S& lhs, const S& rhs) {
-        using C = typename S::key_compare;
-        const C cmp = lhs.key_comp();
-        return std::includes(std::begin(rhs), std::end(rhs),
-                             std::begin(lhs), std::end(lhs), cmp);
-    }
-
-    struct SubsetCmp {
-        template <typename S>
-        bool operator()(const S& lhs, const S& rhs) const {
-            return subset(lhs, rhs);
-        }
-    };
-
+    // how is this useful? remove and construct the set in place
     template <typename T, size_t S>
     void makeSet(const std::array<T, S>& arr, std::set<T>& result) {
         result.insert(std::begin(arr), std::end(arr));
     }
 
+    // how is this useful? remove and construct the set in place
     template <typename T, size_t S>
     std::set<T> makeSet(const std::array<T, S>& arr) {
         std::set<T> result;
@@ -790,11 +498,13 @@ namespace SetUtils {
         return result;
     }
 
+    // how is this useful? remove and construct the set in place
     template <typename T>
     void makeSet(const std::vector<T>& vec, std::set<T>& result) {
         result.insert(std::begin(vec), std::end(vec));
     }
 
+    // how is this useful? remove and construct the set in place
     template <typename T>
     std::set<T> makeSet(const std::vector<T>& vec) {
         std::set<T> result;
@@ -802,16 +512,19 @@ namespace SetUtils {
         return result;
     }
 
+    // how is this useful? remove and construct the set in place
     template <typename T, typename C>
     void makeSet(const std::vector<T>& vec, std::set<T,C>& result) {
         result.insert(std::begin(vec), std::end(vec));
     }
 
+    // rename to difference
 	template <typename T, typename C>
     void minus(const std::set<T, C>& lhs, const std::set<T, C>& rhs, std::set<T, C>& result) {
         std::set_difference(std::begin(lhs), std::end(lhs), std::begin(rhs), std::end(rhs), std::insert_iterator<std::set<T, C> >(result, std::end(result)));
     }
 
+    // rename to difference
     template <typename T, typename C>
     std::set<T, C> minus(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
         std::set<T, C> result(lhs.key_comp());
@@ -819,6 +532,7 @@ namespace SetUtils {
         return result;
     }
 
+    // rename to difference
     template <typename T, typename C>
     std::set<T, C> minus(const std::set<T, C>& lhs, const T& rhs) {
         std::set<T, C> result(lhs);
@@ -826,6 +540,7 @@ namespace SetUtils {
         return result;
     }
 
+    // rename to union
     template <typename T, typename C>
     void merge(std::set<T, C>& lhs, const std::set<T, C>& rhs) {
         lhs.insert(std::begin(rhs), std::end(rhs));
@@ -859,67 +574,13 @@ namespace SetUtils {
     }
 
     template <typename T, typename C>
-    bool intersectionEmpty(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
-        auto lhsIt = std::begin(lhs);
-        auto lhsEnd = std::end(lhs);
-        auto rhsIt = std::begin(rhs);
-        auto rhsEnd = std::end(rhs);
-
-        const C cmp = lhs.key_comp();
-
-        while (lhsIt != lhsEnd && rhsIt != rhsEnd) {
-            const T& l = *lhsIt;
-            const T& r = *rhsIt;
-            if (cmp(l,r)) {
-                ++lhsIt;
-            } else if (cmp(r,l)) {
-                ++rhsIt;
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    template <typename T, typename C>
     std::set<T, C> intersection(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
         std::set<T, C> result(lhs.key_comp());
         intersection(lhs, rhs, result);
         return result;
     }
 
-    template <typename T, typename C>
-    void clearAndDelete(std::set<T*, C>& set) {
-        std::for_each(std::begin(set), std::end(set), Utils::Deleter<T>());
-        set.clear();
-    }
-
-    template <typename T, typename C>
-    void deleteAll(const std::set<T*, C>& set) {
-        std::for_each(std::begin(set), std::end(set), Utils::Deleter<T>());
-    }
-
-    template <typename S>
-    std::set<S> powerSet(const S& set) {
-        using PowerSet = std::set<S>;
-
-        PowerSet result;
-        result.insert(S());
-
-        for (const auto& elem : set) {
-            PowerSet intermediate;
-
-            for (auto subset : result) {
-                subset.insert(elem);
-                intermediate.insert(subset);
-            }
-
-            result.insert(std::begin(intermediate), std::end(intermediate));
-        }
-
-        return result;
-    }
-
+    // unused
     template <typename S>
     typename S::value_type popFront(S& set) {
         assert(!set.empty());
@@ -929,6 +590,7 @@ namespace SetUtils {
         return value;
     }
 
+    // unused
     template <typename S>
     S findMaximalElements(const S& set) {
         using V = typename S::value_type;
@@ -943,52 +605,9 @@ namespace SetUtils {
         }
         return result;
     }
-
-    template <typename S>
-    S& retainMaximalElements(S& set) {
-        S temp = findMaximalElements(set);
-
-        using std::swap;
-        swap(set, temp);
-        return set;
-    }
-
-    template <typename S>
-    S& retainSupersets(S& set) {
-        return CollectionUtils::retainMaximalElements(set, SubsetCmp());
-    }
-
-    template <typename S>
-    S findSupersets(const S& set) {
-        return CollectionUtils::findMaximalElements(set, SubsetCmp());
-    }
 }
 
 namespace MapUtils {
-    template <typename K, typename V>
-    struct Deleter {
-    public:
-        void operator()(std::pair<K, V*>& entry) {
-            delete entry.second;
-        }
-
-        void operator()(std::pair<const K, V*>& entry) {
-            delete entry.second;
-        }
-    };
-
-    template <typename K, typename V>
-    struct VectorDeleter {
-    public:
-        void operator()(std::pair<K, std::vector<V*> >& entry) {
-            VectorUtils::clearAndDelete(entry.second);
-        }
-
-        void operator()(std::pair<const K, std::vector<V*> >& entry) {
-            VectorUtils::clearAndDelete(entry.second);
-        }
-    };
-
     template <typename K, typename V, typename C>
     std::set<K, C> keySet(const std::map<K, V, C>& map) {
         std::set<K, C> result;
@@ -1087,16 +706,6 @@ namespace MapUtils {
         return true;
     }
 
-    template <typename K, typename V, typename C>
-    bool equals(const std::map<K, V, C>& map1, const std::map<K, V, C>& map2) {
-        return equals(map1, map2, std::less<V>());
-    }
-
-    template <typename K, typename V, typename C>
-    bool contains(const std::map<K, V, C>& map, const K& key) {
-        return map.find(key) != std::end(map);
-    }
-
     template <typename K, typename V, typename C, typename L>
     const V& find(const std::map<K, V, C>& map, const L& key, const V& defaultValue) {
         using Map = std::map<K, V, C>;
@@ -1184,25 +793,6 @@ namespace MapUtils {
     }
 
     template <typename K, typename V, typename C>
-    std::map<K,V,C> minus(const std::map<K,V,C>& lhs, const K& rhs) {
-        std::map<K,V,C> result(lhs);
-        result.erase(rhs);
-        return result;
-    }
-
-    template <typename K, typename V, typename C>
-    bool removeAndDelete(std::map<K, V*, C>& map, const K& key) {
-        using Map = std::map<K, V*, C>;
-        typename Map::iterator it = map.find(key);
-        if (it == std::end(map))
-            return false;
-
-        delete it->second;
-        map.erase(it);
-        return true;
-    }
-
-    template <typename K, typename V, typename C>
     void merge(std::map<K, std::vector<V>, C>& map1, const std::map<K, std::vector<V>, C>& map2) {
         using Vector = std::vector<V>;
 
@@ -1231,15 +821,18 @@ namespace MapUtils {
 
     template <typename K, typename V, typename C>
     void clearAndDelete(std::map<K, V*, C>& map) {
-        Deleter<K,V> deleter; // need separate instance because for_each only allows modification of the items if the function is not const
-        std::for_each(std::begin(map), std::end(map), deleter);
+        Utils::Deleter<V> deleter;
+        for (auto [key, value] : map) {
+            deleter(value);
+        }
         map.clear();
     }
 
     template <typename K, typename V, typename C>
     void clearAndDelete(std::map<K, std::vector<V*>, C>& map) {
-        VectorDeleter<K,V> deleter; // need separate instance because for_each only allows modification of the items if the function is not const
-        std::for_each(std::begin(map), std::end(map), deleter);
+        for (auto [key, value] : map) {
+            VectorUtils::clearAndDelete(value);
+        }
         map.clear();
     }
 }

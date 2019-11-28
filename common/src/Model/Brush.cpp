@@ -664,15 +664,15 @@ namespace TrenchBroom {
         }
 
         bool Brush::hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const FloatType epsilon) const {
-            return hasFace(vm::polygon3(VectorUtils::create<vm::vec3>(p1, p2, p3)), epsilon);
+            return hasFace(vm::polygon3({ p1, p2, p3 }), epsilon);
         }
 
         bool Brush::hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, const FloatType epsilon) const {
-            return hasFace(vm::polygon3(VectorUtils::create<vm::vec3>(p1, p2, p3, p4)), epsilon);
+            return hasFace(vm::polygon3({ p1, p2, p3, p4 }), epsilon);
         }
 
         bool Brush::hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, const vm::vec3& p5, const FloatType epsilon) const {
-            return hasFace(vm::polygon3(VectorUtils::create<vm::vec3>(p1, p2, p3, p4, p5)), epsilon);
+            return hasFace(vm::polygon3({ p1, p2, p3, p4, p5 }), epsilon);
         }
 
 
