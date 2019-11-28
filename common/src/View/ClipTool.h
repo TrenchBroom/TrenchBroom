@@ -24,9 +24,9 @@
 #include "Model/Hit.h"
 #include "Model/Model_Forward.h"
 #include "View/Tool.h"
-#include "View/ViewTypes.h"
 
 #include <map>
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -44,6 +44,7 @@ namespace TrenchBroom {
 
     namespace View {
         class Grid;
+        class MapDocument;
         class Selection;
 
         class ClipTool : public Tool {
@@ -112,7 +113,7 @@ namespace TrenchBroom {
             class PointClipStrategy;
             class FaceClipStrategy;
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             ClipSide m_clipSide;
             ClipStrategy* m_strategy;
@@ -126,7 +127,7 @@ namespace TrenchBroom {
             bool m_ignoreNotifications;
             bool m_dragging;
         public:
-            ClipTool(MapDocumentWPtr document);
+            ClipTool(std::weak_ptr<MapDocument> document);
             ~ClipTool() override;
 
             const Grid& grid() const;

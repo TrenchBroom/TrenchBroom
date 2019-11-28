@@ -61,7 +61,7 @@ namespace TrenchBroom {
 
             mutable Renderer::PointGuideRenderer m_guideRenderer;
         public:
-            VertexTool(MapDocumentWPtr document);
+            VertexTool(std::weak_ptr<MapDocument> document);
         public:
             std::set<Model::Brush*> findIncidentBrushes(const vm::vec3& handle) const;
             std::set<Model::Brush*> findIncidentBrushes(const vm::segment3& handle) const;

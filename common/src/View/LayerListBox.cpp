@@ -34,7 +34,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        LayerListBoxWidget::LayerListBoxWidget(MapDocumentWPtr document, Model::Layer* layer, QWidget* parent) :
+        LayerListBoxWidget::LayerListBoxWidget(std::weak_ptr<MapDocument> document, Model::Layer* layer, QWidget* parent) :
         ControlListBoxItemRenderer(parent),
         m_document(std::move(document)),
         m_layer(layer) {
@@ -134,7 +134,7 @@ namespace TrenchBroom {
 
         // LayerListBox
 
-        LayerListBox::LayerListBox(MapDocumentWPtr document, QWidget* parent) :
+        LayerListBox::LayerListBox(std::weak_ptr<MapDocument> document, QWidget* parent) :
         ControlListBox("", true, parent),
         m_document(std::move(document)) {
             bindObservers();

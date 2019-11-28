@@ -19,11 +19,12 @@
 
 #include "CompilationVariables.h"
 
+#include "VectorUtilsMinimal.h"
 #include "IO/SystemPaths.h"
 #include "Model/Game.h"
-#include "VectorUtilsMinimal.h"
 #include "View/MapDocument.h"
 
+#include <memory>
 #include <thread>
 
 namespace TrenchBroom {
@@ -39,7 +40,7 @@ namespace TrenchBroom {
             const String APP_DIR_PATH   = "APP_DIR_PATH";
         }
 
-        CommonVariables::CommonVariables(MapDocumentSPtr document) {
+        CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document) {
             const IO::Path filename = document->path().lastComponent();
             const IO::Path gamePath = document->game()->gamePath();
 
@@ -53,7 +54,7 @@ namespace TrenchBroom {
             declare(MODS, EL::Value(mods));
         }
 
-        CommonCompilationVariables::CommonCompilationVariables(MapDocumentSPtr document) :
+        CommonCompilationVariables::CommonCompilationVariables(std::shared_ptr<MapDocument> document) :
         CommonVariables(document) {
             const IO::Path filename = document->path().lastComponent();
             const IO::Path appPath = IO::SystemPaths::appDirectory();
@@ -63,7 +64,7 @@ namespace TrenchBroom {
             declare(APP_DIR_PATH, EL::Value(appPath.asString()));
         }
 
-        CompilationWorkDirVariables::CompilationWorkDirVariables(MapDocumentSPtr document) :
+        CompilationWorkDirVariables::CompilationWorkDirVariables(std::shared_ptr<MapDocument> document) :
         CommonCompilationVariables(document) {
             const IO::Path filePath = document->path().deleteLastComponent();
 
@@ -71,7 +72,7 @@ namespace TrenchBroom {
             declare(MAP_DIR_PATH, EL::Value(filePath.asString()));
         }
 
-        CompilationVariables::CompilationVariables(MapDocumentSPtr document, const String& workDir) :
+        CompilationVariables::CompilationVariables(std::shared_ptr<MapDocument> document, const String& workDir) :
         CommonCompilationVariables(document) {
             const auto cpuCount = static_cast<size_t>(std::max(std::thread::hardware_concurrency(), 1u));
 
@@ -80,7 +81,7 @@ namespace TrenchBroom {
             declare(WORK_DIR_PATH, EL::Value(workDir));
         }
 
-        LaunchGameEngineVariables::LaunchGameEngineVariables(MapDocumentSPtr document) :
+        LaunchGameEngineVariables::LaunchGameEngineVariables(std::shared_ptr<MapDocument> document) :
         CommonVariables(document) {}
     }
 }

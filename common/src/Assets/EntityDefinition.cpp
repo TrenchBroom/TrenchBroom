@@ -25,6 +25,8 @@
 
 #include <algorithm>
 #include <cassert>
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -80,7 +82,7 @@ namespace TrenchBroom {
         }
 
         struct FindSpawnflagsDefinition {
-            bool operator()(const AttributeDefinitionPtr& attributeDefinition) const {
+            bool operator()(const std::shared_ptr<AttributeDefinition>& attributeDefinition) const {
                 return (attributeDefinition->type() == AttributeDefinition::Type_FlagsAttribute &&
                         attributeDefinition->name() == Model::AttributeNames::Spawnflags);
             }
@@ -90,13 +92,13 @@ namespace TrenchBroom {
             return static_cast<FlagsAttributeDefinition*>(VectorUtils::findIf(m_attributeDefinitions, FindSpawnflagsDefinition()).get());
         }
 
-        const AttributeDefinitionList& EntityDefinition::attributeDefinitions() const {
+        const EntityDefinition::AttributeDefinitionList& EntityDefinition::attributeDefinitions() const {
             return m_attributeDefinitions;
         }
 
         const AttributeDefinition* EntityDefinition::attributeDefinition(const Model::AttributeName& attributeKey) const {
             const auto it = std::find_if(std::begin(m_attributeDefinitions), std::end(m_attributeDefinitions),
-                                         [attributeKey] (const AttributeDefinitionPtr& attributeDefinition) { return attributeDefinition->name() == attributeKey; });
+                                         [attributeKey] (const std::shared_ptr<AttributeDefinition>& attributeDefinition) { return attributeDefinition->name() == attributeKey; });
             if (it == std::end(m_attributeDefinitions))
                 return nullptr;
             return it->get();
@@ -123,8 +125,8 @@ namespace TrenchBroom {
             return flagDefinition->option(flag);
         }
 
-        EntityDefinitionList EntityDefinition::filterAndSort(const EntityDefinitionList& definitions, const EntityDefinition::Type type, const SortOrder order) {
-            EntityDefinitionList result;
+        std::vector<EntityDefinition*> EntityDefinition::filterAndSort(const std::vector<EntityDefinition*>& definitions, const EntityDefinition::Type type, const SortOrder order) {
+            std::vector<EntityDefinition*> result;
 
             std::copy_if(std::begin(definitions), std::end(definitions), std::back_inserter(result), [type] (EntityDefinition* definition) { return definition->type() == type; });
 

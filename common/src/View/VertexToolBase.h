@@ -47,7 +47,6 @@
 #include "View/Tool.h"
 #include "View/VertexCommand.h"
 #include "View/VertexHandleManager.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -55,6 +54,7 @@
 
 #include <cassert>
 #include <map>
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -70,6 +70,7 @@ namespace TrenchBroom {
     namespace View {
         class Grid;
         class Lasso;
+        class MapDocument;
 
         template <typename H>
         class VertexToolBase : public Tool {
@@ -80,7 +81,7 @@ namespace TrenchBroom {
                 MR_Cancel
             } MoveResult;
         protected:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
         private:
             size_t m_changeCount;
         protected:
@@ -89,7 +90,7 @@ namespace TrenchBroom {
             H m_dragHandlePosition;
             bool m_dragging;
         protected:
-            VertexToolBase(MapDocumentWPtr document) :
+            VertexToolBase(std::weak_ptr<MapDocument> document) :
             Tool(false),
             m_document(document),
             m_changeCount(0),
@@ -102,7 +103,7 @@ namespace TrenchBroom {
             }
 
             const std::vector<Model::Brush*>& selectedBrushes() const {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 return document->selectedNodes().brushes();
             }
         public:
@@ -223,7 +224,7 @@ namespace TrenchBroom {
                 }
                 refreshViews();
 
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->beginTransaction(actionName());
 
                 m_dragHandlePosition = getHandlePosition(hits.front());
@@ -235,14 +236,14 @@ namespace TrenchBroom {
             virtual MoveResult move(const vm::vec3& delta) = 0;
 
             virtual void endMove() {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->commitTransaction();
                 m_dragging = false;
                 m_ignoreChangeNotifications.popLiteral();
             }
 
             virtual void cancelMove() {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->cancelTransaction();
                 m_dragging = false;
                 m_ignoreChangeNotifications.popLiteral();
@@ -263,7 +264,7 @@ namespace TrenchBroom {
                     return;
                 }
 
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 const Model::BrushBuilder builder(document->world(), document->worldBounds());
                 auto* brush = builder.createBrush(polyhedron, document->currentTextureName());
                 brush->cloneFaceAttributesFrom(document->selectedNodes().brushes());
@@ -372,7 +373,7 @@ namespace TrenchBroom {
             }
         private: // Observers and state management
             void bindObservers() {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->selectionDidChangeNotifier.addObserver(this,  &VertexToolBase::selectionDidChange);
                 document->nodesWillChangeNotifier.addObserver(this,  &VertexToolBase::nodesWillChange);
                 document->nodesDidChangeNotifier.addObserver(this,  &VertexToolBase::nodesDidChange);
@@ -386,7 +387,7 @@ namespace TrenchBroom {
 
             void unbindObservers() {
                 if (!expired(m_document)) {
-                    MapDocumentSPtr document = lock(m_document);
+                    auto document = lock(m_document);
                     document->selectionDidChangeNotifier.removeObserver(this,  &VertexToolBase::selectionDidChange);
                     document->nodesWillChangeNotifier.removeObserver(this,  &VertexToolBase::nodesWillChange);
                     document->nodesDidChangeNotifier.removeObserver(this,  &VertexToolBase::nodesDidChange);

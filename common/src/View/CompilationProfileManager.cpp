@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        CompilationProfileManager::CompilationProfileManager(MapDocumentWPtr document, Model::CompilationConfig& config, QWidget* parent) :
+        CompilationProfileManager::CompilationProfileManager(std::weak_ptr<MapDocument> document, Model::CompilationConfig& config, QWidget* parent) :
         QWidget(parent),
         m_config(config),
         m_profileList(nullptr),

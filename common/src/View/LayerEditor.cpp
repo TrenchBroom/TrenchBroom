@@ -45,7 +45,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        LayerEditor::LayerEditor(MapDocumentWPtr document, QWidget *parent) :
+        LayerEditor::LayerEditor(std::weak_ptr<MapDocument> document, QWidget *parent) :
         QWidget(parent),
         m_document(document),
         m_layerList(nullptr) {
@@ -346,7 +346,7 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        void LayerEditor::moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer) {
+        void LayerEditor::moveSelectedNodesToLayer(std::shared_ptr<MapDocument> document, Model::Layer* layer) {
             const auto& selectedNodes = document->selectedNodes().nodes();
 
             CollectMoveableNodes visitor(document->world());

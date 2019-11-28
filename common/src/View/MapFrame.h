@@ -24,7 +24,6 @@
 #include "Model/Model_Forward.h"
 #include "View/Inspector.h"
 #include "View/Selection.h"
-#include "View/ViewTypes.h"
 
 #include <QMainWindow>
 #include <QPointer>
@@ -57,15 +56,18 @@ namespace TrenchBroom {
         class FrameManager;
         class GLContextManager;
         class Inspector;
+        class MapDocument;
         class SwitchableMapViewContainer;
         class Tool;
         class MapViewBase;
+
+        enum class PasteType;
 
         class MapFrame : public QMainWindow {
             Q_OBJECT
         private:
             FrameManager* m_frameManager;
-            MapDocumentSPtr m_document;
+            std::shared_ptr<MapDocument> m_document;
 
             Autosaver* m_autosaver;
             QTimer* m_autosaveTimer;
@@ -99,11 +101,11 @@ namespace TrenchBroom {
             QAction* m_pasteAction;
             QAction* m_pasteAtOriginalPositionAction;
         public:
-            MapFrame(FrameManager* frameManager, MapDocumentSPtr document);
+            MapFrame(FrameManager* frameManager, std::shared_ptr<MapDocument> document);
             ~MapFrame() override;
 
             void positionOnScreen(QWidget* reference);
-            MapDocumentSPtr document() const;
+            std::shared_ptr<MapDocument> document() const;
         public: // getters and such
             Logger& logger() const;
         private: // title bar contents

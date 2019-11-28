@@ -44,7 +44,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        LaunchGameEngineDialog::LaunchGameEngineDialog(MapDocumentWPtr document, QWidget* parent) :
+        LaunchGameEngineDialog::LaunchGameEngineDialog(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QDialog(parent),
         m_document(std::move(document)),
         m_gameEngineList(nullptr),

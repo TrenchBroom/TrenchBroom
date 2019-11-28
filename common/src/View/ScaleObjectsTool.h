@@ -24,12 +24,12 @@
 #include "TrenchBroom.h"
 #include "Model/Hit.h"
 #include "View/Tool.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/bbox.h>
 
 #include <bitset>
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -42,6 +42,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
         class ScaleObjectsToolPage;
 
         /**
@@ -209,7 +210,7 @@ namespace TrenchBroom {
             static const Model::Hit::HitType ScaleToolCornerHit;
 
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             ScaleObjectsToolPage* m_toolPage;
             bool m_resizing;
             AnchorPos m_anchorPos;
@@ -219,7 +220,7 @@ namespace TrenchBroom {
             ProportionalAxes m_proportionalAxes;
 
         public:
-            explicit ScaleObjectsTool(MapDocumentWPtr document);
+            explicit ScaleObjectsTool(std::weak_ptr<MapDocument> document);
             ~ScaleObjectsTool() override;
 
             bool doActivate() override;

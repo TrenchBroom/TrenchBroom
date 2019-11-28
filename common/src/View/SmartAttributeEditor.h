@@ -21,24 +21,26 @@
 #define TrenchBroom_SmartAttributeEditor
 
 #include "Model/Model_Forward.h"
-#include "View/ViewTypes.h"
 
+#include <memory>
 #include <vector>
 
 #include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+
         class SmartAttributeEditor : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             Model::AttributeName m_name;
             std::vector<Model::AttributableNode*> m_attributables;
             bool m_active;
         public:
-            explicit SmartAttributeEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit SmartAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             virtual ~SmartAttributeEditor();
 
             bool usesName(const Model::AttributeName& name) const;
@@ -47,7 +49,7 @@ namespace TrenchBroom {
             void update(const std::vector<Model::AttributableNode*>& attributables);
             void deactivate();
         protected:
-            MapDocumentSPtr document() const;
+            std::shared_ptr<MapDocument> document() const;
             const Model::AttributeName& name() const;
             const std::vector<Model::AttributableNode*> attributables() const;
             void addOrUpdateAttribute(const Model::AttributeValue& value);

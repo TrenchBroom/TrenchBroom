@@ -31,6 +31,7 @@
 #include "Model/World.h"
 
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -191,8 +192,8 @@ namespace TrenchBroom {
             return config;
         }
 
-        Assets::EntityDefinitionList TestGame::doLoadEntityDefinitions(IO::ParserStatus& /* status */, const IO::Path& /* path */) const {
-            return Assets::EntityDefinitionList();
+        std::vector<Assets::EntityDefinition*> TestGame::doLoadEntityDefinitions(IO::ParserStatus& /* status */, const IO::Path& /* path */) const {
+            return {};
         }
 
         std::unique_ptr<Assets::EntityModel> TestGame::doInitializeModel(const IO::Path& /* path */, Logger& /* logger */) const { return nullptr; }

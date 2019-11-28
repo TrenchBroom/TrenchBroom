@@ -468,7 +468,7 @@ namespace TrenchBroom {
 
         // ScaleObjectsTool
 
-        ScaleObjectsTool::ScaleObjectsTool(MapDocumentWPtr document) :
+        ScaleObjectsTool::ScaleObjectsTool(std::weak_ptr<MapDocument> document) :
         Tool(false),
         m_document(document),
         m_toolPage(nullptr),

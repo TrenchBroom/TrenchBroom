@@ -26,13 +26,13 @@
 
 namespace TrenchBroom {
     namespace View {
-        CompilationContext::CompilationContext(MapDocumentWPtr document, const EL::VariableTable& variables, const TextOutputAdapter& output, bool test) :
+        CompilationContext::CompilationContext(std::weak_ptr<MapDocument> document, const EL::VariableTable& variables, const TextOutputAdapter& output, bool test) :
         m_document(document),
         m_variables(variables),
         m_output(output),
         m_test(test) {}
 
-        MapDocumentSPtr CompilationContext::document() const {
+        std::shared_ptr<MapDocument> CompilationContext::document() const {
             return lock(m_document);
         }
 

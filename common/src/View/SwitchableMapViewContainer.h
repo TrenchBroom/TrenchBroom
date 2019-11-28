@@ -26,7 +26,6 @@
 #include "View/MapView.h"
 #include "View/MapViewActivationTracker.h"
 #include "View/MapViewLayout.h"
-#include "View/ViewTypes.h"
 
 #include <memory>
 
@@ -45,6 +44,7 @@ namespace TrenchBroom {
         class ClipTool;
         class GLContextManager;
         class Inspector;
+        class MapDocument;
         class MapViewContainer;
         class MapViewBar;
         class MapViewBase;
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             Logger* m_logger;
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             GLContextManager& m_contextManager;
 
             MapViewBar* m_mapViewBar;
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             MapViewContainer* m_mapView;
             MapViewActivationTracker m_activationTracker;
         public:
-            SwitchableMapViewContainer(Logger* logger, MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            SwitchableMapViewContainer(Logger* logger, std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~SwitchableMapViewContainer() override;
 
             void connectTopWidgets(Inspector* inspector);

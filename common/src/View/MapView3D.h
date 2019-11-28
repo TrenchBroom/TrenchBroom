@@ -24,8 +24,8 @@
 #include "Model/Model_Forward.h"
 #include "Renderer/PerspectiveCamera.h"
 #include "View/MapViewBase.h"
-#include "View/ViewTypes.h"
 
+#include <memory>
 #include <vector>
 
 class QKeyEvent;
@@ -44,6 +44,8 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+
         class MapView3D : public MapViewBase {
             Q_OBJECT
         private:
@@ -51,7 +53,7 @@ namespace TrenchBroom {
             FlyModeHelper* m_flyModeHelper;
             bool m_ignoreCameraChangeEvents;
         public:
-            MapView3D(MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
+            MapView3D(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
                       GLContextManager& contextManager, Logger* logger);
             ~MapView3D() override;
         private:

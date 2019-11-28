@@ -23,7 +23,6 @@
 #include "Macros.h"
 #include "StringType.h"
 
-#include <functional>
 #include <memory>
 
 namespace TrenchBroom {
@@ -62,16 +61,6 @@ namespace TrenchBroom {
 
             CommandState state() const;
             const String& name() const;
-
-            template <typename C>
-            bool forType(std::function<void(const C&)> f) const {
-                if (!isType(C::Type))
-                    return false;
-
-                const C* _this = static_cast<const C*>(this);
-                f(_this);
-                return true;
-            }
 
             virtual bool performDo(MapDocumentCommandFacade* document);
         private:

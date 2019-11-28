@@ -22,7 +22,8 @@
 
 #include "IO/Path.h"
 #include "View/CompilationVariables.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 #include <QDialog>
 
@@ -34,18 +35,19 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class MultiCompletionLineEdit;
         class GameEngineProfileListBox;
+        class MapDocument;
+        class MultiCompletionLineEdit;
 
         class LaunchGameEngineDialog : public QDialog {
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             GameEngineProfileListBox* m_gameEngineList;
             MultiCompletionLineEdit* m_parameterText;
             QPushButton* m_launchButton;
             Model::GameEngineProfile* m_lastProfile;
         public:
-            explicit LaunchGameEngineDialog(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit LaunchGameEngineDialog(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
             void createGui();
             LaunchGameEngineVariables variables() const;

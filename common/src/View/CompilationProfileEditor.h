@@ -20,9 +20,10 @@
 #ifndef CompilationProfileEditor_h
 #define CompilationProfileEditor_h
 
-#include "View/ViewTypes.h"
 
 #include <QWidget>
+
+#include <memory>
 
 class QAbstractButton;
 class QLineEdit;
@@ -35,12 +36,13 @@ namespace TrenchBroom {
 
     namespace View {
         class CompilationTaskListBox;
+        class MapDocument;
         class MultiCompletionLineEdit;
 
         class CompilationProfileEditor : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             Model::CompilationProfile* m_profile;
             QStackedWidget* m_stackedWidget;
             QLineEdit* m_nameTxt;
@@ -51,7 +53,7 @@ namespace TrenchBroom {
             QAbstractButton* m_moveTaskUpButton;
             QAbstractButton* m_moveTaskDownButton;
         public:
-            explicit CompilationProfileEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit CompilationProfileEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~CompilationProfileEditor() override;
         private:
             QWidget* createEditorPage(QWidget* parent);

@@ -22,8 +22,8 @@
 
 #include "StringType.h"
 #include "Model/Model_Forward.h"
-#include "View/ViewTypes.h"
 
+#include <memory>
 #include <vector>
 
 #include <QWidget>
@@ -38,8 +38,9 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class Selection;
         class EntityAttributeGrid;
+        class MapDocument;
+        class Selection;
         class SmartAttributeEditorManager;
 
         /**
@@ -49,14 +50,14 @@ namespace TrenchBroom {
         class EntityAttributeEditor : public QWidget {
             Q_OBJECT
         private:
-            View::MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             QSplitter* m_splitter;
             EntityAttributeGrid* m_attributeGrid;
             SmartAttributeEditorManager* m_smartEditorManager;
             QTextEdit* m_documentationText;
             const Assets::EntityDefinition* m_currentDefinition;
         public:
-            explicit EntityAttributeEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit EntityAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~EntityAttributeEditor() override;
         private:
             void OnCurrentRowChanged();
@@ -77,7 +78,7 @@ namespace TrenchBroom {
             static QString optionDescriptions(const Assets::AttributeDefinition& definition);
 
             void updateDocumentation(const String &attributeName);
-            void createGui(MapDocumentWPtr document);
+            void createGui(std::weak_ptr<MapDocument> document);
         };
     }
 }

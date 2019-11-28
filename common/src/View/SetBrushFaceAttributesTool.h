@@ -22,15 +22,18 @@
 
 #include "View/Tool.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+
         class SetBrushFaceAttributesTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
         public:
-            SetBrushFaceAttributesTool(MapDocumentWPtr document);
+            SetBrushFaceAttributesTool(std::weak_ptr<MapDocument> document);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;

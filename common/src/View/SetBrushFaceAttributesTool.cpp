@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        SetBrushFaceAttributesTool::SetBrushFaceAttributesTool(MapDocumentWPtr document) :
+        SetBrushFaceAttributesTool::SetBrushFaceAttributesTool(std::weak_ptr<MapDocument> document) :
         ToolControllerBase(),
         Tool(true),
         m_document(document) {}
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             if (!applies(inputState))
                 return false;
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             const std::vector<Model::BrushFace*>& selectedFaces = document->selectedBrushFaces();
             if (selectedFaces.size() != 1)

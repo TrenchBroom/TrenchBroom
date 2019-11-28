@@ -22,7 +22,7 @@
 
 #include "Notifier.h"
 #include "TrenchBroom.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/Path.h"
 #include "Model/EntityColor.h"
@@ -33,7 +33,6 @@
 #include "Model/TexCoordSystem.h"
 #include "View/CachingLogger.h"
 #include "View/UndoableCommand.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
@@ -75,6 +74,8 @@ namespace TrenchBroom {
         class Selection;
         class UndoableCommand;
         class ViewEffectsService;
+
+        enum class PasteType;
 
         class MapDocument : public Model::MapFacade, public CachingLogger {
         public:
@@ -432,7 +433,7 @@ namespace TrenchBroom {
             void setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
 
             // For testing
-            void setEntityDefinitions(const Assets::EntityDefinitionList& definitions);
+            void setEntityDefinitions(const std::vector<Assets::EntityDefinition*>& definitions);
 
             IO::Path::List enabledTextureCollections() const;
             IO::Path::List availableTextureCollections() const;
@@ -534,8 +535,8 @@ namespace TrenchBroom {
             MapDocument* m_document;
             bool m_cancelled;
         public:
-            explicit Transaction(MapDocumentWPtr document, const String& name = "");
-            explicit Transaction(MapDocumentSPtr document, const String& name = "");
+            explicit Transaction(std::weak_ptr<MapDocument> document, const String& name = "");
+            explicit Transaction(std::shared_ptr<MapDocument> document, const String& name = "");
             explicit Transaction(MapDocument* document, const String& name = "");
             ~Transaction();
 

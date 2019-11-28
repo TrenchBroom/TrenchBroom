@@ -40,7 +40,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        CompilationTaskEditorBase::CompilationTaskEditorBase(const QString& title, MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationTask& task, QWidget* parent) :
+        CompilationTaskEditorBase::CompilationTaskEditorBase(const QString& title, std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationTask& task, QWidget* parent) :
         ControlListBoxItemRenderer(parent),
         m_title(title),
         m_document(std::move(document)),
@@ -134,7 +134,7 @@ namespace TrenchBroom {
             }
         }
 
-        CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationExportMap& task, QWidget* parent) :
+        CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationExportMap& task, QWidget* parent) :
         CompilationTaskEditorBase("Export Map", std::move(document), profile, task, parent),
         m_targetEditor(nullptr) {
             auto* formLayout = new QFormLayout();
@@ -170,7 +170,7 @@ namespace TrenchBroom {
             }
         }
 
-        CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationCopyFiles& task, QWidget* parent) :
+        CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationCopyFiles& task, QWidget* parent) :
         CompilationTaskEditorBase("Copy Files", std::move(document), profile, task, parent),
         m_sourceEditor(nullptr),
         m_targetEditor(nullptr) {
@@ -224,7 +224,7 @@ namespace TrenchBroom {
             }
         }
 
-        CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationRunTool& task, QWidget* parent) :
+        CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationRunTool& task, QWidget* parent) :
         CompilationTaskEditorBase("Run Tool", std::move(document), profile, task, parent),
         m_toolEditor(nullptr),
         m_parametersEditor(nullptr) {
@@ -300,7 +300,7 @@ namespace TrenchBroom {
             }
         }
 
-        CompilationTaskListBox::CompilationTaskListBox(MapDocumentWPtr document, QWidget* parent) :
+        CompilationTaskListBox::CompilationTaskListBox(std::weak_ptr<MapDocument> document, QWidget* parent) :
         ControlListBox("Click the '+' button to create a task.", QMargins(), false, parent),
         m_document(std::move(document)),
         m_profile(nullptr) {}
@@ -328,12 +328,12 @@ namespace TrenchBroom {
 
         class CompilationTaskListBox::CompilationTaskEditorFactory : public Model::CompilationTaskVisitor {
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             Model::CompilationProfile& m_profile;
             QWidget* m_parent;
             ControlListBoxItemRenderer* m_result;
         public:
-            CompilationTaskEditorFactory(MapDocumentWPtr document, Model::CompilationProfile& profile, QWidget* parent) :
+            CompilationTaskEditorFactory(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, QWidget* parent) :
             m_document(std::move(document)),
             m_profile(profile),
             m_parent(parent),

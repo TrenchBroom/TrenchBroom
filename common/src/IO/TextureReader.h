@@ -21,7 +21,8 @@
 #define TrenchBroom_TextureReader_h
 
 #include "Macros.h"
-#include "Assets/AssetTypes.h"
+#include "StringType.h"
+#include "Assets/Asset_Forward.h"
 
 #include <memory>
 

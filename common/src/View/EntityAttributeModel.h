@@ -23,11 +23,11 @@
 #include "StringType.h"
 #include "StringList.h"
 #include "Model/Model_Forward.h"
-#include "View/ViewTypes.h"
 
 #include <QAbstractTableModel>
 
 #include <map>
+#include <memory>
 #include <set>
 #include <tuple>
 #include <vector>
@@ -38,6 +38,8 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+
         using AttribRow = std::tuple<QString, QString>;
         using RowList = std::vector<AttribRow>;
 
@@ -115,9 +117,9 @@ namespace TrenchBroom {
         private:
             std::vector<AttributeRow> m_rows;
             bool m_showDefaultRows;
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
         public:
-            explicit EntityAttributeModel(MapDocumentWPtr document, QObject* parent);
+            explicit EntityAttributeModel(std::weak_ptr<MapDocument> document, QObject* parent);
 
             bool showDefaultRows() const;
             void setShowDefaultRows(bool showDefaultRows);

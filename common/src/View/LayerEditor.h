@@ -22,7 +22,8 @@
 
 #include "StringType.h"
 #include "Model/Model_Forward.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 #include <QWidget>
 
@@ -31,18 +32,19 @@ class QAbstractButton;
 namespace TrenchBroom {
     namespace View {
         class LayerListBox;
+        class MapDocument;
 
         class LayerEditor : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             LayerListBox* m_layerList;
 
             QAbstractButton* m_addLayerButton;
             QAbstractButton* m_removeLayerButton;
             QAbstractButton* m_showAllLayersButton;
         public:
-            LayerEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
+            LayerEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
             void onSetCurrentLayer(Model::Layer* layer);
             void onLayerRightClick(Model::Layer* layer);
@@ -72,7 +74,7 @@ namespace TrenchBroom {
             void onShowAllLayers();
         private:
             Model::Layer* findVisibleAndUnlockedLayer(const Model::Layer* except) const;
-            void moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer);
+            void moveSelectedNodesToLayer(std::shared_ptr<MapDocument> document, Model::Layer* layer);
             void createGui();
         private slots:
             void updateButtons();

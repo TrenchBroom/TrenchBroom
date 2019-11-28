@@ -37,7 +37,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        DirectoryTextureCollectionEditor::DirectoryTextureCollectionEditor(MapDocumentWPtr document, QWidget* parent) :
+        DirectoryTextureCollectionEditor::DirectoryTextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)),
         m_availableCollectionsList(nullptr),
@@ -66,7 +66,7 @@ namespace TrenchBroom {
 
             VectorUtils::sortAndRemoveDuplicates(enabledCollections);
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->setEnabledTextureCollections(enabledCollections);
         }
 

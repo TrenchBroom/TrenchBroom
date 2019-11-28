@@ -19,11 +19,13 @@
 
 #include "EntityDefinitionParser.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace IO {
         EntityDefinitionParser::~EntityDefinitionParser() {}
 
-        Assets::EntityDefinitionList EntityDefinitionParser::parseDefinitions(ParserStatus& status) {
+        EntityDefinitionParser::EntityDefinitionList EntityDefinitionParser::parseDefinitions(ParserStatus& status) {
             return doParseDefinitions(status);
         }
     }

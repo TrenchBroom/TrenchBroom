@@ -45,7 +45,7 @@ namespace TrenchBroom {
         const Model::Hit::HitType UVScaleTool::XHandleHit = Model::Hit::freeHitType();
         const Model::Hit::HitType UVScaleTool::YHandleHit = Model::Hit::freeHitType();
 
-        UVScaleTool::UVScaleTool(MapDocumentWPtr document, UVViewHelper& helper) :
+        UVScaleTool::UVScaleTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper) :
         ToolControllerBase(),
         Tool(true),
         m_document(document),

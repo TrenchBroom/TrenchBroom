@@ -21,7 +21,8 @@
 #define CompilationTaskList_h
 
 #include "View/ControlListBox.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 class QCompleter;
 class QLineEdit;
@@ -37,6 +38,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
         class MultiCompletionLineEdit;
         class TitledPanel;
 
@@ -44,7 +46,7 @@ namespace TrenchBroom {
             Q_OBJECT
         protected:
             const QString m_title;
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             Model::CompilationProfile* m_profile;
             Model::CompilationTask* m_task;
             TitledPanel* m_panel;
@@ -52,7 +54,7 @@ namespace TrenchBroom {
             using Completers = std::list<QCompleter*>;
             Completers m_completers;
         protected:
-            CompilationTaskEditorBase(const QString& title, MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationTask& task, QWidget* parent);
+            CompilationTaskEditorBase(const QString& title, std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationTask& task, QWidget* parent);
         public:
             ~CompilationTaskEditorBase() override;
         protected:
@@ -77,7 +79,7 @@ namespace TrenchBroom {
         private:
             MultiCompletionLineEdit* m_targetEditor;
         public:
-            CompilationExportMapTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationExportMap& task, QWidget* parent = nullptr);
+            CompilationExportMapTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationExportMap& task, QWidget* parent = nullptr);
         private:
             void updateItem() override;
             Model::CompilationExportMap& task();
@@ -91,7 +93,7 @@ namespace TrenchBroom {
             MultiCompletionLineEdit* m_sourceEditor;
             MultiCompletionLineEdit* m_targetEditor;
         public:
-            CompilationCopyFilesTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationCopyFiles& task, QWidget* parent = nullptr);
+            CompilationCopyFilesTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationCopyFiles& task, QWidget* parent = nullptr);
         private:
             void updateItem() override;
             Model::CompilationCopyFiles& task();
@@ -106,7 +108,7 @@ namespace TrenchBroom {
             MultiCompletionLineEdit* m_toolEditor;
             MultiCompletionLineEdit* m_parametersEditor;
         public:
-            CompilationRunToolTaskEditor(MapDocumentWPtr document, Model::CompilationProfile& profile, Model::CompilationRunTool& task, QWidget* parent = nullptr);
+            CompilationRunToolTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationRunTool& task, QWidget* parent = nullptr);
         private:
             void updateItem() override;
             Model::CompilationRunTool& task();
@@ -119,10 +121,10 @@ namespace TrenchBroom {
         class CompilationTaskListBox : public ControlListBox {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             Model::CompilationProfile* m_profile;
         public:
-            explicit CompilationTaskListBox(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit CompilationTaskListBox(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~CompilationTaskListBox() override;
 
             void setProfile(Model::CompilationProfile* profile);

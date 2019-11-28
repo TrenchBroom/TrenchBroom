@@ -26,9 +26,10 @@
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
-#include "View/ViewTypes.h"
 
 #include <map>
+#include <memory>
+#include <vector>
 
 class QScrollBar;
 
@@ -40,6 +41,7 @@ namespace TrenchBroom {
 
     namespace View {
         class GLContextManager;
+        class MapDocument;
         using TextureGroupData = String;
 
         struct TextureCellData {
@@ -63,7 +65,7 @@ namespace TrenchBroom {
             using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
             using StringMap = std::map<Renderer::FontDescriptor, TextVertex::List>;
 
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             bool m_group;
             bool m_hideUnused;
             SortOrder m_sortOrder;
@@ -73,7 +75,7 @@ namespace TrenchBroom {
         public:
             TextureBrowserView(QScrollBar* scrollBar,
                                GLContextManager& contextManager,
-                               MapDocumentWPtr document);
+                               std::weak_ptr<MapDocument> document);
             ~TextureBrowserView() override;
 
             void setSortOrder(SortOrder sortOrder);
@@ -95,12 +97,12 @@ namespace TrenchBroom {
             struct MatchUsageCount;
             struct MatchName;
 
-            Assets::TextureCollectionList getCollections() const;
-            Assets::TextureList getTextures(const Assets::TextureCollection* collection) const;
-            Assets::TextureList getTextures() const;
+            std::vector<Assets::TextureCollection*> getCollections() const;
+            std::vector<Assets::Texture*> getTextures(const Assets::TextureCollection* collection) const;
+            std::vector<Assets::Texture*> getTextures() const;
 
-            void filterTextures(Assets::TextureList& textures) const;
-            void sortTextures(Assets::TextureList& textures) const;
+            void filterTextures(std::vector<Assets::Texture*>& textures) const;
+            void sortTextures(std::vector<Assets::Texture*>& textures) const;
 
             void doClear() override;
             void doRender(Layout& layout, float y, float height) override;

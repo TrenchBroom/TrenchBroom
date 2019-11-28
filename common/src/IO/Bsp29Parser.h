@@ -21,7 +21,7 @@
 #define TrenchBroom_Bsp29Parser
 
 #include "StringType.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Assets/TextureCollection.h"
 #include "IO/EntityModelParser.h"
 
@@ -75,7 +75,7 @@ namespace TrenchBroom {
             std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
             void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 
-            Assets::TextureList parseTextures(Reader reader);
+            std::vector<Assets::Texture*> parseTextures(Reader reader);
             TextureInfoList parseTextureInfos(Reader reader, size_t textureInfoCount);
             std::vector<vm::vec3f> parseVertices(Reader reader, size_t vertexCount);
             EdgeInfoList parseEdgeInfos(Reader reader, size_t edgeInfoCount);

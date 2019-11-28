@@ -24,7 +24,8 @@
 #include "Renderer/GLVertexType.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -41,6 +42,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
         class UVViewHelper;
 
         class UVScaleTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
@@ -50,14 +52,14 @@ namespace TrenchBroom {
         private:
             using EdgeVertex = Renderer::GLVertexTypes::P3::Vertex;
 
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             UVViewHelper& m_helper;
 
             vm::vec2i m_handle;
             vm::vec2b m_selector;
             vm::vec2f m_lastHitPoint; // in non-scaled, non-translated texture coordinates
         public:
-            UVScaleTool(MapDocumentWPtr document, UVViewHelper& helper);
+            UVScaleTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;

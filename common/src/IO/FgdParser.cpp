@@ -26,6 +26,9 @@
 #include "IO/ELParser.h"
 #include "IO/LegacyModelDefinitionParser.h"
 
+#include <memory>
+#include <vector>
+
 namespace TrenchBroom {
     namespace IO {
         FgdTokenizer::FgdTokenizer(const char* begin, const char* end) :
@@ -189,8 +192,8 @@ namespace TrenchBroom {
             return false;
         }
 
-        Assets::EntityDefinitionList FgdParser::doParseDefinitions(ParserStatus& status) {
-            Assets::EntityDefinitionList definitions;
+        FgdParser::EntityDefinitionList FgdParser::doParseDefinitions(ParserStatus& status) {
+            EntityDefinitionList definitions;
             try {
                 auto token = m_tokenizer.peekToken();
                 while (!token.hasType(FgdToken::Eof)) {
@@ -204,7 +207,7 @@ namespace TrenchBroom {
             }
         }
 
-        void FgdParser::parseDefinitionOrInclude(ParserStatus& status, Assets::EntityDefinitionList& definitions) {
+        void FgdParser::parseDefinitionOrInclude(ParserStatus& status, EntityDefinitionList& definitions) {
             auto token = expect(status, FgdToken::Eof | FgdToken::Word, m_tokenizer.peekToken());
             if (token.hasType(FgdToken::Eof)) {
                 return;
@@ -393,8 +396,8 @@ namespace TrenchBroom {
             } while (depth > 0 && token.type() != FgdToken::Eof);
         }
 
-        Assets::AttributeDefinitionMap FgdParser::parseProperties(ParserStatus& status) {
-            Assets::AttributeDefinitionMap attributes;
+        FgdParser::AttributeDefinitionMap FgdParser::parseProperties(ParserStatus& status) {
+            AttributeDefinitionMap attributes;
 
             expect(status, FgdToken::OBracket, m_tokenizer.nextToken());
             auto token = expect(status, FgdToken::Word | FgdToken::CBracket, m_tokenizer.nextToken());
@@ -439,50 +442,47 @@ namespace TrenchBroom {
             return attributes;
         }
 
-        Assets::AttributeDefinitionPtr FgdParser::parseTargetSourceAttribute(ParserStatus& status, const String& name) {
+        FgdParser::AttributeDefinitionPtr FgdParser::parseTargetSourceAttribute(ParserStatus& status, const String& name) {
             const auto readOnly = parseReadOnlyFlag(status);
             const auto shortDescription = parseAttributeDescription(status);
             parseDefaultStringValue(status);
             const auto longDescription = parseAttributeDescription(status);
-            return Assets::AttributeDefinitionPtr(new Assets::AttributeDefinition(name, Assets::AttributeDefinition::Type_TargetSourceAttribute, shortDescription, longDescription, readOnly));
+            return std::make_shared<Assets::AttributeDefinition>(name, Assets::AttributeDefinition::Type_TargetSourceAttribute, shortDescription, longDescription, readOnly);
         }
 
-        Assets::AttributeDefinitionPtr FgdParser::parseTargetDestinationAttribute(ParserStatus& status, const String& name) {
+        FgdParser::AttributeDefinitionPtr FgdParser::parseTargetDestinationAttribute(ParserStatus& status, const String& name) {
             const auto readOnly = parseReadOnlyFlag(status);
             const auto shortDescription = parseAttributeDescription(status);
             parseDefaultStringValue(status);
             const auto longDescription = parseAttributeDescription(status);
-            return Assets::AttributeDefinitionPtr(new Assets::AttributeDefinition(name, Assets::AttributeDefinition::Type_TargetDestinationAttribute, shortDescription, longDescription, readOnly));
+            return std::make_shared<Assets::AttributeDefinition>(name, Assets::AttributeDefinition::Type_TargetDestinationAttribute, shortDescription, longDescription, readOnly);
         }
 
-        Assets::AttributeDefinitionPtr FgdParser::parseStringAttribute(ParserStatus& status, const String& name) {
+        FgdParser::AttributeDefinitionPtr FgdParser::parseStringAttribute(ParserStatus& status, const String& name) {
             const auto readOnly = parseReadOnlyFlag(status);
             const auto shortDescription = parseAttributeDescription(status);
             const auto defaultValue = parseDefaultStringValue(status);
             const auto longDescription = parseAttributeDescription(status);
-
             return std::make_shared<Assets::StringAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
         }
 
-        Assets::AttributeDefinitionPtr FgdParser::parseIntegerAttribute(ParserStatus& status, const String& name) {
+        FgdParser::AttributeDefinitionPtr FgdParser::parseIntegerAttribute(ParserStatus& status, const String& name) {
             const auto readOnly = parseReadOnlyFlag(status);
             const auto shortDescription = parseAttributeDescription(status);
             const auto defaultValue = parseDefaultIntegerValue(status);
             const auto longDescription = parseAttributeDescription(status);
-
             return std::make_shared<Assets::IntegerAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
         }
 
-        Assets::AttributeDefinitionPtr FgdParser::parseFloatAttribute(ParserStatus& status, const String& name) {
+        FgdParser::AttributeDefinitionPtr FgdParser::parseFloatAttribute(ParserStatus& status, const String& name) {
             const auto readOnly = parseReadOnlyFlag(status);
             const auto shortDescription = parseAttributeDescription(status);
             const auto defaultValue = parseDefaultFloatValue(status);
             const auto longDescription = parseAttributeDescription(status);
-
             return std::make_shared<Assets::FloatAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
         }
 
-        Assets::AttributeDefinitionPtr FgdParser::parseChoicesAttribute(ParserStatus& status, const String& name) {
+        FgdParser::AttributeDefinitionPtr FgdParser::parseChoicesAttribute(ParserStatus& status, const String& name) {
             const auto readOnly = parseReadOnlyFlag(status);
             const auto shortDescription = parseAttributeDescription(status);
             const auto defaultValue = parseDefaultChoiceValue(status);
@@ -506,7 +506,7 @@ namespace TrenchBroom {
             return std::make_shared<Assets::ChoiceAttributeDefinition>(name, shortDescription, longDescription, options, readOnly, defaultValue);
         }
 
-        Assets::AttributeDefinitionPtr FgdParser::parseFlagsAttribute(ParserStatus& status, const String& name) {
+        FgdParser::AttributeDefinitionPtr FgdParser::parseFlagsAttribute(ParserStatus& status, const String& name) {
             // Flag attributes do not have descriptions or defaults, see https://developer.valvesoftware.com/wiki/FGD
 
             expect(status, FgdToken::Equality, m_tokenizer.nextToken());
@@ -539,15 +539,14 @@ namespace TrenchBroom {
 
                 definition->addOption(value, shortDescription, longDescription, defaultValue);
             }
-            return { definition };
+            return definition;
         }
 
-        Assets::AttributeDefinitionPtr FgdParser::parseUnknownAttribute(ParserStatus& status, const String& name) {
+        FgdParser::AttributeDefinitionPtr FgdParser::parseUnknownAttribute(ParserStatus& status, const String& name) {
             const auto readOnly = parseReadOnlyFlag(status);
             const auto shortDescription = parseAttributeDescription(status);
             const auto defaultValue = parseDefaultStringValue(status);
             const auto longDescription = parseAttributeDescription(status);
-
             return std::make_shared<Assets::UnknownAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
         }
 
@@ -690,7 +689,7 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityDefinitionList FgdParser::parseInclude(ParserStatus& status) {
+        FgdParser::EntityDefinitionList FgdParser::parseInclude(ParserStatus& status) {
             auto token = expect(status, FgdToken::Word, m_tokenizer.nextToken());
             assert(StringUtils::caseInsensitiveEqual(token.data(), "@include"));
 
@@ -699,9 +698,9 @@ namespace TrenchBroom {
             return handleInclude(status, path);
         }
 
-        Assets::EntityDefinitionList FgdParser::handleInclude(ParserStatus& status, const Path& path) {
+        FgdParser::EntityDefinitionList FgdParser::handleInclude(ParserStatus& status, const Path& path) {
             const auto snapshot = m_tokenizer.snapshot();
-            auto result = Assets::EntityDefinitionList(0);
+            auto result = EntityDefinitionList{};
             try {
                 status.debug(m_tokenizer.line(), "Parsing included file '" + path.asString() + "'");
                 const auto file = m_fs->openFile(path);

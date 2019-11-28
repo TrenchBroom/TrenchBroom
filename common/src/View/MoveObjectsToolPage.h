@@ -20,7 +20,8 @@
 #ifndef TrenchBroom_MoveObjectsToolPage
 #define TrenchBroom_MoveObjectsToolPage
 
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 #include <QWidget>
 
@@ -29,17 +30,18 @@ class QLineEdit;
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
         class Selection;
 
         class MoveObjectsToolPage : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             QLineEdit* m_offset;
             QAbstractButton* m_button;
         public:
-            explicit MoveObjectsToolPage(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit MoveObjectsToolPage(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~MoveObjectsToolPage() override;
         private:
             void bindObservers();

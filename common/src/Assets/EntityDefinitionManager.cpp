@@ -20,10 +20,11 @@
 #include "EntityDefinitionManager.h"
 
 #include "CollectionUtils.h"
-#include "StringUtils.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -35,7 +36,7 @@ namespace TrenchBroom {
             setDefinitions(loader.loadEntityDefinitions(status, path));
         }
 
-        void EntityDefinitionManager::setDefinitions(const EntityDefinitionList& newDefinitions) {
+        void EntityDefinitionManager::setDefinitions(const std::vector<EntityDefinition*>& newDefinitions) {
             clear();
 
             m_definitions = newDefinitions;
@@ -64,11 +65,11 @@ namespace TrenchBroom {
             return it->second;
         }
 
-        EntityDefinitionList EntityDefinitionManager::definitions(const EntityDefinition::Type type, const EntityDefinition::SortOrder order) const {
+        std::vector<EntityDefinition*> EntityDefinitionManager::definitions(const EntityDefinition::Type type, const EntityDefinition::SortOrder order) const {
             return EntityDefinition::filterAndSort(m_definitions, type, order);
         }
 
-        const EntityDefinitionList& EntityDefinitionManager::definitions() const {
+        const std::vector<EntityDefinition*>& EntityDefinitionManager::definitions() const {
             return m_definitions;
         }
 
@@ -84,7 +85,7 @@ namespace TrenchBroom {
         void EntityDefinitionManager::updateGroups() {
             clearGroups();
 
-            using GroupMap = std::map<String, EntityDefinitionList>;
+            using GroupMap = std::map<String, std::vector<EntityDefinition*>>;
             GroupMap groupMap;
 
             for (size_t i = 0; i < m_definitions.size(); ++i) {
@@ -95,7 +96,7 @@ namespace TrenchBroom {
 
             for (const auto& entry : groupMap) {
                 const String& groupName = entry.first;
-                const EntityDefinitionList& definitions = entry.second;
+                const std::vector<EntityDefinition*>& definitions = entry.second;
                 m_groups.push_back(EntityDefinitionGroup(groupName, definitions));
             }
         }

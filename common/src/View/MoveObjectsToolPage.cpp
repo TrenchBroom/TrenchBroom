@@ -33,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MoveObjectsToolPage::MoveObjectsToolPage(MapDocumentWPtr document, QWidget* parent) :
+        MoveObjectsToolPage::MoveObjectsToolPage(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_offset(nullptr),
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         }
 
         void MoveObjectsToolPage::updateGui() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             m_button->setEnabled(document->hasSelectedNodes());
         }
 
@@ -91,7 +91,7 @@ namespace TrenchBroom {
         void MoveObjectsToolPage::applyMove() {
             const vm::vec3 delta = vm::parse<FloatType, 3>(m_offset->text().toStdString());
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->translateObjects(delta);
         }
     }

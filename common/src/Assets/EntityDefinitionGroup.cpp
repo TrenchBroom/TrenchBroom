@@ -23,7 +23,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        EntityDefinitionGroup::EntityDefinitionGroup(const String& name, const EntityDefinitionList& definitions) :
+        EntityDefinitionGroup::EntityDefinitionGroup(const String& name, const std::vector<EntityDefinition*>& definitions) :
         m_name(name),
         m_definitions(definitions) {}
 
@@ -37,11 +37,11 @@ namespace TrenchBroom {
             return StringUtils::capitalize(m_name);
         }
 
-        const EntityDefinitionList& EntityDefinitionGroup::definitions() const {
+        const std::vector<EntityDefinition*>& EntityDefinitionGroup::definitions() const {
             return m_definitions;
         }
 
-        EntityDefinitionList EntityDefinitionGroup::definitions(const EntityDefinition::Type type, const EntityDefinition::SortOrder order) const {
+        std::vector<EntityDefinition*> EntityDefinitionGroup::definitions(const EntityDefinition::Type type, const EntityDefinition::SortOrder order) const {
             return EntityDefinition::filterAndSort(m_definitions, type, order);
         }
     }

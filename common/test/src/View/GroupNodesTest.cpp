@@ -27,6 +27,7 @@
 #include "Model/World.h"
 #include "View/MapDocumentTest.h"
 #include "View/MapDocument.h"
+#include "View/PasteType.h"
 
 #include <set>
 
@@ -135,7 +136,7 @@ namespace TrenchBroom {
             Model::Group* group = document->groupSelection("test");
             document->openGroup(group);
 
-            ASSERT_EQ(PT_Node, document->paste(data));
+            ASSERT_EQ(PasteType::Node, document->paste(data));
             ASSERT_TRUE(document->selectedNodes().hasOnlyEntities());
             ASSERT_EQ(1u, document->selectedNodes().entityCount());
 

@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        FourPaneMapView::FourPaneMapView(MapDocumentWPtr document, MapViewToolBox& toolBox,
+        FourPaneMapView::FourPaneMapView(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox,
                                          Renderer::MapRenderer& mapRenderer,
                                          GLContextManager& contextManager, Logger* logger, QWidget* parent) :
         MultiMapView(parent),

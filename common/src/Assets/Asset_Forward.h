@@ -17,14 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_AssetTypes_h
-#define TrenchBroom_AssetTypes_h
-
-#include "StringType.h"
-
-#include <memory>
-#include <map>
-#include <vector>
+#ifndef TrenchBroom_Asset_Forward_h
+#define TrenchBroom_Asset_Forward_h
 
 namespace TrenchBroom {
     namespace Assets {
@@ -32,28 +26,19 @@ namespace TrenchBroom {
         class PaletteLoader;
 
         class Texture;
-        using TextureList = std::vector<Texture*>;
-
         class TextureCollection;
-        using TextureCollectionList = std::vector<TextureCollection*>;
+
+        class EntityDefinitionFileSpec;
 
         class EntityDefinition;
         class PointEntityDefinition;
         class BrushEntityDefinition;
-        using EntityDefinitionList = std::vector<EntityDefinition*>;
-
-        class EntityDefinitionFileSpec;
 
         class AttributeDefinition;
-        using AttributeDefinitionPtr = std::shared_ptr<AttributeDefinition>;
-        using AttributeDefinitionList = std::vector<AttributeDefinitionPtr>;
-        using AttributeDefinitionMap = std::map<String, AttributeDefinitionPtr>;
-
         class ModelDefinition;
 
         class EntityModelManager;
         class EntityModel;
-        using EntityModelList = std::vector<EntityModel*>;
     }
 }
 

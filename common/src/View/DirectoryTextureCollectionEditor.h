@@ -21,7 +21,8 @@
 #define DirectoryTextureCollectionEditor_h
 
 #include "IO/Path.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 #include <QWidget>
 
@@ -30,10 +31,12 @@ class QAbstractButton;
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+
         class DirectoryTextureCollectionEditor : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             QListWidget* m_availableCollectionsList;
             QListWidget* m_enabledCollectionsList;
@@ -42,7 +45,7 @@ namespace TrenchBroom {
             QAbstractButton* m_removeCollectionsButton;
             QAbstractButton* m_reloadCollectionsButton;
         public:
-            explicit DirectoryTextureCollectionEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit DirectoryTextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~DirectoryTextureCollectionEditor() override;
         private:
             void addSelectedTextureCollections();

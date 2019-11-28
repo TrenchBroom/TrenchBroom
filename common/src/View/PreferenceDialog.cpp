@@ -40,7 +40,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        PreferenceDialog::PreferenceDialog(MapDocumentSPtr document, QWidget* parent) :
+        PreferenceDialog::PreferenceDialog(std::shared_ptr<MapDocument> document, QWidget* parent) :
         QDialog(parent),
         m_document(std::move(document)),
         m_toolBar(nullptr),

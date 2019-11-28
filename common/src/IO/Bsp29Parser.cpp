@@ -149,12 +149,12 @@ namespace TrenchBroom {
             parseFrame(reader.subReaderFromBegin(modelsOffset + frameIndex * BspLayout::ModelSize, BspLayout::ModelSize), frameIndex, model, textureInfos, vertices, edgeInfos, faceInfos, faceEdges);
         }
 
-        Assets::TextureList Bsp29Parser::parseTextures(Reader reader) {
+        std::vector<Assets::Texture*> Bsp29Parser::parseTextures(Reader reader) {
             const TextureReader::TextureNameStrategy nameStrategy;
             IdMipTextureReader textureReader(nameStrategy, m_palette);
 
             const auto textureCount = reader.readSize<int32_t>();
-            Assets::TextureList result(textureCount);
+            std::vector<Assets::Texture*> result(textureCount);
 
             for (size_t i = 0; i < textureCount; ++i) {
                 const auto textureOffset = reader.readInt<int32_t>();

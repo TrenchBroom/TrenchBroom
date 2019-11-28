@@ -22,7 +22,8 @@
 
 #include "View/CameraLinkHelper.h"
 #include "View/MultiMapView.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     class Logger;
@@ -35,6 +36,7 @@ namespace TrenchBroom {
     namespace View {
         class CyclingMapView;
         class GLContextManager;
+        class MapDocument;
         class MapViewBase;
         class MapView3D;
         class MapViewToolBox;
@@ -42,12 +44,12 @@ namespace TrenchBroom {
         class OnePaneMapView : public MultiMapView {
         private:
             Logger* m_logger;
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             CameraLinkHelper m_linkHelper;
             CyclingMapView* m_mapView;
         public:
-            explicit OnePaneMapView(Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, QWidget* parent = nullptr);
+            explicit OnePaneMapView(Logger* logger, std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, QWidget* parent = nullptr);
         private:
             void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
         };

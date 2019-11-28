@@ -24,8 +24,8 @@
 #include "Model/Model_Forward.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -35,6 +35,7 @@ namespace TrenchBroom {
 
     namespace View {
         class InputState;
+        class MapDocument;
 
         /**
          * Implements the Group picking logic: if `node` is inside a (possibly nested chain of)
@@ -53,9 +54,9 @@ namespace TrenchBroom {
 
         class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
         public:
-            SelectionTool(MapDocumentWPtr document);
+            SelectionTool(std::weak_ptr<MapDocument> document);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;

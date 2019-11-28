@@ -21,7 +21,8 @@
 #define TrenchBroom_EntityInspector
 
 #include "View/TabBook.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 class QSplitter;
 
@@ -31,6 +32,7 @@ namespace TrenchBroom {
         class EntityDefinitionFileChooser;
         class EntityAttributeEditor;
         class GLContextManager;
+        class MapDocument;
 
         class EntityInspector : public TabBookPage {
             Q_OBJECT
@@ -40,13 +42,13 @@ namespace TrenchBroom {
             EntityBrowser* m_entityBrowser;
             EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
         public:
-            EntityInspector(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            EntityInspector(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~EntityInspector() override;
         private:
-            void createGui(MapDocumentWPtr document, GLContextManager& contextManager);
-            QWidget* createAttributeEditor(QWidget* parent, MapDocumentWPtr document);
-            QWidget* createEntityBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-            QWidget* createEntityDefinitionFileChooser(QWidget* parent, MapDocumentWPtr document);
+            void createGui(std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
+            QWidget* createAttributeEditor(QWidget* parent, std::weak_ptr<MapDocument> document);
+            QWidget* createEntityBrowser(QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
+            QWidget* createEntityDefinitionFileChooser(QWidget* parent, std::weak_ptr<MapDocument> document);
         };
     }
 }

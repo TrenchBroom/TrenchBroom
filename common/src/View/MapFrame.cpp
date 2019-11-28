@@ -55,6 +55,7 @@
 #include "View/LaunchGameEngineDialog.h"
 #include "View/MainMenuBuilder.h"
 #include "View/MapDocument.h"
+#include "View/PasteType.h"
 #include "View/RenderView.h"
 #include "View/ReplaceTextureDialog.h"
 #include "View/Splitter.h"
@@ -87,7 +88,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
+        MapFrame::MapFrame(FrameManager* frameManager, std::shared_ptr<MapDocument> document) :
         QMainWindow(),
         m_frameManager(frameManager),
         m_document(std::move(document)),
@@ -187,7 +188,7 @@ namespace TrenchBroom {
             }
         }
 
-        MapDocumentSPtr MapFrame::document() const {
+        std::shared_ptr<MapDocument> MapFrame::document() const {
             return m_document;
         }
 
@@ -928,7 +929,7 @@ namespace TrenchBroom {
             if (canPaste()) {
                 const vm::bbox3 referenceBounds = m_document->referenceBounds();
                 Transaction transaction(m_document);
-                if (paste() == PT_Node && m_document->hasSelectedNodes()) {
+                if (paste() == PasteType::Node && m_document->hasSelectedNodes()) {
                     const vm::bbox3 bounds = m_document->selectionBounds();
 
                     // The pasted objects must be hidden to prevent the picking done in pasteObjectsDelta
@@ -955,7 +956,7 @@ namespace TrenchBroom {
 
             if (qtext.isEmpty()) {
                 logger().error("Clipboard is empty");
-                return PT_Failed;
+                return PasteType::Failed;
             }
 
             return m_document->paste(qtext.toStdString());
@@ -1116,7 +1117,7 @@ namespace TrenchBroom {
 
         void MapFrame::renameSelectedGroups() {
             if (canRenameSelectedGroups()) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 assert(document->selectedNodes().hasOnlyGroups());
                 const String name = queryGroupName(this);
                 if (!name.empty()) {
@@ -1126,7 +1127,7 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canRenameSelectedGroups() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             return document->selectedNodes().hasOnlyGroups();
         }
 

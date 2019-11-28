@@ -24,23 +24,28 @@
 #include "Color.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/SpikeGuideRenderer.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/bbox.h>
 
+#include <memory>
+
 namespace TrenchBroom {
+    namespace View {
+        class MapDocument; // FIXME: Renderer should not depend on View
+    }
+
     namespace Renderer {
         class BoundsGuideRenderer : public DirectRenderable {
         private:
             static const FloatType SpikeLength;
 
-            View::MapDocumentWPtr m_document;
+            std::weak_ptr<View::MapDocument> m_document;
 
             Color m_color;
             vm::bbox3 m_bounds;
             SpikeGuideRenderer m_spikeRenderer;
         public:
-            BoundsGuideRenderer(View::MapDocumentWPtr document);
+            BoundsGuideRenderer(std::weak_ptr<View::MapDocument> document);
 
             void setColor(const Color& color);
             void setBounds(const vm::bbox3& bounds);

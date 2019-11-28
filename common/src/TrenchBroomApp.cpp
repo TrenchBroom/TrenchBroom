@@ -257,14 +257,14 @@ namespace TrenchBroom {
         }
 
         // returns the topmost MapDocument as a shared pointer, or the empty shared pointer
-        static MapDocumentSPtr topDocument() {
+        static std::shared_ptr<MapDocument> topDocument() {
             FrameManager *fm = TrenchBroomApp::instance().frameManager();
             if (fm == nullptr)
-                return MapDocumentSPtr();
+                return {};
 
             MapFrame *frame = fm->topFrame();
             if (frame == nullptr)
-                return MapDocumentSPtr();
+                return {};
 
             return frame->document();
         }
@@ -319,7 +319,7 @@ namespace TrenchBroom {
 
         // returns the empty path for unsaved maps, or if we can't determine the current map
         static IO::Path savedMapPath() {
-            MapDocumentSPtr doc = topDocument();
+            auto doc = topDocument();
             if (doc.get() == nullptr)
                 return IO::Path();
 
@@ -392,7 +392,7 @@ namespace TrenchBroom {
             std::cerr << "wrote crash log to " << reportPath.asString() << std::endl;
 
             // save the map
-            MapDocumentSPtr doc = topDocument();
+            auto doc = topDocument();
             if (doc.get() != nullptr) {
                 doc->saveDocumentTo(mapPath);
                 std::cerr << "wrote map to " << mapPath.asString() << std::endl;

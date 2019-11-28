@@ -40,13 +40,13 @@
 
 namespace TrenchBroom {
     namespace View {
-        CreateEntityTool::CreateEntityTool(MapDocumentWPtr document) :
+        CreateEntityTool::CreateEntityTool(std::weak_ptr<MapDocument> document) :
         Tool(true),
         m_document(document),
         m_entity(nullptr) {}
 
         bool CreateEntityTool::createEntity(const String& classname) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const Assets::EntityDefinitionManager& definitionManager = document->entityDefinitionManager();
             Assets::EntityDefinition* definition = definitionManager.definition(classname);
             if (definition == nullptr)
@@ -71,14 +71,14 @@ namespace TrenchBroom {
 
         void CreateEntityTool::removeEntity() {
             ensure(m_entity != nullptr, "entity is null");
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->cancelTransaction();
             m_entity = nullptr;
         }
 
         void CreateEntityTool::commitEntity() {
             ensure(m_entity != nullptr, "entity is null");
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->commitTransaction();
             m_entity = nullptr;
         }

@@ -40,6 +40,8 @@
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 
+#include <vector>
+
 #include <QTextStream>
 #include <QMenu>
 
@@ -50,7 +52,7 @@ namespace TrenchBroom {
     namespace View {
         TextureBrowserView::TextureBrowserView(QScrollBar* scrollBar,
                                                GLContextManager& contextManager,
-                                               MapDocumentWPtr document) :
+                                               std::weak_ptr<MapDocument> document) :
         CellView(contextManager, scrollBar),
         m_document(document),
         m_group(false),
@@ -229,9 +231,9 @@ namespace TrenchBroom {
             }
         };
 
-        Assets::TextureCollectionList TextureBrowserView::getCollections() const {
+        std::vector<Assets::TextureCollection*> TextureBrowserView::getCollections() const {
             auto doc = lock(m_document);
-            Assets::TextureCollectionList collections = doc->textureManager().collections();
+            std::vector<Assets::TextureCollection*> collections = doc->textureManager().collections();
             if (m_hideUnused)
                 VectorUtils::eraseIf(collections, MatchUsageCount());
             if (m_sortOrder == SO_Usage)
@@ -239,29 +241,29 @@ namespace TrenchBroom {
             return collections;
         }
 
-        Assets::TextureList TextureBrowserView::getTextures(const Assets::TextureCollection* collection) const {
-            Assets::TextureList textures = collection->textures();
+        std::vector<Assets::Texture*> TextureBrowserView::getTextures(const Assets::TextureCollection* collection) const {
+            std::vector<Assets::Texture*> textures = collection->textures();
             filterTextures(textures);
             sortTextures(textures);
             return textures;
         }
 
-        Assets::TextureList TextureBrowserView::getTextures() const {
+        std::vector<Assets::Texture*> TextureBrowserView::getTextures() const {
             auto doc = lock(m_document);
-            Assets::TextureList textures = doc->textureManager().textures();
+            std::vector<Assets::Texture*> textures = doc->textureManager().textures();
             filterTextures(textures);
             sortTextures(textures);
             return textures;
         }
 
-        void TextureBrowserView::filterTextures(Assets::TextureList& textures) const {
+        void TextureBrowserView::filterTextures(std::vector<Assets::Texture*>& textures) const {
             if (m_hideUnused)
                 VectorUtils::eraseIf(textures, MatchUsageCount());
             if (!m_filterText.empty())
                 VectorUtils::eraseIf(textures, MatchName(m_filterText));
         }
 
-        void TextureBrowserView::sortTextures(Assets::TextureList& textures) const {
+        void TextureBrowserView::sortTextures(std::vector<Assets::Texture*>& textures) const {
             switch (m_sortOrder) {
                 case SO_Name:
                     VectorUtils::sort(textures, CompareByName());

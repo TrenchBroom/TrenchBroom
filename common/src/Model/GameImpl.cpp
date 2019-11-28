@@ -281,7 +281,7 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityDefinitionList GameImpl::doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const {
+        std::vector<Assets::EntityDefinition*> GameImpl::doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const {
             const auto extension = path.extension();
             const auto& defaultColor = m_config.entityConfig().defaultColor;
 

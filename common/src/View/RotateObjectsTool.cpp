@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        RotateObjectsTool::RotateObjectsTool(MapDocumentWPtr document) :
+        RotateObjectsTool::RotateObjectsTool(std::weak_ptr<MapDocument> document) :
         Tool(false),
         m_document(document),
         m_toolPage(nullptr),
@@ -90,28 +90,28 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsTool::beginRotation() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->beginTransaction("Rotate Objects");
         }
 
         void RotateObjectsTool::commitRotation() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->commitTransaction();
             updateRecentlyUsedCenters(rotationCenter());
         }
 
         void RotateObjectsTool::cancelRotation() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->cancelTransaction();
         }
 
         FloatType RotateObjectsTool::snapRotationAngle(const FloatType angle) const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             return document->grid().snapAngle(angle);
         }
 
         void RotateObjectsTool::applyRotation(const vm::vec3& center, const vm::vec3& axis, const FloatType angle) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->rollbackTransaction();
             document->rotateObjects(center, axis, angle);
         }

@@ -34,7 +34,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityInspector::EntityInspector(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
+        EntityInspector::EntityInspector(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent) :
         TabBookPage(parent),
         m_splitter(nullptr),
         m_attributeEditor(nullptr),
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             saveWindowState(m_splitter);
         }
 
-        void EntityInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
+        void EntityInspector::createGui(std::weak_ptr<MapDocument> document, GLContextManager& contextManager) {
             m_splitter = new Splitter(Qt::Vertical);
             m_splitter->setObjectName("EntityInspector_Splitter");
 
@@ -72,12 +72,12 @@ namespace TrenchBroom {
             restoreWindowState(m_splitter);
         }
 
-        QWidget* EntityInspector::createAttributeEditor(QWidget* parent, MapDocumentWPtr document) {
+        QWidget* EntityInspector::createAttributeEditor(QWidget* parent, std::weak_ptr<MapDocument> document) {
             m_attributeEditor = new EntityAttributeEditor(std::move(document), parent);
             return m_attributeEditor;
         }
 
-        QWidget* EntityInspector::createEntityBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
+        QWidget* EntityInspector::createEntityBrowser(QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager) {
             auto* panel = new TitledPanel(tr("Entity Browser"), parent);
             m_entityBrowser = new EntityBrowser(std::move(document), contextManager);
 
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             return panel;
         }
 
-        QWidget* EntityInspector::createEntityDefinitionFileChooser(QWidget* parent, MapDocumentWPtr document) {
+        QWidget* EntityInspector::createEntityDefinitionFileChooser(QWidget* parent, std::weak_ptr<MapDocument> document) {
             CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(tr("Entity Definitions"), false, parent);
             m_entityDefinitionFileChooser = new EntityDefinitionFileChooser(document);
 

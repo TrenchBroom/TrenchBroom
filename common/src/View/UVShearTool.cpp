@@ -34,7 +34,7 @@ namespace TrenchBroom {
         const Model::Hit::HitType UVShearTool::XHandleHit = Model::Hit::freeHitType();
         const Model::Hit::HitType UVShearTool::YHandleHit = Model::Hit::freeHitType();
 
-        UVShearTool::UVShearTool(MapDocumentWPtr document, UVViewHelper& helper) :
+        UVShearTool::UVShearTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper) :
         ToolControllerBase(),
         Tool(true),
         m_document(document),
@@ -85,7 +85,7 @@ namespace TrenchBroom {
                 vm::is_zero(m_initialHit.y(), 6.0f))
                 return false;
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->beginTransaction("Shear Texture");
             return true;
         }

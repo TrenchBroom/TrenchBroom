@@ -507,7 +507,7 @@ set(COMMON_SOURCE
 
 set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/AABBTree.h
-        ${COMMON_SOURCE_DIR}/Assets/AssetTypes.h
+        ${COMMON_SOURCE_DIR}/Assets/Asset_Forward.h
         ${COMMON_SOURCE_DIR}/Assets/AttributeDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/ColorRange.h
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinition.h
@@ -932,6 +932,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/MultiCompletionLineEdit.h
         ${COMMON_SOURCE_DIR}/View/MultiMapView.h
         ${COMMON_SOURCE_DIR}/View/OnePaneMapView.h
+        ${COMMON_SOURCE_DIR}/View/PasteType.h
         ${COMMON_SOURCE_DIR}/View/PickRequest.h
         ${COMMON_SOURCE_DIR}/View/PopupButton.h
         ${COMMON_SOURCE_DIR}/View/PopupWindow.h
@@ -1021,7 +1022,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/ViewEditor.h
         ${COMMON_SOURCE_DIR}/View/ViewEffectsService.h
         ${COMMON_SOURCE_DIR}/View/ViewPreferencePane.h
-        ${COMMON_SOURCE_DIR}/View/ViewTypes.h
         ${COMMON_SOURCE_DIR}/View/ViewUtils.h
         ${COMMON_SOURCE_DIR}/View/WelcomeWindow.h
         ${COMMON_SOURCE_DIR}/View/QtUtils.h

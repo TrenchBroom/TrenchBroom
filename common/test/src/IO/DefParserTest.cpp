@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "CollectionUtils.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionTestUtils.h"
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             DefParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }
@@ -88,7 +88,7 @@ namespace TrenchBroom {
             DefParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             DefParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             DefParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
@@ -137,7 +137,7 @@ namespace TrenchBroom {
                              "Set sounds to the cd track to play. "
                              "\"worldtype\"	type of world"), definition->description());
 
-            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->attributeDefinitions();
             ASSERT_EQ(1u, attributes.size());
 
             VectorUtils::clearAndDelete(definitions);
@@ -153,7 +153,7 @@ namespace TrenchBroom {
             DefParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
@@ -166,10 +166,10 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(vm::vec3(-16.0, -16.0, -24.0), pointDefinition->bounds().min);
             ASSERT_VEC_EQ(vm::vec3(16.0, 16.0, 32.0), pointDefinition->bounds().max);
 
-            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->attributeDefinitions();
             ASSERT_EQ(1u, attributes.size()); // spawnflags
 
-            const Assets::AttributeDefinitionPtr attribute = attributes[0];
+            const auto attribute = attributes[0];
             ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, attribute->type());
 
             const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
@@ -200,7 +200,7 @@ namespace TrenchBroom {
             DefParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
@@ -213,10 +213,10 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(vm::vec3(-16.0, -16.0, -16.0), pointDefinition->bounds().min);
             ASSERT_VEC_EQ(vm::vec3(16.0, 16.0, 16.0), pointDefinition->bounds().max);
 
-            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->attributeDefinitions();
             ASSERT_EQ(1u, attributes.size()); // spawnflags
 
-            const Assets::AttributeDefinitionPtr attribute = attributes[0];
+            const auto attribute = attributes[0];
             ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, attribute->type());
 
             const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
@@ -256,7 +256,7 @@ namespace TrenchBroom {
             DefParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
@@ -265,10 +265,10 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(Color(0.3f, 0.3f, 1.0f, 1.0f), definition->color());
             ASSERT_EQ(String("some desc"), definition->description());
 
-            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->attributeDefinitions();
             ASSERT_EQ(1u, attributes.size()); // spawnflags
 
-            const Assets::AttributeDefinitionPtr attribute = attributes[0];
+            const auto attribute = attributes[0];
             ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, attribute->type());
 
             const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
@@ -331,21 +331,21 @@ namespace TrenchBroom {
             DefParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
             ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("light"), definition->name());
 
-            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->attributeDefinitions();
             ASSERT_EQ(2u, attributes.size()); // spawn flags and style
 
-            Assets::AttributeDefinitionPtr spawnflags = attributes[0];
+            auto spawnflags = attributes[0];
             ASSERT_EQ(Model::AttributeNames::Spawnflags, spawnflags->name());
             ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, spawnflags->type());
 
-            Assets::AttributeDefinitionPtr style = attributes[1];
+            auto style = attributes[1];
             ASSERT_EQ(String("style"), style->name());
             ASSERT_EQ(Assets::AttributeDefinition::Type_ChoiceAttribute, style->type());
 
@@ -434,7 +434,7 @@ namespace TrenchBroom {
             DefParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             const auto definition = static_cast<Assets::PointEntityDefinition*>(definitions[0]);

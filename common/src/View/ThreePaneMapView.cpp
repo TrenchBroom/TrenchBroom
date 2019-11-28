@@ -32,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        ThreePaneMapView::ThreePaneMapView(MapDocumentWPtr document, MapViewToolBox& toolBox,
+        ThreePaneMapView::ThreePaneMapView(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox,
                                            Renderer::MapRenderer& mapRenderer,
                                            GLContextManager& contextManager, Logger* logger, QWidget* parent) :
         MultiMapView(parent),

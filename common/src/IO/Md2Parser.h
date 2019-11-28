@@ -21,7 +21,7 @@
 #define TrenchBroom_Md2Parser
 
 #include "StringType.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Assets/EntityModel.h"
 #include "Assets/TextureCollection.h"
 #include "IO/EntityModelParser.h"

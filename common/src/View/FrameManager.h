@@ -20,11 +20,11 @@
 #ifndef TrenchBroom_FrameManager
 #define TrenchBroom_FrameManager
 
-#include "View/ViewTypes.h"
 
 #include <QObject>
 
 #include <list>
+#include <memory>
 
 namespace TrenchBroom {
     namespace IO {
@@ -32,6 +32,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
         class MapFrame;
 
         using FrameList = std::list<MapFrame*>;
@@ -55,7 +56,7 @@ namespace TrenchBroom {
         private:
             void onFocusChange(QWidget* old, QWidget* now);
             MapFrame* createOrReuseFrame();
-            MapFrame* createFrame(MapDocumentSPtr document);
+            MapFrame* createFrame(std::shared_ptr<MapDocument> document);
             void removeFrame(MapFrame* frame);
 
             friend class MapFrame;

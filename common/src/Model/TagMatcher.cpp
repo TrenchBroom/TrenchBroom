@@ -31,6 +31,8 @@
 #include "Model/NodeCollection.h"
 #include "Model/World.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         MatchVisitor::MatchVisitor() :
@@ -75,7 +77,7 @@ namespace TrenchBroom {
         void TextureNameTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {
             const auto& textureManager = facade.textureManager();
             const auto& allTextures = textureManager.textures();
-            auto matchingTextures = Assets::TextureList{};
+            auto matchingTextures = std::vector<Assets::Texture*>{};
 
             std::copy_if(std::begin(allTextures), std::end(allTextures), std::back_inserter(matchingTextures), [this](auto* texture) {
                 return matchesTextureName(texture->name());
@@ -274,7 +276,7 @@ namespace TrenchBroom {
 
             const auto& definitionManager = facade.entityDefinitionManager();
             const auto& allDefinitions = definitionManager.definitions();
-            auto matchingDefinitions = Assets::EntityDefinitionList{};
+            auto matchingDefinitions = std::vector<Assets::EntityDefinition*>{};
 
             std::copy_if(std::begin(allDefinitions), std::end(allDefinitions), std::back_inserter(matchingDefinitions), [this](const auto* definition) {
                 return definition->type() == Assets::EntityDefinition::Type_BrushEntity && matchesClassname(definition->name());

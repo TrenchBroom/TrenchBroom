@@ -23,8 +23,8 @@
 #include "StringType.h"
 #include "Assets/TextureManager.h"
 #include "View/TextureBrowserView.h"
-#include "View/ViewTypes.h"
 
+#include <memory>
 #include <vector>
 
 #include <QWidget>
@@ -45,12 +45,13 @@ namespace TrenchBroom {
 
     namespace View {
         class GLContextManager;
+        class MapDocument;
         class TextureBrowserView;
 
         class TextureBrowser : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             QComboBox* m_sortOrderChoice;
             QPushButton* m_groupButton;
             QPushButton* m_usedButton;
@@ -58,7 +59,7 @@ namespace TrenchBroom {
             QScrollBar* m_scrollBar;
             TextureBrowserView* m_view;
         public:
-            TextureBrowser(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            TextureBrowser(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~TextureBrowser() override;
 
             Assets::Texture* selectedTexture() const;

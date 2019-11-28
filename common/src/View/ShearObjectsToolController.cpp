@@ -36,7 +36,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        ShearObjectsToolController::ShearObjectsToolController(ShearObjectsTool* tool, MapDocumentWPtr document) :
+        ShearObjectsToolController::ShearObjectsToolController(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document) :
         m_tool(tool),
         m_document(document) {
             ensure(m_tool != nullptr, "tool is null");
@@ -242,7 +242,7 @@ namespace TrenchBroom {
 
         // ShearObjectsToolController2D
 
-        ShearObjectsToolController2D::ShearObjectsToolController2D(ShearObjectsTool* tool, MapDocumentWPtr document) :
+        ShearObjectsToolController2D::ShearObjectsToolController2D(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document) :
         ShearObjectsToolController(tool, document) {}
 
         void ShearObjectsToolController2D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
@@ -252,7 +252,7 @@ namespace TrenchBroom {
 
         // ShearObjectsToolController3D
 
-        ShearObjectsToolController3D::ShearObjectsToolController3D(ShearObjectsTool* tool, MapDocumentWPtr document) :
+        ShearObjectsToolController3D::ShearObjectsToolController3D(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document) :
         ShearObjectsToolController(tool, document) {}
 
         void ShearObjectsToolController3D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,

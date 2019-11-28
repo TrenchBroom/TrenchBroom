@@ -36,7 +36,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        IssueBrowserView::IssueBrowserView(MapDocumentWPtr document, QWidget* parent) :
+        IssueBrowserView::IssueBrowserView(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_hiddenGenerators(0),

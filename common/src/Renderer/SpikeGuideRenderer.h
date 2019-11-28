@@ -25,13 +25,19 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/GLVertexType.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/forward.h>
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace Model {
         class Picker;
+    }
+
+    namespace View {
+        // FIXME: Renderer should not depend on View
+        class MapDocument;
     }
 
     namespace Renderer {
@@ -56,7 +62,7 @@ namespace TrenchBroom {
             SpikeGuideRenderer();
 
             void setColor(const Color& color);
-            void add(const vm::ray3& ray, FloatType length, View::MapDocumentSPtr document);
+            void add(const vm::ray3& ray, FloatType length, std::shared_ptr<View::MapDocument> document);
             void clear();
         private:
             void doPrepareVertices(Vbo& vertexVbo) override;

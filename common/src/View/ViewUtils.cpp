@@ -49,11 +49,11 @@ namespace TrenchBroom {
             }
         }
 
-        bool loadTextureCollection(MapDocumentWPtr document, QWidget* parent, const QString& path) {
+        bool loadTextureCollection(std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path) {
             return loadTextureCollections(document, parent, QStringList { path }) == 1;
         }
 
-        size_t loadTextureCollections(MapDocumentWPtr i_document, QWidget* parent, const QStringList& pathStrs) {
+        size_t loadTextureCollections(std::weak_ptr<MapDocument> i_document, QWidget* parent, const QStringList& pathStrs) {
             if (pathStrs.empty()) {
                 return 0;
             }
@@ -88,11 +88,11 @@ namespace TrenchBroom {
             return count;
         }
 
-        bool loadEntityDefinitionFile(MapDocumentWPtr document, QWidget* parent, const QString& path) {
+        bool loadEntityDefinitionFile(std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path) {
             return loadEntityDefinitionFile(document, parent, QStringList { path }) == 0;
         }
 
-        size_t loadEntityDefinitionFile(MapDocumentWPtr i_document, QWidget* parent, const QStringList& pathStrs) {
+        size_t loadEntityDefinitionFile(std::weak_ptr<MapDocument> i_document, QWidget* parent, const QStringList& pathStrs) {
             if (pathStrs.empty()) {
                 return 0;
             }

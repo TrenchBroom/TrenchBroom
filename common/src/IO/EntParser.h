@@ -28,7 +28,9 @@
 #include <vecmath/forward.h>
 
 #include <functional>
+#include <memory>
 #include <optional-lite/optional.hpp>
+#include <vector>
 
 namespace tinyxml2 {
     class XMLDocument;
@@ -45,7 +47,7 @@ namespace TrenchBroom {
 
         class EntParser : public EntityDefinitionParser {
         private:
-            using AttributeFactory = std::function<Assets::AttributeDefinitionPtr(const String&, const String&, const String&)>;
+            using AttributeFactory = std::function<std::shared_ptr<Assets::AttributeDefinition>(const String&, const String&, const String&)>;
 
             const char* m_begin;
             const char* m_end;
@@ -54,30 +56,30 @@ namespace TrenchBroom {
             EntParser(const char* begin, const char* end, const Color& defaultEntityColor);
             EntParser(const String& str, const Color& defaultEntityColor);
         private:
-            Assets::EntityDefinitionList doParseDefinitions(ParserStatus& status) override;
-            Assets::EntityDefinitionList parseClasses(const tinyxml2::XMLDocument& document, ParserStatus& status);
-            Assets::EntityDefinition* parseClass(const tinyxml2::XMLElement& element, const Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
-            Assets::EntityDefinition* parsePointEntityDefinition(const tinyxml2::XMLElement& element, const Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
-            Assets::EntityDefinition* parseBrushEntityDefinition(const tinyxml2::XMLElement& element, const Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
+            EntityDefinitionList doParseDefinitions(ParserStatus& status) override;
+            EntityDefinitionList parseClasses(const tinyxml2::XMLDocument& document, ParserStatus& status);
+            Assets::EntityDefinition* parseClass(const tinyxml2::XMLElement& element, const AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
+            Assets::EntityDefinition* parsePointEntityDefinition(const tinyxml2::XMLElement& element, const AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
+            Assets::EntityDefinition* parseBrushEntityDefinition(const tinyxml2::XMLElement& element, const AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
 
             Assets::ModelDefinition parseModel(const tinyxml2::XMLElement& element, ParserStatus& status);
 
-            void parseSpawnflags(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
+            void parseSpawnflags(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
 
-            void parseAttributes(const tinyxml2::XMLElement& parent, const Assets::AttributeDefinitionList& attributeDeclarations, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
-            void parseUnknownAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
-            void parseStringAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
-            void parseBooleanAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
-            void parseIntegerAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
-            void parseRealAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
-            void parseTargetAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
-            void parseTargetNameAttribute(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
+            void parseAttributes(const tinyxml2::XMLElement& parent, const AttributeDefinitionList& attributeDeclarations, AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
+            void parseUnknownAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
+            void parseStringAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
+            void parseBooleanAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
+            void parseIntegerAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
+            void parseRealAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
+            void parseTargetAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
+            void parseTargetNameAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
 
-            void parseDeclaredAttributeDefinition(const tinyxml2::XMLElement& element, const Assets::AttributeDefinitionPtr& attributeDeclaration, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
-            void parseAttributeDefinition(const tinyxml2::XMLElement& element, AttributeFactory factory, Assets::AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
+            void parseDeclaredAttributeDefinition(const tinyxml2::XMLElement& element, const std::shared_ptr<Assets::AttributeDefinition>& attributeDeclaration, AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
+            void parseAttributeDefinition(const tinyxml2::XMLElement& element, AttributeFactory factory, AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
 
-            void parseAttributeDeclaration(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
-            void parseListDeclaration(const tinyxml2::XMLElement& element, Assets::AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
+            void parseAttributeDeclaration(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
+            void parseListDeclaration(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
 
             vm::bbox3 parseBounds(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);
             Color parseColor(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);

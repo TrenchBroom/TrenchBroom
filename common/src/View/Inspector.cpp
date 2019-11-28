@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        Inspector::Inspector(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
+        Inspector::Inspector(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent) :
         QWidget(parent),
         m_tabBook(nullptr),
         m_mapInspector(nullptr),

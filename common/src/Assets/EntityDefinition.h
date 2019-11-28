@@ -24,10 +24,13 @@
 #include "Color.h"
 #include "Notifier.h"
 #include "StringType.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Assets/ModelDefinition.h"
 
 #include <vecmath/bbox.h>
+
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -47,6 +50,9 @@ namespace TrenchBroom {
                 Type_PointEntity,
                 Type_BrushEntity
             } Type;
+        protected:
+            using AttributeDefinitionPtr = std::shared_ptr<AttributeDefinition>;
+            using AttributeDefinitionList = std::vector<AttributeDefinitionPtr>;
         private:
             size_t m_index;
             String m_name;
@@ -80,7 +86,7 @@ namespace TrenchBroom {
             static const FlagsAttributeDefinition* safeGetSpawnflagsAttributeDefinition(const EntityDefinition* entityDefinition);
             static const FlagsAttributeOption* safeGetSpawnflagsAttributeOption(const EntityDefinition* entityDefinition, size_t flagIndex);
 
-            static EntityDefinitionList filterAndSort(const EntityDefinitionList& definitions, EntityDefinition::Type type, SortOrder prder = Name);
+            static std::vector<EntityDefinition*> filterAndSort(const std::vector<EntityDefinition*>& definitions, EntityDefinition::Type type, SortOrder prder = Name);
         protected:
             EntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions);
         };

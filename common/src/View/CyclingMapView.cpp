@@ -35,7 +35,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        CyclingMapView::CyclingMapView(MapDocumentWPtr document, MapViewToolBox& toolBox,
+        CyclingMapView::CyclingMapView(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox,
                                        Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager,
                                        const View views, Logger* logger, QWidget* parent) :
         MapViewContainer(parent),

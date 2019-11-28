@@ -41,7 +41,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        SwitchableMapViewContainer::SwitchableMapViewContainer(Logger* logger, MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
+        SwitchableMapViewContainer::SwitchableMapViewContainer(Logger* logger, std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent) :
         QWidget(parent),
         m_logger(logger),
         m_document(std::move(document)),
@@ -238,7 +238,7 @@ namespace TrenchBroom {
         }
 
         bool SwitchableMapViewContainer::canMoveCameraToNextTracePoint() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (!document->isPointFileLoaded())
                 return false;
 
@@ -247,7 +247,7 @@ namespace TrenchBroom {
         }
 
         bool SwitchableMapViewContainer::canMoveCameraToPreviousTracePoint() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (!document->isPointFileLoaded())
                 return false;
 
@@ -256,7 +256,7 @@ namespace TrenchBroom {
         }
 
         void SwitchableMapViewContainer::moveCameraToNextTracePoint() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             assert(document->isPointFileLoaded());
 
             m_mapView->moveCameraToCurrentTracePoint();
@@ -266,7 +266,7 @@ namespace TrenchBroom {
         }
 
         void SwitchableMapViewContainer::moveCameraToPreviousTracePoint() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             assert(document->isPointFileLoaded());
 
             Model::PointFile* pointFile = document->pointFile();

@@ -37,7 +37,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        ReplaceTextureDialog::ReplaceTextureDialog(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
+        ReplaceTextureDialog::ReplaceTextureDialog(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent) :
         QDialog(parent),
         m_document(document),
         m_subjectBrowser(nullptr),
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
             ensure(replacement != nullptr, "replacement is null");
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const std::vector<Model::BrushFace*> faces = getApplicableFaces();
 
             if (faces.empty()) {
@@ -72,7 +72,7 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::BrushFace*> ReplaceTextureDialog::getApplicableFaces() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             std::vector<Model::BrushFace*> faces = document->allSelectedBrushFaces();
             if (faces.empty()) {
                 Model::CollectBrushFacesVisitor collect;

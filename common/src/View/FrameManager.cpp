@@ -27,6 +27,7 @@
 #include "View/MapFrame.h"
 
 #include <cassert>
+#include <memory>
 
 #include <QApplication>
 
@@ -95,14 +96,14 @@ namespace TrenchBroom {
         MapFrame* FrameManager::createOrReuseFrame() {
             assert(!m_singleFrame || m_frames.size() <= 1);
             if (!m_singleFrame || m_frames.empty()) {
-                MapDocumentSPtr document = MapDocumentCommandFacade::newMapDocument();
+                auto document = MapDocumentCommandFacade::newMapDocument();
                 createFrame(document);
             }
             return topFrame();
         }
 
-        MapFrame* FrameManager::createFrame(MapDocumentSPtr document) {
-            MapFrame* frame = new MapFrame(this, std::move(document));
+        MapFrame* FrameManager::createFrame(std::shared_ptr<MapDocument> document) {
+            auto* frame = new MapFrame(this, std::move(document));
             frame->positionOnScreen(topFrame());
             m_frames.push_front(frame);
 

@@ -22,7 +22,8 @@
 
 #include "StringType.h"
 #include "StringList.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 #include <QWidget>
 
@@ -41,10 +42,12 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+
         class ModEditor : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             QListWidget* m_availableModList;
             QListWidget* m_enabledModList;
@@ -56,7 +59,7 @@ namespace TrenchBroom {
 
             StringList m_availableMods;
         public:
-            explicit ModEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit ModEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~ModEditor() override;
         private:
             void createGui();

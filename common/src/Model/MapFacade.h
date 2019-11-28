@@ -21,7 +21,7 @@
 #define TrenchBroom_MapFacade
 
 #include "TrenchBroom.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Model/EntityColor.h"
 #include "Model/Model_Forward.h"
 #include "StringList.h"

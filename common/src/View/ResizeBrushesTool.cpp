@@ -55,7 +55,7 @@ namespace TrenchBroom {
         const Model::Hit::HitType ResizeBrushesTool::ResizeHit2D = Model::Hit::freeHitType();
         const Model::Hit::HitType ResizeBrushesTool::ResizeHit3D = Model::Hit::freeHitType();
 
-        ResizeBrushesTool::ResizeBrushesTool(MapDocumentWPtr document) :
+        ResizeBrushesTool::ResizeBrushesTool(std::weak_ptr<MapDocument> document) :
         Tool(true),
         m_document(document),
         m_splitBrushes(false),
@@ -237,7 +237,7 @@ namespace TrenchBroom {
         std::vector<Model::BrushFace*> ResizeBrushesTool::collectDragFaces(Model::BrushFace* face) const {
             Model::CollectMatchingBrushFacesVisitor<MatchFaceBoundary> visitor((MatchFaceBoundary(face)));
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const auto& nodes = document->selectedNodes().nodes();
             Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
             return visitor.faces();

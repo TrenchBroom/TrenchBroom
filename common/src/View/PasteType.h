@@ -17,23 +17,17 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ViewTypes
-#define TrenchBroom_ViewTypes
-
-#include <memory>
+#ifndef TRENCHBROOM_PASTETYPE_H
+#define TRENCHBROOM_PASTETYPE_H
 
 namespace TrenchBroom {
     namespace View {
-        class MapDocument;
-        using MapDocumentSPtr = std::shared_ptr<MapDocument>;
-        using MapDocumentWPtr = std::weak_ptr<MapDocument>;
-
-        typedef enum {
-            PT_Node,
-            PT_BrushFace,
-            PT_Failed
-        } PasteType;
+        enum class PasteType {
+            Node,
+            BrushFace,
+            Failed
+        };
     }
 }
 
-#endif /* defined(TrenchBroom_ViewTypes) */
+#endif //TRENCHBROOM_PASTETYPE_H

@@ -21,10 +21,10 @@
 #define TrenchBroom_FaceAttribsEditor
 
 #include "Model/Model_Forward.h"
-#include "View/ViewTypes.h"
 
 #include <QWidget>
 
+#include <memory>
 #include <vector>
 
 class QLabel;
@@ -36,6 +36,7 @@ namespace TrenchBroom {
         class FlagChangedCommand;
         class FlagsPopupEditor;
         class GLContextManager;
+        class MapDocument;
         class Selection;
         class SpinControl;
         class UVEditor;
@@ -43,7 +44,7 @@ namespace TrenchBroom {
         class FaceAttribsEditor : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             std::vector<Model::BrushFace*> m_faces;
 
             UVEditor* m_uvEditor;
@@ -65,7 +66,7 @@ namespace TrenchBroom {
             QLabel* m_colorLabel;
             QLineEdit* m_colorEditor;
         public:
-            FaceAttribsEditor(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            FaceAttribsEditor(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~FaceAttribsEditor() override;
 
             bool cancelMouseDrag();

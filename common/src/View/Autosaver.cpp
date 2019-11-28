@@ -27,6 +27,7 @@
 
 #include <algorithm> // for std::sort
 #include <cassert>
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {
@@ -57,7 +58,7 @@ namespace TrenchBroom {
 
         }
 
-        Autosaver::Autosaver(View::MapDocumentWPtr document, const std::time_t saveInterval, const std::time_t idleInterval, const size_t maxBackups) :
+        Autosaver::Autosaver(std::weak_ptr<MapDocument> document, const std::time_t saveInterval, const std::time_t idleInterval, const size_t maxBackups) :
         m_document(document),
         m_saveInterval(saveInterval),
         m_idleInterval(idleInterval),
@@ -102,7 +103,7 @@ namespace TrenchBroom {
             autosave(logger, document);
         }
 
-        void Autosaver::autosave(Logger& logger, MapDocumentSPtr document) {
+        void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document) {
             const auto& mapPath = document->path();
             assert(IO::Disk::fileExists(IO::Disk::fixPath(mapPath)));
 

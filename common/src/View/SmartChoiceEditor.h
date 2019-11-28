@@ -22,8 +22,8 @@
 
 #include "Model/Model_Forward.h"
 #include "View/SmartAttributeEditor.h"
-#include "View/ViewTypes.h"
 
+#include <memory>
 #include <vector>
 
 class QComboBox;
@@ -37,13 +37,15 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+
         class SmartChoiceEditor : public SmartAttributeEditor {
             Q_OBJECT
         private:
             QComboBox* m_comboBox;
             bool m_ignoreEditTextChanged;
         public:
-            explicit SmartChoiceEditor(View::MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit SmartChoiceEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
             void comboBoxActivated(int index);
             void comboBoxEditTextChanged(const QString& text);

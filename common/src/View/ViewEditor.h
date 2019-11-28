@@ -20,11 +20,11 @@
 #ifndef TrenchBroom_ViewEditor
 #define TrenchBroom_ViewEditor
 
-#include "View/ViewTypes.h"
 
 #include <QWidget>
 
 #include <list>
+#include <memory>
 #include <vector>
 
 class QCheckBox;
@@ -43,6 +43,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
         class PopupButton;
 
         class EntityDefinitionCheckBoxList : public QWidget {
@@ -74,7 +75,7 @@ namespace TrenchBroom {
         private:
             using CheckBoxList = std::vector<QCheckBox*>;
 
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             QCheckBox* m_showEntityClassnamesCheckBox;
 
@@ -97,7 +98,7 @@ namespace TrenchBroom {
 
             QButtonGroup* m_entityLinkRadioGroup;
         public:
-            explicit ViewEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit ViewEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~ViewEditor() override;
         private:
             void bindObservers();
@@ -146,7 +147,7 @@ namespace TrenchBroom {
             PopupButton* m_button;
             ViewEditor* m_editor;
         public:
-            explicit ViewPopupEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit ViewPopupEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         };
     }
 }

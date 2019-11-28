@@ -37,6 +37,7 @@
 #include "Model/World.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "View/PasteType.h"
 #include "View/SelectionTool.h"
 
 #include <vecmath/bbox.h>
@@ -61,10 +62,10 @@ namespace TrenchBroom {
             document->newDocument(m_mapFormat, vm::bbox3(8192.0), game);
 
             // create two entity definitions
-            m_pointEntityDef = new Assets::PointEntityDefinition("point_entity", Color(), vm::bbox3(16.0), "this is a point entity", Assets::AttributeDefinitionList(), Assets::ModelDefinition());
-            m_brushEntityDef = new Assets::BrushEntityDefinition("brush_entity", Color(), "this is a brush entity", Assets::AttributeDefinitionList());
+            m_pointEntityDef = new Assets::PointEntityDefinition("point_entity", Color(), vm::bbox3(16.0), "this is a point entity", {}, {});
+            m_brushEntityDef = new Assets::BrushEntityDefinition("brush_entity", Color(), "this is a brush entity", {});
 
-            document->setEntityDefinitions(Assets::EntityDefinitionList { m_pointEntityDef, m_brushEntityDef });
+            document->setEntityDefinitions(std::vector<Assets::EntityDefinition*>{ m_pointEntityDef, m_brushEntityDef });
         }
 
         void MapDocumentTest::TearDown() {
@@ -943,7 +944,7 @@ namespace TrenchBroom {
             const String copied = document->serializeSelectedNodes();
 
             const auto delta = vm::vec3(16, 16, 16);
-            ASSERT_EQ(PT_Node, document->paste(copied));
+            ASSERT_EQ(PasteType::Node, document->paste(copied));
             ASSERT_EQ(1u, document->selectedNodes().groupCount());
             ASSERT_EQ(groupName, document->selectedNodes().groups().at(0)->name());
             ASSERT_TRUE(document->translateObjects(delta));
