@@ -18,7 +18,9 @@
  */
 
 #include "IndexRangeMap.h"
+
 #include "CollectionUtils.h"
+#include "Base/VecUtils.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -71,8 +73,8 @@ namespace TrenchBroom {
 
         void IndexRangeMap::IndicesAndCounts::add(const IndicesAndCounts& other, [[maybe_unused]] const bool dynamicGrowth) {
             assert(dynamicGrowth || indices.capacity() >= indices.size() + other.indices.size());
-            VectorUtils::append(indices, other.indices);
-            VectorUtils::append(counts, other.counts);
+            VecUtils::append(indices, other.indices);
+            VecUtils::append(counts, other.counts);
         }
 
         void IndexRangeMap::Size::inc(const PrimType primType, const size_t count) {

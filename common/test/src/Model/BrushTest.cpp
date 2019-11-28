@@ -23,6 +23,8 @@
 
 #include "Polyhedron.h"
 #include "Assets/Texture.h"
+#include "Base/ColUtils.h"
+#include "Base/VecUtils.h"
 #include "IO/DiskIO.h"
 #include "IO/NodeReader.h"
 #include "IO/Path.h"
@@ -1240,7 +1242,7 @@ namespace TrenchBroom {
                     vm::vec3(+64.0, +64.0, -64.0),
                     vm::vec3(+64.0, -64.0, -64.0)
             };
-            const std::vector<vm::vec3> vertexPositions = VectorUtils::concatenate(std::vector<vm::vec3>{peakPosition}, baseQuadVertexPositions);
+            const std::vector<vm::vec3> vertexPositions = VecUtils::concat(std::vector<vm::vec3>{peakPosition}, baseQuadVertexPositions);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
@@ -1519,8 +1521,7 @@ namespace TrenchBroom {
                     vm::vec3(+64.0, +64.0, -192.0),
             };
 
-            using VectorUtils::concatenate;
-            const std::vector<vm::vec3> vertexPositions = concatenate(concatenate(smallerTopPolygon, cubeTopFace), cubeBottomFace);
+            const std::vector<vm::vec3> vertexPositions = VecUtils::concat(smallerTopPolygon, cubeTopFace, cubeBottomFace);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
@@ -1577,8 +1578,7 @@ namespace TrenchBroom {
                     vm::vec3(+32.0, -32.0, +0.0),
             };
 
-            using VectorUtils::concatenate;
-            const std::vector<vm::vec3> vertexPositions = concatenate(concatenate(leftPolygon, bottomPolygon), bottomRightPolygon);
+            const std::vector<vm::vec3> vertexPositions = VecUtils::concat(leftPolygon, bottomPolygon, bottomRightPolygon);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
@@ -2705,7 +2705,7 @@ namespace TrenchBroom {
 
             delete minuend;
             delete subtrahend;
-            VectorUtils::deleteAll(result);
+            ColUtils::deleteAll(result);
         }
 
         TEST(BrushTest, subtractDisjoint) {
@@ -2726,7 +2726,7 @@ namespace TrenchBroom {
             Brush* subtraction = result.at(0);
             ASSERT_EQ(SetUtils::makeSet(brush1->vertexPositions()), SetUtils::makeSet(subtraction->vertexPositions()));
 
-            VectorUtils::deleteAll(result);
+            ColUtils::deleteAll(result);
         }
 
         TEST(BrushTest, subtractEnclosed) {
@@ -2744,7 +2744,7 @@ namespace TrenchBroom {
             std::vector<Brush*> result = brush1->subtract(world, worldBounds, "texture", brush2);
             ASSERT_EQ(0u, result.size());
 
-            VectorUtils::deleteAll(result);
+            ColUtils::deleteAll(result);
         }
 
 
@@ -2821,7 +2821,7 @@ namespace TrenchBroom {
 
             delete minuend;
             delete subtrahend;
-            VectorUtils::deleteAll(result);
+            ColUtils::deleteAll(result);
         }
 
         TEST(BrushTest, subtractDome) {
@@ -2847,13 +2847,13 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
             const auto* minuend = static_cast<Brush*>(IO::NodeReader::read(minuendStr, world, worldBounds, status).front());
-            const auto subtrahend = VectorUtils::cast<Brush*>(IO::NodeReader::read(subtrahendStr.str(), world, worldBounds, status));
+            const auto subtrahend = VecUtils::cast<Brush*>(IO::NodeReader::read(subtrahendStr.str(), world, worldBounds, status));
 
             const auto result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
 
             delete minuend;
-            VectorUtils::deleteAll(subtrahend);
-            VectorUtils::deleteAll(result);
+            ColUtils::deleteAll(subtrahend);
+            ColUtils::deleteAll(result);
         }
 
         TEST(BrushTest, subtractPipeFromCubeWithMissingFragments) {
@@ -2895,7 +2895,7 @@ namespace TrenchBroom {
 
             delete minuend;
             delete subtrahend;
-            VectorUtils::deleteAll(result);
+            ColUtils::deleteAll(result);
         }
 
         TEST(BrushTest, testAlmostDegenerateBrush) {

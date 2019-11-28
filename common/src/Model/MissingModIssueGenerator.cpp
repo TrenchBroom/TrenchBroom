@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "SharedPointer.h"
+#include "Base/VecUtils.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Issue.h"
@@ -83,7 +84,7 @@ namespace TrenchBroom {
                     if (issue->type() == MissingModIssue::Type) {
                         const MissingModIssue* modIssue = static_cast<const MissingModIssue*>(issue);
                         const String missingMod = modIssue->mod();
-                        VectorUtils::erase(mods, missingMod);
+                        VecUtils::erase(mods, missingMod);
                     }
                 }
                 return mods;

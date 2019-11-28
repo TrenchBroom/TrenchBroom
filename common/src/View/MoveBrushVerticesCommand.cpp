@@ -77,7 +77,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            if (!VectorUtils::equals(m_newVertexPositions, other->m_oldVertexPositions)) {
+            if (m_newVertexPositions != other->m_oldVertexPositions) {
                 return false;
             }
 

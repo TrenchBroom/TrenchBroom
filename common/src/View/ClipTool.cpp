@@ -26,6 +26,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Macros.h"
+#include "Base/VecUtils.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -214,7 +215,7 @@ namespace TrenchBroom {
                 std::vector<vm::vec3> result;
                 for (size_t i = 0; i < m_numPoints; ++i) {
                     const std::vector<vm::vec3>& helpVectors = m_points[i].helpVectors;
-                    VectorUtils::append(result, helpVectors);
+                    VecUtils::append(result, helpVectors);
                 }
 
                 return result;

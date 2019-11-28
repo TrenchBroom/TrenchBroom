@@ -20,6 +20,7 @@
 #include "GameEngineConfig.h"
 
 #include "CollectionUtils.h"
+#include "Base/VecUtils.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -77,7 +78,7 @@ namespace TrenchBroom {
             assert(index < profileCount());
             m_profiles[index]->profileWillBeRemoved();
             delete m_profiles[index];
-            VectorUtils::erase(m_profiles, index);
+            VecUtils::eraseAt(m_profiles, index);
             profilesDidChange();
         }
     }

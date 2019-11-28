@@ -23,6 +23,7 @@
 #include "Constants.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
+#include "Base/VecUtils.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushSnapshot.h"
@@ -446,7 +447,7 @@ namespace TrenchBroom {
         void Brush::addFace(BrushFace* face) {
             ensure(face != nullptr, "face is null");
             ensure(face->brush() == nullptr, "face brush is null");
-            assert(!VectorUtils::contains(m_faces, face));
+            assert(!VecUtils::contains(m_faces, face));
 
             m_faces.push_back(face);
             face->setBrush(this);
@@ -1098,7 +1099,7 @@ namespace TrenchBroom {
             // TODO: When there are multiple choices of moving verts (unmovedVerts.size() + movedVerts.size() > 3)
             // we should sort them somehow. This can be seen if you select and move 3/5 verts of a pentagon;
             // which of the 3 moving verts currently gets UV lock is arbitrary.
-            VectorUtils::append(referenceVerts, movedVerts);
+            VecUtils::append(referenceVerts, movedVerts);
 
             if (referenceVerts.size() < 3) {
                 // Can't create a transform as there are not enough verts
@@ -1327,7 +1328,7 @@ namespace TrenchBroom {
                 if (geometry->payload() == nullptr) {
                     return false;
                 }
-                if (!VectorUtils::contains(m_faces, geometry->payload())) {
+                if (!VecUtils::contains(m_faces, geometry->payload())) {
                     return false;
                 }
             }

@@ -55,54 +55,6 @@ TEST(CollectionUtilsTest, vecClearAndDelete) {
         ASSERT_TRUE(deleted[i]);
 }
 
-TEST(CollectionUtilsTest, vecRemove) {
-    using TestVec = std::vector<TestObject*>;
-
-    static const size_t count = 4;
-    TestVec vec;
-    bool deleted[count];
-    for (size_t i = 0; i < count; i++)
-        vec.push_back(new TestObject(deleted[i]));
-
-    VectorUtils::erase(vec, vec[2]);
-    ASSERT_EQ(count - 1, vec.size());
-    ASSERT_FALSE(deleted[2]);
-    VectorUtils::clearAndDelete(vec);
-}
-
-TEST(CollectionUtilsTest, vecContains) {
-    using TestVec = std::vector<int>;
-    TestVec vec;
-
-    vec.push_back(10);
-    vec.push_back(4);
-    vec.push_back(-232);
-    vec.push_back(11111);
-
-    ASSERT_TRUE(VectorUtils::contains(vec, 10));
-    ASSERT_TRUE(VectorUtils::contains(vec, 4));
-    ASSERT_TRUE(VectorUtils::contains(vec, -232));
-    ASSERT_TRUE(VectorUtils::contains(vec, 11111));
-    ASSERT_FALSE(VectorUtils::contains(vec, 11));
-    ASSERT_FALSE(VectorUtils::contains(vec, 0));
-    ASSERT_FALSE(VectorUtils::contains(vec, 110));
-}
-
-TEST(CollectionUtilsTest, vecSetInsertSingle) {
-    int i1(1);
-    int i2(2);
-
-    std::vector<int> vec;
-    ASSERT_TRUE(VectorUtils::setInsert(vec, i1));
-    ASSERT_TRUE(VectorUtils::contains(vec, i1));
-    ASSERT_TRUE(VectorUtils::setInsert(vec, i2));
-    ASSERT_TRUE(VectorUtils::contains(vec, i2));
-    ASSERT_FALSE(VectorUtils::setInsert(vec, i1));
-    ASSERT_EQ(2u, vec.size());
-    ASSERT_TRUE(VectorUtils::contains(vec, i1));
-    ASSERT_TRUE(VectorUtils::contains(vec, i2));
-}
-
 TEST(CollectionUtilsTest, vecSetRemoveSingle) {
     int i1(1);
     int i2(2);
@@ -354,39 +306,6 @@ TEST(CollectionUtilsTest, setRetainMaximalElements) {
     ASSERT_EQ(std::set<int>{1}, SetUtils::findMaximalElements(std::set<int>{1}));
     ASSERT_EQ(std::set<int>{1}, SetUtils::findMaximalElements(std::set<int>{0,1}));
     ASSERT_EQ(std::set<int>{2}, SetUtils::findMaximalElements(std::set<int>{0,1,2}));
-}
-
-TEST(CollectionUtilsTest, listReplaceEmpty) {
-    std::list<int> list1 {0, 1, 2, 3};
-    std::list<int> list2;
-
-    auto replacePos = std::begin(list1);
-    ASSERT_EQ(0, *replacePos);
-
-    // this will be a no-op because list2 is empty
-
-    const auto it = ListUtils::replace(list1, replacePos, list2);
-    ASSERT_EQ(0, *it);
-
-    ASSERT_EQ(std::list<int>(), list2);
-    ASSERT_EQ((std::list<int>{0, 1, 2, 3}), list1);
-}
-
-TEST(CollectionUtilsTest, listReplace) {
-    std::list<int> list1 {0, 1, 2, 3};
-    std::list<int> list2 {100, 200};
-
-    // this will replace the element "2" with {100,200}
-
-    auto replacePos = std::begin(list1);
-    std::advance(replacePos, 2);
-    ASSERT_EQ(2, *replacePos);
-
-    const auto it = ListUtils::replace(list1, replacePos, list2);
-
-    ASSERT_EQ(std::list<int>(), list2);
-    ASSERT_EQ((std::list<int>{0, 1, 100, 200, 3}), list1);
-    ASSERT_EQ(100, *it);
 }
 
 TEST(CollectionUtilsTest, vectorMap) {

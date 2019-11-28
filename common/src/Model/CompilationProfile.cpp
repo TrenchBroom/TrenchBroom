@@ -20,6 +20,7 @@
 #include "CompilationProfile.h"
 
 #include "CollectionUtils.h"
+#include "Base/VecUtils.h"
 #include "Model/CompilationTask.h"
 
 namespace TrenchBroom {
@@ -98,7 +99,7 @@ namespace TrenchBroom {
             assert(index < taskCount());
             m_tasks[index]->taskWillBeRemoved();
             delete m_tasks[index];
-            VectorUtils::erase(m_tasks, index);
+            VecUtils::eraseAt(m_tasks, index);
             profileDidChange();
         }
 

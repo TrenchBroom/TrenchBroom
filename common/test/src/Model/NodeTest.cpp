@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "CollectionUtils.h"
+#include "Base/VecUtils.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
@@ -228,7 +228,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, child->childCount());
             ASSERT_EQ(2u, child->familySize());
             ASSERT_EQ(child, grandChild1->parent());
-            ASSERT_TRUE(VectorUtils::contains(child->children(), grandChild1));
+            ASSERT_TRUE(VecUtils::contains(child->children(), grandChild1));
 
 #ifndef NDEBUG
             EXPECT_CALL(root, mockDoCanAddChild(child)).WillOnce(Return(true));
@@ -244,7 +244,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, root.childCount());
             ASSERT_EQ(3u, root.familySize());
             ASSERT_EQ(&root, child->parent());
-            ASSERT_TRUE(VectorUtils::contains(root.children(), child));
+            ASSERT_TRUE(VecUtils::contains(root.children(), child));
 
 #ifndef NDEBUG
             EXPECT_CALL(*child, mockDoCanAddChild(grandChild2)).WillOnce(Return(true));
@@ -259,7 +259,7 @@ namespace TrenchBroom {
             ASSERT_EQ(2u, child->childCount());
             ASSERT_EQ(3u, child->familySize());
             ASSERT_EQ(child, grandChild2->parent());
-            ASSERT_TRUE(VectorUtils::contains(child->children(), grandChild2));
+            ASSERT_TRUE(VecUtils::contains(child->children(), grandChild2));
 
 #ifndef NDEBUG
             EXPECT_CALL(root, mockDoCanRemoveChild(child)).WillOnce(Return(true));
@@ -275,7 +275,7 @@ namespace TrenchBroom {
 
             root.removeChild(child);
             ASSERT_EQ(nullptr, child->parent());
-            ASSERT_FALSE(VectorUtils::contains(root.children(), child));
+            ASSERT_FALSE(VecUtils::contains(root.children(), child));
             ASSERT_EQ(0u, root.childCount());
             ASSERT_EQ(1u, root.familySize());
             ASSERT_EQ(2u, child->childCount());
@@ -295,7 +295,7 @@ namespace TrenchBroom {
 
             root.addChild(child);
             ASSERT_EQ(&root, child->parent());
-            ASSERT_TRUE(VectorUtils::contains(root.children(), child));
+            ASSERT_TRUE(VecUtils::contains(root.children(), child));
             ASSERT_EQ(1u, root.childCount());
             ASSERT_EQ(4u, root.familySize());
             ASSERT_EQ(2u, child->childCount());

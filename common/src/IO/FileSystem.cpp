@@ -21,6 +21,7 @@
 
 #include "Exceptions.h"
 #include "CollectionUtils.h"
+#include "Base/VecUtils.h"
 #include "IO/FileMatcher.h"
 
 namespace TrenchBroom {
@@ -164,10 +165,10 @@ namespace TrenchBroom {
         Path::List FileSystem::_getDirectoryContents(const Path& directoryPath) const {
             auto result = doGetDirectoryContents(directoryPath);
             if (m_next) {
-                VectorUtils::append(result, m_next->_getDirectoryContents(directoryPath));
+                VecUtils::append(result, m_next->_getDirectoryContents(directoryPath));
             }
 
-            VectorUtils::sortAndRemoveDuplicates(result);
+            VecUtils::sortAndMakeUnique(result);
             return result;
         }
 

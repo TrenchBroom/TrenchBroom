@@ -27,6 +27,8 @@
 #include "Assets/EntityModelManager.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
+#include "Base/ColUtils.h"
+#include "Base/VecUtils.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
@@ -360,8 +362,9 @@ namespace TrenchBroom {
             } catch (const ParserException& e) {
                 try {
                     const std::vector<Model::BrushFace*> faces = m_game->parseBrushFaces(str, *m_world, m_worldBounds, logger());
-                    if (!faces.empty() && pasteBrushFaces(faces))
+                    if (!faces.empty() && pasteBrushFaces(faces)) {
                         return PasteType::BrushFace;
+                    }
                 } catch (const ParserException&) {
                     error("Could not parse clipboard contents: %s", e.what());
                 }
@@ -391,7 +394,7 @@ namespace TrenchBroom {
             const Model::BrushFace* face = faces.back();
 
             const bool result = setFaceAttributes(face->attribs());
-            VectorUtils::deleteAll(faces);
+            ColUtils::deleteAll(faces);
 
             return result;
         }
@@ -754,7 +757,7 @@ namespace TrenchBroom {
             if (nodes.empty())
                 return nodes;
 
-            VectorUtils::sort(nodes, CompareByAncestry());
+            VecUtils::sort(nodes, CompareByAncestry());
 
             std::vector<Model::Node*> result;
             result.reserve(nodes.size());
@@ -967,7 +970,7 @@ namespace TrenchBroom {
                 Model::Node* parent = group->parent();
                 const std::vector<Model::Node*> children = group->children();
                 reparentNodes(parent, children);
-                VectorUtils::append(allChildren, children);
+                VecUtils::append(allChildren, children);
             }
 
             select(allChildren);
@@ -1181,7 +1184,7 @@ namespace TrenchBroom {
                 const std::vector<Model::Brush*> result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahends);
 
                 if (!result.empty()) {
-                    VectorUtils::append(toAdd[minuend->parent()], result);
+                    VecUtils::append(toAdd[minuend->parent()], result);
                 }
                 toRemove.push_back(minuend);
             }
@@ -1245,7 +1248,7 @@ namespace TrenchBroom {
                     // shrinking gave us a valid brush, so subtract it from `brush`
                     const std::vector<Model::Brush*> fragments = brush->subtract(*m_world, m_worldBounds, currentTextureName(), shrunken);
 
-                    VectorUtils::append(toAdd[brush->parent()], fragments);
+                    VecUtils::append(toAdd[brush->parent()], fragments);
                     toRemove.push_back(brush);
                 }
 

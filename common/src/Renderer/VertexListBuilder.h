@@ -21,6 +21,7 @@
 #define VertexListBuilder_h
 
 #include "VectorUtilsMinimal.h"
+#include "Base/VecUtils.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -160,7 +161,7 @@ namespace TrenchBroom {
 
                 const size_t index = currentIndex();
                 const size_t count = vertices.size();
-                VectorUtils::append(m_vertices, vertices);
+                VecUtils::append(m_vertices, vertices);
 
                 return IndexData(index, count);
             }

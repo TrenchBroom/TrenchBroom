@@ -19,11 +19,9 @@
 
 #include "EntityDefinitionFileChooser.h"
 
-#include "CollectionUtils.h"
-#include "Notifier.h"
 #include "SharedPointer.h"
 #include "Assets/EntityDefinitionFileSpec.h"
-#include "IO/Path.h"
+#include "Base/VecUtils.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "View/BorderLine.h"
@@ -166,7 +164,7 @@ namespace TrenchBroom {
 
             auto document = lock(m_document);
             auto specs = document->allEntityDefinitionFiles();
-            VectorUtils::sort(specs);
+            VecUtils::sort(specs);
 
             for (const auto& spec : specs) {
                 const auto& path = spec.path();
@@ -180,7 +178,7 @@ namespace TrenchBroom {
 
             const Assets::EntityDefinitionFileSpec spec = document->entityDefinitionFile();
             if (spec.builtin()) {
-                const auto index = VectorUtils::indexOf(specs, spec);
+                const auto index = VecUtils::indexOf(specs, spec);
                 if (index < specs.size()) {
                     // the chosen builtin entity definition file might not be in the game config anymore if the config
                     // has changed after the definition file was chosen

@@ -19,8 +19,9 @@
 
 #include "AttributeDefinition.h"
 
+#include <algorithm>
+
 #include "StringStream.h"
-#include "StringUtils.h"
 #include "CollectionUtils.h"
 #include "Macros.h"
 
@@ -243,7 +244,12 @@ namespace TrenchBroom {
         };
 
         const FlagsAttributeOption* FlagsAttributeDefinition::option(const int value) const {
-            return VectorUtils::findIf(m_options, FindFlagByValue(value));
+            auto it = std::find_if(std::begin(m_options), std::end(m_options), FindFlagByValue(value));
+            if (it == std::end(m_options)) {
+                return nullptr;
+            } else {
+                return &(*it);
+            }
         }
 
         void FlagsAttributeDefinition::addOption(const int value, const String& shortDescription, const String& longDescription, const bool isDefault) {

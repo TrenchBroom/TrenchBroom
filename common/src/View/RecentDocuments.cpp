@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "Notifier.h"
+#include "Base/VecUtils.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "View/QtUtils.h"
@@ -53,7 +54,7 @@ namespace TrenchBroom {
         void RecentDocuments::removeMenu(QMenu* menu) {
             ensure(menu != nullptr, "menu is null");
             clearMenu(menu);
-            VectorUtils::erase(m_menus, menu);
+            VecUtils::erase(m_menus, menu);
         }
 
         void RecentDocuments::updatePath(const IO::Path& path) {
@@ -67,7 +68,7 @@ namespace TrenchBroom {
             const size_t oldSize = m_recentDocuments.size();
 
             const IO::Path canonPath = path.makeCanonical();
-            VectorUtils::erase(m_recentDocuments, canonPath);
+            VecUtils::erase(m_recentDocuments, canonPath);
 
             if (oldSize > m_recentDocuments.size()) {
                 updateMenus();

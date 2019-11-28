@@ -23,6 +23,7 @@
 #include "PreferenceManager.h"
 #include "SharedPointer.h"
 #include "Assets/TextureManager.h"
+#include "Base/VecUtils.h"
 #include "IO/PathQt.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
@@ -158,7 +159,7 @@ namespace TrenchBroom {
                 toRemove.push_back(collections[index]);
             }
 
-            VectorUtils::eraseAll(collections, toRemove);
+            VecUtils::eraseAll(collections, toRemove);
             document->setEnabledTextureCollections(collections);
         }
 

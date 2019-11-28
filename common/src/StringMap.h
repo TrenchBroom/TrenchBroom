@@ -24,6 +24,7 @@
 #include "Exceptions.h"
 #include "StringType.h"
 #include "StringUtils.h"
+#include "Base/VecUtils.h"
 
 #include <cassert>
 #include <map>
@@ -49,7 +50,7 @@ namespace TrenchBroom {
         }
 
         static void getValues(const ValueContainer& values, QueryResult& result) {
-            VectorUtils::append(result, values);
+            VecUtils::append(result, values);
         }
     };
 

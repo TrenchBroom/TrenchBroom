@@ -24,6 +24,7 @@
 #include "PreferenceManager.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/TextureManager.h"
+#include "Base/VecUtils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
@@ -116,7 +117,7 @@ namespace TrenchBroom {
 
             const std::vector<Model::Node*>& partiallySelected = visitor.nodes();
 
-            VectorUtils::append(m_selectedBrushFaces, selected);
+            VecUtils::append(m_selectedBrushFaces, selected);
             m_partiallySelectedNodes.addNodes(partiallySelected);
 
             Selection selection;
@@ -208,7 +209,7 @@ namespace TrenchBroom {
 
             const std::vector<Model::Node*>& partiallyDeselected = visitor.nodes();
 
-            VectorUtils::eraseAll(m_selectedBrushFaces, deselected);
+            VecUtils::eraseAll(m_selectedBrushFaces, deselected);
             m_selectedNodes.removeNodes(partiallyDeselected);
 
             Selection selection;
@@ -273,7 +274,7 @@ namespace TrenchBroom {
                 Model::Node* parent = entry.first;
                 const std::vector<Model::Node*>& children = entry.second;
                 parent->addChildren(children);
-                VectorUtils::append(addedNodes, children);
+                VecUtils::append(addedNodes, children);
             }
 
             setEntityDefinitions(addedNodes);
@@ -788,12 +789,12 @@ namespace TrenchBroom {
                 Model::Brush* brush = entry.first;
                 const std::vector<vm::vec3>& oldPositions = entry.second;
                 const std::vector<vm::vec3> newPositions = brush->moveVertices(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
-                VectorUtils::append(newVertexPositions, newPositions);
+                VecUtils::append(newVertexPositions, newPositions);
             }
 
             invalidateSelectionBounds();
 
-            VectorUtils::sortAndRemoveDuplicates(newVertexPositions);
+            VecUtils::sortAndMakeUnique(newVertexPositions);
             return newVertexPositions;
         }
 
@@ -809,12 +810,12 @@ namespace TrenchBroom {
                 Model::Brush* brush = entry.first;
                 const std::vector<vm::segment3>& oldPositions = entry.second;
                 const std::vector<vm::segment3> newPositions = brush->moveEdges(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
-                VectorUtils::append(newEdgePositions, newPositions);
+                VecUtils::append(newEdgePositions, newPositions);
             }
 
             invalidateSelectionBounds();
 
-            VectorUtils::sortAndRemoveDuplicates(newEdgePositions);
+            VecUtils::sortAndMakeUnique(newEdgePositions);
             return newEdgePositions;
         }
 
@@ -830,12 +831,12 @@ namespace TrenchBroom {
                 Model::Brush* brush = entry.first;
                 const std::vector<vm::polygon3>& oldPositions = entry.second;
                 const std::vector<vm::polygon3> newPositions = brush->moveFaces(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
-                VectorUtils::append(newFacePositions, newPositions);
+                VecUtils::append(newFacePositions, newPositions);
             }
 
             invalidateSelectionBounds();
 
-            VectorUtils::sortAndRemoveDuplicates(newFacePositions);
+            VecUtils::sortAndMakeUnique(newFacePositions);
             return newFacePositions;
         }
 
@@ -873,7 +874,7 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::performRebuildBrushGeometry(const std::vector<Model::Brush*>& brushes) {
-            const std::vector<Model::Node*> nodes = VectorUtils::cast<Model::Node*>(brushes);
+            const std::vector<Model::Node*> nodes = VecUtils::cast<Model::Node*>(brushes);
             const std::vector<Model::Node*> parents = collectParents(nodes);
 
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);

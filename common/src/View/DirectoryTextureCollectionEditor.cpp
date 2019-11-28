@@ -22,6 +22,7 @@
 #include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "SharedPointer.h"
+#include "Base/VecUtils.h"
 #include "IO/PathQt.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
@@ -64,7 +65,7 @@ namespace TrenchBroom {
                 enabledCollections.push_back(availableCollections[index]);
             }
 
-            VectorUtils::sortAndRemoveDuplicates(enabledCollections);
+            VecUtils::sortAndMakeUnique(enabledCollections);
 
             auto document = lock(m_document);
             document->setEnabledTextureCollections(enabledCollections);
@@ -81,7 +82,7 @@ namespace TrenchBroom {
             // erase back to front
             for (auto sIt = std::rbegin(selections), sEnd = std::rend(selections); sIt != sEnd; ++sIt) {
                 const auto index = static_cast<size_t>(*sIt);
-                VectorUtils::erase(enabledCollections, index);
+                VecUtils::eraseAt(enabledCollections, index);
             }
 
             auto document = lock(m_document);
@@ -250,7 +251,7 @@ namespace TrenchBroom {
         IO::Path::List DirectoryTextureCollectionEditor::availableTextureCollections() const {
             auto document = lock(m_document);
             auto availableCollections = document->availableTextureCollections();
-            VectorUtils::eraseAll(availableCollections, document->enabledTextureCollections());
+            VecUtils::eraseAll(availableCollections, document->enabledTextureCollections());
             return availableCollections;
         }
 

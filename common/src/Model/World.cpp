@@ -20,6 +20,7 @@
 #include "World.h"
 
 #include "AABBTree.h"
+#include "Base/VecUtils.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -309,11 +310,11 @@ namespace TrenchBroom {
         }
 
         void World::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<Model::AttributableNode*>& result) const {
-            VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::exact(name), value));
+            VecUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::exact(name), value));
         }
 
         void World::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, std::vector<Model::AttributableNode*>& result) const {
-            VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix), value));
+            VecUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix), value));
         }
 
         void World::doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {

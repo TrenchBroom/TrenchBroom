@@ -21,13 +21,13 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
+#include "Base/VecUtils.h"
 #include "IO/File.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/ELParser.h"
 #include "IO/LegacyModelDefinitionParser.h"
 
 #include <memory>
-#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -215,7 +215,7 @@ namespace TrenchBroom {
 
             if (StringUtils::caseInsensitiveEqual(token.data(), "@include")) {
                 const auto includedDefinitions = parseInclude(status);
-                VectorUtils::append(definitions, includedDefinitions);
+                VecUtils::append(definitions, includedDefinitions);
             } else {
                 auto* definition = parseDefinition(status);
                 status.progress(m_tokenizer.progress());

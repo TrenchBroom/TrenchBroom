@@ -19,8 +19,8 @@
 
 #include "Quake3ShaderFileSystem.h"
 
-#include "CollectionUtils.h"
 #include "Assets/Quake3Shader.h"
+#include "Base/VecUtils.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/Quake3ShaderParser.h"
@@ -57,7 +57,7 @@ namespace TrenchBroom {
                     try {
                         Quake3ShaderParser parser(std::begin(bufferedReader), std::end(bufferedReader));
                         SimpleParserStatus status(m_logger, file->path().asString());
-                        VectorUtils::append(result, parser.parse(status));
+                        VecUtils::append(result, parser.parse(status));
                     } catch (const ParserException& e) {
                         m_logger.warn() << "Skipping malformed shader file " << path << ": " << e.what();
                     }
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             auto allImages = Path::List();
             for (const auto& path : m_textureSearchPaths) {
                 if (next().directoryExists(path)) {
-                    VectorUtils::append(allImages, next().findItemsRecursively(path, FileExtensionMatcher(extensions)));
+                    VecUtils::append(allImages, next().findItemsRecursively(path, FileExtensionMatcher(extensions)));
                 }
             }
 

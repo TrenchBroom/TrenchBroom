@@ -26,6 +26,7 @@
 #include "Polyhedron3.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Base/VecUtils.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Hit.h"
@@ -323,7 +324,7 @@ namespace TrenchBroom {
             template <typename HH>
             void renderHandles(const std::vector<HH>& handles, Renderer::RenderService& renderService, const Color& color) const {
                 renderService.setForegroundColor(color);
-                renderService.renderHandles(VectorUtils::cast<typename HH::float_type>(handles));
+                renderService.renderHandles(VecUtils::cast<typename HH::float_type>(handles));
             }
 
             template <typename HH>

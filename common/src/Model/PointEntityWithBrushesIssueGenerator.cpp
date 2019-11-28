@@ -20,12 +20,12 @@
 #include "PointEntityWithBrushesIssueGenerator.h"
 
 #include "Assets/EntityDefinition.h"
+#include "Base/VecUtils.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
-#include "VectorUtilsMinimal.h"
 
 #include <map>
 #include <vector>
@@ -65,7 +65,7 @@ namespace TrenchBroom {
                     nodesToReparent[node->parent()] = node->children();
 
                     affectedNodes.push_back(node);
-                    VectorUtils::append(affectedNodes, node->children());
+                    VecUtils::append(affectedNodes, node->children());
                 }
 
                 facade->deselectAll();

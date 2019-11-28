@@ -20,6 +20,8 @@
 #include "Value.h"
 
 #include "CollectionUtils.h"
+#include "Base/ColUtils.h"
+#include "Base/VecUtils.h"
 #include "EL/ELExceptions.h"
 #include "StringStream.h"
 #include "StringUtils.h"
@@ -1029,7 +1031,7 @@ namespace TrenchBroom {
                 case ValueType::Array:
                     switch (rhs.type()) {
                         case ValueType::Array:
-                            return Value(VectorUtils::concatenate(lhs.arrayValue(), rhs.arrayValue()));
+                            return Value(VecUtils::concat(lhs.arrayValue(), rhs.arrayValue()));
                         case ValueType::Boolean:
                         case ValueType::Number:
                         case ValueType::String:
@@ -1296,7 +1298,7 @@ namespace TrenchBroom {
                 case ValueType::Array:
                     switch (rhs.type()) {
                         case ValueType::Array:
-                            return VectorUtils::compare(lhs.arrayValue(), rhs.arrayValue());
+                            return ColUtils::lexicographicalCompare(lhs.arrayValue(), rhs.arrayValue());
                         case ValueType::Null:
                         case ValueType::Undefined:
                             return 1;
@@ -1326,7 +1328,7 @@ namespace TrenchBroom {
                 case ValueType::Range:
                     switch (rhs.type()) {
                         case ValueType::Range:
-                            return VectorUtils::compare(lhs.rangeValue(), rhs.rangeValue());
+                            return ColUtils::lexicographicalCompare(lhs.rangeValue(), rhs.rangeValue());
                         case ValueType::Null:
                         case ValueType::Undefined:
                             return 1;

@@ -89,7 +89,12 @@ namespace TrenchBroom {
         };
 
         const FlagsAttributeDefinition* EntityDefinition::spawnflags() const {
-            return static_cast<FlagsAttributeDefinition*>(VectorUtils::findIf(m_attributeDefinitions, FindSpawnflagsDefinition()).get());
+            auto it = std::find_if(std::begin(m_attributeDefinitions), std::end(m_attributeDefinitions), FindSpawnflagsDefinition());
+            if (it == std::end(m_attributeDefinitions)) {
+                return nullptr;
+            } else {
+                return static_cast<FlagsAttributeDefinition*>(it->get());
+            }
         }
 
         const EntityDefinition::AttributeDefinitionList& EntityDefinition::attributeDefinitions() const {

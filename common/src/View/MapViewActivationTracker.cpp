@@ -21,6 +21,7 @@
 
 #include "Ensure.h"
 #include "CollectionUtils.h"
+#include "Base/VecUtils.h"
 #include "View/MapViewBase.h"
 
 #include <QDateTime>
@@ -112,7 +113,7 @@ namespace TrenchBroom {
 
         void MapViewActivationTracker::killFocusEvent(QFocusEvent*, QWidget*) {
             const auto* focusedWidget = QApplication::focusWidget();
-            if (!VectorUtils::contains(m_mapViews, focusedWidget)) {
+            if (!VecUtils::contains(m_mapViews, focusedWidget)) {
                 deactivate();
             }
         }

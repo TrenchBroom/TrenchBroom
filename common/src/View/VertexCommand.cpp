@@ -19,6 +19,7 @@
 
 #include "VertexCommand.h"
 
+#include "Base/VecUtils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -86,7 +87,7 @@ namespace TrenchBroom {
                 }
             }
 
-            VectorUtils::sort(facePositions);
+            VecUtils::sort(facePositions);
 
             assert(!brushes.empty());
             assert(brushes.size() == brushFaces.size());
@@ -101,7 +102,7 @@ namespace TrenchBroom {
                 std::vector<vm::vec3> vertices;
                 vertices.reserve(2 * edgeList.size());
                 vm::segment3::get_vertices(std::begin(edgeList), std::end(edgeList), std::back_inserter(vertices));
-                VectorUtils::sortAndRemoveDuplicates(vertices);
+                VecUtils::sortAndMakeUnique(vertices);
                 result.insert(std::make_pair(brush, vertices));
             }
             return result;
@@ -115,7 +116,7 @@ namespace TrenchBroom {
 
                 std::vector<vm::vec3> vertices;
                 vm::polygon3::get_vertices(std::begin(faceList), std::end(faceList), std::back_inserter(vertices));
-                VectorUtils::sortAndRemoveDuplicates(vertices);
+                VecUtils::sortAndMakeUnique(vertices);
                 result.insert(std::make_pair(brush, vertices));
             }
             return result;
@@ -163,7 +164,7 @@ namespace TrenchBroom {
         }
 
         bool VertexCommand::canCollateWith(const VertexCommand& other) const {
-            return VectorUtils::equals(m_brushes, other.m_brushes);
+            return m_brushes == other.m_brushes;
         }
 
         void VertexCommand::removeHandles(VertexHandleManagerBase& manager) {

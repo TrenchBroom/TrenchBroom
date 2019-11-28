@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "Polyhedron.h"
+#include "Base/VecUtils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -306,7 +307,7 @@ namespace TrenchBroom {
                 result.push_back(vm::get_abs_max_component_axis(normal));
             }
 
-            VectorUtils::sortAndRemoveDuplicates(result);
+            VecUtils::sortAndMakeUnique(result);
             return result;
         }
 

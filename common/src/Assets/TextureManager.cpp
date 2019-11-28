@@ -24,6 +24,7 @@
 #include "Logger.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
+#include "Base/VecUtils.h"
 #include "IO/TextureLoader.h"
 #include "StringUtils.h"
 
@@ -89,7 +90,7 @@ namespace TrenchBroom {
             }
 
             updateTextures();
-            VectorUtils::append(m_toRemove, collections);
+            VecUtils::append(m_toRemove, MapUtils::valueList(collections));
         }
 
         void TextureManager::setTextureCollections(const std::vector<TextureCollection*>& collections) {

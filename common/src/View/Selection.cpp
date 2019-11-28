@@ -19,7 +19,7 @@
 
 #include "Selection.h"
 
-#include "CollectionUtils.h"
+#include "Base/VecUtils.h"
 
 #include <vector>
 
@@ -58,35 +58,35 @@ namespace TrenchBroom {
         }
 
         void Selection::addPartiallySelectedNodes(const std::vector<Model::Node*>& nodes) {
-            VectorUtils::append(m_partiallySelectedNodes, nodes);
+            VecUtils::append(m_partiallySelectedNodes, nodes);
         }
 
         void Selection::addPartiallyDeselectedNodes(const std::vector<Model::Node*>& nodes) {
-            VectorUtils::append(m_partiallyDeselectedNodes, nodes);
+            VecUtils::append(m_partiallyDeselectedNodes, nodes);
         }
 
         void Selection::addRecursivelySelectedNodes(const std::vector<Model::Node*>& nodes) {
-            VectorUtils::append(m_recursivelySelectedNodes, nodes);
+            VecUtils::append(m_recursivelySelectedNodes, nodes);
         }
 
         void Selection::addRecursivelyDeselectedNodes(const std::vector<Model::Node*>& nodes) {
-            VectorUtils::append(m_recursivelyDeselectedNodes, nodes);
+            VecUtils::append(m_recursivelyDeselectedNodes, nodes);
         }
 
         void Selection::addSelectedNodes(const std::vector<Model::Node*>& nodes) {
-            VectorUtils::append(m_selectedNodes, nodes);
+            VecUtils::append(m_selectedNodes, nodes);
         }
 
         void Selection::addDeselectedNodes(const std::vector<Model::Node*>& nodes) {
-            VectorUtils::append(m_deselectedNodes, nodes);
+            VecUtils::append(m_deselectedNodes, nodes);
         }
 
         void Selection::addSelectedBrushFaces(const std::vector<Model::BrushFace*>& faces) {
-            VectorUtils::append(m_selectedBrushFaces, faces);
+            VecUtils::append(m_selectedBrushFaces, faces);
         }
 
         void Selection::addDeselectedBrushFaces(const std::vector<Model::BrushFace*>& faces) {
-            VectorUtils::append(m_deselectedBrushFaces, faces);
+            VecUtils::append(m_deselectedBrushFaces, faces);
         }
     }
 }

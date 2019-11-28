@@ -19,11 +19,12 @@
 
 #include "EntityBrowserView.h"
 
+#include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Logger.h"
 #include "StepIterator.h"
 #include "StringUtils.h"
+#include "Base/VecUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModel.h"
@@ -405,7 +406,7 @@ namespace TrenchBroom {
                             stepIterator(std::begin(quads), std::end(quads), 0, 2),
                             stepIterator(std::begin(quads), std::end(quads), 1, 2),
                             stepIterator(std::begin(textColor), std::end(textColor), 0, 0));
-                        VectorUtils::append(stringVertices[defaultDescriptor], titleVertices);
+                        VecUtils::append(stringVertices[defaultDescriptor], titleVertices);
                     }
 
                     for (size_t j = 0; j < group.size(); ++j) {
@@ -423,7 +424,7 @@ namespace TrenchBroom {
                                     stepIterator(std::begin(quads), std::end(quads), 0, 2),
                                     stepIterator(std::begin(quads), std::end(quads), 1, 2),
                                     stepIterator(std::begin(textColor), std::end(textColor), 0, 0));
-                                VectorUtils::append(stringVertices[cellData(cell).fontDescriptor], titleVertices);
+                                VecUtils::append(stringVertices[cellData(cell).fontDescriptor], titleVertices);
                             }
                         }
                     }

@@ -19,7 +19,7 @@
 
 #include "Model/Issue.h"
 
-#include "CollectionUtils.h"
+#include "Base/VecUtils.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
@@ -67,7 +67,7 @@ namespace TrenchBroom {
 
             CollectSelectableIssueNodesVisitor collect;
             m_node->acceptAndRecurse(collect);
-            VectorUtils::append(nodes, collect.nodes());
+            VecUtils::append(nodes, collect.nodes());
 
             return true;
         }

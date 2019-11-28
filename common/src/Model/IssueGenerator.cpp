@@ -20,6 +20,7 @@
 #include "IssueGenerator.h"
 
 #include "CollectionUtils.h"
+#include "Base/VecUtils.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/Entity.h"
 #include "Model/World.h"
@@ -70,7 +71,7 @@ namespace TrenchBroom {
 
         void IssueGenerator::addQuickFix(IssueQuickFix* quickFix) {
             ensure(quickFix != nullptr, "quickFix is null");
-            assert(!VectorUtils::contains(m_quickFixes, quickFix));
+            assert(!VecUtils::contains(m_quickFixes, quickFix));
             m_quickFixes.push_back(quickFix);
         }
 

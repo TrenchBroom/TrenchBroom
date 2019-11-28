@@ -19,8 +19,9 @@
 
 #include "AttributableNode.h"
 
-#include "Assets/AttributeDefinition.h"
 #include "CollectionUtils.h"
+#include "Base/VecUtils.h"
+#include "Assets/AttributeDefinition.h"
 
 #include <set>
 #include <vector>
@@ -652,19 +653,19 @@ namespace TrenchBroom {
 
         void AttributableNode::removeLinkSource(AttributableNode* attributable) {
             ensure(attributable != nullptr, "attributable is null");
-            VectorUtils::erase(m_linkSources, attributable);
+            VecUtils::erase(m_linkSources, attributable);
             invalidateIssues();
         }
 
         void AttributableNode::removeLinkTarget(AttributableNode* attributable) {
             ensure(attributable != nullptr, "attributable is null");
-            VectorUtils::erase(m_linkTargets, attributable);
+            VecUtils::erase(m_linkTargets, attributable);
             invalidateIssues();
         }
 
         void AttributableNode::removeKillSource(AttributableNode* attributable) {
             ensure(attributable != nullptr, "attributable is null");
-            VectorUtils::erase(m_killSources, attributable);
+            VecUtils::erase(m_killSources, attributable);
             invalidateIssues();
         }
 
@@ -679,7 +680,7 @@ namespace TrenchBroom {
 
         void AttributableNode::removeKillTarget(AttributableNode* attributable) {
             ensure(attributable != nullptr, "attributable is null");
-            VectorUtils::erase(m_killTargets, attributable);
+            VecUtils::erase(m_killTargets, attributable);
         }
     }
 }

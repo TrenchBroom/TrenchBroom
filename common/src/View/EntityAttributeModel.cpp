@@ -24,6 +24,7 @@
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
+#include "Base/VecUtils.h"
 #include "IO/ResourceUtils.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
@@ -310,7 +311,7 @@ namespace TrenchBroom {
 
                 qDebug() << "EntityAttributeModel::setRows: one row changed: " << QString::fromStdString(oldDeletion.name()) << " -> " << QString::fromStdString(newAddition.name());
 
-                const size_t oldIndex = VectorUtils::indexOf(m_rows, oldDeletion);
+                const size_t oldIndex = VecUtils::indexOf(m_rows, oldDeletion);
                 m_rows.at(oldIndex) = newAddition;
 
                 // Notify Qt
@@ -342,7 +343,7 @@ namespace TrenchBroom {
                 qDebug() << "EntityAttributeModel::setRows: deleting " << oldMinusNew.size() << " rows";
 
                 for (const AttributeRow& row : oldMinusNew) {
-                    const int index = static_cast<int>(VectorUtils::indexOf(m_rows, row));
+                    const int index = static_cast<int>(VecUtils::indexOf(m_rows, row));
                     assert(index < static_cast<int>(m_rows.size()));
 
                     beginRemoveRows(QModelIndex(), index, index);

@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "Macros.h"
+#include "Base/VecUtils.h"
 #include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
 #include "Model/LockState.h"
@@ -195,7 +196,7 @@ namespace TrenchBroom {
 
         void Node::doAddChild(Node* child) {
             ensure(child != nullptr, "child is null");
-            assert(!VectorUtils::contains(m_children, child));
+            assert(!VecUtils::contains(m_children, child));
             assert(child->parent() == nullptr);
             assert(canAddChild(child));
 
@@ -215,7 +216,7 @@ namespace TrenchBroom {
             childWillBeRemoved(child);
             // nodeWillChange();
             child->setParent(nullptr);
-            VectorUtils::erase(m_children, child);
+            VecUtils::erase(m_children, child);
             childWasRemoved(child);
             // nodeDidChange();
         }

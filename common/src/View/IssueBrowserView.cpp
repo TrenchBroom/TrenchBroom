@@ -20,6 +20,7 @@
 #include "IssueBrowserView.h"
 
 #include "SharedPointer.h"
+#include "Base/VecUtils.h"
 #include "Model/CollectMatchingIssuesVisitor.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -134,7 +135,7 @@ namespace TrenchBroom {
                 world->acceptAndRecurse(visitor);
 
                 std::vector<Model::Issue*> issues = visitor.issues();
-                VectorUtils::sort(issues, IssueCmp());
+                VecUtils::sort(issues, IssueCmp());
                 m_tableModel->setIssues(std::move(issues));
             }
         }

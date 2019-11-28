@@ -51,8 +51,8 @@ namespace TrenchBroom {
         m_indexVbo(indexVbo) {}
 
         RenderBatch::~RenderBatch() {
-            ListUtils::clearAndDelete(m_oneshots);
-            ListUtils::clearAndDelete(m_indexedRenderables);
+            VectorUtils::clearAndDelete(m_oneshots);
+            VectorUtils::clearAndDelete(m_indexedRenderables);
         }
 
         void RenderBatch::add(Renderable* renderable) {

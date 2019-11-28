@@ -73,7 +73,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            if (!VectorUtils::equals(m_newFacePositions, other->m_oldFacePositions)) {
+            if (m_newFacePositions != other->m_oldFacePositions) {
                 return false;
             }
 
