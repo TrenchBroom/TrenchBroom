@@ -88,26 +88,6 @@ namespace CollectionUtils {
 namespace VectorUtils {
     // remove in favor of vector_set
     template <typename T, typename Cmp = std::less<T>>
-    bool setIsSet(const std::vector<T>& set, const Cmp cmp = Cmp()) {
-        if (set.size() < 2) {
-            return true;
-        }
-
-        auto cur = std::begin(set);
-        auto next = cur + 1;
-
-        while (next != std::end(set)) {
-            if (!cmp(*cur, *next)) {
-                return false;
-            }
-            ++cur;
-            ++next;
-        }
-        return true;
-    }
-
-    // remove in favor of vector_set
-    template <typename T, typename Cmp = std::less<T>>
     void setCreate(std::vector<T>& vec, const Cmp cmp = Cmp()) {
         std::sort(std::begin(vec), std::end(vec), cmp);
         auto end = std::unique(std::begin(vec), std::end(vec));
@@ -139,21 +119,6 @@ namespace VectorUtils {
     }
 
     // remove in favor of vector_set
-    template <typename T, typename I, typename Cmp = std::less<T>>
-    void setInsert(std::vector<T>& vec, I cur, const I end, const Cmp& cmp = Cmp()) {
-        while (cur != end) {
-            auto it = std::lower_bound(std::begin(vec), std::end(vec), *cur, cmp);
-            if (it == std::end(vec)) {
-                vec.push_back(*cur);
-            } else if (cmp(*it, *cur) || cmp(*cur, *it)) {
-                vec.insert(it, *cur);
-            } else
-                *it = *cur;
-            ++cur;
-        }
-    }
-
-    // remove in favor of vector_set
     template <typename T1, typename T2, typename Cmp = std::less<T1>>
     bool setRemove(std::vector<T1>& vec, const T2& object, const Cmp cmp = Cmp()) {
         typename std::vector<T1>::iterator it = std::lower_bound(std::begin(vec), std::end(vec), object, cmp);
@@ -162,18 +127,6 @@ namespace VectorUtils {
             return true;
         }
         return false;
-    }
-
-    // remove in favor of vector_set
-    template <typename T, typename I, typename Cmp = std::less<T>>
-    void setRemove(std::vector<T>& vec, I cur, const I end, const Cmp cmp = Cmp()) {
-        while (cur != end) {
-            auto it = std::lower_bound(std::begin(vec), std::end(vec), *cur, cmp);
-            if (it != std::end(vec) && !cmp(*it, *cur) && !cmp(*cur, *it)) {
-                vec.erase(it);
-            }
-            ++cur;
-        }
     }
 
     // remove in favor of vector_set
@@ -189,26 +142,6 @@ namespace VectorUtils {
         std::set_union(std::begin(vec1), std::end(vec1),
                        std::begin(vec2), std::end(vec2),
                        std::back_inserter(result), cmp);
-        return result;
-    }
-
-    // remove in favor of vector_set
-    template <typename T, typename Cmp = std::less<T>>
-    std::vector<T> setMinus(const std::vector<T>& minuend, const std::vector<T>& subtrahend, const Cmp cmp = Cmp()) {
-        std::vector<T> result;
-        std::set_difference(std::begin(minuend), std::end(minuend),
-                            std::begin(subtrahend), std::end(subtrahend),
-                            std::back_inserter(result), cmp);
-        return result;
-    }
-
-    // remove in favor of vector_set
-    template <typename T, typename Cmp = std::less<T>>
-    std::vector<T> setIntersection(const std::vector<T>& vec1, const std::vector<T>& vec2, const Cmp cmp = Cmp()) {
-        std::vector<T> result;
-        std::set_intersection(std::begin(vec1), std::end(vec1),
-                              std::begin(vec2), std::end(vec2),
-                              std::back_inserter(result), cmp);
         return result;
     }
 

@@ -73,22 +73,6 @@ TEST(CollectionUtilsTest, vecSetRemoveSingle) {
     ASSERT_TRUE(vec.empty());
 }
 
-TEST(CollectionUtilsTest, vecSetInsertRange) {
-    int i1(1);
-    int i2(2);
-
-    std::vector<int> range;
-    range.push_back(i2);
-    range.push_back(i2);
-    range.push_back(i1);
-
-    std::vector<int> set;
-    VectorUtils::setInsert(set, std::begin(range), std::end(range));
-    ASSERT_EQ(2u, set.size());
-    ASSERT_EQ(i1, set[0]);
-    ASSERT_EQ(i2, set[1]);
-}
-
 TEST(CollectionUtilsTest, vecSetContains) {
     const String a("a");
     const String b("b");
@@ -149,77 +133,6 @@ TEST(CollectionUtilsTest, vecSetUnion) {
     ASSERT_TRUE(VectorUtils::setContains(uni, i7));
     ASSERT_TRUE(VectorUtils::setContains(uni, i8));
     ASSERT_TRUE(VectorUtils::setContains(uni, i9));
-}
-
-TEST(CollectionUtilsTest, vecSetMinus) {
-    const int i0(0);
-    const int i1(1);
-    const int i2(2);
-    const int i3(3);
-    const int i4(4);
-    const int i5(5);
-    const int i6(6);
-    const int i7(7);
-    const int i8(8);
-    const int i9(9);
-
-    std::vector<int> set1;
-    VectorUtils::setInsert(set1, i0);
-    VectorUtils::setInsert(set1, i2);
-    VectorUtils::setInsert(set1, i4);
-    VectorUtils::setInsert(set1, i7);
-    VectorUtils::setInsert(set1, i9);
-
-    std::vector<int> set2;
-    VectorUtils::setInsert(set2, i0);
-    VectorUtils::setInsert(set2, i1);
-    VectorUtils::setInsert(set2, i2);
-    VectorUtils::setInsert(set2, i3);
-    VectorUtils::setInsert(set2, i4);
-    VectorUtils::setInsert(set2, i5);
-    VectorUtils::setInsert(set2, i6);
-    VectorUtils::setInsert(set2, i8);
-
-    const std::vector<int> uni = VectorUtils::setMinus(set1, set2);
-    ASSERT_EQ(2u, uni.size());
-    ASSERT_TRUE(VectorUtils::setContains(uni, i7));
-    ASSERT_TRUE(VectorUtils::setContains(uni, i9));
-}
-
-TEST(CollectionUtilsTest, vecSetIntersection) {
-    const int i0(0);
-    const int i1(1);
-    const int i2(2);
-    const int i3(3);
-    const int i4(4);
-    const int i5(5);
-    const int i6(6);
-    const int i7(7);
-    const int i8(8);
-    const int i9(9);
-
-    std::vector<int> set1;
-    VectorUtils::setInsert(set1, i0);
-    VectorUtils::setInsert(set1, i2);
-    VectorUtils::setInsert(set1, i4);
-    VectorUtils::setInsert(set1, i7);
-    VectorUtils::setInsert(set1, i9);
-
-    std::vector<int> set2;
-    VectorUtils::setInsert(set2, i0);
-    VectorUtils::setInsert(set2, i1);
-    VectorUtils::setInsert(set2, i2);
-    VectorUtils::setInsert(set2, i3);
-    VectorUtils::setInsert(set2, i4);
-    VectorUtils::setInsert(set2, i5);
-    VectorUtils::setInsert(set2, i6);
-    VectorUtils::setInsert(set2, i8);
-
-    const std::vector<int> uni = VectorUtils::setIntersection(set1, set2);
-    ASSERT_EQ(3u, uni.size());
-    ASSERT_TRUE(VectorUtils::setContains(uni, i0));
-    ASSERT_TRUE(VectorUtils::setContains(uni, i2));
-    ASSERT_TRUE(VectorUtils::setContains(uni, i4));
 }
 
 TEST(CollectionUtilsTest, mapFindOrInsert) {
