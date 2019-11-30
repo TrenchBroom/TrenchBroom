@@ -52,12 +52,11 @@ namespace detail {
 template <typename C, typename Compare = std::less<typename C::value_type>>
 class const_set_adapter {
 protected:
-    using T = typename std::remove_reference<C>::type::value_type;
     C m_data;
     Compare m_cmp;
 public:
-    using key_type = T;
-    using value_type = T;
+    using key_type = typename std::remove_reference<C>::type::value_type;
+    using value_type = key_type;
     using size_type = typename std::remove_reference<C>::type::size_type;
     using difference_type = typename std::remove_reference<C>::type::difference_type;
     using key_compare = Compare;
@@ -190,7 +189,7 @@ public:
      */
     template <typename K>
     size_type count(const K& x) const {
-        return find(x) != end() ? 1 : 0;
+        return find(x) != end() ? 1u : 0u;
     }
 
     /**
@@ -316,15 +315,14 @@ protected:
 template <typename C, typename Compare = std::less<typename C::value_type>>
 class set_adapter : public const_set_adapter<C, Compare> {
 private:
-    using T = typename std::remove_reference<C>::type::value_type;
     using base = const_set_adapter<C, Compare>;
 protected:
     using base::m_data;
     using base::m_cmp;
 public:
 public:
-    using key_type = T;
-    using value_type = T;
+    using key_type = typename std::remove_reference<C>::type::value_type;
+    using value_type = key_type;
     using size_type = typename std::remove_reference<C>::type::size_type;
     using difference_type = typename std::remove_reference<C>::type::difference_type;
     using key_compare = Compare;
@@ -846,8 +844,8 @@ bool operator>=(const const_set_adapter<C1, Compare>& lhs, const const_set_adapt
 template <typename T, typename Compare = std::less<T>, typename Allocator = std::allocator<T>>
 class vector_set : public set_adapter<std::vector<T, Allocator>, Compare> {
 private:
-    using base = set_adapter<std::vector<T, Allocator>, Compare>;
     using vec_type = std::vector<T, Allocator>;
+    using base = set_adapter<vec_type, Compare>;
     using base::m_data;
     using base::m_cmp;
 public:
