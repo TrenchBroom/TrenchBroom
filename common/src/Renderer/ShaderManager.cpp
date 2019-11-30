@@ -25,6 +25,8 @@
 #include "Renderer/ShaderConfig.h"
 #include "Renderer/ShaderProgram.h"
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace Renderer {
         ShaderManager::~ShaderManager() = default;

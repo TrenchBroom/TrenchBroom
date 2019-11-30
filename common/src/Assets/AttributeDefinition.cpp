@@ -20,6 +20,7 @@
 #include "AttributeDefinition.h"
 
 #include <algorithm>
+#include <memory>
 
 #include "StringStream.h"
 #include "Macros.h"

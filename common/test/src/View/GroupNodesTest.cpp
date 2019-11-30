@@ -97,7 +97,7 @@ namespace TrenchBroom {
             document->addNode(entity, document->currentParent());
             document->reparentNodes(entity, { brush1, brush2 });
 
-            document->select({ brush1, brush2 });
+            document->select(std::vector<Model::Node*>({ brush1, brush2 }));
 
             Model::Group* group = document->groupSelection("test");
             ASSERT_TRUE(group != nullptr);
