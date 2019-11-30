@@ -478,7 +478,7 @@ namespace TrenchBroom {
                 bool surfaceValueMulti = false;
                 bool colorValueMulti = false;
 
-                Assets::Texture* texture = m_faces[0]->texture();
+                const String& textureName = m_faces[0]->textureName();
                 const float xOffset = m_faces[0]->xOffset();
                 const float yOffset = m_faces[0]->yOffset();
                 const float rotation = m_faces[0]->rotation();
@@ -495,7 +495,7 @@ namespace TrenchBroom {
 
                 for (size_t i = 1; i < m_faces.size(); i++) {
                     Model::BrushFace* face = m_faces[i];
-                    textureMulti            |= (texture         != face->texture());
+                    textureMulti            |= (textureName     != face->textureName());
                     xOffsetMulti            |= (xOffset         != face->xOffset());
                     yOffsetMulti            |= (yOffset         != face->yOffset());
                     rotationMulti           |= (rotation        != face->rotation());
@@ -525,13 +525,13 @@ namespace TrenchBroom {
                     m_textureSize->setText("multi");
                     m_textureSize->setEnabled(false);
                 } else {
-                    const String& textureName = m_faces[0]->textureName();
                     if (textureName == Model::BrushFace::NoTextureName) {
                         m_textureName->setText("none");
                         m_textureName->setEnabled(false);
                         m_textureSize->setText("");
                         m_textureSize->setEnabled(false);
                     } else {
+                        const Assets::Texture* texture = m_faces[0]->texture();
                         if (texture != nullptr) {
                             m_textureName->setText(QString::fromStdString(textureName));
                             m_textureSize->setText(QStringLiteral("%1 * %2").arg(texture->width()).arg(texture->height()));
