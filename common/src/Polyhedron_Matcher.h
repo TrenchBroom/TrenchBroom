@@ -20,6 +20,7 @@
 #ifndef Polyhedron_Matcher_h
 #define Polyhedron_Matcher_h
 
+#include "Ensure.h"
 #include "Polyhedron.h"
 #include "Relation.h"
 #include "Base/VecUtils.h"

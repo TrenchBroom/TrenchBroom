@@ -19,6 +19,7 @@
 
 #include "IssueGeneratorRegistry.h"
 
+#include "Ensure.h"
 #include "Base/VecUtils.h"
 #include "Model/IssueGenerator.h"
 

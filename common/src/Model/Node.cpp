@@ -19,6 +19,7 @@
 
 #include "Node.h"
 
+#include "Ensure.h"
 #include "Macros.h"
 #include "Base/VecUtils.h"
 #include "Model/Issue.h"

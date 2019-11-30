@@ -19,8 +19,10 @@
 
 #include "Expression.h"
 
-#include "EL/EvaluationContext.h"
+#include "Ensure.h"
 #include "StringStream.h"
+#include "Base/VecUtils.h"
+#include "EL/EvaluationContext.h"
 
 namespace TrenchBroom {
     namespace EL {

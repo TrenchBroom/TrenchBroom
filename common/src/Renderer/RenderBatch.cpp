@@ -19,6 +19,7 @@
 
 #include "RenderBatch.h"
 
+#include "Ensure.h"
 #include "Base/VecUtils.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/Vbo.h"

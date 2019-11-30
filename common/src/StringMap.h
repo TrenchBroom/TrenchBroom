@@ -284,7 +284,7 @@ namespace TrenchBroom {
                 using std::swap;
 
                 assert(m_key.size() > 1);
-                ensure(index < m_key.size(), "index out of range");
+                assert(index < m_key.size());
 
                 const String newKey = m_key.substr(0, index);
                 const String remainder = m_key.substr(index);
@@ -333,12 +333,12 @@ namespace TrenchBroom {
         }
 
         void insert(const String& key, const V& value) {
-            ensure(m_root != nullptr, "root is null");
+            assert(m_root != nullptr);
             m_root->insert(key, value);
         }
 
         void remove(const String& key, const V& value) {
-            ensure(m_root != nullptr, "root is null");
+            assert(m_root != nullptr);
             m_root->remove(key, value);
         }
 
@@ -348,28 +348,28 @@ namespace TrenchBroom {
         }
 
         QueryResult queryPrefixMatches(const String& prefix) const {
-            ensure(m_root != nullptr, "root is null");
+            assert(m_root != nullptr);
             QueryResult result;
             m_root->queryPrefix(prefix, result);
             return result;
         }
 
         QueryResult queryNumberedMatches(const String& prefix) const {
-            ensure(m_root != nullptr, "root is null");
+            assert(m_root != nullptr);
             QueryResult result;
             m_root->queryNumbered(prefix, result);
             return result;
         }
 
         QueryResult queryExactMatches(const String& prefix) const {
-            ensure(m_root != nullptr, "root is null");
+            assert(m_root != nullptr);
             QueryResult result;
             m_root->queryExact(prefix, result);
             return result;
         }
 
         StringList getKeys() const {
-            ensure(m_root != nullptr, "root is null");
+            assert(m_root != nullptr);
             StringList result;
             m_root->getKeys("", result);
             return result;
