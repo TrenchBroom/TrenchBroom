@@ -19,7 +19,6 @@
 
 #include "MissingModIssueGenerator.h"
 
-#include "CollectionUtils.h"
 #include "SharedPointer.h"
 #include "Base/VecUtils.h"
 #include "Model/AttributableNode.h"

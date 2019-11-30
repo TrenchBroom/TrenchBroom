@@ -19,7 +19,6 @@
 
 #include "Expression.h"
 
-#include "CollectionUtils.h"
 #include "EL/EvaluationContext.h"
 #include "StringStream.h"
 

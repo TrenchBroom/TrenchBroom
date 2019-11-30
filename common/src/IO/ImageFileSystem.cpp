@@ -19,7 +19,6 @@
 
 #include "ImageFileSystem.h"
 
-#include "CollectionUtils.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/File.h"
 #include "IO/IOUtils.h"

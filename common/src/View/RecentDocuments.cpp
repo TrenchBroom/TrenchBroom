@@ -19,7 +19,6 @@
 
 #include "RecentDocuments.h"
 
-#include "CollectionUtils.h"
 #include "Notifier.h"
 #include "Base/VecUtils.h"
 #include "IO/Path.h"

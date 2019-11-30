@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_StringMap
 #define TrenchBroom_StringMap
 
-#include "CollectionUtils.h"
 #include "Exceptions.h"
 #include "StringType.h"
 #include "StringUtils.h"

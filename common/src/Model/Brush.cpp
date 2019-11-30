@@ -19,7 +19,6 @@
 
 #include "Brush.h"
 
-#include "CollectionUtils.h"
 #include "Constants.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"

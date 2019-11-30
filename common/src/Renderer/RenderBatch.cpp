@@ -19,7 +19,6 @@
 
 #include "RenderBatch.h"
 
-#include "CollectionUtils.h"
 #include "Base/VecUtils.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/Vbo.h"

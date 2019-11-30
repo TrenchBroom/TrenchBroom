@@ -21,7 +21,6 @@
 #define TrenchBroom_FileSystem
 
 #include "Exceptions.h"
-#include "CollectionUtils.h"
 #include "Macros.h"
 #include "StringType.h"
 #include "IO/DiskIO.h"

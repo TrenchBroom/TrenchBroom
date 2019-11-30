@@ -19,7 +19,6 @@
 
 #include "CompilationProfile.h"
 
-#include "CollectionUtils.h"
 #include "Base/VecUtils.h"
 #include "Model/CompilationTask.h"
 

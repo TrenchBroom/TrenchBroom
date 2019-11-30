@@ -20,7 +20,6 @@
 #include "TextureManager.h"
 
 #include "Exceptions.h"
-#include "CollectionUtils.h"
 #include "Logger.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"

@@ -19,7 +19,6 @@
 
 #include "DefParser.h"
 
-#include "CollectionUtils.h"
 #include "Exceptions.h"
 #include "Base/VecUtils.h"
 #include "Assets/EntityDefinition.h"

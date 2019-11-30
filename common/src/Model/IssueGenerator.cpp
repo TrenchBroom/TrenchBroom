@@ -19,7 +19,6 @@
 
 #include "IssueGenerator.h"
 
-#include "CollectionUtils.h"
 #include "Base/VecUtils.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/Entity.h"

@@ -20,7 +20,6 @@
 
 #include "MoveBrushFacesCommand.h"
 
-#include "CollectionUtils.h"
 #include "Constants.h"
 #include "Model/Brush.h"
 #include "Model/Snapshot.h"

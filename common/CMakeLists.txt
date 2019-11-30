@@ -1033,7 +1033,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/AttrString.h
         ${COMMON_SOURCE_DIR}/Bitset.h
         ${COMMON_SOURCE_DIR}/ByteBuffer.h
-        ${COMMON_SOURCE_DIR}/CollectionUtils.h
         ${COMMON_SOURCE_DIR}/Color.h
         ${COMMON_SOURCE_DIR}/Constants.h
         ${COMMON_SOURCE_DIR}/Disjunction.h

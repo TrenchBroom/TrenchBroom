@@ -20,7 +20,6 @@
 #include "FileSystem.h"
 
 #include "Exceptions.h"
-#include "CollectionUtils.h"
 #include "Base/VecUtils.h"
 #include "IO/FileMatcher.h"
 

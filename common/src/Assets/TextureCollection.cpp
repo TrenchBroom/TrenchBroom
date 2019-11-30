@@ -19,7 +19,6 @@
 
 #include "TextureCollection.h"
 
-#include "CollectionUtils.h"
 #include "Assets/Texture.h"
 #include "Base/VecUtils.h"
 

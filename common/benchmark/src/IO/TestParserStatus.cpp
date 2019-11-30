@@ -19,7 +19,6 @@
 
 #include "TestParserStatus.h"
 
-#include "CollectionUtils.h"
 
 namespace TrenchBroom {
     namespace IO {

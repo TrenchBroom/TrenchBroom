@@ -22,7 +22,6 @@
 #include <algorithm>
 
 #include "StringStream.h"
-#include "CollectionUtils.h"
 #include "Macros.h"
 
 namespace TrenchBroom {

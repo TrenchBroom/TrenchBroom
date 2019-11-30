@@ -19,7 +19,6 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
 #include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"

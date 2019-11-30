@@ -19,7 +19,6 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
 #include "IO/CompilationConfigParser.h"
 #include "IO/Path.h"
 #include "Model/CompilationConfig.h"

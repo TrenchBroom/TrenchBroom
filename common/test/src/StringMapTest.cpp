@@ -19,7 +19,6 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
 #include "Exceptions.h"
 #include "StringMap.h"
 #include "StringUtils.h"

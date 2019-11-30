@@ -19,7 +19,6 @@
 
 #include "AttributableNode.h"
 
-#include "CollectionUtils.h"
 #include "Base/VecUtils.h"
 #include "Assets/AttributeDefinition.h"
 

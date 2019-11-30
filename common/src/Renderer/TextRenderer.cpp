@@ -19,7 +19,6 @@
 
 #include "TextRenderer.h"
 
-#include "CollectionUtils.h"
 #include "AttrString.h"
 #include "Renderer/Camera.h"
 #include "Renderer/FontManager.h"

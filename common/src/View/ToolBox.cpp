@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CollectionUtils.h"
 #include "ToolBox.h"
 #include "View/InputState.h"
 #include "View/Tool.h"

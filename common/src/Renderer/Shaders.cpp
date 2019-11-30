@@ -18,7 +18,6 @@
  */
 
 #include "Shaders.h"
-#include "CollectionUtils.h"
 #include "StringUtils.h"
 
 namespace TrenchBroom {

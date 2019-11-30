@@ -19,7 +19,6 @@
 
 #include "Snapshot.h"
 
-#include "CollectionUtils.h"
 #include "Base/VecUtils.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/Node.h"

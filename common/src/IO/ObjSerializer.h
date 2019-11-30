@@ -20,7 +20,6 @@
 #ifndef ObjSerializer_h
 #define ObjSerializer_h
 
-#include "CollectionUtils.h"
 #include "TrenchBroom.h"
 #include "IO/NodeSerializer.h"
 #include "IO/Path.h"

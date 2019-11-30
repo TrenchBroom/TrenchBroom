@@ -21,7 +21,6 @@
 #define Polyhedron_Matcher_h
 
 #include "Polyhedron.h"
-#include "CollectionUtils.h"
 #include "Relation.h"
 #include "Base/VecUtils.h"
 #include "Base/vector_set.h"

@@ -19,7 +19,6 @@
 
 #include "MergeNodesIntoWorldVisitor.h"
 
-#include "CollectionUtils.h"
 #include "Base/VecUtils.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"

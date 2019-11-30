@@ -19,7 +19,6 @@
 
 #include "ShaderConfig.h"
 
-#include "CollectionUtils.h"
 
 namespace TrenchBroom {
     namespace Renderer {

@@ -19,7 +19,6 @@
 
 #include "ClipToolController.h"
 
-#include "CollectionUtils.h"
 #include "Polyhedron.h"
 #include "Base/VecUtils.h"
 #include "Model/Brush.h"

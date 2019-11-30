@@ -19,7 +19,6 @@
 
 #include "MapDocumentCommandFacade.h"
 
-#include "CollectionUtils.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Assets/EntityDefinitionFileSpec.h"

@@ -21,7 +21,6 @@
 
 #include "BenchmarkUtils.h"
 
-#include "CollectionUtils.h"
 #include "Assets/Texture.h"
 #include "Base/VecUtils.h"
 #include "Model/Brush.h"

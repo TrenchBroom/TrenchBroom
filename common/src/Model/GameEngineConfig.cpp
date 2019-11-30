@@ -19,7 +19,6 @@
 
 #include "GameEngineConfig.h"
 
-#include "CollectionUtils.h"
 #include "Base/VecUtils.h"
 
 namespace TrenchBroom {

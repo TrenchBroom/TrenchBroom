@@ -20,7 +20,6 @@
 #include "ClipTool.h"
 
 #include "TrenchBroom.h"
-#include "CollectionUtils.h"
 #include "Constants.h"
 #include "Polyhedron.h"
 #include "PreferenceManager.h"

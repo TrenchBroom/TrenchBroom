@@ -19,7 +19,6 @@
 
 #include "IndexRangeMap.h"
 
-#include "CollectionUtils.h"
 #include "Base/VecUtils.h"
 
 namespace TrenchBroom {

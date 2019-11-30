@@ -19,7 +19,6 @@
 
 #include "GroupSnapshot.h"
 
-#include "CollectionUtils.h"
 #include "Base/VecUtils.h"
 #include "Model/Group.h"
 #include "Model/Model_Forward.h"

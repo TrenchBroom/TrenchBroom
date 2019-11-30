@@ -19,7 +19,6 @@
 
 #include "MapReader.h"
 
-#include "CollectionUtils.h"
 #include "Base/MapUtils.h"
 #include "Base/VecUtils.h"
 #include "Model/Brush.h"

@@ -19,7 +19,6 @@
 
 #include "ELParser.h"
 
-#include "CollectionUtils.h"
 #include "EL/Expression.h"
 
 namespace TrenchBroom {

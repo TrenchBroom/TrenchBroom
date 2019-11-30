@@ -20,7 +20,6 @@
 #include "MapViewActivationTracker.h"
 
 #include "Ensure.h"
-#include "CollectionUtils.h"
 #include "Base/VecUtils.h"
 #include "View/MapViewBase.h"
 

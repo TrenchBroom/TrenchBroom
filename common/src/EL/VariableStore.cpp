@@ -19,7 +19,6 @@
 
 #include "VariableStore.h"
 
-#include "CollectionUtils.h"
 #include "Base/MapUtils.h"
 #include "EL/ELExceptions.h"
 #include "EL/Value.h"

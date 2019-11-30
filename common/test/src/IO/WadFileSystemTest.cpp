@@ -19,7 +19,6 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
 #include "Logger.h"
 #include "Base/VecUtils.h"
 #include "IO/DiskIO.h"

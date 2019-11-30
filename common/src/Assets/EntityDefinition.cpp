@@ -20,7 +20,6 @@
 #include "EntityDefinition.h"
 
 #include "Assets/AttributeDefinition.h"
-#include "CollectionUtils.h"
 #include "StringUtils.h"
 
 #include <algorithm>

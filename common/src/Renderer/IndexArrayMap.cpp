@@ -19,7 +19,6 @@
 
 #include "IndexArrayMap.h"
 
-#include "CollectionUtils.h"
 #include "Renderer/IndexArray.h"
 
 namespace TrenchBroom {

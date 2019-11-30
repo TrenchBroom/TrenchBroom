@@ -19,7 +19,6 @@
 
 #include "ObjSerializer.h"
 
-#include "CollectionUtils.h"
 #include "Polyhedron.h"
 #include "IO/Path.h"
 #include "Model/Brush.h"

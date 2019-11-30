@@ -19,7 +19,6 @@
 
 #include "KeyboardShortcutModel.h"
 
-#include "CollectionUtils.h"
 #include "Preference.h"
 #include "PreferenceManager.h"
 #include "Base/vector_set.h"

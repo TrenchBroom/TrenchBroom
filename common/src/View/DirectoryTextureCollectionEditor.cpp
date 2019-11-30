@@ -19,7 +19,6 @@
 
 #include "DirectoryTextureCollectionEditor.h"
 
-#include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "SharedPointer.h"
 #include "Base/VecUtils.h"

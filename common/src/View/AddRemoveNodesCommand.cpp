@@ -19,7 +19,6 @@
 
 #include "AddRemoveNodesCommand.h"
 
-#include "CollectionUtils.h"
 #include "Macros.h"
 #include "Base/MapUtils.h"
 #include "Model/Node.h"

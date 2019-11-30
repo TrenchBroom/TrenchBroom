@@ -19,7 +19,6 @@
 
 #include "IssueGeneratorRegistry.h"
 
-#include "CollectionUtils.h"
 #include "Base/VecUtils.h"
 #include "Model/IssueGenerator.h"
 

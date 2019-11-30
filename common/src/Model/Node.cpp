@@ -19,7 +19,6 @@
 
 #include "Node.h"
 
-#include "CollectionUtils.h"
 #include "Macros.h"
 #include "Base/VecUtils.h"
 #include "Model/Issue.h"
