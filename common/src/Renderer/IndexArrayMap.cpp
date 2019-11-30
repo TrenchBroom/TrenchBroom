@@ -40,8 +40,7 @@ namespace TrenchBroom {
         m_indexCount(0) {}
 
         void IndexArrayMap::Size::inc(const PrimType primType, const size_t count) {
-            auto primIt = MapUtils::findOrInsert(m_sizes, primType, 0);
-            primIt->second += count;
+            m_sizes[primType] += count; // unknown map values are value constructed, which initializes to 0 for size_t
             m_indexCount += count;
         }
 

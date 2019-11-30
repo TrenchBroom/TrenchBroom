@@ -47,7 +47,7 @@ namespace TrenchBroom {
             }
         }
 
-        StringSet AttributableNodeVariableStore::doGetNames() const {
+        StringList AttributableNodeVariableStore::doGetNames() const {
             return m_node->attributeNames();
         }
 

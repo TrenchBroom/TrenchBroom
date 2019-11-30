@@ -35,7 +35,7 @@ namespace TrenchBroom {
         m_tasks(tasks) {}
 
         CompilationProfile::~CompilationProfile() {
-            VectorUtils::clearAndDelete(m_tasks);
+            VecUtils::clearAndDelete(m_tasks);
         }
 
         CompilationProfile* CompilationProfile::clone() const {

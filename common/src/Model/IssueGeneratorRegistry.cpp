@@ -55,7 +55,7 @@ namespace TrenchBroom {
         }
 
         void IssueGeneratorRegistry::clearGenerators() {
-            VectorUtils::clearAndDelete(m_generators);
+            VecUtils::clearAndDelete(m_generators);
         }
     }
 }

@@ -202,7 +202,7 @@ namespace TrenchBroom {
                 }
                 return definitions;
             } catch (...) {
-                VectorUtils::clearAndDelete(definitions);
+                VecUtils::clearAndDelete(definitions);
                 throw;
             }
         }

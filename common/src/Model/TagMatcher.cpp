@@ -22,6 +22,7 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
+#include "Base/VecUtils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
@@ -93,7 +94,7 @@ namespace TrenchBroom {
             } else if (matchingTextures.size() == 1) {
                 texture = matchingTextures.front();
             } else {
-                const auto options = VectorUtils::map(matchingTextures, [](const auto* current) { return current->name(); });
+                const auto options = VecUtils::transform(matchingTextures, [](const auto* current) { return current->name(); });
                 const auto index = callback.selectOption(options);
                 if (index >= matchingTextures.size()) {
                     return;
@@ -292,7 +293,7 @@ namespace TrenchBroom {
             } else if (matchingDefinitions.size() == 1) {
                 definition = matchingDefinitions.front();
             } else {
-                const auto options = VectorUtils::map(matchingDefinitions, [](const auto* current) { return current->name(); });
+                const auto options = VecUtils::transform(matchingDefinitions, [](const auto* current) { return current->name(); });
                 const auto index = callback.selectOption(options);
                 if (index >= matchingDefinitions.size()) {
                     return;

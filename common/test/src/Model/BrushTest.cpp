@@ -1045,8 +1045,8 @@ namespace TrenchBroom {
             const auto M = vm::shear_bbox_matrix(brush->logicalBounds(), vm::vec3::pos_z(), delta);
 
             for (auto* oldFace : brush->faces()) {
-                const auto oldTexCoords = VectorUtils::map(oldFace->vertexPositions(), [&](auto x){ return oldFace->textureCoords(x); });
-                const auto shearedVertexPositions = VectorUtils::map(oldFace->vertexPositions(), [&](auto x){ return M * x; });
+                const auto oldTexCoords = VecUtils::transform(oldFace->vertexPositions(), [&](auto x){ return oldFace->textureCoords(x); });
+                const auto shearedVertexPositions = VecUtils::transform(oldFace->vertexPositions(), [&](auto x){ return M * x; });
                 const auto shearedPolygon = vm::polygon3(shearedVertexPositions);
 
                 const auto normal = oldFace->boundary().normal;
@@ -1055,7 +1055,7 @@ namespace TrenchBroom {
                 {
                     const BrushFace *newFace = changed->findFace(shearedPolygon);
                     ASSERT_NE(nullptr, newFace);
-                    const auto newTexCoords = VectorUtils::map(shearedVertexPositions,
+                    const auto newTexCoords = VecUtils::transform(shearedVertexPositions,
                                                                [&](auto x) { return newFace->textureCoords(x); });
                     if (normal == vm::vec3::pos_z()
                         || normal == vm::vec3::pos_y()
@@ -1072,7 +1072,7 @@ namespace TrenchBroom {
                 {
                     const BrushFace *newFaceWithUVLock = changedWithUVLock->findFace(shearedPolygon);
                     ASSERT_NE(nullptr, newFaceWithUVLock);
-                    const auto newTexCoordsWithUVLock = VectorUtils::map(shearedVertexPositions, [&](auto x) {
+                    const auto newTexCoordsWithUVLock = VecUtils::transform(shearedVertexPositions, [&](auto x) {
                         return newFaceWithUVLock->textureCoords(x);
                     });
                     if (normal == vm::vec3d::pos_z() || (GetParam() == MapFormat::Valve)) {
@@ -1189,8 +1189,11 @@ namespace TrenchBroom {
 
             Brush* brushClone = brush->clone(worldBounds);
 
-            const std::vector<vm::vec3> movedVertexPositions = VectorUtils::setCreate(brushClone->moveVertices(worldBounds, vertexPositions, delta));
-            const std::vector<vm::vec3> expectedVertexPositions = VectorUtils::setCreate(vertexPositions + delta);
+            auto movedVertexPositions = brushClone->moveVertices(worldBounds, vertexPositions, delta);
+            VecUtils::sortAndMakeUnique(movedVertexPositions);
+
+            auto expectedVertexPositions = vertexPositions + delta;
+            VecUtils::sortAndMakeUnique(expectedVertexPositions);
 
             ASSERT_EQ(expectedVertexPositions, movedVertexPositions);
 
@@ -2724,7 +2727,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, result.size());
 
             Brush* subtraction = result.at(0);
-            ASSERT_EQ(SetUtils::makeSet(brush1->vertexPositions()), SetUtils::makeSet(subtraction->vertexPositions()));
+            ASSERT_COLLECTIONS_EQUIVALENT(brush1->vertexPositions(), subtraction->vertexPositions());
 
             ColUtils::deleteAll(result);
         }
@@ -3169,7 +3172,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             std::vector<Node*> nodes = reader.read(worldBounds, status); // assertion failure
-            VectorUtils::clearAndDelete(nodes);
+            VecUtils::clearAndDelete(nodes);
         }
 
 
@@ -3220,7 +3223,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             std::vector<Node*> nodes = reader.read(worldBounds, status); // assertion failure
-            VectorUtils::clearAndDelete(nodes);
+            VecUtils::clearAndDelete(nodes);
         }
 
         TEST(BrushTest, invalidBrush1801) {
@@ -3247,7 +3250,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             std::vector<Node*> nodes = reader.read(worldBounds, status); // assertion failure
-            VectorUtils::clearAndDelete(nodes);
+            VecUtils::clearAndDelete(nodes);
         }
 
         TEST(BrushTest, snapToGrid64) {
@@ -3606,7 +3609,7 @@ namespace TrenchBroom {
             const vm::bbox3 expandedBBox(vm::vec3(-70, -70, -70), vm::vec3(70, 70, 70));
 
             EXPECT_EQ(expandedBBox, brush1->logicalBounds());
-            EXPECT_EQ(SetUtils::makeSet(expandedBBox.vertices()), SetUtils::makeSet(brush1->vertexPositions()));
+            EXPECT_COLLECTIONS_EQUIVALENT(expandedBBox.vertices(), brush1->vertexPositions());
         }
 
         TEST(BrushTest, contract) {
@@ -3621,7 +3624,7 @@ namespace TrenchBroom {
             const vm::bbox3 expandedBBox(vm::vec3(-32, -32, -32), vm::vec3(32, 32, 32));
 
             EXPECT_EQ(expandedBBox, brush1->logicalBounds());
-            EXPECT_EQ(SetUtils::makeSet(expandedBBox.vertices()), SetUtils::makeSet(brush1->vertexPositions()));
+            EXPECT_COLLECTIONS_EQUIVALENT(expandedBBox.vertices(), brush1->vertexPositions());
         }
 
         TEST(BrushTest, contractToZero) {

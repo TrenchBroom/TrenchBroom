@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "Macros.h"
+#include "Base/VecUtils.h"
 #include "Model/AttributableNode.h"
 
 #include <vector>
@@ -116,10 +117,9 @@ namespace TrenchBroom {
             if (nameResult.empty() || valueResult.empty())
                 return {};
 
-            std::vector<AttributableNode*> result;
-            SetUtils::intersection(nameResult, valueResult, result);
+            std::vector<AttributableNode*> result = VecUtils::setIntersection(nameResult, valueResult);
 
-            std::vector<AttributableNode*>::iterator it = std::begin(result);
+            auto it = std::begin(result);
             while (it != std::end(result)) {
                 const AttributableNode* node = *it;
                 if (!nameQuery.execute(node, value))

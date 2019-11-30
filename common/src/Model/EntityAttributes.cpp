@@ -261,10 +261,10 @@ namespace TrenchBroom {
             return result;
         }
 
-        const std::set<AttributeName> EntityAttributes::names() const {
-            std::set<AttributeName> result;
+        const std::vector<AttributeName> EntityAttributes::names() const {
+            std::vector<AttributeName> result;
             for (const EntityAttribute& attribute : m_attributes) {
-                result.insert(attribute.name());
+                result.push_back(attribute.name());
             }
             return result;
         }

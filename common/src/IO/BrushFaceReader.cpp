@@ -19,6 +19,7 @@
 
 #include "BrushFaceReader.h"
 
+#include "Base/VecUtils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
@@ -37,7 +38,7 @@ namespace TrenchBroom {
                 readBrushFaces(m_factory.format(), worldBounds, status);
                 return m_brushFaces;
             } catch (const ParserException&) {
-                VectorUtils::clearAndDelete(m_brushFaces);
+                VecUtils::clearAndDelete(m_brushFaces);
                 throw;
             }
         }

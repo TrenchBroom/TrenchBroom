@@ -24,6 +24,7 @@
 #include "PreferenceManager.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/TextureManager.h"
+#include "Base/MapUtils.h"
 #include "Base/VecUtils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -414,7 +415,7 @@ namespace TrenchBroom {
             void doVisit(Model::Layer*) override  {}
             void doVisit(Model::Group* group) override {
                 assert(m_newNames.count(group) == 1);
-                const String& newName = MapUtils::find(m_newNames, group, group->name());
+                const String& newName = MapUtils::findOrDefault(m_newNames, group, group->name());
                 group->setName(newName);
             }
             void doVisit(Model::Entity*) override {}
@@ -631,7 +632,7 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::restoreAttributes(const Model::EntityAttributeSnapshot::Map& attributes) {
-            const std::vector<Model::AttributableNode*> attributableNodes = MapUtils::keyList(attributes);
+            const std::vector<Model::AttributableNode*> attributableNodes = MapUtils::keys(attributes);
             const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
             const std::vector<Model::Node*> parents = collectParents(std::begin(nodes), std::end(nodes));
             const std::vector<Model::Node*> descendants = collectDescendants(nodes);

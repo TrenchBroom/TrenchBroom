@@ -26,6 +26,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Macros.h"
+#include "Base/MapUtils.h"
 #include "Base/VecUtils.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/Brush.h"
@@ -608,7 +609,7 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> result;
             if (!m_frontBrushes.empty()) {
                 if (keepFrontBrushes()) {
-                    MapUtils::merge(result, m_frontBrushes);
+                    result = MapUtils::mergeVectorMaps(result, m_frontBrushes);
                     m_frontBrushes.clear();
                 } else {
                     MapUtils::clearAndDelete(m_frontBrushes);
@@ -617,7 +618,7 @@ namespace TrenchBroom {
 
             if (!m_backBrushes.empty()) {
                 if (keepBackBrushes()) {
-                    MapUtils::merge(result, m_backBrushes);
+                    result = MapUtils::mergeVectorMaps(result, m_backBrushes);
                     m_backBrushes.clear();
                 } else {
                     MapUtils::clearAndDelete(m_backBrushes);

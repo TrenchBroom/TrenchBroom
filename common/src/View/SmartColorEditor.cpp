@@ -20,7 +20,7 @@
 #include "SmartColorEditor.h"
 
 #include "Assets/ColorRange.h"
-#include "CollectionUtils.h"
+#include "Base/vector_set.h"
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityColor.h"
@@ -36,8 +36,6 @@
 #include <QHBoxLayout>
 #include <QRadioButton>
 #include <QScrollArea>
-
-#include <iomanip>
 
 namespace TrenchBroom {
     namespace View {
@@ -149,12 +147,12 @@ namespace TrenchBroom {
         class SmartColorEditor::CollectColorsVisitor : public Model::ConstNodeVisitor {
         private:
             const Model::AttributeName& m_name;
-            std::vector<QColor> m_colors;
+            vector_set<QColor, ColorCmp> m_colors;
         public:
             explicit CollectColorsVisitor(const Model::AttributeName& name) :
             m_name(name) {}
 
-            const std::vector<QColor>& colors() const { return m_colors; }
+            const std::vector<QColor>& colors() const { return m_colors.get_data(); }
         private:
             void doVisit(const Model::World* world) override   { visitAttributableNode(world); }
             void doVisit(const Model::Layer*) override         {}
@@ -170,7 +168,7 @@ namespace TrenchBroom {
             }
 
             void addColor(const Color& color) {
-                VectorUtils::setInsert(m_colors, toQColor(color), ColorCmp());
+                m_colors.insert(toQColor(color));
             }
         };
 

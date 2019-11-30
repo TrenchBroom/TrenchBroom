@@ -28,6 +28,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "Base/ColUtils.h"
+#include "Base/MapUtils.h"
 #include "Base/VecUtils.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/SimpleParserStatus.h"
@@ -798,7 +799,7 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove;
             for (const auto& entry : nodesToAdd) {
                 const std::vector<Model::Node*>& children = entry.second;
-                MapUtils::merge(nodesToRemove, Model::parentChildrenMap(children));
+                MapUtils::mergeVectorMaps(nodesToRemove, Model::parentChildrenMap(children));
             }
 
             Transaction transaction(this, "Reparent Objects");

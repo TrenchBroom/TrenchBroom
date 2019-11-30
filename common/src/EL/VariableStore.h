@@ -20,7 +20,6 @@
 #ifndef VariableStore_h
 #define VariableStore_h
 
-#include "StringSet.h"
 #include "StringType.h"
 #include "EL/Value.h"
 
@@ -41,14 +40,14 @@ namespace TrenchBroom {
             VariableStore* clone() const;
             size_t size() const;
             Value value(const String& name) const;
-            const StringSet names() const;
+            const StringList names() const;
             void declare(const String& name, const Value& value);
             void assign(const String& name, const Value& value);
         private:
             virtual VariableStore* doClone() const = 0;
             virtual size_t doGetSize() const = 0;
             virtual Value doGetValue(const String& name) const = 0;
-            virtual StringSet doGetNames() const = 0;
+            virtual StringList doGetNames() const = 0;
             virtual void doDeclare(const String& name, const Value& value) = 0;
             virtual void doAssign(const String& name, const Value& value) = 0;
         };
@@ -64,7 +63,7 @@ namespace TrenchBroom {
             VariableStore* doClone() const override;
             size_t doGetSize() const override;
             Value doGetValue(const String& name) const override;
-            StringSet doGetNames() const override;
+            StringList doGetNames() const override;
             void doDeclare(const String& name, const Value& value) override;
             void doAssign(const String& name, const Value& value) override;
         };
@@ -76,7 +75,7 @@ namespace TrenchBroom {
             VariableStore* doClone() const override;
             size_t doGetSize() const override;
             Value doGetValue(const String& name) const override;
-            StringSet doGetNames() const override;
+            StringList doGetNames() const override;
             void doDeclare(const String& name, const Value& value) override;
             void doAssign(const String& name, const Value& value) override;
         };

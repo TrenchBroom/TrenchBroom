@@ -19,7 +19,7 @@
 
 #include "EntityDefinitionManager.h"
 
-#include "CollectionUtils.h"
+#include "Base/VecUtils.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
@@ -50,7 +50,7 @@ namespace TrenchBroom {
         void EntityDefinitionManager::clear() {
             clearCache();
             clearGroups();
-            VectorUtils::clearAndDelete(m_definitions);
+            VecUtils::clearAndDelete(m_definitions);
         }
 
         EntityDefinition* EntityDefinitionManager::definition(const Model::AttributableNode* attributable) const {

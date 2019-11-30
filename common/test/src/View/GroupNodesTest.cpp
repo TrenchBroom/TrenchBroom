@@ -142,10 +142,11 @@ namespace TrenchBroom {
             ASSERT_EQ(group, light->parent());
         }
 
-        static bool hasEmptyName(const std::set<Model::AttributeName>& names) {
+        static bool hasEmptyName(const std::vector<Model::AttributeName>& names) {
             for (const Model::AttributeName& name : names) {
-                if (name.empty())
+                if (name.empty()) {
                     return true;
+                }
             }
             return false;
         }

@@ -61,8 +61,7 @@ namespace TrenchBroom {
         using QueryResult = std::set<V>;
 
         static void insertValue(ValueContainer& values, const V& value) {
-            typename ValueContainer::iterator it = MapUtils::findOrInsert(values, value, 0u);
-            ++it->second;
+            values[value]++; // unknown map values are value constructed, which initializes to 0 for size_t
         }
 
         static void removeValue(ValueContainer& values, const V& value) {

@@ -20,6 +20,7 @@
 #include "MergeNodesIntoWorldVisitor.h"
 
 #include "CollectionUtils.h"
+#include "Base/VecUtils.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
@@ -90,7 +91,7 @@ namespace TrenchBroom {
         }
 
         void MergeNodesIntoWorldVisitor::deleteNodes() const {
-            VectorUtils::clearAndDelete(m_nodesToDelete);
+            VecUtils::clearAndDelete(m_nodesToDelete);
         }
 
         void MergeNodesIntoWorldVisitor::detachNodes() const {

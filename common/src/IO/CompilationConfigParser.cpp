@@ -19,7 +19,7 @@
 
 #include "CompilationConfigParser.h"
 
-#include "CollectionUtils.h"
+#include "Base/VecUtils.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
 #include "EL/Value.h"
@@ -56,7 +56,7 @@ namespace TrenchBroom {
                 }
                 return result;
             } catch (...) {
-                VectorUtils::clearAndDelete(result);
+                VecUtils::clearAndDelete(result);
                 throw;
             }
         }
@@ -80,7 +80,7 @@ namespace TrenchBroom {
                 }
                 return result;
             } catch (...) {
-                VectorUtils::clearAndDelete(result);
+                VecUtils::clearAndDelete(result);
                 throw;
             }
         }

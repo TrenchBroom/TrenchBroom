@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
+#include "TestUtils.h"
 #include "Base/VecUtils.h"
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"
@@ -194,7 +194,7 @@ namespace TrenchBroom {
             index.addAttributableNode(entity1);
             index.addAttributableNode(entity2);
 
-            ASSERT_EQ((StringSet{"test", "other"}), SetUtils::makeSet(index.allNames()));
+            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<String>{ "test", "other" }, index.allNames());
         }
 
         TEST(EntityAttributeIndexTest, allValuesForNames) {
@@ -210,7 +210,7 @@ namespace TrenchBroom {
             index.addAttributableNode(entity1);
             index.addAttributableNode(entity2);
 
-            ASSERT_EQ((StringSet{"somevalue", "somevalue2"}), SetUtils::makeSet(index.allValuesForNames(AttributableNodeIndexQuery::exact("test"))));
+            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<String>{ "somevalue", "somevalue2" }, index.allValuesForNames(AttributableNodeIndexQuery::exact("test")));
         }
     }
 }

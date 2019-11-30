@@ -25,6 +25,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinitionTestUtils.h"
+#include "Base/VecUtils.h"
 #include "IO/DiskIO.h"
 #include "IO/EntParser.h"
 #include "IO/FileMatcher.h"
@@ -65,7 +66,7 @@ namespace TrenchBroom {
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
-            VectorUtils::clearAndDelete(definitions);
+            VecUtils::clearAndDelete(definitions);
         }
 
         TEST(EntParserTest, parseWhitespaceFile) {
@@ -76,7 +77,7 @@ namespace TrenchBroom {
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
-            VectorUtils::clearAndDelete(definitions);
+            VecUtils::clearAndDelete(definitions);
         }
 
         TEST(EntParserTest, parseMalformedXML) {
@@ -176,7 +177,7 @@ Updated: 2011-03-02
             ASSERT_EQ(64.0f, scaleDefinition->defaultValue()) << "Expected correct default value for '_scale' attribute definition";
             ASSERT_EQ("Scaling factor (default 64), good values are between 50 and 300, depending on the map.", scaleDefinition->longDescription()) << "Expected attribute definition's long description to match element text";
 
-            VectorUtils::clearAndDelete(definitions);
+            VecUtils::clearAndDelete(definitions);
         }
 
         TEST(EntParserTest, parseSimpleGroupEntityDefinition) {
@@ -235,7 +236,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             assertAttributeDefinition("_celshader", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
             assertAttributeDefinition("spawnflags", Assets::AttributeDefinition::Type_FlagsAttribute, brushDefinition);
 
-            VectorUtils::clearAndDelete(definitions);
+            VecUtils::clearAndDelete(definitions);
         }
 
         TEST(EntParserTest, parseListAttributeDefinition) {
@@ -302,7 +303,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             ASSERT_EQ("2", options[2].value());
             ASSERT_EQ("green", options[2].description());
 
-            VectorUtils::clearAndDelete(definitions);
+            VecUtils::clearAndDelete(definitions);
         }
 
         TEST(EntParserTest, parseInvalidRealAttributeDefinition) {
@@ -333,7 +334,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
 
             ASSERT_EQ("asdf", scaleDefinition->defaultValue()) << "Expected correct default value for '_scale' attribute definition";
 
-            VectorUtils::clearAndDelete(definitions);
+            VecUtils::clearAndDelete(definitions);
         }
 
         TEST(EntParserTest, parseLegacyModelDefinition) {
@@ -357,7 +358,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             const auto& modelDefinition = pointDefinition->modelDefinition();
             ASSERT_EQ(Path("models/powerups/ammo/bfgam.md3"), modelDefinition.defaultModelSpecification().path);
 
-            VectorUtils::clearAndDelete(definitions);
+            VecUtils::clearAndDelete(definitions);
         }
 
         TEST(EntParserTest, parseELStaticModelDefinition) {
@@ -381,7 +382,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             const auto& modelDefinition = pointDefinition->modelDefinition();
             ASSERT_EQ(Path("models/powerups/ammo/bfgam2.md3"), modelDefinition.defaultModelSpecification().path);
 
-            VectorUtils::clearAndDelete(definitions);
+            VecUtils::clearAndDelete(definitions);
         }
 
         void assertAttributeDefinition(const String& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition) {

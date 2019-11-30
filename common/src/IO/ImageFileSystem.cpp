@@ -63,7 +63,7 @@ namespace TrenchBroom {
             const auto filename = path.lastComponent();
             if (path.length() == 1) {
                 // silently overwrite duplicates, the latest entries win
-                MapUtils::insertOrReplace(m_files, filename, std::move(file));
+                m_files[filename] = std::move(file);
             } else {
                 auto& dir = findOrCreateDirectory(path.deleteLastComponent());
                 dir.addFile(filename, std::move(file));

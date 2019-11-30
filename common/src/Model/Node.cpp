@@ -222,7 +222,7 @@ namespace TrenchBroom {
         }
 
         void Node::clearChildren() {
-            VectorUtils::clearAndDelete(m_children);
+            VecUtils::clearAndDelete(m_children);
         }
 
         void Node::childWillBeAdded(Node* node) {
@@ -621,7 +621,7 @@ namespace TrenchBroom {
         }
 
         void Node::clearIssues() const {
-            VectorUtils::clearAndDelete(m_issues);
+            VecUtils::clearAndDelete(m_issues);
         }
 
         void Node::findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<AttributableNode*>& result) const {

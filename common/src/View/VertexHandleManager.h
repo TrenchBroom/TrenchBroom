@@ -306,7 +306,7 @@ namespace TrenchBroom {
              * @param handle the handle to add
              */
             void add(const Handle& handle) {
-                MapUtils::findOrInsert(m_handles, handle, HandleInfo())->second.inc();
+                m_handles[handle].inc(); // unknown value gets value constructed, which for HandleInfo means its default constructor is called
             }
 
             /**

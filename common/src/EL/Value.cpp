@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "Base/ColUtils.h"
+#include "Base/MapUtils.h"
 #include "Base/VecUtils.h"
 #include "EL/ELExceptions.h"
 #include "StringStream.h"
@@ -750,8 +751,8 @@ namespace TrenchBroom {
             return it != std::end(map);
         }
 
-        StringSet Value::keys() const {
-            return MapUtils::keySet(mapValue());
+        StringList Value::keys() const {
+            return MapUtils::keys(mapValue());
         }
 
         Value Value::operator[](const Value& indexValue) const {
@@ -1045,7 +1046,7 @@ namespace TrenchBroom {
                 case ValueType::Map:
                     switch (rhs.type()) {
                         case ValueType::Map:
-                            return Value(MapUtils::concatenate(lhs.mapValue(), rhs.mapValue()));
+                            return Value(MapUtils::mapUnion(lhs.mapValue(), rhs.mapValue()));
                         case ValueType::Boolean:
                         case ValueType::Number:
                         case ValueType::String:
@@ -1313,7 +1314,7 @@ namespace TrenchBroom {
                 case ValueType::Map:
                     switch (rhs.type()) {
                         case ValueType::Map:
-                            return MapUtils::compare(lhs.mapValue(), rhs.mapValue());
+                            return MapUtils::lexicographicalCompare(lhs.mapValue(), rhs.mapValue());
                         case ValueType::Null:
                         case ValueType::Undefined:
                             return 1;

@@ -24,19 +24,6 @@
 // NOTE: No other includes allowed
 
 namespace VectorUtils {
-    template <typename T>
-    void clearToZero(std::vector<T>& vec) {
-        vec.clear();
-        vec.shrink_to_fit();
-    }
-
-    template <typename T>
-    void clearAndDelete(std::vector<T*>& vec) {
-        for (T* ptr : vec) {
-            delete ptr;
-        }
-        vec.clear();
-    }
 }
 
 #endif

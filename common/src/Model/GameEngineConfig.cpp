@@ -37,7 +37,7 @@ namespace TrenchBroom {
         }
 
         GameEngineConfig::~GameEngineConfig() {
-            VectorUtils::clearAndDelete(m_profiles);
+            VecUtils::clearAndDelete(m_profiles);
         }
 
         GameEngineConfig& GameEngineConfig::operator=(GameEngineConfig other) {

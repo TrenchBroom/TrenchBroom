@@ -23,6 +23,7 @@
 #include <gtest/gtest.h>
 
 #include "StringType.h"
+#include "Base/vector_set.h"
 #include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
@@ -43,6 +44,16 @@ namespace TrenchBroom {
         void assertTexture(const String& expected, const Brush* brush, const std::vector<vm::vec3d>& vertices);
         void assertTexture(const String& expected, const Brush* brush, const vm::polygon3d& vertices);
     }
+}
+
+template <typename L, typename R>
+void ASSERT_COLLECTIONS_EQUIVALENT(const L& lhs, const R& rhs) {
+    ASSERT_EQ(vector_set(std::begin(lhs), std::end(lhs)), vector_set(std::begin(rhs), std::end(rhs)));
+}
+
+template <typename L, typename R>
+void EXPECT_COLLECTIONS_EQUIVALENT(const L& lhs, const R& rhs) {
+    EXPECT_EQ(vector_set(std::begin(lhs), std::end(lhs)), vector_set(std::begin(rhs), std::end(rhs)));
 }
 
 template <typename T, size_t S>

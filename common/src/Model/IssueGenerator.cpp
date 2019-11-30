@@ -30,7 +30,7 @@
 namespace TrenchBroom {
     namespace Model {
         IssueGenerator::~IssueGenerator() {
-            VectorUtils::clearAndDelete(m_quickFixes);
+            VecUtils::clearAndDelete(m_quickFixes);
         }
 
         IssueType IssueGenerator::type() const {

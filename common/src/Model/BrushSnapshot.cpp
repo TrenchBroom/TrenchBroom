@@ -20,6 +20,7 @@
 #include "BrushSnapshot.h"
 
 #include "CollectionUtils.h"
+#include "Base/VecUtils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 
@@ -33,7 +34,7 @@ namespace TrenchBroom {
         }
 
         BrushSnapshot::~BrushSnapshot() {
-            VectorUtils::clearAndDelete(m_faces);
+            VecUtils::clearAndDelete(m_faces);
         }
 
         void BrushSnapshot::takeSnapshot(Brush* brush) {

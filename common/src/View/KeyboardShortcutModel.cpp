@@ -22,6 +22,7 @@
 #include "CollectionUtils.h"
 #include "Preference.h"
 #include "PreferenceManager.h"
+#include "Base/vector_set.h"
 #include "View/ActionContext.h"
 #include "View/Actions.h"
 #include "View/MapDocument.h"
@@ -133,7 +134,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            return VectorUtils::setContains(m_conflicts, index.row());
+            return adapt_vector_set(m_conflicts).count(index.row()) > 0u;
         }
 
         void KeyboardShortcutModel::initializeActions() {
@@ -213,6 +214,7 @@ namespace TrenchBroom {
             std::set<ConflictEntry, decltype(cmp)> entrySet(cmp);
 
             m_conflicts.clear();
+            auto conflictSet = adapt_vector_set(m_conflicts);
 
             for (int row = 0; row < totalActionCount(); ++row) {
                 const auto& actionInfo = this->actionInfo(row);
@@ -222,8 +224,8 @@ namespace TrenchBroom {
                     if (!noConflict) {
                         // found a duplicate, so there are conflicts
                         const auto otherRow = it->second;
-                        VectorUtils::setInsert(m_conflicts, row);
-                        VectorUtils::setInsert(m_conflicts, otherRow);
+                        conflictSet.insert(row);
+                        conflictSet.insert(otherRow);
 
                         const auto index = createIndex(row, 0);
                         const auto otherIndex = createIndex(otherRow, 0);

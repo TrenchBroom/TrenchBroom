@@ -22,9 +22,12 @@
 
 #include "ColUtils.h"
 
+// Note: all except <cassert> are included by <vector> anyway, so there's no point in splitting this up further
 #include <cassert>
-#include <algorithm>
-#include <iterator>
+#include <algorithm> // for std::sort, std::unique, std::find, std::find_if, std::remove, std::remove_if
+#include <iterator> // std::back_inserter
+#include <functional> // for std::less
+#include <type_traits> // for std::less
 #include <vector>
 
 namespace VecUtils {
@@ -220,6 +223,93 @@ namespace VecUtils {
     void sortAndMakeUnique(std::vector<T,A>& v, const Compare& cmp = Compare()) {
         std::sort(std::begin(v), std::end(v), cmp);
         v.erase(std::unique(std::begin(v), std::end(v), ColUtils::Equivalence<T,Compare>(cmp)), std::end(v));
+    }
+
+    /**
+     * Applies the given lambda to each element of the given vector and returns a vector containing the resulting
+     * values, in order in which their original elements appeared in v.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam L the type of the lambda to apply
+     * @param v the vector
+     * @param lambda the lambda to apply
+     * @return a vector containing the transformed values
+     */
+    template <typename T, typename A, typename L>
+    auto transform(const std::vector<T,A>& v, L&& lambda) {
+        using ResultType = decltype(lambda(std::declval<T>()));
+
+        std::vector<ResultType> result;
+        result.reserve(v.size());
+        for (const auto& x : v) {
+            result.push_back(lambda(x));
+        }
+
+        return result;
+    }
+
+    template <typename S1, typename S2>
+    auto setDifference(const S1& s1, const S2& s2) {
+        using T1 = typename S1::value_type;
+        using T2 = typename S2::value_type;
+        using C1 = typename S1::value_compare;
+        using C2 = typename S2::value_compare;
+        static_assert(std::is_same<C1, C2>::value, "incompatible comparators");
+
+        using T = typename std::common_type<T1, T2>::type;
+        using C = C1;
+
+        std::vector<T> result;
+        result.reserve(s1.size());
+        std::set_difference(std::begin(s1), std::end(s1), std::begin(s2), std::end(s2), std::back_inserter(result), C());
+        return result;
+    }
+
+    template <typename S1, typename S2>
+    auto setUnion(const S1& s1, const S2& s2) {
+        using T1 = typename S1::value_type;
+        using T2 = typename S2::value_type;
+        using C1 = typename S1::value_compare;
+        using C2 = typename S2::value_compare;
+        static_assert(std::is_same<C1, C2>::value, "incompatible comparators");
+
+        using T = typename std::common_type<T1, T2>::type;
+        using C = C1;
+
+        std::vector<T> result;
+        result.reserve(s1.size() + s2.size());
+        std::set_union(std::begin(s1), std::end(s1), std::begin(s2), std::end(s2), std::back_inserter(result), C());
+        return result;
+    }
+
+    template <typename S1, typename S2>
+    auto setIntersection(const S1& s1, const S2& s2) {
+        using T1 = typename S1::value_type;
+        using T2 = typename S2::value_type;
+        using C1 = typename S1::value_compare;
+        using C2 = typename S2::value_compare;
+        static_assert(std::is_same<C1, C2>::value, "incompatible comparators");
+
+        using T = typename std::common_type<T1, T2>::type;
+        using C = C1;
+
+        std::vector<T> result;
+        result.reserve(s1.size() + s2.size());
+        std::set_intersection(std::begin(s1), std::end(s1), std::begin(s2), std::end(s2), std::back_inserter(result), C());
+        return result;
+    }
+
+    template <typename T>
+    void clearToZero(std::vector<T>& v) {
+        v.clear();
+        v.shrink_to_fit();
+    }
+
+    template <typename T>
+    void clearAndDelete(std::vector<T*>& v) {
+        ColUtils::deleteAll(v);
+        v.clear();
     }
 }
 

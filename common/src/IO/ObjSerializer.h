@@ -53,10 +53,13 @@ namespace TrenchBroom {
                 }
 
                 size_t index(const V& v) {
-                    typename Map::iterator indexIt = MapUtils::findOrInsert(m_map, v, m_list.size());
-                    const size_t index = indexIt->second;
-                    if (index == m_list.size())
+                    const auto [it, success] = m_map.try_emplace(v, m_list.size());
+                    unused(success);
+
+                    const size_t index = it->second;
+                    if (index == m_list.size()) {
                         m_list.push_back(v);
+                    }
                     return index;
                 }
 

@@ -24,6 +24,7 @@
 #include "Logger.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
+#include "Base/MapUtils.h"
 #include "Base/VecUtils.h"
 #include "IO/TextureLoader.h"
 #include "StringUtils.h"
@@ -90,7 +91,7 @@ namespace TrenchBroom {
             }
 
             updateTextures();
-            VecUtils::append(m_toRemove, MapUtils::valueList(collections));
+            VecUtils::append(m_toRemove, MapUtils::values(collections));
         }
 
         void TextureManager::setTextureCollections(const std::vector<TextureCollection*>& collections) {
@@ -120,8 +121,8 @@ namespace TrenchBroom {
         }
 
         void TextureManager::clear() {
-            VectorUtils::clearAndDelete(m_collections);
-            VectorUtils::clearAndDelete(m_toRemove);
+            VecUtils::clearAndDelete(m_collections);
+            VecUtils::clearAndDelete(m_toRemove);
 
             m_toPrepare.clear();
             m_texturesByName.clear();
@@ -139,7 +140,7 @@ namespace TrenchBroom {
         void TextureManager::commitChanges() {
             resetTextureMode();
             prepare();
-            VectorUtils::clearAndDelete(m_toRemove);
+            VecUtils::clearAndDelete(m_toRemove);
         }
 
         Texture* TextureManager::texture(const String& name) const {
@@ -200,7 +201,7 @@ namespace TrenchBroom {
                 }
             }
 
-            m_textures = MapUtils::valueList(m_texturesByName);
+            m_textures = MapUtils::values(m_texturesByName);
         }
     }
 }

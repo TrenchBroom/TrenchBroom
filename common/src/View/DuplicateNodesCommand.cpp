@@ -20,6 +20,7 @@
 #include "DuplicateNodesCommand.h"
 
 #include "CollectionUtils.h"
+#include "Base/MapUtils.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
 #include "View/MapDocumentCommandFacade.h"
@@ -37,8 +38,9 @@ namespace TrenchBroom {
         m_firstExecution(true) {}
 
         DuplicateNodesCommand::~DuplicateNodesCommand() {
-            if (state() == CommandState_Default)
+            if (state() == CommandState_Default) {
                 MapUtils::clearAndDelete(m_addedNodes);
+            }
         }
 
         bool DuplicateNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
@@ -53,15 +55,17 @@ namespace TrenchBroom {
 
                     Model::Node* parent = original->parent();
                     if (cloneParent(parent)) {
-                        auto insertPos = MapUtils::findInsertPos(newParentMap, parent);
+                        // see if the parent was already cloned and if not, clone it and store it
                         Model::Node* newParent = nullptr;
-                        if (insertPos.first) {
-                            assert(insertPos.second != std::begin(newParentMap));
-                            newParent = std::prev(insertPos.second)->second;
-                        } else {
+                        auto hint = newParentMap.upper_bound(parent);
+                        if (hint == std::begin(newParentMap) || std::prev(hint)->first != parent) {
+                            // parent was not cloned yet
                             newParent = parent->clone(worldBounds);
-                            newParentMap.insert(insertPos.second, std::make_pair(parent, newParent));
+                            newParentMap.insert(hint, { parent, newParent });
                             m_addedNodes[document->currentParent()].push_back(newParent);
+                        } else {
+                            // parent was already cloned
+                            newParent = std::prev(hint)->second;
                         }
 
                         newParent->addChild(clone);

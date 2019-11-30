@@ -20,6 +20,7 @@
 #include "Snapshot.h"
 
 #include "CollectionUtils.h"
+#include "Base/VecUtils.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/Node.h"
 #include "Model/NodeSnapshot.h"
@@ -27,8 +28,8 @@
 namespace TrenchBroom {
     namespace Model {
         Snapshot::~Snapshot() {
-            VectorUtils::clearAndDelete(m_nodeSnapshots);
-            VectorUtils::clearAndDelete(m_brushFaceSnapshots);
+            VecUtils::clearAndDelete(m_nodeSnapshots);
+            VecUtils::clearAndDelete(m_brushFaceSnapshots);
         }
 
         void Snapshot::restoreNodes(const vm::bbox3& worldBounds) {

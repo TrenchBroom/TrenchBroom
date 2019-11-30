@@ -20,6 +20,7 @@
 #include "VariableStore.h"
 
 #include "CollectionUtils.h"
+#include "Base/MapUtils.h"
 #include "EL/ELExceptions.h"
 #include "EL/Value.h"
 
@@ -37,7 +38,7 @@ namespace TrenchBroom {
             return doGetValue(name);
         }
 
-        const StringSet VariableStore::names() const {
+        const StringList VariableStore::names() const {
             return doGetNames();
         }
 
@@ -70,12 +71,12 @@ namespace TrenchBroom {
             }
         }
 
-        StringSet VariableTable::doGetNames() const {
-            return MapUtils::keySet(m_variables);
+        StringList VariableTable::doGetNames() const {
+            return MapUtils::keys(m_variables);
         }
 
         void VariableTable::doDeclare(const String& name, const Value& value) {
-            if (!MapUtils::insertOrFail(m_variables, name, value)) {
+            if (!m_variables.try_emplace(name, value).second) {
                 throw EvaluationError("Variable '" + name + "' already declared");
             }
         }
@@ -103,8 +104,8 @@ namespace TrenchBroom {
             return Value::Null;
         }
 
-        StringSet NullVariableStore::doGetNames() const {
-            return StringSet();
+        StringList NullVariableStore::doGetNames() const {
+            return StringList();
         }
 
         void NullVariableStore::doDeclare(const String& /* name */, const Value& /* value */) {}

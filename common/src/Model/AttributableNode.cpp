@@ -132,7 +132,7 @@ namespace TrenchBroom {
                 attributeWasAddedNotifier(this, attribute.name());
         }
 
-        std::set<AttributeName> AttributableNode::attributeNames() const {
+        std::vector<AttributeName> AttributableNode::attributeNames() const {
             return m_attributes.names();
         }
 

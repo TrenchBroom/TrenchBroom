@@ -24,7 +24,9 @@
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
+#include "Base/MapUtils.h"
 #include "Base/VecUtils.h"
+#include "Base/vector_set.h"
 #include "IO/ResourceUtils.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
@@ -288,8 +290,8 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeModel::setRows(const std::map<String, AttributeRow>& newRowsKeyMap) {
-            const std::set<AttributeRow> newRowSet = MapUtils::valueSet(newRowsKeyMap);
-            const std::set<AttributeRow> oldRowSet(std::begin(m_rows), std::end(m_rows));
+            const auto newRowSet = vector_set(MapUtils::values(newRowsKeyMap));
+            const auto oldRowSet = vector_set(std::begin(m_rows), std::end(m_rows));
 
             if (newRowSet == oldRowSet) {
                 qDebug() << "EntityAttributeModel::setRows: no change";
@@ -302,8 +304,8 @@ namespace TrenchBroom {
             //
             // This situation happens when you rename a key and then press Tab to switch
             // to editing the value for the newly renamed key.
-            const std::set<AttributeRow> newMinusOld = SetUtils::minus(newRowSet, oldRowSet);
-            const std::set<AttributeRow> oldMinusNew = SetUtils::minus(oldRowSet, newRowSet);
+            const auto newMinusOld = VecUtils::setDifference(newRowSet, oldRowSet);
+            const auto oldMinusNew = VecUtils::setDifference(oldRowSet, newRowSet);
 
             if (newMinusOld.size() == 1 && oldMinusNew.size() == 1) {
                 const AttributeRow oldDeletion = *oldMinusNew.begin();
@@ -418,37 +420,36 @@ namespace TrenchBroom {
         StringList EntityAttributeModel::getAllAttributeNames() const {
             auto document = lock(m_document);
             const auto& index = document->world()->attributableNodeIndex();
-            auto result = index.allNames();
-
-            // remove duplicates and sort
-            VectorUtils::setCreate(result);
+            auto result = vector_set<String>(index.allNames());
 
             // also add keys from all loaded entity definitions
             for (const auto* entityDefinition : document->entityDefinitionManager().definitions()) {
                 for (const auto& attributeDefinition : entityDefinition->attributeDefinitions()) {
-                    VectorUtils::setInsert(result, attributeDefinition->name());
+                    result.insert(attributeDefinition->name());
                 }
             }
 
             // remove the empty string
-            VectorUtils::setRemove(result, "");
-            return result;
+            result.erase("");
+            return result.release_data();
         }
 
         StringList EntityAttributeModel::getAllValuesForAttributeNames(const StringList& names) const {
             auto document = lock(m_document);
             const auto& index = document->world()->attributableNodeIndex();
 
-            StringList result;
+            auto result = StringList();
+            auto resultSet = adapt_vector_set(result);
+
             for (const auto& name : names) {
                 const auto values = index.allValuesForNames(Model::AttributableNodeIndexQuery::numbered(name));
                 for (const auto& value : values) {
-                    VectorUtils::setInsert(result, value);
+                    resultSet.insert(value);
                 }
             }
 
             // remove the empty string
-            VectorUtils::setRemove(result, "");
+            resultSet.erase("");
             return result;
         }
 
@@ -457,14 +458,15 @@ namespace TrenchBroom {
 
             // start with currently used classnames
             auto result = getAllValuesForAttributeNames({ Model::AttributeNames::Classname });
+            auto resultSet = adapt_vector_set(result);
 
             // add keys from all loaded entity definitions
             for (const auto* entityDefinition : document->entityDefinitionManager().definitions()) {
-                VectorUtils::setInsert(result, entityDefinition->name());
+                resultSet.insert(entityDefinition->name());
             }
 
             // remove the empty string
-            VectorUtils::setRemove(result, "");
+            resultSet.erase("");
             return result;
         }
 

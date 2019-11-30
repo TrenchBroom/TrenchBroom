@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "Exceptions.h"
+#include "Base/VecUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/ModelDefinition.h"
@@ -174,7 +175,7 @@ namespace TrenchBroom {
                 }
                 return definitions;
             } catch (...) {
-                VectorUtils::clearAndDelete(definitions);
+                VecUtils::clearAndDelete(definitions);
                 throw;
             }
         }

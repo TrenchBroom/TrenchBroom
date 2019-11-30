@@ -135,7 +135,7 @@ namespace ColUtils {
      */
     template <typename I1, typename I2, typename Compare = std::less<typename std::common_type<typename I1::value_type, typename I2::value_type>::type>>
     int lexicographicalCompare(I1 first1, I1 last1, I2 first2, I2 last2, const Compare& cmp = Compare()) {
-        while (first1 < last1 && first2 < last2) {
+        while (first1 != last1 && first2 != last2) {
             if (cmp(*first1, *first2)) {
                 return -1;
             } else if (cmp(*first2, *first1)) {
@@ -146,10 +146,10 @@ namespace ColUtils {
             }
         }
 
-        if (first1 != last1 && first2 == last2) {
-            return -1;
-        } else if (first1 == last1 && first2 != last2) {
+        if (first1 != last1) {
             return 1;
+        } else if (first2 != last2) {
+            return -1;
         } else {
             return 0;
         }

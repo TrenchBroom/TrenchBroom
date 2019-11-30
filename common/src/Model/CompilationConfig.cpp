@@ -39,7 +39,7 @@ namespace TrenchBroom {
         }
 
         CompilationConfig::~CompilationConfig() {
-            VectorUtils::clearAndDelete(m_profiles);
+            VecUtils::clearAndDelete(m_profiles);
         }
 
         CompilationConfig& CompilationConfig::operator=(CompilationConfig other) {
