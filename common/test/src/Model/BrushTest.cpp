@@ -23,8 +23,8 @@
 
 #include "Polyhedron.h"
 #include "Assets/Texture.h"
-#include "Base/ColUtils.h"
-#include "Base/VecUtils.h"
+#include "base/col_utils.h"
+#include "base/vec_utils.h"
 #include "IO/DiskIO.h"
 #include "IO/NodeReader.h"
 #include "IO/Path.h"

@@ -23,8 +23,8 @@
 #include "Ensure.h"
 #include "Polyhedron.h"
 #include "Relation.h"
-#include "Base/VecUtils.h"
-#include "Base/vector_set.h"
+#include "base/vec_utils.h"
+#include "base/vector_set.h"
 
 #include <limits>
 #include <list>

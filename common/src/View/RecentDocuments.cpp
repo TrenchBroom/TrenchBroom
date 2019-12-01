@@ -20,7 +20,7 @@
 #include "RecentDocuments.h"
 
 #include "Notifier.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "View/QtUtils.h"

@@ -19,7 +19,7 @@
 
 #include "Model/Issue.h"
 
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"

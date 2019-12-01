@@ -23,7 +23,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TemporarilySetAny.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Renderer/Camera.h"
 
 #include <vecmath/forward.h>

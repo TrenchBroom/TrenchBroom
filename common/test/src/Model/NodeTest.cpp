@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"

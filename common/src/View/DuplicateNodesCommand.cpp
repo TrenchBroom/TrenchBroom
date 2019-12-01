@@ -19,7 +19,7 @@
 
 #include "DuplicateNodesCommand.h"
 
-#include "Base/MapUtils.h"
+#include "base/map_utils.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
 #include "View/MapDocumentCommandFacade.h"

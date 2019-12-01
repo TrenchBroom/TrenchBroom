@@ -19,7 +19,7 @@
 
 #include "CompilationVariables.h"
 
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "IO/SystemPaths.h"
 #include "Model/Game.h"
 #include "View/MapDocument.h"

@@ -20,7 +20,7 @@
 #include "Quake3ShaderFileSystem.h"
 
 #include "Assets/Quake3Shader.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/Quake3ShaderParser.h"

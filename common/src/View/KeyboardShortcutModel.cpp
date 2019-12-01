@@ -21,7 +21,7 @@
 
 #include "Preference.h"
 #include "PreferenceManager.h"
-#include "Base/vector_set.h"
+#include "base/vector_set.h"
 #include "View/ActionContext.h"
 #include "View/Actions.h"
 #include "View/MapDocument.h"

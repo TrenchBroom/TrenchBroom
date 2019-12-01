@@ -20,7 +20,7 @@
 #include "MissingModIssueGenerator.h"
 
 #include "SharedPointer.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Issue.h"

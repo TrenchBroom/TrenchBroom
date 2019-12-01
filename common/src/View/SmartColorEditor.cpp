@@ -20,7 +20,7 @@
 #include "SmartColorEditor.h"
 
 #include "Assets/ColorRange.h"
-#include "Base/vector_set.h"
+#include "base/vector_set.h"
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityColor.h"

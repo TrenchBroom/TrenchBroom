@@ -19,7 +19,7 @@
 
 #include "AttributableNode.h"
 
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Assets/AttributeDefinition.h"
 
 #include <set>

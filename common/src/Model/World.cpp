@@ -20,7 +20,7 @@
 #include "World.h"
 
 #include "AABBTree.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"

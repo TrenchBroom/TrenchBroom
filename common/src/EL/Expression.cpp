@@ -21,7 +21,7 @@
 
 #include "Ensure.h"
 #include "StringStream.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "EL/EvaluationContext.h"
 
 namespace TrenchBroom {

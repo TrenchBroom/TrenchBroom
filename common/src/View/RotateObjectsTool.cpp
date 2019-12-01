@@ -20,7 +20,7 @@
 #include "RotateObjectsTool.h"
 
 #include "SharedPointer.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/RotateObjectsHandle.h"

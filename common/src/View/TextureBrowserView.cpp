@@ -26,7 +26,7 @@
 #include "StringUtils.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Renderer/GL.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/Shaders.h"

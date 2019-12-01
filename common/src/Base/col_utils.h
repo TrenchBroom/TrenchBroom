@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_COLUTILS_H
-#define TRENCHBROOM_COLUTILS_H
+#ifndef TRENCHBROOM_COL_UTILS_H
+#define TRENCHBROOM_COL_UTILS_H
 
 #include <algorithm> // for std::remove
 #include <functional> // for std::less
@@ -219,4 +219,4 @@ namespace ColUtils {
     }
 }
 
-#endif //TRENCHBROOM_COLUTILS_H
+#endif //TRENCHBROOM_COL_UTILS_H

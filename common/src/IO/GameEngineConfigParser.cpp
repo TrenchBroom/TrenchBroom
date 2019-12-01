@@ -20,7 +20,7 @@
 #include "GameEngineConfigParser.h"
 
 #include "Macros.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
 #include "EL/Value.h"

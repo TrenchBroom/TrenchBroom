@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_VECUTILS_H
-#define TRENCHBROOM_VECUTILS_H
+#ifndef TRENCHBROOM_VEC_UTILS_H
+#define TRENCHBROOM_VEC_UTILS_H
 
-#include "ColUtils.h"
+#include "col_utils.h"
 
 // Note: all except <cassert> are included by <vector> anyway, so there's no point in splitting this up further
 #include <cassert>
@@ -313,4 +313,4 @@ namespace VecUtils {
     }
 }
 
-#endif //TRENCHBROOM_VECUTILS_H
+#endif //TRENCHBROOM_VEC_UTILS_H

@@ -22,7 +22,7 @@
 #include <gtest/gtest.h>
 
 #include "Assets/EntityDefinition.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Types.h"
 #include "IO/ELParser.h"

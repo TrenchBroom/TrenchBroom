@@ -23,7 +23,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinitionTestUtils.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "IO/DiskIO.h"
 #include "IO/FgdParser.h"
 #include "IO/File.h"

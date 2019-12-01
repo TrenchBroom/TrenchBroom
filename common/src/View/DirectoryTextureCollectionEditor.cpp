@@ -21,7 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "SharedPointer.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "IO/PathQt.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"

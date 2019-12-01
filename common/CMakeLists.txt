@@ -523,10 +523,10 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/Texture.h
         ${COMMON_SOURCE_DIR}/Assets/TextureCollection.h
         ${COMMON_SOURCE_DIR}/Assets/TextureManager.h
-        ${COMMON_SOURCE_DIR}/Base/ColUtils.h
-        ${COMMON_SOURCE_DIR}/Base/MapUtils.h
-        ${COMMON_SOURCE_DIR}/Base/VecUtils.h
-        ${COMMON_SOURCE_DIR}/Base/vector_set.h
+        ${COMMON_SOURCE_DIR}/base/col_utils.h
+        ${COMMON_SOURCE_DIR}/base/map_utils.h
+        ${COMMON_SOURCE_DIR}/base/vec_utils.h
+        ${COMMON_SOURCE_DIR}/base/vector_set.h
         ${COMMON_SOURCE_DIR}/EL/ELExceptions.h
         ${COMMON_SOURCE_DIR}/EL/EvaluationContext.h
         ${COMMON_SOURCE_DIR}/EL/Expression.h

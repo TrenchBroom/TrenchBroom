@@ -19,7 +19,7 @@
 
 #include "Snapshot.h"
 
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/Node.h"
 #include "Model/NodeSnapshot.h"

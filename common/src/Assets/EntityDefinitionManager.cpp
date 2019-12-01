@@ -19,7 +19,7 @@
 
 #include "EntityDefinitionManager.h"
 
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"

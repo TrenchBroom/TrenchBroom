@@ -23,8 +23,8 @@
 #include "Logger.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
-#include "Base/MapUtils.h"
-#include "Base/VecUtils.h"
+#include "base/map_utils.h"
+#include "base/vec_utils.h"
 #include "IO/TextureLoader.h"
 #include "StringUtils.h"
 

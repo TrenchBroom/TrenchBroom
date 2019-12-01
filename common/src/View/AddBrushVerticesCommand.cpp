@@ -20,7 +20,7 @@
 #include "AddBrushVerticesCommand.h"
 
 #include "StringUtils.h"
-#include "Base/vector_set.h"
+#include "base/vector_set.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 

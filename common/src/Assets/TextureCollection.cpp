@@ -20,7 +20,7 @@
 #include "TextureCollection.h"
 
 #include "Assets/Texture.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 
 #include <vector>
 

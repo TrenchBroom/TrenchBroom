@@ -19,7 +19,7 @@
 
 #include "NodeReader.h"
 
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Layer.h"

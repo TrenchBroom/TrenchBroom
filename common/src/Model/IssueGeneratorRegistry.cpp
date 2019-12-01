@@ -20,7 +20,7 @@
 #include "IssueGeneratorRegistry.h"
 
 #include "Ensure.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/IssueGenerator.h"
 
 #include <cassert>

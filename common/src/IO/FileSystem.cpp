@@ -20,7 +20,7 @@
 #include "FileSystem.h"
 
 #include "Exceptions.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "IO/FileMatcher.h"
 
 namespace TrenchBroom {

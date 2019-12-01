@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_MAPUTILS_H
-#define TRENCHBROOM_MAPUTILS_H
+#ifndef TRENCHBROOM_MAP_UTILS_H
+#define TRENCHBROOM_MAP_UTILS_H
 
-#include "ColUtils.h"
+#include "col_utils.h"
 
 #include <map>
 #include <vector>
@@ -123,4 +123,4 @@ namespace MapUtils {
     }
 }
 
-#endif //TRENCHBROOM_MAPUTILS_H
+#endif //TRENCHBROOM_MAP_UTILS_H

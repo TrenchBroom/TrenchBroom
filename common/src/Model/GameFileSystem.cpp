@@ -21,7 +21,7 @@
 
 #include "Exceptions.h"
 #include "Logger.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DkPakFileSystem.h"
 #include "IO/IdPakFileSystem.h"

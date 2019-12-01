@@ -20,7 +20,7 @@
 #include "DefParser.h"
 
 #include "Exceptions.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/ModelDefinition.h"

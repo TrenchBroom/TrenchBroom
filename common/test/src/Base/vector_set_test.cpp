@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "Base/vector_set.h"
+#include "base/vector_set.h"
 
 using vec = std::vector<int>;
 using vset = vector_set<int>;

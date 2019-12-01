@@ -19,7 +19,7 @@
 
 #include "GroupSnapshot.h"
 
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/Group.h"
 #include "Model/Model_Forward.h"
 #include "Model/Node.h"

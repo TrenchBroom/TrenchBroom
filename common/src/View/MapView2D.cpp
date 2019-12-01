@@ -22,7 +22,7 @@
 #include "Logger.h"
 #include "Macros.h"
 #include "Assets/EntityDefinitionManager.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"

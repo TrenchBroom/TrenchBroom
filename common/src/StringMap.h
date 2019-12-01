@@ -23,7 +23,7 @@
 #include "Exceptions.h"
 #include "StringType.h"
 #include "StringUtils.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 
 #include <cassert>
 #include <map>

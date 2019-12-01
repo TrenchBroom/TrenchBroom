@@ -23,7 +23,7 @@
 #include "PreferenceManager.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/Entity.h"
 #include "Model/Game.h"
 #include "View/BorderLine.h"

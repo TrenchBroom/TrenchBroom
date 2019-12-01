@@ -19,9 +19,9 @@
 
 #include "Value.h"
 
-#include "Base/ColUtils.h"
-#include "Base/MapUtils.h"
-#include "Base/VecUtils.h"
+#include "base/col_utils.h"
+#include "base/map_utils.h"
+#include "base/vec_utils.h"
 #include "EL/ELExceptions.h"
 #include "StringStream.h"
 #include "StringUtils.h"

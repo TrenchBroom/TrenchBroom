@@ -19,7 +19,7 @@
 
 #include "TextureFont.h"
 
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>

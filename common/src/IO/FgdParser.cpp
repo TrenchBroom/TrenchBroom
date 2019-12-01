@@ -21,7 +21,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "IO/File.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/ELParser.h"

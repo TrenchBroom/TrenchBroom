@@ -22,7 +22,7 @@
 #include "BenchmarkUtils.h"
 
 #include "Assets/Texture.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"

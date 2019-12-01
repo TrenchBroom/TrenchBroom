@@ -21,7 +21,7 @@
 
 #include "Ensure.h"
 #include "Macros.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
 #include "Model/LockState.h"

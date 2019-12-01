@@ -19,7 +19,7 @@
 
 #include "CompilationProfile.h"
 
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/CompilationTask.h"
 
 namespace TrenchBroom {

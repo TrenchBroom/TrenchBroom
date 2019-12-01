@@ -24,7 +24,7 @@
 #include "Preferences.h"
 #include "StepIterator.h"
 #include "StringUtils.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModel.h"

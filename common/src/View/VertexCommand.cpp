@@ -19,7 +19,7 @@
 
 #include "VertexCommand.h"
 
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"

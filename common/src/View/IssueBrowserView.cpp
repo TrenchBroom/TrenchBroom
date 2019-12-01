@@ -20,7 +20,7 @@
 #include "IssueBrowserView.h"
 
 #include "SharedPointer.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/CollectMatchingIssuesVisitor.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"

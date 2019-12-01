@@ -19,8 +19,8 @@
 
 #include "MapReader.h"
 
-#include "Base/MapUtils.h"
-#include "Base/VecUtils.h"
+#include "base/map_utils.h"
+#include "base/vec_utils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"

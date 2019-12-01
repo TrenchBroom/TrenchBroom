@@ -19,7 +19,7 @@
 
 #include "VariableStore.h"
 
-#include "Base/MapUtils.h"
+#include "base/map_utils.h"
 #include "EL/ELExceptions.h"
 #include "EL/Value.h"
 

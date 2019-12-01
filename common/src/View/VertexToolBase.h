@@ -26,7 +26,7 @@
 #include "Polyhedron3.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Hit.h"

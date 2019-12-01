@@ -20,7 +20,7 @@
 #include "AttributableNodeIndex.h"
 
 #include "Macros.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/AttributableNode.h"
 
 #include <vector>

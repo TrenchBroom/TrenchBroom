@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "TestUtils.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"
 #include "Model/Entity.h"

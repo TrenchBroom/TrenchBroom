@@ -23,7 +23,7 @@
 #include "Exceptions.h"
 #include "Macros.h"
 #include "StringType.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
 

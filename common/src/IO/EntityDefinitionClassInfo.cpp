@@ -20,7 +20,7 @@
 #include "EntityDefinitionClassInfo.h"
 
 #include "Assets/AttributeDefinition.h"
-#include "Base/MapUtils.h"
+#include "base/map_utils.h"
 #include "Model/EntityAttributes.h"
 
 namespace TrenchBroom {

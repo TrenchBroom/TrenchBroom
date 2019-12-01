@@ -24,7 +24,7 @@
 #include "Polyhedron.h"
 #include "TestUtils.h"
 #include "Assets/Texture.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
 #include "Model/Brush.h"

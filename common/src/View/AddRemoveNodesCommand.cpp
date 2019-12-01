@@ -20,7 +20,7 @@
 #include "AddRemoveNodesCommand.h"
 
 #include "Macros.h"
-#include "Base/MapUtils.h"
+#include "base/map_utils.h"
 #include "Model/Node.h"
 #include "View/MapDocumentCommandFacade.h"
 

@@ -20,7 +20,7 @@
 #include "MapViewActivationTracker.h"
 
 #include "Ensure.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "View/MapViewBase.h"
 
 #include <QDateTime>

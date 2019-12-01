@@ -19,7 +19,7 @@
 
 #include "ModelUtils.h"
 
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "Model/CollectNodesVisitor.h"
 
 #include <vector>

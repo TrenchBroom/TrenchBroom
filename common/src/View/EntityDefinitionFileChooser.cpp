@@ -21,7 +21,7 @@
 
 #include "SharedPointer.h"
 #include "Assets/EntityDefinitionFileSpec.h"
-#include "Base/VecUtils.h"
+#include "base/vec_utils.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "View/BorderLine.h"
