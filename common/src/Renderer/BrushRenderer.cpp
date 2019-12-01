@@ -119,7 +119,7 @@ namespace TrenchBroom {
         m_grayscale(false),
         m_tint(false),
         m_showOccludedEdges(false),
-        m_transparent(false),
+        m_forceTransparent(false),
         m_transparencyAlpha(1.0f),
         m_showHiddenBrushes(false) {
             clear();
@@ -236,11 +236,17 @@ namespace TrenchBroom {
         }
 
         void BrushRenderer::setForceTransparent(const bool transparent) {
-            m_transparent = transparent;
+            if (transparent != m_forceTransparent) {
+                m_forceTransparent = transparent;
+                invalidate();
+            }
         }
 
         void BrushRenderer::setTransparencyAlpha(const float transparencyAlpha) {
-            m_transparencyAlpha = transparencyAlpha;
+            if (transparencyAlpha != m_transparencyAlpha) {
+                m_transparencyAlpha = transparencyAlpha;
+                invalidate();
+            }
         }
 
         void BrushRenderer::setShowHiddenBrushes(const bool showHiddenBrushes) {
@@ -406,6 +412,25 @@ namespace TrenchBroom {
             }
         }
 
+        bool BrushRenderer::shouldDrawFaceInTransparentPass(const Model::Brush* brush, const Model::BrushFace* face) const {
+            if (m_transparencyAlpha >= 1.0f) {
+                // In this case, draw everything in the opaque pass
+                // see: https://github.com/kduske/TrenchBroom/issues/2848
+                return false;
+            }
+
+            if (m_forceTransparent) {
+                return true;
+            }
+            if (brush->hasAttribute(Model::TagAttributes::Transparency)) {
+                return true;
+            }
+            if (face->hasAttribute(Model::TagAttributes::Transparency)) {
+                return true;
+            }
+            return false;
+        }
+
         void BrushRenderer::validateBrush(const Model::Brush* brush) {
             assert(m_allBrushes.find(brush) != m_allBrushes.end());
             assert(m_invalidBrushes.find(brush) != m_invalidBrushes.end());
@@ -457,7 +482,6 @@ namespace TrenchBroom {
 
             auto& facesSortedByTex = brushCache.cachedFacesSortedByTexture();
             const size_t facesSortedByTexSize = facesSortedByTex.size();
-            const auto forceTransparent = m_transparent || brush->hasAttribute(Model::TagAttributes::Transparency);
 
             size_t nextI;
             for (size_t i = 0; i < facesSortedByTexSize; i = nextI) {
@@ -474,7 +498,7 @@ namespace TrenchBroom {
                     const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
                     if (cache.face->isMarked()) {
                         assert(cache.texture == texture);
-                        if (forceTransparent || cache.face->hasAttribute(Model::TagAttributes::Transparency)) {
+                        if (shouldDrawFaceInTransparentPass(brush, cache.face)) {
                             transparentIndexCount += triIndicesCountForPolygon(cache.vertexCount);
                         } else {
                             opaqueIndexCount += triIndicesCountForPolygon(cache.vertexCount);
@@ -497,7 +521,7 @@ namespace TrenchBroom {
                     GLuint *currentDest = insertDest;
                     for (size_t j = i; j < nextI; ++j) {
                         const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
-                        if (cache.face->isMarked() && (forceTransparent || cache.face->hasAttribute(Model::TagAttributes::Transparency))) {
+                        if (cache.face->isMarked() && shouldDrawFaceInTransparentPass(brush, cache.face)) {
                             addTriIndicesForPolygon(currentDest,
                                                     static_cast<GLuint>(brushVerticesStartIndex +
                                                                         cache.indexOfFirstVertexRelativeToBrush),
@@ -524,7 +548,7 @@ namespace TrenchBroom {
                     GLuint *currentDest = insertDest;
                     for (size_t j = i; j < nextI; ++j) {
                         const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
-                        if (cache.face->isMarked() && !(forceTransparent || cache.face->hasAttribute(Model::TagAttributes::Transparency))) {
+                        if (cache.face->isMarked() && !shouldDrawFaceInTransparentPass(brush, cache.face)) {
                             addTriIndicesForPolygon(currentDest,
                                                     static_cast<GLuint>(brushVerticesStartIndex +
                                                                         cache.indexOfFirstVertexRelativeToBrush),
