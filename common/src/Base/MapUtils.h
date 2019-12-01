@@ -116,8 +116,8 @@ namespace MapUtils {
 
     template <typename K, typename V>
     void clearAndDelete(std::map<K, std::vector<V*>>& m) {
-        for (auto& [key, value] : m) {
-            ColUtils::deleteAll(value);
+        for (auto& e : m) {
+            ColUtils::deleteAll(e.second);
         }
         m.clear();
     }

@@ -799,7 +799,7 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove;
             for (const auto& entry : nodesToAdd) {
                 const std::vector<Model::Node*>& children = entry.second;
-                MapUtils::mergeVectorMaps(nodesToRemove, Model::parentChildrenMap(children));
+                nodesToRemove = MapUtils::mergeVectorMaps(nodesToRemove, Model::parentChildrenMap(children));
             }
 
             Transaction transaction(this, "Reparent Objects");
