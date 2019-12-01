@@ -20,11 +20,11 @@
 #include "AddBrushVerticesCommand.h"
 
 #include "StringUtils.h"
-#include "base/vector_set.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <map>
+#include <kdl/vector_set.h>
+
 #include <set>
 #include <vector>
 
@@ -33,7 +33,7 @@ namespace TrenchBroom {
         const Command::CommandType AddBrushVerticesCommand::Type = Command::freeType();
 
         AddBrushVerticesCommand::Ptr AddBrushVerticesCommand::add(const VertexToBrushesMap& vertices) {
-            vector_set<Model::Brush*> allBrushes;
+            kdl::vector_set<Model::Brush*> allBrushes;
             for (const auto& entry : vertices) {
                 const std::set<Model::Brush*>& brushes = entry.second;
                 allBrushes.insert(std::begin(brushes), std::end(brushes));

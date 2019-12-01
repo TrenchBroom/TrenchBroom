@@ -19,10 +19,11 @@
 
 #include "DuplicateNodesCommand.h"
 
-#include "base/map_utils.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
 #include "View/MapDocumentCommandFacade.h"
+
+#include <kdl/map_utils.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -38,7 +39,7 @@ namespace TrenchBroom {
 
         DuplicateNodesCommand::~DuplicateNodesCommand() {
             if (state() == CommandState_Default) {
-                MapUtils::clearAndDelete(m_addedNodes);
+                kdl::clearAndDelete(m_addedNodes);
             }
         }
 

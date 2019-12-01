@@ -21,11 +21,12 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
-#include "base/vec_utils.h"
 #include "IO/File.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/ELParser.h"
 #include "IO/LegacyModelDefinitionParser.h"
+
+#include <kdl/vector_utils.h>
 
 #include <memory>
 
@@ -202,7 +203,7 @@ namespace TrenchBroom {
                 }
                 return definitions;
             } catch (...) {
-                VecUtils::clearAndDelete(definitions);
+                kdl::clearAndDelete(definitions);
                 throw;
             }
         }
@@ -215,7 +216,7 @@ namespace TrenchBroom {
 
             if (StringUtils::caseInsensitiveEqual(token.data(), "@include")) {
                 const auto includedDefinitions = parseInclude(status);
-                VecUtils::append(definitions, includedDefinitions);
+                kdl::append(definitions, includedDefinitions);
             } else {
                 auto* definition = parseDefinition(status);
                 status.progress(m_tokenizer.progress());

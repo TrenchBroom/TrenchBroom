@@ -24,7 +24,6 @@
 #include "Preferences.h"
 #include "StepIterator.h"
 #include "StringUtils.h"
-#include "base/vec_utils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModel.h"
@@ -42,6 +41,8 @@
 #include "Renderer/VertexArray.h"
 #include "View/MapFrame.h"
 #include "View/QtUtils.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -406,7 +407,7 @@ namespace TrenchBroom {
                             stepIterator(std::begin(quads), std::end(quads), 0, 2),
                             stepIterator(std::begin(quads), std::end(quads), 1, 2),
                             stepIterator(std::begin(textColor), std::end(textColor), 0, 0));
-                        VecUtils::append(stringVertices[defaultDescriptor], titleVertices);
+                        kdl::append(stringVertices[defaultDescriptor], titleVertices);
                     }
 
                     for (size_t j = 0; j < group.size(); ++j) {
@@ -424,7 +425,7 @@ namespace TrenchBroom {
                                     stepIterator(std::begin(quads), std::end(quads), 0, 2),
                                     stepIterator(std::begin(quads), std::end(quads), 1, 2),
                                     stepIterator(std::begin(textColor), std::end(textColor), 0, 0));
-                                VecUtils::append(stringVertices[cellData(cell).fontDescriptor], titleVertices);
+                                kdl::append(stringVertices[cellData(cell).fontDescriptor], titleVertices);
                             }
                         }
                     }

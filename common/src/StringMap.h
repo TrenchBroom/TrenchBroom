@@ -23,7 +23,8 @@
 #include "Exceptions.h"
 #include "StringType.h"
 #include "StringUtils.h"
-#include "base/vec_utils.h"
+
+#include <kdl/vector_utils.h>
 
 #include <cassert>
 #include <map>
@@ -49,7 +50,7 @@ namespace TrenchBroom {
         }
 
         static void getValues(const ValueContainer& values, QueryResult& result) {
-            VecUtils::append(result, values);
+            kdl::append(result, values);
         }
     };
 

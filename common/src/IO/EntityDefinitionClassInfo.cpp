@@ -20,8 +20,9 @@
 #include "EntityDefinitionClassInfo.h"
 
 #include "Assets/AttributeDefinition.h"
-#include "base/map_utils.h"
 #include "Model/EntityAttributes.h"
+
+#include <kdl/map_utils.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -82,7 +83,7 @@ namespace TrenchBroom {
         }
 
         std::vector<std::shared_ptr<Assets::AttributeDefinition>> EntityDefinitionClassInfo::attributeList() const {
-            return MapUtils::values(m_attributes);
+            return kdl::values(m_attributes);
         }
 
         const std::map<String, std::shared_ptr<Assets::AttributeDefinition>>& EntityDefinitionClassInfo::attributeMap() const {

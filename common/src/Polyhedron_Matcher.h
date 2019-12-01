@@ -23,8 +23,9 @@
 #include "Ensure.h"
 #include "Polyhedron.h"
 #include "Relation.h"
-#include "base/vec_utils.h"
-#include "base/vector_set.h"
+
+#include <kdl/vector_utils.h>
+#include <kdl/vector_set.h>
 
 #include <limits>
 #include <list>
@@ -269,7 +270,7 @@ private:
      */
     static VertexRelation buildVertexRelation(const P& left, const P& right, const std::vector<V>& vertices, const V& delta) {
         VMap vertexMap;
-        const auto vertexSet = vector_set<V>::create(vertices);
+        const auto vertexSet = kdl::vector_set<V>::create(vertices);
 
         auto* firstVertex = left.vertices().front();
         auto* currentVertex = firstVertex;

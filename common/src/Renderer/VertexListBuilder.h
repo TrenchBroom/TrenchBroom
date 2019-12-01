@@ -20,8 +20,7 @@
 #ifndef VertexListBuilder_h
 #define VertexListBuilder_h
 
-#include "VectorUtilsMinimal.h"
-#include "base/vec_utils.h"
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -161,7 +160,7 @@ namespace TrenchBroom {
 
                 const size_t index = currentIndex();
                 const size_t count = vertices.size();
-                VecUtils::append(m_vertices, vertices);
+                kdl::append(m_vertices, vertices);
 
                 return IndexData(index, count);
             }

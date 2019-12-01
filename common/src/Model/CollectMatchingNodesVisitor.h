@@ -20,13 +20,14 @@
 #ifndef TrenchBroom_CollectMatchingNodesVisitor
 #define TrenchBroom_CollectMatchingNodesVisitor
 
-#include "base/vector_set.h"
 #include "Model/NodeVisitor.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
 #include "Model/World.h"
+
+#include <kdl/vector_set.h>
 
 #include <vector>
 
@@ -51,7 +52,7 @@ namespace TrenchBroom {
 
         class UniqueNodeCollectionStrategy : public NodeCollectionStrategy {
         private:
-            vector_set<Node*> m_addedNodes;
+            kdl::vector_set<Node*> m_addedNodes;
         public:
             virtual ~UniqueNodeCollectionStrategy() override;
         public:
@@ -101,7 +102,7 @@ namespace TrenchBroom {
 
         template <typename V, typename I>
         std::vector<Node*> collectMatchingNodes(I cur, I end, Node* root) {
-            vector_set<Node*> result;
+            kdl::vector_set<Node*> result;
             while (cur != end) {
                 V visitor(*cur);
                 root->acceptAndRecurse(visitor);

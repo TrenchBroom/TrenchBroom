@@ -19,10 +19,11 @@
 
 #include "CompilationConfigParser.h"
 
-#include "base/vec_utils.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
 #include "EL/Value.h"
+
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -56,7 +57,7 @@ namespace TrenchBroom {
                 }
                 return result;
             } catch (...) {
-                VecUtils::clearAndDelete(result);
+                kdl::clearAndDelete(result);
                 throw;
             }
         }
@@ -80,7 +81,7 @@ namespace TrenchBroom {
                 }
                 return result;
             } catch (...) {
-                VecUtils::clearAndDelete(result);
+                kdl::clearAndDelete(result);
                 throw;
             }
         }

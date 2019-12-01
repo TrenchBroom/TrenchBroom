@@ -22,7 +22,6 @@
 #include "Constants.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
-#include "base/vec_utils.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushSnapshot.h"
@@ -37,6 +36,8 @@
 #include "Model/TagVisitor.h"
 #include "Model/World.h"
 #include "Renderer/BrushRendererBrushCache.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vecmath/intersection.h>
 #include <vecmath/vec.h>
@@ -183,7 +184,7 @@ namespace TrenchBroom {
             }
 
             ~MoveVerticesCallback() override {
-                VecUtils::clearAndDelete(m_removedFaces);
+                kdl::clearAndDelete(m_removedFaces);
             }
         private:
             void buildIncidences(const BrushGeometry* geometry, const std::set<vm::vec3>& verticesToBeMoved, const vm::vec3& delta) {
@@ -317,7 +318,7 @@ namespace TrenchBroom {
 
         void Brush::cleanup() {
             deleteGeometry();
-            VecUtils::clearAndDelete(m_faces);
+            kdl::clearAndDelete(m_faces);
         }
 
         Brush* Brush::clone(const vm::bbox3& worldBounds) const {
@@ -412,7 +413,7 @@ namespace TrenchBroom {
             deleteGeometry();
 
             detachFaces(m_faces);
-            VecUtils::clearAndDelete(m_faces);
+            kdl::clearAndDelete(m_faces);
             addFaces(faces);
 
             buildGeometry(worldBounds);
@@ -446,7 +447,7 @@ namespace TrenchBroom {
         void Brush::addFace(BrushFace* face) {
             ensure(face != nullptr, "face is null");
             ensure(face->brush() == nullptr, "face brush is null");
-            assert(!VecUtils::contains(m_faces, face));
+            assert(!kdl::contains(m_faces, face));
 
             m_faces.push_back(face);
             face->setBrush(this);
@@ -1098,7 +1099,7 @@ namespace TrenchBroom {
             // TODO: When there are multiple choices of moving verts (unmovedVerts.size() + movedVerts.size() > 3)
             // we should sort them somehow. This can be seen if you select and move 3/5 verts of a pentagon;
             // which of the 3 moving verts currently gets UV lock is arbitrary.
-            VecUtils::append(referenceVerts, movedVerts);
+            kdl::append(referenceVerts, movedVerts);
 
             if (referenceVerts.size() < 3) {
                 // Can't create a transform as there are not enough verts
@@ -1163,7 +1164,7 @@ namespace TrenchBroom {
             });
 
             const NotifyNodeChange nodeChange(this);
-            VecUtils::clearAndDelete(m_faces);
+            kdl::clearAndDelete(m_faces);
             updateFacesFromGeometry(worldBounds, newGeometry);
             rebuildGeometry(worldBounds);
         }
@@ -1327,7 +1328,7 @@ namespace TrenchBroom {
                 if (geometry->payload() == nullptr) {
                     return false;
                 }
-                if (!VecUtils::contains(m_faces, geometry->payload())) {
+                if (!kdl::contains(m_faces, geometry->payload())) {
                     return false;
                 }
             }

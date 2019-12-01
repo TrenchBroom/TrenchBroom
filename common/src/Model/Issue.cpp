@@ -19,11 +19,12 @@
 
 #include "Model/Issue.h"
 
-#include "base/vec_utils.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Node.h"
+
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -67,7 +68,7 @@ namespace TrenchBroom {
 
             CollectSelectableIssueNodesVisitor collect;
             m_node->acceptAndRecurse(collect);
-            VecUtils::append(nodes, collect.nodes());
+            kdl::append(nodes, collect.nodes());
 
             return true;
         }

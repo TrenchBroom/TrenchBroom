@@ -20,8 +20,9 @@
 #include "AttributableNodeIndex.h"
 
 #include "Macros.h"
-#include "base/vec_utils.h"
 #include "Model/AttributableNode.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vector>
 
@@ -116,7 +117,7 @@ namespace TrenchBroom {
             if (nameResult.empty() || valueResult.empty())
                 return {};
 
-            std::vector<AttributableNode*> result = VecUtils::setIntersection(nameResult, valueResult);
+            std::vector<AttributableNode*> result = kdl::setIntersection(nameResult, valueResult);
 
             auto it = std::begin(result);
             while (it != std::end(result)) {

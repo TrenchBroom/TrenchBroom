@@ -19,12 +19,13 @@
 
 #include "NodeReader.h"
 
-#include "base/vec_utils.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Layer.h"
 #include "Model/ModelFactory.h"
 #include "Model/World.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vector>
 
@@ -43,13 +44,13 @@ namespace TrenchBroom {
             try {
                 readEntities(m_factory.format(), worldBounds, status);
             } catch (const ParserException&) {
-                VecUtils::clearAndDelete(m_nodes);
+                kdl::clearAndDelete(m_nodes);
 
                 try {
                     reset();
                     readBrushes(m_factory.format(), worldBounds, status);
                 } catch (const ParserException&) {
-                    VecUtils::clearAndDelete(m_nodes);
+                    kdl::clearAndDelete(m_nodes);
                     throw;
                 }
             }

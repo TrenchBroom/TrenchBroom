@@ -2,7 +2,6 @@ set(COMMON_TEST_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Assets/EntityDefinitionTestUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Assets/EntityDefinitionTestUtils.h"
-        "${COMMON_TEST_SOURCE_DIR}/Base/vector_set_test.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EL/ELTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EL/ExpressionTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EL/InterpolatorTest.cpp"

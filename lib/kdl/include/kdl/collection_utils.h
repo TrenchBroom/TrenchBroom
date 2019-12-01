@@ -1,30 +1,28 @@
 /*
- Copyright (C) 2010-2019 Kristian Duske
+ Copyright 2010-2019 Kristian Duske
 
- This file is part of TrenchBroom.
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+ rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+ persons to whom the Software is furnished to do so, subject to the following conditions:
 
- TrenchBroom is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+ The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ Software.
 
- TrenchBroom is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 
- You should have received a copy of the GNU General Public License
- along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
- */
-
-#ifndef TRENCHBROOM_COL_UTILS_H
-#define TRENCHBROOM_COL_UTILS_H
+#ifndef KDL_COLLECTION_UTILS_H
+#define KDL_COLLECTION_UTILS_H
 
 #include <algorithm> // for std::remove
 #include <functional> // for std::less
 
-namespace ColUtils {
-    template <typename T>
+namespace kdl {
+    template<typename T>
     struct Deleter {
         void operator()(T ptr) const {
             delete ptr;
@@ -38,12 +36,12 @@ namespace ColUtils {
      * @tparam T the value type
      * @tparam Compare the type of the comparator, defaults to std::less<T>
      */
-    template <typename T, typename Compare = std::less<T>>
+    template<typename T, typename Compare = std::less<T>>
     struct Equivalence {
         Compare cmp;
 
         explicit Equivalence(const Compare& i_cmp = Compare()) :
-        cmp(i_cmp) {}
+            cmp(i_cmp) {}
 
         bool operator()(const T& lhs, const T& rhs) const {
             return !cmp(lhs, rhs) && !cmp(rhs, lhs);
@@ -59,8 +57,8 @@ namespace ColUtils {
      * @param args the remaining containers
      * @return the sum of the sizes of the given containers
      */
-    template <typename C, typename... Args>
-    auto size(const C& c, Args&&... args) {
+    template<typename C, typename... Args>
+    auto size(const C& c, Args&& ... args) {
         return c.size() + (args.size() + ...);
     }
 
@@ -79,7 +77,7 @@ namespace ColUtils {
      * @return the position of the first removed element in the range [first1, last1) such that [first1, result)
      * contains the retained elements and [result, last1) contains the removed elements
      */
-    template <typename I1, typename I2>
+    template<typename I1, typename I2>
     I1 removeAll(I1 first1, I1 last1, I2 first2, I2 last2) {
         I1 result = last1;
         while (first2 != last2) {
@@ -97,7 +95,7 @@ namespace ColUtils {
      * @param last the end of the range of values to delete (past-the-end iterator)
      * @param deleter the deleter to apply
      */
-    template <typename I, typename D = Deleter<typename I::value_type>>
+    template<typename I, typename D = Deleter<typename I::value_type>>
     void deleteAll(I first, I last, const D& deleter = D()) {
         while (first != last) {
             deleter(*first++);
@@ -112,7 +110,7 @@ namespace ColUtils {
      * @param c the container
      * @param deleter the deleter to apply
      */
-    template <typename C, typename D = Deleter<typename C::value_type>>
+    template<typename C, typename D = Deleter<typename C::value_type>>
     void deleteAll(C& c, const D& deleter = D()) {
         deleteAll(std::begin(c), std::end(c), deleter);
     }
@@ -133,7 +131,7 @@ namespace ColUtils {
      * @param cmp the comparator to use
      * @return an int indicating the result of the comparison
      */
-    template <typename I1, typename I2, typename Compare = std::less<typename std::common_type<typename I1::value_type, typename I2::value_type>::type>>
+    template<typename I1, typename I2, typename Compare = std::less<typename std::common_type<typename I1::value_type, typename I2::value_type>::type>>
     int lexicographicalCompare(I1 first1, I1 last1, I2 first2, I2 last2, const Compare& cmp = Compare()) {
         while (first1 != last1 && first2 != last2) {
             if (cmp(*first1, *first2)) {
@@ -169,7 +167,7 @@ namespace ColUtils {
      * @param cmp the comparator to use
      * @return an int indicating the result of the comparison
      */
-    template <typename C1, typename C2, typename Compare = std::less<typename std::common_type<typename C1::value_type, typename C2::value_type>::type>>
+    template<typename C1, typename C2, typename Compare = std::less<typename std::common_type<typename C1::value_type, typename C2::value_type>::type>>
     int lexicographicalCompare(const C1& c1, const C2& c2, const Compare& cmp = Compare()) {
         return lexicographicalCompare(std::begin(c1), std::end(c1), std::begin(c2), std::end(c2), cmp);
     }
@@ -190,7 +188,7 @@ namespace ColUtils {
      * @param cmp the comparator to use
      * @return true if the given ranges are equivalent and false otherwise
      */
-    template <typename I1, typename I2, typename Compare = std::less<typename std::common_type<typename I1::value_type, typename I2::value_type>::type>>
+    template<typename I1, typename I2, typename Compare = std::less<typename std::common_type<typename I1::value_type, typename I2::value_type>::type>>
     bool equivalent(I1 first1, I1 last1, I2 first2, I2 last2, const Compare& cmp = Compare()) {
         return lexicographicalCompare(first1, last1, first2, last2, cmp) == 0;
     }
@@ -209,7 +207,7 @@ namespace ColUtils {
      * @param cmp the comparator to use
      * @return true if the given collections are equivalent and false otherwise
      */
-    template <typename C1, typename C2, typename Compare = std::less<typename std::common_type<typename C1::value_type, typename C2::value_type>::type>>
+    template<typename C1, typename C2, typename Compare = std::less<typename std::common_type<typename C1::value_type, typename C2::value_type>::type>>
     bool equivalent(const C1& c1, const C2& c2, const Compare& cmp = Compare()) {
         if (c1.size() != c2.size()) {
             return false;
@@ -219,4 +217,4 @@ namespace ColUtils {
     }
 }
 
-#endif //TRENCHBROOM_COL_UTILS_H
+#endif //KDL_COLLECTION_UTILS_H

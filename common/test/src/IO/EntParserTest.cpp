@@ -20,11 +20,8 @@
 #include <gtest/gtest.h>
 
 #include "Exceptions.h"
-#include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
-#include "Assets/EntityDefinitionTestUtils.h"
-#include "base/vec_utils.h"
 #include "IO/DiskIO.h"
 #include "IO/EntParser.h"
 #include "IO/FileMatcher.h"
@@ -32,6 +29,8 @@
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
 #include "Model/Model_Forward.h"
+
+#include <kdl/vector_utils.h>
 
 #include <algorithm>
 
@@ -65,7 +64,7 @@ namespace TrenchBroom {
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
 
         TEST(EntParserTest, parseWhitespaceFile) {
@@ -76,7 +75,7 @@ namespace TrenchBroom {
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
 
         TEST(EntParserTest, parseMalformedXML) {
@@ -176,7 +175,7 @@ Updated: 2011-03-02
             ASSERT_EQ(64.0f, scaleDefinition->defaultValue()) << "Expected correct default value for '_scale' attribute definition";
             ASSERT_EQ("Scaling factor (default 64), good values are between 50 and 300, depending on the map.", scaleDefinition->longDescription()) << "Expected attribute definition's long description to match element text";
 
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
 
         TEST(EntParserTest, parseSimpleGroupEntityDefinition) {
@@ -235,7 +234,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             assertAttributeDefinition("_celshader", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
             assertAttributeDefinition("spawnflags", Assets::AttributeDefinition::Type_FlagsAttribute, brushDefinition);
 
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
 
         TEST(EntParserTest, parseListAttributeDefinition) {
@@ -302,7 +301,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             ASSERT_EQ("2", options[2].value());
             ASSERT_EQ("green", options[2].description());
 
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
 
         TEST(EntParserTest, parseInvalidRealAttributeDefinition) {
@@ -333,7 +332,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
 
             ASSERT_EQ("asdf", scaleDefinition->defaultValue()) << "Expected correct default value for '_scale' attribute definition";
 
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
 
         TEST(EntParserTest, parseLegacyModelDefinition) {
@@ -357,7 +356,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             const auto& modelDefinition = pointDefinition->modelDefinition();
             ASSERT_EQ(Path("models/powerups/ammo/bfgam.md3"), modelDefinition.defaultModelSpecification().path);
 
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
 
         TEST(EntParserTest, parseELStaticModelDefinition) {
@@ -381,7 +380,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             const auto& modelDefinition = pointDefinition->modelDefinition();
             ASSERT_EQ(Path("models/powerups/ammo/bfgam2.md3"), modelDefinition.defaultModelSpecification().path);
 
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
 
         void assertAttributeDefinition(const String& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition) {

@@ -19,13 +19,14 @@
 
 #include "VertexCommand.h"
 
-#include "base/vec_utils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/VertexTool.h"
+
+#include <kdl/vector_utils.h>
 
 #include <iterator>
 #include <set>
@@ -87,7 +88,7 @@ namespace TrenchBroom {
                 }
             }
 
-            VecUtils::sort(facePositions);
+            kdl::sort(facePositions);
 
             assert(!brushes.empty());
             assert(brushes.size() == brushFaces.size());
@@ -102,7 +103,7 @@ namespace TrenchBroom {
                 std::vector<vm::vec3> vertices;
                 vertices.reserve(2 * edgeList.size());
                 vm::segment3::get_vertices(std::begin(edgeList), std::end(edgeList), std::back_inserter(vertices));
-                VecUtils::sortAndMakeUnique(vertices);
+                kdl::sortAndMakeUnique(vertices);
                 result.insert(std::make_pair(brush, vertices));
             }
             return result;
@@ -116,7 +117,7 @@ namespace TrenchBroom {
 
                 std::vector<vm::vec3> vertices;
                 vm::polygon3::get_vertices(std::begin(faceList), std::end(faceList), std::back_inserter(vertices));
-                VecUtils::sortAndMakeUnique(vertices);
+                kdl::sortAndMakeUnique(vertices);
                 result.insert(std::make_pair(brush, vertices));
             }
             return result;

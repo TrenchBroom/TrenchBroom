@@ -27,9 +27,6 @@
 #include "Assets/EntityModelManager.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
-#include "base/col_utils.h"
-#include "base/map_utils.h"
-#include "base/vec_utils.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
@@ -115,6 +112,10 @@
 #include "View/SetTextureCollectionsCommand.h"
 #include "View/TransformObjectsCommand.h"
 #include "View/ViewEffectsService.h"
+
+#include <kdl/collection_utils.h>
+#include <kdl/map_utils.h>
+#include <kdl/vector_utils.h>
 
 #include <vecmath/util.h>
 #include <vecmath/vec.h>
@@ -395,7 +396,7 @@ namespace TrenchBroom {
             const Model::BrushFace* face = faces.back();
 
             const bool result = setFaceAttributes(face->attribs());
-            ColUtils::deleteAll(faces);
+            kdl::deleteAll(faces);
 
             return result;
         }
@@ -758,7 +759,7 @@ namespace TrenchBroom {
             if (nodes.empty())
                 return nodes;
 
-            VecUtils::sort(nodes, CompareByAncestry());
+            kdl::sort(nodes, CompareByAncestry());
 
             std::vector<Model::Node*> result;
             result.reserve(nodes.size());
@@ -799,7 +800,7 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove;
             for (const auto& entry : nodesToAdd) {
                 const std::vector<Model::Node*>& children = entry.second;
-                nodesToRemove = MapUtils::mergeVectorMaps(nodesToRemove, Model::parentChildrenMap(children));
+                nodesToRemove = kdl::mergeVectorMaps(nodesToRemove, Model::parentChildrenMap(children));
             }
 
             Transaction transaction(this, "Reparent Objects");
@@ -971,7 +972,7 @@ namespace TrenchBroom {
                 Model::Node* parent = group->parent();
                 const std::vector<Model::Node*> children = group->children();
                 reparentNodes(parent, children);
-                VecUtils::append(allChildren, children);
+                kdl::append(allChildren, children);
             }
 
             select(allChildren);
@@ -1185,7 +1186,7 @@ namespace TrenchBroom {
                 const std::vector<Model::Brush*> result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahends);
 
                 if (!result.empty()) {
-                    VecUtils::append(toAdd[minuend->parent()], result);
+                    kdl::append(toAdd[minuend->parent()], result);
                 }
                 toRemove.push_back(minuend);
             }
@@ -1249,7 +1250,7 @@ namespace TrenchBroom {
                     // shrinking gave us a valid brush, so subtract it from `brush`
                     const std::vector<Model::Brush*> fragments = brush->subtract(*m_world, m_worldBounds, currentTextureName(), shrunken);
 
-                    VecUtils::append(toAdd[brush->parent()], fragments);
+                    kdl::append(toAdd[brush->parent()], fragments);
                     toRemove.push_back(brush);
                 }
 

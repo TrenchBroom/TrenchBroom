@@ -24,8 +24,6 @@
 #include "Polyhedron.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
-#include "base/col_utils.h"
-#include "base/vec_utils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -38,6 +36,9 @@
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+
+#include <kdl/collection_utils.h>
+#include <kdl/vector_utils.h>
 
 #include <vecmath/vec.h>
 #include <vecmath/line.h>
@@ -221,14 +222,14 @@ namespace TrenchBroom {
             if (hit.type() == ResizeHit2D) {
                 const std::vector<Model::BrushFace*>& faces = hit.target<std::vector<Model::BrushFace*>>();
                 assert(!faces.empty());
-                VecUtils::append(result, faces, collectDragFaces(faces[0]));
+                kdl::append(result, faces, collectDragFaces(faces[0]));
                 if (faces.size() > 1) {
-                    VecUtils::append(result, collectDragFaces(faces[1]));
+                    kdl::append(result, collectDragFaces(faces[1]));
                 }
             } else {
                 Model::BrushFace* face = hit.target<Model::BrushFace*>();
                 result.push_back(face);
-                VecUtils::append(result, collectDragFaces(face));
+                kdl::append(result, collectDragFaces(face));
             }
 
             return getDragHandles(result);
@@ -407,7 +408,7 @@ namespace TrenchBroom {
 
                 if (!newBrush->canMoveBoundary(worldBounds, newDragFace, delta)) {
                     // There is a brush for which the move is not applicable. Abort.
-                    ColUtils::deleteAll(newBrushes);
+                    kdl::deleteAll(newBrushes);
                     return false;
                 } else {
                     auto* clipFace = newDragFace->clone();
@@ -418,7 +419,7 @@ namespace TrenchBroom {
                     // This should never happen, but let's be on the safe side.
                     if (!newBrush->clip(worldBounds, clipFace)) {
                         delete clipFace;
-                        ColUtils::deleteAll(newBrushes);
+                        kdl::deleteAll(newBrushes);
                         return false;
                     }
 

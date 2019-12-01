@@ -19,8 +19,9 @@
 
 #include "CompilationProfile.h"
 
-#include "base/vec_utils.h"
 #include "Model/CompilationTask.h"
+
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -34,7 +35,7 @@ namespace TrenchBroom {
         m_tasks(tasks) {}
 
         CompilationProfile::~CompilationProfile() {
-            VecUtils::clearAndDelete(m_tasks);
+            kdl::clearAndDelete(m_tasks);
         }
 
         CompilationProfile* CompilationProfile::clone() const {
@@ -98,7 +99,7 @@ namespace TrenchBroom {
             assert(index < taskCount());
             m_tasks[index]->taskWillBeRemoved();
             delete m_tasks[index];
-            VecUtils::eraseAt(m_tasks, index);
+            kdl::eraseAt(m_tasks, index);
             profileDidChange();
         }
 

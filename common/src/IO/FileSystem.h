@@ -23,9 +23,10 @@
 #include "Exceptions.h"
 #include "Macros.h"
 #include "StringType.h"
-#include "base/vec_utils.h"
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
+
+#include <kdl/vector_utils.h>
 
 #include <memory>
 
@@ -147,7 +148,7 @@ namespace TrenchBroom {
 
                     Path::List result;
                     _findItems(searchPath, matcher, recurse, result);
-                    VecUtils::sortAndMakeUnique(result);
+                    kdl::sortAndMakeUnique(result);
                     return result;
                 } catch (const PathException& e) {
                     throw FileSystemException("Invalid path: '" + searchPath.asString() + "'", e);

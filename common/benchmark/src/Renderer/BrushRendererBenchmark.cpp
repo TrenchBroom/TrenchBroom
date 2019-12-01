@@ -22,7 +22,6 @@
 #include "BenchmarkUtils.h"
 
 #include "Assets/Texture.h"
-#include "base/vec_utils.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -125,8 +124,8 @@ namespace TrenchBroom {
                            }
                        }, "validate with " + std::to_string(brushesToKeep.size()) + " brushes");
 
-            VecUtils::clearAndDelete(brushes);
-            VecUtils::clearAndDelete(textures);
+            kdl::clearAndDelete(brushes);
+            kdl::clearAndDelete(textures);
         }
     }
 }

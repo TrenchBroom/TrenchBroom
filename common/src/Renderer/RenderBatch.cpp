@@ -20,9 +20,10 @@
 #include "RenderBatch.h"
 
 #include "Ensure.h"
-#include "base/vec_utils.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/Vbo.h"
+
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -52,8 +53,8 @@ namespace TrenchBroom {
         m_indexVbo(indexVbo) {}
 
         RenderBatch::~RenderBatch() {
-            VecUtils::clearAndDelete(m_oneshots);
-            VecUtils::clearAndDelete(m_indexedRenderables);
+            kdl::clearAndDelete(m_oneshots);
+            kdl::clearAndDelete(m_indexedRenderables);
         }
 
         void RenderBatch::add(Renderable* renderable) {

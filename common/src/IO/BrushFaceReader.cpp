@@ -19,13 +19,14 @@
 
 #include "BrushFaceReader.h"
 
-#include "base/vec_utils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/Layer.h"
 #include "Model/ModelFactory.h"
 #include "Model/World.h"
+
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -38,7 +39,7 @@ namespace TrenchBroom {
                 readBrushFaces(m_factory.format(), worldBounds, status);
                 return m_brushFaces;
             } catch (const ParserException&) {
-                VecUtils::clearAndDelete(m_brushFaces);
+                kdl::clearAndDelete(m_brushFaces);
                 throw;
             }
         }

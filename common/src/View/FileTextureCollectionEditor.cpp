@@ -22,13 +22,14 @@
 #include "PreferenceManager.h"
 #include "SharedPointer.h"
 #include "Assets/TextureManager.h"
-#include "base/vec_utils.h"
 #include "IO/PathQt.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
 #include "View/QtUtils.h"
+
+#include <kdl/vector_utils.h>
 
 #include <QListWidget>
 #include <QVBoxLayout>
@@ -158,7 +159,7 @@ namespace TrenchBroom {
                 toRemove.push_back(collections[index]);
             }
 
-            VecUtils::eraseAll(collections, toRemove);
+            kdl::eraseAll(collections, toRemove);
             document->setEnabledTextureCollections(collections);
         }
 

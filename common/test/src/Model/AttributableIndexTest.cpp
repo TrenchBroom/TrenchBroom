@@ -20,11 +20,12 @@
 #include <gtest/gtest.h>
 
 #include "TestUtils.h"
-#include "base/vec_utils.h"
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vector>
 
@@ -55,12 +56,12 @@ namespace TrenchBroom {
 
             std::vector<AttributableNode*> attributables = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(2u, attributables.size());
-            ASSERT_TRUE(VecUtils::contains(attributables, entity1));
-            ASSERT_TRUE(VecUtils::contains(attributables, entity2));
+            ASSERT_TRUE(kdl::contains(attributables, entity1));
+            ASSERT_TRUE(kdl::contains(attributables, entity2));
 
             attributables = findExactExact(index, "other", "someothervalue");
             ASSERT_EQ(1u, attributables.size());
-            ASSERT_TRUE(VecUtils::contains(attributables, entity2));
+            ASSERT_TRUE(kdl::contains(attributables, entity2));
 
             delete entity1;
             delete entity2;
@@ -108,12 +109,12 @@ namespace TrenchBroom {
 
             std::vector<AttributableNode*> attributables = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(2u, attributables.size());
-            ASSERT_TRUE(VecUtils::contains(attributables, entity1));
-            ASSERT_TRUE(VecUtils::contains(attributables, entity2));
+            ASSERT_TRUE(kdl::contains(attributables, entity1));
+            ASSERT_TRUE(kdl::contains(attributables, entity2));
 
             attributables = findExactExact(index, "other", "someothervalue");
             ASSERT_EQ(1u, attributables.size());
-            ASSERT_TRUE(VecUtils::contains(attributables, entity2));
+            ASSERT_TRUE(kdl::contains(attributables, entity2));
 
             delete entity1;
             delete entity2;
@@ -136,8 +137,8 @@ namespace TrenchBroom {
 
             const std::vector<AttributableNode*>& attributables = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(2u, attributables.size());
-            ASSERT_TRUE(VecUtils::contains(attributables, entity1));
-            ASSERT_TRUE(VecUtils::contains(attributables, entity2));
+            ASSERT_TRUE(kdl::contains(attributables, entity1));
+            ASSERT_TRUE(kdl::contains(attributables, entity2));
 
             ASSERT_TRUE(findExactExact(index, "other", "someothervalue").empty());
 
@@ -158,7 +159,7 @@ namespace TrenchBroom {
 
             std::vector<AttributableNode*> attributables = findNumberedExact(index, "test", "somevalue");
             ASSERT_EQ(1u, attributables.size());
-            ASSERT_TRUE(VecUtils::contains(attributables, entity1));
+            ASSERT_TRUE(kdl::contains(attributables, entity1));
 
             delete entity1;
         }
@@ -174,7 +175,7 @@ namespace TrenchBroom {
 
             std::vector<AttributableNode*> attributables = findExactExact(index, "delay", "3.5");
             ASSERT_EQ(1u, attributables.size());
-            ASSERT_TRUE(VecUtils::contains(attributables, entity1));
+            ASSERT_TRUE(kdl::contains(attributables, entity1));
 
             index.removeAttribute(entity1, "delay", "3.5");
 

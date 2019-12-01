@@ -21,13 +21,14 @@
 #define TrenchBroom_VertexArrayRenderer
 
 #include "Ensure.h"
-#include "base/vec_utils.h"
 #include "Renderer/GL.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
 #include "VectorUtilsMinimal.h"
+
+#include <kdl/vector_utils.h>
 
 #include <memory>
 
@@ -117,7 +118,7 @@ namespace TrenchBroom {
 
                 void prepare(Vbo& vbo) override {
                     Holder<VertexSpec>::prepare(vbo);
-                    VecUtils::clearToZero(m_vertices);
+                    kdl::clearToZero(m_vertices);
                 }
             private:
                 const VertexList& doGetVertices() const override {
@@ -138,7 +139,7 @@ namespace TrenchBroom {
 
                 void prepare(Vbo& vbo) override {
                     Holder<VertexSpec>::prepare(vbo);
-                    VecUtils::clearToZero(m_vertices);
+                    kdl::clearToZero(m_vertices);
                 }
             private:
                 const VertexList& doGetVertices() const override {

@@ -20,7 +20,6 @@
 #include "SmartColorEditor.h"
 
 #include "Assets/ColorRange.h"
-#include "base/vector_set.h"
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityColor.h"
@@ -31,6 +30,8 @@
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
+
+#include <kdl/vector_set.h>
 
 #include <QLabel>
 #include <QHBoxLayout>
@@ -147,7 +148,7 @@ namespace TrenchBroom {
         class SmartColorEditor::CollectColorsVisitor : public Model::ConstNodeVisitor {
         private:
             const Model::AttributeName& m_name;
-            vector_set<QColor, ColorCmp> m_colors;
+            kdl::vector_set<QColor, ColorCmp> m_colors;
         public:
             explicit CollectColorsVisitor(const Model::AttributeName& name) :
             m_name(name) {}

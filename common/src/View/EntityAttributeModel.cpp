@@ -24,9 +24,6 @@
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
-#include "base/map_utils.h"
-#include "base/vec_utils.h"
-#include "base/vector_set.h"
 #include "IO/ResourceUtils.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
@@ -34,6 +31,10 @@
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
+
+#include <kdl/map_utils.h>
+#include <kdl/vector_utils.h>
+#include <kdl/vector_set.h>
 
 #include <iterator>
 #include <optional-lite/optional.hpp>
@@ -290,8 +291,8 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeModel::setRows(const std::map<String, AttributeRow>& newRowsKeyMap) {
-            const auto newRowSet = vector_set(MapUtils::values(newRowsKeyMap));
-            const auto oldRowSet = vector_set(std::begin(m_rows), std::end(m_rows));
+            const auto newRowSet = kdl::vector_set(kdl::values(newRowsKeyMap));
+            const auto oldRowSet = kdl::vector_set(std::begin(m_rows), std::end(m_rows));
 
             if (newRowSet == oldRowSet) {
                 qDebug() << "EntityAttributeModel::setRows: no change";
@@ -304,8 +305,8 @@ namespace TrenchBroom {
             //
             // This situation happens when you rename a key and then press Tab to switch
             // to editing the value for the newly renamed key.
-            const auto newMinusOld = VecUtils::setDifference(newRowSet, oldRowSet);
-            const auto oldMinusNew = VecUtils::setDifference(oldRowSet, newRowSet);
+            const auto newMinusOld = kdl::setDifference(newRowSet, oldRowSet);
+            const auto oldMinusNew = kdl::setDifference(oldRowSet, newRowSet);
 
             if (newMinusOld.size() == 1 && oldMinusNew.size() == 1) {
                 const AttributeRow oldDeletion = *oldMinusNew.begin();
@@ -313,7 +314,7 @@ namespace TrenchBroom {
 
                 qDebug() << "EntityAttributeModel::setRows: one row changed: " << QString::fromStdString(oldDeletion.name()) << " -> " << QString::fromStdString(newAddition.name());
 
-                const size_t oldIndex = VecUtils::indexOf(m_rows, oldDeletion);
+                const size_t oldIndex = kdl::indexOf(m_rows, oldDeletion);
                 m_rows.at(oldIndex) = newAddition;
 
                 // Notify Qt
@@ -345,7 +346,7 @@ namespace TrenchBroom {
                 qDebug() << "EntityAttributeModel::setRows: deleting " << oldMinusNew.size() << " rows";
 
                 for (const AttributeRow& row : oldMinusNew) {
-                    const int index = static_cast<int>(VecUtils::indexOf(m_rows, row));
+                    const int index = static_cast<int>(kdl::indexOf(m_rows, row));
                     assert(index < static_cast<int>(m_rows.size()));
 
                     beginRemoveRows(QModelIndex(), index, index);
@@ -420,7 +421,7 @@ namespace TrenchBroom {
         StringList EntityAttributeModel::getAllAttributeNames() const {
             auto document = lock(m_document);
             const auto& index = document->world()->attributableNodeIndex();
-            auto result = vector_set<String>(index.allNames());
+            auto result = kdl::vector_set<String>(index.allNames());
 
             // also add keys from all loaded entity definitions
             for (const auto* entityDefinition : document->entityDefinitionManager().definitions()) {
@@ -439,7 +440,7 @@ namespace TrenchBroom {
             const auto& index = document->world()->attributableNodeIndex();
 
             auto result = StringList();
-            auto resultSet = adapt_vector_set(result);
+            auto resultSet = kdl::wrap_set(result);
 
             for (const auto& name : names) {
                 const auto values = index.allValuesForNames(Model::AttributableNodeIndexQuery::numbered(name));
@@ -458,7 +459,7 @@ namespace TrenchBroom {
 
             // start with currently used classnames
             auto result = getAllValuesForAttributeNames({ Model::AttributeNames::Classname });
-            auto resultSet = adapt_vector_set(result);
+            auto resultSet = kdl::wrap_set(result);
 
             // add keys from all loaded entity definitions
             for (const auto* entityDefinition : document->entityDefinitionManager().definitions()) {

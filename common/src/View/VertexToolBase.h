@@ -26,7 +26,6 @@
 #include "Polyhedron3.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "base/vec_utils.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Hit.h"
@@ -48,6 +47,8 @@
 #include "View/Tool.h"
 #include "View/VertexCommand.h"
 #include "View/VertexHandleManager.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -324,7 +325,7 @@ namespace TrenchBroom {
             template <typename HH>
             void renderHandles(const std::vector<HH>& handles, Renderer::RenderService& renderService, const Color& color) const {
                 renderService.setForegroundColor(color);
-                renderService.renderHandles(VecUtils::cast<typename HH::float_type>(handles));
+                renderService.renderHandles(kdl::cast<typename HH::float_type>(handles));
             }
 
             template <typename HH>

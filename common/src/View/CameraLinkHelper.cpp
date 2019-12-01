@@ -23,8 +23,9 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TemporarilySetAny.h"
-#include "base/vec_utils.h"
 #include "Renderer/Camera.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -41,14 +42,14 @@ namespace TrenchBroom {
 
         void CameraLinkHelper::addCamera(Renderer::Camera* camera) {
             ensure(camera != nullptr, "camera is null");
-            assert(!VecUtils::contains(m_cameras, camera));
+            assert(!kdl::contains(m_cameras, camera));
             m_cameras.push_back(camera);
             camera->cameraDidChangeNotifier.addObserver(this, &CameraLinkHelper::cameraDidChange);
         }
 
         void CameraLinkHelper::removeCamera(Renderer::Camera* camera) {
             ensure(camera != nullptr, "camera is null");
-            VecUtils::erase(m_cameras, camera);
+            kdl::erase(m_cameras, camera);
             camera->cameraDidChangeNotifier.removeObserver(this, &CameraLinkHelper::cameraDidChange);
         }
 

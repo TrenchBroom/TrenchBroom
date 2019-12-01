@@ -19,7 +19,7 @@
 
 #include "Selection.h"
 
-#include "base/vec_utils.h"
+#include <kdl/vector_utils.h>
 
 #include <vector>
 
@@ -58,35 +58,35 @@ namespace TrenchBroom {
         }
 
         void Selection::addPartiallySelectedNodes(const std::vector<Model::Node*>& nodes) {
-            VecUtils::append(m_partiallySelectedNodes, nodes);
+            kdl::append(m_partiallySelectedNodes, nodes);
         }
 
         void Selection::addPartiallyDeselectedNodes(const std::vector<Model::Node*>& nodes) {
-            VecUtils::append(m_partiallyDeselectedNodes, nodes);
+            kdl::append(m_partiallyDeselectedNodes, nodes);
         }
 
         void Selection::addRecursivelySelectedNodes(const std::vector<Model::Node*>& nodes) {
-            VecUtils::append(m_recursivelySelectedNodes, nodes);
+            kdl::append(m_recursivelySelectedNodes, nodes);
         }
 
         void Selection::addRecursivelyDeselectedNodes(const std::vector<Model::Node*>& nodes) {
-            VecUtils::append(m_recursivelyDeselectedNodes, nodes);
+            kdl::append(m_recursivelyDeselectedNodes, nodes);
         }
 
         void Selection::addSelectedNodes(const std::vector<Model::Node*>& nodes) {
-            VecUtils::append(m_selectedNodes, nodes);
+            kdl::append(m_selectedNodes, nodes);
         }
 
         void Selection::addDeselectedNodes(const std::vector<Model::Node*>& nodes) {
-            VecUtils::append(m_deselectedNodes, nodes);
+            kdl::append(m_deselectedNodes, nodes);
         }
 
         void Selection::addSelectedBrushFaces(const std::vector<Model::BrushFace*>& faces) {
-            VecUtils::append(m_selectedBrushFaces, faces);
+            kdl::append(m_selectedBrushFaces, faces);
         }
 
         void Selection::addDeselectedBrushFaces(const std::vector<Model::BrushFace*>& faces) {
-            VecUtils::append(m_deselectedBrushFaces, faces);
+            kdl::append(m_deselectedBrushFaces, faces);
         }
     }
 }

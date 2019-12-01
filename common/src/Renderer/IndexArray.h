@@ -21,11 +21,12 @@
 #define IndexArray_h
 
 #include "Ensure.h"
-#include "base/vec_utils.h"
 #include "Renderer/GL.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
 #include "VectorUtilsMinimal.h"
+
+#include <kdl/vector_utils.h>
 
 #include <memory>
 
@@ -126,7 +127,7 @@ namespace TrenchBroom {
 
                 void prepare(Vbo& vbo) {
                     Holder<Index>::prepare(vbo);
-                    VecUtils::clearToZero(m_indices);
+                    kdl::clearToZero(m_indices);
                 }
             private:
                 const IndexList& doGetIndices() const {
@@ -150,7 +151,7 @@ namespace TrenchBroom {
 
                 void prepare(Vbo& vbo) override {
                     Holder<Index>::prepare(vbo);
-                    VecUtils::clearToZero(m_indices);
+                    kdl::clearToZero(m_indices);
                 }
             private:
                 const IndexList& doGetIndices() const override {

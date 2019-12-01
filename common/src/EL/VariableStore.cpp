@@ -19,9 +19,10 @@
 
 #include "VariableStore.h"
 
-#include "base/map_utils.h"
 #include "EL/ELExceptions.h"
 #include "EL/Value.h"
+
+#include <kdl/map_utils.h>
 
 namespace TrenchBroom {
     namespace EL {
@@ -71,7 +72,7 @@ namespace TrenchBroom {
         }
 
         StringList VariableTable::doGetNames() const {
-            return MapUtils::keys(m_variables);
+            return kdl::keys(m_variables);
         }
 
         void VariableTable::doDeclare(const String& name, const Value& value) {

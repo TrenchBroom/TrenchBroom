@@ -19,11 +19,12 @@
 
 #include "GroupSnapshot.h"
 
-#include "base/vec_utils.h"
 #include "Model/Group.h"
 #include "Model/Model_Forward.h"
 #include "Model/Node.h"
 #include "Model/TakeSnapshotVisitor.h"
+
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -32,7 +33,7 @@ namespace TrenchBroom {
         }
 
         GroupSnapshot::~GroupSnapshot() {
-            VecUtils::clearAndDelete(m_snapshots);
+            kdl::clearAndDelete(m_snapshots);
         }
 
         void GroupSnapshot::takeSnapshot(Group* group) {

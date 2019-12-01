@@ -1,26 +1,24 @@
 /*
- Copyright (C) 2010-2019 Kristian Duske
+ Copyright 2010-2019 Kristian Duske
 
- This file is part of TrenchBroom.
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+ rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+ persons to whom the Software is furnished to do so, subject to the following conditions:
 
- TrenchBroom is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+ The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ Software.
 
- TrenchBroom is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 
- You should have received a copy of the GNU General Public License
- along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
- */
+#ifndef KDL_VECTOR_UTILS_H
+#define KDL_VECTOR_UTILS_H
 
-#ifndef TRENCHBROOM_VEC_UTILS_H
-#define TRENCHBROOM_VEC_UTILS_H
-
-#include "col_utils.h"
+#include "collection_utils.h"
 
 // Note: all except <cassert> are included by <vector> anyway, so there's no point in splitting this up further
 #include <cassert>
@@ -30,7 +28,7 @@
 #include <type_traits> // for std::less
 #include <vector>
 
-namespace VecUtils {
+namespace kdl {
     /**
      * Returns a vector containing elements of type O, each of which is constructed by passing the corresponding
      * element of v to the constructor of o, e.g. result.push_back(O(e)), where result is the resulting vector, and e
@@ -44,8 +42,8 @@ namespace VecUtils {
      * @param v the vector to cast
      * @return a vector containing the elements of a, but with O as the element type
      */
-    template <typename O, typename T, typename A>
-    std::vector<O> cast(const std::vector<T,A>& v) {
+    template<typename O, typename T, typename A>
+    std::vector<O> cast(const std::vector<T, A>& v) {
         std::vector<O> result;
         result.reserve(v.size());
         for (const auto& e : v) {
@@ -66,9 +64,9 @@ namespace VecUtils {
      * @return the smallest index at which the given value is found in the given vector or the vector's size if the
      * given vector does not contain the given value
      */
-    template <typename T, typename A, typename X>
-    typename std::vector<T,A>::size_type indexOf(const std::vector<T,A>& v, const X& x) {
-        using IndexType = typename std::vector<T,A>::size_type;
+    template<typename T, typename A, typename X>
+    typename std::vector<T, A>::size_type indexOf(const std::vector<T, A>& v, const X& x) {
+        using IndexType = typename std::vector<T, A>::size_type;
         for (IndexType i = 0; i < v.size(); ++i) {
             if (v[i] == x) {
                 return i;
@@ -87,15 +85,15 @@ namespace VecUtils {
      * @param x the value to check
      * @return true if the given vector contains the given value and false otherwise
      */
-    template <typename T, typename A, typename X>
-    bool contains(const std::vector<T,A>& v, const X& x) {
+    template<typename T, typename A, typename X>
+    bool contains(const std::vector<T, A>& v, const X& x) {
         return indexOf(v, x) < v.size();
     }
 
     namespace detail {
-        template <typename T, typename A, typename... Args>
-        void append(std::vector<T,A>& v1, const Args&... args) {
-            (... , v1.insert(std::end(v1), std::begin(args), std::end(args)));
+        template<typename T, typename A, typename... Args>
+        void append(std::vector<T, A>& v1, const Args& ... args) {
+            (..., v1.insert(std::end(v1), std::begin(args), std::end(args)));
         }
     }
 
@@ -111,10 +109,10 @@ namespace VecUtils {
      * @param v the vector to append to
      * @param args the vectors to append to v
      */
-    template <typename T, typename A, typename... Args>
-    void append(std::vector<T,A>& v, const Args&... args) {
-        v.reserve(ColUtils::size(v, args...));
-        (... , v.insert(std::end(v), std::begin(args), std::end(args)));
+    template<typename T, typename A, typename... Args>
+    void append(std::vector<T, A>& v, const Args& ... args) {
+        v.reserve(kdl::size(v, args...));
+        (..., v.insert(std::end(v), std::begin(args), std::end(args)));
     }
 
     /**
@@ -128,9 +126,9 @@ namespace VecUtils {
      * @param args further vectors to concatenate
      * @return a vector containing the elements from the given vectors
      */
-    template <typename T, typename A, typename... Args>
-    std::vector<T,A> concat(const std::vector<T,A>& v, const Args&... args) {
-        std::vector<T,A> result;
+    template<typename T, typename A, typename... Args>
+    std::vector<T, A> concat(const std::vector<T, A>& v, const Args& ... args) {
+        std::vector<T, A> result;
         append(result, v, args...);
         return result;
     }
@@ -144,8 +142,8 @@ namespace VecUtils {
      * @param v the vector
      * @param x the value to erase
      */
-    template <typename T, typename A, typename X>
-    void erase(std::vector<T,A>& v, const X& x) {
+    template<typename T, typename A, typename X>
+    void erase(std::vector<T, A>& v, const X& x) {
         v.erase(std::remove(std::begin(v), std::end(v), x), std::end(v));
     }
 
@@ -158,8 +156,8 @@ namespace VecUtils {
      * @param v the vector
      * @param x the predicate
      */
-    template <typename T, typename A, typename P>
-    void eraseIf(std::vector<T,A>& v, const P& predicate) {
+    template<typename T, typename A, typename P>
+    void eraseIf(std::vector<T, A>& v, const P& predicate) {
         v.erase(std::remove_if(std::begin(v), std::end(v), predicate), std::end(v));
     }
 
@@ -172,8 +170,8 @@ namespace VecUtils {
      * @param v the vector
      * @param i the index of the element to erase, which must be less than the given vector's size
      */
-    template <typename T, typename A>
-    void eraseAt(std::vector<T,A>& v, const typename std::vector<T,A>::size_type i) {
+    template<typename T, typename A>
+    void eraseAt(std::vector<T, A>& v, const typename std::vector<T, A>::size_type i) {
         assert(i < v.size());
         auto it = std::next(std::begin(v), i);
         v.erase(it);
@@ -188,8 +186,8 @@ namespace VecUtils {
      * @param v the vector to erase elements from
      * @param c the collection of values to erase
      */
-    template <typename T, typename A, typename C>
-    void eraseAll(std::vector<T,A>& v, const C& c) {
+    template<typename T, typename A, typename C>
+    void eraseAll(std::vector<T, A>& v, const C& c) {
         for (const auto& x : c) {
             erase(v, x);
         }
@@ -204,8 +202,8 @@ namespace VecUtils {
      * @param v the vector to sort
      * @param cmp the comparator to use for comparisons
      */
-    template <typename T, typename A, typename Compare = std::less<T>>
-    void sort(std::vector<T,A>& v, const Compare& cmp = Compare()) {
+    template<typename T, typename A, typename Compare = std::less<T>>
+    void sort(std::vector<T, A>& v, const Compare& cmp = Compare()) {
         std::sort(std::begin(v), std::end(v), cmp);
     }
 
@@ -219,10 +217,10 @@ namespace VecUtils {
      * @param v the vector to sort and remove duplicates from
      * @param cmp the comparator to use for sorting and for determining equivalence
      */
-    template <typename T, typename A, typename Compare = std::less<T>>
-    void sortAndMakeUnique(std::vector<T,A>& v, const Compare& cmp = Compare()) {
+    template<typename T, typename A, typename Compare = std::less<T>>
+    void sortAndMakeUnique(std::vector<T, A>& v, const Compare& cmp = Compare()) {
         std::sort(std::begin(v), std::end(v), cmp);
-        v.erase(std::unique(std::begin(v), std::end(v), ColUtils::Equivalence<T,Compare>(cmp)), std::end(v));
+        v.erase(std::unique(std::begin(v), std::end(v), kdl::Equivalence<T, Compare>(cmp)), std::end(v));
     }
 
     /**
@@ -236,8 +234,8 @@ namespace VecUtils {
      * @param lambda the lambda to apply
      * @return a vector containing the transformed values
      */
-    template <typename T, typename A, typename L>
-    auto transform(const std::vector<T,A>& v, L&& lambda) {
+    template<typename T, typename A, typename L>
+    auto transform(const std::vector<T, A>& v, L&& lambda) {
         using ResultType = decltype(lambda(std::declval<T>()));
 
         std::vector<ResultType> result;
@@ -249,30 +247,31 @@ namespace VecUtils {
         return result;
     }
 
-    template <typename S1, typename S2>
+    template<typename S1, typename S2>
     auto setDifference(const S1& s1, const S2& s2) {
         using T1 = typename S1::value_type;
         using T2 = typename S2::value_type;
         using C1 = typename S1::value_compare;
         using C2 = typename S2::value_compare;
-        static_assert(std::is_same<C1, C2>::value, "incompatible comparators");
+        static_assert(std::is_same<C1, C2> ::value, "incompatible comparators");
 
         using T = typename std::common_type<T1, T2>::type;
         using C = C1;
 
         std::vector<T> result;
         result.reserve(s1.size());
-        std::set_difference(std::begin(s1), std::end(s1), std::begin(s2), std::end(s2), std::back_inserter(result), C());
+        std::set_difference(std::begin(s1), std::end(s1), std::begin(s2), std::end(s2), std::back_inserter(result),
+            C());
         return result;
     }
 
-    template <typename S1, typename S2>
+    template<typename S1, typename S2>
     auto setUnion(const S1& s1, const S2& s2) {
         using T1 = typename S1::value_type;
         using T2 = typename S2::value_type;
         using C1 = typename S1::value_compare;
         using C2 = typename S2::value_compare;
-        static_assert(std::is_same<C1, C2>::value, "incompatible comparators");
+        static_assert(std::is_same<C1, C2> ::value, "incompatible comparators");
 
         using T = typename std::common_type<T1, T2>::type;
         using C = C1;
@@ -283,34 +282,35 @@ namespace VecUtils {
         return result;
     }
 
-    template <typename S1, typename S2>
+    template<typename S1, typename S2>
     auto setIntersection(const S1& s1, const S2& s2) {
         using T1 = typename S1::value_type;
         using T2 = typename S2::value_type;
         using C1 = typename S1::value_compare;
         using C2 = typename S2::value_compare;
-        static_assert(std::is_same<C1, C2>::value, "incompatible comparators");
+        static_assert(std::is_same<C1, C2> ::value, "incompatible comparators");
 
         using T = typename std::common_type<T1, T2>::type;
         using C = C1;
 
         std::vector<T> result;
         result.reserve(s1.size() + s2.size());
-        std::set_intersection(std::begin(s1), std::end(s1), std::begin(s2), std::end(s2), std::back_inserter(result), C());
+        std::set_intersection(std::begin(s1), std::end(s1), std::begin(s2), std::end(s2),
+            std::back_inserter(result), C());
         return result;
     }
 
-    template <typename T>
+    template<typename T>
     void clearToZero(std::vector<T>& v) {
         v.clear();
         v.shrink_to_fit();
     }
 
-    template <typename T>
+    template<typename T>
     void clearAndDelete(std::vector<T*>& v) {
-        ColUtils::deleteAll(v);
+        kdl::deleteAll(v);
         v.clear();
     }
 }
 
-#endif //TRENCHBROOM_VEC_UTILS_H
+#endif //KDL_VECTOR_UTILS_H

@@ -20,11 +20,12 @@
 #include "RotateObjectsTool.h"
 
 #include "SharedPointer.h"
-#include "base/vec_utils.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/RotateObjectsHandle.h"
 #include "View/RotateObjectsToolPage.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vecmath/scalar.h>
 
@@ -144,7 +145,7 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsTool::updateRecentlyUsedCenters(const vm::vec3& center) {
-            VecUtils::erase(m_recentlyUsedCenters, center);
+            kdl::erase(m_recentlyUsedCenters, center);
             m_recentlyUsedCenters.push_back(center);
             m_toolPage->setRecentlyUsedCenters(m_recentlyUsedCenters);
         }

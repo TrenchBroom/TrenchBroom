@@ -19,7 +19,7 @@
 
 #include "CompilationConfig.h"
 
-#include "base/vec_utils.h"
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -38,7 +38,7 @@ namespace TrenchBroom {
         }
 
         CompilationConfig::~CompilationConfig() {
-            VecUtils::clearAndDelete(m_profiles);
+            kdl::clearAndDelete(m_profiles);
         }
 
         CompilationConfig& CompilationConfig::operator=(CompilationConfig other) {
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             assert(index < profileCount());
             m_profiles[index]->profileWillBeRemoved();
             delete m_profiles[index];
-            VecUtils::eraseAt(m_profiles, index);
+            kdl::eraseAt(m_profiles, index);
             profilesDidChange();
         }
     }

@@ -21,7 +21,6 @@
 
 #include "Exceptions.h"
 #include "Logger.h"
-#include "base/vec_utils.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DkPakFileSystem.h"
 #include "IO/IdPakFileSystem.h"
@@ -29,6 +28,8 @@
 #include "IO/Quake3ShaderFileSystem.h"
 #include "IO/ZipFileSystem.h"
 #include "Model/GameConfig.h"
+
+#include <kdl/vector_utils.h>
 
 #include <memory>
 
@@ -98,7 +99,7 @@ namespace TrenchBroom {
             if (IO::Disk::directoryExists(searchPath)) {
                 const IO::DiskFileSystem diskFS(searchPath);
                 auto packages = diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtensions));
-                VecUtils::sort(packages, IO::Path::Less<StringUtils::CaseInsensitiveStringLess>());
+                kdl::sort(packages, IO::Path::Less<StringUtils::CaseInsensitiveStringLess>());
 
                 for (const auto& packagePath : packages) {
                     try {

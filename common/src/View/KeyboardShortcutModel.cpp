@@ -21,16 +21,17 @@
 
 #include "Preference.h"
 #include "PreferenceManager.h"
-#include "base/vector_set.h"
 #include "View/ActionContext.h"
 #include "View/Actions.h"
 #include "View/MapDocument.h"
 #include "IO/PathQt.h"
 
-#include <QBrush>
+#include <kdl/vector_set.h>
 
 #include <functional>
 #include <set>
+
+#include <QBrush>
 
 namespace TrenchBroom {
     namespace View {
@@ -133,7 +134,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            return adapt_vector_set(m_conflicts).count(index.row()) > 0u;
+            return kdl::wrap_set(m_conflicts).count(index.row()) > 0u;
         }
 
         void KeyboardShortcutModel::initializeActions() {
@@ -213,7 +214,7 @@ namespace TrenchBroom {
             std::set<ConflictEntry, decltype(cmp)> entrySet(cmp);
 
             m_conflicts.clear();
-            auto conflictSet = adapt_vector_set(m_conflicts);
+            auto conflictSet = kdl::wrap_set(m_conflicts);
 
             for (int row = 0; row < totalActionCount(); ++row) {
                 const auto& actionInfo = this->actionInfo(row);

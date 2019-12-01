@@ -20,13 +20,14 @@
 #include "DefParser.h"
 
 #include "Exceptions.h"
-#include "base/vec_utils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/ModelDefinition.h"
 #include "IO/ELParser.h"
 #include "IO/LegacyModelDefinitionParser.h"
 #include "IO/ParserStatus.h"
+
+#include <kdl/vector_utils.h>
 
 #include <memory>
 
@@ -174,7 +175,7 @@ namespace TrenchBroom {
                 }
                 return definitions;
             } catch (...) {
-                VecUtils::clearAndDelete(definitions);
+                kdl::clearAndDelete(definitions);
                 throw;
             }
         }

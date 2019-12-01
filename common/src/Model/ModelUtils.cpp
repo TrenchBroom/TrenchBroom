@@ -19,8 +19,9 @@
 
 #include "ModelUtils.h"
 
-#include "base/vec_utils.h"
 #include "Model/CollectNodesVisitor.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vector>
 
@@ -43,7 +44,7 @@ namespace TrenchBroom {
             std::vector<Node*> result;
             for (const auto& entry : nodes) {
                 const std::vector<Node*>& children = entry.second;
-                VecUtils::append(result, children);
+                kdl::append(result, children);
             }
             return result;
         }

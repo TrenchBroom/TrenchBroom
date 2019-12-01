@@ -21,13 +21,14 @@
 
 #include "PreferenceManager.h"
 #include "SharedPointer.h"
-#include "base/vec_utils.h"
 #include "IO/PathQt.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
+
+#include <kdl/vector_utils.h>
 
 #include <QListWidget>
 #include <QVBoxLayout>
@@ -64,7 +65,7 @@ namespace TrenchBroom {
                 enabledCollections.push_back(availableCollections[index]);
             }
 
-            VecUtils::sortAndMakeUnique(enabledCollections);
+            kdl::sortAndMakeUnique(enabledCollections);
 
             auto document = lock(m_document);
             document->setEnabledTextureCollections(enabledCollections);
@@ -81,7 +82,7 @@ namespace TrenchBroom {
             // erase back to front
             for (auto sIt = std::rbegin(selections), sEnd = std::rend(selections); sIt != sEnd; ++sIt) {
                 const auto index = static_cast<size_t>(*sIt);
-                VecUtils::eraseAt(enabledCollections, index);
+                kdl::eraseAt(enabledCollections, index);
             }
 
             auto document = lock(m_document);
@@ -250,7 +251,7 @@ namespace TrenchBroom {
         IO::Path::List DirectoryTextureCollectionEditor::availableTextureCollections() const {
             auto document = lock(m_document);
             auto availableCollections = document->availableTextureCollections();
-            VecUtils::eraseAll(availableCollections, document->enabledTextureCollections());
+            kdl::eraseAll(availableCollections, document->enabledTextureCollections());
             return availableCollections;
         }
 

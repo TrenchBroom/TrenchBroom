@@ -22,13 +22,14 @@
 #include <gtest/gtest.h>
 
 #include "Assets/EntityDefinition.h"
-#include "base/vec_utils.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Types.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/TestParserStatus.h"
 #include "VectorUtilsMinimal.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vector>
 
@@ -44,7 +45,7 @@ namespace TrenchBroom {
 
             assertModelDefinition(expected, definition, entityPropertiesStr);
 
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
 
         void assertModelDefinition(const ModelSpecification& expected, const EntityDefinition* definition, const String& entityPropertiesStr) {

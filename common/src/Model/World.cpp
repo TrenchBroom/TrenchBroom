@@ -20,13 +20,14 @@
 #include "World.h"
 
 #include "AABBTree.h"
-#include "base/vec_utils.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
 #include "Model/IssueGenerator.h"
 #include "Model/TagVisitor.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vecmath/bbox_io.h>
 
@@ -310,11 +311,11 @@ namespace TrenchBroom {
         }
 
         void World::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<Model::AttributableNode*>& result) const {
-            VecUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::exact(name), value));
+            kdl::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::exact(name), value));
         }
 
         void World::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, std::vector<Model::AttributableNode*>& result) const {
-            VecUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix), value));
+            kdl::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix), value));
         }
 
         void World::doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {

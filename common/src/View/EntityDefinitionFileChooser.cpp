@@ -21,7 +21,6 @@
 
 #include "SharedPointer.h"
 #include "Assets/EntityDefinitionFileSpec.h"
-#include "base/vec_utils.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "View/BorderLine.h"
@@ -30,6 +29,8 @@
 #include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
 #include "View/QtUtils.h"
+
+#include <kdl/vector_utils.h>
 
 #include <QPushButton>
 #include <QListWidget>
@@ -164,7 +165,7 @@ namespace TrenchBroom {
 
             auto document = lock(m_document);
             auto specs = document->allEntityDefinitionFiles();
-            VecUtils::sort(specs);
+            kdl::sort(specs);
 
             for (const auto& spec : specs) {
                 const auto& path = spec.path();
@@ -178,7 +179,7 @@ namespace TrenchBroom {
 
             const Assets::EntityDefinitionFileSpec spec = document->entityDefinitionFile();
             if (spec.builtin()) {
-                const auto index = VecUtils::indexOf(specs, spec);
+                const auto index = kdl::indexOf(specs, spec);
                 if (index < specs.size()) {
                     // the chosen builtin entity definition file might not be in the game config anymore if the config
                     // has changed after the definition file was chosen

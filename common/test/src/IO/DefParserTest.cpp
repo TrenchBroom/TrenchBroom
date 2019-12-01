@@ -23,7 +23,6 @@
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionTestUtils.h"
-#include "base/vec_utils.h"
 #include "Model/Model_Forward.h"
 #include "IO/DefParser.h"
 #include "IO/DiskIO.h"
@@ -32,6 +31,8 @@
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
 #include "TestUtils.h"
+
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -79,7 +80,7 @@ namespace TrenchBroom {
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
 
         TEST(DefParserTest, parseWhitespaceFile) {
@@ -90,7 +91,7 @@ namespace TrenchBroom {
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
 
         TEST(DefParserTest, parseCommentsFile) {
@@ -101,7 +102,7 @@ namespace TrenchBroom {
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
 
         TEST(DefParserTest, parseSolidClass) {
@@ -140,7 +141,7 @@ namespace TrenchBroom {
             const auto& attributes = definition->attributeDefinitions();
             ASSERT_EQ(1u, attributes.size());
 
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
 
         TEST(DefParserTest, parsePointClass) {
@@ -187,7 +188,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(options[1].isDefault());
 
 
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
 
         TEST(DefParserTest, parseSpawnflagWithSkip) {
@@ -243,7 +244,7 @@ namespace TrenchBroom {
             ASSERT_EQ(16, options[4].value());
 
 
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
 
         TEST(DefParserTest, parseBrushEntityWithMissingBBoxAndNoQuestionMark) {
@@ -292,7 +293,7 @@ namespace TrenchBroom {
             ASSERT_EQ(8, options[3].value());
 
 
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
 
         TEST(DefParserTest, parsePointClassWithBaseClasses) {
@@ -352,7 +353,7 @@ namespace TrenchBroom {
             const Assets::ChoiceAttributeDefinition* choice = static_cast<const Assets::ChoiceAttributeDefinition*>(definition->attributeDefinition("style"));
             ASSERT_EQ(12u, choice->options().size());
 
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
 
         static const String ModelDefinitionTemplate =
@@ -440,7 +441,7 @@ namespace TrenchBroom {
             const auto definition = static_cast<Assets::PointEntityDefinition*>(definitions[0]);
             ASSERT_EQ(vm::bbox3d(8.0), definition->bounds());
 
-            VecUtils::clearAndDelete(definitions);
+            kdl::clearAndDelete(definitions);
         }
     }
 }

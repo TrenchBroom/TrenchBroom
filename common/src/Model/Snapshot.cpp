@@ -19,16 +19,17 @@
 
 #include "Snapshot.h"
 
-#include "base/vec_utils.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/Node.h"
 #include "Model/NodeSnapshot.h"
 
+#include <kdl/vector_utils.h>
+
 namespace TrenchBroom {
     namespace Model {
         Snapshot::~Snapshot() {
-            VecUtils::clearAndDelete(m_nodeSnapshots);
-            VecUtils::clearAndDelete(m_brushFaceSnapshots);
+            kdl::clearAndDelete(m_nodeSnapshots);
+            kdl::clearAndDelete(m_brushFaceSnapshots);
         }
 
         void Snapshot::restoreNodes(const vm::bbox3& worldBounds) {

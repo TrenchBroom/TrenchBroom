@@ -25,8 +25,6 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Macros.h"
-#include "base/map_utils.h"
-#include "base/vec_utils.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -38,6 +36,9 @@
 #include "Renderer/RenderService.h"
 #include "View/MapDocument.h"
 #include "View/Selection.h"
+
+#include <kdl/map_utils.h>
+#include <kdl/vector_utils.h>
 
 #include <vecmath/ray.h>
 #include <vecmath/vec.h>
@@ -215,7 +216,7 @@ namespace TrenchBroom {
                 std::vector<vm::vec3> result;
                 for (size_t i = 0; i < m_numPoints; ++i) {
                     const std::vector<vm::vec3>& helpVectors = m_points[i].helpVectors;
-                    VecUtils::append(result, helpVectors);
+                    kdl::append(result, helpVectors);
                 }
 
                 return result;
@@ -507,8 +508,8 @@ namespace TrenchBroom {
             delete m_strategy;
             delete m_remainingBrushRenderer;
             delete m_clippedBrushRenderer;
-            MapUtils::clearAndDelete(m_frontBrushes);
-            MapUtils::clearAndDelete(m_backBrushes);
+            kdl::clearAndDelete(m_frontBrushes);
+            kdl::clearAndDelete(m_backBrushes);
         }
 
         const Grid& ClipTool::grid() const {
@@ -608,19 +609,19 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> result;
             if (!m_frontBrushes.empty()) {
                 if (keepFrontBrushes()) {
-                    result = MapUtils::mergeVectorMaps(result, m_frontBrushes);
+                    result = kdl::mergeVectorMaps(result, m_frontBrushes);
                     m_frontBrushes.clear();
                 } else {
-                    MapUtils::clearAndDelete(m_frontBrushes);
+                    kdl::clearAndDelete(m_frontBrushes);
                 }
             }
 
             if (!m_backBrushes.empty()) {
                 if (keepBackBrushes()) {
-                    result = MapUtils::mergeVectorMaps(result, m_backBrushes);
+                    result = kdl::mergeVectorMaps(result, m_backBrushes);
                     m_backBrushes.clear();
                 } else {
-                    MapUtils::clearAndDelete(m_backBrushes);
+                    kdl::clearAndDelete(m_backBrushes);
                 }
             }
 
@@ -744,8 +745,8 @@ namespace TrenchBroom {
         }
 
         void ClipTool::clearBrushes() {
-            MapUtils::clearAndDelete(m_frontBrushes);
-            MapUtils::clearAndDelete(m_backBrushes);
+            kdl::clearAndDelete(m_frontBrushes);
+            kdl::clearAndDelete(m_backBrushes);
         }
 
         void ClipTool::updateBrushes() {

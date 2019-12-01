@@ -19,7 +19,7 @@
 
 #include "IndexRangeMap.h"
 
-#include "base/vec_utils.h"
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -72,8 +72,8 @@ namespace TrenchBroom {
 
         void IndexRangeMap::IndicesAndCounts::add(const IndicesAndCounts& other, [[maybe_unused]] const bool dynamicGrowth) {
             assert(dynamicGrowth || indices.capacity() >= indices.size() + other.indices.size());
-            VecUtils::append(indices, other.indices);
-            VecUtils::append(counts, other.counts);
+            kdl::append(indices, other.indices);
+            kdl::append(counts, other.counts);
         }
 
         void IndexRangeMap::Size::inc(const PrimType primType, const size_t count) {

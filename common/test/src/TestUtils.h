@@ -23,8 +23,9 @@
 #include <gtest/gtest.h>
 
 #include "StringType.h"
-#include "base/vector_set.h"
 #include "Model/Model_Forward.h"
+
+#include <kdl/vector_set.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -48,12 +49,12 @@ namespace TrenchBroom {
 
 template <typename L, typename R>
 void ASSERT_COLLECTIONS_EQUIVALENT(const L& lhs, const R& rhs) {
-    ASSERT_EQ(vector_set(std::begin(lhs), std::end(lhs)), vector_set(std::begin(rhs), std::end(rhs)));
+    ASSERT_EQ(kdl::vector_set(std::begin(lhs), std::end(lhs)), kdl::vector_set(std::begin(rhs), std::end(rhs)));
 }
 
 template <typename L, typename R>
 void EXPECT_COLLECTIONS_EQUIVALENT(const L& lhs, const R& rhs) {
-    EXPECT_EQ(vector_set(std::begin(lhs), std::end(lhs)), vector_set(std::begin(rhs), std::end(rhs)));
+    EXPECT_EQ(kdl::vector_set(std::begin(lhs), std::end(lhs)), kdl::vector_set(std::begin(rhs), std::end(rhs)));
 }
 
 template <typename T, size_t S>

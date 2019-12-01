@@ -23,8 +23,6 @@
 #include "PreferenceManager.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/TextureManager.h"
-#include "base/map_utils.h"
-#include "base/vec_utils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
@@ -43,6 +41,9 @@
 #include "Model/World.h"
 #include "Model/NodeVisitor.h"
 #include "View/Selection.h"
+
+#include <kdl/map_utils.h>
+#include <kdl/vector_utils.h>
 
 #include <map>
 #include <memory>
@@ -117,7 +118,7 @@ namespace TrenchBroom {
 
             const std::vector<Model::Node*>& partiallySelected = visitor.nodes();
 
-            VecUtils::append(m_selectedBrushFaces, selected);
+            kdl::append(m_selectedBrushFaces, selected);
             m_partiallySelectedNodes.addNodes(partiallySelected);
 
             Selection selection;
@@ -209,7 +210,7 @@ namespace TrenchBroom {
 
             const std::vector<Model::Node*>& partiallyDeselected = visitor.nodes();
 
-            VecUtils::eraseAll(m_selectedBrushFaces, deselected);
+            kdl::eraseAll(m_selectedBrushFaces, deselected);
             m_selectedNodes.removeNodes(partiallyDeselected);
 
             Selection selection;
@@ -274,7 +275,7 @@ namespace TrenchBroom {
                 Model::Node* parent = entry.first;
                 const std::vector<Model::Node*>& children = entry.second;
                 parent->addChildren(children);
-                VecUtils::append(addedNodes, children);
+                kdl::append(addedNodes, children);
             }
 
             setEntityDefinitions(addedNodes);
@@ -414,7 +415,7 @@ namespace TrenchBroom {
             void doVisit(Model::Layer*) override  {}
             void doVisit(Model::Group* group) override {
                 assert(m_newNames.count(group) == 1);
-                const String& newName = MapUtils::findOrDefault(m_newNames, group, group->name());
+                const String& newName = kdl::findOrDefault(m_newNames, group, group->name());
                 group->setName(newName);
             }
             void doVisit(Model::Entity*) override {}
@@ -631,7 +632,7 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::restoreAttributes(const Model::EntityAttributeSnapshot::Map& attributes) {
-            const std::vector<Model::AttributableNode*> attributableNodes = MapUtils::keys(attributes);
+            const std::vector<Model::AttributableNode*> attributableNodes = kdl::keys(attributes);
             const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
             const std::vector<Model::Node*> parents = collectParents(std::begin(nodes), std::end(nodes));
             const std::vector<Model::Node*> descendants = collectDescendants(nodes);
@@ -789,12 +790,12 @@ namespace TrenchBroom {
                 Model::Brush* brush = entry.first;
                 const std::vector<vm::vec3>& oldPositions = entry.second;
                 const std::vector<vm::vec3> newPositions = brush->moveVertices(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
-                VecUtils::append(newVertexPositions, newPositions);
+                kdl::append(newVertexPositions, newPositions);
             }
 
             invalidateSelectionBounds();
 
-            VecUtils::sortAndMakeUnique(newVertexPositions);
+            kdl::sortAndMakeUnique(newVertexPositions);
             return newVertexPositions;
         }
 
@@ -810,12 +811,12 @@ namespace TrenchBroom {
                 Model::Brush* brush = entry.first;
                 const std::vector<vm::segment3>& oldPositions = entry.second;
                 const std::vector<vm::segment3> newPositions = brush->moveEdges(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
-                VecUtils::append(newEdgePositions, newPositions);
+                kdl::append(newEdgePositions, newPositions);
             }
 
             invalidateSelectionBounds();
 
-            VecUtils::sortAndMakeUnique(newEdgePositions);
+            kdl::sortAndMakeUnique(newEdgePositions);
             return newEdgePositions;
         }
 
@@ -831,12 +832,12 @@ namespace TrenchBroom {
                 Model::Brush* brush = entry.first;
                 const std::vector<vm::polygon3>& oldPositions = entry.second;
                 const std::vector<vm::polygon3> newPositions = brush->moveFaces(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
-                VecUtils::append(newFacePositions, newPositions);
+                kdl::append(newFacePositions, newPositions);
             }
 
             invalidateSelectionBounds();
 
-            VecUtils::sortAndMakeUnique(newFacePositions);
+            kdl::sortAndMakeUnique(newFacePositions);
             return newFacePositions;
         }
 
@@ -874,7 +875,7 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::performRebuildBrushGeometry(const std::vector<Model::Brush*>& brushes) {
-            const std::vector<Model::Node*> nodes = VecUtils::cast<Model::Node*>(brushes);
+            const std::vector<Model::Node*> nodes = kdl::cast<Model::Node*>(brushes);
             const std::vector<Model::Node*> parents = collectParents(nodes);
 
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
