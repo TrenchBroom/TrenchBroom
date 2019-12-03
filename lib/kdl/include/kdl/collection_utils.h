@@ -106,7 +106,7 @@ namespace kdl {
      * Applies the given deleter to all elements the given container.
      *
      * @tparam C the container type
-     * @tparam D the deleter type, defaults to Deleter
+     * @tparam D the deleter type, defaults to deleter
      * @param c the container
      * @param deleter the deleter to apply
      */

@@ -1,6 +1,7 @@
 add_executable(kdl-test)
 target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/collection_utils_test.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/map_utils_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/run_all.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/vector_set_test.cpp"
         )

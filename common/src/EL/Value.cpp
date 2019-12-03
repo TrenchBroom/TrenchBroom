@@ -1046,7 +1046,7 @@ namespace TrenchBroom {
                 case ValueType::Map:
                     switch (rhs.type()) {
                         case ValueType::Map:
-                            return Value(kdl::mapUnion(lhs.mapValue(), rhs.mapValue()));
+                            return Value(kdl::map_union(lhs.mapValue(), rhs.mapValue()));
                         case ValueType::Boolean:
                         case ValueType::Number:
                         case ValueType::String:
@@ -1314,7 +1314,7 @@ namespace TrenchBroom {
                 case ValueType::Map:
                     switch (rhs.type()) {
                         case ValueType::Map:
-                            return kdl::lexicographicalCompare(lhs.mapValue(), rhs.mapValue());
+                            return kdl::lexicographical_compare(lhs.mapValue(), rhs.mapValue());
                         case ValueType::Null:
                         case ValueType::Undefined:
                             return 1;

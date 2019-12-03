@@ -415,7 +415,7 @@ namespace TrenchBroom {
             void doVisit(Model::Layer*) override  {}
             void doVisit(Model::Group* group) override {
                 assert(m_newNames.count(group) == 1);
-                const String& newName = kdl::findOrDefault(m_newNames, group, group->name());
+                const String& newName = kdl::find_or_default(m_newNames, group, group->name());
                 group->setName(newName);
             }
             void doVisit(Model::Entity*) override {}

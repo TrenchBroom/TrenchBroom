@@ -508,8 +508,8 @@ namespace TrenchBroom {
             delete m_strategy;
             delete m_remainingBrushRenderer;
             delete m_clippedBrushRenderer;
-            kdl::clearAndDelete(m_frontBrushes);
-            kdl::clearAndDelete(m_backBrushes);
+            kdl::clear_and_delete(m_frontBrushes);
+            kdl::clear_and_delete(m_backBrushes);
         }
 
         const Grid& ClipTool::grid() const {
@@ -609,19 +609,19 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> result;
             if (!m_frontBrushes.empty()) {
                 if (keepFrontBrushes()) {
-                    result = kdl::mergeVectorMaps(result, m_frontBrushes);
+                    result = kdl::merge_vector_maps(result, m_frontBrushes);
                     m_frontBrushes.clear();
                 } else {
-                    kdl::clearAndDelete(m_frontBrushes);
+                    kdl::clear_and_delete(m_frontBrushes);
                 }
             }
 
             if (!m_backBrushes.empty()) {
                 if (keepBackBrushes()) {
-                    result = kdl::mergeVectorMaps(result, m_backBrushes);
+                    result = kdl::merge_vector_maps(result, m_backBrushes);
                     m_backBrushes.clear();
                 } else {
-                    kdl::clearAndDelete(m_backBrushes);
+                    kdl::clear_and_delete(m_backBrushes);
                 }
             }
 
@@ -745,8 +745,8 @@ namespace TrenchBroom {
         }
 
         void ClipTool::clearBrushes() {
-            kdl::clearAndDelete(m_frontBrushes);
-            kdl::clearAndDelete(m_backBrushes);
+            kdl::clear_and_delete(m_frontBrushes);
+            kdl::clear_and_delete(m_backBrushes);
         }
 
         void ClipTool::updateBrushes() {

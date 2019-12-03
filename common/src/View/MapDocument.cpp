@@ -800,7 +800,7 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove;
             for (const auto& entry : nodesToAdd) {
                 const std::vector<Model::Node*>& children = entry.second;
-                nodesToRemove = kdl::mergeVectorMaps(nodesToRemove, Model::parentChildrenMap(children));
+                nodesToRemove = kdl::merge_vector_maps(nodesToRemove, Model::parentChildrenMap(children));
             }
 
             Transaction transaction(this, "Reparent Objects");
