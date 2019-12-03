@@ -90,7 +90,7 @@ namespace TrenchBroom {
         void ObjFileSerializer::writeTexCoords() {
             std::fprintf(m_stream, "# texture coordinates\n");
             for (const vm::vec2f& elem : m_texCoords.list()) {
-                std::fprintf(m_stream, "vt %.17g %.17g\n", static_cast<double>(elem.x()), static_cast<double>(elem.y()));
+                std::fprintf(m_stream, "vt %.17g %.17g\n", static_cast<double>(elem.x()), static_cast<double>(-elem.y()));
             }
         }
 
