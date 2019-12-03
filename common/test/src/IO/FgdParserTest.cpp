@@ -350,13 +350,14 @@ namespace TrenchBroom {
         }
 
         /**
-         * Support having an integer as a default for a string attribute. Technically
+         * Support having an integer (or decimal) as a default for a string attribute. Technically
          * a type mismatch, but appears in the wild; see: https://github.com/kduske/TrenchBroom/issues/2833
          */
         TEST(FgdParserTest, parseStringAttribute_IntDefault) {
             const String file = R"(@PointClass = info_notnull : "Wildcard entity"
 [
     name(string) : "Description" : 3
+    other(string) : "" : 1.5
 ])";
 
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -372,7 +373,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
 
-            ASSERT_EQ(1u, definition->attributeDefinitions().size());
+            ASSERT_EQ(2u, definition->attributeDefinitions().size());
 
             const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("name");
             ASSERT_TRUE(attribute1 != nullptr);
@@ -384,6 +385,17 @@ namespace TrenchBroom {
             ASSERT_EQ(String(), stringAttribute1->longDescription());
             ASSERT_TRUE(stringAttribute1->hasDefaultValue());
             ASSERT_EQ(String("3"), stringAttribute1->defaultValue());
+
+            const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("other");
+            ASSERT_TRUE(attribute2 != nullptr);
+            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, attribute2->type());
+
+            const Assets::StringAttributeDefinition* stringAttribute2 = static_cast<const Assets::StringAttributeDefinition*>(attribute2);
+            ASSERT_EQ(String("other"), stringAttribute2->name());
+            ASSERT_EQ(String(), stringAttribute2->shortDescription());
+            ASSERT_EQ(String(), stringAttribute2->longDescription());
+            ASSERT_TRUE(stringAttribute2->hasDefaultValue());
+            ASSERT_EQ(String("1.5"), stringAttribute2->defaultValue());
 
             VectorUtils::clearAndDelete(definitions);
         }
