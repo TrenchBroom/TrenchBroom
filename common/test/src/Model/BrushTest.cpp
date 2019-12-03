@@ -2709,7 +2709,7 @@ namespace TrenchBroom {
 
             delete minuend;
             delete subtrahend;
-            kdl::deleteAll(result);
+            kdl::delete_all(result);
         }
 
         TEST(BrushTest, subtractDisjoint) {
@@ -2730,7 +2730,7 @@ namespace TrenchBroom {
             Brush* subtraction = result.at(0);
             ASSERT_COLLECTIONS_EQUIVALENT(brush1->vertexPositions(), subtraction->vertexPositions());
 
-            kdl::deleteAll(result);
+            kdl::delete_all(result);
         }
 
         TEST(BrushTest, subtractEnclosed) {
@@ -2748,7 +2748,7 @@ namespace TrenchBroom {
             std::vector<Brush*> result = brush1->subtract(world, worldBounds, "texture", brush2);
             ASSERT_EQ(0u, result.size());
 
-            kdl::deleteAll(result);
+            kdl::delete_all(result);
         }
 
 
@@ -2825,7 +2825,7 @@ namespace TrenchBroom {
 
             delete minuend;
             delete subtrahend;
-            kdl::deleteAll(result);
+            kdl::delete_all(result);
         }
 
         TEST(BrushTest, subtractDome) {
@@ -2856,8 +2856,8 @@ namespace TrenchBroom {
             const auto result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
 
             delete minuend;
-            kdl::deleteAll(subtrahend);
-            kdl::deleteAll(result);
+            kdl::delete_all(subtrahend);
+            kdl::delete_all(result);
         }
 
         TEST(BrushTest, subtractPipeFromCubeWithMissingFragments) {
@@ -2899,7 +2899,7 @@ namespace TrenchBroom {
 
             delete minuend;
             delete subtrahend;
-            kdl::deleteAll(result);
+            kdl::delete_all(result);
         }
 
         TEST(BrushTest, testAlmostDegenerateBrush) {

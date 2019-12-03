@@ -23,7 +23,7 @@
 
 namespace kdl {
     template<typename T>
-    struct Deleter {
+    struct deleter {
         void operator()(T ptr) const {
             delete ptr;
         }
@@ -37,10 +37,10 @@ namespace kdl {
      * @tparam Compare the type of the comparator, defaults to std::less<T>
      */
     template<typename T, typename Compare = std::less<T>>
-    struct Equivalence {
+    struct equivalence {
         Compare cmp;
 
-        explicit Equivalence(const Compare& i_cmp = Compare()) :
+        explicit equivalence(const Compare& i_cmp = Compare()) :
             cmp(i_cmp) {}
 
         bool operator()(const T& lhs, const T& rhs) const {
@@ -59,7 +59,7 @@ namespace kdl {
      */
     template<typename C, typename... Args>
     auto size(const C& c, Args&& ... args) {
-        return c.size() + (args.size() + ...);
+        return (c.size() + ... + args.size());
     }
 
     /**
@@ -78,10 +78,10 @@ namespace kdl {
      * contains the retained elements and [result, last1) contains the removed elements
      */
     template<typename I1, typename I2>
-    I1 removeAll(I1 first1, I1 last1, I2 first2, I2 last2) {
+    I1 remove_all(I1 first1, I1 last1, I2 first2, I2 last2) {
         I1 result = last1;
         while (first2 != last2) {
-            result = std::remove(first1, result, *first1++);
+            result = std::remove(first1, result, *first2++);
         }
         return result;
     }
@@ -95,8 +95,8 @@ namespace kdl {
      * @param last the end of the range of values to delete (past-the-end iterator)
      * @param deleter the deleter to apply
      */
-    template<typename I, typename D = Deleter<typename I::value_type>>
-    void deleteAll(I first, I last, const D& deleter = D()) {
+    template<typename I, typename D = deleter<typename I::value_type>>
+    void delete_all(I first, I last, const D& deleter = D()) {
         while (first != last) {
             deleter(*first++);
         }
@@ -110,9 +110,9 @@ namespace kdl {
      * @param c the container
      * @param deleter the deleter to apply
      */
-    template<typename C, typename D = Deleter<typename C::value_type>>
-    void deleteAll(C& c, const D& deleter = D()) {
-        deleteAll(std::begin(c), std::end(c), deleter);
+    template<typename C, typename D = deleter<typename C::value_type>>
+    void delete_all(C& c, const D& deleter = D()) {
+        kdl::delete_all(std::begin(c), std::end(c), deleter);
     }
 
     /**
@@ -132,7 +132,7 @@ namespace kdl {
      * @return an int indicating the result of the comparison
      */
     template<typename I1, typename I2, typename Compare = std::less<typename std::common_type<typename I1::value_type, typename I2::value_type>::type>>
-    int lexicographicalCompare(I1 first1, I1 last1, I2 first2, I2 last2, const Compare& cmp = Compare()) {
+    int lexicographical_compare(I1 first1, I1 last1, I2 first2, I2 last2, const Compare& cmp = Compare()) {
         while (first1 != last1 && first2 != last2) {
             if (cmp(*first1, *first2)) {
                 return -1;
@@ -168,8 +168,8 @@ namespace kdl {
      * @return an int indicating the result of the comparison
      */
     template<typename C1, typename C2, typename Compare = std::less<typename std::common_type<typename C1::value_type, typename C2::value_type>::type>>
-    int lexicographicalCompare(const C1& c1, const C2& c2, const Compare& cmp = Compare()) {
-        return lexicographicalCompare(std::begin(c1), std::end(c1), std::begin(c2), std::end(c2), cmp);
+    int lexicographical_compare(const C1& c1, const C2& c2, const Compare& cmp = Compare()) {
+        return kdl::lexicographical_compare(std::begin(c1), std::end(c1), std::begin(c2), std::end(c2), cmp);
     }
 
     /**
@@ -189,8 +189,8 @@ namespace kdl {
      * @return true if the given ranges are equivalent and false otherwise
      */
     template<typename I1, typename I2, typename Compare = std::less<typename std::common_type<typename I1::value_type, typename I2::value_type>::type>>
-    bool equivalent(I1 first1, I1 last1, I2 first2, I2 last2, const Compare& cmp = Compare()) {
-        return lexicographicalCompare(first1, last1, first2, last2, cmp) == 0;
+    bool is_equivalent(I1 first1, I1 last1, I2 first2, I2 last2, const Compare& cmp = Compare()) {
+        return kdl::lexicographical_compare(first1, last1, first2, last2, cmp) == 0;
     }
 
     /**
@@ -208,11 +208,11 @@ namespace kdl {
      * @return true if the given collections are equivalent and false otherwise
      */
     template<typename C1, typename C2, typename Compare = std::less<typename std::common_type<typename C1::value_type, typename C2::value_type>::type>>
-    bool equivalent(const C1& c1, const C2& c2, const Compare& cmp = Compare()) {
+    bool is_equivalent(const C1& c1, const C2& c2, const Compare& cmp = Compare()) {
         if (c1.size() != c2.size()) {
             return false;
         } else {
-            return equivalent(c1, c2, cmp);
+            return kdl::is_equivalent(std::begin(c1), std::end(c1), std::begin(c2), std::end(c2), cmp);
         }
     }
 }

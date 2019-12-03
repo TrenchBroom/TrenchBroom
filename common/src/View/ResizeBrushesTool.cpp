@@ -408,7 +408,7 @@ namespace TrenchBroom {
 
                 if (!newBrush->canMoveBoundary(worldBounds, newDragFace, delta)) {
                     // There is a brush for which the move is not applicable. Abort.
-                    kdl::deleteAll(newBrushes);
+                    kdl::delete_all(newBrushes);
                     return false;
                 } else {
                     auto* clipFace = newDragFace->clone();
@@ -419,7 +419,7 @@ namespace TrenchBroom {
                     // This should never happen, but let's be on the safe side.
                     if (!newBrush->clip(worldBounds, clipFace)) {
                         delete clipFace;
-                        kdl::deleteAll(newBrushes);
+                        kdl::delete_all(newBrushes);
                         return false;
                     }
 

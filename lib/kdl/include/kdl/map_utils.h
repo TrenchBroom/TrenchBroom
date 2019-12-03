@@ -48,7 +48,7 @@ namespace kdl {
     int
     lexicographicalCompare(const std::map<K, V, C>& map1, const std::map<K, V, C>& map2, const D& valueCmp = D()) {
         const auto keyCmp = C();
-        return kdl::lexicographicalCompare(std::begin(map1), std::end(map1), std::begin(map2),
+        return kdl::lexicographical_compare(std::begin(map1), std::end(map1), std::begin(map2),
             std::end(map2),
             [&keyCmp, &valueCmp](const auto& lhs, const auto& rhs) {
                 const K& lhsKey = lhs.first;
@@ -77,7 +77,7 @@ namespace kdl {
             return false;
         }
 
-        return lexicographicalCompare(map1, map2, valueCmp) == 0;
+        return lexicographical_compare(map1, map2, valueCmp) == 0;
     }
 
     template<typename K, typename V, typename L>
@@ -118,7 +118,7 @@ namespace kdl {
     template<typename K, typename V>
     void clearAndDelete(std::map<K, std::vector<V*>>& m) {
         for (auto& e : m) {
-            kdl::deleteAll(e.second);
+            kdl::delete_all(e.second);
         }
         m.clear();
     }

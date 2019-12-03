@@ -220,7 +220,7 @@ namespace kdl {
     template<typename T, typename A, typename Compare = std::less<T>>
     void sortAndMakeUnique(std::vector<T, A>& v, const Compare& cmp = Compare()) {
         std::sort(std::begin(v), std::end(v), cmp);
-        v.erase(std::unique(std::begin(v), std::end(v), kdl::Equivalence<T, Compare>(cmp)), std::end(v));
+        v.erase(std::unique(std::begin(v), std::end(v), kdl::equivalence<T, Compare>(cmp)), std::end(v));
     }
 
     /**
@@ -308,7 +308,7 @@ namespace kdl {
 
     template<typename T>
     void clearAndDelete(std::vector<T*>& v) {
-        kdl::deleteAll(v);
+        kdl::delete_all(v);
         v.clear();
     }
 }

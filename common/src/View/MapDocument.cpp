@@ -396,7 +396,7 @@ namespace TrenchBroom {
             const Model::BrushFace* face = faces.back();
 
             const bool result = setFaceAttributes(face->attribs());
-            kdl::deleteAll(faces);
+            kdl::delete_all(faces);
 
             return result;
         }

@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include <kdl/vector_set.h>
+#include "kdl/vector_set.h"
 
 namespace kdl {
     using vec = std::vector<int>;

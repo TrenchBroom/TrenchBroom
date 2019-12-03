@@ -1299,7 +1299,7 @@ namespace TrenchBroom {
                 case ValueType::Array:
                     switch (rhs.type()) {
                         case ValueType::Array:
-                            return kdl::lexicographicalCompare(lhs.arrayValue(), rhs.arrayValue());
+                            return kdl::lexicographical_compare(lhs.arrayValue(), rhs.arrayValue());
                         case ValueType::Null:
                         case ValueType::Undefined:
                             return 1;
@@ -1329,7 +1329,7 @@ namespace TrenchBroom {
                 case ValueType::Range:
                     switch (rhs.type()) {
                         case ValueType::Range:
-                            return kdl::lexicographicalCompare(lhs.rangeValue(), rhs.rangeValue());
+                            return kdl::lexicographical_compare(lhs.rangeValue(), rhs.rangeValue());
                         case ValueType::Null:
                         case ValueType::Undefined:
                             return 1;

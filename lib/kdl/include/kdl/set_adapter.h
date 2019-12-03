@@ -301,32 +301,32 @@ namespace kdl {
 
     template <typename C1, typename C2, typename Compare>
     bool operator==(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
-        return lhs.size() == rhs.size() && lexicographicalCompare(lhs, rhs, Compare()) == 0;
+        return lhs.size() == rhs.size() && lexicographical_compare(lhs, rhs, Compare()) == 0;
     }
 
     template <typename C1, typename C2, typename Compare>
     bool operator!=(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
-        return lhs.size() != rhs.size() || lexicographicalCompare(lhs, rhs, Compare()) != 0;
+        return lhs.size() != rhs.size() || lexicographical_compare(lhs, rhs, Compare()) != 0;
     }
 
     template <typename C1, typename C2, typename Compare>
     bool operator<(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
-        return lexicographicalCompare(lhs, rhs, Compare()) < 0;
+        return lexicographical_compare(lhs, rhs, Compare()) < 0;
     }
 
     template <typename C1, typename C2, typename Compare>
     bool operator<=(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
-        return lexicographicalCompare(lhs, rhs, Compare()) <= 0;
+        return lexicographical_compare(lhs, rhs, Compare()) <= 0;
     }
 
     template <typename C1, typename C2, typename Compare>
     bool operator>(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
-        return lexicographicalCompare(lhs, rhs, Compare()) > 0;
+        return lexicographical_compare(lhs, rhs, Compare()) > 0;
     }
 
     template <typename C1, typename C2, typename Compare>
     bool operator>=(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
-        return lexicographicalCompare(lhs, rhs, Compare()) >= 0;
+        return lexicographical_compare(lhs, rhs, Compare()) >= 0;
     }
 
     /**
