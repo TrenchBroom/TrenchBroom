@@ -577,9 +577,13 @@ namespace TrenchBroom {
             auto token = m_tokenizer.peekToken();
             if (token.type() == FgdToken::Colon) {
                 m_tokenizer.nextToken();
-                token = expect(status, FgdToken::String | FgdToken::Colon, m_tokenizer.peekToken());
+                token = expect(status, FgdToken::String | FgdToken::Colon | FgdToken::Integer | FgdToken::Decimal, m_tokenizer.peekToken());
                 if (token.type() == FgdToken::String) {
                     token = m_tokenizer.nextToken();
+                    return token.data();
+                } else if (token.type() == FgdToken::Integer || token.type() == FgdToken::Decimal) {
+                    token = m_tokenizer.nextToken();
+                    status.warn(token.line(), token.column(), "Found numeric default value for string property");
                     return token.data();
                 }
             }

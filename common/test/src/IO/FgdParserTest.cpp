@@ -350,6 +350,57 @@ namespace TrenchBroom {
             kdl::clear_and_delete(definitions);
         }
 
+        /**
+         * Support having an integer (or decimal) as a default for a string attribute. Technically
+         * a type mismatch, but appears in the wild; see: https://github.com/kduske/TrenchBroom/issues/2833
+         */
+        TEST(FgdParserTest, parseStringAttribute_IntDefault) {
+            const String file = R"(@PointClass = info_notnull : "Wildcard entity"
+[
+    name(string) : "Description" : 3
+    other(string) : "" : 1.5
+])";
+
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            FgdParser parser(file, defaultColor);
+
+            TestParserStatus status;
+            auto definitions = parser.parseDefinitions(status);
+            ASSERT_EQ(1u, definitions.size());
+
+            Assets::EntityDefinition* definition = definitions[0];
+            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
+            ASSERT_EQ(String("info_notnull"), definition->name());
+            ASSERT_VEC_EQ(defaultColor, definition->color());
+            ASSERT_EQ(String("Wildcard entity"), definition->description());
+
+            ASSERT_EQ(2u, definition->attributeDefinitions().size());
+
+            const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("name");
+            ASSERT_TRUE(attribute1 != nullptr);
+            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, attribute1->type());
+
+            const Assets::StringAttributeDefinition* stringAttribute1 = static_cast<const Assets::StringAttributeDefinition*>(attribute1);
+            ASSERT_EQ(String("name"), stringAttribute1->name());
+            ASSERT_EQ(String("Description"), stringAttribute1->shortDescription());
+            ASSERT_EQ(String(), stringAttribute1->longDescription());
+            ASSERT_TRUE(stringAttribute1->hasDefaultValue());
+            ASSERT_EQ(String("3"), stringAttribute1->defaultValue());
+
+            const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("other");
+            ASSERT_TRUE(attribute2 != nullptr);
+            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, attribute2->type());
+
+            const Assets::StringAttributeDefinition* stringAttribute2 = static_cast<const Assets::StringAttributeDefinition*>(attribute2);
+            ASSERT_EQ(String("other"), stringAttribute2->name());
+            ASSERT_EQ(String(), stringAttribute2->shortDescription());
+            ASSERT_EQ(String(), stringAttribute2->longDescription());
+            ASSERT_TRUE(stringAttribute2->hasDefaultValue());
+            ASSERT_EQ(String("1.5"), stringAttribute2->defaultValue());
+
+            VectorUtils::clearAndDelete(definitions);
+        }
+
         TEST(FgdParserTest, parseIntegerAttribute) {
             const String file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"

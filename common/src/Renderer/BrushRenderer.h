@@ -67,7 +67,7 @@ namespace TrenchBroom {
                 Filter& operator=(const Filter& other);
 
                 /**
-                 * Classifies whether the brush will be rendered, and which faces/edges and the render opacity.
+                 * Classifies whether the brush will be rendered, and which faces/edges.
                  *
                  * If both FaceRenderPolicy::RenderNone and EdgeRenderPolicy::RenderNone are returned, the brush is
                  * skipped (not added to the vertex array or index arrays at all).
@@ -156,7 +156,7 @@ namespace TrenchBroom {
             Color m_tintColor;
             bool m_showOccludedEdges;
             Color m_occludedEdgeColor;
-            bool m_transparent;
+            bool m_forceTransparent;
             float m_transparencyAlpha;
 
             bool m_showHiddenBrushes;
@@ -168,7 +168,7 @@ namespace TrenchBroom {
             m_grayscale(false),
             m_tint(false),
             m_showOccludedEdges(false),
-            m_transparent(false),
+            m_forceTransparent(false),
             m_transparencyAlpha(1.0f),
             m_showHiddenBrushes(false) {
                 clear();
@@ -246,12 +246,17 @@ namespace TrenchBroom {
              * Specifies whether or not faces should be rendered transparent. Overrides any transparency settings from
              * the face itself or its material.
              *
+             * Note: setTransparencyAlpha must be set to something less than 1.0 for this to have any effect.
+             *
              * @see setTransparencyAlpha
              */
             void setForceTransparent(bool transparent);
 
             /**
              * The alpha value to render transparent faces with.
+             *
+             * Note: this defaults to 1.0, which means requests for transparency from the brush, face,
+             * or setForceTransparent() are ignored by default.
              */
             void setTransparencyAlpha(float transparencyAlpha);
 
@@ -274,6 +279,7 @@ namespace TrenchBroom {
              */
             void validate();
         private:
+            bool shouldDrawFaceInTransparentPass(const Model::Brush* brush, const Model::BrushFace* face) const;
             void validateBrush(const Model::Brush* brush);
             void addBrush(const Model::Brush* brush);
             void removeBrush(const Model::Brush* brush);
