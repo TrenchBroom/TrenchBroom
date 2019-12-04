@@ -668,7 +668,7 @@ namespace kdl {
          */
         template <typename... Args>
         std::pair<iterator,bool> emplace(Args&&... args) {
-            return insert(T(std::forward<Args>(args)...));
+            return insert(value_type(std::forward<Args>(args)...));
         }
 
         /**
@@ -694,7 +694,7 @@ namespace kdl {
          */
         template <typename... Args>
         iterator emplace_hint(const_iterator hint, Args&&... args) {
-            return insert(hint, T(std::forward<Args>(args)...));
+            return insert(hint, value_type(std::forward<Args>(args)...));
         }
 
         /**
@@ -759,7 +759,8 @@ namespace kdl {
         }
 
         /**
-         * Swaps this set with the given set.
+         * Swaps this set with the given set. This function is only callable if the underlying collection is stored by
+         * value;
          *
          * @param other the set to swap with
          */
@@ -827,8 +828,9 @@ namespace kdl {
         /**
          * Returns the underlying vector. Afterwards, this set will be empty.
          */
-        C release_data() {
-            return C(std::move(m_data));
+        auto release_data() {
+            using CC = std::remove_reference_t<C>;
+            return CC(std::move(m_data));
         }
     protected:
         using base::check_invariant;
@@ -847,6 +849,7 @@ namespace kdl {
                 const auto offset = std::distance(cbegin(), pos);
                 return { std::next(begin(), offset), false };
             } else {
+                hint = insert_hint(hint, value);
                 return { m_data.insert(hint, std::forward<TT>(value)), true };
             }
         }
@@ -859,7 +862,7 @@ namespace kdl {
 
             if (hint != begin()) {
                 const auto pos = std::prev(hint);
-                if (!cmp(*pos, value)) {
+                if (!m_cmp(*pos, value)) {
                     return insert_hint(value);
                 }
             }
