@@ -398,7 +398,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(stringAttribute2->hasDefaultValue());
             ASSERT_EQ(String("1.5"), stringAttribute2->defaultValue());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseIntegerAttribute) {
