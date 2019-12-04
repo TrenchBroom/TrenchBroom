@@ -54,6 +54,8 @@
 #include "Model/Layer.h"
 #include "Model/World.h"
 
+#include <kdl/string_utils.h>
+
 #include <vector>
 
 namespace TrenchBroom {
@@ -270,11 +272,11 @@ namespace TrenchBroom {
 
         bool GameImpl::doIsEntityDefinitionFile(const IO::Path& path) const {
             const auto extension = path.extension();
-            if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
+            if (kdl::ci::is_equal("fgd", extension)) {
                 return true;
-            } else if (StringUtils::caseInsensitiveEqual("def", extension)) {
+            } else if (kdl::ci::is_equal("def", extension)) {
                 return true;
-            } else if (StringUtils::caseInsensitiveEqual("ent", extension)) {
+            } else if (kdl::ci::is_equal("ent", extension)) {
                 return true;
             } else {
                 return false;
@@ -285,17 +287,17 @@ namespace TrenchBroom {
             const auto extension = path.extension();
             const auto& defaultColor = m_config.entityConfig().defaultColor;
 
-            if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
+            if (kdl::ci::is_equal("fgd", extension)) {
                 auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 auto reader = file->reader().buffer();
                 IO::FgdParser parser(std::begin(reader), std::end(reader), defaultColor, file->path());
                 return parser.parseDefinitions(status);
-            } else if (StringUtils::caseInsensitiveEqual("def", extension)) {
+            } else if (kdl::ci::is_equal("def", extension)) {
                 auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 auto reader = file->reader().buffer();
                 IO::DefParser parser(std::begin(reader), std::end(reader), defaultColor);
                 return parser.parseDefinitions(status);
-            } else if (StringUtils::caseInsensitiveEqual("ent", extension)) {
+            } else if (kdl::ci::is_equal("ent", extension)) {
                 auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 auto reader = file->reader().buffer();
                 IO::EntParser parser(std::begin(reader), std::end(reader), defaultColor);
@@ -467,7 +469,7 @@ namespace TrenchBroom {
             const auto subDirs = fs.findItems(IO::Path(""), IO::FileTypeMatcher(false, true));
             for (size_t i = 0; i < subDirs.size(); ++i) {
                 const String mod = subDirs[i].lastComponent().asString();
-                if (!StringUtils::caseInsensitiveEqual(mod, defaultMod)) {
+                if (!kdl::ci::is_equal(mod, defaultMod)) {
                     result.push_back(mod);
                 }
             }

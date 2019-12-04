@@ -21,7 +21,7 @@
 
 #include <algorithm>
 #include <cstdarg>
-#include <cctype>
+#include <cctype> // for std::tolower
 
 namespace StringUtils {
     const String& choose(const bool predicate, const String& positive, const String& negative) {
@@ -66,40 +66,6 @@ namespace StringUtils {
         return str.substr(first, last - first + 1);
     }
 
-    size_t findFirstDifference(const String& str1, const String& str2) {
-        const size_t max = std::min(str1.size(), str2.size());
-        size_t index = 0;
-        while (index < max) {
-            if (str1[index] != str2[index])
-                break;
-            ++index;
-        }
-        return index;
-    }
-
-    bool isNumberedPrefix(const String& str, const String& prefix) {
-        if (prefix.empty())
-            return true;
-        if (prefix.size() > str.size())
-            return false;
-
-        const size_t firstDiff = findFirstDifference(str, prefix);
-        if (firstDiff < prefix.size())
-            return false;
-
-        return isNumber(String(str, firstDiff, str.length() - firstDiff));
-    }
-
-    bool isPrefix(const String& str, const String& prefix) {
-        if (prefix.empty())
-            return true;
-        if (prefix.size() > str.size())
-            return false;
-
-        const size_t firstDiff = findFirstDifference(str, prefix);
-        return firstDiff == prefix.size();
-    }
-
     bool isNumber(const String& str) {
         for (size_t i = 0; i < str.size(); ++i) {
             const char c = str[i];
@@ -109,72 +75,8 @@ namespace StringUtils {
         return true;
     }
 
-    bool containsCaseSensitive(const String& haystack, const String& needle) {
-        return std::search(std::begin(haystack), std::end(haystack), std::begin(needle), std::end(needle), CharEqual<CaseSensitiveCharCompare>()) != std::end(haystack);
-    }
-
-    bool containsCaseInsensitive(const String& haystack, const String& needle) {
-        return std::search(std::begin(haystack), std::end(haystack), std::begin(needle), std::end(needle),  CharEqual<CaseInsensitiveCharCompare>()) != std::end(haystack);
-    }
-
-    void sortCaseSensitive(StringList& strs) {
-        std::sort(std::begin(strs), std::end(strs), StringLess<CaseSensitiveCharCompare>());
-    }
-
-    void sortCaseInsensitive(StringList& strs) {
-        std::sort(std::begin(strs), std::end(strs), StringLess<CaseInsensitiveCharCompare>());
-    }
-
-    int caseSensitiveCompare(const String& str1, const String& str2) {
-        return compare(str1, str2, CaseSensitiveCharCompare());
-    }
-
-    int caseInsensitiveCompare(const String& str1, const String& str2) {
-        return compare(str1, str2, CaseInsensitiveCharCompare());
-    }
-
-    bool caseSensitiveEqual(const String& str1, const String& str2) {
-        return isEqual(str1, str2, CaseSensitiveCharCompare());
-    }
-
-    bool caseSensitiveEqual(const char* s1, const char* e1, const String& str2) {
-        return isEqual(s1, e1, str2, CaseSensitiveCharCompare());
-    }
-
-    bool caseInsensitiveEqual(const String& str1, const String& str2) {
-        return isEqual(str1, str2, CaseInsensitiveCharCompare());
-    }
-
-    bool caseInsensitiveEqual(const char* s1, const char* e1, const String& str2) {
-        return isEqual(s1, e1, str2, CaseInsensitiveCharCompare());
-    }
-
-    bool caseSensitivePrefix(const String& str, const String& prefix) {
-        return isPrefix(str, prefix, CaseSensitiveCharCompare());
-    }
-
-    bool caseInsensitivePrefix(const String& str, const String& prefix) {
-        return isPrefix(str, prefix, CaseInsensitiveCharCompare());
-    }
-
-    bool caseSensitiveSuffix(const String& str, const String& suffix) {
-        return isSuffix(str, suffix, CaseSensitiveCharCompare());
-    }
-
-    bool caseInsensitiveSuffix(const String& str, const String& suffix) {
-        return isSuffix(str, suffix, CaseInsensitiveCharCompare());
-    }
-
     bool isBlank(const String& str) {
         return str.find_first_not_of(" \t\n\r") == String::npos;
-    }
-
-    bool caseSensitiveMatchesPattern(const String& str, const String& pattern) {
-        return matchesPattern(std::begin(str), std::end(str), std::begin(pattern), std::end(pattern), StringUtils::CharEqual<StringUtils::CaseSensitiveCharCompare>());
-    }
-
-    bool caseInsensitiveMatchesPattern(const String& str, const String& pattern) {
-        return matchesPattern(std::begin(str), std::end(str), std::begin(pattern), std::end(pattern), StringUtils::CharEqual<StringUtils::CaseInsensitiveCharCompare>());
     }
 
     long makeHash(const String& str) {

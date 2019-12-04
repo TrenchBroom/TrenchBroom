@@ -28,7 +28,6 @@
 
 #include <cassert>
 #include <cstdarg>
-#include <locale>
 #include <map>
 #include <set>
 #include <sstream>
@@ -38,87 +37,6 @@
 static const StringList EmptyStringList(0);
 
 namespace StringUtils {
-    struct PushPrecision {
-    private:
-        std::ostream& m_str;
-        std::streamsize m_oldPrecision;
-        std::ios::fmtflags m_oldFlags;
-    public:
-        explicit PushPrecision(std::ostream& str, const std::streamsize precision = 9):
-        m_str(str),
-        m_oldPrecision(m_str.precision()),
-        m_oldFlags(str.flags()){
-            m_str.precision(precision);
-            m_str.setf(std::ios::fixed, std::ios::floatfield);
-            m_str << std::ios::fixed;
-        }
-
-
-        ~PushPrecision() {
-            m_str.precision(m_oldPrecision);
-            m_str.flags(m_oldFlags);
-        }
-    };
-
-    struct CaseSensitiveCharCompare {
-    public:
-        int operator()(const char& lhs, const char& rhs) const {
-            return lhs - rhs;
-        }
-    };
-
-    struct CaseInsensitiveCharCompare {
-    private:
-        std::locale m_locale;
-    public:
-        explicit CaseInsensitiveCharCompare(std::locale loc = std::locale::classic()) :
-        m_locale(loc) {}
-
-        int operator()(const char& lhs, const char& rhs) const {
-            return std::tolower(lhs, m_locale) - std::tolower(rhs, m_locale);
-        }
-    };
-
-    template <typename Cmp>
-    struct CharEqual {
-    private:
-        Cmp m_compare;
-    public:
-        bool operator()(const char& lhs, const char& rhs) const {
-            return m_compare(lhs, rhs) == 0;
-        }
-    };
-
-    template <typename Cmp>
-    struct CharLess {
-    private:
-        Cmp m_compare;
-    public:
-        bool operator()(const char& lhs, const char& rhs) const {
-            return m_compare(lhs, rhs) < 0;
-        }
-    };
-
-    template <typename Cmp>
-    struct StringEqual {
-    public:
-        bool operator()(const String& lhs, const String& rhs) const {
-            if (lhs.size() != rhs.size())
-                return false;
-            return std::equal(std::begin(lhs), std::end(lhs), std::begin(rhs), CharEqual<Cmp>());
-        }
-    };
-
-    template <typename Cmp>
-    struct StringLess {
-        bool operator()(const String& lhs, const String& rhs) const {
-            return std::lexicographical_compare(std::begin(lhs), std::end(lhs), std::begin(rhs), std::end(rhs), CharLess<Cmp>());
-        }
-    };
-
-    using CaseSensitiveStringLess = StringLess<CaseSensitiveCharCompare>;
-    using CaseInsensitiveStringLess = StringLess<CaseInsensitiveCharCompare>;
-
     const String& choose(bool predicate, const String& positive, const String& negative);
 
     template <typename T>
@@ -145,165 +63,29 @@ namespace StringUtils {
         return str.erase(end + 1);
     }
 
+    // remove in favor of using variadic template
     String formatString(const char* format, ...);
+
+    // remove in favor of using variadic template
     String formatStringV(const char* format, va_list arguments);
+
     String trim(const String& str, const String& chars = " \n\t\r");
 
-    size_t findFirstDifference(const String& str1, const String& str2);
-    bool isNumberedPrefix(const String& str, const String& prefix);
-    bool isPrefix(const String& str, const String& prefix);
     bool isNumber(const String& str);
-
-    bool containsCaseSensitive(const String& haystack, const String& needle);
-    bool containsCaseInsensitive(const String& haystack, const String& needle);
-    void sortCaseSensitive(StringList& strs);
-    void sortCaseInsensitive(StringList& strs);
-
-    template <typename Cmp>
-    bool isEqual(const String& str1, const String& str2, const Cmp& cmp) {
-        if (str1.size() != str2.size())
-            return false;
-
-        for (size_t i = 0; i < str1.length(); ++i) {
-            if (cmp(str1[i], str2[i]) != 0)
-                return false;
-        }
-        return true;
-    }
-
-    template <typename Cmp>
-    bool isEqual(const char* s1, const char* e1, const String& str2, const Cmp& cmp) {
-        const size_t l1 = static_cast<size_t>(e1 - s1);
-        if (l1 != str2.length())
-            return false;
-
-        for (size_t i = 0; i < str2.length(); ++i) {
-            if (cmp(s1[i], str2[i]) != 0)
-                return false;
-        }
-        return true;
-    }
-
-    template <typename Cmp>
-    int compare(const String& str1, const String& str2, const Cmp& cmp) {
-        const size_t len = std::min(str1.length(), str2.length());
-        for (size_t i = 0; i < len; ++i) {
-            const int res = cmp(str1[i], str2[i]);
-            if (res < 0)
-                return -1;
-            if (res > 0)
-                return +1;
-        }
-        if (str1.length() < str2.length())
-            return -1;
-        if (str1.length() > str2.length())
-            return +1;
-        return 0;
-    }
-
-    int caseSensitiveCompare(const String& str1, const String& str2);
-    int caseInsensitiveCompare(const String& str1, const String& str2);
-
-    bool caseSensitiveEqual(const String& str1, const String& str2);
-    bool caseSensitiveEqual(const char* s1, const char* e1, const String& str2);
-    bool caseInsensitiveEqual(const String& str1, const String& str2);
-    bool caseInsensitiveEqual(const char* s1, const char* e1, const String& str2);
-
-    template <class Cmp>
-    bool isPrefix(const String& str, const String& prefix, const Cmp& cmp) {
-        if (prefix.length() > str.length())
-            return false;
-
-        for (size_t i = 0; i < prefix.length(); ++i) {
-            if (cmp(str[i], prefix[i]) != 0)
-                return false;
-        }
-        return true;
-    }
-
-    bool caseSensitivePrefix(const String& str, const String& prefix);
-    bool caseInsensitivePrefix(const String& str, const String& prefix);
-
-    template <class Cmp>
-    bool isSuffix(const String& str, const String& suffix, const Cmp& cmp) {
-        if (suffix.length() > str.length())
-            return false;
-
-        const size_t n = str.length() - suffix.length();
-        for (size_t i = suffix.length(); i > 0; --i) {
-            if (cmp(str[n + i - 1], suffix[i - 1]) != 0)
-                return false;
-        }
-        return true;
-    }
-
-    bool caseSensitiveSuffix(const String& str, const String& suffix);
-    bool caseInsensitiveSuffix(const String& str, const String& suffix);
 
     bool isBlank(const String& str);
 
-    template <typename I, typename Eq>
-    bool matchesPattern(I strCur, I strEnd, I patCur, I patEnd, const Eq& eq) {
-        if (strCur == strEnd && patCur == patEnd)
-            return true;
-
-		if (patCur == patEnd)
-			return false;
-
-        // Handle escaped characters in pattern.
-        if (*patCur == '\\' && (patCur + 1) != patEnd) {
-            if (strCur == strEnd)
-                return false;
-
-            if (*(patCur + 1) == '*' ||
-                *(patCur + 1) == '?' ||
-                *(patCur + 1) == '\\') {
-                if (*strCur != *(patCur + 1))
-                    return false;
-                return matchesPattern(strCur + 1, strEnd, patCur + 2, patEnd, eq);
-            } else {
-                return false; // Invalid escape sequence.
-            }
-        }
-
-		// If the pattern is a star and the string is consumed
-		if (*patCur == '*' && strCur == strEnd)
-            return matchesPattern(strCur, strEnd, patCur + 1, patEnd, eq);
-
-		// If the pattern is a '?' and the string is consumed
-		if (*patCur == '?' && strCur == strEnd)
-			return false;
-
-		// If the pattern is not consumed, and the current char is not a wildcard, and the pattern is not consumed.
-		if (strCur == strEnd)
-			return false;
-
-        // If the pattern contains '?', or current characters of both strings match
-        if (*patCur == '?' || eq(*patCur, *strCur))
-            return matchesPattern(strCur + 1, strEnd, patCur + 1, patEnd, eq);
-
-        // If there is * in the pattern, then there are two possibilities
-        // a) We consider the current character of the string
-        // b) We ignore the current character of the string.
-        if (*patCur == '*')
-            return (matchesPattern(strCur,     strEnd, patCur + 1, patEnd, eq) ||
-                    matchesPattern(strCur + 1, strEnd, patCur,     patEnd, eq));
-        return false;
-    }
-
-    bool caseSensitiveMatchesPattern(const String& str, const String& pattern);
-    bool caseInsensitiveMatchesPattern(const String& str, const String& pattern);
-
-    long makeHash(const String& str);
+    long makeHash(const String& str); // unused
     String toLower(const String& str);
     String toUpper(const String& str);
-    String replaceChars(const String& str, const String& needles, const String& replacements);
+    String replaceChars(const String& str, const String& needles, const String& replacements); // unused
     String replaceAll(const String& str, const String& needle, const String& replacement);
     String capitalize(const String& str);
     String escape(const String& str, const String& chars, char esc = '\\');
     String escapeIfNecessary(const String& str, const String& chars, char esc = '\\');
     String unescape(const String& str, const String& chars, char esc = '\\');
 
+    // use std::to_string?
     template <typename T>
     String toString(const T& t) {
         StringStream str;
@@ -311,10 +93,10 @@ namespace StringUtils {
         return str.str();
     }
 
-    int stringToInt(const String& str);
-    long stringToLong(const String& str);
-    double stringToDouble(const String& str);
-    size_t stringToSize(const String& str);
+    int stringToInt(const String& str); // nused
+    long stringToLong(const String& str); // only used in stringToSize
+    double stringToDouble(const String& str); // unused
+    size_t stringToSize(const String& str); // only used in Autosaver
 
     template <typename D>
     StringList split(const String& str, D d) {
@@ -371,6 +153,7 @@ namespace StringUtils {
         return result;
     }
 
+    // should just be using a general identity mapping
     struct StringToString {
         const String& operator()(const String& str) const {
             return str;
@@ -425,7 +208,10 @@ namespace StringUtils {
     StringList splitAndUnescape(const String& str, char d);
     String escapeAndJoin(const StringList& strs, char d);
 
+    // remove in favor of initialization list
     StringList makeList(size_t count, const char* str1, ...);
+
+    // remove in favor of initialization list
     StringSet makeSet(size_t count, const char* str1, ...);
 }
 

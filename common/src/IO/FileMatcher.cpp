@@ -23,6 +23,8 @@
 #include "IO/PathQt.h"
 #include "StringUtils.h"
 
+#include <kdl/string_utils.h>
+
 #include <QFileInfo>
 
 namespace TrenchBroom {
@@ -60,7 +62,7 @@ namespace TrenchBroom {
         m_basename(basename) {}
 
         bool FileBasenameMatcher::operator()(const Path& path, bool directory) const {
-            return StringUtils::caseInsensitiveEqual(path.basename(), m_basename) &&
+            return kdl::ci::is_equal(path.basename(), m_basename) &&
                    FileExtensionMatcher::operator()(path, directory);
         }
 
@@ -69,12 +71,12 @@ namespace TrenchBroom {
 
         bool FileNameMatcher::operator()(const Path& path, const bool /* directory */) const {
             const String filename = path.lastComponent().asString();
-            return StringUtils::caseInsensitiveMatchesPattern(filename, m_pattern);
+            return kdl::ci::matches_glob(filename, m_pattern);
         }
 
         bool ExecutableFileMatcher::operator()(const Path& path, [[maybe_unused]] const bool directory) const {
 #ifdef __APPLE__
-            if (directory && StringUtils::caseInsensitiveEqual(path.extension(), "app"))
+            if (directory && kdl::ci::is_equal(path.extension(), "app"))
                 return true;
 #endif
             return QFileInfo(pathAsQString(path)).isExecutable();

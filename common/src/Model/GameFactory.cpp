@@ -19,7 +19,9 @@
 
 #include "GameFactory.h"
 
+#include "Exceptions.h"
 #include "PreferenceManager.h"
+#include "RecoverableExceptions.h"
 #include "IO/CompilationConfigParser.h"
 #include "IO/CompilationConfigWriter.h"
 #include "IO/DiskFileSystem.h"
@@ -34,8 +36,8 @@
 #include "Model/Game.h"
 #include "Model/GameImpl.h"
 
-#include "Exceptions.h"
-#include "RecoverableExceptions.h"
+
+#include <kdl/string_utils.h>
 
 #include <memory>
 
@@ -184,7 +186,7 @@ namespace TrenchBroom {
                 }
             }
 
-            StringUtils::sortCaseSensitive(m_names);
+            kdl::cs::sort(m_names);
 
             if (!errors.empty()) {
                 throw errors;

@@ -20,7 +20,8 @@
 #include "LegacyModelDefinitionParser.h"
 
 #include "Assets/ModelDefinition.h"
-#include "StringUtils.h"
+
+#include <kdl/string_utils.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -179,9 +180,9 @@ namespace TrenchBroom {
 
             if (!token.hasType(MdlToken::CParenthesis)) {
                 do {
-                    if (StringUtils::caseInsensitiveEqual("skinKey", token.data())) {
+                    if (kdl::ci::is_equal("skinKey", token.data())) {
                         map["skin"] = std::unique_ptr<EL::ExpressionBase>(parseNamedValue(status, "skinKey"));
-                    } else if (StringUtils::caseInsensitiveEqual("frameKey", token.data())) {
+                    } else if (kdl::ci::is_equal("frameKey", token.data())) {
                         map["frame"] = std::unique_ptr<EL::ExpressionBase>(parseNamedValue(status, "frameKey"));
                     } else {
                         const String msg = "Expected 'skinKey' or 'frameKey', but found '" + token.data() + "'";
@@ -200,7 +201,7 @@ namespace TrenchBroom {
 
             const size_t line = token.line();
             const size_t column = token.column();
-            if (!StringUtils::caseInsensitiveEqual(name, token.data()))
+            if (!kdl::ci::is_equal(name, token.data()))
                 throw ParserException(line, column, "Expected '" + name + "', but got '" + token.data() + "'");
 
             expect(status, MdlToken::Equality, token = m_tokenizer.nextToken());

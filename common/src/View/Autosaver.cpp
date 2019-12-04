@@ -25,6 +25,8 @@
 #include "IO/DiskFileSystem.h"
 #include "View/MapDocument.h"
 
+#include <kdl/string_utils.h>
+
 #include <algorithm> // for std::sort
 #include <cassert>
 #include <memory>
@@ -38,7 +40,7 @@ namespace TrenchBroom {
             if (directory) {
                 return false;
             }
-            if (!StringUtils::caseInsensitiveEqual(path.extension(), "map")) {
+            if (!kdl::ci::is_equal(path.extension(), "map")) {
                 return false;
             }
 

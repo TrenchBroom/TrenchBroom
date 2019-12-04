@@ -19,7 +19,6 @@
 
 #include <gtest/gtest.h>
 
-#include "Assets/Asset_Forward.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionTestUtils.h"
@@ -32,6 +31,7 @@
 #include "IO/TestParserStatus.h"
 #include "TestUtils.h"
 
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
@@ -56,7 +56,7 @@ namespace TrenchBroom {
         TEST(DefParserTest, parseExtraDefFiles) {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Def");
             const Path::List cfgFiles = Disk::findItems(basePath, [] (const Path& path, bool directory) {
-                return !directory && StringUtils::caseInsensitiveEqual(path.extension(), "def");
+                return !directory && kdl::ci::is_equal(path.extension(), "def");
             });
 
             for (const Path& path : cfgFiles) {

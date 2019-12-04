@@ -23,6 +23,8 @@
 #include "StringUtils.h"
 #include "Model/Entity.h"
 
+#include <kdl/string_utils.h>
+
 #include <vecmath/forward.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
@@ -164,7 +166,7 @@ namespace TrenchBroom {
             // determine the type of rotation to apply to this entity
             const auto classname = entity->classname();
             if (classname != AttributeValues::NoClassname) {
-                if (StringUtils::isPrefix(classname, "light")) {
+                if (kdl::cs::is_prefix(classname, "light")) {
                     if (entity->hasAttribute(AttributeNames::Mangle)) {
                         // spotlight without a target, update mangle
                         type = RotationType_Mangle;
@@ -203,7 +205,7 @@ namespace TrenchBroom {
                                 type = RotationType_Euler;
                                 attribute = AttributeNames::Angles;
                             } else if (entity->hasAttribute(AttributeNames::Mangle)) {
-                                if (StringUtils::caseSensitiveEqual(classname, "info_intermission")) {
+                                if (kdl::cs::is_equal(classname, "info_intermission")) {
                                     type = RotationType_Euler_PositivePitchDown;
                                 } else {
                                     type = RotationType_Mangle;
