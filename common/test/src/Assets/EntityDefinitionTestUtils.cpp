@@ -27,7 +27,6 @@
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/TestParserStatus.h"
-#include "VectorUtilsMinimal.h"
 
 #include <kdl/vector_utils.h>
 

@@ -26,7 +26,6 @@
 #include "Renderer/VboBlock.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
-#include "VectorUtilsMinimal.h"
 
 #include <kdl/vector_utils.h>
 

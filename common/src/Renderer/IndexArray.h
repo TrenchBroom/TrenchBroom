@@ -24,7 +24,6 @@
 #include "Renderer/GL.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
-#include "VectorUtilsMinimal.h"
 
 #include <kdl/vector_utils.h>
 
