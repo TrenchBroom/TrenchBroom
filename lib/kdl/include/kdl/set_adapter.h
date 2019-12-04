@@ -85,7 +85,7 @@ namespace kdl {
          * @param cmp the comparator
          */
         template <typename CC>
-        const_set_adapter(CC&& data, const Compare& cmp) :
+        const_set_adapter(CC&& data, const Compare& cmp = Compare()) :
             m_data(std::forward<CC>(data)),
             m_cmp(cmp) {
             assert(check_invariant());
@@ -140,7 +140,7 @@ namespace kdl {
          * returned iterator will be equal to crend().
          */
         const_reverse_iterator crbegin() const noexcept {
-            return std::cbegin(m_data);
+            return std::crbegin(m_data);
         }
 
         /**
@@ -154,7 +154,7 @@ namespace kdl {
          * Returns a const reverse iterator to the element following the last element of the reversed container.
          */
         const_reverse_iterator crend() const noexcept {
-            return std::cend(m_data);
+            return std::crend(m_data);
         }
 
         /**
@@ -231,7 +231,6 @@ namespace kdl {
          */
         template <typename K>
         const_iterator lower_bound(const K& x) const {
-            // FIXME: implement without std::lower_bound
             return std::lower_bound(std::begin(m_data), std::end(m_data), x, m_cmp);
         }
 
@@ -245,7 +244,6 @@ namespace kdl {
          */
         template <typename K>
         const_iterator upper_bound(const K& x) const {
-            // FIXME: implement without std::upper_bound
             return std::upper_bound(std::begin(m_data), std::end(m_data), x, m_cmp);
         }
 
@@ -299,31 +297,97 @@ namespace kdl {
         }
     };
 
+    /**
+     * Checks whether the given set adapters are equal. Two set adapters are equal if they are considered equivalent
+     * according to their common comparator.
+     *
+     * @tparam C1 the type of the underlying collection of the first set
+     * @tparam C2 the type of the underlying collection of the second set
+     * @tparam Compare the common comparator of both sets
+     * @param lhs the first set
+     * @param rhs the second set
+     * @return true if the given sets are equal and false otherwise
+     */
     template <typename C1, typename C2, typename Compare>
     bool operator==(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
         return lhs.size() == rhs.size() && lexicographical_compare(lhs, rhs, Compare()) == 0;
     }
 
+    /**
+     * Checks whether the given set adapters are unequal. Two set adapters are equal if they are considered equivalent
+     * according to their common comparator.
+     *
+     * @tparam C1 the type of the underlying collection of the first set
+     * @tparam C2 the type of the underlying collection of the second set
+     * @tparam Compare the common comparator of both sets
+     * @param lhs the first set
+     * @param rhs the second set
+     * @return true if the given sets are unequal and false otherwise
+     */
     template <typename C1, typename C2, typename Compare>
     bool operator!=(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
         return lhs.size() != rhs.size() || lexicographical_compare(lhs, rhs, Compare()) != 0;
     }
 
+    /**
+     * Checks whether the first given set adapter is less than the second given set by lexicographically comparing the
+     * set elements using their common comparator.
+     *
+     * @tparam C1 the type of the underlying collection of the first set
+     * @tparam C2 the type of the underlying collection of the second set
+     * @tparam Compare the common comparator of both sets
+     * @param lhs the first set
+     * @param rhs the second set
+     * @return true if the first set is less than the second set
+     */
     template <typename C1, typename C2, typename Compare>
     bool operator<(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
         return lexicographical_compare(lhs, rhs, Compare()) < 0;
     }
 
+    /**
+     * Checks whether the first given set adapter is less than or equal to the second given set by lexicographically
+     * comparing the set elements using their common comparator.
+     *
+     * @tparam C1 the type of the underlying collection of the first set
+     * @tparam C2 the type of the underlying collection of the second set
+     * @tparam Compare the common comparator of both sets
+     * @param lhs the first set
+     * @param rhs the second set
+     * @return true if the first set is less than or equal to the second set
+     */
     template <typename C1, typename C2, typename Compare>
     bool operator<=(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
         return lexicographical_compare(lhs, rhs, Compare()) <= 0;
     }
 
+    /**
+     * Checks whether the first given set adapter is greater than the second given set by lexicographically comparing the
+     * set elements using their common comparator.
+     *
+     * @tparam C1 the type of the underlying collection of the first set
+     * @tparam C2 the type of the underlying collection of the second set
+     * @tparam Compare the common comparator of both sets
+     * @param lhs the first set
+     * @param rhs the second set
+     * @return true if the first set is greater than the second set
+     */
     template <typename C1, typename C2, typename Compare>
     bool operator>(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
         return lexicographical_compare(lhs, rhs, Compare()) > 0;
     }
 
+    /**
+     * Checks whether the first given set adapter is greater than or equal to the second given set by lexicographically
+     * comparing the set elements using their common comparator.
+     *
+     * @tparam C1 the type of the underlying collection of the first set
+     * @tparam C2 the type of the underlying collection of the second set
+     * @tparam Compare the common comparator of both sets
+     * @param lhs the first set
+     * @param rhs the second set
+     * @return true if the first set is greater than or equal to the second set
+     */
     template <typename C1, typename C2, typename Compare>
     bool operator>=(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
         return lexicographical_compare(lhs, rhs, Compare()) >= 0;
@@ -744,7 +808,6 @@ namespace kdl {
          */
         template <typename K>
         iterator lower_bound(const K& x) {
-            // FIXME: implement without std::lower_bound
             return std::lower_bound(std::begin(m_data), std::end(m_data), x, m_cmp);
         }
 
@@ -758,7 +821,6 @@ namespace kdl {
          */
         template <typename K>
         iterator upper_bound(const K& x) {
-            // FIXME: implement without std::upper_bound
             return std::upper_bound(std::begin(m_data), std::end(m_data), x, m_cmp);
         }
 
