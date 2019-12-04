@@ -29,6 +29,8 @@ namespace kdl {
     vset create_vset_from_list(std::initializer_list<int> l);
     vset create_vset_from_list(const vset::size_type capacity, std::initializer_list<int> l);
 
+    vset create_vset_from_vector(std::initializer_list<int> l);
+
     void ASSERT_VSET_EQ(const vec& expected, const vset& actual);
     void ASSERT_VSET_EQ(const vset::size_type capacity, const vec& expected, const vset& actual);
 
@@ -81,6 +83,15 @@ namespace kdl {
         ASSERT_VSET_EQ(10u, { 1, 2, 3 }, create_vset_from_list(10u, { 2, 1, 3, 1, 2 }));
     }
 
+    TEST(vector_set_test, constructor_with_vector) {
+        ASSERT_VSET_EQ({},          create_vset_from_vector({}));
+        ASSERT_VSET_EQ({ 1 },       create_vset_from_vector({ 1 }));
+        ASSERT_VSET_EQ({ 1 },       create_vset_from_vector({ 1, 1 }));
+        ASSERT_VSET_EQ({ 1, 2 },    create_vset_from_vector({ 1, 2 }));
+        ASSERT_VSET_EQ({ 1, 2 },    create_vset_from_vector({ 2, 1 }));
+        ASSERT_VSET_EQ({ 1, 2, 3 }, create_vset_from_vector({ 2, 1, 3, 1, 2 }));
+    }
+
     TEST(vector_set_test, assignment_from_initializer_list) {
         ASSERT_VSET_EQ({},          vset() = {});
         ASSERT_VSET_EQ({ 1 },       vset() = { 1 });
@@ -97,77 +108,30 @@ namespace kdl {
         ASSERT_VSET_EQ({ 1, 2, 3 }, vset({ 7, 8, 9 }) = { 2, 1, 3, 1, 2 });
     }
 
-    TEST(vector_set_test, iterators) {
-        vset v1;
-        auto b = v1.begin();
-        auto e = v1.end();
-        ASSERT_EQ(b, e);
+    TEST(vector_set_test, assignment_from_vector) {
+        ASSERT_VSET_EQ({},          vset() = std::vector<int>({}));
+        ASSERT_VSET_EQ({ 1 },       vset() = std::vector<int>({ 1 }));
+        ASSERT_VSET_EQ({ 1 },       vset() = std::vector<int>({ 1, 1 }));
+        ASSERT_VSET_EQ({ 1, 2 },    vset() = std::vector<int>({ 1, 2 }));
+        ASSERT_VSET_EQ({ 1, 2 },    vset() = std::vector<int>({ 2, 1 }));
+        ASSERT_VSET_EQ({ 1, 2, 3 }, vset() = std::vector<int>({ 2, 1, 3, 1, 2 }));
 
-        vset v2({ 1 });
-        b = v2.begin();
-        e = v2.end();
-        ASSERT_NE(b, e);
-        ASSERT_EQ(1, *b);
-        ASSERT_EQ(++b, e);
-
-        vset v3({ 1, 2 });
-        b = v3.begin();
-        e = v3.end();
-        ASSERT_NE(b, e);
-        ASSERT_EQ(1, *b);
-        ASSERT_NE(++b, e);
-        ASSERT_EQ(2, *b);
-        ASSERT_EQ(++b, e);
+        ASSERT_VSET_EQ({},          vset({ 7, 8, 9 }) = std::vector<int>({}));
+        ASSERT_VSET_EQ({ 1 },       vset({ 7, 8, 9 }) = std::vector<int>({ 1 }));
+        ASSERT_VSET_EQ({ 1 },       vset({ 7, 8, 9 }) = std::vector<int>({ 1, 1 }));
+        ASSERT_VSET_EQ({ 1, 2 },    vset({ 7, 8, 9 }) = std::vector<int>({ 1, 2 }));
+        ASSERT_VSET_EQ({ 1, 2 },    vset({ 7, 8, 9 }) = std::vector<int>({ 2, 1 }));
+        ASSERT_VSET_EQ({ 1, 2, 3 }, vset({ 7, 8, 9 }) = std::vector<int>({ 2, 1, 3, 1, 2 }));
     }
 
-
-    TEST(vector_set_test, reverse_iterators) {
-        vset v1;
-        auto b = v1.rbegin();
-        auto e = v1.rend();
-        ASSERT_EQ(b, e);
-
-        vset v2({ 1 });
-        b = v2.rbegin();
-        e = v2.rend();
-        ASSERT_NE(b, e);
-        ASSERT_EQ(1, *b);
-        ASSERT_EQ(++b, e);
-
-        vset v3({ 1, 2 });
-        b = v3.rbegin();
-        e = v3.rend();
-        ASSERT_NE(b, e);
-        ASSERT_EQ(2, *b);
-        ASSERT_NE(++b, e);
-        ASSERT_EQ(1, *b);
-        ASSERT_EQ(++b, e);
+    TEST(vector_set_test, deduction_guide_range) {
+        std::vector<int> v({ 1, 2, 3 });
+        vector_set s(std::begin(v), std::end(v));
     }
 
-    TEST(vector_set_test, empty) {
-        ASSERT_TRUE(vec({}).empty());
-        ASSERT_FALSE(vec({ 1 }).empty());
-    }
-
-    TEST(vector_set_test, size) {
-        ASSERT_EQ(0u, vset({}).size());
-        ASSERT_EQ(1u, vset({ 1 }).size());
-        ASSERT_EQ(1u, vset({ 1, 1 }).size());
-        ASSERT_EQ(2u, vset({ 1, 3 }).size());
-    }
-
-    TEST(vector_set_test, clear) {
-        vset v1({});
-        v1.clear();
-        ASSERT_VSET_EQ({}, v1);
-
-        vset v2({ 1 });
-        v2.clear();
-        ASSERT_VSET_EQ({}, v2);
-
-        vset v3({ 1, 2 });
-        v3.clear();
-        ASSERT_VSET_EQ({}, v3);
+    TEST(vector_set_test, deduction_guide_range_and_capacity) {
+        std::vector<int> v({ 1, 2, 3 });
+        vector_set s(3u, std::begin(v), std::end(v));
     }
 
     vset create_vset_from_range(const vec& v) {
@@ -184,6 +148,10 @@ namespace kdl {
 
     vset create_vset_from_list(const vset::size_type capacity, std::initializer_list<int> l) {
         return vset(capacity, std::move(l));
+    }
+
+    vset create_vset_from_vector(std::initializer_list<int> l) {
+        return vset(std::vector<int>(l));
     }
 
     void ASSERT_VSET_EQ(const vec& expected, const vset& actual) {

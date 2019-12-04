@@ -159,6 +159,19 @@ namespace kdl {
             detail::sort_unique(m_data, m_cmp);
             return *this;
         }
+
+        /**
+         * Assigns the values in the given vector to this set. The set is cleared and the values from the given vector
+         * are inserted.
+         *
+         * @param values the vector to insert
+         * @return a reference to this set
+         */
+        vector_set& operator=(std::vector<typename base::value_type> values) {
+            m_data = values;
+            detail::sort_unique(m_data, m_cmp);
+            return *this;
+        }
     private:
         using base::check_invariant;
     };
