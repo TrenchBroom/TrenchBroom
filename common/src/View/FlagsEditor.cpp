@@ -61,6 +61,7 @@ namespace TrenchBroom {
             auto* layout = new QGridLayout();
             layout->setHorizontalSpacing(LayoutConstants::WideHMargin);
             layout->setVerticalSpacing(0);
+            layout->setSizeConstraint(QLayout::SetMinimumSize);
 
             for (size_t row = 0; row < numRows; ++row) {
                 for (size_t col = 0; col < m_numCols; ++col) {

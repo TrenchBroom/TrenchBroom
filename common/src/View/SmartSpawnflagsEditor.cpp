@@ -72,9 +72,8 @@ namespace TrenchBroom {
             assert(m_scrolledWindow == nullptr);
 
             m_scrolledWindow = new QScrollArea();
-            //m_scrolledWindow->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 
-            m_flagsEditor = new FlagsEditor(NumCols, nullptr);
+            m_flagsEditor = new FlagsEditor(NumCols);
             connect(m_flagsEditor, &FlagsEditor::flagChanged, this, &SmartSpawnflagsEditor::flagChanged);
 
             m_scrolledWindow->setWidget(m_flagsEditor);
