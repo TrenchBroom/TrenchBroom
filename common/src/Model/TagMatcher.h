@@ -25,6 +25,7 @@
 
 #include <functional>
 #include <memory>
+#include <string_view>
 #include <vector>
 
 namespace TrenchBroom {
@@ -81,7 +82,7 @@ namespace TrenchBroom {
             void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
             bool canEnable() const override;
         private:
-            bool matchesTextureName(const String& textureName) const;
+            bool matchesTextureName(std::string_view textureName) const;
         };
 
         class SurfaceParmTagMatcher : public TagMatcher {

@@ -22,6 +22,8 @@
 #include "Exceptions.h"
 #include "StringUtils.h"
 
+#include <kdl/string_utils.h>
+
 #include <algorithm>
 #include <iterator>
 #include <ostream>
@@ -84,7 +86,7 @@ namespace TrenchBroom {
             while (i < max) {
                 const auto& mcomp = m_components[i];
                 const auto& rcomp = rcomps[i];
-                const auto result = caseSensitive ? StringUtils::caseSensitiveCompare(mcomp, rcomp) : StringUtils::caseInsensitiveCompare(mcomp, rcomp);
+                const auto result = caseSensitive ? kdl::cs::compare(mcomp, rcomp) : kdl::ci::compare(mcomp, rcomp);
                 if (result < 0) {
                     return -1;
                 } else if (result > 0) {
@@ -321,9 +323,9 @@ namespace TrenchBroom {
 
         bool Path::hasFilename(const String& filename, const bool caseSensitive) const {
             if (caseSensitive) {
-                return StringUtils::caseSensitiveEqual(filename, this->filename());
+                return kdl::cs::is_equal(filename, this->filename());
             } else {
-                return StringUtils::caseInsensitiveEqual(filename, this->filename());
+                return kdl::ci::is_equal(filename, this->filename());
             }
         }
 
@@ -338,9 +340,9 @@ namespace TrenchBroom {
 
         bool Path::hasBasename(const String& basename, const bool caseSensitive) const {
             if (caseSensitive) {
-                return StringUtils::caseSensitiveEqual(basename, this->basename());
+                return kdl::cs::is_equal(basename, this->basename());
             } else {
-                return StringUtils::caseInsensitiveEqual(basename, this->basename());
+                return kdl::ci::is_equal(basename, this->basename());
             }
         }
 
@@ -355,9 +357,9 @@ namespace TrenchBroom {
 
         bool Path::hasExtension(const String& extension, const bool caseSensitive) const {
             if (caseSensitive) {
-                return StringUtils::caseSensitiveEqual(extension, this->extension());
+                return kdl::cs::is_equal(extension, this->extension());
             } else {
-                return StringUtils::caseInsensitiveEqual(extension, this->extension());
+                return kdl::ci::is_equal(extension, this->extension());
             }
         }
 

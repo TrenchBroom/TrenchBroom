@@ -25,6 +25,7 @@
 
 #include <kdl/collection_utils.h>
 #include <kdl/map_utils.h>
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <algorithm>
@@ -127,7 +128,7 @@ namespace TrenchBroom {
         ValueHolder* StringHolder::convertTo(const ValueType toType) const {
             switch (toType) {
                 case ValueType::Boolean:
-                    return new BooleanValueHolder(!StringUtils::caseSensitiveEqual(doGetValue(), "false") && !doGetValue().empty());
+                    return new BooleanValueHolder(!kdl::cs::is_equal(doGetValue(), "false") && !doGetValue().empty());
                 case ValueType::String:
                     return new StringValueHolder(doGetValue());
                 case ValueType::Number: {

@@ -61,6 +61,8 @@
 #include "View/SelectionTool.h"
 #include "View/QtUtils.h"
 
+#include <kdl/string_utils.h>
+
 #include <vecmath/util.h>
 
 #include <vector>
@@ -1097,7 +1099,7 @@ namespace TrenchBroom {
 
                 std::vector<Assets::EntityDefinition*> filteredDefinitions;
                 for (auto* definition : definitions) {
-                    if (!StringUtils::caseSensitiveEqual(definition->name(), Model::AttributeValues::WorldspawnClassname)) {
+                    if (!kdl::cs::is_equal(definition->name(), Model::AttributeValues::WorldspawnClassname)) {
                         filteredDefinitions.push_back(definition);
                     }
                 }

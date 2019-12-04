@@ -19,7 +19,6 @@
 
 #include "ViewUtils.h"
 
-#include "Logger.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "IO/PathQt.h"
@@ -27,6 +26,8 @@
 #include "Model/GameFactory.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
+
+#include <kdl/string_utils.h>
 
 #include <memory>
 
@@ -136,7 +137,7 @@ namespace TrenchBroom {
                 if (StringUtils::isBlank(name)) {
                     if (QMessageBox::warning(parent, "Error", "Group names cannot be blank.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok)
                         return "";
-                } else if (StringUtils::containsCaseInsensitive(name, "\"")) {
+                } else if (kdl::ci::contains(name, "\"")) {
                     if (QMessageBox::warning(parent, "Error", "Group names cannot contain double quotes.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok)
                         return "";
                 } else {

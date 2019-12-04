@@ -27,6 +27,8 @@
 #include "StringUtils.h"
 #include "TemporarilySetAny.h"
 
+#include <kdl/string_utils.h>
+
 #include <QBoxLayout>
 #include <QFileDialog>
 #include <QFormLayout>
@@ -146,7 +148,7 @@ namespace TrenchBroom {
                 const auto path = IO::pathFromQString(str);
                 return IO::Disk::fileExists(path)
 #ifdef __APPLE__
-                || (IO::Disk::directoryExists(path) && StringUtils::caseInsensitiveEqual(path.extension(), "app"))
+                || (IO::Disk::directoryExists(path) && kdl::ci::is_equal(path.extension(), "app"))
 #endif
                 ;
             } catch (...) {

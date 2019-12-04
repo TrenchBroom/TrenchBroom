@@ -19,7 +19,7 @@
 
 #include "SmartAttributeEditorMatcher.h"
 
-#include "StringUtils.h"
+#include <kdl/string_utils.h>
 
 #include <set>
 #include <vector>
@@ -43,7 +43,7 @@ namespace TrenchBroom {
                 return false;
 
             for (const String& pattern : m_patterns) {
-                if (StringUtils::caseSensitiveMatchesPattern(name, pattern))
+                if (kdl::cs::matches_glob(name, pattern))
                     return true;
             }
 
