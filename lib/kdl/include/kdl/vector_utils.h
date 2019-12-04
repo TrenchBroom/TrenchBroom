@@ -373,7 +373,7 @@ namespace kdl {
      */
     template<typename T, typename D = deleter<T*>>
     void clear_and_delete(std::vector<T*>& v, const D& deleter = D()) {
-        kdl::delete_all(v);
+        kdl::delete_all(v, deleter);
         v.clear();
     }
 }
