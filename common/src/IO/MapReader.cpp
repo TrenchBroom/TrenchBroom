@@ -69,7 +69,7 @@ namespace TrenchBroom {
         m_currentNode(nullptr) {}
 
         MapReader::~MapReader() {
-            kdl::clearAndDelete(m_faces);
+            kdl::clear_and_delete(m_faces);
         }
 
         void MapReader::readEntities(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {

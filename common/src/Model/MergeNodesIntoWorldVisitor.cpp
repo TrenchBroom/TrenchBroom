@@ -91,7 +91,7 @@ namespace TrenchBroom {
         }
 
         void MergeNodesIntoWorldVisitor::deleteNodes() const {
-            kdl::clearAndDelete(m_nodesToDelete);
+            kdl::clear_and_delete(m_nodesToDelete);
         }
 
         void MergeNodesIntoWorldVisitor::detachNodes() const {

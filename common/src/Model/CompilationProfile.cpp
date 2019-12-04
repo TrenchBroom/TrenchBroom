@@ -35,7 +35,7 @@ namespace TrenchBroom {
         m_tasks(tasks) {}
 
         CompilationProfile::~CompilationProfile() {
-            kdl::clearAndDelete(m_tasks);
+            kdl::clear_and_delete(m_tasks);
         }
 
         CompilationProfile* CompilationProfile::clone() const {
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             assert(index < taskCount());
             m_tasks[index]->taskWillBeRemoved();
             delete m_tasks[index];
-            kdl::eraseAt(m_tasks, index);
+            kdl::erase_at(m_tasks, index);
             profileDidChange();
         }
 

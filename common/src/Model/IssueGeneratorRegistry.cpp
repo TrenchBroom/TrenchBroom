@@ -56,7 +56,7 @@ namespace TrenchBroom {
         }
 
         void IssueGeneratorRegistry::clearGenerators() {
-            kdl::clearAndDelete(m_generators);
+            kdl::clear_and_delete(m_generators);
         }
     }
 }

@@ -569,7 +569,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(newXAxis, negXFace->textureXAxis());
             ASSERT_VEC_EQ(newYAxis, negXFace->textureYAxis());
 
-            kdl::clearAndDelete(nodes);
+            kdl::clear_and_delete(nodes);
         }
 
         // https://github.com/kduske/TrenchBroom/issues/1995
@@ -626,7 +626,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(vm::vec3::neg_y(), posXFace->textureXAxis());
             ASSERT_VEC_EQ(vm::vec3::neg_z(), posXFace->textureYAxis());
 
-            kdl::clearAndDelete(nodes);
+            kdl::clear_and_delete(nodes);
         }
 
         // https://github.com/kduske/TrenchBroom/issues/2315
@@ -662,7 +662,7 @@ namespace TrenchBroom {
 
             brush->moveBoundary(worldBounds, angledFace, vm::vec3(-7.9999999999999973, 7.9999999999999973, 0), true);
 
-            kdl::clearAndDelete(nodes);
+            kdl::clear_and_delete(nodes);
         }
     }
 }

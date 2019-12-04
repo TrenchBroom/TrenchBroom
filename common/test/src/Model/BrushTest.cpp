@@ -1191,10 +1191,10 @@ namespace TrenchBroom {
             Brush* brushClone = brush->clone(worldBounds);
 
             auto movedVertexPositions = brushClone->moveVertices(worldBounds, vertexPositions, delta);
-            kdl::sortAndMakeUnique(movedVertexPositions);
+            kdl::sort_and_make_unique(movedVertexPositions);
 
             auto expectedVertexPositions = vertexPositions + delta;
-            kdl::sortAndMakeUnique(expectedVertexPositions);
+            kdl::sort_and_make_unique(expectedVertexPositions);
 
             ASSERT_EQ(expectedVertexPositions, movedVertexPositions);
 
@@ -3173,7 +3173,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             std::vector<Node*> nodes = reader.read(worldBounds, status); // assertion failure
-            kdl::clearAndDelete(nodes);
+            kdl::clear_and_delete(nodes);
         }
 
 
@@ -3224,7 +3224,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             std::vector<Node*> nodes = reader.read(worldBounds, status); // assertion failure
-            kdl::clearAndDelete(nodes);
+            kdl::clear_and_delete(nodes);
         }
 
         TEST(BrushTest, invalidBrush1801) {
@@ -3251,7 +3251,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             std::vector<Node*> nodes = reader.read(worldBounds, status); // assertion failure
-            kdl::clearAndDelete(nodes);
+            kdl::clear_and_delete(nodes);
         }
 
         TEST(BrushTest, snapToGrid64) {

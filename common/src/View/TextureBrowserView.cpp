@@ -236,7 +236,7 @@ namespace TrenchBroom {
             auto doc = lock(m_document);
             std::vector<Assets::TextureCollection*> collections = doc->textureManager().collections();
             if (m_hideUnused) {
-                kdl::eraseIf(collections, MatchUsageCount());
+                kdl::erase_if(collections, MatchUsageCount());
             }
             if (m_sortOrder == SO_Usage) {
                 kdl::sort(collections, CompareByUsageCount());
@@ -261,9 +261,9 @@ namespace TrenchBroom {
 
         void TextureBrowserView::filterTextures(std::vector<Assets::Texture*>& textures) const {
             if (m_hideUnused)
-                kdl::eraseIf(textures, MatchUsageCount());
+                kdl::erase_if(textures, MatchUsageCount());
             if (!m_filterText.empty())
-                kdl::eraseIf(textures, MatchName(m_filterText));
+                kdl::erase_if(textures, MatchName(m_filterText));
         }
 
         void TextureBrowserView::sortTextures(std::vector<Assets::Texture*>& textures) const {

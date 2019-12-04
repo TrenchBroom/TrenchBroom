@@ -121,8 +121,8 @@ namespace TrenchBroom {
         }
 
         void TextureManager::clear() {
-            kdl::clearAndDelete(m_collections);
-            kdl::clearAndDelete(m_toRemove);
+            kdl::clear_and_delete(m_collections);
+            kdl::clear_and_delete(m_toRemove);
 
             m_toPrepare.clear();
             m_texturesByName.clear();
@@ -140,7 +140,7 @@ namespace TrenchBroom {
         void TextureManager::commitChanges() {
             resetTextureMode();
             prepare();
-            kdl::clearAndDelete(m_toRemove);
+            kdl::clear_and_delete(m_toRemove);
         }
 
         Texture* TextureManager::texture(const String& name) const {

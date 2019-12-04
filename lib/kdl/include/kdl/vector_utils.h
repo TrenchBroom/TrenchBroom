@@ -44,12 +44,16 @@ namespace kdl {
      */
     template<typename O, typename T, typename A>
     std::vector<O> cast(const std::vector<T, A>& v) {
-        std::vector<O> result;
-        result.reserve(v.size());
-        for (const auto& e : v) {
-            result.push_back(O(e));
+        if constexpr (std::is_same_v<T, O>) {
+            return v;
+        } else {
+            std::vector<O> result;
+            result.reserve(v.size());
+            for (const auto& e : v) {
+                result.push_back(O(e));
+            }
+            return result;
         }
-        return result;
     }
 
     /**
@@ -65,7 +69,7 @@ namespace kdl {
      * given vector does not contain the given value
      */
     template<typename T, typename A, typename X>
-    typename std::vector<T, A>::size_type indexOf(const std::vector<T, A>& v, const X& x) {
+    typename std::vector<T, A>::size_type index_of(const std::vector<T, A>& v, const X& x) {
         using IndexType = typename std::vector<T, A>::size_type;
         for (IndexType i = 0; i < v.size(); ++i) {
             if (v[i] == x) {
@@ -87,7 +91,7 @@ namespace kdl {
      */
     template<typename T, typename A, typename X>
     bool contains(const std::vector<T, A>& v, const X& x) {
-        return indexOf(v, x) < v.size();
+        return index_of(v, x) < v.size();
     }
 
     namespace detail {
@@ -134,7 +138,7 @@ namespace kdl {
     }
 
     /**
-     * Erases every element from the given vector which is equal to the given value.
+     * Erases every element from the given vector which is equal to the given value using the erase-remove idiom.
      *
      * @tparam T the type of the vector elements
      * @tparam A the vector's allocator type
@@ -148,16 +152,17 @@ namespace kdl {
     }
 
     /**
-     * Erases every element from the given vector for which the given predicate evaluates to true.
+     * Erases every element from the given vector for which the given predicate evaluates to true using the erase-remove
+     * idiom.
      *
      * @tparam T the type of the vector elements
      * @tparam A the vector's allocator type
-     * @tparam X the predicate type
+     * @tparam P the predicate type
      * @param v the vector
-     * @param x the predicate
+     * @param predicate the predicate
      */
     template<typename T, typename A, typename P>
-    void eraseIf(std::vector<T, A>& v, const P& predicate) {
+    void erase_if(std::vector<T, A>& v, const P& predicate) {
         v.erase(std::remove_if(std::begin(v), std::end(v), predicate), std::end(v));
     }
 
@@ -171,9 +176,9 @@ namespace kdl {
      * @param i the index of the element to erase, which must be less than the given vector's size
      */
     template<typename T, typename A>
-    void eraseAt(std::vector<T, A>& v, const typename std::vector<T, A>::size_type i) {
+    void erase_at(std::vector<T, A>& v, const typename std::vector<T, A>::size_type i) {
         assert(i < v.size());
-        auto it = std::next(std::begin(v), i);
+        auto it = std::next(std::begin(v), static_cast<typename std::vector<T, A>::difference_type>(i));
         v.erase(it);
     }
 
@@ -187,7 +192,7 @@ namespace kdl {
      * @param c the collection of values to erase
      */
     template<typename T, typename A, typename C>
-    void eraseAll(std::vector<T, A>& v, const C& c) {
+    void erase_all(std::vector<T, A>& v, const C& c) {
         for (const auto& x : c) {
             erase(v, x);
         }
@@ -218,7 +223,7 @@ namespace kdl {
      * @param cmp the comparator to use for sorting and for determining equivalence
      */
     template<typename T, typename A, typename Compare = std::less<T>>
-    void sortAndMakeUnique(std::vector<T, A>& v, const Compare& cmp = Compare()) {
+    void sort_and_make_unique(std::vector<T, A>& v, const Compare& cmp = Compare()) {
         std::sort(std::begin(v), std::end(v), cmp);
         v.erase(std::unique(std::begin(v), std::end(v), kdl::equivalence<T, Compare>(cmp)), std::end(v));
     }
@@ -247,15 +252,31 @@ namespace kdl {
         return result;
     }
 
+    /**
+     * Returns a vector containing those values from s1 which are not also in s2. Values from s1 and s2 are compared
+     * using the common comparator from both sets.
+     *
+     * Expects that both S1 and S2 declare the types of their values with ::value_type and the comparator used to
+     * compare the values with ::value_compare. Additionally, the type of value_compare must be identical in both sets.
+     *
+     * The value type of the returned vector is the common type of S1 and S2's member types. The values from s1 which
+     * are not also in s2 are added to the returned vector in the order in which they appear in s2.
+     *
+     * @tparam S1 the type of the first set
+     * @tparam S2 the type of the second set
+     * @param s1 the first set
+     * @param s2 the second set
+     * @return a vector containing the set difference of s1 and s2.
+     */
     template<typename S1, typename S2>
-    auto setDifference(const S1& s1, const S2& s2) {
+    auto set_difference(const S1& s1, const S2& s2) {
         using T1 = typename S1::value_type;
         using T2 = typename S2::value_type;
         using C1 = typename S1::value_compare;
         using C2 = typename S2::value_compare;
         static_assert(std::is_same<C1, C2> ::value, "incompatible comparators");
 
-        using T = typename std::common_type<T1, T2>::type;
+        using T = std::common_type_t<T1, T2>;
         using C = C1;
 
         std::vector<T> result;
@@ -265,8 +286,24 @@ namespace kdl {
         return result;
     }
 
+    /**
+     * Returns a vector containing all values from s1 and s2 without duplicates. A pair of values from s1 and s2 is a
+     * duplicate if the values are equivalent according to the common comparator of s1 and s2.
+     *
+     * Expects that both S1 and S2 declare the types of their values with ::value_type and the comparator used to
+     * compare the values with ::value_compare. Additionally, the type of value_compare must be identical in both sets.
+     *
+     * The value type of the returned vector is the common type of S1 and S2's member types. The order of the values in
+     * the returned vector complies with the common comparator of s1 and s2.
+     *
+     * @tparam S1 the type of the first set
+     * @tparam S2 the type of the second set
+     * @param s1 the first set
+     * @param s2 the second set
+     * @return a vector containing the set union of s1 and s2.
+     */
     template<typename S1, typename S2>
-    auto setUnion(const S1& s1, const S2& s2) {
+    auto set_union(const S1& s1, const S2& s2) {
         using T1 = typename S1::value_type;
         using T2 = typename S2::value_type;
         using C1 = typename S1::value_compare;
@@ -282,8 +319,24 @@ namespace kdl {
         return result;
     }
 
+
+    /**
+     * Returns a vector containing all values from s1 and s2 which are present in both sets.
+     *
+     * Expects that both S1 and S2 declare the types of their values with ::value_type and the comparator used to
+     * compare the values with ::value_compare. Additionally, the type of value_compare must be identical in both sets.
+     *
+     * The value type of the returned vector is the common type of S1 and S2's member types. The order of the values in
+     * the returned vector complies with the common comparator of s1 and s2.
+     *
+     * @tparam S1 the type of the first set
+     * @tparam S2 the type of the second set
+     * @param s1 the first set
+     * @param s2 the second set
+     * @return a vector containing the set union of s1 and s2.
+     */
     template<typename S1, typename S2>
-    auto setIntersection(const S1& s1, const S2& s2) {
+    auto set_intersection(const S1& s1, const S2& s2) {
         using T1 = typename S1::value_type;
         using T2 = typename S2::value_type;
         using C1 = typename S1::value_compare;
@@ -300,14 +353,26 @@ namespace kdl {
         return result;
     }
 
+    /**
+     * Clears the given vector and ensures that it has a capacity of 0 afterwards.
+     *
+     * @tparam T the type of the vector elements
+     * @param v the vector
+     */
     template<typename T>
-    void clearToZero(std::vector<T>& v) {
+    void clear_to_zero(std::vector<T>& v) {
         v.clear();
         v.shrink_to_fit();
     }
 
-    template<typename T>
-    void clearAndDelete(std::vector<T*>& v) {
+    /**
+     * Applies the given deleter to every element of the given vector, and clears the vector afterwards.
+     *
+     * @tparam T the type of the vector elements
+     * @param v the vector
+     */
+    template<typename T, typename D = deleter<T*>>
+    void clear_and_delete(std::vector<T*>& v, const D& deleter = D()) {
         kdl::delete_all(v);
         v.clear();
     }

@@ -117,7 +117,7 @@ namespace TrenchBroom {
             if (nameResult.empty() || valueResult.empty())
                 return {};
 
-            std::vector<AttributableNode*> result = kdl::setIntersection(nameResult, valueResult);
+            std::vector<AttributableNode*> result = kdl::set_intersection(nameResult, valueResult);
 
             auto it = std::begin(result);
             while (it != std::end(result)) {

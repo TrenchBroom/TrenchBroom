@@ -307,7 +307,7 @@ namespace TrenchBroom {
                 result.push_back(vm::get_abs_max_component_axis(normal));
             }
 
-            kdl::sortAndMakeUnique(result);
+            kdl::sort_and_make_unique(result);
             return result;
         }
 

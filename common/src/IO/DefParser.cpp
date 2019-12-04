@@ -175,7 +175,7 @@ namespace TrenchBroom {
                 }
                 return definitions;
             } catch (...) {
-                kdl::clearAndDelete(definitions);
+                kdl::clear_and_delete(definitions);
                 throw;
             }
         }

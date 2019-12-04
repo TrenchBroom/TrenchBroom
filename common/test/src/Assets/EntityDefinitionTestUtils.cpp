@@ -44,7 +44,7 @@ namespace TrenchBroom {
 
             assertModelDefinition(expected, definition, entityPropertiesStr);
 
-            kdl::clearAndDelete(definitions);
+            kdl::clear_and_delete(definitions);
         }
 
         void assertModelDefinition(const ModelSpecification& expected, const EntityDefinition* definition, const String& entityPropertiesStr) {

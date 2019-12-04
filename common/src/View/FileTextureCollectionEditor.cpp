@@ -159,7 +159,7 @@ namespace TrenchBroom {
                 toRemove.push_back(collections[index]);
             }
 
-            kdl::eraseAll(collections, toRemove);
+            kdl::erase_all(collections, toRemove);
             document->setEnabledTextureCollections(collections);
         }
 

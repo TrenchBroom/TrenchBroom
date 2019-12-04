@@ -103,7 +103,7 @@ namespace TrenchBroom {
                 std::vector<vm::vec3> vertices;
                 vertices.reserve(2 * edgeList.size());
                 vm::segment3::get_vertices(std::begin(edgeList), std::end(edgeList), std::back_inserter(vertices));
-                kdl::sortAndMakeUnique(vertices);
+                kdl::sort_and_make_unique(vertices);
                 result.insert(std::make_pair(brush, vertices));
             }
             return result;
@@ -117,7 +117,7 @@ namespace TrenchBroom {
 
                 std::vector<vm::vec3> vertices;
                 vm::polygon3::get_vertices(std::begin(faceList), std::end(faceList), std::back_inserter(vertices));
-                kdl::sortAndMakeUnique(vertices);
+                kdl::sort_and_make_unique(vertices);
                 result.insert(std::make_pair(brush, vertices));
             }
             return result;

@@ -38,7 +38,7 @@ namespace TrenchBroom {
         }
 
         CompilationConfig::~CompilationConfig() {
-            kdl::clearAndDelete(m_profiles);
+            kdl::clear_and_delete(m_profiles);
         }
 
         CompilationConfig& CompilationConfig::operator=(CompilationConfig other) {
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             assert(index < profileCount());
             m_profiles[index]->profileWillBeRemoved();
             delete m_profiles[index];
-            kdl::eraseAt(m_profiles, index);
+            kdl::erase_at(m_profiles, index);
             profilesDidChange();
         }
     }

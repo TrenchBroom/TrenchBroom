@@ -67,7 +67,7 @@ namespace TrenchBroom {
 
             void addVertices(const typename T::Vertex::List& vertices) {
                 assert(m_allowDynamicGrowth || vertices.size() <= m_vertices.capacity() - m_vertices.size());
-                m_vertices = kdl::append(m_vertices, vertices);
+                kdl::append(m_vertices, vertices);
             }
 
             void addPrimitive(const typename T::Vertex::List& vertices) {
@@ -79,9 +79,9 @@ namespace TrenchBroom {
                 assert(m_allowDynamicGrowth || primitives.vertices().size() <= m_vertices.capacity() - m_vertices.size());
                 assert(m_allowDynamicGrowth || primitives.indices().size() <= m_indices.capacity() - m_indices.size());
                 assert(m_allowDynamicGrowth || primitives.counts().size() <= m_counts.capacity() - m_counts.size());
-                m_vertices = kdl::append(m_vertices, primitives.vertices());
-                m_indices = kdl::append(m_indices, primitives.indices());
-                m_counts = kdl::append(m_counts, primitives.counts());
+                kdl::append(m_vertices, primitives.vertices());
+                kdl::append(m_indices, primitives.indices());
+                kdl::append(m_counts, primitives.counts());
                 m_primStart = m_vertices.size();
             }
 

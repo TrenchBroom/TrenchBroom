@@ -210,7 +210,7 @@ namespace TrenchBroom {
 
             const std::vector<Model::Node*>& partiallyDeselected = visitor.nodes();
 
-            kdl::eraseAll(m_selectedBrushFaces, deselected);
+            kdl::erase_all(m_selectedBrushFaces, deselected);
             m_selectedNodes.removeNodes(partiallyDeselected);
 
             Selection selection;
@@ -795,7 +795,7 @@ namespace TrenchBroom {
 
             invalidateSelectionBounds();
 
-            kdl::sortAndMakeUnique(newVertexPositions);
+            kdl::sort_and_make_unique(newVertexPositions);
             return newVertexPositions;
         }
 
@@ -816,7 +816,7 @@ namespace TrenchBroom {
 
             invalidateSelectionBounds();
 
-            kdl::sortAndMakeUnique(newEdgePositions);
+            kdl::sort_and_make_unique(newEdgePositions);
             return newEdgePositions;
         }
 
@@ -837,7 +837,7 @@ namespace TrenchBroom {
 
             invalidateSelectionBounds();
 
-            kdl::sortAndMakeUnique(newFacePositions);
+            kdl::sort_and_make_unique(newFacePositions);
             return newFacePositions;
         }
 

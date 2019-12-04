@@ -168,7 +168,7 @@ namespace TrenchBroom {
                 kdl::append(result, m_next->_getDirectoryContents(directoryPath));
             }
 
-            kdl::sortAndMakeUnique(result);
+            kdl::sort_and_make_unique(result);
             return result;
         }
 

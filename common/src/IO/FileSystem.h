@@ -148,7 +148,7 @@ namespace TrenchBroom {
 
                     Path::List result;
                     _findItems(searchPath, matcher, recurse, result);
-                    kdl::sortAndMakeUnique(result);
+                    kdl::sort_and_make_unique(result);
                     return result;
                 } catch (const PathException& e) {
                     throw FileSystemException("Invalid path: '" + searchPath.asString() + "'", e);

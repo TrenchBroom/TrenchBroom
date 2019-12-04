@@ -23,11 +23,13 @@
 
 namespace kdl {
     TEST(collection_utils_test, size) {
-        ASSERT_EQ(0u, size(std::vector<int>({})));
-        ASSERT_EQ(1u, size(std::vector<int>({ 2 })));
-        ASSERT_EQ(2u, size(std::vector<int>({ 2, 1 })));
-        ASSERT_EQ(2u, size(std::vector<int>({ 2 }), std::vector<int>({ 2 })));
-        ASSERT_EQ(3u, size(std::vector<int>({ 2 }), std::vector<int>({ 2, 1 })));
+        using vec = std::vector<int>;
+
+        ASSERT_EQ(0u, size(vec({})));
+        ASSERT_EQ(1u, size(vec({ 2 })));
+        ASSERT_EQ(2u, size(vec({ 2, 1 })));
+        ASSERT_EQ(2u, size(vec({ 2 }), vec({ 2 })));
+        ASSERT_EQ(3u, size(vec({ 2 }), vec({ 2, 1 })));
     }
 
     template <typename T>

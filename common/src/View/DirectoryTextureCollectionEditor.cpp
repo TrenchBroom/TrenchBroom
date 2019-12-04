@@ -65,7 +65,7 @@ namespace TrenchBroom {
                 enabledCollections.push_back(availableCollections[index]);
             }
 
-            kdl::sortAndMakeUnique(enabledCollections);
+            kdl::sort_and_make_unique(enabledCollections);
 
             auto document = lock(m_document);
             document->setEnabledTextureCollections(enabledCollections);
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             // erase back to front
             for (auto sIt = std::rbegin(selections), sEnd = std::rend(selections); sIt != sEnd; ++sIt) {
                 const auto index = static_cast<size_t>(*sIt);
-                kdl::eraseAt(enabledCollections, index);
+                kdl::erase_at(enabledCollections, index);
             }
 
             auto document = lock(m_document);
@@ -251,7 +251,7 @@ namespace TrenchBroom {
         IO::Path::List DirectoryTextureCollectionEditor::availableTextureCollections() const {
             auto document = lock(m_document);
             auto availableCollections = document->availableTextureCollections();
-            kdl::eraseAll(availableCollections, document->enabledTextureCollections());
+            kdl::erase_all(availableCollections, document->enabledTextureCollections());
             return availableCollections;
         }
 

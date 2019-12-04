@@ -51,7 +51,7 @@ namespace TrenchBroom {
         void EntityDefinitionManager::clear() {
             clearCache();
             clearGroups();
-            kdl::clearAndDelete(m_definitions);
+            kdl::clear_and_delete(m_definitions);
         }
 
         EntityDefinition* EntityDefinitionManager::definition(const Model::AttributableNode* attributable) const {

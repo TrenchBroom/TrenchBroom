@@ -184,7 +184,7 @@ namespace TrenchBroom {
             }
 
             ~MoveVerticesCallback() override {
-                kdl::clearAndDelete(m_removedFaces);
+                kdl::clear_and_delete(m_removedFaces);
             }
         private:
             void buildIncidences(const BrushGeometry* geometry, const std::set<vm::vec3>& verticesToBeMoved, const vm::vec3& delta) {
@@ -318,7 +318,7 @@ namespace TrenchBroom {
 
         void Brush::cleanup() {
             deleteGeometry();
-            kdl::clearAndDelete(m_faces);
+            kdl::clear_and_delete(m_faces);
         }
 
         Brush* Brush::clone(const vm::bbox3& worldBounds) const {
@@ -413,7 +413,7 @@ namespace TrenchBroom {
             deleteGeometry();
 
             detachFaces(m_faces);
-            kdl::clearAndDelete(m_faces);
+            kdl::clear_and_delete(m_faces);
             addFaces(faces);
 
             buildGeometry(worldBounds);
@@ -1164,7 +1164,7 @@ namespace TrenchBroom {
             });
 
             const NotifyNodeChange nodeChange(this);
-            kdl::clearAndDelete(m_faces);
+            kdl::clear_and_delete(m_faces);
             updateFacesFromGeometry(worldBounds, newGeometry);
             rebuildGeometry(worldBounds);
         }

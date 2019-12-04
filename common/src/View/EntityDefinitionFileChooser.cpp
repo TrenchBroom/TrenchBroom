@@ -179,7 +179,7 @@ namespace TrenchBroom {
 
             const Assets::EntityDefinitionFileSpec spec = document->entityDefinitionFile();
             if (spec.builtin()) {
-                const auto index = kdl::indexOf(specs, spec);
+                const auto index = kdl::index_of(specs, spec);
                 if (index < specs.size()) {
                     // the chosen builtin entity definition file might not be in the game config anymore if the config
                     // has changed after the definition file was chosen

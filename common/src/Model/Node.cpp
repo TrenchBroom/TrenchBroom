@@ -223,7 +223,7 @@ namespace TrenchBroom {
         }
 
         void Node::clearChildren() {
-            kdl::clearAndDelete(m_children);
+            kdl::clear_and_delete(m_children);
         }
 
         void Node::childWillBeAdded(Node* node) {
@@ -622,7 +622,7 @@ namespace TrenchBroom {
         }
 
         void Node::clearIssues() const {
-            kdl::clearAndDelete(m_issues);
+            kdl::clear_and_delete(m_issues);
         }
 
         void Node::findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<AttributableNode*>& result) const {

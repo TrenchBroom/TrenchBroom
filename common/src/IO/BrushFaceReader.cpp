@@ -39,7 +39,7 @@ namespace TrenchBroom {
                 readBrushFaces(m_factory.format(), worldBounds, status);
                 return m_brushFaces;
             } catch (const ParserException&) {
-                kdl::clearAndDelete(m_brushFaces);
+                kdl::clear_and_delete(m_brushFaces);
                 throw;
             }
         }
