@@ -18,7 +18,6 @@
  */
 
 #include "FontManager.h"
-#include "CollectionUtils.h"
 #include "Renderer/FreeTypeFontFactory.h"
 #include "Renderer/TextureFont.h"
 

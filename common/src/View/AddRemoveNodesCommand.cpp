@@ -19,10 +19,11 @@
 
 #include "AddRemoveNodesCommand.h"
 
-#include "CollectionUtils.h"
 #include "Macros.h"
 #include "Model/Node.h"
 #include "View/MapDocumentCommandFacade.h"
+
+#include <kdl/map_utils.h>
 
 #include <map>
 #include <vector>
@@ -48,7 +49,7 @@ namespace TrenchBroom {
         }
 
         AddRemoveNodesCommand::~AddRemoveNodesCommand() {
-            MapUtils::clearAndDelete(m_nodesToAdd);
+            kdl::map_clear_and_delete(m_nodesToAdd);
         }
 
         AddRemoveNodesCommand::AddRemoveNodesCommand(const Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) :
@@ -71,7 +72,7 @@ namespace TrenchBroom {
                     return "Add Objects";
                 case Action_Remove:
                     return "Remove Objects";
-				switchDefault()
+                switchDefault()
             }
         }
 

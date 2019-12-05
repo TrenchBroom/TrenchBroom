@@ -19,7 +19,7 @@
 
 #include "GameEngineConfig.h"
 
-#include "CollectionUtils.h"
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -36,7 +36,7 @@ namespace TrenchBroom {
         }
 
         GameEngineConfig::~GameEngineConfig() {
-            VectorUtils::clearAndDelete(m_profiles);
+            kdl::vec_clear_and_delete(m_profiles);
         }
 
         GameEngineConfig& GameEngineConfig::operator=(GameEngineConfig other) {
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             assert(index < profileCount());
             m_profiles[index]->profileWillBeRemoved();
             delete m_profiles[index];
-            VectorUtils::erase(m_profiles, index);
+            kdl::vec_erase_at(m_profiles, index);
             profilesDidChange();
         }
     }

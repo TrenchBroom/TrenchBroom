@@ -20,10 +20,11 @@
 #ifndef TrenchBroom_StringMap
 #define TrenchBroom_StringMap
 
-#include "CollectionUtils.h"
 #include "Exceptions.h"
 #include "StringType.h"
 #include "StringUtils.h"
+
+#include <kdl/vector_utils.h>
 
 #include <cassert>
 #include <map>
@@ -49,7 +50,7 @@ namespace TrenchBroom {
         }
 
         static void getValues(const ValueContainer& values, QueryResult& result) {
-            VectorUtils::append(result, values);
+            kdl::vec_append(result, values);
         }
     };
 
@@ -60,8 +61,7 @@ namespace TrenchBroom {
         using QueryResult = std::set<V>;
 
         static void insertValue(ValueContainer& values, const V& value) {
-            typename ValueContainer::iterator it = MapUtils::findOrInsert(values, value, 0u);
-            ++it->second;
+            values[value]++; // unknown map values are value constructed, which initializes to 0 for size_t
         }
 
         static void removeValue(ValueContainer& values, const V& value) {
@@ -285,7 +285,7 @@ namespace TrenchBroom {
                 using std::swap;
 
                 assert(m_key.size() > 1);
-                ensure(index < m_key.size(), "index out of range");
+                assert(index < m_key.size());
 
                 const String newKey = m_key.substr(0, index);
                 const String remainder = m_key.substr(index);
@@ -334,12 +334,12 @@ namespace TrenchBroom {
         }
 
         void insert(const String& key, const V& value) {
-            ensure(m_root != nullptr, "root is null");
+            assert(m_root != nullptr);
             m_root->insert(key, value);
         }
 
         void remove(const String& key, const V& value) {
-            ensure(m_root != nullptr, "root is null");
+            assert(m_root != nullptr);
             m_root->remove(key, value);
         }
 
@@ -349,28 +349,28 @@ namespace TrenchBroom {
         }
 
         QueryResult queryPrefixMatches(const String& prefix) const {
-            ensure(m_root != nullptr, "root is null");
+            assert(m_root != nullptr);
             QueryResult result;
             m_root->queryPrefix(prefix, result);
             return result;
         }
 
         QueryResult queryNumberedMatches(const String& prefix) const {
-            ensure(m_root != nullptr, "root is null");
+            assert(m_root != nullptr);
             QueryResult result;
             m_root->queryNumbered(prefix, result);
             return result;
         }
 
         QueryResult queryExactMatches(const String& prefix) const {
-            ensure(m_root != nullptr, "root is null");
+            assert(m_root != nullptr);
             QueryResult result;
             m_root->queryExact(prefix, result);
             return result;
         }
 
         StringList getKeys() const {
-            ensure(m_root != nullptr, "root is null");
+            assert(m_root != nullptr);
             StringList result;
             m_root->getKeys("", result);
             return result;

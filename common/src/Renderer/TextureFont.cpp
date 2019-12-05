@@ -19,7 +19,7 @@
 
 #include "TextureFont.h"
 
-#include "CollectionUtils.h"
+#include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -145,7 +145,7 @@ namespace TrenchBroom {
 
             void makeQuads(const String& str, const float x) {
                 const auto offset = m_offset + vm::vec2f(x, m_y);
-                VectorUtils::append(m_vertices, m_font.quads(str, m_clockwise, offset));
+                kdl::vec_append(m_vertices, m_font.quads(str, m_clockwise, offset));
 
                 m_y -= m_sizes[m_index].y();
                 m_index++;

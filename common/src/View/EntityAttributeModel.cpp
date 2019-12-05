@@ -32,6 +32,10 @@
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
+#include <kdl/map_utils.h>
+#include <kdl/vector_utils.h>
+#include <kdl/vector_set.h>
+
 #include <iterator>
 #include <optional-lite/optional.hpp>
 #include <vector>
@@ -287,8 +291,8 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeModel::setRows(const std::map<String, AttributeRow>& newRowsKeyMap) {
-            const std::set<AttributeRow> newRowSet = MapUtils::valueSet(newRowsKeyMap);
-            const std::set<AttributeRow> oldRowSet = SetUtils::makeSet(m_rows);
+            const auto newRowSet = kdl::vector_set(kdl::map_values(newRowsKeyMap));
+            const auto oldRowSet = kdl::vector_set(std::begin(m_rows), std::end(m_rows));
 
             if (newRowSet == oldRowSet) {
                 qDebug() << "EntityAttributeModel::setRows: no change";
@@ -301,8 +305,8 @@ namespace TrenchBroom {
             //
             // This situation happens when you rename a key and then press Tab to switch
             // to editing the value for the newly renamed key.
-            const std::set<AttributeRow> newMinusOld = SetUtils::minus(newRowSet, oldRowSet);
-            const std::set<AttributeRow> oldMinusNew = SetUtils::minus(oldRowSet, newRowSet);
+            const auto newMinusOld = kdl::set_difference(newRowSet, oldRowSet);
+            const auto oldMinusNew = kdl::set_difference(oldRowSet, newRowSet);
 
             if (newMinusOld.size() == 1 && oldMinusNew.size() == 1) {
                 const AttributeRow oldDeletion = *oldMinusNew.begin();
@@ -310,7 +314,7 @@ namespace TrenchBroom {
 
                 qDebug() << "EntityAttributeModel::setRows: one row changed: " << QString::fromStdString(oldDeletion.name()) << " -> " << QString::fromStdString(newAddition.name());
 
-                const size_t oldIndex = VectorUtils::indexOf(m_rows, oldDeletion);
+                const size_t oldIndex = kdl::vec_index_of(m_rows, oldDeletion);
                 m_rows.at(oldIndex) = newAddition;
 
                 // Notify Qt
@@ -342,7 +346,7 @@ namespace TrenchBroom {
                 qDebug() << "EntityAttributeModel::setRows: deleting " << oldMinusNew.size() << " rows";
 
                 for (const AttributeRow& row : oldMinusNew) {
-                    const int index = static_cast<int>(VectorUtils::indexOf(m_rows, row));
+                    const int index = static_cast<int>(kdl::vec_index_of(m_rows, row));
                     assert(index < static_cast<int>(m_rows.size()));
 
                     beginRemoveRows(QModelIndex(), index, index);
@@ -417,37 +421,36 @@ namespace TrenchBroom {
         StringList EntityAttributeModel::getAllAttributeNames() const {
             auto document = lock(m_document);
             const auto& index = document->world()->attributableNodeIndex();
-            auto result = index.allNames();
-
-            // remove duplicates and sort
-            VectorUtils::setCreate(result);
+            auto result = kdl::vector_set<String>(index.allNames());
 
             // also add keys from all loaded entity definitions
             for (const auto* entityDefinition : document->entityDefinitionManager().definitions()) {
                 for (const auto& attributeDefinition : entityDefinition->attributeDefinitions()) {
-                    VectorUtils::setInsert(result, attributeDefinition->name());
+                    result.insert(attributeDefinition->name());
                 }
             }
 
             // remove the empty string
-            VectorUtils::setRemove(result, "");
-            return result;
+            result.erase("");
+            return result.release_data();
         }
 
         StringList EntityAttributeModel::getAllValuesForAttributeNames(const StringList& names) const {
             auto document = lock(m_document);
             const auto& index = document->world()->attributableNodeIndex();
 
-            StringList result;
+            auto result = StringList();
+            auto resultSet = kdl::wrap_set(result);
+
             for (const auto& name : names) {
                 const auto values = index.allValuesForNames(Model::AttributableNodeIndexQuery::numbered(name));
                 for (const auto& value : values) {
-                    VectorUtils::setInsert(result, value);
+                    resultSet.insert(value);
                 }
             }
 
             // remove the empty string
-            VectorUtils::setRemove(result, "");
+            resultSet.erase("");
             return result;
         }
 
@@ -456,14 +459,15 @@ namespace TrenchBroom {
 
             // start with currently used classnames
             auto result = getAllValuesForAttributeNames({ Model::AttributeNames::Classname });
+            auto resultSet = kdl::wrap_set(result);
 
             // add keys from all loaded entity definitions
             for (const auto* entityDefinition : document->entityDefinitionManager().definitions()) {
-                VectorUtils::setInsert(result, entityDefinition->name());
+                resultSet.insert(entityDefinition->name());
             }
 
             // remove the empty string
-            VectorUtils::setRemove(result, "");
+            resultSet.erase("");
             return result;
         }
 

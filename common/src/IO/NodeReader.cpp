@@ -25,6 +25,8 @@
 #include "Model/ModelFactory.h"
 #include "Model/World.h"
 
+#include <kdl/vector_utils.h>
+
 #include <vector>
 
 namespace TrenchBroom {
@@ -42,13 +44,13 @@ namespace TrenchBroom {
             try {
                 readEntities(m_factory.format(), worldBounds, status);
             } catch (const ParserException&) {
-                VectorUtils::clearAndDelete(m_nodes);
+                kdl::vec_clear_and_delete(m_nodes);
 
                 try {
                     reset();
                     readBrushes(m_factory.format(), worldBounds, status);
                 } catch (const ParserException&) {
-                    VectorUtils::clearAndDelete(m_nodes);
+                    kdl::vec_clear_and_delete(m_nodes);
                     throw;
                 }
             }

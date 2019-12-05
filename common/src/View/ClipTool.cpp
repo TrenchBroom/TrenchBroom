@@ -20,7 +20,6 @@
 #include "ClipTool.h"
 
 #include "TrenchBroom.h"
-#include "CollectionUtils.h"
 #include "Constants.h"
 #include "Polyhedron.h"
 #include "PreferenceManager.h"
@@ -37,6 +36,9 @@
 #include "Renderer/RenderService.h"
 #include "View/MapDocument.h"
 #include "View/Selection.h"
+
+#include <kdl/map_utils.h>
+#include <kdl/vector_utils.h>
 
 #include <vecmath/ray.h>
 #include <vecmath/vec.h>
@@ -214,7 +216,7 @@ namespace TrenchBroom {
                 std::vector<vm::vec3> result;
                 for (size_t i = 0; i < m_numPoints; ++i) {
                     const std::vector<vm::vec3>& helpVectors = m_points[i].helpVectors;
-                    VectorUtils::append(result, helpVectors);
+                    kdl::vec_append(result, helpVectors);
                 }
 
                 return result;
@@ -506,8 +508,8 @@ namespace TrenchBroom {
             delete m_strategy;
             delete m_remainingBrushRenderer;
             delete m_clippedBrushRenderer;
-            MapUtils::clearAndDelete(m_frontBrushes);
-            MapUtils::clearAndDelete(m_backBrushes);
+            kdl::map_clear_and_delete(m_frontBrushes);
+            kdl::map_clear_and_delete(m_backBrushes);
         }
 
         const Grid& ClipTool::grid() const {
@@ -607,19 +609,19 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> result;
             if (!m_frontBrushes.empty()) {
                 if (keepFrontBrushes()) {
-                    MapUtils::merge(result, m_frontBrushes);
+                    result = kdl::map_merge(result, m_frontBrushes);
                     m_frontBrushes.clear();
                 } else {
-                    MapUtils::clearAndDelete(m_frontBrushes);
+                    kdl::map_clear_and_delete(m_frontBrushes);
                 }
             }
 
             if (!m_backBrushes.empty()) {
                 if (keepBackBrushes()) {
-                    MapUtils::merge(result, m_backBrushes);
+                    result = kdl::map_merge(result, m_backBrushes);
                     m_backBrushes.clear();
                 } else {
-                    MapUtils::clearAndDelete(m_backBrushes);
+                    kdl::map_clear_and_delete(m_backBrushes);
                 }
             }
 
@@ -743,8 +745,8 @@ namespace TrenchBroom {
         }
 
         void ClipTool::clearBrushes() {
-            MapUtils::clearAndDelete(m_frontBrushes);
-            MapUtils::clearAndDelete(m_backBrushes);
+            kdl::map_clear_and_delete(m_frontBrushes);
+            kdl::map_clear_and_delete(m_backBrushes);
         }
 
         void ClipTool::updateBrushes() {

@@ -26,8 +26,9 @@
 #include "IO/ELParser.h"
 #include "IO/LegacyModelDefinitionParser.h"
 
+#include <kdl/vector_utils.h>
+
 #include <memory>
-#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -202,7 +203,7 @@ namespace TrenchBroom {
                 }
                 return definitions;
             } catch (...) {
-                VectorUtils::clearAndDelete(definitions);
+                kdl::vec_clear_and_delete(definitions);
                 throw;
             }
         }
@@ -215,7 +216,7 @@ namespace TrenchBroom {
 
             if (StringUtils::caseInsensitiveEqual(token.data(), "@include")) {
                 const auto includedDefinitions = parseInclude(status);
-                VectorUtils::append(definitions, includedDefinitions);
+                kdl::vec_append(definitions, includedDefinitions);
             } else {
                 auto* definition = parseDefinition(status);
                 status.progress(m_tokenizer.progress());

@@ -21,7 +21,6 @@
 
 #include "BenchmarkUtils.h"
 
-#include "CollectionUtils.h"
 #include "Assets/Texture.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -42,7 +41,7 @@ namespace TrenchBroom {
         static constexpr size_t NumTextures = 256;
 
         /**
-         * Both returned vectors need to be freed with VectorUtils::clearAndDelete
+         * Both returned vectors need to be freed with VecUtils::clearAndDelete
          */
         static std::pair<std::vector<Model::Brush*>, std::vector<Assets::Texture*>> makeBrushes() {
             // make textures
@@ -125,8 +124,8 @@ namespace TrenchBroom {
                            }
                        }, "validate with " + std::to_string(brushesToKeep.size()) + " brushes");
 
-            VectorUtils::clearAndDelete(brushes);
-            VectorUtils::clearAndDelete(textures);
+            kdl::vec_clear_and_delete(brushes);
+            kdl::vec_clear_and_delete(textures);
         }
     }
 }

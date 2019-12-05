@@ -27,7 +27,8 @@
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/TestParserStatus.h"
-#include "VectorUtilsMinimal.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vector>
 
@@ -43,7 +44,7 @@ namespace TrenchBroom {
 
             assertModelDefinition(expected, definition, entityPropertiesStr);
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         void assertModelDefinition(const ModelSpecification& expected, const EntityDefinition* definition, const String& entityPropertiesStr) {

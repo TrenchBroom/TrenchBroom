@@ -36,7 +36,7 @@ namespace TrenchBroom {
             VariableStore* doClone() const override;
             size_t doGetSize() const override;
             EL::Value doGetValue(const String& name) const override;
-            StringSet doGetNames() const override;
+            StringList doGetNames() const override;
             void doDeclare(const String& name, const EL::Value& value) override;
             void doAssign(const String& name, const EL::Value& value) override;
 

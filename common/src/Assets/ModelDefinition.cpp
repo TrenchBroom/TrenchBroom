@@ -91,12 +91,12 @@ namespace TrenchBroom {
 
         void ModelDefinition::append(const ModelDefinition& other) {
             EL::ExpressionBase::List cases;
-            cases.push_back(m_expression.clone());
-            cases.push_back(other.m_expression.clone());
+            cases.emplace_back(m_expression.clone());
+            cases.emplace_back(other.m_expression.clone());
 
             const size_t line = m_expression.line();
             const size_t column = m_expression.column();
-            m_expression = EL::SwitchOperator::create(cases, line, column);
+            m_expression = EL::SwitchOperator::create(std::move(cases), line, column);
         }
 
         ModelSpecification ModelDefinition::modelSpecification(const Model::EntityAttributes& attributes) const {

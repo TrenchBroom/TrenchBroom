@@ -19,7 +19,6 @@
 
 #include "GameFactory.h"
 
-#include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "IO/CompilationConfigParser.h"
 #include "IO/CompilationConfigWriter.h"

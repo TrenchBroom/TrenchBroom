@@ -19,11 +19,12 @@
 
 #include "MapFileSerializer.h"
 
+#include "Ensure.h"
 #include "Exceptions.h"
 #include "Macros.h"
+#include "StringStream.h"
 #include "IO/DiskFileSystem.h"
 #include "Model/BrushFace.h"
-#include "StringStream.h"
 
 namespace TrenchBroom {
     namespace IO {

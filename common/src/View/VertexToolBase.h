@@ -48,6 +48,8 @@
 #include "View/VertexCommand.h"
 #include "View/VertexHandleManager.h"
 
+#include <kdl/vector_utils.h>
+
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
@@ -323,7 +325,7 @@ namespace TrenchBroom {
             template <typename HH>
             void renderHandles(const std::vector<HH>& handles, Renderer::RenderService& renderService, const Color& color) const {
                 renderService.setForegroundColor(color);
-                renderService.renderHandles(VectorUtils::cast<typename HH::float_type>(handles));
+                renderService.renderHandles(kdl::vec_element_cast<typename HH::float_type>(handles));
             }
 
             template <typename HH>

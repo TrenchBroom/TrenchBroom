@@ -19,12 +19,12 @@
 
 #include "AddBrushVerticesCommand.h"
 
-#include "CollectionUtils.h"
 #include "StringUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <map>
+#include <kdl/vector_set.h>
+
 #include <set>
 #include <vector>
 
@@ -33,15 +33,14 @@ namespace TrenchBroom {
         const Command::CommandType AddBrushVerticesCommand::Type = Command::freeType();
 
         AddBrushVerticesCommand::Ptr AddBrushVerticesCommand::add(const VertexToBrushesMap& vertices) {
-            std::set<Model::Brush*> allBrushSet;
+            kdl::vector_set<Model::Brush*> allBrushes;
             for (const auto& entry : vertices) {
                 const std::set<Model::Brush*>& brushes = entry.second;
-                SetUtils::merge(allBrushSet, brushes);
+                allBrushes.insert(std::begin(brushes), std::end(brushes));
             }
 
-            const std::vector<Model::Brush*> allBrushList(std::begin(allBrushSet), std::end(allBrushSet));
             const String actionName = StringUtils::safePlural(vertices.size(), "Add Vertex", "Add Vertices");
-            return Ptr(new AddBrushVerticesCommand(Type, actionName, allBrushList, vertices));
+            return Ptr(new AddBrushVerticesCommand(Type, actionName, allBrushes.release_data(), vertices));
         }
 
         AddBrushVerticesCommand::AddBrushVerticesCommand(CommandType type, const String& name, const std::vector<Model::Brush*>& brushes, const VertexToBrushesMap& vertices) :

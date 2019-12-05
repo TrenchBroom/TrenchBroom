@@ -19,7 +19,6 @@
 
 #include "KeyboardShortcutModel.h"
 
-#include "CollectionUtils.h"
 #include "Preference.h"
 #include "PreferenceManager.h"
 #include "View/ActionContext.h"
@@ -27,10 +26,12 @@
 #include "View/MapDocument.h"
 #include "IO/PathQt.h"
 
-#include <QBrush>
+#include <kdl/vector_set.h>
 
 #include <functional>
 #include <set>
+
+#include <QBrush>
 
 namespace TrenchBroom {
     namespace View {
@@ -133,7 +134,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            return VectorUtils::setContains(m_conflicts, index.row());
+            return kdl::wrap_set(m_conflicts).count(index.row()) > 0u;
         }
 
         void KeyboardShortcutModel::initializeActions() {
@@ -213,6 +214,7 @@ namespace TrenchBroom {
             std::set<ConflictEntry, decltype(cmp)> entrySet(cmp);
 
             m_conflicts.clear();
+            auto conflictSet = kdl::wrap_set(m_conflicts);
 
             for (int row = 0; row < totalActionCount(); ++row) {
                 const auto& actionInfo = this->actionInfo(row);
@@ -222,8 +224,8 @@ namespace TrenchBroom {
                     if (!noConflict) {
                         // found a duplicate, so there are conflicts
                         const auto otherRow = it->second;
-                        VectorUtils::setInsert(m_conflicts, row);
-                        VectorUtils::setInsert(m_conflicts, otherRow);
+                        conflictSet.insert(row);
+                        conflictSet.insert(otherRow);
 
                         const auto index = createIndex(row, 0);
                         const auto otherIndex = createIndex(otherRow, 0);

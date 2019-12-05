@@ -46,7 +46,7 @@ namespace TrenchBroom {
             }
         }
 
-        StringSet EntityAttributesVariableStore::doGetNames() const {
+        StringList EntityAttributesVariableStore::doGetNames() const {
             return m_attributes.names();
         }
 

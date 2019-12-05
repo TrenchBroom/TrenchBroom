@@ -26,6 +26,8 @@
 #include "Model/ModelFactory.h"
 #include "Model/World.h"
 
+#include <kdl/vector_utils.h>
+
 namespace TrenchBroom {
     namespace IO {
         BrushFaceReader::BrushFaceReader(const String& str, Model::ModelFactory& factory) :
@@ -37,7 +39,7 @@ namespace TrenchBroom {
                 readBrushFaces(m_factory.format(), worldBounds, status);
                 return m_brushFaces;
             } catch (const ParserException&) {
-                VectorUtils::clearAndDelete(m_brushFaces);
+                kdl::vec_clear_and_delete(m_brushFaces);
                 throw;
             }
         }

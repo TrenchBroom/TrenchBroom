@@ -21,7 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "CollectionUtils.h"
 #include "Assets/EntityModel.h"
 #include "Assets/EntityModelManager.h"
 #include "Model/EditorContext.h"

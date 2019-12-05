@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_RenderBatch
 #define TrenchBroom_RenderBatch
 
-#include <list>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -37,9 +37,9 @@ namespace TrenchBroom {
 
             class IndexedRenderableWrapper;
 
-            using RenderableList = std::list<Renderable*>;
-            using DirectRenderableList = std::list<DirectRenderable*>;
-            using IndexedRenderableList = std::list<IndexedRenderable*>;
+            using RenderableList = std::vector<Renderable*>;
+            using DirectRenderableList = std::vector<DirectRenderable*>;
+            using IndexedRenderableList = std::vector<IndexedRenderable*>;
 
             DirectRenderableList m_directRenderables;
             IndexedRenderableList m_indexedRenderables;

@@ -19,7 +19,6 @@
 
 #include "ConfigParserBase.h"
 
-#include "CollectionUtils.h"
 #include "Exceptions.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
