@@ -57,7 +57,8 @@ namespace TrenchBroom {
                     if (cloneParent(parent)) {
                         // see if the parent was already cloned and if not, clone it and store it
                         Model::Node* newParent = nullptr;
-                        if (const auto it = newParentMap.find(parent); it != std::end(newParentMap)) {
+                        const auto it = newParentMap.find(parent);
+                        if (it != std::end(newParentMap)) {
                             // parent was already cloned
                             newParent = it->second;
                         } else {
