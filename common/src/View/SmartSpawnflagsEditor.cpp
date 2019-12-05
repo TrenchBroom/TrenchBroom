@@ -79,6 +79,7 @@ namespace TrenchBroom {
             m_scrolledWindow->setWidget(m_flagsEditor);
 
             auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
             layout->addWidget(m_scrolledWindow, 1);
             setLayout(layout);
         }
@@ -96,19 +97,6 @@ namespace TrenchBroom {
             int set, mixed;
             getFlagValues(attributables, set, mixed);
             m_flagsEditor->setFlagValue(set, mixed);
-
-//            m_scrolledWindow->SetScrollRate(1, m_flagsEditor->lineHeight());
-//            m_scrolledWindow->Layout();
-//            m_scrolledWindow->FitInside();
-//            m_scrolledWindow->Refresh();
-            resetScrollPos();
-        }
-
-        void SmartSpawnflagsEditor::resetScrollPos() {
-            // TODO: the y position is not properly set (at least on OS X)
-//            int xRate, yRate;
-//            m_scrolledWindow->GetScrollPixelsPerUnit(&xRate, &yRate);
-//            m_scrolledWindow->Scroll(m_lastScrollPos.x * xRate, m_lastScrollPos.y * yRate);
         }
 
         void SmartSpawnflagsEditor::getFlags(const std::vector<Model::AttributableNode*>& attributables, QStringList& labels, QStringList& tooltips) const {
