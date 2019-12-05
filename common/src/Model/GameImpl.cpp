@@ -54,7 +54,7 @@
 #include "Model/Layer.h"
 #include "Model/World.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 
 #include <vector>
 

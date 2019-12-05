@@ -21,7 +21,7 @@
 
 #include "Assets/ModelDefinition.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 
 namespace TrenchBroom {
     namespace IO {

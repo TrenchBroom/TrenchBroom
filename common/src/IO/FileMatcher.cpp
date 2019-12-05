@@ -23,7 +23,7 @@
 #include "IO/PathQt.h"
 #include "StringUtils.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 
 #include <QFileInfo>
 

@@ -25,7 +25,7 @@
 #include "IO/FileMatcher.h"
 #include "IO/PathQt.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 
 #include <fstream>
 

@@ -26,7 +26,7 @@
 #include "EL/Value.h"
 #include "Model/EntityAttributesVariableStore.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 
 #include <vecmath/scalar.h>
 

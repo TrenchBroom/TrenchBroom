@@ -25,7 +25,7 @@
 #include "IO/DiskFileSystem.h"
 #include "View/MapDocument.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 
 #include <algorithm> // for std::sort
 #include <cassert>

@@ -27,7 +27,7 @@
 #include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 
 #include <memory>
 

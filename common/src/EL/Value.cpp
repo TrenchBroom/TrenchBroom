@@ -25,7 +25,7 @@
 
 #include <kdl/collection_utils.h>
 #include <kdl/map_utils.h>
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
 #include <algorithm>

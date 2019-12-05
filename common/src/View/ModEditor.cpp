@@ -30,7 +30,8 @@
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/collection_utils.h>
+#include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
 #include <QLineEdit>
@@ -180,7 +181,7 @@ namespace TrenchBroom {
         void ModEditor::updateAvailableMods() {
             auto document = lock(m_document);
             StringList availableMods = document->game()->availableMods();
-            kdl::ci::sort(availableMods);
+            kdl::sort(availableMods, kdl::ci::string_less());
 
             m_availableMods.clear();
             m_availableMods.reserve(availableMods.size());

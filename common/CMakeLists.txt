@@ -1079,7 +1079,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.h
 )
 
-add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
+add_library(common OBJECT ${COMMON_SOURCE})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_compile_features(common PRIVATE cxx_std_17)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})

@@ -29,7 +29,7 @@
 #include "IO/ZipFileSystem.h"
 #include "Model/GameConfig.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
 #include <memory>
