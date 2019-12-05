@@ -36,8 +36,8 @@
 #include "Model/Game.h"
 #include "Model/GameImpl.h"
 
-
-#include <kdl/string_utils.h>
+#include <kdl/collection_utils.h>
+#include <kdl/string_compare.h>
 
 #include <memory>
 
@@ -186,7 +186,7 @@ namespace TrenchBroom {
                 }
             }
 
-            kdl::cs::sort(m_names);
+            kdl::sort(m_names, kdl::cs::string_less());
 
             if (!errors.empty()) {
                 throw errors;

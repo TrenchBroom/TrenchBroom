@@ -25,7 +25,7 @@
 #include "StringUtils.h"
 
 // FIXME: try to avoid this include here
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 
 #include <map>
 #include <memory>

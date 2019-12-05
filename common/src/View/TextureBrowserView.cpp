@@ -34,7 +34,7 @@
 #include "Renderer/VertexArray.h"
 #include "View/MapDocument.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/vec.h>

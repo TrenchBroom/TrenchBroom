@@ -33,7 +33,7 @@
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 
 #include <set>
 #include <vector>

@@ -24,7 +24,7 @@
 #include "StringType.h"
 #include "StringUtils.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
 #include <cassert>

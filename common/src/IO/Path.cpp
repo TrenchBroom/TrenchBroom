@@ -22,7 +22,7 @@
 #include "Exceptions.h"
 #include "StringUtils.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 
 #include <algorithm>
 #include <iterator>

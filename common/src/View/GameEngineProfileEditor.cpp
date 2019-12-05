@@ -27,7 +27,7 @@
 #include "StringUtils.h"
 #include "TemporarilySetAny.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 
 #include <QBoxLayout>
 #include <QFileDialog>

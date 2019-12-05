@@ -21,7 +21,7 @@
 
 #include "Assets/Quake3Shader.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 
 namespace TrenchBroom {
     namespace IO {

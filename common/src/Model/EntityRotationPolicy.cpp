@@ -23,7 +23,7 @@
 #include "StringUtils.h"
 #include "Model/Entity.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/mat.h>

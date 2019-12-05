@@ -21,7 +21,7 @@
 
 #include "Assets/AttributeDefinition.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 
 #include <algorithm>
 #include <cassert>

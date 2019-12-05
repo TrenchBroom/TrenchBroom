@@ -42,7 +42,7 @@
 #include "View/MapFrame.h"
 #include "View/QtUtils.h"
 
-#include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>

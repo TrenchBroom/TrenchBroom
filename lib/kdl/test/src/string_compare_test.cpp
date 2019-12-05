@@ -17,7 +17,8 @@
 
 #include <gtest/gtest.h>
 
-#include "kdl/string_utils.h"
+#include "kdl/collection_utils.h"
+#include "kdl/string_compare.h"
 
 namespace kdl {
     namespace cs {
@@ -139,7 +140,7 @@ namespace kdl {
 
         template <typename C>
         C sorted(C c) {
-            sort(c);
+            kdl::sort(c, string_less());
             return c;
         }
 
@@ -282,7 +283,7 @@ namespace kdl {
 
         template <typename C>
         C sorted(C c) {
-            sort(c);
+            kdl::sort(c, string_less());
             return c;
         }
 
