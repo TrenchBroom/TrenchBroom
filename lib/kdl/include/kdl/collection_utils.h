@@ -20,6 +20,7 @@
 
 #include <algorithm> // for std::remove
 #include <functional> // for std::less
+#include <type_traits> // for std::is_convertible
 
 namespace kdl {
     template<typename T>
@@ -147,8 +148,8 @@ namespace kdl {
         // if the given iterators are random access iterators, short circuit the evaluation if the sizes
         // of the given ranges differ
         if constexpr (
-            std::is_same_v<typename std::iterator_traits<I1>::iterator_category, std::random_access_iterator_tag> &&
-            std::is_same_v<typename std::iterator_traits<I2>::iterator_category, std::random_access_iterator_tag>) {
+            std::is_convertible_v<typename std::iterator_traits<I1>::iterator_category, std::random_access_iterator_tag> &&
+            std::is_convertible_v<typename std::iterator_traits<I2>::iterator_category, std::random_access_iterator_tag>) {
             if (last1 - first1 != last2 - first2) {
                 return false;
             }
