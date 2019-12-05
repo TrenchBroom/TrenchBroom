@@ -32,7 +32,7 @@ namespace TrenchBroom {
         }
 
         BrushSnapshot::~BrushSnapshot() {
-            kdl::clear_and_delete(m_faces);
+            kdl::vec_clear_and_delete(m_faces);
         }
 
         void BrushSnapshot::takeSnapshot(Brush* brush) {

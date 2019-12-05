@@ -88,7 +88,7 @@ namespace TrenchBroom {
                 }
             }
 
-            kdl::sort(facePositions);
+            kdl::vec_sort(facePositions);
 
             assert(!brushes.empty());
             assert(brushes.size() == brushFaces.size());
@@ -103,7 +103,7 @@ namespace TrenchBroom {
                 std::vector<vm::vec3> vertices;
                 vertices.reserve(2 * edgeList.size());
                 vm::segment3::get_vertices(std::begin(edgeList), std::end(edgeList), std::back_inserter(vertices));
-                kdl::sort_and_make_unique(vertices);
+                kdl::vec_sort_and_remove_duplicates(vertices);
                 result.insert(std::make_pair(brush, vertices));
             }
             return result;
@@ -117,7 +117,7 @@ namespace TrenchBroom {
 
                 std::vector<vm::vec3> vertices;
                 vm::polygon3::get_vertices(std::begin(faceList), std::end(faceList), std::back_inserter(vertices));
-                kdl::sort_and_make_unique(vertices);
+                kdl::vec_sort_and_remove_duplicates(vertices);
                 result.insert(std::make_pair(brush, vertices));
             }
             return result;

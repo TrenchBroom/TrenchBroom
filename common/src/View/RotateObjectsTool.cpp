@@ -145,7 +145,7 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsTool::updateRecentlyUsedCenters(const vm::vec3& center) {
-            kdl::erase(m_recentlyUsedCenters, center);
+            kdl::vec_erase(m_recentlyUsedCenters, center);
             m_recentlyUsedCenters.push_back(center);
             m_toolPage->setRecentlyUsedCenters(m_recentlyUsedCenters);
         }

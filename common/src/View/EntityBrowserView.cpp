@@ -407,7 +407,7 @@ namespace TrenchBroom {
                             stepIterator(std::begin(quads), std::end(quads), 0, 2),
                             stepIterator(std::begin(quads), std::end(quads), 1, 2),
                             stepIterator(std::begin(textColor), std::end(textColor), 0, 0));
-                        kdl::append(stringVertices[defaultDescriptor], titleVertices);
+                        kdl::vec_append(stringVertices[defaultDescriptor], titleVertices);
                     }
 
                     for (size_t j = 0; j < group.size(); ++j) {
@@ -425,7 +425,7 @@ namespace TrenchBroom {
                                     stepIterator(std::begin(quads), std::end(quads), 0, 2),
                                     stepIterator(std::begin(quads), std::end(quads), 1, 2),
                                     stepIterator(std::begin(textColor), std::end(textColor), 0, 0));
-                                kdl::append(stringVertices[cellData(cell).fontDescriptor], titleVertices);
+                                kdl::vec_append(stringVertices[cellData(cell).fontDescriptor], titleVertices);
                             }
                         }
                     }

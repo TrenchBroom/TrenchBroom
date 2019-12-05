@@ -19,7 +19,6 @@
 
 #include "AttributeDefinition.h"
 
-#include <algorithm>
 #include <memory>
 
 #include "StringStream.h"
@@ -235,21 +234,13 @@ namespace TrenchBroom {
             return m_options;
         }
 
-        struct FindFlagByValue {
-            int value;
-            explicit FindFlagByValue(const int i_value) : value(i_value) {}
-            bool operator()(const FlagsAttributeOption& option) const {
-                return option.value() == value;
-            }
-        };
-
         const FlagsAttributeOption* FlagsAttributeDefinition::option(const int value) const {
-            auto it = std::find_if(std::begin(m_options), std::end(m_options), FindFlagByValue(value));
-            if (it == std::end(m_options)) {
-                return nullptr;
-            } else {
-                return &(*it);
+            for (const auto& option : m_options) {
+                if (option.value() == value) {
+                    return &option;
+                }
             }
+            return nullptr;
         }
 
         void FlagsAttributeDefinition::addOption(const int value, const String& shortDescription, const String& longDescription, const bool isDefault) {

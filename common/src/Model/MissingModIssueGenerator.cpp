@@ -84,7 +84,7 @@ namespace TrenchBroom {
                     if (issue->type() == MissingModIssue::Type) {
                         const MissingModIssue* modIssue = static_cast<const MissingModIssue*>(issue);
                         const String missingMod = modIssue->mod();
-                        kdl::erase(mods, missingMod);
+                        kdl::vec_erase(mods, missingMod);
                     }
                 }
                 return mods;

@@ -44,7 +44,7 @@ namespace TrenchBroom {
             std::vector<Node*> result;
             for (const auto& entry : nodes) {
                 const std::vector<Node*>& children = entry.second;
-                kdl::append(result, children);
+                kdl::vec_append(result, children);
             }
             return result;
         }

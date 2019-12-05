@@ -26,6 +26,9 @@
 #include <iterator> // for std::distance
 #include <memory> // for std::allocator
 
+// uncomment this to enable checking the invariant in debug builds
+// #define KDL_SET_ADAPTER_DEBUG 1
+
 namespace kdl {
     namespace detail {
         template <typename T, typename Allocator, typename Compare>
@@ -276,6 +279,7 @@ namespace kdl {
         }
     protected:
         bool check_invariant() {
+#ifdef KDL_SET_ADAPTER_DEBUG
             if (empty() != (size() == 0u)) {
                 return false;
             }
@@ -288,7 +292,7 @@ namespace kdl {
                     }
                 }
             }
-
+#endif
             return true;
         }
 
@@ -310,7 +314,7 @@ namespace kdl {
      */
     template <typename C1, typename C2, typename Compare>
     bool operator==(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
-        return lhs.size() == rhs.size() && lexicographical_compare(lhs, rhs, Compare()) == 0;
+        return lhs.size() == rhs.size() && col_lexicographical_compare(lhs, rhs, Compare()) == 0;
     }
 
     /**
@@ -326,7 +330,7 @@ namespace kdl {
      */
     template <typename C1, typename C2, typename Compare>
     bool operator!=(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
-        return lhs.size() != rhs.size() || lexicographical_compare(lhs, rhs, Compare()) != 0;
+        return lhs.size() != rhs.size() || col_lexicographical_compare(lhs, rhs, Compare()) != 0;
     }
 
     /**
@@ -342,7 +346,7 @@ namespace kdl {
      */
     template <typename C1, typename C2, typename Compare>
     bool operator<(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
-        return lexicographical_compare(lhs, rhs, Compare()) < 0;
+        return col_lexicographical_compare(lhs, rhs, Compare()) < 0;
     }
 
     /**
@@ -358,7 +362,7 @@ namespace kdl {
      */
     template <typename C1, typename C2, typename Compare>
     bool operator<=(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
-        return lexicographical_compare(lhs, rhs, Compare()) <= 0;
+        return col_lexicographical_compare(lhs, rhs, Compare()) <= 0;
     }
 
     /**
@@ -374,7 +378,7 @@ namespace kdl {
      */
     template <typename C1, typename C2, typename Compare>
     bool operator>(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
-        return lexicographical_compare(lhs, rhs, Compare()) > 0;
+        return col_lexicographical_compare(lhs, rhs, Compare()) > 0;
     }
 
     /**
@@ -390,7 +394,7 @@ namespace kdl {
      */
     template <typename C1, typename C2, typename Compare>
     bool operator>=(const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs) {
-        return lexicographical_compare(lhs, rhs, Compare()) >= 0;
+        return col_lexicographical_compare(lhs, rhs, Compare()) >= 0;
     }
 
     /**

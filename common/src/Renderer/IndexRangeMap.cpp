@@ -72,8 +72,8 @@ namespace TrenchBroom {
 
         void IndexRangeMap::IndicesAndCounts::add(const IndicesAndCounts& other, [[maybe_unused]] const bool dynamicGrowth) {
             assert(dynamicGrowth || indices.capacity() >= indices.size() + other.indices.size());
-            kdl::append(indices, other.indices);
-            kdl::append(counts, other.counts);
+            kdl::vec_append(indices, other.indices);
+            kdl::vec_append(counts, other.counts);
         }
 
         void IndexRangeMap::Size::inc(const PrimType primType, const size_t count) {

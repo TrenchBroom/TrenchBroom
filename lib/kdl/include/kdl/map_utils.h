@@ -80,9 +80,9 @@ namespace kdl {
      * @return an int indicating the result of the comparison
      */
     template<typename K, typename V, typename C, typename D = std::less<V>>
-    int lexicographical_compare(const std::map<K, V, C>& map1, const std::map<K, V, C>& map2, const D& value_cmp = D()) {
+    int map_lexicographical_compare(const std::map<K, V, C>& map1, const std::map<K, V, C>& map2, const D& value_cmp = D()) {
         const auto key_cmp = C();
-        return kdl::lexicographical_compare(std::begin(map1), std::end(map1), std::begin(map2),
+        return kdl::range_lexicographical_compare(std::begin(map1), std::end(map1), std::begin(map2),
             std::end(map2),
             [&key_cmp, &value_cmp](const auto& lhs, const auto& rhs) {
                 const K& lhs_key = lhs.first;
@@ -118,12 +118,12 @@ namespace kdl {
      * @return true if the given maps are equivalent and false otherwise
      */
     template<typename K, typename V, typename C, typename D = std::less<V>>
-    bool is_equivalent(const std::map<K, V, C>& map1, const std::map<K, V, C>& map2, const D& valueCmp) {
+    bool map_is_equivalent(const std::map<K, V, C>& map1, const std::map<K, V, C>& map2, const D& valueCmp = D()) {
         if (map1.size() != map2.size()) {
             return false;
         }
 
-        return lexicographical_compare(map1, map2, valueCmp) == 0;
+        return map_lexicographical_compare(map1, map2, valueCmp) == 0;
     }
 
     /**
@@ -137,7 +137,7 @@ namespace kdl {
      * @return the value of the given key in the given map, or the given default value
      */
     template<typename K, typename V>
-    const V& find_or_default(const std::map<K, V>& m, const K& k, const V& default_value) {
+    const V& map_find_or_default(const std::map<K, V>& m, const K& k, const V& default_value) {
         auto it = m.find(k);
         if (it == std::end(m)) {
             return default_value;
@@ -182,7 +182,7 @@ namespace kdl {
      */
     template<typename K, typename V, typename C>
     std::map<K, std::vector<V>, C>
-    merge_vector_maps(const std::map<K, std::vector<V>, C>& m1, const std::map<K, std::vector<V>, C>& m2) {
+    map_merge(const std::map<K, std::vector<V>, C>& m1, const std::map<K, std::vector<V>, C>& m2) {
         if (m1.empty()) {
             return m2;
         } else if (m2.empty()) {
@@ -208,9 +208,9 @@ namespace kdl {
      * @param deleter the deleter to apply
      */
     template<typename K, typename V, typename D = deleter<V*>>
-    void clear_and_delete(std::map<K, std::vector<V*>>& m, const D& deleter = D()) {
+    void map_clear_and_delete(std::map<K, std::vector<V*>>& m, const D& deleter = D()) {
         for (auto& e : m) {
-            kdl::delete_all(e.second, deleter);
+            kdl::col_delete_all(e.second, deleter);
         }
         m.clear();
     }

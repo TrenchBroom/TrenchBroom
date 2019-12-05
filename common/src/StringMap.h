@@ -50,7 +50,7 @@ namespace TrenchBroom {
         }
 
         static void getValues(const ValueContainer& values, QueryResult& result) {
-            kdl::append(result, values);
+            kdl::vec_append(result, values);
         }
     };
 

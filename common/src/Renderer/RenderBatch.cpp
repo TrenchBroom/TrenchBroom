@@ -53,8 +53,8 @@ namespace TrenchBroom {
         m_indexVbo(indexVbo) {}
 
         RenderBatch::~RenderBatch() {
-            kdl::clear_and_delete(m_oneshots);
-            kdl::clear_and_delete(m_indexedRenderables);
+            kdl::vec_clear_and_delete(m_oneshots);
+            kdl::vec_clear_and_delete(m_indexedRenderables);
         }
 
         void RenderBatch::add(Renderable* renderable) {

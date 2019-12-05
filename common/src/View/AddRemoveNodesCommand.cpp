@@ -49,7 +49,7 @@ namespace TrenchBroom {
         }
 
         AddRemoveNodesCommand::~AddRemoveNodesCommand() {
-            kdl::clear_and_delete(m_nodesToAdd);
+            kdl::map_clear_and_delete(m_nodesToAdd);
         }
 
         AddRemoveNodesCommand::AddRemoveNodesCommand(const Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) :

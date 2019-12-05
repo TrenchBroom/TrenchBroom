@@ -1032,7 +1032,7 @@ namespace TrenchBroom {
                 case ValueType::Array:
                     switch (rhs.type()) {
                         case ValueType::Array:
-                            return Value(kdl::concat(lhs.arrayValue(), rhs.arrayValue()));
+                            return Value(kdl::vec_concat(lhs.arrayValue(), rhs.arrayValue()));
                         case ValueType::Boolean:
                         case ValueType::Number:
                         case ValueType::String:
@@ -1299,7 +1299,7 @@ namespace TrenchBroom {
                 case ValueType::Array:
                     switch (rhs.type()) {
                         case ValueType::Array:
-                            return kdl::lexicographical_compare(lhs.arrayValue(), rhs.arrayValue());
+                            return kdl::col_lexicographical_compare(lhs.arrayValue(), rhs.arrayValue());
                         case ValueType::Null:
                         case ValueType::Undefined:
                             return 1;
@@ -1314,7 +1314,7 @@ namespace TrenchBroom {
                 case ValueType::Map:
                     switch (rhs.type()) {
                         case ValueType::Map:
-                            return kdl::lexicographical_compare(lhs.mapValue(), rhs.mapValue());
+                            return kdl::map_lexicographical_compare(lhs.mapValue(), rhs.mapValue());
                         case ValueType::Null:
                         case ValueType::Undefined:
                             return 1;
@@ -1329,7 +1329,7 @@ namespace TrenchBroom {
                 case ValueType::Range:
                     switch (rhs.type()) {
                         case ValueType::Range:
-                            return kdl::lexicographical_compare(lhs.rangeValue(), rhs.rangeValue());
+                            return kdl::col_lexicographical_compare(lhs.rangeValue(), rhs.rangeValue());
                         case ValueType::Null:
                         case ValueType::Undefined:
                             return 1;

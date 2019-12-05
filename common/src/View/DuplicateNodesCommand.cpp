@@ -39,7 +39,7 @@ namespace TrenchBroom {
 
         DuplicateNodesCommand::~DuplicateNodesCommand() {
             if (state() == CommandState_Default) {
-                kdl::clear_and_delete(m_addedNodes);
+                kdl::map_clear_and_delete(m_addedNodes);
             }
         }
 
@@ -57,15 +57,14 @@ namespace TrenchBroom {
                     if (cloneParent(parent)) {
                         // see if the parent was already cloned and if not, clone it and store it
                         Model::Node* newParent = nullptr;
-                        auto hint = newParentMap.upper_bound(parent);
-                        if (hint == std::begin(newParentMap) || std::prev(hint)->first != parent) {
+                        if (const auto it = newParentMap.find(parent); it != std::end(newParentMap)) {
+                            // parent was already cloned
+                            newParent = it->second;
+                        } else {
                             // parent was not cloned yet
                             newParent = parent->clone(worldBounds);
-                            newParentMap.insert(hint, { parent, newParent });
+                            newParentMap.insert({ parent, newParent });
                             m_addedNodes[document->currentParent()].push_back(newParent);
-                        } else {
-                            // parent was already cloned
-                            newParent = std::prev(hint)->second;
                         }
 
                         newParent->addChild(clone);

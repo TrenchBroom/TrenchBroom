@@ -66,7 +66,7 @@ namespace TrenchBroom {
                     nodesToReparent[node->parent()] = node->children();
 
                     affectedNodes.push_back(node);
-                    kdl::append(affectedNodes, node->children());
+                    kdl::vec_append(affectedNodes, node->children());
                 }
 
                 facade->deselectAll();

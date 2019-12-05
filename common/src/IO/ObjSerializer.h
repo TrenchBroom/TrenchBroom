@@ -52,9 +52,7 @@ namespace TrenchBroom {
                 }
 
                 size_t index(const V& v) {
-                    const auto [it, success] = m_map.try_emplace(v, m_list.size());
-                    unused(success);
-
+                    const auto it = m_map.insert({ v, m_list.size() }).first;
                     const size_t index = it->second;
                     if (index == m_list.size()) {
                         m_list.push_back(v);

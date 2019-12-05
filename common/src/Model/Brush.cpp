@@ -184,7 +184,7 @@ namespace TrenchBroom {
             }
 
             ~MoveVerticesCallback() override {
-                kdl::clear_and_delete(m_removedFaces);
+                kdl::vec_clear_and_delete(m_removedFaces);
             }
         private:
             void buildIncidences(const BrushGeometry* geometry, const std::set<vm::vec3>& verticesToBeMoved, const vm::vec3& delta) {
@@ -318,7 +318,7 @@ namespace TrenchBroom {
 
         void Brush::cleanup() {
             deleteGeometry();
-            kdl::clear_and_delete(m_faces);
+            kdl::vec_clear_and_delete(m_faces);
         }
 
         Brush* Brush::clone(const vm::bbox3& worldBounds) const {
@@ -413,7 +413,7 @@ namespace TrenchBroom {
             deleteGeometry();
 
             detachFaces(m_faces);
-            kdl::clear_and_delete(m_faces);
+            kdl::vec_clear_and_delete(m_faces);
             addFaces(faces);
 
             buildGeometry(worldBounds);
@@ -447,7 +447,7 @@ namespace TrenchBroom {
         void Brush::addFace(BrushFace* face) {
             ensure(face != nullptr, "face is null");
             ensure(face->brush() == nullptr, "face brush is null");
-            assert(!kdl::contains(m_faces, face));
+            assert(!kdl::vec_contains(m_faces, face));
 
             m_faces.push_back(face);
             face->setBrush(this);
@@ -1099,7 +1099,7 @@ namespace TrenchBroom {
             // TODO: When there are multiple choices of moving verts (unmovedVerts.size() + movedVerts.size() > 3)
             // we should sort them somehow. This can be seen if you select and move 3/5 verts of a pentagon;
             // which of the 3 moving verts currently gets UV lock is arbitrary.
-            kdl::append(referenceVerts, movedVerts);
+            kdl::vec_append(referenceVerts, movedVerts);
 
             if (referenceVerts.size() < 3) {
                 // Can't create a transform as there are not enough verts
@@ -1164,7 +1164,7 @@ namespace TrenchBroom {
             });
 
             const NotifyNodeChange nodeChange(this);
-            kdl::clear_and_delete(m_faces);
+            kdl::vec_clear_and_delete(m_faces);
             updateFacesFromGeometry(worldBounds, newGeometry);
             rebuildGeometry(worldBounds);
         }
@@ -1328,7 +1328,7 @@ namespace TrenchBroom {
                 if (geometry->payload() == nullptr) {
                     return false;
                 }
-                if (!kdl::contains(m_faces, geometry->payload())) {
+                if (!kdl::vec_contains(m_faces, geometry->payload())) {
                     return false;
                 }
             }

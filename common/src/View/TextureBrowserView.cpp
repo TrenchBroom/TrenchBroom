@@ -236,10 +236,10 @@ namespace TrenchBroom {
             auto doc = lock(m_document);
             std::vector<Assets::TextureCollection*> collections = doc->textureManager().collections();
             if (m_hideUnused) {
-                kdl::erase_if(collections, MatchUsageCount());
+                kdl::vec_erase_if(collections, MatchUsageCount());
             }
             if (m_sortOrder == SO_Usage) {
-                kdl::sort(collections, CompareByUsageCount());
+                kdl::vec_sort(collections, CompareByUsageCount());
             }
             return collections;
         }
@@ -261,18 +261,18 @@ namespace TrenchBroom {
 
         void TextureBrowserView::filterTextures(std::vector<Assets::Texture*>& textures) const {
             if (m_hideUnused)
-                kdl::erase_if(textures, MatchUsageCount());
+                kdl::vec_erase_if(textures, MatchUsageCount());
             if (!m_filterText.empty())
-                kdl::erase_if(textures, MatchName(m_filterText));
+                kdl::vec_erase_if(textures, MatchName(m_filterText));
         }
 
         void TextureBrowserView::sortTextures(std::vector<Assets::Texture*>& textures) const {
             switch (m_sortOrder) {
                 case SO_Name:
-                    kdl::sort(textures, CompareByName());
+                    kdl::vec_sort(textures, CompareByName());
                     break;
                 case SO_Usage:
-                    kdl::sort(textures, CompareByUsageCount());
+                    kdl::vec_sort(textures, CompareByUsageCount());
                     break;
             }
         }
@@ -510,8 +510,8 @@ namespace TrenchBroom {
                                     stepIterator(std::begin(groupNameQuads), std::end(groupNameQuads), 1, 2),
                                     stepIterator(std::begin(subTextColor), std::end(subTextColor), 0, 0));
 
-                                kdl::append(stringVertices[cellData(cell).mainTitleFont], textureNameVertices);
-                                kdl::append(stringVertices[cellData(cell).subTitleFont], groupNameVertices);
+                                kdl::vec_append(stringVertices[cellData(cell).mainTitleFont], textureNameVertices);
+                                kdl::vec_append(stringVertices[cellData(cell).subTitleFont], groupNameVertices);
                             }
                         }
                     }

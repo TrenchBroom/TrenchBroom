@@ -197,7 +197,7 @@ namespace TrenchBroom {
 
         void Node::doAddChild(Node* child) {
             ensure(child != nullptr, "child is null");
-            assert(!kdl::contains(m_children, child));
+            assert(!kdl::vec_contains(m_children, child));
             assert(child->parent() == nullptr);
             assert(canAddChild(child));
 
@@ -217,13 +217,13 @@ namespace TrenchBroom {
             childWillBeRemoved(child);
             // nodeWillChange();
             child->setParent(nullptr);
-            kdl::erase(m_children, child);
+            kdl::vec_erase(m_children, child);
             childWasRemoved(child);
             // nodeDidChange();
         }
 
         void Node::clearChildren() {
-            kdl::clear_and_delete(m_children);
+            kdl::vec_clear_and_delete(m_children);
         }
 
         void Node::childWillBeAdded(Node* node) {
@@ -622,7 +622,7 @@ namespace TrenchBroom {
         }
 
         void Node::clearIssues() const {
-            kdl::clear_and_delete(m_issues);
+            kdl::vec_clear_and_delete(m_issues);
         }
 
         void Node::findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<AttributableNode*>& result) const {

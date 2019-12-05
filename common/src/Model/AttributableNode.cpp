@@ -653,19 +653,19 @@ namespace TrenchBroom {
 
         void AttributableNode::removeLinkSource(AttributableNode* attributable) {
             ensure(attributable != nullptr, "attributable is null");
-            kdl::erase(m_linkSources, attributable);
+            kdl::vec_erase(m_linkSources, attributable);
             invalidateIssues();
         }
 
         void AttributableNode::removeLinkTarget(AttributableNode* attributable) {
             ensure(attributable != nullptr, "attributable is null");
-            kdl::erase(m_linkTargets, attributable);
+            kdl::vec_erase(m_linkTargets, attributable);
             invalidateIssues();
         }
 
         void AttributableNode::removeKillSource(AttributableNode* attributable) {
             ensure(attributable != nullptr, "attributable is null");
-            kdl::erase(m_killSources, attributable);
+            kdl::vec_erase(m_killSources, attributable);
             invalidateIssues();
         }
 
@@ -680,7 +680,7 @@ namespace TrenchBroom {
 
         void AttributableNode::removeKillTarget(AttributableNode* attributable) {
             ensure(attributable != nullptr, "attributable is null");
-            kdl::erase(m_killTargets, attributable);
+            kdl::vec_erase(m_killTargets, attributable);
         }
     }
 }

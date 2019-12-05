@@ -68,7 +68,7 @@ namespace TrenchBroom {
 
             CollectSelectableIssueNodesVisitor collect;
             m_node->acceptAndRecurse(collect);
-            kdl::append(nodes, collect.nodes());
+            kdl::vec_append(nodes, collect.nodes());
 
             return true;
         }

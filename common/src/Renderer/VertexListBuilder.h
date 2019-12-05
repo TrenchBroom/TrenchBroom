@@ -160,7 +160,7 @@ namespace TrenchBroom {
 
                 const size_t index = currentIndex();
                 const size_t count = vertices.size();
-                kdl::append(m_vertices, vertices);
+                kdl::vec_append(m_vertices, vertices);
 
                 return IndexData(index, count);
             }

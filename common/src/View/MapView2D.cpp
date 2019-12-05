@@ -224,7 +224,7 @@ namespace TrenchBroom {
             document->world()->acceptAndRecurse(visitor);
             document->select(visitor.nodes());
 
-            kdl::clear_and_delete(tallBrushes);
+            kdl::vec_clear_and_delete(tallBrushes);
         }
 
         void MapView2D::doFocusCameraOnSelection(const bool animate) {

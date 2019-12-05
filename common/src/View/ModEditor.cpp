@@ -203,7 +203,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < m_availableMods.size(); ++i) {
                 const auto& mod = m_availableMods[i];
                 if (StringUtils::containsCaseInsensitive(mod, pattern) &&
-                    !kdl::contains(enabledMods, mod)) {
+                    !kdl::vec_contains(enabledMods, mod)) {
                     m_availableModList->addItem(QString::fromStdString(mod));
                 }
             }
@@ -242,7 +242,7 @@ namespace TrenchBroom {
             StringList mods = document->mods();
             for (QListWidgetItem* item : selections) {
                 const std::string mod = item->text().toStdString();
-                kdl::erase(mods, mod);
+                kdl::vec_erase(mods, mod);
             }
             document->setMods(mods);
         }

@@ -62,7 +62,7 @@ namespace kdl {
         ASSERT_FALSE(wrap_set(v2).empty());
     }
 
-    TEST(const_set_adapter_test, size) {
+    TEST(const_set_adapter_test, col_total_size) {
         const auto v1 = std::vector<int>();
         ASSERT_EQ(0u, wrap_set(v1).size());
 

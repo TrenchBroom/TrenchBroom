@@ -22,7 +22,7 @@
 #include "Assets/EntityDefinition.h"
 #include "StringMap.h"
 
-#include <set>
+#include <kdl/vector_set.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -167,7 +167,16 @@ namespace TrenchBroom {
         }
 
         void EntityAttributes::setAttributes(const EntityAttribute::List& attributes) {
-            m_attributes = attributes;
+            m_attributes.clear();
+
+            // ensure that there are no duplicate names
+            kdl::vector_set<AttributeName> names(attributes.size());
+            for (const auto& attribute : attributes) {
+                if (names.insert(attribute.name()).second) {
+                    m_attributes.push_back(attribute);
+                }
+            }
+
             rebuildIndex();
         }
 
@@ -263,6 +272,8 @@ namespace TrenchBroom {
 
         const std::vector<AttributeName> EntityAttributes::names() const {
             std::vector<AttributeName> result;
+            result.reserve(m_attributes.size());
+
             for (const EntityAttribute& attribute : m_attributes) {
                 result.push_back(attribute.name());
             }
@@ -270,7 +281,7 @@ namespace TrenchBroom {
         }
 
         const AttributeValue* EntityAttributes::attribute(const AttributeName& name) const {
-            EntityAttribute::List::const_iterator it = findAttribute(name);
+            auto it = findAttribute(name);
             if (it == std::end(m_attributes))
                 return nullptr;
             return &it->value();

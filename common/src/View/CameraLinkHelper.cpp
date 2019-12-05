@@ -42,14 +42,14 @@ namespace TrenchBroom {
 
         void CameraLinkHelper::addCamera(Renderer::Camera* camera) {
             ensure(camera != nullptr, "camera is null");
-            assert(!kdl::contains(m_cameras, camera));
+            assert(!kdl::vec_contains(m_cameras, camera));
             m_cameras.push_back(camera);
             camera->cameraDidChangeNotifier.addObserver(this, &CameraLinkHelper::cameraDidChange);
         }
 
         void CameraLinkHelper::removeCamera(Renderer::Camera* camera) {
             ensure(camera != nullptr, "camera is null");
-            kdl::erase(m_cameras, camera);
+            kdl::vec_erase(m_cameras, camera);
             camera->cameraDidChangeNotifier.removeObserver(this, &CameraLinkHelper::cameraDidChange);
         }
 

@@ -36,7 +36,7 @@ namespace TrenchBroom {
         }
 
         GameEngineConfig::~GameEngineConfig() {
-            kdl::clear_and_delete(m_profiles);
+            kdl::vec_clear_and_delete(m_profiles);
         }
 
         GameEngineConfig& GameEngineConfig::operator=(GameEngineConfig other) {
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             assert(index < profileCount());
             m_profiles[index]->profileWillBeRemoved();
             delete m_profiles[index];
-            kdl::erase_at(m_profiles, index);
+            kdl::vec_erase_at(m_profiles, index);
             profilesDidChange();
         }
     }

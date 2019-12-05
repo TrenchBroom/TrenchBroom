@@ -47,7 +47,7 @@ namespace TrenchBroom {
 
             StringList mods;
             mods.push_back(document->defaultMod());
-            kdl::append(mods, document->mods());
+            kdl::vec_append(mods, document->mods());
 
             using namespace CompilationVariableNames;
             declare(MAP_BASE_NAME, EL::Value(filename.deleteExtension().asString()));

@@ -49,20 +49,6 @@ namespace kdl {
     };
 
     /**
-     * Computes the sum of the sizes of the given containers.
-     *
-     * @tparam C the type of the first container
-     * @tparam Args the type of the remaining containers
-     * @param c the first container
-     * @param args the remaining containers
-     * @return the sum of the sizes of the given containers
-     */
-    template<typename C, typename... Args>
-    auto size(const C& c, Args&& ... args) {
-        return (c.size() + ... + args.size());
-    }
-
-    /**
      * Removes every element in range [first2, last2) from range [first1, last1). Removal is done by shifting the
      * removed elements to the end of the range [first1, last1) in such a way that the range [first1, result) contains
      * the retained elements and [result, last1) contains the removed elements. The relative order of the elements in
@@ -78,7 +64,7 @@ namespace kdl {
      * contains the retained elements and [result, last1) contains the removed elements
      */
     template<typename I1, typename I2>
-    I1 remove_all(I1 first1, I1 last1, I2 first2, I2 last2) {
+    I1 range_remove_all(I1 first1, I1 last1, I2 first2, I2 last2) {
         I1 result = last1;
         while (first2 != last2) {
             result = std::remove(first1, result, *first2++);
@@ -96,23 +82,10 @@ namespace kdl {
      * @param deleter the deleter to apply
      */
     template<typename I, typename D = deleter<typename I::value_type>>
-    void delete_all(I first, I last, const D& deleter = D()) {
+    void range_delete_all(I first, I last, const D& deleter = D()) {
         while (first != last) {
             deleter(*first++);
         }
-    }
-
-    /**
-     * Applies the given deleter to all elements the given container.
-     *
-     * @tparam C the container type
-     * @tparam D the deleter type, defaults to deleter
-     * @param c the container
-     * @param deleter the deleter to apply
-     */
-    template<typename C, typename D = deleter<typename C::value_type>>
-    void delete_all(C& c, const D& deleter = D()) {
-        kdl::delete_all(std::begin(c), std::end(c), deleter);
     }
 
     /**
@@ -132,7 +105,7 @@ namespace kdl {
      * @return an int indicating the result of the comparison
      */
     template<typename I1, typename I2, typename Compare = std::less<typename std::common_type<typename I1::value_type, typename I2::value_type>::type>>
-    int lexicographical_compare(I1 first1, I1 last1, I2 first2, I2 last2, const Compare& cmp = Compare()) {
+    int range_lexicographical_compare(I1 first1, I1 last1, I2 first2, I2 last2, const Compare& cmp = Compare()) {
         while (first1 != last1 && first2 != last2) {
             if (cmp(*first1, *first2)) {
                 return -1;
@@ -154,25 +127,6 @@ namespace kdl {
     }
 
     /**
-     * Performs lexicographical comparison of the given collections c1 and c2 using the given comparator. Returns -1 if
-     * the first collection is less than the second collection, or +1 in the opposite case, or 0 if both collections are
-     * equivalent.
-     *
-     * @tparam C1 the type of the first collection
-     * @tparam C2 the type of the second collection
-     * @tparam Compare the comparator type, defaults to std::less<T>, where T both C1::value_type and C2::value_type
-     * must be convertible to T
-     * @param c1 the first collection
-     * @param c2 the second collection
-     * @param cmp the comparator to use
-     * @return an int indicating the result of the comparison
-     */
-    template<typename C1, typename C2, typename Compare = std::less<typename std::common_type<typename C1::value_type, typename C2::value_type>::type>>
-    int lexicographical_compare(const C1& c1, const C2& c2, const Compare& cmp = Compare()) {
-        return kdl::lexicographical_compare(std::begin(c1), std::end(c1), std::begin(c2), std::end(c2), cmp);
-    }
-
-    /**
      * Checks whether the given ranges [first1, last1) and [first2, last2) are equivalent according to using the given
      * comparator. Two ranges are considered equivalent according to a comparator if the ranges have the same number of
      * elements, and each pair of corresponding elements of the ranges is equivalent.
@@ -189,8 +143,76 @@ namespace kdl {
      * @return true if the given ranges are equivalent and false otherwise
      */
     template<typename I1, typename I2, typename Compare = std::less<typename std::common_type<typename I1::value_type, typename I2::value_type>::type>>
-    bool is_equivalent(I1 first1, I1 last1, I2 first2, I2 last2, const Compare& cmp = Compare()) {
-        return kdl::lexicographical_compare(first1, last1, first2, last2, cmp) == 0;
+    bool range_is_equivalent(I1 first1, I1 last1, I2 first2, I2 last2, const Compare& cmp = Compare()) {
+        // if the given iterators are random access iterators, short circuit the evaluation if the sizes
+        // of the given ranges differ
+        if constexpr (
+            std::is_same_v<typename std::iterator_traits<I1>::iterator_category, std::random_access_iterator_tag> &&
+            std::is_same_v<typename std::iterator_traits<I2>::iterator_category, std::random_access_iterator_tag>) {
+            if (last1 - first1 != last2 - first2) {
+                return false;
+            }
+        }
+        return kdl::range_lexicographical_compare(first1, last1, first2, last2, cmp) == 0;
+    }
+
+    /**
+     * Returns the size of the given container cast to the given type.
+     *
+     * @tparam C the container type
+     * @tparam O the type of the result, e.g. int
+     * @param c the collection
+     * @return the size of the given collection
+     */
+    template <typename O, typename C>
+    O col_size(const C& c) {
+        return static_cast<O>(c.size());
+    }
+
+    /**
+     * Computes the sum of the sizes of the given containers.
+     *
+     * @tparam C the type of the first container
+     * @tparam Args the type of the remaining containers
+     * @param c the first container
+     * @param args the remaining containers
+     * @return the sum of the sizes of the given containers
+     */
+    template<typename C, typename... Args>
+    auto col_total_size(const C& c, Args&& ... args) {
+        return (c.size() + ... + args.size());
+    }
+
+    /**
+     * Applies the given deleter to all elements the given container.
+     *
+     * @tparam C the container type
+     * @tparam D the deleter type, defaults to deleter
+     * @param c the container
+     * @param deleter the deleter to apply
+     */
+    template<typename C, typename D = deleter<typename C::value_type>>
+    void col_delete_all(C& c, const D& deleter = D()) {
+        kdl::range_delete_all(std::begin(c), std::end(c), deleter);
+    }
+
+    /**
+     * Performs lexicographical comparison of the given collections c1 and c2 using the given comparator. Returns -1 if
+     * the first collection is less than the second collection, or +1 in the opposite case, or 0 if both collections are
+     * equivalent.
+     *
+     * @tparam C1 the type of the first collection
+     * @tparam C2 the type of the second collection
+     * @tparam Compare the comparator type, defaults to std::less<T>, where T both C1::value_type and C2::value_type
+     * must be convertible to T
+     * @param c1 the first collection
+     * @param c2 the second collection
+     * @param cmp the comparator to use
+     * @return an int indicating the result of the comparison
+     */
+    template<typename C1, typename C2, typename Compare = std::less<typename std::common_type<typename C1::value_type, typename C2::value_type>::type>>
+    int col_lexicographical_compare(const C1& c1, const C2& c2, const Compare& cmp = Compare()) {
+        return kdl::range_lexicographical_compare(std::begin(c1), std::end(c1), std::begin(c2), std::end(c2), cmp);
     }
 
     /**
@@ -208,11 +230,11 @@ namespace kdl {
      * @return true if the given collections are equivalent and false otherwise
      */
     template<typename C1, typename C2, typename Compare = std::less<typename std::common_type<typename C1::value_type, typename C2::value_type>::type>>
-    bool is_equivalent(const C1& c1, const C2& c2, const Compare& cmp = Compare()) {
+    bool col_is_equivalent(const C1& c1, const C2& c2, const Compare& cmp = Compare()) {
         if (c1.size() != c2.size()) {
             return false;
         } else {
-            return kdl::is_equivalent(std::begin(c1), std::end(c1), std::begin(c2), std::end(c2), cmp);
+            return kdl::range_is_equivalent(std::begin(c1), std::end(c1), std::begin(c2), std::end(c2), cmp);
         }
     }
 }

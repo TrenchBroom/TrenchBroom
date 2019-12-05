@@ -50,7 +50,7 @@ namespace TrenchBroom {
         }
 
         TextureCollection::~TextureCollection() {
-            kdl::clear_and_delete(m_textures);
+            kdl::vec_clear_and_delete(m_textures);
             if (!m_textureIds.empty()) {
                 glAssert(glDeleteTextures(static_cast<GLsizei>(m_textureIds.size()),
                                           static_cast<GLuint*>(&m_textureIds.front())));

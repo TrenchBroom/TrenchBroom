@@ -22,26 +22,26 @@
 #include <vector>
 
 namespace kdl {
-    TEST(collection_utils_test, size) {
+    TEST(collection_utils_test, col_total_size) {
         using vec = std::vector<int>;
 
         ASSERT_EQ(0u, size(vec({})));
         ASSERT_EQ(1u, size(vec({ 2 })));
         ASSERT_EQ(2u, size(vec({ 2, 1 })));
-        ASSERT_EQ(2u, size(vec({ 2 }), vec({ 2 })));
-        ASSERT_EQ(3u, size(vec({ 2 }), vec({ 2, 1 })));
+        ASSERT_EQ(2u, col_total_size(vec({ 2 }), vec({ 2 })));
+        ASSERT_EQ(3u, col_total_size(vec({ 2 }), vec({ 2, 1 })));
     }
 
     template <typename T>
-    void test_remove_all(const std::vector<T> exp1, std::vector<T> col, const std::vector<T> rem) {
-        auto it = remove_all(std::begin(col), std::end(col), std::begin(rem), std::end(rem));
+    void test_range_remove_all(const std::vector<T> exp1, std::vector<T> col, const std::vector<T> rem) {
+        auto it = range_remove_all(std::begin(col), std::end(col), std::begin(rem), std::end(rem));
         ASSERT_EQ(exp1, std::vector<T>(std::begin(col), it));
     }
 
-    TEST(collection_utils_test, remove_all) {
-        test_remove_all<int>({1, 2, 3, 4, 5, 6, 7, 8, 9}, {1, 2, 3, 4, 5, 6, 7, 8, 9}, {});
-        test_remove_all<int>({1, 2, 4, 5, 6, 7, 8, 9}, {1, 2, 3, 4, 5, 6, 7, 8, 9}, {3});
-        test_remove_all<int>({1, 2, 5, 6, 8, 9}, {1, 2, 3, 4, 5, 6, 7, 8, 9}, {7, 3, 4});
+    TEST(collection_utils_test, range_remove_all) {
+        test_range_remove_all<int>({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, {});
+        test_range_remove_all<int>({ 1, 2, 4, 5, 6, 7, 8, 9 }, { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, { 3 });
+        test_range_remove_all<int>({ 1, 2, 5, 6, 8, 9 }, { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, { 7, 3, 4 });
     }
 
     struct deletable {
@@ -51,20 +51,10 @@ namespace kdl {
         ~deletable() { deleted = true; }
     };
 
-    TEST(collection_utils_test, delete_all_in_range) {
+    TEST(collection_utils_test, range_delete_all) {
         bool d1, d2, d3;
         auto d = std::vector<deletable*>({ new deletable(d1), new deletable(d2), new deletable(d3) });
-        delete_all(std::begin(d), std::end(d));
-
-        ASSERT_TRUE(d1);
-        ASSERT_TRUE(d2);
-        ASSERT_TRUE(d3);
-    }
-
-    TEST(collection_utils_test, delete_all_in_vector) {
-        bool d1, d2, d3;
-        auto d = std::vector<deletable*>({ new deletable(d1), new deletable(d2), new deletable(d3) });
-        delete_all(d);
+        range_delete_all(std::begin(d), std::end(d));
 
         ASSERT_TRUE(d1);
         ASSERT_TRUE(d2);
@@ -72,40 +62,55 @@ namespace kdl {
     }
 
     template <typename T>
-    void test_lexicographical_compare(const int exp, const std::vector<T>& lhs, const std::vector<T>& rhs) {
-        ASSERT_EQ(exp, lexicographical_compare(lhs, rhs));
+    void test_range_lexicographical_compare(const int exp, const std::vector<T>& lhs, const std::vector<T>& rhs) {
+        ASSERT_EQ(exp, col_lexicographical_compare(lhs, rhs));
     }
 
-    TEST(collection_utils_test, lexicographical_compare) {
-        test_lexicographical_compare<int>(0, {}, {});
-        test_lexicographical_compare<int>(-1, {}, { 1 });
-        test_lexicographical_compare<int>( 0, { 1 }, { 1 });
-        test_lexicographical_compare<int>(+1, { 1 }, {});
-        test_lexicographical_compare<int>(-1, { 1 }, { 1, 2 });
-        test_lexicographical_compare<int>( 0, { 1, 2 }, { 1, 2 });
-        test_lexicographical_compare<int>(+1, { 1, 2 }, { 1 });
-        test_lexicographical_compare<int>(+1, { 1, 3 }, { 1, 2, 3 });
-        test_lexicographical_compare<int>(+1, { 2 }, { 1, 2, 3 });
-        test_lexicographical_compare<int>(-1, { 1, 2, 3 }, { 3 });
+    TEST(collection_utils_test, range_lexicographical_compare) {
+        test_range_lexicographical_compare<int>(0, {}, {});
+        test_range_lexicographical_compare<int>(-1, {}, { 1 });
+        test_range_lexicographical_compare<int>(0, { 1 }, { 1 });
+        test_range_lexicographical_compare<int>(+1, { 1 }, {});
+        test_range_lexicographical_compare<int>(-1, { 1 }, { 1, 2 });
+        test_range_lexicographical_compare<int>(0, { 1, 2 }, { 1, 2 });
+        test_range_lexicographical_compare<int>(+1, { 1, 2 }, { 1 });
+        test_range_lexicographical_compare<int>(+1, { 1, 3 }, { 1, 2, 3 });
+        test_range_lexicographical_compare<int>(+1, { 2 }, { 1, 2, 3 });
+        test_range_lexicographical_compare<int>(-1, { 1, 2, 3 }, { 3 });
+    }
+
+    TEST(collection_utils_test, col_size) {
+        ASSERT_EQ(2, col_size<int>(std::vector<int>({ 1, 2 })));
+        ASSERT_EQ(2u, col_size<unsigned>(std::vector<int>({ 1, 2 })));
+    }
+
+    TEST(collection_utils_test, col_delete_all) {
+        bool d1, d2, d3;
+        auto d = std::vector<deletable*>({ new deletable(d1), new deletable(d2), new deletable(d3) });
+        col_delete_all(d);
+
+        ASSERT_TRUE(d1);
+        ASSERT_TRUE(d2);
+        ASSERT_TRUE(d3);
     }
 
     template <typename T>
-    void test_is_equivalent(const bool exp, const std::vector<T>& lhs, const std::vector<T>& rhs) {
-        ASSERT_EQ(exp, is_equivalent(lhs, rhs));
+    void test_col_is_equivalent(const bool exp, const std::vector<T>& lhs, const std::vector<T>& rhs) {
+        ASSERT_EQ(exp, col_is_equivalent(lhs, rhs));
     }
 
-    TEST(collection_utils_test, is_equivalent) {
-        test_is_equivalent<int>(true, {}, {});
-        test_is_equivalent<int>(false, {}, { 1 });
-        test_is_equivalent<int>(true, { 1 }, { 1 });
-        test_is_equivalent<int>(false, { 1 }, {});
-        test_is_equivalent<int>(false, { 1 }, { 1, 2 });
-        test_is_equivalent<int>(true, { 1, 2 }, { 1, 2 });
-        test_is_equivalent<int>(true, { 3, 4, 1 }, { 3, 4, 1 });
-        test_is_equivalent<int>(false, { 1, 2 }, { 1 });
-        test_is_equivalent<int>(false, { 1, 3 }, { 1, 2, 3 });
-        test_is_equivalent<int>(false, { 2 }, { 1, 2, 3 });
-        test_is_equivalent<int>(false, { 1, 2, 3 }, { 3 });
+    TEST(collection_utils_test, col_is_equivalent) {
+        test_col_is_equivalent<int>(true, {}, {});
+        test_col_is_equivalent<int>(false, {}, { 1 });
+        test_col_is_equivalent<int>(true, { 1 }, { 1 });
+        test_col_is_equivalent<int>(false, { 1 }, {});
+        test_col_is_equivalent<int>(false, { 1 }, { 1, 2 });
+        test_col_is_equivalent<int>(true, { 1, 2 }, { 1, 2 });
+        test_col_is_equivalent<int>(true, { 3, 4, 1 }, { 3, 4, 1 });
+        test_col_is_equivalent<int>(false, { 1, 2 }, { 1 });
+        test_col_is_equivalent<int>(false, { 1, 3 }, { 1, 2, 3 });
+        test_col_is_equivalent<int>(false, { 2 }, { 1, 2, 3 });
+        test_col_is_equivalent<int>(false, { 1, 2, 3 }, { 3 });
     }
 
 

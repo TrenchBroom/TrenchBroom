@@ -113,7 +113,7 @@ namespace TrenchBroom {
 
         void MapViewActivationTracker::killFocusEvent(QFocusEvent*, QWidget*) {
             const auto* focusedWidget = QApplication::focusWidget();
-            if (!kdl::contains(m_mapViews, focusedWidget)) {
+            if (!kdl::vec_contains(m_mapViews, focusedWidget)) {
                 deactivate();
             }
         }

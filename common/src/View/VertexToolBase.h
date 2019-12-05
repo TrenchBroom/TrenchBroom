@@ -325,7 +325,7 @@ namespace TrenchBroom {
             template <typename HH>
             void renderHandles(const std::vector<HH>& handles, Renderer::RenderService& renderService, const Color& color) const {
                 renderService.setForegroundColor(color);
-                renderService.renderHandles(kdl::cast<typename HH::float_type>(handles));
+                renderService.renderHandles(kdl::vec_element_cast<typename HH::float_type>(handles));
             }
 
             template <typename HH>

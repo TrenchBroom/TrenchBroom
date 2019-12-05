@@ -311,11 +311,13 @@ namespace TrenchBroom {
         }
 
         void World::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<Model::AttributableNode*>& result) const {
-            kdl::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::exact(name), value));
+            kdl::vec_append(result,
+                m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::exact(name), value));
         }
 
         void World::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, std::vector<Model::AttributableNode*>& result) const {
-            kdl::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix), value));
+            kdl::vec_append(result,
+                m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix), value));
         }
 
         void World::doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {

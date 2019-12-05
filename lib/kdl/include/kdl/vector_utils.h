@@ -30,6 +30,42 @@
 
 namespace kdl {
     /**
+     * Returns the vector element at the given index.
+     *
+     * If the given index is out of bounds, the behavior is undefined.
+     *
+     * @tparam T the type of the vector elements
+     * @param v the vector
+     * @param index the index
+     * @return a const reference to the element at the given index
+     */
+    template <typename T, typename I>
+    const T& vec_at(const std::vector<T>& v, const I index) {
+        assert(index >= 0);
+        const auto index_s = static_cast<typename std::vector<T>::size_type>(index);
+        assert(index_s < v.size());
+        return v[index_s];
+    }
+
+    /**
+     * Returns the vector element at the given index.
+     *
+     * If the given index is out of bounds, the behavior is undefined.
+     *
+     * @tparam T the type of the vector elements
+     * @param v the vector
+     * @param index the index
+     * @return a const reference to the element at the given index
+     */
+    template <typename T, typename I>
+    T& vec_at(std::vector<T>& v, const I index) {
+        assert(index >= 0);
+        const auto index_s = static_cast<typename std::vector<T>::size_type>(index);
+        assert(index_s < v.size());
+        return v[index_s];
+    }
+
+    /**
      * Returns a vector containing elements of type O, each of which is constructed by passing the corresponding
      * element of v to the constructor of o, e.g. result.push_back(O(e)), where result is the resulting vector, and e
      * is an element from v.
@@ -43,7 +79,7 @@ namespace kdl {
      * @return a vector containing the elements of a, but with O as the element type
      */
     template<typename O, typename T, typename A>
-    std::vector<O> cast(const std::vector<T, A>& v) {
+    std::vector<O> vec_element_cast(const std::vector<T, A>& v) {
         if constexpr (std::is_same_v<T, O>) {
             return v;
         } else {
@@ -69,7 +105,7 @@ namespace kdl {
      * given vector does not contain the given value
      */
     template<typename T, typename A, typename X>
-    typename std::vector<T, A>::size_type index_of(const std::vector<T, A>& v, const X& x) {
+    typename std::vector<T, A>::size_type vec_index_of(const std::vector<T, A>& v, const X& x) {
         using IndexType = typename std::vector<T, A>::size_type;
         for (IndexType i = 0; i < v.size(); ++i) {
             if (v[i] == x) {
@@ -90,13 +126,13 @@ namespace kdl {
      * @return true if the given vector contains the given value and false otherwise
      */
     template<typename T, typename A, typename X>
-    bool contains(const std::vector<T, A>& v, const X& x) {
-        return index_of(v, x) < v.size();
+    bool vec_contains(const std::vector<T, A>& v, const X& x) {
+        return vec_index_of(v, x) < v.size();
     }
 
     namespace detail {
         template<typename T, typename A, typename... Args>
-        void append(std::vector<T, A>& v1, const Args& ... args) {
+        void vec_append(std::vector<T, A>& v1, const Args& ... args) {
             (..., v1.insert(std::end(v1), std::begin(args), std::end(args)));
         }
     }
@@ -114,8 +150,8 @@ namespace kdl {
      * @param args the vectors to append to v
      */
     template<typename T, typename A, typename... Args>
-    void append(std::vector<T, A>& v, const Args& ... args) {
-        v.reserve(kdl::size(v, args...));
+    void vec_append(std::vector<T, A>& v, const Args& ... args) {
+        v.reserve(kdl::col_total_size(v, args...));
         (..., v.insert(std::end(v), std::begin(args), std::end(args)));
     }
 
@@ -131,9 +167,9 @@ namespace kdl {
      * @return a vector containing the elements from the given vectors
      */
     template<typename T, typename A, typename... Args>
-    std::vector<T, A> concat(const std::vector<T, A>& v, const Args& ... args) {
+    std::vector<T, A> vec_concat(const std::vector<T, A>& v, const Args& ... args) {
         std::vector<T, A> result;
-        append(result, v, args...);
+        vec_append(result, v, args...);
         return result;
     }
 
@@ -147,7 +183,7 @@ namespace kdl {
      * @param x the value to erase
      */
     template<typename T, typename A, typename X>
-    void erase(std::vector<T, A>& v, const X& x) {
+    void vec_erase(std::vector<T, A>& v, const X& x) {
         v.erase(std::remove(std::begin(v), std::end(v), x), std::end(v));
     }
 
@@ -162,7 +198,7 @@ namespace kdl {
      * @param predicate the predicate
      */
     template<typename T, typename A, typename P>
-    void erase_if(std::vector<T, A>& v, const P& predicate) {
+    void vec_erase_if(std::vector<T, A>& v, const P& predicate) {
         v.erase(std::remove_if(std::begin(v), std::end(v), predicate), std::end(v));
     }
 
@@ -176,7 +212,7 @@ namespace kdl {
      * @param i the index of the element to erase, which must be less than the given vector's size
      */
     template<typename T, typename A>
-    void erase_at(std::vector<T, A>& v, const typename std::vector<T, A>::size_type i) {
+    void vec_erase_at(std::vector<T, A>& v, const typename std::vector<T, A>::size_type i) {
         assert(i < v.size());
         auto it = std::next(std::begin(v), static_cast<typename std::vector<T, A>::difference_type>(i));
         v.erase(it);
@@ -192,9 +228,9 @@ namespace kdl {
      * @param c the collection of values to erase
      */
     template<typename T, typename A, typename C>
-    void erase_all(std::vector<T, A>& v, const C& c) {
+    void vec_erase_all(std::vector<T, A>& v, const C& c) {
         for (const auto& x : c) {
-            erase(v, x);
+            vec_erase(v, x);
         }
     }
 
@@ -208,7 +244,7 @@ namespace kdl {
      * @param cmp the comparator to use for comparisons
      */
     template<typename T, typename A, typename Compare = std::less<T>>
-    void sort(std::vector<T, A>& v, const Compare& cmp = Compare()) {
+    void vec_sort(std::vector<T, A>& v, const Compare& cmp = Compare()) {
         std::sort(std::begin(v), std::end(v), cmp);
     }
 
@@ -223,7 +259,7 @@ namespace kdl {
      * @param cmp the comparator to use for sorting and for determining equivalence
      */
     template<typename T, typename A, typename Compare = std::less<T>>
-    void sort_and_make_unique(std::vector<T, A>& v, const Compare& cmp = Compare()) {
+    void vec_sort_and_remove_duplicates(std::vector<T, A>& v, const Compare& cmp = Compare()) {
         std::sort(std::begin(v), std::end(v), cmp);
         v.erase(std::unique(std::begin(v), std::end(v), kdl::equivalence<T, Compare>(cmp)), std::end(v));
     }
@@ -240,7 +276,7 @@ namespace kdl {
      * @return a vector containing the transformed values
      */
     template<typename T, typename A, typename L>
-    auto transform(const std::vector<T, A>& v, L&& lambda) {
+    auto vec_transform(const std::vector<T, A>& v, L&& lambda) {
         using ResultType = decltype(lambda(std::declval<T>()));
 
         std::vector<ResultType> result;
@@ -360,7 +396,7 @@ namespace kdl {
      * @param v the vector
      */
     template<typename T>
-    void clear_to_zero(std::vector<T>& v) {
+    void vec_clear_to_zero(std::vector<T>& v) {
         v.clear();
         v.shrink_to_fit();
     }
@@ -372,8 +408,8 @@ namespace kdl {
      * @param v the vector
      */
     template<typename T, typename D = deleter<T*>>
-    void clear_and_delete(std::vector<T*>& v, const D& deleter = D()) {
-        kdl::delete_all(v, deleter);
+    void vec_clear_and_delete(std::vector<T*>& v, const D& deleter = D()) {
+        kdl::col_delete_all(v, deleter);
         v.clear();
     }
 }

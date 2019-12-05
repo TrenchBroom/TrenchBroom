@@ -216,7 +216,7 @@ namespace TrenchBroom {
                 std::vector<vm::vec3> result;
                 for (size_t i = 0; i < m_numPoints; ++i) {
                     const std::vector<vm::vec3>& helpVectors = m_points[i].helpVectors;
-                    kdl::append(result, helpVectors);
+                    kdl::vec_append(result, helpVectors);
                 }
 
                 return result;
@@ -508,8 +508,8 @@ namespace TrenchBroom {
             delete m_strategy;
             delete m_remainingBrushRenderer;
             delete m_clippedBrushRenderer;
-            kdl::clear_and_delete(m_frontBrushes);
-            kdl::clear_and_delete(m_backBrushes);
+            kdl::map_clear_and_delete(m_frontBrushes);
+            kdl::map_clear_and_delete(m_backBrushes);
         }
 
         const Grid& ClipTool::grid() const {
@@ -609,19 +609,19 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> result;
             if (!m_frontBrushes.empty()) {
                 if (keepFrontBrushes()) {
-                    result = kdl::merge_vector_maps(result, m_frontBrushes);
+                    result = kdl::map_merge(result, m_frontBrushes);
                     m_frontBrushes.clear();
                 } else {
-                    kdl::clear_and_delete(m_frontBrushes);
+                    kdl::map_clear_and_delete(m_frontBrushes);
                 }
             }
 
             if (!m_backBrushes.empty()) {
                 if (keepBackBrushes()) {
-                    result = kdl::merge_vector_maps(result, m_backBrushes);
+                    result = kdl::map_merge(result, m_backBrushes);
                     m_backBrushes.clear();
                 } else {
-                    kdl::clear_and_delete(m_backBrushes);
+                    kdl::map_clear_and_delete(m_backBrushes);
                 }
             }
 
@@ -745,8 +745,8 @@ namespace TrenchBroom {
         }
 
         void ClipTool::clearBrushes() {
-            kdl::clear_and_delete(m_frontBrushes);
-            kdl::clear_and_delete(m_backBrushes);
+            kdl::map_clear_and_delete(m_frontBrushes);
+            kdl::map_clear_and_delete(m_backBrushes);
         }
 
         void ClipTool::updateBrushes() {

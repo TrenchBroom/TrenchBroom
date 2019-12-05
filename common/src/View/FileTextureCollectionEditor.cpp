@@ -159,7 +159,7 @@ namespace TrenchBroom {
                 toRemove.push_back(collections[index]);
             }
 
-            kdl::erase_all(collections, toRemove);
+            kdl::vec_erase_all(collections, toRemove);
             document->setEnabledTextureCollections(collections);
         }
 
@@ -175,10 +175,12 @@ namespace TrenchBroom {
             auto collections = document->enabledTextureCollections();
 
             const auto index = static_cast<size_t>(m_collections->currentRow());
-            using std::swap; swap(collections[index], collections[index-1]);
+            if (index > 0) {
+                using std::swap; swap(collections[index], collections[index-1]);
 
-            document->setEnabledTextureCollections(collections);
-            m_collections->setCurrentRow(static_cast<int>(index - 1));
+                document->setEnabledTextureCollections(collections);
+                m_collections->setCurrentRow(static_cast<int>(index - 1));
+            }
         }
 
         void FileTextureCollectionEditor::moveSelectedTextureCollectionsDown() {
@@ -193,10 +195,12 @@ namespace TrenchBroom {
             auto collections = document->enabledTextureCollections();
 
             const auto index = static_cast<size_t>(m_collections->currentRow());
-            using std::swap; swap(collections[index], collections[index+1]);
+            if (index < collections.size() - 1u) {
+                using std::swap; swap(collections[index], collections[index+1]);
 
-            document->setEnabledTextureCollections(collections);
-            m_collections->setCurrentRow(static_cast<int>(index + 1));
+                document->setEnabledTextureCollections(collections);
+                m_collections->setCurrentRow(static_cast<int>(index + 1));
+            }
         }
 
         void FileTextureCollectionEditor::reloadTextureCollections() {

@@ -44,13 +44,13 @@ namespace TrenchBroom {
             try {
                 readEntities(m_factory.format(), worldBounds, status);
             } catch (const ParserException&) {
-                kdl::clear_and_delete(m_nodes);
+                kdl::vec_clear_and_delete(m_nodes);
 
                 try {
                     reset();
                     readBrushes(m_factory.format(), worldBounds, status);
                 } catch (const ParserException&) {
-                    kdl::clear_and_delete(m_nodes);
+                    kdl::vec_clear_and_delete(m_nodes);
                     throw;
                 }
             }

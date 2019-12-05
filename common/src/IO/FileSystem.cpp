@@ -165,10 +165,10 @@ namespace TrenchBroom {
         Path::List FileSystem::_getDirectoryContents(const Path& directoryPath) const {
             auto result = doGetDirectoryContents(directoryPath);
             if (m_next) {
-                kdl::append(result, m_next->_getDirectoryContents(directoryPath));
+                kdl::vec_append(result, m_next->_getDirectoryContents(directoryPath));
             }
 
-            kdl::sort_and_make_unique(result);
+            kdl::vec_sort_and_remove_duplicates(result);
             return result;
         }
 

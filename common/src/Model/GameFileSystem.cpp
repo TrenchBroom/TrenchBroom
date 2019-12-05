@@ -99,7 +99,7 @@ namespace TrenchBroom {
             if (IO::Disk::directoryExists(searchPath)) {
                 const IO::DiskFileSystem diskFS(searchPath);
                 auto packages = diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtensions));
-                kdl::sort(packages, IO::Path::Less<StringUtils::CaseInsensitiveStringLess>());
+                kdl::vec_sort(packages, IO::Path::Less<StringUtils::CaseInsensitiveStringLess>());
 
                 for (const auto& packagePath : packages) {
                     try {

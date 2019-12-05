@@ -23,6 +23,17 @@
 #include <vector>
 
 namespace kdl {
+    TEST(vector_utils_test, vec_at) {
+        const auto cv = std::vector<int>({ 1, 2, 3 });
+        for (std::size_t i = 0u; i < cv.size(); ++i) {
+            ASSERT_EQ(cv[i], vec_at(cv, static_cast<int>(i)));
+        }
+
+        auto mv = std::vector<int>({ 1, 2, 3 });
+        vec_at(mv, 2) = 4;
+        ASSERT_EQ(4, mv[2]);
+    }
+
     struct base {
         virtual ~base();
     };
@@ -35,55 +46,55 @@ namespace kdl {
 
     derived::~derived() = default;
 
-    TEST(vector_utils_test, cast) {
+    TEST(vector_utils_test, vec_element_cast) {
         auto vd = std::vector<derived*>({ new derived(), new derived() });
-        auto vb = cast<base*>(vd);
+        auto vb = vec_element_cast<base*>(vd);
 
         ASSERT_EQ(vd.size(), vb.size());
         for (std::size_t i = 0u; i < vd.size(); ++i) {
             ASSERT_EQ(vd[i], vb[i]);
         }
 
-        auto vbd = cast<derived*>(vb);
+        auto vbd = vec_element_cast<derived*>(vb);
         ASSERT_EQ(vb.size(), vbd.size());
         for (std::size_t i = 0u; i < vb.size(); ++i) {
             ASSERT_EQ(vb[i], vbd[i]);
         }
 
-        clear_and_delete(vd);
+        vec_clear_and_delete(vd);
     }
 
-    TEST(vector_utils_test, index_of) {
+    TEST(vector_utils_test, vec_index_of) {
         using vec = std::vector<int>;
 
-        ASSERT_EQ(0u, index_of(vec({}), 1));
-        ASSERT_EQ(1u, index_of(vec({ 2 }), 1));
-        ASSERT_EQ(0u, index_of(vec({ 1 }), 1));
-        ASSERT_EQ(0u, index_of(vec({ 1, 2, 3 }), 1));
-        ASSERT_EQ(1u, index_of(vec({ 1, 2, 3 }), 2));
-        ASSERT_EQ(2u, index_of(vec({ 1, 2, 3 }), 3));
-        ASSERT_EQ(3u, index_of(vec({ 1, 2, 3 }), 4));
+        ASSERT_EQ(0u, vec_index_of(vec({}), 1));
+        ASSERT_EQ(1u, vec_index_of(vec({ 2 }), 1));
+        ASSERT_EQ(0u, vec_index_of(vec({ 1 }), 1));
+        ASSERT_EQ(0u, vec_index_of(vec({ 1, 2, 3 }), 1));
+        ASSERT_EQ(1u, vec_index_of(vec({ 1, 2, 3 }), 2));
+        ASSERT_EQ(2u, vec_index_of(vec({ 1, 2, 3 }), 3));
+        ASSERT_EQ(3u, vec_index_of(vec({ 1, 2, 3 }), 4));
     }
 
-    TEST(vector_utils_test, contains) {
+    TEST(vector_utils_test, vec_contains) {
         using vec = std::vector<int>;
 
-        ASSERT_FALSE(contains(vec({}), 1));
-        ASSERT_FALSE(contains(vec({ 2 }), 1));
-        ASSERT_TRUE(contains(vec({ 1 }), 1));
-        ASSERT_TRUE(contains(vec({ 1, 2, 3 }), 1));
-        ASSERT_TRUE(contains(vec({ 1, 2, 3 }), 2));
-        ASSERT_TRUE(contains(vec({ 1, 2, 3 }), 3));
-        ASSERT_FALSE(contains(vec({ 1, 2, 3 }), 4));
+        ASSERT_FALSE(vec_contains(vec({}), 1));
+        ASSERT_FALSE(vec_contains(vec({ 2 }), 1));
+        ASSERT_TRUE(vec_contains(vec({ 1 }), 1));
+        ASSERT_TRUE(vec_contains(vec({ 1, 2, 3 }), 1));
+        ASSERT_TRUE(vec_contains(vec({ 1, 2, 3 }), 2));
+        ASSERT_TRUE(vec_contains(vec({ 1, 2, 3 }), 3));
+        ASSERT_FALSE(vec_contains(vec({ 1, 2, 3 }), 4));
     }
 
     template <typename T, typename... Args>
     void test_append(const std::vector<T>& exp, std::vector<T> into, Args&&... args) {
-        append(into, std::forward<Args>(args)...);
+        vec_append(into, std::forward<Args>(args)...);
         ASSERT_EQ(exp, into);
     }
 
-    TEST(vector_utils_test, append) {
+    TEST(vector_utils_test, vec_append) {
         using vec = std::vector<int>;
 
         test_append<int>({}, {});
@@ -92,22 +103,22 @@ namespace kdl {
         test_append<int>({ 1, 2, 3 }, { 1 }, vec{ 2 }, vec{ 3 });
     }
 
-    TEST(vector_utils_test, concat) {
+    TEST(vector_utils_test, vec_concat) {
         using vec = std::vector<int>;
 
-        ASSERT_EQ(vec({}), concat(vec({})));
-        ASSERT_EQ(vec({}), concat(vec({}), vec({})));
-        ASSERT_EQ(vec({ 1 }), concat(vec({ 1 })));
-        ASSERT_EQ(vec({ 1, 2 }), concat(vec({ 1 }), vec({ 2 })));
+        ASSERT_EQ(vec({}), vec_concat(vec({})));
+        ASSERT_EQ(vec({}), vec_concat(vec({}), vec({})));
+        ASSERT_EQ(vec({ 1 }), vec_concat(vec({ 1 })));
+        ASSERT_EQ(vec({ 1, 2 }), vec_concat(vec({ 1 }), vec({ 2 })));
     }
 
     template <typename T>
     void test_erase(const std::vector<T>& exp, std::vector<T> from, const T& x) {
-        erase(from, x);
+        vec_erase(from, x);
         ASSERT_EQ(exp, from);
     }
 
-    TEST(vector_utils_test, erase) {
+    TEST(vector_utils_test, vec_erase) {
         test_erase<int>({}, {}, 1);
         test_erase<int>({}, { 1 }, 1);
         test_erase<int>({ 1 }, { 1 }, 2);
@@ -117,11 +128,11 @@ namespace kdl {
 
     template <typename T, typename P>
     void test_erase_if(const std::vector<T>& exp, std::vector<T> from, const P& pred) {
-        erase_if(from, pred);
+        vec_erase_if(from, pred);
         ASSERT_EQ(exp, from);
     }
 
-    TEST(vector_utils_test, erase_if) {
+    TEST(vector_utils_test, vec_erase_if) {
         const auto pred = [](const int n) { return n % 2 == 0; };
 
         test_erase_if<int>({}, {}, pred);
@@ -132,11 +143,11 @@ namespace kdl {
 
     template <typename T>
     void test_erase_at(const std::vector<T>& exp, std::vector<T> from, const std::size_t i) {
-        erase_at(from, i);
+        vec_erase_at(from, i);
         ASSERT_EQ(exp, from);
     }
 
-    TEST(vector_utils_test, erase_at) {
+    TEST(vector_utils_test, vec_erase_at) {
         test_erase_at<int>({}, { 1 }, 0u);
         test_erase_at<int>({ 1, 1 }, { 1, 2, 1 }, 1u);
         test_erase_at<int>({ 1, 2 }, { 2, 1, 2 }, 0u);
@@ -144,11 +155,11 @@ namespace kdl {
 
     template <typename T>
     void test_erase_all(const std::vector<T>& exp, std::vector<T> from, const std::vector<T>& which) {
-        erase_all(from, which);
+        vec_erase_all(from, which);
         ASSERT_EQ(exp, from);
     }
 
-    TEST(vector_utils_test, erase_all) {
+    TEST(vector_utils_test, vec_erase_all) {
         test_erase_all<int>({}, {}, {});
         test_erase_all<int>({ 1, 2, 3 }, { 1, 2, 3 }, {});
         test_erase_all<int>({ 2, 3 }, { 1, 2, 3 }, { 1 });
@@ -157,24 +168,26 @@ namespace kdl {
         test_erase_all<int>({ 1, 3 }, { 1, 2, 2, 3 }, { 2 });
     }
 
-    TEST(vector_utils_test, sort) {
+    TEST(vector_utils_test, vec_sort) {
         // just a smoke test since we're just forwarding to std::sort
         auto v = std::vector<int>({ 2, 3, 2, 1 });
-        sort(v);
+        vec_sort(v);
         ASSERT_EQ(std::vector<int>({ 1, 2, 2, 3 }), v);
     }
 
-    TEST(vector_utils_test, sort_and_make_unique) {
+    TEST(vector_utils_test, vec_sort_and_remove_duplicates) {
         // just a smoke test since we're just forwarding to std::sort and std::unique
         auto v = std::vector<int>({ 2, 3, 2, 1 });
-        sort_and_make_unique(v);
+        vec_sort_and_remove_duplicates(v);
         ASSERT_EQ(std::vector<int>({ 1, 2, 3 }), v);
     }
 
-    TEST(vector_utils_test, transform) {
-        ASSERT_EQ(std::vector<int>({}), transform(std::vector<int>({}), [](auto x) { return x + 10; }));
-        ASSERT_EQ(std::vector<int>({ 11, 12, 13 }), transform(std::vector<int>({ 1, 2, 3 }), [](auto x) { return x + 10; }));
-        ASSERT_EQ(std::vector<double>({ 11.0, 12.0, 13.0 }), transform(std::vector<int>({ 1, 2, 3 }), [](auto x) { return x + 10.0; }));
+    TEST(vector_utils_test, vec_transform) {
+        ASSERT_EQ(std::vector<int>({}), vec_transform(std::vector<int>({}), [](auto x) { return x + 10; }));
+        ASSERT_EQ(std::vector<int>({ 11, 12, 13 }),
+            vec_transform(std::vector<int>({ 1, 2, 3 }), [](auto x) { return x + 10; }));
+        ASSERT_EQ(std::vector<double>({ 11.0, 12.0, 13.0 }),
+            vec_transform(std::vector<int>({ 1, 2, 3 }), [](auto x) { return x + 10.0; }));
     }
 
     TEST(vector_utils_test, set_difference) {
@@ -213,11 +226,11 @@ namespace kdl {
         ASSERT_EQ(vec({ 1, 3 }), set_intersection(set({ 1, 2, 3, 4 }), set({ 1, 3, 5 })));
     }
 
-    TEST(vector_utils_test, clear_to_zero) {
+    TEST(vector_utils_test, vec_clear_to_zero) {
         auto v = std::vector<int>({ 1, 2, 3 });
         ASSERT_LT(0u, v.capacity());
 
-        clear_to_zero(v);
+        vec_clear_to_zero(v);
         ASSERT_TRUE(v.empty());
         ASSERT_EQ(0u, v.capacity());
     }
@@ -229,7 +242,7 @@ namespace kdl {
         ~deletable() { deleted = true; }
     };
 
-    TEST(vector_utils_test, clear_and_delete) {
+    TEST(vector_utils_test, vec_clear_and_delete) {
         bool d1, d2, d3;
         auto v = std::vector<deletable*>({
             new deletable(d1),
@@ -237,7 +250,7 @@ namespace kdl {
             new deletable(d3),
         });
 
-        clear_and_delete(v);
+        vec_clear_and_delete(v);
         ASSERT_TRUE(v.empty());
         ASSERT_TRUE(d1);
         ASSERT_TRUE(d2);

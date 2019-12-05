@@ -117,7 +117,7 @@ namespace TrenchBroom {
 
                 void prepare(Vbo& vbo) override {
                     Holder<VertexSpec>::prepare(vbo);
-                    kdl::clear_to_zero(m_vertices);
+                    kdl::vec_clear_to_zero(m_vertices);
                 }
             private:
                 const VertexList& doGetVertices() const override {
@@ -138,7 +138,7 @@ namespace TrenchBroom {
 
                 void prepare(Vbo& vbo) override {
                     Holder<VertexSpec>::prepare(vbo);
-                    kdl::clear_to_zero(m_vertices);
+                    kdl::vec_clear_to_zero(m_vertices);
                 }
             private:
                 const VertexList& doGetVertices() const override {

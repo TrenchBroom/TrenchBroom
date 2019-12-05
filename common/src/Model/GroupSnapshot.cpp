@@ -33,7 +33,7 @@ namespace TrenchBroom {
         }
 
         GroupSnapshot::~GroupSnapshot() {
-            kdl::clear_and_delete(m_snapshots);
+            kdl::vec_clear_and_delete(m_snapshots);
         }
 
         void GroupSnapshot::takeSnapshot(Group* group) {

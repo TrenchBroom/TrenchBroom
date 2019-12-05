@@ -52,7 +52,7 @@ namespace TrenchBroom {
         void RecentDocuments::removeMenu(QMenu* menu) {
             ensure(menu != nullptr, "menu is null");
             clearMenu(menu);
-            kdl::erase(m_menus, menu);
+            kdl::vec_erase(m_menus, menu);
         }
 
         void RecentDocuments::updatePath(const IO::Path& path) {
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             const size_t oldSize = m_recentDocuments.size();
 
             const IO::Path canonPath = path.makeCanonical();
-            kdl::erase(m_recentDocuments, canonPath);
+            kdl::vec_erase(m_recentDocuments, canonPath);
 
             if (oldSize > m_recentDocuments.size()) {
                 updateMenus();

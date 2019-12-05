@@ -203,7 +203,7 @@ namespace TrenchBroom {
                 }
                 return definitions;
             } catch (...) {
-                kdl::clear_and_delete(definitions);
+                kdl::vec_clear_and_delete(definitions);
                 throw;
             }
         }
@@ -216,7 +216,7 @@ namespace TrenchBroom {
 
             if (StringUtils::caseInsensitiveEqual(token.data(), "@include")) {
                 const auto includedDefinitions = parseInclude(status);
-                kdl::append(definitions, includedDefinitions);
+                kdl::vec_append(definitions, includedDefinitions);
             } else {
                 auto* definition = parseDefinition(status);
                 status.progress(m_tokenizer.progress());

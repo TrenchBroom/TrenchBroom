@@ -124,8 +124,8 @@ namespace TrenchBroom {
                            }
                        }, "validate with " + std::to_string(brushesToKeep.size()) + " brushes");
 
-            kdl::clear_and_delete(brushes);
-            kdl::clear_and_delete(textures);
+            kdl::vec_clear_and_delete(brushes);
+            kdl::vec_clear_and_delete(textures);
         }
     }
 }

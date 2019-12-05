@@ -74,8 +74,8 @@ namespace TrenchBroom {
 
             const std::vector<AttributableNode*>& sources = target->linkSources();
             ASSERT_EQ(2u, sources.size());
-            ASSERT_TRUE(kdl::contains(sources, source1));
-            ASSERT_TRUE(kdl::contains(sources, source2));
+            ASSERT_TRUE(kdl::vec_contains(sources, source1));
+            ASSERT_TRUE(kdl::vec_contains(sources, source2));
         }
 
 
@@ -98,8 +98,8 @@ namespace TrenchBroom {
 
             const std::vector<AttributableNode*>& targets = source->linkTargets();
             ASSERT_EQ(2u, targets.size());
-            ASSERT_TRUE(kdl::contains(targets, target1));
-            ASSERT_TRUE(kdl::contains(targets, target2));
+            ASSERT_TRUE(kdl::vec_contains(targets, target1));
+            ASSERT_TRUE(kdl::vec_contains(targets, target2));
 
             const std::vector<AttributableNode*>& sources1 = target1->linkSources();
             ASSERT_EQ(1u, sources1.size());

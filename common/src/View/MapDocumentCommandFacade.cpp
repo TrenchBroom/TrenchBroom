@@ -118,7 +118,7 @@ namespace TrenchBroom {
 
             const std::vector<Model::Node*>& partiallySelected = visitor.nodes();
 
-            kdl::append(m_selectedBrushFaces, selected);
+            kdl::vec_append(m_selectedBrushFaces, selected);
             m_partiallySelectedNodes.addNodes(partiallySelected);
 
             Selection selection;
@@ -210,7 +210,7 @@ namespace TrenchBroom {
 
             const std::vector<Model::Node*>& partiallyDeselected = visitor.nodes();
 
-            kdl::erase_all(m_selectedBrushFaces, deselected);
+            kdl::vec_erase_all(m_selectedBrushFaces, deselected);
             m_selectedNodes.removeNodes(partiallyDeselected);
 
             Selection selection;
@@ -275,7 +275,7 @@ namespace TrenchBroom {
                 Model::Node* parent = entry.first;
                 const std::vector<Model::Node*>& children = entry.second;
                 parent->addChildren(children);
-                kdl::append(addedNodes, children);
+                kdl::vec_append(addedNodes, children);
             }
 
             setEntityDefinitions(addedNodes);
@@ -415,7 +415,7 @@ namespace TrenchBroom {
             void doVisit(Model::Layer*) override  {}
             void doVisit(Model::Group* group) override {
                 assert(m_newNames.count(group) == 1);
-                const String& newName = kdl::find_or_default(m_newNames, group, group->name());
+                const String& newName = kdl::map_find_or_default(m_newNames, group, group->name());
                 group->setName(newName);
             }
             void doVisit(Model::Entity*) override {}
@@ -790,12 +790,12 @@ namespace TrenchBroom {
                 Model::Brush* brush = entry.first;
                 const std::vector<vm::vec3>& oldPositions = entry.second;
                 const std::vector<vm::vec3> newPositions = brush->moveVertices(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
-                kdl::append(newVertexPositions, newPositions);
+                kdl::vec_append(newVertexPositions, newPositions);
             }
 
             invalidateSelectionBounds();
 
-            kdl::sort_and_make_unique(newVertexPositions);
+            kdl::vec_sort_and_remove_duplicates(newVertexPositions);
             return newVertexPositions;
         }
 
@@ -811,12 +811,12 @@ namespace TrenchBroom {
                 Model::Brush* brush = entry.first;
                 const std::vector<vm::segment3>& oldPositions = entry.second;
                 const std::vector<vm::segment3> newPositions = brush->moveEdges(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
-                kdl::append(newEdgePositions, newPositions);
+                kdl::vec_append(newEdgePositions, newPositions);
             }
 
             invalidateSelectionBounds();
 
-            kdl::sort_and_make_unique(newEdgePositions);
+            kdl::vec_sort_and_remove_duplicates(newEdgePositions);
             return newEdgePositions;
         }
 
@@ -832,12 +832,12 @@ namespace TrenchBroom {
                 Model::Brush* brush = entry.first;
                 const std::vector<vm::polygon3>& oldPositions = entry.second;
                 const std::vector<vm::polygon3> newPositions = brush->moveFaces(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
-                kdl::append(newFacePositions, newPositions);
+                kdl::vec_append(newFacePositions, newPositions);
             }
 
             invalidateSelectionBounds();
 
-            kdl::sort_and_make_unique(newFacePositions);
+            kdl::vec_sort_and_remove_duplicates(newFacePositions);
             return newFacePositions;
         }
 
@@ -875,7 +875,7 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::performRebuildBrushGeometry(const std::vector<Model::Brush*>& brushes) {
-            const std::vector<Model::Node*> nodes = kdl::cast<Model::Node*>(brushes);
+            const std::vector<Model::Node*> nodes = kdl::vec_element_cast<Model::Node*>(brushes);
             const std::vector<Model::Node*> parents = collectParents(nodes);
 
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);

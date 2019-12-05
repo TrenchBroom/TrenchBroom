@@ -222,14 +222,14 @@ namespace TrenchBroom {
             if (hit.type() == ResizeHit2D) {
                 const std::vector<Model::BrushFace*>& faces = hit.target<std::vector<Model::BrushFace*>>();
                 assert(!faces.empty());
-                kdl::append(result, faces, collectDragFaces(faces[0]));
+                kdl::vec_append(result, faces, collectDragFaces(faces[0]));
                 if (faces.size() > 1) {
-                    kdl::append(result, collectDragFaces(faces[1]));
+                    kdl::vec_append(result, collectDragFaces(faces[1]));
                 }
             } else {
                 Model::BrushFace* face = hit.target<Model::BrushFace*>();
                 result.push_back(face);
-                kdl::append(result, collectDragFaces(face));
+                kdl::vec_append(result, collectDragFaces(face));
             }
 
             return getDragHandles(result);
@@ -408,7 +408,7 @@ namespace TrenchBroom {
 
                 if (!newBrush->canMoveBoundary(worldBounds, newDragFace, delta)) {
                     // There is a brush for which the move is not applicable. Abort.
-                    kdl::delete_all(newBrushes);
+                    kdl::col_delete_all(newBrushes);
                     return false;
                 } else {
                     auto* clipFace = newDragFace->clone();
@@ -419,7 +419,7 @@ namespace TrenchBroom {
                     // This should never happen, but let's be on the safe side.
                     if (!newBrush->clip(worldBounds, clipFace)) {
                         delete clipFace;
-                        kdl::delete_all(newBrushes);
+                        kdl::col_delete_all(newBrushes);
                         return false;
                     }
 

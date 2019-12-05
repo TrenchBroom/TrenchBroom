@@ -69,7 +69,7 @@ namespace TrenchBroom {
         m_currentNode(nullptr) {}
 
         MapReader::~MapReader() {
-            kdl::clear_and_delete(m_faces);
+            kdl::vec_clear_and_delete(m_faces);
         }
 
         void MapReader::readEntities(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
@@ -246,7 +246,8 @@ namespace TrenchBroom {
                 const long rawId = std::atol(layerIdStr.c_str());
                 if (rawId > 0) {
                     const Model::IdType layerId = static_cast<Model::IdType>(rawId);
-                    Model::Layer* layer = kdl::find_or_default(m_layers, layerId, static_cast<Model::Layer*>(nullptr));
+                    Model::Layer* layer = kdl::map_find_or_default(m_layers, layerId,
+                        static_cast<Model::Layer*>(nullptr));
                     if (layer != nullptr)
                         onNode(layer, node, status);
                     else
@@ -263,7 +264,7 @@ namespace TrenchBroom {
                     const long rawId = std::atol(groupIdStr.c_str());
                     if (rawId > 0) {
                         const Model::IdType groupId = static_cast<Model::IdType>(rawId);
-                        Model::Group* group = kdl::find_or_default(m_groups, groupId,
+                        Model::Group* group = kdl::map_find_or_default(m_groups, groupId,
                             static_cast<Model::Group*>(nullptr));
                         if (group != nullptr)
                             onNode(group, node, status);
@@ -312,10 +313,10 @@ namespace TrenchBroom {
         Model::Node* MapReader::resolveParent(const ParentInfo& parentInfo) const {
             if (parentInfo.layer()) {
                 const Model::IdType layerId = parentInfo.id();
-                return kdl::find_or_default(m_layers, layerId, static_cast<Model::Layer*>(nullptr));
+                return kdl::map_find_or_default(m_layers, layerId, static_cast<Model::Layer*>(nullptr));
             }
             const Model::IdType groupId = parentInfo.id();
-            return kdl::find_or_default(m_groups, groupId, static_cast<Model::Group*>(nullptr));
+            return kdl::map_find_or_default(m_groups, groupId, static_cast<Model::Group*>(nullptr));
         }
 
         MapReader::EntityType MapReader::entityType(const Model::EntityAttribute::List& attributes) const {

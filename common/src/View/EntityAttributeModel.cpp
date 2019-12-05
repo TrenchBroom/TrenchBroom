@@ -314,7 +314,7 @@ namespace TrenchBroom {
 
                 qDebug() << "EntityAttributeModel::setRows: one row changed: " << QString::fromStdString(oldDeletion.name()) << " -> " << QString::fromStdString(newAddition.name());
 
-                const size_t oldIndex = kdl::index_of(m_rows, oldDeletion);
+                const size_t oldIndex = kdl::vec_index_of(m_rows, oldDeletion);
                 m_rows.at(oldIndex) = newAddition;
 
                 // Notify Qt
@@ -346,7 +346,7 @@ namespace TrenchBroom {
                 qDebug() << "EntityAttributeModel::setRows: deleting " << oldMinusNew.size() << " rows";
 
                 for (const AttributeRow& row : oldMinusNew) {
-                    const int index = static_cast<int>(kdl::index_of(m_rows, row));
+                    const int index = static_cast<int>(kdl::vec_index_of(m_rows, row));
                     assert(index < static_cast<int>(m_rows.size()));
 
                     beginRemoveRows(QModelIndex(), index, index);

@@ -126,7 +126,7 @@ namespace TrenchBroom {
 
                 void prepare(Vbo& vbo) {
                     Holder<Index>::prepare(vbo);
-                    kdl::clear_to_zero(m_indices);
+                    kdl::vec_clear_to_zero(m_indices);
                 }
             private:
                 const IndexList& doGetIndices() const {
@@ -150,7 +150,7 @@ namespace TrenchBroom {
 
                 void prepare(Vbo& vbo) override {
                     Holder<Index>::prepare(vbo);
-                    kdl::clear_to_zero(m_indices);
+                    kdl::vec_clear_to_zero(m_indices);
                 }
             private:
                 const IndexList& doGetIndices() const override {

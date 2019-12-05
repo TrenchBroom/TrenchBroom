@@ -30,7 +30,7 @@
 namespace TrenchBroom {
     namespace Model {
         IssueGenerator::~IssueGenerator() {
-            kdl::clear_and_delete(m_quickFixes);
+            kdl::vec_clear_and_delete(m_quickFixes);
         }
 
         IssueType IssueGenerator::type() const {
@@ -71,7 +71,7 @@ namespace TrenchBroom {
 
         void IssueGenerator::addQuickFix(IssueQuickFix* quickFix) {
             ensure(quickFix != nullptr, "quickFix is null");
-            assert(!kdl::contains(m_quickFixes, quickFix));
+            assert(!kdl::vec_contains(m_quickFixes, quickFix));
             m_quickFixes.push_back(quickFix);
         }
 

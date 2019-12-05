@@ -136,7 +136,7 @@ namespace TrenchBroom {
                 world->acceptAndRecurse(visitor);
 
                 std::vector<Model::Issue*> issues = visitor.issues();
-                kdl::sort(issues, IssueCmp());
+                kdl::vec_sort(issues, IssueCmp());
                 m_tableModel->setIssues(std::move(issues));
             }
         }

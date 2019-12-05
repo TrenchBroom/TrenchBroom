@@ -57,7 +57,7 @@ namespace TrenchBroom {
                 }
                 return result;
             } catch (...) {
-                kdl::clear_and_delete(result);
+                kdl::vec_clear_and_delete(result);
                 throw;
             }
         }
@@ -81,7 +81,7 @@ namespace TrenchBroom {
                 }
                 return result;
             } catch (...) {
-                kdl::clear_and_delete(result);
+                kdl::vec_clear_and_delete(result);
                 throw;
             }
         }

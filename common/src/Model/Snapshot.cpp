@@ -28,8 +28,8 @@
 namespace TrenchBroom {
     namespace Model {
         Snapshot::~Snapshot() {
-            kdl::clear_and_delete(m_nodeSnapshots);
-            kdl::clear_and_delete(m_brushFaceSnapshots);
+            kdl::vec_clear_and_delete(m_nodeSnapshots);
+            kdl::vec_clear_and_delete(m_brushFaceSnapshots);
         }
 
         void Snapshot::restoreNodes(const vm::bbox3& worldBounds) {
