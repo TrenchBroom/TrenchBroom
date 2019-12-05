@@ -26,10 +26,10 @@
 namespace kdl {
     template<typename K, typename V>
     void test_map_keys(const std::vector<K>& keys, const std::map<K, V>& map) {
-        ASSERT_EQ(keys, kdl::keys(map));
+        ASSERT_EQ(keys, kdl::map_keys(map));
     }
 
-    TEST(map_utils_test, keys) {
+    TEST(map_utils_test, map_keys) {
         test_map_keys<int, int>({}, {});
         test_map_keys<int, std::string>({ 1, 2, 3 }, {
             { 1, "one" },
@@ -40,10 +40,10 @@ namespace kdl {
 
     template<typename K, typename V>
     void test_map_values(const std::vector<V>& values, const std::map<K, V>& map) {
-        ASSERT_EQ(values, kdl::values(map));
+        ASSERT_EQ(values, kdl::map_values(map));
     }
 
-    TEST(map_utils_test, values) {
+    TEST(map_utils_test, map_values) {
         test_map_values<int, int>({}, {});
         test_map_values<int, std::string>({ "one", "two", "three" }, {
             { 1, "one" },

@@ -83,7 +83,7 @@ namespace TrenchBroom {
         }
 
         std::vector<std::shared_ptr<Assets::AttributeDefinition>> EntityDefinitionClassInfo::attributeList() const {
-            return kdl::values(m_attributes);
+            return kdl::map_values(m_attributes);
         }
 
         const std::map<String, std::shared_ptr<Assets::AttributeDefinition>>& EntityDefinitionClassInfo::attributeMap() const {

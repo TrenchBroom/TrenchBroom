@@ -34,7 +34,7 @@ namespace kdl {
      * @return a vector containing the keys
      */
     template<typename K, typename V>
-    std::vector<K> keys(const std::map<K, V>& m) {
+    std::vector<K> map_keys(const std::map<K, V>& m) {
         std::vector<K> result;
         result.reserve(m.size());
         for (const auto& e : m) {
@@ -53,7 +53,7 @@ namespace kdl {
      * @return a vector containing the values
      */
     template<typename K, typename V>
-    std::vector<V> values(const std::map<K, V>& m) {
+    std::vector<V> map_values(const std::map<K, V>& m) {
         std::vector<V> result;
         result.reserve(m.size());
         for (const auto& e : m) {

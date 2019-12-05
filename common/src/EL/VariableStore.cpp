@@ -72,7 +72,7 @@ namespace TrenchBroom {
         }
 
         StringList VariableTable::doGetNames() const {
-            return kdl::keys(m_variables);
+            return kdl::map_keys(m_variables);
         }
 
         void VariableTable::doDeclare(const String& name, const Value& value) {

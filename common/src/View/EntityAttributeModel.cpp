@@ -291,7 +291,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeModel::setRows(const std::map<String, AttributeRow>& newRowsKeyMap) {
-            const auto newRowSet = kdl::vector_set(kdl::values(newRowsKeyMap));
+            const auto newRowSet = kdl::vector_set(kdl::map_values(newRowsKeyMap));
             const auto oldRowSet = kdl::vector_set(std::begin(m_rows), std::end(m_rows));
 
             if (newRowSet == oldRowSet) {

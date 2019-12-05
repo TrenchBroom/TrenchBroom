@@ -91,7 +91,7 @@ namespace TrenchBroom {
             }
 
             updateTextures();
-            kdl::append(m_toRemove, kdl::values(collections));
+            kdl::append(m_toRemove, kdl::map_values(collections));
         }
 
         void TextureManager::setTextureCollections(const std::vector<TextureCollection*>& collections) {
@@ -201,7 +201,7 @@ namespace TrenchBroom {
                 }
             }
 
-            m_textures = kdl::values(m_texturesByName);
+            m_textures = kdl::map_values(m_texturesByName);
         }
     }
 }

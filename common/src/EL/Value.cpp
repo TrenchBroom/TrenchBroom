@@ -752,7 +752,7 @@ namespace TrenchBroom {
         }
 
         StringList Value::keys() const {
-            return kdl::keys(mapValue());
+            return kdl::map_keys(mapValue());
         }
 
         Value Value::operator[](const Value& indexValue) const {

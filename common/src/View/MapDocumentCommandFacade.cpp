@@ -632,7 +632,7 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::restoreAttributes(const Model::EntityAttributeSnapshot::Map& attributes) {
-            const std::vector<Model::AttributableNode*> attributableNodes = kdl::keys(attributes);
+            const std::vector<Model::AttributableNode*> attributableNodes = kdl::map_keys(attributes);
             const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
             const std::vector<Model::Node*> parents = collectParents(std::begin(nodes), std::end(nodes));
             const std::vector<Model::Node*> descendants = collectDescendants(nodes);
