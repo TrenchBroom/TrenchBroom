@@ -21,9 +21,10 @@
 #define TRENCHBROOM_QUAKE3SHADER_H
 
 #include "StringType.h"
-#include "StringSet.h"
 #include "IO/Path.h"
 
+#include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -72,7 +73,7 @@ namespace TrenchBroom {
             IO::Path editorImage;
             IO::Path lightImage;
             Culling culling = Culling::Front;
-            StringSet surfaceParms;
+            std::set<std::string> surfaceParms;
             std::vector<Quake3ShaderStage> stages;
         public:
             bool operator==(const Quake3Shader& other) const;

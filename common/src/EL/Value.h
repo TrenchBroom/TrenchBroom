@@ -22,11 +22,13 @@
 
 #include "StringType.h"
 #include "StringList.h"
-#include "StringSet.h"
 #include "EL/Types.h"
 
+// FIXME: try to remove some of these headers
 #include <iosfwd>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace EL {
@@ -188,7 +190,6 @@ namespace TrenchBroom {
         public:
             static const Value Null;
             static const Value Undefined;
-            using Set = std::set<Value>;
         private:
             using IndexList = std::vector<size_t>;
             using ValuePtr = std::shared_ptr<ValueHolder>;
@@ -296,7 +297,7 @@ namespace TrenchBroom {
             bool undefined() const;
 
             const StringList asStringList() const;
-            const StringSet asStringSet() const;
+            const StringList asStringSet() const;
 
             size_t length() const;
             bool convertibleTo(ValueType toType) const;

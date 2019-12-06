@@ -21,7 +21,6 @@
 #define TrenchBroom_GameConfig
 
 #include "Color.h"
-#include "StringSet.h"
 #include "StringType.h"
 #include "IO/Path.h"
 #include "Model/CompilationConfig.h"
@@ -29,6 +28,8 @@
 #include "Model/Model_Forward.h"
 #include "Model/Tag.h"
 
+#include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -105,11 +106,11 @@ namespace TrenchBroom {
 
             struct EntityConfig {
                 IO::Path::List defFilePaths;
-                StringSet modelFormats;
+                StringList modelFormats;
                 Color defaultColor;
 
-                EntityConfig(const IO::Path& i_defFilePath, const StringSet& i_modelFormats, const Color& i_defaultColor);
-                EntityConfig(const IO::Path::List& i_defFilePaths, const StringSet& i_modelFormats, const Color& i_defaultColor);
+                EntityConfig(const IO::Path& i_defFilePath, const StringList& i_modelFormats, const Color& i_defaultColor);
+                EntityConfig(const IO::Path::List& i_defFilePaths, const StringList& i_modelFormats, const Color& i_defaultColor);
                 EntityConfig();
 
                 bool operator==(const EntityConfig& other) const;
