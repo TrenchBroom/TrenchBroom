@@ -25,7 +25,9 @@
 #include "Model/EntityAttributes.h"
 #include "StringMap.h"
 
+// FIXME: use vector_set
 #include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -69,8 +71,8 @@ namespace TrenchBroom {
             void removeAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
 
             std::vector<AttributableNode*> findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const AttributeValue& value) const;
-            StringList allNames() const;
-            StringList allValuesForNames(const AttributableNodeIndexQuery& keyQuery) const;
+            std::vector<std::string> allNames() const;
+            std::vector<std::string> allValuesForNames(const AttributableNodeIndexQuery& keyQuery) const;
         };
     }
 }

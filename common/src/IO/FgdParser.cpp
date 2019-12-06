@@ -32,6 +32,8 @@
 #include <kdl/vector_utils.h>
 
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -278,7 +280,7 @@ namespace TrenchBroom {
         EntityDefinitionClassInfo FgdParser::parseClass(ParserStatus& status) {
             auto token = expect(status, FgdToken::Word | FgdToken::Equality, m_tokenizer.nextToken());
 
-            StringList superClasses;
+            std::vector<std::string> superClasses;
             EntityDefinitionClassInfo classInfo(token.line(), token.column(), m_defaultEntityColor);
 
             while (token.type() == FgdToken::Word) {
@@ -337,12 +339,12 @@ namespace TrenchBroom {
             } while (token.type() != FgdToken::CBracket);
         }
 
-        StringList FgdParser::parseSuperClasses(ParserStatus& status) {
+        std::vector<std::string> FgdParser::parseSuperClasses(ParserStatus& status) {
             expect(status, FgdToken::OParenthesis, m_tokenizer.nextToken());
 
             auto token = expect(status, FgdToken::Word | FgdToken::CParenthesis, m_tokenizer.peekToken());
 
-            StringList superClasses;
+            std::vector<std::string> superClasses;
             if (token.type() == FgdToken::Word) {
                 do {
                     token = expect(status, FgdToken::Word, m_tokenizer.nextToken());

@@ -98,7 +98,7 @@ namespace TrenchBroom {
             EntityDefinitionClassInfo parseClass(ParserStatus& status);
             void skipMainClass(ParserStatus& status);
 
-            StringList parseSuperClasses(ParserStatus& status);
+            std::vector<std::string> parseSuperClasses(ParserStatus& status);
             Assets::ModelDefinition parseModel(ParserStatus& status);
             String parseNamedValue(ParserStatus& status, const String& name);
             void skipClassAttribute(ParserStatus& status);

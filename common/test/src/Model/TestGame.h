@@ -23,6 +23,7 @@
 #include "Model/Game.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -77,8 +78,8 @@ namespace TrenchBroom {
             Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const override;
             IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const override;
 
-            StringList doAvailableMods() const override;
-            StringList doExtractEnabledMods(const AttributableNode& node) const override;
+            std::vector<std::string> doAvailableMods() const override;
+            std::vector<std::string> doExtractEnabledMods(const AttributableNode& node) const override;
             String doDefaultMod() const override;
 
             const GameConfig::FlagsConfig& doSurfaceFlags() const override;

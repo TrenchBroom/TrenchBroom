@@ -28,6 +28,7 @@
 #include "Model/Model_Forward.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -45,7 +46,7 @@ namespace TrenchBroom {
 
             std::unique_ptr<IO::WritableDiskFileSystem> m_configFS;
 
-            StringList m_names;
+            std::vector<std::string> m_names;
             ConfigMap m_configs;
             mutable GamePathMap m_gamePaths;
             mutable GamePathMap m_defaultEngines;
@@ -66,7 +67,7 @@ namespace TrenchBroom {
              * caller to inform the user of any errors.
              *
              * @throw FileSystemException if the file system cannot be built.
-             * @throw StringList if loading game configurations fails
+             * @throw std::vector<std::string> if loading game configurations fails
              */
             void initialize();
 
@@ -79,11 +80,11 @@ namespace TrenchBroom {
              */
             void saveConfigs(const String& gameName);
 
-            const StringList& gameList() const;
+            const std::vector<std::string>& gameList() const;
             size_t gameCount() const;
             std::shared_ptr<Game> createGame(const String& gameName, Logger& logger);
 
-            StringList fileFormats(const String& gameName) const;
+            std::vector<std::string> fileFormats(const String& gameName) const;
             IO::Path iconPath(const String& gameName) const;
             IO::Path gamePath(const String& gameName) const;
             bool setGamePath(const String& gameName, const IO::Path& gamePath);

@@ -21,10 +21,10 @@
 #define TRENCHBROOM_TAG_H
 
 #include "StringType.h"
-#include "StringList.h"
 
 #include <memory>
-#include <set>
+#include <set> // FIXME: use vector_set
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -280,7 +280,7 @@ namespace TrenchBroom {
         class TagMatcherCallback {
         public:
             virtual ~TagMatcherCallback();
-            virtual size_t selectOption(const StringList& options) = 0;
+            virtual size_t selectOption(const std::vector<std::string>& options) = 0;
         };
 
         /**

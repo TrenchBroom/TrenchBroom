@@ -34,6 +34,7 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -119,7 +120,7 @@ namespace TrenchBroom {
         public: // texture collection management
             void performSetTextureCollections(const IO::Path::List& paths);
         public: // mods management
-            void performSetMods(const StringList& mods);
+            void performSetMods(const std::vector<std::string>& mods);
         private:
             void doSetIssueHidden(Model::Issue* issue, bool hidden) override;
         public: // modification count

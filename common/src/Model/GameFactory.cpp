@@ -42,6 +42,8 @@
 
 #include <memory>
 #include <sstream>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -66,7 +68,7 @@ namespace TrenchBroom {
             writeGameEngineConfig(config);
         }
 
-        const StringList& GameFactory::gameList() const {
+        const std::vector<std::string>& GameFactory::gameList() const {
             return m_names;
         }
 
@@ -78,8 +80,8 @@ namespace TrenchBroom {
             return std::make_shared<GameImpl>(gameConfig(gameName), gamePath(gameName), logger);
         }
 
-        StringList GameFactory::fileFormats(const String& gameName) const {
-            StringList result;
+        std::vector<std::string> GameFactory::fileFormats(const String& gameName) const {
+            std::vector<std::string> result;
             for (const auto& format : gameConfig(gameName).fileFormats()) {
                 result.push_back(format.format);
             }
@@ -175,7 +177,7 @@ namespace TrenchBroom {
         }
 
         void GameFactory::loadGameConfigs() {
-            StringList errors;
+            std::vector<std::string> errors;
 
             const auto configFiles = m_configFS->findItemsRecursively(IO::Path(""), IO::FileNameMatcher("GameConfig.cfg"));
             for (const auto& configFilePath : configFiles) {

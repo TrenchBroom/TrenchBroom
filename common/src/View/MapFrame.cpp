@@ -73,6 +73,7 @@
 
 #include <cassert>
 #include <iterator>
+#include <string>
 #include <vector>
 
 #include <QtGlobal>
@@ -481,7 +482,7 @@ namespace TrenchBroom {
             }
 
             // build a vector of strings describing the things that are selected
-            StringList tokens;
+            std::vector<std::string> tokens;
 
             const auto &selectedNodes = document->selectedNodes();
 

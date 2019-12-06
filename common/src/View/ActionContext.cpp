@@ -19,9 +19,10 @@
 
 #include "ActionContext.h"
 
-#include "StringList.h"
-
 #include <kdl/string_utils.h>
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -39,7 +40,7 @@ namespace TrenchBroom {
             if (actionContext == ActionContext::Any)
                 return "Any";
 
-            StringList actionContexts;
+            std::vector<std::string> actionContexts;
             if (actionContext & ActionContext::NodeSelection) {
                 actionContexts.push_back("Objects");
             }

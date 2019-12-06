@@ -21,7 +21,9 @@
 #define FileMatcher_h
 
 #include "StringType.h"
-#include "StringList.h"
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -38,10 +40,10 @@ namespace TrenchBroom {
 
         class FileExtensionMatcher {
         private:
-            StringList m_extensions;
+            std::vector<std::string> m_extensions;
         public:
             FileExtensionMatcher(const String& extension);
-            FileExtensionMatcher(const StringList& extensions);
+            FileExtensionMatcher(const std::vector<std::string>& extensions);
             bool operator()(const Path& path, bool directory) const;
         };
 
@@ -50,7 +52,7 @@ namespace TrenchBroom {
             String m_basename;
         public:
             FileBasenameMatcher(const String& basename, const String& extension);
-            FileBasenameMatcher(const String& basename, const StringList& extensions);
+            FileBasenameMatcher(const String& basename, const std::vector<std::string>& extensions);
             bool operator()(const Path& path, bool directory) const;
         };
 

@@ -31,6 +31,9 @@
 
 #include <kdl/string_format.h>
 
+#include <string>
+#include <vector>
+
 #include <QHeaderView>
 #include <QTableView>
 #include <QHBoxLayout>
@@ -83,7 +86,7 @@ namespace TrenchBroom {
 
             const auto selectedRows = selectedRowsAndCursorRow();
 
-            StringList attributes;
+            std::vector<std::string> attributes;
             for (const int row : selectedRows) {
                 attributes.push_back(m_model->attributeName(row));
             }

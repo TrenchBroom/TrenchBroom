@@ -38,7 +38,7 @@ namespace TrenchBroom {
             return doGetValue(name);
         }
 
-        const StringList VariableStore::names() const {
+        const std::vector<std::string> VariableStore::names() const {
             return doGetNames();
         }
 
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             }
         }
 
-        StringList VariableTable::doGetNames() const {
+        std::vector<std::string> VariableTable::doGetNames() const {
             return kdl::map_keys(m_variables);
         }
 
@@ -104,8 +104,8 @@ namespace TrenchBroom {
             return Value::Null;
         }
 
-        StringList NullVariableStore::doGetNames() const {
-            return StringList();
+        std::vector<std::string> NullVariableStore::doGetNames() const {
+            return std::vector<std::string>();
         }
 
         void NullVariableStore::doDeclare(const String& /* name */, const Value& /* value */) {}

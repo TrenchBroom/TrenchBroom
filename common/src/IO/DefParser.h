@@ -34,6 +34,7 @@
 #include <vecmath/bbox.h>
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -83,8 +84,8 @@ namespace TrenchBroom {
 
             Assets::EntityDefinition* parseDefinition(ParserStatus& status);
             AttributeDefinitionPtr parseSpawnflags(ParserStatus& status);
-            void parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses);
-            bool parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses);
+            void parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo, std::vector<std::string>& superClasses);
+            bool parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo, std::vector<std::string>& superClasses);
 
             void parseDefaultAttribute(ParserStatus& status);
             String parseBaseAttribute(ParserStatus& status);

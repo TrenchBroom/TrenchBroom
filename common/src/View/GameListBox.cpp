@@ -25,6 +25,8 @@
 #include "Model/GameFactory.h"
 
 #include <cassert>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -35,7 +37,7 @@ namespace TrenchBroom {
 
         String GameListBox::selectedGameName() const {
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            const StringList& gameList = gameFactory.gameList();
+            const std::vector<std::string>& gameList = gameFactory.gameList();
 
             const auto index = currentRow();
             if (index >= static_cast<int>(gameList.size())) {

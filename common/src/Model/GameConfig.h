@@ -53,11 +53,11 @@ namespace TrenchBroom {
             struct PackageFormatConfig {
                 using List = std::vector<PackageFormatConfig>;
 
-                StringList extensions;
+                std::vector<std::string> extensions;
                 String format;
 
                 PackageFormatConfig(const String& i_extension, const String& i_format);
-                PackageFormatConfig(const StringList& i_extensions, const String& i_format);
+                PackageFormatConfig(const std::vector<std::string>& i_extensions, const String& i_format);
                 PackageFormatConfig();
 
                 bool operator==(const PackageFormatConfig& other) const;
@@ -106,11 +106,11 @@ namespace TrenchBroom {
 
             struct EntityConfig {
                 IO::Path::List defFilePaths;
-                StringList modelFormats;
+                std::vector<std::string> modelFormats;
                 Color defaultColor;
 
-                EntityConfig(const IO::Path& i_defFilePath, const StringList& i_modelFormats, const Color& i_defaultColor);
-                EntityConfig(const IO::Path::List& i_defFilePaths, const StringList& i_modelFormats, const Color& i_defaultColor);
+                EntityConfig(const IO::Path& i_defFilePath, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor);
+                EntityConfig(const IO::Path::List& i_defFilePaths, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor);
                 EntityConfig();
 
                 bool operator==(const EntityConfig& other) const;
@@ -136,7 +136,7 @@ namespace TrenchBroom {
 
                 int flagValue(const String& flagName) const;
                 String flagName(size_t index) const;
-                StringList flagNames(int mask = ~0) const;
+                std::vector<std::string> flagNames(int mask = ~0) const;
 
                 bool operator==(const FlagsConfig& other) const;
             };

@@ -24,6 +24,7 @@
 
 #include <kdl/vector_utils.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -131,12 +132,12 @@ namespace TrenchBroom {
             return result;
         }
 
-        StringList AttributableNodeIndex::allNames() const {
+        std::vector<std::string> AttributableNodeIndex::allNames() const {
             return m_nameIndex.getKeys();
         }
 
-        StringList AttributableNodeIndex::allValuesForNames(const AttributableNodeIndexQuery& keyQuery) const {
-            StringList result;
+        std::vector<std::string> AttributableNodeIndex::allValuesForNames(const AttributableNodeIndexQuery& keyQuery) const {
+            std::vector<std::string> result;
 
             const std::set<AttributableNode*> nameResult = keyQuery.execute(m_nameIndex);
             for (const auto node : nameResult) {

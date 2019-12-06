@@ -587,9 +587,9 @@ namespace TrenchBroom {
             return type() == ValueType::Undefined;
         }
 
-        const StringList Value::asStringList() const {
+        const std::vector<std::string> Value::asStringList() const {
             const ArrayType& array = arrayValue();
-            StringList result;
+            std::vector<std::string> result;
             result.reserve(array.size());
 
             for (const auto& entry : array) {
@@ -599,7 +599,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        const StringList Value::asStringSet() const {
+        const std::vector<std::string> Value::asStringSet() const {
             const ArrayType& array = arrayValue();
             kdl::vector_set<std::string> result(array.size());
 
@@ -755,7 +755,7 @@ namespace TrenchBroom {
             return it != std::end(map);
         }
 
-        StringList Value::keys() const {
+        std::vector<std::string> Value::keys() const {
             return kdl::map_keys(mapValue());
         }
 

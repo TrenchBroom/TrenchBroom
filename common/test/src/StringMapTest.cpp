@@ -227,6 +227,6 @@ namespace TrenchBroom {
         index.insert("k1", "value3");
         index.insert("test", "value4");
 
-        ASSERT_COLLECTIONS_EQUIVALENT(StringList({ "key", "key2", "key22", "k1", "test" }), index.getKeys());
+        ASSERT_COLLECTIONS_EQUIVALENT(std::vector<std::string>({ "key", "key2", "key22", "k1", "test" }), index.getKeys());
     }
 }

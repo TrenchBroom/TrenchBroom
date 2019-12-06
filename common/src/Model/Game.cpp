@@ -22,6 +22,9 @@
 #include "Model/GameFactory.h"
 #include "Model/World.h"
 
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         const String& Game::gameName() const {
@@ -137,11 +140,11 @@ namespace TrenchBroom {
             return doFindEntityDefinitionFile(spec, searchPaths);
         }
 
-        StringList Game::availableMods() const {
+        std::vector<std::string> Game::availableMods() const {
             return doAvailableMods();
         }
 
-        StringList Game::extractEnabledMods(const AttributableNode& node) const {
+        std::vector<std::string> Game::extractEnabledMods(const AttributableNode& node) const {
             return doExtractEnabledMods(node);
         }
 

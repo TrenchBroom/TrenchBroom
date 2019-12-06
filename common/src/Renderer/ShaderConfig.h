@@ -21,21 +21,23 @@
 #define TrenchBroom_ShaderConfig
 
 #include "StringType.h"
-#include "StringList.h"
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
         class ShaderConfig {
         private:
             String m_name;
-            StringList m_vertexShaders;
-            StringList m_fragmentShaders;
+            std::vector<std::string> m_vertexShaders;
+            std::vector<std::string> m_fragmentShaders;
         public:
-            ShaderConfig(const String& name, const StringList& vertexShaders, const StringList& fragmentShaders);
+            ShaderConfig(const String& name, const std::vector<std::string>& vertexShaders, const std::vector<std::string>& fragmentShaders);
         public:
             const String& name() const;
-            const StringList& vertexShaders() const;
-            const StringList& fragmentShaders() const;
+            const std::vector<std::string>& vertexShaders() const;
+            const std::vector<std::string>& fragmentShaders() const;
         };
     }
 }

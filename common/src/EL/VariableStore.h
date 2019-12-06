@@ -24,6 +24,8 @@
 #include "EL/Value.h"
 
 #include <map>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace EL {
@@ -40,14 +42,14 @@ namespace TrenchBroom {
             VariableStore* clone() const;
             size_t size() const;
             Value value(const String& name) const;
-            const StringList names() const;
+            const std::vector<std::string> names() const;
             void declare(const String& name, const Value& value);
             void assign(const String& name, const Value& value);
         private:
             virtual VariableStore* doClone() const = 0;
             virtual size_t doGetSize() const = 0;
             virtual Value doGetValue(const String& name) const = 0;
-            virtual StringList doGetNames() const = 0;
+            virtual std::vector<std::string> doGetNames() const = 0;
             virtual void doDeclare(const String& name, const Value& value) = 0;
             virtual void doAssign(const String& name, const Value& value) = 0;
         };
@@ -63,7 +65,7 @@ namespace TrenchBroom {
             VariableStore* doClone() const override;
             size_t doGetSize() const override;
             Value doGetValue(const String& name) const override;
-            StringList doGetNames() const override;
+            std::vector<std::string> doGetNames() const override;
             void doDeclare(const String& name, const Value& value) override;
             void doAssign(const String& name, const Value& value) override;
         };
@@ -75,7 +77,7 @@ namespace TrenchBroom {
             VariableStore* doClone() const override;
             size_t doGetSize() const override;
             Value doGetValue(const String& name) const override;
-            StringList doGetNames() const override;
+            std::vector<std::string> doGetNames() const override;
             void doDeclare(const String& name, const Value& value) override;
             void doAssign(const String& name, const Value& value) override;
         };

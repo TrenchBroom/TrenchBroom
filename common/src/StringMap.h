@@ -21,7 +21,6 @@
 #define TrenchBroom_StringMap
 
 #include "Exceptions.h"
-#include "StringList.h"
 #include "StringType.h"
 
 #include <kdl/string_compare.h>
@@ -30,7 +29,8 @@
 
 #include <cassert>
 #include <map>
-#include <set>
+#include <set> // FIXME: use vector_set
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -259,7 +259,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void getKeys(const String& prefix, StringList& result) const {
+            void getKeys(const String& prefix, std::vector<std::string>& result) const {
                 const String prefixAndKey = prefix + m_key;
                 if (!m_values.empty()) {
                     result.push_back(prefixAndKey);
@@ -371,9 +371,9 @@ namespace TrenchBroom {
             return result;
         }
 
-        StringList getKeys() const {
+        std::vector<std::string> getKeys() const {
             assert(m_root != nullptr);
-            StringList result;
+            std::vector<std::string> result;
             m_root->getKeys("", result);
             return result;
         }

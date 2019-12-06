@@ -27,6 +27,7 @@
 #include "Model/TagMatcher.h"
 
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -193,7 +194,7 @@ namespace TrenchBroom {
                             "]");
 
             const Path::List defFilePaths = Path::asPaths(value["definitions"].asStringList());
-            const StringList modelFormats = value["modelformats"].asStringSet();
+            const std::vector<std::string> modelFormats = value["modelformats"].asStringSet();
             const Color defaultColor = Color::parse(value["defaultcolor"].stringValue());
 
             return GameConfig::EntityConfig(defFilePaths, modelFormats, defaultColor);

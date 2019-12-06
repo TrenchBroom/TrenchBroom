@@ -21,7 +21,6 @@
 #define TrenchBroom_EntityAttributeGridTable
 
 #include "StringType.h"
-#include "StringList.h"
 #include "Model/Model_Forward.h"
 
 #include <QAbstractTableModel>
@@ -29,6 +28,7 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <string>
 #include <tuple>
 #include <vector>
 
@@ -133,9 +133,9 @@ namespace TrenchBroom {
             QStringList getCompletions(const QModelIndex& index) const;
         private: // autocompletion helpers
             std::vector<Model::AttributeName> attributeNames(int row, int count) const;
-            StringList getAllAttributeNames() const;
-            StringList getAllValuesForAttributeNames(const StringList& names) const;
-            StringList getAllClassnames() const;
+            std::vector<std::string> getAllAttributeNames() const;
+            std::vector<std::string> getAllValuesForAttributeNames(const std::vector<std::string>& names) const;
+            std::vector<std::string> getAllClassnames() const;
         public slots:
             void updateFromMapDocument();
 

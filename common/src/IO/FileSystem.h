@@ -29,6 +29,8 @@
 #include <kdl/vector_utils.h>
 
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -69,7 +71,7 @@ namespace TrenchBroom {
              * @param extensions a list of extensions to match
              * @return a list of paths
              */
-            Path::List findItemsWithBaseName(const Path& path, const StringList& extensions) const;
+            Path::List findItemsWithBaseName(const Path& path, const std::vector<std::string>& extensions) const;
 
             /**
              * Find all items in the given directory that match the given matcher.

@@ -124,6 +124,7 @@
 #include <cassert>
 #include <map>
 #include <sstream>
+#include <string>
 #include <type_traits>
 #include <vector>
 
@@ -1887,11 +1888,11 @@ namespace TrenchBroom {
             m_game->setAdditionalSearchPaths(additionalSearchPaths, logger());
         }
 
-        StringList MapDocument::mods() const {
+        std::vector<std::string> MapDocument::mods() const {
             return m_game->extractEnabledMods(*m_world);
         }
 
-        void MapDocument::setMods(const StringList& mods) {
+        void MapDocument::setMods(const std::vector<std::string>& mods) {
             submitAndStore(SetModsCommand::set(mods));
         }
 

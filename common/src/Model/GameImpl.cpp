@@ -59,6 +59,7 @@
 #include <kdl/vector_utils.h>
 
 #include <sstream>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -461,8 +462,8 @@ namespace TrenchBroom {
             return Assets::Palette::loadFile(m_fs, path);
         }
 
-        StringList GameImpl::doAvailableMods() const {
-            StringList result;
+        std::vector<std::string> GameImpl::doAvailableMods() const {
+            std::vector<std::string> result;
             if (m_gamePath.isEmpty() || !IO::Disk::directoryExists(m_gamePath)) {
                 return result;
             }
@@ -479,8 +480,8 @@ namespace TrenchBroom {
             return result;
         }
 
-        StringList GameImpl::doExtractEnabledMods(const AttributableNode& node) const {
-            StringList result;
+        std::vector<std::string> GameImpl::doExtractEnabledMods(const AttributableNode& node) const {
+            std::vector<std::string> result;
             const auto& modStr = node.attribute(AttributeNames::Mods);
             if (modStr.empty()) {
                 return result;
