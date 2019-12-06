@@ -15,21 +15,23 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "string_format.h"
+
 #include "string_compare.h"
 
 #include <cctype> // for std::tolower
 #include <sstream>
 
 namespace kdl {
-    const std::string str_select(const bool predicate, const std::string_view& positive, const std::string_view& negative) {
+    std::string str_select(const bool predicate, const std::string_view& positive, const std::string_view& negative) {
         return std::string(predicate ? positive : negative);
     }
 
-    const std::string str_plural(const int count, const std::string_view& singular, const std::string_view& plural) {
+    std::string str_plural(const int count, const std::string_view& singular, const std::string_view& plural) {
         return std::string(count == 1 ? singular : plural);
     }
 
-    std::string str_plural(const std::string_view& prefix, const int count, const std::string_view& singular, const std::string_view& plural, const std::string_view& suffix = "") {
+    std::string str_plural(const std::string_view& prefix, const int count, const std::string_view& singular, const std::string_view& plural, const std::string_view& suffix) {
         std::stringstream result;
         result << prefix << str_plural(count, singular, plural) << suffix;
         return result.str();
@@ -166,5 +168,18 @@ namespace kdl {
         }
 
         return buffer.str();
+    }
+
+    bool str_is_blank(const std::string_view& str, const std::string_view& whitespace) {
+        return str.find_first_not_of(whitespace) == std::string::npos;
+    }
+
+    bool str_is_numeric(const std::string_view& str) {
+        for (const auto c : str) {
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+        return true;
     }
 }

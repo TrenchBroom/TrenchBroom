@@ -34,6 +34,7 @@
 #include "View/QtUtils.h"
 
 #include <kdl/string_compare.h>
+#include <kdl/string_format.h>
 
 #include <set>
 #include <vector>
@@ -280,7 +281,7 @@ namespace TrenchBroom {
                     return "";
                 }
 
-                if (StringUtils::isBlank(name)) {
+                if (kdl::str_is_blank(name)) {
                     if (QMessageBox::warning(this, "Error", "Layer names cannot be blank.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok) {
                         return "";
                     }

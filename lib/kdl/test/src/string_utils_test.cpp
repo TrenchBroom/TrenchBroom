@@ -44,4 +44,16 @@ namespace kdl {
         ASSERT_EQ("one, two", str_join(std::vector<std::string_view>({"one", "two"}), ", "));
         ASSERT_EQ("one, two, three", str_join(std::vector<std::string_view>({"one", "two", "three"}), ", "));
     }
+
+    TEST(string_utils_test, str_replace_every) {
+        ASSERT_EQ("", str_replace_every("", "", "haha"));
+        ASSERT_EQ("asdf", str_replace_every("asdf", "", "haha"));
+        ASSERT_EQ("asdf", str_replace_every("asdf", "haha", "haha"));
+        ASSERT_EQ("asdf", str_replace_every("asdf", "sd", "sd"));
+        ASSERT_EQ("adsf", str_replace_every("asdf", "sd", "ds"));
+        ASSERT_EQ("thE brick brown fox", str_replace_every("the brick brown fox", "e", "E"));
+        ASSERT_EQ("TEH brick brown fox", str_replace_every("the brick brown fox", "the", "TEH"));
+        ASSERT_EQ("the click clown fox", str_replace_every("the brick brown fox", "br", "cl"));
+        ASSERT_EQ("the brick crown fox", str_replace_every("the brick brown fox", "bro", "cro"));
+    }
 }

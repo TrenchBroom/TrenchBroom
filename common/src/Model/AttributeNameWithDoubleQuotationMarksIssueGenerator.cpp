@@ -19,12 +19,13 @@
 
 #include "AttributeNameWithDoubleQuotationMarksIssueGenerator.h"
 
-#include "StringUtils.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Issue.h"
 #include "Model/RemoveEntityAttributesQuickFix.h"
 #include "Model/TransformEntityAttributesQuickFix.h"
+
+#include <kdl/string_utils.h>
 
 #include <vector>
 
@@ -60,7 +61,7 @@ namespace TrenchBroom {
             addQuickFix(new RemoveEntityAttributesQuickFix(AttributeNameWithDoubleQuotationMarksIssue::Type));
             addQuickFix(new TransformEntityAttributesQuickFix(AttributeNameWithDoubleQuotationMarksIssue::Type,
                                                               "Replace \" with '",
-                                                              [] (const AttributeName& name)   { return StringUtils::replaceAll(name, "\"", "'"); },
+                                                              [] (const AttributeName& name)   { return kdl::str_replace_every(name, "\"", "'"); },
                                                               [] (const AttributeValue& value) { return value; }));
         }
 

@@ -20,7 +20,6 @@
 #include <gtest/gtest.h>
 
 #include "Logger.h"
-#include "StringUtils.h"
 #include "Assets/EntityModel.h"
 #include "IO/AseParser.h"
 #include "IO/DiskFileSystem.h"

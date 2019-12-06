@@ -916,7 +916,7 @@ namespace TrenchBroom {
             Notifier<>::NotifyAfter notifyEntityDefinitions(entityDefinitionsDidChangeNotifier);
 
             // to avoid backslashes being misinterpreted as escape sequences
-            const String formatted = StringUtils::replaceAll(spec.asString(), "\\", "/");
+            const String formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
             m_world->addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, formatted);
             reloadEntityDefinitionsInternal();
         }

@@ -21,7 +21,6 @@
 
 #include "EL/ELExceptions.h"
 #include "StringStream.h"
-#include "StringUtils.h"
 
 #include <kdl/collection_utils.h>
 #include <kdl/map_utils.h>
@@ -106,7 +105,7 @@ namespace TrenchBroom {
                 case ValueType::String:
                     return true;
                 case ValueType::Number: {
-                    if (StringUtils::isBlank(doGetValue()))
+                    if (kdl::str_is_blank(doGetValue()))
                         return true;
                     const char* begin = doGetValue().c_str();
                     char* end;
@@ -133,7 +132,7 @@ namespace TrenchBroom {
                 case ValueType::String:
                     return new StringValueHolder(doGetValue());
                 case ValueType::Number: {
-                    if (StringUtils::isBlank(doGetValue()))
+                    if (kdl::str_is_blank(doGetValue()))
                         return new NumberValueHolder(0.0);
                     const char* begin = doGetValue().c_str();
                     char* end;

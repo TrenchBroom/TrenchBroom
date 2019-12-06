@@ -19,7 +19,6 @@
 
 #include "EntityInspector.h"
 
-#include "StringUtils.h"
 #include "View/BorderLine.h"
 #include "View/CollapsibleTitledPanel.h"
 #include "View/EntityBrowser.h"

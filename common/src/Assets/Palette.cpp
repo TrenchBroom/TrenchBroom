@@ -20,7 +20,6 @@
 #include "Palette.h"
 
 #include "Exceptions.h"
-#include "StringUtils.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
 #include "IO/FileSystem.h"

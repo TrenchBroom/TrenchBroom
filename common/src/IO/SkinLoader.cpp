@@ -27,7 +27,6 @@
 #include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
 #include "IO/WalTextureReader.h"
-#include "StringUtils.h"
 
 #include <kdl/string_format.h>
 

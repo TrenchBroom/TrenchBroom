@@ -19,6 +19,7 @@
 
 #include "Quake3ShaderParser.h"
 
+#include "Macros.h"
 #include "Assets/Quake3Shader.h"
 
 #include <kdl/string_compare.h>

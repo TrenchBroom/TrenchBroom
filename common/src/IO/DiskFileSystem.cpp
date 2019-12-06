@@ -20,7 +20,6 @@
 #include "DiskFileSystem.h"
 
 #include "Exceptions.h"
-#include "StringUtils.h"
 
 #include "IO/DiskIO.h"
 

@@ -19,7 +19,6 @@
 
 #include "LongAttributeValueIssueGenerator.h"
 
-#include "StringUtils.h"
 #include "Model/Brush.h"
 #include "Model/RemoveEntityAttributesQuickFix.h"
 #include "Model/Entity.h"

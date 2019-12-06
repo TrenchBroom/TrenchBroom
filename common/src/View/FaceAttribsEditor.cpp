@@ -20,7 +20,6 @@
 #include "FaceAttribsEditor.h"
 
 #include "Color.h"
-#include "Assets/Asset_Forward.h"
 #include "Assets/Texture.h"
 #include "IO/ResourceUtils.h"
 #include "Model/BrushFace.h"
@@ -38,6 +37,9 @@
 #include "View/UVEditor.h"
 #include "View/ViewUtils.h"
 #include "View/QtUtils.h"
+
+#include <kdl/string_format.h>
+#include <kdl/string_utils.h>
 
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
@@ -202,7 +204,7 @@ namespace TrenchBroom {
             }
 
             const String str = m_colorEditor->text().toStdString();
-            if (!StringUtils::isBlank(str)) {
+            if (!kdl::str_is_blank(str)) {
                 if (Color::canParse(str)) {
                     Model::ChangeBrushFaceAttributesRequest request;
                     request.setColor(Color::parse(str));
@@ -556,7 +558,7 @@ namespace TrenchBroom {
                         m_colorEditor->setText("");
                     } else {
                         m_colorEditor->setPlaceholderText("");
-                        m_colorEditor->setText(QString::fromStdString(StringUtils::toString(colorValue)));
+                        m_colorEditor->setText(QString::fromStdString(kdl::str_to_string(colorValue)));
                     }
                 } else {
                     m_colorEditor->setPlaceholderText("");

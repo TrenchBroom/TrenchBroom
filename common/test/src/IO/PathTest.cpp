@@ -20,7 +20,6 @@
 #include <gtest/gtest.h>
 
 #include "Exceptions.h"
-#include "StringUtils.h"
 #include "IO/Path.h"
 
 namespace TrenchBroom {

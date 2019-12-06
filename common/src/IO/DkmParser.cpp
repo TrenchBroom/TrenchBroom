@@ -29,7 +29,6 @@
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/GLVertex.h"
-#include "StringUtils.h"
 
 #include <kdl/string_format.h>
 

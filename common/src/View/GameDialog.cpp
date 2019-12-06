@@ -23,7 +23,6 @@
 #include "PreferenceManager.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
-#include "StringUtils.h"
 #include "View/BorderLine.h"
 #include "View/GameListBox.h"
 #include "View/ViewConstants.h"
@@ -203,7 +202,7 @@ namespace TrenchBroom {
 
         void GameDialog::updateMapFormats(const String& gameName) {
             const auto& gameFactory = Model::GameFactory::instance();
-            const auto& fileFormats = gameName.empty() ? EmptyStringList : gameFactory.fileFormats(gameName);
+            const auto fileFormats = gameName.empty() ? std::vector<std::string>({}) : gameFactory.fileFormats(gameName);
 
             m_mapFormatComboBox->clear();
             for (const auto& fileFormat : fileFormats) {

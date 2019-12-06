@@ -18,6 +18,8 @@
 #include "string_utils.h"
 #include "string_format.h"
 
+#include <algorithm> // for std::search
+
 namespace kdl {
     std::vector<std::string> str_split(const std::string_view& str, const std::string_view& delims) {
         if (str.empty()) {
@@ -52,6 +54,24 @@ namespace kdl {
             }
         }
 
+        return result;
+    }
+
+    std::string str_replace_every(const std::string_view& haystack, const std::string_view& needle, const std::string_view& replacement) {
+        if (haystack.empty() || needle.empty() || needle == replacement) {
+            return std::string(haystack);
+        }
+
+        std::string result(haystack);
+
+        auto it = std::search(std::begin(result), std::end(result), std::begin(needle), std::end(needle));
+        while (it != std::end(result)) {
+            // remember the position where the search will continue after replacement
+            const auto next_offset = std::distance(std::begin(result), it) + replacement.size();
+            result.replace(it, std::next(it, needle.size()), replacement); // invalidates it
+
+            it = std::search(std::next(std::begin(result), next_offset), std::end(result), std::begin(needle), std::end(needle));
+        }
         return result;
     }
 }

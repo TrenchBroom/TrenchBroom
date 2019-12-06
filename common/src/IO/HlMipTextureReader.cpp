@@ -19,7 +19,6 @@
 
 #include "HlMipTextureReader.h"
 
-#include "StringUtils.h"
 #include "Assets/Palette.h"
 #include "IO/Reader.h"
 

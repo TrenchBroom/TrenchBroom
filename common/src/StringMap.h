@@ -21,10 +21,11 @@
 #define TrenchBroom_StringMap
 
 #include "Exceptions.h"
+#include "StringList.h"
 #include "StringType.h"
-#include "StringUtils.h"
 
 #include <kdl/string_compare.h>
+#include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
 
 #include <cassert>
@@ -236,7 +237,7 @@ namespace TrenchBroom {
                     // if the remainder of this node's key is a number, add this node's values and continue searching
                     // the entire subtree starting at this node
                     const String remainder(m_key.substr(firstDiff));
-                    if (StringUtils::isNumber(remainder)) {
+                    if (kdl::str_is_numeric(remainder)) {
                         getValues(result);
                         for (const Node& child : m_children)
                             child.collectIfNumbered(result);
@@ -251,7 +252,7 @@ namespace TrenchBroom {
             }
 
             void collectIfNumbered(QueryResult& result) const {
-                if (StringUtils::isNumber(m_key)) {
+                if (kdl::str_is_numeric(m_key)) {
                     getValues(result);
                     for (const Node& child : m_children)
                         child.collectIfNumbered(result);

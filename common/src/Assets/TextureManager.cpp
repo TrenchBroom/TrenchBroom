@@ -24,7 +24,6 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "IO/TextureLoader.h"
-#include "StringUtils.h"
 
 #include <kdl/map_utils.h>
 #include <kdl/string_format.h>

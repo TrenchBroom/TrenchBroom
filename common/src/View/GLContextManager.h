@@ -21,7 +21,7 @@
 #define TrenchBroom_GLContextManager
 
 #include "Macros.h"
-#include "StringUtils.h"
+#include "StringType.h"
 
 #include <memory>
 

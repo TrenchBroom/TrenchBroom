@@ -19,7 +19,6 @@
 
 #include <gtest/gtest.h>
 
-#include "StringUtils.h"
 #include "Assets/Quake3Shader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
