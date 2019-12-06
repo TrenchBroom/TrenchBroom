@@ -1068,7 +1068,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/StepIterator.h
         ${COMMON_SOURCE_DIR}/StringList.h
         ${COMMON_SOURCE_DIR}/StringSet.h
-        ${COMMON_SOURCE_DIR}/StringStream.h
         ${COMMON_SOURCE_DIR}/StringType.h
         ${COMMON_SOURCE_DIR}/TemporarilySetAny.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h

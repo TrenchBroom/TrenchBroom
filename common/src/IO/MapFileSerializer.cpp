@@ -22,9 +22,10 @@
 #include "Ensure.h"
 #include "Exceptions.h"
 #include "Macros.h"
-#include "StringStream.h"
 #include "IO/DiskFileSystem.h"
 #include "Model/BrushFace.h"
+
+#include <sstream>
 
 namespace TrenchBroom {
     namespace IO {
@@ -39,7 +40,7 @@ namespace TrenchBroom {
             TextureInfoFormat(" %s %.6g %.6g %.6g %.6g %.6g") {}
         private:
             static String getFacePointFormat() {
-                StringStream str;
+                std::stringstream str;
                 str <<
                 "( %." << FloatPrecision << "g " <<
                 "%." << FloatPrecision << "g " <<

@@ -23,6 +23,8 @@
 
 #include <kdl/string_format.h>
 
+#include <sstream>
+
 namespace TrenchBroom {
     namespace IO {
         const String& ELTokenizer::NumberDelim() const {
@@ -41,7 +43,7 @@ namespace TrenchBroom {
         ELTokenizer::ELTokenizer(const String& str) :
         Tokenizer(str, "\"", '\\') {}
 
-        void ELTokenizer::appendUntil(const String& pattern, StringStream& str) {
+        void ELTokenizer::appendUntil(const String& pattern, std::stringstream& str) {
             const char* begin = curPos();
             const char* end = discardUntilPattern(pattern);
             str << String(begin, end);

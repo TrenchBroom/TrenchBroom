@@ -33,6 +33,7 @@
 #include "View/QtUtils.h"
 
 #include <kdl/map_utils.h>
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 #include <kdl/vector_set.h>
 
@@ -229,10 +230,7 @@ namespace TrenchBroom {
             const std::map<String, AttributeRow> rows = rowsForAttributableNodes(attributables, true);
 
             for (int i = 1; ; ++i) {
-                StringStream ss;
-                ss << "property " << i;
-
-                const String newName = ss.str();
+                const String newName = kdl::str_to_string("property ", i);
                 if (rows.find(newName) == rows.end()) {
                     return newName;
                 }

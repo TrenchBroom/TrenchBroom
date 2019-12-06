@@ -66,6 +66,7 @@
 
 #include <vecmath/util.h>
 
+#include <sstream>
 #include <vector>
 
 #include <QtGlobal>
@@ -1308,7 +1309,7 @@ namespace TrenchBroom {
             const std::vector<Model::Node*> reparentableNodes = collectReparentableNodes(inputNodes, newParent);
             assert(!reparentableNodes.empty());
 
-            StringStream name;
+            std::stringstream name;
             name << "Move " << (reparentableNodes.size() == 1 ? "Object" : "Objects") << " to " << newParent->name();
 
             const Transaction transaction(document, name.str());

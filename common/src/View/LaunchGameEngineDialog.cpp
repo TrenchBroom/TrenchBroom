@@ -35,6 +35,8 @@
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
+#include <kdl/string_utils.h>
+
 #include <QCompleter>
 #include <QDialogButtonBox>
 #include <QLabel>
@@ -213,9 +215,8 @@ namespace TrenchBroom {
                 }
                 accept();
             } catch (const Exception& e) {
-                StringStream message;
-                message << "Could not launch game engine: " << e.what();
-                QMessageBox::critical(this, "TrenchBroom", QString::fromStdString(message.str()), QMessageBox::Ok);
+                const auto message = kdl::str_to_string("Could not launch game engine: ", e.what());
+                QMessageBox::critical(this, "TrenchBroom", QString::fromStdString(message), QMessageBox::Ok);
             }
         }
     }

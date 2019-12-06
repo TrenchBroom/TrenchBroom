@@ -38,8 +38,10 @@
 
 #include <kdl/collection_utils.h>
 #include <kdl/string_compare.h>
+#include <kdl/string_utils.h>
 
 #include <memory>
+#include <sstream>
 
 namespace TrenchBroom {
     namespace Model {
@@ -180,9 +182,7 @@ namespace TrenchBroom {
                 try {
                 loadGameConfig(configFilePath);
                 } catch (const std::exception& e) {
-                    StringStream str;
-                    str << "Could not load game configuration file " << configFilePath << ": " << e.what();
-                    errors.push_back(str.str());
+                    errors.push_back(kdl::str_to_string("Could not load game configuration file ", configFilePath, ": ", e.what()));
                 }
             }
 
@@ -259,7 +259,7 @@ namespace TrenchBroom {
         }
 
         void GameFactory::writeCompilationConfig(const GameConfig& gameConfig) {
-            StringStream stream;
+            std::stringstream stream;
             IO::CompilationConfigWriter writer(gameConfig.compilationConfig(), stream);
             writer.writeConfig();
 
@@ -275,7 +275,7 @@ namespace TrenchBroom {
         }
 
         void GameFactory::writeGameEngineConfig(const GameConfig& gameConfig) {
-            StringStream stream;
+            std::stringstream stream;
             IO::GameEngineConfigWriter writer(gameConfig.gameEngineConfig(), stream);
             writer.writeConfig();
 

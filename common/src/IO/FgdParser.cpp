@@ -28,6 +28,7 @@
 
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <memory>
@@ -433,9 +434,7 @@ namespace TrenchBroom {
                 } else if (kdl::ci::is_equal(typeName, "flags")) {
                     attributes[attributeKey] = parseFlagsAttribute(status, attributeKey);
                 } else {
-                    StringStream msg;
-                    msg << "Unknown property definition type '" << typeName << "' for attribute '" << attributeKey << "'";
-                    status.debug(token.line(), token.column(), msg.str());
+                    status.debug(token.line(), token.column(), kdl::str_to_string("Unknown property definition type '", typeName, "' for attribute '", attributeKey, "'"));
                     attributes[attributeKey] = parseUnknownAttribute(status, attributeKey);
                 }
 
@@ -683,7 +682,7 @@ namespace TrenchBroom {
         String FgdParser::parseString(ParserStatus& status) {
             auto token = expect(status, FgdToken::String, m_tokenizer.nextToken());
             if (m_tokenizer.peekToken().hasType(FgdToken::Plus)) {
-                StringStream str;
+                std::stringstream str;
                 str << token.data();
                 do {
                     m_tokenizer.nextToken();
@@ -720,14 +719,10 @@ namespace TrenchBroom {
                     m_tokenizer.replaceState(std::begin(reader), std::end(reader));
                     result = doParseDefinitions(status);
                 } else {
-                    auto str = StringStream();
-                    str << "Skipping recursively included file: " << path.asString() << " (" << filePath << ")";
-                    status.error(m_tokenizer.line(), str.str());
+                    status.error(m_tokenizer.line(), kdl::str_to_string("Skipping recursively included file: ", path.asString(), " (", filePath, ")"));
                 }
             } catch (const Exception &e) {
-                auto str = StringStream();
-                str << "Failed to parse included file: " << e.what();
-                status.error(m_tokenizer.line(), str.str());
+                status.error(m_tokenizer.line(), kdl::str_to_string("Failed to parse included file: ", e.what()));
             }
 
             m_tokenizer.restore(snapshot);

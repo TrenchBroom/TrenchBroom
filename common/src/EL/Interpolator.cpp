@@ -21,13 +21,15 @@
 
 #include "EL/Expression.h"
 
+#include <sstream>
+
 namespace TrenchBroom {
     namespace EL {
         Interpolator::Interpolator(const String& str) :
         ELParser(ELParser::Mode::Lenient, str) {}
 
         String Interpolator::interpolate(const EvaluationContext& context) {
-            StringStream result;
+            std::stringstream result;
             while (!m_tokenizer.eof()) {
                 m_tokenizer.appendUntil("${", result);
                 if (!m_tokenizer.eof()) {

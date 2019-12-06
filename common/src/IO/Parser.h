@@ -81,11 +81,7 @@ namespace TrenchBroom {
             }
        private:
             String expectString(const String& expected, const Token& token) const {
-                StringStream msg;
-                msg << "Expected " << expected << ", but got " << tokenName(token.type());
-                if (!token.data().empty())
-                    msg << " (raw data: '" << token.data() << "')";
-                return msg.str();
+                return "Expected " + expected + ", but got " + tokenName(token.type()) + (!token.data().empty() + " (raw data: '" + token.data() + "')");
             }
         protected:
             String tokenName(const TokenType typeMask) const {

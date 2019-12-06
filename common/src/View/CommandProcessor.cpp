@@ -23,6 +23,8 @@
 #include "TemporarilySetAny.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <kdl/string_utils.h>
+
 #include <QDateTime>
 
 namespace TrenchBroom {
@@ -235,10 +237,8 @@ namespace TrenchBroom {
                 return false;
             }
 
-            StringStream name;
-            name << "Repeat " << commands.size() << " Commands";
-
-            auto repeatableCommand = UndoableCommand::Ptr(createCommandGroup(name.str(), commands));
+            const auto name = kdl::str_to_string("Repeat ", commands.size(), " Commands");
+            auto repeatableCommand = UndoableCommand::Ptr(createCommandGroup(name, commands));
             return submitAndStoreCommand(repeatableCommand, false).submitted;
         }
 

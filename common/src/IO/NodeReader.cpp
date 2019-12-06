@@ -27,6 +27,7 @@
 
 #include <kdl/vector_utils.h>
 
+#include <sstream>
 #include <vector>
 
 namespace TrenchBroom {
@@ -90,11 +91,11 @@ namespace TrenchBroom {
 
         void NodeReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {
             if (parentInfo.layer()) {
-                StringStream msg;
+                std::stringstream msg;
                 msg << "Could not resolve parent layer '" << parentInfo.id() << "', adding to default layer";
                 status.warn(node->lineNumber(), msg.str());
             } else {
-                StringStream msg;
+                std::stringstream msg;
                 msg << "Could not resolve parent group '" << parentInfo.id() << "', adding to default layer";
                 status.warn(node->lineNumber(), msg.str());
             }

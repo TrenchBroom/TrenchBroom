@@ -53,6 +53,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <sstream>
 
 #include <QCommandLineParser>
 #include <QDesktopServices>
@@ -240,7 +241,7 @@ namespace TrenchBroom {
             static bool recovering = false;
 
             if (!recovering) {
-                StringStream message;
+                std::stringstream message;
                 message << e.what() << "\n\n" << e.query();
 
                 const auto result = QMessageBox::question(nullptr, QString("TrenchBroom"), QString::fromStdString(message.str()), QMessageBox::Yes | QMessageBox::No);
@@ -287,7 +288,7 @@ namespace TrenchBroom {
                 qCritical() << e.what();
                 return false;
             } catch (const StringList& errors) {
-                StringStream str;
+                std::stringstream str;
                 if (errors.size() == 1) {
                     str << "An error occurred while loading the game configuration files:\n\n";
                     str << kdl::str_join(errors, "\n\n");
@@ -304,7 +305,7 @@ namespace TrenchBroom {
         }
 
         static String makeCrashReport(const String &stacktrace, const String &reason) {
-            StringStream ss;
+            std::stringstream ss;
             ss << "OS:\t" << QSysInfo::prettyProductName().toStdString() << std::endl;
             ss << "Qt:\t" << qVersion() << std::endl;
             ss << "GL_VENDOR:\t" << GLContextManager::GLVendor << std::endl;
@@ -349,7 +350,7 @@ namespace TrenchBroom {
             while (IO::Disk::fileExists(testCrashLogPath)) {
                 index++;
 
-                StringStream testCrashLogName;
+                std::stringstream testCrashLogName;
                 testCrashLogName << crashLogPath.lastComponent().deleteExtension().asString() << "-" << index << ".txt";
 
                 testCrashLogPath = crashLogPath.deleteLastComponent() + IO::Path(testCrashLogName.str());

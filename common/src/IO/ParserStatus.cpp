@@ -21,6 +21,7 @@
 #include "Exceptions.h"
 
 #include <cassert>
+#include <sstream>
 
 namespace TrenchBroom {
     namespace IO {
@@ -103,7 +104,7 @@ namespace TrenchBroom {
         }
 
         String ParserStatus::buildMessage(const size_t line, const size_t column, const String& str) const {
-            StringStream msg;
+            std::stringstream msg;
             if (!m_prefix.empty()) {
                 msg << m_prefix << ": ";
             }
@@ -116,7 +117,7 @@ namespace TrenchBroom {
         }
 
         String ParserStatus::buildMessage(const size_t line, const String& str) const {
-            StringStream msg;
+            std::stringstream msg;
             if (!m_prefix.empty()) {
                 msg << m_prefix << ": ";
             }
@@ -129,7 +130,7 @@ namespace TrenchBroom {
         }
 
         String ParserStatus::buildMessage(const String& str) const {
-            StringStream msg;
+            std::stringstream msg;
             if (!m_prefix.empty()) {
                 msg << m_prefix << ": ";
             }

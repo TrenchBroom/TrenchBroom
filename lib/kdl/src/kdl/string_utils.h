@@ -143,16 +143,17 @@ namespace kdl {
     std::string str_replace_every(const std::string_view& haystack, const std::string_view& needle, const std::string_view& replacement);
 
     /**
-     * Returns a string representation of the given object by means of the stream insertion operator.
+     * Returns a concatenation of the string representations of the given objects by means of the stream insertion
+     * operator.
      *
-     * @tparam T the type of the object
-     * @param o the object
-     * @return the string representation
+     * @tparam Args the type of the objects
+     * @param args the objects
+     * @return the concatenated string representations
      */
-    template <typename T>
-    std::string str_to_string(const T& o) {
+    template <typename... Args>
+    std::string str_to_string(Args&&... args) {
         std::stringstream str;
-        str << o;
+        (str << ... << args);
         return str.str();
     }
 }

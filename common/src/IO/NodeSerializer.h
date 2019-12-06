@@ -22,10 +22,9 @@
 
 #include "Model/EntityAttributes.h"
 #include "Model/Model_Forward.h"
-#include "StringStream.h"
 
-#include <map>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 namespace TrenchBroom {
@@ -39,36 +38,19 @@ namespace TrenchBroom {
             static const int FloatPrecision = 17;
             using ObjectNo = unsigned int;
         private:
-            template <typename T>
             class IdManager {
             private:
-                using IdMap = std::map<T, String>;
+                using IdMap = std::unordered_map<const Model::Node*, String>;
                 mutable IdMap m_ids;
             public:
-                const String& getId(const T& t) const {
-                    typename IdMap::iterator it = m_ids.find(t);
-                    if (it == std::end(m_ids))
-                        it = m_ids.insert(std::make_pair(t, idToString(makeId()))).first;
-                    return it->second;
-                }
+                const String& getId(const Model::Node* t) const;
             private:
-                Model::IdType makeId() const {
-                    static Model::IdType currentId = 1;
-                    return currentId++;
-                }
-
-                String idToString(const Model::IdType nodeId) const {
-                    StringStream str;
-                    str << nodeId;
-                    return str.str();
-                }
+                Model::IdType makeId() const;
+                String idToString(const Model::IdType nodeId) const;
             };
 
-            using LayerIds = IdManager<const Model::Layer*>;
-            using GroupIds = IdManager<const Model::Group*>;
-
-            LayerIds m_layerIds;
-            GroupIds m_groupIds;
+            IdManager m_layerIds;
+            IdManager m_groupIds;
 
             ObjectNo m_entityNo;
             ObjectNo m_brushNo;

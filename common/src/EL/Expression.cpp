@@ -20,10 +20,9 @@
 #include "Expression.h"
 
 #include "Ensure.h"
-#include "StringStream.h"
 #include "EL/EvaluationContext.h"
 
-#include <kdl/vector_utils.h>
+#include <sstream>
 
 namespace TrenchBroom {
     namespace EL {
@@ -97,7 +96,7 @@ namespace TrenchBroom {
         }
 
         String ExpressionBase::asString() const {
-            StringStream result;
+            std::stringstream result;
             appendToStream(result);
             return result.str();
         }

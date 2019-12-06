@@ -22,6 +22,8 @@
 #include "Ensure.h"
 #include "View/QtUtils.h"
 
+#include <sstream>
+
 #include <QTextEdit>
 
 namespace TrenchBroom {
@@ -66,7 +68,7 @@ namespace TrenchBroom {
 
         String TextOutputAdapter::compressString(const String& str) {
             String fullStr = m_remainder + str;
-            StringStream result;
+            std::stringstream result;
             size_t chunkStart = 0;
             size_t previousChunkStart = 0;
             for (size_t i = 0; i < fullStr.length(); ++i) {

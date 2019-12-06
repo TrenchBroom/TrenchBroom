@@ -21,7 +21,8 @@
 #define TrenchBroom_Logger
 
 #include "StringType.h"
-#include "StringStream.h"
+
+#include <sstream>
 
 class QString;
 
@@ -39,7 +40,7 @@ namespace TrenchBroom {
         private:
             Logger* m_logger;
             LogLevel m_logLevel;
-            StringStream m_buf;
+            std::stringstream m_buf;
         public:
             stream(Logger* logger, LogLevel logLevel);
             ~stream();
