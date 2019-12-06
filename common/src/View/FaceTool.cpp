@@ -21,6 +21,8 @@
 
 #include "TrenchBroom.h"
 
+#include <kdl/string_format.h>
+
 namespace TrenchBroom {
     namespace View {
         FaceTool::FaceTool(std::weak_ptr<MapDocument> document) :
@@ -55,14 +57,14 @@ namespace TrenchBroom {
         }
 
         String FaceTool::actionName() const {
-            return StringUtils::safePlural(m_faceHandles.selectedHandleCount(), "Move Face", "Move Faces");
+            return kdl::str_plural(m_faceHandles.selectedHandleCount(), "Move Face", "Move Faces");
         }
 
         void FaceTool::removeSelection() {
             const auto handles = m_faceHandles.selectedHandles();
             const auto brushMap = buildBrushMap(m_faceHandles, std::begin(handles), std::end(handles));
 
-            Transaction transaction(m_document, StringUtils::safePlural(handleManager().selectedHandleCount(), "Remove Face", "Remove Faces"));
+            Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Remove Face", "Remove Faces"));
             lock(m_document)->removeFaces(brushMap);
         }
     }

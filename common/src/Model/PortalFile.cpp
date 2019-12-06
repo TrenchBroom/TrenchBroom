@@ -21,10 +21,11 @@
 
 #include "Exceptions.h"
 #include "IO/Path.h"
-#include "StringUtils.h"
+
+#include <kdl/string_format.h>
+#include <kdl/string_utils.h>
 
 #include <vecmath/forward.h>
-#include <vecmath/polygon.h>
 
 #include <fstream>
 
@@ -56,7 +57,7 @@ namespace TrenchBroom {
 
             // read header
             std::getline(stream, line);
-            const String formatCode = StringUtils::trim(line); // trim off any trailing \r
+            const String formatCode = kdl::str_trim(line); // trim off any trailing \r
 
             if (formatCode == "PRT1") {
                 std::getline(stream, line); // number of leafs (ignored)
@@ -83,7 +84,7 @@ namespace TrenchBroom {
             // read portals
             for (int i = 0; i < numPortals; ++i) {
                 std::getline(stream, line);
-                const auto components = StringUtils::splitAndTrim(line, "() \n\t\r");
+                const auto components = kdl::str_split(line, "() \n\t\r");
 
                 if (!stream.good() || components.size() < 3) {
                     throw FileFormatException("Error reading portal");

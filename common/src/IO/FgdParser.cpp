@@ -27,6 +27,7 @@
 #include "IO/LegacyModelDefinitionParser.h"
 
 #include <kdl/string_compare.h>
+#include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
 
 #include <memory>
@@ -317,7 +318,7 @@ namespace TrenchBroom {
             if (token.type() == FgdToken::Colon) {
                 m_tokenizer.nextToken();
                 const auto description = parseString(status);
-                classInfo.setDescription(StringUtils::trim(description));
+                classInfo.setDescription(kdl::str_trim(description));
             }
 
             classInfo.addAttributeDefinitions(parseProperties(status));

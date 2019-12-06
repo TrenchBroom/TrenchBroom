@@ -44,7 +44,6 @@
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
 #include "IO/TextureLoader.h"
-#include "IO/ZipFileSystem.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -55,6 +54,8 @@
 #include "Model/World.h"
 
 #include <kdl/string_compare.h>
+#include <kdl/string_format.h>
+#include <kdl/string_utils.h>
 
 #include <vector>
 
@@ -253,7 +254,7 @@ namespace TrenchBroom {
                 return IO::Path::List(0);
             }
 
-            return IO::Path::asPaths(StringUtils::splitAndTrim(pathsValue, ';'));
+            return IO::Path::asPaths(kdl::str_split(pathsValue, ";"));
         }
 
         void GameImpl::doUpdateTextureCollections(AttributableNode& node, const IO::Path::List& paths) const {
@@ -262,7 +263,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            const auto value = StringUtils::join(IO::Path::asStrings(paths, '/'), ';');
+            const auto value = kdl::str_join(IO::Path::asStrings(paths, "/"), ";");
             node.addOrUpdateAttribute(attribute, value);
         }
 
@@ -362,7 +363,7 @@ namespace TrenchBroom {
                 ensure(file != nullptr, "file is null");
 
                 const auto modelName = path.lastComponent().asString();
-                const auto extension = StringUtils::toLower(path.extension());
+                const auto extension = kdl::str_to_lower(path.extension());
                 const auto supported = m_config.entityConfig().modelFormats;
 
                 if (extension == "mdl" && supported.count("mdl") > 0) {
@@ -413,7 +414,7 @@ namespace TrenchBroom {
                 ensure(file != nullptr, "file is null");
 
                 const auto modelName = path.lastComponent().asString();
-                const auto extension = StringUtils::toLower(path.extension());
+                const auto extension = kdl::str_to_lower(path.extension());
                 const auto supported = m_config.entityConfig().modelFormats;
 
                 if (extension == "mdl" && supported.count("mdl") > 0) {
@@ -483,7 +484,7 @@ namespace TrenchBroom {
                 return result;
             }
 
-            return StringUtils::splitAndTrim(modStr, ';');
+            return kdl::str_split(modStr, ";");
         }
 
         String GameImpl::doDefaultMod() const {

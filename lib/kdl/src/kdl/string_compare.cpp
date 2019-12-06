@@ -15,9 +15,9 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/string_compare.h"
+#include "string_compare.h"
 
-#include "kdl/string_compare_detail.h"
+#include "string_compare_detail.h"
 
 #include <algorithm> // for std::mismatch, std::sort, std::search, std::equal
 #include <cctype> // for std::tolower

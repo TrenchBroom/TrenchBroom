@@ -19,7 +19,7 @@
 
 #include "EntityDefinitionGroup.h"
 
-#include "StringUtils.h"
+#include <kdl/string_format.h>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -34,7 +34,7 @@ namespace TrenchBroom {
         const String EntityDefinitionGroup::displayName() const {
             if (m_name.empty())
                 return "Misc";
-            return StringUtils::capitalize(m_name);
+            return kdl::str_capitalize(m_name);
         }
 
         const std::vector<EntityDefinition*>& EntityDefinitionGroup::definitions() const {

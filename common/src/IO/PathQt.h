@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        QString pathAsQString(const IO::Path& path, char sep = Path::separator());
+        QString pathAsQString(const IO::Path& path, const String& sep = Path::separator());
         Path pathFromQString(const QString& path);
     }
 }

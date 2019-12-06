@@ -23,8 +23,9 @@
 #include "StringUtils.h"
 
 #include <kdl/string_compare.h>
+#include <kdl/string_format.h>
+#include <kdl/string_utils.h>
 
-#include <algorithm>
 #include <iterator>
 #include <ostream>
 
@@ -33,11 +34,11 @@ namespace TrenchBroom {
         const Path::List Path::EmptyList = Path::List(0);
         const Path Path::EmptyPath = Path();
 
-        char Path::separator() {
+        String Path::separator() {
 #ifdef _WIN32
-            static const char sep = '\\';
+            static const String sep = "\\";
 #else
-            static const char sep = '/';
+            static const String sep = "/";
 #endif
             return sep;
         }
@@ -52,14 +53,14 @@ namespace TrenchBroom {
         m_absolute(absolute) {}
 
         Path::Path(const String& path) {
-            const auto trimmed = StringUtils::trim(path);
-            m_components = StringUtils::split(trimmed, separators());
+            const auto trimmed = kdl::str_trim(path);
+            m_components = kdl::str_split(trimmed, separators());
 #ifdef _WIN32
             m_absolute = (hasDriveSpec(m_components) ||
                           (!trimmed.empty() && trimmed[0] == '/') ||
                           (!trimmed.empty() && trimmed[0] == '\\'));
 #else
-            m_absolute = !trimmed.empty() && trimmed[0] == separator();
+            m_absolute = !trimmed.empty() && kdl::cs::is_prefix(trimmed, separator());
 #endif
         }
 
@@ -82,7 +83,7 @@ namespace TrenchBroom {
             const auto& rcomps = rhs.m_components;
 
             size_t i = 0;
-            const auto max = std::min(m_components.size(), rcomps.size());
+            const auto max = m_components.size() < rcomps.size() ? m_components.size() : rcomps.size();
             while (i < max) {
                 const auto& mcomp = m_components[i];
                 const auto& rcomp = rcomps[i];
@@ -119,51 +120,38 @@ namespace TrenchBroom {
             return compare(rhs) > 0;
         }
 
-        String Path::asString(const char separator) const {
-            if (m_absolute) {
-#ifdef _WIN32
-                if (hasDriveSpec(m_components)) {
-                    return StringUtils::join(m_components, separator);
-                } else {
-                    return separator + StringUtils::join(m_components, separator);
-                }
-#else
-                return separator + StringUtils::join(m_components, separator);
-#endif
-            }
-            return StringUtils::join(m_components, separator);
-        }
-
         String Path::asString(const String& separator) const {
             if (m_absolute) {
 #ifdef _WIN32
                 if (hasDriveSpec(m_components)) {
-                    return StringUtils::join(m_components, separator);
+                    return kdl::str_join(m_components, separator);
                 } else {
-                    return separator + StringUtils::join(m_components, separator);
+                    return separator + kdl::str_join(m_components, separator);
                 }
 #else
-                return separator + StringUtils::join(m_components, separator);
+                return separator + kdl::str_join(m_components, separator);
 #endif
             }
-            return StringUtils::join(m_components, separator);
+            return kdl::str_join(m_components, separator);
         }
 
 
 
-        StringList Path::asStrings(const Path::List& paths, const char separator) {
+        StringList Path::asStrings(const Path::List& paths, const String& separator) {
             auto result = StringList();
             result.reserve(paths.size());
-            std::transform(std::begin(paths), std::end(paths), std::back_inserter(result),
-                           [separator](const Path& path) { return path.asString(separator); });
+            for (const auto& path : paths) {
+                result.push_back(path.asString(separator));
+            }
             return result;
         }
 
         Path::List Path::asPaths(const StringList& strs) {
             auto result = Path::List();
             result.reserve(strs.size());
-            std::transform(std::begin(strs), std::end(strs), std::back_inserter(result),
-                           [](const String& str) { return Path(str); });
+            for (const auto& str : strs) {
+                result.push_back(Path(str));
+            }
             return result;
         }
 
@@ -260,12 +248,11 @@ namespace TrenchBroom {
                 return Path("");
             }
 
-            auto begin = std::begin(m_components);
-            std::advance(begin, static_cast<StringList::const_iterator::difference_type>(index));
-            auto end = begin;
-            std::advance(end, static_cast<StringList::const_iterator::difference_type>(count));
-            auto newComponents = StringList(count);
-            std::copy(begin, end, std::begin(newComponents));
+            auto newComponents = StringList();
+            newComponents.reserve(count);
+            for (size_t i = 0u; i < count; ++i) {
+                newComponents.push_back(m_components[index + i]);
+            }
             return Path(m_absolute && index == 0, newComponents);
         }
 
@@ -467,7 +454,8 @@ namespace TrenchBroom {
 
             // cross off all common prefixes
             size_t p = 0;
-            while (p < std::min(myResolved.size(), theirResolved.size())) {
+            const auto max = myResolved.size() < theirResolved.size() ? myResolved.size() : theirResolved.size();
+            while (p < max) {
                 if (myResolved[p] != theirResolved[p]) {
                     break;
                 }
@@ -492,16 +480,18 @@ namespace TrenchBroom {
         Path Path::makeLowerCase() const {
             auto lcComponents = StringList();
             lcComponents.reserve(m_components.size());
-            std::transform(std::begin(m_components), std::end(m_components), std::back_inserter(lcComponents),
-                           [](const String& component) { return StringUtils::toLower(component); });
+            for (const auto& component : m_components) {
+                lcComponents.push_back(kdl::str_to_lower(component));
+            }
             return Path(m_absolute, lcComponents);
         }
 
         Path::List Path::makeAbsoluteAndCanonical(const List& paths, const Path& relativePath) {
             auto result = List();
             result.reserve(paths.size());
-            std::transform(std::begin(paths), std::end(paths), std::back_inserter(result),
-                           [&relativePath](const Path& path) { return path.makeAbsolute(relativePath).makeCanonical(); });
+            for (const auto& path : paths) {
+                result.push_back(path.makeAbsolute(relativePath).makeCanonical());
+            }
             return result;
         }
 

@@ -26,6 +26,8 @@
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
 
+#include <kdl/string_utils.h>
+
 #include <cassert>
 #include <vector>
 
@@ -73,7 +75,7 @@ namespace TrenchBroom {
         }
 
         Color parseEntityColor(const String& str) {
-            const auto components = StringUtils::splitAndTrim(str, " ");
+            const auto components = kdl::str_split(str, " ");
             const auto range = Assets::detectColorRange(components);
             assert(range != Assets::ColorRange::Mixed);
 

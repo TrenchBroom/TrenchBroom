@@ -27,6 +27,7 @@
 #include "StringUtils.h"
 
 #include <kdl/map_utils.h>
+#include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
 
 #include <algorithm>
@@ -144,7 +145,7 @@ namespace TrenchBroom {
         }
 
         Texture* TextureManager::texture(const String& name) const {
-            auto it = m_texturesByName.find(StringUtils::toLower(name));
+            auto it = m_texturesByName.find(kdl::str_to_lower(name));
             if (it == std::end(m_texturesByName)) {
                 return nullptr;
             } else {
@@ -188,7 +189,7 @@ namespace TrenchBroom {
 
             for (auto* collection : m_collections) {
                 for (auto* texture : collection->textures()) {
-                    const auto key = StringUtils::toLower(texture->name());
+                    const auto key = kdl::str_to_lower(texture->name());
                     texture->setOverridden(false);
 
                     auto mIt = m_texturesByName.find(key);

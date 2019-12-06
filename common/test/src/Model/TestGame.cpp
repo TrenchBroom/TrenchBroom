@@ -30,6 +30,8 @@
 #include "Model/GameConfig.h"
 #include "Model/World.h"
 
+#include <kdl/string_utils.h>
+
 #include <memory>
 #include <vector>
 
@@ -144,11 +146,11 @@ namespace TrenchBroom {
                 return IO::Path::List(0);
             }
 
-            return IO::Path::asPaths(StringUtils::splitAndTrim(pathsValue, ';'));
+            return IO::Path::asPaths(kdl::str_split(pathsValue, ";"));
         }
 
         void TestGame::doUpdateTextureCollections(AttributableNode& node, const IO::Path::List& paths) const {
-            const String value = StringUtils::join(IO::Path::asStrings(paths, '/'), ';');
+            const String value = kdl::str_join(IO::Path::asStrings(paths, "/"), ";");
             node.addOrUpdateAttribute("wad", value);
         }
 

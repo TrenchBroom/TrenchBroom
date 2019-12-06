@@ -33,11 +33,11 @@ namespace TrenchBroom {
             using List = std::vector<Path>;
             static const List EmptyList;
             static const Path EmptyPath;
-            static char separator();
+            static String separator();
 
             struct ToString {
-                char m_separator;
-                ToString(const char i_separator = separator()) :
+                String m_separator;
+                ToString(const String i_separator = separator()) :
                 m_separator(i_separator) {}
 
                 String operator()(const Path& path) const {
@@ -72,9 +72,8 @@ namespace TrenchBroom {
             bool operator<(const Path& rhs) const;
             bool operator>(const Path& rhs) const;
 
-            String asString(char sep = separator()) const;
-            String asString(const String& sep) const;
-            static StringList asStrings(const Path::List& paths, char sep = separator());
+            String asString(const String& sep = separator()) const;
+            static StringList asStrings(const Path::List& paths, const String& sep = separator());
             static List asPaths(const StringList& strs);
 
             size_t length() const;

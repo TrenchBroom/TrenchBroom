@@ -22,6 +22,8 @@
 #include "IO/DiskFileSystem.h"
 #include "StringUtils.h"
 
+#include <kdl/string_format.h>
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -198,7 +200,7 @@ namespace TrenchBroom {
         m_faceAttribsConfig(std::move(faceAttribsConfig)),
         m_smartTags(std::move(smartTags)),
         m_maxPropertyLength(1023) {
-            assert(!StringUtils::trim(m_name).empty());
+            assert(!kdl::str_trim(m_name).empty());
             assert(m_path.isEmpty() || m_path.isAbsolute());
         }
 

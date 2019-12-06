@@ -26,6 +26,7 @@
 #include <kdl/collection_utils.h>
 #include <kdl/map_utils.h>
 #include <kdl/string_compare.h>
+#include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
 
 #include <algorithm>
@@ -154,7 +155,7 @@ namespace TrenchBroom {
 
         void StringHolder::appendToStream(std::ostream& str, const bool /* multiline */, const String& /* indent */) const {
             // Unescaping happens in IO::ELParser::parseLiteral
-            str << "\"" << StringUtils::escape(doGetValue(), "\\\"") << "\"";
+            str << "\"" << kdl::str_escape(doGetValue(), "\\\"") << "\"";
         }
 
 
