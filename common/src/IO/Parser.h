@@ -21,10 +21,10 @@
 #define TrenchBroom_Parser
 
 #include "Exceptions.h"
+#include "StringList.h"
 #include "StringType.h"
 #include "IO/ParserStatus.h"
 #include "IO/Token.h"
-#include "StringUtils.h"
 
 #include <kdl/string_utils.h>
 

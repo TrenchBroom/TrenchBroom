@@ -19,7 +19,6 @@
 
 #include "EntityDefinitionFileSpec.h"
 
-#include "StringUtils.h"
 
 #include <kdl/string_compare.h>
 

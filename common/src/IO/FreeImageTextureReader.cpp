@@ -22,7 +22,6 @@
 #include "Color.h"
 #include "Ensure.h"
 #include "FreeImage.h"
-#include "StringUtils.h"
 #include "Assets/Texture.h"
 #include "IO/File.h"
 #include "IO/Reader.h"

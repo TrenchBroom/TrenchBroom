@@ -19,7 +19,6 @@
 
 #include "MousePreferencePane.h"
 
-#include "StringUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/FormWithSectionsLayout.h"

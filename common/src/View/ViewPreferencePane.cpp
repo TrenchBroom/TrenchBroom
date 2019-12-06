@@ -19,7 +19,6 @@
 
 #include "ViewPreferencePane.h"
 
-#include "StringUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/ColorButton.h"

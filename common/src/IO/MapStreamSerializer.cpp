@@ -21,10 +21,10 @@
 
 #include "Exceptions.h"
 #include "Macros.h"
-#include "StringUtils.h"
 #include "Model/BrushFace.h"
 
 #include <ostream>
+#include <sstream>
 
 namespace TrenchBroom {
     namespace IO {
@@ -45,25 +45,25 @@ namespace TrenchBroom {
 
                 stream.precision(FloatPrecision);
                 stream << "( " <<
-                StringUtils::ftos(points[0].x(), FloatPrecision) << " " <<
-                StringUtils::ftos(points[0].y(), FloatPrecision) << " " <<
-                StringUtils::ftos(points[0].z(), FloatPrecision) <<" ) ( " <<
-                StringUtils::ftos(points[1].x(), FloatPrecision) << " " <<
-                StringUtils::ftos(points[1].y(), FloatPrecision) << " " <<
-                StringUtils::ftos(points[1].z(), FloatPrecision) << " ) ( " <<
-                StringUtils::ftos(points[2].x(), FloatPrecision) << " " <<
-                StringUtils::ftos(points[2].y(), FloatPrecision) << " " <<
-                StringUtils::ftos(points[2].z(), FloatPrecision) << " )";
+                ftos(points[0].x(), FloatPrecision) << " " <<
+                ftos(points[0].y(), FloatPrecision) << " " <<
+                ftos(points[0].z(), FloatPrecision) <<" ) ( " <<
+                ftos(points[1].x(), FloatPrecision) << " " <<
+                ftos(points[1].y(), FloatPrecision) << " " <<
+                ftos(points[1].z(), FloatPrecision) << " ) ( " <<
+                ftos(points[2].x(), FloatPrecision) << " " <<
+                ftos(points[2].y(), FloatPrecision) << " " <<
+                ftos(points[2].z(), FloatPrecision) << " )";
             }
 
             void writeTextureInfo(std::ostream& stream, Model::BrushFace* face) {
                 const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 stream << textureName << " " <<
-                StringUtils::ftos(face->xOffset(), FloatPrecision)  << " " <<
-                StringUtils::ftos(face->yOffset(), FloatPrecision)  << " " <<
-                StringUtils::ftos(face->rotation(), FloatPrecision) << " " <<
-                StringUtils::ftos(face->xScale(), FloatPrecision)   << " " <<
-                StringUtils::ftos(face->yScale(), FloatPrecision);
+                ftos(face->xOffset(), FloatPrecision)  << " " <<
+                ftos(face->yOffset(), FloatPrecision)  << " " <<
+                ftos(face->rotation(), FloatPrecision) << " " <<
+                ftos(face->xScale(), FloatPrecision)   << " " <<
+                ftos(face->yScale(), FloatPrecision);
             }
         };
 
@@ -88,7 +88,7 @@ namespace TrenchBroom {
                 stream <<
                 face->surfaceContents()  << " " <<
                 face->surfaceFlags()     << " " <<
-                StringUtils::ftos(face->surfaceValue(), FloatPrecision);
+                ftos(face->surfaceValue(), FloatPrecision);
             }
         };
 
@@ -196,7 +196,29 @@ namespace TrenchBroom {
         MapStreamSerializer::MapStreamSerializer(std::ostream& stream) :
         m_stream(stream) {}
 
-        MapStreamSerializer::~MapStreamSerializer() {}
+        MapStreamSerializer::~MapStreamSerializer() = default;
+
+        template <typename T, typename P>
+        String ftos_helper(const T v, const P precision) {
+            std::ostringstream strout;
+            strout.precision(static_cast<std::streamsize>(precision));
+            strout << std::fixed  << v;
+
+            String str = strout.str() ;
+            size_t end = str.find_last_not_of('0');
+            if (str[end] == '.') {
+                --end;
+            }
+            return str.erase(end + 1);
+        }
+
+        std::string MapStreamSerializer::ftos(const float v, const int precision) {
+            return ftos_helper(v, precision);
+        }
+
+        std::string MapStreamSerializer::ftos(const double v, const int precision) {
+            return ftos_helper(v, precision);
+        }
 
         void MapStreamSerializer::doBeginFile() {}
         void MapStreamSerializer::doEndFile() {}

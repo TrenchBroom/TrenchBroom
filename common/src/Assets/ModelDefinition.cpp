@@ -19,7 +19,6 @@
 
 #include "ModelDefinition.h"
 
-#include "StringUtils.h"
 #include "EL/ELExceptions.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Types.h"
@@ -29,6 +28,8 @@
 #include <kdl/string_compare.h>
 
 #include <vecmath/scalar.h>
+
+#include <ostream>
 
 namespace TrenchBroom {
     namespace Assets {

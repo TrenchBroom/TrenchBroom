@@ -131,6 +131,30 @@ namespace kdl {
     std::string str_join(const C& c, const std::string_view& delim = ", ") {
         return str_join(std::begin(c), std::end(c), delim, delim, delim);
     }
+
+    /**
+     * Replaces every occurence of needle in string haystack with the given replacement, and returns the result.
+     *
+     * @param haystack the string to modify
+     * @param needle the string to search for
+     * @param replacement the string to replace needle with
+     * @return the modified string
+     */
+    std::string str_replace_every(const std::string_view& haystack, const std::string_view& needle, const std::string_view& replacement);
+
+    /**
+     * Returns a string representation of the given object by means of the stream insertion operator.
+     *
+     * @tparam T the type of the object
+     * @param o the object
+     * @return the string representation
+     */
+    template <typename T>
+    std::string str_to_string(const T& o) {
+        std::stringstream str;
+        str << o;
+        return str.str();
+    }
 }
 
 #endif //TRENCHBROOM_STRING_UTILS_H

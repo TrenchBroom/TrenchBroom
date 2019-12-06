@@ -21,7 +21,6 @@
 #include "View/KeyboardShortcut.h"
 #include <gtest/gtest.h>
 
-#include "StringUtils.h"
 #include "TestUtils.h"
 
 namespace TrenchBroom {

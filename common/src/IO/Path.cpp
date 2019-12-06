@@ -20,7 +20,7 @@
 #include "Path.h"
 
 #include "Exceptions.h"
-#include "StringUtils.h"
+#include "Macros.h"
 
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>

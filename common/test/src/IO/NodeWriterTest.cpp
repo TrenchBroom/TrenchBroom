@@ -19,7 +19,6 @@
 
 #include <gtest/gtest.h>
 
-#include "StringUtils.h"
 #include "IO/NodeWriter.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"

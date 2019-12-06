@@ -20,7 +20,6 @@
 #include "GameConfig.h"
 
 #include "IO/DiskFileSystem.h"
-#include "StringUtils.h"
 
 #include <kdl/string_format.h>
 
@@ -148,7 +147,7 @@ namespace TrenchBroom {
 
         StringList GameConfig::FlagsConfig::flagNames(const int mask) const {
             if (mask == 0) {
-                return EmptyStringList;
+                return {};
             }
 
             StringList names;

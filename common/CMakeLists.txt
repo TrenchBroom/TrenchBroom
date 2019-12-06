@@ -499,7 +499,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Preference.cpp
         ${COMMON_SOURCE_DIR}/Preferences.cpp
         ${COMMON_SOURCE_DIR}/Reference.cpp
-        ${COMMON_SOURCE_DIR}/StringUtils.cpp
         ${COMMON_SOURCE_DIR}/TemporarilySetAny.cpp
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.cpp
         ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.cpp
@@ -1072,7 +1071,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/StringSet.h
         ${COMMON_SOURCE_DIR}/StringStream.h
         ${COMMON_SOURCE_DIR}/StringType.h
-        ${COMMON_SOURCE_DIR}/StringUtils.h
         ${COMMON_SOURCE_DIR}/TemporarilySetAny.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
         ${COMMON_SOURCE_DIR}/TrenchBroom.h

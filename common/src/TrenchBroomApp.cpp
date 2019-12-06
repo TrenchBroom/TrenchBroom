@@ -41,7 +41,6 @@
 #include "View/MapViewBase.h"
 #include "View/QtUtils.h"
 #include "View/RecentDocuments.h"
-#include "StringUtils.h"
 #ifdef __APPLE__
 #include "View/MainMenuBuilder.h"
 #endif

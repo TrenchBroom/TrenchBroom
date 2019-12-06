@@ -48,6 +48,7 @@
 #include "View/VertexCommand.h"
 #include "View/VertexHandleManager.h"
 
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>
@@ -349,7 +350,7 @@ namespace TrenchBroom {
 
                 renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
                 renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-                renderService.renderString(StringUtils::toString(handle), vm::vec3f(handle));
+                renderService.renderString(kdl::str_to_string(handle), vm::vec3f(handle));
             }
 
             template <typename HH>

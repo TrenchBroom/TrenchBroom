@@ -23,6 +23,16 @@
 
 namespace kdl {
     /**
+     * A string containing all characters which are considered whitespace.
+     */
+    constexpr auto Whitespace = " \n\t\r";
+
+    /**
+     * The default character to be used for escaping.
+     */
+    constexpr auto EscapeChar = '\\';
+
+    /**
      * Selects one of the two given strings depending on the given predicate.
      *
      * @param predicate the predicate
@@ -93,7 +103,7 @@ namespace kdl {
      * @param chars the characters that should be trimmed from the start and from the end of the given string
      * @return the trimmed string
      */
-    std::string str_trim(const std::string_view& s, const std::string_view& chars = " \n\t\r");
+    std::string str_trim(const std::string_view& s, const std::string_view& chars = Whitespace);
 
     /**
      * Convers the given string to lowercase using the C locale.
@@ -121,7 +131,7 @@ namespace kdl {
      * @param delims the delimiters, defaults to whitespace
      * @return the capitalized string
      */
-    std::string str_capitalize(const std::string_view& str, const std::string_view& delims = " \n\t\r");
+    std::string str_capitalize(const std::string_view& str, const std::string_view& delims = Whitespace);
 
     /**
      * Returns a string where the given characters are escaped by the given escape char, which defaults to a single
@@ -132,7 +142,7 @@ namespace kdl {
      * @param esc the escape character
      * @return the escaped string
      */
-    std::string str_escape(const std::string_view& str, const std::string_view& chars, char esc = '\\');
+    std::string str_escape(const std::string_view& str, const std::string_view& chars, char esc = EscapeChar);
 
     /**
      * Returns a string where the given characters are escaped by the given escape char, which defaults to a single
@@ -144,7 +154,7 @@ namespace kdl {
      * @param esc the escape character
      * @return the escaped string
      */
-    std::string str_escape_if_necessary(const std::string_view& str, const std::string_view& chars, char esc = '\\');
+    std::string str_escape_if_necessary(const std::string_view& str, const std::string_view& chars, char esc = EscapeChar);
 
     /**
      * Unescapes any escaped characters in the given string. An escaped character is unescaped only if it is one of the
@@ -155,7 +165,24 @@ namespace kdl {
      * @param esc the escape character
      * @return the unescaped string
      */
-    std::string str_unescape(const std::string_view& str, const std::string_view& chars, char esc = '\\');
+    std::string str_unescape(const std::string_view& str, const std::string_view& chars, char esc = EscapeChar);
+
+    /**
+     * Checks whether the given string consists of only whitespace.
+     *
+     * @param str the string to check
+     * @param whitespace a string of characters which should be considered whitespace
+     * @return true if the given string consists of only whitespace characters and false otherwise
+     */
+    bool str_is_blank(const std::string_view& str, const std::string_view& whitespace = Whitespace);
+
+    /**
+     * Checks whether the given string consists of only numeric characters, i.e. '0', '1', ..., '9'.
+     *
+     * @param str the string to check
+     * @return true if the given string consists of only numeric characters, and false otherwise.
+     */
+    bool str_is_numeric(const std::string_view& str);
 }
 
 #endif //TRENCHBROOM_STRING_FORMAT_H

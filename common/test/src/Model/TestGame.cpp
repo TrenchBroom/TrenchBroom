@@ -173,11 +173,11 @@ namespace TrenchBroom {
         }
 
         StringList TestGame::doAvailableMods() const {
-            return EmptyStringList;
+            return {};
         }
 
         StringList TestGame::doExtractEnabledMods(const AttributableNode& /* node */) const {
-            return EmptyStringList;
+            return {};
         }
 
         String TestGame::doDefaultMod() const {
