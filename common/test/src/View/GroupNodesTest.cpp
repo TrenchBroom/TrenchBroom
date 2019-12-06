@@ -19,14 +19,12 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
 #include "Model/World.h"
 #include "View/MapDocumentTest.h"
-#include "View/MapDocument.h"
 #include "View/PasteType.h"
 
 #include <set>
@@ -66,7 +64,7 @@ namespace TrenchBroom {
 
             Model::Entity* entity = new Model::Entity();
             document->addNode(entity, document->currentParent());
-            document->reparentNodes(entity, VectorUtils::create<Model::Node*>(brush1, brush2));
+            document->reparentNodes(entity, { brush1, brush2 });
 
             document->select(brush1);
 
@@ -97,9 +95,9 @@ namespace TrenchBroom {
 
             Model::Entity* entity = new Model::Entity();
             document->addNode(entity, document->currentParent());
-            document->reparentNodes(entity, VectorUtils::create<Model::Node*>(brush1, brush2));
+            document->reparentNodes(entity, { brush1, brush2 });
 
-            document->select(VectorUtils::create<Model::Node*>(brush1, brush2));
+            document->select(std::vector<Model::Node*>({ brush1, brush2 }));
 
             Model::Group* group = document->groupSelection("test");
             ASSERT_TRUE(group != nullptr);
@@ -144,10 +142,11 @@ namespace TrenchBroom {
             ASSERT_EQ(group, light->parent());
         }
 
-        static bool hasEmptyName(const std::set<Model::AttributeName>& names) {
+        static bool hasEmptyName(const std::vector<Model::AttributeName>& names) {
             for (const Model::AttributeName& name : names) {
-                if (name.empty())
+                if (name.empty()) {
                     return true;
+                }
             }
             return false;
         }
@@ -160,9 +159,9 @@ namespace TrenchBroom {
 
             Model::Entity* entity = new Model::Entity();
             document->addNode(entity, document->currentParent());
-            document->reparentNodes(entity, VectorUtils::create<Model::Node*>(brush1));
+            document->reparentNodes(entity, { brush1 });
 
-            document->select(VectorUtils::create<Model::Node*>(brush1));
+            document->select(brush1);
 
             Model::Group* group = document->groupSelection("test");
             ASSERT_TRUE(group->selected());
@@ -184,9 +183,9 @@ namespace TrenchBroom {
 
             Model::Entity* entity = new Model::Entity();
             document->addNode(entity, document->currentParent());
-            document->reparentNodes(entity, VectorUtils::create<Model::Node*>(brush1));
+            document->reparentNodes(entity, { brush1 });
 
-            document->select(VectorUtils::create<Model::Node*>(brush1));
+            document->select(brush1);
 
             Model::Group* group = document->groupSelection("test");
             ASSERT_TRUE(group->selected());

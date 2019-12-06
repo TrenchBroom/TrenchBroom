@@ -20,7 +20,6 @@
 #include "EntityRenderer.h"
 
 #include "TrenchBroom.h"
-#include "CollectionUtils.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Assets/EntityDefinition.h"

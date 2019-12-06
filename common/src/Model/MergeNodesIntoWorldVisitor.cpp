@@ -19,13 +19,14 @@
 
 #include "MergeNodesIntoWorldVisitor.h"
 
-#include "CollectionUtils.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
 #include "Model/World.h"
+
+#include <kdl/vector_utils.h>
 
 #include <cassert>
 #include <map>
@@ -90,7 +91,7 @@ namespace TrenchBroom {
         }
 
         void MergeNodesIntoWorldVisitor::deleteNodes() const {
-            VectorUtils::clearAndDelete(m_nodesToDelete);
+            kdl::vec_clear_and_delete(m_nodesToDelete);
         }
 
         void MergeNodesIntoWorldVisitor::detachNodes() const {

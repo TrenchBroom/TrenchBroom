@@ -19,7 +19,6 @@
 
 #include "DefParser.h"
 
-#include "CollectionUtils.h"
 #include "Exceptions.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
@@ -27,6 +26,8 @@
 #include "IO/ELParser.h"
 #include "IO/LegacyModelDefinitionParser.h"
 #include "IO/ParserStatus.h"
+
+#include <kdl/vector_utils.h>
 
 #include <memory>
 
@@ -174,7 +175,7 @@ namespace TrenchBroom {
                 }
                 return definitions;
             } catch (...) {
-                VectorUtils::clearAndDelete(definitions);
+                kdl::vec_clear_and_delete(definitions);
                 throw;
             }
         }

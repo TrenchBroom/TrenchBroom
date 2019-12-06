@@ -19,13 +19,14 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/Layer.h"
 #include "Model/MapFormat.h"
 #include "Model/Model_Forward.h"
 #include "Model/World.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vector>
 
@@ -73,8 +74,8 @@ namespace TrenchBroom {
 
             const std::vector<AttributableNode*>& sources = target->linkSources();
             ASSERT_EQ(2u, sources.size());
-            ASSERT_TRUE(VectorUtils::contains(sources, source1));
-            ASSERT_TRUE(VectorUtils::contains(sources, source2));
+            ASSERT_TRUE(kdl::vec_contains(sources, source1));
+            ASSERT_TRUE(kdl::vec_contains(sources, source2));
         }
 
 
@@ -97,8 +98,8 @@ namespace TrenchBroom {
 
             const std::vector<AttributableNode*>& targets = source->linkTargets();
             ASSERT_EQ(2u, targets.size());
-            ASSERT_TRUE(VectorUtils::contains(targets, target1));
-            ASSERT_TRUE(VectorUtils::contains(targets, target2));
+            ASSERT_TRUE(kdl::vec_contains(targets, target1));
+            ASSERT_TRUE(kdl::vec_contains(targets, target2));
 
             const std::vector<AttributableNode*>& sources1 = target1->linkSources();
             ASSERT_EQ(1u, sources1.size());

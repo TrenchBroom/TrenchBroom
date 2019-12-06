@@ -113,6 +113,10 @@
 #include "View/TransformObjectsCommand.h"
 #include "View/ViewEffectsService.h"
 
+#include <kdl/collection_utils.h>
+#include <kdl/map_utils.h>
+#include <kdl/vector_utils.h>
+
 #include <vecmath/util.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
@@ -360,8 +364,9 @@ namespace TrenchBroom {
             } catch (const ParserException& e) {
                 try {
                     const std::vector<Model::BrushFace*> faces = m_game->parseBrushFaces(str, *m_world, m_worldBounds, logger());
-                    if (!faces.empty() && pasteBrushFaces(faces))
+                    if (!faces.empty() && pasteBrushFaces(faces)) {
                         return PasteType::BrushFace;
+                    }
                 } catch (const ParserException&) {
                     error("Could not parse clipboard contents: %s", e.what());
                 }
@@ -391,7 +396,7 @@ namespace TrenchBroom {
             const Model::BrushFace* face = faces.back();
 
             const bool result = setFaceAttributes(face->attribs());
-            VectorUtils::deleteAll(faces);
+            kdl::col_delete_all(faces);
 
             return result;
         }
@@ -754,7 +759,7 @@ namespace TrenchBroom {
             if (nodes.empty())
                 return nodes;
 
-            VectorUtils::sort(nodes, CompareByAncestry());
+            kdl::vec_sort(nodes, CompareByAncestry());
 
             std::vector<Model::Node*> result;
             result.reserve(nodes.size());
@@ -795,7 +800,7 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove;
             for (const auto& entry : nodesToAdd) {
                 const std::vector<Model::Node*>& children = entry.second;
-                MapUtils::merge(nodesToRemove, Model::parentChildrenMap(children));
+                nodesToRemove = kdl::map_merge(nodesToRemove, Model::parentChildrenMap(children));
             }
 
             Transaction transaction(this, "Reparent Objects");
@@ -967,7 +972,7 @@ namespace TrenchBroom {
                 Model::Node* parent = group->parent();
                 const std::vector<Model::Node*> children = group->children();
                 reparentNodes(parent, children);
-                VectorUtils::append(allChildren, children);
+                kdl::vec_append(allChildren, children);
             }
 
             select(allChildren);
@@ -1181,7 +1186,7 @@ namespace TrenchBroom {
                 const std::vector<Model::Brush*> result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahends);
 
                 if (!result.empty()) {
-                    VectorUtils::append(toAdd[minuend->parent()], result);
+                    kdl::vec_append(toAdd[minuend->parent()], result);
                 }
                 toRemove.push_back(minuend);
             }
@@ -1245,7 +1250,7 @@ namespace TrenchBroom {
                     // shrinking gave us a valid brush, so subtract it from `brush`
                     const std::vector<Model::Brush*> fragments = brush->subtract(*m_world, m_worldBounds, currentTextureName(), shrunken);
 
-                    VectorUtils::append(toAdd[brush->parent()], fragments);
+                    kdl::vec_append(toAdd[brush->parent()], fragments);
                     toRemove.push_back(brush);
                 }
 

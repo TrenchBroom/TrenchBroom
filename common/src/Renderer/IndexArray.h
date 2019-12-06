@@ -24,7 +24,8 @@
 #include "Renderer/GL.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
-#include "VectorUtilsMinimal.h"
+
+#include <kdl/vector_utils.h>
 
 #include <memory>
 
@@ -125,7 +126,7 @@ namespace TrenchBroom {
 
                 void prepare(Vbo& vbo) {
                     Holder<Index>::prepare(vbo);
-                    VectorUtils::clearToZero(m_indices);
+                    kdl::vec_clear_to_zero(m_indices);
                 }
             private:
                 const IndexList& doGetIndices() const {
@@ -149,7 +150,7 @@ namespace TrenchBroom {
 
                 void prepare(Vbo& vbo) override {
                     Holder<Index>::prepare(vbo);
-                    VectorUtils::clearToZero(m_indices);
+                    kdl::vec_clear_to_zero(m_indices);
                 }
             private:
                 const IndexList& doGetIndices() const override {

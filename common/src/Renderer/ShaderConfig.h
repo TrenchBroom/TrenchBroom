@@ -31,9 +31,6 @@ namespace TrenchBroom {
             StringList m_vertexShaders;
             StringList m_fragmentShaders;
         public:
-            ShaderConfig(const String& name, const String& vertexShader, const String& fragmentShader);
-            ShaderConfig(const String& name, const String& vertexShader, const StringList& fragmentShaders);
-            ShaderConfig(const String& name, const StringList& vertexShaders, const String& fragmentShader);
             ShaderConfig(const String& name, const StringList& vertexShaders, const StringList& fragmentShaders);
         public:
             const String& name() const;

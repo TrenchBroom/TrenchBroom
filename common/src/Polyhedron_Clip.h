@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_Polyhedron_Clip_h
 #define TrenchBroom_Polyhedron_Clip_h
 
+#include "Ensure.h"
 #include "Macros.h"
 #include "Exceptions.h"
 

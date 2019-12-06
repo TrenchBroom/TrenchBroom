@@ -20,7 +20,6 @@
 #ifndef ObjSerializer_h
 #define ObjSerializer_h
 
-#include "CollectionUtils.h"
 #include "TrenchBroom.h"
 #include "IO/NodeSerializer.h"
 #include "IO/Path.h"
@@ -53,10 +52,11 @@ namespace TrenchBroom {
                 }
 
                 size_t index(const V& v) {
-                    typename Map::iterator indexIt = MapUtils::findOrInsert(m_map, v, m_list.size());
-                    const size_t index = indexIt->second;
-                    if (index == m_list.size())
+                    const auto it = m_map.insert({ v, m_list.size() }).first;
+                    const size_t index = it->second;
+                    if (index == m_list.size()) {
                         m_list.push_back(v);
+                    }
                     return index;
                 }
 

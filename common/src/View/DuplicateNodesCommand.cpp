@@ -19,10 +19,11 @@
 
 #include "DuplicateNodesCommand.h"
 
-#include "CollectionUtils.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
 #include "View/MapDocumentCommandFacade.h"
+
+#include <kdl/map_utils.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -37,8 +38,9 @@ namespace TrenchBroom {
         m_firstExecution(true) {}
 
         DuplicateNodesCommand::~DuplicateNodesCommand() {
-            if (state() == CommandState_Default)
-                MapUtils::clearAndDelete(m_addedNodes);
+            if (state() == CommandState_Default) {
+                kdl::map_clear_and_delete(m_addedNodes);
+            }
         }
 
         bool DuplicateNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
@@ -53,14 +55,16 @@ namespace TrenchBroom {
 
                     Model::Node* parent = original->parent();
                     if (cloneParent(parent)) {
-                        auto insertPos = MapUtils::findInsertPos(newParentMap, parent);
+                        // see if the parent was already cloned and if not, clone it and store it
                         Model::Node* newParent = nullptr;
-                        if (insertPos.first) {
-                            assert(insertPos.second != std::begin(newParentMap));
-                            newParent = std::prev(insertPos.second)->second;
+                        const auto it = newParentMap.find(parent);
+                        if (it != std::end(newParentMap)) {
+                            // parent was already cloned
+                            newParent = it->second;
                         } else {
+                            // parent was not cloned yet
                             newParent = parent->clone(worldBounds);
-                            newParentMap.insert(insertPos.second, std::make_pair(parent, newParent));
+                            newParentMap.insert({ parent, newParent });
                             m_addedNodes[document->currentParent()].push_back(newParent);
                         }
 

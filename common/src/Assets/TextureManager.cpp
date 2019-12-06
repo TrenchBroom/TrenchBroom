@@ -20,12 +20,14 @@
 #include "TextureManager.h"
 
 #include "Exceptions.h"
-#include "CollectionUtils.h"
 #include "Logger.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "IO/TextureLoader.h"
 #include "StringUtils.h"
+
+#include <kdl/map_utils.h>
+#include <kdl/vector_utils.h>
 
 #include <algorithm>
 #include <iterator>
@@ -89,7 +91,7 @@ namespace TrenchBroom {
             }
 
             updateTextures();
-            VectorUtils::append(m_toRemove, collections);
+            kdl::vec_append(m_toRemove, kdl::map_values(collections));
         }
 
         void TextureManager::setTextureCollections(const std::vector<TextureCollection*>& collections) {
@@ -119,8 +121,8 @@ namespace TrenchBroom {
         }
 
         void TextureManager::clear() {
-            VectorUtils::clearAndDelete(m_collections);
-            VectorUtils::clearAndDelete(m_toRemove);
+            kdl::vec_clear_and_delete(m_collections);
+            kdl::vec_clear_and_delete(m_toRemove);
 
             m_toPrepare.clear();
             m_texturesByName.clear();
@@ -138,7 +140,7 @@ namespace TrenchBroom {
         void TextureManager::commitChanges() {
             resetTextureMode();
             prepare();
-            VectorUtils::clearAndDelete(m_toRemove);
+            kdl::vec_clear_and_delete(m_toRemove);
         }
 
         Texture* TextureManager::texture(const String& name) const {
@@ -199,7 +201,7 @@ namespace TrenchBroom {
                 }
             }
 
-            m_textures = MapUtils::valueList(m_texturesByName);
+            m_textures = kdl::map_values(m_texturesByName);
         }
     }
 }

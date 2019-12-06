@@ -173,7 +173,7 @@ namespace TrenchBroom {
             document->addNode(brush1, document->currentParent());
             document->select(std::vector<Model::Node*>{brush1});
 
-            const std::set<vm::vec3> initialPositions{
+            const std::vector<vm::vec3> initialPositions{
                 // bottom face
                 {100,100,100},
                 {200,100,100},
@@ -185,12 +185,12 @@ namespace TrenchBroom {
                 {200,200,200},
                 {100,200,200},
             };
-            ASSERT_EQ(initialPositions, SetUtils::makeSet(brush1->vertexPositions()));
+            ASSERT_COLLECTIONS_EQUIVALENT(initialPositions, brush1->vertexPositions());
 
             // Shear the -Y face by (50, 0, 0). That means the verts with Y=100 will get sheared.
             ASSERT_TRUE(document->shearObjects(initialBBox, vm::vec3::neg_y(), vm::vec3(50,0,0)));
 
-            const std::set<vm::vec3> shearedPositions{
+            const std::vector<vm::vec3> shearedPositions{
                 // bottom face
                 {150,100,100},
                 {250,100,100},
@@ -202,7 +202,7 @@ namespace TrenchBroom {
                 {200,200,200},
                 {100,200,200},
             };
-            ASSERT_EQ(shearedPositions, SetUtils::makeSet(brush1->vertexPositions()));
+            ASSERT_COLLECTIONS_EQUIVALENT(shearedPositions, brush1->vertexPositions());
         }
 
         TEST_F(MapDocumentTest, shearPillar) {
@@ -214,7 +214,7 @@ namespace TrenchBroom {
             document->addNode(brush1, document->currentParent());
             document->select(std::vector<Model::Node*>{brush1});
 
-            const std::set<vm::vec3> initialPositions{
+            const std::vector<vm::vec3> initialPositions{
                 // bottom face
                 {0,  0,  0},
                 {100,0,  0},
@@ -226,12 +226,12 @@ namespace TrenchBroom {
                 {100,100,400},
                 {0,  100,400},
             };
-            ASSERT_EQ(initialPositions, SetUtils::makeSet(brush1->vertexPositions()));
+            ASSERT_COLLECTIONS_EQUIVALENT(initialPositions, brush1->vertexPositions());
 
             // Shear the +Z face by (50, 0, 0). That means the verts with Z=400 will get sheared.
             ASSERT_TRUE(document->shearObjects(initialBBox, vm::vec3::pos_z(), vm::vec3(50,0,0)));
 
-            const std::set<vm::vec3> shearedPositions{
+            const std::vector<vm::vec3> shearedPositions{
                 // bottom face
                 {0,  0,  0},
                 {100,0,  0},
@@ -243,7 +243,7 @@ namespace TrenchBroom {
                 {150,100,400},
                 {50, 100,400},
             };
-            ASSERT_EQ(shearedPositions, SetUtils::makeSet(brush1->vertexPositions()));
+            ASSERT_COLLECTIONS_EQUIVALENT(shearedPositions, brush1->vertexPositions());
         }
 
         TEST_F(MapDocumentTest, scaleObjects) {
@@ -597,7 +597,7 @@ namespace TrenchBroom {
             document->select(std::vector<Model::Node*> {ent2});
             Model::Group* group2 = document->groupSelection("group2");
 
-            ASSERT_EQ((std::set<Model::Node*> {group1, group2}), SetUtils::makeSet(document->currentLayer()->children()));
+            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<Model::Node*>({ group1, group2 }), document->currentLayer()->children());
 
             document->select(std::vector<Model::Node*> {group1, group2});
             document->mergeSelectedGroupsWithGroup(group2);
@@ -605,8 +605,8 @@ namespace TrenchBroom {
             ASSERT_EQ((std::vector<Model::Node*> {group2}), document->selectedNodes().nodes());
             ASSERT_EQ((std::vector<Model::Node*> {group2}), document->currentLayer()->children());
 
-            ASSERT_EQ((std::set<Model::Node*> {}), SetUtils::makeSet(group1->children()));
-            ASSERT_EQ((std::set<Model::Node*> {ent1, ent2}), SetUtils::makeSet(group2->children()));
+            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<Model::Node*>({}), group1->children());
+            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<Model::Node*>({ ent1, ent2 }), group2->children());
         }
 
         TEST_F(MapDocumentTest, pickSingleBrush) {

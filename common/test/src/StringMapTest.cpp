@@ -19,10 +19,10 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
 #include "Exceptions.h"
 #include "StringMap.h"
 #include "StringUtils.h"
+#include "TestUtils.h"
 
 namespace TrenchBroom {
     using TestMultiMap = StringMap<String, StringMultiMapValueContainer<String> >;
@@ -228,7 +228,6 @@ namespace TrenchBroom {
         index.insert("k1", "value3");
         index.insert("test", "value4");
 
-        ASSERT_EQ((StringSet{"key", "key2", "key22", "k1", "test"}),
-                  SetUtils::makeSet(index.getKeys()));
+        ASSERT_COLLECTIONS_EQUIVALENT(StringList({ "key", "key2", "key22", "k1", "test" }), index.getKeys());
     }
 }

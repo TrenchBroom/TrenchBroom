@@ -20,8 +20,9 @@
 #include "FileSystem.h"
 
 #include "Exceptions.h"
-#include "CollectionUtils.h"
 #include "IO/FileMatcher.h"
+
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -164,10 +165,10 @@ namespace TrenchBroom {
         Path::List FileSystem::_getDirectoryContents(const Path& directoryPath) const {
             auto result = doGetDirectoryContents(directoryPath);
             if (m_next) {
-                VectorUtils::append(result, m_next->_getDirectoryContents(directoryPath));
+                kdl::vec_append(result, m_next->_getDirectoryContents(directoryPath));
             }
 
-            VectorUtils::sortAndRemoveDuplicates(result);
+            kdl::vec_sort_and_remove_duplicates(result);
             return result;
         }
 

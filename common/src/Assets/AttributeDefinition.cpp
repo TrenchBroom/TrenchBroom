@@ -19,9 +19,9 @@
 
 #include "AttributeDefinition.h"
 
+#include <memory>
+
 #include "StringStream.h"
-#include "StringUtils.h"
-#include "CollectionUtils.h"
 #include "Macros.h"
 
 namespace TrenchBroom {
@@ -234,16 +234,13 @@ namespace TrenchBroom {
             return m_options;
         }
 
-        struct FindFlagByValue {
-            int value;
-            explicit FindFlagByValue(const int i_value) : value(i_value) {}
-            bool operator()(const FlagsAttributeOption& option) const {
-                return option.value() == value;
-            }
-        };
-
         const FlagsAttributeOption* FlagsAttributeDefinition::option(const int value) const {
-            return VectorUtils::findIf(m_options, FindFlagByValue(value));
+            for (const auto& option : m_options) {
+                if (option.value() == value) {
+                    return &option;
+                }
+            }
+            return nullptr;
         }
 
         void FlagsAttributeDefinition::addOption(const int value, const String& shortDescription, const String& longDescription, const bool isDefault) {

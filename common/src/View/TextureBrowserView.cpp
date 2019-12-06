@@ -19,7 +19,6 @@
 
 #include "TextureBrowserView.h"
 
-#include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "SharedPointer.h"
@@ -35,6 +34,8 @@
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
 #include "View/MapDocument.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
@@ -234,10 +235,12 @@ namespace TrenchBroom {
         std::vector<Assets::TextureCollection*> TextureBrowserView::getCollections() const {
             auto doc = lock(m_document);
             std::vector<Assets::TextureCollection*> collections = doc->textureManager().collections();
-            if (m_hideUnused)
-                VectorUtils::eraseIf(collections, MatchUsageCount());
-            if (m_sortOrder == SO_Usage)
-                VectorUtils::sort(collections, CompareByUsageCount());
+            if (m_hideUnused) {
+                kdl::vec_erase_if(collections, MatchUsageCount());
+            }
+            if (m_sortOrder == SO_Usage) {
+                kdl::vec_sort(collections, CompareByUsageCount());
+            }
             return collections;
         }
 
@@ -258,18 +261,18 @@ namespace TrenchBroom {
 
         void TextureBrowserView::filterTextures(std::vector<Assets::Texture*>& textures) const {
             if (m_hideUnused)
-                VectorUtils::eraseIf(textures, MatchUsageCount());
+                kdl::vec_erase_if(textures, MatchUsageCount());
             if (!m_filterText.empty())
-                VectorUtils::eraseIf(textures, MatchName(m_filterText));
+                kdl::vec_erase_if(textures, MatchName(m_filterText));
         }
 
         void TextureBrowserView::sortTextures(std::vector<Assets::Texture*>& textures) const {
             switch (m_sortOrder) {
                 case SO_Name:
-                    VectorUtils::sort(textures, CompareByName());
+                    kdl::vec_sort(textures, CompareByName());
                     break;
                 case SO_Usage:
-                    VectorUtils::sort(textures, CompareByUsageCount());
+                    kdl::vec_sort(textures, CompareByUsageCount());
                     break;
             }
         }
@@ -507,8 +510,8 @@ namespace TrenchBroom {
                                     stepIterator(std::begin(groupNameQuads), std::end(groupNameQuads), 1, 2),
                                     stepIterator(std::begin(subTextColor), std::end(subTextColor), 0, 0));
 
-                                VectorUtils::append(stringVertices[cellData(cell).mainTitleFont], textureNameVertices);
-                                VectorUtils::append(stringVertices[cellData(cell).subTitleFont], groupNameVertices);
+                                kdl::vec_append(stringVertices[cellData(cell).mainTitleFont], textureNameVertices);
+                                kdl::vec_append(stringVertices[cellData(cell).subTitleFont], groupNameVertices);
                             }
                         }
                     }

@@ -19,10 +19,11 @@
 
 #include "CompilationVariables.h"
 
-#include "VectorUtilsMinimal.h"
 #include "IO/SystemPaths.h"
 #include "Model/Game.h"
 #include "View/MapDocument.h"
+
+#include <kdl/vector_utils.h>
 
 #include <memory>
 #include <thread>
@@ -46,7 +47,7 @@ namespace TrenchBroom {
 
             StringList mods;
             mods.push_back(document->defaultMod());
-            VectorUtils::append(mods, document->mods());
+            kdl::vec_append(mods, document->mods());
 
             using namespace CompilationVariableNames;
             declare(MAP_BASE_NAME, EL::Value(filename.deleteExtension().asString()));

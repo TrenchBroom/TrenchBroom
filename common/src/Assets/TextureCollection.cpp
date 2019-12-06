@@ -19,8 +19,9 @@
 
 #include "TextureCollection.h"
 
-#include "CollectionUtils.h"
 #include "Assets/Texture.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vector>
 
@@ -49,7 +50,7 @@ namespace TrenchBroom {
         }
 
         TextureCollection::~TextureCollection() {
-            VectorUtils::clearAndDelete(m_textures);
+            kdl::vec_clear_and_delete(m_textures);
             if (!m_textureIds.empty()) {
                 glAssert(glDeleteTextures(static_cast<GLsizei>(m_textureIds.size()),
                                           static_cast<GLuint*>(&m_textureIds.front())));

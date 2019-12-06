@@ -20,7 +20,8 @@
 #include "AttributableNode.h"
 
 #include "Assets/AttributeDefinition.h"
-#include "CollectionUtils.h"
+
+#include <kdl/vector_utils.h>
 
 #include <set>
 #include <vector>
@@ -131,7 +132,7 @@ namespace TrenchBroom {
                 attributeWasAddedNotifier(this, attribute.name());
         }
 
-        std::set<AttributeName> AttributableNode::attributeNames() const {
+        std::vector<AttributeName> AttributableNode::attributeNames() const {
             return m_attributes.names();
         }
 
@@ -652,19 +653,19 @@ namespace TrenchBroom {
 
         void AttributableNode::removeLinkSource(AttributableNode* attributable) {
             ensure(attributable != nullptr, "attributable is null");
-            VectorUtils::erase(m_linkSources, attributable);
+            kdl::vec_erase(m_linkSources, attributable);
             invalidateIssues();
         }
 
         void AttributableNode::removeLinkTarget(AttributableNode* attributable) {
             ensure(attributable != nullptr, "attributable is null");
-            VectorUtils::erase(m_linkTargets, attributable);
+            kdl::vec_erase(m_linkTargets, attributable);
             invalidateIssues();
         }
 
         void AttributableNode::removeKillSource(AttributableNode* attributable) {
             ensure(attributable != nullptr, "attributable is null");
-            VectorUtils::erase(m_killSources, attributable);
+            kdl::vec_erase(m_killSources, attributable);
             invalidateIssues();
         }
 
@@ -679,7 +680,7 @@ namespace TrenchBroom {
 
         void AttributableNode::removeKillTarget(AttributableNode* attributable) {
             ensure(attributable != nullptr, "attributable is null");
-            VectorUtils::erase(m_killTargets, attributable);
+            kdl::vec_erase(m_killTargets, attributable);
         }
     }
 }

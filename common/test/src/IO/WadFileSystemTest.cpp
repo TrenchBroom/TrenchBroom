@@ -19,10 +19,11 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
 #include "Logger.h"
 #include "IO/DiskIO.h"
 #include "IO/WadFileSystem.h"
+
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -33,27 +34,27 @@ namespace TrenchBroom {
             const IO::Path::List files = fs.findItems(IO::Path(""));
 
             ASSERT_EQ(21u, files.size());
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("blowjob_machine.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("bongs2.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("can-o-jam.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("cap4can-o-jam.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("coffin1.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("coffin2.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("cr8_czg_1.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("cr8_czg_2.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("cr8_czg_3.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("cr8_czg_4.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("cr8_czg_5.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("crackpipes.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("czg_backhole.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("czg_fronthole.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("dex_5.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("eat_me.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("for_sux-m-ass.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("lasthopeofhuman.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("polished_turd.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("speedM_1.D")));
-            ASSERT_TRUE(VectorUtils::contains(files, IO::Path("u_get_this.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("blowjob_machine.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("bongs2.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("can-o-jam.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("cap4can-o-jam.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("coffin1.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("coffin2.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("cr8_czg_1.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("cr8_czg_2.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("cr8_czg_3.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("cr8_czg_4.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("cr8_czg_5.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("crackpipes.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("czg_backhole.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("czg_fronthole.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("dex_5.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("eat_me.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("for_sux-m-ass.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("lasthopeofhuman.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("polished_turd.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("speedM_1.D")));
+            ASSERT_TRUE(kdl::vec_contains(files, IO::Path("u_get_this.D")));
         }
     }
 }

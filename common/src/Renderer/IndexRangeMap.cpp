@@ -18,7 +18,8 @@
  */
 
 #include "IndexRangeMap.h"
-#include "CollectionUtils.h"
+
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -71,13 +72,12 @@ namespace TrenchBroom {
 
         void IndexRangeMap::IndicesAndCounts::add(const IndicesAndCounts& other, [[maybe_unused]] const bool dynamicGrowth) {
             assert(dynamicGrowth || indices.capacity() >= indices.size() + other.indices.size());
-            VectorUtils::append(indices, other.indices);
-            VectorUtils::append(counts, other.counts);
+            kdl::vec_append(indices, other.indices);
+            kdl::vec_append(counts, other.counts);
         }
 
         void IndexRangeMap::Size::inc(const PrimType primType, const size_t count) {
-            auto primIt = MapUtils::findOrInsert(m_sizes, primType, 0);
-            primIt->second += count;
+            m_sizes[primType] += count; // unknown map values are value constructed, which initializes to 0 for size_t
         }
 
         void IndexRangeMap::Size::inc(const IndexRangeMap::Size& other) {
@@ -160,7 +160,8 @@ namespace TrenchBroom {
         IndexRangeMap::IndicesAndCounts& IndexRangeMap::find(const PrimType primType) {
             auto it = m_data->end();
             if (m_dynamicGrowth) {
-                it = MapUtils::findOrInsert(*m_data, primType);
+                auto result = m_data->try_emplace(primType);
+                it = result.first;
             } else {
                 it = m_data->find(primType);
             }

@@ -19,7 +19,6 @@
 
 #include "ClipToolController.h"
 
-#include "CollectionUtils.h"
 #include "Polyhedron.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -30,6 +29,8 @@
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vecmath/vec.h>
 #include <vecmath/segment.h>
@@ -306,7 +307,7 @@ namespace TrenchBroom {
                 result.push_back(vm::get_abs_max_component_axis(normal));
             }
 
-            VectorUtils::sortAndRemoveDuplicates(result);
+            kdl::vec_sort_and_remove_duplicates(result);
             return result;
         }
 

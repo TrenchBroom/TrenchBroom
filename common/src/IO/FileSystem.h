@@ -21,11 +21,12 @@
 #define TrenchBroom_FileSystem
 
 #include "Exceptions.h"
-#include "CollectionUtils.h"
 #include "Macros.h"
 #include "StringType.h"
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
+
+#include <kdl/vector_utils.h>
 
 #include <memory>
 
@@ -147,7 +148,7 @@ namespace TrenchBroom {
 
                     Path::List result;
                     _findItems(searchPath, matcher, recurse, result);
-                    VectorUtils::sortAndRemoveDuplicates(result);
+                    kdl::vec_sort_and_remove_duplicates(result);
                     return result;
                 } catch (const PathException& e) {
                     throw FileSystemException("Invalid path: '" + searchPath.asString() + "'", e);

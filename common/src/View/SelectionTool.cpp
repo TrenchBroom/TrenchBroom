@@ -19,7 +19,6 @@
 
 #include "SelectionTool.h"
 
-#include "CollectionUtils.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Model/Brush.h"

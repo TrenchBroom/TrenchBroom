@@ -20,7 +20,6 @@
 #include "Grid.h"
 
 #include "Constants.h"
-#include "CollectionUtils.h"
 #include "Polyhedron.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
