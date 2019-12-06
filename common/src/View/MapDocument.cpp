@@ -123,6 +123,7 @@
 
 #include <cassert>
 #include <map>
+#include <sstream>
 #include <type_traits>
 #include <vector>
 
@@ -345,13 +346,13 @@ namespace TrenchBroom {
         }
 
         String MapDocument::serializeSelectedNodes() {
-            StringStream stream;
+            std::stringstream stream;
             m_game->writeNodesToStream(*m_world, m_selectedNodes.nodes(), stream);
             return stream.str();
         }
 
         String MapDocument::serializeSelectedBrushFaces() {
-            StringStream stream;
+            std::stringstream stream;
             m_game->writeBrushFacesToStream(*m_world, m_selectedBrushFaces, stream);
             return stream.str();
         }
@@ -849,7 +850,7 @@ namespace TrenchBroom {
             auto* entity = m_world->createEntity();
             entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
 
-            StringStream name;
+            std::stringstream name;
             name << "Create " << definition->name();
 
             const Transaction transaction(this, name.str());
@@ -886,7 +887,7 @@ namespace TrenchBroom {
 
             entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
 
-            StringStream name;
+            std::stringstream name;
             name << "Create " << definition->name();
 
             const std::vector<Model::Node*> nodes(std::begin(brushes), std::end(brushes));
@@ -1430,7 +1431,7 @@ namespace TrenchBroom {
         void MapDocument::printVertices() {
             if (hasSelectedBrushFaces()) {
                 for (const Model::BrushFace* face : m_selectedBrushFaces) {
-                    StringStream str;
+                    std::stringstream str;
                     str.precision(17);
                     for (const Model::BrushVertex* vertex : face->vertices()) {
                         str << "(" << vertex->position() << ") ";
@@ -1439,7 +1440,7 @@ namespace TrenchBroom {
                 }
             } else if (selectedNodes().hasBrushes()) {
                 for (const Model::Brush* brush : selectedNodes().brushes()) {
-                    StringStream str;
+                    std::stringstream str;
                     str.precision(17);
                     for (const Model::BrushVertex* vertex : brush->vertices()) {
                         str << vertex->position() << " ";

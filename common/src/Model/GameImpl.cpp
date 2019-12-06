@@ -58,6 +58,7 @@
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
+#include <sstream>
 #include <vector>
 
 namespace TrenchBroom {
@@ -503,7 +504,7 @@ namespace TrenchBroom {
         void GameImpl::writeLongAttribute(AttributableNode& node, const AttributeName& baseName, const AttributeValue& value, const size_t maxLength) const {
             node.removeNumberedAttribute(baseName);
 
-            StringStream nameStr;
+            std::stringstream nameStr;
             for (size_t i = 0; i <= value.size() / maxLength; ++i) {
                 nameStr.str("");
                 nameStr << baseName << i+1;
@@ -513,8 +514,8 @@ namespace TrenchBroom {
 
         String GameImpl::readLongAttribute(const AttributableNode& node, const AttributeName& baseName) const {
             size_t index = 1;
-            StringStream nameStr;
-            StringStream valueStr;
+            std::stringstream nameStr;
+            std::stringstream valueStr;
             nameStr << baseName << index;
             while (node.hasAttribute(nameStr.str())) {
                 valueStr << node.attribute(nameStr.str());

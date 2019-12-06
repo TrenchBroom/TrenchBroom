@@ -28,6 +28,8 @@
 
 #include <kdl/string_format.h>
 
+#include <sstream>
+
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType SelectionCommand::Type = Command::freeType();
@@ -85,7 +87,7 @@ namespace TrenchBroom {
         m_faceRefs(faceRefs(faces)) {}
 
         String SelectionCommand::makeName(const Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces) {
-            StringStream result;
+            std::stringstream result;
             switch (action) {
                 case Action_SelectNodes:
                     result << "Select " << nodes.size() << " " << kdl::str_plural(nodes.size(), "Object", "Objects");

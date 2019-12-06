@@ -19,10 +19,10 @@
 
 #include "AttributeDefinition.h"
 
-#include <memory>
-
-#include "StringStream.h"
 #include "Macros.h"
+
+#include <memory>
+#include <sstream>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -80,7 +80,7 @@ namespace TrenchBroom {
                     const auto& boolDef = static_cast<const BooleanAttributeDefinition&>(definition);
                     if (!boolDef.hasDefaultValue())
                         return "";
-                    StringStream str;
+                    std::stringstream str;
                     str << boolDef.defaultValue();
                     return str.str();
                 }
@@ -88,7 +88,7 @@ namespace TrenchBroom {
                     const auto& intDef = static_cast<const IntegerAttributeDefinition&>(definition);
                     if (!intDef.hasDefaultValue())
                         return "";
-                    StringStream str;
+                    std::stringstream str;
                     str << intDef.defaultValue();
                     return str.str();
                 }
@@ -96,7 +96,7 @@ namespace TrenchBroom {
                     const auto& floatDef = static_cast<const FloatAttributeDefinition&>(definition);
                     if (!floatDef.hasDefaultValue())
                         return "";
-                    StringStream str;
+                    std::stringstream str;
                     str << floatDef.defaultValue();
                     return str.str();
                 }
@@ -104,13 +104,13 @@ namespace TrenchBroom {
                     const auto& choiceDef = static_cast<const ChoiceAttributeDefinition&>(definition);
                     if (!choiceDef.hasDefaultValue())
                         return "";
-                    StringStream str;
+                    std::stringstream str;
                     str << choiceDef.defaultValue();
                     return str.str();
                 }
                 case Type_FlagsAttribute: {
                     const auto& flagsDef = static_cast<const FlagsAttributeDefinition&>(definition);
-                    StringStream str;
+                    std::stringstream str;
                     str << flagsDef.defaultValue();
                     return str.str();
                 }

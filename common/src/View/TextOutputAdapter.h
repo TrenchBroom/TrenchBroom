@@ -21,9 +21,8 @@
 #define TextCtrlOutputAdapter_h
 
 #include "StringType.h"
-#include "StringStream.h"
 
-#include <QString>
+#include <sstream>
 
 class QTextEdit;
 
@@ -62,7 +61,7 @@ namespace TrenchBroom {
              */
             template <typename T>
             TextOutputAdapter& append(const T& t) {
-                StringStream str;
+                std::stringstream str;
                 str << t;
                 appendString(str.str());
                 return *this;

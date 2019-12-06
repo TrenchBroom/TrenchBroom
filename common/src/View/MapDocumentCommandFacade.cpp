@@ -575,9 +575,7 @@ namespace TrenchBroom {
                 else
                     intValue &= ~flagValue;
 
-                StringStream str;
-                str << intValue;
-                node->addOrUpdateAttribute(name, str.str());
+                node->addOrUpdateAttribute(name, kdl::str_to_string(intValue));
             }
 
             setEntityDefinitions(nodes);
@@ -767,14 +765,10 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
 
             if (succeededBrushCount > 0) {
-                StringStream msg;
-                msg << "Snapped vertices of " << succeededBrushCount << " " << kdl::str_plural(succeededBrushCount, "brush", "brushes");
-                info(msg.str());
+                info(kdl::str_to_string("Snapped vertices of ", succeededBrushCount, " ", kdl::str_plural(succeededBrushCount, "brush", "brushes")));
             }
             if (failedBrushCount > 0) {
-                StringStream msg;
-                msg << "Failed to snap vertices of " << failedBrushCount << " " << kdl::str_plural(failedBrushCount, "brush", "brushes");
-                info(msg.str());
+                info(kdl::str_to_string("Failed to snap vertices of ", failedBrushCount, " ", kdl::str_plural(failedBrushCount, "brush", "brushes")));
             }
 
             return true;

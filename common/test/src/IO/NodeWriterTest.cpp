@@ -31,6 +31,7 @@
 
 #include <kdl/string_compare.h>
 
+#include <sstream>
 #include <vector>
 
 namespace TrenchBroom {
@@ -38,7 +39,7 @@ namespace TrenchBroom {
         TEST(NodeWriterTest, writeEmptyMap) {
             Model::World map(Model::MapFormat::Standard);
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
@@ -54,7 +55,7 @@ namespace TrenchBroom {
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.addOrUpdateAttribute("message", "holy damn");
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
@@ -82,7 +83,7 @@ namespace TrenchBroom {
             Model::Brush* brush2 = builder.createCube(64.0, "none");
             map.defaultLayer()->addChild(brush2);
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
@@ -125,7 +126,7 @@ R"(// entity 0
             Model::Brush* brush = builder.createCube(64.0, "none");
             map.defaultLayer()->addChild(brush);
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
@@ -161,7 +162,7 @@ R"(// entity 0
             Model::Brush* brush = builder.createCube(64.0, "none");
             layer->addChild(brush);
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
@@ -205,7 +206,7 @@ R"(// entity 0
             Model::Brush* brush = builder.createCube(64.0, "none");
             group->addChild(brush);
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
@@ -251,7 +252,7 @@ R"(// entity 0
             Model::Brush* brush = builder.createCube(64.0, "none");
             group->addChild(brush);
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
@@ -308,7 +309,7 @@ R"(// entity 0
             Model::Brush* brush = builder.createCube(64.0, "none");
             inner->addChild(brush);
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
@@ -377,7 +378,7 @@ R"(// entity 0
             nodes.push_back(inner);
             nodes.push_back(worldBrush);
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeNodes(nodes);
 
@@ -424,7 +425,7 @@ R"(// entity 0
             Model::BrushBuilder builder(&map, worldBounds);
             Model::Brush* brush = builder.createCube(64.0, "none");
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeBrushFaces(brush->faces());
 
@@ -448,7 +449,7 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.addOrUpdateAttribute("message", "\"holy damn\", he said");
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
@@ -465,7 +466,7 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.addOrUpdateAttribute("message", "\\\"holy damn\\\", he said");
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
@@ -483,7 +484,7 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.addOrUpdateAttribute("message", "holy damn\\nhe said");
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
@@ -503,7 +504,7 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             map.addOrUpdateAttribute("message2", "holy damn\\\\");
             map.addOrUpdateAttribute("message3", "holy damn\\\\\\");
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 

@@ -20,7 +20,6 @@
 #include "Value.h"
 
 #include "EL/ELExceptions.h"
-#include "StringStream.h"
 
 #include <kdl/collection_utils.h>
 #include <kdl/map_utils.h>
@@ -32,13 +31,14 @@
 #include <algorithm>
 #include <cmath>
 #include <iterator>
+#include <sstream>
 
 namespace TrenchBroom {
     namespace EL {
         ValueHolder::~ValueHolder() {}
 
         String ValueHolder::describe() const {
-            StringStream str;
+            std::stringstream str;
             appendToStream(str, false, "");
             return str.str();
         }
@@ -627,7 +627,7 @@ namespace TrenchBroom {
         }
 
         String Value::asString(const bool multiline) const {
-            StringStream str;
+            std::stringstream str;
             appendToStream(str, multiline);
             return str.str();
         }
@@ -767,7 +767,7 @@ namespace TrenchBroom {
                         case ValueType::Number: {
                             const StringType& str = stringValue();
                             const size_t index = computeIndex(indexValue, str.length());
-                            StringStream result;
+                            std::stringstream result;
                             if (index < str.length())
                                 result << str[index];
                             return Value(result.str(), m_line, m_column);
@@ -776,7 +776,7 @@ namespace TrenchBroom {
                         case ValueType::Range: {
                             const StringType& str = stringValue();
                             const IndexList indices = computeIndexArray(indexValue, str.length());
-                            StringStream result;
+                            std::stringstream result;
                             for (size_t i = 0; i < indices.size(); ++i) {
                                 const size_t index = indices[i];
                                 if (index < str.length())
@@ -871,7 +871,7 @@ namespace TrenchBroom {
             switch (type()) {
                 case ValueType::String: {
                     const StringType& str = stringValue();
-                    StringStream result;
+                    std::stringstream result;
                     if (index < str.length())
                         result << str[index];
                     return Value(result.str());

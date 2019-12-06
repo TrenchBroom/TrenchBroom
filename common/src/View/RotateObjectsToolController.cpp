@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "TrenchBroom.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Circle.h"
 #include "Renderer/RenderBatch.h"
@@ -28,18 +29,17 @@
 #include "Renderer/RenderService.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
-#include "StringStream.h"
 #include "View/RotateObjectsTool.h"
 #include "View/InputState.h"
 #include "View/MoveToolController.h"
-
-#include "TrenchBroom.h"
 
 #include <vecmath/intersection.h>
 #include <vecmath/mat_ext.h>
 #include <vecmath/quat.h>
 #include <vecmath/util.h>
 #include <vecmath/vec.h>
+
+#include <sstream>
 
 namespace TrenchBroom {
     namespace View {
@@ -202,7 +202,7 @@ namespace TrenchBroom {
             }
 
             String angleString(const FloatType angle) const {
-                StringStream str;
+                std::stringstream str;
                 str.precision(2);
                 str.setf(std::ios::fixed);
                 str << angle;

@@ -26,12 +26,13 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
 #include "Renderer/TextAnchor.h"
-#include "StringStream.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 #include <vecmath/util.h>
+
+#include <sstream>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -284,7 +285,7 @@ namespace TrenchBroom {
 
         void SelectionBoundsRenderer::renderSize2D(RenderContext& renderContext, RenderBatch& renderBatch) {
             static const String labels[3] = { "X", "Y", "Z" };
-            StringStream buffer;
+            std::stringstream buffer;
 
             RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
@@ -306,7 +307,7 @@ namespace TrenchBroom {
 
         void SelectionBoundsRenderer::renderSize3D(RenderContext& renderContext, RenderBatch& renderBatch) {
             static const String labels[3] = { "X", "Y", "Z" };
-            StringStream buffer;
+            std::stringstream buffer;
 
             RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
@@ -324,7 +325,7 @@ namespace TrenchBroom {
         }
 
         void SelectionBoundsRenderer::renderMinMax(RenderContext& renderContext, RenderBatch& renderBatch) {
-            StringStream buffer;
+            std::stringstream buffer;
 
             RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));

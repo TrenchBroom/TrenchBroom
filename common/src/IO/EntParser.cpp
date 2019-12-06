@@ -36,6 +36,7 @@
 
 #include <cstdlib>
 #include <memory>
+#include <sstream>
 
 namespace TrenchBroom {
     namespace IO {
@@ -402,7 +403,7 @@ namespace TrenchBroom {
         String EntParser::getText(const tinyxml2::XMLElement& element) {
             // I assume that only the initial and the last text is meaningful.
 
-            StringStream str;
+            std::stringstream str;
             const auto* first = element.FirstChild();
             const auto* last = element.LastChild();
 

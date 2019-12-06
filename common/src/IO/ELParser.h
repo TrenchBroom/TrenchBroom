@@ -30,6 +30,8 @@
 #include <stdint.h>
 #endif
 
+#include <iosfwd>
+
 namespace TrenchBroom {
     namespace EL {
         class Expression;
@@ -95,7 +97,7 @@ namespace TrenchBroom {
             ELTokenizer(Tokenizer<OtherToken>& nestedTokenizer) :
             Tokenizer(nestedTokenizer) {}
         public:
-            void appendUntil(const String& pattern, StringStream& str);
+            void appendUntil(const String& pattern, std::stringstream& str);
         private:
             Token emitToken() override;
         };

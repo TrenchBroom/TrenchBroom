@@ -20,7 +20,6 @@
 #include "Bsp29Parser.h"
 
 #include "Exceptions.h"
-#include "StringStream.h"
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
@@ -32,6 +31,7 @@
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
 #include <string>
+#include <sstream>
 
 namespace TrenchBroom {
     namespace IO {
@@ -287,7 +287,7 @@ namespace TrenchBroom {
                 }
             }
 
-            StringStream frameName;
+            std::stringstream frameName;
             frameName << m_name << "_" << frameIndex;
 
             auto& frame = model.loadFrame(frameIndex, frameName.str(), bounds.bounds());

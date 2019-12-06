@@ -29,6 +29,7 @@
 
 #include <kdl/map_utils.h>
 #include <kdl/string_format.h>
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
@@ -149,17 +150,13 @@ namespace TrenchBroom {
 
             const long rawId = std::atol(idStr.c_str());
             if (rawId <= 0) {
-                StringStream msg;
-                msg << "Skipping layer entity: '" << idStr << "' is not a valid id";
-                status.error(line, msg.str());
+                status.error(line, kdl::str_to_string("Skipping layer entity: '", idStr, "' is not a valid id"));
                 return;
             }
 
             const Model::IdType layerId = static_cast<Model::IdType>(rawId);
             if (m_layers.count(layerId) > 0) {
-                StringStream msg;
-                msg << "Skipping layer entity: layer with id '" << idStr << "' already exists";
-                status.error(line, msg.str());
+                status.error(line, kdl::str_to_string("Skipping layer entity: layer with id '", idStr, "' already exists"));
                 return;
             }
 
@@ -188,17 +185,13 @@ namespace TrenchBroom {
 
             const long rawId = std::atol(idStr.c_str());
             if (rawId <= 0) {
-                StringStream msg;
-                msg << "Skipping group entity: '" << idStr << "' is not a valid id";
-                status.error(line, msg.str());
+                status.error(line, kdl::str_to_string("Skipping group entity: '", idStr, "' is not a valid id"));
                 return;
             }
 
             const Model::IdType groupId = static_cast<Model::IdType>(rawId);
             if (m_groups.count(groupId) > 0) {
-                StringStream msg;
-                msg << "Skipping group entity: group with id '" << idStr << "' already exists";
-                status.error(line, msg.str());
+                status.error(line, kdl::str_to_string("Skipping group entity: group with id '", idStr, "' already exists"));
                 return;
             }
 
@@ -233,9 +226,7 @@ namespace TrenchBroom {
                 onBrush(m_brushParent, brush, status);
                 m_faces.clear();
             } catch (GeometryException& e) {
-                StringStream msg;
-                msg << "Skipping brush: " << e.what();
-                status.error(startLine, msg.str());
+                status.error(startLine, kdl::str_to_string("Skipping brush: ", e.what()));
                 m_faces.clear(); // the faces will have been deleted by the brush's constructor
             }
 
@@ -256,9 +247,7 @@ namespace TrenchBroom {
                     return ParentInfo::Type_Layer;
                 }
 
-                StringStream msg;
-                msg << "Entity has invalid parent id '" << layerIdStr << "'";
-                status.warn(node->lineNumber(), msg.str());
+                status.warn(node->lineNumber(), kdl::str_to_string("Entity has invalid parent id '", layerIdStr, "'"));
             } else {
                 const String& groupIdStr = findAttribute(attributes, Model::AttributeNames::Group);
                 if (!kdl::str_is_blank(groupIdStr)) {
@@ -274,9 +263,7 @@ namespace TrenchBroom {
                         return ParentInfo::Type_Group;
                     }
 
-                    StringStream msg;
-                    msg << "Entity has invalid parent id '" << groupIdStr << "'";
-                    status.warn(node->lineNumber(), msg.str());
+                    status.warn(node->lineNumber(), kdl::str_to_string("Entity has invalid parent id '", groupIdStr, "'"));
                 }
             }
 
