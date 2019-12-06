@@ -19,11 +19,7 @@
 
 #include "Logger.h"
 
-#include "StringUtils.h"
-
 #include <QString>
-
-#include <cstdarg>
 
 namespace TrenchBroom {
     Logger::stream::stream(Logger* logger, const LogLevel logLevel) :
@@ -40,13 +36,9 @@ namespace TrenchBroom {
         return Logger::stream(this, LogLevel_Debug);
     }
 
-    void Logger::debug([[maybe_unused]] const char* format, ...) {
+    void Logger::debug([[maybe_unused]] const char* message) {
 #ifndef NDEBUG
-        va_list arguments;
-        va_start(arguments, format);
-        const String message = StringUtils::formatStringV(format, arguments);
-        va_end(arguments);
-        debug(message);
+        debug(QString(message));
 #endif
     }
 
@@ -66,12 +58,8 @@ namespace TrenchBroom {
         return stream(this, LogLevel_Info);
     }
 
-    void Logger::info(const char* format, ...) {
-        va_list arguments;
-        va_start(arguments, format);
-        const String message = StringUtils::formatStringV(format, arguments);
-        va_end(arguments);
-        info(message);
+    void Logger::info(const char* message) {
+        info(QString(message));
     }
 
     void Logger::info(const String& message) {
@@ -86,12 +74,8 @@ namespace TrenchBroom {
         return stream(this, LogLevel_Warn);
     }
 
-    void Logger::warn(const char* format, ...) {
-        va_list arguments;
-        va_start(arguments, format);
-        const String message = StringUtils::formatStringV(format, arguments);
-        va_end(arguments);
-        warn(message);
+    void Logger::warn(const char* message) {
+        warn(QString(message));
     }
 
     void Logger::warn(const String& message) {
@@ -106,12 +90,8 @@ namespace TrenchBroom {
         return stream(this, LogLevel_Error);
     }
 
-    void Logger::error(const char* format, ...) {
-        va_list arguments;
-        va_start(arguments, format);
-        const String message = StringUtils::formatStringV(format, arguments);
-        va_end(arguments);
-        error(message);
+    void Logger::error(const char* message) {
+        error(QString(message));
     }
 
     void Logger::error(const String& message) {

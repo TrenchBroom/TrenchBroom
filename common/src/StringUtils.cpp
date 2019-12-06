@@ -24,33 +24,6 @@
 #include <cctype> // for std::tolower
 
 namespace StringUtils {
-    const String& choose(const bool predicate, const String& positive, const String& negative) {
-        return predicate ? positive : negative;
-    }
-
-    String formatString(const char* format, ...) {
-        va_list arguments;
-        va_start(arguments, format);
-        const String message = formatStringV(format, arguments);
-        va_end(arguments);
-        return message;
-    }
-
-    String formatStringV(const char* format, va_list arguments) {
-        static const int BUFFERSIZE = 8192;
-        static char buffer[BUFFERSIZE];
-
-        const int count =
-#if defined _MSC_VER
-        vsprintf_s(buffer, format, arguments);
-#else
-        vsprintf(buffer, format, arguments);
-#endif
-        if (count <= 0)
-            return EmptyString;
-        return String(buffer, static_cast<size_t>(count));
-    }
-
     String trim(const String& str, const String& chars) {
         if (str.length() == 0)
             return str;
@@ -217,76 +190,4 @@ namespace StringUtils {
         assert(longValue >= 0);
         return static_cast<size_t>(longValue);
     }
-
-    StringList splitAndUnescape(const String& str, const char d) {
-        StringStream escapedStr;
-        escapedStr << d << '\\';
-        const String escaped = escapedStr.str();
-
-        StringList result;
-        char l = 0;
-        char ll = 0;
-        size_t li = 0;
-        for (size_t i = 0; i < str.size(); ++i) {
-            const char c = str[i];
-
-            if (c == d && (l != '\\' || ll == '\\')) {
-                result.push_back(unescape(str.substr(li, i-li), escaped));
-                li = i+1;
-            }
-
-            ll = l;
-            l = c;
-        }
-
-        if (!str.empty() && li <= str.size())
-            result.push_back(unescape(str.substr(li), escaped));
-
-        return result;
-    }
-
-    String escapeAndJoin(const StringList& strs, const char d) {
-        StringStream escapedStr;
-        escapedStr << d << '\\';
-        const String escaped = escapedStr.str();
-
-        StringStream buffer;
-
-        for (size_t i = 0; i < strs.size(); ++i) {
-            const String& str = strs[i];
-            buffer << escape(str, escaped);
-            if (i < strs.size() - 1)
-                buffer << d;
-        }
-
-        return buffer.str();
-    }
-
-    StringList makeList(const size_t count, const char* str1, ...) {
-        StringList result;
-        result.reserve(count);
-        result.push_back(str1);
-
-        va_list strs;
-        va_start(strs, str1);
-        for (size_t i = 0; i < count - 1; ++i)
-            result.push_back(va_arg(strs, const char*));
-        va_end(strs);
-
-        return result;
-    }
-
-    StringSet makeSet(const size_t count, const char* str1, ...) {
-        StringSet result;
-        result.insert(str1);
-
-        va_list strs;
-        va_start(strs, str1);
-        for (size_t i = 0; i < count - 1; ++i)
-            result.insert(va_arg(strs, const char*));
-        va_end(strs);
-
-        return result;
-    }
-
 }

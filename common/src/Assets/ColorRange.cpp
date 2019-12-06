@@ -19,14 +19,14 @@
 
 #include "ColorRange.h"
 
-#include "StringUtils.h"
+#include <kdl/string_utils.h>
 
 namespace TrenchBroom {
     namespace Assets {
         ColorRange::Type detectColorRange(const StringList& components);
 
         ColorRange::Type detectColorRange(const String& str) {
-            return detectColorRange(StringUtils::splitAndTrim(str, " "));
+            return detectColorRange(kdl::str_split(str, " "));
         }
 
         ColorRange::Type detectColorRange(const StringList& components) {

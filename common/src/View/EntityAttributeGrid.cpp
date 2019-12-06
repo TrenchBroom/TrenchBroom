@@ -20,7 +20,6 @@
 #include "EntityAttributeGrid.h"
 
 #include "SharedPointer.h"
-#include "StringUtils.h"
 #include "Model/EntityAttributes.h"
 #include "View/BorderLine.h"
 #include "View/EntityAttributeItemDelegate.h"
@@ -29,6 +28,8 @@
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
+
+#include <kdl/string_format.h>
 
 #include <QHeaderView>
 #include <QTableView>
@@ -91,7 +92,7 @@ namespace TrenchBroom {
             auto document = lock(m_document);
 
             {
-                Transaction transaction(document, StringUtils::safePlural(numRows, "Remove Attribute", "Remove Attributes"));
+                Transaction transaction(document, kdl::str_plural(numRows, "Remove Attribute", "Remove Attributes"));
 
                 bool success = true;
                 for (const String& attribute : attributes) {

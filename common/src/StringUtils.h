@@ -37,18 +37,6 @@
 static const StringList EmptyStringList(0);
 
 namespace StringUtils {
-    const String& choose(bool predicate, const String& positive, const String& negative);
-
-    template <typename T>
-    const String& safePlural(const T count, const String& singular, const String& plural) {
-        return choose(count == 1, singular, plural);
-    }
-
-    template <typename T>
-    String safePlural(const String& prefix, const T count, const String& singular, const String& plural, const String& suffix = "") {
-        return prefix + safePlural(count, singular, plural) + suffix;
-    }
-
     template <typename T, typename P>
     String ftos(const T v, const P precision) {
         std::ostringstream strout;
@@ -63,27 +51,11 @@ namespace StringUtils {
         return str.erase(end + 1);
     }
 
-    // remove in favor of using variadic template
-    String formatString(const char* format, ...);
-
-    // remove in favor of using variadic template
-    String formatStringV(const char* format, va_list arguments);
-
-    String trim(const String& str, const String& chars = " \n\t\r");
-
     bool isNumber(const String& str);
 
     bool isBlank(const String& str);
 
-    long makeHash(const String& str); // unused
-    String toLower(const String& str);
-    String toUpper(const String& str);
-    String replaceChars(const String& str, const String& needles, const String& replacements); // unused
     String replaceAll(const String& str, const String& needle, const String& replacement);
-    String capitalize(const String& str);
-    String escape(const String& str, const String& chars, char esc = '\\');
-    String escapeIfNecessary(const String& str, const String& chars, char esc = '\\');
-    String unescape(const String& str, const String& chars, char esc = '\\');
 
     // use std::to_string?
     template <typename T>
@@ -97,122 +69,6 @@ namespace StringUtils {
     long stringToLong(const String& str); // only used in stringToSize
     double stringToDouble(const String& str); // unused
     size_t stringToSize(const String& str); // only used in Autosaver
-
-    template <typename D>
-    StringList split(const String& str, D d) {
-        if (str.empty())
-            return EmptyStringList;
-
-        const size_t first = str.find_first_not_of(d);
-        if (first == String::npos)
-            return EmptyStringList;
-        const size_t last = str.find_last_not_of(d);
-        assert(last != String::npos);
-        assert(first <= last);
-
-        StringList result;
-
-        size_t lastPos = first;
-        size_t pos = lastPos;
-        while ((pos = str.find_first_of(d, pos)) < last) {
-            result.push_back(str.substr(lastPos, pos - lastPos));
-            lastPos = ++pos;
-        }
-        if (lastPos <= last)
-            result.push_back(str.substr(lastPos, last - lastPos + 1));
-        return result;
-    }
-
-    template <typename D>
-    StringList splitAndTrim(const String& str, D d) {
-        if (str.empty())
-            return EmptyStringList;
-
-        const size_t first = str.find_first_not_of(d);
-        if (first == String::npos)
-            return EmptyStringList;
-        const size_t last = str.find_last_not_of(d);
-        assert(last != String::npos);
-        assert(first <= last);
-
-        StringList result;
-
-        size_t lastPos = first;
-        size_t pos = lastPos;
-        while ((pos = str.find_first_of(d, pos)) < last) {
-            const String item = trim(str.substr(lastPos, pos - lastPos));
-            if (!item.empty())
-                result.push_back(item);
-            lastPos = ++pos;
-        }
-        if (lastPos <= last) {
-            const String item = trim(str.substr(lastPos, last - lastPos + 1));
-            if (!item.empty())
-                result.push_back(item);
-        }
-        return result;
-    }
-
-    // should just be using a general identity mapping
-    struct StringToString {
-        const String& operator()(const String& str) const {
-            return str;
-        }
-    };
-
-    struct StringToSingleQuotedString {
-        const String operator()(const String& str) const {
-            return "'" + str + "'";
-        }
-    };
-
-    template <typename I, typename D1, typename D2, typename D3, typename S>
-    String join(I it, I end, const D1& delim, const D2& lastDelim, const D3& delimForTwo, const S& toString) {
-        if (it == end)
-            return "";
-
-        const String first = toString(*it++);
-        if (it == end)
-            return first;
-
-        StringStream result;
-        result << first;
-        const String second = toString(*it++);
-        if (it == end) {
-            result << delimForTwo << second;
-            return result.str();
-        }
-
-        result << delim << second;
-        I next = it;
-        ++next;
-        while (next != end) {
-            result << delim << toString(*it);
-            it = next;
-            ++next;
-        }
-        result << lastDelim << toString(*it);
-        return result.str();
-    }
-
-    template <typename C, typename D1, typename D2, typename D3, typename S = StringToString>
-    String join(const C& objs, const D1& delim, const D2& lastDelim, const D3& delimForTwo, const S& toString = S()) {
-        return join(std::begin(objs), std::end(objs), delim, lastDelim, delimForTwo, toString);
-    }
-
-    template <typename C, typename D = String, typename S = StringToString>
-    String join(const C& objs, const D& delim = D(", "), const S& toString = S()) {
-        return join(std::begin(objs), std::end(objs), delim, delim, delim, toString);
-    }
-
-    StringList splitAndUnescape(const String& str, char d);
-    String escapeAndJoin(const StringList& strs, char d);
-
-    // remove in favor of initialization list
-    StringList makeList(size_t count, const char* str1, ...);
-
-    // remove in favor of initialization list
-    StringSet makeSet(size_t count, const char* str1, ...);
 }
 
 #endif

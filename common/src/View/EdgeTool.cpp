@@ -21,6 +21,8 @@
 
 #include "TrenchBroom.h"
 
+#include <kdl/string_format.h>
+
 namespace TrenchBroom {
     namespace View {
         EdgeTool::EdgeTool(std::weak_ptr<MapDocument> document) :
@@ -55,14 +57,14 @@ namespace TrenchBroom {
         }
 
         String EdgeTool::actionName() const {
-            return StringUtils::safePlural(m_edgeHandles.selectedHandleCount(), "Move Edge", "Move Edges");
+            return kdl::str_plural(m_edgeHandles.selectedHandleCount(), "Move Edge", "Move Edges");
         }
 
         void EdgeTool::removeSelection() {
             const auto handles = m_edgeHandles.selectedHandles();
             const auto brushMap = buildBrushMap(m_edgeHandles, std::begin(handles), std::end(handles));
 
-            Transaction transaction(m_document, StringUtils::safePlural(handleManager().selectedHandleCount(), "Remove Edge", "Remove Edges"));
+            Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Remove Edge", "Remove Edges"));
             lock(m_document)->removeEdges(brushMap);
         }
     }

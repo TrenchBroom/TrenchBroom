@@ -54,22 +54,22 @@ namespace TrenchBroom {
         virtual ~Logger();
 
         stream debug();
-        void debug(const char* format, ...);
+        void debug(const char* message);
         void debug(const String& message);
         void debug(const QString& message);
 
         stream info();
-        void info(const char* format, ...);
+        void info(const char* message);
         void info(const String& message);
         void info(const QString& message);
 
         stream warn();
-        void warn(const char* format, ...);
+        void warn(const char* message);
         void warn(const String& message);
         void warn(const QString& message);
 
         stream error();
-        void error(const char* format, ...);
+        void error(const char* message);
         void error(const String& message);
         void error(const QString& message);
 

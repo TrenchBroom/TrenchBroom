@@ -23,6 +23,8 @@
 #include "IO/Reader.h"
 #include "IO/DiskFileSystem.h"
 
+#include <kdl/string_format.h>
+
 #include <memory>
 
 namespace TrenchBroom {
@@ -61,7 +63,7 @@ namespace TrenchBroom {
                 const auto entryAddress = reader.readSize<int32_t>();
                 const auto entrySize = reader.readSize<int32_t>();
 
-                const auto entryPath = Path(StringUtils::toLower(entryName));
+                const auto entryPath = Path(kdl::str_to_lower(entryName));
                 auto entryFile = std::make_shared<FileView>(entryPath, m_file, entryAddress, entrySize);
                 m_root.addFile(entryPath, entryFile);
             }

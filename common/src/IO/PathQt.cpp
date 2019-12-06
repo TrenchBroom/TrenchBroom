@@ -21,10 +21,10 @@
 
 namespace TrenchBroom {
     namespace IO {
-        QString pathAsQString(const IO::Path& path, const char separator) {
+        QString pathAsQString(const IO::Path& path, const String& separator) {
             return QString::fromStdString(path.asString(separator));
         }
-        
+
         Path pathFromQString(const QString& path) {
             return Path(path.toStdString());
         }

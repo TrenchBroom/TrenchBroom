@@ -20,7 +20,8 @@
 #include "ActionContext.h"
 
 #include "StringList.h"
-#include "StringUtils.h"
+
+#include <kdl/string_utils.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -71,7 +72,7 @@ namespace TrenchBroom {
                 actionContexts.push_back("2D View");
             }
 
-            return StringUtils::join(actionContexts, ", ");
+            return kdl::str_join(actionContexts, ", ");
         }
     }
 }

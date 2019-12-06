@@ -29,6 +29,8 @@
 #include "IO/WalTextureReader.h"
 #include "StringUtils.h"
 
+#include <kdl/string_format.h>
+
 namespace TrenchBroom {
     namespace IO {
         Assets::Texture* loadSkin(std::shared_ptr<File> file) {
@@ -40,7 +42,7 @@ namespace TrenchBroom {
                 ensure(file.get() != nullptr, "file is null");
 
                 const Path path = file->path();
-                const String extension = StringUtils::toLower(path.extension());
+                const String extension = kdl::str_to_lower(path.extension());
 
                 if (extension == "wal") {
                     WalTextureReader reader(TextureReader::PathSuffixNameStrategy(1, true), palette);

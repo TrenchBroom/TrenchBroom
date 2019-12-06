@@ -541,7 +541,7 @@ namespace TrenchBroom {
     QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QString>& v2Prefs) {
         QJsonObject rootObject;
         for (auto [key, val] : v2Prefs) {
-            rootObject[IO::pathAsQString(key, '/')] = val;
+            rootObject[IO::pathAsQString(key, "/")] = val;
         }
 
         QJsonDocument document(rootObject);

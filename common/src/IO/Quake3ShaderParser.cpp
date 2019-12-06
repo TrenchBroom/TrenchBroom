@@ -22,6 +22,7 @@
 #include "Assets/Quake3Shader.h"
 
 #include <kdl/string_compare.h>
+#include <kdl/string_format.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -203,8 +204,8 @@ namespace TrenchBroom {
                     token = m_tokenizer.nextToken();
                     const auto param2 = token.data();
                     const auto param2Column = token.column();
-                    stage.blendFunc.srcFactor = StringUtils::toUpper(param1);
-                    stage.blendFunc.destFactor = StringUtils::toUpper(param2);
+                    stage.blendFunc.srcFactor = kdl::str_to_upper(param1);
+                    stage.blendFunc.destFactor = kdl::str_to_upper(param2);
 
                     bool valid = true;
                     if (!stage.blendFunc.validateSrcFactor()) {

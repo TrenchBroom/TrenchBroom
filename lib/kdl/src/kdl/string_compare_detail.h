@@ -21,7 +21,7 @@
 #include <algorithm> // for std::mismatch, std::sort, std::search, std::equal
 #include <string_view>
 
-#include <kdl/collection_utils.h>
+#include "collection_utils.h"
 
 namespace kdl {
     /**
@@ -114,7 +114,7 @@ namespace kdl {
      */
     template <typename CharCompare>
     int compare(const std::string_view& s1, const std::string_view& s2, const CharCompare& char_compare) {
-        return kdl::lexicographical_compare(s1, s2, char_compare);
+        return kdl::col_lexicographical_compare(s1, s2, char_compare);
     }
 
     /**

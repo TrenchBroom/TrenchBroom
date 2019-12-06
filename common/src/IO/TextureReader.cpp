@@ -61,7 +61,7 @@ namespace TrenchBroom {
             Path result = path.suffix(std::min(m_suffixLength, path.length()));
             if (m_deleteExtension)
                 result = result.deleteExtension();
-            return result.asString('/');
+            return result.asString("/");
         }
 
         TextureReader::StaticNameStrategy::StaticNameStrategy(const String& name) :

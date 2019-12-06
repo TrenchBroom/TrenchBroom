@@ -7,16 +7,19 @@ if (POLICY CMP0092)
     cmake_policy(SET CMP0092 NEW)
 endif()
 
-set(KDL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
-set(KDL_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(KDL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(KDL_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/kdl)
 
 set(KDL_SOURCE
-        "${KDL_SOURCE_DIR}/string_compare.cpp")
+        "${KDL_SOURCE_DIR}/string_compare.cpp"
+        "${KDL_SOURCE_DIR}/string_format.cpp"
+        "${KDL_SOURCE_DIR}/string_utils.cpp")
 
 add_library(kdl STATIC ${KDL_SOURCE})
 target_compile_features(kdl PUBLIC cxx_std_17)
 target_include_directories(kdl
-        PUBLIC ${KDL_INCLUDE_DIR})
+        PUBLIC  ${KDL_INCLUDE_DIR}
+        PRIVATE ${KDL_INCLUDE_DIR}/kdl)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     target_compile_options(kdl PUBLIC -Wall -Wextra -pedantic -Wno-c++98-compat -Wno-padded)
