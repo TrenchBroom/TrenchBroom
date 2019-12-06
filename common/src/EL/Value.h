@@ -21,7 +21,6 @@
 #define Value_h
 
 #include "StringType.h"
-#include "StringList.h"
 #include "EL/Types.h"
 
 // FIXME: try to remove some of these headers
@@ -296,8 +295,8 @@ namespace TrenchBroom {
             bool null() const;
             bool undefined() const;
 
-            const StringList asStringList() const;
-            const StringList asStringSet() const;
+            const std::vector<std::string> asStringList() const;
+            const std::vector<std::string> asStringSet() const;
 
             size_t length() const;
             bool convertibleTo(ValueType toType) const;
@@ -310,7 +309,7 @@ namespace TrenchBroom {
             bool contains(const Value& indexValue) const;
             bool contains(size_t index) const;
             bool contains(const String& key) const;
-            StringList keys() const;
+            std::vector<std::string> keys() const;
 
             Value operator[](const Value& indexValue) const;
             Value operator[](size_t index) const;

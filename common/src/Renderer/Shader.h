@@ -24,6 +24,9 @@
 #include "Renderer/GL.h"
 #include "IO/Path.h"
 
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Renderer {
         class Shader {
@@ -38,7 +41,7 @@ namespace TrenchBroom {
             void attach(const GLuint programId);
             void detach(const GLuint programId);
         private:
-            static StringList loadSource(const IO::Path& path);
+            static std::vector<std::string> loadSource(const IO::Path& path);
         };
     }
 }

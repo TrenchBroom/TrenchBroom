@@ -30,6 +30,8 @@
 
 #include <map>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -76,7 +78,7 @@ namespace TrenchBroom {
             void addAttributeDefinitions(const std::map<String, std::shared_ptr<Assets::AttributeDefinition>>& attributeDefinitions);
             void setModelDefinition(const Assets::ModelDefinition& modelDefinition);
 
-            void resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const StringList& classnames);
+            void resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const std::vector<std::string>& classnames);
         private:
             static void mergeProperties(Assets::AttributeDefinition* classAttribute, const Assets::AttributeDefinition* baseclassAttribute);
         };

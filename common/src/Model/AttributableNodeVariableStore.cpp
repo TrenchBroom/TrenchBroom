@@ -25,6 +25,9 @@
 
 #include <kdl/string_utils.h>
 
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         AttributableNodeVariableStore::AttributableNodeVariableStore(AttributableNode* node) :
@@ -48,7 +51,7 @@ namespace TrenchBroom {
             }
         }
 
-        StringList AttributableNodeVariableStore::doGetNames() const {
+        std::vector<std::string> AttributableNodeVariableStore::doGetNames() const {
             return m_node->attributeNames();
         }
 

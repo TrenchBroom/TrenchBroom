@@ -24,6 +24,8 @@
 #include <kdl/string_format.h>
 
 #include <cassert>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -41,7 +43,7 @@ namespace TrenchBroom {
         extensions(1, i_extension),
         format(i_format) {}
 
-        GameConfig::PackageFormatConfig::PackageFormatConfig(const StringList& i_extensions, const String& i_format) :
+        GameConfig::PackageFormatConfig::PackageFormatConfig(const std::vector<std::string>& i_extensions, const String& i_format) :
         extensions(i_extensions),
         format(i_format) {}
 
@@ -96,13 +98,13 @@ namespace TrenchBroom {
                     shaderSearchPath == other.shaderSearchPath);
         }
 
-        GameConfig::EntityConfig::EntityConfig(const IO::Path& i_defFilePath, const StringList& i_modelFormats, const Color& i_defaultColor) :
+        GameConfig::EntityConfig::EntityConfig(const IO::Path& i_defFilePath, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor) :
         modelFormats(i_modelFormats),
         defaultColor(i_defaultColor) {
             defFilePaths.push_back(i_defFilePath);
         }
 
-        GameConfig::EntityConfig::EntityConfig(const IO::Path::List& i_defFilePaths, const StringList& i_modelFormats, const Color& i_defaultColor) :
+        GameConfig::EntityConfig::EntityConfig(const IO::Path::List& i_defFilePaths, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor) :
         defFilePaths(i_defFilePaths),
         modelFormats(i_modelFormats),
         defaultColor(i_defaultColor) {}
@@ -145,12 +147,12 @@ namespace TrenchBroom {
             return flags[index].name;
         }
 
-        StringList GameConfig::FlagsConfig::flagNames(const int mask) const {
+        std::vector<std::string> GameConfig::FlagsConfig::flagNames(const int mask) const {
             if (mask == 0) {
                 return {};
             }
 
-            StringList names;
+            std::vector<std::string> names;
             for (size_t i = 0; i < flags.size(); ++i) {
                 if (mask & (1 << i)) {
                     names.push_back(flags[i].name);

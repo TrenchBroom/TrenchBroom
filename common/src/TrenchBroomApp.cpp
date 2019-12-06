@@ -54,6 +54,8 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #include <QCommandLineParser>
 #include <QDesktopServices>
@@ -287,7 +289,7 @@ namespace TrenchBroom {
             } catch (const std::exception& e) {
                 qCritical() << e.what();
                 return false;
-            } catch (const StringList& errors) {
+            } catch (const std::vector<std::string>& errors) {
                 std::stringstream str;
                 if (errors.size() == 1) {
                     str << "An error occurred while loading the game configuration files:\n\n";

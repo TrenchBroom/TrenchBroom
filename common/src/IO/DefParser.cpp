@@ -31,6 +31,8 @@
 #include <kdl/vector_utils.h>
 
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -216,7 +218,7 @@ namespace TrenchBroom {
 
             expect(status, DefToken::Newline, token = m_tokenizer.nextToken());
 
-            StringList superClasses;
+            std::vector<std::string> superClasses;
             parseAttributes(status, classInfo, superClasses);
 
             classInfo.setDescription(kdl::str_trim(parseDescription()));
@@ -255,7 +257,7 @@ namespace TrenchBroom {
             return DefParser::AttributeDefinitionPtr(definition);
         }
 
-        void DefParser::parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses) {
+        void DefParser::parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo, std::vector<std::string>& superClasses) {
             Token token = m_tokenizer.peekToken();
             if (token.type() == DefToken::OBrace) {
                 token = m_tokenizer.nextToken();
@@ -263,7 +265,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool DefParser::parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses) {
+        bool DefParser::parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo, std::vector<std::string>& superClasses) {
             Token token;
             expect(status, DefToken::Word | DefToken::CBrace, token = nextTokenIgnoringNewlines());
             if (token.type() != DefToken::Word)

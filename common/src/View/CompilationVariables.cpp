@@ -45,7 +45,7 @@ namespace TrenchBroom {
             const IO::Path filename = document->path().lastComponent();
             const IO::Path gamePath = document->game()->gamePath();
 
-            StringList mods;
+            std::vector<std::string> mods;
             mods.push_back(document->defaultMod());
             kdl::vec_append(mods, document->mods());
 

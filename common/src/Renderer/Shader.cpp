@@ -24,6 +24,8 @@
 #include <cassert>
 #include <fstream>
 #include <sstream>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -37,7 +39,7 @@ namespace TrenchBroom {
             if (m_shaderId == 0)
                 throw RenderException("Could not create shader " + m_name);
 
-            const StringList source = loadSource(path);
+            const std::vector<std::string> source = loadSource(path);
             const char** linePtrs = new const char*[source.size()];
             for (size_t i = 0; i < source.size(); i++)
                 linePtrs[i] = source[i].c_str();
@@ -85,14 +87,14 @@ namespace TrenchBroom {
             glAssert(glDetachShader(programId, m_shaderId));
         }
 
-        StringList Shader::loadSource(const IO::Path& path) {
+        std::vector<std::string> Shader::loadSource(const IO::Path& path) {
             std::fstream stream(path.asString().c_str(), std::ios::in);
             if (!stream.is_open()) {
                 throw RenderException("Could not load shader source from " + path.asString());
             }
 
             String line;
-            StringList lines;
+            std::vector<std::string> lines;
 
             while (!stream.eof()) {
                 std::getline(stream, line);

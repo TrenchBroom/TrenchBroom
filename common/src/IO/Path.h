@@ -21,9 +21,9 @@
 #define TrenchBroom_Path
 
 #include "StringType.h"
-#include "StringList.h"
 
 #include <iosfwd>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -58,10 +58,10 @@ namespace TrenchBroom {
         private:
             static const String& separators();
 
-            StringList m_components;
+            std::vector<std::string> m_components;
             bool m_absolute;
 
-            Path(bool absolute, const StringList& components);
+            Path(bool absolute, const std::vector<std::string>& components);
         public:
             explicit Path(const String& path = "");
 
@@ -73,8 +73,8 @@ namespace TrenchBroom {
             bool operator>(const Path& rhs) const;
 
             String asString(const String& sep = separator()) const;
-            static StringList asStrings(const Path::List& paths, const String& sep = separator());
-            static List asPaths(const StringList& strs);
+            static std::vector<std::string> asStrings(const Path::List& paths, const String& sep = separator());
+            static List asPaths(const std::vector<std::string>& strs);
 
             size_t length() const;
             bool isEmpty() const;
@@ -85,7 +85,7 @@ namespace TrenchBroom {
             Path prefix(size_t count) const;
             Path suffix(size_t count) const;
             Path subPath(size_t index, size_t count) const;
-            const StringList& components() const;
+            const std::vector<std::string>& components() const;
 
             String filename() const;
             String basename() const;
@@ -93,11 +93,11 @@ namespace TrenchBroom {
 
             bool hasPrefix(const Path& prefix, bool caseSensitive) const;
             bool hasFilename(const String& filename, bool caseSensitive) const;
-            bool hasFilename(const StringList& filenames, bool caseSensitive) const;
+            bool hasFilename(const std::vector<std::string>& filenames, bool caseSensitive) const;
             bool hasBasename(const String& basename, bool caseSensitive) const;
-            bool hasBasename(const StringList& basenames, bool caseSensitive) const;
+            bool hasBasename(const std::vector<std::string>& basenames, bool caseSensitive) const;
             bool hasExtension(const String& extension, bool caseSensitive) const;
-            bool hasExtension(const StringList& extensions, bool caseSensitive) const;
+            bool hasExtension(const std::vector<std::string>& extensions, bool caseSensitive) const;
 
             Path deleteExtension() const;
             Path addExtension(const String& extension) const;
@@ -114,9 +114,9 @@ namespace TrenchBroom {
 
             static List makeAbsoluteAndCanonical(const List& paths, const Path& relativePath);
         private:
-            static bool hasDriveSpec(const StringList& components);
+            static bool hasDriveSpec(const std::vector<std::string>& components);
             static bool hasDriveSpec(const String& component);
-            StringList resolvePath(bool absolute, const StringList& components) const;
+            std::vector<std::string> resolvePath(bool absolute, const std::vector<std::string>& components) const;
         };
 
         std::ostream& operator<<(std::ostream& stream, const Path& path);

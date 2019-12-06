@@ -32,6 +32,7 @@
 
 #include <cassert>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -74,12 +75,12 @@ namespace TrenchBroom {
                  // If nothing is selected, attribute changes will affect only world.
                 facade->deselectAll();
 
-                const StringList oldMods = facade->mods();
-                const StringList newMods = removeMissingMods(oldMods, issues);
+                const std::vector<std::string> oldMods = facade->mods();
+                const std::vector<std::string> newMods = removeMissingMods(oldMods, issues);
                 facade->setMods(newMods);
             }
 
-            StringList removeMissingMods(StringList mods, const IssueList& issues) const {
+            std::vector<std::string> removeMissingMods(std::vector<std::string> mods, const IssueList& issues) const {
                 for (const Issue* issue : issues) {
                     if (issue->type() == MissingModIssue::Type) {
                         const MissingModIssue* modIssue = static_cast<const MissingModIssue*>(issue);
@@ -109,7 +110,7 @@ namespace TrenchBroom {
             }
 
             auto game = lock(m_game);
-            const StringList mods = game->extractEnabledMods(*node);
+            const std::vector<std::string> mods = game->extractEnabledMods(*node);
 
             if (mods == m_lastMods) {
                 return;

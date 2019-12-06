@@ -926,7 +926,7 @@ namespace TrenchBroom {
             setTextures();
         }
 
-        void MapDocumentCommandFacade::performSetMods(const StringList& mods) {
+        void MapDocumentCommandFacade::performSetMods(const std::vector<std::string>& mods) {
             const std::vector<Model::Node*> nodes(1, m_world.get());
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier<>::NotifyAfter notifyMods(modsDidChangeNotifier);

@@ -24,7 +24,6 @@
 
 #include "Color.h"
 #include "StringType.h"
-#include "StringList.h"
 
 #include "View/ViewConstants.h"
 

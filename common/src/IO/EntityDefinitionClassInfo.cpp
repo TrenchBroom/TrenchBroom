@@ -24,6 +24,9 @@
 
 #include <kdl/map_utils.h>
 
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
     namespace IO {
         EntityDefinitionClassInfo::EntityDefinitionClassInfo() :
@@ -130,7 +133,7 @@ namespace TrenchBroom {
             m_hasModelDefinition = true;
         }
 
-        void EntityDefinitionClassInfo::resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const StringList& classnames) {
+        void EntityDefinitionClassInfo::resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const std::vector<std::string>& classnames) {
             for (auto classnameIt = classnames.rbegin(), classnameEnd = classnames.rend(); classnameIt != classnameEnd; ++classnameIt) {
                 const String& classname = *classnameIt;
                 const auto baseClassIt = baseClasses.find(classname);

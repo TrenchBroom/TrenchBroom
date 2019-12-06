@@ -48,7 +48,7 @@ namespace TrenchBroom {
             return sep;
         }
 
-        Path::Path(bool absolute, const StringList& components) :
+        Path::Path(bool absolute, const std::vector<std::string>& components) :
         m_components(components),
         m_absolute(absolute) {}
 
@@ -137,8 +137,8 @@ namespace TrenchBroom {
 
 
 
-        StringList Path::asStrings(const Path::List& paths, const String& separator) {
-            auto result = StringList();
+        std::vector<std::string> Path::asStrings(const Path::List& paths, const String& separator) {
+            auto result = std::vector<std::string>();
             result.reserve(paths.size());
             for (const auto& path : paths) {
                 result.push_back(path.asString(separator));
@@ -146,7 +146,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        Path::List Path::asPaths(const StringList& strs) {
+        Path::List Path::asPaths(const std::vector<std::string>& strs) {
             auto result = Path::List();
             result.reserve(strs.size());
             for (const auto& str : strs) {
@@ -188,14 +188,14 @@ namespace TrenchBroom {
                 throw PathException("Cannot delete first component of empty path");
             }
             if (!m_absolute) {
-                auto components = StringList();
+                auto components = std::vector<std::string>();
                 components.reserve(m_components.size() - 1);
                 components.insert(std::begin(components), std::begin(m_components) + 1, std::end(m_components));
                 return Path(false, components);
             }
 #ifdef _WIN32
             if (!m_components.empty() && hasDriveSpec(m_components[0])) {
-                StringList components;
+                std::vector<std::string> components;
                 components.reserve(m_components.size() - 1);
                 components.insert(std::begin(components), std::begin(m_components) + 1, std::end(m_components));
                 return Path(false, components);
@@ -222,7 +222,7 @@ namespace TrenchBroom {
             }
 
             if (!m_components.empty()) {
-                auto components = StringList();
+                auto components = std::vector<std::string>();
                 components.reserve(m_components.size() - 1);
                 components.insert(std::begin(components), std::begin(m_components), std::end(m_components) - 1);
                 return Path(m_absolute, components);
@@ -248,7 +248,7 @@ namespace TrenchBroom {
                 return Path("");
             }
 
-            auto newComponents = StringList();
+            auto newComponents = std::vector<std::string>();
             newComponents.reserve(count);
             for (size_t i = 0u; i < count; ++i) {
                 newComponents.push_back(m_components[index + i]);
@@ -256,7 +256,7 @@ namespace TrenchBroom {
             return Path(m_absolute && index == 0, newComponents);
         }
 
-        const StringList& Path::components() const {
+        const std::vector<std::string>& Path::components() const {
             return m_components;
         }
 
@@ -316,7 +316,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool Path::hasFilename(const StringList& filenames, const bool caseSensitive) const {
+        bool Path::hasFilename(const std::vector<std::string>& filenames, const bool caseSensitive) const {
             for (const auto& filename : filenames) {
                 if (hasFilename(filename, caseSensitive)) {
                     return true;
@@ -333,7 +333,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool Path::hasBasename(const StringList& basenames, const bool caseSensitive) const {
+        bool Path::hasBasename(const std::vector<std::string>& basenames, const bool caseSensitive) const {
             for (const auto& basename : basenames) {
                 if (hasBasename(basename, caseSensitive)) {
                     return true;
@@ -350,7 +350,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool Path::hasExtension(const StringList& extensions, const bool caseSensitive) const {
+        bool Path::hasExtension(const std::vector<std::string>& extensions, const bool caseSensitive) const {
             for (const auto& extension : extensions) {
                 if (hasExtension(extension, caseSensitive)) {
                     return true;
@@ -462,7 +462,7 @@ namespace TrenchBroom {
                 ++p;
             }
 
-            auto components = StringList();
+            auto components = std::vector<std::string>();
             for (size_t i = p; i < myResolved.size(); ++i) {
                 components.push_back("..");
             }
@@ -478,7 +478,7 @@ namespace TrenchBroom {
         }
 
         Path Path::makeLowerCase() const {
-            auto lcComponents = StringList();
+            auto lcComponents = std::vector<std::string>();
             lcComponents.reserve(m_components.size());
             for (const auto& component : m_components) {
                 lcComponents.push_back(kdl::str_to_lower(component));
@@ -496,7 +496,7 @@ namespace TrenchBroom {
         }
 
 #ifdef _WIN32
-        bool Path::hasDriveSpec(const StringList& components) {
+        bool Path::hasDriveSpec(const std::vector<std::string>& components) {
             if (components.empty()) {
                 return false;
             } else {
@@ -504,7 +504,7 @@ namespace TrenchBroom {
             }
         }
 #else
-        bool Path::hasDriveSpec(const StringList& /* components */) {
+        bool Path::hasDriveSpec(const std::vector<std::string>& /* components */) {
             return false;
         }
 #endif
@@ -523,8 +523,8 @@ namespace TrenchBroom {
         }
 #endif
 
-        StringList Path::resolvePath(const bool absolute, const StringList& components) const {
-            auto resolved = StringList();
+        std::vector<std::string> Path::resolvePath(const bool absolute, const std::vector<std::string>& components) const {
+            auto resolved = std::vector<std::string>();
             for (const auto& comp : components) {
                 if (comp == ".") {
                     continue;

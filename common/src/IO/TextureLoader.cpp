@@ -32,6 +32,9 @@
 #include "IO/Path.h"
 #include "Model/GameConfig.h"
 
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
     namespace IO {
         TextureLoader::TextureLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger& logger) :
@@ -42,7 +45,7 @@ namespace TrenchBroom {
             ensure(m_textureCollectionLoader != nullptr, "textureCollectionLoader is null");
         }
 
-        StringList TextureLoader::getTextureExtensions(const Model::GameConfig::TextureConfig& textureConfig) {
+       std::vector<std::string> TextureLoader::getTextureExtensions(const Model::GameConfig::TextureConfig& textureConfig) {
             return textureConfig.format.extensions;
         }
 

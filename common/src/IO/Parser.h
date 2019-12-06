@@ -21,7 +21,6 @@
 #define TrenchBroom_Parser
 
 #include "Exceptions.h"
-#include "StringList.h"
 #include "StringType.h"
 #include "IO/ParserStatus.h"
 #include "IO/Token.h"
@@ -29,6 +28,8 @@
 #include <kdl/string_utils.h>
 
 #include <map>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -71,7 +72,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void expect(const StringList& expected, const Token& token) const {
+            void expect(const std::vector<std::string>& expected, const Token& token) const {
                 for (const auto& str : expected) {
                     if (token.data() == str) {
                         return;
@@ -81,14 +82,14 @@ namespace TrenchBroom {
             }
        private:
             String expectString(const String& expected, const Token& token) const {
-                return "Expected " + expected + ", but got " + tokenName(token.type()) + (!token.data().empty() + " (raw data: '" + token.data() + "')");
+                return "Expected " + expected + ", but got " + tokenName(token.type()) + (!token.data().empty() ? " (raw data: '" + token.data() + "')" : "");
             }
         protected:
             String tokenName(const TokenType typeMask) const {
                 if (m_tokenNames.empty())
                     m_tokenNames = tokenNames();
 
-                StringList names;
+                std::vector<std::string> names;
                 for (const auto& entry : m_tokenNames) {
                     const TokenType type = entry.first;
                     const String& name = entry.second;

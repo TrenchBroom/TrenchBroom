@@ -46,7 +46,7 @@ namespace TrenchBroom {
             }
         }
 
-        StringList EntityAttributesVariableStore::doGetNames() const {
+        std::vector<std::string> EntityAttributesVariableStore::doGetNames() const {
             return m_attributes.names();
         }
 

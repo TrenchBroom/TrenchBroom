@@ -24,10 +24,11 @@
 #include "Assets/EntityModel.h"
 #include "IO/EntityModelParser.h"
 
-#include <vector>
-
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -53,7 +54,7 @@ namespace TrenchBroom {
         private:
             static const vm::vec3f Normals[162];
 
-            using DkmSkinList = StringList;
+            using DkmSkinList = std::vector<std::string>;
 
             struct DkmVertex {
                 unsigned int x, y, z;

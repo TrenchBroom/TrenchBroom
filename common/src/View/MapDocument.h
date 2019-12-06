@@ -44,6 +44,7 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <string>
 #include <vector>
 
 class Color;
@@ -483,8 +484,8 @@ namespace TrenchBroom {
             IO::Path::List externalSearchPaths() const;
             void updateGameSearchPaths();
         public:
-            StringList mods() const override;
-            void setMods(const StringList& mods) override;
+            std::vector<std::string> mods() const override;
+            void setMods(const std::vector<std::string>& mods) override;
             String defaultMod() const;
         private: // issue management
             void registerIssueGenerators();

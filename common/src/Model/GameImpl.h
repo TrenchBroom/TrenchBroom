@@ -28,6 +28,7 @@
 #include "Model/Model_Forward.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -90,8 +91,8 @@ namespace TrenchBroom {
 
             Assets::Palette loadTexturePalette() const;
 
-            StringList doAvailableMods() const override;
-            StringList doExtractEnabledMods(const AttributableNode& node) const override;
+            std::vector<std::string> doAvailableMods() const override;
+            std::vector<std::string> doExtractEnabledMods(const AttributableNode& node) const override;
             String doDefaultMod() const override;
 
             const GameConfig::FlagsConfig& doSurfaceFlags() const override;

@@ -99,7 +99,7 @@ namespace TrenchBroom {
         protected:
             using GetFlags = std::function<int(const BrushFace&)>;
             using SetFlags = std::function<void(ChangeBrushFaceAttributesRequest&, int)>;
-            using GetFlagNames = std::function<StringList(const Game& game, int)>;
+            using GetFlagNames = std::function<std::vector<std::string>(const Game& game, int)>;
         protected:
             int m_flags;
             GetFlags m_getFlags;

@@ -24,6 +24,9 @@
 
 #include <kdl/string_compare.h>
 
+#include <string>
+#include <vector>
+
 #include <QFileInfo>
 
 namespace TrenchBroom {
@@ -45,7 +48,7 @@ namespace TrenchBroom {
         FileExtensionMatcher::FileExtensionMatcher(const String& extension) :
         m_extensions(1, extension) {}
 
-        FileExtensionMatcher::FileExtensionMatcher(const StringList& extensions) :
+        FileExtensionMatcher::FileExtensionMatcher(const std::vector<std::string>& extensions) :
         m_extensions(extensions) {}
 
         bool FileExtensionMatcher::operator()(const Path& path, const bool directory) const {
@@ -56,7 +59,7 @@ namespace TrenchBroom {
         FileExtensionMatcher(extension),
         m_basename(basename) {}
 
-        FileBasenameMatcher::FileBasenameMatcher(const String& basename, const StringList& extensions) :
+        FileBasenameMatcher::FileBasenameMatcher(const String& basename, const std::vector<std::string>& extensions) :
         FileExtensionMatcher(extensions),
         m_basename(basename) {}
 

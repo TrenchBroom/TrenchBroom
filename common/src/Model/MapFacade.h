@@ -24,7 +24,6 @@
 #include "Assets/Asset_Forward.h"
 #include "Model/EntityColor.h"
 #include "Model/Model_Forward.h"
-#include "StringList.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/util.h>
@@ -32,6 +31,7 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -148,8 +148,8 @@ namespace TrenchBroom {
             virtual bool moveEdges(const std::map<vm::segment3, std::set<Brush*>>& edges, const vm::vec3& delta) = 0;
             virtual bool moveFaces(const std::map<vm::polygon3, std::set<Brush*>>& faces, const vm::vec3& delta) = 0;
         public: // search paths and mods
-            virtual StringList mods() const = 0;
-            virtual void setMods(const StringList& mods) = 0;
+            virtual std::vector<std::string> mods() const = 0;
+            virtual void setMods(const std::vector<std::string>& mods) = 0;
         };
     }
 }

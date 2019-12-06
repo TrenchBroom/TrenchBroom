@@ -21,9 +21,10 @@
 #define TrenchBroom_ModEditor
 
 #include "StringType.h"
-#include "StringList.h"
 
 #include <memory>
+#include <string>
+#include <vector>
 
 #include <QWidget>
 
@@ -57,7 +58,7 @@ namespace TrenchBroom {
             QAbstractButton* m_moveModUpButton;
             QAbstractButton* m_moveModDownButton;
 
-            StringList m_availableMods;
+            std::vector<std::string> m_availableMods;
         public:
             explicit ModEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~ModEditor() override;

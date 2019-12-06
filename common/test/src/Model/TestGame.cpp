@@ -172,11 +172,11 @@ namespace TrenchBroom {
             return IO::Path();
         }
 
-        StringList TestGame::doAvailableMods() const {
+        std::vector<std::string> TestGame::doAvailableMods() const {
             return {};
         }
 
-        StringList TestGame::doExtractEnabledMods(const AttributableNode& /* node */) const {
+        std::vector<std::string> TestGame::doExtractEnabledMods(const AttributableNode& /* node */) const {
             return {};
         }
 

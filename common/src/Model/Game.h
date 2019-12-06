@@ -30,6 +30,7 @@
 #include "Model/Model_Forward.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -89,8 +90,8 @@ namespace TrenchBroom {
             Assets::EntityDefinitionFileSpec extractEntityDefinitionFile(const AttributableNode& node) const;
             IO::Path findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
         public: // mods
-            StringList availableMods() const;
-            StringList extractEnabledMods(const AttributableNode& node) const;
+            std::vector<std::string> availableMods() const;
+            std::vector<std::string> extractEnabledMods(const AttributableNode& node) const;
             String defaultMod() const;
         public: // flag configs for faces
             const GameConfig::FlagsConfig& surfaceFlags() const;
@@ -130,8 +131,8 @@ namespace TrenchBroom {
             virtual Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const = 0;
             virtual IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const = 0;
 
-            virtual StringList doAvailableMods() const = 0;
-            virtual StringList doExtractEnabledMods(const AttributableNode& node) const = 0;
+            virtual std::vector<std::string> doAvailableMods() const = 0;
+            virtual std::vector<std::string> doExtractEnabledMods(const AttributableNode& node) const = 0;
             virtual String doDefaultMod() const = 0;
 
             virtual const GameConfig::FlagsConfig& doSurfaceFlags() const = 0;

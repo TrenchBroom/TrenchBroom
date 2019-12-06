@@ -28,6 +28,7 @@
 
 #include <vecmath/vec.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -52,7 +53,7 @@ namespace TrenchBroom {
         private:
             static const vm::vec3f Normals[162];
 
-            using Md2SkinList = StringList;
+            using Md2SkinList = std::vector<std::string>;
 
             struct Md2Vertex {
                 unsigned char x, y, z;

@@ -39,6 +39,7 @@
 
 #include <iterator>
 #include <optional-lite/optional.hpp>
+#include <string>
 #include <vector>
 
 #include <QDebug>
@@ -383,7 +384,7 @@ namespace TrenchBroom {
         QStringList EntityAttributeModel::getCompletions(const QModelIndex& index) const {
             const auto name = attributeName(index.row());
 
-            StringList result;
+            std::vector<std::string> result;
             if (index.column() == 0) {
                 result = getAllAttributeNames();
             } else if (index.column() == 1) {
@@ -416,7 +417,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        StringList EntityAttributeModel::getAllAttributeNames() const {
+        std::vector<std::string> EntityAttributeModel::getAllAttributeNames() const {
             auto document = lock(m_document);
             const auto& index = document->world()->attributableNodeIndex();
             auto result = kdl::vector_set<String>(index.allNames());
@@ -433,11 +434,11 @@ namespace TrenchBroom {
             return result.release_data();
         }
 
-        StringList EntityAttributeModel::getAllValuesForAttributeNames(const StringList& names) const {
+        std::vector<std::string> EntityAttributeModel::getAllValuesForAttributeNames(const std::vector<std::string>& names) const {
             auto document = lock(m_document);
             const auto& index = document->world()->attributableNodeIndex();
 
-            auto result = StringList();
+            auto result = std::vector<std::string>();
             auto resultSet = kdl::wrap_set(result);
 
             for (const auto& name : names) {
@@ -452,7 +453,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        StringList EntityAttributeModel::getAllClassnames() const {
+        std::vector<std::string> EntityAttributeModel::getAllClassnames() const {
             auto document = lock(m_document);
 
             // start with currently used classnames

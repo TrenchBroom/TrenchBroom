@@ -25,6 +25,9 @@
 #include <vecmath/plane.h>
 #include <vecmath/vec.h>
 
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
     namespace IO {
         const String& QuakeMapTokenizer::NumberDelim() {
@@ -317,7 +320,7 @@ namespace TrenchBroom {
                 // We expect either a brush primitive, a patch or a regular brush.
                 expect(QuakeMapToken::String | QuakeMapToken::OParenthesis, token);
                 if (token.hasType(QuakeMapToken::String)) {
-                    expect(StringList { BrushPrimitiveId, PatchId }, token);
+                    expect(std::vector<std::string>({ BrushPrimitiveId, PatchId }), token);
                     if (token.data() == BrushPrimitiveId) {
                         parseBrushPrimitive(status, startLine);
                     } else {

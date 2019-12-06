@@ -35,6 +35,9 @@
 #include <QSaveFile>
 #include <QFileSystemWatcher>
 
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
     // PreferenceSerializerV1
 
@@ -404,8 +407,8 @@ namespace TrenchBroom {
             return false;
         }
 
-        const StringList& pathComps = path.components();
-        const StringList& globComps = glob.components();
+        const std::vector<std::string>& pathComps = path.components();
+        const std::vector<std::string>& globComps = glob.components();
 
         for (size_t i = 0; i < globLen; ++i) {
             if (globComps[i] == "*") {

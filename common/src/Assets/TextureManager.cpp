@@ -31,6 +31,8 @@
 
 #include <algorithm>
 #include <iterator>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -160,8 +162,8 @@ namespace TrenchBroom {
             return m_collections;
         }
 
-        const StringList TextureManager::collectionNames() const {
-            StringList result;
+        const std::vector<std::string> TextureManager::collectionNames() const {
+            std::vector<std::string> result;
             result.reserve(m_collections.size());
             std::transform(std::begin(m_collections), std::end(m_collections), std::back_inserter(result),
                            [](auto collection) { return collection->name(); });
