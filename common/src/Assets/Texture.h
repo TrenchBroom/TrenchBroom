@@ -22,12 +22,13 @@
 
 #include "ByteBuffer.h"
 #include "Color.h"
-#include "StringSet.h"
 #include "StringType.h"
 #include "Renderer/GL.h"
 
 #include <vecmath/forward.h>
 
+#include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -78,7 +79,7 @@ namespace TrenchBroom {
             TextureType m_type;
 
             // Quake 3 surface parameters; move these to materials when we add proper support for those.
-            StringSet m_surfaceParms;
+            std::set<std::string> m_surfaceParms;
 
             // Quake 3 surface culling; move to materials
             TextureCulling m_culling;
@@ -104,8 +105,8 @@ namespace TrenchBroom {
             size_t height() const;
             const Color& averageColor() const;
 
-            const StringSet& surfaceParms() const;
-            void setSurfaceParms(const StringSet& surfaceParms);
+            const std::set<std::string>& surfaceParms() const;
+            void setSurfaceParms(const std::set<std::string>& surfaceParms);
 
             TextureCulling culling() const;
             void setCulling(TextureCulling culling);

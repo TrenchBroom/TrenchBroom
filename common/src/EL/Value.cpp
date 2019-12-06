@@ -26,6 +26,7 @@
 #include <kdl/map_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
+#include <kdl/vector_set.h>
 #include <kdl/vector_utils.h>
 
 #include <algorithm>
@@ -591,20 +592,22 @@ namespace TrenchBroom {
             StringList result;
             result.reserve(array.size());
 
-            std::transform(std::begin(array), std::end(array), std::back_inserter(result),
-                           [](const Value& entry) { return entry.convertTo(ValueType::String).stringValue(); });
+            for (const auto& entry : array) {
+                result.push_back(entry.convertTo(ValueType::String).stringValue());
+            }
 
             return result;
         }
 
-        const StringSet Value::asStringSet() const {
+        const StringList Value::asStringSet() const {
             const ArrayType& array = arrayValue();
-            StringSet result;
+            kdl::vector_set<std::string> result(array.size());
 
-            std::transform(std::begin(array), std::end(array), std::inserter(result, result.begin()),
-                           [](const Value& entry) { return entry.convertTo(ValueType::String).stringValue(); });
+            for (const auto& entry : array) {
+                result.insert(entry.convertTo(ValueType::String).stringValue());
+            }
 
-            return result;
+            return result.release_data();
         }
 
         size_t Value::length() const {

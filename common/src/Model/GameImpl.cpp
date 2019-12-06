@@ -56,6 +56,7 @@
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
+#include <kdl/vector_utils.h>
 
 #include <vector>
 
@@ -366,30 +367,30 @@ namespace TrenchBroom {
                 const auto extension = kdl::str_to_lower(path.extension());
                 const auto supported = m_config.entityConfig().modelFormats;
 
-                if (extension == "mdl" && supported.count("mdl") > 0) {
+                if (extension == "mdl" && kdl::vec_contains(supported, "mdl")) {
                     const auto palette = loadTexturePalette();
                     auto reader = file->reader().buffer();
                     IO::MdlParser parser(modelName, std::begin(reader), std::end(reader), palette);
                     return parser.initializeModel(logger);
-                } else if (extension == "md2" && supported.count("md2") > 0) {
+                } else if (extension == "md2" && kdl::vec_contains(supported, "md2")) {
                     const auto palette = loadTexturePalette();
                     auto reader = file->reader().buffer();
                     IO::Md2Parser parser(modelName, std::begin(reader), std::end(reader), palette, m_fs);
                     return parser.initializeModel(logger);
-                } else if (extension == "md3" && supported.count("md3") > 0) {
+                } else if (extension == "md3" && kdl::vec_contains(supported, "md3")) {
                     auto reader = file->reader().buffer();
                     IO::Md3Parser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     return parser.initializeModel(logger);
-                } else if (extension == "bsp" && supported.count("bsp") > 0) {
+                } else if (extension == "bsp" && kdl::vec_contains(supported, "bsp")) {
                     const auto palette = loadTexturePalette();
                     auto reader = file->reader().buffer();
                     IO::Bsp29Parser parser(modelName, std::begin(reader), std::end(reader), palette);
                     return parser.initializeModel(logger);
-                } else if (extension == "dkm" && supported.count("dkm") > 0) {
+                } else if (extension == "dkm" && kdl::vec_contains(supported, "dkm")) {
                     auto reader = file->reader().buffer();
                     IO::DkmParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     return parser.initializeModel(logger);
-                } else if (extension == "ase" && supported.count("ase") > 0) {
+                } else if (extension == "ase" && kdl::vec_contains(supported, "ase")) {
                     auto reader = file->reader().buffer();
                     IO::AseParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     return parser.initializeModel(logger);
@@ -417,30 +418,30 @@ namespace TrenchBroom {
                 const auto extension = kdl::str_to_lower(path.extension());
                 const auto supported = m_config.entityConfig().modelFormats;
 
-                if (extension == "mdl" && supported.count("mdl") > 0) {
+                if (extension == "mdl" && kdl::vec_contains(supported, "mdl")) {
                     const auto palette = loadTexturePalette();
                     auto reader = file->reader().buffer();
                     IO::MdlParser parser(modelName, std::begin(reader), std::end(reader), palette);
                     parser.loadFrame(frameIndex, model, logger);
-                } else if (extension == "md2" && supported.count("md2") > 0) {
+                } else if (extension == "md2" && kdl::vec_contains(supported, "md2")) {
                     const auto palette = loadTexturePalette();
                     auto reader = file->reader().buffer();
                     IO::Md2Parser parser(modelName, std::begin(reader), std::end(reader), palette, m_fs);
                     parser.loadFrame(frameIndex, model, logger);
-                } else if (extension == "md3" && supported.count("md3") > 0) {
+                } else if (extension == "md3" && kdl::vec_contains(supported, "md3")) {
                     auto reader = file->reader().buffer();
                     IO::Md3Parser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     parser.loadFrame(frameIndex, model, logger);
-                } else if (extension == "bsp" && supported.count("bsp") > 0) {
+                } else if (extension == "bsp" && kdl::vec_contains(supported, "bsp")) {
                     const auto palette = loadTexturePalette();
                     auto reader = file->reader().buffer();
                     IO::Bsp29Parser parser(modelName, std::begin(reader), std::end(reader), palette);
                     parser.loadFrame(frameIndex, model, logger);
-                } else if (extension == "dkm" && supported.count("dkm") > 0) {
+                } else if (extension == "dkm" && kdl::vec_contains(supported, "dkm")) {
                     auto reader = file->reader().buffer();
                     IO::DkmParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     parser.loadFrame(frameIndex, model, logger);
-                } else if (extension == "ase" && supported.count("ase") > 0) {
+                } else if (extension == "ase" && kdl::vec_contains(supported, "ase")) {
                     auto reader = file->reader().buffer();
                     IO::AseParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     parser.loadFrame(frameIndex, model, logger);
