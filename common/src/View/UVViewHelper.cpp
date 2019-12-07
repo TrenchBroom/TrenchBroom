@@ -128,20 +128,29 @@ namespace TrenchBroom {
 
             const auto* texture = m_face->texture();
             if (texture != nullptr) {
-
                 const auto& boundary = m_face->boundary();
-                const auto distance = vm::intersect_ray_plane(ray, boundary);
-                const auto hitPointInWorldCoords = vm::point_at_distance(ray, distance);
-                const auto hitPointInTexCoords = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * hitPointInWorldCoords;
+                const FloatType distance = vm::intersect_ray_plane(ray, boundary);
+                const vm::vec3  hitPointInWorldCoords = vm::point_at_distance(ray, distance);
+                const vm::vec3  hitPointInTexCoords = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * hitPointInWorldCoords;
+                const vm::vec2f hitPointInViewCoords = m_camera.project(vm::vec3f(hitPointInWorldCoords)).xy();
 
-                const auto maxDistance = static_cast<FloatType>(5.0) / static_cast<FloatType>(cameraZoom());
-                const auto stripeSize = UVViewHelper::stripeSize();
+                const vm::vec2f closestGridInTexCoords = vm::vec2f(hitPointInTexCoords) + computeDistanceFromTextureGrid(hitPointInTexCoords);
+                const vm::vec3  closestGridInWorldCoords = m_face->fromTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * vm::vec3(closestGridInTexCoords, 0.0f);
+                const vm::vec2f closestGridInViewCoords = m_camera.project(vm::vec3f(closestGridInWorldCoords)).xy();
+
+                // X and Y distance in pixels to the closest grid intersection
+                // (i.e. so the X component is the distance from the closest vertical gridline, and the
+                // Y the distance to the closest horizontal gridline.)
+                // FIXME: should be measured in points so the grid isn't harder to hit with high-DPI
+                const vm::vec2f distToClosestGridInScreenCoords = vm::abs(closestGridInViewCoords - hitPointInViewCoords);
 
                 for (size_t i = 0; i < 2; ++i) {
-                    const auto closestStrip = vm::snap(hitPointInTexCoords[i], stripeSize[i]);
-                    const auto error = vm::abs(hitPointInTexCoords[i] - closestStrip);
+                    const float maxDistance = static_cast<float>(5.0);
+                    const float error = distToClosestGridInScreenCoords[i];
+
                     if (error <= maxDistance) {
-                        const auto index = static_cast<int>(vm::round(hitPointInTexCoords[i] / stripeSize[i]));
+                        const vm::vec2 stripeSize = UVViewHelper::stripeSize();
+                        const int index = static_cast<int>(vm::round(hitPointInTexCoords[i] / stripeSize[i]));
                         pickResult.addHit(Model::Hit(hitTypes[i], distance, hitPointInWorldCoords, index, error));
                     }
                 }

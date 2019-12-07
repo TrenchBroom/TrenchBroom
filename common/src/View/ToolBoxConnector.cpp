@@ -266,7 +266,14 @@ namespace TrenchBroom {
             updatePickResult();
         }
 
-        void ToolBoxConnector::processDragStart(const MouseEvent&) {
+        void ToolBoxConnector::processDragStart(const MouseEvent& event) {
+            // Move the mouse back to where it was when the user clicked (see InputEventRecorder::recordEvent)
+            // and re-pick, since we're currently 2px off from there, and the user will expects to drag exactly
+            // what was under the pixel they clicked.
+            // See: https://github.com/kduske/TrenchBroom/issues/2808
+            mouseMoved(event.posX, event.posY);
+            updatePickResult();
+
             if (m_toolBox->startMouseDrag(m_toolChain, m_inputState)) {
                 m_inputState.setAnyToolDragging(true);
             }
