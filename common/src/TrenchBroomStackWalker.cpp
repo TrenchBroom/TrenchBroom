@@ -40,7 +40,7 @@ namespace TrenchBroom {
     // use https://stackwalker.codeplex.com/
     class TBStackWalker : public StackWalker {
     public:
-        StringStream m_string;
+        std::stringstream m_string;
         TBStackWalker() : StackWalker() {}
         void clear() {
             m_string.str("");
