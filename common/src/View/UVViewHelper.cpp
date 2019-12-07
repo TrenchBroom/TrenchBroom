@@ -143,9 +143,10 @@ namespace TrenchBroom {
                 // Y the distance to the closest horizontal gridline.)
                 // FIXME: should be measured in points so the grid isn't harder to hit with high-DPI
                 const vm::vec2f distToClosestGridInScreenCoords = vm::abs(closestGridInViewCoords - hitPointInViewCoords);
+                // FIXME: factor out and share with other tools, possibly as preference
+                constexpr float maxDistance = static_cast<float>(5.0);
 
                 for (size_t i = 0; i < 2; ++i) {
-                    const float maxDistance = static_cast<float>(5.0);
                     const float error = distToClosestGridInScreenCoords[i];
 
                     if (error <= maxDistance) {
