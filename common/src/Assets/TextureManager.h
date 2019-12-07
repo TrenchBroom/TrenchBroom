@@ -41,7 +41,7 @@ namespace TrenchBroom {
         private:
             using TextureCollectionMap = std::map<IO::Path, TextureCollection*>;
             using TextureCollectionMapEntry = std::pair<IO::Path, TextureCollection*>;
-            using TextureMap = std::map<String, Texture*>;
+            using TextureMap = std::map<std::string, Texture*>;
 
             Logger& m_logger;
 
@@ -73,7 +73,7 @@ namespace TrenchBroom {
             void setTextureMode(int minFilter, int magFilter);
             void commitChanges();
 
-            Texture* texture(const String& name) const;
+            Texture* texture(const std::string& name) const;
             const std::vector<Texture*>& textures() const;
             const std::vector<TextureCollection*>& collections() const;
             const std::vector<std::string> collectionNames() const;

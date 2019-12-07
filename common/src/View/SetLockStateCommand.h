@@ -24,6 +24,7 @@
 #include "View/UndoableCommand.h"
 
 #include <map>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -42,7 +43,7 @@ namespace TrenchBroom {
             static Ptr reset(const std::vector<Model::Node*>& nodes);
         private:
             SetLockStateCommand(const std::vector<Model::Node*>& nodes, Model::LockState lockState);
-            static String makeName(Model::LockState lockState);
+            static std::string makeName(Model::LockState lockState);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

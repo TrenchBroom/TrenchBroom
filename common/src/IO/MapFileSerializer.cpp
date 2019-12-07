@@ -26,20 +26,21 @@
 #include "Model/BrushFace.h"
 
 #include <sstream>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
         class QuakeFileSerializer : public MapFileSerializer {
         private:
-            String FacePointFormat;
-            String TextureInfoFormat;
+            std::string FacePointFormat;
+            std::string TextureInfoFormat;
         public:
             QuakeFileSerializer(FILE* stream) :
             MapFileSerializer(stream),
             FacePointFormat(getFacePointFormat()),
             TextureInfoFormat(" %s %.6g %.6g %.6g %.6g %.6g") {}
         private:
-            static String getFacePointFormat() {
+            static std::string getFacePointFormat() {
                 std::stringstream str;
                 str <<
                 "( %." << FloatPrecision << "g " <<
@@ -77,7 +78,7 @@ namespace TrenchBroom {
             }
 
             void writeTextureInfo(FILE* stream, Model::BrushFace* face) {
-                const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+                const std::string& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 std::fprintf(stream, TextureInfoFormat.c_str(),
                              textureName.c_str(),
                              static_cast<double>(face->xOffset()),
@@ -90,7 +91,7 @@ namespace TrenchBroom {
 
         class Quake2FileSerializer : public QuakeFileSerializer {
         private:
-            String SurfaceAttributesFormat;
+            std::string SurfaceAttributesFormat;
         public:
             Quake2FileSerializer(FILE* stream) :
             QuakeFileSerializer(stream),
@@ -119,7 +120,7 @@ namespace TrenchBroom {
 
         class DaikatanaFileSerializer : public Quake2FileSerializer {
         private:
-            String SurfaceColorFormat;
+            std::string SurfaceColorFormat;
         public:
             DaikatanaFileSerializer(FILE* stream) :
             Quake2FileSerializer(stream),
@@ -163,7 +164,7 @@ namespace TrenchBroom {
 
         class ValveFileSerializer : public QuakeFileSerializer {
         private:
-            String ValveTextureInfoFormat;
+            std::string ValveTextureInfoFormat;
         public:
             ValveFileSerializer(FILE* stream) :
             QuakeFileSerializer(stream),
@@ -177,7 +178,7 @@ namespace TrenchBroom {
             }
         private:
             void writeValveTextureInfo(FILE* stream, Model::BrushFace* face) {
-                const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+                const std::string& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 const vm::vec3 xAxis = face->textureXAxis();
                 const vm::vec3 yAxis = face->textureYAxis();
 

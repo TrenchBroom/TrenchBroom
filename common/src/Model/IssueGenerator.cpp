@@ -26,6 +26,7 @@
 #include <kdl/vector_utils.h>
 
 #include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,7 +38,7 @@ namespace TrenchBroom {
             return m_type;
         }
 
-        const String& IssueGenerator::description() const {
+        const std::string& IssueGenerator::description() const {
             return m_description;
         }
 
@@ -65,7 +66,7 @@ namespace TrenchBroom {
             doGenerate(brush, issues);
         }
 
-        IssueGenerator::IssueGenerator(const IssueType type, const String& description) :
+        IssueGenerator::IssueGenerator(const IssueType type, const std::string& description) :
         m_type(type),
         m_description(description) {}
 

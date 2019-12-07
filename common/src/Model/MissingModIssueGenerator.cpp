@@ -41,10 +41,10 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         private:
-            String m_mod;
-            String m_message;
+            std::string m_mod;
+            std::string m_message;
         public:
-            MissingModIssue(AttributableNode* node, const String& mod, const String& message) :
+            MissingModIssue(AttributableNode* node, const std::string& mod, const std::string& message) :
             Issue(node),
             m_mod(mod),
             m_message(message) {}
@@ -53,11 +53,11 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            const std::string doGetDescription() const override {
                 return "Mod '" + m_mod + "' could not be used: " + m_message;
             }
         public:
-            const String& mod() const {
+            const std::string& mod() const {
                 return m_mod;
             }
         };
@@ -84,7 +84,7 @@ namespace TrenchBroom {
                 for (const Issue* issue : issues) {
                     if (issue->type() == MissingModIssue::Type) {
                         const MissingModIssue* modIssue = static_cast<const MissingModIssue*>(issue);
-                        const String missingMod = modIssue->mod();
+                        const std::string missingMod = modIssue->mod();
                         kdl::vec_erase(mods, missingMod);
                     }
                 }

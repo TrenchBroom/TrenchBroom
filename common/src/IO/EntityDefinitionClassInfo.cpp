@@ -57,11 +57,11 @@ namespace TrenchBroom {
             return m_column;
         }
 
-        const String& EntityDefinitionClassInfo::name() const {
+        const std::string& EntityDefinitionClassInfo::name() const {
             return m_name;
         }
 
-        const String& EntityDefinitionClassInfo::description() const {
+        const std::string& EntityDefinitionClassInfo::description() const {
             return m_description;
         }
 
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             return kdl::map_values(m_attributes);
         }
 
-        const std::map<String, std::shared_ptr<Assets::AttributeDefinition>>& EntityDefinitionClassInfo::attributeMap() const {
+        const std::map<std::string, std::shared_ptr<Assets::AttributeDefinition>>& EntityDefinitionClassInfo::attributeMap() const {
             return m_attributes;
         }
 
@@ -101,11 +101,11 @@ namespace TrenchBroom {
             return m_hasModelDefinition;
         }
 
-        void EntityDefinitionClassInfo::setName(const String& name) {
+        void EntityDefinitionClassInfo::setName(const std::string& name) {
             m_name = name;
         }
 
-        void EntityDefinitionClassInfo::setDescription(const String& description) {
+        void EntityDefinitionClassInfo::setDescription(const std::string& description) {
             m_description = description;
             m_hasDescription = true;
         }
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             m_attributes[attributeDefinition->name()] = attributeDefinition;
         }
 
-        void EntityDefinitionClassInfo::addAttributeDefinitions(const std::map<String, std::shared_ptr<Assets::AttributeDefinition>>& attributeDefinitions) {
+        void EntityDefinitionClassInfo::addAttributeDefinitions(const std::map<std::string, std::shared_ptr<Assets::AttributeDefinition>>& attributeDefinitions) {
             m_attributes.insert(std::begin(attributeDefinitions), std::end(attributeDefinitions));
         }
 
@@ -135,7 +135,7 @@ namespace TrenchBroom {
 
         void EntityDefinitionClassInfo::resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const std::vector<std::string>& classnames) {
             for (auto classnameIt = classnames.rbegin(), classnameEnd = classnames.rend(); classnameIt != classnameEnd; ++classnameIt) {
-                const String& classname = *classnameIt;
+                const std::string& classname = *classnameIt;
                 const auto baseClassIt = baseClasses.find(classname);
                 if (baseClassIt != std::end(baseClasses)) {
                     const EntityDefinitionClassInfo& baseClass = baseClassIt->second;

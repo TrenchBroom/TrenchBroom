@@ -20,19 +20,20 @@
 #ifndef CompilationConfigParser_h
 #define CompilationConfigParser_h
 
-#include "StringType.h"
 #include "IO/ConfigParserBase.h"
 #include "IO/Path.h"
 #include "Model/CompilationConfig.h"
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         class CompilationConfigParser : public ConfigParserBase {
         public:
             CompilationConfigParser(const char* begin, const char* end, const Path& path);
-            CompilationConfigParser(const String& str, const Path& path = Path(""));
+            CompilationConfigParser(const std::string& str, const Path& path = Path(""));
 
             Model::CompilationConfig parse();
         private:

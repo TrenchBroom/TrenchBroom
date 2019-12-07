@@ -19,8 +19,9 @@
 
 #include "UpdateEntitySpawnflagCommand.h"
 
-#include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -36,7 +37,7 @@ namespace TrenchBroom {
         m_attributeName(attributeName),
         m_flagIndex(flagIndex) {}
 
-        String UpdateEntitySpawnflagCommand::makeName(const bool setFlag) {
+        std::string UpdateEntitySpawnflagCommand::makeName(const bool setFlag) {
             return setFlag ? "Set Spawnflag" : "Unset Spawnflag";
         }
 

@@ -23,6 +23,8 @@
 #include "View/ToolBox.h"
 #include "View/ToolChain.h"
 
+#include <string>
+
 #include <QGuiApplication>
 
 namespace TrenchBroom {
@@ -64,7 +66,7 @@ namespace TrenchBroom {
             m_toolChain->append(tool);
         }
 
-        bool ToolBoxConnector::dragEnter(const int x, const int y, const String& text) {
+        bool ToolBoxConnector::dragEnter(const int x, const int y, const std::string& text) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
             mouseMoved(x, y);
@@ -73,7 +75,7 @@ namespace TrenchBroom {
             return m_toolBox->dragEnter(m_toolChain, m_inputState, text);
         }
 
-        bool ToolBoxConnector::dragMove(const int x, const int y, const String& text) {
+        bool ToolBoxConnector::dragMove(const int x, const int y, const std::string& text) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
             mouseMoved(x, y);
@@ -88,7 +90,7 @@ namespace TrenchBroom {
             m_toolBox->dragLeave(m_toolChain, m_inputState);
         }
 
-        bool ToolBoxConnector::dragDrop(const int /* x */, const int /* y */, const String& text) {
+        bool ToolBoxConnector::dragDrop(const int /* x */, const int /* y */, const std::string& text) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
             updatePickResult();

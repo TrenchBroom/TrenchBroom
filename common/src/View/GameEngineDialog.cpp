@@ -19,19 +19,20 @@
 
 #include "GameEngineDialog.h"
 
-#include "IO/Path.h"
 #include "Model/GameFactory.h"
 #include "View/BorderLine.h"
 #include "View/CurrentGameIndicator.h"
 #include "View/GameEngineProfileManager.h"
 #include "View/QtUtils.h"
 
+#include <string>
+
 #include <QBoxLayout>
 #include <QDialogButtonBox>
 
 namespace TrenchBroom {
     namespace View {
-        GameEngineDialog::GameEngineDialog(const String& gameName, QWidget* parent) :
+        GameEngineDialog::GameEngineDialog(const std::string& gameName, QWidget* parent) :
         QDialog(parent),
         m_gameName(gameName),
         m_profileManager(nullptr) {

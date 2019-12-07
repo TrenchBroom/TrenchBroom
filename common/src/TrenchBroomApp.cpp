@@ -306,7 +306,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        static String makeCrashReport(const String &stacktrace, const String &reason) {
+        static std::string makeCrashReport(const std::string &stacktrace, const std::string &reason) {
             std::stringstream ss;
             ss << "OS:\t" << QSysInfo::prettyProductName().toStdString() << std::endl;
             ss << "Qt:\t" << qVersion() << std::endl;
@@ -342,7 +342,7 @@ namespace TrenchBroom {
                 const IO::Path docsDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdString());
                 crashLogPath = docsDir + IO::Path("trenchbroom-crash.txt");
             } else {
-                const String crashFileName = mapPath.lastComponent().deleteExtension().asString() + "-crash.txt";
+                const std::string crashFileName = mapPath.lastComponent().deleteExtension().asString() + "-crash.txt";
                 crashLogPath = mapPath.deleteLastComponent() + IO::Path(crashFileName);
             }
 
@@ -367,7 +367,7 @@ namespace TrenchBroom {
             crashReportGuiEnabled = guiEnabled;
         }
 
-        void reportCrashAndExit(const String &stacktrace, const String &reason) {
+        void reportCrashAndExit(const std::string &stacktrace, const std::string &reason) {
             // just abort if we reenter reportCrashAndExit (i.e. if it crashes)
             if (inReportCrashAndExit)
                 std::abort();
@@ -375,7 +375,7 @@ namespace TrenchBroom {
             inReportCrashAndExit = true;
 
             // get the crash report as a string
-            const String report = makeCrashReport(stacktrace, reason);
+            const std::string report = makeCrashReport(stacktrace, reason);
 
             // write it to the crash log file
             const IO::Path basePath = crashReportBasePath();
@@ -439,7 +439,7 @@ namespace TrenchBroom {
         bool TrenchBroomApp::newDocument() {
             MapFrame* frame = nullptr;
             try {
-                String gameName;
+                std::string gameName;
                 Model::MapFormat mapFormat = Model::MapFormat::Unknown;
                 if (!GameDialog::showNewDocumentDialog(nullptr, gameName, mapFormat)) {
                     return false;
@@ -481,7 +481,7 @@ namespace TrenchBroom {
 
         void TrenchBroomApp::showManual() {
             const IO::Path manualPath = IO::SystemPaths::findResourceFile(IO::Path("manual/index.html"));
-            const String manualPathString = manualPath.asString();
+            const std::string manualPathString = manualPath.asString();
             const QUrl manualPathUrl = QUrl::fromLocalFile(QString::fromStdString(manualPathString));
             QDesktopServices::openUrl(manualPathUrl);
         }

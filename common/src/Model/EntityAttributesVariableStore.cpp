@@ -23,6 +23,8 @@
 #include "EL/Value.h"
 #include "Model/EntityAttributes.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
         EntityAttributesVariableStore::EntityAttributesVariableStore(const EntityAttributes& attributes) :
@@ -36,7 +38,7 @@ namespace TrenchBroom {
             return m_attributes.attributes().size();
         }
 
-        EL::Value EntityAttributesVariableStore::doGetValue(const String& name) const {
+        EL::Value EntityAttributesVariableStore::doGetValue(const std::string& name) const {
             static const EL::Value DefaultValue("");
             const AttributeValue* value = m_attributes.attribute(name);
             if (value == nullptr) {
@@ -50,11 +52,11 @@ namespace TrenchBroom {
             return m_attributes.names();
         }
 
-        void EntityAttributesVariableStore::doDeclare(const String& /* name */, const EL::Value& /* value */) {
+        void EntityAttributesVariableStore::doDeclare(const std::string& /* name */, const EL::Value& /* value */) {
             throw EL::EvaluationError("Declaring attributes directly is unsafe");
         }
 
-        void EntityAttributesVariableStore::doAssign(const String& /* name */, const EL::Value& /* value */) {
+        void EntityAttributesVariableStore::doAssign(const std::string& /* name */, const EL::Value& /* value */) {
             throw EL::EvaluationError("Changing attributes directly is unsafe");
         }
     }

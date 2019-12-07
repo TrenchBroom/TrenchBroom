@@ -40,10 +40,10 @@ namespace TrenchBroom {
         FgdTokenizer::FgdTokenizer(const char* begin, const char* end) :
         Tokenizer(begin, end, "", 0) {}
 
-        FgdTokenizer::FgdTokenizer(const String& str) :
+        FgdTokenizer::FgdTokenizer(const std::string& str) :
         Tokenizer(str, "", 0) {}
 
-        const String FgdTokenizer::WordDelims = " \t\n\r()[]?;:,=";
+        const std::string FgdTokenizer::WordDelims = " \t\n\r()[]?;:,=";
 
         FgdTokenizer::Token FgdTokenizer::emitToken() {
             while (!eof()) {
@@ -119,7 +119,7 @@ namespace TrenchBroom {
 
                         e = readUntil(WordDelims);
                         if (e == nullptr) {
-                            throw ParserException(startLine, startColumn, "Unexpected character: '" + String(c, 1) + "'");
+                            throw ParserException(startLine, startColumn, "Unexpected character: '" + std::string(c, 1) + "'");
                         } else {
                             return Token(FgdToken::Word, c, e, offset(c), startLine, startColumn);
                         }
@@ -137,7 +137,7 @@ namespace TrenchBroom {
             }
         }
 
-        FgdParser::FgdParser(const String& str, const Color& defaultEntityColor, const Path& path) :
+        FgdParser::FgdParser(const std::string& str, const Color& defaultEntityColor, const Path& path) :
         FgdParser(str.c_str(), str.c_str() + str.size(), defaultEntityColor, path) {}
 
         FgdParser::TokenNameMap FgdParser::tokenNames() const {
@@ -446,7 +446,7 @@ namespace TrenchBroom {
             return attributes;
         }
 
-        FgdParser::AttributeDefinitionPtr FgdParser::parseTargetSourceAttribute(ParserStatus& status, const String& name) {
+        FgdParser::AttributeDefinitionPtr FgdParser::parseTargetSourceAttribute(ParserStatus& status, const std::string& name) {
             const auto readOnly = parseReadOnlyFlag(status);
             const auto shortDescription = parseAttributeDescription(status);
             parseDefaultStringValue(status);
@@ -454,7 +454,7 @@ namespace TrenchBroom {
             return std::make_shared<Assets::AttributeDefinition>(name, Assets::AttributeDefinition::Type_TargetSourceAttribute, shortDescription, longDescription, readOnly);
         }
 
-        FgdParser::AttributeDefinitionPtr FgdParser::parseTargetDestinationAttribute(ParserStatus& status, const String& name) {
+        FgdParser::AttributeDefinitionPtr FgdParser::parseTargetDestinationAttribute(ParserStatus& status, const std::string& name) {
             const auto readOnly = parseReadOnlyFlag(status);
             const auto shortDescription = parseAttributeDescription(status);
             parseDefaultStringValue(status);
@@ -462,7 +462,7 @@ namespace TrenchBroom {
             return std::make_shared<Assets::AttributeDefinition>(name, Assets::AttributeDefinition::Type_TargetDestinationAttribute, shortDescription, longDescription, readOnly);
         }
 
-        FgdParser::AttributeDefinitionPtr FgdParser::parseStringAttribute(ParserStatus& status, const String& name) {
+        FgdParser::AttributeDefinitionPtr FgdParser::parseStringAttribute(ParserStatus& status, const std::string& name) {
             const auto readOnly = parseReadOnlyFlag(status);
             const auto shortDescription = parseAttributeDescription(status);
             const auto defaultValue = parseDefaultStringValue(status);
@@ -470,7 +470,7 @@ namespace TrenchBroom {
             return std::make_shared<Assets::StringAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
         }
 
-        FgdParser::AttributeDefinitionPtr FgdParser::parseIntegerAttribute(ParserStatus& status, const String& name) {
+        FgdParser::AttributeDefinitionPtr FgdParser::parseIntegerAttribute(ParserStatus& status, const std::string& name) {
             const auto readOnly = parseReadOnlyFlag(status);
             const auto shortDescription = parseAttributeDescription(status);
             const auto defaultValue = parseDefaultIntegerValue(status);
@@ -478,7 +478,7 @@ namespace TrenchBroom {
             return std::make_shared<Assets::IntegerAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
         }
 
-        FgdParser::AttributeDefinitionPtr FgdParser::parseFloatAttribute(ParserStatus& status, const String& name) {
+        FgdParser::AttributeDefinitionPtr FgdParser::parseFloatAttribute(ParserStatus& status, const std::string& name) {
             const auto readOnly = parseReadOnlyFlag(status);
             const auto shortDescription = parseAttributeDescription(status);
             const auto defaultValue = parseDefaultFloatValue(status);
@@ -486,7 +486,7 @@ namespace TrenchBroom {
             return std::make_shared<Assets::FloatAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
         }
 
-        FgdParser::AttributeDefinitionPtr FgdParser::parseChoicesAttribute(ParserStatus& status, const String& name) {
+        FgdParser::AttributeDefinitionPtr FgdParser::parseChoicesAttribute(ParserStatus& status, const std::string& name) {
             const auto readOnly = parseReadOnlyFlag(status);
             const auto shortDescription = parseAttributeDescription(status);
             const auto defaultValue = parseDefaultChoiceValue(status);
@@ -510,7 +510,7 @@ namespace TrenchBroom {
             return std::make_shared<Assets::ChoiceAttributeDefinition>(name, shortDescription, longDescription, options, readOnly, defaultValue);
         }
 
-        FgdParser::AttributeDefinitionPtr FgdParser::parseFlagsAttribute(ParserStatus& status, const String& name) {
+        FgdParser::AttributeDefinitionPtr FgdParser::parseFlagsAttribute(ParserStatus& status, const std::string& name) {
             // Flag attributes do not have descriptions or defaults, see https://developer.valvesoftware.com/wiki/FGD
 
             expect(status, FgdToken::Equality, m_tokenizer.nextToken());
@@ -535,7 +535,7 @@ namespace TrenchBroom {
 
                 token = expect(status, FgdToken::Integer | FgdToken::CBracket | FgdToken::Colon, m_tokenizer.nextToken());
 
-                String longDescription;
+                std::string longDescription;
                 if (token.type() == FgdToken::Colon) {
                     longDescription = parseString(status);
                     token = expect(status, FgdToken::Integer | FgdToken::CBracket, m_tokenizer.nextToken());
@@ -546,7 +546,7 @@ namespace TrenchBroom {
             return definition;
         }
 
-        FgdParser::AttributeDefinitionPtr FgdParser::parseUnknownAttribute(ParserStatus& status, const String& name) {
+        FgdParser::AttributeDefinitionPtr FgdParser::parseUnknownAttribute(ParserStatus& status, const std::string& name) {
             const auto readOnly = parseReadOnlyFlag(status);
             const auto shortDescription = parseAttributeDescription(status);
             const auto defaultValue = parseDefaultStringValue(status);
@@ -564,7 +564,7 @@ namespace TrenchBroom {
             }
         }
 
-        String FgdParser::parseAttributeDescription(ParserStatus& status) {
+        std::string FgdParser::parseAttributeDescription(ParserStatus& status) {
             auto token = m_tokenizer.peekToken();
             if (token.type() == FgdToken::Colon) {
                 m_tokenizer.nextToken();
@@ -573,10 +573,10 @@ namespace TrenchBroom {
                     return parseString(status);
                 }
             }
-            return EmptyString;
+            return "";
         }
 
-        nonstd::optional<String> FgdParser::parseDefaultStringValue(ParserStatus& status) {
+        nonstd::optional<std::string> FgdParser::parseDefaultStringValue(ParserStatus& status) {
             auto token = m_tokenizer.peekToken();
             if (token.type() == FgdToken::Colon) {
                 m_tokenizer.nextToken();
@@ -627,7 +627,7 @@ namespace TrenchBroom {
             return nonstd::nullopt;
         }
 
-        nonstd::optional<String> FgdParser::parseDefaultChoiceValue(ParserStatus& status) {
+        nonstd::optional<std::string> FgdParser::parseDefaultChoiceValue(ParserStatus& status) {
             auto token = m_tokenizer.peekToken();
             if (token.type() == FgdToken::Colon) {
                 m_tokenizer.nextToken();
@@ -681,7 +681,7 @@ namespace TrenchBroom {
             return color;
         }
 
-        String FgdParser::parseString(ParserStatus& status) {
+        std::string FgdParser::parseString(ParserStatus& status) {
             auto token = expect(status, FgdToken::String, m_tokenizer.nextToken());
             if (m_tokenizer.peekToken().hasType(FgdToken::Plus)) {
                 std::stringstream str;

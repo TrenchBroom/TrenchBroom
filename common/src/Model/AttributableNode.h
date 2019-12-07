@@ -28,6 +28,7 @@
 #include "Model/Node.h"
 
 #include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -38,7 +39,7 @@ namespace TrenchBroom {
             static const Assets::AttributeDefinition* selectAttributeDefinition(const AttributeName& name, const std::vector<AttributableNode*>& attributables);
             static AttributeValue selectAttributeValue(const AttributeName& name, const std::vector<AttributableNode*>& attributables);
         protected:
-            static const String DefaultAttributeValue;
+            static const std::string DefaultAttributeValue;
 
             Assets::EntityDefinition* m_definition;
             EntityAttributes m_attributes;
@@ -77,7 +78,7 @@ namespace TrenchBroom {
 
             EntityAttribute::List attributeWithName(const AttributeName& name) const;
             EntityAttribute::List attributesWithPrefix(const AttributeName& prefix) const;
-            EntityAttribute::List numberedAttributes(const String& prefix) const;
+            EntityAttribute::List numberedAttributes(const std::string& prefix) const;
 
             const AttributeValue& attribute(const AttributeName& name, const AttributeValue& defaultValue = DefaultAttributeValue) const;
             const AttributeValue& classname(const AttributeValue& defaultClassname = AttributeValues::NoClassname) const;
@@ -174,7 +175,7 @@ namespace TrenchBroom {
         protected:
             AttributableNode();
         private: // implemenation of node interface
-            const String& doGetName() const override;
+            const std::string& doGetName() const override;
             virtual void doAncestorWillChange() override;
             virtual void doAncestorDidChange() override;
         private: // subclassing interface

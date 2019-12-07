@@ -26,6 +26,8 @@
 #include "Model/World.h"
 #include "Model/Model_Forward.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
         TEST(BrushBuilderTest, createCube) {
@@ -40,8 +42,9 @@ namespace TrenchBroom {
             const std::vector<BrushFace*>& faces = cube->faces();
             ASSERT_EQ(6u, faces.size());
 
-            for (size_t i = 0; i < faces.size(); ++i)
-                ASSERT_EQ(String("someName"), faces[i]->textureName());
+            for (size_t i = 0; i < faces.size(); ++i) {
+                ASSERT_EQ(std::string("someName"), faces[i]->textureName());
+            }
 
             delete cube;
         }

@@ -20,11 +20,11 @@
 #ifndef TrenchBroom_SelectionCommand
 #define TrenchBroom_SelectionCommand
 
-#include "StringType.h"
 #include "Model/Model_Forward.h"
 #include "Model/BrushFaceReference.h"
 #include "View/UndoableCommand.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             static Ptr deselectAll();
         private:
             SelectionCommand(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces);
-            static String makeName(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces);
+            static std::string makeName(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

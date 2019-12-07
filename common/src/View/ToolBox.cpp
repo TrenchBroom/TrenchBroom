@@ -27,6 +27,7 @@
 #include <QDebug>
 
 #include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -45,7 +46,7 @@ namespace TrenchBroom {
             chain->pick(inputState, pickResult);
         }
 
-        bool ToolBox::dragEnter(ToolChain* chain, const InputState& inputState, const String& text) {
+        bool ToolBox::dragEnter(ToolChain* chain, const InputState& inputState, const std::string& text) {
             if (!m_enabled) {
                 return false;
             }
@@ -59,7 +60,7 @@ namespace TrenchBroom {
             return m_dropReceiver != nullptr;
         }
 
-        bool ToolBox::dragMove(ToolChain* /* chain */, const InputState& inputState, const String& /* text */) {
+        bool ToolBox::dragMove(ToolChain* /* chain */, const InputState& inputState, const std::string& /* text */) {
             if (!m_enabled || m_dropReceiver == nullptr) {
                 return false;
             }
@@ -77,7 +78,7 @@ namespace TrenchBroom {
             m_dropReceiver = nullptr;
         }
 
-        bool ToolBox::dragDrop(ToolChain* /* chain */, const InputState& inputState, const String& /* text */) {
+        bool ToolBox::dragDrop(ToolChain* /* chain */, const InputState& inputState, const std::string& /* text */) {
             if (!m_enabled || m_dropReceiver == nullptr) {
                 return false;
             }

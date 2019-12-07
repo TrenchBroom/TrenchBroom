@@ -32,17 +32,17 @@ namespace TrenchBroom {
             return doMatches(name, attributables);
         }
 
-        SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const String& pattern) :
+        SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const std::string& pattern) :
         SmartAttributeEditorKeyMatcher({ pattern }) {}
 
-        SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const std::initializer_list<String> patterns) :
+        SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const std::initializer_list<std::string> patterns) :
         m_patterns(patterns) {}
 
         bool SmartAttributeEditorKeyMatcher::doMatches(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const {
             if (attributables.empty())
                 return false;
 
-            for (const String& pattern : m_patterns) {
+            for (const std::string& pattern : m_patterns) {
                 if (kdl::cs::matches_glob(name, pattern))
                     return true;
             }

@@ -23,18 +23,19 @@
 #include "Model/TagManager.h"
 
 #include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
-        TagAttribute::TagAttribute(const AttributeType type, String name) :
+        TagAttribute::TagAttribute(const AttributeType type, const std::string& name) :
         m_type(type),
-        m_name(std::move(name) ){}
+        m_name(name) {}
 
         TagAttribute::AttributeType TagAttribute::type() const {
             return m_type;
         }
 
-        const String& TagAttribute::name() const {
+        const std::string& TagAttribute::name() const {
             return m_name;
         }
 
@@ -46,13 +47,13 @@ namespace TrenchBroom {
             return lhs.m_name < rhs.m_name;
         }
 
-        Tag::Tag(const size_t index, String name, std::vector<TagAttribute> attributes) :
+        Tag::Tag(const size_t index, const std::string& name, std::vector<TagAttribute> attributes) :
         m_index(index),
-        m_name(std::move(name)),
+        m_name(name),
         m_attributes(std::move(attributes)) {}
 
-        Tag::Tag(String name, std::vector<TagAttribute> attributes) :
-        Tag(0, std::move(name), std::move(attributes)) {}
+        Tag::Tag(const std::string& name, std::vector<TagAttribute> attributes) :
+        Tag(0, name, std::move(attributes)) {}
 
         Tag::~Tag() = default;
 
@@ -74,7 +75,7 @@ namespace TrenchBroom {
             m_index = index;
         }
 
-        const String& Tag::name() const {
+        const std::string& Tag::name() const {
             return m_name;
         }
 
@@ -208,8 +209,8 @@ namespace TrenchBroom {
             return false;
         }
 
-        SmartTag::SmartTag(String name, std::vector<TagAttribute> attributes, std::unique_ptr<TagMatcher> matcher) :
-        Tag(std::move(name), std::move(attributes)),
+        SmartTag::SmartTag(const std::string& name, std::vector<TagAttribute> attributes, std::unique_ptr<TagMatcher> matcher) :
+        Tag(name, std::move(attributes)),
         m_matcher(std::move(matcher)) {}
 
         SmartTag::SmartTag(const SmartTag& other) :

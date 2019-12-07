@@ -22,12 +22,12 @@
 
 #include "Ensure.h"
 #include "Preference.h"
-#include "StringType.h"
 #include "View/ActionContext.h"
 
+#include <map>
 #include <memory>
 #include <vector>
-#include <map>
+#include <string>
 
 #include <QKeySequence>
 
@@ -198,14 +198,14 @@ namespace TrenchBroom {
 
         class Menu : public MenuEntry {
         private:
-            String m_name;
+            std::string m_name;
             std::vector<std::unique_ptr<MenuEntry>> m_entries;
         public:
-            Menu(const String& name, MenuEntryType entryType);
+            Menu(const std::string& name, MenuEntryType entryType);
 
-            const String& name() const;
+            const std::string& name() const;
 
-            Menu& addMenu(const String& name, MenuEntryType entryType = MenuEntryType::Menu_None);
+            Menu& addMenu(const std::string& name, MenuEntryType entryType = MenuEntryType::Menu_None);
             void addSeparator();
             MenuActionItem& addItem(const Action* action, MenuEntryType entryType = MenuEntryType::Menu_None);
 
@@ -274,7 +274,7 @@ namespace TrenchBroom {
             void createDebugMenu();
             void createHelpMenu();
 
-            Menu& createMainMenu(const String& name);
+            Menu& createMainMenu(const std::string& name);
 
             void createToolbar();
             const Action* existingAction(const IO::Path& preferencePath) const;

@@ -27,12 +27,14 @@
 #include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         void assertShaders(const std::vector<Assets::Quake3Shader>& expected, const std::vector<Assets::Quake3Shader>& actual);
 
         TEST(Quake3ShaderParserTest, parseEmptyShader) {
-            const String data("");
+            const std::string data("");
             Quake3ShaderParser parser(data);
             const auto expected = std::vector<Assets::Quake3Shader> {};
 
@@ -41,7 +43,7 @@ namespace TrenchBroom {
         }
 
         TEST(Quake3ShaderParserTest, parseSingleShaderWithEmptyBlock) {
-            const String data(R"(
+            const std::string data(R"(
 textures/liquids/lavahell2 //path and name of new texture
 {}
 )");
@@ -61,7 +63,7 @@ textures/liquids/lavahell2 //path and name of new texture
         }
 
         TEST(Quake3ShaderParserTest, parseSingleSimpleShaderWithoutEditorImage) {
-            const String data(R"(
+            const std::string data(R"(
 textures/liquids/lavahell2 //path and name of new texture
 {
 
@@ -113,7 +115,7 @@ textures/liquids/lavahell2 //path and name of new texture
         }
 
         TEST(Quake3ShaderParserTest, parseSingleSimpleShaderWithEditorImage) {
-            const String data(R"(
+            const std::string data(R"(
 textures/liquids/lavahell2 //path and name of new texture
 {
 
@@ -166,7 +168,7 @@ textures/liquids/lavahell2 //path and name of new texture
         }
 
         TEST(Quake3ShaderParserTest, parseSingleComplexShaderWithEditorImage) {
-            const String data(R"(
+            const std::string data(R"(
 textures/eerie/ironcrosslt2_10000
 {
 
@@ -227,7 +229,7 @@ textures/eerie/ironcrosslt2_10000
         }
 
         TEST(Quake3ShaderParserTest, parseTwoShaders) {
-            const String data(R"(
+            const std::string data(R"(
 textures/eerie/ironcrosslt2_10000
 {
 
@@ -336,7 +338,7 @@ textures/liquids/lavahell2 //path and name of new texture
         }
 
         TEST(Quake3ShaderParserTest, parseShadersWithCommentTerminatingBlockEntry) {
-            const String data(R"(
+            const std::string data(R"(
 waterBubble
 {
     sort	underwater
@@ -357,7 +359,7 @@ waterBubble
         }
 
         TEST(Quake3ShaderParserTest, parseShadersWithMultilineComment) {
-            const String data(R"(
+            const std::string data(R"(
 /*
 This is a
 multiline comment.
@@ -384,7 +386,7 @@ waterBubble
 
         TEST(Quake3ShaderParserTest, parseBlendFuncParameters) {
             // see https://github.com/id-Software/Quake-III-Arena/blob/master/code/renderer/tr_shader.c#L176
-            const String data(R"(
+            const std::string data(R"(
             waterBubble
             {
                 {
@@ -515,7 +517,7 @@ waterBubble
             // see https://github.com/kduske/TrenchBroom/issues/2633
             // apparently, the Q3 engine can handle this
 
-            const String data(R"(
+            const std::string data(R"(
 /textures/eerie/ironcrosslt2_10000
 {
     qer_editorimage textures/gothic_light/ironcrosslt2.tga
@@ -542,7 +544,7 @@ waterBubble
             // see https://github.com/kduske/TrenchBroom/issues/2663
             // Quake 3 allows this, too.
 
-            const String data(R"(
+            const std::string data(R"(
 textures/evil3_floors/t-flr_oddtile_drty
 {
         {

@@ -20,10 +20,10 @@
 #ifndef DiskIO_h
 #define DiskIO_h
 
-#include "StringType.h"
 #include "IO/Path.h"
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -70,7 +70,7 @@ namespace TrenchBroom {
 
             Path::List findItemsRecursively(const Path& path);
 
-            void createFile(const Path& path, const String& contents);
+            void createFile(const Path& path, const std::string& contents);
             void createDirectory(const Path& path);
             void ensureDirectoryExists(const Path& path);
             void deleteFile(const Path& path);

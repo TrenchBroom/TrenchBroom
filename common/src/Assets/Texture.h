@@ -22,7 +22,6 @@
 
 #include "ByteBuffer.h"
 #include "Color.h"
-#include "StringType.h"
 #include "Renderer/GL.h"
 
 #include <vecmath/forward.h>
@@ -66,7 +65,7 @@ namespace TrenchBroom {
         class Texture {
         private:
             TextureCollection* m_collection;
-            String m_name;
+            std::string m_name;
 
             size_t m_width;
             size_t m_height;
@@ -90,16 +89,16 @@ namespace TrenchBroom {
             mutable GLuint m_textureId;
             mutable TextureBuffer::List m_buffers;
         public:
-            Texture(const String& name, size_t width, size_t height, const Color& averageColor, const TextureBuffer& buffer, GLenum format, TextureType type);
-            Texture(const String& name, size_t width, size_t height, const Color& averageColor, const TextureBuffer::List& buffers, GLenum format, TextureType type);
-            Texture(const String& name, size_t width, size_t height, GLenum format = GL_RGB, TextureType type = TextureType::Opaque);
+            Texture(const std::string& name, size_t width, size_t height, const Color& averageColor, const TextureBuffer& buffer, GLenum format, TextureType type);
+            Texture(const std::string& name, size_t width, size_t height, const Color& averageColor, const TextureBuffer::List& buffers, GLenum format, TextureType type);
+            Texture(const std::string& name, size_t width, size_t height, GLenum format = GL_RGB, TextureType type = TextureType::Opaque);
             ~Texture();
 
             static TextureType selectTextureType(bool masked);
 
             TextureCollection* collection() const;
 
-            const String& name() const;
+            const std::string& name() const;
 
             size_t width() const;
             size_t height() const;

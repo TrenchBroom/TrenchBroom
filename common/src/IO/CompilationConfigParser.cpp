@@ -25,12 +25,14 @@
 
 #include <kdl/vector_utils.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         CompilationConfigParser::CompilationConfigParser(const char* begin, const char* end, const Path& path) :
         ConfigParserBase(begin, end, path) {}
 
-        CompilationConfigParser::CompilationConfigParser(const String& str, const Path& path) :
+        CompilationConfigParser::CompilationConfigParser(const std::string& str, const Path& path) :
         ConfigParserBase(str, path) {}
 
         Model::CompilationConfig CompilationConfigParser::parse() {
@@ -65,8 +67,8 @@ namespace TrenchBroom {
         Model::CompilationProfile* CompilationConfigParser::parseProfile(const EL::Value& value) const {
             expectStructure(value, "[ {'name': 'String', 'workdir': 'String', 'tasks': 'Array'}, {} ]");
 
-            const String& name = value["name"].stringValue();
-            const String& workdir = value["workdir"].stringValue();
+            const std::string& name = value["name"].stringValue();
+            const std::string& workdir = value["workdir"].stringValue();
             const Model::CompilationTask::List tasks = parseTasks(value["tasks"]);
 
             return new Model::CompilationProfile(name, workdir, tasks);
@@ -88,7 +90,7 @@ namespace TrenchBroom {
 
         Model::CompilationTask* CompilationConfigParser::parseTask(const EL::Value& value) const {
             expectMapEntry(value, "type", EL::ValueType::String);
-            const String& type = value["type"].stringValue();
+            const std::string& type = value["type"].stringValue();
 
             if (type == "export")
                 return parseExportTask(value);
@@ -102,15 +104,15 @@ namespace TrenchBroom {
 
         Model::CompilationTask* CompilationConfigParser::parseExportTask(const EL::Value& value) const {
             expectStructure(value, "[ {'type': 'String', 'target': 'String'}, {} ]");
-            const String& target = value["target"].stringValue();
+            const std::string& target = value["target"].stringValue();
             return new Model::CompilationExportMap(target);
         }
 
         Model::CompilationTask* CompilationConfigParser::parseCopyTask(const EL::Value& value) const {
             expectStructure(value, "[ {'type': 'String', 'source': 'String', 'target': 'String'}, {} ]");
 
-            const String& source = value["source"].stringValue();
-            const String& target = value["target"].stringValue();
+            const std::string& source = value["source"].stringValue();
+            const std::string& target = value["target"].stringValue();
 
             return new Model::CompilationCopyFiles(source, target);
         }
@@ -118,8 +120,8 @@ namespace TrenchBroom {
         Model::CompilationTask* CompilationConfigParser::parseToolTask(const EL::Value& value) const {
             expectStructure(value, "[ {'type': 'String', 'tool': 'String', 'parameters': 'String'}, {} ]");
 
-            const String& tool = value["tool"].stringValue();
-            const String& parameters = value["parameters"].stringValue();
+            const std::string& tool = value["tool"].stringValue();
+            const std::string& parameters = value["parameters"].stringValue();
 
             return new Model::CompilationRunTool(tool, parameters);
         }

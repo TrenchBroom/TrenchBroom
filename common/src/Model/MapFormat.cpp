@@ -21,9 +21,11 @@
 
 #include "Macros.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
-        MapFormat mapFormat(const String& formatName) {
+        MapFormat mapFormat(const std::string& formatName) {
             if (formatName == "Standard") {
                 return MapFormat::Standard;
             } else if (formatName == "Quake2") {
@@ -43,7 +45,7 @@ namespace TrenchBroom {
             }
         }
 
-        String formatName(const MapFormat format) {
+        std::string formatName(const MapFormat format) {
             switch (format) {
                 case MapFormat::Standard:
                     return "Standard";

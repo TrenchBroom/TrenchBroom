@@ -24,6 +24,7 @@
 #include "View/UndoableCommand.h"
 
 #include <map>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -50,7 +51,7 @@ namespace TrenchBroom {
             static Ptr reset(const std::vector<Model::Node*>& nodes);
         private:
             SetVisibilityCommand(const std::vector<Model::Node*>& nodes, Action action);
-            static String makeName(Action action);
+            static std::string makeName(Action action);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

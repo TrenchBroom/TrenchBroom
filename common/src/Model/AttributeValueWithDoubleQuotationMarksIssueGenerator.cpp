@@ -27,6 +27,7 @@
 
 #include <kdl/string_utils.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -49,7 +50,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            const std::string doGetDescription() const override {
                 return "The value of entity property '" + m_attributeName + "' contains double quotation marks. This may cause errors during compilation or in the game.";
             }
         };
@@ -69,7 +70,7 @@ namespace TrenchBroom {
             for (const EntityAttribute& attribute : node->attributes()) {
                 const AttributeName& attributeName = attribute.name();
                 const AttributeValue& attributeValue = attribute.value();
-                if (attributeValue.find('"') != String::npos)
+                if (attributeValue.find('"') != std::string::npos)
                     issues.push_back(new AttributeValueWithDoubleQuotationMarksIssue(node, attributeName));
             }
         }

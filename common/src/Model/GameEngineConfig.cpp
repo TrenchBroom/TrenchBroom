@@ -21,6 +21,8 @@
 
 #include <kdl/vector_utils.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
         GameEngineConfig::GameEngineConfig() {}
@@ -55,7 +57,7 @@ namespace TrenchBroom {
             return m_profiles.size();
         }
 
-        bool GameEngineConfig::hasProfile(const String& name) const {
+        bool GameEngineConfig::hasProfile(const std::string& name) const {
             for (size_t i = 0; i < m_profiles.size(); ++i)
                 if (m_profiles[i]->name() == name)
                     return true;

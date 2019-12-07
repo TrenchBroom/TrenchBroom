@@ -25,6 +25,7 @@
 
 #include <map>
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -42,7 +43,7 @@ namespace TrenchBroom {
             ~FontManager();
 
             TextureFont& font(const FontDescriptor& fontDescriptor);
-            FontDescriptor selectFontSize(const FontDescriptor& fontDescriptor, const String& string, float maxWidth, size_t minFontSize);
+            FontDescriptor selectFontSize(const FontDescriptor& fontDescriptor, const std::string& string, float maxWidth, size_t minFontSize);
             void clearCache();
 
             deleteCopyAndMove(FontManager)

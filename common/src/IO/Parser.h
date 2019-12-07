@@ -21,7 +21,6 @@
 #define TrenchBroom_Parser
 
 #include "Exceptions.h"
-#include "StringType.h"
 #include "IO/ParserStatus.h"
 #include "IO/Token.h"
 
@@ -36,7 +35,7 @@ namespace TrenchBroom {
         template <typename TokenType>
         class Parser {
         protected:
-            using TokenNameMap = std::map<TokenType, String>;
+            using TokenNameMap = std::map<TokenType, std::string>;
         private:
             using Token =  TokenTemplate<TokenType>;
             mutable TokenNameMap m_tokenNames;
@@ -61,12 +60,12 @@ namespace TrenchBroom {
                 return token;
             }
 
-            void expect(ParserStatus& /* status */, const String& typeName, const Token& token) const {
-                const String msg = expectString(typeName, token);
+            void expect(ParserStatus& /* status */, const std::string& typeName, const Token& token) const {
+                const std::string msg = expectString(typeName, token);
                 throw ParserException(token.line(), token.column(), msg);
             }
 
-            void expect(const String& expected, const Token& token) const {
+            void expect(const std::string& expected, const Token& token) const {
                 if (token.data() != expected) {
                     throw ParserException(token.line(), token.column(), "Expected string '" + expected + "', but got '" + token.data() + "'");
                 }
@@ -81,18 +80,18 @@ namespace TrenchBroom {
                 throw ParserException(token.line(), token.column(), "Expected string '" + kdl::str_join(expected, "', '", "', or '", "' or '") + "', but got '" + token.data() + "'");
             }
        private:
-            String expectString(const String& expected, const Token& token) const {
+            std::string expectString(const std::string& expected, const Token& token) const {
                 return "Expected " + expected + ", but got " + tokenName(token.type()) + (!token.data().empty() ? " (raw data: '" + token.data() + "')" : "");
             }
         protected:
-            String tokenName(const TokenType typeMask) const {
+            std::string tokenName(const TokenType typeMask) const {
                 if (m_tokenNames.empty())
                     m_tokenNames = tokenNames();
 
                 std::vector<std::string> names;
                 for (const auto& entry : m_tokenNames) {
                     const TokenType type = entry.first;
-                    const String& name = entry.second;
+                    const std::string& name = entry.second;
                     if ((typeMask & type) != 0)
                         names.push_back(name);
                 }

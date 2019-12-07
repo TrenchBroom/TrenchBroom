@@ -26,6 +26,7 @@
 #include "Renderer/ShaderProgram.h"
 
 #include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -46,12 +47,12 @@ namespace TrenchBroom {
         std::unique_ptr<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& config) {
             auto program = std::make_unique<ShaderProgram>(config.name());
 
-            for (const String& path : config.vertexShaders()) {
+            for (const auto& path : config.vertexShaders()) {
                 Shader& shader = loadShader(path, GL_VERTEX_SHADER);
                 program->attach(shader);
             }
 
-            for (const String& path : config.fragmentShaders()) {
+            for (const auto& path : config.fragmentShaders()) {
                 Shader& shader = loadShader(path, GL_FRAGMENT_SHADER);
                 program->attach(shader);
             }
@@ -59,7 +60,7 @@ namespace TrenchBroom {
             return program;
         }
 
-        Shader& ShaderManager::loadShader(const String& name, const GLenum type) {
+        Shader& ShaderManager::loadShader(const std::string& name, const GLenum type) {
             auto it = m_shaders.find(name);
             if (it != std::end(m_shaders)) {
                 return *it->second;

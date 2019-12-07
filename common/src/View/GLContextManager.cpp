@@ -26,12 +26,13 @@
 #include "Renderer/Vbo.h"
 
 #include <sstream>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
-        String GLContextManager::GLVendor = "unknown";
-        String GLContextManager::GLRenderer = "unknown";
-        String GLContextManager::GLVersion = "unknown";
+        std::string GLContextManager::GLVendor = "unknown";
+        std::string GLContextManager::GLRenderer = "unknown";
+        std::string GLContextManager::GLVersion = "unknown";
 
         GLContextManager::GLContextManager() :
         m_initialized(false),

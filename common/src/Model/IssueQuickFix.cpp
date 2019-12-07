@@ -22,17 +22,18 @@
 #include "Model/Issue.h"
 
 #include <cassert>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        IssueQuickFix::IssueQuickFix(const IssueType issueType, const String& description) :
+        IssueQuickFix::IssueQuickFix(const IssueType issueType, const std::string& description) :
         m_issueType(issueType),
         m_description(description) {}
 
         IssueQuickFix::~IssueQuickFix() {}
 
-        const String& IssueQuickFix::description() const {
+        const std::string& IssueQuickFix::description() const {
             return m_description;
         }
 

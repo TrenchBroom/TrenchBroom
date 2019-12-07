@@ -22,6 +22,8 @@
 #include "Macros.h"
 #include "IO/PathQt.h"
 
+#include <string>
+
 #include <QDir>
 #include <QFileInfo>
 #include <QFile>
@@ -29,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TestEnvironment::TestEnvironment(const String& dir) :
+        TestEnvironment::TestEnvironment(const std::string& dir) :
             m_dir(IO::pathFromQString(QDir::current().path()) + Path(dir)) {
             createTestEnvironment();
         }
@@ -53,7 +55,7 @@ namespace TrenchBroom {
             assertResult(dir.mkpath("."));
         }
 
-        void TestEnvironment::createFile(const Path& path, const String& contents) {
+        void TestEnvironment::createFile(const Path& path, const std::string& contents) {
             auto file = QFile(IO::pathAsQString(m_dir + path));
             assertResult(file.open(QIODevice::ReadWrite));
 

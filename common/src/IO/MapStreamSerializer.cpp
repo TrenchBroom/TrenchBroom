@@ -25,6 +25,7 @@
 
 #include <ostream>
 #include <sstream>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -57,7 +58,7 @@ namespace TrenchBroom {
             }
 
             void writeTextureInfo(std::ostream& stream, Model::BrushFace* face) {
-                const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+                const std::string& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 stream << textureName << " " <<
                 ftos(face->xOffset(), FloatPrecision)  << " " <<
                 ftos(face->yOffset(), FloatPrecision)  << " " <<
@@ -135,7 +136,7 @@ namespace TrenchBroom {
             }
         private:
             void writeValveTextureInfo(std::ostream& stream, Model::BrushFace* face) {
-                const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+                const std::string& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 const vm::vec3& xAxis = face->textureXAxis();
                 const vm::vec3& yAxis = face->textureYAxis();
 
@@ -199,12 +200,12 @@ namespace TrenchBroom {
         MapStreamSerializer::~MapStreamSerializer() = default;
 
         template <typename T, typename P>
-        String ftos_helper(const T v, const P precision) {
+        std::string ftos_helper(const T v, const P precision) {
             std::ostringstream strout;
             strout.precision(static_cast<std::streamsize>(precision));
             strout << std::fixed  << v;
 
-            String str = strout.str() ;
+            std::string str = strout.str() ;
             size_t end = str.find_last_not_of('0');
             if (str[end] == '.') {
                 --end;

@@ -22,9 +22,11 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
-        SnapshotCommand::SnapshotCommand(Command::CommandType type, const String &name) :
+        SnapshotCommand::SnapshotCommand(Command::CommandType type, const std::string &name) :
         DocumentCommand(type, name),
         m_snapshot(nullptr) {}
 

@@ -21,9 +21,7 @@
 
 #include "IO/File.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/IOUtils.h"
 
-#include <cassert>
 #include <memory>
 #include <string>
 
@@ -85,7 +83,7 @@ namespace TrenchBroom {
 
             const auto err = mz_zip_get_last_error(&m_archive);
             if (err != MZ_ZIP_NO_ERROR) {
-                throw FileSystemException(String("Error while reading compressed file: ") + mz_zip_get_error_string(err));
+                throw FileSystemException(std::string("Error while reading compressed file: ") + mz_zip_get_error_string(err));
             }
         }
 

@@ -22,7 +22,6 @@
 
 #include "TrenchBroom.h"
 #include "Color.h"
-#include "StringType.h"
 #include "Assets/Asset_Forward.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
@@ -33,6 +32,7 @@
 #include <list>
 #include <memory>
 #include <optional-lite/optional.hpp>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -59,9 +59,9 @@ namespace TrenchBroom {
         class FgdTokenizer : public Tokenizer<FgdToken::Type> {
         public:
             FgdTokenizer(const char* begin, const char* end);
-            explicit FgdTokenizer(const String& str);
+            explicit FgdTokenizer(const std::string& str);
         private:
-            static const String WordDelims;
+            static const std::string WordDelims;
             Token emitToken() override;
         };
 
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             EntityDefinitionClassInfoMap m_baseClasses;
         public:
             FgdParser(const char* begin, const char* end, const Color& defaultEntityColor, const Path& path = Path(""));
-            FgdParser(const String& str, const Color& defaultEntityColor, const Path& path = Path(""));
+            FgdParser(const std::string& str, const Color& defaultEntityColor, const Path& path = Path(""));
         private:
             class PushIncludePath;
             void pushIncludePath(const Path& path);
@@ -100,30 +100,30 @@ namespace TrenchBroom {
 
             std::vector<std::string> parseSuperClasses(ParserStatus& status);
             Assets::ModelDefinition parseModel(ParserStatus& status);
-            String parseNamedValue(ParserStatus& status, const String& name);
+            std::string parseNamedValue(ParserStatus& status, const std::string& name);
             void skipClassAttribute(ParserStatus& status);
 
             AttributeDefinitionMap parseProperties(ParserStatus& status);
-            AttributeDefinitionPtr parseTargetSourceAttribute(ParserStatus& status, const String& name);
-            AttributeDefinitionPtr parseTargetDestinationAttribute(ParserStatus& status, const String& name);
-            AttributeDefinitionPtr parseStringAttribute(ParserStatus& status, const String& name);
-            AttributeDefinitionPtr parseIntegerAttribute(ParserStatus& status, const String& name);
-            AttributeDefinitionPtr parseFloatAttribute(ParserStatus& status, const String& name);
-            AttributeDefinitionPtr parseChoicesAttribute(ParserStatus& status, const String& name);
-            AttributeDefinitionPtr parseFlagsAttribute(ParserStatus& status, const String& name);
-            AttributeDefinitionPtr parseUnknownAttribute(ParserStatus& status, const String& name);
+            AttributeDefinitionPtr parseTargetSourceAttribute(ParserStatus& status, const std::string& name);
+            AttributeDefinitionPtr parseTargetDestinationAttribute(ParserStatus& status, const std::string& name);
+            AttributeDefinitionPtr parseStringAttribute(ParserStatus& status, const std::string& name);
+            AttributeDefinitionPtr parseIntegerAttribute(ParserStatus& status, const std::string& name);
+            AttributeDefinitionPtr parseFloatAttribute(ParserStatus& status, const std::string& name);
+            AttributeDefinitionPtr parseChoicesAttribute(ParserStatus& status, const std::string& name);
+            AttributeDefinitionPtr parseFlagsAttribute(ParserStatus& status, const std::string& name);
+            AttributeDefinitionPtr parseUnknownAttribute(ParserStatus& status, const std::string& name);
 
             bool parseReadOnlyFlag(ParserStatus& status);
-            String parseAttributeDescription(ParserStatus& status);
-            nonstd::optional<String> parseDefaultStringValue(ParserStatus& status);
+            std::string parseAttributeDescription(ParserStatus& status);
+            nonstd::optional<std::string> parseDefaultStringValue(ParserStatus& status);
             nonstd::optional<int> parseDefaultIntegerValue(ParserStatus& status);
             nonstd::optional<float> parseDefaultFloatValue(ParserStatus& status);
-            nonstd::optional<String> parseDefaultChoiceValue(ParserStatus& status);
+            nonstd::optional<std::string> parseDefaultChoiceValue(ParserStatus& status);
 
             vm::vec3 parseVector(ParserStatus& status);
             vm::bbox3 parseSize(ParserStatus& status);
             Color parseColor(ParserStatus& status);
-            String parseString(ParserStatus& status);
+            std::string parseString(ParserStatus& status);
 
             EntityDefinitionList parseInclude(ParserStatus& status);
             EntityDefinitionList handleInclude(ParserStatus& status, const Path& path);

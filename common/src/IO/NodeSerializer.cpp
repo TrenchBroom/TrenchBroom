@@ -28,6 +28,8 @@
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         class NodeSerializer::BrushSerializer : public Model::NodeVisitor {
@@ -43,7 +45,7 @@ namespace TrenchBroom {
             void doVisit(Model::Brush* brush) override   { m_serializer.brush(brush); }
         };
 
-        const String& NodeSerializer::IdManager::getId(const Model::Node* t) const {
+        const std::string& NodeSerializer::IdManager::getId(const Model::Node* t) const {
             auto it = m_ids.find(t);
             if (it == std::end(m_ids)) {
                 it = m_ids.insert(std::make_pair(t, idToString(makeId()))).first;
@@ -56,7 +58,7 @@ namespace TrenchBroom {
             return currentId++;
         }
 
-        String NodeSerializer::IdManager::idToString(const Model::IdType nodeId) const {
+        std::string NodeSerializer::IdManager::idToString(const Model::IdType nodeId) const {
             return kdl::str_to_string(nodeId);
         }
 
@@ -217,7 +219,7 @@ namespace TrenchBroom {
             return attrs;
         }
 
-        String NodeSerializer::escapeEntityAttribute(const String& str) const {
+        std::string NodeSerializer::escapeEntityAttribute(const std::string& str) const {
             // Remove a trailing unescaped backslash, as this will choke the parser.
             const auto l = str.size();
             if (l > 0 && str[l-1] == '\\') {

@@ -21,9 +21,9 @@
 #define TrenchBroom_Command
 
 #include "Macros.h"
-#include "StringType.h"
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -43,11 +43,11 @@ namespace TrenchBroom {
         protected:
             CommandType m_type;
             CommandState m_state;
-            String m_name;
+            std::string m_name;
         public:
             static CommandType freeType();
 
-            Command(CommandType type, const String& name);
+            Command(CommandType type, const std::string& name);
             virtual ~Command();
 
             CommandType type() const;
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             }
 
             CommandState state() const;
-            const String& name() const;
+            const std::string& name() const;
 
             virtual bool performDo(MapDocumentCommandFacade* document);
         private:

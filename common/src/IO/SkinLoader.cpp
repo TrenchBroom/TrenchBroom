@@ -30,6 +30,8 @@
 
 #include <kdl/string_format.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         Assets::Texture* loadSkin(std::shared_ptr<File> file) {
@@ -41,7 +43,7 @@ namespace TrenchBroom {
                 ensure(file.get() != nullptr, "file is null");
 
                 const Path path = file->path();
-                const String extension = kdl::str_to_lower(path.extension());
+                const std::string extension = kdl::str_to_lower(path.extension());
 
                 if (extension == "wal") {
                     WalTextureReader reader(TextureReader::PathSuffixNameStrategy(1, true), palette);
@@ -51,7 +53,7 @@ namespace TrenchBroom {
                     return reader.readTexture(file);
                 }
             } catch (FileSystemException& e) {
-                throw GameException("Could not load skin: " + String(e.what()));
+                throw GameException("Could not load skin: " + std::string(e.what()));
             }
         }
     }

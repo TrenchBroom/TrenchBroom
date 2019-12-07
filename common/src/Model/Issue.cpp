@@ -26,6 +26,8 @@
 
 #include <kdl/vector_utils.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
         Issue::~Issue() = default;
@@ -38,7 +40,7 @@ namespace TrenchBroom {
             return doGetLineNumber();
         }
 
-        const String Issue::description() const {
+        const std::string Issue::description() const {
             return doGetDescription();
         }
 

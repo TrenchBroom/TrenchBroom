@@ -22,6 +22,7 @@
 #include "View/MapDocumentCommandFacade.h"
 
 #include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -31,7 +32,7 @@ namespace TrenchBroom {
             return Ptr(new SetModsCommand("Set Mods", mods));
         }
 
-        SetModsCommand::SetModsCommand(const String& name, const std::vector<std::string>& mods) :
+        SetModsCommand::SetModsCommand(const std::string& name, const std::vector<std::string>& mods) :
         DocumentCommand(Type, name),
         m_newMods(mods) {}
 

@@ -124,7 +124,7 @@ namespace TrenchBroom {
             return static_cast<size_t>(pathStrs.size());
         }
 
-        String queryGroupName(QWidget* parent) {
+        std::string queryGroupName(QWidget* parent) {
             while (true) {
                 bool ok;
                 QString text = QInputDialog::getText(parent, "Enter a name", "Group Name", QLineEdit::Normal, "Unnamed", &ok);

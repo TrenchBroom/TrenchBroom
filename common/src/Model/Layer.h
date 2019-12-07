@@ -21,30 +21,30 @@
 #define TrenchBroom_Layer
 
 #include "Macros.h"
-#include "StringType.h"
 #include "TrenchBroom.h"
 #include "Model/Model_Forward.h"
 #include "Model/Node.h"
 
 #include <vecmath/bbox.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class Layer : public Node {
         private:
-            String m_name;
+            std::string m_name;
 
             mutable vm::bbox3 m_logicalBounds;
             mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
         public:
-            Layer(const String& name);
+            Layer(const std::string& name);
 
-            void setName(const String& name);
+            void setName(const std::string& name);
         private: // implement Node interface
-            const String& doGetName() const override;
+            const std::string& doGetName() const override;
             const vm::bbox3& doGetLogicalBounds() const override;
             const vm::bbox3& doGetPhysicalBounds() const override;
 

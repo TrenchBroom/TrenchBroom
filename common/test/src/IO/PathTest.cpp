@@ -22,6 +22,8 @@
 #include "Exceptions.h"
 #include "IO/Path.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
 #ifdef _WIN32
@@ -168,16 +170,16 @@ namespace TrenchBroom {
         }
 #else
         TEST(PathTest, constructWithString) {
-            ASSERT_EQ(String(""), Path("").asString());
-            ASSERT_EQ(String(""), Path(" ").asString());
-            ASSERT_EQ(String("/"), Path("/").asString());
-            ASSERT_EQ(String("/asdf"), Path("/asdf").asString());
-            ASSERT_EQ(String("/asdf"), Path("/asdf/").asString());
-            ASSERT_EQ(String("/asdf/df"), Path("/asdf/df").asString());
-            ASSERT_EQ(String("hey"), Path("hey").asString());
-            ASSERT_EQ(String("hey"), Path("hey/").asString());
-            ASSERT_EQ(String("hey/asdf"), Path("hey/asdf").asString());
-            ASSERT_EQ(String("./asdf"), Path("./asdf").asString());
+            ASSERT_EQ(std::string(""), Path("").asString());
+            ASSERT_EQ(std::string(""), Path(" ").asString());
+            ASSERT_EQ(std::string("/"), Path("/").asString());
+            ASSERT_EQ(std::string("/asdf"), Path("/asdf").asString());
+            ASSERT_EQ(std::string("/asdf"), Path("/asdf/").asString());
+            ASSERT_EQ(std::string("/asdf/df"), Path("/asdf/df").asString());
+            ASSERT_EQ(std::string("hey"), Path("hey").asString());
+            ASSERT_EQ(std::string("hey"), Path("hey/").asString());
+            ASSERT_EQ(std::string("hey/asdf"), Path("hey/asdf").asString());
+            ASSERT_EQ(std::string("./asdf"), Path("./asdf").asString());
         }
 
         TEST(PathTest, concatenate) {
@@ -244,11 +246,11 @@ namespace TrenchBroom {
 
         TEST(PathTest, getExtension) {
             ASSERT_THROW(Path("").extension(), PathException);
-            ASSERT_EQ(String(""), Path("asdf").extension());
-            ASSERT_EQ(String("map"), Path("asdf.map").extension());
-            ASSERT_EQ(String("map"), Path("/this/is/a/path.map").extension());
-            ASSERT_EQ(String("textfile"), Path("/this/is/a/path.map.textfile").extension());
-            ASSERT_EQ(String(""), Path("/").extension());
+            ASSERT_EQ(std::string(""), Path("asdf").extension());
+            ASSERT_EQ(std::string("map"), Path("asdf.map").extension());
+            ASSERT_EQ(std::string("map"), Path("/this/is/a/path.map").extension());
+            ASSERT_EQ(std::string("textfile"), Path("/this/is/a/path.map.textfile").extension());
+            ASSERT_EQ(std::string(""), Path("/").extension());
         }
 
         TEST(PathTest, addExtension) {

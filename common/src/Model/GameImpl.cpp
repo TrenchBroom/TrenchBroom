@@ -74,7 +74,7 @@ namespace TrenchBroom {
             m_fs.initialize(m_config, m_gamePath, m_additionalSearchPaths, logger);
         }
 
-        const String& GameImpl::doGameName() const {
+        const std::string& GameImpl::doGameName() const {
             return m_config.name();
         }
 
@@ -164,13 +164,13 @@ namespace TrenchBroom {
             }
         }
 
-        std::vector<Node*> GameImpl::doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
+        std::vector<Node*> GameImpl::doParseNodes(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             IO::NodeReader reader(str, world);
             return reader.read(worldBounds, parserStatus);
         }
 
-        std::vector<BrushFace*> GameImpl::doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
+        std::vector<BrushFace*> GameImpl::doParseBrushFaces(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             IO::BrushFaceReader reader(str, world);
             return reader.read(worldBounds, parserStatus);
@@ -242,7 +242,7 @@ namespace TrenchBroom {
                 }
                 return IO::Path::List();
             } catch (FileSystemException& e) {
-                throw GameException("Could not find texture collections: " + String(e.what()));
+                throw GameException("Could not find texture collections: " + std::string(e.what()));
             }
         }
 
@@ -400,11 +400,11 @@ namespace TrenchBroom {
                     throw GameException("Unsupported model format '" + path.asString() + "'");
                 }
             } catch (const FileSystemException& e) {
-                throw GameException("Could not load model " + path.asString() + ": " + String(e.what()));
+                throw GameException("Could not load model " + path.asString() + ": " + std::string(e.what()));
             } catch (const AssetException& e) {
-                throw GameException("Could not load model " + path.asString() + ": " + String(e.what()));
+                throw GameException("Could not load model " + path.asString() + ": " + std::string(e.what()));
             } catch (const ParserException& e) {
-                throw GameException("Could not load model " + path.asString() + ": " + String(e.what()));
+                throw GameException("Could not load model " + path.asString() + ": " + std::string(e.what()));
             }
         }
 
@@ -451,9 +451,9 @@ namespace TrenchBroom {
                     throw GameException("Unsupported model format '" + path.asString() + "'");
                 }
             } catch (FileSystemException& e) {
-                throw GameException("Could not load model " + path.asString() + ": " + String(e.what()));
+                throw GameException("Could not load model " + path.asString() + ": " + std::string(e.what()));
             } catch (AssetException& e) {
-                throw GameException("Could not load model " + path.asString() + ": " + String(e.what()));
+                throw GameException("Could not load model " + path.asString() + ": " + std::string(e.what()));
             }
         }
 
@@ -472,7 +472,7 @@ namespace TrenchBroom {
             const IO::DiskFileSystem fs(m_gamePath);
             const auto subDirs = fs.findItems(IO::Path(""), IO::FileTypeMatcher(false, true));
             for (size_t i = 0; i < subDirs.size(); ++i) {
-                const String mod = subDirs[i].lastComponent().asString();
+                const std::string mod = subDirs[i].lastComponent().asString();
                 if (!kdl::ci::is_equal(mod, defaultMod)) {
                     result.push_back(mod);
                 }
@@ -490,7 +490,7 @@ namespace TrenchBroom {
             return kdl::str_split(modStr, ";");
         }
 
-        String GameImpl::doDefaultMod() const {
+        std::string GameImpl::doDefaultMod() const {
             return m_config.fileSystemConfig().searchPath.asString();
         }
 
@@ -513,7 +513,7 @@ namespace TrenchBroom {
             }
         }
 
-        String GameImpl::readLongAttribute(const AttributableNode& node, const AttributeName& baseName) const {
+        std::string GameImpl::readLongAttribute(const AttributableNode& node, const AttributeName& baseName) const {
             size_t index = 1;
             std::stringstream nameStr;
             std::stringstream valueStr;

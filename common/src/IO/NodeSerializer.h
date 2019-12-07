@@ -24,6 +24,7 @@
 #include "Model/Model_Forward.h"
 
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -40,13 +41,13 @@ namespace TrenchBroom {
         private:
             class IdManager {
             private:
-                using IdMap = std::unordered_map<const Model::Node*, String>;
+                using IdMap = std::unordered_map<const Model::Node*, std::string>;
                 mutable IdMap m_ids;
             public:
-                const String& getId(const Model::Node* t) const;
+                const std::string& getId(const Model::Node* t) const;
             private:
                 Model::IdType makeId() const;
-                String idToString(const Model::IdType nodeId) const;
+                std::string idToString(const Model::IdType nodeId) const;
             };
 
             IdManager m_layerIds;
@@ -97,7 +98,7 @@ namespace TrenchBroom {
             Model::EntityAttribute::List layerAttributes(const Model::Layer* layer);
             Model::EntityAttribute::List groupAttributes(const Model::Group* group);
         protected:
-            String escapeEntityAttribute(const String& str) const;
+            std::string escapeEntityAttribute(const std::string& str) const;
         private:
             virtual void doBeginFile() = 0;
             virtual void doEndFile() = 0;

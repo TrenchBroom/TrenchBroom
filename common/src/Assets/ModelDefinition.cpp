@@ -30,6 +30,7 @@
 #include <vecmath/scalar.h>
 
 #include <ostream>
+#include <string>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -142,7 +143,7 @@ namespace TrenchBroom {
         IO::Path ModelDefinition::path(const EL::Value& value) const {
             if (value.type() != EL::ValueType::String)
                 return IO::Path();
-            const String& path = value.stringValue();
+            const std::string& path = value.stringValue();
             return IO::Path(kdl::cs::is_prefix(path, ":") ? path.substr(1) : path);
         }
 

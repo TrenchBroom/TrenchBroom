@@ -34,6 +34,7 @@
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
+#include <string>
 #include <vector>
 
 #include <QCheckBox>
@@ -134,7 +135,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < groups.size(); ++i) {
                 const Assets::EntityDefinitionGroup& group = groups[i];
                 const std::vector<Assets::EntityDefinition*>& definitions = group.definitions();
-                const String& groupName = group.displayName();
+                const std::string& groupName = group.displayName();
 
                 // Checkbox for the prefix, e.g. "func"
                 auto* groupCB = new QCheckBox(QString::fromStdString(groupName));
@@ -148,7 +149,7 @@ namespace TrenchBroom {
 
                 for (auto defIt = std::begin(definitions), defEnd = std::end(definitions); defIt != defEnd; ++defIt) {
                     Assets::EntityDefinition* definition = *defIt;
-                    const String defName = definition->name();
+                    const std::string defName = definition->name();
 
                     auto* defCB = new QCheckBox(QString::fromStdString(defName));
                     defCB->setStyleSheet("margin-left: 11px");

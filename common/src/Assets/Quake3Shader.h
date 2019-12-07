@@ -20,7 +20,6 @@
 #ifndef TRENCHBROOM_QUAKE3SHADER_H
 #define TRENCHBROOM_QUAKE3SHADER_H
 
-#include "StringType.h"
 #include "IO/Path.h"
 
 #include <set>
@@ -32,20 +31,20 @@ namespace TrenchBroom {
         class Quake3ShaderStage {
         public:
             struct BlendFunc {
-                String srcFactor;
-                String destFactor;
+                std::string srcFactor;
+                std::string destFactor;
 
-                static const String One;
-                static const String Zero;
-                static const String SrcColor;
-                static const String DestColor;
-                static const String OneMinusSrcColor;
-                static const String OneMinusDestColor;
-                static const String SrcAlpha;
-                static const String DestAlpha;
-                static const String OneMinusSrcAlpha;
-                static const String OneMinusDestAlpha;
-                static const String SrcAlphaSaturate;
+                static const std::string One;
+                static const std::string Zero;
+                static const std::string SrcColor;
+                static const std::string DestColor;
+                static const std::string OneMinusSrcColor;
+                static const std::string OneMinusDestColor;
+                static const std::string SrcAlpha;
+                static const std::string DestAlpha;
+                static const std::string OneMinusSrcAlpha;
+                static const std::string OneMinusDestAlpha;
+                static const std::string SrcAlphaSaturate;
 
                 bool enable() const;
                 bool validateSrcFactor() const;

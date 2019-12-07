@@ -60,7 +60,7 @@ namespace TrenchBroom {
 
         void EntityAttributeGrid::addAttribute() {
             auto document = lock(m_document);
-            const String newAttributeName = AttributeRow::newAttributeNameForAttributableNodes(document->allSelectedAttributableNodes());
+            const std::string newAttributeName = AttributeRow::newAttributeNameForAttributableNodes(document->allSelectedAttributableNodes());
 
             document->setAttribute(newAttributeName, "");
 
@@ -98,7 +98,7 @@ namespace TrenchBroom {
                 Transaction transaction(document, kdl::str_plural(numRows, "Remove Attribute", "Remove Attributes"));
 
                 bool success = true;
-                for (const String& attribute : attributes) {
+                for (const std::string& attribute : attributes) {
                     success = success && document->removeAttribute(attribute);
                 }
 

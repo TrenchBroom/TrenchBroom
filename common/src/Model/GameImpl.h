@@ -46,7 +46,7 @@ namespace TrenchBroom {
         private:
             void initializeFileSystem(Logger& logger);
         private:
-            const String& doGameName() const override;
+            const std::string& doGameName() const override;
             IO::Path doGamePath() const override;
             void doSetGamePath(const IO::Path& gamePath, Logger& logger) override;
             void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger) override;
@@ -63,8 +63,8 @@ namespace TrenchBroom {
             void doWriteMap(World& world, const IO::Path& path) const override;
             void doExportMap(World& world, Model::ExportFormat format, const IO::Path& path) const override;
 
-            std::vector<Node*> doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
-            std::vector<BrushFace*> doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
+            std::vector<Node*> doParseNodes(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
+            std::vector<BrushFace*> doParseBrushFaces(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
 
             void doWriteNodesToStream(World& world, const std::vector<Node*>& nodes, std::ostream& stream) const override;
             void doWriteBrushFacesToStream(World& world, const std::vector<BrushFace*>& faces, std::ostream& stream) const override;
@@ -93,13 +93,13 @@ namespace TrenchBroom {
 
             std::vector<std::string> doAvailableMods() const override;
             std::vector<std::string> doExtractEnabledMods(const AttributableNode& node) const override;
-            String doDefaultMod() const override;
+            std::string doDefaultMod() const override;
 
             const GameConfig::FlagsConfig& doSurfaceFlags() const override;
             const GameConfig::FlagsConfig& doContentFlags() const override;
         private:
             void writeLongAttribute(AttributableNode& node, const AttributeName& baseName, const AttributeValue& value, size_t maxLength) const;
-            String readLongAttribute(const AttributableNode& node, const AttributeName& baseName) const;
+            std::string readLongAttribute(const AttributableNode& node, const AttributeName& baseName) const;
         };
     }
 }

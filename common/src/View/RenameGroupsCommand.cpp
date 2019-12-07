@@ -21,15 +21,17 @@
 
 #include "View/MapDocumentCommandFacade.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType RenameGroupsCommand::Type = Command::freeType();
 
-        RenameGroupsCommand::Ptr RenameGroupsCommand::rename(const String& newName) {
+        RenameGroupsCommand::Ptr RenameGroupsCommand::rename(const std::string& newName) {
             return Ptr(new RenameGroupsCommand(newName));
         }
 
-        RenameGroupsCommand::RenameGroupsCommand(const String& newName) :
+        RenameGroupsCommand::RenameGroupsCommand(const std::string& newName) :
         DocumentCommand(Type, "Rename Groups"),
         m_newName(newName) {}
 

@@ -22,6 +22,7 @@
 
 #include "Model/Model_Forward.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -31,13 +32,13 @@ namespace TrenchBroom {
         class IssueQuickFix {
         private:
             IssueType m_issueType;
-            String m_description;
+            std::string m_description;
         protected:
-            IssueQuickFix(IssueType issueType, const String& description);
+            IssueQuickFix(IssueType issueType, const std::string& description);
         public:
             virtual ~IssueQuickFix();
 
-            const String& description() const;
+            const std::string& description() const;
 
             void apply(MapFacade* facade, const std::vector<Issue*>& issues) const;
         private:

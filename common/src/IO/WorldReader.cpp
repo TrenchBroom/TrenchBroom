@@ -25,12 +25,14 @@
 
 #include <kdl/string_utils.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         WorldReader::WorldReader(const char* begin, const char* end) :
         MapReader(begin, end) {}
 
-        WorldReader::WorldReader(const String& str) :
+        WorldReader::WorldReader(const std::string& str) :
         MapReader(str) {}
 
         std::unique_ptr<Model::World> WorldReader::read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {

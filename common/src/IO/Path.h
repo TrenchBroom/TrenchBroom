@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_Path
 #define TrenchBroom_Path
 
-#include "StringType.h"
-
 #include <iosfwd>
 #include <string>
 #include <vector>
@@ -33,14 +31,14 @@ namespace TrenchBroom {
             using List = std::vector<Path>;
             static const List EmptyList;
             static const Path EmptyPath;
-            static String separator();
+            static std::string separator();
 
             struct ToString {
-                String m_separator;
-                ToString(const String i_separator = separator()) :
+                std::string m_separator;
+                ToString(const std::string i_separator = separator()) :
                 m_separator(i_separator) {}
 
-                String operator()(const Path& path) const {
+                std::string operator()(const Path& path) const {
                     return path.asString(m_separator);
                 }
             };
@@ -56,14 +54,14 @@ namespace TrenchBroom {
                 }
             };
         private:
-            static const String& separators();
+            static const std::string& separators();
 
             std::vector<std::string> m_components;
             bool m_absolute;
 
             Path(bool absolute, const std::vector<std::string>& components);
         public:
-            explicit Path(const String& path = "");
+            explicit Path(const std::string& path = "");
 
             Path operator+(const Path& rhs) const;
             int compare(const Path& rhs, bool caseSensitive = true) const;
@@ -72,8 +70,8 @@ namespace TrenchBroom {
             bool operator<(const Path& rhs) const;
             bool operator>(const Path& rhs) const;
 
-            String asString(const String& sep = separator()) const;
-            static std::vector<std::string> asStrings(const Path::List& paths, const String& sep = separator());
+            std::string asString(const std::string& sep = separator()) const;
+            static std::vector<std::string> asStrings(const Path::List& paths, const std::string& sep = separator());
             static List asPaths(const std::vector<std::string>& strs);
 
             size_t length() const;
@@ -87,23 +85,23 @@ namespace TrenchBroom {
             Path subPath(size_t index, size_t count) const;
             const std::vector<std::string>& components() const;
 
-            String filename() const;
-            String basename() const;
-            String extension() const;
+            std::string filename() const;
+            std::string basename() const;
+            std::string extension() const;
 
             bool hasPrefix(const Path& prefix, bool caseSensitive) const;
-            bool hasFilename(const String& filename, bool caseSensitive) const;
+            bool hasFilename(const std::string& filename, bool caseSensitive) const;
             bool hasFilename(const std::vector<std::string>& filenames, bool caseSensitive) const;
-            bool hasBasename(const String& basename, bool caseSensitive) const;
+            bool hasBasename(const std::string& basename, bool caseSensitive) const;
             bool hasBasename(const std::vector<std::string>& basenames, bool caseSensitive) const;
-            bool hasExtension(const String& extension, bool caseSensitive) const;
+            bool hasExtension(const std::string& extension, bool caseSensitive) const;
             bool hasExtension(const std::vector<std::string>& extensions, bool caseSensitive) const;
 
             Path deleteExtension() const;
-            Path addExtension(const String& extension) const;
-            Path replaceExtension(const String& extension) const;
+            Path addExtension(const std::string& extension) const;
+            Path replaceExtension(const std::string& extension) const;
 
-            Path replaceBasename(const String& basename) const;
+            Path replaceBasename(const std::string& basename) const;
 
             bool isAbsolute() const;
             bool canMakeRelative(const Path& absolutePath) const;
@@ -115,7 +113,7 @@ namespace TrenchBroom {
             static List makeAbsoluteAndCanonical(const List& paths, const Path& relativePath);
         private:
             static bool hasDriveSpec(const std::vector<std::string>& components);
-            static bool hasDriveSpec(const String& component);
+            static bool hasDriveSpec(const std::string& component);
             std::vector<std::string> resolvePath(bool absolute, const std::vector<std::string>& components) const;
         };
 

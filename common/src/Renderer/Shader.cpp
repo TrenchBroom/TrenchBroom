@@ -93,7 +93,7 @@ namespace TrenchBroom {
                 throw RenderException("Could not load shader source from " + path.asString());
             }
 
-            String line;
+            std::string line;
             std::vector<std::string> lines;
 
             while (!stream.eof()) {

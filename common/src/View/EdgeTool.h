@@ -26,6 +26,7 @@
 
 #include <memory>
 #include <set>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -56,7 +57,7 @@ namespace TrenchBroom {
         public:
             MoveResult move(const vm::vec3& delta) override;
 
-            String actionName() const override;
+            std::string actionName() const override;
 
             void removeSelection();
         };

@@ -22,8 +22,8 @@
 
 #include "Macros.h"
 #include "Notifier.h"
-#include "StringType.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -57,18 +57,18 @@ namespace TrenchBroom {
 
         class CompilationExportMap : public CompilationTask {
         private:
-            String m_targetSpec;
+            std::string m_targetSpec;
         public:
-            explicit CompilationExportMap(const String& targetSpec);
+            explicit CompilationExportMap(const std::string& targetSpec);
 
             void accept(CompilationTaskVisitor& visitor) override;
             void accept(ConstCompilationTaskVisitor& visitor) const override;
             void accept(const CompilationTaskConstVisitor& visitor) override;
             void accept(const ConstCompilationTaskConstVisitor& visitor) const override;
 
-            const String& targetSpec() const;
+            const std::string& targetSpec() const;
 
-            void setTargetSpec(const String& targetSpec);
+            void setTargetSpec(const std::string& targetSpec);
 
             CompilationExportMap* clone() const override;
 
@@ -77,21 +77,21 @@ namespace TrenchBroom {
 
         class CompilationCopyFiles : public CompilationTask {
         private:
-            String m_sourceSpec;
-            String m_targetSpec;
+            std::string m_sourceSpec;
+            std::string m_targetSpec;
         public:
-            CompilationCopyFiles(const String& sourceSpec, const String& targetSpec);
+            CompilationCopyFiles(const std::string& sourceSpec, const std::string& targetSpec);
 
             void accept(CompilationTaskVisitor& visitor) override;
             void accept(ConstCompilationTaskVisitor& visitor) const override;
             void accept(const CompilationTaskConstVisitor& visitor) override;
             void accept(const ConstCompilationTaskConstVisitor& visitor) const override;
 
-            const String& sourceSpec() const;
-            const String& targetSpec() const;
+            const std::string& sourceSpec() const;
+            const std::string& targetSpec() const;
 
-            void setSourceSpec(const String& sourceSpec);
-            void setTargetSpec(const String& targetSpec);
+            void setSourceSpec(const std::string& sourceSpec);
+            void setTargetSpec(const std::string& targetSpec);
 
             CompilationCopyFiles* clone() const override;
 
@@ -100,21 +100,21 @@ namespace TrenchBroom {
 
         class CompilationRunTool : public CompilationTask {
         private:
-            String m_toolSpec;
-            String m_parameterSpec;
+            std::string m_toolSpec;
+            std::string m_parameterSpec;
         public:
-            CompilationRunTool(const String& toolSpec, const String& parameterSpec);
+            CompilationRunTool(const std::string& toolSpec, const std::string& parameterSpec);
 
             void accept(CompilationTaskVisitor& visitor) override;
             void accept(ConstCompilationTaskVisitor& visitor) const override;
             void accept(const CompilationTaskConstVisitor& visitor) override;
             void accept(const ConstCompilationTaskConstVisitor& visitor) const override;
 
-            const String& toolSpec() const;
-            const String& parameterSpec() const;
+            const std::string& toolSpec() const;
+            const std::string& parameterSpec() const;
 
-            void setToolSpec(const String& toolSpec);
-            void setParameterSpec(const String& parameterSpec);
+            void setToolSpec(const std::string& toolSpec);
+            void setParameterSpec(const std::string& parameterSpec);
 
             CompilationRunTool* clone() const override;
 

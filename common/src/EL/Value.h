@@ -20,7 +20,6 @@
 #ifndef Value_h
 #define Value_h
 
-#include "StringType.h"
 #include "EL/Types.h"
 
 // FIXME: try to remove some of these headers
@@ -36,7 +35,7 @@ namespace TrenchBroom {
             virtual ~ValueHolder();
 
             virtual ValueType type() const = 0;
-            String describe() const;
+            std::string describe() const;
 
             virtual const BooleanType& booleanValue() const;
             virtual const StringType&  stringValue()  const;
@@ -52,7 +51,7 @@ namespace TrenchBroom {
 
             virtual ValueHolder* clone() const = 0;
 
-            virtual void appendToStream(std::ostream& str, bool multiline, const String& indent) const = 0;
+            virtual void appendToStream(std::ostream& str, bool multiline, const std::string& indent) const = 0;
         };
 
         class BooleanValueHolder : public ValueHolder {
@@ -66,7 +65,7 @@ namespace TrenchBroom {
             bool convertibleTo(ValueType toType) const override;
             ValueHolder* convertTo(ValueType toType) const override;
             ValueHolder* clone() const override;
-            void appendToStream(std::ostream& str, bool multiline, const String& indent) const override;
+            void appendToStream(std::ostream& str, bool multiline, const std::string& indent) const override;
         };
 
         class StringHolder : public ValueHolder {
@@ -78,7 +77,7 @@ namespace TrenchBroom {
             size_t length() const override;
             bool convertibleTo(ValueType toType) const override;
             ValueHolder* convertTo(ValueType toType) const override;
-            void appendToStream(std::ostream& str, bool multiline, const String& indent) const override;
+            void appendToStream(std::ostream& str, bool multiline, const std::string& indent) const override;
         private:
             virtual const StringType& doGetValue() const = 0;
         };
@@ -115,7 +114,7 @@ namespace TrenchBroom {
             bool convertibleTo(ValueType toType) const override;
             ValueHolder* convertTo(ValueType toType) const override;
             ValueHolder* clone() const override;
-            void appendToStream(std::ostream& str, bool multiline, const String& indent) const override;
+            void appendToStream(std::ostream& str, bool multiline, const std::string& indent) const override;
         };
 
         class ArrayValueHolder : public ValueHolder {
@@ -129,7 +128,7 @@ namespace TrenchBroom {
             bool convertibleTo(ValueType toType) const override;
             ValueHolder* convertTo(ValueType toType) const override;
             ValueHolder* clone() const override;
-            void appendToStream(std::ostream& str, bool multiline, const String& indent) const override;
+            void appendToStream(std::ostream& str, bool multiline, const std::string& indent) const override;
         };
 
         class MapValueHolder : public ValueHolder {
@@ -143,7 +142,7 @@ namespace TrenchBroom {
             bool convertibleTo(ValueType toType) const override;
             ValueHolder* convertTo(ValueType toType) const override;
             ValueHolder* clone() const override;
-            void appendToStream(std::ostream& str, bool multiline, const String& indent) const override;
+            void appendToStream(std::ostream& str, bool multiline, const std::string& indent) const override;
         };
 
         class RangeValueHolder : public ValueHolder {
@@ -157,7 +156,7 @@ namespace TrenchBroom {
             bool convertibleTo(ValueType toType) const override;
             ValueHolder* convertTo(ValueType toType) const override;
             ValueHolder* clone() const override;
-            void appendToStream(std::ostream& str, bool multiline, const String& indent) const override;
+            void appendToStream(std::ostream& str, bool multiline, const std::string& indent) const override;
         };
 
         class NullValueHolder : public ValueHolder {
@@ -172,7 +171,7 @@ namespace TrenchBroom {
             bool convertibleTo(ValueType toType) const override;
             ValueHolder* convertTo(ValueType toType) const override;
             ValueHolder* clone() const override;
-            void appendToStream(std::ostream& str, bool multiline, const String& indent) const override;
+            void appendToStream(std::ostream& str, bool multiline, const std::string& indent) const override;
         };
 
         class UndefinedValueHolder : public ValueHolder {
@@ -182,7 +181,7 @@ namespace TrenchBroom {
             bool convertibleTo(ValueType toType) const override;
             ValueHolder* convertTo(ValueType toType) const override;
             ValueHolder* clone() const override;
-            void appendToStream(std::ostream& str, bool multiline, const String& indent) const override;
+            void appendToStream(std::ostream& str, bool multiline, const std::string& indent) const override;
         };
 
         class Value {
@@ -238,13 +237,13 @@ namespace TrenchBroom {
             explicit Value(const MapType& value);
 
             template <typename T, typename C>
-            Value(const std::map<String, T, C>& value, size_t line, size_t column) :
+            Value(const std::map<std::string, T, C>& value, size_t line, size_t column) :
             m_value(new MapValueHolder(makeMap(value))),
             m_line(line),
             m_column(column) {}
 
             template <typename T, typename C>
-            explicit Value(const std::map<String, T, C>& value) :
+            explicit Value(const std::map<std::string, T, C>& value) :
             m_value(new MapValueHolder(makeMap(value))),
             m_line(0),
             m_column(0) {}
@@ -270,7 +269,7 @@ namespace TrenchBroom {
             }
 
             template <typename T, typename C>
-            MapType makeMap(const std::map<String, T, C>& values) {
+            MapType makeMap(const std::map<std::string, T, C>& values) {
                 MapType result;
                 for (const auto& entry : values) {
                     result.insert(std::make_pair(entry.first, EL::Value(entry.second)));
@@ -279,8 +278,8 @@ namespace TrenchBroom {
             }
         public:
             ValueType type() const;
-            String typeName() const;
-            String describe() const;
+            std::string typeName() const;
+            std::string describe() const;
 
             size_t line() const;
             size_t column() const;
@@ -302,19 +301,19 @@ namespace TrenchBroom {
             bool convertibleTo(ValueType toType) const;
             Value convertTo(ValueType toType) const;
 
-            String asString(bool multiline = false) const;
-            void appendToStream(std::ostream& str, bool multiline = true, const String& indent = "") const;
+            std::string asString(bool multiline = false) const;
+            void appendToStream(std::ostream& str, bool multiline = true, const std::string& indent = "") const;
             friend std::ostream& operator<<(std::ostream& stream, const Value& value);
 
             bool contains(const Value& indexValue) const;
             bool contains(size_t index) const;
-            bool contains(const String& key) const;
+            bool contains(const std::string& key) const;
             std::vector<std::string> keys() const;
 
             Value operator[](const Value& indexValue) const;
             Value operator[](size_t index) const;
             Value operator[](int index) const;
-            Value operator[](const String& key) const;
+            Value operator[](const std::string& key) const;
             Value operator[](const char* key) const;
         private:
             IndexList computeIndexArray(const Value& indexValue, size_t indexableSize) const;

@@ -30,6 +30,7 @@
 #include <functional>
 #include <memory>
 #include <optional-lite/optional.hpp>
+#include <string>
 #include <vector>
 
 namespace tinyxml2 {
@@ -47,14 +48,14 @@ namespace TrenchBroom {
 
         class EntParser : public EntityDefinitionParser {
         private:
-            using AttributeFactory = std::function<std::shared_ptr<Assets::AttributeDefinition>(const String&, const String&, const String&)>;
+            using AttributeFactory = std::function<std::shared_ptr<Assets::AttributeDefinition>(const std::string&, const std::string&, const std::string&)>;
 
             const char* m_begin;
             const char* m_end;
             const Color m_defaultEntityColor;
         public:
             EntParser(const char* begin, const char* end, const Color& defaultEntityColor);
-            EntParser(const String& str, const Color& defaultEntityColor);
+            EntParser(const std::string& str, const Color& defaultEntityColor);
         private:
             EntityDefinitionList doParseDefinitions(ParserStatus& status) override;
             EntityDefinitionList parseClasses(const tinyxml2::XMLDocument& document, ParserStatus& status);
@@ -81,17 +82,17 @@ namespace TrenchBroom {
             void parseAttributeDeclaration(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
             void parseListDeclaration(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
 
-            vm::bbox3 parseBounds(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);
-            Color parseColor(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);
-            nonstd::optional<int> parseInteger(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);
-            nonstd::optional<float> parseFloat(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);
-            nonstd::optional<size_t> parseSize(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);
-            String parseString(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);
-            String getText(const tinyxml2::XMLElement& element);
+            vm::bbox3 parseBounds(const tinyxml2::XMLElement& element, const std::string& attributeName, ParserStatus& status);
+            Color parseColor(const tinyxml2::XMLElement& element, const std::string& attributeName, ParserStatus& status);
+            nonstd::optional<int> parseInteger(const tinyxml2::XMLElement& element, const std::string& attributeName, ParserStatus& status);
+            nonstd::optional<float> parseFloat(const tinyxml2::XMLElement& element, const std::string& attributeName, ParserStatus& status);
+            nonstd::optional<size_t> parseSize(const tinyxml2::XMLElement& element, const std::string& attributeName, ParserStatus& status);
+            std::string parseString(const tinyxml2::XMLElement& element, const std::string& attributeName, ParserStatus& status);
+            std::string getText(const tinyxml2::XMLElement& element);
 
-            bool expectAttribute(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status);
-            bool hasAttribute(const tinyxml2::XMLElement& element, const String& attributeName);
-            void warn(const tinyxml2::XMLElement& element, const String& msg, ParserStatus& status);
+            bool expectAttribute(const tinyxml2::XMLElement& element, const std::string& attributeName, ParserStatus& status);
+            bool hasAttribute(const tinyxml2::XMLElement& element, const std::string& attributeName);
+            void warn(const tinyxml2::XMLElement& element, const std::string& msg, ParserStatus& status);
         };
     }
 }

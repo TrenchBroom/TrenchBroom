@@ -28,8 +28,6 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
-#include "Model/Hit.h"
-#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Model/World.h"
 #include "Renderer/Camera.h"
@@ -38,6 +36,8 @@
 
 #include <vecmath/bbox.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
         CreateEntityTool::CreateEntityTool(std::weak_ptr<MapDocument> document) :
@@ -45,7 +45,7 @@ namespace TrenchBroom {
         m_document(document),
         m_entity(nullptr) {}
 
-        bool CreateEntityTool::createEntity(const String& classname) {
+        bool CreateEntityTool::createEntity(const std::string& classname) {
             auto document = lock(m_document);
             const Assets::EntityDefinitionManager& definitionManager = document->entityDefinitionManager();
             Assets::EntityDefinition* definition = definitionManager.definition(classname);

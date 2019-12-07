@@ -32,6 +32,7 @@
 
 #include <cassert>
 #include <set>
+#include <string>
 #include <tuple>
 #include <vector>
 
@@ -181,7 +182,7 @@ namespace TrenchBroom {
             }
         }
 
-        String VertexTool::actionName() const {
+        std::string VertexTool::actionName() const {
             switch (m_mode) {
                 case Mode_Move:
                     return kdl::str_plural(m_vertexHandles.selectedHandleCount(), "Move Vertex", "Move Vertices");

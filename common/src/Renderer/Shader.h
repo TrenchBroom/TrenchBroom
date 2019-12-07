@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_Shader
 #define TrenchBroom_Shader
 
-#include "StringType.h"
 #include "Renderer/GL.h"
 #include "IO/Path.h"
 
@@ -31,7 +30,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class Shader {
         private:
-            String m_name;
+            std::string m_name;
             GLenum m_type;
             GLuint m_shaderId;
         public:

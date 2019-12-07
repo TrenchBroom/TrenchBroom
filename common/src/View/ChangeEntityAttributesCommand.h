@@ -24,6 +24,8 @@
 #include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
         class MapDocumentCommandFacade;
@@ -55,7 +57,7 @@ namespace TrenchBroom {
             void setNewValue(const Model::AttributeValue& newValue);
         private:
             ChangeEntityAttributesCommand(Action action);
-            static String makeName(Action action);
+            static std::string makeName(Action action);
 
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

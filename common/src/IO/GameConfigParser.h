@@ -21,10 +21,10 @@
 #define TrenchBroom_GameConfigParser
 
 #include "Macros.h"
-#include "StringType.h"
 #include "IO/ConfigParserBase.h"
 #include "Model/GameConfig.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -39,7 +39,7 @@ namespace TrenchBroom {
         class GameConfigParser : public ConfigParserBase {
         public:
             GameConfigParser(const char* begin, const char* end, const Path& path);
-            explicit GameConfigParser(const String& str, const Path& path = Path(""));
+            explicit GameConfigParser(const std::string& str, const Path& path = Path(""));
 
             Model::GameConfig parse();
         private:

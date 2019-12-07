@@ -37,16 +37,17 @@
 
 #include <vecmath/ray.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        Group::Group(const String& name) :
+        Group::Group(const std::string& name) :
         m_name(name),
         m_editState(Edit_Closed),
         m_boundsValid(false) {}
 
-        void Group::setName(const String& name) {
+        void Group::setName(const std::string& name) {
             m_name = name;
         }
 
@@ -97,7 +98,7 @@ namespace TrenchBroom {
             return m_editState == Edit_DescendantOpen;
         }
 
-        const String& Group::doGetName() const {
+        const std::string& Group::doGetName() const {
             return m_name;
         }
 

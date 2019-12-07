@@ -23,6 +23,7 @@
 #include "IO/MapReader.h"
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -32,7 +33,7 @@ namespace TrenchBroom {
             std::unique_ptr<Model::World> m_world;
         public:
             WorldReader(const char* begin, const char* end);
-            WorldReader(const String& str);
+            WorldReader(const std::string& str);
 
             std::unique_ptr<Model::World> read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
         private: // implement MapReader interface

@@ -22,6 +22,7 @@
 #include "Model/BrushFace.h"
 
 #include <cassert>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -232,7 +233,7 @@ namespace TrenchBroom {
             m_colorValueOp = ValueOp_None;
         }
 
-        const String ChangeBrushFaceAttributesRequest::name() const {
+        const std::string ChangeBrushFaceAttributesRequest::name() const {
             return "Change Face Attributes";
         }
 

@@ -25,12 +25,14 @@
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         Quake3ShaderTokenizer::Quake3ShaderTokenizer(const char* begin, const char* end) :
         Tokenizer(begin, end, "", '\\') {}
 
-        Quake3ShaderTokenizer::Quake3ShaderTokenizer(const String &str) :
+        Quake3ShaderTokenizer::Quake3ShaderTokenizer(const std::string &str) :
         Tokenizer(str, "", '\\') {}
 
         Tokenizer<unsigned int>::Token Quake3ShaderTokenizer::emitToken() {
@@ -62,7 +64,7 @@ namespace TrenchBroom {
                     case '$': {
                         const auto* e = readUntil(Whitespace());
                         if (e == nullptr) {
-                            throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                            throw ParserException(startLine, startColumn, "Unexpected character: " + std::string(c, 1));
                         }
                         return Token(Quake3ShaderToken::Variable, c, e, offset(c), startLine, startColumn);
                     }
@@ -94,7 +96,7 @@ namespace TrenchBroom {
 
                         e = readUntil(Whitespace());
                         if (e == nullptr) {
-                            throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                            throw ParserException(startLine, startColumn, "Unexpected character: " + std::string(c, 1));
                         }
                         return Token(Quake3ShaderToken::String, c, e, offset(c), startLine, startColumn);
                 }
@@ -105,7 +107,7 @@ namespace TrenchBroom {
         Quake3ShaderParser::Quake3ShaderParser(const char* begin, const char* end) :
         m_tokenizer(begin, end) {}
 
-        Quake3ShaderParser::Quake3ShaderParser(const String& str) :
+        Quake3ShaderParser::Quake3ShaderParser(const std::string& str) :
         m_tokenizer(str) {}
 
         std::vector<Assets::Quake3Shader> Quake3ShaderParser::parse(ParserStatus& status) {

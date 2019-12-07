@@ -23,9 +23,10 @@
 #include "Macros.h"
 #include "EL/Value.h"
 
+#include <iosfwd>
 #include <list>
 #include <memory>
-#include <iosfwd>
+#include <string>
 
 namespace TrenchBroom {
     namespace EL {
@@ -45,7 +46,7 @@ namespace TrenchBroom {
 
             size_t line() const;
             size_t column() const;
-            String asString() const;
+            std::string asString() const;
             friend std::ostream& operator<<(std::ostream& stream, const Expression& expression);
         };
 
@@ -55,7 +56,7 @@ namespace TrenchBroom {
         public:
             using Ptr = std::unique_ptr<ExpressionBase>;
             using List = std::list<Ptr>;
-            using Map = std::map<String, Ptr>;
+            using Map = std::map<std::string, Ptr>;
 
             friend class Expression;
         protected:
@@ -74,7 +75,7 @@ namespace TrenchBroom {
             ExpressionBase* optimize();
             Value evaluate(const EvaluationContext& context) const;
 
-            String asString() const;
+            std::string asString() const;
             void appendToStream(std::ostream& str) const;
             friend std::ostream& operator<<(std::ostream& stream, const ExpressionBase& expression);
         private:
@@ -106,11 +107,11 @@ namespace TrenchBroom {
 
         class VariableExpression : public ExpressionBase {
         private:
-            String m_variableName;
+            std::string m_variableName;
         private:
-            VariableExpression(const String& variableName, size_t line, size_t column);
+            VariableExpression(const std::string& variableName, size_t line, size_t column);
         public:
-            static ExpressionBase* create(const String& variableName, size_t line, size_t column);
+            static ExpressionBase* create(const std::string& variableName, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const override;
             ExpressionBase* doOptimize() override;
@@ -478,7 +479,7 @@ namespace TrenchBroom {
 
         class RangeOperator : public BinaryOperator {
         public:
-            static const String& AutoRangeParameterName();
+            static const std::string& AutoRangeParameterName();
         private:
             RangeOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         public:

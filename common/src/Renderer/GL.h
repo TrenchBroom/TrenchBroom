@@ -20,8 +20,7 @@
 #ifndef TrenchBroom_GL_h
 #define TrenchBroom_GL_h
 
-#include "StringType.h"
-
+#include <string>
 #include <vector>
 
 #include <GL/glew.h>
@@ -32,11 +31,11 @@ namespace TrenchBroom {
     using GLIndices = std::vector<GLint>  ;
     using GLCounts = std::vector<GLsizei>;
 
-    void glCheckError(const String& msg);
-    String glGetErrorMessage(GLenum code);
+    void glCheckError(const std::string& msg);
+    std::string glGetErrorMessage(GLenum code);
 
-    GLenum glGetEnum(const String& name);
-    String glGetEnumName(GLenum _enum);
+    GLenum glGetEnum(const std::string& name);
+    std::string glGetEnumName(GLenum _enum);
 
 // #define GL_DEBUG 1
 // #define GL_LOG 1

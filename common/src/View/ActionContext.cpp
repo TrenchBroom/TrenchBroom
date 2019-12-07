@@ -36,9 +36,10 @@ namespace TrenchBroom {
             return (lhs & rhs & mask) != 0;
         }
 
-        String actionContextName(const ActionContext::Type actionContext) {
-            if (actionContext == ActionContext::Any)
+        std::string actionContextName(const ActionContext::Type actionContext) {
+            if (actionContext == ActionContext::Any) {
                 return "Any";
+            }
 
             std::vector<std::string> actionContexts;
             if (actionContext & ActionContext::NodeSelection) {

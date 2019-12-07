@@ -21,11 +21,11 @@
 #define TrenchBroom_ModelFactoryImpl
 
 #include "TrenchBroom.h"
-#include "StringType.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelFactory.h"
 #include "Model/Model_Forward.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -41,8 +41,8 @@ namespace TrenchBroom {
         private: // implement ModelFactory interface
             MapFormat doGetFormat() const override;
             World* doCreateWorld() const override;
-            Layer* doCreateLayer(const String& name) const override;
-            Group* doCreateGroup(const String& name) const override;
+            Layer* doCreateLayer(const std::string& name) const override;
+            Group* doCreateGroup(const std::string& name) const override;
             Entity* doCreateEntity() const override;
             Brush* doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const override;
 

@@ -43,10 +43,11 @@
 #include <vecmath/vec_io.h>
 
 #include <sstream>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
-        const String BrushFace::NoTextureName = "__TB_empty";
+        const std::string BrushFace::NoTextureName = "__TB_empty";
 
         BrushFace::ProjectToVertex::Type BrushFace::ProjectToVertex::project(const BrushHalfEdge* halfEdge) {
             return halfEdge->origin();
@@ -69,12 +70,12 @@ namespace TrenchBroom {
             setPoints(point0, point1, point2);
         }
 
-        BrushFace* BrushFace::createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName) {
+        BrushFace* BrushFace::createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
             const BrushFaceAttributes attribs(textureName);
             return new BrushFace(point0, point1, point2, attribs, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attribs));
         }
 
-        BrushFace* BrushFace::createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName) {
+        BrushFace* BrushFace::createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
             const BrushFaceAttributes attribs(textureName);
             return new BrushFace(point0, point1, point2, attribs, std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attribs));
         }
@@ -254,7 +255,7 @@ namespace TrenchBroom {
             }
         }
 
-        const String& BrushFace::textureName() const {
+        const std::string& BrushFace::textureName() const {
             return m_attribs.textureName();
         }
 

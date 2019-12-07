@@ -26,12 +26,14 @@
 
 #include <kdl/vector_utils.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         GameEngineConfigParser::GameEngineConfigParser(const char* begin, const char* end, const Path& path) :
         ConfigParserBase(begin, end, path) {}
 
-        GameEngineConfigParser::GameEngineConfigParser(const String& str, const Path& path) :
+        GameEngineConfigParser::GameEngineConfigParser(const std::string& str, const Path& path) :
         ConfigParserBase(str, path) {}
 
         Model::GameEngineConfig GameEngineConfigParser::parse() {
@@ -66,9 +68,9 @@ namespace TrenchBroom {
         Model::GameEngineProfile* GameEngineConfigParser::parseProfile(const EL::Value& value) const {
             expectStructure(value, "[ {'name': 'String', 'path': 'String'}, { 'parameters': 'String' } ]");
 
-            const String& name = value["name"].stringValue();
+            const std::string& name = value["name"].stringValue();
             const Path path = Path(value["path"].stringValue());
-            const String& parameterSpec = value["parameters"].stringValue();
+            const std::string& parameterSpec = value["parameters"].stringValue();
 
             return new Model::GameEngineProfile(name, path, parameterSpec);
         }

@@ -21,7 +21,6 @@
 #define TrenchBroom_Group
 
 #include "TrenchBroom.h"
-#include "StringType.h"
 #include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "Model/Node.h"
@@ -29,6 +28,7 @@
 
 #include <vecmath/bbox.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -43,15 +43,15 @@ namespace TrenchBroom {
                 Edit_DescendantOpen
             } EditState;
 
-            String m_name;
+            std::string m_name;
             EditState m_editState;
             mutable vm::bbox3 m_logicalBounds;
             mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
         public:
-            Group(const String& name);
+            Group(const std::string& name);
 
-            void setName(const String& name);
+            void setName(const std::string& name);
 
             bool opened() const;
             bool hasOpenedDescendant() const;
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             void openAncestors();
             void closeAncestors();
         private: // implement methods inherited from Node
-            const String& doGetName() const override;
+            const std::string& doGetName() const override;
             const vm::bbox3& doGetLogicalBounds() const override;
             const vm::bbox3& doGetPhysicalBounds() const override;
 

@@ -19,9 +19,11 @@
 
 #include "SimpleParserStatus.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
-        SimpleParserStatus::SimpleParserStatus(Logger& logger, String prefix) :
+        SimpleParserStatus::SimpleParserStatus(Logger& logger, const std::string& prefix) :
         ParserStatus(logger, prefix) {}
 
         void SimpleParserStatus::doProgress(const double /* progress */) {}

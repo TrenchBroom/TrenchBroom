@@ -20,11 +20,10 @@
 #ifndef TrenchBroom_Token
 #define TrenchBroom_Token
 
-#include "StringType.h"
-
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -72,8 +71,8 @@ namespace TrenchBroom {
                 return m_end;
             }
 
-            const String data() const {
-                return String(m_begin, length());
+            const std::string data() const {
+                return std::string(m_begin, length());
             }
 
             size_t position() const {
