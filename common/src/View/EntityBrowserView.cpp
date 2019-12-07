@@ -151,7 +151,7 @@ namespace TrenchBroom {
 
                     if (!definitions.empty()) {
                         const auto displayName = group.displayName();
-                        layout.addGroup(displayName, fontSize + 2.0f);
+                        layout.addGroup(displayName, static_cast<float>(fontSize)+ 2.0f);
 
                         for (const auto* definition : definitions) {
                             const auto* pointEntityDefinition = static_cast<const Assets::PointEntityDefinition*>(definition);
@@ -209,7 +209,7 @@ namespace TrenchBroom {
                                boundsSize.y(),
                                boundsSize.z(),
                                actualSize.x(),
-                               font.size() + 2.0f);
+                               static_cast<float>(font.size()) + 2.0f);
             }
         }
 

@@ -257,7 +257,7 @@ namespace TrenchBroom {
 
         void ViewPreferencePane::brightnessChanged(const int value) {
             auto& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::Brightness, value / 40.0f);
+            prefs.set(Preferences::Brightness, static_cast<float>(value) / 40.0f);
         }
 
         void ViewPreferencePane::gridAlphaChanged(const int /* value */) {

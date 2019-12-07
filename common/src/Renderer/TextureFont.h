@@ -41,12 +41,12 @@ namespace TrenchBroom {
         private:
             std::unique_ptr<FontTexture> m_texture;
             FontGlyph::List m_glyphs;
-            size_t m_lineHeight;
+            int m_lineHeight;
 
             unsigned char m_firstChar;
             unsigned char m_charCount;
         public:
-            TextureFont(std::unique_ptr<FontTexture> texture, const FontGlyph::List& glyphs, size_t lineHeight, unsigned char firstChar, unsigned char charCount);
+            TextureFont(std::unique_ptr<FontTexture> texture, const FontGlyph::List& glyphs, int lineHeight, unsigned char firstChar, unsigned char charCount);
             ~TextureFont();
 
             deleteCopyAndMove(TextureFont)

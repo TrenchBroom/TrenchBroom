@@ -51,7 +51,7 @@ namespace TrenchBroom {
                         auto& myCount = counts.front();
 
                         if (index == static_cast<size_t>(myIndex) + static_cast<size_t>(myCount)) {
-                            myCount += count;
+                            myCount += static_cast<GLsizei>(count);
                             break;
                         }
                     }

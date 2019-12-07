@@ -107,7 +107,7 @@ namespace TrenchBroom {
                     }
 
                     for (size_t i = 0; i < 3; ++i) {
-                        averageColor[i] = static_cast<float>(avg[i] / pixelCount / 0xFF);
+                        averageColor[i] = static_cast<float>(avg[i] / static_cast<double>(pixelCount) / static_cast<double>(0xFF));
                     }
                     averageColor[3] = 1.0f;
 

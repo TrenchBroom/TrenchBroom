@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        TextureFont::TextureFont(std::unique_ptr<FontTexture> texture, const FontGlyph::List& glyphs, const size_t lineHeight, const unsigned char firstChar, const unsigned char charCount) :
+        TextureFont::TextureFont(std::unique_ptr<FontTexture> texture, const FontGlyph::List& glyphs, const int lineHeight, const unsigned char firstChar, const unsigned char charCount) :
         m_texture(std::move(texture)),
         m_glyphs(glyphs),
         m_lineHeight(lineHeight),
@@ -219,7 +219,7 @@ namespace TrenchBroom {
             }
 
             result[0] = std::max(result[0], static_cast<float>(x));
-            result[1] = static_cast<float>(y + static_cast<int>(m_lineHeight));
+            result[1] = static_cast<float>(y + m_lineHeight);
             return result;
         }
 
