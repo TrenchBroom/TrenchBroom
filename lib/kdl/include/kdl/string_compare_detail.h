@@ -133,8 +133,8 @@ namespace kdl {
     }
 
     /**
-     * Checks whether the given string in range [s_cur, s_end) matches the glob pattern in range [p_cur, p_end).
-     * Characters are compared for equality using the given binary predicate.
+     * Checks whether the given string matches the given glob pattern. Characters are compared for equality using the
+     * given binary predicate.
      *
      * A glob pattern is a string that has the following special characters:
      * - ? matches any character one time
@@ -148,12 +148,9 @@ namespace kdl {
      * - he*o matches 'hello' and 'hero', but not 'hera' nor 'hiro'
      * - wh*\? matches 'what?' and 'why?'
      *
-     * @tparam I the iterator type
      * @tparam CharEqual the type of the binary predicate used to test characters for equality
-     * @param s_cur beginning of the string to match the pattern against
-     * @param s_end end of the string to match the pattern against (past-the-end iterator)
-     * @param p_cur beginning of the pattern
-     * @param p_end end of the pattern (past-the-end iterator)
+     * @param s the string to match the pattern against
+     * @param p the pattern
      * @param char_equal the binary predicate
      * @return true if the given pattern matches the given string
      */
