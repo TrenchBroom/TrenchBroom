@@ -114,7 +114,7 @@ namespace TrenchBroom {
             void visit(const MenuSeparatorItem&) override {}
 
             void visit(const MenuActionItem& item) override {
-                m_out << "    '" << QString::fromStdString(item.action().preferencePath().asString('/')) << "': ";
+                m_out << "    '" << QString::fromStdString(item.action().preferencePath().asString("/")) << "': ";
                 m_out << "{ path: " << toString(m_path, item.label()) << ", shortcut: " << toString(item.action().keySequence()) << " },\n";
             }
         };
@@ -134,7 +134,7 @@ namespace TrenchBroom {
 
             const auto& actionManager = ActionManager::instance();
             actionManager.visitMapViewActions([&out](const auto& action) {
-                out << "    '" << QString::fromStdString(action.preferencePath().asString('/')) << "': ";
+                out << "    '" << QString::fromStdString(action.preferencePath().asString("/")) << "': ";
                 out << toString(action.keySequence()) << ",\n";
             });
 

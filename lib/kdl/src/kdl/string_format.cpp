@@ -61,7 +61,7 @@ namespace kdl {
         result.reserve(str.size());
 
         for (const auto c : str) {
-            result.push_back(std::tolower(c));
+            result.push_back(static_cast<std::string::value_type>(std::tolower(c)));
         }
 
         return result;
@@ -72,7 +72,7 @@ namespace kdl {
         result.reserve(str.size());
 
         for (const auto c : str) {
-            result.push_back(std::toupper(c));
+            result.push_back(static_cast<std::string::value_type>(std::toupper(c)));
         }
 
         return result;
@@ -88,7 +88,7 @@ namespace kdl {
                 initial = true;
                 result.push_back(c);
             } else if (initial) {
-                result.push_back(std::toupper(c));
+                result.push_back(static_cast<std::string::value_type>(std::toupper(c)));
                 initial = false;
             } else {
                 result.push_back(c);

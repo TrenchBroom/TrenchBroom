@@ -22,9 +22,9 @@ target_include_directories(kdl
         PRIVATE ${KDL_INCLUDE_DIR}/kdl)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    target_compile_options(kdl PUBLIC -Wall -Wextra -pedantic -Wno-c++98-compat -Wno-padded)
+    target_compile_options(kdl PUBLIC -Wall -Wextra -Wconversion -pedantic -Wno-c++98-compat -Wno-padded)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(kdl PUBLIC -Wall -Wextra -pedantic)
+    target_compile_options(kdl PUBLIC -Wall -Wextra -Wconversion -pedantic)
 elseif(MSVC EQUAL 1)
     target_compile_options(kdl PUBLIC /W4 /EHsc /MP)
 
