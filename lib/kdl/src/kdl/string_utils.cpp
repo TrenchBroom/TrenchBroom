@@ -19,6 +19,7 @@
 #include "string_format.h"
 
 #include <algorithm> // for std::search
+#include <cassert>
 
 namespace kdl {
     std::vector<std::string> str_split(const std::string_view& str, const std::string_view& delims) {
