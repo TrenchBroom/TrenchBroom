@@ -288,6 +288,10 @@ namespace kdl {
      * @return true if the given string consists of only numeric characters, and false otherwise.
      */
     inline bool str_is_numeric(const std::string_view& str) {
+        if (str.empty()) {
+            return false;
+        }
+
         for (const auto c : str) {
             if (c < '0' || c > '9') {
                 return false;
