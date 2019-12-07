@@ -108,7 +108,7 @@ namespace kdl {
     }
 
     TEST(string_format_test, str_is_numeric) {
-        ASSERT_FALSE(str_is_numeric(""));
+        ASSERT_TRUE(str_is_numeric(""));
         ASSERT_FALSE(str_is_numeric("a"));
         ASSERT_FALSE(str_is_numeric("66a"));
         ASSERT_FALSE(str_is_numeric("66a33"));
