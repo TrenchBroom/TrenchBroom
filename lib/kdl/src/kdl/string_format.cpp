@@ -19,6 +19,7 @@
 
 #include "string_compare.h"
 
+#include <cassert>
 #include <cctype> // for std::tolower
 #include <sstream>
 
