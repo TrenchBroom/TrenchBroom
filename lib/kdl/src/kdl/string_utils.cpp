@@ -64,11 +64,12 @@ namespace kdl {
 
         std::string result(haystack);
 
+        using diff_type = std::string::iterator::difference_type;
         auto it = std::search(std::begin(result), std::end(result), std::begin(needle), std::end(needle));
         while (it != std::end(result)) {
             // remember the position where the search will continue after replacement
-            const auto next_offset = std::distance(std::begin(result), it) + replacement.size();
-            result.replace(it, std::next(it, needle.size()), replacement); // invalidates it
+            const auto next_offset = std::distance(std::begin(result), it) + static_cast<diff_type>(replacement.size());
+            result.replace(it, std::next(it, static_cast<diff_type>(needle.size())), replacement); // invalidates it
 
             it = std::search(std::next(std::begin(result), next_offset), std::end(result), std::begin(needle), std::end(needle));
         }

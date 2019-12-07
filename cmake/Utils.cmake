@@ -89,7 +89,7 @@ endmacro(SET_XCODE_ATTRIBUTES)
 
 macro(set_compiler_config TARGET)
     if(COMPILER_IS_CLANG)
-        target_compile_options(${TARGET} PRIVATE -Wall -Wextra -pedantic)
+        target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wconversion -pedantic)
         target_compile_options(${TARGET} PRIVATE -Wno-global-constructors -Wno-exit-time-destructors -Wno-padded -Wno-format-nonliteral -Wno-used-but-marked-unused)
 
         # disable C++98 compatibility warnings
@@ -105,7 +105,7 @@ macro(set_compiler_config TARGET)
         # FIXME: Suppress warnings in moc generated files:
         target_compile_options(${TARGET} PRIVATE -Wno-redundant-parens)
     elseif(COMPILER_IS_GNU)
-        target_compile_options(${TARGET} PRIVATE -Wall -Wextra -pedantic)
+        target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wconversion -pedantic)
         target_compile_options(${TARGET} PRIVATE "$<$<CONFIG:RELEASE>:-O3>")
 
         # FIXME: enable -Wcpp once we found a workaround for glew / QOpenGLWindow problem, see RenderView.h
