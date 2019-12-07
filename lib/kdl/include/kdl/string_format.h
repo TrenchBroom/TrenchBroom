@@ -282,16 +282,13 @@ namespace kdl {
     }
 
     /**
-     * Checks whether the given string consists of only numeric characters, i.e. '0', '1', ..., '9'.
+     * Checks whether the given string consists of only numeric characters, i.e. '0', '1', ..., '9'. Note that the
+     * empty string is considered to be numeric!
      *
      * @param str the string to check
      * @return true if the given string consists of only numeric characters, and false otherwise.
      */
     inline bool str_is_numeric(const std::string_view& str) {
-        if (str.empty()) {
-            return false;
-        }
-
         for (const auto c : str) {
             if (c < '0' || c > '9') {
                 return false;
