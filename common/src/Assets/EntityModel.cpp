@@ -20,6 +20,9 @@
 #include "EntityModel.h"
 
 #include "AABBTree.h"
+#include "Assets/TextureCollection.h"
+#include "Renderer/IndexRangeMap.h"
+#include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
 
 #include <vecmath/forward.h>
@@ -66,11 +69,9 @@ namespace TrenchBroom {
 
             const auto candidates = m_spacialTree->findIntersectors(ray);
             for (const TriNum triNum : candidates) {
-                const Triangle& triangle = m_tris.at(triNum);
-
-                const vm::vec3f& p1 = triangle[0];
-                const vm::vec3f& p2 = triangle[1];
-                const vm::vec3f& p3 = triangle[2];
+                const vm::vec3f& p1 = m_tris[triNum * 3 + 0];
+                const vm::vec3f& p2 = m_tris[triNum * 3 + 1];
+                const vm::vec3f& p3 = m_tris[triNum * 3 + 2];
                 closestDistance = vm::safe_min(closestDistance, vm::intersect_ray_triangle(ray, p1, p2, p3));
             }
 
@@ -86,6 +87,7 @@ namespace TrenchBroom {
                     break;
                 case GL_TRIANGLES: {
                     assert(count % 3 == 0);
+                    m_tris.reserve(m_tris.size() + count);
                     for (size_t i = 0; i < count; i += 3) {
                         vm::bbox3f::builder bounds;
                         const auto& p1 = Renderer::getVertexComponent<0>(vertices[index + i + 0]);
@@ -95,8 +97,10 @@ namespace TrenchBroom {
                         bounds.add(p2);
                         bounds.add(p3);
 
-                        const size_t triIndex = m_tris.size();
-                        m_tris.push_back({p1, p2, p3});
+                        const size_t triIndex = m_tris.size() / 3u;
+                        m_tris.push_back(p1);
+                        m_tris.push_back(p2);
+                        m_tris.push_back(p3);
                         m_spacialTree->insert(bounds.bounds(), triIndex);
                     }
                     break;
@@ -104,17 +108,21 @@ namespace TrenchBroom {
                 case GL_POLYGON:
                 case GL_TRIANGLE_FAN: {
                     assert(count > 2);
+                    m_tris.reserve(m_tris.size() + (count - 2) * 3);
+
+                    const auto& p1 = Renderer::getVertexComponent<0>(vertices[index]);
                     for (size_t i = 1; i < count - 1; ++i) {
                         vm::bbox3f::builder bounds;
-                        const auto& p1 = Renderer::getVertexComponent<0>(vertices[index + 0]);
                         const auto& p2 = Renderer::getVertexComponent<0>(vertices[index + i]);
                         const auto& p3 = Renderer::getVertexComponent<0>(vertices[index + i + 1]);
                         bounds.add(p1);
                         bounds.add(p2);
                         bounds.add(p2);
 
-                        const size_t triIndex = m_tris.size();
-                        m_tris.push_back({p1, p2, p3});
+                        const size_t triIndex = m_tris.size() / 3u;
+                        m_tris.push_back(p1);
+                        m_tris.push_back(p2);
+                        m_tris.push_back(p3);
                         m_spacialTree->insert(bounds.bounds(), triIndex);
                     }
                     break;
@@ -123,6 +131,7 @@ namespace TrenchBroom {
                 case GL_QUAD_STRIP:
                 case GL_TRIANGLE_STRIP: {
                     assert(count > 2);
+                    m_tris.reserve(m_tris.size() + (count - 2) * 3);
                     for (size_t i = 0; i < count-2; ++i) {
                         vm::bbox3f::builder bounds;
                         const auto& p1 = Renderer::getVertexComponent<0>(vertices[index + i + 0]);
@@ -132,11 +141,15 @@ namespace TrenchBroom {
                         bounds.add(p2);
                         bounds.add(p2);
 
-                        const size_t triIndex = m_tris.size();
+                        const size_t triIndex = m_tris.size() / 3u;
                         if (i % 2 == 0) {
-                            m_tris.push_back({p1, p2, p3});
+                            m_tris.push_back(p1);
+                            m_tris.push_back(p2);
+                            m_tris.push_back(p3);
                         } else {
-                            m_tris.push_back({p1, p3, p2});
+                            m_tris.push_back(p1);
+                            m_tris.push_back(p3);
+                            m_tris.push_back(p2);
                         }
                         m_spacialTree->insert(bounds.bounds(), triIndex);
                     }
@@ -183,32 +196,62 @@ namespace TrenchBroom {
 
         // EntityModel::IndexedMesh
 
-        EntityModel::IndexedMesh::IndexedMesh(LoadedFrame& frame, const EntityModel::VertexList& vertices, const EntityModel::Indices& indices) :
-        Mesh(vertices),
-        m_indices(indices) {
+        /**
+         * A model frame mesh for indexed rendering. Stores vertices and vertex indices.
+         */
+        class EntityModel::IndexedMesh : public EntityModel::Mesh {
+        private:
+            Indices m_indices;
+        public:
+            /**
+             * Creates a new frame mesh with the given vertices and indices.
+             *
+             * @param frame the frame to which this mesh belongs
+             * @param vertices the vertices
+             * @param indices the indices
+             */
+            IndexedMesh(LoadedFrame& frame, const VertexList& vertices, const Indices& indices) :
+            Mesh(vertices),
+            m_indices(indices) {
             m_indices.forEachPrimitive([&frame, &vertices](const PrimType primType, const size_t index, const size_t count) {
                 frame.addToSpacialTree(vertices, primType, index, count);
             });
         }
-
-        std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::IndexedMesh::doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) {
-            const Renderer::TexturedIndexRangeMap texturedIndices(skin, m_indices);
-            return std::make_unique<Renderer::TexturedIndexRangeRenderer>(vertices, texturedIndices);
-        }
+        private:
+            std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override {
+                const Renderer::TexturedIndexRangeMap texturedIndices(skin, m_indices);
+                return std::make_unique<Renderer::TexturedIndexRangeRenderer>(vertices, texturedIndices);
+            }
+        };
 
         // EntityModel::TexturedMesh
 
-        EntityModel::TexturedMesh::TexturedMesh(LoadedFrame& frame, const EntityModel::VertexList& vertices, const EntityModel::TexturedIndices& indices) :
-        Mesh(vertices),
-        m_indices(indices) {
+        /**
+         * A model frame mesh for per texture indexed rendering. Stores vertices and per texture indices.
+         */
+        class EntityModel::TexturedMesh : public EntityModel::Mesh {
+        private:
+            TexturedIndices m_indices;
+        public:
+            /**
+             * Creates a new frame mesh with the given vertices and per texture indices.
+             *
+             * @param frame the frame to which this mesh belongs
+             * @param vertices the vertices
+             * @param indices the per texture indices
+             */
+            TexturedMesh(LoadedFrame& frame, const VertexList& vertices, const TexturedIndices& indices) :
+            Mesh(vertices),
+            m_indices(indices) {
             m_indices.forEachPrimitive([&frame, &vertices](const Assets::Texture* /* texture */, const PrimType primType, const size_t index, const size_t count) {
                 frame.addToSpacialTree(vertices, primType, index, count);
             });
         }
-
-        std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModel::TexturedMesh::doBuildRenderer(Assets::Texture* /* skin */, const Renderer::VertexArray& vertices) {
-            return std::make_unique<Renderer::TexturedIndexRangeRenderer>(vertices, m_indices);
-        }
+        private:
+            std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* /* skin */, const Renderer::VertexArray& vertices) override {
+                return std::make_unique<Renderer::TexturedIndexRangeRenderer>(vertices, m_indices);
+            }
+        };
 
         // EntityModel::Surface
 
@@ -216,6 +259,8 @@ namespace TrenchBroom {
         m_name(name),
         m_meshes(frameCount),
         m_skins(std::make_unique<Assets::TextureCollection>()) {}
+
+        EntityModel::Surface::~Surface() = default;
 
         const std::string& EntityModel::Surface::name() const {
             return m_name;

@@ -20,14 +20,12 @@
 #ifndef TrenchBroom_EntityModel
 #define TrenchBroom_EntityModel
 
-#include "Assets/TextureCollection.h"
-#include "Renderer/IndexRangeMap.h"
-#include "Renderer/TexturedIndexRangeMap.h"
+#include "Assets/Asset_Forward.h"
+#include "Renderer/GLVertexType.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
 
-#include <array>
 #include <memory>
 #include <string>
 #include <vector>
@@ -37,8 +35,11 @@ class AABBTree;
 
 namespace TrenchBroom {
     namespace Renderer {
+        class IndexRangeMap;
+        class TexturedIndexRangeMap;
         class TexturedIndexRangeRenderer;
         class TexturedRenderer;
+        class VertexArray;
     }
 
     namespace Assets {
@@ -115,8 +116,7 @@ namespace TrenchBroom {
                 vm::bbox3f m_bounds;
 
                 // For hit testing
-                using Triangle = std::array<vm::vec3f, 3>;
-                std::vector<Triangle> m_tris;
+                std::vector<vm::vec3f> m_tris;
                 using TriNum = size_t;
                 using SpacialTree = AABBTree<float, 3, TriNum>;
                 std::unique_ptr<SpacialTree> m_spacialTree;
@@ -194,45 +194,10 @@ namespace TrenchBroom {
                  */
                 virtual std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) = 0;
             };
-
-            /**
-             * A model frame mesh for indexed rendering. Stores vertices and vertex indices.
-             */
-            class IndexedMesh : public Mesh {
-            private:
-                Indices m_indices;
-            public:
-                /**
-                 * Creates a new frame mesh with the given vertices and indices.
-                 *
-                 * @param frame the frame to which this mesh belongs
-                 * @param vertices the vertices
-                 * @param indices the indices
-                 */
-                IndexedMesh(LoadedFrame& frame, const VertexList& vertices, const Indices& indices);
-            private:
-                std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override;
-            };
-
-            /**
-             * A model frame mesh for per texture indexed rendering. Stores vertices and per texture indices.
-             */
-            class TexturedMesh : public Mesh {
-            private:
-                TexturedIndices m_indices;
-            public:
-                /**
-                 * Creates a new frame mesh with the given vertices and per texture indices.
-                 *
-                 * @param frame the frame to which this mesh belongs
-                 * @param vertices the vertices
-                 * @param indices the per texture indices
-                 */
-                TexturedMesh(LoadedFrame& frame, const VertexList& vertices, const TexturedIndices& indices);
-            private:
-                std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override;
-            };
-
+        private:
+            class IndexedMesh;
+            class TexturedMesh;
+        public:
             /**
              * A model surface represents an individual part of a model. MDL and MD2 models use only one surface, while
              * more complex model formats such as MD3 contain multiple surfaces with one skin per surface.
@@ -254,6 +219,7 @@ namespace TrenchBroom {
                  */
                 explicit Surface(const std::string& name, size_t frameCount);
 
+                ~Surface();
 
                 /**
                  * Returns the name of this surface.
