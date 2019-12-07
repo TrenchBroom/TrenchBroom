@@ -37,11 +37,11 @@ namespace TrenchBroom {
     namespace Assets {
         void assertModelDefinition(const ModelSpecification& expected, IO::EntityDefinitionParser& parser, const std::string& entityPropertiesStr) {
             IO::TestParserStatus status;
-            std::vector<Assets::EntityDefinition*> definitions = parser.parseDefinitions(status);
+            std::vector<EntityDefinition*> definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
-            Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
+            EntityDefinition* definition = definitions[0];
+            ASSERT_EQ(EntityDefinitionType::PointEntity, definition->type());
 
             assertModelDefinition(expected, definition, entityPropertiesStr);
 
@@ -49,7 +49,7 @@ namespace TrenchBroom {
         }
 
         void assertModelDefinition(const ModelSpecification& expected, const EntityDefinition* definition, const std::string& entityPropertiesStr) {
-            assert(definition->type() == EntityDefinition::Type_PointEntity);
+            assert(definition->type() == EntityDefinitionType::PointEntity);
 
             const PointEntityDefinition* pointDefinition = static_cast<const PointEntityDefinition*>(definition);
             const ModelDefinition& modelDefinition = pointDefinition->modelDefinition();

@@ -19,6 +19,8 @@
 
 #include "EntityDefinitionManager.h"
 
+#include "Assets/EntityDefinition.h"
+#include "Assets/EntityDefinitionGroup.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
@@ -62,12 +64,14 @@ namespace TrenchBroom {
 
         EntityDefinition* EntityDefinitionManager::definition(const Model::AttributeValue& classname) const {
             auto it = m_cache.find(classname);
-            if (it == std::end(m_cache))
+            if (it == std::end(m_cache)) {
                 return nullptr;
-            return it->second;
+            } else {
+                return it->second;
+            }
         }
 
-        std::vector<EntityDefinition*> EntityDefinitionManager::definitions(const EntityDefinition::Type type, const EntityDefinition::SortOrder order) const {
+        std::vector<EntityDefinition*> EntityDefinitionManager::definitions(const EntityDefinitionType type, const EntityDefinitionSortOrder order) const {
             return EntityDefinition::filterAndSort(m_definitions, type, order);
         }
 
@@ -75,43 +79,42 @@ namespace TrenchBroom {
             return m_definitions;
         }
 
-        const EntityDefinitionGroup::List& EntityDefinitionManager::groups() const {
+        const std::vector<EntityDefinitionGroup>& EntityDefinitionManager::groups() const {
             return m_groups;
         }
 
         void EntityDefinitionManager::updateIndices() {
-            for (size_t i = 0; i < m_definitions.size(); ++i)
-                m_definitions[i]->setIndex(i+1);
+            for (size_t i = 0; i < m_definitions.size(); ++i) {
+                m_definitions[i]->setIndex(i + 1);
+            }
         }
 
         void EntityDefinitionManager::updateGroups() {
             clearGroups();
 
-            using GroupMap = std::map<std::string, std::vector<EntityDefinition*>>;
-            GroupMap groupMap;
+            std::map<std::string, std::vector<EntityDefinition*>> groupMap;
 
-            for (size_t i = 0; i < m_definitions.size(); ++i) {
-                EntityDefinition* definition = m_definitions[i];
+            for (auto* definition : m_definitions) {
                 const std::string groupName = definition->groupName();
                 groupMap[groupName].push_back(definition);
             }
 
-            for (const auto& entry : groupMap) {
-                const std::string& groupName = entry.first;
-                const std::vector<EntityDefinition*>& definitions = entry.second;
-                m_groups.push_back(EntityDefinitionGroup(groupName, definitions));
+            for (auto& [groupName, definitions] : groupMap) {
+                m_groups.push_back(EntityDefinitionGroup(groupName, std::move(definitions)));
             }
         }
 
         void EntityDefinitionManager::updateCache() {
             clearCache();
-            for (EntityDefinition* definition : m_definitions)
+            for (EntityDefinition* definition : m_definitions) {
                 m_cache[definition->name()] = definition;
+            }
         }
 
         void EntityDefinitionManager::bindObservers() {
-            for (EntityDefinition* definition : m_definitions)
+            for (EntityDefinition* definition : m_definitions) {
                 definition->usageCountDidChangeNotifier.addObserver(usageCountDidChangeNotifier);
+            }
         }
 
         void EntityDefinitionManager::clearCache() {

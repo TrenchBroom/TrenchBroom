@@ -19,6 +19,7 @@
 
 #include "MapViewContainer.h"
 
+#include "Ensure.h"
 #include "View/MapViewBase.h"
 
 namespace TrenchBroom {

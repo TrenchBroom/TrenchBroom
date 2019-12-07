@@ -126,7 +126,7 @@ namespace TrenchBroom {
             return flagDefinition->option(flag);
         }
 
-        std::vector<EntityDefinition*> EntityDefinition::filterAndSort(const std::vector<EntityDefinition*>& definitions, const EntityDefinition::Type type, const SortOrder order) {
+        std::vector<EntityDefinition*> EntityDefinition::filterAndSort(const std::vector<EntityDefinition*>& definitions, const EntityDefinitionType type, const EntityDefinitionSortOrder order) {
             std::vector<EntityDefinition*> result;
             for (const auto& definition : definitions) {
                 if (definition->type() == type) {
@@ -134,23 +134,26 @@ namespace TrenchBroom {
                 }
             }
 
-            if (order == Usage)
-                std::sort(std::begin(result), std::end(result), [] (const EntityDefinition* lhs, const EntityDefinition* rhs) {
-                    if (lhs->usageCount() == rhs->usageCount()) {
-                        return lhs->name() < rhs->name();
-                    } else {
-                        return lhs->usageCount() > rhs->usageCount();
-                    }
-                });
-            else
-                std::sort(std::begin(result), std::end(result), [] (const EntityDefinition* lhs, const EntityDefinition* rhs) {
-                    const int strCmp = kdl::ci::str_compare(lhs->name(), rhs->name());
-                    if (strCmp == 0) {
-                        return lhs->usageCount() > rhs->usageCount();
-                    } else {
-                        return strCmp < 0;
-                    }
-                });
+            if (order == EntityDefinitionSortOrder::Usage) {
+                std::sort(std::begin(result), std::end(result),
+                    [](const EntityDefinition* lhs, const EntityDefinition* rhs) {
+                        if (lhs->usageCount() == rhs->usageCount()) {
+                            return lhs->name() < rhs->name();
+                        } else {
+                            return lhs->usageCount() > rhs->usageCount();
+                        }
+                    });
+            } else {
+                std::sort(std::begin(result), std::end(result),
+                    [](const EntityDefinition* lhs, const EntityDefinition* rhs) {
+                        const int strCmp = kdl::ci::str_compare(lhs->name(), rhs->name());
+                        if (strCmp == 0) {
+                            return lhs->usageCount() > rhs->usageCount();
+                        } else {
+                            return strCmp < 0;
+                        }
+                    });
+            }
 
             return result;
         }
@@ -168,8 +171,8 @@ namespace TrenchBroom {
         m_bounds(bounds),
         m_modelDefinition(modelDefinition) {}
 
-        EntityDefinition::Type PointEntityDefinition::type() const {
-            return Type_PointEntity;
+        EntityDefinitionType PointEntityDefinition::type() const {
+            return EntityDefinitionType::PointEntity;
         }
 
         const vm::bbox3& PointEntityDefinition::bounds() const {
@@ -191,8 +194,8 @@ namespace TrenchBroom {
         BrushEntityDefinition::BrushEntityDefinition(const std::string& name, const Color& color, const std::string& description, const AttributeDefinitionList& attributeDefinitions) :
         EntityDefinition(name, color, description, attributeDefinitions) {}
 
-        EntityDefinition::Type BrushEntityDefinition::type() const {
-            return Type_BrushEntity;
+        EntityDefinitionType BrushEntityDefinition::type() const {
+            return EntityDefinitionType::BrushEntity;
         }
     }
 }

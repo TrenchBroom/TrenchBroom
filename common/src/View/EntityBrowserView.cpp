@@ -24,6 +24,7 @@
 #include "Preferences.h"
 #include "StepIterator.h"
 #include "Assets/EntityDefinition.h"
+#include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModel.h"
 #include "Assets/EntityModelManager.h"
@@ -74,7 +75,7 @@ namespace TrenchBroom {
         m_logger(logger),
         m_group(false),
         m_hideUnused(false),
-        m_sortOrder(Assets::EntityDefinition::Name) {
+        m_sortOrder(Assets::EntityDefinitionSortOrder::Name) {
             const vm::quatf hRotation = vm::quatf(vm::vec3f::pos_z(), vm::to_radians(-30.0f));
             const vm::quatf vRotation = vm::quatf(vm::vec3f::pos_y(), vm::to_radians(20.0f));
             m_rotation = vRotation * hRotation;
@@ -86,7 +87,7 @@ namespace TrenchBroom {
             clear();
         }
 
-        void EntityBrowserView::setSortOrder(const Assets::EntityDefinition::SortOrder sortOrder) {
+        void EntityBrowserView::setSortOrder(const Assets::EntityDefinitionSortOrder sortOrder) {
             if (sortOrder == m_sortOrder) {
                 return;
             }
@@ -146,7 +147,7 @@ namespace TrenchBroom {
 
             if (m_group) {
                 for (const auto& group : m_entityDefinitionManager.groups()) {
-                    const auto& definitions = group.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
+                    const auto& definitions = group.definitions(Assets::EntityDefinitionType::PointEntity, m_sortOrder);
 
                     if (!definitions.empty()) {
                         const auto displayName = group.displayName();
@@ -159,7 +160,7 @@ namespace TrenchBroom {
                     }
                 }
             } else {
-                const auto& definitions = m_entityDefinitionManager.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
+                const auto& definitions = m_entityDefinitionManager.definitions(Assets::EntityDefinitionType::PointEntity, m_sortOrder);
                 for (const auto* definition : definitions) {
                     const auto* pointEntityDefinition = static_cast<const Assets::PointEntityDefinition*>(definition);
                     addEntityToLayout(layout, pointEntityDefinition, font);

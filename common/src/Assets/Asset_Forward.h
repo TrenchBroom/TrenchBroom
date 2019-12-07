@@ -31,8 +31,13 @@ namespace TrenchBroom {
         class EntityDefinitionFileSpec;
 
         class EntityDefinition;
+        enum class EntityDefinitionType;
+        enum class EntityDefinitionSortOrder;
+
         class PointEntityDefinition;
         class BrushEntityDefinition;
+
+        class EntityDefinitionGroup;
 
         class AttributeDefinition;
         class ModelDefinition;

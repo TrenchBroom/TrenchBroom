@@ -37,19 +37,18 @@ namespace TrenchBroom {
         class AttributeDefinition;
         class FlagsAttributeDefinition;
         class FlagsAttributeOption;
-        class ModelDefinition;
+
+        enum class EntityDefinitionType {
+            PointEntity,
+            BrushEntity
+        };
+
+        enum class EntityDefinitionSortOrder {
+            Name,
+            Usage
+        };
 
         class EntityDefinition {
-        public:
-            enum SortOrder {
-                Name,
-                Usage
-            };
-
-            typedef enum {
-                Type_PointEntity,
-                Type_BrushEntity
-            } Type;
         protected:
             using AttributeDefinitionPtr = std::shared_ptr<AttributeDefinition>;
             using AttributeDefinitionList = std::vector<AttributeDefinitionPtr>;
@@ -68,7 +67,7 @@ namespace TrenchBroom {
             size_t index() const;
             void setIndex(size_t index);
 
-            virtual Type type() const = 0;
+            virtual EntityDefinitionType type() const = 0;
             const std::string& name() const;
             std::string shortName() const;
             std::string groupName() const;
@@ -86,7 +85,7 @@ namespace TrenchBroom {
             static const FlagsAttributeDefinition* safeGetSpawnflagsAttributeDefinition(const EntityDefinition* entityDefinition);
             static const FlagsAttributeOption* safeGetSpawnflagsAttributeOption(const EntityDefinition* entityDefinition, size_t flagIndex);
 
-            static std::vector<EntityDefinition*> filterAndSort(const std::vector<EntityDefinition*>& definitions, EntityDefinition::Type type, SortOrder prder = Name);
+            static std::vector<EntityDefinition*> filterAndSort(const std::vector<EntityDefinition*>& definitions, EntityDefinitionType type, EntityDefinitionSortOrder prder = EntityDefinitionSortOrder::Name);
         protected:
             EntityDefinition(const std::string& name, const Color& color, const std::string& description, const AttributeDefinitionList& attributeDefinitions);
         };
@@ -98,7 +97,7 @@ namespace TrenchBroom {
         public:
             PointEntityDefinition(const std::string& name, const Color& color, const vm::bbox3& bounds, const std::string& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition);
 
-            Type type() const override;
+            EntityDefinitionType type() const override;
             const vm::bbox3& bounds() const;
             ModelSpecification model(const Model::EntityAttributes& attributes) const;
             ModelSpecification defaultModel() const;
@@ -108,7 +107,7 @@ namespace TrenchBroom {
         class BrushEntityDefinition : public EntityDefinition {
         public:
             BrushEntityDefinition(const std::string& name, const Color& color, const std::string& description, const AttributeDefinitionList& attributeDefinitions);
-            Type type() const override;
+            EntityDefinitionType type() const override;
         };
     }
 }
