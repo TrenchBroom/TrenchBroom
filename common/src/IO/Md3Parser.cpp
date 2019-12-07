@@ -20,6 +20,7 @@
 #include "Md3Parser.h"
 
 #include "Logger.h"
+#include "Assets/EntityModel.h"
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/Quake3ShaderTextureReader.h"
@@ -147,7 +148,7 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityModel::LoadedFrame& Md3Parser::parseFrame(Reader reader, const size_t frameIndex, Assets::EntityModel& model) {
+        Assets::EntityModelLoadedFrame& Md3Parser::parseFrame(Reader reader, const size_t frameIndex, Assets::EntityModel& model) {
             const auto minBounds = reader.readVec<float, 3>();
             const auto maxBounds = reader.readVec<float, 3>();
             /* const auto localOrigin = */ reader.readVec<float, 3>();
@@ -157,7 +158,7 @@ namespace TrenchBroom {
             return model.loadFrame(frameIndex, frameName, vm::bbox3f(minBounds, maxBounds));
         }
 
-        void Md3Parser::parseFrameSurfaces(Reader reader, Assets::EntityModel::LoadedFrame& frame, Assets::EntityModel& model) {
+        void Md3Parser::parseFrameSurfaces(Reader reader, Assets::EntityModelLoadedFrame& frame, Assets::EntityModel& model) {
             for (size_t i = 0; i < model.surfaceCount(); ++i) {
                 const auto ident = reader.readInt<int32_t>();
 
@@ -243,11 +244,11 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::vector<Assets::EntityModel::Vertex> Md3Parser::buildVertices(const std::vector<vm::vec3f>& positions, const std::vector<vm::vec2f>& texCoords) {
+        std::vector<Assets::EntityModelVertex> Md3Parser::buildVertices(const std::vector<vm::vec3f>& positions, const std::vector<vm::vec2f>& texCoords) {
             assert(positions.size() == texCoords.size());
             const auto vertexCount = positions.size();
 
-            using Vertex = Assets::EntityModel::Vertex;
+            using Vertex = Assets::EntityModelVertex;
             std::vector<Vertex> result;
             result.reserve(vertexCount);
 
@@ -258,7 +259,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        void Md3Parser::loadSurfaceSkins(Assets::EntityModel::Surface& surface, const std::vector<Path>& shaders, Logger& logger) {
+        void Md3Parser::loadSurfaceSkins(Assets::EntityModelSurface& surface, const std::vector<Path>& shaders, Logger& logger) {
             Quake3ShaderTextureReader shaderReader(TextureReader::PathSuffixNameStrategy(2, true), m_fs);
             FreeImageTextureReader imageReader(TextureReader::StaticNameStrategy(""));
 
@@ -278,8 +279,8 @@ namespace TrenchBroom {
             }
         }
 
-        void Md3Parser::buildFrameSurface(Assets::EntityModel::LoadedFrame& frame, Assets::EntityModel::Surface& surface, const std::vector<Md3Parser::Md3Triangle>& triangles, const std::vector<Assets::EntityModel::Vertex>& vertices) {
-            using Vertex = Assets::EntityModel::Vertex;
+        void Md3Parser::buildFrameSurface(Assets::EntityModelLoadedFrame& frame, Assets::EntityModelSurface& surface, const std::vector<Md3Parser::Md3Triangle>& triangles, const std::vector<Assets::EntityModelVertex>& vertices) {
+            using Vertex = Assets::EntityModelVertex;
 
             const auto rangeMap = Renderer::IndexRangeMap(GL_TRIANGLES, 0, 3 * triangles.size());
             std::vector<Vertex> frameVertices;

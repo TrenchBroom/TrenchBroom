@@ -514,6 +514,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionGroup.h
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionManager.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModel.h
+        ${COMMON_SOURCE_DIR}/Assets/EntityModel_Forward.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.h
         ${COMMON_SOURCE_DIR}/Assets/ImageUtils.h
         ${COMMON_SOURCE_DIR}/Assets/ModelDefinition.h

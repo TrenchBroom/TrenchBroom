@@ -21,10 +21,11 @@
 #define TrenchBroom_Md2Parser
 
 #include "Assets/Asset_Forward.h"
-#include "Assets/EntityModel.h"
+#include "Assets/EntityModel_Forward.h"
 #include "Assets/TextureCollection.h"
 #include "IO/EntityModelParser.h"
 
+#include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
 #include <string>
@@ -107,10 +108,10 @@ namespace TrenchBroom {
             Md2Frame parseFrame(Reader reader, size_t frameIndex, size_t vertexCount);
             Md2MeshList parseMeshes(Reader reader, size_t commandCount);
 
-            void loadSkins(Assets::EntityModel::Surface& surface, const Md2SkinList& skins);
+            void loadSkins(Assets::EntityModelSurface& surface, const Md2SkinList& skins);
 
-            void buildFrame(Assets::EntityModel& model, Assets::EntityModel::Surface& surface, size_t frameIndex, const Md2Frame& frame, const Md2MeshList& meshes);
-            Assets::EntityModel::VertexList getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const;
+            void buildFrame(Assets::EntityModel& model, Assets::EntityModelSurface& surface, size_t frameIndex, const Md2Frame& frame, const Md2MeshList& meshes);
+            Assets::EntityModelVertexList getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const;
         };
     }
 }
