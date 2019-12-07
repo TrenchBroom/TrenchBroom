@@ -2931,7 +2931,7 @@ namespace TrenchBroom {
             ASSERT_EQ(0u, nodes.size());
         }
 
-        static void assertCannotSnapTo(const std::string& data, size_t gridSize) {
+        static void assertCannotSnapTo(const std::string& data, const FloatType gridSize) {
             const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard);
 
@@ -2946,10 +2946,10 @@ namespace TrenchBroom {
         }
 
         static void assertCannotSnap(const std::string& data) {
-            assertCannotSnapTo(data, 1);
+            assertCannotSnapTo(data, 1.0);
         }
 
-        static void assertSnapTo(const std::string& data, size_t gridSize) {
+        static void assertSnapTo(const std::string& data, const FloatType gridSize) {
             const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard);
 
@@ -2975,7 +2975,7 @@ namespace TrenchBroom {
         }
 
         static void assertSnapToInteger(const std::string& data) {
-            assertSnapTo(data, 1);
+            assertSnapTo(data, 1.0);
         }
 
         TEST(BrushTest, snapIssue1198) {
@@ -3275,7 +3275,7 @@ namespace TrenchBroom {
 
             // Seems reasonable for this to fail to snap to grid 64; it's only 48 units tall.
             // If it was able to snap, that would be OK too.
-            assertCannotSnapTo(data, 64);
+            assertCannotSnapTo(data, 64.0);
         }
 
         TEST(BrushTest, removeSingleVertex) {

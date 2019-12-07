@@ -299,8 +299,8 @@ namespace TrenchBroom {
             if (texture == nullptr) {
                 return vm::vec2f::zero();
             } else {
-                return vm::vec2f((dot(vertex, textureInfo.sAxis) + textureInfo.sOffset) / texture->width(),
-                                 (dot(vertex, textureInfo.tAxis) + textureInfo.tOffset) / texture->height());
+                return vm::vec2f((vm::dot(vertex, textureInfo.sAxis) + textureInfo.sOffset) / static_cast<float>(texture->width()),
+                                 (vm::dot(vertex, textureInfo.tAxis) + textureInfo.tOffset) / static_cast<float>(texture->height()));
             }
         }
     }

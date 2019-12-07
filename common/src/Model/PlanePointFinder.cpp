@@ -67,7 +67,7 @@ namespace TrenchBroom {
                     const auto numQuadrants = static_cast<size_t>(std::ceil(m_frequency * m_frequency * 3.0));
                     for (size_t i = 0; i < numQuadrants && globalMinErr > 0.0; ++i) {
                         if (i != Center) {
-                            m_position = localMinPos + i * 3.0 * MoveOffsets[i];
+                            m_position = localMinPos + static_cast<FloatType>(i) * 3.0 * MoveOffsets[i];
                             findLocalMinimum();
                             const auto newError = m_errors[Center];
                             if (newError < globalMinErr) {

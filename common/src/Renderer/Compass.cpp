@@ -72,8 +72,8 @@ namespace TrenchBroom {
         void Compass::doRender(RenderContext& renderContext) {
             const auto& camera = renderContext.camera();
             const auto& viewport = camera.viewport();
-            const auto viewWidth = viewport.width;
-            const auto viewHeight = viewport.height;
+            const auto viewWidth = static_cast<float>(viewport.width);
+            const auto viewHeight = static_cast<float>(viewport.height);
 
             const auto projection = vm::ortho_matrix(0.0f, 1000.0f, -viewWidth / 2.0f, viewHeight / 2.0f, viewWidth / 2.0f, -viewHeight / 2.0f);
             const auto view = vm::view_matrix(vm::vec3f::pos_y(), vm::vec3f::pos_z()) *vm::translation_matrix(500.0f * vm::vec3f::pos_y());
