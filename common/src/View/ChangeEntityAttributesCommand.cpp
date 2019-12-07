@@ -65,7 +65,7 @@ namespace TrenchBroom {
         DocumentCommand(Type, makeName(action)),
         m_action(action) {}
 
-        String ChangeEntityAttributesCommand::makeName(const Action action) {
+        std::string ChangeEntityAttributesCommand::makeName(const Action action) {
             switch (action) {
                 case Action_Set:
                     return "Set Property";

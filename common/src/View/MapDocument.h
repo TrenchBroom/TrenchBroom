@@ -81,7 +81,7 @@ namespace TrenchBroom {
         class MapDocument : public Model::MapFacade, public CachingLogger {
         public:
             static const vm::bbox3 DefaultWorldBounds;
-            static const String DefaultDocumentName;
+            static const std::string DefaultDocumentName;
         protected:
             vm::bbox3 m_worldBounds;
             std::shared_ptr<Model::Game> m_game;
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             std::vector<Model::BrushFace*> m_selectedBrushFaces;
 
             Model::Layer* m_currentLayer;
-            String m_currentTextureName;
+            std::string m_currentTextureName;
             vm::bbox3 m_lastSelectionBounds;
             mutable vm::bbox3 m_selectionBounds;
             mutable bool m_selectionBoundsValid;
@@ -127,8 +127,8 @@ namespace TrenchBroom {
             Notifier<UndoableCommand::Ptr> commandUndoNotifier;
             Notifier<UndoableCommand::Ptr> commandUndoneNotifier;
             Notifier<UndoableCommand::Ptr> commandUndoFailedNotifier;
-            Notifier<const String&> transactionDoneNotifier;
-            Notifier<const String&> transactionUndoneNotifier;
+            Notifier<const std::string&> transactionDoneNotifier;
+            Notifier<const std::string&> transactionUndoneNotifier;
 
             Notifier<MapDocument*> documentWillBeClearedNotifier;
             Notifier<MapDocument*> documentWasClearedNotifier;
@@ -140,7 +140,7 @@ namespace TrenchBroom {
             Notifier<> editorContextDidChangeNotifier;
             Notifier<> mapViewConfigDidChangeNotifier;
             Notifier<const Model::Layer*> currentLayerDidChangeNotifier;
-            Notifier<const String&> currentTextureNameDidChangeNotifier;
+            Notifier<const std::string&> currentTextureNameDidChangeNotifier;
 
             Notifier<> selectionWillChangeNotifier;
             Notifier<const Selection&> selectionDidChangeNotifier;
@@ -221,10 +221,10 @@ namespace TrenchBroom {
             void doSaveDocument(const IO::Path& path);
             void clearDocument();
         public: // copy and paste
-            String serializeSelectedNodes();
-            String serializeSelectedBrushFaces();
+            std::string serializeSelectedNodes();
+            std::string serializeSelectedBrushFaces();
 
-            PasteType paste(const String& str);
+            PasteType paste(const std::string& str);
         private:
             bool pasteNodes(const std::vector<Model::Node*>& nodes);
             bool pasteBrushFaces(const std::vector<Model::BrushFace*>& faces);
@@ -255,8 +255,8 @@ namespace TrenchBroom {
             const vm::bbox3& referenceBounds() const override;
             const vm::bbox3& lastSelectionBounds() const override;
             const vm::bbox3& selectionBounds() const override;
-            const String& currentTextureName() const override;
-            void setCurrentTextureName(const String& currentTextureName);
+            const std::string& currentTextureName() const override;
+            void setCurrentTextureName(const std::string& currentTextureName);
 
             void selectAllNodes() override;
             void selectSiblings() override;
@@ -307,14 +307,14 @@ namespace TrenchBroom {
             Model::Entity* createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta) override;
             Model::Entity* createBrushEntity(const Assets::BrushEntityDefinition* definition) override;
         public: // group management
-            Model::Group* groupSelection(const String& name);
+            Model::Group* groupSelection(const std::string& name);
             void mergeSelectedGroupsWithGroup(Model::Group* group);
         private:
             class MatchGroupableNodes;
             std::vector<Model::Node*> collectGroupableNodes(const std::vector<Model::Node*>& selectedNodes) const;
         public:
             void ungroupSelection();
-            void renameGroups(const String& name);
+            void renameGroups(const std::string& name);
 
             void openGroup(Model::Group* group);
             void closeGroup();
@@ -387,15 +387,15 @@ namespace TrenchBroom {
         public: // command processing
             bool canUndoLastCommand() const;
             bool canRedoNextCommand() const;
-            const String& lastCommandName() const;
-            const String& nextCommandName() const;
+            const std::string& lastCommandName() const;
+            const std::string& nextCommandName() const;
             void undoLastCommand();
             void redoNextCommand();
             bool hasRepeatableCommands() const;
             bool repeatLastCommands();
             void clearRepeatableCommands();
         public: // transactions
-            void beginTransaction(const String& name = "");
+            void beginTransaction(const std::string& name = "");
             void rollbackTransaction();
             void commitTransaction();
             void cancelTransaction();
@@ -405,15 +405,15 @@ namespace TrenchBroom {
         private: // subclassing interface for command processing
             virtual bool doCanUndoLastCommand() const = 0;
             virtual bool doCanRedoNextCommand() const = 0;
-            virtual const String& doGetLastCommandName() const = 0;
-            virtual const String& doGetNextCommandName() const = 0;
+            virtual const std::string& doGetLastCommandName() const = 0;
+            virtual const std::string& doGetNextCommandName() const = 0;
             virtual void doUndoLastCommand() = 0;
             virtual void doRedoNextCommand() = 0;
             virtual bool doHasRepeatableCommands() const = 0;
             virtual bool doRepeatLastCommands() = 0;
             virtual void doClearRepeatableCommands() = 0;
 
-            virtual void doBeginTransaction(const String& name) = 0;
+            virtual void doBeginTransaction(const std::string& name) = 0;
             virtual void doEndTransaction() = 0;
             virtual void doRollbackTransaction() = 0;
 
@@ -486,7 +486,7 @@ namespace TrenchBroom {
         public:
             std::vector<std::string> mods() const override;
             void setMods(const std::vector<std::string>& mods) override;
-            String defaultMod() const;
+            std::string defaultMod() const;
         private: // issue management
             void registerIssueGenerators();
         public:
@@ -496,8 +496,8 @@ namespace TrenchBroom {
         public: // tag management
             void registerSmartTags(); // public for testing
             const std::list<Model::SmartTag>& smartTags() const;
-            bool isRegisteredSmartTag(const String& name) const;
-            const Model::SmartTag& smartTag(const String& name) const;
+            bool isRegisteredSmartTag(const std::string& name) const;
+            const Model::SmartTag& smartTag(const std::string& name) const;
             bool isRegisteredSmartTag(size_t index) const;
             const Model::SmartTag& smartTag(size_t index) const;
         private:
@@ -513,7 +513,7 @@ namespace TrenchBroom {
             void updateAllFaceTags();
         public: // document path
             bool persistent() const;
-            String filename() const;
+            std::string filename() const;
             const IO::Path& path() const;
         private:
             void setPath(const IO::Path& path);
@@ -536,15 +536,15 @@ namespace TrenchBroom {
             MapDocument* m_document;
             bool m_cancelled;
         public:
-            explicit Transaction(std::weak_ptr<MapDocument> document, const String& name = "");
-            explicit Transaction(std::shared_ptr<MapDocument> document, const String& name = "");
-            explicit Transaction(MapDocument* document, const String& name = "");
+            explicit Transaction(std::weak_ptr<MapDocument> document, const std::string& name = "");
+            explicit Transaction(std::shared_ptr<MapDocument> document, const std::string& name = "");
+            explicit Transaction(MapDocument* document, const std::string& name = "");
             ~Transaction();
 
             void rollback();
             void cancel();
         private:
-            void begin(const String& name);
+            void begin(const std::string& name);
             void commit();
         };
     }

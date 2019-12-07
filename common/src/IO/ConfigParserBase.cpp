@@ -23,13 +23,15 @@
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         ConfigParserBase::ConfigParserBase(const char* begin, const char* end, const Path& path) :
         m_parser(ELParser::Mode::Strict, begin, end),
         m_path(path) {}
 
-        ConfigParserBase::ConfigParserBase(const String& str, const Path& path) :
+        ConfigParserBase::ConfigParserBase(const std::string& str, const Path& path) :
         m_parser(ELParser::Mode::Strict, str),
         m_path(path) {}
 
@@ -45,7 +47,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ConfigParserBase::expectStructure(const EL::Value& value, const String& structure) const {
+        void ConfigParserBase::expectStructure(const EL::Value& value, const std::string& structure) const {
             ELParser parser(ELParser::Mode::Strict, structure);
             const auto expected = parser.parse().evaluate(EL::EvaluationContext());
             assert(expected.type() == EL::ValueType::Array);
@@ -71,7 +73,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ConfigParserBase::expectMapEntry(const EL::Value& value, const String& key, EL::ValueType type) const {
+        void ConfigParserBase::expectMapEntry(const EL::Value& value, const std::string& key, EL::ValueType type) const {
             const auto& map = value.mapValue();
             const auto it = map.find(key);
             if (it == std::end(map)) {

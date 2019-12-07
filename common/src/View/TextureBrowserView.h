@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_TextureBrowserView
 #define TrenchBroom_TextureBrowserView
 
-#include "StringType.h"
 #include "Assets/TextureManager.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/GLVertex.h"
@@ -29,6 +28,7 @@
 
 #include <map>
 #include <memory>
+#include <string>
 #include <vector>
 
 class QScrollBar;
@@ -42,12 +42,12 @@ namespace TrenchBroom {
     namespace View {
         class GLContextManager;
         class MapDocument;
-        using TextureGroupData = String;
+        using TextureGroupData = std::string;
 
         struct TextureCellData {
             Assets::Texture* texture;
-            String mainTitle;
-            String subTitle;
+            std::string mainTitle;
+            std::string subTitle;
             vm::vec2f mainTitleOffset;
             vm::vec2f subTitleOffset;
             Renderer::FontDescriptor mainTitleFont;
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             bool m_group;
             bool m_hideUnused;
             SortOrder m_sortOrder;
-            String m_filterText;
+            std::string m_filterText;
 
             Assets::Texture* m_selectedTexture;
         public:
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             void setSortOrder(SortOrder sortOrder);
             void setGroup(bool group);
             void setHideUnused(bool hideUnused);
-            void setFilterText(const String& filterText);
+            void setFilterText(const std::string& filterText);
 
             Assets::Texture* selectedTexture() const;
             void setSelectedTexture(Assets::Texture* selectedTexture);

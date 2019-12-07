@@ -20,7 +20,7 @@
 #include "EntityDefinitionFileCommand.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -30,7 +30,7 @@ namespace TrenchBroom {
             return Ptr(new EntityDefinitionFileCommand("Set Entity Definitions", spec));
         }
 
-        EntityDefinitionFileCommand::EntityDefinitionFileCommand(const String& name, const Assets::EntityDefinitionFileSpec& spec) :
+        EntityDefinitionFileCommand::EntityDefinitionFileCommand(const std::string& name, const Assets::EntityDefinitionFileSpec& spec) :
         DocumentCommand(Type, name),
         m_newSpec(spec) {}
 

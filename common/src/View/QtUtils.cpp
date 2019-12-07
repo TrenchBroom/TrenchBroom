@@ -19,6 +19,8 @@
 
 #include "QtUtils.h"
 
+#include "Color.h"
+
 #include "Ensure.h"
 #include "Macros.h"
 #include "IO/Path.h"
@@ -27,10 +29,13 @@
 #include "View/MapFrame.h"
 #include "View/ViewConstants.h"
 
+#include <string>
+
 #include <QtGlobal>
 #include <QAbstractButton>
 #include <QBoxLayout>
 #include <QButtonGroup>
+#include <QColor>
 #include <QDebug>
 #include <QDir>
 #include <QFont>
@@ -249,7 +254,7 @@ namespace TrenchBroom {
             return QColor::fromRgb(int(color.r() * 255.0f), int(color.g() * 255.0f), int(color.b() * 255.0f), int(color.a() * 255.0f));
         }
 
-        QAbstractButton* createBitmapButton(const String& image, const QString& tooltip, QWidget* parent) {
+        QAbstractButton* createBitmapButton(const std::string& image, const QString& tooltip, QWidget* parent) {
             return createBitmapButton(loadIconResourceQt(IO::Path(image)), tooltip, parent);
         }
 
@@ -269,7 +274,7 @@ namespace TrenchBroom {
             return button;
         }
 
-        QAbstractButton* createBitmapToggleButton(const String& image, const QString& tooltip, QWidget* parent) {
+        QAbstractButton* createBitmapToggleButton(const std::string& image, const QString& tooltip, QWidget* parent) {
             auto* button = createBitmapButton(image, tooltip, parent);
             button->setCheckable(true);
             return button;

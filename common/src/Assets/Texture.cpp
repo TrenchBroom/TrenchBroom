@@ -18,12 +18,11 @@
  */
 
 #include "Texture.h"
-#include "Assets/ImageUtils.h"
 #include "Assets/TextureCollection.h"
 #include "Renderer/GL.h"
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -60,7 +59,7 @@ namespace TrenchBroom {
             }
         }
 
-        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer, const GLenum format, const TextureType type) :
+        Texture::Texture(const std::string& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer, const GLenum format, const TextureType type) :
         m_collection(nullptr),
         m_name(name),
         m_width(width),
@@ -79,7 +78,7 @@ namespace TrenchBroom {
             m_buffers.push_back(buffer);
         }
 
-        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers, const GLenum format, const TextureType type) :
+        Texture::Texture(const std::string& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers, const GLenum format, const TextureType type) :
         m_collection(nullptr),
         m_name(name),
         m_width(width),
@@ -105,7 +104,7 @@ namespace TrenchBroom {
             }
         }
 
-        Texture::Texture(const String& name, const size_t width, const size_t height, const GLenum format, const TextureType type) :
+        Texture::Texture(const std::string& name, const size_t width, const size_t height, const GLenum format, const TextureType type) :
         m_collection(nullptr),
         m_name(name),
         m_width(width),
@@ -138,7 +137,7 @@ namespace TrenchBroom {
             return m_collection;
         }
 
-        const String& Texture::name() const {
+        const std::string& Texture::name() const {
             return m_name;
         }
 

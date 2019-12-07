@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_ModEditor
 #define TrenchBroom_ModEditor
 
-#include "StringType.h"
-
 #include <memory>
 #include <string>
 #include <vector>

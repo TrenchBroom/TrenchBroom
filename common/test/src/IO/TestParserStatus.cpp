@@ -19,6 +19,7 @@
 
 #include "TestParserStatus.h"
 
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -35,7 +36,7 @@ namespace TrenchBroom {
 
         void TestParserStatus::doProgress(const double) {}
 
-        void TestParserStatus::doLog(const Logger::LogLevel level, const String& /* str */) {
+        void TestParserStatus::doLog(const Logger::LogLevel level, const std::string& /* str */) {
             m_statusCounts[level]++; // unknown map values are value constructed, which initializes to 0 for size_t
         }
     }

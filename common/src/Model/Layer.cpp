@@ -27,17 +27,19 @@
 #include "Model/NodeVisitor.h"
 #include "Model/TagVisitor.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
-        Layer::Layer(const String& name) :
+        Layer::Layer(const std::string& name) :
         m_name(name),
         m_boundsValid(false) {}
 
-        void Layer::setName(const String& name) {
+        void Layer::setName(const std::string& name) {
             m_name = name;
         }
 
-        const String& Layer::doGetName() const {
+        const std::string& Layer::doGetName() const {
             return m_name;
         }
 

@@ -41,6 +41,7 @@
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 
+#include <string>
 #include <vector>
 
 #include <QTextStream>
@@ -99,7 +100,7 @@ namespace TrenchBroom {
             update();
         }
 
-        void TextureBrowserView::setFilterText(const String& filterText) {
+        void TextureBrowserView::setFilterText(const std::string& filterText) {
             if (filterText == m_filterText) {
                 return;
             }
@@ -223,9 +224,9 @@ namespace TrenchBroom {
         };
 
         struct TextureBrowserView::MatchName {
-            String pattern;
+            std::string pattern;
 
-            explicit MatchName(const String& i_pattern) : pattern(i_pattern) {}
+            explicit MatchName(const std::string& i_pattern) : pattern(i_pattern) {}
 
             bool operator()(const Assets::Texture* texture) const {
                 return !kdl::ci::contains(texture->name(), pattern);

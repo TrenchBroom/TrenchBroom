@@ -25,6 +25,7 @@
 
 #include <functional>
 #include <memory>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -73,9 +74,9 @@ namespace TrenchBroom {
 
         class TextureNameTagMatcher : public TagMatcher {
         private:
-            String m_pattern;
+            std::string m_pattern;
         public:
-            explicit TextureNameTagMatcher(String pattern);
+            explicit TextureNameTagMatcher(const std::string& pattern);
             std::unique_ptr<TagMatcher> clone() const override;
         public:
             bool matches(const Taggable& taggable) const override;
@@ -87,9 +88,9 @@ namespace TrenchBroom {
 
         class SurfaceParmTagMatcher : public TagMatcher {
         private:
-            String m_parameter;
+            std::string m_parameter;
         public:
-            explicit SurfaceParmTagMatcher(String parameter);
+            explicit SurfaceParmTagMatcher(const std::string& parameter);
             std::unique_ptr<TagMatcher> clone() const override;
         private:
             bool matches(const Taggable& taggable) const override;
@@ -130,13 +131,13 @@ namespace TrenchBroom {
 
         class EntityClassNameTagMatcher : public TagMatcher {
         private:
-            String m_pattern;
+            std::string m_pattern;
             /**
              * The texture to set when this tag is enabled.
              */
-            String m_texture;
+            std::string m_texture;
         public:
-            EntityClassNameTagMatcher(String pattern, String texture);
+            EntityClassNameTagMatcher(const std::string& pattern, const std::string& texture);
             std::unique_ptr<TagMatcher> clone() const override;
         private:
             bool matches(const Taggable& taggable) const override;
@@ -146,7 +147,7 @@ namespace TrenchBroom {
             bool canEnable() const override;
             bool canDisable() const override;
         private:
-            bool matchesClassname(const String& classname) const;
+            bool matchesClassname(const std::string& classname) const;
         };
     }
 }

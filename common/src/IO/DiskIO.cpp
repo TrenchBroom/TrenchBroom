@@ -27,6 +27,7 @@
 #include <kdl/string_compare.h>
 
 #include <fstream>
+#include <string>
 
 #include <QDir>
 #include <QFileInfo>
@@ -152,7 +153,7 @@ namespace TrenchBroom {
                 return findItemsRecursively(path, FileTypeMatcher());
             }
 
-            void createFile(const Path& path, const String& contents) {
+            void createFile(const Path& path, const std::string& contents) {
                 const Path fixedPath = fixPath(path);
                 if (fileExists(fixedPath)) {
                     deleteFile(fixedPath);
@@ -162,7 +163,7 @@ namespace TrenchBroom {
                         createDirectory(directory);
                 }
 
-                const String fixedPathStr = fixedPath.asString();
+                const std::string fixedPathStr = fixedPath.asString();
                 std::ofstream stream(fixedPathStr.c_str());
                 stream  << contents;
             }

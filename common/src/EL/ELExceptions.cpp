@@ -26,10 +26,10 @@
 
 namespace TrenchBroom {
     namespace EL {
-        ConversionError::ConversionError(const String& value, const ValueType from, const ValueType to) :
+        ConversionError::ConversionError(const std::string& value, const ValueType from, const ValueType to) :
         Exception("Cannot convert value '" + value + "' of type '" + typeName(from) + "' to type '" + typeName(to) + "'") {}
 
-        DereferenceError::DereferenceError(const String& value, const ValueType from, const ValueType to) :
+        DereferenceError::DereferenceError(const std::string& value, const ValueType from, const ValueType to) :
         Exception("Cannot dereference value '" + value + "' of type '" + typeName(from) + "' as type '" + typeName(to) + "'") {}
 
         IndexError::IndexError(const Value& indexableValue, const Value& indexValue) :
@@ -38,19 +38,19 @@ namespace TrenchBroom {
         IndexError::IndexError(const Value& indexableValue, const size_t /* index */) :
         EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + "' using integral index") {}
 
-        IndexError::IndexError(const Value& indexableValue, const String& /* key */) :
+        IndexError::IndexError(const Value& indexableValue, const std::string& /* key */) :
         EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + "' using string index") {}
 
         IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const size_t outOfBoundsIndex) :
         EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + "' using index '" + indexValue.describe() + "' of type '" + typeName(indexValue.type()) + "': Index value " + std::to_string(outOfBoundsIndex) + " is out of bounds") {}
 
-        IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const String& outOfBoundsIndex) :
+        IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const std::string& outOfBoundsIndex) :
         EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + "' using index '" + indexValue.describe() + "' of type '" + typeName(indexValue.type()) + "': Key '" + outOfBoundsIndex + "' not found") {}
 
         IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const size_t index) :
         EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + "' using integral index: Index value " + std::to_string(index) + " is out of bounds") {}
 
-        IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const String& key) :
+        IndexOutOfBoundsError::IndexOutOfBoundsError(const Value& indexableValue, const std::string& key) :
         EvaluationError("Cannot index value '" + indexableValue.describe() + "' of type '" + indexableValue.typeName() + "' using string index: Key '" + key + "' not found") {}
     }
 }

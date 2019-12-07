@@ -88,7 +88,7 @@ namespace TrenchBroom {
             m_usedButton->setChecked(hideUnused);
         }
 
-        void TextureBrowser::setFilterText(const String& filterText) {
+        void TextureBrowser::setFilterText(const std::string& filterText) {
             m_view->setFilterText(filterText);
             m_filterBox->setText(QString::fromStdString(filterText));
         }
@@ -223,7 +223,7 @@ namespace TrenchBroom {
             reload();
         }
 
-        void TextureBrowser::currentTextureNameDidChange(const String& /* textureName */) {
+        void TextureBrowser::currentTextureNameDidChange(const std::string& /* textureName */) {
             updateSelectedTexture();
         }
 
@@ -247,7 +247,7 @@ namespace TrenchBroom {
 
         void TextureBrowser::updateSelectedTexture() {
             auto document = lock(m_document);
-            const String& textureName = document->currentTextureName();
+            const std::string& textureName = document->currentTextureName();
             Assets::Texture* texture = document->textureManager().texture(textureName);
             m_view->setSelectedTexture(texture);
         }

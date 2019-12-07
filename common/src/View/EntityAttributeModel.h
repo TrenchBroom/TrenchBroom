@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_EntityAttributeGridTable
 #define TrenchBroom_EntityAttributeGridTable
 
-#include "StringType.h"
 #include "Model/Model_Forward.h"
 
 #include <QAbstractTableModel>
@@ -67,36 +66,36 @@ namespace TrenchBroom {
          */
         class AttributeRow {
         private:
-            String m_name;
-            String m_value;
+            std::string m_name;
+            std::string m_value;
             ValueType m_valueType;
 
             bool m_nameMutable;
             bool m_valueMutable;
-            String m_tooltip;
+            std::string m_tooltip;
         public:
             AttributeRow();
-            AttributeRow(const String& name, const Model::AttributableNode* node);
+            AttributeRow(const std::string& name, const Model::AttributableNode* node);
             bool operator==(const AttributeRow& other) const;
             bool operator<(const AttributeRow& other) const;
             void merge(const Model::AttributableNode* other);
 
-            const String& name() const;
-            String value() const;
+            const std::string& name() const;
+            std::string value() const;
             bool nameMutable() const;
             bool valueMutable() const;
-            const String& tooltip() const;
+            const std::string& tooltip() const;
             bool isDefault() const;
             bool multi() const;
             bool subset() const;
 
-            static AttributeRow rowForAttributableNodes(const String& key, const std::vector<Model::AttributableNode*>& attributables);
-            static std::set<String> allKeys(const std::vector<Model::AttributableNode*>& attributables, bool showDefaultRows);
-            static std::map<String, AttributeRow> rowsForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables, bool showDefaultRows);
+            static AttributeRow rowForAttributableNodes(const std::string& key, const std::vector<Model::AttributableNode*>& attributables);
+            static std::set<std::string> allKeys(const std::vector<Model::AttributableNode*>& attributables, bool showDefaultRows);
+            static std::map<std::string, AttributeRow> rowsForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables, bool showDefaultRows);
             /**
              * Suggests a new, unused attribute name of the form "property X".
              */
-            static String newAttributeNameForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables);
+            static std::string newAttributeNameForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables);
         };
 
         /**
@@ -124,10 +123,10 @@ namespace TrenchBroom {
             bool showDefaultRows() const;
             void setShowDefaultRows(bool showDefaultRows);
 
-            void setRows(const std::map<String, AttributeRow>& newRows);
+            void setRows(const std::map<std::string, AttributeRow>& newRows);
 
             const AttributeRow* dataForModelIndex(const QModelIndex& index) const;
-            int rowForAttributeName(const String& name) const;
+            int rowForAttributeName(const std::string& name) const;
 
         public: // for autocompletion
             QStringList getCompletions(const QModelIndex& index) const;
@@ -152,8 +151,8 @@ namespace TrenchBroom {
             bool AppendRow();
             int rowForName(const Model::AttributeName& name) const;
             bool hasRowWithAttributeName(const Model::AttributeName& name) const;
-            bool renameAttribute(const size_t rowIndex, const String& newName, const std::vector<Model::AttributableNode*>& attributables);
-            bool updateAttribute(const size_t rowIndex, const String& newValue, const std::vector<Model::AttributableNode*>& attributables);
+            bool renameAttribute(const size_t rowIndex, const std::string& newName, const std::vector<Model::AttributableNode*>& attributables);
+            bool updateAttribute(const size_t rowIndex, const std::string& newValue, const std::vector<Model::AttributableNode*>& attributables);
 
         public: // EntityAttributeGrid helpers
             Model::AttributeName attributeName(int row) const;

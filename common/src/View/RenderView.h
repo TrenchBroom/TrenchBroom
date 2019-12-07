@@ -24,6 +24,8 @@
 #include "Renderer/Vbo.h"
 #include "View/InputEvent.h"
 
+#include <string>
+
 #include <QOpenGLWidget>
 #include <QElapsedTimer>
 
@@ -55,7 +57,7 @@ namespace TrenchBroom {
             int64_t m_lastFPSCounterUpdate;
             QElapsedTimer m_timeSinceLastFrame;
         protected:
-            String m_currentFPS;
+            std::string m_currentFPS;
         protected:
             explicit RenderView(GLContextManager& contextManager, QWidget* parent = nullptr);
         public:

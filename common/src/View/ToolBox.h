@@ -20,10 +20,10 @@
 #ifndef TrenchBroom_ToolBox
 #define TrenchBroom_ToolBox
 
-#include "StringType.h"
 #include "Notifier.h"
 
 #include <map>
+#include <string>
 #include <vector>
 
 #include <QObject>
@@ -71,10 +71,10 @@ namespace TrenchBroom {
         public: // picking
             void pick(ToolChain* chain, const InputState& inputState, Model::PickResult& pickResult);
         public: // event handling
-            bool dragEnter(ToolChain* chain, const InputState& inputState, const String& text);
-            bool dragMove(ToolChain* chain, const InputState& inputState, const String& text);
+            bool dragEnter(ToolChain* chain, const InputState& inputState, const std::string& text);
+            bool dragMove(ToolChain* chain, const InputState& inputState, const std::string& text);
             void dragLeave(ToolChain* chain, const InputState& inputState);
-            bool dragDrop(ToolChain* chain, const InputState& inputState, const String& text);
+            bool dragDrop(ToolChain* chain, const InputState& inputState, const std::string& text);
 
             void modifierKeyChange(ToolChain* chain, const InputState& inputState);
             void mouseDown(ToolChain* chain, const InputState& inputState);

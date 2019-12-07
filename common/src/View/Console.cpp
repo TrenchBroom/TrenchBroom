@@ -22,12 +22,12 @@
 #include "FileLogger.h"
 #include "View/ViewConstants.h"
 
-#include <QDebug>
-#include <QVBoxLayout>
-#include <QTextEdit>
-#include <QScrollBar>
+#include <string>
 
-#include <iostream>
+#include <QDebug>
+#include <QScrollBar>
+#include <QTextEdit>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             setLayout(sizer);
         }
 
-        void Console::doLog(const LogLevel level, const String& message) {
+        void Console::doLog(const LogLevel level, const std::string& message) {
             doLog(level, QString::fromStdString(message));
         }
 

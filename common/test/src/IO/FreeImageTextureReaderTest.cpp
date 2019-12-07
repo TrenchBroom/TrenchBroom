@@ -25,9 +25,11 @@
 #include "IO/Path.h"
 #include "IO/TextureReader.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
-        static std::unique_ptr<const Assets::Texture> loadTexture(const String& name) {
+        static std::unique_ptr<const Assets::Texture> loadTexture(const std::string& name) {
             TextureReader::TextureNameStrategy nameStrategy;
             FreeImageTextureReader textureLoader(nameStrategy);
 
@@ -37,7 +39,7 @@ namespace TrenchBroom {
             return std::unique_ptr<const Assets::Texture>{ textureLoader.readTexture(diskFS.openFile(Path(name))) };
         }
 
-        static void assertTexture(const String& name, const size_t width, const size_t height) {
+        static void assertTexture(const std::string& name, const size_t width, const size_t height) {
             const auto texture = loadTexture(name);
 
             ASSERT_TRUE(texture != nullptr);

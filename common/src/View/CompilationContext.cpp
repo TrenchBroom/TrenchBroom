@@ -21,8 +21,9 @@
 
 #include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
-#include "EL/Value.h"
 #include "EL/Types.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -40,11 +41,11 @@ namespace TrenchBroom {
             return m_test;
         }
 
-        String CompilationContext::interpolate(const String& input) const {
+        std::string CompilationContext::interpolate(const std::string& input) const {
             return EL::interpolate(input, EL::EvaluationContext(m_variables));
         }
 
-        String CompilationContext::variableValue(const String& variableName) const {
+        std::string CompilationContext::variableValue(const std::string& variableName) const {
             return m_variables.value(variableName).convertTo(EL::ValueType::String).stringValue();
         }
     }

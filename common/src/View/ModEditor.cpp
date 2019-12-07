@@ -41,6 +41,7 @@
 #include <QVBoxLayout>
 
 #include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {

@@ -34,6 +34,8 @@
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         TEST(DefParserTest, parseIncludedDefFiles) {
@@ -73,7 +75,7 @@ namespace TrenchBroom {
         }
 
         TEST(DefParserTest, parseEmptyFile) {
-            const String file = "";
+            const std::string file = "";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
 
@@ -84,7 +86,7 @@ namespace TrenchBroom {
         }
 
         TEST(DefParserTest, parseWhitespaceFile) {
-            const String file = "     \n  \t \n  ";
+            const std::string file = "     \n  \t \n  ";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
 
@@ -95,7 +97,7 @@ namespace TrenchBroom {
         }
 
         TEST(DefParserTest, parseCommentsFile) {
-            const String file = "// asdfasdfasdf\n//kj3k4jkdjfkjdf\n";
+            const std::string file = "// asdfasdfasdf\n//kj3k4jkdjfkjdf\n";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
 
@@ -106,7 +108,7 @@ namespace TrenchBroom {
         }
 
         TEST(DefParserTest, parseSolidClass) {
-            const String file =
+            const std::string file =
             "/*QUAKED worldspawn (0.0 0.0 0.0) ?\n"
             "{\n"
             "choice \"worldtype\"\n"
@@ -131,9 +133,9 @@ namespace TrenchBroom {
 
             Assets::EntityDefinition* definition = definitions[0];
             ASSERT_EQ(Assets::EntityDefinition::Type_BrushEntity, definition->type());
-            ASSERT_EQ(String("worldspawn"), definition->name());
+            ASSERT_EQ(std::string("worldspawn"), definition->name());
             ASSERT_VEC_EQ(Color(0.0f, 0.0f, 0.0f, 1.0f), definition->color());
-            ASSERT_EQ(String("Only used for the world entity. "
+            ASSERT_EQ(std::string("Only used for the world entity. "
                              "Set message to the level name. "
                              "Set sounds to the cd track to play. "
                              "\"worldtype\"	type of world"), definition->description());
@@ -145,7 +147,7 @@ namespace TrenchBroom {
         }
 
         TEST(DefParserTest, parsePointClass) {
-            const String file =
+            const std::string file =
             "/*QUAKED monster_zombie (1.0 0.0 0.0) (-16 -16 -24) (16 16 32) Crucified ambush\n"
             "If crucified, stick the bounding box 12 pixels back into a wall to look right.\n"
             "*/\n";
@@ -159,9 +161,9 @@ namespace TrenchBroom {
 
             Assets::EntityDefinition* definition = definitions[0];
             ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
-            ASSERT_EQ(String("monster_zombie"), definition->name());
+            ASSERT_EQ(std::string("monster_zombie"), definition->name());
             ASSERT_VEC_EQ(Color(1.0f, 0.0f, 0.0f, 1.0f), definition->color());
-            ASSERT_EQ(String("If crucified, stick the bounding box 12 pixels back into a wall to look right."), definition->description());
+            ASSERT_EQ(std::string("If crucified, stick the bounding box 12 pixels back into a wall to look right."), definition->description());
 
             Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(definition);
             ASSERT_VEC_EQ(vm::vec3(-16.0, -16.0, -24.0), pointDefinition->bounds().min);
@@ -181,10 +183,10 @@ namespace TrenchBroom {
             ASSERT_EQ(2u, options.size());
             ASSERT_EQ(1, options[0].value());
 
-            ASSERT_EQ(String("Crucified"), options[0].shortDescription());
+            ASSERT_EQ(std::string("Crucified"), options[0].shortDescription());
             ASSERT_FALSE(options[0].isDefault());
             ASSERT_EQ(2, options[1].value());
-            ASSERT_EQ(String("ambush"), options[1].shortDescription());
+            ASSERT_EQ(std::string("ambush"), options[1].shortDescription());
             ASSERT_FALSE(options[1].isDefault());
 
 
@@ -192,7 +194,7 @@ namespace TrenchBroom {
         }
 
         TEST(DefParserTest, parseSpawnflagWithSkip) {
-            const String file =
+            const std::string file =
                     "/*QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16) - SUSPENDED SPIN - RESPAWN\n"
                     "some desc\n"
                     "*/\n";
@@ -206,9 +208,9 @@ namespace TrenchBroom {
 
             Assets::EntityDefinition* definition = definitions[0];
             ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
-            ASSERT_EQ(String("item_health"), definition->name());
+            ASSERT_EQ(std::string("item_health"), definition->name());
             ASSERT_VEC_EQ(Color(0.3f, 0.3f, 1.0f, 1.0f), definition->color());
-            ASSERT_EQ(String("some desc"), definition->description());
+            ASSERT_EQ(std::string("some desc"), definition->description());
 
             Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(definition);
             ASSERT_VEC_EQ(vm::vec3(-16.0, -16.0, -16.0), pointDefinition->bounds().min);
@@ -227,19 +229,19 @@ namespace TrenchBroom {
             const Assets::FlagsAttributeOption::List& options = spawnflags->options();
             ASSERT_EQ(5u, options.size());
 
-            ASSERT_EQ(String(""), options[0].shortDescription());
+            ASSERT_EQ(std::string(""), options[0].shortDescription());
             ASSERT_FALSE(options[0].isDefault());
             ASSERT_EQ(1, options[0].value());
-            ASSERT_EQ(String("SUSPENDED"), options[1].shortDescription());
+            ASSERT_EQ(std::string("SUSPENDED"), options[1].shortDescription());
             ASSERT_FALSE(options[1].isDefault());
             ASSERT_EQ(2, options[1].value());
-            ASSERT_EQ(String("SPIN"), options[2].shortDescription());
+            ASSERT_EQ(std::string("SPIN"), options[2].shortDescription());
             ASSERT_FALSE(options[2].isDefault());
             ASSERT_EQ(4, options[2].value());
-            ASSERT_EQ(String(""), options[3].shortDescription());
+            ASSERT_EQ(std::string(""), options[3].shortDescription());
             ASSERT_FALSE(options[3].isDefault());
             ASSERT_EQ(8, options[3].value());
-            ASSERT_EQ(String("RESPAWN"), options[4].shortDescription());
+            ASSERT_EQ(std::string("RESPAWN"), options[4].shortDescription());
             ASSERT_FALSE(options[4].isDefault());
             ASSERT_EQ(16, options[4].value());
 
@@ -248,7 +250,7 @@ namespace TrenchBroom {
         }
 
         TEST(DefParserTest, parseBrushEntityWithMissingBBoxAndNoQuestionMark) {
-            const String file =
+            const std::string file =
                     "/*QUAKED item_health (.3 .3 1) SUSPENDED SPIN - RESPAWN\n"
                     "some desc\n"
                     "*/\n";
@@ -262,9 +264,9 @@ namespace TrenchBroom {
 
             Assets::EntityDefinition* definition = definitions[0];
             ASSERT_EQ(Assets::EntityDefinition::Type_BrushEntity, definition->type());
-            ASSERT_EQ(String("item_health"), definition->name());
+            ASSERT_EQ(std::string("item_health"), definition->name());
             ASSERT_VEC_EQ(Color(0.3f, 0.3f, 1.0f, 1.0f), definition->color());
-            ASSERT_EQ(String("some desc"), definition->description());
+            ASSERT_EQ(std::string("some desc"), definition->description());
 
             const auto& attributes = definition->attributeDefinitions();
             ASSERT_EQ(1u, attributes.size()); // spawnflags
@@ -279,16 +281,16 @@ namespace TrenchBroom {
             const Assets::FlagsAttributeOption::List& options = spawnflags->options();
             ASSERT_EQ(4u, options.size());
 
-            ASSERT_EQ(String("SUSPENDED"), options[0].shortDescription());
+            ASSERT_EQ(std::string("SUSPENDED"), options[0].shortDescription());
             ASSERT_FALSE(options[0].isDefault());
             ASSERT_EQ(1, options[0].value());
-            ASSERT_EQ(String("SPIN"), options[1].shortDescription());
+            ASSERT_EQ(std::string("SPIN"), options[1].shortDescription());
             ASSERT_FALSE(options[1].isDefault());
             ASSERT_EQ(2, options[1].value());
-            ASSERT_EQ(String(""), options[2].shortDescription());
+            ASSERT_EQ(std::string(""), options[2].shortDescription());
             ASSERT_FALSE(options[2].isDefault());
             ASSERT_EQ(4, options[2].value());
-            ASSERT_EQ(String("RESPAWN"), options[3].shortDescription());
+            ASSERT_EQ(std::string("RESPAWN"), options[3].shortDescription());
             ASSERT_FALSE(options[3].isDefault());
             ASSERT_EQ(8, options[3].value());
 
@@ -297,7 +299,7 @@ namespace TrenchBroom {
         }
 
         TEST(DefParserTest, parsePointClassWithBaseClasses) {
-            const String file =
+            const std::string file =
             "/*QUAKED _light_style\n"
             "{\n"
             "choice \"style\"\n"
@@ -337,7 +339,7 @@ namespace TrenchBroom {
 
             Assets::EntityDefinition* definition = definitions[0];
             ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
-            ASSERT_EQ(String("light"), definition->name());
+            ASSERT_EQ(std::string("light"), definition->name());
 
             const auto& attributes = definition->attributeDefinitions();
             ASSERT_EQ(2u, attributes.size()); // spawn flags and style
@@ -347,7 +349,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, spawnflags->type());
 
             auto style = attributes[1];
-            ASSERT_EQ(String("style"), style->name());
+            ASSERT_EQ(std::string("style"), style->name());
             ASSERT_EQ(Assets::AttributeDefinition::Type_ChoiceAttribute, style->type());
 
             const Assets::ChoiceAttributeDefinition* choice = static_cast<const Assets::ChoiceAttributeDefinition*>(definition->attributeDefinition("style"));
@@ -356,7 +358,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        static const String ModelDefinitionTemplate =
+        static const std::string ModelDefinitionTemplate =
         "/*QUAKED monster_zombie (1.0 0.0 0.0) (-16 -16 -24) (16 16 32) Crucified ambush\n"
         "{\n"
         "model(${MODEL});\n"
@@ -366,7 +368,7 @@ namespace TrenchBroom {
         using Assets::assertModelDefinition;
 
         TEST(DefParserTest, parseLegacyStaticModelDefinition) {
-            static const String ModelDefinition = "\":maps/b_shell0.bsp\", \":maps/b_shell1.bsp\" spawnflags = 1";
+            static const std::string ModelDefinition = "\":maps/b_shell0.bsp\", \":maps/b_shell1.bsp\" spawnflags = 1";
 
             assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
                                              ModelDefinition,
@@ -378,7 +380,7 @@ namespace TrenchBroom {
         }
 
         TEST(DefParserTest, parseLegacyDynamicModelDefinition) {
-            static const String ModelDefinition = "pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\"";
+            static const std::string ModelDefinition = "pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\"";
 
             assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
                                              ModelDefinition,
@@ -391,7 +393,7 @@ namespace TrenchBroom {
         }
 
         TEST(DefParserTest, parseELStaticModelDefinition) {
-            static const String ModelDefinition = "{{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }}";
+            static const std::string ModelDefinition = "{{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }}";
 
             assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
                                              ModelDefinition,
@@ -407,7 +409,7 @@ namespace TrenchBroom {
         }
 
         TEST(DefParserTest, parseELDynamicModelDefinition) {
-            static const String ModelDefinition = "{ 'path': model, 'skin': skin, 'frame': frame }";
+            static const std::string ModelDefinition = "{ 'path': model, 'skin': skin, 'frame': frame }";
 
             assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
                                              ModelDefinition,
@@ -420,7 +422,7 @@ namespace TrenchBroom {
         }
 
         TEST(DefParserTest, parseInvalidBounds) {
-            const String file =
+            const std::string file =
                 "/*QUAKED light (0.0 1.0 0.0) (8 -8 -8) (-8 8 8) START_OFF\n"
                 "{\n"
                 "base(\"_light_style\");\n"

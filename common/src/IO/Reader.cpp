@@ -132,7 +132,7 @@ namespace TrenchBroom {
             return std::make_tuple(begin, end, std::move(buffer));
         }
 
-        void Reader::FileSource::throwError(const String& msg) const {
+        void Reader::FileSource::throwError(const std::string& msg) const {
             if (std::feof(m_file)) {
                 throw ReaderException(msg + ": unexpected end of file");
             } else {
@@ -259,12 +259,12 @@ namespace TrenchBroom {
             m_source->read(val, size);
         }
 
-        String Reader::readString(const size_t size) {
+        std::string Reader::readString(const size_t size) {
             std::vector<char> buffer;
             buffer.resize(size + 1);
             buffer[size] = 0;
             read(buffer.data(), size);
-            return String(buffer.data());
+            return std::string(buffer.data());
         }
 
         BufferedReader::BufferedReader(const char* begin, const char* end, std::unique_ptr<char[]> buffer) :

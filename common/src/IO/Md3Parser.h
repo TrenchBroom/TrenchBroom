@@ -20,12 +20,12 @@
 #ifndef TRENCHBROOM_MD3PARSER_H
 #define TRENCHBROOM_MD3PARSER_H
 
-#include "StringType.h"
 #include "Assets/EntityModel.h"
 #include "IO/EntityModelParser.h"
 
 #include <vecmath/forward.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -40,7 +40,7 @@ namespace TrenchBroom {
 
         class Md3Parser : public EntityModelParser {
         private:
-            String m_name;
+            std::string m_name;
             const char* m_begin;
             const char* m_end;
             const FileSystem& m_fs;
@@ -49,7 +49,7 @@ namespace TrenchBroom {
                 size_t i1, i2, i3;
             };
         public:
-            Md3Parser(const String& name, const char* begin, const char* end, const FileSystem& fs);
+            Md3Parser(const std::string& name, const char* begin, const char* end, const FileSystem& fs);
         private:
             std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
             void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;

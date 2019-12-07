@@ -23,6 +23,7 @@
 
 #include <kdl/vector_utils.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -78,7 +79,7 @@ namespace TrenchBroom {
             return m_path;
         }
 
-        String TextureCollection::name() const {
+        std::string TextureCollection::name() const {
             if (m_path.isEmpty())
                 return "";
             return m_path.lastComponent().asString();
@@ -100,7 +101,7 @@ namespace TrenchBroom {
             }
         }
 
-        Texture* TextureCollection::textureByName(const String& name) const {
+        Texture* TextureCollection::textureByName(const std::string& name) const {
             for (auto* texture : m_textures) {
                 if (texture->name() == name) {
                     return texture;

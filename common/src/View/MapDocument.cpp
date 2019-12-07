@@ -131,7 +131,7 @@
 namespace TrenchBroom {
     namespace View {
         const vm::bbox3 MapDocument::DefaultWorldBounds(-16384.0, 16384.0);
-        const String MapDocument::DefaultDocumentName("unnamed.map");
+        const std::string MapDocument::DefaultDocumentName("unnamed.map");
 
         MapDocument::MapDocument() :
         m_worldBounds(DefaultWorldBounds),
@@ -346,19 +346,19 @@ namespace TrenchBroom {
             }
         }
 
-        String MapDocument::serializeSelectedNodes() {
+        std::string MapDocument::serializeSelectedNodes() {
             std::stringstream stream;
             m_game->writeNodesToStream(*m_world, m_selectedNodes.nodes(), stream);
             return stream.str();
         }
 
-        String MapDocument::serializeSelectedBrushFaces() {
+        std::string MapDocument::serializeSelectedBrushFaces() {
             std::stringstream stream;
             m_game->writeBrushFacesToStream(*m_world, m_selectedBrushFaces, stream);
             return stream.str();
         }
 
-        PasteType MapDocument::paste(const String& str) {
+        PasteType MapDocument::paste(const std::string& str) {
             try {
                 const std::vector<Model::Node*> nodes = m_game->parseNodes(str, *m_world, m_worldBounds, logger());
                 if (!nodes.empty() && pasteNodes(nodes))
@@ -544,11 +544,11 @@ namespace TrenchBroom {
             return m_selectionBounds;
         }
 
-        const String& MapDocument::currentTextureName() const {
+        const std::string& MapDocument::currentTextureName() const {
             return m_currentTextureName;
         }
 
-        void MapDocument::setCurrentTextureName(const String& currentTextureName) {
+        void MapDocument::setCurrentTextureName(const std::string& currentTextureName) {
             if (m_currentTextureName == currentTextureName)
                 return;
             m_currentTextureName = currentTextureName;
@@ -902,7 +902,7 @@ namespace TrenchBroom {
             return entity;
         }
 
-        Model::Group* MapDocument::groupSelection(const String& name) {
+        Model::Group* MapDocument::groupSelection(const std::string& name) {
             if (!hasSelectedNodes())
                 return nullptr;
 
@@ -980,7 +980,7 @@ namespace TrenchBroom {
             select(allChildren);
         }
 
-        void MapDocument::renameGroups(const String& name) {
+        void MapDocument::renameGroups(const std::string& name) {
             submitAndStore(RenameGroupsCommand::rename(name));
         }
 
@@ -1490,11 +1490,11 @@ namespace TrenchBroom {
             return doCanRedoNextCommand();
         }
 
-        const String& MapDocument::lastCommandName() const {
+        const std::string& MapDocument::lastCommandName() const {
             return doGetLastCommandName();
         }
 
-        const String& MapDocument::nextCommandName() const {
+        const std::string& MapDocument::nextCommandName() const {
             return doGetNextCommandName();
         }
 
@@ -1518,7 +1518,7 @@ namespace TrenchBroom {
             doClearRepeatableCommands();
         }
 
-        void MapDocument::beginTransaction(const String& name) {
+        void MapDocument::beginTransaction(const std::string& name) {
             debug("Starting transaction '" + name + "'");
             doBeginTransaction(name);
         }
@@ -1896,7 +1896,7 @@ namespace TrenchBroom {
             submitAndStore(SetModsCommand::set(mods));
         }
 
-        String MapDocument::defaultMod() const {
+        std::string MapDocument::defaultMod() const {
             return m_game->defaultMod();
         }
 
@@ -1943,11 +1943,11 @@ namespace TrenchBroom {
             return m_tagManager->smartTags();
         }
 
-        bool MapDocument::isRegisteredSmartTag(const String& name) const {
+        bool MapDocument::isRegisteredSmartTag(const std::string& name) const {
             return m_tagManager->isRegisteredSmartTag(name);
         }
 
-        const Model::SmartTag& MapDocument::smartTag(const String& name) const {
+        const Model::SmartTag& MapDocument::smartTag(const std::string& name) const {
             return m_tagManager->smartTag(name);
         }
 
@@ -2042,9 +2042,10 @@ namespace TrenchBroom {
             return m_path.isAbsolute() && IO::Disk::fileExists(IO::Disk::fixPath(m_path));
         }
 
-        String MapDocument::filename() const {
-            if (m_path.isEmpty())
-                return EmptyString;
+        std::string MapDocument::filename() const {
+            if (m_path.isEmpty()) {
+                return "";
+            }
             return  m_path.lastComponent().asString();
         }
 
@@ -2138,19 +2139,19 @@ namespace TrenchBroom {
             debug() << "Command " << command->name() << " undone";
         }
 
-        Transaction::Transaction(std::weak_ptr<MapDocument> document, const String& name) :
+        Transaction::Transaction(std::weak_ptr<MapDocument> document, const std::string& name) :
         m_document(lock(document).get()),
         m_cancelled(false) {
             begin(name);
         }
 
-        Transaction::Transaction(std::shared_ptr<MapDocument> document, const String& name) :
+        Transaction::Transaction(std::shared_ptr<MapDocument> document, const std::string& name) :
         m_document(document.get()),
         m_cancelled(false) {
             begin(name);
         }
 
-        Transaction::Transaction(MapDocument* document, const String& name) :
+        Transaction::Transaction(MapDocument* document, const std::string& name) :
         m_document(document),
         m_cancelled(false) {
             begin(name);
@@ -2170,7 +2171,7 @@ namespace TrenchBroom {
             m_cancelled = true;
         }
 
-        void Transaction::begin(const String& name) {
+        void Transaction::begin(const std::string& name) {
             m_document->beginTransaction(name);
         }
 

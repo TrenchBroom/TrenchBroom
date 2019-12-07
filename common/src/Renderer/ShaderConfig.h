@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_ShaderConfig
 #define TrenchBroom_ShaderConfig
 
-#include "StringType.h"
-
 #include <string>
 #include <vector>
 
@@ -29,13 +27,13 @@ namespace TrenchBroom {
     namespace Renderer {
         class ShaderConfig {
         private:
-            String m_name;
+            std::string m_name;
             std::vector<std::string> m_vertexShaders;
             std::vector<std::string> m_fragmentShaders;
         public:
-            ShaderConfig(const String& name, const std::vector<std::string>& vertexShaders, const std::vector<std::string>& fragmentShaders);
+            ShaderConfig(const std::string& name, const std::vector<std::string>& vertexShaders, const std::vector<std::string>& fragmentShaders);
         public:
-            const String& name() const;
+            const std::string& name() const;
             const std::vector<std::string>& vertexShaders() const;
             const std::vector<std::string>& fragmentShaders() const;
         };

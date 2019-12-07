@@ -19,13 +19,15 @@
 
 #include "CompilationTask.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
         CompilationTask::CompilationTask() = default;
 
         CompilationTask::~CompilationTask() = default;
 
-        CompilationExportMap::CompilationExportMap(const String& targetSpec) :
+        CompilationExportMap::CompilationExportMap(const std::string& targetSpec) :
         m_targetSpec(targetSpec) {}
 
         void CompilationExportMap::accept(CompilationTaskVisitor& visitor) {
@@ -44,11 +46,11 @@ namespace TrenchBroom {
             visitor.visit(*this);
         }
 
-        const String& CompilationExportMap::targetSpec() const {
+        const std::string& CompilationExportMap::targetSpec() const {
             return m_targetSpec;
         }
 
-        void CompilationExportMap::setTargetSpec(const String& targetSpec) {
+        void CompilationExportMap::setTargetSpec(const std::string& targetSpec) {
             m_targetSpec = targetSpec;
             taskDidChange();
         }
@@ -57,7 +59,7 @@ namespace TrenchBroom {
             return new CompilationExportMap(m_targetSpec);
         }
 
-        CompilationCopyFiles::CompilationCopyFiles(const String& sourceSpec, const String& targetSpec) :
+        CompilationCopyFiles::CompilationCopyFiles(const std::string& sourceSpec, const std::string& targetSpec) :
         CompilationTask(),
         m_sourceSpec(sourceSpec),
         m_targetSpec(targetSpec) {}
@@ -78,20 +80,20 @@ namespace TrenchBroom {
             visitor.visit(*this);
         }
 
-        const String& CompilationCopyFiles::sourceSpec() const {
+        const std::string& CompilationCopyFiles::sourceSpec() const {
             return m_sourceSpec;
         }
 
-        const String& CompilationCopyFiles::targetSpec() const {
+        const std::string& CompilationCopyFiles::targetSpec() const {
             return m_targetSpec;
         }
 
-        void CompilationCopyFiles::setSourceSpec(const String& sourceSpec) {
+        void CompilationCopyFiles::setSourceSpec(const std::string& sourceSpec) {
             m_sourceSpec = sourceSpec;
             taskDidChange();
         }
 
-        void CompilationCopyFiles::setTargetSpec(const String& targetSpec) {
+        void CompilationCopyFiles::setTargetSpec(const std::string& targetSpec) {
             m_targetSpec = targetSpec;
             taskDidChange();
         }
@@ -100,7 +102,7 @@ namespace TrenchBroom {
             return new CompilationCopyFiles(m_sourceSpec, m_targetSpec);
         }
 
-        CompilationRunTool::CompilationRunTool(const String& toolSpec, const String& parameterSpec) :
+        CompilationRunTool::CompilationRunTool(const std::string& toolSpec, const std::string& parameterSpec) :
         CompilationTask(),
         m_toolSpec(toolSpec),
         m_parameterSpec(parameterSpec) {}
@@ -121,20 +123,20 @@ namespace TrenchBroom {
             visitor.visit(*this);
         }
 
-        const String& CompilationRunTool::toolSpec() const {
+        const std::string& CompilationRunTool::toolSpec() const {
             return m_toolSpec;
         }
 
-        const String& CompilationRunTool::parameterSpec() const {
+        const std::string& CompilationRunTool::parameterSpec() const {
             return m_parameterSpec;
         }
 
-        void CompilationRunTool::setToolSpec(const String& toolSpec) {
+        void CompilationRunTool::setToolSpec(const std::string& toolSpec) {
             m_toolSpec = toolSpec;
             taskDidChange();
         }
 
-        void CompilationRunTool::setParameterSpec(const String& parameterSpec) {
+        void CompilationRunTool::setParameterSpec(const std::string& parameterSpec) {
             m_parameterSpec = parameterSpec;
             taskDidChange();
         }

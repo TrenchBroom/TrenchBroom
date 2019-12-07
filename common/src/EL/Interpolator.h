@@ -22,18 +22,20 @@
 
 #include "IO/ELParser.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace EL {
         class EvaluationContext;
 
         class Interpolator : private IO::ELParser {
         public:
-            Interpolator(const String& str);
+            Interpolator(const std::string& str);
 
-            String interpolate(const EvaluationContext& context);
+            std::string interpolate(const EvaluationContext& context);
         };
 
-        String interpolate(const String& str, const EvaluationContext& context);
+        std::string interpolate(const std::string& str, const EvaluationContext& context);
     }
 }
 

@@ -36,15 +36,16 @@
 #include <QLabel>
 
 #include <array>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
         struct TextureMode {
             int minFilter;
             int magFilter;
-            String name;
+            std::string name;
 
-            TextureMode(const int i_minFilter, const int i_magFilter, const String& i_name) :
+            TextureMode(const int i_minFilter, const int i_magFilter, const std::string& i_name) :
             minFilter(i_minFilter),
             magFilter(i_magFilter),
             name(i_name) {}

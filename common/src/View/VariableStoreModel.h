@@ -20,13 +20,14 @@
 #ifndef TRENCHBROOM_VARIABLESTOREMODEL_H
 #define TRENCHBROOM_VARIABLESTOREMODEL_H
 
-#include "StringType.h"
-
-#include <QAbstractListModel>
-
 #include <memory>
 #include <string>
 #include <vector>
+
+#include <QAbstractListModel>
+
+class QModelIndex;
+class QVariant;
 
 namespace TrenchBroom {
     namespace EL {

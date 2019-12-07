@@ -26,6 +26,7 @@
 #include <kdl/map_utils.h>
 
 #include <map>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -66,7 +67,7 @@ namespace TrenchBroom {
             }
         }
 
-        String AddRemoveNodesCommand::makeName(const Action action) {
+        std::string AddRemoveNodesCommand::makeName(const Action action) {
             switch (action) {
                 case Action_Add:
                     return "Add Objects";

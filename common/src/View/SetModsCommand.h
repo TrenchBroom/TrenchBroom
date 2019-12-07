@@ -21,7 +21,6 @@
 #define TrenchBroom_SetModsCommand
 
 #include "View/DocumentCommand.h"
-#include "StringType.h"
 
 #include <memory>
 #include <string>
@@ -39,7 +38,7 @@ namespace TrenchBroom {
         public:
             static Ptr set(const std::vector<std::string>& mods);
         private:
-            SetModsCommand(const String& name, const std::vector<std::string>& mods);
+            SetModsCommand(const std::string& name, const std::vector<std::string>& mods);
 
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

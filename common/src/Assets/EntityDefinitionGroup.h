@@ -20,10 +20,10 @@
 #ifndef TrenchBroom_EntityDefinitionGroup
 #define TrenchBroom_EntityDefinitionGroup
 
-#include "StringType.h"
 #include "Assets/Asset_Forward.h"
 #include "Assets/EntityDefinition.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -32,14 +32,14 @@ namespace TrenchBroom {
         public:
             using List = std::vector<EntityDefinitionGroup>;
         private:
-            String m_name;
+            std::string m_name;
             std::vector<EntityDefinition*> m_definitions;
         public:
-            EntityDefinitionGroup(const String& name, const std::vector<EntityDefinition*>& definitions);
+            EntityDefinitionGroup(const std::string& name, const std::vector<EntityDefinition*>& definitions);
 
             size_t index() const;
-            const String& name() const;
-            const String displayName() const;
+            const std::string& name() const;
+            const std::string displayName() const;
             const std::vector<EntityDefinition*>& definitions() const;
             std::vector<EntityDefinition*> definitions(EntityDefinition::Type type, const EntityDefinition::SortOrder order = EntityDefinition::Name) const;
         };

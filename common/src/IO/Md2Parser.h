@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_Md2Parser
 #define TrenchBroom_Md2Parser
 
-#include "StringType.h"
 #include "Assets/Asset_Forward.h"
 #include "Assets/EntityModel.h"
 #include "Assets/TextureCollection.h"
@@ -64,7 +63,7 @@ namespace TrenchBroom {
             struct Md2Frame {
                 vm::vec3f scale;
                 vm::vec3f offset;
-                String name;
+                std::string name;
                 Md2VertexList vertices;
 
                 explicit Md2Frame(size_t vertexCount);
@@ -93,13 +92,13 @@ namespace TrenchBroom {
             using Md2MeshList =  std::vector<Md2Mesh>;
 
 
-            String m_name;
+            std::string m_name;
             const char* m_begin;
             const char* m_end;
             const Assets::Palette& m_palette;
             const FileSystem& m_fs;
         public:
-            Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs);
+            Md2Parser(const std::string& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs);
         private:
             std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
             void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;

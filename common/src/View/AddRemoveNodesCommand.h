@@ -48,7 +48,7 @@ namespace TrenchBroom {
             ~AddRemoveNodesCommand() override;
         private:
             AddRemoveNodesCommand(Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
-            static String makeName(Action action);
+            static std::string makeName(Action action);
 
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

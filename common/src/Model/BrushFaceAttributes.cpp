@@ -23,9 +23,11 @@
 
 #include <vecmath/vec.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
-        BrushFaceAttributes::BrushFaceAttributes(const String& textureName) :
+        BrushFaceAttributes::BrushFaceAttributes(const std::string& textureName) :
         m_textureName(textureName),
         m_texture(nullptr),
         m_offset(vm::vec2f::zero()),
@@ -87,7 +89,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        const String& BrushFaceAttributes::textureName() const {
+        const std::string& BrushFaceAttributes::textureName() const {
             return m_textureName;
         }
 

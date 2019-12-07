@@ -24,6 +24,8 @@
 
 #include <kdl/map_utils.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace EL {
         VariableStore* VariableStore::clone() const {
@@ -34,7 +36,7 @@ namespace TrenchBroom {
             return doGetSize();
         }
 
-        Value VariableStore::value(const String& name) const {
+        Value VariableStore::value(const std::string& name) const {
             return doGetValue(name);
         }
 
@@ -42,11 +44,11 @@ namespace TrenchBroom {
             return doGetNames();
         }
 
-        void VariableStore::declare(const String& name, const Value& value) {
+        void VariableStore::declare(const std::string& name, const Value& value) {
             doDeclare(name, value);
         }
 
-        void VariableStore::assign(const String& name, const Value& value) {
+        void VariableStore::assign(const std::string& name, const Value& value) {
             doAssign(name, value);
         }
 
@@ -62,7 +64,7 @@ namespace TrenchBroom {
         size_t VariableTable::doGetSize() const {
             return m_variables.size();
         }
-        Value VariableTable::doGetValue(const String& name) const {
+        Value VariableTable::doGetValue(const std::string& name) const {
             auto it = m_variables.find(name);
             if (it != std::end(m_variables)) {
                 return it->second;
@@ -75,13 +77,13 @@ namespace TrenchBroom {
             return kdl::map_keys(m_variables);
         }
 
-        void VariableTable::doDeclare(const String& name, const Value& value) {
+        void VariableTable::doDeclare(const std::string& name, const Value& value) {
             if (!m_variables.try_emplace(name, value).second) {
                 throw EvaluationError("Variable '" + name + "' already declared");
             }
         }
 
-        void VariableTable::doAssign(const String& name, const Value& value) {
+        void VariableTable::doAssign(const std::string& name, const Value& value) {
             auto it = m_variables.find(name);
             if (it == std::end(m_variables)) {
                 throw EvaluationError("Cannot assign to undeclared variable '" + name + "'");
@@ -100,7 +102,7 @@ namespace TrenchBroom {
             return 0;
         }
 
-        Value NullVariableStore::doGetValue(const String& /* name */) const {
+        Value NullVariableStore::doGetValue(const std::string& /* name */) const {
             return Value::Null;
         }
 
@@ -108,7 +110,7 @@ namespace TrenchBroom {
             return std::vector<std::string>();
         }
 
-        void NullVariableStore::doDeclare(const String& /* name */, const Value& /* value */) {}
-        void NullVariableStore::doAssign(const String& /* name */, const Value& /* value */) {}
+        void NullVariableStore::doDeclare(const std::string& /* name */, const Value& /* value */) {}
+        void NullVariableStore::doAssign(const std::string& /* name */, const Value& /* value */) {}
     }
 }

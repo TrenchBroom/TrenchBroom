@@ -21,7 +21,6 @@
 #define TrenchBroom_Game
 
 #include "TrenchBroom.h"
-#include "StringType.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/EntityModelLoader.h"
@@ -50,14 +49,14 @@ namespace TrenchBroom {
                 Directory
             };
         public:
-            const String& gameName() const;
+            const std::string& gameName() const;
             bool isGamePathPreference(const IO::Path& prefPath) const;
 
             IO::Path gamePath() const;
             void setGamePath(const IO::Path& gamePath, Logger& logger);
             void setAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger);
 
-            using PathErrors = std::map<IO::Path, String>;
+            using PathErrors = std::map<IO::Path, std::string>;
             PathErrors checkAdditionalSearchPaths(const IO::Path::List& searchPaths) const;
 
             CompilationConfig& compilationConfig();
@@ -71,8 +70,8 @@ namespace TrenchBroom {
             void writeMap(World& world, const IO::Path& path) const;
             void exportMap(World& world, Model::ExportFormat format, const IO::Path& path) const;
         public: // parsing and serializing objects
-            std::vector<Node*> parseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const;
-            std::vector<BrushFace*> parseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const;
+            std::vector<Node*> parseNodes(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const;
+            std::vector<BrushFace*> parseBrushFaces(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const;
 
             void writeNodesToStream(World& world, const std::vector<Node*>& nodes, std::ostream& stream) const;
             void writeBrushFacesToStream(World& world, const std::vector<BrushFace*>& faces, std::ostream& stream) const;
@@ -92,12 +91,12 @@ namespace TrenchBroom {
         public: // mods
             std::vector<std::string> availableMods() const;
             std::vector<std::string> extractEnabledMods(const AttributableNode& node) const;
-            String defaultMod() const;
+            std::string defaultMod() const;
         public: // flag configs for faces
             const GameConfig::FlagsConfig& surfaceFlags() const;
             const GameConfig::FlagsConfig& contentFlags() const;
         private: // subclassing interface
-            virtual const String& doGameName() const = 0;
+            virtual const std::string& doGameName() const = 0;
             virtual IO::Path doGamePath() const = 0;
             virtual void doSetGamePath(const IO::Path& gamePath, Logger& logger) = 0;
             virtual void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger) = 0;
@@ -113,8 +112,8 @@ namespace TrenchBroom {
             virtual void doWriteMap(World& world, const IO::Path& path) const = 0;
             virtual void doExportMap(World& world, Model::ExportFormat format, const IO::Path& path) const = 0;
 
-            virtual std::vector<Node*> doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const = 0;
-            virtual std::vector<BrushFace*> doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const = 0;
+            virtual std::vector<Node*> doParseNodes(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const = 0;
+            virtual std::vector<BrushFace*> doParseBrushFaces(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const = 0;
             virtual void doWriteNodesToStream(World& world, const std::vector<Node*>& nodes, std::ostream& stream) const = 0;
             virtual void doWriteBrushFacesToStream(World& world, const std::vector<BrushFace*>& faces, std::ostream& stream) const = 0;
 
@@ -133,7 +132,7 @@ namespace TrenchBroom {
 
             virtual std::vector<std::string> doAvailableMods() const = 0;
             virtual std::vector<std::string> doExtractEnabledMods(const AttributableNode& node) const = 0;
-            virtual String doDefaultMod() const = 0;
+            virtual std::string doDefaultMod() const = 0;
 
             virtual const GameConfig::FlagsConfig& doSurfaceFlags() const = 0;
             virtual const GameConfig::FlagsConfig& doContentFlags() const = 0;

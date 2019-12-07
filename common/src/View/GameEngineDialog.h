@@ -20,7 +20,7 @@
 #ifndef GameEngineDialog_h
 #define GameEngineDialog_h
 
-#include "StringType.h"
+#include <string>
 
 #include <QDialog>
 
@@ -31,10 +31,10 @@ namespace TrenchBroom {
         class GameEngineDialog : public QDialog {
             Q_OBJECT
         private:
-            const String m_gameName;
+            const std::string m_gameName;
             GameEngineProfileManager* m_profileManager;
         public:
-            explicit GameEngineDialog(const String& gameName, QWidget* parent = nullptr);
+            explicit GameEngineDialog(const std::string& gameName, QWidget* parent = nullptr);
         private:
             void createGui();
         };

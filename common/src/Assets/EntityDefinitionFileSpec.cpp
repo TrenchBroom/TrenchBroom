@@ -23,6 +23,7 @@
 #include <kdl/string_compare.h>
 
 #include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -30,7 +31,7 @@ namespace TrenchBroom {
         m_type(Type_Unset),
         m_path("") {}
 
-        EntityDefinitionFileSpec EntityDefinitionFileSpec::parse(const String& str) {
+        EntityDefinitionFileSpec EntityDefinitionFileSpec::parse(const std::string& str) {
             if (kdl::cs::is_prefix(str, "external:")) {
                 const IO::Path path(str.substr(9));
                 return EntityDefinitionFileSpec::external(path);
@@ -89,7 +90,7 @@ namespace TrenchBroom {
             return m_path;
         }
 
-        String EntityDefinitionFileSpec::asString() const {
+        std::string EntityDefinitionFileSpec::asString() const {
             if (!valid())
                 return "";
             if (builtin())

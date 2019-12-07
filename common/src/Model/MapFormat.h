@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_MapFormat
 #define TrenchBroom_MapFormat
 
-#include "StringType.h"
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -66,7 +66,7 @@ namespace TrenchBroom {
          * @param formatName the name
          * @return the enum value
          */
-        MapFormat mapFormat(const String& formatName);
+        MapFormat mapFormat(const std::string& formatName);
 
         /**
          * Returns the name of the given map format enum value.
@@ -74,7 +74,7 @@ namespace TrenchBroom {
          * @param format the enum value
          * @return the name
          */
-        String formatName(MapFormat format);
+        std::string formatName(MapFormat format);
     }
 }
 

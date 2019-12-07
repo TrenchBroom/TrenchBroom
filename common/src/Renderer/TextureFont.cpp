@@ -19,12 +19,14 @@
 
 #include "TextureFont.h"
 
+#include "Renderer/FontTexture.h"
+
 #include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
-#include "Renderer/FontTexture.h"
+#include <string>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -49,19 +51,19 @@ namespace TrenchBroom {
                 return m_size;
             }
         private:
-            void justifyLeft(const String& str) override {
+            void justifyLeft(const std::string& str) override {
                 measure(str);
             }
 
-            void justifyRight(const String& str) override {
+            void justifyRight(const std::string& str) override {
                 measure(str);
             }
 
-            void center(const String& str) override {
+            void center(const std::string& str) override {
                 measure(str);
             }
 
-            void measure(const String& str) {
+            void measure(const std::string& str) {
                 const auto size = m_font.measure(str);
                 m_size[0] = std::max(m_size[0], size[0]);
                 m_size[1] += size[1];
@@ -80,19 +82,19 @@ namespace TrenchBroom {
                 return m_sizes;
             }
         private:
-            void justifyLeft(const String& str) override {
+            void justifyLeft(const std::string& str) override {
                 measure(str);
             }
 
-            void justifyRight(const String& str) override {
+            void justifyRight(const std::string& str) override {
                 measure(str);
             }
 
-            void center(const String& str) override {
+            void center(const std::string& str) override {
                 measure(str);
             }
 
-            void measure(const String& str) {
+            void measure(const std::string& str) {
                 m_sizes.push_back(m_font.measure(str));
             }
         };
@@ -129,21 +131,21 @@ namespace TrenchBroom {
                 return m_vertices;
             }
         private:
-            void justifyLeft(const String& str) override {
+            void justifyLeft(const std::string& str) override {
                 makeQuads(str, 0.0f);
             }
 
-            void justifyRight(const String& str) override {
+            void justifyRight(const std::string& str) override {
                 const auto w = m_sizes[m_index].x();
                 makeQuads(str, m_maxSize.x() - w);
             }
 
-            void center(const String& str) override {
+            void center(const std::string& str) override {
                 const auto w = m_sizes[m_index].x();
                 makeQuads(str, (m_maxSize.x() - w) / 2.0f);
             }
 
-            void makeQuads(const String& str, const float x) {
+            void makeQuads(const std::string& str, const float x) {
                 const auto offset = m_offset + vm::vec2f(x, m_y);
                 kdl::vec_append(m_vertices, m_font.quads(str, m_clockwise, offset));
 
@@ -168,7 +170,7 @@ namespace TrenchBroom {
             return measureString.size();
         }
 
-        std::vector<vm::vec2f> TextureFont::quads(const String& string, const bool clockwise, const vm::vec2f& offset) const {
+        std::vector<vm::vec2f> TextureFont::quads(const std::string& string, const bool clockwise, const vm::vec2f& offset) const {
             std::vector<vm::vec2f> result;
             result.reserve(string.length() * 4 * 2);
 
@@ -196,7 +198,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        vm::vec2f TextureFont::measure(const String& string) const {
+        vm::vec2f TextureFont::measure(const std::string& string) const {
             vm::vec2f result;
 
             int x = 0;

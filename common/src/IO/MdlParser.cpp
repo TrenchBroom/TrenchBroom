@@ -210,7 +210,7 @@ namespace TrenchBroom {
 
         static const int MF_HOLEY = (1 << 14);
 
-        MdlParser::MdlParser(const String& name, const char* begin, const char* end, const Assets::Palette& palette) :
+        MdlParser::MdlParser(const std::string& name, const char* begin, const char* end, const Assets::Palette& palette) :
         m_name(name),
         m_begin(begin),
         m_end(end),
@@ -308,7 +308,7 @@ namespace TrenchBroom {
                     Buffer<unsigned char> rgbaImage(size * 4);
                     m_palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
 
-                    const String textureName = m_name + "_" + kdl::str_to_string(i);
+                    const std::string textureName = m_name + "_" + kdl::str_to_string(i);
                     surface.addSkin(new Assets::Texture(textureName, width, height, avgColor, rgbaImage, GL_RGBA, type));
                 } else {
                     const auto pictureCount = reader.readSize<int32_t>();
@@ -319,7 +319,7 @@ namespace TrenchBroom {
                     m_palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
                     reader.seekForward((pictureCount - 1) * size);  // skip all remaining pictures
 
-                    const String textureName = m_name + "_" + kdl::str_to_string(i);
+                    const std::string textureName = m_name + "_" + kdl::str_to_string(i);
                     surface.addSkin(new Assets::Texture(textureName, width, height, avgColor, rgbaImage, GL_RGBA, type));
                 }
             }

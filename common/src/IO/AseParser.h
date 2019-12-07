@@ -30,6 +30,7 @@
 
 #include <array>
 #include <functional>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -59,10 +60,10 @@ namespace TrenchBroom {
 
         class AseTokenizer : public Tokenizer<AseToken::Type> {
         private:
-            static const String WordDelims;
+            static const std::string WordDelims;
         public:
             AseTokenizer(const char* begin, const char* end);
-            explicit AseTokenizer(const String& str);
+            explicit AseTokenizer(const std::string& str);
         private:
             Token emitToken() override;
         };
@@ -85,7 +86,7 @@ namespace TrenchBroom {
             };
 
             struct GeomObject {
-                String name;
+                std::string name;
                 Mesh mesh;
                 size_t materialIndex;
             };
@@ -95,7 +96,7 @@ namespace TrenchBroom {
                 std::vector<GeomObject> geomObjects;
             };
 
-            String m_name;
+            std::string m_name;
             AseTokenizer m_tokenizer;
             const FileSystem& m_fs;
         public:
@@ -107,7 +108,7 @@ namespace TrenchBroom {
              * @param end the end of the text to parse
              * @param fs the file system used to load texture files
              */
-            AseParser(const String& name, const char* begin, const char* end, const FileSystem& fs);
+            AseParser(const std::string& name, const char* begin, const char* end, const FileSystem& fs);
         private:
             std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
         private: // parsing
@@ -141,11 +142,11 @@ namespace TrenchBroom {
 
             void parseBlock(const std::map<std::string, std::function<void(void)>>& handlers);
 
-            void expectDirective(const String& name);
-            void skipDirective(const String& name);
+            void expectDirective(const std::string& name);
+            void skipDirective(const std::string& name);
             void skipDirective();
 
-            void expectArgumentName(const String& expected);
+            void expectArgumentName(const std::string& expected);
 
             void expectSizeArgument(size_t expected);
             size_t parseSizeArgument();

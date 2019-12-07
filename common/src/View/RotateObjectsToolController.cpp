@@ -40,6 +40,7 @@
 #include <vecmath/vec.h>
 
 #include <sstream>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -201,7 +202,7 @@ namespace TrenchBroom {
                 renderService.renderString(angleString(vm::to_degrees(m_angle)), vm::vec3f(m_center));
             }
 
-            String angleString(const FloatType angle) const {
+            std::string angleString(const FloatType angle) const {
                 std::stringstream str;
                 str.precision(2);
                 str.setf(std::ios::fixed);

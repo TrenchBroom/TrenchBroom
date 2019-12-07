@@ -47,7 +47,7 @@ namespace TrenchBroom {
             static const float VertexScale = 1.0f / 64.0f;
         }
 
-        Md3Parser::Md3Parser(const String& name, const char* begin, const char* end, const FileSystem& fs) :
+        Md3Parser::Md3Parser(const std::string& name, const char* begin, const char* end, const FileSystem& fs) :
         m_name(name),
         m_begin(begin),
         m_end(end),

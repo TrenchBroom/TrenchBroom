@@ -23,6 +23,8 @@
 
 #include <kdl/string_format.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
         EdgeTool::EdgeTool(std::weak_ptr<MapDocument> document) :
@@ -56,7 +58,7 @@ namespace TrenchBroom {
             return MR_Deny;
         }
 
-        String EdgeTool::actionName() const {
+        std::string EdgeTool::actionName() const {
             return kdl::str_plural(m_edgeHandles.selectedHandleCount(), "Move Edge", "Move Edges");
         }
 

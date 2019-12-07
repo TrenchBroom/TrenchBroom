@@ -77,8 +77,8 @@ namespace TrenchBroom {
             class RenameGroupsVisitor;
             class UndoRenameGroupsVisitor;
         public:
-            std::map<Model::Group*, String> performRenameGroups(const String& newName);
-            void performUndoRenameGroups(const std::map<Model::Group*, String>& newNames);
+            std::map<Model::Group*, std::string> performRenameGroups(const std::string& newName);
+            void performUndoRenameGroups(const std::map<Model::Group*, std::string>& newNames);
 
             void performPushGroup(Model::Group* group);
             void performPopGroup();
@@ -133,15 +133,15 @@ namespace TrenchBroom {
         private: // implement MapDocument interface
             bool doCanUndoLastCommand() const override;
             bool doCanRedoNextCommand() const override;
-            const String& doGetLastCommandName() const override;
-            const String& doGetNextCommandName() const override;
+            const std::string& doGetLastCommandName() const override;
+            const std::string& doGetNextCommandName() const override;
             void doUndoLastCommand() override;
             void doRedoNextCommand() override;
             bool doHasRepeatableCommands() const override;
             bool doRepeatLastCommands() override;
             void doClearRepeatableCommands() override;
 
-            void doBeginTransaction(const String& name) override;
+            void doBeginTransaction(const std::string& name) override;
             void doEndTransaction() override;
             void doRollbackTransaction() override;
 

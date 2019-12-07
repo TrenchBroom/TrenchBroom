@@ -23,8 +23,10 @@
 #include "StringMap.h"
 #include "TestUtils.h"
 
+#include <string>
+
 namespace TrenchBroom {
-    using TestMultiMap = StringMap<String, StringMultiMapValueContainer<String> >;
+    using TestMultiMap = StringMap<std::string, StringMultiMapValueContainer<std::string>>;
 
     TEST(StringMultiMapTest, insert) {
         TestMultiMap index;

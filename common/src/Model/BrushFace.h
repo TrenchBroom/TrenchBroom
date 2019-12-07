@@ -23,7 +23,6 @@
 #include "TrenchBroom.h"
 #include "ProjectingSequence.h"
 #include "SharedPointer.h"
-#include "StringType.h"
 #include "Assets/Asset_Forward.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
@@ -36,6 +35,7 @@
 #include <vecmath/util.h>
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -65,7 +65,7 @@ namespace TrenchBroom {
              */
             using Points = vm::vec3[3]; // TODO: use std::array
         public:
-            static const String NoTextureName;
+            static const std::string NoTextureName;
         private:
             struct ProjectToVertex : public ProjectingSequenceProjector<const BrushHalfEdge*, const BrushVertex*> {
                 static Type project(const BrushHalfEdge* halfEdge);
@@ -95,8 +95,8 @@ namespace TrenchBroom {
         public:
             BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs, std::unique_ptr<TexCoordSystem> texCoordSystem);
 
-            static BrushFace* createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName = "");
-            static BrushFace* createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName = "");
+            static BrushFace* createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
+            static BrushFace* createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
 
             static void sortFaces(std::vector<BrushFace*>& faces);
 
@@ -125,7 +125,7 @@ namespace TrenchBroom {
 
             void resetTexCoordSystemCache();
 
-            const String& textureName() const;
+            const std::string& textureName() const;
             Assets::Texture* texture() const;
             vm::vec2f textureSize() const;
 

@@ -20,8 +20,10 @@
 #ifndef TrenchBroom_EntityDefinitionFileCommand
 #define TrenchBroom_EntityDefinitionFileCommand
 
-#include "View/DocumentCommand.h"
 #include "Assets/EntityDefinitionFileSpec.h"
+#include "View/DocumentCommand.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -35,7 +37,7 @@ namespace TrenchBroom {
         public:
             static Ptr set(const Assets::EntityDefinitionFileSpec& spec);
         private:
-            EntityDefinitionFileCommand(const String& name, const Assets::EntityDefinitionFileSpec& spec);
+            EntityDefinitionFileCommand(const std::string& name, const Assets::EntityDefinitionFileSpec& spec);
 
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

@@ -29,15 +29,15 @@
 
 namespace TrenchBroom {
     namespace Model {
-        AttributableNodeIndexQuery AttributableNodeIndexQuery::exact(const String& pattern) {
+        AttributableNodeIndexQuery AttributableNodeIndexQuery::exact(const std::string& pattern) {
             return AttributableNodeIndexQuery(Type_Exact, pattern);
         }
 
-        AttributableNodeIndexQuery AttributableNodeIndexQuery::prefix(const String& pattern) {
+        AttributableNodeIndexQuery AttributableNodeIndexQuery::prefix(const std::string& pattern) {
             return AttributableNodeIndexQuery(Type_Prefix, pattern);
         }
 
-        AttributableNodeIndexQuery AttributableNodeIndexQuery::numbered(const String& pattern) {
+        AttributableNodeIndexQuery AttributableNodeIndexQuery::numbered(const std::string& pattern) {
             return AttributableNodeIndexQuery(Type_Numbered, pattern);
         }
 
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool AttributableNodeIndexQuery::execute(const AttributableNode* node, const String& value) const {
+        bool AttributableNodeIndexQuery::execute(const AttributableNode* node, const std::string& value) const {
             switch (m_type) {
                 case Type_Exact:
                     return node->hasAttribute(m_pattern, value);
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             }
         }
 
-        AttributableNodeIndexQuery::AttributableNodeIndexQuery(const Type type, const String& pattern) :
+        AttributableNodeIndexQuery::AttributableNodeIndexQuery(const Type type, const std::string& pattern) :
         m_type(type),
         m_pattern(pattern) {}
 

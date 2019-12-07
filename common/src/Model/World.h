@@ -29,6 +29,7 @@
 #include "Model/ModelFactoryImpl.h"
 #include "Model/Node.h"
 
+#include <string>
 #include <vector>
 
 template <typename T, size_t S, typename U>
@@ -110,8 +111,8 @@ namespace TrenchBroom {
         private: // implement ModelFactory interface
             MapFormat doGetFormat() const override;
             World* doCreateWorld() const override;
-            Layer* doCreateLayer(const String& name) const override;
-            Group* doCreateGroup(const String& name) const override;
+            Layer* doCreateLayer(const std::string& name) const override;
+            Group* doCreateGroup(const std::string& name) const override;
             Entity* doCreateEntity() const override;
             Brush* doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const override;
             BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;

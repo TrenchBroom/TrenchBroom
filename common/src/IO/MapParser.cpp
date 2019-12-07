@@ -20,9 +20,11 @@
 #include "MapParser.h"
 #include "Exceptions.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
-        MapParser::ExtraAttribute::ExtraAttribute(const Type type, const String& name, const String& value, const size_t line, const size_t column) :
+        MapParser::ExtraAttribute::ExtraAttribute(const Type type, const std::string& name, const std::string& value, const size_t line, const size_t column) :
         m_type(type),
         m_name(name),
         m_value(value),
@@ -33,11 +35,11 @@ namespace TrenchBroom {
             return m_type;
         }
 
-        const String& MapParser::ExtraAttribute::name() const {
+        const std::string& MapParser::ExtraAttribute::name() const {
             return m_name;
         }
 
-        const String& MapParser::ExtraAttribute::strValue() const {
+        const std::string& MapParser::ExtraAttribute::strValue() const {
             return m_value;
         }
 

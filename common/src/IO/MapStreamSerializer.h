@@ -24,6 +24,7 @@
 #include "Model/MapFormat.h"
 
 #include <iosfwd>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {

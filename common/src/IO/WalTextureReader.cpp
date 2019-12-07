@@ -20,12 +20,14 @@
 #include "WalTextureReader.h"
 
 #include "Ensure.h"
+#include "Assets/Texture.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 #include "IO/Path.h"
 
 #include <iostream>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -57,11 +59,11 @@ namespace TrenchBroom {
 
         Assets::Texture* WalTextureReader::readQ2Wal(Reader& reader, const Path& path) const {
             static const size_t MaxMipLevels = 4;
-            static Color tempColor, averageColor;
+            static Color averageColor;
             static Assets::TextureBuffer::List buffers(MaxMipLevels);
             static size_t offsets[MaxMipLevels];
 
-            const String name = reader.readString(WalLayout::TextureNameLength);
+            const std::string name = reader.readString(WalLayout::TextureNameLength);
             const size_t width = reader.readSize<uint32_t>();
             const size_t height = reader.readSize<uint32_t>();
 
@@ -81,7 +83,7 @@ namespace TrenchBroom {
 
         Assets::Texture* WalTextureReader::readDkWal(Reader& reader, const Path& path) const {
             static const size_t MaxMipLevels = 9;
-            static Color tempColor, averageColor;
+            static Color averageColor;
             static Assets::TextureBuffer::List buffers(MaxMipLevels);
             static size_t offsets[MaxMipLevels];
 

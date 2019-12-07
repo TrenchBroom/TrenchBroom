@@ -27,11 +27,12 @@
 #include <vecmath/mat.h>
 
 #include <memory>
+#include <string>
 #include <sstream>
 
 namespace TrenchBroom {
     namespace Renderer {
-        ShaderProgram::ShaderProgram(const String& name) :
+        ShaderProgram::ShaderProgram(const std::string& name) :
         m_name(name),
         m_programId(glCreateProgram()),
         m_needsLinking(true) {
@@ -73,56 +74,56 @@ namespace TrenchBroom {
             glAssert(glUseProgram(0));
         }
 
-        void ShaderProgram::set(const String& name, const bool value) {
+        void ShaderProgram::set(const std::string& name, const bool value) {
             return set(name, static_cast<int>(value));
         }
 
-        void ShaderProgram::set(const String& name, const int value) {
+        void ShaderProgram::set(const std::string& name, const int value) {
             assert(checkActive());
             glAssert(glUniform1i(findUniformLocation(name), value));
         }
 
-        void ShaderProgram::set(const String& name, const size_t value) {
+        void ShaderProgram::set(const std::string& name, const size_t value) {
             assert(checkActive());
             glAssert(glUniform1i(findUniformLocation(name), static_cast<int>(value)));
         }
 
-        void ShaderProgram::set(const String& name, const float value) {
+        void ShaderProgram::set(const std::string& name, const float value) {
             assert(checkActive());
             glAssert(glUniform1f(findUniformLocation(name), value));
         }
 
-        void ShaderProgram::set(const String& name, const double value) {
+        void ShaderProgram::set(const std::string& name, const double value) {
             assert(checkActive());
             glAssert(glUniform1d(findUniformLocation(name), value));
         }
 
-        void ShaderProgram::set(const String& name, const vm::vec2f& value) {
+        void ShaderProgram::set(const std::string& name, const vm::vec2f& value) {
             assert(checkActive());
             glAssert(glUniform2f(findUniformLocation(name), value.x(), value.y()));
         }
 
-        void ShaderProgram::set(const String& name, const vm::vec3f& value) {
+        void ShaderProgram::set(const std::string& name, const vm::vec3f& value) {
             assert(checkActive());
             glAssert(glUniform3f(findUniformLocation(name), value.x(), value.y(), value.z()));
         }
 
-        void ShaderProgram::set(const String& name, const vm::vec4f& value) {
+        void ShaderProgram::set(const std::string& name, const vm::vec4f& value) {
             assert(checkActive());
             glAssert(glUniform4f(findUniformLocation(name), value.x(), value.y(), value.z(), value.w()));
         }
 
-        void ShaderProgram::set(const String& name, const vm::mat2x2f& value) {
+        void ShaderProgram::set(const std::string& name, const vm::mat2x2f& value) {
             assert(checkActive());
             glAssert(glUniformMatrix2fv(findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v)));
         }
 
-        void ShaderProgram::set(const String& name, const vm::mat3x3f& value) {
+        void ShaderProgram::set(const std::string& name, const vm::mat3x3f& value) {
             assert(checkActive());
             glAssert(glUniformMatrix3fv(findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v)));
         }
 
-        void ShaderProgram::set(const String& name, const vm::mat4x4f& value) {
+        void ShaderProgram::set(const std::string& name, const vm::mat4x4f& value) {
             assert(checkActive());
             glAssert(glUniformMatrix4fv(findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v)));
         }
@@ -156,10 +157,10 @@ namespace TrenchBroom {
             m_needsLinking = false;
         }
 
-        GLint ShaderProgram::findUniformLocation(const String& name) const {
+        GLint ShaderProgram::findUniformLocation(const std::string& name) const {
             auto it = m_variableCache.find(name);
             if (it == std::end(m_variableCache)) {
-                GLint index = -1;
+                GLint index;
                 glAssert(index = glGetUniformLocation(m_programId, name.c_str()));
                 if (index == -1) {
                     throw RenderException("Location of uniform variable '" + name + "' could not be found in shader program " + m_name);

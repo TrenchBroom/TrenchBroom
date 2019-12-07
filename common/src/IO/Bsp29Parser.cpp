@@ -67,7 +67,7 @@ namespace TrenchBroom {
             // static const size_t ModelFaceCount        = 0x3c;
         }
 
-        Bsp29Parser::Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette) :
+        Bsp29Parser::Bsp29Parser(const std::string& name, const char* begin, const char* end, const Assets::Palette& palette) :
         m_name(name),
         m_begin(begin),
         m_end(end),

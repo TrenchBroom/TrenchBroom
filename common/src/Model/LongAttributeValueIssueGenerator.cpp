@@ -27,6 +27,7 @@
 #include "Model/MapFacade.h"
 #include "Model/PushSelection.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -49,7 +50,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            const std::string doGetDescription() const override {
                 return "The value of entity property '" + m_attributeName + "' is too long.";
             }
         };

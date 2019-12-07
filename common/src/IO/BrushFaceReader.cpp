@@ -28,9 +28,11 @@
 
 #include <kdl/vector_utils.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
-        BrushFaceReader::BrushFaceReader(const String& str, Model::ModelFactory& factory) :
+        BrushFaceReader::BrushFaceReader(const std::string& str, Model::ModelFactory& factory) :
         MapReader(str),
         m_factory(factory) {}
 

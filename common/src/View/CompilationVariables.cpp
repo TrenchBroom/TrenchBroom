@@ -26,19 +26,20 @@
 #include <kdl/vector_utils.h>
 
 #include <memory>
+#include <string>
 #include <thread>
 
 namespace TrenchBroom {
     namespace View {
         namespace CompilationVariableNames {
-            const String WORK_DIR_PATH  = "WORK_DIR_PATH";
-            const String MAP_DIR_PATH   = "MAP_DIR_PATH";
-            const String MAP_BASE_NAME  = "MAP_BASE_NAME";
-            const String MAP_FULL_NAME  = "MAP_FULL_NAME";
-            const String CPU_COUNT      = "CPU_COUNT";
-            const String GAME_DIR_PATH  = "GAME_DIR_PATH";
-            const String MODS           = "MODS";
-            const String APP_DIR_PATH   = "APP_DIR_PATH";
+            const std::string WORK_DIR_PATH  = "WORK_DIR_PATH";
+            const std::string MAP_DIR_PATH   = "MAP_DIR_PATH";
+            const std::string MAP_BASE_NAME  = "MAP_BASE_NAME";
+            const std::string MAP_FULL_NAME  = "MAP_FULL_NAME";
+            const std::string CPU_COUNT      = "CPU_COUNT";
+            const std::string GAME_DIR_PATH  = "GAME_DIR_PATH";
+            const std::string MODS           = "MODS";
+            const std::string APP_DIR_PATH   = "APP_DIR_PATH";
         }
 
         CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document) {
@@ -73,7 +74,7 @@ namespace TrenchBroom {
             declare(MAP_DIR_PATH, EL::Value(filePath.asString()));
         }
 
-        CompilationVariables::CompilationVariables(std::shared_ptr<MapDocument> document, const String& workDir) :
+        CompilationVariables::CompilationVariables(std::shared_ptr<MapDocument> document, const std::string& workDir) :
         CommonCompilationVariables(document) {
             const auto cpuCount = static_cast<size_t>(std::max(std::thread::hardware_concurrency(), 1u));
 

@@ -26,19 +26,20 @@
 #include "IO/ELParser.h"
 
 #include <limits>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
 #define ASSERT_EL_THROW(str, exception) ASSERT_THROW(ELParser::parseStrict(str).evaluate(EL::EvaluationContext()), exception)
 
         template <typename Exp>
-        void ASSERT_EL_EQ(const Exp& expected, const String& str, const EL::EvaluationContext& context = EL::EvaluationContext()) {
+        void ASSERT_EL_EQ(const Exp& expected, const std::string& str, const EL::EvaluationContext& context = EL::EvaluationContext()) {
             const EL::Expression expression = ELParser::parseStrict(str);
             ASSERT_EQ(EL::Value(expected), expression.evaluate(context));
         }
 
-        void ASSERT_ELS_EQ(const String& lhs, const String& rhs, const EL::EvaluationContext& context = EL::EvaluationContext());
-        void ASSERT_ELS_EQ(const String& lhs, const String& rhs, const EL::EvaluationContext& context) {
+        void ASSERT_ELS_EQ(const std::string& lhs, const std::string& rhs, const EL::EvaluationContext& context = EL::EvaluationContext());
+        void ASSERT_ELS_EQ(const std::string& lhs, const std::string& rhs, const EL::EvaluationContext& context) {
             const EL::Expression expression1 = ELParser::parseStrict(lhs);
             const EL::Expression expression2 = ELParser::parseStrict(rhs);
             ASSERT_EQ(expression1.evaluate(context), expression2.evaluate(context));

@@ -45,6 +45,7 @@
 #include <vecmath/vec_io.h>
 
 #include <memory>
+#include <string>
 
 #include <QtGlobal>
 #include <QLabel>
@@ -203,7 +204,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            const String str = m_colorEditor->text().toStdString();
+            const std::string str = m_colorEditor->text().toStdString();
             if (!kdl::str_is_blank(str)) {
                 if (Color::canParse(str)) {
                     Model::ChangeBrushFaceAttributesRequest request;
@@ -480,7 +481,7 @@ namespace TrenchBroom {
                 bool surfaceValueMulti = false;
                 bool colorValueMulti = false;
 
-                const String& textureName = m_faces[0]->textureName();
+                const std::string& textureName = m_faces[0]->textureName();
                 const float xOffset = m_faces[0]->xOffset();
                 const float yOffset = m_faces[0]->yOffset();
                 const float rotation = m_faces[0]->rotation();

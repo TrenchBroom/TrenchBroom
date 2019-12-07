@@ -20,12 +20,10 @@
 #ifndef TrenchBroom_EntityAttributeIndex
 #define TrenchBroom_EntityAttributeIndex
 
-#include "StringType.h"
 #include "Model/Model_Forward.h"
 #include "Model/EntityAttributes.h"
 #include "StringMap.h"
 
-// FIXME: use vector_set
 #include <set>
 #include <string>
 #include <vector>
@@ -45,18 +43,18 @@ namespace TrenchBroom {
             } Type;
         private:
             Type m_type;
-            String m_pattern;
+            std::string m_pattern;
         public:
-            static AttributableNodeIndexQuery exact(const String& pattern);
-            static AttributableNodeIndexQuery prefix(const String& pattern);
-            static AttributableNodeIndexQuery numbered(const String& pattern);
+            static AttributableNodeIndexQuery exact(const std::string& pattern);
+            static AttributableNodeIndexQuery prefix(const std::string& pattern);
+            static AttributableNodeIndexQuery numbered(const std::string& pattern);
             static AttributableNodeIndexQuery any();
 
             std::set<AttributableNode*> execute(const AttributableNodeStringIndex& index) const;
-            bool execute(const AttributableNode* node, const String& value) const;
+            bool execute(const AttributableNode* node, const std::string& value) const;
             Model::EntityAttribute::List execute(const AttributableNode* node) const;
         private:
-            AttributableNodeIndexQuery(Type type, const String& pattern = "");
+            AttributableNodeIndexQuery(Type type, const std::string& pattern = "");
         };
 
         class AttributableNodeIndex {

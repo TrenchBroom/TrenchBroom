@@ -21,7 +21,6 @@
 #define TrenchBroom_StringMap
 
 #include "Exceptions.h"
-#include "StringType.h"
 
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
@@ -94,11 +93,11 @@ namespace TrenchBroom {
 
             // The key is declared mutable because we must change it in splitNode and mergeNode, but the resulting new key
             // will still compare equal to the old key.
-            mutable String m_key;
+            mutable std::string m_key;
             mutable ValueContainer m_values;
             mutable NodeSet m_children;
         public:
-            explicit Node(const String& key) :
+            explicit Node(const std::string& key) :
             m_key(key) {}
 
             bool operator<(const Node& rhs) const {
@@ -128,7 +127,7 @@ namespace TrenchBroom {
              ==================================================================================
               ^ indicates where key and m_key first differ
              */
-            void insert(const String& key, const V& value) const {
+            void insert(const std::string& key, const V& value) const {
                 const size_t firstDiff = kdl::cs::mismatch(key, m_key);
                 if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
@@ -140,7 +139,7 @@ namespace TrenchBroom {
                         insert(key, value);
                     } else if (firstDiff == m_key.size()) {
                         // m_key is a prefix of key, find or create a child that shares a common prefix with remainder, and insert there, and insert here
-                        const String remainder = key.substr(firstDiff);
+                        const std::string remainder = key.substr(firstDiff);
                         const Node& child = findOrCreateChild(remainder);
                         child.insert(remainder, value);
                     }
@@ -156,13 +155,13 @@ namespace TrenchBroom {
                 }
             }
 
-            bool remove(const String& key, const V& value) const {
+            bool remove(const std::string& key, const V& value) const {
                 const size_t firstDiff = kdl::cs::mismatch(key, m_key);
                 if (m_key.size() <= key.size() && firstDiff == m_key.size()) {
                     // this node's key is a prefix of the given key
                     if (firstDiff < key.size()) {
                         // the given key is longer than this node's key, so we must continue at the appropriate child node
-                        const String remainder(key.substr(firstDiff));
+                        const std::string remainder(key.substr(firstDiff));
                         const Node query(remainder);
                         typename NodeSet::iterator it = m_children.find(query);
                         assert(it != std::end(m_children));
@@ -179,7 +178,7 @@ namespace TrenchBroom {
                 return !m_key.empty() && m_values.empty() && m_children.empty();
             }
 
-            void queryExact(const String& key, QueryResult& result) const {
+            void queryExact(const std::string& key, QueryResult& result) const {
                 const size_t firstDiff = kdl::cs::mismatch(key, m_key);
                 if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
@@ -190,7 +189,7 @@ namespace TrenchBroom {
                         getValues(result);
                 } else if (firstDiff < key.size() && firstDiff == m_key.size()) {
                     // this node is only a partial match, try to find a child to continue searching
-                    const String remainder(key.substr(firstDiff));
+                    const std::string remainder(key.substr(firstDiff));
                     const Node query(remainder);
                     typename NodeSet::iterator it = m_children.find(query);
                     if (it != std::end(m_children)) {
@@ -200,7 +199,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void queryPrefix(const String& prefix, QueryResult& result) const {
+            void queryPrefix(const std::string& prefix, QueryResult& result) const {
                 const size_t firstDiff = kdl::cs::mismatch(prefix, m_key);
                 if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
@@ -211,7 +210,7 @@ namespace TrenchBroom {
                     collectValues(result);
                 } else if (firstDiff < prefix.size() && firstDiff == m_key.size()) {
                     // this node is only a partial match, try to find a child to continue searching
-                    const String remainder(prefix.substr(firstDiff));
+                    const std::string remainder(prefix.substr(firstDiff));
                     const Node query(remainder);
                     typename NodeSet::iterator it = m_children.find(query);
                     if (it != std::end(m_children)) {
@@ -227,7 +226,7 @@ namespace TrenchBroom {
                     child.collectValues(result);
             }
 
-            void queryNumbered(const String& prefix, QueryResult& result) const {
+            void queryNumbered(const std::string& prefix, QueryResult& result) const {
                 const size_t firstDiff = kdl::cs::mismatch(prefix, m_key);
                 if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
@@ -236,7 +235,7 @@ namespace TrenchBroom {
                     // the given prefix is a prefix of this node's key
                     // if the remainder of this node's key is a number, add this node's values and continue searching
                     // the entire subtree starting at this node
-                    const String remainder(m_key.substr(firstDiff));
+                    const std::string remainder(m_key.substr(firstDiff));
                     if (kdl::str_is_numeric(remainder)) {
                         getValues(result);
                         for (const Node& child : m_children)
@@ -244,7 +243,7 @@ namespace TrenchBroom {
                     }
                 } else if (firstDiff < prefix.size() && firstDiff == m_key.size()) {
                     // this node is only a partial match, try to find a child to continue searching
-                    const String remainder(prefix.substr(firstDiff));
+                    const std::string remainder(prefix.substr(firstDiff));
                     const Node query(remainder);
                     for (const Node& child : m_children)
                         child.queryNumbered(remainder, result);
@@ -259,8 +258,8 @@ namespace TrenchBroom {
                 }
             }
 
-            void getKeys(const String& prefix, std::vector<std::string>& result) const {
-                const String prefixAndKey = prefix + m_key;
+            void getKeys(const std::string& prefix, std::vector<std::string>& result) const {
+                const std::string prefixAndKey = prefix + m_key;
                 if (!m_values.empty()) {
                     result.push_back(prefixAndKey);
                 }
@@ -277,7 +276,7 @@ namespace TrenchBroom {
                 P::removeValue(m_values, value);
             }
 
-            const Node& findOrCreateChild(const String& key) const {
+            const Node& findOrCreateChild(const std::string& key) const {
                 std::pair<typename NodeSet::iterator, bool> result = m_children.insert(Node(key));
                 typename NodeSet::iterator it = result.first;
                 return *it;
@@ -289,8 +288,8 @@ namespace TrenchBroom {
                 assert(m_key.size() > 1);
                 assert(index < m_key.size());
 
-                const String newKey = m_key.substr(0, index);
-                const String remainder = m_key.substr(index);
+                const std::string newKey = m_key.substr(0, index);
+                const std::string remainder = m_key.substr(index);
 
                 // We want to avoid copying the children of this node to the new child, therefore we swap with an empty
                 // node set. Afterwards this node's children are empty.
@@ -335,12 +334,12 @@ namespace TrenchBroom {
             m_root = nullptr;
         }
 
-        void insert(const String& key, const V& value) {
+        void insert(const std::string& key, const V& value) {
             assert(m_root != nullptr);
             m_root->insert(key, value);
         }
 
-        void remove(const String& key, const V& value) {
+        void remove(const std::string& key, const V& value) {
             assert(m_root != nullptr);
             m_root->remove(key, value);
         }
@@ -350,21 +349,21 @@ namespace TrenchBroom {
             m_root = new Node("");
         }
 
-        QueryResult queryPrefixMatches(const String& prefix) const {
+        QueryResult queryPrefixMatches(const std::string& prefix) const {
             assert(m_root != nullptr);
             QueryResult result;
             m_root->queryPrefix(prefix, result);
             return result;
         }
 
-        QueryResult queryNumberedMatches(const String& prefix) const {
+        QueryResult queryNumberedMatches(const std::string& prefix) const {
             assert(m_root != nullptr);
             QueryResult result;
             m_root->queryNumbered(prefix, result);
             return result;
         }
 
-        QueryResult queryExactMatches(const String& prefix) const {
+        QueryResult queryExactMatches(const std::string& prefix) const {
             assert(m_root != nullptr);
             QueryResult result;
             m_root->queryExact(prefix, result);

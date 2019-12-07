@@ -21,9 +21,9 @@
 #define TrenchBroom_TrenchBroomApp
 
 #include "Notifier.h"
-#include "StringType.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <QApplication>
@@ -97,7 +97,7 @@ namespace TrenchBroom {
         };
 
         void setCrashReportGUIEnbled(bool guiEnabled);
-        [[noreturn]] void reportCrashAndExit(const String &stacktrace, const String &reason);
+        [[noreturn]] void reportCrashAndExit(const std::string& stacktrace, const std::string& reason);
         bool isReportingCrash();
     }
 }

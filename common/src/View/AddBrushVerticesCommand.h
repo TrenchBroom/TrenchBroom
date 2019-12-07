@@ -23,6 +23,7 @@
 #include "Model/Model_Forward.h"
 #include "View/VertexCommand.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -38,7 +39,7 @@ namespace TrenchBroom {
         public:
             static Ptr add(const VertexToBrushesMap& vertices);
         protected:
-            AddBrushVerticesCommand(CommandType type, const String& name, const std::vector<Model::Brush*>& brushes, const VertexToBrushesMap& vertices);
+            AddBrushVerticesCommand(CommandType type, const std::string& name, const std::vector<Model::Brush*>& brushes, const VertexToBrushesMap& vertices);
         private:
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;

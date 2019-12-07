@@ -45,7 +45,7 @@ namespace TrenchBroom {
         void clear() {
             m_string.str("");
         }
-        String asString() {
+        std::string asString() {
             return m_string.str();
         }
     protected:
@@ -57,7 +57,7 @@ namespace TrenchBroom {
     static QMutex s_stackWalkerMutex;
     static TBStackWalker *s_stackWalker;
 
-    static String getStackTraceInternal(CONTEXT *context) {
+    static std::string getStackTraceInternal(CONTEXT *context) {
         // StackWalker is not threadsafe so acquire a mutex
         QMutexLocker lock(&s_stackWalkerMutex);
 
@@ -77,16 +77,16 @@ namespace TrenchBroom {
         return s_stackWalker->asString();
     }
 
-    String TrenchBroomStackWalker::getStackTrace() {
+    std::string TrenchBroomStackWalker::getStackTrace() {
         return getStackTraceInternal(nullptr);
     }
 
-    String TrenchBroomStackWalker::getStackTraceFromContext(void *context) {
+    std::string TrenchBroomStackWalker::getStackTraceFromContext(void *context) {
         return getStackTraceInternal(static_cast<CONTEXT *>(context));
     }
 #else
     // TODO: not sure what to use on mingw
-    String TrenchBroomStackWalker::getStackTrace() {
+    std::string TrenchBroomStackWalker::getStackTrace() {
         return "";
     }
 #endif

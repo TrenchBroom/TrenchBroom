@@ -37,6 +37,8 @@
 
 #include <kdl/string_utils.h>
 
+#include <string>
+
 #include <QCompleter>
 #include <QDialogButtonBox>
 #include <QLabel>
@@ -192,8 +194,8 @@ namespace TrenchBroom {
 
                 const auto& executablePath = profile->path();
 
-                const String& parameterSpec = profile->parameterSpec();
-                const String parameters = EL::interpolate(parameterSpec, EL::EvaluationContext(variables()));
+                const std::string& parameterSpec = profile->parameterSpec();
+                const std::string parameters = EL::interpolate(parameterSpec, EL::EvaluationContext(variables()));
 
                 QString program;
                 QStringList arguments;

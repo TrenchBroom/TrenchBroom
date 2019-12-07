@@ -23,6 +23,7 @@
 #include "EL/EvaluationContext.h"
 
 #include <sstream>
+#include <string>
 
 namespace TrenchBroom {
     namespace EL {
@@ -57,7 +58,7 @@ namespace TrenchBroom {
             return m_expression->m_column;
         }
 
-        String Expression::asString() const {
+        std::string Expression::asString() const {
             return m_expression->asString();
         }
 
@@ -95,7 +96,7 @@ namespace TrenchBroom {
             return doEvaluate(context);
         }
 
-        String ExpressionBase::asString() const {
+        std::string ExpressionBase::asString() const {
             std::stringstream result;
             appendToStream(result);
             return result.str();
@@ -142,11 +143,11 @@ namespace TrenchBroom {
             m_value.appendToStream(str, false);
         }
 
-        VariableExpression::VariableExpression(const String& variableName, const size_t line, const size_t column) :
+        VariableExpression::VariableExpression(const std::string& variableName, const size_t line, const size_t column) :
         ExpressionBase(line, column),
         m_variableName(variableName) {}
 
-        ExpressionBase* VariableExpression::create(const String& variableName, const size_t line, const size_t column) {
+        ExpressionBase* VariableExpression::create(const std::string& variableName, const size_t line, const size_t column) {
             return new VariableExpression(variableName, line, column);
         }
 
@@ -243,7 +244,7 @@ namespace TrenchBroom {
         ExpressionBase* MapExpression::doClone() const {
             ExpressionBase::Map clones;
             for (const auto& entry : m_elements) {
-                const String& key = entry.first;
+                const std::string& key = entry.first;
                 const auto& value = entry.second;
                 clones.insert(std::make_pair(key, value->clone()));
             }
@@ -270,7 +271,7 @@ namespace TrenchBroom {
         Value MapExpression::doEvaluate(const EvaluationContext& context) const {
             MapType map;
             for (const auto& entry : m_elements) {
-                const String& key = entry.first;
+                const std::string& key = entry.first;
                 const auto& expression = entry.second;
                 map.insert(std::make_pair(key, expression->evaluate(context)));
             }
@@ -282,7 +283,7 @@ namespace TrenchBroom {
             str << "{ ";
             size_t i = 0;
             for (const auto& entry : m_elements) {
-                const String& key = entry.first;
+                const std::string& key = entry.first;
                 const auto& value = entry.second;
 
                 str << "\"" << key << "\": " << *value;
@@ -664,8 +665,8 @@ namespace TrenchBroom {
             return Traits(11, false, false);
         }
 
-        const String& RangeOperator::AutoRangeParameterName() {
-            static const String Name = "__AutoRangeParameter";
+        const std::string& RangeOperator::AutoRangeParameterName() {
+            static const std::string Name = "__AutoRangeParameter";
             return Name;
         }
 

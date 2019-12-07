@@ -24,6 +24,7 @@
 #include <kdl/vector_utils.h>
 
 #include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -88,7 +89,7 @@ namespace TrenchBroom {
             return value;
         }
 
-        const String AttributableNode::DefaultAttributeValue("");
+        const std::string AttributableNode::DefaultAttributeValue("");
 
         AttributableNode::~AttributableNode() {
             m_definition = nullptr;
@@ -160,7 +161,7 @@ namespace TrenchBroom {
             return m_attributes.attributesWithPrefix(prefix);
         }
 
-        EntityAttribute::List AttributableNode::numberedAttributes(const String& prefix) const {
+        EntityAttribute::List AttributableNode::numberedAttributes(const std::string& prefix) const {
             return m_attributes.numberedAttributes(prefix);
         }
 
@@ -507,7 +508,7 @@ namespace TrenchBroom {
 
         void AttributableNode::addAllLinkTargets() {
             for (const EntityAttribute& attribute : m_attributes.numberedAttributes(AttributeNames::Target)) {
-                const String& targetname = attribute.value();
+                const std::string& targetname = attribute.value();
                 if (!targetname.empty()) {
                     std::vector<AttributableNode*> linkTargets;
                     findAttributableNodesWithAttribute(AttributeNames::Targetname, targetname, linkTargets);
@@ -526,7 +527,7 @@ namespace TrenchBroom {
 
         void AttributableNode::addAllKillTargets() {
             for (const EntityAttribute& attribute : m_attributes.numberedAttributes(AttributeNames::Killtarget)) {
-                const String& targetname = attribute.value();
+                const std::string& targetname = attribute.value();
                 if (!targetname.empty()) {
                     std::vector<AttributableNode*> killTargets;
                     findAttributableNodesWithAttribute(AttributeNames::Targetname, targetname, killTargets);
@@ -673,8 +674,8 @@ namespace TrenchBroom {
         Node(),
         m_definition(nullptr) {}
 
-        const String& AttributableNode::doGetName() const {
-            static const String defaultName("<missing classname>");
+        const std::string& AttributableNode::doGetName() const {
+            static const std::string defaultName("<missing classname>");
             return classname(defaultName);
         }
 

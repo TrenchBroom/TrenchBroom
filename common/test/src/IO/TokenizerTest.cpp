@@ -17,10 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <gtest/gtest.h>
+
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
-#include <gtest/gtest.h>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -79,24 +81,24 @@ namespace TrenchBroom {
                 return Token(SimpleToken::Eof, nullptr, nullptr, length(), line(), column());
             }
         public:
-            SimpleTokenizer(const String& str) :
+            SimpleTokenizer(const std::string& str) :
             Tokenizer<SimpleToken::Type>(str, "", 0) {}
         };
 
         TEST(TokenizerTest, simpleLanguageEmptyString) {
-            const String testString("");
+            const std::string testString("");
             SimpleTokenizer tokenizer(testString);
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
 
         TEST(TokenizerTest, simpleLanguageBlankString) {
-            const String testString("\n  \t ");
+            const std::string testString("\n  \t ");
             SimpleTokenizer tokenizer(testString);
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
 
         TEST(TokenizerTest, simpleLanguageEmptyBlock) {
-            const String testString("{"
+            const std::string testString("{"
                                     "}");
 
             SimpleTokenizer tokenizer(testString);
@@ -106,7 +108,7 @@ namespace TrenchBroom {
         }
 
         TEST(TokenizerTest, simpleLanguagePushPeekPopToken) {
-            const String testString("{\n"
+            const std::string testString("{\n"
                                     "}");
 
             SimpleTokenizer tokenizer(testString);
@@ -120,7 +122,7 @@ namespace TrenchBroom {
         }
 
         TEST(TokenizerTest, simpleLanguageEmptyBlockWithLeadingAndTrailingWhitespace) {
-            const String testString(" \t{"
+            const std::string testString(" \t{"
                                     " }  ");
 
             SimpleTokenizer tokenizer(testString);
@@ -130,7 +132,7 @@ namespace TrenchBroom {
         }
 
         TEST(TokenizerTest, simpleLanguageBlockWithStringAttribute) {
-            const String testString("{\n"
+            const std::string testString("{\n"
                                     "    attribute =value;\n"
                                     "}\n");
 
@@ -150,7 +152,7 @@ namespace TrenchBroom {
         }
 
         TEST(TokenizerTest, simpleLanguageBlockWithIntegerAttribute) {
-            const String testString("{"
+            const std::string testString("{"
                                     "    attribute =  12328;"
                                     "}");
 
@@ -168,7 +170,7 @@ namespace TrenchBroom {
         }
 
         TEST(TokenizerTest, simpleLanguageBlockWithNegativeIntegerAttribute) {
-            const String testString("{"
+            const std::string testString("{"
                                     "    attribute =  -12328;"
                                     "}");
 
@@ -186,7 +188,7 @@ namespace TrenchBroom {
         }
 
         TEST(TokenizerTest, simpleLanguageBlockWithDecimalAttribute) {
-            const String testString("{"
+            const std::string testString("{"
                                     "    attribute =  12328.38283;"
                                     "}");
 
@@ -204,7 +206,7 @@ namespace TrenchBroom {
         }
 
         TEST(TokenizerTest, simpleLanguageBlockWithDecimalAttributeStartingWithDot) {
-            const String testString("{"
+            const std::string testString("{"
                                     "    attribute =  .38283;"
                                     "}");
 
@@ -222,7 +224,7 @@ namespace TrenchBroom {
         }
 
         TEST(TokenizerTest, simpleLanguageBlockWithNegativeDecimalAttribute) {
-            const String testString("{"
+            const std::string testString("{"
                                     "    attribute =  -343.38283;"
                                     "}");
 

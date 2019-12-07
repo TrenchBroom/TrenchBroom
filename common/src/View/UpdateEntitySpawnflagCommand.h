@@ -23,6 +23,8 @@
 #include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
         class MapDocumentCommandFacade;
@@ -39,7 +41,7 @@ namespace TrenchBroom {
             static Ptr update(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
         private:
             UpdateEntitySpawnflagCommand(const Model::AttributeName& attributeName, const size_t flagIndex, const bool setFlag);
-            static String makeName(const bool setFlag);
+            static std::string makeName(const bool setFlag);
 
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

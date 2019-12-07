@@ -44,7 +44,7 @@ namespace TrenchBroom {
             return m_tool;
         }
 
-        bool CreateEntityToolController::doDragEnter(const InputState& inputState, const String& payload) {
+        bool CreateEntityToolController::doDragEnter(const InputState& inputState, const std::string& payload) {
             const std::vector<std::string> parts = kdl::str_split(payload, ":");
             if (parts.size() != 2)
                 return false;

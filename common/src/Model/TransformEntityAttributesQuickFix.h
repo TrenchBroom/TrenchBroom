@@ -24,6 +24,7 @@
 #include "Model/MapFacade.h"
 
 #include <functional>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,7 +38,7 @@ namespace TrenchBroom {
             NameTransform m_nameTransform;
             ValueTransform m_valueTransform;
         public:
-            TransformEntityAttributesQuickFix(const IssueType issueType, const String& description, const NameTransform& nameTransform, const ValueTransform& valueTransform);
+            TransformEntityAttributesQuickFix(const IssueType issueType, const std::string& description, const NameTransform& nameTransform, const ValueTransform& valueTransform);
         private:
             void doApply(MapFacade* facade, const Issue* issue) const override;
         };

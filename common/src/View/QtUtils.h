@@ -22,20 +22,22 @@
 
 #undef CursorShape
 
-#include "Color.h"
-#include "StringType.h"
-
 #include "View/ViewConstants.h"
 
+#include <string>
+
 #include <QBoxLayout>
-#include <QColor>
 #include <QObject>
 #include <QSettings>
 #include <QString>
 #include <QStringList>
 #include <QWidget>
 
+class Color;
+
 class QAbstractButton;
+class QButtonGroup;
+class QColor;
 class QCompleter;
 class QDialogButtonBox;
 class QFont;
@@ -43,11 +45,8 @@ class QLayout;
 class QLineEdit;
 class QMainWindow;
 class QPalette;
-class QSettings;
 class QSlider;
 class QSplitter;
-class QWidget;
-class QButtonGroup;
 class QTableView;
 
 namespace TrenchBroom {
@@ -72,7 +71,7 @@ namespace TrenchBroom {
          * Gets the default directory from QSettings to use for the given type of file chooser.
          */
         QString fileDialogDefaultDirectory(FileDialogDir type);
-        
+
         void updateFileDialogDefaultDirectoryWithFilename(FileDialogDir type, const QString& filename);
         void updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir type, const QString& newDefaultDirectory);
 
@@ -102,9 +101,9 @@ namespace TrenchBroom {
         class MapFrame;
         MapFrame* findMapFrame(QWidget* widget);
 
-        QAbstractButton* createBitmapButton(const String& image, const QString& tooltip, QWidget* parent = nullptr);
+        QAbstractButton* createBitmapButton(const std::string& image, const QString& tooltip, QWidget* parent = nullptr);
         QAbstractButton* createBitmapButton(const QIcon& icon, const QString& tooltip, QWidget* parent = nullptr);
-        QAbstractButton* createBitmapToggleButton(const String& image, const QString& tooltip, QWidget* parent = nullptr);
+        QAbstractButton* createBitmapToggleButton(const std::string& image, const QString& tooltip, QWidget* parent = nullptr);
 
         QWidget* createDefaultPage(const QString& message, QWidget* parent = nullptr);
         QSlider* createSlider(int min, int max);

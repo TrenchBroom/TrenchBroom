@@ -33,6 +33,7 @@
 #include <vecmath/util.h>
 
 #include <sstream>
+#include <string>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -284,7 +285,7 @@ namespace TrenchBroom {
         }
 
         void SelectionBoundsRenderer::renderSize2D(RenderContext& renderContext, RenderBatch& renderBatch) {
-            static const String labels[3] = { "X", "Y", "Z" };
+            static const std::string labels[3] = { "X", "Y", "Z" };
             std::stringstream buffer;
 
             RenderService renderService(renderContext, renderBatch);
@@ -306,7 +307,7 @@ namespace TrenchBroom {
         }
 
         void SelectionBoundsRenderer::renderSize3D(RenderContext& renderContext, RenderBatch& renderBatch) {
-            static const String labels[3] = { "X", "Y", "Z" };
+            static const std::string labels[3] = { "X", "Y", "Z" };
             std::stringstream buffer;
 
             RenderService renderService(renderContext, renderBatch);

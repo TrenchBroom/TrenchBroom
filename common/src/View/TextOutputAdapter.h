@@ -20,9 +20,8 @@
 #ifndef TextCtrlOutputAdapter_h
 #define TextCtrlOutputAdapter_h
 
-#include "StringType.h"
-
 #include <sstream>
+#include <string>
 
 class QTextEdit;
 
@@ -36,7 +35,7 @@ namespace TrenchBroom {
         private:
             QTextEdit* m_textEdit;
             int m_lastNewLine;
-            String m_remainder;
+            std::string m_remainder;
         public:
             explicit TextOutputAdapter(QTextEdit* textEdit);
 
@@ -75,7 +74,7 @@ namespace TrenchBroom {
              *
              * @param str the string to append
              */
-            void appendString(const String& str);
+            void appendString(const std::string& str);
 
             /**
              * Interprets some control characters in the given string line by line. If the string ends with an
@@ -85,14 +84,14 @@ namespace TrenchBroom {
              * @param str the string to compress
              * @return the compressed string
              */
-            String compressString(const String& str);
+            std::string compressString(const std::string& str);
 
             /**
              * Appends the given string to the contents of the QTextEdit widget.
              *
              * @param str the string to append
              */
-            void appendToTextEdit(const String& str);
+            void appendToTextEdit(const std::string& str);
         };
     }
 }
