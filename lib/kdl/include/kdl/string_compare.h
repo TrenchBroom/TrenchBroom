@@ -18,6 +18,10 @@
 #ifndef TRENCHBROOM_STRING_COMPARE_H
 #define TRENCHBROOM_STRING_COMPARE_H
 
+#include "string_compare_detail.h"
+
+#include <algorithm> // for std::mismatch, std::sort, std::search, std::equal
+#include <cctype> // for std::tolower
 #include <string_view>
 
 namespace kdl {
@@ -26,19 +30,28 @@ namespace kdl {
      */
     namespace cs {
         struct char_less {
-            bool operator()(const char& lhs, const char& rhs) const;
+            bool operator()(const char& lhs, const char& rhs) const {
+                return lhs < rhs;
+            }
         };
 
         struct char_equal {
-            bool operator()(const char& lhs, const char& rhs) const;
+            bool operator()(const char& lhs, const char& rhs) const {
+                return lhs == rhs;
+            }
         };
 
         struct string_less {
-            bool operator()(const std::string_view& lhs, const std::string_view& rhs) const;
+            bool operator()(const std::string_view& lhs, const std::string_view& rhs) const {
+                return std::lexicographical_compare(std::begin(lhs), std::end(lhs), std::begin(rhs), std::end(rhs), char_less());
+            }
         };
 
         struct string_equal {
-            bool operator()(const std::string_view& lhs, const std::string_view& rhs) const;
+            bool operator()(const std::string_view& lhs, const std::string_view& rhs) const {
+                // std::equal can determine size mismatch when given random access iterators
+                return std::equal(std::begin(lhs), std::end(lhs), std::begin(rhs), char_equal());
+            }
         };
 
         /**
@@ -50,7 +63,9 @@ namespace kdl {
          * @param s2 the second string
          * @return the first position at which the given strings differ
          */
-        std::size_t mismatch(const std::string_view& s1, const std::string_view& s2);
+        inline std::size_t mismatch(const std::string_view& s1, const std::string_view& s2) {
+            return kdl::mismatch(s1, s2, char_equal());
+        }
 
         /**
          * Checks whether the first string contains the second string. Characters are compared with case sensitivity.
@@ -59,7 +74,9 @@ namespace kdl {
          * @param needle the string to search for
          * @return true if the first string contains the second string and false otherwise
          */
-        bool contains(const std::string_view& haystack, const std::string_view& needle);
+        inline bool contains(const std::string_view& haystack, const std::string_view& needle) {
+            return kdl::contains(haystack, needle, char_equal());
+        }
 
         /**
          * Checks whether the second string is a prefix of the first string. Characters are compared with case
@@ -69,7 +86,9 @@ namespace kdl {
          * @param needle the string to search for
          * @return true if needle is a prefix of haystack
          */
-        bool is_prefix(const std::string_view& haystack, const std::string_view& needle);
+        inline bool is_prefix(const std::string_view& haystack, const std::string_view& needle) {
+            return kdl::is_prefix(haystack, needle, char_equal());
+        }
 
         /**
          * Checks whether the second string is a suffix of the first string. Characters are compared with case
@@ -79,7 +98,9 @@ namespace kdl {
          * @param needle the string to search for
          * @return true if needle is a suffix of haystack
          */
-        bool is_suffix(const std::string_view& haystack, const std::string_view& needle);
+        inline bool is_suffix(const std::string_view& haystack, const std::string_view& needle) {
+            return kdl::is_suffix(haystack, needle, char_equal());
+        }
 
         /**
          * Performs lexicographical comparison of the given strings s1 and s2. Returns -1 if the first string is less
@@ -90,7 +111,9 @@ namespace kdl {
          * @param s2 the second string
          * @return an int indicating the result of the comparison
          */
-        int compare(const std::string_view& s1, const std::string_view& s2);
+        inline int compare(const std::string_view& s1, const std::string_view& s2) {
+            return kdl::compare(s1, s2, char_less());
+        }
 
         /**
          * Checks whether the given strings are equal. Characters are compared with case sensitivity.
@@ -99,7 +122,9 @@ namespace kdl {
          * @param s2 the second string
          * @return true if the given strings are equal and false otherwise
          */
-        bool is_equal(const std::string_view& s1, const std::string_view& s2);
+        inline bool is_equal(const std::string_view& s1, const std::string_view& s2) {
+            return kdl::is_equal(s1, s2, char_equal());
+        }
 
         /**
          * Checks whether the given string in range [s_cur, s_end) matches the glob pattern in range [p_cur, p_end).
@@ -111,7 +136,9 @@ namespace kdl {
          * @param p the patterm
          * @return true if the given pattern matches the given string
          */
-        bool matches_glob(const std::string_view& s, const std::string_view& p);
+        inline bool matches_glob(const std::string_view& s, const std::string_view& p) {
+            return kdl::matches_glob(s, p, char_equal());
+        }
     }
 
     /**
@@ -119,19 +146,28 @@ namespace kdl {
      */
     namespace ci {
         struct char_less {
-            bool operator()(const char& lhs, const char& rhs) const;
+            bool operator()(const char& lhs, const char& rhs) const {
+                return std::tolower(lhs) < std::tolower(rhs);
+            }
         };
 
         struct char_equal {
-            bool operator()(const char& lhs, const char& rhs) const;
+            bool operator()(const char& lhs, const char& rhs) const {
+                return std::tolower(lhs) == std::tolower(rhs);
+            }
         };
 
         struct string_less {
-            bool operator()(const std::string_view& lhs, const std::string_view& rhs) const;
+            bool operator()(const std::string_view& lhs, const std::string_view& rhs) const {
+                return std::lexicographical_compare(std::begin(lhs), std::end(lhs), std::begin(rhs), std::end(rhs), char_less());
+            }
         };
 
         struct string_equal {
-            bool operator()(const std::string_view& lhs, const std::string_view& rhs) const;
+            bool operator()(const std::string_view& lhs, const std::string_view& rhs) const {
+                // std::equal can determine size mismatch when given random access iterators
+                return std::equal(std::begin(lhs), std::end(lhs), std::begin(rhs), std::end(rhs), char_equal());
+            }
         };
 
         /**
@@ -144,7 +180,9 @@ namespace kdl {
          * @param s2 the second string
          * @return the first position at which the given strings differ
          */
-        std::size_t mismatch(const std::string_view& s1, const std::string_view& s2);
+        inline std::size_t mismatch(const std::string_view& s1, const std::string_view& s2) {
+            return kdl::mismatch(s1, s2, char_equal());
+        }
 
         /**
          * Checks whether the first string contains the second string. Characters are compared without case sensitivity.
@@ -153,7 +191,9 @@ namespace kdl {
          * @param needle the string to search for
          * @return true if the first string contains the second string and false otherwise
          */
-        bool contains(const std::string_view& haystack, const std::string_view& needle);
+        inline bool contains(const std::string_view& haystack, const std::string_view& needle) {
+            return kdl::contains(haystack, needle, char_equal());
+        }
 
         /**
          * Checks whether the second string is a prefix of the first string. Characters are compared without case
@@ -163,7 +203,9 @@ namespace kdl {
          * @param needle the string to search for
          * @return true if needle is a prefix of haystack
          */
-        bool is_prefix(const std::string_view& haystack, const std::string_view& needle);
+        inline bool is_prefix(const std::string_view& haystack, const std::string_view& needle) {
+            return kdl::is_prefix(haystack, needle, char_equal());
+        }
 
         /**
          * Checks whether the second string is a suffix of the first string. Characters are compared without case
@@ -173,7 +215,9 @@ namespace kdl {
          * @param needle the string to search for
          * @return true if needle is a suffix of haystack
          */
-        bool is_suffix(const std::string_view& haystack, const std::string_view& needle);
+        inline bool is_suffix(const std::string_view& haystack, const std::string_view& needle) {
+            return kdl::is_suffix(haystack, needle, char_equal());
+        }
 
         /**
          * Performs lexicographical comparison of the given strings s1 and s2. Returns -1 if the first string is less
@@ -184,7 +228,9 @@ namespace kdl {
          * @param s2 the second string
          * @return an int indicating the result of the comparison
          */
-        int compare(const std::string_view& s1, const std::string_view& s2);
+        inline int compare(const std::string_view& s1, const std::string_view& s2) {
+            return kdl::compare(s1, s2, char_less());
+        }
 
         /**
          * Checks whether the given strings are equal. Characters are compared without case sensitivity.
@@ -193,7 +239,9 @@ namespace kdl {
          * @param s2 the second string
          * @return true if the given strings are equal and false otherwise
          */
-        bool is_equal(const std::string_view& s1, const std::string_view& s2);
+        inline bool is_equal(const std::string_view& s1, const std::string_view& s2) {
+            return kdl::is_equal(s1, s2, char_equal());
+        }
 
         /**
          * Checks whether the given string in range [s_cur, s_end) matches the glob pattern in range [p_cur, p_end).
@@ -205,7 +253,9 @@ namespace kdl {
          * @param p the patterm
          * @return true if the given pattern matches the given string
          */
-        bool matches_glob(const std::string_view& s, const std::string_view& p);
+        inline bool matches_glob(const std::string_view& s, const std::string_view& p) {
+            return kdl::matches_glob(s, p, char_equal());
+        }
     }
 }
 
