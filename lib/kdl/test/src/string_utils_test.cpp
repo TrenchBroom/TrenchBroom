@@ -19,6 +19,8 @@
 
 #include <kdl/string_utils.h>
 
+#include <ostream>
+
 namespace kdl {
     TEST(string_utils_test, str_split) {
         ASSERT_EQ(std::vector<std::string>({}), str_split("", " "));
@@ -55,5 +57,21 @@ namespace kdl {
         ASSERT_EQ("TEH brick brown fox", str_replace_every("the brick brown fox", "the", "TEH"));
         ASSERT_EQ("the click clown fox", str_replace_every("the brick brown fox", "br", "cl"));
         ASSERT_EQ("the brick crown fox", str_replace_every("the brick brown fox", "bro", "cro"));
+    }
+
+    struct to_string {
+        std::string x;
+    };
+
+    inline std::ostream& operator<<(std::ostream& o, const to_string& t) {
+        o << t.x << ";";
+        return o;
+    }
+
+    TEST(string_format_test, str_to_string) {
+        ASSERT_EQ("abc", str_to_string("abc"));
+        ASSERT_EQ("1234", str_to_string(1234));
+        ASSERT_EQ("1", str_to_string(1.0));
+        ASSERT_EQ("xyz;", str_to_string(to_string{"xyz"}));
     }
 }

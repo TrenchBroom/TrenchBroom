@@ -37,6 +37,36 @@ namespace kdl {
         ASSERT_EQ("prefix many suffix", str_plural("prefix ", 2, "one", "many", " suffix"));
     }
 
+    TEST(string_format_test, str_trim) {
+        ASSERT_EQ("", str_trim(""));
+        ASSERT_EQ("abc", str_trim("abc"));
+        ASSERT_EQ("abc", str_trim(" abc"));
+        ASSERT_EQ("abc", str_trim("abc  "));
+        ASSERT_EQ("abc", str_trim("  abc   "));
+        ASSERT_EQ("abc", str_trim("  abc   "));
+        ASSERT_EQ("abc", str_trim("xyxxabczzxzyz", "xyz"));
+    }
+
+    TEST(string_format_test, str_to_lower) {
+        ASSERT_EQ("", str_to_lower(""));
+        ASSERT_EQ("#?\"abc73474", str_to_lower("#?\"abc73474"));
+        ASSERT_EQ("#?\"abc73474", str_to_lower("#?\"abC73474"));
+        ASSERT_EQ("#?\"abc73474", str_to_lower("#?\"ABC73474"));
+        ASSERT_EQ("xyz", str_to_lower("XYZ"));
+    }
+
+    TEST(string_format_test, str_to_upper) {
+        ASSERT_EQ("", str_to_lower(""));
+        ASSERT_EQ("#?\"ABC73474", str_to_upper("#?\"ABC73474"));
+        ASSERT_EQ("#?\"ABC73474", str_to_upper("#?\"ABc73474"));
+        ASSERT_EQ("#?\"ABC73474", str_to_upper("#?\"ABC73474"));
+        ASSERT_EQ("XYZ", str_to_upper("xyz"));
+    }
+
+    TEST(string_format_test, str_capitalize) {
+        ASSERT_EQ("The Quick Brown FOX, .he Jumped!", str_capitalize("the quick brown fOX, .he jumped!"));
+    }
+
     TEST(string_format_test, str_escape) {
         ASSERT_EQ("", str_escape("", ""));
         ASSERT_EQ("", str_escape("", ";"));
@@ -66,5 +96,24 @@ namespace kdl {
         ASSERT_EQ("asdf\\", str_unescape("asdf\\", ""));
         ASSERT_EQ("asdf\\", str_unescape("asdf\\\\", ""));
         ASSERT_EQ("asdf\\\\", str_unescape("asdf\\\\\\\\", ""));
+    }
+
+    TEST(string_format_test, str_is_blank) {
+        ASSERT_TRUE(str_is_blank(""));
+        ASSERT_TRUE(str_is_blank(" "));
+        ASSERT_TRUE(str_is_blank(" \n\r\t"));
+        ASSERT_FALSE(str_is_blank("a \n\r\t"));
+        ASSERT_FALSE(str_is_blank("  a \n\r\t"));
+        ASSERT_FALSE(str_is_blank(" another one bites    "));
+    }
+
+    TEST(string_format_test, str_is_numeric) {
+        ASSERT_FALSE(str_is_numeric(""));
+        ASSERT_FALSE(str_is_numeric("a"));
+        ASSERT_FALSE(str_is_numeric("66a"));
+        ASSERT_FALSE(str_is_numeric("66a33"));
+        ASSERT_FALSE(str_is_numeric("a33"));
+        ASSERT_TRUE(str_is_numeric("1"));
+        ASSERT_TRUE(str_is_numeric("1234567890"));
     }
 }
