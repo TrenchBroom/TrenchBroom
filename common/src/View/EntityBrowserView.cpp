@@ -23,7 +23,6 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "StepIterator.h"
-#include "StringUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModel.h"
@@ -42,6 +41,7 @@
 #include "View/MapFrame.h"
 #include "View/QtUtils.h"
 
+#include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>
@@ -151,7 +151,7 @@ namespace TrenchBroom {
 
                     if (!definitions.empty()) {
                         const auto displayName = group.displayName();
-                        layout.addGroup(displayName, fontSize + 2.0f);
+                        layout.addGroup(displayName, static_cast<float>(fontSize)+ 2.0f);
 
                         for (const auto* definition : definitions) {
                             const auto* pointEntityDefinition = static_cast<const Assets::PointEntityDefinition*>(definition);
@@ -180,7 +180,7 @@ namespace TrenchBroom {
 
         void EntityBrowserView::addEntityToLayout(Layout& layout, const Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font) {
             if ((!m_hideUnused || definition->usageCount() > 0) &&
-                (m_filterText.empty() || StringUtils::containsCaseInsensitive(definition->name(), m_filterText))) {
+                (m_filterText.empty() || kdl::ci::contains(definition->name(), m_filterText))) {
 
                 const auto maxCellWidth = layout.maxCellWidth();
                 const auto actualFont = fontManager().selectFontSize(font, definition->name(), maxCellWidth, 5);
@@ -209,7 +209,7 @@ namespace TrenchBroom {
                                boundsSize.y(),
                                boundsSize.z(),
                                actualSize.x(),
-                               font.size() + 2.0f);
+                               static_cast<float>(font.size()) + 2.0f);
             }
         }
 

@@ -22,7 +22,6 @@
 #include "Notifier.h"
 #include "PreferenceManager.h"
 #include "SharedPointer.h"
-#include "StringUtils.h"
 #include "Model/Entity.h"
 #include "Model/Game.h"
 #include "View/BorderLine.h"
@@ -31,6 +30,8 @@
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
+#include <kdl/collection_utils.h>
+#include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
 #include <QLineEdit>
@@ -38,7 +39,6 @@
 #include <QWidget>
 #include <QAbstractButton>
 #include <QVBoxLayout>
-#include <QGridLayout>
 
 #include <cassert>
 
@@ -181,7 +181,7 @@ namespace TrenchBroom {
         void ModEditor::updateAvailableMods() {
             auto document = lock(m_document);
             StringList availableMods = document->game()->availableMods();
-            StringUtils::sortCaseInsensitive(availableMods);
+            kdl::sort(availableMods, kdl::ci::string_less());
 
             m_availableMods.clear();
             m_availableMods.reserve(availableMods.size());
@@ -202,15 +202,14 @@ namespace TrenchBroom {
             QStringList availableModItems;
             for (size_t i = 0; i < m_availableMods.size(); ++i) {
                 const auto& mod = m_availableMods[i];
-                if (StringUtils::containsCaseInsensitive(mod, pattern) &&
-                    !kdl::vec_contains(enabledMods, mod)) {
+                if (kdl::ci::contains(mod, pattern) && !kdl::vec_contains(enabledMods, mod)) {
                     m_availableModList->addItem(QString::fromStdString(mod));
                 }
             }
 
             QStringList enabledModItems;
             for (size_t i = 0; i < enabledMods.size(); ++i) {
-                if (StringUtils::containsCaseInsensitive(enabledMods[i], pattern)) {
+                if (kdl::ci::contains(enabledMods[i], pattern)) {
                     m_enabledModList->addItem(QString::fromStdString(enabledMods[i]));
                 }
             }

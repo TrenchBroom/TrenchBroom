@@ -31,6 +31,7 @@
 #include "Model/NodeCollection.h"
 #include "Model/World.h"
 
+#include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
 #include <vector>
@@ -86,7 +87,7 @@ namespace TrenchBroom {
             });
 
             std::sort(std::begin(matchingTextures), std::end(matchingTextures), [](const auto* lhs, const auto* rhs) {
-                return StringUtils::caseInsensitiveCompare(lhs->name(), rhs->name()) < 0;
+                return kdl::ci::compare(lhs->name(), rhs->name()) < 0;
             });
 
             Assets::Texture* texture = nullptr;
@@ -115,19 +116,13 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool TextureNameTagMatcher::matchesTextureName(const String& textureName) const {
-            auto begin = std::begin(textureName);
-
+        bool TextureNameTagMatcher::matchesTextureName(std::string_view textureName) const {
             const auto pos = textureName.find_last_of('/');
             if (pos != String::npos) {
-                std::advance(begin, long(pos)+1);
+                textureName = textureName.substr(pos + 1);
             }
 
-            return StringUtils::matchesPattern(
-                begin, std::end(textureName),
-                std::begin(m_pattern),
-                std::end(m_pattern),
-                StringUtils::CharEqual<StringUtils::CaseInsensitiveCharCompare>());
+            return kdl::ci::matches_glob(textureName, m_pattern);
         }
 
         SurfaceParmTagMatcher::SurfaceParmTagMatcher(String parameter) :
@@ -286,7 +281,7 @@ namespace TrenchBroom {
             });
 
             std::sort(std::begin(matchingDefinitions), std::end(matchingDefinitions), [](const auto* lhs, const auto* rhs) {
-                return StringUtils::caseInsensitiveCompare(lhs->name(), rhs->name()) < 0;
+                return kdl::ci::compare(lhs->name(), rhs->name()) < 0;
             });
 
             const Assets::EntityDefinition* definition = nullptr;
@@ -344,7 +339,7 @@ namespace TrenchBroom {
         }
 
         bool EntityClassNameTagMatcher::matchesClassname(const String& classname) const {
-            return StringUtils::caseInsensitiveMatchesPattern(classname, m_pattern);
+            return kdl::ci::matches_glob(classname, m_pattern);
         }
     }
 }

@@ -21,7 +21,9 @@
 #define EntityDefinitionTestUtils_h
 
 #include "Color.h"
-#include "StringUtils.h"
+#include "StringType.h"
+
+#include <kdl/string_utils.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -39,7 +41,7 @@ namespace TrenchBroom {
 
         template <typename Parser>
         void assertModelDefinition(const ModelSpecification& expected, const String& modelStr, const String& templateStr, const String& entityPropertiesStr = "{}") {
-            const String defStr = StringUtils::replaceAll(templateStr, "${MODEL}", modelStr);
+            const String defStr = kdl::str_replace_every(templateStr, "${MODEL}", modelStr);
             Parser parser(defStr, Color(1.0f, 1.0f, 1.0f, 1.0f));
             assertModelDefinition(expected, parser, entityPropertiesStr);
         }

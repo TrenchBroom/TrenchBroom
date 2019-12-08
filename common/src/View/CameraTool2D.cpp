@@ -48,7 +48,7 @@ namespace TrenchBroom {
                     const float speed = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
                     const float factor = 1.0f + inputState.scrollY() / 50.0f * speed;
                     const auto mousePos = vm::vec2f(float(inputState.mouseX()), float(inputState.mouseY()));
-                    
+
                     if (factor > 0.0f) {
                         zoom(inputState, mousePos, factor);
                     }
@@ -69,7 +69,7 @@ namespace TrenchBroom {
 
         bool CameraTool2D::doMouseDrag(const InputState& inputState) {
             if (pan(inputState)) {
-                const auto currentMousePos = vm::vec2f(float(inputState.mouseX()), float(inputState.mouseY()));
+                const auto currentMousePos = vm::vec2f(inputState.mouseX(), inputState.mouseY());
                 const auto lastWorldPos = m_camera.unproject(m_lastMousePos.x(), m_lastMousePos.y(), 0.0f);
                 const auto currentWorldPos = m_camera.unproject(currentMousePos.x(), currentMousePos.y(), 0.0f);
                 const auto delta = currentWorldPos - lastWorldPos;
@@ -78,7 +78,7 @@ namespace TrenchBroom {
                 return true;
             } else if (dragZoom(inputState)) {
                 const auto speed = pref(Preferences::CameraAltMoveInvert) ? 1.0f : -1.0f;
-                const auto factor = 1.0f + inputState.mouseDY() / 100.0f * speed;
+                const auto factor = 1.0f + static_cast<float>(inputState.mouseDY()) / 100.0f * speed;
                 zoom(inputState, m_lastMousePos, factor);
                 return true;
             }

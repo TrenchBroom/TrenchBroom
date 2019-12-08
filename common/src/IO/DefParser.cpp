@@ -27,6 +27,7 @@
 #include "IO/LegacyModelDefinitionParser.h"
 #include "IO/ParserStatus.h"
 
+#include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
 
 #include <memory>
@@ -218,7 +219,7 @@ namespace TrenchBroom {
             StringList superClasses;
             parseAttributes(status, classInfo, superClasses);
 
-            classInfo.setDescription(StringUtils::trim(parseDescription()));
+            classInfo.setDescription(kdl::str_trim(parseDescription()));
             expect(status, DefToken::CDefinition, token = m_tokenizer.nextToken());
 
             if (classInfo.hasColor()) {

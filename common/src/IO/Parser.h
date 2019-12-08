@@ -21,10 +21,12 @@
 #define TrenchBroom_Parser
 
 #include "Exceptions.h"
+#include "StringList.h"
 #include "StringType.h"
 #include "IO/ParserStatus.h"
 #include "IO/Token.h"
-#include "StringUtils.h"
+
+#include <kdl/string_utils.h>
 
 #include <map>
 
@@ -75,7 +77,7 @@ namespace TrenchBroom {
                         return;
                     }
                 }
-                throw ParserException(token.line(), token.column(), "Expected string '" + StringUtils::join(expected, "', '", "', or '", "' or '") + "', but got '" + token.data() + "'");
+                throw ParserException(token.line(), token.column(), "Expected string '" + kdl::str_join(expected, "', '", "', or '", "' or '") + "', but got '" + token.data() + "'");
             }
        private:
             String expectString(const String& expected, const Token& token) const {
@@ -102,7 +104,7 @@ namespace TrenchBroom {
                     return "unknown token type";
                 if (names.size() == 1)
                     return names[0];
-                return StringUtils::join(names, ", ", ", or ", " or ");
+                return kdl::str_join(names, ", ", ", or ", " or ");
             }
         private:
             virtual TokenNameMap tokenNames() const = 0;

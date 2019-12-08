@@ -19,7 +19,6 @@
 
 #include <gtest/gtest.h>
 
-#include "StringUtils.h"
 #include "IO/NodeWriter.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -29,6 +28,8 @@
 #include "Model/Layer.h"
 #include "Model/MapFormat.h"
 #include "Model/World.h"
+
+#include <kdl/string_compare.h>
 
 #include <vector>
 
@@ -188,7 +189,7 @@ R"(// entity 0
 )";
 
             const auto actual = str.str();
-            ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(actual, expected));
+            ASSERT_TRUE(kdl::cs::matches_glob(actual, expected));
         }
 
         TEST(NodeWriterTest, writeMapWithGroupInDefaultLayer) {
@@ -231,7 +232,7 @@ R"(// entity 0
 }
 )";
             const String actual = str.str();
-            ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(actual, expected));
+            ASSERT_TRUE(kdl::cs::matches_glob(actual, expected));
         }
 
         TEST(NodeWriterTest, writeMapWithGroupInCustomLayer) {
@@ -285,7 +286,7 @@ R"(// entity 0
 }
 )";
             const String actual = str.str();
-            ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(actual, expected));
+            ASSERT_TRUE(kdl::cs::matches_glob(actual, expected));
         }
 
         TEST(NodeWriterTest, writeMapWithNestedGroupInCustomLayer) {
@@ -351,7 +352,7 @@ R"(// entity 0
 )";
 
             const String actual = str.str();
-            ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(actual, expected));
+            ASSERT_TRUE(kdl::cs::matches_glob(actual, expected));
         }
 
         TEST(NodeWriterTest, writeNodesWithNestedGroup) {
@@ -413,7 +414,7 @@ R"(// entity 0
 )";
 
             const String actual = str.str();
-            ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(actual, expected));
+            ASSERT_TRUE(kdl::cs::matches_glob(actual, expected));
         }
 
         TEST(NodeWriterTest, writeFaces) {

@@ -27,9 +27,11 @@
 #endif
 
 #include "TrenchBroomStackWalker.h"
-#include "StringUtils.h"
 
 #include <cstdlib>
+#include <string>
+#include <sstream>
+#include <vector>
 
 namespace TrenchBroom {
 #ifdef _WIN32
@@ -89,7 +91,7 @@ namespace TrenchBroom {
     }
 #endif
 #else
-    String TrenchBroomStackWalker::getStackTrace() {
+    std::string TrenchBroomStackWalker::getStackTrace() {
         const int MaxDepth = 256;
         void *callstack[MaxDepth];
         const int frames = backtrace(callstack, MaxDepth);
@@ -99,7 +101,7 @@ namespace TrenchBroom {
         if (framesVec.empty())
             return "";
 
-        StringStream ss;
+        std::stringstream ss;
         char **strs = backtrace_symbols(&framesVec.front(), static_cast<int>(framesVec.size()));
         for (size_t i = 0; i < framesVec.size(); i++) {
             ss << strs[i] << std::endl;

@@ -27,7 +27,8 @@
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
-#include "StringUtils.h"
+
+#include <kdl/string_utils.h>
 
 #include <vecmath/intersection.h>
 #include <vecmath/mat.h>
@@ -235,7 +236,7 @@ namespace TrenchBroom {
                     renderService.renderHandleHighlight(vm::vec3f(m_position));
                     renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
                     renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
-                    renderService.renderString(StringUtils::toString(m_position), vm::vec3f(m_position));
+                    renderService.renderString(kdl::str_to_string(m_position), vm::vec3f(m_position));
                     break;
                 case HitArea::HitArea_XAxis:
                     renderService.setForegroundColor(pref(Preferences::XAxisColor));

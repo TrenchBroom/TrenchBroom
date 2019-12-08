@@ -28,6 +28,7 @@
 #include "Model/ModelFactory.h"
 
 #include <kdl/map_utils.h>
+#include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
@@ -135,13 +136,13 @@ namespace TrenchBroom {
 
         void MapReader::createLayer(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             const String& name = findAttribute(attributes, Model::AttributeNames::LayerName);
-            if (StringUtils::isBlank(name)) {
+            if (kdl::str_is_blank(name)) {
                 status.error(line, "Skipping layer entity: missing name");
                 return;
             }
 
             const String& idStr = findAttribute(attributes, Model::AttributeNames::LayerId);
-            if (StringUtils::isBlank(idStr)) {
+            if (kdl::str_is_blank(idStr)) {
                 status.error(line, "Skipping layer entity: missing id");
                 return;
             }
@@ -174,13 +175,13 @@ namespace TrenchBroom {
 
         void MapReader::createGroup(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             const String& name = findAttribute(attributes, Model::AttributeNames::GroupName);
-            if (StringUtils::isBlank(name)) {
+            if (kdl::str_is_blank(name)) {
                 status.error(line, "Skipping group entity: missing name");
                 return;
             }
 
             const String& idStr = findAttribute(attributes, Model::AttributeNames::GroupId);
-            if (StringUtils::isBlank(idStr)) {
+            if (kdl::str_is_blank(idStr)) {
                 status.error(line, "Skipping group entity: missing id");
                 return;
             }
@@ -242,7 +243,7 @@ namespace TrenchBroom {
 
         MapReader::ParentInfo::Type MapReader::storeNode(Model::Node* node, const Model::EntityAttribute::List& attributes, ParserStatus& status) {
             const String& layerIdStr = findAttribute(attributes, Model::AttributeNames::Layer);
-            if (!StringUtils::isBlank(layerIdStr)) {
+            if (!kdl::str_is_blank(layerIdStr)) {
                 const long rawId = std::atol(layerIdStr.c_str());
                 if (rawId > 0) {
                     const Model::IdType layerId = static_cast<Model::IdType>(rawId);
@@ -260,7 +261,7 @@ namespace TrenchBroom {
                 status.warn(node->lineNumber(), msg.str());
             } else {
                 const String& groupIdStr = findAttribute(attributes, Model::AttributeNames::Group);
-                if (!StringUtils::isBlank(groupIdStr)) {
+                if (!kdl::str_is_blank(groupIdStr)) {
                     const long rawId = std::atol(groupIdStr.c_str());
                     if (rawId > 0) {
                         const Model::IdType groupId = static_cast<Model::IdType>(rawId);

@@ -26,6 +26,8 @@
 #include "IO/ELParser.h"
 #include "IO/LegacyModelDefinitionParser.h"
 
+#include <kdl/string_compare.h>
+#include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
 
 #include <memory>
@@ -214,7 +216,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            if (StringUtils::caseInsensitiveEqual(token.data(), "@include")) {
+            if (kdl::ci::is_equal(token.data(), "@include")) {
                 const auto includedDefinitions = parseInclude(status);
                 kdl::vec_append(definitions, includedDefinitions);
             } else {
@@ -230,15 +232,15 @@ namespace TrenchBroom {
             auto token = expect(status, FgdToken::Word, m_tokenizer.nextToken());
 
             const auto classname = token.data();
-            if (StringUtils::caseInsensitiveEqual(classname, "@SolidClass")) {
+            if (kdl::ci::is_equal(classname, "@SolidClass")) {
                 return parseSolidClass(status);
-            } else if (StringUtils::caseInsensitiveEqual(classname, "@PointClass")) {
+            } else if (kdl::ci::is_equal(classname, "@PointClass")) {
                 return parsePointClass(status);
-            } else if (StringUtils::caseInsensitiveEqual(classname, "@BaseClass")) {
+            } else if (kdl::ci::is_equal(classname, "@BaseClass")) {
                 const auto baseClass = parseBaseClass(status);
                 m_baseClasses[baseClass.name()] = baseClass;
                 return nullptr;
-            } else if (StringUtils::caseInsensitiveEqual(classname, "@Main")) {
+            } else if (kdl::ci::is_equal(classname, "@Main")) {
                 skipMainClass(status);
                 return nullptr;
             } else {
@@ -280,24 +282,24 @@ namespace TrenchBroom {
 
             while (token.type() == FgdToken::Word) {
                 const auto typeName = token.data();
-                if (StringUtils::caseInsensitiveEqual(typeName, "base")) {
+                if (kdl::ci::is_equal(typeName, "base")) {
                     if (!superClasses.empty()) {
                         status.warn(token.line(), token.column(), "Found multiple base attributes");
                     }
                     superClasses = parseSuperClasses(status);
-                } else if (StringUtils::caseInsensitiveEqual(typeName, "color")) {
+                } else if (kdl::ci::is_equal(typeName, "color")) {
                     if (classInfo.hasColor()) {
                         status.warn(token.line(), token.column(), "Found multiple color attributes");
                     }
                     classInfo.setColor(parseColor(status));
-                } else if (StringUtils::caseInsensitiveEqual(typeName, "size")) {
+                } else if (kdl::ci::is_equal(typeName, "size")) {
                     if (classInfo.hasSize()) {
                         status.warn(token.line(), token.column(), "Found multiple size attributes");
                     }
                     classInfo.setSize(parseSize(status));
-                } else if (StringUtils::caseInsensitiveEqual(typeName, "model") ||
-                           StringUtils::caseInsensitiveEqual(typeName, "studio") ||
-                           StringUtils::caseInsensitiveEqual(typeName, "studioprop")) {
+                } else if (kdl::ci::is_equal(typeName, "model") ||
+                           kdl::ci::is_equal(typeName, "studio") ||
+                           kdl::ci::is_equal(typeName, "studioprop")) {
                     if (classInfo.hasModelDefinition()) {
                         status.warn(token.line(), token.column(), "Found multiple model attributes");
                     }
@@ -316,7 +318,7 @@ namespace TrenchBroom {
             if (token.type() == FgdToken::Colon) {
                 m_tokenizer.nextToken();
                 const auto description = parseString(status);
-                classInfo.setDescription(StringUtils::trim(description));
+                classInfo.setDescription(kdl::str_trim(description));
             }
 
             classInfo.addAttributeDefinitions(parseProperties(status));
@@ -416,19 +418,19 @@ namespace TrenchBroom {
                 const auto typeName = token.data();
                 token = expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
 
-                if (StringUtils::caseInsensitiveEqual(typeName, "target_source")) {
+                if (kdl::ci::is_equal(typeName, "target_source")) {
                     attributes[attributeKey] = parseTargetSourceAttribute(status, attributeKey);
-                } else if (StringUtils::caseInsensitiveEqual(typeName, "target_destination")) {
+                } else if (kdl::ci::is_equal(typeName, "target_destination")) {
                     attributes[attributeKey] = parseTargetDestinationAttribute(status, attributeKey);
-                } else if (StringUtils::caseInsensitiveEqual(typeName, "string")) {
+                } else if (kdl::ci::is_equal(typeName, "string")) {
                     attributes[attributeKey] = parseStringAttribute(status, attributeKey);
-                } else if (StringUtils::caseInsensitiveEqual(typeName, "integer")) {
+                } else if (kdl::ci::is_equal(typeName, "integer")) {
                     attributes[attributeKey] = parseIntegerAttribute(status, attributeKey);
-                } else if (StringUtils::caseInsensitiveEqual(typeName, "float")) {
+                } else if (kdl::ci::is_equal(typeName, "float")) {
                     attributes[attributeKey] = parseFloatAttribute(status, attributeKey);
-                } else if (StringUtils::caseInsensitiveEqual(typeName, "choices")) {
+                } else if (kdl::ci::is_equal(typeName, "choices")) {
                     attributes[attributeKey] = parseChoicesAttribute(status, attributeKey);
-                } else if (StringUtils::caseInsensitiveEqual(typeName, "flags")) {
+                } else if (kdl::ci::is_equal(typeName, "flags")) {
                     attributes[attributeKey] = parseFlagsAttribute(status, attributeKey);
                 } else {
                     StringStream msg;
@@ -696,7 +698,7 @@ namespace TrenchBroom {
 
         FgdParser::EntityDefinitionList FgdParser::parseInclude(ParserStatus& status) {
             auto token = expect(status, FgdToken::Word, m_tokenizer.nextToken());
-            assert(StringUtils::caseInsensitiveEqual(token.data(), "@include"));
+            assert(kdl::ci::is_equal(token.data(), "@include"));
 
             expect(status, FgdToken::String, token = m_tokenizer.nextToken());
             const auto path = Path(token.data());

@@ -19,7 +19,6 @@
 
 #include "CrashDialog.h"
 
-#include "StringUtils.h"
 #include "View/GetVersion.h"
 #include "View/QtUtils.h"
 #include "IO/PathQt.h"

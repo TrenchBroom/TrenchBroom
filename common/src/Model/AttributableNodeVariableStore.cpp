@@ -19,10 +19,11 @@
 
 #include "AttributableNodeVariableStore.h"
 
-#include "StringUtils.h"
 #include "EL/ELExceptions.h"
 #include "EL/Types.h"
 #include "Model/AttributableNode.h"
+
+#include <kdl/string_utils.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -61,7 +62,7 @@ namespace TrenchBroom {
 
         void AttributableNodeVariableStore::doAssign(const String& name, const EL::Value& value) {
             const EL::Value stringELValue = value.convertTo(EL::ValueType::String);
-            m_node->addOrUpdateAttribute(name, StringUtils::toString(stringELValue));
+            m_node->addOrUpdateAttribute(name, kdl::str_to_string(stringELValue));
         }
     }
 }

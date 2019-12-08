@@ -32,7 +32,8 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
-#include "StringUtils.h"
+
+#include <kdl/string_utils.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
@@ -124,7 +125,7 @@ namespace TrenchBroom {
         }
 
         void Entity::setOrigin(const vm::vec3& origin) {
-            addOrUpdateAttribute(AttributeNames::Origin, StringUtils::toString(vm::round(origin)));
+            addOrUpdateAttribute(AttributeNames::Origin, kdl::str_to_string(vm::round(origin)));
         }
 
         void Entity::applyRotation(const vm::mat4x4& transformation) {

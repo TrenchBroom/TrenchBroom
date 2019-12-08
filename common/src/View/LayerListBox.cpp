@@ -99,7 +99,7 @@ namespace TrenchBroom {
                 makeUnemphasized(m_nameText);
             }
 
-            const auto info = tr("%1 %2").arg(m_layer->childCount()).arg(QString::fromStdString(StringUtils::safePlural(m_layer->childCount(), "object", "objects")));
+            const auto info = tr("%1 %2").arg(m_layer->childCount()).arg(m_layer->childCount() == 1 ? "object" : "objects");
             m_infoText->setText(info);
 
             // Update buttons

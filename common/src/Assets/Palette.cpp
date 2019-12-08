@@ -20,11 +20,12 @@
 #include "Palette.h"
 
 #include "Exceptions.h"
-#include "StringUtils.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
 #include "IO/FileSystem.h"
 #include "IO/ImageLoader.h"
+
+#include <kdl/string_format.h>
 
 #include <algorithm>
 
@@ -56,7 +57,7 @@ namespace TrenchBroom {
             try {
                 auto file = fs.openFile(path);
                 auto reader = file->reader().buffer();
-                const auto extension = StringUtils::toLower(path.extension());
+                const auto extension = kdl::str_to_lower(path.extension());
                 if (extension == "lmp") {
                     return loadLmp(reader);
                 } else if (extension == "pcx") {

@@ -368,7 +368,7 @@ namespace TrenchBroom {
                         return PasteType::BrushFace;
                     }
                 } catch (const ParserException&) {
-                    error("Could not parse clipboard contents: %s", e.what());
+                    error() << "Could not parse clipboard contents: " << e.what();
                 }
             }
             return PasteType::Failed;
@@ -1660,9 +1660,9 @@ namespace TrenchBroom {
                 createEntityDefinitionActions();
             } catch (const Exception& e) {
                 if (spec.builtin()) {
-                    error("Could not load builtin entity definition file '%s': %s", spec.path().asString().c_str(), e.what());
+                    error() << "Could not load builtin entity definition file '" << spec.path() << "': " << e.what();
                 } else {
-                    error("Could not load external entity definition file '%s': %s", spec.path().asString().c_str(), e.what());
+                    error() << "Could not load external entity definition file '" << spec.path() << "': " << e.what();
                 }
             }
         }
@@ -2129,11 +2129,11 @@ namespace TrenchBroom {
         }
 
         void MapDocument::commandDone(Command::Ptr command) {
-            debug("Command '%s' executed", command->name().c_str());
+            debug() << "Command " << command->name() << "' executed";
         }
 
         void MapDocument::commandUndone(UndoableCommand::Ptr command) {
-            debug("Command '%s' undone", command->name().c_str());
+            debug() << "Command " << command->name() << " undone";
         }
 
         Transaction::Transaction(std::weak_ptr<MapDocument> document, const String& name) :

@@ -20,7 +20,9 @@
 #include "Tokenizer.h"
 
 #include "Exceptions.h"
-#include "StringUtils.h"
+#include "Macros.h"
+
+#include <kdl/string_format.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -79,7 +81,7 @@ namespace TrenchBroom {
         }
 
         String TokenizerState::unescape(const String& str) {
-            return StringUtils::unescape(str, m_escapableChars, m_escapeChar);
+            return kdl::str_unescape(str, m_escapableChars, m_escapeChar);
         }
 
         void TokenizerState::resetEscaped() {

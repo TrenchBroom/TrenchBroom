@@ -43,6 +43,8 @@
 #include "View/Selection.h"
 
 #include <kdl/map_utils.h>
+#include <kdl/string_format.h>
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <map>
@@ -766,12 +768,12 @@ namespace TrenchBroom {
 
             if (succeededBrushCount > 0) {
                 StringStream msg;
-                msg << "Snapped vertices of " << succeededBrushCount << " " << StringUtils::safePlural(succeededBrushCount, "brush", "brushes");
+                msg << "Snapped vertices of " << succeededBrushCount << " " << kdl::str_plural(succeededBrushCount, "brush", "brushes");
                 info(msg.str());
             }
             if (failedBrushCount > 0) {
                 StringStream msg;
-                msg << "Failed to snap vertices of " << failedBrushCount << " " << StringUtils::safePlural(failedBrushCount, "brush", "brushes");
+                msg << "Failed to snap vertices of " << failedBrushCount << " " << kdl::str_plural(failedBrushCount, "brush", "brushes");
                 info(msg.str());
             }
 
@@ -914,7 +916,7 @@ namespace TrenchBroom {
             Notifier<>::NotifyAfter notifyEntityDefinitions(entityDefinitionsDidChangeNotifier);
 
             // to avoid backslashes being misinterpreted as escape sequences
-            const String formatted = StringUtils::replaceAll(spec.asString(), "\\", "/");
+            const String formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
             m_world->addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, formatted);
             reloadEntityDefinitionsInternal();
         }
@@ -942,7 +944,7 @@ namespace TrenchBroom {
             if (mods.empty()) {
                 m_world->removeAttribute(Model::AttributeNames::Mods);
             } else {
-                const String newValue = StringUtils::join(mods, ";");
+                const String newValue = kdl::str_join(mods, ";");
                 m_world->addOrUpdateAttribute(Model::AttributeNames::Mods, newValue);
             }
 

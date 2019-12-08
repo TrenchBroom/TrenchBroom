@@ -19,7 +19,11 @@
 
 #include "Quake3ShaderParser.h"
 
+#include "Macros.h"
 #include "Assets/Quake3Shader.h"
+
+#include <kdl/string_compare.h>
+#include <kdl/string_format.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -201,8 +205,8 @@ namespace TrenchBroom {
                     token = m_tokenizer.nextToken();
                     const auto param2 = token.data();
                     const auto param2Column = token.column();
-                    stage.blendFunc.srcFactor = StringUtils::toUpper(param1);
-                    stage.blendFunc.destFactor = StringUtils::toUpper(param2);
+                    stage.blendFunc.srcFactor = kdl::str_to_upper(param1);
+                    stage.blendFunc.destFactor = kdl::str_to_upper(param2);
 
                     bool valid = true;
                     if (!stage.blendFunc.validateSrcFactor()) {
@@ -217,13 +221,13 @@ namespace TrenchBroom {
                         stage.blendFunc.reset();
                     }
                 } else {
-                    if (StringUtils::caseInsensitiveEqual(param1, "add")) {
+                    if (kdl::ci::is_equal(param1, "add")) {
                         stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::One;
                         stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::One;
-                    } else if (StringUtils::caseInsensitiveEqual(param1, "filter")) {
+                    } else if (kdl::ci::is_equal(param1, "filter")) {
                         stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::DestColor;
                         stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::Zero;
-                    } else if (StringUtils::caseInsensitiveEqual(param1, "blend")) {
+                    } else if (kdl::ci::is_equal(param1, "blend")) {
                         stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::SrcAlpha;
                         stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha;
                     } else {

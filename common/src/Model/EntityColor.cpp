@@ -26,7 +26,10 @@
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
 
+#include <kdl/string_utils.h>
+
 #include <cassert>
+#include <sstream>
 #include <vector>
 
 namespace TrenchBroom {
@@ -73,7 +76,7 @@ namespace TrenchBroom {
         }
 
         Color parseEntityColor(const String& str) {
-            const auto components = StringUtils::splitAndTrim(str, " ");
+            const auto components = kdl::str_split(str, " ");
             const auto range = Assets::detectColorRange(components);
             assert(range != Assets::ColorRange::Mixed);
 
@@ -92,7 +95,7 @@ namespace TrenchBroom {
         }
 
         String entityColorAsString(const Color& color, const Assets::ColorRange::Type colorRange) {
-            StringStream result;
+            std::stringstream result;
             if (colorRange == Assets::ColorRange::Byte) {
                 result << int(color.r() * 255.0f) << " " << int(color.g() * 255.0f) << " " << int(color.b() * 255.0f);
             } else if (colorRange == Assets::ColorRange::Float) {

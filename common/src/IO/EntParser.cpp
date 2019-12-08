@@ -28,14 +28,13 @@
 #include "IO/ParserStatus.h"
 #include "Model/EntityAttributes.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/vec.h>
+#include <kdl/string_utils.h>
+
 #include <vecmath/vec_io.h>
 
 #include <tinyxml2/tinyxml2.h>
 
 #include <cstdlib>
-#include <functional>
 #include <memory>
 
 namespace TrenchBroom {
@@ -337,15 +336,15 @@ namespace TrenchBroom {
         }
 
         vm::bbox3 EntParser::parseBounds(const tinyxml2::XMLElement& element, const String& attributeName, ParserStatus& status) {
-            const auto parts = StringUtils::split(parseString(element, attributeName, status), " ");
+            const auto parts = kdl::str_split(parseString(element, attributeName, status), " ");
             if (parts.size() != 6) {
                 warn(element, "Invalid bounding box", status);
             }
 
             const auto it = std::begin(parts);
             vm::bbox3 result;
-            result.min = vm::parse<FloatType, 3>(StringUtils::join(it, std::next(it, 3), " ", " ", " ", StringUtils::StringToString()));
-            result.max = vm::parse<FloatType, 3>(StringUtils::join(std::next(it, 3), std::end(parts), " ", " ", " ", StringUtils::StringToString()));
+            result.min = vm::parse<FloatType, 3>(kdl::str_join(it, std::next(it, 3), " "));
+            result.max = vm::parse<FloatType, 3>(kdl::str_join(std::next(it, 3), std::end(parts), " "));
             return result;
         }
 

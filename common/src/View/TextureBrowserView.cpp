@@ -23,7 +23,6 @@
 #include "Preferences.h"
 #include "SharedPointer.h"
 #include "StepIterator.h"
-#include "StringUtils.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Renderer/GL.h"
@@ -35,6 +34,7 @@
 #include "Renderer/VertexArray.h"
 #include "View/MapDocument.h"
 
+#include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/vec.h>
@@ -146,7 +146,7 @@ namespace TrenchBroom {
 
             if (m_group) {
                 for (const Assets::TextureCollection* collection : getCollections()) {
-                    layout.addGroup(collection->name(), fontSize + 2.0f);
+                    layout.addGroup(collection->name(), static_cast<float>(fontSize) + 2.0f);
                     for (Assets::Texture* texture : getTextures(collection))
                         addTextureToLayout(layout, texture, font);
                 }
@@ -193,7 +193,7 @@ namespace TrenchBroom {
         }
 
         struct TextureBrowserView::CompareByUsageCount {
-            StringUtils::CaseInsensitiveStringLess m_less;
+            kdl::ci::string_less m_less;
 
             template <typename T>
             bool operator()(const T* lhs, const T* rhs) const {
@@ -207,7 +207,7 @@ namespace TrenchBroom {
         };
 
         struct TextureBrowserView::CompareByName {
-            StringUtils::CaseInsensitiveStringLess m_less;
+            kdl::ci::string_less m_less;
 
             template <typename T>
             bool operator()(const T* lhs, const T* rhs) const {
@@ -228,7 +228,7 @@ namespace TrenchBroom {
             explicit MatchName(const String& i_pattern) : pattern(i_pattern) {}
 
             bool operator()(const Assets::Texture* texture) const {
-                return !StringUtils::containsCaseInsensitive(texture->name(), pattern);
+                return !kdl::ci::contains(texture->name(), pattern);
             }
         };
 

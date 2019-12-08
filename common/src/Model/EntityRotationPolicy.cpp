@@ -20,8 +20,10 @@
 #include "EntityRotationPolicy.h"
 
 #include "Macros.h"
-#include "StringUtils.h"
 #include "Model/Entity.h"
+
+#include <kdl/string_compare.h>
+#include <kdl/string_utils.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/mat.h>
@@ -131,19 +133,19 @@ namespace TrenchBroom {
                 case RotationType_Euler: {
                     const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const auto nPitchYawRoll = vm::vec3(-yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
-                    entity->addOrUpdateAttribute(info.attribute, StringUtils::toString(vm::round(nPitchYawRoll)));
+                    entity->addOrUpdateAttribute(info.attribute, kdl::str_to_string(vm::round(nPitchYawRoll)));
                     break;
                 }
                 case RotationType_Euler_PositivePitchDown: {
                     const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const auto nPitchYawRoll = vm::vec3(yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
-                    entity->addOrUpdateAttribute(info.attribute, StringUtils::toString(vm::round(nPitchYawRoll)));
+                    entity->addOrUpdateAttribute(info.attribute, kdl::str_to_string(vm::round(nPitchYawRoll)));
                     break;
                 }
                 case RotationType_Mangle: {
                     const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const auto yawNPitchRoll = vm::vec3(yawPitchRoll.x(), -yawPitchRoll.y(), yawPitchRoll.z());
-                    entity->addOrUpdateAttribute(info.attribute, StringUtils::toString(vm::round(yawNPitchRoll)));
+                    entity->addOrUpdateAttribute(info.attribute, kdl::str_to_string(vm::round(yawNPitchRoll)));
                     break;
                 }
                 case RotationType_None:
@@ -164,7 +166,7 @@ namespace TrenchBroom {
             // determine the type of rotation to apply to this entity
             const auto classname = entity->classname();
             if (classname != AttributeValues::NoClassname) {
-                if (StringUtils::isPrefix(classname, "light")) {
+                if (kdl::cs::is_prefix(classname, "light")) {
                     if (entity->hasAttribute(AttributeNames::Mangle)) {
                         // spotlight without a target, update mangle
                         type = RotationType_Mangle;
@@ -203,7 +205,7 @@ namespace TrenchBroom {
                                 type = RotationType_Euler;
                                 attribute = AttributeNames::Angles;
                             } else if (entity->hasAttribute(AttributeNames::Mangle)) {
-                                if (StringUtils::caseSensitiveEqual(classname, "info_intermission")) {
+                                if (kdl::cs::is_equal(classname, "info_intermission")) {
                                     type = RotationType_Euler_PositivePitchDown;
                                 } else {
                                     type = RotationType_Mangle;
@@ -223,7 +225,7 @@ namespace TrenchBroom {
 
         void EntityRotationPolicy::setAngle(Entity* entity, const AttributeName& attribute, const vm::vec3& direction) {
             const auto angle = getAngle(direction);
-            entity->addOrUpdateAttribute(attribute, StringUtils::toString(vm::round(angle)));
+            entity->addOrUpdateAttribute(attribute, kdl::str_to_string(vm::round(angle)));
         }
 
         FloatType EntityRotationPolicy::getAngle(vm::vec3 direction) {

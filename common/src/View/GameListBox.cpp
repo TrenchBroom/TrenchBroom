@@ -19,7 +19,6 @@
 
 #include "GameListBox.h"
 
-#include "StringUtils.h"
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "Model/GameConfig.h"

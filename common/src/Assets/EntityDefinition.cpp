@@ -20,7 +20,8 @@
 #include "EntityDefinition.h"
 
 #include "Assets/AttributeDefinition.h"
-#include "StringUtils.h"
+
+#include <kdl/string_compare.h>
 
 #include <algorithm>
 #include <cassert>
@@ -142,7 +143,7 @@ namespace TrenchBroom {
                 });
             else
                 std::sort(std::begin(result), std::end(result), [] (const EntityDefinition* lhs, const EntityDefinition* rhs) {
-                    const int strCmp = StringUtils::caseInsensitiveCompare(lhs->name(), rhs->name());
+                    const int strCmp = kdl::ci::compare(lhs->name(), rhs->name());
                     if (strCmp == 0) {
                         return lhs->usageCount() > rhs->usageCount();
                     } else {

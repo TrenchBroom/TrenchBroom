@@ -19,7 +19,8 @@
 
 #include "EntityDefinitionFileSpec.h"
 
-#include "StringUtils.h"
+
+#include <kdl/string_compare.h>
 
 #include <cassert>
 
@@ -30,12 +31,12 @@ namespace TrenchBroom {
         m_path("") {}
 
         EntityDefinitionFileSpec EntityDefinitionFileSpec::parse(const String& str) {
-            if (StringUtils::isPrefix(str, "external:")) {
+            if (kdl::cs::is_prefix(str, "external:")) {
                 const IO::Path path(str.substr(9));
                 return EntityDefinitionFileSpec::external(path);
             }
 
-            if (StringUtils::isPrefix(str, "builtin:")) {
+            if (kdl::cs::is_prefix(str, "builtin:")) {
                 const IO::Path path(str.substr(8));
                 return EntityDefinitionFileSpec::builtin(path);
             }

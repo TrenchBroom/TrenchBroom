@@ -25,6 +25,8 @@
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
 
+#include <kdl/string_format.h>
+
 namespace TrenchBroom {
     namespace IO {
         class NodeSerializer::BrushSerializer : public Model::NodeVisitor {
@@ -204,10 +206,10 @@ namespace TrenchBroom {
                 const auto p = str.find_last_not_of('\\');
                 if ((l - p) % 2 == 0) {
                     // Only remove a trailing backslash if there is an uneven number of trailing backslashes.
-                    return StringUtils::escapeIfNecessary(str.substr(0, l-1), "\"");
+                    return kdl::str_escape_if_necessary(str.substr(0, l-1), "\"");
                 }
             }
-            return StringUtils::escapeIfNecessary(str, "\"");
+            return kdl::str_escape_if_necessary(str, "\"");
         }
     }
 }

@@ -44,7 +44,6 @@
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
 #include "IO/TextureLoader.h"
-#include "IO/ZipFileSystem.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -53,6 +52,10 @@
 #include "Model/GameConfig.h"
 #include "Model/Layer.h"
 #include "Model/World.h"
+
+#include <kdl/string_compare.h>
+#include <kdl/string_format.h>
+#include <kdl/string_utils.h>
 
 #include <vector>
 
@@ -251,7 +254,7 @@ namespace TrenchBroom {
                 return IO::Path::List(0);
             }
 
-            return IO::Path::asPaths(StringUtils::splitAndTrim(pathsValue, ';'));
+            return IO::Path::asPaths(kdl::str_split(pathsValue, ";"));
         }
 
         void GameImpl::doUpdateTextureCollections(AttributableNode& node, const IO::Path::List& paths) const {
@@ -260,7 +263,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            const auto value = StringUtils::join(IO::Path::asStrings(paths, '/'), ';');
+            const auto value = kdl::str_join(IO::Path::asStrings(paths, "/"), ";");
             node.addOrUpdateAttribute(attribute, value);
         }
 
@@ -270,11 +273,11 @@ namespace TrenchBroom {
 
         bool GameImpl::doIsEntityDefinitionFile(const IO::Path& path) const {
             const auto extension = path.extension();
-            if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
+            if (kdl::ci::is_equal("fgd", extension)) {
                 return true;
-            } else if (StringUtils::caseInsensitiveEqual("def", extension)) {
+            } else if (kdl::ci::is_equal("def", extension)) {
                 return true;
-            } else if (StringUtils::caseInsensitiveEqual("ent", extension)) {
+            } else if (kdl::ci::is_equal("ent", extension)) {
                 return true;
             } else {
                 return false;
@@ -285,17 +288,17 @@ namespace TrenchBroom {
             const auto extension = path.extension();
             const auto& defaultColor = m_config.entityConfig().defaultColor;
 
-            if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
+            if (kdl::ci::is_equal("fgd", extension)) {
                 auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 auto reader = file->reader().buffer();
                 IO::FgdParser parser(std::begin(reader), std::end(reader), defaultColor, file->path());
                 return parser.parseDefinitions(status);
-            } else if (StringUtils::caseInsensitiveEqual("def", extension)) {
+            } else if (kdl::ci::is_equal("def", extension)) {
                 auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 auto reader = file->reader().buffer();
                 IO::DefParser parser(std::begin(reader), std::end(reader), defaultColor);
                 return parser.parseDefinitions(status);
-            } else if (StringUtils::caseInsensitiveEqual("ent", extension)) {
+            } else if (kdl::ci::is_equal("ent", extension)) {
                 auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 auto reader = file->reader().buffer();
                 IO::EntParser parser(std::begin(reader), std::end(reader), defaultColor);
@@ -360,7 +363,7 @@ namespace TrenchBroom {
                 ensure(file != nullptr, "file is null");
 
                 const auto modelName = path.lastComponent().asString();
-                const auto extension = StringUtils::toLower(path.extension());
+                const auto extension = kdl::str_to_lower(path.extension());
                 const auto supported = m_config.entityConfig().modelFormats;
 
                 if (extension == "mdl" && supported.count("mdl") > 0) {
@@ -411,7 +414,7 @@ namespace TrenchBroom {
                 ensure(file != nullptr, "file is null");
 
                 const auto modelName = path.lastComponent().asString();
-                const auto extension = StringUtils::toLower(path.extension());
+                const auto extension = kdl::str_to_lower(path.extension());
                 const auto supported = m_config.entityConfig().modelFormats;
 
                 if (extension == "mdl" && supported.count("mdl") > 0) {
@@ -467,7 +470,7 @@ namespace TrenchBroom {
             const auto subDirs = fs.findItems(IO::Path(""), IO::FileTypeMatcher(false, true));
             for (size_t i = 0; i < subDirs.size(); ++i) {
                 const String mod = subDirs[i].lastComponent().asString();
-                if (!StringUtils::caseInsensitiveEqual(mod, defaultMod)) {
+                if (!kdl::ci::is_equal(mod, defaultMod)) {
                     result.push_back(mod);
                 }
             }
@@ -481,7 +484,7 @@ namespace TrenchBroom {
                 return result;
             }
 
-            return StringUtils::splitAndTrim(modStr, ';');
+            return kdl::str_split(modStr, ";");
         }
 
         String GameImpl::doDefaultMod() const {

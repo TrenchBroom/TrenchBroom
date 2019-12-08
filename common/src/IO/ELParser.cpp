@@ -21,6 +21,8 @@
 
 #include "EL/Expression.h"
 
+#include <kdl/string_format.h>
+
 namespace TrenchBroom {
     namespace IO {
         const String& ELTokenizer::NumberDelim() const {
@@ -336,7 +338,7 @@ namespace TrenchBroom {
             if (token.hasType(ELToken::String)) {
                 m_tokenizer.nextToken();
                 // Escaping happens in EL::Value::appendToStream
-                const String value = StringUtils::unescape(token.data(), "\\\"");
+                const String value = kdl::str_unescape(token.data(), "\\\"");
                 return EL::LiteralExpression::create(EL::Value(value), token.line(), token.column());
             }
             if (token.hasType(ELToken::Number)) {

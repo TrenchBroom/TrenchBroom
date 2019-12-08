@@ -23,6 +23,8 @@
 #include "IO/File.h"
 #include "IO/Reader.h"
 
+#include <kdl/string_format.h>
+
 namespace TrenchBroom {
     namespace IO {
         namespace WadLayout {
@@ -65,7 +67,7 @@ namespace TrenchBroom {
 
             reader.seekFromBegin(WadLayout::MagicOffset);
             const auto magic = reader.readString(WadLayout::MagicSize);
-            if (StringUtils::toLower(magic) != "wad2" && StringUtils::toLower(magic) != "wad3") {
+            if (kdl::str_to_lower(magic) != "wad2" && kdl::str_to_lower(magic) != "wad3") {
                 throw FileSystemException("Unknown wad file type '" + magic + "'");
             }
 

@@ -20,15 +20,16 @@
 #include "DiskIO.h"
 
 #include "Exceptions.h"
-#include "StringUtils.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/PathQt.h"
 
-#include <QDir>
-#include <QFileInfo>
+#include <kdl/string_compare.h>
 
 #include <fstream>
+
+#include <QDir>
+#include <QFileInfo>
 
 namespace TrenchBroom {
     namespace IO {
@@ -53,7 +54,7 @@ namespace TrenchBroom {
 
             Path findCaseSensitivePath(const Path::List& list, const Path& path) {
                 for (const Path& entry : list) {
-                    if (StringUtils::caseInsensitiveEqual(entry.asString(), path.asString()))
+                    if (kdl::ci::is_equal(entry.asString(), path.asString()))
                         return entry;
                 }
                 return Path("");

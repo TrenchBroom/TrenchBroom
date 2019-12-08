@@ -21,10 +21,11 @@
 
 #include "EL/ELExceptions.h"
 #include "StringStream.h"
-#include "StringUtils.h"
 
 #include <kdl/collection_utils.h>
 #include <kdl/map_utils.h>
+#include <kdl/string_compare.h>
+#include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
 
 #include <algorithm>
@@ -104,7 +105,7 @@ namespace TrenchBroom {
                 case ValueType::String:
                     return true;
                 case ValueType::Number: {
-                    if (StringUtils::isBlank(doGetValue()))
+                    if (kdl::str_is_blank(doGetValue()))
                         return true;
                     const char* begin = doGetValue().c_str();
                     char* end;
@@ -127,11 +128,11 @@ namespace TrenchBroom {
         ValueHolder* StringHolder::convertTo(const ValueType toType) const {
             switch (toType) {
                 case ValueType::Boolean:
-                    return new BooleanValueHolder(!StringUtils::caseSensitiveEqual(doGetValue(), "false") && !doGetValue().empty());
+                    return new BooleanValueHolder(!kdl::cs::is_equal(doGetValue(), "false") && !doGetValue().empty());
                 case ValueType::String:
                     return new StringValueHolder(doGetValue());
                 case ValueType::Number: {
-                    if (StringUtils::isBlank(doGetValue()))
+                    if (kdl::str_is_blank(doGetValue()))
                         return new NumberValueHolder(0.0);
                     const char* begin = doGetValue().c_str();
                     char* end;
@@ -153,7 +154,7 @@ namespace TrenchBroom {
 
         void StringHolder::appendToStream(std::ostream& str, const bool /* multiline */, const String& /* indent */) const {
             // Unescaping happens in IO::ELParser::parseLiteral
-            str << "\"" << StringUtils::escape(doGetValue(), "\\\"") << "\"";
+            str << "\"" << kdl::str_escape(doGetValue(), "\\\"") << "\"";
         }
 
 

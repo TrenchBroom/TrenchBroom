@@ -41,10 +41,18 @@
 #include "View/MapViewBase.h"
 #include "View/QtUtils.h"
 #include "View/RecentDocuments.h"
-#include "StringUtils.h"
 #ifdef __APPLE__
 #include "View/MainMenuBuilder.h"
 #endif
+
+#include <kdl/string_utils.h>
+
+#include <clocale>
+#include <csignal>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <memory>
 
 #include <QCommandLineParser>
 #include <QDesktopServices>
@@ -55,13 +63,6 @@
 #include <QStandardPaths>
 #include <QSysInfo>
 #include <QUrl>
-
-#include <clocale>
-#include <csignal>
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <memory>
 
 namespace TrenchBroom {
     namespace View {
@@ -289,11 +290,11 @@ namespace TrenchBroom {
                 StringStream str;
                 if (errors.size() == 1) {
                     str << "An error occurred while loading the game configuration files:\n\n";
-                    str << StringUtils::join(errors, "\n\n");
+                    str << kdl::str_join(errors, "\n\n");
                     str << "\n\nThis file has been ignored.";
                 } else {
                     str << "Multiple errors occurred while loading the game configuration files:\n\n";
-                    str << StringUtils::join(errors, "\n\n");
+                    str << kdl::str_join(errors, "\n\n");
                     str << "\n\nThese files have been ignored.";
                 }
 

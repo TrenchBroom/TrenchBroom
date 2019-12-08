@@ -61,6 +61,9 @@
 #include "View/SelectionTool.h"
 #include "View/QtUtils.h"
 
+#include <kdl/string_compare.h>
+#include <kdl/string_format.h>
+
 #include <vecmath/util.h>
 
 #include <vector>
@@ -817,7 +820,7 @@ namespace TrenchBroom {
             if (doInitializeGL()) {
                 m_logger->info() << "Renderer info: " << GLContextManager::GLRenderer << " version " << GLContextManager::GLVersion << " from " << GLContextManager::GLVendor;
                 m_logger->info() << "Depth buffer bits: " << depthBits();
-                m_logger->info() << "Multisampling " << StringUtils::choose(multisample(), "enabled", "disabled");
+                m_logger->info() << "Multisampling " << kdl::str_select(multisample(), "enabled", "disabled");
             }
         }
 
@@ -1097,7 +1100,7 @@ namespace TrenchBroom {
 
                 std::vector<Assets::EntityDefinition*> filteredDefinitions;
                 for (auto* definition : definitions) {
-                    if (!StringUtils::caseSensitiveEqual(definition->name(), Model::AttributeValues::WorldspawnClassname)) {
+                    if (!kdl::cs::is_equal(definition->name(), Model::AttributeValues::WorldspawnClassname)) {
                         filteredDefinitions.push_back(definition);
                     }
                 }
@@ -1223,7 +1226,7 @@ namespace TrenchBroom {
             Model::Node* newParent = findNewParentEntityForBrushes(nodes);
             ensure(newParent != nullptr, "newParent is null");
 
-            const Transaction transaction(document, "Move " + StringUtils::safePlural(nodes.size(), "Brush", "Brushes"));
+            const Transaction transaction(document, "Move " + kdl::str_plural(nodes.size(), "Brush", "Brushes"));
             reparentNodes(nodes, newParent, false);
 
             document->deselectAll();

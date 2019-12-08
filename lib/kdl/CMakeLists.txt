@@ -16,16 +16,16 @@ target_include_directories(kdl INTERFACE
         $<INSTALL_INTERFACE:kdl/include/kdl>)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    target_compile_options(kdl INTERFACE -Wall -Wextra -pedantic -Wno-c++98-compat -Wno-padded)
+    target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -pedantic -Wno-c++98-compat -Wno-padded)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(kdl INTERFACE -Wall -Wextra -pedantic)
+    target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -pedantic)
 elseif(MSVC EQUAL 1)
     target_compile_options(kdl INTERFACE /W4 /EHsc /MP)
 
     # signed/unsigned mismatch: https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-4-c4365
     target_compile_options(kdl INTERFACE /w44365)
 else()
-    message(FATAL_ERROR "Cannot set compile options for target common")
+    message(FATAL_ERROR "Cannot set compile options for target")
 endif()
 
 # Prevent overriding the parent project's compiler/linker

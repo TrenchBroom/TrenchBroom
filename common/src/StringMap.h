@@ -21,9 +21,11 @@
 #define TrenchBroom_StringMap
 
 #include "Exceptions.h"
+#include "StringList.h"
 #include "StringType.h"
-#include "StringUtils.h"
 
+#include <kdl/string_compare.h>
+#include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
 
 #include <cassert>
@@ -100,7 +102,7 @@ namespace TrenchBroom {
             m_key(key) {}
 
             bool operator<(const Node& rhs) const {
-                const size_t firstDiff = StringUtils::findFirstDifference(m_key, rhs.m_key);
+                const size_t firstDiff = kdl::cs::mismatch(m_key, rhs.m_key);
                 if (firstDiff == 0)
                     return m_key[0] < rhs.m_key[0];
                 // both keys share a common prefix and are thus treated as the same
@@ -127,7 +129,7 @@ namespace TrenchBroom {
               ^ indicates where key and m_key first differ
              */
             void insert(const String& key, const V& value) const {
-                const size_t firstDiff = StringUtils::findFirstDifference(key, m_key);
+                const size_t firstDiff = kdl::cs::mismatch(key, m_key);
                 if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
                     return;
@@ -155,7 +157,7 @@ namespace TrenchBroom {
             }
 
             bool remove(const String& key, const V& value) const {
-                const size_t firstDiff = StringUtils::findFirstDifference(key, m_key);
+                const size_t firstDiff = kdl::cs::mismatch(key, m_key);
                 if (m_key.size() <= key.size() && firstDiff == m_key.size()) {
                     // this node's key is a prefix of the given key
                     if (firstDiff < key.size()) {
@@ -178,7 +180,7 @@ namespace TrenchBroom {
             }
 
             void queryExact(const String& key, QueryResult& result) const {
-                const size_t firstDiff = StringUtils::findFirstDifference(key, m_key);
+                const size_t firstDiff = kdl::cs::mismatch(key, m_key);
                 if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
                     return;
@@ -199,7 +201,7 @@ namespace TrenchBroom {
             }
 
             void queryPrefix(const String& prefix, QueryResult& result) const {
-                const size_t firstDiff = StringUtils::findFirstDifference(prefix, m_key);
+                const size_t firstDiff = kdl::cs::mismatch(prefix, m_key);
                 if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
                     return;
@@ -226,7 +228,7 @@ namespace TrenchBroom {
             }
 
             void queryNumbered(const String& prefix, QueryResult& result) const {
-                const size_t firstDiff = StringUtils::findFirstDifference(prefix, m_key);
+                const size_t firstDiff = kdl::cs::mismatch(prefix, m_key);
                 if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
                     return;
@@ -235,7 +237,7 @@ namespace TrenchBroom {
                     // if the remainder of this node's key is a number, add this node's values and continue searching
                     // the entire subtree starting at this node
                     const String remainder(m_key.substr(firstDiff));
-                    if (StringUtils::isNumber(remainder)) {
+                    if (kdl::str_is_numeric(remainder)) {
                         getValues(result);
                         for (const Node& child : m_children)
                             child.collectIfNumbered(result);
@@ -250,7 +252,7 @@ namespace TrenchBroom {
             }
 
             void collectIfNumbered(QueryResult& result) const {
-                if (StringUtils::isNumber(m_key)) {
+                if (kdl::str_is_numeric(m_key)) {
                     getValues(result);
                     for (const Node& child : m_children)
                         child.collectIfNumbered(result);

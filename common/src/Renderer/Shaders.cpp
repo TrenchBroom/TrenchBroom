@@ -18,7 +18,6 @@
  */
 
 #include "Shaders.h"
-#include "StringUtils.h"
 
 namespace TrenchBroom {
     namespace Renderer {

@@ -65,6 +65,9 @@
 #include "View/QtUtils.h"
 #include "View/MapViewToolBox.h"
 
+#include <kdl/string_format.h>
+#include <kdl/string_utils.h>
+
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
@@ -455,8 +458,8 @@ namespace TrenchBroom {
             }
         }
 
-        static String numberWithSuffix(size_t count, const String &singular, const String &plural) {
-            return std::to_string(count) + " " + StringUtils::safePlural(count, singular, plural);
+        static String numberWithSuffix(size_t count, const String& singular, const String& plural) {
+            return std::to_string(count) + " " + kdl::str_plural(count, singular, plural);
         }
 
         static QString describeSelection(const MapDocument* document) {
@@ -530,7 +533,7 @@ namespace TrenchBroom {
             }
 
             // now, turn `tokens` into a comma-separated string
-            result += QString::fromStdString(StringUtils::join(tokens, ", ", ", and ", " and ")) + " selected";
+            result += QString::fromStdString(kdl::str_join(tokens, ", ", ", and ", " and ")) + " selected";
 
             return result;
         }

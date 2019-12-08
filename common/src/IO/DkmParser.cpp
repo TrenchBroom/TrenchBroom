@@ -29,7 +29,8 @@
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/GLVertex.h"
-#include "StringUtils.h"
+
+#include <kdl/string_format.h>
 
 #include <string>
 
@@ -396,7 +397,7 @@ namespace TrenchBroom {
             }
 
             // try "wal" extension instead
-            if (StringUtils::toLower(skinPath.extension()) == "bmp") {
+            if (kdl::str_to_lower(skinPath.extension()) == "bmp") {
                 const auto walPath = skinPath.replaceExtension("wal");
                 if (m_fs.fileExists(walPath)) {
                     return walPath;

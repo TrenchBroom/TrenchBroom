@@ -20,7 +20,6 @@
 #include <gtest/gtest.h>
 
 #include "Logger.h"
-#include "StringUtils.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/FileMatcher.h"
 #include "IO/Path.h"

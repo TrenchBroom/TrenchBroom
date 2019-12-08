@@ -24,8 +24,9 @@
 #include "IO/PathQt.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
-#include "StringUtils.h"
 #include "TemporarilySetAny.h"
+
+#include <kdl/string_compare.h>
 
 #include <QBoxLayout>
 #include <QFileDialog>
@@ -146,7 +147,7 @@ namespace TrenchBroom {
                 const auto path = IO::pathFromQString(str);
                 return IO::Disk::fileExists(path)
 #ifdef __APPLE__
-                || (IO::Disk::directoryExists(path) && StringUtils::caseInsensitiveEqual(path.extension(), "app"))
+                || (IO::Disk::directoryExists(path) && kdl::ci::is_equal(path.extension(), "app"))
 #endif
                 ;
             } catch (...) {

@@ -89,7 +89,7 @@ namespace TrenchBroom {
 
             std::vector<vm::vec2f> vertices(segments + 1);
 
-            const float d = angleLength / segments;
+            const float d = angleLength / static_cast<float>(segments);
             float a = startAngle;
             for (size_t i = 0; i <= segments; ++i) {
                 vertices[i][0] = radius * std::sin(a);
@@ -121,7 +121,7 @@ namespace TrenchBroom {
                     break;
             }
 
-            const float d = angleLength / segments;
+            const float d = angleLength / static_cast<float>(segments);
             float a = startAngle;
             for (size_t i = 0; i <= segments; ++i) {
                 vertices[i][x] = radius * std::cos(a);
@@ -178,7 +178,7 @@ namespace TrenchBroom {
             vertices.resize(roundedRect2DVertexCount(cornerSegments));
             size_t vertexIndex = 0;
 
-            const float angle = vm::Cf::half_pi() / cornerSegments;
+            const float angle = vm::Cf::half_pi() / static_cast<float>(cornerSegments);
             vm::vec2f center(0.0f, 0.0f);
             vm::vec2f translation;
 
