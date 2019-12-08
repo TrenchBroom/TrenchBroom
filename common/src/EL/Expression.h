@@ -23,10 +23,10 @@
 #include "Macros.h"
 
 #include <iosfwd>
-#include <list>
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace EL {
@@ -56,7 +56,7 @@ namespace TrenchBroom {
         class ExpressionBase {
         public:
             using Ptr = std::unique_ptr<ExpressionBase>;
-            using List = std::list<Ptr>;
+            using List = std::vector<Ptr>;
             using Map = std::map<std::string, Ptr>;
 
             friend class Expression;
