@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
+#include "Assets/TextureBuffer.h"
 #include "Assets/Palette.h"
 #include "IO/Reader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
@@ -306,22 +307,22 @@ namespace TrenchBroom {
             for (size_t i = 0; i < count; ++i) {
                 const auto skinGroup = reader.readSize<int32_t>();
                 if (skinGroup == 0) {
-                    Buffer<unsigned char> rgbaImage(size * 4);
+                    Assets::TextureBuffer rgbaImage(size * 4);
                     m_palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
 
                     const std::string textureName = m_name + "_" + kdl::str_to_string(i);
-                    surface.addSkin(new Assets::Texture(textureName, width, height, avgColor, rgbaImage, GL_RGBA, type));
+                    surface.addSkin(new Assets::Texture(textureName, width, height, avgColor, std::move(rgbaImage), GL_RGBA, type));
                 } else {
                     const auto pictureCount = reader.readSize<int32_t>();
 
-                    Buffer<unsigned char> rgbaImage(size * 4);
+                    Assets::TextureBuffer rgbaImage(size * 4);
                     reader.seekForward(pictureCount * 4); // skip the picture times
 
                     m_palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
                     reader.seekForward((pictureCount - 1) * size);  // skip all remaining pictures
 
                     const std::string textureName = m_name + "_" + kdl::str_to_string(i);
-                    surface.addSkin(new Assets::Texture(textureName, width, height, avgColor, rgbaImage, GL_RGBA, type));
+                    surface.addSkin(new Assets::Texture(textureName, width, height, avgColor, std::move(rgbaImage), GL_RGBA, type));
                 }
             }
         }
@@ -332,7 +333,6 @@ namespace TrenchBroom {
             for (size_t i = 0; i < count; ++i) {
                 const auto skinGroup = reader.readSize<int32_t>();
                 if (skinGroup == 0) {
-                    Buffer<unsigned char> rgbaImage(size * 4);
                     reader.seekForward(size);
                 } else {
                     const auto pictureCount = reader.readSize<int32_t>();

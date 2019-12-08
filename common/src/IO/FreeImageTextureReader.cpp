@@ -23,9 +23,8 @@
 #include "Ensure.h"
 #include "FreeImage.h"
 #include "Assets/Texture.h"
+#include "Assets/TextureBuffer.h"
 #include "IO/File.h"
-#include "IO/Reader.h"
-#include "IO/Path.h"
 #include "IO/ImageLoaderImpl.h"
 
 namespace TrenchBroom {
@@ -92,7 +91,7 @@ namespace TrenchBroom {
 
             const size_t mipCount = 1;
             constexpr auto format = freeImage32BPPFormatToGLFormat();
-            Assets::TextureBuffer::List buffers(mipCount);
+            Assets::TextureBufferList buffers(mipCount);
             Assets::setMipBufferSize(buffers, mipCount, imageWidth, imageHeight, format);
 
             const auto inputBytesPerPixel = FreeImage_GetLine(image) / FreeImage_GetWidth(image);
@@ -105,7 +104,7 @@ namespace TrenchBroom {
             const auto bytesPerPixel = FreeImage_GetLine(image) / FreeImage_GetWidth(image);
             ensure(bytesPerPixel == 4, "expected to have converted image to 32-bit");
 
-                  auto* outBytes = buffers.at(0).ptr();
+                  auto* outBytes = buffers.at(0).data();
             const auto  outBytesPerRow = static_cast<int>(imageWidth * 4);
 
             FreeImage_ConvertToRawBits(outBytes, image, outBytesPerRow, 32, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, TRUE);
@@ -114,7 +113,7 @@ namespace TrenchBroom {
             FreeImage_CloseMemory(imageMemory);
 
             const auto textureType = Assets::Texture::selectTextureType(masked);
-            return new Assets::Texture(textureName(path), imageWidth, imageHeight, Color(), buffers, format, textureType);
+            return new Assets::Texture(textureName(path), imageWidth, imageHeight, Color(), std::move(buffers), format, textureType);
         }
     }
 }

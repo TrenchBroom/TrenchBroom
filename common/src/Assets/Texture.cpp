@@ -18,48 +18,16 @@
  */
 
 #include "Texture.h"
+#include "Assets/TextureBuffer.h"
 #include "Assets/TextureCollection.h"
 #include "Renderer/GL.h"
 
-#include <algorithm>
+#include <algorithm> // for std::max
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Assets {
-        vm::vec2s sizeAtMipLevel(const size_t width, const size_t height, const size_t level) {
-            assert(width > 0);
-            assert(height > 0);
-
-            // from Issues 6 in: https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_texture_non_power_of_two.txt
-            return vm::vec2s(std::max(size_t(1), width >> level),
-                             std::max(size_t(1), height >> level));
-        }
-
-        size_t bytesPerPixelForFormat(const GLenum format) {
-            switch (format) {
-                case GL_RGB:
-                case GL_BGR:
-                    return 3U;
-                case GL_RGBA:
-                case GL_BGRA:
-                    return 4U;
-            }
-            ensure(false, "unknown format");
-            return 0U;
-        }
-
-        void setMipBufferSize(Assets::TextureBuffer::List& buffers, const size_t mipLevels, const size_t width, const size_t height, const GLenum format) {
-            const size_t bytesPerPixel = bytesPerPixelForFormat(format);
-
-            buffers.resize(mipLevels);
-            for (size_t level = 0; level < buffers.size(); ++level) {
-                const auto mipSize = sizeAtMipLevel(width, height, level);
-                const auto numBytes = bytesPerPixel * mipSize.x() * mipSize.y();
-                buffers[level] = Assets::TextureBuffer(numBytes);
-            }
-        }
-
-        Texture::Texture(const std::string& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer, const GLenum format, const TextureType type) :
+        Texture::Texture(const std::string& name, const size_t width, const size_t height, const Color& averageColor, Buffer&& buffer, const GLenum format, const TextureType type) :
         m_collection(nullptr),
         m_name(name),
         m_width(width),
@@ -75,10 +43,10 @@ namespace TrenchBroom {
             assert(m_width > 0);
             assert(m_height > 0);
             assert(buffer.size() >= m_width * m_height * bytesPerPixelForFormat(format));
-            m_buffers.push_back(buffer);
+            m_buffers.push_back(std::move(buffer));
         }
 
-        Texture::Texture(const std::string& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers, const GLenum format, const TextureType type) :
+        Texture::Texture(const std::string& name, const size_t width, const size_t height, const Color& averageColor, BufferList&& buffers, const GLenum format, const TextureType type) :
         m_collection(nullptr),
         m_name(name),
         m_width(width),
@@ -91,7 +59,7 @@ namespace TrenchBroom {
         m_culling(TextureCulling::CullDefault),
         m_blendFunc{false, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
         m_textureId(0),
-        m_buffers(buffers) {
+        m_buffers(std::move(buffers)) {
             assert(m_width > 0);
             assert(m_height > 0);
 
@@ -246,7 +214,7 @@ namespace TrenchBroom {
                 for (size_t j = 0; j < mipmapsToUpload; ++j) {
                     const auto mipSize = sizeAtMipLevel(m_width, m_height, j);
 
-                    const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].ptr());
+                    const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].data());
                     glAssert(glTexImage2D(GL_TEXTURE_2D, static_cast<GLint>(j), GL_RGBA,
                                           static_cast<GLsizei>(mipSize.x()),
                                           static_cast<GLsizei>(mipSize.y()),
@@ -324,7 +292,7 @@ namespace TrenchBroom {
             }
         }
 
-        const TextureBuffer::List& Texture::buffersIfUnprepared() const {
+        const Texture::BufferList& Texture::buffersIfUnprepared() const {
             return m_buffers;
         }
 

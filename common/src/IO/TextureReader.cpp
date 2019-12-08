@@ -20,6 +20,7 @@
 #include "TextureReader.h"
 
 #include "Assets/Texture.h"
+#include "Assets/TextureBuffer.h"
 #include "IO/FileSystem.h"
 
 #include <algorithm>

@@ -19,6 +19,7 @@
 
 #include "ObjSerializer.h"
 
+#include "Ensure.h"
 #include "Polyhedron.h"
 #include "IO/Path.h"
 #include "Model/Brush.h"

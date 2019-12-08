@@ -212,6 +212,8 @@ namespace TrenchBroom {
             explicit EntityModelMesh(const EntityModelVertexList& vertices) :
             m_vertices(vertices) {}
         public:
+            virtual ~EntityModelMesh() = default;
+        public:
             /**
              * Returns a renderer that renders this mesh with the given texture.
              *
