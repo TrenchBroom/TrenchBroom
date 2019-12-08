@@ -37,7 +37,7 @@ namespace TrenchBroom {
 
         std::string Path::separator() {
 #ifdef _WIN32
-            static const String sep = "\\";
+            static const std::string sep = "\\";
 #else
             static const std::string sep = "/";
 #endif
@@ -511,7 +511,7 @@ namespace TrenchBroom {
 #endif
 
 #ifdef _WIN32
-        bool Path::hasDriveSpec(const String& component) {
+        bool Path::hasDriveSpec(const std::string& component) {
             if (component.size() <= 1) {
                 return false;
             } else {
