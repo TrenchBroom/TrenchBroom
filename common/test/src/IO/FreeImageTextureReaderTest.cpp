@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+#include "Ensure.h"
 #include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/FreeImageTextureReader.h"
@@ -96,7 +97,7 @@ namespace TrenchBroom {
             assert(x < texture->width());
             assert(y < texture->height());
 
-            const uint8_t* mip0Data = mip0DataBuffer.ptr();
+            const uint8_t* mip0Data = mip0DataBuffer.data();
             return static_cast<int>(mip0Data[(texture->width() * 4u * y) + (x * 4u) + componentIndex]);
         }
 

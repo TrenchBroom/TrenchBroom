@@ -19,22 +19,20 @@
 
 #include <gtest/gtest.h>
 
+#include "TestUtils.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionTestUtils.h"
-#include "Model/Model_Forward.h"
 #include "IO/DefParser.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
-#include "TestUtils.h"
+#include "Model/EntityAttributes.h"
 
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
-
-#include <string>
 
 namespace TrenchBroom {
     namespace IO {
