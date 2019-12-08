@@ -21,6 +21,7 @@
 #define TrenchBroom_ImageLoader
 
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
