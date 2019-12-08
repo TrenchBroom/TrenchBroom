@@ -20,6 +20,7 @@
 #include "LegacyModelDefinitionParser.h"
 
 #include "Assets/ModelDefinition.h"
+#include "EL/Value.h"
 
 #include <kdl/string_compare.h>
 

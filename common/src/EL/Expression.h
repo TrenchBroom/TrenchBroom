@@ -21,10 +21,10 @@
 #define Expression_h
 
 #include "Macros.h"
-#include "EL/Value.h"
 
 #include <iosfwd>
 #include <list>
+#include <map>
 #include <memory>
 #include <string>
 
@@ -32,6 +32,7 @@ namespace TrenchBroom {
     namespace EL {
         class EvaluationContext;
         class ExpressionBase;
+        class Value;
 
         class Expression {
         private:
@@ -91,7 +92,7 @@ namespace TrenchBroom {
 
         class LiteralExpression : public ExpressionBase {
         private:
-            Value m_value;
+            std::unique_ptr<Value> m_value;
         private:
             LiteralExpression(const Value& value, size_t line, size_t column);
         public:

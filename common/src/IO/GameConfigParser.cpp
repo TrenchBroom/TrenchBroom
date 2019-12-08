@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
+#include "EL/Value.h"
 #include "Model/Tag.h"
 #include "Model/TagAttribute.h"
 #include "Model/TagMatcher.h"
