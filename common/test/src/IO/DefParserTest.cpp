@@ -58,7 +58,7 @@ namespace TrenchBroom {
         TEST(DefParserTest, parseExtraDefFiles) {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Def");
             const Path::List cfgFiles = Disk::findItems(basePath, [] (const Path& path, bool directory) {
-                return !directory && kdl::ci::is_equal(path.extension(), "def");
+                return !directory && kdl::ci::str_is_equal(path.extension(), "def");
             });
 
             for (const Path& path : cfgFiles) {

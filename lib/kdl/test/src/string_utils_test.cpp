@@ -53,6 +53,8 @@ namespace kdl {
         ASSERT_EQ("asdf", str_replace_every("asdf", "haha", "haha"));
         ASSERT_EQ("asdf", str_replace_every("asdf", "sd", "sd"));
         ASSERT_EQ("adsf", str_replace_every("asdf", "sd", "ds"));
+        ASSERT_EQ("asds", str_replace_every("asdf", "df", "ds"));
+        ASSERT_EQ("asds asds", str_replace_every("asdf asdf", "df", "ds"));
         ASSERT_EQ("thE brick brown fox", str_replace_every("the brick brown fox", "e", "E"));
         ASSERT_EQ("TEH brick brown fox", str_replace_every("the brick brown fox", "the", "TEH"));
         ASSERT_EQ("the click clown fox", str_replace_every("the brick brown fox", "br", "cl"));

@@ -43,7 +43,7 @@ namespace TrenchBroom {
                 return false;
 
             for (const std::string& pattern : m_patterns) {
-                if (kdl::cs::matches_glob(name, pattern))
+                if (kdl::cs::str_matches_glob(name, pattern))
                     return true;
             }
 

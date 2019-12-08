@@ -203,14 +203,14 @@ namespace TrenchBroom {
             QStringList availableModItems;
             for (size_t i = 0; i < m_availableMods.size(); ++i) {
                 const auto& mod = m_availableMods[i];
-                if (kdl::ci::contains(mod, pattern) && !kdl::vec_contains(enabledMods, mod)) {
+                if (kdl::ci::str_contains(mod, pattern) && !kdl::vec_contains(enabledMods, mod)) {
                     m_availableModList->addItem(QString::fromStdString(mod));
                 }
             }
 
             QStringList enabledModItems;
             for (size_t i = 0; i < enabledMods.size(); ++i) {
-                if (kdl::ci::contains(enabledMods[i], pattern)) {
+                if (kdl::ci::str_contains(enabledMods[i], pattern)) {
                     m_enabledModList->addItem(QString::fromStdString(enabledMods[i]));
                 }
             }

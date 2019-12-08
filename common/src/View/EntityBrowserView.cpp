@@ -179,7 +179,7 @@ namespace TrenchBroom {
 
         void EntityBrowserView::addEntityToLayout(Layout& layout, const Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font) {
             if ((!m_hideUnused || definition->usageCount() > 0) &&
-                (m_filterText.empty() || kdl::ci::contains(definition->name(), m_filterText))) {
+                (m_filterText.empty() || kdl::ci::str_contains(definition->name(), m_filterText))) {
 
                 const auto maxCellWidth = layout.maxCellWidth();
                 const auto actualFont = fontManager().selectFontSize(font, definition->name(), maxCellWidth, 5);

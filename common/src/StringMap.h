@@ -101,7 +101,7 @@ namespace TrenchBroom {
             m_key(key) {}
 
             bool operator<(const Node& rhs) const {
-                const size_t firstDiff = kdl::cs::mismatch(m_key, rhs.m_key);
+                const size_t firstDiff = kdl::cs::str_mismatch(m_key, rhs.m_key);
                 if (firstDiff == 0)
                     return m_key[0] < rhs.m_key[0];
                 // both keys share a common prefix and are thus treated as the same
@@ -128,7 +128,7 @@ namespace TrenchBroom {
               ^ indicates where key and m_key first differ
              */
             void insert(const std::string& key, const V& value) const {
-                const size_t firstDiff = kdl::cs::mismatch(key, m_key);
+                const size_t firstDiff = kdl::cs::str_mismatch(key, m_key);
                 if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
                     return;
@@ -156,7 +156,7 @@ namespace TrenchBroom {
             }
 
             bool remove(const std::string& key, const V& value) const {
-                const size_t firstDiff = kdl::cs::mismatch(key, m_key);
+                const size_t firstDiff = kdl::cs::str_mismatch(key, m_key);
                 if (m_key.size() <= key.size() && firstDiff == m_key.size()) {
                     // this node's key is a prefix of the given key
                     if (firstDiff < key.size()) {
@@ -179,7 +179,7 @@ namespace TrenchBroom {
             }
 
             void queryExact(const std::string& key, QueryResult& result) const {
-                const size_t firstDiff = kdl::cs::mismatch(key, m_key);
+                const size_t firstDiff = kdl::cs::str_mismatch(key, m_key);
                 if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
                     return;
@@ -200,7 +200,7 @@ namespace TrenchBroom {
             }
 
             void queryPrefix(const std::string& prefix, QueryResult& result) const {
-                const size_t firstDiff = kdl::cs::mismatch(prefix, m_key);
+                const size_t firstDiff = kdl::cs::str_mismatch(prefix, m_key);
                 if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
                     return;
@@ -227,7 +227,7 @@ namespace TrenchBroom {
             }
 
             void queryNumbered(const std::string& prefix, QueryResult& result) const {
-                const size_t firstDiff = kdl::cs::mismatch(prefix, m_key);
+                const size_t firstDiff = kdl::cs::str_mismatch(prefix, m_key);
                 if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
                     return;

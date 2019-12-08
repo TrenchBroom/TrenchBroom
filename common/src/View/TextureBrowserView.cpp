@@ -229,7 +229,7 @@ namespace TrenchBroom {
             explicit MatchName(const std::string& i_pattern) : pattern(i_pattern) {}
 
             bool operator()(const Assets::Texture* texture) const {
-                return !kdl::ci::contains(texture->name(), pattern);
+                return !kdl::ci::str_contains(texture->name(), pattern);
             }
         };
 

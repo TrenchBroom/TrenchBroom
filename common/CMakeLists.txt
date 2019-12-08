@@ -1066,14 +1066,13 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Relation.h
         ${COMMON_SOURCE_DIR}/SharedPointer.h
         ${COMMON_SOURCE_DIR}/StepIterator.h
-        ${COMMON_SOURCE_DIR}/StringType.h
         ${COMMON_SOURCE_DIR}/TemporarilySetAny.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
         ${COMMON_SOURCE_DIR}/TrenchBroom.h
         ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.h
 )
 
-add_library(common OBJECT ${COMMON_SOURCE})
+add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_compile_features(common PRIVATE cxx_std_17)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})

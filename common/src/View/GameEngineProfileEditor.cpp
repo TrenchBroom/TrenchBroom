@@ -147,7 +147,7 @@ namespace TrenchBroom {
                 const auto path = IO::pathFromQString(str);
                 return IO::Disk::fileExists(path)
 #ifdef __APPLE__
-                || (IO::Disk::directoryExists(path) && kdl::ci::is_equal(path.extension(), "app"))
+                || (IO::Disk::directoryExists(path) && kdl::ci::str_is_equal(path.extension(), "app"))
 #endif
                 ;
             } catch (...) {
