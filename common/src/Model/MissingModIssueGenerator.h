@@ -22,9 +22,9 @@
 
 #include "Model/IssueGenerator.h"
 #include "Model/Model_Forward.h"
-#include "StringList.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -35,7 +35,7 @@ namespace TrenchBroom {
             class MissingModIssueQuickFix;
 
             std::weak_ptr<Game> m_game;
-            mutable StringList m_lastMods;
+            mutable std::vector<std::string> m_lastMods;
         public:
             MissingModIssueGenerator(std::weak_ptr<Game> game);
         private:

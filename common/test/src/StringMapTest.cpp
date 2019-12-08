@@ -23,8 +23,10 @@
 #include "StringMap.h"
 #include "TestUtils.h"
 
+#include <string>
+
 namespace TrenchBroom {
-    using TestMultiMap = StringMap<String, StringMultiMapValueContainer<String> >;
+    using TestMultiMap = StringMap<std::string, StringMultiMapValueContainer<std::string>>;
 
     TEST(StringMultiMapTest, insert) {
         TestMultiMap index;
@@ -227,6 +229,6 @@ namespace TrenchBroom {
         index.insert("k1", "value3");
         index.insert("test", "value4");
 
-        ASSERT_COLLECTIONS_EQUIVALENT(StringList({ "key", "key2", "key22", "k1", "test" }), index.getKeys());
+        ASSERT_COLLECTIONS_EQUIVALENT(std::vector<std::string>({ "key", "key2", "key22", "k1", "test" }), index.getKeys());
     }
 }

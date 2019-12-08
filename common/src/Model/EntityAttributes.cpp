@@ -24,9 +24,11 @@
 
 #include <kdl/vector_set.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
-        const String AttributeEscapeChars = "\"\n\\";
+        const std::string AttributeEscapeChars = "\"\n\\";
 
         namespace AttributeNames {
             const AttributeName Classname         = "classname";
@@ -63,7 +65,7 @@ namespace TrenchBroom {
             const AttributeValue GroupTypeGroup      = "_tb_group";
         }
 
-        String numberedAttributePrefix(const String& name) {
+        std::string numberedAttributePrefix(const std::string& name) {
             size_t i = 0;
             while (i < name.size() && name[i] < '0' && name[i] > '9')
                 ++i;
@@ -76,7 +78,7 @@ namespace TrenchBroom {
             return name.substr(0, i);
         }
 
-        bool isNumberedAttribute(const String& prefix, const AttributeName& name) {
+        bool isNumberedAttribute(const std::string& prefix, const AttributeName& name) {
             if (name.size() < prefix.size())
                 return false;
             for (size_t i = 0; i < prefix.size(); ++i)
@@ -130,21 +132,21 @@ namespace TrenchBroom {
             m_value = value;
         }
 
-        bool isLayer(const String& classname, const EntityAttribute::List& attributes) {
+        bool isLayer(const std::string& classname, const EntityAttribute::List& attributes) {
             if (classname != AttributeValues::LayerClassname)
                 return false;
             const AttributeValue& groupType = findAttribute(attributes, AttributeNames::GroupType);
             return groupType == AttributeValues::GroupTypeLayer;
         }
 
-        bool isGroup(const String& classname, const EntityAttribute::List& attributes) {
+        bool isGroup(const std::string& classname, const EntityAttribute::List& attributes) {
             if (classname != AttributeValues::GroupClassname)
                 return false;
             const AttributeValue& groupType = findAttribute(attributes, AttributeNames::GroupType);
             return groupType == AttributeValues::GroupTypeGroup;
         }
 
-        bool isWorldspawn(const String& classname, const EntityAttribute::List& /* attributes */) {
+        bool isWorldspawn(const std::string& classname, const EntityAttribute::List& /* attributes */) {
             return classname == AttributeValues::WorldspawnClassname;
         }
 
@@ -302,7 +304,7 @@ namespace TrenchBroom {
             return listFromQueryResult(m_index->queryPrefixMatches(prefix));
         }
 
-        EntityAttribute::List EntityAttributes::numberedAttributes(const String& prefix) const {
+        EntityAttribute::List EntityAttributes::numberedAttributes(const std::string& prefix) const {
             EntityAttribute::List result;
 
             for (const EntityAttribute& attribute : m_attributes) {

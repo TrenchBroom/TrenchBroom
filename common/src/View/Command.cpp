@@ -19,6 +19,8 @@
 
 #include "Command.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
         Command::CommandType Command::freeType() {
@@ -26,7 +28,7 @@ namespace TrenchBroom {
             return type++;
         }
 
-        Command::Command(const CommandType type, const String& name) :
+        Command::Command(const CommandType type, const std::string& name) :
         m_type(type),
         m_state(CommandState_Default),
         m_name(name) {}
@@ -45,7 +47,7 @@ namespace TrenchBroom {
             return m_state;
         }
 
-        const String& Command::name() const {
+        const std::string& Command::name() const {
             return m_name;
         }
 

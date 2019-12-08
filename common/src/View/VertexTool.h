@@ -25,6 +25,7 @@
 #include "View/VertexHandleManager.h"
 
 #include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -82,7 +83,7 @@ namespace TrenchBroom {
             void cancelMove() override;
 
             const vm::vec3& getHandlePosition(const Model::Hit& hit) const override;
-            String actionName() const override;
+            std::string actionName() const override;
 
             void removeSelection();
         public: // Rendering

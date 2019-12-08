@@ -24,6 +24,7 @@
 
 #include <initializer_list>
 #include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -40,8 +41,8 @@ namespace TrenchBroom {
         private:
             std::set<Model::AttributeName> m_patterns;
         public:
-            SmartAttributeEditorKeyMatcher(const String& pattern);
-            SmartAttributeEditorKeyMatcher(std::initializer_list<String> patterns);
+            SmartAttributeEditorKeyMatcher(const std::string& pattern);
+            SmartAttributeEditorKeyMatcher(std::initializer_list<std::string> patterns);
         private:
             bool doMatches(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const override;
         };

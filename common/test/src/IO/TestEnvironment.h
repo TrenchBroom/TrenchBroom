@@ -20,8 +20,9 @@
 #ifndef TRENCHBROOM_TESTENVIRONMENT_H
 #define TRENCHBROOM_TESTENVIRONMENT_H
 
-#include "StringType.h"
 #include "IO/Path.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -29,14 +30,14 @@ namespace TrenchBroom {
         private:
             Path m_dir;
         public:
-            explicit TestEnvironment(const String& dir);
+            explicit TestEnvironment(const std::string& dir);
             virtual ~TestEnvironment();
 
             const Path& dir() const;
         public:
             void createTestEnvironment();
             void createDirectory(const Path& path);
-            void createFile(const Path& path, const String& contents);
+            void createFile(const Path& path, const std::string& contents);
 
             bool deleteDirectoryAbsolute(const Path& absolutePath);
             bool deleteTestEnvironment();

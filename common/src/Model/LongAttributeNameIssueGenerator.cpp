@@ -25,6 +25,7 @@
 #include "Model/Issue.h"
 #include "Model/MapFacade.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -47,7 +48,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            const std::string doGetDescription() const override {
                 return "Entity property key '" + m_attributeName.substr(0, 8) + "...' is too long.";
             }
         };

@@ -24,6 +24,8 @@
 
 #include <kdl/string_compare.h>
 
+#include <vector>
+
 #include <QFileInfo>
 
 namespace TrenchBroom {
@@ -42,21 +44,21 @@ namespace TrenchBroom {
             }
         }
 
-        FileExtensionMatcher::FileExtensionMatcher(const String& extension) :
+        FileExtensionMatcher::FileExtensionMatcher(const std::string& extension) :
         m_extensions(1, extension) {}
 
-        FileExtensionMatcher::FileExtensionMatcher(const StringList& extensions) :
+        FileExtensionMatcher::FileExtensionMatcher(const std::vector<std::string>& extensions) :
         m_extensions(extensions) {}
 
         bool FileExtensionMatcher::operator()(const Path& path, const bool directory) const {
             return !directory && path.hasExtension(m_extensions, false);
         }
 
-        FileBasenameMatcher::FileBasenameMatcher(const String& basename, const String& extension) :
+        FileBasenameMatcher::FileBasenameMatcher(const std::string& basename, const std::string& extension) :
         FileExtensionMatcher(extension),
         m_basename(basename) {}
 
-        FileBasenameMatcher::FileBasenameMatcher(const String& basename, const StringList& extensions) :
+        FileBasenameMatcher::FileBasenameMatcher(const std::string& basename, const std::vector<std::string>& extensions) :
         FileExtensionMatcher(extensions),
         m_basename(basename) {}
 
@@ -65,11 +67,11 @@ namespace TrenchBroom {
                    FileExtensionMatcher::operator()(path, directory);
         }
 
-        FileNameMatcher::FileNameMatcher(const String& pattern) :
+        FileNameMatcher::FileNameMatcher(const std::string& pattern) :
         m_pattern(pattern) {}
 
         bool FileNameMatcher::operator()(const Path& path, const bool /* directory */) const {
-            const String filename = path.lastComponent().asString();
+            const std::string filename = path.lastComponent().asString();
             return kdl::ci::matches_glob(filename, m_pattern);
         }
 

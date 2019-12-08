@@ -25,6 +25,7 @@
 #include "IO/SystemPaths.h"
 
 #include <cassert>
+#include <string>
 
 #include <QString>
 
@@ -49,7 +50,7 @@ namespace TrenchBroom {
         return Instance;
     }
 
-    void FileLogger::doLog(const LogLevel /* level */, const String& message) {
+    void FileLogger::doLog(const LogLevel /* level */, const std::string& message) {
         assert(m_file != nullptr);
         if (m_file != nullptr) {
             std::fprintf(m_file, "%s\n", message.c_str());

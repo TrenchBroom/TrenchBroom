@@ -20,11 +20,11 @@
 #ifndef CompilationContext_h
 #define CompilationContext_h
 
-#include "StringType.h"
 #include "EL/VariableStore.h"
 #include "View/TextOutputAdapter.h"
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -43,8 +43,8 @@ namespace TrenchBroom {
             std::shared_ptr<MapDocument> document() const;
             bool test() const;
 
-            String interpolate(const String& input) const;
-            String variableValue(const String& variableName) const;
+            std::string interpolate(const std::string& input) const;
+            std::string variableValue(const std::string& variableName) const;
 
             template <typename T>
             CompilationContext& operator<<(const T& t) {

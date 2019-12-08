@@ -27,15 +27,17 @@
 
 #include <kdl/vector_utils.h>
 
+#include <sstream>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        NodeReader::NodeReader(const String& str, Model::ModelFactory& factory) :
+        NodeReader::NodeReader(const std::string& str, Model::ModelFactory& factory) :
         MapReader(str),
         m_factory(factory) {}
 
-        std::vector<Model::Node*> NodeReader::read(const String& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status) {
+        std::vector<Model::Node*> NodeReader::read(const std::string& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status) {
             NodeReader reader(str, factory);
             return reader.read(worldBounds, status);
         }
@@ -90,11 +92,11 @@ namespace TrenchBroom {
 
         void NodeReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {
             if (parentInfo.layer()) {
-                StringStream msg;
+                std::stringstream msg;
                 msg << "Could not resolve parent layer '" << parentInfo.id() << "', adding to default layer";
                 status.warn(node->lineNumber(), msg.str());
             } else {
-                StringStream msg;
+                std::stringstream msg;
                 msg << "Could not resolve parent group '" << parentInfo.id() << "', adding to default layer";
                 status.warn(node->lineNumber(), msg.str());
             }

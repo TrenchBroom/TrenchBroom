@@ -24,6 +24,9 @@
 
 #include <kdl/vector_utils.h>
 
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
     namespace IO {
         FileSystem::FileSystem(std::shared_ptr<FileSystem> next) :
@@ -91,7 +94,7 @@ namespace TrenchBroom {
             }
         }
 
-        Path::List FileSystem::findItemsWithBaseName(const Path& path, const StringList& extensions) const {
+        Path::List FileSystem::findItemsWithBaseName(const Path& path, const std::vector<std::string>& extensions) const {
             if (path.isEmpty()) {
                 return Path::List(0);
             }
@@ -193,7 +196,7 @@ namespace TrenchBroom {
         WritableFileSystem::WritableFileSystem() = default;
         WritableFileSystem::~WritableFileSystem() = default;
 
-        void WritableFileSystem::createFile(const Path& path, const String& contents) {
+        void WritableFileSystem::createFile(const Path& path, const std::string& contents) {
             try {
                 if (path.isAbsolute()) {
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");

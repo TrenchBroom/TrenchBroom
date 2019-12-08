@@ -49,9 +49,9 @@ namespace TrenchBroom {
         public:
             virtual ~TextureCollectionLoader();
         public:
-            std::unique_ptr<Assets::TextureCollection> loadTextureCollection(const Path& path, const StringList& textureExtensions, const TextureReader& textureReader);
+            std::unique_ptr<Assets::TextureCollection> loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader);
         private:
-            virtual FileList doFindTextures(const Path& path, const StringList& extensions) = 0;
+            virtual FileList doFindTextures(const Path& path, const std::vector<std::string>& extensions) = 0;
         };
 
         class FileTextureCollectionLoader : public TextureCollectionLoader {
@@ -60,7 +60,7 @@ namespace TrenchBroom {
         public:
             FileTextureCollectionLoader(Logger& logger, const Path::List& searchPaths);
         private:
-            FileList doFindTextures(const Path& path, const StringList& extensions) override;
+            FileList doFindTextures(const Path& path, const std::vector<std::string>& extensions) override;
         };
 
         class DirectoryTextureCollectionLoader : public TextureCollectionLoader {
@@ -69,7 +69,7 @@ namespace TrenchBroom {
         public:
             DirectoryTextureCollectionLoader(Logger& logger, const FileSystem& gameFS);
         private:
-            FileList doFindTextures(const Path& path, const StringList& extensions) override;
+            FileList doFindTextures(const Path& path, const std::vector<std::string>& extensions) override;
         };
     }
 }

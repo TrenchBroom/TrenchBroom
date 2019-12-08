@@ -31,6 +31,9 @@
 
 #include <kdl/string_format.h>
 
+#include <string>
+#include <vector>
+
 #include <QHeaderView>
 #include <QTableView>
 #include <QHBoxLayout>
@@ -57,7 +60,7 @@ namespace TrenchBroom {
 
         void EntityAttributeGrid::addAttribute() {
             auto document = lock(m_document);
-            const String newAttributeName = AttributeRow::newAttributeNameForAttributableNodes(document->allSelectedAttributableNodes());
+            const std::string newAttributeName = AttributeRow::newAttributeNameForAttributableNodes(document->allSelectedAttributableNodes());
 
             document->setAttribute(newAttributeName, "");
 
@@ -83,7 +86,7 @@ namespace TrenchBroom {
 
             const auto selectedRows = selectedRowsAndCursorRow();
 
-            StringList attributes;
+            std::vector<std::string> attributes;
             for (const int row : selectedRows) {
                 attributes.push_back(m_model->attributeName(row));
             }
@@ -95,7 +98,7 @@ namespace TrenchBroom {
                 Transaction transaction(document, kdl::str_plural(numRows, "Remove Attribute", "Remove Attributes"));
 
                 bool success = true;
-                for (const String& attribute : attributes) {
+                for (const std::string& attribute : attributes) {
                     success = success && document->removeAttribute(attribute);
                 }
 

@@ -23,28 +23,31 @@
 
 #include <kdl/string_format.h>
 
+#include <sstream>
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
-        const String& ELTokenizer::NumberDelim() const {
-            static const String Delim = Whitespace() + "(){}[],:+-*/%";
+        const std::string& ELTokenizer::NumberDelim() const {
+            static const std::string Delim = Whitespace() + "(){}[],:+-*/%";
             return Delim;
         }
 
-        const String& ELTokenizer::IntegerDelim() const {
-            static const String Delim = NumberDelim() + ".";
+        const std::string& ELTokenizer::IntegerDelim() const {
+            static const std::string Delim = NumberDelim() + ".";
             return Delim;
         }
 
         ELTokenizer::ELTokenizer(const char* begin, const char* end) :
         Tokenizer(begin, end, "\"", '\\') {}
 
-        ELTokenizer::ELTokenizer(const String& str) :
+        ELTokenizer::ELTokenizer(const std::string& str) :
         Tokenizer(str, "\"", '\\') {}
 
-        void ELTokenizer::appendUntil(const String& pattern, StringStream& str) {
+        void ELTokenizer::appendUntil(const std::string& pattern, std::stringstream& str) {
             const char* begin = curPos();
             const char* end = discardUntilPattern(pattern);
-            str << String(begin, end);
+            str << std::string(begin, end);
             if (!eof())
                 discard("${");
         }
@@ -192,7 +195,7 @@ namespace TrenchBroom {
                         const char* e;
                         if ((e = readDecimal(NumberDelim())) != nullptr) {
                             if (!eof() && curChar() == '.' && lookAhead() != '.')
-                                throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                                throw ParserException(startLine, startColumn, "Unexpected character: " + std::string(c, 1));
                             return Token(ELToken::Number, c, e, offset(c), startLine, startColumn);
                         }
 
@@ -216,7 +219,7 @@ namespace TrenchBroom {
                             return Token(ELToken::Name, c, e, offset(c), startLine, startColumn);
                         }
 
-                        throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                        throw ParserException(startLine, startColumn, "Unexpected character: " + std::string(c, 1));
                     }
                 }
             }
@@ -227,15 +230,15 @@ namespace TrenchBroom {
         m_mode(mode),
         m_tokenizer(begin, end) {}
 
-        ELParser::ELParser(const ELParser::Mode mode, const String& str) :
+        ELParser::ELParser(const ELParser::Mode mode, const std::string& str) :
         m_mode(mode),
         m_tokenizer(str) {}
 
-        EL::Expression ELParser::parseStrict(const String& str) {
+        EL::Expression ELParser::parseStrict(const std::string& str) {
             return ELParser(Mode::Strict, str).parse();
         }
 
-        EL::Expression ELParser::parseLenient(const String& str) {
+        EL::Expression ELParser::parseLenient(const std::string& str) {
             return ELParser(Mode::Lenient, str).parse();
         }
 
@@ -338,7 +341,7 @@ namespace TrenchBroom {
             if (token.hasType(ELToken::String)) {
                 m_tokenizer.nextToken();
                 // Escaping happens in EL::Value::appendToStream
-                const String value = kdl::str_unescape(token.data(), "\\\"");
+                const std::string value = kdl::str_unescape(token.data(), "\\\"");
                 return EL::LiteralExpression::create(EL::Value(value), token.line(), token.column());
             }
             if (token.hasType(ELToken::Number)) {
@@ -418,7 +421,7 @@ namespace TrenchBroom {
                 do {
                     token = m_tokenizer.nextToken();
                     expect(ELToken::String | ELToken::Name, token);
-                    const String key = token.data();
+                    const std::string key = token.data();
 
                     expect(ELToken::Colon, m_tokenizer.nextToken());
                     elements[key] = std::unique_ptr<EL::ExpressionBase>(parseExpression());

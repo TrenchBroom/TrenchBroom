@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <stdexcept>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -33,15 +34,15 @@ namespace TrenchBroom {
                 return lhs.name() < rhs.name();
             }
 
-            bool operator()(const String& lhs, const SmartTag& rhs) const {
+            bool operator()(const std::string& lhs, const SmartTag& rhs) const {
                 return lhs < rhs.name();
             }
 
-            bool operator()(const SmartTag& lhs, const String& rhs) const {
+            bool operator()(const SmartTag& lhs, const std::string& rhs) const {
                 return lhs.name() < rhs;
             }
 
-            bool operator()(const String& lhs, const String& rhs) const {
+            bool operator()(const std::string& lhs, const std::string& rhs) const {
                 return lhs < rhs;
             }
         };
@@ -50,12 +51,12 @@ namespace TrenchBroom {
             return m_smartTags;
         }
 
-        bool TagManager::isRegisteredSmartTag(const String& name) const {
+        bool TagManager::isRegisteredSmartTag(const std::string& name) const {
             const auto it = std::lower_bound(std::begin(m_smartTags), std::end(m_smartTags), name, TagCmp());
             return it != std::end(m_smartTags) && !(it->name() < name || name < it->name());
         }
 
-        const SmartTag& TagManager::smartTag(const String& name) const {
+        const SmartTag& TagManager::smartTag(const std::string& name) const {
             const auto it = std::lower_bound(std::begin(m_smartTags), std::end(m_smartTags), name, TagCmp());
             if (it == std::end(m_smartTags) || (it->name() < name || name < it->name())) {
                 throw std::logic_error("Smart tag not registered");

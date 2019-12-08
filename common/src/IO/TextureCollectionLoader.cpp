@@ -30,6 +30,8 @@
 #include "IO/WadFileSystem.h"
 
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -38,7 +40,7 @@ namespace TrenchBroom {
 
         TextureCollectionLoader::~TextureCollectionLoader() = default;
 
-        std::unique_ptr<Assets::TextureCollection> TextureCollectionLoader::loadTextureCollection(const Path& path, const StringList& textureExtensions, const TextureReader& textureReader) {
+        std::unique_ptr<Assets::TextureCollection> TextureCollectionLoader::loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader) {
             auto collection = std::make_unique<Assets::TextureCollection>(path);
 
             for (auto file : doFindTextures(path, textureExtensions)) {
@@ -53,7 +55,7 @@ namespace TrenchBroom {
         TextureCollectionLoader(logger),
         m_searchPaths(searchPaths) {}
 
-        TextureCollectionLoader::FileList FileTextureCollectionLoader::doFindTextures(const Path& path, const StringList& extensions) {
+        TextureCollectionLoader::FileList FileTextureCollectionLoader::doFindTextures(const Path& path, const std::vector<std::string>& extensions) {
             const auto wadPath = Disk::resolvePath(m_searchPaths, path);
             WadFileSystem wadFS(wadPath, m_logger);
             const auto texturePaths = wadFS.findItems(Path(""), FileExtensionMatcher(extensions));
@@ -76,7 +78,7 @@ namespace TrenchBroom {
         TextureCollectionLoader(logger),
         m_gameFS(gameFS) {}
 
-        TextureCollectionLoader::FileList DirectoryTextureCollectionLoader::doFindTextures(const Path& path, const StringList& extensions) {
+        TextureCollectionLoader::FileList DirectoryTextureCollectionLoader::doFindTextures(const Path& path, const std::vector<std::string>& extensions) {
             const auto texturePaths = m_gameFS.findItems(path, FileExtensionMatcher(extensions));
 
             FileList result;

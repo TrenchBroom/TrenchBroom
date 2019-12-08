@@ -23,12 +23,16 @@
 #include "Model/Layer.h"
 #include "Model/World.h"
 
+#include <kdl/string_utils.h>
+
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         WorldReader::WorldReader(const char* begin, const char* end) :
         MapReader(begin, end) {}
 
-        WorldReader::WorldReader(const String& str) :
+        WorldReader::WorldReader(const std::string& str) :
         MapReader(str) {}
 
         std::unique_ptr<Model::World> WorldReader::read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
@@ -68,13 +72,9 @@ namespace TrenchBroom {
 
         void WorldReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {
             if (parentInfo.layer()) {
-                StringStream msg;
-                msg << "Entity references missing layer '" << parentInfo.id() << "', adding to default layer";
-                status.warn(node->lineNumber(), msg.str());
+                status.warn(node->lineNumber(), kdl::str_to_string("Entity references missing layer '", parentInfo.id(), "', adding to default layer"));
             } else {
-                StringStream msg;
-                msg << "Entity references missing group '" << parentInfo.id() << "', adding to default layer";
-                status.warn(node->lineNumber(), msg.str());
+                status.warn(node->lineNumber(), kdl::str_to_string("Entity references missing group '", parentInfo.id(), "', adding to default layer"));
             }
             m_world->defaultLayer()->addChild(node);
         }

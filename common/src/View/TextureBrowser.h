@@ -20,11 +20,11 @@
 #ifndef TrenchBroom_TextureBrowser
 #define TrenchBroom_TextureBrowser
 
-#include "StringType.h"
 #include "Assets/TextureManager.h"
 #include "View/TextureBrowserView.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <QWidget>
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             void setSortOrder(TextureBrowserView::SortOrder sortOrder);
             void setGroup(bool group);
             void setHideUnused(bool hideUnused);
-            void setFilterText(const String& filterText);
+            void setFilterText(const std::string& filterText);
         signals:
             void textureSelected(Assets::Texture* texture);
         private:
@@ -85,7 +85,7 @@ namespace TrenchBroom {
             void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void brushFacesDidChange(const std::vector<Model::BrushFace*>& faces);
             void textureCollectionsDidChange();
-            void currentTextureNameDidChange(const String& textureName);
+            void currentTextureNameDidChange(const std::string& textureName);
             void preferenceDidChange(const IO::Path& path);
 
             void reload();

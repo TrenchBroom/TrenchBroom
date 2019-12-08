@@ -22,9 +22,12 @@
 #include "Model/GameFactory.h"
 #include "Model/World.h"
 
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
-        const String& Game::gameName() const {
+        const std::string& Game::gameName() const {
             return doGameName();
         }
 
@@ -77,11 +80,11 @@ namespace TrenchBroom {
             doExportMap(world, format, path);
         }
 
-        std::vector<Node*> Game::parseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
+        std::vector<Node*> Game::parseNodes(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
             return doParseNodes(str, world, worldBounds, logger);
         }
 
-        std::vector<BrushFace*> Game::parseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
+        std::vector<BrushFace*> Game::parseBrushFaces(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
             return doParseBrushFaces(str, world, worldBounds, logger);
         }
 
@@ -137,15 +140,15 @@ namespace TrenchBroom {
             return doFindEntityDefinitionFile(spec, searchPaths);
         }
 
-        StringList Game::availableMods() const {
+        std::vector<std::string> Game::availableMods() const {
             return doAvailableMods();
         }
 
-        StringList Game::extractEnabledMods(const AttributableNode& node) const {
+        std::vector<std::string> Game::extractEnabledMods(const AttributableNode& node) const {
             return doExtractEnabledMods(node);
         }
 
-        String Game::defaultMod() const {
+        std::string Game::defaultMod() const {
             return doDefaultMod();
         }
 

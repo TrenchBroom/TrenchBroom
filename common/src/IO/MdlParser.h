@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_MdlParser
 #define TrenchBroom_MdlParser
 
-#include "StringType.h"
 #include "Assets/Asset_Forward.h"
 #include "Assets/EntityModel.h"
 #include "IO/EntityModelParser.h"
@@ -28,6 +27,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -58,12 +58,12 @@ namespace TrenchBroom {
             using PackedFrameVertex = vm::vec<unsigned char, 4>;
             using PackedFrameVertexList = std::vector<PackedFrameVertex>;
 
-            String m_name;
+            std::string m_name;
             const char* m_begin;
             const char* m_end;
             const Assets::Palette& m_palette;
         public:
-            MdlParser(const String& name, const char* begin, const char* end, const Assets::Palette& palette);
+            MdlParser(const std::string& name, const char* begin, const char* end, const Assets::Palette& palette);
         private:
             std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
             void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;

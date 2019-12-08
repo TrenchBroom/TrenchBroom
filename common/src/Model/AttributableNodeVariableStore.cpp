@@ -25,6 +25,9 @@
 
 #include <kdl/string_utils.h>
 
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         AttributableNodeVariableStore::AttributableNodeVariableStore(AttributableNode* node) :
@@ -40,7 +43,7 @@ namespace TrenchBroom {
             return m_node->attributes().size();
         }
 
-        EL::Value AttributableNodeVariableStore::doGetValue(const String& name) const {
+        EL::Value AttributableNodeVariableStore::doGetValue(const std::string& name) const {
             if (!m_node->hasAttribute(name)) {
                 return EL::Value::Undefined;
             } else {
@@ -48,11 +51,11 @@ namespace TrenchBroom {
             }
         }
 
-        StringList AttributableNodeVariableStore::doGetNames() const {
+        std::vector<std::string> AttributableNodeVariableStore::doGetNames() const {
             return m_node->attributeNames();
         }
 
-        void AttributableNodeVariableStore::doDeclare(const String& name, const EL::Value& value) {
+        void AttributableNodeVariableStore::doDeclare(const std::string& name, const EL::Value& value) {
             if (m_node->hasAttribute(name)) {
                 throw EL::EvaluationError("Variable '" + name + "' already declared");
             } else {
@@ -60,7 +63,7 @@ namespace TrenchBroom {
             }
         }
 
-        void AttributableNodeVariableStore::doAssign(const String& name, const EL::Value& value) {
+        void AttributableNodeVariableStore::doAssign(const std::string& name, const EL::Value& value) {
             const EL::Value stringELValue = value.convertTo(EL::ValueType::String);
             m_node->addOrUpdateAttribute(name, kdl::str_to_string(stringELValue));
         }

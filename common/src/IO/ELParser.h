@@ -30,6 +30,9 @@
 #include <stdint.h>
 #endif
 
+#include <iosfwd>
+#include <string>
+
 namespace TrenchBroom {
     namespace EL {
         class Expression;
@@ -85,17 +88,17 @@ namespace TrenchBroom {
 
         class ELTokenizer : public Tokenizer<ELToken::Type> {
         private:
-            const String& NumberDelim() const;
-            const String& IntegerDelim() const;
+            const std::string& NumberDelim() const;
+            const std::string& IntegerDelim() const;
         public:
             ELTokenizer(const char* begin, const char* end);
-            ELTokenizer(const String& str);
+            ELTokenizer(const std::string& str);
 
             template <typename OtherToken>
             ELTokenizer(Tokenizer<OtherToken>& nestedTokenizer) :
             Tokenizer(nestedTokenizer) {}
         public:
-            void appendUntil(const String& pattern, StringStream& str);
+            void appendUntil(const std::string& pattern, std::stringstream& str);
         private:
             Token emitToken() override;
         };
@@ -112,10 +115,10 @@ namespace TrenchBroom {
             using Token = ELTokenizer::Token;
         public:
             ELParser(ELParser::Mode mode, const char* begin, const char* end);
-            ELParser(ELParser::Mode mode, const String& str);
+            ELParser(ELParser::Mode mode, const std::string& str);
 
-            static EL::Expression parseStrict(const String& str);
-            static EL::Expression parseLenient(const String& str);
+            static EL::Expression parseStrict(const std::string& str);
+            static EL::Expression parseLenient(const std::string& str);
 
             template <typename OtherToken>
             ELParser(Tokenizer<OtherToken>& nestedTokenizer) :

@@ -38,10 +38,10 @@ namespace TrenchBroom {
         AseTokenizer::AseTokenizer(const char* begin, const char* end) :
         Tokenizer(begin, end, "", 0){ }
 
-        AseTokenizer::AseTokenizer(const String& str) :
+        AseTokenizer::AseTokenizer(const std::string& str) :
         Tokenizer(str, "", 0) {}
 
-        const String AseTokenizer::WordDelims = " \t\n\r:";
+        const std::string AseTokenizer::WordDelims = " \t\n\r:";
 
         Tokenizer<unsigned int>::Token AseTokenizer::emitToken() {
             while (!eof()) {
@@ -100,14 +100,14 @@ namespace TrenchBroom {
                                 return Token(AseToken::Keyword, c, e, offset(c), startLine, startColumn);
                             }
                         }
-                        throw ParserException(startLine, startColumn, "Unexpected character: '" + String(c, 1) + "'");
+                        throw ParserException(startLine, startColumn, "Unexpected character: '" + std::string(c, 1) + "'");
                     }
                 }
             }
             return Token(AseToken::Eof, nullptr, nullptr, length(), line(), column());
         }
 
-        AseParser::AseParser(const String& name, const char* begin, const char* end, const FileSystem& fs) :
+        AseParser::AseParser(const std::string& name, const char* begin, const char* end, const FileSystem& fs) :
         m_name(name),
         m_tokenizer(begin, end),
         m_fs(fs) {}
@@ -352,12 +352,12 @@ namespace TrenchBroom {
             expect(AseToken::CBrace, m_tokenizer.nextToken());
         }
 
-        void AseParser::expectDirective(const String& name) {
+        void AseParser::expectDirective(const std::string& name) {
             auto token = expect(AseToken::Directive, m_tokenizer.nextToken());
             expect(name, token);
         }
 
-        void AseParser::skipDirective(const String& name) {
+        void AseParser::skipDirective(const std::string& name) {
             auto token = expect(AseToken::Directive, m_tokenizer.peekToken());
             if (token.data() == name) {
                 m_tokenizer.nextToken();
@@ -396,7 +396,7 @@ namespace TrenchBroom {
             }
         }
 
-        void AseParser::expectArgumentName(const String& expected) {
+        void AseParser::expectArgumentName(const std::string& expected) {
             const auto token = expect(AseToken::ArgumentName, m_tokenizer.nextToken());
             const auto& actual = token.data();
             if (actual != expected) {

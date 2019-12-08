@@ -19,6 +19,8 @@
 
 #include "Logger.h"
 
+#include <string>
+
 #include <QString>
 
 namespace TrenchBroom {
@@ -42,7 +44,7 @@ namespace TrenchBroom {
 #endif
     }
 
-    void Logger::debug([[maybe_unused]] const String& message) {
+    void Logger::debug([[maybe_unused]] const std::string& message) {
 #ifndef NDEBUG
         log(LogLevel_Debug, message);
 #endif
@@ -62,7 +64,7 @@ namespace TrenchBroom {
         info(QString(message));
     }
 
-    void Logger::info(const String& message) {
+    void Logger::info(const std::string& message) {
         log(LogLevel_Info, message);
     }
 
@@ -78,7 +80,7 @@ namespace TrenchBroom {
         warn(QString(message));
     }
 
-    void Logger::warn(const String& message) {
+    void Logger::warn(const std::string& message) {
         log(LogLevel_Warn, message);
     }
 
@@ -94,7 +96,7 @@ namespace TrenchBroom {
         error(QString(message));
     }
 
-    void Logger::error(const String& message) {
+    void Logger::error(const std::string& message) {
         log(LogLevel_Error, message);
     }
 
@@ -102,7 +104,7 @@ namespace TrenchBroom {
         log(LogLevel_Error, message);
     }
 
-    void Logger::log(const LogLevel level, const String& message) {
+    void Logger::log(const LogLevel level, const std::string& message) {
 #ifdef NDEBUG
         if (level != LogLevel_Debug)
 #endif
@@ -116,6 +118,6 @@ namespace TrenchBroom {
         doLog(level, message);
     }
 
-    void NullLogger::doLog(Logger::LogLevel /* level */, const String& /* message */) {}
+    void NullLogger::doLog(Logger::LogLevel /* level */, const std::string& /* message */) {}
     void NullLogger::doLog(Logger::LogLevel /* level */, const QString& /* message */) {}
 }

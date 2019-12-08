@@ -30,11 +30,12 @@
 
 #include <kdl/vector_utils.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
-        void assertModelDefinition(const ModelSpecification& expected, IO::EntityDefinitionParser& parser, const String& entityPropertiesStr) {
+        void assertModelDefinition(const ModelSpecification& expected, IO::EntityDefinitionParser& parser, const std::string& entityPropertiesStr) {
             IO::TestParserStatus status;
             std::vector<Assets::EntityDefinition*> definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
@@ -47,7 +48,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        void assertModelDefinition(const ModelSpecification& expected, const EntityDefinition* definition, const String& entityPropertiesStr) {
+        void assertModelDefinition(const ModelSpecification& expected, const EntityDefinition* definition, const std::string& entityPropertiesStr) {
             assert(definition->type() == EntityDefinition::Type_PointEntity);
 
             const PointEntityDefinition* pointDefinition = static_cast<const PointEntityDefinition*>(definition);
@@ -55,12 +56,12 @@ namespace TrenchBroom {
             assertModelDefinition(expected, modelDefinition, entityPropertiesStr);
         }
 
-        void assertModelDefinition(const ModelSpecification& expected, const ModelDefinition& actual, const String& entityPropertiesStr) {
+        void assertModelDefinition(const ModelSpecification& expected, const ModelDefinition& actual, const std::string& entityPropertiesStr) {
             const EL::MapType entityPropertiesMap = IO::ELParser::parseStrict(entityPropertiesStr).evaluate(EL::EvaluationContext()).mapValue();
 
             Model::EntityAttributes attributes;
             for (const auto& entry : entityPropertiesMap) {
-                const String& key = entry.first;
+                const std::string& key = entry.first;
                 const EL::Value& value = entry.second;
                 attributes.addOrUpdateAttribute(key, value.convertTo(EL::ValueType::String).stringValue(), nullptr);
             }

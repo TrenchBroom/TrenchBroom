@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Model_Forward_h
 #define TrenchBroom_Model_Forward_h
 
-#include "StringType.h"
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -43,8 +43,8 @@ namespace TrenchBroom {
         class NodeVisitor;
         class ConstNodeVisitor;
 
-        using AttributeName = String;
-        using AttributeValue = String;
+        using AttributeName = std::string;
+        using AttributeValue = std::string;
 
         class Game;
 

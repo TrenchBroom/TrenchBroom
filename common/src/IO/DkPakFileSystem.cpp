@@ -29,14 +29,15 @@
 #include <cassert>
 #include <cstring>
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
         namespace PakLayout {
-            static const size_t HeaderMagicLength = 0x4;
-            static const size_t EntryLength       = 0x48;
-            static const size_t EntryNameLength   = 0x38;
-            static const String HeaderMagic       = "PACK";
+            static const size_t      HeaderMagicLength = 0x4;
+            static const size_t      EntryLength       = 0x48;
+            static const size_t      EntryNameLength   = 0x38;
+            static const std::string HeaderMagic       = "PACK";
         }
 
         std::unique_ptr<char[]> DkPakFileSystem::DkCompressedFile::decompress(std::shared_ptr<File> file, const size_t uncompressedSize) const {

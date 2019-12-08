@@ -23,13 +23,17 @@
 #include "TemporarilySetAny.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <kdl/string_utils.h>
+
+#include <string>
+
 #include <QDateTime>
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType CommandGroup::Type = Command::freeType();
 
-        CommandGroup::CommandGroup(const String& name, const CommandList& commands,
+        CommandGroup::CommandGroup(const std::string& name, const CommandList& commands,
                                    Notifier<Command::Ptr>& commandDoNotifier,
                                    Notifier<Command::Ptr>& commandDoneNotifier,
                                    Notifier<UndoableCommand::Ptr>& commandUndoNotifier,
@@ -123,7 +127,7 @@ namespace TrenchBroom {
             return !m_nextCommandStack.empty();
         }
 
-        const String& CommandProcessor::lastCommandName() const {
+        const std::string& CommandProcessor::lastCommandName() const {
             if (!hasLastCommand()) {
                 throw CommandProcessorException("Command stack is empty");
             } else {
@@ -131,7 +135,7 @@ namespace TrenchBroom {
             }
         }
 
-        const String& CommandProcessor::nextCommandName() const {
+        const std::string& CommandProcessor::nextCommandName() const {
             if (!hasNextCommand()) {
                 throw CommandProcessorException("Undo stack is empty");
             } else {
@@ -139,7 +143,7 @@ namespace TrenchBroom {
             }
         }
 
-        void CommandProcessor::beginGroup(const String& name) {
+        void CommandProcessor::beginGroup(const std::string& name) {
             if (m_groupLevel == 0) {
                 m_groupName = name;
             }
@@ -235,10 +239,8 @@ namespace TrenchBroom {
                 return false;
             }
 
-            StringStream name;
-            name << "Repeat " << commands.size() << " Commands";
-
-            auto repeatableCommand = UndoableCommand::Ptr(createCommandGroup(name.str(), commands));
+            const auto name = kdl::str_to_string("Repeat ", commands.size(), " Commands");
+            auto repeatableCommand = UndoableCommand::Ptr(createCommandGroup(name, commands));
             return submitAndStoreCommand(repeatableCommand, false).submitted;
         }
 
@@ -342,7 +344,7 @@ namespace TrenchBroom {
             m_groupName = "";
         }
 
-        UndoableCommand::Ptr CommandProcessor::createCommandGroup(const String& name, const CommandList& commands) {
+        UndoableCommand::Ptr CommandProcessor::createCommandGroup(const std::string& name, const CommandList& commands) {
             return UndoableCommand::Ptr(new CommandGroup(name, commands,
                                                          commandDoNotifier,
                                                          commandDoneNotifier,

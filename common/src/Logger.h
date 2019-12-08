@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_Logger
 #define TrenchBroom_Logger
 
-#include "StringType.h"
-#include "StringStream.h"
+#include <sstream>
+#include <string>
 
 class QString;
 
@@ -39,7 +39,7 @@ namespace TrenchBroom {
         private:
             Logger* m_logger;
             LogLevel m_logLevel;
-            StringStream m_buf;
+            std::stringstream m_buf;
         public:
             stream(Logger* logger, LogLevel logLevel);
             ~stream();
@@ -55,28 +55,28 @@ namespace TrenchBroom {
 
         stream debug();
         void debug(const char* message);
-        void debug(const String& message);
+        void debug(const std::string& message);
         void debug(const QString& message);
 
         stream info();
         void info(const char* message);
-        void info(const String& message);
+        void info(const std::string& message);
         void info(const QString& message);
 
         stream warn();
         void warn(const char* message);
-        void warn(const String& message);
+        void warn(const std::string& message);
         void warn(const QString& message);
 
         stream error();
         void error(const char* message);
-        void error(const String& message);
+        void error(const std::string& message);
         void error(const QString& message);
 
-        void log(LogLevel level, const String& message);
+        void log(LogLevel level, const std::string& message);
         void log(LogLevel level, const QString& message);
     private:
-        virtual void doLog(LogLevel level, const String& message) = 0;
+        virtual void doLog(LogLevel level, const std::string& message) = 0;
         virtual void doLog(LogLevel level, const QString& message) = 0;
     };
 
@@ -84,7 +84,7 @@ namespace TrenchBroom {
 
     class NullLogger : public Logger {
     private:
-        void doLog(LogLevel level, const String& message) override;
+        void doLog(LogLevel level, const std::string& message) override;
         void doLog(LogLevel level, const QString& message) override;
     };
 }

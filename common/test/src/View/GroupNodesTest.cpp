@@ -122,7 +122,7 @@ namespace TrenchBroom {
         TEST_F(GroupNodesTest, pasteInGroup) {
             // https://github.com/kduske/TrenchBroom/issues/1734
 
-            const String data("{"
+            const std::string data("{"
                               "\"classname\" \"light\""
                               "\"origin\" \"0 0 0\""
                               "}");

@@ -20,9 +20,11 @@
 #include "DocumentCommand.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
-        DocumentCommand::DocumentCommand(const CommandType type, const String& name) :
+        DocumentCommand::DocumentCommand(const CommandType type, const std::string& name) :
         UndoableCommand(type, name),
         m_modificationCount(1) {}
 

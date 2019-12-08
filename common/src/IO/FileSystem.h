@@ -22,13 +22,14 @@
 
 #include "Exceptions.h"
 #include "Macros.h"
-#include "StringType.h"
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
 
 #include <kdl/vector_utils.h>
 
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -69,7 +70,7 @@ namespace TrenchBroom {
              * @param extensions a list of extensions to match
              * @return a list of paths
              */
-            Path::List findItemsWithBaseName(const Path& path, const StringList& extensions) const;
+            Path::List findItemsWithBaseName(const Path& path, const std::vector<std::string>& extensions) const;
 
             /**
              * Find all items in the given directory that match the given matcher.
@@ -217,13 +218,13 @@ namespace TrenchBroom {
             WritableFileSystem();
             virtual ~WritableFileSystem();
 
-            void createFile(const Path& path, const String& contents);
+            void createFile(const Path& path, const std::string& contents);
             void createDirectory(const Path& path);
             void deleteFile(const Path& path);
             void copyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
             void moveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
         private:
-            virtual void doCreateFile(const Path& path, const String& contents) = 0;
+            virtual void doCreateFile(const Path& path, const std::string& contents) = 0;
             virtual void doCreateDirectory(const Path& path) = 0;
             virtual void doDeleteFile(const Path& path) = 0;
             virtual void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite) = 0;

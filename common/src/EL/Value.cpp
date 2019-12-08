@@ -20,24 +20,26 @@
 #include "Value.h"
 
 #include "EL/ELExceptions.h"
-#include "StringStream.h"
 
 #include <kdl/collection_utils.h>
 #include <kdl/map_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
+#include <kdl/vector_set.h>
 #include <kdl/vector_utils.h>
 
 #include <algorithm>
 #include <cmath>
 #include <iterator>
+#include <sstream>
+#include <string>
 
 namespace TrenchBroom {
     namespace EL {
         ValueHolder::~ValueHolder() {}
 
-        String ValueHolder::describe() const {
-            StringStream str;
+        std::string ValueHolder::describe() const {
+            std::stringstream str;
             appendToStream(str, false, "");
             return str.str();
         }
@@ -92,7 +94,7 @@ namespace TrenchBroom {
         }
 
         ValueHolder* BooleanValueHolder::clone() const { return new BooleanValueHolder(m_value); }
-        void BooleanValueHolder::appendToStream(std::ostream& str, const bool /* multiline */, const String& /* indent */) const { str << (m_value ? "true" : "false"); }
+        void BooleanValueHolder::appendToStream(std::ostream& str, const bool /* multiline */, const std::string& /* indent */) const { str << (m_value ? "true" : "false"); }
 
         StringHolder::~StringHolder() {}
         ValueType StringHolder::type() const { return ValueType::String; }
@@ -152,7 +154,7 @@ namespace TrenchBroom {
             throw ConversionError(describe(), type(), toType);
         }
 
-        void StringHolder::appendToStream(std::ostream& str, const bool /* multiline */, const String& /* indent */) const {
+        void StringHolder::appendToStream(std::ostream& str, const bool /* multiline */, const std::string& /* indent */) const {
             // Unescaping happens in IO::ELParser::parseLiteral
             str << "\"" << kdl::str_escape(doGetValue(), "\\\"") << "\"";
         }
@@ -214,7 +216,7 @@ namespace TrenchBroom {
 
         ValueHolder* NumberValueHolder::clone() const { return new NumberValueHolder(m_value); }
 
-        void NumberValueHolder::appendToStream(std::ostream& str, const bool /* multiline */, const String& /* indent */) const {
+        void NumberValueHolder::appendToStream(std::ostream& str, const bool /* multiline */, const std::string& /* indent */) const {
             if (std::abs(m_value - std::round(m_value)) < RoundingThreshold) {
                 str.precision(0);
                 str.setf(std::ios::fixed);
@@ -268,11 +270,11 @@ namespace TrenchBroom {
 
         ValueHolder* ArrayValueHolder::clone() const { return new ArrayValueHolder(m_value); }
 
-        void ArrayValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
+        void ArrayValueHolder::appendToStream(std::ostream& str, const bool multiline, const std::string& indent) const {
             if (m_value.empty()) {
                 str << "[]";
             } else {
-                const String childIndent = multiline ? indent + "\t" : "";
+                const std::string childIndent = multiline ? indent + "\t" : "";
                 str << "[";
                 if (multiline)
                     str << "\n";
@@ -339,11 +341,11 @@ namespace TrenchBroom {
 
         ValueHolder* MapValueHolder::clone() const { return new MapValueHolder(m_value); }
 
-        void MapValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
+        void MapValueHolder::appendToStream(std::ostream& str, const bool multiline, const std::string& indent) const {
             if (m_value.empty()) {
                 str << "{}";
             } else {
-                const String childIndent = multiline ? indent + "\t" : "";
+                const std::string childIndent = multiline ? indent + "\t" : "";
                 str << "{";
                 if (multiline)
                     str << "\n";
@@ -412,7 +414,7 @@ namespace TrenchBroom {
 
         ValueHolder* RangeValueHolder::clone() const { return new RangeValueHolder(m_value); }
 
-        void RangeValueHolder::appendToStream(std::ostream& str, const bool /* multiline */, const String& /* indent */) const {
+        void RangeValueHolder::appendToStream(std::ostream& str, const bool /* multiline */, const std::string& /* indent */) const {
             str << "[";
             for (size_t i = 0; i < m_value.size(); ++i) {
                 str << m_value[i];
@@ -471,7 +473,7 @@ namespace TrenchBroom {
         }
 
         ValueHolder* NullValueHolder::clone() const { return new NullValueHolder(); }
-        void NullValueHolder::appendToStream(std::ostream& str, const bool /* multiline */, const String& /* indent */) const { str << "null"; }
+        void NullValueHolder::appendToStream(std::ostream& str, const bool /* multiline */, const std::string& /* indent */) const { str << "null"; }
 
 
         ValueType UndefinedValueHolder::type() const { return ValueType::Undefined; }
@@ -479,7 +481,7 @@ namespace TrenchBroom {
         bool UndefinedValueHolder::convertibleTo(const ValueType /* toType */) const { return false; }
         ValueHolder* UndefinedValueHolder::convertTo(const ValueType toType) const { throw ConversionError(describe(), type(), toType); }
         ValueHolder* UndefinedValueHolder::clone() const { return new UndefinedValueHolder(); }
-        void UndefinedValueHolder::appendToStream(std::ostream& str, const bool /* multiline */, const String& /* indent */) const { str << "undefined"; }
+        void UndefinedValueHolder::appendToStream(std::ostream& str, const bool /* multiline */, const std::string& /* indent */) const { str << "undefined"; }
 
 
         const Value Value::Null = Value(new NullValueHolder(), 0, 0);
@@ -493,8 +495,8 @@ namespace TrenchBroom {
         Value::Value(const StringType& value, const size_t line, const size_t column)  : m_value(new StringValueHolder(value)), m_line(line), m_column(column) {}
         Value::Value(const StringType& value)                                          : m_value(new StringValueHolder(value)), m_line(0), m_column(0) {}
 
-        Value::Value(const char* value, const size_t line, const size_t column)        : m_value(new StringValueHolder(String(value))), m_line(line), m_column(column) {}
-        Value::Value(const char* value)                                                : m_value(new StringValueHolder(String(value))), m_line(0), m_column(0) {}
+        Value::Value(const char* value, const size_t line, const size_t column)        : m_value(new StringValueHolder(std::string(value))), m_line(line), m_column(column) {}
+        Value::Value(const char* value)                                                : m_value(new StringValueHolder(std::string(value))), m_line(0), m_column(0) {}
 
         Value::Value(const NumberType& value, const size_t line, const size_t column)  : m_value(new NumberValueHolder(value)), m_line(line), m_column(column) {}
         Value::Value(const NumberType& value)                                          : m_value(new NumberValueHolder(value)), m_line(0), m_column(0) {}
@@ -533,11 +535,11 @@ namespace TrenchBroom {
             return m_value->type();
         }
 
-        String Value::typeName() const {
+        std::string Value::typeName() const {
             return EL::typeName(type());
         }
 
-        String Value::describe() const {
+        std::string Value::describe() const {
             return m_value->describe();
         }
 
@@ -586,25 +588,27 @@ namespace TrenchBroom {
             return type() == ValueType::Undefined;
         }
 
-        const StringList Value::asStringList() const {
+        const std::vector<std::string> Value::asStringList() const {
             const ArrayType& array = arrayValue();
-            StringList result;
+            std::vector<std::string> result;
             result.reserve(array.size());
 
-            std::transform(std::begin(array), std::end(array), std::back_inserter(result),
-                           [](const Value& entry) { return entry.convertTo(ValueType::String).stringValue(); });
+            for (const auto& entry : array) {
+                result.push_back(entry.convertTo(ValueType::String).stringValue());
+            }
 
             return result;
         }
 
-        const StringSet Value::asStringSet() const {
+        const std::vector<std::string> Value::asStringSet() const {
             const ArrayType& array = arrayValue();
-            StringSet result;
+            kdl::vector_set<std::string> result(array.size());
 
-            std::transform(std::begin(array), std::end(array), std::inserter(result, result.begin()),
-                           [](const Value& entry) { return entry.convertTo(ValueType::String).stringValue(); });
+            for (const auto& entry : array) {
+                result.insert(entry.convertTo(ValueType::String).stringValue());
+            }
 
-            return result;
+            return result.release_data();
         }
 
         size_t Value::length() const {
@@ -623,13 +627,13 @@ namespace TrenchBroom {
             return Value(m_value->convertTo(toType), m_line, m_column);
         }
 
-        String Value::asString(const bool multiline) const {
-            StringStream str;
+        std::string Value::asString(const bool multiline) const {
+            std::stringstream str;
             appendToStream(str, multiline);
             return str.str();
         }
 
-        void Value::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
+        void Value::appendToStream(std::ostream& str, const bool multiline, const std::string& indent) const {
             m_value->appendToStream(str, multiline, indent);
         }
 
@@ -693,7 +697,7 @@ namespace TrenchBroom {
                     switch (indexValue.type()) {
                         case ValueType::String: {
                             const MapType& map = mapValue();
-                            const String& key = indexValue.stringValue();
+                            const std::string& key = indexValue.stringValue();
                             const MapType::const_iterator it = map.find(key);
                             return it != std::end(map);
                         }
@@ -704,7 +708,7 @@ namespace TrenchBroom {
                                 const Value& keyValue = keys[i];
                                 if (keyValue.type() != ValueType::String)
                                     throw ConversionError(keyValue.describe(), keyValue.type(), ValueType::String);
-                                const String& key = keyValue.stringValue();
+                                const std::string& key = keyValue.stringValue();
                                 const MapType::const_iterator it = map.find(key);
                                 if (it == std::end(map))
                                     return false;
@@ -746,13 +750,13 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool Value::contains(const String& key) const {
+        bool Value::contains(const std::string& key) const {
             const MapType& map = mapValue();
             const MapType::const_iterator it = map.find(key);
             return it != std::end(map);
         }
 
-        StringList Value::keys() const {
+        std::vector<std::string> Value::keys() const {
             return kdl::map_keys(mapValue());
         }
 
@@ -764,7 +768,7 @@ namespace TrenchBroom {
                         case ValueType::Number: {
                             const StringType& str = stringValue();
                             const size_t index = computeIndex(indexValue, str.length());
-                            StringStream result;
+                            std::stringstream result;
                             if (index < str.length())
                                 result << str[index];
                             return Value(result.str(), m_line, m_column);
@@ -773,7 +777,7 @@ namespace TrenchBroom {
                         case ValueType::Range: {
                             const StringType& str = stringValue();
                             const IndexList indices = computeIndexArray(indexValue, str.length());
-                            StringStream result;
+                            std::stringstream result;
                             for (size_t i = 0; i < indices.size(); ++i) {
                                 const size_t index = indices[i];
                                 if (index < str.length())
@@ -823,7 +827,7 @@ namespace TrenchBroom {
                     switch (indexValue.type()) {
                         case ValueType::String: {
                             const MapType& map = mapValue();
-                            const String& key = indexValue.stringValue();
+                            const std::string& key = indexValue.stringValue();
                             const MapType::const_iterator it = map.find(key);
                             if (it == std::end(map))
                                 return Value::Undefined;
@@ -837,7 +841,7 @@ namespace TrenchBroom {
                                 const Value& keyValue = keys[i];
                                 if (keyValue.type() != ValueType::String)
                                     throw ConversionError(keyValue.describe(), keyValue.type(), ValueType::String);
-                                const String& key = keyValue.stringValue();
+                                const std::string& key = keyValue.stringValue();
                                 const MapType::const_iterator it = map.find(key);
                                 if (it != std::end(map))
                                     result.insert(std::make_pair(key, it->second));
@@ -868,7 +872,7 @@ namespace TrenchBroom {
             switch (type()) {
                 case ValueType::String: {
                     const StringType& str = stringValue();
-                    StringStream result;
+                    std::stringstream result;
                     if (index < str.length())
                         result << str[index];
                     return Value(result.str());
@@ -896,7 +900,7 @@ namespace TrenchBroom {
             return this->operator[](static_cast<size_t>(index));
         }
 
-        Value Value::operator[](const String& key) const {
+        Value Value::operator[](const std::string& key) const {
             return this->operator[](key.c_str());
         }
 

@@ -23,6 +23,7 @@
 #include "IO/MapReader.h"
 #include "Model/Model_Forward.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -38,9 +39,9 @@ namespace TrenchBroom {
             Model::ModelFactory& m_factory;
             std::vector<Model::Node*> m_nodes;
         public:
-            NodeReader(const String& str, Model::ModelFactory& factory);
+            NodeReader(const std::string& str, Model::ModelFactory& factory);
 
-            static std::vector<Model::Node*> read(const String& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status);
+            static std::vector<Model::Node*> read(const std::string& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status);
             const std::vector<Model::Node*>& read(const vm::bbox3& worldBounds, ParserStatus& status);
         private: // implement MapReader interface
             Model::ModelFactory& initialize(Model::MapFormat format) override;

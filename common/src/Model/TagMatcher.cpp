@@ -61,8 +61,8 @@ namespace TrenchBroom {
             }
         }
 
-        TextureNameTagMatcher::TextureNameTagMatcher(String pattern) :
-        m_pattern(std::move(pattern)) {}
+        TextureNameTagMatcher::TextureNameTagMatcher(const std::string& pattern) :
+        m_pattern(pattern) {}
 
         std::unique_ptr<TagMatcher> TextureNameTagMatcher::clone() const {
             return std::make_unique<TextureNameTagMatcher>(m_pattern);
@@ -118,15 +118,15 @@ namespace TrenchBroom {
 
         bool TextureNameTagMatcher::matchesTextureName(std::string_view textureName) const {
             const auto pos = textureName.find_last_of('/');
-            if (pos != String::npos) {
+            if (pos != std::string::npos) {
                 textureName = textureName.substr(pos + 1);
             }
 
             return kdl::ci::matches_glob(textureName, m_pattern);
         }
 
-        SurfaceParmTagMatcher::SurfaceParmTagMatcher(String parameter) :
-        m_parameter(std::move(parameter)) {}
+        SurfaceParmTagMatcher::SurfaceParmTagMatcher(const std::string& parameter) :
+        m_parameter(parameter) {}
 
         std::unique_ptr<TagMatcher> SurfaceParmTagMatcher::clone() const {
             return std::make_unique<SurfaceParmTagMatcher>(m_parameter);
@@ -244,9 +244,9 @@ namespace TrenchBroom {
             return std::make_unique<SurfaceFlagsTagMatcher>(m_flags);
         }
 
-        EntityClassNameTagMatcher::EntityClassNameTagMatcher(String pattern, String texture) :
-        m_pattern(std::move(pattern)),
-        m_texture(std::move(texture)) {}
+        EntityClassNameTagMatcher::EntityClassNameTagMatcher(const std::string& pattern, const std::string& texture) :
+        m_pattern(pattern),
+        m_texture(texture) {}
 
 
         std::unique_ptr<TagMatcher> EntityClassNameTagMatcher::clone() const {
@@ -338,7 +338,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool EntityClassNameTagMatcher::matchesClassname(const String& classname) const {
+        bool EntityClassNameTagMatcher::matchesClassname(const std::string& classname) const {
             return kdl::ci::matches_glob(classname, m_pattern);
         }
     }

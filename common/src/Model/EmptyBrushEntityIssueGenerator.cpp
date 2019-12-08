@@ -26,6 +26,7 @@
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -41,7 +42,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            const std::string doGetDescription() const override {
                 const Entity* entity = static_cast<Entity*>(node());
                 return "Entity '" + entity->classname() + "' does not contain any brushes";
             }

@@ -22,6 +22,8 @@
 #include "Model/VisibilityState.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetVisibilityCommand::Type = Command::freeType();
@@ -47,7 +49,7 @@ namespace TrenchBroom {
         m_nodes(nodes),
         m_action(action) {}
 
-        String SetVisibilityCommand::makeName(const Action action) {
+        std::string SetVisibilityCommand::makeName(const Action action) {
             switch (action) {
                 case Action_Reset:
                     return "Reset Visibility";

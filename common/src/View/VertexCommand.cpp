@@ -30,10 +30,11 @@
 
 #include <iterator>
 #include <set>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
-        VertexCommand::VertexCommand(const CommandType type, const String& name, const std::vector<Model::Brush*>& brushes) :
+        VertexCommand::VertexCommand(const CommandType type, const std::string& name, const std::vector<Model::Brush*>& brushes) :
         DocumentCommand(type, name),
         m_brushes(brushes) {}
 

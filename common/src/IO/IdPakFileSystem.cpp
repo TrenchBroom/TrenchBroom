@@ -26,6 +26,7 @@
 #include <kdl/string_format.h>
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -34,7 +35,7 @@ namespace TrenchBroom {
             static const size_t HeaderMagicLength = 0x4;
             static const size_t EntryLength       = 0x40;
             static const size_t EntryNameLength   = 0x38;
-            static const String HeaderMagic       = "PACK";
+            static const std::string HeaderMagic       = "PACK";
         }
 
         IdPakFileSystem::IdPakFileSystem(const Path& path) :

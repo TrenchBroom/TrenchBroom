@@ -41,6 +41,7 @@
 #include <QVBoxLayout>
 
 #include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -180,7 +181,7 @@ namespace TrenchBroom {
 
         void ModEditor::updateAvailableMods() {
             auto document = lock(m_document);
-            StringList availableMods = document->game()->availableMods();
+            std::vector<std::string> availableMods = document->game()->availableMods();
             kdl::sort(availableMods, kdl::ci::string_less());
 
             m_availableMods.clear();
@@ -223,7 +224,7 @@ namespace TrenchBroom {
 
             auto document = lock(m_document);
 
-            StringList mods = document->mods();
+            std::vector<std::string> mods = document->mods();
             for (QListWidgetItem* item : selections) {
                 mods.push_back(item->text().toStdString());
             }
@@ -238,7 +239,7 @@ namespace TrenchBroom {
 
             auto document = lock(m_document);
 
-            StringList mods = document->mods();
+            std::vector<std::string> mods = document->mods();
             for (QListWidgetItem* item : selections) {
                 const std::string mod = item->text().toStdString();
                 kdl::vec_erase(mods, mod);

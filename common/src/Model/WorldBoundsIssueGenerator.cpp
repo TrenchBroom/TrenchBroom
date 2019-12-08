@@ -25,7 +25,7 @@
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 
-#include <vector>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -42,7 +42,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            const std::string doGetDescription() const override {
                 return "Object is out of world bounds";
             }
         };

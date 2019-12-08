@@ -23,6 +23,7 @@
 #include "IO/MapReader.h"
 #include "Model/Model_Forward.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -38,7 +39,7 @@ namespace TrenchBroom {
             Model::ModelFactory& m_factory;
             std::vector<Model::BrushFace*> m_brushFaces;
         public:
-            BrushFaceReader(const String& str, Model::ModelFactory& factory);
+            BrushFaceReader(const std::string& str, Model::ModelFactory& factory);
 
             const std::vector<Model::BrushFace*>& read(const vm::bbox3& worldBounds, ParserStatus& status);
         private: // implement MapReader interface

@@ -21,11 +21,11 @@
 #define TrenchBroom_TextureCollection
 
 #include "Notifier.h"
-#include "StringType.h"
 #include "Assets/Asset_Forward.h"
 #include "IO/Path.h"
 #include "Renderer/GL.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -57,11 +57,11 @@ namespace TrenchBroom {
 
             bool loaded() const;
             const IO::Path& path() const;
-            String name() const;
+            std::string name() const;
             size_t textureCount() const;
             const std::vector<Texture*>& textures() const;
             Texture* textureByIndex(size_t index) const;
-            Texture* textureByName(const String& name) const;
+            Texture* textureByName(const std::string& name) const;
 
             size_t usageCount() const;
 

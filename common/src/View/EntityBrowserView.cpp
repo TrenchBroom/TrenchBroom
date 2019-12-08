@@ -27,7 +27,6 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModel.h"
 #include "Assets/EntityModelManager.h"
-#include "Assets/ModelDefinition.h"
 #include "Renderer/GL.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontManager.h"
@@ -49,9 +48,9 @@
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 #include <vecmath/quat.h>
-#include <vecmath/bbox.h>
 
 #include <map>
+#include <string>
 
 // allow storing std::shared_ptr in QVariant
 Q_DECLARE_METATYPE(std::shared_ptr<TrenchBroom::View::EntityCellData>)
@@ -114,7 +113,7 @@ namespace TrenchBroom {
             update();
         }
 
-        void EntityBrowserView::setFilterText(const String& filterText) {
+        void EntityBrowserView::setFilterText(const std::string& filterText) {
             if (filterText == m_filterText) {
                 return;
             }

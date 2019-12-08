@@ -38,6 +38,7 @@
 #include "View/Selection.h"
 
 #include <kdl/map_utils.h>
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/ray.h>
@@ -394,11 +395,7 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < m_numPoints; ++i) {
                     const auto& point = m_points[i].point;
                     renderService.renderHandle(vm::vec3f(point));
-
-                    StringStream str;
-                    str << (i+1) << ": " << point;
-
-                    renderService.renderString(str.str(), vm::vec3f(point));
+                    renderService.renderString(kdl::str_to_string(i+1, ": ", point), vm::vec3f(point));
                 }
             }
 

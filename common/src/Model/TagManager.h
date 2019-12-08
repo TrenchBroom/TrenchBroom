@@ -20,10 +20,10 @@
 #ifndef TRENCHBROOM_TAGMANAGER_H
 #define TRENCHBROOM_TAGMANAGER_H
 
-#include "StringType.h"
 #include "Model/Tag.h"
 
 #include <list>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -46,7 +46,7 @@ namespace TrenchBroom {
              * @param name the tag name to check
              * @return true if a tag with the given name is registered and false otherwise
              */
-            bool isRegisteredSmartTag(const String& name) const;
+            bool isRegisteredSmartTag(const std::string& name) const;
 
             /**
              * Returns the smart tag with the given name.
@@ -56,7 +56,7 @@ namespace TrenchBroom {
              *
              * @throws std::logic_error if no tag with the given name is registered
              */
-            const SmartTag& smartTag(const String& name) const;
+            const SmartTag& smartTag(const std::string& name) const;
 
             /**
              * Indicates whether a smart tag with the given index is registered with this tag manager.

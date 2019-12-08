@@ -20,22 +20,22 @@
 #ifndef CompilationVariables_h
 #define CompilationVariables_h
 
-#include "StringType.h"
 #include "EL/VariableStore.h"
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
         namespace CompilationVariableNames {
-            extern const String WORK_DIR_PATH;
-            extern const String MAP_DIR_PATH;
-            extern const String MAP_BASE_NAME;
-            extern const String MAP_FULL_NAME;
-            extern const String CPU_COUNT;
-            extern const String GAME_DIR_PATH;
-            extern const String MODS;
-            extern const String APP_DIR_PATH;
+            extern const std::string WORK_DIR_PATH;
+            extern const std::string MAP_DIR_PATH;
+            extern const std::string MAP_BASE_NAME;
+            extern const std::string MAP_FULL_NAME;
+            extern const std::string CPU_COUNT;
+            extern const std::string GAME_DIR_PATH;
+            extern const std::string MODS;
+            extern const std::string APP_DIR_PATH;
         }
 
         class MapDocument;
@@ -57,7 +57,7 @@ namespace TrenchBroom {
 
         class CompilationVariables : public CommonCompilationVariables {
         public:
-            CompilationVariables(std::shared_ptr<MapDocument> document, const String& workDir);
+            CompilationVariables(std::shared_ptr<MapDocument> document, const std::string& workDir);
         };
 
         class LaunchGameEngineVariables : public CommonVariables {

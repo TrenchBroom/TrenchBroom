@@ -31,11 +31,11 @@ namespace TrenchBroom {
             return doCreateWorld();
         }
 
-        Layer* ModelFactory::createLayer(const String& name) const {
+        Layer* ModelFactory::createLayer(const std::string& name) const {
             return doCreateLayer(name);
         }
 
-        Group* ModelFactory::createGroup(const String& name) const {
+        Group* ModelFactory::createGroup(const std::string& name) const {
             return doCreateGroup(name);
         }
 

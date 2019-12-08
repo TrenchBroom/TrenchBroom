@@ -37,14 +37,14 @@
 #include <kdl/string_format.h>
 
 #include <set>
+#include <string>
 #include <vector>
 
+#include <QAbstractButton>
 #include <QInputDialog>
 #include <QMenu>
-#include <QVBoxLayout>
 #include <QMessageBox>
-
-#include <QAbstractButton>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -259,7 +259,7 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::onAddLayer() {
-            const String name = queryLayerName();
+            const std::string name = queryLayerName();
             if (!name.empty()) {
                 auto document = lock(m_document);
                 auto* world = document->world();
@@ -272,10 +272,10 @@ namespace TrenchBroom {
             }
         }
 
-        String LayerEditor::queryLayerName() {
+        std::string LayerEditor::queryLayerName() {
             while (true) {
                 bool ok = false;
-                const String name = QInputDialog::getText(this, "Enter a name", "Layer Name", QLineEdit::Normal, "Unnamed", &ok).toStdString();
+                const std::string name = QInputDialog::getText(this, "Enter a name", "Layer Name", QLineEdit::Normal, "Unnamed", &ok).toStdString();
 
                 if (!ok) {
                     return "";

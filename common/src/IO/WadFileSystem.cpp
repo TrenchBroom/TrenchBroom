@@ -24,6 +24,7 @@
 #include "IO/Reader.h"
 
 #include <kdl/string_format.h>
+#include <kdl/string_utils.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -91,9 +92,7 @@ namespace TrenchBroom {
                 const auto entrySize = reader.readSize<int32_t>();
 
                 if (m_file->size() < entryAddress + entrySize) {
-                    auto msg = StringStream();
-                    msg << "File entry at address " << entryAddress << " is out of bounds";
-                    throw FileSystemException(msg.str()) ;
+                    throw FileSystemException(kdl::str_to_string("File entry at address ", entryAddress, " is out of bounds")) ;
                 }
 
                 reader.seekForward(WadLayout::DirEntryTypeOffset);

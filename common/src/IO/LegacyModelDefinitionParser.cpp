@@ -23,15 +23,17 @@
 
 #include <kdl/string_compare.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         LegacyModelDefinitionTokenizer::LegacyModelDefinitionTokenizer(const char* begin, const char* end) :
         Tokenizer(begin, end, "", 0) {}
 
-        LegacyModelDefinitionTokenizer::LegacyModelDefinitionTokenizer(const String& str) :
+        LegacyModelDefinitionTokenizer::LegacyModelDefinitionTokenizer(const std::string& str) :
         Tokenizer(str, "", 0) {}
 
-        const String LegacyModelDefinitionTokenizer::WordDelims = " \t\n\r()[]{};,=";
+        const std::string LegacyModelDefinitionTokenizer::WordDelims = " \t\n\r()[]{};,=";
 
         LegacyModelDefinitionTokenizer::Token LegacyModelDefinitionTokenizer::emitToken() {
             while (!eof()) {
@@ -64,7 +66,7 @@ namespace TrenchBroom {
                             return Token(MdlToken::Integer, c, e, offset(c), startLine, startColumn);
                         e = readUntil(WordDelims);
                         if (e == nullptr)
-                            throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                            throw ParserException(startLine, startColumn, "Unexpected character: " + std::string(c, 1));
                         return Token(MdlToken::Word, c, e, offset(c), startLine, startColumn);
                     }
                 }
@@ -75,7 +77,7 @@ namespace TrenchBroom {
         LegacyModelDefinitionParser::LegacyModelDefinitionParser(const char* begin, const char* end) :
         m_tokenizer(begin, end) {}
 
-        LegacyModelDefinitionParser::LegacyModelDefinitionParser(const String& str) :
+        LegacyModelDefinitionParser::LegacyModelDefinitionParser(const std::string& str) :
         m_tokenizer(str) {}
 
         EL::Expression LegacyModelDefinitionParser::parse(ParserStatus& status) {
@@ -142,7 +144,7 @@ namespace TrenchBroom {
             if (token.hasType(MdlToken::Word)) {
                 token = m_tokenizer.nextToken();
 
-                const String attributeKey = token.data();
+                const std::string attributeKey = token.data();
                 const size_t line = token.line();
                 const size_t column = token.column();
                 EL::ExpressionBase* keyExpression = EL::VariableExpression::create(attributeKey, line, column);
@@ -151,7 +153,7 @@ namespace TrenchBroom {
 
                 expect(status, MdlToken::String | MdlToken::Integer, token = m_tokenizer.nextToken());
                 if (token.hasType(MdlToken::String)) {
-                    const String attributeValue = token.data();
+                    const std::string attributeValue = token.data();
                     EL::ExpressionBase* valueExpression = EL::LiteralExpression::create(EL::Value(attributeValue), token.line(), token.column());
                     EL::ExpressionBase* premiseExpression = EL::ComparisonOperator::createEqual(keyExpression, valueExpression, line, column);
 
@@ -185,7 +187,7 @@ namespace TrenchBroom {
                     } else if (kdl::ci::is_equal("frameKey", token.data())) {
                         map["frame"] = std::unique_ptr<EL::ExpressionBase>(parseNamedValue(status, "frameKey"));
                     } else {
-                        const String msg = "Expected 'skinKey' or 'frameKey', but found '" + token.data() + "'";
+                        const std::string msg = "Expected 'skinKey' or 'frameKey', but found '" + token.data() + "'";
                         status.error(token.line(), token.column(), msg);
                         throw ParserException(token.line(), token.column(), msg);
                     }
@@ -195,7 +197,7 @@ namespace TrenchBroom {
             return EL::MapExpression::create(std::move(map), line, column);
         }
 
-        EL::ExpressionBase* LegacyModelDefinitionParser::parseNamedValue(ParserStatus& status, const String& name) {
+        EL::ExpressionBase* LegacyModelDefinitionParser::parseNamedValue(ParserStatus& status, const std::string& name) {
             Token token;
             expect(status, MdlToken::Word, token = m_tokenizer.nextToken());
 

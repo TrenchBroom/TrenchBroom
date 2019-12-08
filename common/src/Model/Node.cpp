@@ -32,6 +32,7 @@
 
 #include <cassert>
 #include <iterator>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -54,7 +55,7 @@ namespace TrenchBroom {
             clearIssues();
         }
 
-        const String& Node::name() const {
+        const std::string& Node::name() const {
             return doGetName();
         }
 

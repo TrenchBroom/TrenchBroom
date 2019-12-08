@@ -29,6 +29,7 @@
 
 #include <cassert>
 #include <map>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -48,16 +49,16 @@ namespace TrenchBroom {
                 } Type;
             private:
                 Type m_type;
-                String m_name;
-                String m_value;
+                std::string m_name;
+                std::string m_value;
                 size_t m_line;
                 size_t m_column;
             public:
-                ExtraAttribute(Type type, const String& name, const String& value, size_t line, size_t column);
+                ExtraAttribute(Type type, const std::string& name, const std::string& value, size_t line, size_t column);
 
                 Type type() const;
-                const String& name() const;
-                const String& strValue() const;
+                const std::string& name() const;
+                const std::string& strValue() const;
 
                 void assertType(Type expected) const;
 
@@ -68,7 +69,7 @@ namespace TrenchBroom {
                 }
             };
 
-            using ExtraAttributes = std::map<String, ExtraAttribute>;
+            using ExtraAttributes = std::map<std::string, ExtraAttribute>;
         public:
             virtual ~MapParser();
         protected:

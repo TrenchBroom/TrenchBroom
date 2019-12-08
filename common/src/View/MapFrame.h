@@ -30,6 +30,7 @@
 
 #include <map>
 #include <memory>
+#include <string>
 
 class QAction;
 class QComboBox;
@@ -137,8 +138,8 @@ namespace TrenchBroom {
             void documentDidChange(View::MapDocument* document);
             void documentModificationStateDidChange();
 
-            void transactionDone(const String&);
-            void transactionUndone(const String&);
+            void transactionDone(const std::string&);
+            void transactionUndone(const std::string&);
 
             void preferenceDidChange(const IO::Path& path);
             void gridDidChange();

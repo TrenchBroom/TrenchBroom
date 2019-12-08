@@ -21,7 +21,6 @@
 #define CompilationRunner_h
 
 #include "Macros.h"
-#include "StringType.h"
 
 #include "Model/CompilationTask.h"
 #include "View/CompilationContext.h"
@@ -30,6 +29,7 @@
 
 #include <list>
 #include <memory>
+#include <string>
 
 class QProcess;
 
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             void error();
             void end();
         protected:
-            String interpolate(const String& spec);
+            std::string interpolate(const std::string& spec);
         private:
             virtual void doExecute() = 0;
             virtual void doTerminate() = 0;

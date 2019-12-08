@@ -55,7 +55,7 @@ namespace TrenchBroom {
             return m_path;
         }
 
-        String FontDescriptor::name() const {
+        std::string FontDescriptor::name() const {
             return m_path.lastComponent().deleteExtension().asString();
         }
 

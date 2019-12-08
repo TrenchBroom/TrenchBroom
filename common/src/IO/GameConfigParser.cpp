@@ -27,13 +27,14 @@
 #include "Model/TagMatcher.h"
 
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
         GameConfigParser::GameConfigParser(const char* begin, const char* end, const Path& path) :
         ConfigParserBase(begin, end, path) {}
 
-        GameConfigParser::GameConfigParser(const String& str, const Path& path) :
+        GameConfigParser::GameConfigParser(const std::string& str, const Path& path) :
         ConfigParserBase(str, path) {}
 
         Model::GameConfig GameConfigParser::parse() {
@@ -92,8 +93,8 @@ namespace TrenchBroom {
                     "{'initialmap': 'String'}"
                     "]");
 
-                const String& format = value[i]["format"].stringValue();
-                const String& initialMap = value[i]["initialmap"].stringValue();
+                const std::string& format = value[i]["format"].stringValue();
+                const std::string& initialMap = value[i]["initialmap"].stringValue();
 
                 result.emplace_back(format, IO::Path(initialMap));
             }
@@ -111,7 +112,7 @@ namespace TrenchBroom {
                             "]");
 
 
-            const String& searchPath = value["searchpath"].stringValue();
+            const std::string& searchPath = value["searchpath"].stringValue();
             const GameConfig::PackageFormatConfig packageFormatConfig = parsePackageFormatConfig(value["packageformat"]);
 
             return GameConfig::FileSystemConfig(Path(searchPath), packageFormatConfig);
@@ -154,7 +155,7 @@ namespace TrenchBroom {
             const GameConfig::TexturePackageConfig packageConfig = parseTexturePackageConfig(value["package"]);
             const GameConfig::PackageFormatConfig formatConfig = parsePackageFormatConfig(value["format"]);
             const Path palette(value["palette"].stringValue());
-            const String& attribute = value["attribute"].stringValue();
+            const std::string& attribute = value["attribute"].stringValue();
             const Path shaderSearchPath(value["shaderSearchPath"].stringValue());
 
             return GameConfig::TextureConfig(packageConfig, formatConfig, palette, attribute, shaderSearchPath);
@@ -169,7 +170,7 @@ namespace TrenchBroom {
                             "{'root': 'String', 'format': 'Map'}"
                             "]");
 
-            const String& typeStr = value["type"].stringValue();
+            const std::string& typeStr = value["type"].stringValue();
             if (typeStr == "file") {
                 expectMapEntry(value, "format", EL::ValueType::Map);
                 const GameConfig::PackageFormatConfig formatConfig = parsePackageFormatConfig(value["format"]);
@@ -193,7 +194,7 @@ namespace TrenchBroom {
                             "]");
 
             const Path::List defFilePaths = Path::asPaths(value["definitions"].asStringList());
-            const StringSet modelFormats = value["modelformats"].asStringSet();
+            const std::vector<std::string> modelFormats = value["modelformats"].asStringSet();
             const Color defaultColor = Color::parse(value["defaultcolor"].stringValue());
 
             return GameConfig::EntityConfig(defFilePaths, modelFormats, defaultColor);
@@ -229,8 +230,8 @@ namespace TrenchBroom {
 
                 expectStructure(entry, "[ {'name': 'String'}, {'description': 'String'} ]");
 
-                const String& name = entry["name"].stringValue();
-                const String& description = entry["description"].stringValue();
+                const std::string& name = entry["name"].stringValue();
+                const std::string& description = entry["description"].stringValue();
 
                 flags.push_back(GameConfig::FlagConfig(name, description));
             }
@@ -324,7 +325,7 @@ namespace TrenchBroom {
         int GameConfigParser::parseFlagValue(const EL::Value& value, const Model::GameConfig::FlagsConfig& flags) const {
             const auto flagSet = value.asStringSet();
             int flagValue = 0;
-            for (const String &currentName : flagSet) {
+            for (const std::string &currentName : flagSet) {
                 const auto currentValue = flags.flagValue(currentName);
                 flagValue |= currentValue;
             }

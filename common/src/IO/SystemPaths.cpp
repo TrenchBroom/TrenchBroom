@@ -27,6 +27,9 @@
 #include <QString>
 #include <QStandardPaths>
 
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
     namespace IO {
         namespace SystemPaths {

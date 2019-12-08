@@ -29,6 +29,8 @@
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
 
+#include <string>
+
 #include <QtGlobal>
 
 namespace TrenchBroom {
@@ -46,7 +48,7 @@ namespace TrenchBroom {
             doTerminate();
         }
 
-        String CompilationTaskRunner::interpolate(const String& spec) {
+        std::string CompilationTaskRunner::interpolate(const std::string& spec) {
             try {
                 return m_context.interpolate(spec);
             } catch (const Exception& e) {
@@ -101,7 +103,7 @@ namespace TrenchBroom {
                 const IO::Path targetPath(interpolate(m_task->targetSpec()));
 
                 const IO::Path sourceDirPath = sourcePath.deleteLastComponent();
-                const String sourcePattern = sourcePath.lastComponent().asString();
+                const std::string sourcePattern = sourcePath.lastComponent().asString();
 
                 try {
                     m_context << "#### Copying '" << sourcePath.asString() << "' to '" << targetPath.asString() << "'\n";

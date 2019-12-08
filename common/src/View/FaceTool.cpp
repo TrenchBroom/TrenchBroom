@@ -23,6 +23,8 @@
 
 #include <kdl/string_format.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
         FaceTool::FaceTool(std::weak_ptr<MapDocument> document) :
@@ -56,7 +58,7 @@ namespace TrenchBroom {
             return MR_Deny;
         }
 
-        String FaceTool::actionName() const {
+        std::string FaceTool::actionName() const {
             return kdl::str_plural(m_faceHandles.selectedHandleCount(), "Move Face", "Move Faces");
         }
 

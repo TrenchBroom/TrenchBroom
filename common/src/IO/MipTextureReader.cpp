@@ -27,6 +27,8 @@
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         namespace MipLayout {
@@ -46,7 +48,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        String MipTextureReader::getTextureName(const BufferedReader& reader) {
+        std::string MipTextureReader::getTextureName(const BufferedReader& reader) {
             try {
                 auto nameReader = reader.buffer();
                 return nameReader.readString(MipLayout::TextureNameLength);

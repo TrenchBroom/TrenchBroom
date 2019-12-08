@@ -22,13 +22,15 @@
 
 #include "View/UndoableCommand.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
         class DocumentCommand : public UndoableCommand {
         private:
             size_t m_modificationCount;
         public:
-            DocumentCommand(CommandType type, const String& name);
+            DocumentCommand(CommandType type, const std::string& name);
             virtual ~DocumentCommand() override;
         public:
             bool performDo(MapDocumentCommandFacade* document) override;

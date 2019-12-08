@@ -49,12 +49,12 @@ namespace TrenchBroom {
             return new World(m_format);
         }
 
-        Layer* ModelFactoryImpl::doCreateLayer(const String& name) const {
+        Layer* ModelFactoryImpl::doCreateLayer(const std::string& name) const {
             assert(m_format != MapFormat::Unknown);
             return new Layer(name);
         }
 
-        Group* ModelFactoryImpl::doCreateGroup(const String& name) const {
+        Group* ModelFactoryImpl::doCreateGroup(const std::string& name) const {
             assert(m_format != MapFormat::Unknown);
             return new Group(name);
         }

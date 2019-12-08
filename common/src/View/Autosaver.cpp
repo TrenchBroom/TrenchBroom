@@ -26,6 +26,7 @@
 
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
+#include <kdl/string_utils.h>
 
 #include <algorithm> // for std::sort
 #include <cassert>
@@ -187,9 +188,7 @@ namespace TrenchBroom {
         }
 
         IO::Path Autosaver::makeBackupName(const IO::Path& mapBasename, const size_t index) const {
-            StringStream str;
-            str << mapBasename.asString() << "." << index << ".map";
-            return IO::Path(str.str());
+            return IO::Path(kdl::str_to_string(mapBasename,".", index, ".map"));
         }
 
         size_t extractBackupNo(const IO::Path& path) {

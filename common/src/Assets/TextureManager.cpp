@@ -31,6 +31,8 @@
 
 #include <algorithm>
 #include <iterator>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -143,7 +145,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(m_toRemove);
         }
 
-        Texture* TextureManager::texture(const String& name) const {
+        Texture* TextureManager::texture(const std::string& name) const {
             auto it = m_texturesByName.find(kdl::str_to_lower(name));
             if (it == std::end(m_texturesByName)) {
                 return nullptr;
@@ -160,8 +162,8 @@ namespace TrenchBroom {
             return m_collections;
         }
 
-        const StringList TextureManager::collectionNames() const {
-            StringList result;
+        const std::vector<std::string> TextureManager::collectionNames() const {
+            std::vector<std::string> result;
             result.reserve(m_collections.size());
             std::transform(std::begin(m_collections), std::end(m_collections), std::back_inserter(result),
                            [](auto collection) { return collection->name(); });

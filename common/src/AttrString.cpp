@@ -23,11 +23,10 @@
 
 #include <algorithm>
 
-
 namespace TrenchBroom {
     AttrString::LineFunc::~LineFunc() {}
 
-    void AttrString::LineFunc::process(const String& str, const Justify justify) {
+    void AttrString::LineFunc::process(const std::string& str, const Justify justify) {
         switch (justify) {
             case Justify_Left:
                 justifyLeft(str);
@@ -42,13 +41,13 @@ namespace TrenchBroom {
         }
     }
 
-    AttrString::Line::Line(const String& i_string, Justify i_justify) :
+    AttrString::Line::Line(const std::string& i_string, Justify i_justify) :
     string(i_string),
     justify(i_justify) {}
 
     AttrString::AttrString() {}
 
-    AttrString::AttrString(const String& string) {
+    AttrString::AttrString(const std::string& string) {
         appendLeftJustified(string);
     }
 
@@ -86,15 +85,15 @@ namespace TrenchBroom {
     }
 
 
-    void AttrString::appendLeftJustified(const String& string) {
+    void AttrString::appendLeftJustified(const std::string& string) {
         m_lines.push_back(Line(string, Justify_Left));
     }
 
-    void AttrString::appendRightJustified(const String& string) {
+    void AttrString::appendRightJustified(const std::string& string) {
         m_lines.push_back(Line(string, Justify_Right));
     }
 
-    void AttrString::appendCentered(const String& string) {
+    void AttrString::appendCentered(const std::string& string) {
         m_lines.push_back(Line(string, Justify_Center));
     }
 }

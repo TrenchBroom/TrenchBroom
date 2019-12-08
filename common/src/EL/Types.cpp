@@ -21,9 +21,11 @@
 
 #include "Macros.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace EL {
-        String typeName(const ValueType type) {
+        std::string typeName(const ValueType type) {
             switch (type) {
                 case ValueType::Boolean:
                     return "Boolean";
@@ -45,7 +47,7 @@ namespace TrenchBroom {
             }
         }
 
-        ValueType typeForName(const String& type) {
+        ValueType typeForName(const std::string& type) {
             if (type == "Boolean")
                 return ValueType::Boolean;
             if (type == "String")

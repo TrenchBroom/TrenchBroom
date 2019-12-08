@@ -33,6 +33,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
+#include <sstream>
 #include <vector>
 
 namespace TrenchBroom {
@@ -65,7 +66,7 @@ namespace TrenchBroom {
             document->select(faces);
             document->setTexture(replacement);
 
-            StringStream msg;
+            std::stringstream msg;
             msg << "Replaced texture '" << subject->name() << "' with '" << replacement->name() << "' on " << faces.size() << " faces.";
 
             QMessageBox::information(this, tr("Replace Succeeded"), QString::fromStdString(msg.str()));

@@ -20,9 +20,8 @@
 #ifndef TrenchBroom_ViewUtils
 #define TrenchBroom_ViewUtils
 
-#include "StringType.h"
-
 #include <memory>
+#include <string>
 
 class QWidget;
 class QString;
@@ -48,7 +47,7 @@ namespace TrenchBroom {
         bool loadEntityDefinitionFile(std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path);
         size_t loadEntityDefinitionFile(std::weak_ptr<MapDocument> document, QWidget* parent, const QStringList& pathStrs);
 
-        String queryGroupName(QWidget* parent);
+        std::string queryGroupName(QWidget* parent);
     }
 }
 

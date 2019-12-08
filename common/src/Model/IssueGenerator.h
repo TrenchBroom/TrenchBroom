@@ -20,8 +20,7 @@
 #ifndef TrenchBroom_IssueGenerator
 #define TrenchBroom_IssueGenerator
 
-#include "StringType.h"
-
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -44,13 +43,13 @@ namespace TrenchBroom {
             using IssueQuickFixList = std::vector<IssueQuickFix*>;
         private:
             IssueType m_type;
-            String m_description;
+            std::string m_description;
             IssueQuickFixList m_quickFixes;
         public:
             virtual ~IssueGenerator();
 
             IssueType type() const;
-            const String& description() const;
+            const std::string& description() const;
             const IssueQuickFixList& quickFixes() const;
 
             void generate(World* world,   IssueList& issues) const;
@@ -59,7 +58,7 @@ namespace TrenchBroom {
             void generate(Entity* entity, IssueList& issues) const;
             void generate(Brush* brush,   IssueList& issues) const;
         protected:
-            IssueGenerator(IssueType type, const String& description);
+            IssueGenerator(IssueType type, const std::string& description);
             void addQuickFix(IssueQuickFix* quickFix);
         private:
             virtual void doGenerate(World* world,           IssueList& issues) const;

@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace IO {
         class FSTestEnvironment : public TestEnvironment {
         public:
-            explicit FSTestEnvironment(const String& dir = "fstest") :
+            explicit FSTestEnvironment(const std::string& dir = "fstest") :
             TestEnvironment(dir) {
                 createTestEnvironment();
             }

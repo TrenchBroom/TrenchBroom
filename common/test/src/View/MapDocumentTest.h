@@ -26,6 +26,7 @@
 #include "View/MapDocument.h"
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -53,7 +54,7 @@ namespace TrenchBroom {
             void SetUp() override;
             void TearDown() override;
 
-            Model::Brush* createBrush(const String& textureName = "texture");
+            Model::Brush* createBrush(const std::string& textureName = "texture");
         };
 
         class ValveMapDocumentTest : public MapDocumentTest {

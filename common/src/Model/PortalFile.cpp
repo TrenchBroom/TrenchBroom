@@ -28,6 +28,7 @@
 #include <vecmath/forward.h>
 
 #include <fstream>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -52,12 +53,12 @@ namespace TrenchBroom {
                 throw FileFormatException("Couldn't open file");
             }
 
-            String line;
+            std::string line;
             int numPortals;
 
             // read header
             std::getline(stream, line);
-            const String formatCode = kdl::str_trim(line); // trim off any trailing \r
+            const std::string formatCode = kdl::str_trim(line); // trim off any trailing \r
 
             if (formatCode == "PRT1") {
                 std::getline(stream, line); // number of leafs (ignored)

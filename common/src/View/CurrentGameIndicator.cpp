@@ -24,12 +24,14 @@
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
+#include <string>
+
 #include <QBoxLayout>
 #include <QLabel>
 
 namespace TrenchBroom {
     namespace View {
-        CurrentGameIndicator::CurrentGameIndicator(const String& gameName, QWidget* parent) :
+        CurrentGameIndicator::CurrentGameIndicator(const std::string& gameName, QWidget* parent) :
         QWidget(parent) {
             // Use white background (or whatever color a text widget uses)
             setBaseWindowColor(this);

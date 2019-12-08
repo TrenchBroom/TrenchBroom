@@ -20,11 +20,11 @@
 #ifndef TrenchBroom_EntityDefinitionParser_h
 #define TrenchBroom_EntityDefinitionParser_h
 
-#include "StringType.h"
 #include "Assets/Asset_Forward.h"
 
 #include <map>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -37,7 +37,7 @@ namespace TrenchBroom {
             using EntityDefinitionList = std::vector<Assets::EntityDefinition*>;
             using AttributeDefinitionPtr = std::shared_ptr<Assets::AttributeDefinition>;
             using AttributeDefinitionList = std::vector<AttributeDefinitionPtr>;
-            using AttributeDefinitionMap = std::map<String, AttributeDefinitionPtr>;
+            using AttributeDefinitionMap = std::map<std::string, AttributeDefinitionPtr>;
         public:
             virtual ~EntityDefinitionParser();
             EntityDefinitionList parseDefinitions(ParserStatus& status);

@@ -20,8 +20,8 @@
 #ifndef FileMatcher_h
 #define FileMatcher_h
 
-#include "StringType.h"
-#include "StringList.h"
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -38,27 +38,27 @@ namespace TrenchBroom {
 
         class FileExtensionMatcher {
         private:
-            StringList m_extensions;
+            std::vector<std::string> m_extensions;
         public:
-            FileExtensionMatcher(const String& extension);
-            FileExtensionMatcher(const StringList& extensions);
+            FileExtensionMatcher(const std::string& extension);
+            FileExtensionMatcher(const std::vector<std::string>& extensions);
             bool operator()(const Path& path, bool directory) const;
         };
 
         class FileBasenameMatcher : public FileExtensionMatcher {
         private:
-            String m_basename;
+            std::string m_basename;
         public:
-            FileBasenameMatcher(const String& basename, const String& extension);
-            FileBasenameMatcher(const String& basename, const StringList& extensions);
+            FileBasenameMatcher(const std::string& basename, const std::string& extension);
+            FileBasenameMatcher(const std::string& basename, const std::vector<std::string>& extensions);
             bool operator()(const Path& path, bool directory) const;
         };
 
         class FileNameMatcher {
         private:
-            String m_pattern;
+            std::string m_pattern;
         public:
-            FileNameMatcher(const String& pattern);
+            FileNameMatcher(const std::string& pattern);
             bool operator()(const Path& path, bool directory) const;
         };
 

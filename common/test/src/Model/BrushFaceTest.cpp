@@ -32,7 +32,6 @@
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/MapFormat.h"
-#include "Model/Model_Forward.h"
 #include "Model/NodeSnapshot.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"
@@ -518,7 +517,7 @@ namespace TrenchBroom {
 
         // https://github.com/kduske/TrenchBroom/issues/2001
         TEST(BrushFaceTest, testValveRotation) {
-            const String data("{\n"
+            const std::string data("{\n"
                                       "\"classname\" \"worldspawn\"\n"
                                       "{\n"
                                       "( 24 8 48 ) ( 32 16 -16 ) ( 24 -8 48 ) tlight11 [ 0 1 0 0 ] [ 0 0 -1 56 ] -0 1 1\n"
@@ -574,7 +573,7 @@ namespace TrenchBroom {
 
         // https://github.com/kduske/TrenchBroom/issues/1995
         TEST(BrushFaceTest, testCopyTexCoordSystem) {
-            const String data("{\n"
+            const std::string data("{\n"
                                       "    \"classname\" \"worldspawn\"\n"
                                       "    {\n"
                                       "        ( 24 8 48 ) ( 32 16 -16 ) ( 24 -8 48 ) tlight11 [ 0 1 0 0 ] [ 0 0 -1 56 ] -0 1 1\n"
@@ -631,7 +630,7 @@ namespace TrenchBroom {
 
         // https://github.com/kduske/TrenchBroom/issues/2315
         TEST(BrushFaceTest, move45DegreeFace) {
-            const String data(R"(
+            const std::string data(R"(
 // entity 0
 {
 "classname" "worldspawn"

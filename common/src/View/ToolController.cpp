@@ -27,9 +27,7 @@
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>
 #include <vecmath/line.h>
-#include <vecmath/plane.h>
 #include <vecmath/vec.h>
-
 
 namespace TrenchBroom {
     namespace View {
@@ -462,7 +460,7 @@ namespace TrenchBroom {
 
         NoDropPolicy::~NoDropPolicy() = default;
 
-        bool NoDropPolicy::doDragEnter(const InputState&, const String& /* payload */) { return false; }
+        bool NoDropPolicy::doDragEnter(const InputState&, const std::string& /* payload */) { return false; }
         bool NoDropPolicy::doDragMove(const InputState&) { return false; }
         void NoDropPolicy::doDragLeave(const InputState&) {}
         bool NoDropPolicy::doDragDrop(const InputState&) { return false; }
@@ -557,7 +555,7 @@ namespace TrenchBroom {
             m_chain.render(inputState, renderContext, renderBatch);
         }
 
-        bool ToolControllerGroup::doDragEnter(const InputState& inputState, const String& payload) {
+        bool ToolControllerGroup::doDragEnter(const InputState& inputState, const std::string& payload) {
             assert(m_dropReceiver == nullptr);
             if (!doShouldHandleDrop(inputState, payload))
                 return false;
@@ -596,7 +594,7 @@ namespace TrenchBroom {
         void ToolControllerGroup::doMouseDragEnded(const InputState&) {}
         void ToolControllerGroup::doMouseDragCancelled() {}
 
-        bool ToolControllerGroup::doShouldHandleDrop(const InputState&, const String& /* payload */) const {
+        bool ToolControllerGroup::doShouldHandleDrop(const InputState&, const std::string& /* payload */) const {
             return true;
         }
     }

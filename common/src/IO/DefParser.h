@@ -22,7 +22,6 @@
 
 #include "TrenchBroom.h"
 #include "Color.h"
-#include "StringType.h"
 #include "Assets/Asset_Forward.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
@@ -34,6 +33,7 @@
 #include <vecmath/bbox.h>
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -61,9 +61,9 @@ namespace TrenchBroom {
         class DefTokenizer : public Tokenizer<DefToken::Type> {
         public:
             DefTokenizer(const char* begin, const char* end);
-            DefTokenizer(const String& str);
+            DefTokenizer(const std::string& str);
         private:
-            static const String WordDelims;
+            static const std::string WordDelims;
             Token emitToken() override;
         };
 
@@ -76,22 +76,22 @@ namespace TrenchBroom {
             EntityDefinitionClassInfoMap m_baseClasses;
         public:
             DefParser(const char* begin, const char* end, const Color& defaultEntityColor);
-            DefParser(const String& str, const Color& defaultEntityColor);
+            DefParser(const std::string& str, const Color& defaultEntityColor);
         private:
             TokenNameMap tokenNames() const override;
             EntityDefinitionList doParseDefinitions(ParserStatus& status) override;
 
             Assets::EntityDefinition* parseDefinition(ParserStatus& status);
             AttributeDefinitionPtr parseSpawnflags(ParserStatus& status);
-            void parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses);
-            bool parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses);
+            void parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo, std::vector<std::string>& superClasses);
+            bool parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo, std::vector<std::string>& superClasses);
 
             void parseDefaultAttribute(ParserStatus& status);
-            String parseBaseAttribute(ParserStatus& status);
+            std::string parseBaseAttribute(ParserStatus& status);
             AttributeDefinitionPtr parseChoiceAttribute(ParserStatus& status);
             Assets::ModelDefinition parseModel(ParserStatus& status);
 
-            String parseDescription();
+            std::string parseDescription();
 
             vm::vec3 parseVector(ParserStatus& status);
             vm::bbox3 parseBounds(ParserStatus& status);

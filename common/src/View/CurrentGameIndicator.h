@@ -20,7 +20,7 @@
 #ifndef CurrentGameIndicator_h
 #define CurrentGameIndicator_h
 
-#include "StringType.h"
+#include <string>
 
 #include <QWidget>
 
@@ -29,7 +29,7 @@ namespace TrenchBroom {
         class CurrentGameIndicator : public QWidget {
             Q_OBJECT
         public:
-            explicit CurrentGameIndicator(const String& gameName, QWidget* parent = nullptr);
+            explicit CurrentGameIndicator(const std::string& gameName, QWidget* parent = nullptr);
         };
     }
 }

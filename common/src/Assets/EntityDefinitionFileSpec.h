@@ -25,6 +25,7 @@
 // FIXME: there must not be dependencies from Assets or Model or Renderer to Qt
 #include <QMetaType>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -44,7 +45,7 @@ namespace TrenchBroom {
         public:
             EntityDefinitionFileSpec();
 
-            static EntityDefinitionFileSpec parse(const String& str);
+            static EntityDefinitionFileSpec parse(const std::string& str);
             static EntityDefinitionFileSpec builtin(const IO::Path& path);
             static EntityDefinitionFileSpec external(const IO::Path& path);
             static EntityDefinitionFileSpec unset();
@@ -58,7 +59,7 @@ namespace TrenchBroom {
 
             const IO::Path& path() const;
 
-            String asString() const;
+            std::string asString() const;
         private:
             EntityDefinitionFileSpec(Type type, const IO::Path& path);
         };

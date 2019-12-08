@@ -20,11 +20,12 @@
 #include "MdlParser.h"
 
 #include "Exceptions.h"
-#include "StringStream.h"
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
 #include "IO/Reader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
+
+#include <kdl/string_utils.h>
 
 #include <string>
 
@@ -209,7 +210,7 @@ namespace TrenchBroom {
 
         static const int MF_HOLEY = (1 << 14);
 
-        MdlParser::MdlParser(const String& name, const char* begin, const char* end, const Assets::Palette& palette) :
+        MdlParser::MdlParser(const std::string& name, const char* begin, const char* end, const Assets::Palette& palette) :
         m_name(name),
         m_begin(begin),
         m_end(end),
@@ -300,7 +301,6 @@ namespace TrenchBroom {
                               ? Assets::TextureType::Masked
                               : Assets::TextureType::Opaque;
             Color avgColor;
-            StringStream textureName;
 
             for (size_t i = 0; i < count; ++i) {
                 const auto skinGroup = reader.readSize<int32_t>();
@@ -308,9 +308,8 @@ namespace TrenchBroom {
                     Buffer<unsigned char> rgbaImage(size * 4);
                     m_palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
 
-                    textureName << m_name << "_" << i;
-
-                    surface.addSkin(new Assets::Texture(textureName.str(), width, height, avgColor, rgbaImage, GL_RGBA, type));
+                    const std::string textureName = m_name + "_" + kdl::str_to_string(i);
+                    surface.addSkin(new Assets::Texture(textureName, width, height, avgColor, rgbaImage, GL_RGBA, type));
                 } else {
                     const auto pictureCount = reader.readSize<int32_t>();
 
@@ -320,9 +319,8 @@ namespace TrenchBroom {
                     m_palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
                     reader.seekForward((pictureCount - 1) * size);  // skip all remaining pictures
 
-                    textureName << m_name << "_" << i;
-
-                    surface.addSkin(new Assets::Texture(textureName.str(), width, height, avgColor, rgbaImage, GL_RGBA, type));
+                    const std::string textureName = m_name + "_" + kdl::str_to_string(i);
+                    surface.addSkin(new Assets::Texture(textureName, width, height, avgColor, rgbaImage, GL_RGBA, type));
                 }
             }
         }

@@ -20,12 +20,17 @@
 #ifndef WalTextureReader_h
 #define WalTextureReader_h
 
-#include "Color.h"
-#include "IO/TextureReader.h"
 #include "Assets/Palette.h"
-#include "Assets/Texture.h"
+#include "Assets/Texture.h" // get rid of this include by sanitizing TextureBuffer::List (make forward declaration)
+#include "IO/TextureReader.h"
+
+class Color;
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+
     namespace IO {
         class Reader;
         class Path;

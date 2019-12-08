@@ -21,12 +21,12 @@
 #define TrenchBroom_CreateEntityTool
 
 #include "TrenchBroom.h"
-#include "StringType.h"
 #include "View/Tool.h"
 
 #include <vecmath/bbox.h>
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -45,7 +45,7 @@ namespace TrenchBroom {
         public:
             CreateEntityTool(std::weak_ptr<MapDocument> document);
 
-            bool createEntity(const String& classname);
+            bool createEntity(const std::string& classname);
             void removeEntity();
             void commitEntity();
 
