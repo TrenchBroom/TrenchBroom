@@ -85,6 +85,11 @@ namespace TrenchBroom {
             void computeOriginHandleVertices(vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const;
             void computeScaleHandleVertices(const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const;
             void computeLineVertices(const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2, const vm::mat4x4& toTex, const vm::mat4x4& toWorld) const;
+
+            /**
+             * Converts texture space to view space (pixels in the UV viewport).
+             */
+            vm::vec2f texToViewCoords(const vm::vec2f& pos) const;
         private:
             void resetOrigin();
             void resetCamera();

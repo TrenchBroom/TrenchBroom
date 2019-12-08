@@ -131,23 +131,29 @@ namespace TrenchBroom {
                 const auto& boundary = m_face->boundary();
                 const FloatType distance = vm::intersect_ray_plane(ray, boundary);
                 const vm::vec3  hitPointInWorldCoords = vm::point_at_distance(ray, distance);
-                const vm::vec3  hitPointInTexCoords = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * hitPointInWorldCoords;
-                const vm::vec2f hitPointInViewCoords = m_camera.project(vm::vec3f(hitPointInWorldCoords)).xy();
+                const vm::vec2f hitPointInTexCoords = vm::vec2f(m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * hitPointInWorldCoords);
+                const vm::vec2f hitPointInViewCoords = texToViewCoords(hitPointInTexCoords);
 
-                const vm::vec2f closestGridInTexCoords = vm::vec2f(hitPointInTexCoords) + computeDistanceFromTextureGrid(hitPointInTexCoords);
-                const vm::vec3  closestGridInWorldCoords = m_face->fromTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * vm::vec3(closestGridInTexCoords, 0.0f);
-                const vm::vec2f closestGridInViewCoords = m_camera.project(vm::vec3f(closestGridInWorldCoords)).xy();
-
-                // X and Y distance in pixels to the closest grid intersection
-                // (i.e. so the X component is the distance from the closest vertical gridline, and the
+                // X and Y distance in texels to the closest grid intersection.
+                // (i.e. so the X component is the distance to the closest vertical gridline, and the
                 // Y the distance to the closest horizontal gridline.)
+                const vm::vec2f distanceFromGridTexCoords = computeDistanceFromTextureGrid(vm::vec3(hitPointInTexCoords, 0.0f));
+                const vm::vec2f closestPointsOnGridInTexCoords[2] = {
+                    hitPointInTexCoords + vm::vec2f(distanceFromGridTexCoords.x(), 0.0f), // closest point on a vertical gridline
+                    hitPointInTexCoords + vm::vec2f(0.0f, distanceFromGridTexCoords.y()), // closest point on a horizontal gridline
+                };
+
                 // FIXME: should be measured in points so the grid isn't harder to hit with high-DPI
-                const vm::vec2f distToClosestGridInScreenCoords = vm::abs(closestGridInViewCoords - hitPointInViewCoords);
-                // FIXME: factor out and share with other tools, possibly as preference
+                const float distToClosestGridInViewCoords[2] = {
+                    vm::distance(hitPointInViewCoords, texToViewCoords(closestPointsOnGridInTexCoords[0])),
+                    vm::distance(hitPointInViewCoords, texToViewCoords(closestPointsOnGridInTexCoords[1]))
+                };
+
+                // FIXME: factor out and share with other tools
                 constexpr float maxDistance = static_cast<float>(5.0);
 
                 for (size_t i = 0; i < 2; ++i) {
-                    const float error = distToClosestGridInScreenCoords[i];
+                    const float error = distToClosestGridInViewCoords[i];
 
                     if (error <= maxDistance) {
                         const vm::vec2 stripeSize = UVViewHelper::stripeSize();
@@ -205,6 +211,12 @@ namespace TrenchBroom {
             x2 = toWorld * vm::vec3(pos.x(), max.y(), 0.0);
             y1 = toWorld * vm::vec3(min.x(), pos.y(), 0.0);
             y2 = toWorld * vm::vec3(max.x(), pos.y(), 0.0);
+        }
+
+        vm::vec2f UVViewHelper::texToViewCoords(const vm::vec2f& pos) const {
+            const vm::vec3  posInWorldCoords = m_face->fromTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * vm::vec3(pos, 0.0f);
+            const vm::vec2f posInViewCoords = m_camera.project(vm::vec3f(posInWorldCoords)).xy();
+            return posInViewCoords;
         }
 
         void UVViewHelper::resetOrigin() {
