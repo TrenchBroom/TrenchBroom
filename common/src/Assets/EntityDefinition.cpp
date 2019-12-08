@@ -20,6 +20,7 @@
 #include "EntityDefinition.h"
 
 #include "Assets/AttributeDefinition.h"
+#include "Model/EntityAttributes.h"
 
 #include <kdl/string_compare.h>
 

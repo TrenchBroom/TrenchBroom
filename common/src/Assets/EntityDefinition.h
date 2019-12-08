@@ -25,6 +25,7 @@
 #include "Notifier.h"
 #include "Assets/Asset_Forward.h"
 #include "Assets/ModelDefinition.h"
+#include "Model/Model_Forward.h"
 
 #include <vecmath/bbox.h>
 
