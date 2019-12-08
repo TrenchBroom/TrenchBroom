@@ -47,8 +47,7 @@ namespace TrenchBroom {
             // make textures
             std::vector<Assets::Texture*> textures;
             for (size_t i = 0; i < NumTextures; ++i) {
-                const String textureName = "texture " + std::to_string(i);
-
+                const auto textureName = "texture " + std::to_string(i);
                 textures.push_back(new Assets::Texture(textureName, 64, 64));
             }
 

@@ -21,10 +21,10 @@
 #define TrenchBroom_TextureReader_h
 
 #include "Macros.h"
-#include "StringType.h"
 #include "Assets/Asset_Forward.h"
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -41,10 +41,10 @@ namespace TrenchBroom {
 
                 NameStrategy* clone() const;
 
-                String textureName(const String& textureName, const Path& path) const;
+                std::string textureName(const std::string& textureName, const Path& path) const;
             private:
                 virtual NameStrategy* doClone() const = 0;
-                virtual String doGetTextureName(const String& textureName, const Path& path) const = 0;
+                virtual std::string doGetTextureName(const std::string& textureName, const Path& path) const = 0;
 
                 deleteCopyAndMove(NameStrategy)
             };
@@ -54,7 +54,7 @@ namespace TrenchBroom {
                 TextureNameStrategy();
             private:
                 NameStrategy* doClone() const override;
-                String doGetTextureName(const String& textureName, const Path& path) const override;
+                std::string doGetTextureName(const std::string& textureName, const Path& path) const override;
 
                 deleteCopyAndMove(TextureNameStrategy)
             };
@@ -67,19 +67,19 @@ namespace TrenchBroom {
                 PathSuffixNameStrategy(size_t suffixLength, bool deleteExtension);
             private:
                 NameStrategy* doClone() const override;
-                String doGetTextureName(const String& textureName, const Path& path) const override;
+                std::string doGetTextureName(const std::string& textureName, const Path& path) const override;
 
                 deleteCopyAndMove(PathSuffixNameStrategy)
             };
 
             class StaticNameStrategy : public NameStrategy {
             private:
-                String m_name;
+                std::string m_name;
             public:
-                explicit StaticNameStrategy(const String& name);
+                explicit StaticNameStrategy(const std::string& name);
             private:
                 NameStrategy* doClone() const override;
-                String doGetTextureName(const String& textureName, const Path& path) const override;
+                std::string doGetTextureName(const std::string& textureName, const Path& path) const override;
 
                 deleteCopyAndMove(StaticNameStrategy)
             };
@@ -92,8 +92,8 @@ namespace TrenchBroom {
 
             Assets::Texture* readTexture(std::shared_ptr<File> file) const;
         protected:
-            String textureName(const String& textureName, const Path& path) const;
-            String textureName(const Path& path) const;
+            std::string textureName(const std::string& textureName, const Path& path) const;
+            std::string textureName(const Path& path) const;
         private:
             /**
              * Loads a texture and returns an Assets::Texture object allocated with new. Should not throw exceptions to

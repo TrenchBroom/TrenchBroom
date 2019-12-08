@@ -21,12 +21,16 @@
 
 #include "Exceptions.h"
 #include "SharedPointer.h"
-#include "StringUtils.h"
 #include "IO/DiskFileSystem.h"
 #include "View/MapDocument.h"
 
+#include <kdl/string_compare.h>
+#include <kdl/string_format.h>
+#include <kdl/string_utils.h>
+
 #include <algorithm> // for std::sort
 #include <cassert>
+#include <limits>
 #include <memory>
 
 namespace TrenchBroom {
@@ -38,7 +42,7 @@ namespace TrenchBroom {
             if (directory) {
                 return false;
             }
-            if (!StringUtils::caseInsensitiveEqual(path.extension(), "map")) {
+            if (!kdl::ci::is_equal(path.extension(), "map")) {
                 return false;
             }
 
@@ -49,13 +53,15 @@ namespace TrenchBroom {
             }
 
             const auto backupExtension = backupName.extension();
-            if (!StringUtils::isNumber(backupExtension)) {
+            if (!kdl::str_is_numeric(backupExtension)) {
                 return false;
             }
 
-            const auto no = StringUtils::stringToSize(backupName.extension());
-            return no > 0;
-
+            try {
+                return std::stoul(backupName.extension()) > 0u;
+            } catch (const std::exception&) {
+                return false;
+            }
         }
 
         Autosaver::Autosaver(std::weak_ptr<MapDocument> document, const std::time_t saveInterval, const std::time_t idleInterval, const size_t maxBackups) :
@@ -182,15 +188,18 @@ namespace TrenchBroom {
         }
 
         IO::Path Autosaver::makeBackupName(const IO::Path& mapBasename, const size_t index) const {
-            StringStream str;
-            str << mapBasename.asString() << "." << index << ".map";
-            return IO::Path(str.str());
+            return IO::Path(kdl::str_to_string(mapBasename,".", index, ".map"));
         }
 
         size_t extractBackupNo(const IO::Path& path) {
-            const auto no = StringUtils::stringToSize(path.deleteExtension().extension());
-            assert(no > 0);
-            return no;
+            try {
+                return std::stoul(path.deleteExtension().extension());
+            } catch (const std::exception&) {
+                // currently this function is only used when comparing file names which have already been verified as
+                // valid backup file names, so this should not happen, but if it does, sort the invalid file names to
+                // the end to avoid modifying them
+                return std::numeric_limits<size_t>::max();
+            }
         }
 
         void Autosaver::bindObservers() {

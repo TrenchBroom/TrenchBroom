@@ -95,8 +95,8 @@ namespace TrenchBroom {
         void OrthographicCamera::doUpdateZoom() {
             const auto& unzoomedViewport = viewport();
             m_zoomedViewport = Viewport(unzoomedViewport.x, unzoomedViewport.y,
-                                        static_cast<int>(vm::round(unzoomedViewport.width / zoom())),
-                                        static_cast<int>(vm::round(unzoomedViewport.height / zoom())));
+                                        static_cast<int>(vm::round(static_cast<float>(unzoomedViewport.width)  / zoom())),
+                                        static_cast<int>(vm::round(static_cast<float>(unzoomedViewport.height) / zoom())));
         }
     }
 }

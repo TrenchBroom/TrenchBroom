@@ -33,10 +33,11 @@
 #include <kdl/vector_utils.h>
 
 #include <algorithm>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
-        void assertAttributeDefinition(const String& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition);
+        void assertAttributeDefinition(const std::string& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition);
 
         TEST(EntParserTest, parseIncludedEntFiles) {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
@@ -57,7 +58,7 @@ namespace TrenchBroom {
         }
 
         TEST(EntParserTest, parseEmptyFile) {
-            const String file = "";
+            const std::string file = "";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             EntParser parser(file, defaultColor);
 
@@ -68,7 +69,7 @@ namespace TrenchBroom {
         }
 
         TEST(EntParserTest, parseWhitespaceFile) {
-            const String file = "     \n  \t \n  ";
+            const std::string file = "     \n  \t \n  ";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             EntParser parser(file, defaultColor);
 
@@ -79,7 +80,7 @@ namespace TrenchBroom {
         }
 
         TEST(EntParserTest, parseMalformedXML) {
-            const String file =
+            const std::string file =
 R"(<?xml version="1.0"?>
 <classes>
     <point name="_skybox" color="0.77 0.88 1.0" box="-4 -4 -4 4 4 4">
@@ -92,7 +93,7 @@ R"(<?xml version="1.0"?>
         }
 
         TEST(EntParserTest, parseSimplePointEntityDefinition) {
-            const String file = R"(
+            const std::string file = R"(
 <?xml version="1.0"?>
 <!--
 Quake3 Arena entity definition file for Q3Radiant
@@ -179,7 +180,7 @@ Updated: 2011-03-02
         }
 
         TEST(EntParserTest, parseSimpleGroupEntityDefinition) {
-            const String file = R"(
+            const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
 <group name="func_bobbing" color="0 .4 1">
@@ -238,7 +239,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
         }
 
         TEST(EntParserTest, parseListAttributeDefinition) {
-            const String file = R"(
+            const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
 <list name="colorIndex">
@@ -305,7 +306,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
         }
 
         TEST(EntParserTest, parseInvalidRealAttributeDefinition) {
-            const String file = R"(
+            const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
     <point name="_skybox" color="0.77 0.88 1.0" box="-4 -4 -4 4 4 4">
@@ -336,7 +337,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
         }
 
         TEST(EntParserTest, parseLegacyModelDefinition) {
-            const String file = R"(
+            const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
 <point name="ammo_bfg" color=".3 .3 1" box="-16 -16 -16 16 16 16" model="models/powerups/ammo/bfgam.md3" />
@@ -360,7 +361,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
         }
 
         TEST(EntParserTest, parseELStaticModelDefinition) {
-            const String file = R"(
+            const std::string file = R"(
             <?xml version="1.0"?>
             <classes>
             <point name="ammo_bfg" color=".3 .3 1" box="-16 -16 -16 16 16 16" model="{{ spawnflags == 1 -> 'models/powerups/ammo/bfgam.md3', 'models/powerups/ammo/bfgam2.md3' }}" />
@@ -383,7 +384,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             kdl::vec_clear_and_delete(definitions);
         }
 
-        void assertAttributeDefinition(const String& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition) {
+        void assertAttributeDefinition(const std::string& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition) {
             const auto* attrDefinition = entityDefinition->attributeDefinition(name);
             ASSERT_NE(nullptr, attrDefinition) << "Missing attribute definition for '" + name + "' key";
             ASSERT_EQ(expectedType, attrDefinition->type()) << "Expected '" + name + "' attribute definition to be of expected type";

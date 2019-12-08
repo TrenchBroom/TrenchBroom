@@ -30,6 +30,7 @@
 
 #include <cstdio>
 #include <map>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -81,9 +82,9 @@ namespace TrenchBroom {
 
             struct Face {
                 IndexedVertexList verts;
-                String texture;
+                std::string texture;
 
-                Face(IndexedVertexList i_verts, String i_texture);
+                Face(IndexedVertexList i_verts, std::string i_texture);
             };
 
             using FaceList = std::vector<Face>;

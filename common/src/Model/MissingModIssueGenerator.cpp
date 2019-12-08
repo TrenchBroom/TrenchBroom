@@ -32,6 +32,7 @@
 
 #include <cassert>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -40,10 +41,10 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         private:
-            String m_mod;
-            String m_message;
+            std::string m_mod;
+            std::string m_message;
         public:
-            MissingModIssue(AttributableNode* node, const String& mod, const String& message) :
+            MissingModIssue(AttributableNode* node, const std::string& mod, const std::string& message) :
             Issue(node),
             m_mod(mod),
             m_message(message) {}
@@ -52,11 +53,11 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            const std::string doGetDescription() const override {
                 return "Mod '" + m_mod + "' could not be used: " + m_message;
             }
         public:
-            const String& mod() const {
+            const std::string& mod() const {
                 return m_mod;
             }
         };
@@ -74,16 +75,16 @@ namespace TrenchBroom {
                  // If nothing is selected, attribute changes will affect only world.
                 facade->deselectAll();
 
-                const StringList oldMods = facade->mods();
-                const StringList newMods = removeMissingMods(oldMods, issues);
+                const std::vector<std::string> oldMods = facade->mods();
+                const std::vector<std::string> newMods = removeMissingMods(oldMods, issues);
                 facade->setMods(newMods);
             }
 
-            StringList removeMissingMods(StringList mods, const IssueList& issues) const {
+            std::vector<std::string> removeMissingMods(std::vector<std::string> mods, const IssueList& issues) const {
                 for (const Issue* issue : issues) {
                     if (issue->type() == MissingModIssue::Type) {
                         const MissingModIssue* modIssue = static_cast<const MissingModIssue*>(issue);
-                        const String missingMod = modIssue->mod();
+                        const std::string missingMod = modIssue->mod();
                         kdl::vec_erase(mods, missingMod);
                     }
                 }
@@ -109,7 +110,7 @@ namespace TrenchBroom {
             }
 
             auto game = lock(m_game);
-            const StringList mods = game->extractEnabledMods(*node);
+            const std::vector<std::string> mods = game->extractEnabledMods(*node);
 
             if (mods == m_lastMods) {
                 return;

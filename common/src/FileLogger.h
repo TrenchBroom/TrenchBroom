@@ -24,6 +24,7 @@
 #include "Logger.h"
 
 #include <cstdio>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -39,7 +40,7 @@ namespace TrenchBroom {
 
         static FileLogger& instance();
     private:
-        void doLog(LogLevel level, const String& message) override;
+        void doLog(LogLevel level, const std::string& message) override;
         void doLog(LogLevel level, const QString& message) override;
 
         deleteCopyAndMove(FileLogger)

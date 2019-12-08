@@ -20,12 +20,14 @@
 #ifndef TRENCHBROOM_VARIABLESTOREMODEL_H
 #define TRENCHBROOM_VARIABLESTOREMODEL_H
 
-#include "StringType.h"
-#include "StringList.h"
+#include <memory>
+#include <string>
+#include <vector>
 
 #include <QAbstractListModel>
 
-#include <memory>
+class QModelIndex;
+class QVariant;
 
 namespace TrenchBroom {
     namespace EL {
@@ -36,7 +38,7 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             std::unique_ptr<EL::VariableStore> m_variables;
-            StringList m_variableNames;
+            std::vector<std::string> m_variableNames;
         public:
             explicit VariableStoreModel(const EL::VariableStore& variables);
 

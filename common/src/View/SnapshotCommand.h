@@ -22,6 +22,8 @@
 
 #include "View/DocumentCommand.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
         class Snapshot;
@@ -32,7 +34,7 @@ namespace TrenchBroom {
         private:
             Model::Snapshot* m_snapshot;
         protected:
-            SnapshotCommand(CommandType type, const String& name);
+            SnapshotCommand(CommandType type, const std::string& name);
             virtual ~SnapshotCommand() override;
         public:
             bool performDo(MapDocumentCommandFacade* document) override;

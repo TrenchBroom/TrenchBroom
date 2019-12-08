@@ -29,6 +29,8 @@
 #include <vecmath/quat.h>
 #include <vecmath/bbox.h>
 
+#include <string>
+
 namespace TrenchBroom {
     class Logger;
 
@@ -46,7 +48,7 @@ namespace TrenchBroom {
     namespace View {
         class GLContextManager;
 
-        using EntityGroupData = String;
+        using EntityGroupData = std::string;
 
         class EntityCellData {
         private:
@@ -76,7 +78,7 @@ namespace TrenchBroom {
             bool m_group;
             bool m_hideUnused;
             Assets::EntityDefinition::SortOrder m_sortOrder;
-            String m_filterText;
+            std::string m_filterText;
         public:
             EntityBrowserView(QScrollBar* scrollBar,
                               GLContextManager& contextManager,
@@ -88,7 +90,7 @@ namespace TrenchBroom {
             void setSortOrder(Assets::EntityDefinition::SortOrder sortOrder);
             void setGroup(bool group);
             void setHideUnused(bool hideUnused);
-            void setFilterText(const String& filterText);
+            void setFilterText(const std::string& filterText);
         private:
             void usageCountDidChange();
 

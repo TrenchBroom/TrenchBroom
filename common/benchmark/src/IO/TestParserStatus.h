@@ -21,10 +21,10 @@
 #define TrenchBroom_TestParserStatus
 
 #include "Logger.h"
-#include "StringType.h"
 #include "IO/ParserStatus.h"
 
 #include <map>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             size_t countStatus(Logger::LogLevel level) const;
         private:
             void doProgress(double progress) override;
-            void doLog(Logger::LogLevel level, const String& str) override;
+            void doLog(Logger::LogLevel level, const std::string& str) override;
         };
     }
 }

@@ -20,11 +20,11 @@
 #include "DiskFileSystem.h"
 
 #include "Exceptions.h"
-#include "StringUtils.h"
 
 #include "IO/DiskIO.h"
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             }
         }
 
-        void WritableDiskFileSystem::doCreateFile(const Path& path, const String& contents) {
+        void WritableDiskFileSystem::doCreateFile(const Path& path, const std::string& contents) {
             Disk::createFile(doMakeAbsolute(path), contents);
         }
 

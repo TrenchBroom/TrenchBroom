@@ -19,22 +19,24 @@
 
 #include "EntityDefinitionGroup.h"
 
-#include "StringUtils.h"
+#include <kdl/string_format.h>
+
+#include <string>
 
 namespace TrenchBroom {
     namespace Assets {
-        EntityDefinitionGroup::EntityDefinitionGroup(const String& name, const std::vector<EntityDefinition*>& definitions) :
+        EntityDefinitionGroup::EntityDefinitionGroup(const std::string& name, const std::vector<EntityDefinition*>& definitions) :
         m_name(name),
         m_definitions(definitions) {}
 
-        const String& EntityDefinitionGroup::name() const {
+        const std::string& EntityDefinitionGroup::name() const {
             return m_name;
         }
 
-        const String EntityDefinitionGroup::displayName() const {
+        const std::string EntityDefinitionGroup::displayName() const {
             if (m_name.empty())
                 return "Misc";
-            return StringUtils::capitalize(m_name);
+            return kdl::str_capitalize(m_name);
         }
 
         const std::vector<EntityDefinition*>& EntityDefinitionGroup::definitions() const {

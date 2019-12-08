@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_GameFactory
 #define TrenchBroom_GameFactory
 
-#include "StringType.h"
 #include "Preference.h"
 #include "IO/Path.h"
 #include "Model/GameConfig.h"
@@ -28,6 +27,7 @@
 #include "Model/Model_Forward.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -40,12 +40,12 @@ namespace TrenchBroom {
     namespace Model {
         class GameFactory {
         private:
-            using ConfigMap = std::map<String, GameConfig>;
-            using GamePathMap = std::map<String, Preference<IO::Path> >;
+            using ConfigMap = std::map<std::string, GameConfig>;
+            using GamePathMap = std::map<std::string, Preference<IO::Path> >;
 
             std::unique_ptr<IO::WritableDiskFileSystem> m_configFS;
 
-            StringList m_names;
+            std::vector<std::string> m_names;
             ConfigMap m_configs;
             mutable GamePathMap m_gamePaths;
             mutable GamePathMap m_defaultEngines;
@@ -66,7 +66,7 @@ namespace TrenchBroom {
              * caller to inform the user of any errors.
              *
              * @throw FileSystemException if the file system cannot be built.
-             * @throw StringList if loading game configurations fails
+             * @throw std::vector<std::string> if loading game configurations fails
              */
             void initialize();
 
@@ -77,22 +77,22 @@ namespace TrenchBroom {
              *
              * @throw GameException if no config with the given name exists
              */
-            void saveConfigs(const String& gameName);
+            void saveConfigs(const std::string& gameName);
 
-            const StringList& gameList() const;
+            const std::vector<std::string>& gameList() const;
             size_t gameCount() const;
-            std::shared_ptr<Game> createGame(const String& gameName, Logger& logger);
+            std::shared_ptr<Game> createGame(const std::string& gameName, Logger& logger);
 
-            StringList fileFormats(const String& gameName) const;
-            IO::Path iconPath(const String& gameName) const;
-            IO::Path gamePath(const String& gameName) const;
-            bool setGamePath(const String& gameName, const IO::Path& gamePath);
-            bool isGamePathPreference(const String& gameName, const IO::Path& prefPath) const;
+            std::vector<std::string> fileFormats(const std::string& gameName) const;
+            IO::Path iconPath(const std::string& gameName) const;
+            IO::Path gamePath(const std::string& gameName) const;
+            bool setGamePath(const std::string& gameName, const IO::Path& gamePath);
+            bool isGamePathPreference(const std::string& gameName, const IO::Path& prefPath) const;
 
-            GameConfig& gameConfig(const String& gameName);
-            const GameConfig& gameConfig(const String& gameName) const;
+            GameConfig& gameConfig(const std::string& gameName);
+            const GameConfig& gameConfig(const std::string& gameName) const;
 
-            std::pair<String, MapFormat> detectGame(const IO::Path& path) const;
+            std::pair<std::string, MapFormat> detectGame(const IO::Path& path) const;
         private:
             GameFactory();
             void initializeFileSystem();

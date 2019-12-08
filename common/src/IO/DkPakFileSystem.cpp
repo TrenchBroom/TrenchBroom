@@ -23,19 +23,21 @@
 #include "IO/Reader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/IOUtils.h"
-#include "StringUtils.h"
+
+#include <kdl/string_format.h>
 
 #include <cassert>
 #include <cstring>
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
         namespace PakLayout {
-            static const size_t HeaderMagicLength = 0x4;
-            static const size_t EntryLength       = 0x48;
-            static const size_t EntryNameLength   = 0x38;
-            static const String HeaderMagic       = "PACK";
+            static const size_t      HeaderMagicLength = 0x4;
+            static const size_t      EntryLength       = 0x48;
+            static const size_t      EntryNameLength   = 0x38;
+            static const std::string HeaderMagic       = "PACK";
         }
 
         std::unique_ptr<char[]> DkPakFileSystem::DkCompressedFile::decompress(std::shared_ptr<File> file, const size_t uncompressedSize) const {
@@ -111,7 +113,7 @@ namespace TrenchBroom {
                 const auto compressed = reader.readBool<int32_t>();
                 const auto entrySize = compressed ? compressedSize : uncompressedSize;
 
-                const auto entryPath = Path(StringUtils::toLower(entryName));
+                const auto entryPath = Path(kdl::str_to_lower(entryName));
                 auto entryFile = std::make_shared<FileView>(entryPath, m_file, entryAddress, entrySize);
 
                 if (compressed) {

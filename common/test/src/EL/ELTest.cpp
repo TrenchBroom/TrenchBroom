@@ -25,6 +25,7 @@
 #include <vecmath/scalar.h>
 
 #include <limits>
+#include <string>
 
 namespace TrenchBroom {
     namespace EL {
@@ -123,7 +124,7 @@ namespace TrenchBroom {
         }
 
         TEST(ELTest, serializeValues) {
-            ASSERT_EQ(String("16"), Value(16.0).asString());
+            ASSERT_EQ(std::string("16"), Value(16.0).asString());
         }
 
         TEST(ELTest, subscriptOperator) {

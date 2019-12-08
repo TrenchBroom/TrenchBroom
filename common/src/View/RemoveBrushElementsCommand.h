@@ -23,6 +23,7 @@
 #include "Model/Model_Forward.h"
 #include "View/VertexCommand.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -36,7 +37,7 @@ namespace TrenchBroom {
         private:
             BrushVerticesMap m_vertices;
         protected:
-            RemoveBrushElementsCommand(CommandType type, const String& name, const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices);
+            RemoveBrushElementsCommand(CommandType type, const std::string& name, const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices);
         private:
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;

@@ -170,7 +170,7 @@ namespace TrenchBroom {
         }
 
         void NodeWriter::writeEntityBrushes(const EntityBrushesMap& entityBrushes) {
-            for (const auto [entity, brushes] : entityBrushes) {
+            for (const auto& [entity, brushes] : entityBrushes) {
                 m_serializer->entity(entity, entity->attributes(), {}, brushes);
             }
         }

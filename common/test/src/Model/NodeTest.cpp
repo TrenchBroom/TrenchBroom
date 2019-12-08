@@ -39,8 +39,8 @@ namespace TrenchBroom {
                 return new MockNode();
             }
 
-            const String& doGetName() const override {
-                static const String name("some name");
+            const std::string& doGetName() const override {
+                static const std::string name("some name");
                 return name;
             }
 
@@ -134,8 +134,8 @@ namespace TrenchBroom {
                 return new TestNode();
             }
 
-            const String& doGetName() const override {
-                static const String name("some name");
+            const std::string& doGetName() const override {
+                static const std::string name("some name");
                 return name;
             }
 

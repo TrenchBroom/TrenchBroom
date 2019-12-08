@@ -19,7 +19,6 @@
 
 #include "ViewPreferencePane.h"
 
-#include "StringUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/ColorButton.h"
@@ -37,15 +36,16 @@
 #include <QLabel>
 
 #include <array>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
         struct TextureMode {
             int minFilter;
             int magFilter;
-            String name;
+            std::string name;
 
-            TextureMode(const int i_minFilter, const int i_magFilter, const String& i_name) :
+            TextureMode(const int i_minFilter, const int i_magFilter, const std::string& i_name) :
             minFilter(i_minFilter),
             magFilter(i_magFilter),
             name(i_name) {}
@@ -258,7 +258,7 @@ namespace TrenchBroom {
 
         void ViewPreferencePane::brightnessChanged(const int value) {
             auto& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::Brightness, value / 40.0f);
+            prefs.set(Preferences::Brightness, static_cast<float>(value) / 40.0f);
         }
 
         void ViewPreferencePane::gridAlphaChanged(const int /* value */) {

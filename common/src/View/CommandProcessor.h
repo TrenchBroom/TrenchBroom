@@ -21,10 +21,10 @@
 #define TrenchBroom_CommandProcessor
 
 #include "Notifier.h"
-#include "StringType.h"
 #include "View/Command.h"
 #include "View/UndoableCommand.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             Notifier<UndoableCommand::Ptr>& m_commandUndoNotifier;
             Notifier<UndoableCommand::Ptr>& m_commandUndoneNotifier;
         public:
-            CommandGroup(const String& name, const CommandList& commands,
+            CommandGroup(const std::string& name, const CommandList& commands,
                          Notifier<Command::Ptr>& commandDoNotifier,
                          Notifier<Command::Ptr>& commandDoneNotifier,
                          Notifier<UndoableCommand::Ptr>& commandUndoNotifier,
@@ -73,7 +73,7 @@ namespace TrenchBroom {
             bool m_clearRepeatableCommandStack;
             int64_t m_lastCommandTimestamp;
 
-            String m_groupName;
+            std::string m_groupName;
             CommandStack m_groupedCommands;
             size_t m_groupLevel;
 
@@ -91,19 +91,19 @@ namespace TrenchBroom {
             /**
              * Fired when a transaction completes successfully.
              */
-            Notifier<const String&> transactionDoneNotifier;
+            Notifier<const std::string&> transactionDoneNotifier;
             /**
              * Fired when a transaction is undone successfully.
              */
-            Notifier<const String&> transactionUndoneNotifier;
+            Notifier<const std::string&> transactionUndoneNotifier;
 
             bool hasLastCommand() const;
             bool hasNextCommand() const;
 
-            const String& lastCommandName() const;
-            const String& nextCommandName() const;
+            const std::string& lastCommandName() const;
+            const std::string& nextCommandName() const;
 
-            void beginGroup(const String& name = "");
+            void beginGroup(const std::string& name = "");
             void endGroup();
             void rollbackGroup();
 
@@ -123,11 +123,11 @@ namespace TrenchBroom {
             bool undoCommand(UndoableCommand::Ptr command);
             bool storeCommand(UndoableCommand::Ptr command, bool collate);
 
-            void beginGroup(const String& name, bool undoable);
+            void beginGroup(const std::string& name, bool undoable);
             bool pushGroupedCommand(UndoableCommand::Ptr command, bool collate);
             UndoableCommand::Ptr popGroupedCommand();
             void createAndStoreCommandGroup();
-            UndoableCommand::Ptr createCommandGroup(const String& name, const CommandList& commands);
+            UndoableCommand::Ptr createCommandGroup(const std::string& name, const CommandList& commands);
 
             bool pushLastCommand(UndoableCommand::Ptr command, bool collate);
             bool collatable(bool collate, int64_t timestamp) const;

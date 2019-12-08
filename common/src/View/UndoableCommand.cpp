@@ -21,9 +21,11 @@
 
 #include "Exceptions.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
-        UndoableCommand::UndoableCommand(const CommandType type, const String& name) :
+        UndoableCommand::UndoableCommand(const CommandType type, const std::string& name) :
         Command(type, name) {}
 
         UndoableCommand::~UndoableCommand() {}

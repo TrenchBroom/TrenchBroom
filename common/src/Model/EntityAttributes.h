@@ -20,13 +20,13 @@
 #ifndef TrenchBroom_EntityProperties
 #define TrenchBroom_EntityProperties
 
-#include "StringType.h"
 #include "Model/EntityAttributeSnapshot.h"
 #include "Model/Model_Forward.h"
 
 #include <list>
 #include <memory>
 #include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -42,7 +42,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        extern const String AttributeEscapeChars;
+        extern const std::string AttributeEscapeChars;
 
         namespace AttributeNames {
             extern const AttributeName Classname;
@@ -79,8 +79,8 @@ namespace TrenchBroom {
             extern const AttributeValue GroupTypeGroup;
         }
 
-        String numberedAttributePrefix(const String& name);
-        bool isNumberedAttribute(const String& prefix, const AttributeName& name);
+        std::string numberedAttributePrefix(const std::string& name);
+        bool isNumberedAttribute(const std::string& prefix, const AttributeName& name);
 
         class EntityAttribute {
         public:
@@ -104,10 +104,10 @@ namespace TrenchBroom {
             void setValue(const AttributeValue& value);
         };
 
-        bool isLayer(const String& classname, const EntityAttribute::List& attributes);
-        bool isGroup(const String& classname, const EntityAttribute::List& attributes);
-        bool isWorldspawn(const String& classname, const EntityAttribute::List& attributes);
-        const AttributeValue& findAttribute(const EntityAttribute::List& attributes, const AttributeName& name, const AttributeValue& defaultValue = EmptyString);
+        bool isLayer(const std::string& classname, const EntityAttribute::List& attributes);
+        bool isGroup(const std::string& classname, const EntityAttribute::List& attributes);
+        bool isWorldspawn(const std::string& classname, const EntityAttribute::List& attributes);
+        const AttributeValue& findAttribute(const EntityAttribute::List& attributes, const AttributeName& name, const AttributeValue& defaultValue = "");
 
         class EntityAttributes {
         private:
@@ -145,7 +145,7 @@ namespace TrenchBroom {
 
             EntityAttribute::List attributeWithName(const AttributeName& name) const;
             EntityAttribute::List attributesWithPrefix(const AttributeName& prefix) const;
-            EntityAttribute::List numberedAttributes(const String& prefix) const;
+            EntityAttribute::List numberedAttributes(const std::string& prefix) const;
         private:
             EntityAttribute::List::const_iterator findAttribute(const AttributeName& name) const;
             EntityAttribute::List::iterator findAttribute(const AttributeName& name);

@@ -30,6 +30,7 @@
 #include "View/TextOutputAdapter.h"
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -82,7 +83,7 @@ namespace TrenchBroom {
             m_currentRun->execute();
         }
 
-        String CompilationRun::buildWorkDir(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document) {
+        std::string CompilationRun::buildWorkDir(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document) {
             return EL::interpolate(profile->workDirSpec(), EL::EvaluationContext(CompilationWorkDirVariables(document)));
         }
 

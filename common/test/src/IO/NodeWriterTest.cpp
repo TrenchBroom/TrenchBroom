@@ -19,7 +19,6 @@
 
 #include <gtest/gtest.h>
 
-#include "StringUtils.h"
 #include "IO/NodeWriter.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -30,6 +29,8 @@
 #include "Model/MapFormat.h"
 #include "Model/World.h"
 
+#include <kdl/string_compare.h>
+
 #include <vector>
 
 namespace TrenchBroom {
@@ -37,11 +38,11 @@ namespace TrenchBroom {
         TEST(NodeWriterTest, writeEmptyMap) {
             Model::World map(Model::MapFormat::Standard);
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const String result = str.str();
+            const std::string result = str.str();
             ASSERT_STREQ("// entity 0\n"
                          "{\n"
                          "\"classname\" \"worldspawn\"\n"
@@ -53,11 +54,11 @@ namespace TrenchBroom {
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.addOrUpdateAttribute("message", "holy damn");
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const String result = str.str();
+            const std::string result = str.str();
             ASSERT_STREQ("// entity 0\n"
                          "{\n"
                          "\"classname\" \"worldspawn\"\n"
@@ -81,11 +82,11 @@ namespace TrenchBroom {
             Model::Brush* brush2 = builder.createCube(64.0, "none");
             map.defaultLayer()->addChild(brush2);
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const String expected =
+            const std::string expected =
 R"(// entity 0
 {
 "classname" "worldspawn"
@@ -110,7 +111,7 @@ R"(// entity 0
 }
 )";
 
-            const String actual = str.str();
+            const std::string actual = str.str();
             ASSERT_EQ(actual, expected);
         }
 
@@ -124,11 +125,11 @@ R"(// entity 0
             Model::Brush* brush = builder.createCube(64.0, "none");
             map.defaultLayer()->addChild(brush);
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const String expected =
+            const std::string expected =
 R"(// entity 0
 {
 "classname" "worldspawn"
@@ -143,7 +144,7 @@ R"(// entity 0
 }
 }
 )";
-            const String actual = str.str();
+            const std::string actual = str.str();
             ASSERT_EQ(expected, actual);
         }
 
@@ -160,11 +161,11 @@ R"(// entity 0
             Model::Brush* brush = builder.createCube(64.0, "none");
             layer->addChild(brush);
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const String expected =
+            const std::string expected =
 R"(// entity 0
 {
 "classname" "worldspawn"
@@ -174,7 +175,7 @@ R"(// entity 0
 "classname" "func_group"
 "_tb_type" "_tb_layer"
 "_tb_name" "Custom Layer"
-"_tb_id" "1"
+"_tb_id" "*"
 // brush 0
 {
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
@@ -188,7 +189,7 @@ R"(// entity 0
 )";
 
             const auto actual = str.str();
-            ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(actual, expected));
+            ASSERT_TRUE(kdl::cs::matches_glob(actual, expected));
         }
 
         TEST(NodeWriterTest, writeMapWithGroupInDefaultLayer) {
@@ -204,11 +205,11 @@ R"(// entity 0
             Model::Brush* brush = builder.createCube(64.0, "none");
             group->addChild(brush);
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const String expected =
+            const std::string expected =
 R"(// entity 0
 {
 "classname" "worldspawn"
@@ -218,7 +219,7 @@ R"(// entity 0
 "classname" "func_group"
 "_tb_type" "_tb_group"
 "_tb_name" "Group"
-"_tb_id" "1"
+"_tb_id" "*"
 // brush 0
 {
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
@@ -230,8 +231,8 @@ R"(// entity 0
 }
 }
 )";
-            const String actual = str.str();
-            ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(actual, expected));
+            const std::string actual = str.str();
+            ASSERT_TRUE(kdl::cs::matches_glob(actual, expected));
         }
 
         TEST(NodeWriterTest, writeMapWithGroupInCustomLayer) {
@@ -250,11 +251,11 @@ R"(// entity 0
             Model::Brush* brush = builder.createCube(64.0, "none");
             group->addChild(brush);
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const String expected =
+            const std::string expected =
 R"(// entity 0
 {
 "classname" "worldspawn"
@@ -284,8 +285,8 @@ R"(// entity 0
 }
 }
 )";
-            const String actual = str.str();
-            ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(actual, expected));
+            const std::string actual = str.str();
+            ASSERT_TRUE(kdl::cs::matches_glob(actual, expected));
         }
 
         TEST(NodeWriterTest, writeMapWithNestedGroupInCustomLayer) {
@@ -307,11 +308,11 @@ R"(// entity 0
             Model::Brush* brush = builder.createCube(64.0, "none");
             inner->addChild(brush);
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const String expected =
+            const std::string expected =
 R"(// entity 0
 {
 "classname" "worldspawn"
@@ -350,8 +351,8 @@ R"(// entity 0
 }
 )";
 
-            const String actual = str.str();
-            ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(actual, expected));
+            const std::string actual = str.str();
+            ASSERT_TRUE(kdl::cs::matches_glob(actual, expected));
         }
 
         TEST(NodeWriterTest, writeNodesWithNestedGroup) {
@@ -376,11 +377,11 @@ R"(// entity 0
             nodes.push_back(inner);
             nodes.push_back(worldBrush);
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeNodes(nodes);
 
-            const String expected =
+            const std::string expected =
 R"(// entity 0
 {
 "classname" "worldspawn"
@@ -412,8 +413,8 @@ R"(// entity 0
 }
 )";
 
-            const String actual = str.str();
-            ASSERT_TRUE(StringUtils::caseSensitiveMatchesPattern(actual, expected));
+            const std::string actual = str.str();
+            ASSERT_TRUE(kdl::cs::matches_glob(actual, expected));
         }
 
         TEST(NodeWriterTest, writeFaces) {
@@ -423,11 +424,11 @@ R"(// entity 0
             Model::BrushBuilder builder(&map, worldBounds);
             Model::Brush* brush = builder.createCube(64.0, "none");
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeBrushFaces(brush->faces());
 
-            const String expected =
+            const std::string expected =
 R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
@@ -436,7 +437,7 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 )";
 
-            const String actual = str.str();
+            const std::string actual = str.str();
             ASSERT_EQ(expected, actual);
 
             delete brush;
@@ -447,11 +448,11 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.addOrUpdateAttribute("message", "\"holy damn\", he said");
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const String result = str.str();
+            const std::string result = str.str();
             ASSERT_STREQ("// entity 0\n"
                          "{\n"
                          "\"classname\" \"worldspawn\"\n"
@@ -464,11 +465,11 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.addOrUpdateAttribute("message", "\\\"holy damn\\\", he said");
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const String result = str.str();
+            const std::string result = str.str();
             ASSERT_STREQ("// entity 0\n"
                          "{\n"
                          "\"classname\" \"worldspawn\"\n"
@@ -482,11 +483,11 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.addOrUpdateAttribute("message", "holy damn\\nhe said");
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const String result = str.str();
+            const std::string result = str.str();
             ASSERT_STREQ("// entity 0\n"
                          "{\n"
                          "\"classname\" \"worldspawn\"\n"
@@ -502,11 +503,11 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             map.addOrUpdateAttribute("message2", "holy damn\\\\");
             map.addOrUpdateAttribute("message3", "holy damn\\\\\\");
 
-            StringStream str;
+            std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const String result = str.str();
+            const std::string result = str.str();
             ASSERT_STREQ("// entity 0\n"
                          "{\n"
                          "\"classname\" \"worldspawn\"\n"

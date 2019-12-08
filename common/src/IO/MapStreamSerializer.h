@@ -24,6 +24,7 @@
 #include "Model/MapFormat.h"
 
 #include <iosfwd>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -36,6 +37,9 @@ namespace TrenchBroom {
             MapStreamSerializer(std::ostream& stream);
         public:
             virtual ~MapStreamSerializer() override;
+        protected:
+            static std::string ftos(float v, int precision);
+            static std::string ftos(double v, int precision);
         private:
             void doBeginFile() override;
             void doEndFile() override;

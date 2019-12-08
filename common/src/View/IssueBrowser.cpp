@@ -32,8 +32,6 @@
 #include <QCheckBox>
 #include <QVBoxLayout>
 
-#include <cassert>
-
 namespace TrenchBroom {
     namespace View {
         IssueBrowser::IssueBrowser(std::weak_ptr<MapDocument> document, QWidget* parent) :
@@ -136,7 +134,7 @@ namespace TrenchBroom {
 
             for (const Model::IssueGenerator* generator : generators) {
                 const Model::IssueType flag = generator->type();
-                const String& description = generator->description();
+                const std::string& description = generator->description();
 
                 flags.push_back(flag);
                 labels.push_back(QString::fromStdString(description));

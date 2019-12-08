@@ -19,20 +19,20 @@
 
 #include "SetModsCommand.h"
 
-#include "StringList.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetModsCommand::Type = Command::freeType();
 
-        SetModsCommand::Ptr SetModsCommand::set(const StringList& mods) {
+        SetModsCommand::Ptr SetModsCommand::set(const std::vector<std::string>& mods) {
             return Ptr(new SetModsCommand("Set Mods", mods));
         }
 
-        SetModsCommand::SetModsCommand(const String& name, const StringList& mods) :
+        SetModsCommand::SetModsCommand(const std::string& name, const std::vector<std::string>& mods) :
         DocumentCommand(Type, name),
         m_newMods(mods) {}
 

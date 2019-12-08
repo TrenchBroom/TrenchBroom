@@ -118,12 +118,12 @@ namespace TrenchBroom {
 
         struct ColorCmp {
             bool operator()(const QColor& lhs, const QColor& rhs) const {
-                const auto lr = lhs.red() / 255.0f;
-                const auto lg = lhs.green() / 255.0f;
-                const auto lb = lhs.blue() / 255.0f;
-                const auto rr = rhs.red() / 255.0f;
-                const auto rg = rhs.green() / 255.0f;
-                const auto rb = rhs.blue() / 255.0f;
+                const auto lr = static_cast<float>(lhs.red()) / 255.0f;
+                const auto lg = static_cast<float>(lhs.green()) / 255.0f;
+                const auto lb = static_cast<float>(lhs.blue()) / 255.0f;
+                const auto rr = static_cast<float>(rhs.red()) / 255.0f;
+                const auto rg = static_cast<float>(rhs.green()) / 255.0f;
+                const auto rb = static_cast<float>(rhs.blue()) / 255.0f;
 
                 float lh, ls, lbr, rh, rs, rbr;
                 Color::rgbToHSB(lr, lg, lb, lh, ls, lbr);

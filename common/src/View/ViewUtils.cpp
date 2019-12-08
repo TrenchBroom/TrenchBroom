@@ -19,14 +19,15 @@
 
 #include "ViewUtils.h"
 
-#include "Logger.h"
 #include "SharedPointer.h"
-#include "StringUtils.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
+
+#include <kdl/string_compare.h>
+#include <kdl/string_format.h>
 
 #include <memory>
 
@@ -123,7 +124,7 @@ namespace TrenchBroom {
             return static_cast<size_t>(pathStrs.size());
         }
 
-        String queryGroupName(QWidget* parent) {
+        std::string queryGroupName(QWidget* parent) {
             while (true) {
                 bool ok;
                 QString text = QInputDialog::getText(parent, "Enter a name", "Group Name", QLineEdit::Normal, "Unnamed", &ok);
@@ -133,10 +134,10 @@ namespace TrenchBroom {
                 }
 
                 const auto name = text.toStdString();
-                if (StringUtils::isBlank(name)) {
+                if (kdl::str_is_blank(name)) {
                     if (QMessageBox::warning(parent, "Error", "Group names cannot be blank.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok)
                         return "";
-                } else if (StringUtils::containsCaseInsensitive(name, "\"")) {
+                } else if (kdl::ci::contains(name, "\"")) {
                     if (QMessageBox::warning(parent, "Error", "Group names cannot contain double quotes.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok)
                         return "";
                 } else {

@@ -22,14 +22,12 @@
 #include "Polyhedron.h"
 #include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
-#include "Assets/ModelDefinition.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushBuilder.h"
-#include "Model/Hit.h"
 #include "Model/MapFormat.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/PickResult.h"
@@ -73,7 +71,7 @@ namespace TrenchBroom {
             m_brushEntityDef = nullptr;
         }
 
-        Model::Brush* MapDocumentTest::createBrush(const String& textureName) {
+        Model::Brush* MapDocumentTest::createBrush(const std::string& textureName) {
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             return builder.createCube(32.0, textureName);
         }
@@ -935,13 +933,13 @@ namespace TrenchBroom {
             document->addNode(brush1, document->currentParent());
             document->select(brush1);
 
-            const auto groupName = String("testGroup");
+            const auto groupName = std::string("testGroup");
 
             auto* group = document->groupSelection(groupName);
             ASSERT_NE(nullptr, group);
             document->select(group);
 
-            const String copied = document->serializeSelectedNodes();
+            const std::string copied = document->serializeSelectedNodes();
 
             const auto delta = vm::vec3(16, 16, 16);
             ASSERT_EQ(PasteType::Node, document->paste(copied));

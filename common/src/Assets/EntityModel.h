@@ -28,8 +28,9 @@
 #include <vecmath/bbox.h>
 
 #include <array>
-#include <vector>
 #include <memory>
+#include <string>
+#include <vector>
 
 template <typename T, size_t S, typename U>
 class AABBTree;
@@ -77,7 +78,7 @@ namespace TrenchBroom {
              *
              * @return the name
              */
-            virtual const String& name() const = 0;
+            virtual const std::string& name() const = 0;
 
 
             /**
@@ -110,7 +111,7 @@ namespace TrenchBroom {
         public:
             class LoadedFrame : public EntityModelFrame {
             private:
-                String m_name;
+                std::string m_name;
                 vm::bbox3f m_bounds;
 
                 // For hit testing
@@ -127,10 +128,10 @@ namespace TrenchBroom {
                  * @param name the frame name
                  * @param bounds the bounding box of the frame
                  */
-                LoadedFrame(size_t index, const String& name, const vm::bbox3f& bounds);
+                LoadedFrame(size_t index, const std::string& name, const vm::bbox3f& bounds);
 
                 bool loaded() const override;
-                const String& name() const override;
+                const std::string& name() const override;
                 const vm::bbox3f& bounds() const override;
                 float intersect(const vm::ray3f& ray) const override;
 
@@ -155,7 +156,7 @@ namespace TrenchBroom {
                 explicit UnloadedFrame(size_t index);
 
                 bool loaded() const override;
-                const String& name() const override;
+                const std::string& name() const override;
                 const vm::bbox3f& bounds() const override;
                 float intersect(const vm::ray3f& ray) const override;
             };
@@ -241,7 +242,7 @@ namespace TrenchBroom {
              */
             class Surface {
             private:
-                String m_name;
+                std::string m_name;
                 std::vector<std::unique_ptr<Mesh>> m_meshes;
                 std::unique_ptr<TextureCollection> m_skins;
             public:
@@ -251,7 +252,7 @@ namespace TrenchBroom {
                  * @param name the surface's name
                  * @param frameCount the number of frames
                  */
-                explicit Surface(const String& name, size_t frameCount);
+                explicit Surface(const std::string& name, size_t frameCount);
 
 
                 /**
@@ -259,7 +260,7 @@ namespace TrenchBroom {
                  *
                  * @return the name of this surface
                  */
-                const String& name() const;
+                const std::string& name() const;
 
                 /**
                  * Prepares the skin textures of this surface for rendering.
@@ -322,7 +323,7 @@ namespace TrenchBroom {
                  * @param name the name of the skin to find
                  * @return the skin with the given name, or null if no such skin was found
                  */
-                Assets::Texture* skin(const String& name) const;
+                Assets::Texture* skin(const std::string& name) const;
 
                 /**
                  * Returns the skin with the given index.
@@ -335,7 +336,7 @@ namespace TrenchBroom {
                 std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(size_t skinIndex, size_t frameIndex);
             };
         private:
-            String m_name;
+            std::string m_name;
             bool m_prepared;
             std::vector<std::unique_ptr<EntityModelFrame>> m_frames;
             std::vector<std::unique_ptr<Surface>> m_surfaces;
@@ -345,7 +346,7 @@ namespace TrenchBroom {
 
              * @param name the name of the model
              */
-            explicit EntityModel(const String& name);
+            explicit EntityModel(const std::string& name);
 
             /**
              * Creates a renderer to render the given frame of the model using the skin with the given index.
@@ -404,7 +405,7 @@ namespace TrenchBroom {
              *
              * @throws AssetException if the given frame index is out of bounds
              */
-            LoadedFrame& loadFrame(size_t frameIndex, const String& name, const vm::bbox3f& bounds);
+            LoadedFrame& loadFrame(size_t frameIndex, const std::string& name, const vm::bbox3f& bounds);
 
             /**
              * Adds a surface with the given name.
@@ -412,7 +413,7 @@ namespace TrenchBroom {
              * @param name the surface name
              * @return the newly added surface
              */
-            Surface& addSurface(const String& name);
+            Surface& addSurface(const std::string& name);
 
             /**
              * Returns the number of frames of this model.
@@ -455,7 +456,7 @@ namespace TrenchBroom {
              * @param name the name of the frame to find
              * @return the frame with the given name or null if no such frame was found
              */
-            const EntityModelFrame* frame(const String& name) const;
+            const EntityModelFrame* frame(const std::string& name) const;
 
             /**
              * Returns the frame with the given index.
@@ -480,7 +481,7 @@ namespace TrenchBroom {
              * @param name the name of the surface to find
              * @return the surface with the given name or null if no such surface was found
              */
-            const Surface* surface(const String& name) const;
+            const Surface* surface(const std::string& name) const;
         };
     }
 }

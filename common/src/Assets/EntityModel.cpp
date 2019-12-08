@@ -43,7 +43,7 @@ namespace TrenchBroom {
 
         // EntityModel::LoadedFrame
 
-        EntityModel::LoadedFrame::LoadedFrame(const size_t index, const String& name, const vm::bbox3f& bounds) :
+        EntityModel::LoadedFrame::LoadedFrame(const size_t index, const std::string& name, const vm::bbox3f& bounds) :
         EntityModelFrame(index),
         m_name(name),
         m_bounds(bounds),
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        const String& EntityModel::LoadedFrame::name() const {
+        const std::string& EntityModel::LoadedFrame::name() const {
             return m_name;
         }
 
@@ -155,8 +155,8 @@ namespace TrenchBroom {
             return false;
         }
 
-        const String& EntityModel::UnloadedFrame::name() const {
-            static const String name = "Unloaded frame";
+        const std::string& EntityModel::UnloadedFrame::name() const {
+            static const std::string name = "Unloaded frame";
             return name;
         }
 
@@ -212,12 +212,12 @@ namespace TrenchBroom {
 
         // EntityModel::Surface
 
-        EntityModel::Surface::Surface(const String& name, const size_t frameCount) :
+        EntityModel::Surface::Surface(const std::string& name, const size_t frameCount) :
         m_name(name),
         m_meshes(frameCount),
         m_skins(std::make_unique<Assets::TextureCollection>()) {}
 
-        const String& EntityModel::Surface::name() const {
+        const std::string& EntityModel::Surface::name() const {
             return m_name;
         }
 
@@ -251,7 +251,7 @@ namespace TrenchBroom {
             return m_skins->textureCount();
         }
 
-        Assets::Texture* EntityModel::Surface::skin(const String& name) const {
+        Assets::Texture* EntityModel::Surface::skin(const std::string& name) const {
             return m_skins->textureByName(name);
         }
 
@@ -276,7 +276,7 @@ namespace TrenchBroom {
 
         // EntityModel
 
-        EntityModel::EntityModel(const String& name) :
+        EntityModel::EntityModel(const std::string& name) :
         m_name(name),
         m_prepared(false) {}
 
@@ -328,7 +328,7 @@ namespace TrenchBroom {
             }
         }
 
-        EntityModel::LoadedFrame& EntityModel::loadFrame(const size_t frameIndex, const String& name, const vm::bbox3f& bounds) {
+        EntityModel::LoadedFrame& EntityModel::loadFrame(const size_t frameIndex, const std::string& name, const vm::bbox3f& bounds) {
             if (frameIndex >= frameCount()) {
                 throw AssetException("Frame index " + std::to_string(frameIndex) + " is out of bounds (frame count = " + std::to_string(frameCount()) + ")");
             }
@@ -339,7 +339,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        EntityModel::Surface& EntityModel::addSurface(const String& name) {
+        EntityModel::Surface& EntityModel::addSurface(const std::string& name) {
             m_surfaces.push_back(std::make_unique<Surface>(name, frameCount()));
             return *m_surfaces.back();
         }
@@ -379,7 +379,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        const EntityModelFrame* EntityModel::frame(const String& name) const {
+        const EntityModelFrame* EntityModel::frame(const std::string& name) const {
             for (const auto& frame : m_frames) {
                 if (frame->name() == name) {
                     return frame.get();
@@ -403,7 +403,7 @@ namespace TrenchBroom {
             return *m_surfaces[index];
         }
 
-        const EntityModel::Surface* EntityModel::surface(const String& name) const {
+        const EntityModel::Surface* EntityModel::surface(const std::string& name) const {
             for (const auto& surface : m_surfaces) {
                 if (surface->name() == name) {
                     return surface.get();

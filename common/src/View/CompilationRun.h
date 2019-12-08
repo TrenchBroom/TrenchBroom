@@ -20,12 +20,11 @@
 #ifndef CompilationRun_h
 #define CompilationRun_h
 
-#include "StringType.h"
-
 #include <QObject>
 #include <QTextEdit>
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     class VariableTable;
@@ -54,7 +53,7 @@ namespace TrenchBroom {
             bool doIsRunning() const;
             void run(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document, QTextEdit* currentOutput, bool test);
         private:
-            String buildWorkDir(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document);
+            std::string buildWorkDir(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document);
             void cleanup();
         private slots:
             void _compilationEnded();

@@ -20,7 +20,6 @@
 #include "EntityAttributeGrid.h"
 
 #include "SharedPointer.h"
-#include "StringUtils.h"
 #include "Model/EntityAttributes.h"
 #include "View/BorderLine.h"
 #include "View/EntityAttributeItemDelegate.h"
@@ -29,6 +28,11 @@
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
+
+#include <kdl/string_format.h>
+
+#include <string>
+#include <vector>
 
 #include <QHeaderView>
 #include <QTableView>
@@ -56,7 +60,7 @@ namespace TrenchBroom {
 
         void EntityAttributeGrid::addAttribute() {
             auto document = lock(m_document);
-            const String newAttributeName = AttributeRow::newAttributeNameForAttributableNodes(document->allSelectedAttributableNodes());
+            const std::string newAttributeName = AttributeRow::newAttributeNameForAttributableNodes(document->allSelectedAttributableNodes());
 
             document->setAttribute(newAttributeName, "");
 
@@ -82,7 +86,7 @@ namespace TrenchBroom {
 
             const auto selectedRows = selectedRowsAndCursorRow();
 
-            StringList attributes;
+            std::vector<std::string> attributes;
             for (const int row : selectedRows) {
                 attributes.push_back(m_model->attributeName(row));
             }
@@ -91,10 +95,10 @@ namespace TrenchBroom {
             auto document = lock(m_document);
 
             {
-                Transaction transaction(document, StringUtils::safePlural(numRows, "Remove Attribute", "Remove Attributes"));
+                Transaction transaction(document, kdl::str_plural(numRows, "Remove Attribute", "Remove Attributes"));
 
                 bool success = true;
-                for (const String& attribute : attributes) {
+                for (const std::string& attribute : attributes) {
                     success = success && document->removeAttribute(attribute);
                 }
 

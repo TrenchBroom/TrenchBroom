@@ -37,6 +37,7 @@
 
 #include <cassert>
 #include <set>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -174,15 +175,15 @@ namespace TrenchBroom {
 
         // Menu
 
-        Menu::Menu(const String& name, const MenuEntryType entryType) :
+        Menu::Menu(const std::string& name, const MenuEntryType entryType) :
         MenuEntry(entryType),
         m_name(name) {}
 
-        const String& Menu::name() const {
+        const std::string& Menu::name() const {
             return m_name;
         }
 
-        Menu& Menu::addMenu(const String& name, const MenuEntryType entryType) {
+        Menu& Menu::addMenu(const std::string& name, const MenuEntryType entryType) {
             m_entries.emplace_back(std::make_unique<Menu>(name, entryType));
             return *static_cast<Menu*>(m_entries.back().get());
         }
@@ -1455,7 +1456,7 @@ namespace TrenchBroom {
                 }));
         }
 
-        Menu& ActionManager::createMainMenu(const String& name) {
+        Menu& ActionManager::createMainMenu(const std::string& name) {
             auto menu = std::make_unique<Menu>(name, MenuEntryType::Menu_None);
             auto* result = menu.get();
             m_mainMenu.emplace_back(std::move(menu));

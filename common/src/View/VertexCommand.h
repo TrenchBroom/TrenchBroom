@@ -29,6 +29,7 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -53,7 +54,7 @@ namespace TrenchBroom {
             std::vector<Model::Brush*> m_brushes;
             std::unique_ptr<Model::Snapshot> m_snapshot;
         protected:
-            VertexCommand(CommandType type, const String& name, const std::vector<Model::Brush*>& brushes);
+            VertexCommand(CommandType type, const std::string& name, const std::vector<Model::Brush*>& brushes);
         public:
             ~VertexCommand() override;
         protected:

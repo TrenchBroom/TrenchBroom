@@ -23,6 +23,8 @@
 #include "Notifier.h"
 #include "Model/GameEngineProfile.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
         class GameEngineConfig {
@@ -40,7 +42,7 @@ namespace TrenchBroom {
             friend void swap(GameEngineConfig& lhs, GameEngineConfig& rhs);
 
             size_t profileCount() const;
-            bool hasProfile(const String& name) const;
+            bool hasProfile(const std::string& name) const;
             GameEngineProfile* profile(size_t index) const;
 
             void addProfile(GameEngineProfile* profile);

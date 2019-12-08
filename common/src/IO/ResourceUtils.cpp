@@ -23,13 +23,16 @@
 #include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "IO/SystemPaths.h"
-#include "Macros.h"
-
-#include <QApplication>
-#include <QThread>
-#include <QDebug>
 
 #include <map>
+#include <string>
+
+#include <QApplication>
+#include <QDebug>
+#include <QIcon>
+#include <QPixmap>
+#include <QThread>
+
 
 namespace TrenchBroom {
     namespace IO {
@@ -38,7 +41,7 @@ namespace TrenchBroom {
             return IO::pathAsQString(fullPath);
         }
 
-        QPixmap loadPixmapResource(const String& name) {
+        QPixmap loadPixmapResource(const std::string& name) {
             return loadPixmapResource(IO::Path(name));
         }
 

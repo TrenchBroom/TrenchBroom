@@ -23,13 +23,15 @@
 
 #include <kdl/vector_utils.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
-        CompilationProfile::CompilationProfile(const String& name, const String& workDirSpec) :
+        CompilationProfile::CompilationProfile(const std::string& name, const std::string& workDirSpec) :
         m_name(name),
         m_workDirSpec(workDirSpec) {}
 
-        CompilationProfile::CompilationProfile(const String& name, const String& workDirSpec, const CompilationTask::List& tasks) :
+        CompilationProfile::CompilationProfile(const std::string& name, const std::string& workDirSpec, const CompilationTask::List& tasks) :
         m_name(name),
         m_workDirSpec(workDirSpec),
         m_tasks(tasks) {}
@@ -48,20 +50,20 @@ namespace TrenchBroom {
             return new CompilationProfile(m_name, m_workDirSpec, clones);
         }
 
-        const String& CompilationProfile::name() const  {
+        const std::string& CompilationProfile::name() const  {
             return m_name;
         }
 
-        void CompilationProfile::setName(const String& name) {
+        void CompilationProfile::setName(const std::string& name) {
             m_name = name;
             profileDidChange();
         }
 
-        const String& CompilationProfile::workDirSpec() const {
+        const std::string& CompilationProfile::workDirSpec() const {
             return m_workDirSpec;
         }
 
-        void CompilationProfile::setWorkDirSpec(const String& workDirSpec) {
+        void CompilationProfile::setWorkDirSpec(const std::string& workDirSpec) {
             m_workDirSpec = workDirSpec;
             profileDidChange();
         }

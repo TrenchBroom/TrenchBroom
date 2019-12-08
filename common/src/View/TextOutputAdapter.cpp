@@ -22,6 +22,9 @@
 #include "Ensure.h"
 #include "View/QtUtils.h"
 
+#include <sstream>
+#include <string>
+
 #include <QTextEdit>
 
 namespace TrenchBroom {
@@ -32,7 +35,7 @@ namespace TrenchBroom {
             ensure(m_textEdit != nullptr, "textEdit is null");
         }
 
-        void TextOutputAdapter::appendString(const String& str) {
+        void TextOutputAdapter::appendString(const std::string& str) {
             const auto cStr = compressString(str);
             if (!cStr.empty()) {
                 DisableWindowUpdates disableUpdates(m_textEdit);
@@ -64,9 +67,9 @@ namespace TrenchBroom {
             }
         }
 
-        String TextOutputAdapter::compressString(const String& str) {
-            String fullStr = m_remainder + str;
-            StringStream result;
+        std::string TextOutputAdapter::compressString(const std::string& str) {
+            std::string fullStr = m_remainder + str;
+            std::stringstream result;
             size_t chunkStart = 0;
             size_t previousChunkStart = 0;
             for (size_t i = 0; i < fullStr.length(); ++i) {
@@ -90,7 +93,7 @@ namespace TrenchBroom {
             return result.str();
         }
 
-        void TextOutputAdapter::appendToTextEdit(const String& str) {
+        void TextOutputAdapter::appendToTextEdit(const std::string& str) {
             QTextCursor cursor(m_textEdit->document());
             cursor.clearSelection();
             cursor.movePosition(QTextCursor::MoveOperation::End);

@@ -123,13 +123,15 @@
 
 #include <cassert>
 #include <map>
+#include <sstream>
+#include <string>
 #include <type_traits>
 #include <vector>
 
 namespace TrenchBroom {
     namespace View {
         const vm::bbox3 MapDocument::DefaultWorldBounds(-16384.0, 16384.0);
-        const String MapDocument::DefaultDocumentName("unnamed.map");
+        const std::string MapDocument::DefaultDocumentName("unnamed.map");
 
         MapDocument::MapDocument() :
         m_worldBounds(DefaultWorldBounds),
@@ -344,19 +346,19 @@ namespace TrenchBroom {
             }
         }
 
-        String MapDocument::serializeSelectedNodes() {
-            StringStream stream;
+        std::string MapDocument::serializeSelectedNodes() {
+            std::stringstream stream;
             m_game->writeNodesToStream(*m_world, m_selectedNodes.nodes(), stream);
             return stream.str();
         }
 
-        String MapDocument::serializeSelectedBrushFaces() {
-            StringStream stream;
+        std::string MapDocument::serializeSelectedBrushFaces() {
+            std::stringstream stream;
             m_game->writeBrushFacesToStream(*m_world, m_selectedBrushFaces, stream);
             return stream.str();
         }
 
-        PasteType MapDocument::paste(const String& str) {
+        PasteType MapDocument::paste(const std::string& str) {
             try {
                 const std::vector<Model::Node*> nodes = m_game->parseNodes(str, *m_world, m_worldBounds, logger());
                 if (!nodes.empty() && pasteNodes(nodes))
@@ -368,7 +370,7 @@ namespace TrenchBroom {
                         return PasteType::BrushFace;
                     }
                 } catch (const ParserException&) {
-                    error("Could not parse clipboard contents: %s", e.what());
+                    error() << "Could not parse clipboard contents: " << e.what();
                 }
             }
             return PasteType::Failed;
@@ -542,11 +544,11 @@ namespace TrenchBroom {
             return m_selectionBounds;
         }
 
-        const String& MapDocument::currentTextureName() const {
+        const std::string& MapDocument::currentTextureName() const {
             return m_currentTextureName;
         }
 
-        void MapDocument::setCurrentTextureName(const String& currentTextureName) {
+        void MapDocument::setCurrentTextureName(const std::string& currentTextureName) {
             if (m_currentTextureName == currentTextureName)
                 return;
             m_currentTextureName = currentTextureName;
@@ -849,7 +851,7 @@ namespace TrenchBroom {
             auto* entity = m_world->createEntity();
             entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
 
-            StringStream name;
+            std::stringstream name;
             name << "Create " << definition->name();
 
             const Transaction transaction(this, name.str());
@@ -886,7 +888,7 @@ namespace TrenchBroom {
 
             entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
 
-            StringStream name;
+            std::stringstream name;
             name << "Create " << definition->name();
 
             const std::vector<Model::Node*> nodes(std::begin(brushes), std::end(brushes));
@@ -900,7 +902,7 @@ namespace TrenchBroom {
             return entity;
         }
 
-        Model::Group* MapDocument::groupSelection(const String& name) {
+        Model::Group* MapDocument::groupSelection(const std::string& name) {
             if (!hasSelectedNodes())
                 return nullptr;
 
@@ -978,7 +980,7 @@ namespace TrenchBroom {
             select(allChildren);
         }
 
-        void MapDocument::renameGroups(const String& name) {
+        void MapDocument::renameGroups(const std::string& name) {
             submitAndStore(RenameGroupsCommand::rename(name));
         }
 
@@ -1430,7 +1432,7 @@ namespace TrenchBroom {
         void MapDocument::printVertices() {
             if (hasSelectedBrushFaces()) {
                 for (const Model::BrushFace* face : m_selectedBrushFaces) {
-                    StringStream str;
+                    std::stringstream str;
                     str.precision(17);
                     for (const Model::BrushVertex* vertex : face->vertices()) {
                         str << "(" << vertex->position() << ") ";
@@ -1439,7 +1441,7 @@ namespace TrenchBroom {
                 }
             } else if (selectedNodes().hasBrushes()) {
                 for (const Model::Brush* brush : selectedNodes().brushes()) {
-                    StringStream str;
+                    std::stringstream str;
                     str.precision(17);
                     for (const Model::BrushVertex* vertex : brush->vertices()) {
                         str << vertex->position() << " ";
@@ -1488,11 +1490,11 @@ namespace TrenchBroom {
             return doCanRedoNextCommand();
         }
 
-        const String& MapDocument::lastCommandName() const {
+        const std::string& MapDocument::lastCommandName() const {
             return doGetLastCommandName();
         }
 
-        const String& MapDocument::nextCommandName() const {
+        const std::string& MapDocument::nextCommandName() const {
             return doGetNextCommandName();
         }
 
@@ -1516,7 +1518,7 @@ namespace TrenchBroom {
             doClearRepeatableCommands();
         }
 
-        void MapDocument::beginTransaction(const String& name) {
+        void MapDocument::beginTransaction(const std::string& name) {
             debug("Starting transaction '" + name + "'");
             doBeginTransaction(name);
         }
@@ -1660,9 +1662,9 @@ namespace TrenchBroom {
                 createEntityDefinitionActions();
             } catch (const Exception& e) {
                 if (spec.builtin()) {
-                    error("Could not load builtin entity definition file '%s': %s", spec.path().asString().c_str(), e.what());
+                    error() << "Could not load builtin entity definition file '" << spec.path() << "': " << e.what();
                 } else {
-                    error("Could not load external entity definition file '%s': %s", spec.path().asString().c_str(), e.what());
+                    error() << "Could not load external entity definition file '" << spec.path() << "': " << e.what();
                 }
             }
         }
@@ -1886,15 +1888,15 @@ namespace TrenchBroom {
             m_game->setAdditionalSearchPaths(additionalSearchPaths, logger());
         }
 
-        StringList MapDocument::mods() const {
+        std::vector<std::string> MapDocument::mods() const {
             return m_game->extractEnabledMods(*m_world);
         }
 
-        void MapDocument::setMods(const StringList& mods) {
+        void MapDocument::setMods(const std::vector<std::string>& mods) {
             submitAndStore(SetModsCommand::set(mods));
         }
 
-        String MapDocument::defaultMod() const {
+        std::string MapDocument::defaultMod() const {
             return m_game->defaultMod();
         }
 
@@ -1941,11 +1943,11 @@ namespace TrenchBroom {
             return m_tagManager->smartTags();
         }
 
-        bool MapDocument::isRegisteredSmartTag(const String& name) const {
+        bool MapDocument::isRegisteredSmartTag(const std::string& name) const {
             return m_tagManager->isRegisteredSmartTag(name);
         }
 
-        const Model::SmartTag& MapDocument::smartTag(const String& name) const {
+        const Model::SmartTag& MapDocument::smartTag(const std::string& name) const {
             return m_tagManager->smartTag(name);
         }
 
@@ -2040,9 +2042,10 @@ namespace TrenchBroom {
             return m_path.isAbsolute() && IO::Disk::fileExists(IO::Disk::fixPath(m_path));
         }
 
-        String MapDocument::filename() const {
-            if (m_path.isEmpty())
-                return EmptyString;
+        std::string MapDocument::filename() const {
+            if (m_path.isEmpty()) {
+                return "";
+            }
             return  m_path.lastComponent().asString();
         }
 
@@ -2129,26 +2132,26 @@ namespace TrenchBroom {
         }
 
         void MapDocument::commandDone(Command::Ptr command) {
-            debug("Command '%s' executed", command->name().c_str());
+            debug() << "Command " << command->name() << "' executed";
         }
 
         void MapDocument::commandUndone(UndoableCommand::Ptr command) {
-            debug("Command '%s' undone", command->name().c_str());
+            debug() << "Command " << command->name() << " undone";
         }
 
-        Transaction::Transaction(std::weak_ptr<MapDocument> document, const String& name) :
+        Transaction::Transaction(std::weak_ptr<MapDocument> document, const std::string& name) :
         m_document(lock(document).get()),
         m_cancelled(false) {
             begin(name);
         }
 
-        Transaction::Transaction(std::shared_ptr<MapDocument> document, const String& name) :
+        Transaction::Transaction(std::shared_ptr<MapDocument> document, const std::string& name) :
         m_document(document.get()),
         m_cancelled(false) {
             begin(name);
         }
 
-        Transaction::Transaction(MapDocument* document, const String& name) :
+        Transaction::Transaction(MapDocument* document, const std::string& name) :
         m_document(document),
         m_cancelled(false) {
             begin(name);
@@ -2168,7 +2171,7 @@ namespace TrenchBroom {
             m_cancelled = true;
         }
 
-        void Transaction::begin(const String& name) {
+        void Transaction::begin(const std::string& name) {
             m_document->beginTransaction(name);
         }
 

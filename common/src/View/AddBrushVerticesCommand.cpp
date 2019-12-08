@@ -19,10 +19,10 @@
 
 #include "AddBrushVerticesCommand.h"
 
-#include "StringUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <kdl/string_format.h>
 #include <kdl/vector_set.h>
 
 #include <set>
@@ -39,11 +39,11 @@ namespace TrenchBroom {
                 allBrushes.insert(std::begin(brushes), std::end(brushes));
             }
 
-            const String actionName = StringUtils::safePlural(vertices.size(), "Add Vertex", "Add Vertices");
+            const std::string actionName = kdl::str_plural(vertices.size(), "Add Vertex", "Add Vertices");
             return Ptr(new AddBrushVerticesCommand(Type, actionName, allBrushes.release_data(), vertices));
         }
 
-        AddBrushVerticesCommand::AddBrushVerticesCommand(CommandType type, const String& name, const std::vector<Model::Brush*>& brushes, const VertexToBrushesMap& vertices) :
+        AddBrushVerticesCommand::AddBrushVerticesCommand(CommandType type, const std::string& name, const std::vector<Model::Brush*>& brushes, const VertexToBrushesMap& vertices) :
         VertexCommand(type, name, brushes),
         m_vertices(vertices) {}
 

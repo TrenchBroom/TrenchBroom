@@ -27,6 +27,7 @@
 
 #include <kdl/vector_utils.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -195,7 +196,7 @@ namespace TrenchBroom {
             index.addAttributableNode(entity1);
             index.addAttributableNode(entity2);
 
-            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<String>{ "test", "other" }, index.allNames());
+            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<std::string>{ "test", "other" }, index.allNames());
         }
 
         TEST(EntityAttributeIndexTest, allValuesForNames) {
@@ -211,7 +212,7 @@ namespace TrenchBroom {
             index.addAttributableNode(entity1);
             index.addAttributableNode(entity2);
 
-            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<String>{ "somevalue", "somevalue2" }, index.allValuesForNames(AttributableNodeIndexQuery::exact("test")));
+            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<std::string>{ "somevalue", "somevalue2" }, index.allValuesForNames(AttributableNodeIndexQuery::exact("test")));
         }
     }
 }

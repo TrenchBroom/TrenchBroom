@@ -20,9 +20,9 @@
 #ifndef TrenchBroom_CachingLogger
 #define TrenchBroom_CachingLogger
 
-#include "StringType.h"
 #include "Logger.h"
 
+#include <string>
 #include <vector>
 
 #include <QString>
@@ -48,7 +48,7 @@ namespace TrenchBroom {
 
             void setParentLogger(Logger* logger);
         private:
-            void doLog(LogLevel level, const String& message) override;
+            void doLog(LogLevel level, const std::string& message) override;
             void doLog(LogLevel level, const QString& message) override;
         };
     }

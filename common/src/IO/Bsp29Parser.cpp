@@ -20,7 +20,6 @@
 #include "Bsp29Parser.h"
 
 #include "Exceptions.h"
-#include "StringStream.h"
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
@@ -32,6 +31,7 @@
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
 #include <string>
+#include <sstream>
 
 namespace TrenchBroom {
     namespace IO {
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             // static const size_t ModelFaceCount        = 0x3c;
         }
 
-        Bsp29Parser::Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette) :
+        Bsp29Parser::Bsp29Parser(const std::string& name, const char* begin, const char* end, const Assets::Palette& palette) :
         m_name(name),
         m_begin(begin),
         m_end(end),
@@ -287,7 +287,7 @@ namespace TrenchBroom {
                 }
             }
 
-            StringStream frameName;
+            std::stringstream frameName;
             frameName << m_name << "_" << frameIndex;
 
             auto& frame = model.loadFrame(frameIndex, frameName.str(), bounds.bounds());
@@ -299,8 +299,8 @@ namespace TrenchBroom {
             if (texture == nullptr) {
                 return vm::vec2f::zero();
             } else {
-                return vm::vec2f((dot(vertex, textureInfo.sAxis) + textureInfo.sOffset) / texture->width(),
-                                 (dot(vertex, textureInfo.tAxis) + textureInfo.tOffset) / texture->height());
+                return vm::vec2f((vm::dot(vertex, textureInfo.sAxis) + textureInfo.sOffset) / static_cast<float>(texture->width()),
+                                 (vm::dot(vertex, textureInfo.tAxis) + textureInfo.tOffset) / static_cast<float>(texture->height()));
             }
         }
     }

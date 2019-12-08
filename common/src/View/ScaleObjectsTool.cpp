@@ -28,10 +28,11 @@
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
-#include "StringUtils.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsToolPage.h"
+
+#include <kdl/string_utils.h>
 
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
@@ -65,7 +66,7 @@ namespace TrenchBroom {
         BBoxSide::BBoxSide(const vm::vec3& n)
                 : normal(n) {
             if (!validSideNormal(n)) {
-                throw std::invalid_argument("BBoxSide created with invalid normal " + StringUtils::toString(n));
+                throw std::invalid_argument("BBoxSide created with invalid normal " + kdl::str_to_string(n));
             }
         }
 
@@ -91,7 +92,7 @@ namespace TrenchBroom {
 
         BBoxCorner::BBoxCorner(const vm::vec3& c) : corner(c) {
             if (!validCorner(c)) {
-                throw std::invalid_argument("Corner created with invalid corner " + StringUtils::toString(c));
+                throw std::invalid_argument("Corner created with invalid corner " + kdl::str_to_string(c));
             }
         }
 
@@ -103,10 +104,10 @@ namespace TrenchBroom {
 
         BBoxEdge::BBoxEdge(const vm::vec3 &p0, const vm::vec3& p1) : point0(p0), point1(p1) {
             if (!BBoxCorner::validCorner(p0)) {
-                throw std::invalid_argument("BBoxEdge created with invalid corner " + StringUtils::toString(p0));
+                throw std::invalid_argument("BBoxEdge created with invalid corner " + kdl::str_to_string(p0));
             }
             if (!BBoxCorner::validCorner(p1)) {
-                throw std::invalid_argument("BBoxEdge created with invalid corner " + StringUtils::toString(p1));
+                throw std::invalid_argument("BBoxEdge created with invalid corner " + kdl::str_to_string(p1));
             }
         }
 

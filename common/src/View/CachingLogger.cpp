@@ -19,6 +19,8 @@
 
 #include "CachingLogger.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
         CachingLogger::Message::Message(const Logger::LogLevel i_level, const QString& i_str) :
@@ -38,7 +40,7 @@ namespace TrenchBroom {
             }
         }
 
-        void CachingLogger::doLog(const LogLevel level, const String& message) {
+        void CachingLogger::doLog(const LogLevel level, const std::string& message) {
             doLog(level, QString::fromStdString(message));
         }
 

@@ -48,6 +48,7 @@
 #include <fstream>
 #include <iterator>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -377,7 +378,7 @@ namespace TrenchBroom {
              This crash was caused by the correction of newly created vertices in Polyhedron::Edge::split - it would nudge vertices such that their plane status changed, resulting in problems when building the seam.
              */
 
-            const String data("{\n"
+            const std::string data("{\n"
                               "( 656 976 672 ) ( 656 1104 672 ) ( 656 976 800 ) black -976 672 0 1 1 //TX2\n"
                               "( 632 496.00295 640 ) ( 632 688.00137 768 ) ( 504 496.00295 640 ) doortrim2 632 331 0 -1 1.49999 //TX1\n"
                               "( 666.74516 848 928 ) ( 666.74516 826.95693 1054.25842 ) ( 794.74516 848 928 ) woodplank1 -941 667 90 0.98639 -1 //TX2\n"
@@ -402,7 +403,7 @@ namespace TrenchBroom {
              The cause for the endless loop was, like above, the vertex correction in Polyhedron::Edge::split.
              */
 
-            const String data("{\n"
+            const std::string data("{\n"
                               "( 32 1392 960 ) ( 32 1392 1088 ) ( 32 1264 960 ) black 1392 960 0 -1 1 //TX1\n"
                               "( 64 1137.02125 916.65252 ) ( 64 1243.52363 845.65079 ) ( -64 1137.02125 916.65252 ) woodplank1 64 1367 0 -1 0.83205 //TX1\n"
                               "( 5.25484 1296 864 ) ( 5.25484 1317.04307 990.25842 ) ( -122.74516 1296 864 ) woodplank1 -876 -5 90 0.98639 1 //TX2\n"
@@ -433,7 +434,7 @@ namespace TrenchBroom {
              With the revised face sort order (sort by normal), this brush can now be built.
              */
 
-            const String data("{\n"
+            const std::string data("{\n"
                               "( -24 1844 112.527 ) ( -24 1844 112 ) ( -24 1844.27 113.544 ) O_METAL1_19AD [ 0 -1 0 -0 ] [ 0 0 1 -0 ] 180 1 -1\n"
                               "( -20 1848.53 112.527 ) ( -20 1848.53 112 ) ( -20 1847.47 112.526 ) O_METAL1_19AD [ 0 -1 0 -0 ] [ 0 0 1 -0 ] 180 1 -1\n"
                               "( -23.4797 1844 112.092 ) ( -23.4797 1844 112 ) ( -23.6766 1844 112.421 ) O_METAL1_19AD [ -1 0 0 -16 ] [ 0 0 1 -0 ] 180 1 -1\n"
@@ -532,7 +533,7 @@ namespace TrenchBroom {
              See https://github.com/kduske/TrenchBroom/issues/1194
              */
 
-            const String data("{\n"
+            const std::string data("{\n"
                               "( -1248 -2144 1168 ) ( -1120 -2144 1168 ) ( -1248 -2272 1168 ) rock_1732 1248 2144 0 1 -1 //TX2\n"
                               "( -1248 -2224 1141.33333 ) ( -1248 -2224 1013.33333 ) ( -1120 -2224 1056 ) rock_1732 1391 -309 -33.69007 1.20185 -0.83205 //TX1\n"
                               "( -1408 -2144 1328 ) ( -1408 -2272 1328 ) ( -1408 -2144 1456 ) rock_1732 -1328 2144 90 1 1 //TX1\n"
@@ -1711,7 +1712,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveVertexFail) {
-            const String data("{\n"
+            const std::string data("{\n"
                               "( 320 256 320 ) ( 384 192 320 ) ( 352 224 384 ) sky1 0 96 0 1 1\n"
                               "( 384 128 320 ) ( 320 64 320 ) ( 352 96 384 ) sky1 0 96 0 1 1\n"
                               "( 384 32 320 ) ( 384 32 384 ) ( 384 256 384 ) sky1 0 96 0 1 1\n"
@@ -2635,9 +2636,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard);
 
-            const String minuendTexture("minuend");
-            const String subtrahendTexture("subtrahend");
-            const String defaultTexture("default");
+            const std::string minuendTexture("minuend");
+            const std::string subtrahendTexture("subtrahend");
+            const std::string defaultTexture("default");
 
             BrushBuilder builder(&world, worldBounds);
             Brush* minuend = builder.createCuboid(vm::bbox3(vm::vec3(-32.0, -16.0, -32.0), vm::vec3(32.0, 16.0, 32.0)), minuendTexture);
@@ -2760,7 +2761,7 @@ namespace TrenchBroom {
         TEST(BrushTest, subtractTruncatedCones) {
             // https://github.com/kduske/TrenchBroom/issues/1469
 
-            const String minuendStr("{\n"
+            const std::string minuendStr("{\n"
                                     "( 29.393876913416079 -16.970562748463635 32 ) ( 16.970562748495468 29.393876913411077 32 ) ( 11.313708499003496 19.595917942278447 -16 ) __TB_empty [ -0.258819 0.965926 0 -0.507559 ] [ -0.158797 -0.0425496 -0.986394 -0.257094 ] -0 1 1\n"
                                     "( 32.784609690844263 -8.784609690813113 32 ) ( 8.7846096908451727 32.784609690839488 32 ) ( 5.856406460569815 21.856406460564131 -16 ) __TB_empty [ -0.5 0.866025 0 -0.77533 ] [ -0.142374 -0.0821995 -0.986394 -0.0887003 ] -0 1 1\n"
                                     "( 33.94112549697229 -0 32 ) ( -0 33.941125496967288 32 ) ( -0 22.627416997982664 -16 ) __TB_empty [ -0.707107 0.707107 0 -0.176551 ] [ -0.116248 -0.116248 -0.986394 -0.46579 ] -0 1 1\n"
@@ -2789,7 +2790,7 @@ namespace TrenchBroom {
                                     "( -16 -16 -16 ) ( 16 16 -16 ) ( -16 16 -16 ) __TB_empty [ -1 0 0 -0 ] [ 0 -1 0 -0 ] -0 1 1\n"
                                     "}\n");
 
-            const String subtrahendStr("{\n"
+            const std::string subtrahendStr("{\n"
                                        "( 29.393876913416079 -16.970562748463635 48 ) ( 16.970562748495468 29.393876913411077 48 ) ( 11.313708499003496 19.595917942278447 -0 ) __TB_empty [ -0.258819 0.965926 0 -0.507559 ] [ -0.158797 -0.0425496 -0.986394 -0.474791 ] -0 1 1\n"
                                        "( 32.784609690844263 -8.784609690813113 48 ) ( 8.7846096908451727 32.784609690839488 48 ) ( 5.856406460569815 21.856406460564131 -0 ) __TB_empty [ -0.5 0.866025 0 -0.77533 ] [ -0.142374 -0.0821995 -0.986394 -0.306396 ] -0 1 1\n"
                                        "( 33.94112549697229 -0 48 ) ( -0 33.941125496967288 48 ) ( -0 22.627416997982664 -0 ) __TB_empty [ -0.707107 0.707107 0 -0.176551 ] [ -0.116248 -0.116248 -0.986394 -0.683485 ] -0 1 1\n"
@@ -2836,7 +2837,7 @@ namespace TrenchBroom {
         TEST(BrushTest, subtractDome) {
             // see https://github.com/kduske/TrenchBroom/issues/2707
 
-            const String minuendStr(R"({
+            const std::string minuendStr(R"({
                 ( -1598.09391534391647838 -277.57717407067275417 -20 ) ( -1598.09391534391647838 54.02274375211438695 -20 ) ( -1598.09391534391647838 -277.57717407067275417 -12 ) 128_gold_2 -14.94120025634765625 -108 -0 0.72087001800537109 1
                 ( -1178.96031746031826515 -277.57717407067275417 -20 ) ( -1598.09391534391647838 -277.57717407067275417 -20 ) ( -1178.96031746031826515 -277.57717407067275417 -12 ) 128_gold_2 28.92790031433105469 -108 -0 0.8250659704208374 1
                 ( -1178.96031746031826515 54.02274375211438695 -20 ) ( -1598.09391534391647838 54.02274375211438695 -20 ) ( -1178.96031746031826515 -277.57717407067275417 -20 ) 128_gold_2 -28.98690032958984375 -4.01778984069824219 -0 0.77968800067901611 0.65970498323440552
@@ -2870,7 +2871,7 @@ namespace TrenchBroom {
             // see https://github.com/kduske/TrenchBroom/pull/1764#issuecomment-296341588
             // subtract creates missing fragments
 
-            const String minuendStr("{\n"
+            const std::string minuendStr("{\n"
                                     "( -64 -64 -48 ) ( -64 -63 -48 ) ( -64 -64 -47 ) __TB_empty -0 -0 -0 1 1\n"
                                     "( 64 64 -16 ) ( 64 64 -15 ) ( 64 65 -16 ) __TB_empty -0 -0 -0 1 1\n"
                                     "( -64 -64 -48 ) ( -64 -64 -47 ) ( -63 -64 -48 ) __TB_empty -0 -0 -0 1 1\n"
@@ -2879,7 +2880,7 @@ namespace TrenchBroom {
                                     "( -64 -64 -48 ) ( -63 -64 -48 ) ( -64 -63 -48 ) __TB_empty -0 -0 -0 1 1\n"
                                     "}\n");
 
-            const String subtrahendStr("{\n"
+            const std::string subtrahendStr("{\n"
                                        "( 174.71990352490863074 -62.14359353944905706 75.16563707012221585 ) ( 175.1529162268008406 -62.39359353944905706 76.03166247390666399 ) ( 175.60378700139182229 -61.83740732160116238 74.81208367952893923 ) __TB_empty 0.78229904174804688 -0.29628753662109375 338.198577880859375 0.95197159051895142 0.96824586391448975\n"
                                        "( 36.41270357552525638 -34.54767559718354875 115.33507514292870155 ) ( 36.84571627741747335 -34.79767559718354875 116.2011005467131497 ) ( 36.58948027082188759 -35.46623425072723279 114.98152175233542494 ) __TB_empty -0.04352569580078125 0.71729850769042969 201.0517425537109375 0.98425096273422241 -0.90138787031173706\n"
                                        "( 199.8900184844443686 -128.93134736624534753 80.25103299325476769 ) ( 200.77390196092756014 -128.62516114839746706 79.89747960266149107 ) ( 200.0667951797410069 -129.84990601978904579 79.89747960266149107 ) __TB_empty -0.59069061279296875 -0.1404876708984375 280.89337158203125 0.93541437387466431 0.93541431427001953\n"
@@ -2910,7 +2911,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, testAlmostDegenerateBrush) {
             // https://github.com/kduske/TrenchBroom/issues/1194
-            const String data("{\n"
+            const std::string data("{\n"
                               "( -1248 -2144 1168 ) ( -1120 -2144 1168 ) ( -1248 -2272 1168 ) rock_1732 1248 2144 0 1 -1 //TX2\n"
                               "( -1248 -2224 1141.33333 ) ( -1248 -2224 1013.33333 ) ( -1120 -2224 1056 ) rock_1732 1391 -309 -33.69007 1.20185 -0.83205 //TX1\n"
                               "( -1408 -2144 1328 ) ( -1408 -2272 1328 ) ( -1408 -2144 1456 ) rock_1732 -1328 2144 90 1 1 //TX1\n"
@@ -2930,7 +2931,7 @@ namespace TrenchBroom {
             ASSERT_EQ(0u, nodes.size());
         }
 
-        static void assertCannotSnapTo(const String& data, size_t gridSize) {
+        static void assertCannotSnapTo(const std::string& data, const FloatType gridSize) {
             const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard);
 
@@ -2944,11 +2945,11 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush->canSnapVertices(worldBounds, gridSize));
         }
 
-        static void assertCannotSnap(const String& data) {
-            assertCannotSnapTo(data, 1);
+        static void assertCannotSnap(const std::string& data) {
+            assertCannotSnapTo(data, 1.0);
         }
 
-        static void assertSnapTo(const String& data, size_t gridSize) {
+        static void assertSnapTo(const std::string& data, const FloatType gridSize) {
             const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard);
 
@@ -2973,13 +2974,13 @@ namespace TrenchBroom {
             }
         }
 
-        static void assertSnapToInteger(const String& data) {
-            assertSnapTo(data, 1);
+        static void assertSnapToInteger(const std::string& data) {
+            assertSnapTo(data, 1.0);
         }
 
         TEST(BrushTest, snapIssue1198) {
             // https://github.com/kduske/TrenchBroom/issues/1198
-            const String data("{\n"
+            const std::string data("{\n"
                               "( 167.63423 -46.88446 472.36551 ) ( 66.06285 -1.98675 573.93711 ) ( 139.12681 -168.36963 500.87299 ) rock_1736 -158 527 166.79401 0.97488 -0.85268 //TX1\n"
                               "( 208 -298.77704 309.53674 ) ( 208 -283.89740 159.77713 ) ( 208 -425.90924 294.65701 ) rock_1736 -261 -291 186.67561 1 1.17558 //TX1\n"
                               "( -495.37965 -970.19919 2420.40004 ) ( -369.12126 -979.60987 2439.22145 ) ( -516.42274 -1026.66357 2533.32892 ) skill_ground -2752 -44 100.55540 0.89744 -0.99664 //TX1\n"
@@ -3000,7 +3001,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, snapIssue1202) {
             // https://github.com/kduske/TrenchBroom/issues/1202
-            const String data("{\n"
+            const std::string data("{\n"
                               "( -384 -1440 416 ) ( -384 -1440 544 ) ( -512 -1440 416 ) skip -384 416 0 -1 1 //TX1\n"
                               "( -479.20200 -1152 448 ) ( -388.69232 -1242.50967 448 ) ( -607.20203 -1152 448 ) skip -476 1631 -45 1 -0.70711 //TX2\n"
                               "( -202.75913 -1259.70123 365.61488 ) ( -293.26877 -1169.19156 365.61487 ) ( -288.09239 -1345.03450 408.28175 ) city6_8 747 1097 135 1 0.94281 //TX2\n"
@@ -3014,7 +3015,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, snapIssue1203) {
             // https://github.com/kduske/TrenchBroom/issues/1203
-            const String data("{\n"
+            const std::string data("{\n"
                               "( -2255.07542 -1621.75354 1184 ) ( -2340.26373 -1524.09826 1184 ) ( -2255.07542 -1621.75354 1312 ) metal5_6 2126 1184 0 0.76293 1 //TX2\n"
                               "( -2274.59294 -1572.67199 1077.14252 ) ( -2216.18139 -1643.55025 1214.27523 ) ( -2179.93925 -1486.72565 1086.37772 ) metal1_2 -86 -3857 66.92847 1.16449 -0.65206 //TX2\n"
                               "( -2294.68465 -1559.17687 1145.06418 ) ( -2209.49633 -1656.83209 1145.06409 ) ( -2226.47948 -1499.67881 1009.29941 ) metal1_2 -2044 -1080 180.00005 0.76293 1.06066 //TX2\n"
@@ -3030,7 +3031,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, snapIssue1205) {
             // https://github.com/kduske/TrenchBroom/issues/1205
-            const String data("{\n"
+            const std::string data("{\n"
                               "( 304 -895.52890 1232 ) ( 304 -763.64662 1232 ) ( 304 -895.52890 1104 ) bookshelf1w 1232 -869 -90 1 1.03033 //TX1\n"
                               "( -23.76447 -759.76453 1232 ) ( 69.49032 -666.50962 1232 ) ( -23.76447 -759.76453 1104 ) bookshelf1w 1232 -1043 -90 1 0.72855 //TX1\n"
                               "( -139.64675 -480 1232 ) ( -7.76448 -480 1232 ) ( -139.64675 -480 1104 ) bookshelf1w 1232 -136 -90 1 1.03033 //TX1\n"
@@ -3054,7 +3055,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, snapIssue1206) {
             // https://github.com/kduske/TrenchBroom/issues/1206
-            const String data("{\n"
+            const std::string data("{\n"
                               "( -637.50000 1446.44631 1339.47316 ) ( -637.50000 1560.93298 1396.71649 ) ( -765.50000 1446.44631 1339.47316 ) column01_3 -638 1617 0 -1 0.89443 //TX1\n"
                               "( -632.50000 1438.33507 1340.33194 ) ( -632.50000 1538.28627 1260.37098 ) ( -760.50000 1438.33507 1340.33194 ) column01_3 -632 1842 0 -1 0.78087 //TX1\n"
                               "( -646 1397.33116 1362.08442 ) ( -646 1511.81782 1304.84109 ) ( -518 1397.33116 1362.08442 ) column01_3 646 1562 0 1 0.89443 //TX1\n"
@@ -3068,7 +3069,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, snapIssue1207) {
             // https://github.com/kduske/TrenchBroom/issues/1207
-            const String data("{\n"
+            const std::string data("{\n"
                               "( -635.50000 1442.50000 1353.50012 ) ( -763.50000 1442.50000 1353.50012 ) ( -635.50000 1314.50000 1353.50012 ) column01_3 1442 635 -90 1 -1 //TX1\n"
                               "( -635.50000 1442.50000 1355 ) ( -507.50000 1442.50000 1355 ) ( -635.50000 1314.50000 1355 ) column01_3 1442 -635 -90 1 1 //TX1\n"
                               "( -636 1442.50000 1354 ) ( -636 1442.50000 1482 ) ( -764 1442.50000 1354 ) column01_3 -636 1354 0 -1 1 //TX1\n"
@@ -3081,7 +3082,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, snapIssue1232) {
             // https://github.com/kduske/TrenchBroom/issues/1232
-            const String data("{\n"
+            const std::string data("{\n"
                               "  ( 2152.22540 381.27455 2072 ) ( 2152.22540 381.27455 2200 ) ( 2020.34268 513.15633 2072 ) wbord05 2089 2072 0 -1.03033 1 //TX1\n"
                               "  ( 2042 335.61771 2072 ) ( 2042 335.61771 2200 ) ( 2042 522.12738 2072 ) wbord05 -230 2072 0 1.45711 1 //TX1\n"
                               "  ( 1948.74515 374.24515 2072 ) ( 1948.74515 374.24515 2200 ) ( 2080.62741 506.12741 2072 ) wbord05 -363 2072 0 1.03033 1 //TX1\n"
@@ -3107,7 +3108,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, snapIssue1395_24202) {
             // https://github.com/kduske/TrenchBroom/issues/1395 brush at line 24202
-            const String data("{\n"
+            const std::string data("{\n"
                               "( -4 -325 952 ) ( -16 -356 1032 ) ( -44 -309 1016 ) rock3_8 -1.28601 -6.46194 113.395 0.943603 1.06043\n"
                               "( -17.57635498046875 -263.510009765625 988.9852294921875 ) ( -137.5655517578125 -375.941162109375 743.296875 ) ( 34.708740234375 -300.228759765625 1073.855712890625 ) rock3_8 -1.28595 -6.46191 113.395 0.943603 1.06043\n"
                               "( -135.7427978515625 -370.1265869140625 739.753173828125 ) ( -15.768181800842285 -257.6954345703125 985.42547607421875 ) ( -449.98324584960937 -364.254638671875 589.064697265625 ) rock3_8 -26.8653 -10.137 25.6205 1.15394 -1\n"
@@ -3125,7 +3126,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, snapIssue1395_18995) {
             // https://github.com/kduske/TrenchBroom/issues/1395 brush at line 24202
-            const String data("{\n"
+            const std::string data("{\n"
                               "( 335 891 680 ) ( 314 881 665 ) ( 451 826 680 ) wswamp1_2 2 0 0 1 1\n"
                               "( 450 813 671 ) ( 451 826 680 ) ( 446 807 665 ) wswamp1_2 2 0 0 1 1\n"
                               "( 451 826 680 ) ( 314 881 665 ) ( 446 807 665 ) wswamp1_2 2 0 0 1 1\n"
@@ -3152,7 +3153,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, invalidBrush1332) {
             // https://github.com/kduske/TrenchBroom/issues/1332
-            const String data("{\n"
+            const std::string data("{\n"
                               "( 91.428573608  0  4.57144165 ) ( 96 16  0 ) ( 82.285690308  0  0          ) rock5_2 0 0 0 1 1\n"
                               "( 95.238098145  0 16          ) ( 96  2 16 ) ( 91.428573608  0  4.57144165 ) rock5_2 0 0 0 1 1\n"
                               "( 96           16 16          ) ( 96 16  0 ) ( 96            2 16          ) rock5_2 0 0 0 1 1\n"
@@ -3185,7 +3186,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, invalidBrush1395) {
             // Brush causes assertion to fail after having had its vertices snapped
-            const String data("{\n"
+            const std::string data("{\n"
                               "( -72 497 878 ) ( -77 465 878 ) ( -77 396 878 ) rock4_2 -30 1 0 1 1\n"
                               "( -72 497 878 ) ( -59 536 878 ) ( -65 536 905 ) rock4_2 -30 33 0 1 1\n"
                               "( -50 269 878 ) ( -59 279 878 ) ( -40 269 898 ) rock4_2 -1 33 0 1 1\n"
@@ -3237,7 +3238,7 @@ namespace TrenchBroom {
             // see https://github.com/kduske/TrenchBroom/issues/1801
             // see PolyhedronTest::clipWithInvalidSeam
 
-            const String data("{\n"
+            const std::string data("{\n"
                               "( -484 1513 395 ) ( -483 1371 131 ) ( -483 1777 253 ) *water1 -0 -0 -0 1 1\n"
                               "( -483 1371 131 ) ( -459 1579 -115 ) ( -483 1777 253 ) *water1 -0 -0 -0 1 1\n"
                               "( -459 1579 -115 ) ( -483 1371 131 ) ( -184 1428 237 ) *water1 -0 -0 -0 1 1\n"
@@ -3262,7 +3263,7 @@ namespace TrenchBroom {
 
         TEST(BrushTest, snapToGrid64) {
             // https://github.com/kduske/TrenchBroom/issues/1415
-            const String data("{\n"
+            const std::string data("{\n"
                               "    ( 400 224 272 ) ( 416 272 224 ) ( 304 224 224 ) techrock 128 -0 -0 1 1\n"
                               "    ( 416 448 224 ) ( 416 272 224 ) ( 400 448 272 ) techrock 64 -0 -0 1 1\n"
                               "    ( 304 272 32 ) ( 304 832 48 ) ( 304 272 48 ) techrock 64 -0 -0 1 1\n"
@@ -3274,7 +3275,7 @@ namespace TrenchBroom {
 
             // Seems reasonable for this to fail to snap to grid 64; it's only 48 units tall.
             // If it was able to snap, that would be OK too.
-            assertCannotSnapTo(data, 64);
+            assertCannotSnapTo(data, 64.0);
         }
 
         TEST(BrushTest, removeSingleVertex) {
@@ -3460,7 +3461,7 @@ namespace TrenchBroom {
 
         // https://github.com/kduske/TrenchBroom/issues/1893
         TEST(BrushTest, intersectsIssue1893) {
-            const String data("{\n"
+            const std::string data("{\n"
                               "\"classname\" \"worldspawn\"\n"
                               "{\n"
                               "( 2368 173.07179676972467 525.07179676972441 ) ( 2368 194.92820323027539 530.92820323027559 ) ( 2368 186.92820323027561 517.07179676972441 ) mt_sr_v1x [ 0 0 1 -32 ] [ 0 -1 0 32 ] 0 1 1\n"
@@ -3524,7 +3525,7 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(4096.0);
             World world(Model::MapFormat::Valve);
 
-            const String data = R"(
+            const std::string data = R"(
 {
 ( 32 -32 -0 ) ( -16 -32 -0 ) ( -16 -32 32 ) *04water1 [ -1 0 0 -0.941193 ] [ 0 0 -1 -0 ] 125.468 1 1
 ( -16 -32 32 ) ( -16 -32 -0 ) ( -32 -16 -0 ) *04mwat2 [ -1 0 0 -0.941193 ] [ 0 0 -1 -0 ] 125.468 1 1
@@ -3649,7 +3650,7 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard);
 
-            const String data = R"(
+            const std::string data = R"(
 {
 ( 404.63242807195160822 -1696.09174007488900315 211.96202895796943722 ) ( 1195.3323608207340385 -1812.61180985669875554 293.31661882168685906 ) ( 415.37140289843625851 -1630.10750076058616287 474.93304004273147712 ) rock4_2 30.92560005187988281 0.960906982421875 5.59741020202636719 0.98696297407150269 0.98029798269271851
 ( 1164.16895096277721677 -1797.72592376172019613 578.31488545196270934 ) ( 1195.3323608207340385 -1812.61180985669875554 293.31661882168685906 ) ( 1169.17641562068342864 -1800.29610138592852309 568.7974852992444994 ) rock4_2 67.89600372314453125 -61.20909881591796875 13.658599853515625 0.85491102933883667 1.12606000900268555
@@ -3716,7 +3717,7 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard);
 
-            const String data = R"(
+            const std::string data = R"(
 {
 ( -5706.7302804991996 648 1090 ) ( -5730.7302769049566 730 1096 ) ( -5706.730280499035 722 1076 ) so_b4b 103.27 45.1201 180 1 1
 ( -5706.730280499035 722 1076 ) ( -5702.7302804990386 720 1070 ) ( -5706.7302804991996 648 1090 ) so_b4b -0 -0 -0 1 1
@@ -3813,7 +3814,7 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard);
 
-            const String data = R"(
+            const std::string data = R"(
 {
 ( -5706.7302805113286 648 1090 ) ( -5730.730280567378 730 1100 ) ( -5706.7302804991377 722 1076 ) so_b4b -0 -0 -0 1 1
 ( -5730.7302804970022 574 1112 ) ( -5706.7302805113286 648 1090 ) ( -5706.7302621135759 484 1090 ) so_b4b -41.2695 6 -0 1 1
@@ -3903,7 +3904,7 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard);
 
-            const String data = R"(
+            const std::string data = R"(
             {
                 ( -179 -179 -63 ) ( -158 -158 -69 ) ( 1.055125500745701e+154 1.0551255007456758e+154 -5.2756275037285048e+153 ) _core/tangerine -2.82843 -0 -0 0.0625 0.0625
                 ( -132 -126.3431457505086 -60 ) ( -132 188 -60 ) ( -132 -126.34314575050865 -64 ) _core/tangerine 0 0 0 0.0625 0.0625
@@ -3926,7 +3927,7 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
             World world(Model::MapFormat::Valve);
 
-            const String data = R"(
+            const std::string data = R"(
 {
 ( -751 -623.07933525052886 159.27097151882481 ) ( -753.39055027600557 -658.05150554216561 45.762341114124865 ) ( -752.04220703008457 -655.64774857459861 45.762340887734425 ) wood1_1 [ -0.499995 -0.836519 0.224145 8.59912 ] [ -0.0094517 -0.253533 -0.967281 -43.4648 ] 346.992 1 1
 ( -746.54446646023075 -654.12665614912589 45.762340832676934 ) ( -743.99141084100086 -655.64759047173152 45.762340853972965 ) ( -746.90192378883967 -622.0185651831514 158.98673884436587 ) wood1_1 [ -0.866028 0.482959 -0.129408 -4.96463 ] [ 0.00536862 -0.249822 -0.968277 -43.5033 ] 7.53177 1 1

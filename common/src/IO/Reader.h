@@ -20,12 +20,11 @@
 #ifndef Reader_h
 #define Reader_h
 
-#include "StringType.h"
-
 #include <vecmath/vec.h>
 
 #include <cstdio>
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -149,7 +148,7 @@ namespace TrenchBroom {
                 std::unique_ptr<Source> doGetSubSource(size_t position, size_t length) const override;
                 std::tuple<const char*, const char*, std::unique_ptr<char[]>> doBuffer() const override;
             private:
-                [[noreturn]] void throwError(const String& msg) const;
+                [[noreturn]] void throwError(const std::string& msg) const;
             };
         protected:
             /**
@@ -477,7 +476,7 @@ namespace TrenchBroom {
              *
              * @throw ReaderException if reading fails
              */
-            String readString(size_t size);
+            std::string readString(size_t size);
 
             template <typename R, size_t S, typename T=R>
             vm::vec<T,S> readVec() {

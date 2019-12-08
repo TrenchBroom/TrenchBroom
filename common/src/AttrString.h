@@ -20,8 +20,7 @@
 #ifndef TrenchBroom_AttrString
 #define TrenchBroom_AttrString
 
-#include "StringType.h"
-
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -36,17 +35,17 @@ namespace TrenchBroom {
         class LineFunc {
         public:
             virtual ~LineFunc();
-            void process(const String& str, Justify justify);
+            void process(const std::string& str, Justify justify);
         private:
-            virtual void justifyLeft(const String& str) = 0;
-            virtual void justifyRight(const String& str) = 0;
-            virtual void center(const String& str) = 0;
+            virtual void justifyLeft(const std::string& str) = 0;
+            virtual void justifyRight(const std::string& str) = 0;
+            virtual void center(const std::string& str) = 0;
         };
     private:
         struct Line {
-            String string;
+            std::string string;
             Justify justify;
-            Line(const String& i_string, Justify i_justify);
+            Line(const std::string& i_string, Justify i_justify);
         };
         using Lines = std::vector<Line>;
 
@@ -55,16 +54,16 @@ namespace TrenchBroom {
         AttrString();
 
         // cppcheck-suppress noExplicitConstructor
-        AttrString(const String& string);
+        AttrString(const std::string& string);
 
         bool operator<(const AttrString& other) const;
         int compare(const AttrString& other) const;
 
         void lines(LineFunc& func) const;
 
-        void appendLeftJustified(const String& string);
-        void appendRightJustified(const String& string);
-        void appendCentered(const String& string);
+        void appendLeftJustified(const std::string& string);
+        void appendRightJustified(const std::string& string);
+        void appendCentered(const std::string& string);
     };
 }
 

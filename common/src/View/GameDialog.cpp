@@ -23,7 +23,6 @@
 #include "PreferenceManager.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
-#include "StringUtils.h"
 #include "View/BorderLine.h"
 #include "View/GameListBox.h"
 #include "View/ViewConstants.h"
@@ -36,6 +35,7 @@
 #include <QPushButton>
 
 #include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        bool GameDialog::showNewDocumentDialog(QWidget* parent, String& gameName, Model::MapFormat& mapFormat) {
+        bool GameDialog::showNewDocumentDialog(QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat) {
             GameDialog dialog("Select Game", "Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and textures by going to the map inspector, the entity inspector and the face inspector, respectively.", parent);
             if (dialog.exec() == QDialog::Rejected) {
                 return false;
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool GameDialog::showOpenDocumentDialog(QWidget* parent, String& gameName, Model::MapFormat& mapFormat) {
+        bool GameDialog::showOpenDocumentDialog(QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat) {
             GameDialog dialog("Select Game",
                 "TrenchBroom was unable to detect the game for the map document. Please choose a game in the game list and click OK.",
                 parent);
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             }
         }
 
-        String GameDialog::currentGameName() const {
+        std::string GameDialog::currentGameName() const {
             return m_gameListBox->selectedGameName();
         }
 
@@ -201,9 +201,9 @@ namespace TrenchBroom {
             return panel;
         }
 
-        void GameDialog::updateMapFormats(const String& gameName) {
+        void GameDialog::updateMapFormats(const std::string& gameName) {
             const auto& gameFactory = Model::GameFactory::instance();
-            const auto& fileFormats = gameName.empty() ? EmptyStringList : gameFactory.fileFormats(gameName);
+            const auto fileFormats = gameName.empty() ? std::vector<std::string>({}) : gameFactory.fileFormats(gameName);
 
             m_mapFormatComboBox->clear();
             for (const auto& fileFormat : fileFormats) {

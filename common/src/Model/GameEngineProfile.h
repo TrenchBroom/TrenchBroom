@@ -22,9 +22,9 @@
 
 #include "Macros.h"
 #include "Notifier.h"
-#include "StringType.h"
 #include "IO/Path.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -33,24 +33,24 @@ namespace TrenchBroom {
         public:
             using List = std::vector<GameEngineProfile*>;
         private:
-            String m_name;
+            std::string m_name;
             IO::Path m_path;
-            String m_parameterSpec;
+            std::string m_parameterSpec;
         public:
             Notifier<> profileWillBeRemoved;
             Notifier<> profileDidChange;
         public:
-            GameEngineProfile(const String& name, const IO::Path& path, const String& parameterSpec);
+            GameEngineProfile(const std::string& name, const IO::Path& path, const std::string& parameterSpec);
 
             GameEngineProfile* clone() const;
 
-            const String& name() const;
+            const std::string& name() const;
             const IO::Path& path() const;
-            const String& parameterSpec() const;
+            const std::string& parameterSpec() const;
 
-            void setName(const String& name);
+            void setName(const std::string& name);
             void setPath(const IO::Path& path);
-            void setParameterSpec(const String& parameterSpec);
+            void setParameterSpec(const std::string& parameterSpec);
 
             deleteCopyAndMove(GameEngineProfile)
         };

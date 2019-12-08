@@ -23,11 +23,13 @@
 #include "EL/Interpolator.h"
 #include "EL/Value.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace EL {
 
-        void ASSERT_EL(const String& expected, const String& expression, const EvaluationContext& context = EvaluationContext());
-        void ASSERT_EL(const String& expected, const String& expression, const EvaluationContext& context) {
+        void ASSERT_EL(const std::string& expected, const std::string& expression, const EvaluationContext& context = EvaluationContext());
+        void ASSERT_EL(const std::string& expected, const std::string& expression, const EvaluationContext& context) {
             ASSERT_EQ(expected, Interpolator(expression).interpolate(context));
         }
 

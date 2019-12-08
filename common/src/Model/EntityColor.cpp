@@ -26,7 +26,11 @@
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
 
+#include <kdl/string_utils.h>
+
 #include <cassert>
+#include <sstream>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -67,13 +71,13 @@ namespace TrenchBroom {
             return visitor.result();
         }
 
-        const String convertEntityColor(const String& str, const Assets::ColorRange::Type colorRange) {
+        const std::string convertEntityColor(const std::string& str, const Assets::ColorRange::Type colorRange) {
             const auto color = parseEntityColor(str);
             return entityColorAsString(color, colorRange);
         }
 
-        Color parseEntityColor(const String& str) {
-            const auto components = StringUtils::splitAndTrim(str, " ");
+        Color parseEntityColor(const std::string& str) {
+            const auto components = kdl::str_split(str, " ");
             const auto range = Assets::detectColorRange(components);
             assert(range != Assets::ColorRange::Mixed);
 
@@ -91,8 +95,8 @@ namespace TrenchBroom {
             return Color(r, g, b);
         }
 
-        String entityColorAsString(const Color& color, const Assets::ColorRange::Type colorRange) {
-            StringStream result;
+        std::string entityColorAsString(const Color& color, const Assets::ColorRange::Type colorRange) {
+            std::stringstream result;
             if (colorRange == Assets::ColorRange::Byte) {
                 result << int(color.r() * 255.0f) << " " << int(color.g() * 255.0f) << " " << int(color.b() * 255.0f);
             } else if (colorRange == Assets::ColorRange::Float) {

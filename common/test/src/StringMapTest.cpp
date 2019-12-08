@@ -21,11 +21,12 @@
 
 #include "Exceptions.h"
 #include "StringMap.h"
-#include "StringUtils.h"
 #include "TestUtils.h"
 
+#include <string>
+
 namespace TrenchBroom {
-    using TestMultiMap = StringMap<String, StringMultiMapValueContainer<String> >;
+    using TestMultiMap = StringMap<std::string, StringMultiMapValueContainer<std::string>>;
 
     TEST(StringMultiMapTest, insert) {
         TestMultiMap index;
@@ -35,37 +36,37 @@ namespace TrenchBroom {
         index.insert("k1", "value3");
         index.insert("test", "value4");
 
-        StringSet result1 = index.queryPrefixMatches("woops");
+        auto result1 = index.queryPrefixMatches("woops");
         ASSERT_TRUE(result1.empty());
 
-        StringSet result2 = index.queryPrefixMatches("key222");
+        auto result2 = index.queryPrefixMatches("key222");
         ASSERT_TRUE(result2.empty());
 
-        StringSet result3 = index.queryPrefixMatches("key");
+        auto result3 = index.queryPrefixMatches("key");
         ASSERT_EQ(2u, result3.size());
         ASSERT_TRUE(result3.count("value") > 0);
         ASSERT_TRUE(result3.count("value2") > 0);
 
-        StringSet result4 = index.queryPrefixMatches("k");
+        auto result4 = index.queryPrefixMatches("k");
         ASSERT_EQ(3u, result4.size());
         ASSERT_TRUE(result4.count("value") > 0);
         ASSERT_TRUE(result4.count("value2") > 0);
         ASSERT_TRUE(result4.count("value3") > 0);
 
-        StringSet result5 = index.queryPrefixMatches("test");
+        auto result5 = index.queryPrefixMatches("test");
         ASSERT_EQ(1u, result5.size());
         ASSERT_TRUE(result5.count("value4") > 0);
 
         index.insert("k", "value4");
 
-        StringSet result6 = index.queryPrefixMatches("k");
+        auto result6 = index.queryPrefixMatches("k");
         ASSERT_EQ(4u, result6.size());
         ASSERT_TRUE(result6.count("value") > 0);
         ASSERT_TRUE(result6.count("value2") > 0);
         ASSERT_TRUE(result6.count("value3") > 0);
         ASSERT_TRUE(result6.count("value4") > 0);
 
-        StringSet result7 = index.queryPrefixMatches("");
+        auto result7 = index.queryPrefixMatches("");
         ASSERT_EQ(4u, result7.size());
         ASSERT_TRUE(result7.count("value") > 0);
         ASSERT_TRUE(result7.count("value2") > 0);
@@ -85,41 +86,41 @@ namespace TrenchBroom {
 
         index.remove("andrary", "value3");
 
-        StringSet result1 = index.queryPrefixMatches("andrary");
+        auto result1 = index.queryPrefixMatches("andrary");
         ASSERT_TRUE(result1.empty());
 
-        StringSet result2 = index.queryPrefixMatches("andrar");
+        auto result2 = index.queryPrefixMatches("andrar");
         ASSERT_EQ(1u, result2.size());
         ASSERT_TRUE(result2.count("value2") > 0);
 
         index.remove("andrar", "value2");
 
-        StringSet result3 = index.queryPrefixMatches("andrar");
+        auto result3 = index.queryPrefixMatches("andrar");
         ASSERT_TRUE(result3.empty());
 
-        StringSet result4 = index.queryPrefixMatches("andre");
+        auto result4 = index.queryPrefixMatches("andre");
         ASSERT_EQ(1u, result4.size());
         ASSERT_TRUE(result4.count("value") > 0);
 
-        StringSet result5 = index.queryPrefixMatches("andreas");
+        auto result5 = index.queryPrefixMatches("andreas");
         ASSERT_EQ(1u, result5.size());
         ASSERT_TRUE(result5.count("value") > 0);
 
         index.remove("andy", "value4");
         ASSERT_TRUE(index.queryPrefixMatches("andy").empty());
 
-        StringSet result6 = index.queryExactMatches("andreas");
+        auto result6 = index.queryExactMatches("andreas");
         ASSERT_EQ(1u, result6.size());
         ASSERT_TRUE(result6.count("value") > 0);
 
-        StringSet result7 = index.queryExactMatches("andrew");
+        auto result7 = index.queryExactMatches("andrew");
         ASSERT_EQ(1u, result7.size());
         ASSERT_TRUE(result7.count("value") > 0);
 
         index.remove("andreas", "value");
         ASSERT_TRUE(index.queryPrefixMatches("andreas").empty());
 
-        StringSet result8 = index.queryPrefixMatches("andrew");
+        auto result8 = index.queryPrefixMatches("andrew");
         ASSERT_EQ(1u, result8.size());
         ASSERT_TRUE(result8.count("value") > 0);
 
@@ -134,26 +135,26 @@ namespace TrenchBroom {
         index.insert("key22", "value2");
         index.insert("k1", "value3");
 
-        StringSet result1 = index.queryExactMatches("woops");
+        auto result1 = index.queryExactMatches("woops");
         ASSERT_TRUE(result1.empty());
 
-        StringSet result2 = index.queryExactMatches("key222");
+        auto result2 = index.queryExactMatches("key222");
         ASSERT_TRUE(result2.empty());
 
-        StringSet result3 = index.queryExactMatches("key");
+        auto result3 = index.queryExactMatches("key");
         ASSERT_EQ(1u, result3.size());
         ASSERT_TRUE(result3.count("value") > 0);
 
-        StringSet result4 = index.queryExactMatches("k");
+        auto result4 = index.queryExactMatches("k");
         ASSERT_TRUE(result4.empty());
 
         index.insert("key", "value4");
-        StringSet result5 = index.queryExactMatches("key");
+        auto result5 = index.queryExactMatches("key");
         ASSERT_EQ(2u, result5.size());
         ASSERT_TRUE(result5.count("value") > 0);
         ASSERT_TRUE(result5.count("value4") > 0);
 
-        StringSet result6 = index.queryExactMatches("");
+        auto result6 = index.queryExactMatches("");
         ASSERT_TRUE(result6.empty());
     }
 
@@ -165,26 +166,26 @@ namespace TrenchBroom {
         index.insert("key22bs", "value4");
         index.insert("k1", "value3");
 
-        StringSet result1 = index.queryNumberedMatches("woops");
+        auto result1 = index.queryNumberedMatches("woops");
         ASSERT_TRUE(result1.empty());
 
-        StringSet result2 = index.queryNumberedMatches("key");
+        auto result2 = index.queryNumberedMatches("key");
         ASSERT_EQ(2u, result2.size());
         ASSERT_TRUE(result2.count("value") > 0);
         ASSERT_TRUE(result2.count("value2") > 0);
 
-        StringSet result3 = index.queryNumberedMatches("key2");
+        auto result3 = index.queryNumberedMatches("key2");
         ASSERT_EQ(2u, result3.size());
         ASSERT_TRUE(result3.count("value") > 0);
         ASSERT_TRUE(result3.count("value2") > 0);
 
-        StringSet result4 = index.queryNumberedMatches("k");
+        auto result4 = index.queryNumberedMatches("k");
         ASSERT_EQ(1u, result4.size());
         ASSERT_TRUE(result4.count("value3") > 0);
 
         index.remove("k1", "value3");
 
-        StringSet result5 = index.queryNumberedMatches("k");
+        auto result5 = index.queryNumberedMatches("k");
         ASSERT_TRUE(result5.empty());
     }
 
@@ -228,6 +229,6 @@ namespace TrenchBroom {
         index.insert("k1", "value3");
         index.insert("test", "value4");
 
-        ASSERT_COLLECTIONS_EQUIVALENT(StringList({ "key", "key2", "key22", "k1", "test" }), index.getKeys());
+        ASSERT_COLLECTIONS_EQUIVALENT(std::vector<std::string>({ "key", "key2", "key22", "k1", "test" }), index.getKeys());
     }
 }

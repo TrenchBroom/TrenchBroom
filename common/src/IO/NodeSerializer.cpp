@@ -25,6 +25,11 @@
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
 
+#include <kdl/string_format.h>
+#include <kdl/string_utils.h>
+
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         class NodeSerializer::BrushSerializer : public Model::NodeVisitor {
@@ -39,6 +44,23 @@ namespace TrenchBroom {
             void doVisit(Model::Entity* /* entity */) override {}
             void doVisit(Model::Brush* brush) override   { m_serializer.brush(brush); }
         };
+
+        const std::string& NodeSerializer::IdManager::getId(const Model::Node* t) const {
+            auto it = m_ids.find(t);
+            if (it == std::end(m_ids)) {
+                it = m_ids.insert(std::make_pair(t, idToString(makeId()))).first;
+            }
+            return it->second;
+        }
+
+        Model::IdType NodeSerializer::IdManager::makeId() const {
+            static Model::IdType currentId = 1;
+            return currentId++;
+        }
+
+        std::string NodeSerializer::IdManager::idToString(const Model::IdType nodeId) const {
+            return kdl::str_to_string(nodeId);
+        }
 
         NodeSerializer::NodeSerializer() :
         m_entityNo(0),
@@ -150,11 +172,11 @@ namespace TrenchBroom {
 
         class NodeSerializer::GetParentAttributes : public Model::ConstNodeVisitor {
         private:
-            const LayerIds& m_layerIds;
-            const GroupIds& m_groupIds;
+            const IdManager& m_layerIds;
+            const IdManager& m_groupIds;
             Model::EntityAttribute::List m_attributes;
         public:
-            GetParentAttributes(const LayerIds& layerIds, const GroupIds& groupIds) :
+            GetParentAttributes(const IdManager& layerIds, const IdManager& groupIds) :
             m_layerIds(layerIds),
             m_groupIds(groupIds) {}
 
@@ -197,17 +219,17 @@ namespace TrenchBroom {
             return attrs;
         }
 
-        String NodeSerializer::escapeEntityAttribute(const String& str) const {
+        std::string NodeSerializer::escapeEntityAttribute(const std::string& str) const {
             // Remove a trailing unescaped backslash, as this will choke the parser.
             const auto l = str.size();
             if (l > 0 && str[l-1] == '\\') {
                 const auto p = str.find_last_not_of('\\');
                 if ((l - p) % 2 == 0) {
                     // Only remove a trailing backslash if there is an uneven number of trailing backslashes.
-                    return StringUtils::escapeIfNecessary(str.substr(0, l-1), "\"");
+                    return kdl::str_escape_if_necessary(str.substr(0, l-1), "\"");
                 }
             }
-            return StringUtils::escapeIfNecessary(str, "\"");
+            return kdl::str_escape_if_necessary(str, "\"");
         }
     }
 }

@@ -20,9 +20,10 @@
 #ifndef TrenchBroom_Console
 #define TrenchBroom_Console
 
-#include "StringType.h"
 #include "Logger.h"
 #include "View/TabBook.h"
+
+#include <string>
 
 class QTextEdit;
 class QString;
@@ -36,7 +37,7 @@ namespace TrenchBroom {
         public:
             explicit Console(QWidget* parent = nullptr);
         private:
-            void doLog(LogLevel level, const String& message) override;
+            void doLog(LogLevel level, const std::string& message) override;
             void doLog(LogLevel level, const QString& message) override;
             void logToDebugOut(LogLevel level, const QString& message);
             void logToConsole(LogLevel level, const QString& message);

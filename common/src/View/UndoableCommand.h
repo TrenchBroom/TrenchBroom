@@ -22,6 +22,8 @@
 
 #include "View/Command.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
         class MapDocumentCommandFacade;
@@ -30,7 +32,7 @@ namespace TrenchBroom {
         public:
             using Ptr = std::shared_ptr<UndoableCommand>;
         public:
-            UndoableCommand(CommandType type, const String& name);
+            UndoableCommand(CommandType type, const std::string& name);
             virtual ~UndoableCommand();
 
             virtual bool performUndo(MapDocumentCommandFacade* document);

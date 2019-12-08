@@ -21,11 +21,11 @@
 #define TrenchBroom_ChangeBrushFaceAttributesRequest
 
 #include "Color.h"
-#include "StringType.h"
 #include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -96,7 +96,7 @@ namespace TrenchBroom {
 
             void clear();
 
-            const String name() const;
+            const std::string name() const;
             bool evaluate(const std::vector<BrushFace*>& faces) const;
 
             void resetAll();

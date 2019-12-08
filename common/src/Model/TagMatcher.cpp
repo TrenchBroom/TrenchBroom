@@ -31,6 +31,7 @@
 #include "Model/NodeCollection.h"
 #include "Model/World.h"
 
+#include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
 #include <vector>
@@ -60,8 +61,8 @@ namespace TrenchBroom {
             }
         }
 
-        TextureNameTagMatcher::TextureNameTagMatcher(String pattern) :
-        m_pattern(std::move(pattern)) {}
+        TextureNameTagMatcher::TextureNameTagMatcher(const std::string& pattern) :
+        m_pattern(pattern) {}
 
         std::unique_ptr<TagMatcher> TextureNameTagMatcher::clone() const {
             return std::make_unique<TextureNameTagMatcher>(m_pattern);
@@ -86,7 +87,7 @@ namespace TrenchBroom {
             });
 
             std::sort(std::begin(matchingTextures), std::end(matchingTextures), [](const auto* lhs, const auto* rhs) {
-                return StringUtils::caseInsensitiveCompare(lhs->name(), rhs->name()) < 0;
+                return kdl::ci::compare(lhs->name(), rhs->name()) < 0;
             });
 
             Assets::Texture* texture = nullptr;
@@ -115,23 +116,17 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool TextureNameTagMatcher::matchesTextureName(const String& textureName) const {
-            auto begin = std::begin(textureName);
-
+        bool TextureNameTagMatcher::matchesTextureName(std::string_view textureName) const {
             const auto pos = textureName.find_last_of('/');
-            if (pos != String::npos) {
-                std::advance(begin, long(pos)+1);
+            if (pos != std::string::npos) {
+                textureName = textureName.substr(pos + 1);
             }
 
-            return StringUtils::matchesPattern(
-                begin, std::end(textureName),
-                std::begin(m_pattern),
-                std::end(m_pattern),
-                StringUtils::CharEqual<StringUtils::CaseInsensitiveCharCompare>());
+            return kdl::ci::matches_glob(textureName, m_pattern);
         }
 
-        SurfaceParmTagMatcher::SurfaceParmTagMatcher(String parameter) :
-        m_parameter(std::move(parameter)) {}
+        SurfaceParmTagMatcher::SurfaceParmTagMatcher(const std::string& parameter) :
+        m_parameter(parameter) {}
 
         std::unique_ptr<TagMatcher> SurfaceParmTagMatcher::clone() const {
             return std::make_unique<SurfaceParmTagMatcher>(m_parameter);
@@ -249,9 +244,9 @@ namespace TrenchBroom {
             return std::make_unique<SurfaceFlagsTagMatcher>(m_flags);
         }
 
-        EntityClassNameTagMatcher::EntityClassNameTagMatcher(String pattern, String texture) :
-        m_pattern(std::move(pattern)),
-        m_texture(std::move(texture)) {}
+        EntityClassNameTagMatcher::EntityClassNameTagMatcher(const std::string& pattern, const std::string& texture) :
+        m_pattern(pattern),
+        m_texture(texture) {}
 
 
         std::unique_ptr<TagMatcher> EntityClassNameTagMatcher::clone() const {
@@ -286,7 +281,7 @@ namespace TrenchBroom {
             });
 
             std::sort(std::begin(matchingDefinitions), std::end(matchingDefinitions), [](const auto* lhs, const auto* rhs) {
-                return StringUtils::caseInsensitiveCompare(lhs->name(), rhs->name()) < 0;
+                return kdl::ci::compare(lhs->name(), rhs->name()) < 0;
             });
 
             const Assets::EntityDefinition* definition = nullptr;
@@ -343,8 +338,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool EntityClassNameTagMatcher::matchesClassname(const String& classname) const {
-            return StringUtils::caseInsensitiveMatchesPattern(classname, m_pattern);
+        bool EntityClassNameTagMatcher::matchesClassname(const std::string& classname) const {
+            return kdl::ci::matches_glob(classname, m_pattern);
         }
     }
 }

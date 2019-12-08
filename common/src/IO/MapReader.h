@@ -27,6 +27,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -85,7 +86,7 @@ namespace TrenchBroom {
             NodeParentList m_unresolvedNodes;
         protected:
             MapReader(const char* begin, const char* end);
-            explicit MapReader(const String& str);
+            explicit MapReader(const std::string& str);
 
             void readEntities(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
             void readBrushes(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);

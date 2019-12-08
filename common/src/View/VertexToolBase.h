@@ -48,6 +48,7 @@
 #include "View/VertexCommand.h"
 #include "View/VertexHandleManager.h"
 
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>
@@ -58,6 +59,7 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -282,7 +284,7 @@ namespace TrenchBroom {
                 return hit.target<H>();
             }
 
-            virtual String actionName() const = 0;
+            virtual std::string actionName() const = 0;
         public:
             void moveSelection(const vm::vec3& delta) {
                 const Disjunction::TemporarilySetLiteral ignoreChangeNotifications(m_ignoreChangeNotifications);
@@ -349,7 +351,7 @@ namespace TrenchBroom {
 
                 renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
                 renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-                renderService.renderString(StringUtils::toString(handle), vm::vec3f(handle));
+                renderService.renderString(kdl::str_to_string(handle), vm::vec3f(handle));
             }
 
             template <typename HH>

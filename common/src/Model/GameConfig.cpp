@@ -20,13 +20,16 @@
 #include "GameConfig.h"
 
 #include "IO/DiskFileSystem.h"
-#include "StringUtils.h"
+
+#include <kdl/string_format.h>
 
 #include <cassert>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        GameConfig::MapFormatConfig::MapFormatConfig(const String& i_format, const IO::Path& i_initialMap) :
+        GameConfig::MapFormatConfig::MapFormatConfig(const std::string& i_format, const IO::Path& i_initialMap) :
         format(i_format),
         initialMap(i_initialMap) {}
 
@@ -36,11 +39,11 @@ namespace TrenchBroom {
             return format == other.format && initialMap == other.initialMap;
         }
 
-        GameConfig::PackageFormatConfig::PackageFormatConfig(const String& i_extension, const String& i_format) :
+        GameConfig::PackageFormatConfig::PackageFormatConfig(const std::string& i_extension, const std::string& i_format) :
         extensions(1, i_extension),
         format(i_format) {}
 
-        GameConfig::PackageFormatConfig::PackageFormatConfig(const StringList& i_extensions, const String& i_format) :
+        GameConfig::PackageFormatConfig::PackageFormatConfig(const std::vector<std::string>& i_extensions, const std::string& i_format) :
         extensions(i_extensions),
         format(i_format) {}
 
@@ -78,7 +81,7 @@ namespace TrenchBroom {
                     rootDirectory == other.rootDirectory);
         }
 
-        GameConfig::TextureConfig::TextureConfig(const TexturePackageConfig& i_package, const PackageFormatConfig& i_format, const IO::Path& i_palette, const String& i_attribute, const IO::Path& i_shaderSearchPath) :
+        GameConfig::TextureConfig::TextureConfig(const TexturePackageConfig& i_package, const PackageFormatConfig& i_format, const IO::Path& i_palette, const std::string& i_attribute, const IO::Path& i_shaderSearchPath) :
         package(i_package),
         format(i_format),
         palette(i_palette),
@@ -95,13 +98,13 @@ namespace TrenchBroom {
                     shaderSearchPath == other.shaderSearchPath);
         }
 
-        GameConfig::EntityConfig::EntityConfig(const IO::Path& i_defFilePath, const StringSet& i_modelFormats, const Color& i_defaultColor) :
+        GameConfig::EntityConfig::EntityConfig(const IO::Path& i_defFilePath, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor) :
         modelFormats(i_modelFormats),
         defaultColor(i_defaultColor) {
             defFilePaths.push_back(i_defFilePath);
         }
 
-        GameConfig::EntityConfig::EntityConfig(const IO::Path::List& i_defFilePaths, const StringSet& i_modelFormats, const Color& i_defaultColor) :
+        GameConfig::EntityConfig::EntityConfig(const IO::Path::List& i_defFilePaths, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor) :
         defFilePaths(i_defFilePaths),
         modelFormats(i_modelFormats),
         defaultColor(i_defaultColor) {}
@@ -114,7 +117,7 @@ namespace TrenchBroom {
                     defaultColor == other.defaultColor);
         }
 
-        GameConfig::FlagConfig::FlagConfig(const String& i_name, const String& i_description) :
+        GameConfig::FlagConfig::FlagConfig(const std::string& i_name, const std::string& i_description) :
         name(i_name),
         description(i_description) {}
 
@@ -130,7 +133,7 @@ namespace TrenchBroom {
         GameConfig::FlagsConfig::FlagsConfig(const FlagConfigList& i_flags) :
         flags(i_flags) {}
 
-        int GameConfig::FlagsConfig::flagValue(const String& flagName) const {
+        int GameConfig::FlagsConfig::flagValue(const std::string& flagName) const {
             for (size_t i = 0; i < flags.size(); ++i) {
                 if (flags[i].name == flagName) {
                     return static_cast<int>(1 << i);
@@ -139,17 +142,17 @@ namespace TrenchBroom {
             return 0;
         }
 
-        String GameConfig::FlagsConfig::flagName(const size_t index) const {
+        std::string GameConfig::FlagsConfig::flagName(const size_t index) const {
             ensure(index < flags.size(), "index out of range");
             return flags[index].name;
         }
 
-        StringList GameConfig::FlagsConfig::flagNames(const int mask) const {
+        std::vector<std::string> GameConfig::FlagsConfig::flagNames(const int mask) const {
             if (mask == 0) {
-                return EmptyStringList;
+                return {};
             }
 
-            StringList names;
+            std::vector<std::string> names;
             for (size_t i = 0; i < flags.size(); ++i) {
                 if (mask & (1 << i)) {
                     names.push_back(flags[i].name);
@@ -177,7 +180,7 @@ namespace TrenchBroom {
         m_experimental(false),
         m_maxPropertyLength(1023) {}
 
-        GameConfig::GameConfig(String name,
+        GameConfig::GameConfig(std::string name,
                                IO::Path path,
                                IO::Path icon,
                                const bool experimental,
@@ -198,11 +201,11 @@ namespace TrenchBroom {
         m_faceAttribsConfig(std::move(faceAttribsConfig)),
         m_smartTags(std::move(smartTags)),
         m_maxPropertyLength(1023) {
-            assert(!StringUtils::trim(m_name).empty());
+            assert(!kdl::str_trim(m_name).empty());
             assert(m_path.isEmpty() || m_path.isAbsolute());
         }
 
-        const String& GameConfig::name() const {
+        const std::string& GameConfig::name() const {
             return m_name;
         }
 
@@ -270,7 +273,7 @@ namespace TrenchBroom {
             return m_maxPropertyLength;
         }
 
-        IO::Path GameConfig::findInitialMap(const String& formatName) const {
+        IO::Path GameConfig::findInitialMap(const std::string& formatName) const {
             for (const auto& format : m_fileFormats) {
                 if (format.format == formatName) {
                     if (!format.initialMap.isEmpty()) {

@@ -65,11 +65,15 @@
 #include "View/QtUtils.h"
 #include "View/MapViewToolBox.h"
 
+#include <kdl/string_format.h>
+#include <kdl/string_utils.h>
+
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
 #include <cassert>
 #include <iterator>
+#include <string>
 #include <vector>
 
 #include <QtGlobal>
@@ -435,11 +439,11 @@ namespace TrenchBroom {
             }
         }
 
-        static String commonClassnameForEntityList(const std::vector<Model::Entity*>& list) {
+        static std::string commonClassnameForEntityList(const std::vector<Model::Entity*>& list) {
             if (list.empty())
                 return "";
 
-            const String firstClassname = list.front()->classname();
+            const std::string firstClassname = list.front()->classname();
             bool multipleClassnames = false;
 
             for (const Model::Entity* entity : list) {
@@ -455,8 +459,8 @@ namespace TrenchBroom {
             }
         }
 
-        static String numberWithSuffix(size_t count, const String &singular, const String &plural) {
-            return std::to_string(count) + " " + StringUtils::safePlural(count, singular, plural);
+        static std::string numberWithSuffix(size_t count, const std::string& singular, const std::string& plural) {
+            return std::to_string(count) + " " + kdl::str_plural(count, singular, plural);
         }
 
         static QString describeSelection(const MapDocument* document) {
@@ -478,7 +482,7 @@ namespace TrenchBroom {
             }
 
             // build a vector of strings describing the things that are selected
-            StringList tokens;
+            std::vector<std::string> tokens;
 
             const auto &selectedNodes = document->selectedNodes();
 
@@ -487,7 +491,7 @@ namespace TrenchBroom {
                 Model::AttributableNode *commonEntity = commonEntityForBrushList(selectedNodes.brushes());
 
                 // if all selected brushes are from the same entity, print the entity name
-                String token = numberWithSuffix(selectedNodes.brushes().size(), "brush", "brushes");
+                std::string token = numberWithSuffix(selectedNodes.brushes().size(), "brush", "brushes");
                 if (commonEntity) {
                     token += " (" + commonEntity->classname() + ")";
                 } else {
@@ -504,9 +508,9 @@ namespace TrenchBroom {
 
             // entities
             if (!selectedNodes.entities().empty()) {
-                String commonClassname = commonClassnameForEntityList(selectedNodes.entities());
+                std::string commonClassname = commonClassnameForEntityList(selectedNodes.entities());
 
-                String token = numberWithSuffix(selectedNodes.entities().size(), "entity", "entities");
+                std::string token = numberWithSuffix(selectedNodes.entities().size(), "entity", "entities");
                 if (commonClassname != "") {
                     token += " (" + commonClassname + ")";
                 } else {
@@ -530,7 +534,7 @@ namespace TrenchBroom {
             }
 
             // now, turn `tokens` into a comma-separated string
-            result += QString::fromStdString(StringUtils::join(tokens, ", ", ", and ", " and ")) + " selected";
+            result += QString::fromStdString(kdl::str_join(tokens, ", ", ", and ", " and ")) + " selected";
 
             return result;
         }
@@ -600,7 +604,7 @@ namespace TrenchBroom {
             updateTitle();
         }
 
-        void MapFrame::transactionDone(const String& /* name */) {
+        void MapFrame::transactionDone(const std::string& /* name */) {
             QTimer::singleShot(0, this, [this]() {
                 // FIXME: Delaying this with QTimer::singleShot is a hack to work around the lack of
                 // a notification that's called _after_ the CommandProcessor undo/redo stacks are modified.
@@ -612,7 +616,7 @@ namespace TrenchBroom {
             });
         }
 
-        void MapFrame::transactionUndone(const String& /* name */) {
+        void MapFrame::transactionUndone(const std::string& /* name */) {
             QTimer::singleShot(0, this, [this]() {
                 // FIXME: see MapFrame::transactionDone
                 updateUndoRedoActions();
@@ -907,7 +911,7 @@ namespace TrenchBroom {
         void MapFrame::copyToClipboard() {
             QClipboard *clipboard = QApplication::clipboard();
 
-            String str;
+            std::string str;
             if (m_document->hasSelectedNodes()) {
                 str = m_document->serializeSelectedNodes();
             } else if (m_document->hasSelectedBrushFaces()) {
@@ -1094,7 +1098,7 @@ namespace TrenchBroom {
 
         void MapFrame::groupSelectedObjects() {
             if (canGroupSelectedObjects()) {
-                const String name = queryGroupName(this);
+                const std::string name = queryGroupName(this);
                 if (!name.empty()) {
                     m_document->groupSelection(name);
                 }
@@ -1119,7 +1123,7 @@ namespace TrenchBroom {
             if (canRenameSelectedGroups()) {
                 auto document = lock(m_document);
                 assert(document->selectedNodes().hasOnlyGroups());
-                const String name = queryGroupName(this);
+                const std::string name = queryGroupName(this);
                 if (!name.empty()) {
                     document->renameGroups(name);
                 }

@@ -29,7 +29,8 @@
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/GLVertex.h"
-#include "StringUtils.h"
+
+#include <kdl/string_format.h>
 
 #include <string>
 
@@ -226,7 +227,7 @@ namespace TrenchBroom {
         vertexCount(static_cast<size_t>(i_vertexCount < 0 ? -i_vertexCount : i_vertexCount)),
         vertices(vertexCount) {}
 
-        DkmParser::DkmParser(const String& name, const char* begin, const char* end, const FileSystem& fs) :
+        DkmParser::DkmParser(const std::string& name, const char* begin, const char* end, const FileSystem& fs) :
         m_name(name),
         m_begin(begin),
         m_end(end),
@@ -389,14 +390,14 @@ namespace TrenchBroom {
          * not exist, and the correct skin file name will be "x/y.wal" instead. That's why we try to find
          * a matching file name by disregarding the extension.
          */
-        const IO::Path DkmParser::findSkin(const String& skin) const {
+        const IO::Path DkmParser::findSkin(const std::string& skin) const {
             const Path skinPath(skin);
             if (m_fs.fileExists(skinPath)) {
                 return skinPath;
             }
 
             // try "wal" extension instead
-            if (StringUtils::toLower(skinPath.extension()) == "bmp") {
+            if (kdl::str_to_lower(skinPath.extension()) == "bmp") {
                 const auto walPath = skinPath.replaceExtension("wal");
                 if (m_fs.fileExists(walPath)) {
                     return walPath;

@@ -20,10 +20,10 @@
 #ifndef TrenchBroom_EntityAttributeEditor
 #define TrenchBroom_EntityAttributeEditor
 
-#include "StringType.h"
 #include "Model/Model_Forward.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <QWidget>
@@ -77,7 +77,7 @@ namespace TrenchBroom {
              */
             static QString optionDescriptions(const Assets::AttributeDefinition& definition);
 
-            void updateDocumentation(const String &attributeName);
+            void updateDocumentation(const std::string& attributeName);
             void createGui(std::weak_ptr<MapDocument> document);
         };
     }

@@ -24,13 +24,15 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "IO/TextureLoader.h"
-#include "StringUtils.h"
 
 #include <kdl/map_utils.h>
+#include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
 
 #include <algorithm>
 #include <iterator>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -143,8 +145,8 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(m_toRemove);
         }
 
-        Texture* TextureManager::texture(const String& name) const {
-            auto it = m_texturesByName.find(StringUtils::toLower(name));
+        Texture* TextureManager::texture(const std::string& name) const {
+            auto it = m_texturesByName.find(kdl::str_to_lower(name));
             if (it == std::end(m_texturesByName)) {
                 return nullptr;
             } else {
@@ -160,8 +162,8 @@ namespace TrenchBroom {
             return m_collections;
         }
 
-        const StringList TextureManager::collectionNames() const {
-            StringList result;
+        const std::vector<std::string> TextureManager::collectionNames() const {
+            std::vector<std::string> result;
             result.reserve(m_collections.size());
             std::transform(std::begin(m_collections), std::end(m_collections), std::back_inserter(result),
                            [](auto collection) { return collection->name(); });
@@ -188,7 +190,7 @@ namespace TrenchBroom {
 
             for (auto* collection : m_collections) {
                 for (auto* texture : collection->textures()) {
-                    const auto key = StringUtils::toLower(texture->name());
+                    const auto key = kdl::str_to_lower(texture->name());
                     texture->setOverridden(false);
 
                     auto mIt = m_texturesByName.find(key);

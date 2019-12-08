@@ -33,15 +33,18 @@
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 
+#include <kdl/string_compare.h>
+#include <kdl/string_format.h>
+
 #include <set>
+#include <string>
 #include <vector>
 
+#include <QAbstractButton>
 #include <QInputDialog>
 #include <QMenu>
-#include <QVBoxLayout>
 #include <QMessageBox>
-
-#include <QAbstractButton>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -256,7 +259,7 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::onAddLayer() {
-            const String name = queryLayerName();
+            const std::string name = queryLayerName();
             if (!name.empty()) {
                 auto document = lock(m_document);
                 auto* world = document->world();
@@ -269,20 +272,20 @@ namespace TrenchBroom {
             }
         }
 
-        String LayerEditor::queryLayerName() {
+        std::string LayerEditor::queryLayerName() {
             while (true) {
                 bool ok = false;
-                const String name = QInputDialog::getText(this, "Enter a name", "Layer Name", QLineEdit::Normal, "Unnamed", &ok).toStdString();
+                const std::string name = QInputDialog::getText(this, "Enter a name", "Layer Name", QLineEdit::Normal, "Unnamed", &ok).toStdString();
 
                 if (!ok) {
                     return "";
                 }
 
-                if (StringUtils::isBlank(name)) {
+                if (kdl::str_is_blank(name)) {
                     if (QMessageBox::warning(this, "Error", "Layer names cannot be blank.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok) {
                         return "";
                     }
-                } else if (StringUtils::containsCaseInsensitive(name, "\"")) {
+                } else if (kdl::ci::contains(name, "\"")) {
                     if (QMessageBox::warning(this, "Error", "Layer names cannot contain double quotes.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok) {
                         return "";
                     }

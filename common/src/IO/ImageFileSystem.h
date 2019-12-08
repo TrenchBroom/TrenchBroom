@@ -22,7 +22,9 @@
 
 #include "IO/FileSystem.h"
 #include "IO/Path.h"
-#include "StringUtils.h"
+
+// FIXME: try to avoid this include here
+#include <kdl/string_compare.h>
 
 #include <map>
 #include <memory>
@@ -66,8 +68,8 @@ namespace TrenchBroom {
 
             class Directory {
             private:
-                using DirMap = std::map<Path, std::unique_ptr<Directory>, Path::Less<StringUtils::CaseInsensitiveStringLess>>;
-                using FileMap = std::map<Path, std::unique_ptr<FileEntry>,      Path::Less<StringUtils::CaseInsensitiveStringLess>>;
+                using DirMap  = std::map<Path, std::unique_ptr<Directory>, Path::Less<kdl::ci::string_less>>;
+                using FileMap = std::map<Path, std::unique_ptr<FileEntry>, Path::Less<kdl::ci::string_less>>;
 
                 Path m_path;
                 DirMap m_directories;

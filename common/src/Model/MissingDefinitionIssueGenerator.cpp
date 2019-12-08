@@ -25,6 +25,7 @@
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -40,7 +41,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            const std::string doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
                 return attributableNode->classname() + " not found in entity definitions";
             }

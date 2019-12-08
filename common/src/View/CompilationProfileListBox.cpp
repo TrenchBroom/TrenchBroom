@@ -21,7 +21,6 @@
 
 #include "Model/CompilationConfig.h"
 #include "Model/CompilationProfile.h"
-#include "StringStream.h"
 #include "View/ElidedLabel.h"
 #include "View/QtUtils.h"
 
@@ -84,9 +83,7 @@ namespace TrenchBroom {
                 m_taskCountText->setText("");
             } else {
                 m_nameText->setText(QString::fromStdString(m_profile->name()));
-                StringStream taskCountLabel;
-                taskCountLabel << m_profile->taskCount() << " tasks";
-                m_taskCountText->setText(QString::fromStdString(taskCountLabel.str()));
+                m_taskCountText->setText(QString::number(m_profile->taskCount()) + " tasks");
             }
         }
 

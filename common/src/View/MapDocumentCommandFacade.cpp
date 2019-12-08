@@ -43,11 +43,14 @@
 #include "View/Selection.h"
 
 #include <kdl/map_utils.h>
+#include <kdl/string_format.h>
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <map>
 #include <memory>
 #include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -389,11 +392,11 @@ namespace TrenchBroom {
 
         class MapDocumentCommandFacade::RenameGroupsVisitor : public Model::NodeVisitor {
         private:
-            const String& m_newName;
-            std::map<Model::Group*, String> m_oldNames;
+            const std::string& m_newName;
+            std::map<Model::Group*, std::string> m_oldNames;
         public:
-            RenameGroupsVisitor(const String& newName) : m_newName(newName) {}
-            const std::map<Model::Group*, String>& oldNames() const { return m_oldNames; }
+            RenameGroupsVisitor(const std::string& newName) : m_newName(newName) {}
+            const std::map<Model::Group*, std::string>& oldNames() const { return m_oldNames; }
         private:
             void doVisit(Model::World*) override  {}
             void doVisit(Model::Layer*) override  {}
@@ -407,22 +410,22 @@ namespace TrenchBroom {
 
         class MapDocumentCommandFacade::UndoRenameGroupsVisitor : public Model::NodeVisitor {
         private:
-            const std::map<Model::Group*, String>& m_newNames;
+            const std::map<Model::Group*, std::string>& m_newNames;
         public:
-            UndoRenameGroupsVisitor(const std::map<Model::Group*, String>& newNames) : m_newNames(newNames) {}
+            UndoRenameGroupsVisitor(const std::map<Model::Group*, std::string>& newNames) : m_newNames(newNames) {}
         private:
             void doVisit(Model::World*) override  {}
             void doVisit(Model::Layer*) override  {}
             void doVisit(Model::Group* group) override {
                 assert(m_newNames.count(group) == 1);
-                const String& newName = kdl::map_find_or_default(m_newNames, group, group->name());
+                const std::string& newName = kdl::map_find_or_default(m_newNames, group, group->name());
                 group->setName(newName);
             }
             void doVisit(Model::Entity*) override {}
             void doVisit(Model::Brush*) override  {}
         };
 
-        std::map<Model::Group*, String> MapDocumentCommandFacade::performRenameGroups(const String& newName) {
+        std::map<Model::Group*, std::string> MapDocumentCommandFacade::performRenameGroups(const std::string& newName) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);
 
@@ -434,7 +437,7 @@ namespace TrenchBroom {
             return visitor.oldNames();
         }
 
-        void MapDocumentCommandFacade::performUndoRenameGroups(const std::map<Model::Group*, String>& newNames) {
+        void MapDocumentCommandFacade::performUndoRenameGroups(const std::map<Model::Group*, std::string>& newNames) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);
 
@@ -573,9 +576,7 @@ namespace TrenchBroom {
                 else
                     intValue &= ~flagValue;
 
-                StringStream str;
-                str << intValue;
-                node->addOrUpdateAttribute(name, str.str());
+                node->addOrUpdateAttribute(name, kdl::str_to_string(intValue));
             }
 
             setEntityDefinitions(nodes);
@@ -765,14 +766,10 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
 
             if (succeededBrushCount > 0) {
-                StringStream msg;
-                msg << "Snapped vertices of " << succeededBrushCount << " " << StringUtils::safePlural(succeededBrushCount, "brush", "brushes");
-                info(msg.str());
+                info(kdl::str_to_string("Snapped vertices of ", succeededBrushCount, " ", kdl::str_plural(succeededBrushCount, "brush", "brushes")));
             }
             if (failedBrushCount > 0) {
-                StringStream msg;
-                msg << "Failed to snap vertices of " << failedBrushCount << " " << StringUtils::safePlural(failedBrushCount, "brush", "brushes");
-                info(msg.str());
+                info(kdl::str_to_string("Failed to snap vertices of ", failedBrushCount, " ", kdl::str_plural(failedBrushCount, "brush", "brushes")));
             }
 
             return true;
@@ -914,7 +911,7 @@ namespace TrenchBroom {
             Notifier<>::NotifyAfter notifyEntityDefinitions(entityDefinitionsDidChangeNotifier);
 
             // to avoid backslashes being misinterpreted as escape sequences
-            const String formatted = StringUtils::replaceAll(spec.asString(), "\\", "/");
+            const std::string formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
             m_world->addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, formatted);
             reloadEntityDefinitionsInternal();
         }
@@ -930,7 +927,7 @@ namespace TrenchBroom {
             setTextures();
         }
 
-        void MapDocumentCommandFacade::performSetMods(const StringList& mods) {
+        void MapDocumentCommandFacade::performSetMods(const std::vector<std::string>& mods) {
             const std::vector<Model::Node*> nodes(1, m_world.get());
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier<>::NotifyAfter notifyMods(modsDidChangeNotifier);
@@ -942,7 +939,7 @@ namespace TrenchBroom {
             if (mods.empty()) {
                 m_world->removeAttribute(Model::AttributeNames::Mods);
             } else {
-                const String newValue = StringUtils::join(mods, ";");
+                const std::string newValue = kdl::str_join(mods, ";");
                 m_world->addOrUpdateAttribute(Model::AttributeNames::Mods, newValue);
             }
 
@@ -998,11 +995,11 @@ namespace TrenchBroom {
             return m_commandProcessor.hasNextCommand();
         }
 
-        const String& MapDocumentCommandFacade::doGetLastCommandName() const {
+        const std::string& MapDocumentCommandFacade::doGetLastCommandName() const {
             return m_commandProcessor.lastCommandName();
         }
 
-        const String& MapDocumentCommandFacade::doGetNextCommandName() const {
+        const std::string& MapDocumentCommandFacade::doGetNextCommandName() const {
             return m_commandProcessor.nextCommandName();
         }
 
@@ -1026,7 +1023,7 @@ namespace TrenchBroom {
             m_commandProcessor.clearRepeatableCommands();
         }
 
-        void MapDocumentCommandFacade::doBeginTransaction(const String& name) {
+        void MapDocumentCommandFacade::doBeginTransaction(const std::string& name) {
             m_commandProcessor.beginGroup(name);
         }
 

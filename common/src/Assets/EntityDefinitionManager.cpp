@@ -25,6 +25,7 @@
 
 #include <kdl/vector_utils.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -86,17 +87,17 @@ namespace TrenchBroom {
         void EntityDefinitionManager::updateGroups() {
             clearGroups();
 
-            using GroupMap = std::map<String, std::vector<EntityDefinition*>>;
+            using GroupMap = std::map<std::string, std::vector<EntityDefinition*>>;
             GroupMap groupMap;
 
             for (size_t i = 0; i < m_definitions.size(); ++i) {
                 EntityDefinition* definition = m_definitions[i];
-                const String groupName = definition->groupName();
+                const std::string groupName = definition->groupName();
                 groupMap[groupName].push_back(definition);
             }
 
             for (const auto& entry : groupMap) {
-                const String& groupName = entry.first;
+                const std::string& groupName = entry.first;
                 const std::vector<EntityDefinition*>& definitions = entry.second;
                 m_groups.push_back(EntityDefinitionGroup(groupName, definitions));
             }

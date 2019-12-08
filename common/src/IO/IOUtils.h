@@ -22,7 +22,6 @@
 
 #include "ByteBuffer.h"
 #include "Macros.h"
-#include "StringType.h"
 
 #include <vecmath/forward.h>
 
@@ -65,11 +64,11 @@ namespace TrenchBroom {
 
         size_t fileSize(std::FILE* file);
 
-        String readGameComment(std::istream& stream);
-        String readFormatComment(std::istream& stream);
-        String readInfoComment(std::istream& stream, const String& name);
+        std::string readGameComment(std::istream& stream);
+        std::string readFormatComment(std::istream& stream);
+        std::string readInfoComment(std::istream& stream, const std::string& name);
 
-        void writeGameComment(FILE* stream, const String& gameName, const String& mapFormat);
+        void writeGameComment(FILE* stream, const std::string& gameName, const std::string& mapFormat);
 
         template <typename T>
         void advance(const char*& cursor, const size_t i = 1) {

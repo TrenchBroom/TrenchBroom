@@ -32,6 +32,7 @@
 #include <vecmath/bbox_io.h>
 
 #include <sstream>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -372,11 +373,11 @@ namespace TrenchBroom {
             return m_factory.createWorld();
         }
 
-        Layer* World::doCreateLayer(const String& name) const {
+        Layer* World::doCreateLayer(const std::string& name) const {
             return m_factory.createLayer(name);
         }
 
-        Group* World::doCreateGroup(const String& name) const {
+        Group* World::doCreateGroup(const std::string& name) const {
             return m_factory.createGroup(name);
         }
 

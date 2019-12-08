@@ -20,10 +20,10 @@
 #ifndef TrenchBroom_LayerEditor
 #define TrenchBroom_LayerEditor
 
-#include "StringType.h"
 #include "Model/Model_Forward.h"
 
 #include <memory>
+#include <string>
 
 #include <QWidget>
 
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             void onSelectAllInLayer();
 
             void onAddLayer();
-            String queryLayerName();
+            std::string queryLayerName();
 
             void onRemoveLayer();
             bool canRemoveLayer() const;

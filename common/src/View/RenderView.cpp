@@ -95,7 +95,7 @@ namespace TrenchBroom {
                 const int framesRenderedInPeriod = m_framesRendered;
                 const int maxFrameTime = m_maxFrameTimeMsecs;
                 const int64_t fpsCounterPeriod = currentTime - m_lastFPSCounterUpdate;
-                const double avgFps = framesRenderedInPeriod / (fpsCounterPeriod / 1000.0);
+                const double avgFps = static_cast<double>(framesRenderedInPeriod) / (static_cast<double>(fpsCounterPeriod) / 1000.0);
 
                 m_framesRendered = 0;
                 m_maxFrameTimeMsecs = 0;
@@ -233,9 +233,9 @@ namespace TrenchBroom {
             const Color& inner = m_focusColor;
 
             const qreal r = devicePixelRatioF();
-            const auto w = static_cast<int>(width() * r);
-            const auto h = static_cast<int>(height() * r);
-            glAssert(glViewport(0, 0, w, h));
+            const auto w = static_cast<float>(width() * r);
+            const auto h = static_cast<float>(height() * r);
+            glAssert(glViewport(0, 0, static_cast<int>(w), static_cast<int>(h)));
 
             const auto t = 1.0f;
 

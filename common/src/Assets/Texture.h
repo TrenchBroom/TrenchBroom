@@ -22,12 +22,12 @@
 
 #include "ByteBuffer.h"
 #include "Color.h"
-#include "StringSet.h"
-#include "StringType.h"
 #include "Renderer/GL.h"
 
 #include <vecmath/forward.h>
 
+#include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -65,7 +65,7 @@ namespace TrenchBroom {
         class Texture {
         private:
             TextureCollection* m_collection;
-            String m_name;
+            std::string m_name;
 
             size_t m_width;
             size_t m_height;
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             TextureType m_type;
 
             // Quake 3 surface parameters; move these to materials when we add proper support for those.
-            StringSet m_surfaceParms;
+            std::set<std::string> m_surfaceParms;
 
             // Quake 3 surface culling; move to materials
             TextureCulling m_culling;
@@ -89,23 +89,23 @@ namespace TrenchBroom {
             mutable GLuint m_textureId;
             mutable TextureBuffer::List m_buffers;
         public:
-            Texture(const String& name, size_t width, size_t height, const Color& averageColor, const TextureBuffer& buffer, GLenum format, TextureType type);
-            Texture(const String& name, size_t width, size_t height, const Color& averageColor, const TextureBuffer::List& buffers, GLenum format, TextureType type);
-            Texture(const String& name, size_t width, size_t height, GLenum format = GL_RGB, TextureType type = TextureType::Opaque);
+            Texture(const std::string& name, size_t width, size_t height, const Color& averageColor, const TextureBuffer& buffer, GLenum format, TextureType type);
+            Texture(const std::string& name, size_t width, size_t height, const Color& averageColor, const TextureBuffer::List& buffers, GLenum format, TextureType type);
+            Texture(const std::string& name, size_t width, size_t height, GLenum format = GL_RGB, TextureType type = TextureType::Opaque);
             ~Texture();
 
             static TextureType selectTextureType(bool masked);
 
             TextureCollection* collection() const;
 
-            const String& name() const;
+            const std::string& name() const;
 
             size_t width() const;
             size_t height() const;
             const Color& averageColor() const;
 
-            const StringSet& surfaceParms() const;
-            void setSurfaceParms(const StringSet& surfaceParms);
+            const std::set<std::string>& surfaceParms() const;
+            void setSurfaceParms(const std::set<std::string>& surfaceParms);
 
             TextureCulling culling() const;
             void setCulling(TextureCulling culling);

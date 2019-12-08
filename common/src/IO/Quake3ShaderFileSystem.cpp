@@ -28,6 +28,8 @@
 #include <kdl/vector_utils.h>
 
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -70,7 +72,7 @@ namespace TrenchBroom {
         }
 
         void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shaders) {
-            const auto extensions = StringList { "tga", "png", "jpg", "jpeg" };
+            const auto extensions = std::vector<std::string> { "tga", "png", "jpg", "jpeg" };
 
             auto allImages = Path::List();
             for (const auto& path : m_textureSearchPaths) {

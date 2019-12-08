@@ -33,6 +33,7 @@
 #include <vecmath/polygon.h>
 
 #include <memory>
+#include <string>
 #include <vector>
 
 template <typename P>
@@ -88,7 +89,7 @@ namespace TrenchBroom {
 
             AttributableNode* entity() const;
         public: // face management:
-            BrushFace* findFace(const String& textureName) const;
+            BrushFace* findFace(const std::string& textureName) const;
             BrushFace* findFace(const vm::vec3& normal) const;
             BrushFace* findFace(const vm::plane3& boundary) const;
             BrushFace* findFace(const vm::polygon3& vertices, FloatType epsilon = static_cast<FloatType>(0.0)) const;
@@ -241,8 +242,8 @@ namespace TrenchBroom {
              * @param subtrahends brushes to subtract from `this`. The passed-in brushes are not modified.
              * @return the subtraction result
              */
-            std::vector<Brush*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const std::vector<Brush*>& subtrahends) const;
-            std::vector<Brush*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, Brush* subtrahend) const;
+            std::vector<Brush*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<Brush*>& subtrahends) const;
+            std::vector<Brush*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, Brush* subtrahend) const;
             void intersect(const vm::bbox3& worldBounds, const Brush* brush);
 
             // transformation
@@ -260,7 +261,7 @@ namespace TrenchBroom {
              * @param subtrahends used as a source of texture alignment only
              * @return the newly created brush
              */
-            Brush* createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const std::vector<Brush*>& subtrahends) const;
+            Brush* createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<Brush*>& subtrahends) const;
         private:
             void updateFacesFromGeometry(const vm::bbox3& worldBounds, const BrushGeometry& geometry);
             void updatePointsFromVertices(const vm::bbox3& worldBounds);
@@ -273,7 +274,7 @@ namespace TrenchBroom {
         public:
             void findIntegerPlanePoints(const vm::bbox3& worldBounds);
         private: // implement Node interface
-            const String& doGetName() const override;
+            const std::string& doGetName() const override;
             const vm::bbox3& doGetLogicalBounds() const override;
             const vm::bbox3& doGetPhysicalBounds() const override;
 

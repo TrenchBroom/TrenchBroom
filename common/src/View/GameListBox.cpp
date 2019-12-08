@@ -19,13 +19,13 @@
 
 #include "GameListBox.h"
 
-#include "StringUtils.h"
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
 
-#include <cassert>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -34,9 +34,9 @@ namespace TrenchBroom {
             reloadGameInfos();
         }
 
-        String GameListBox::selectedGameName() const {
+        std::string GameListBox::selectedGameName() const {
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            const StringList& gameList = gameFactory.gameList();
+            const std::vector<std::string>& gameList = gameFactory.gameList();
 
             const auto index = currentRow();
             if (index >= static_cast<int>(gameList.size())) {
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             m_gameInfos.clear();
 
             const auto& gameFactory = Model::GameFactory::instance();
-            for (const String& gameName : gameFactory.gameList()) {
+            for (const std::string& gameName : gameFactory.gameList()) {
                 m_gameInfos.push_back(makeGameInfo(gameName));
             }
 
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             updateItems();
         }
 
-        GameListBox::Info GameListBox::makeGameInfo(const String& gameName) const {
+        GameListBox::Info GameListBox::makeGameInfo(const std::string& gameName) const {
             const auto& gameFactory = Model::GameFactory::instance();
             const auto gamePath = gameFactory.gamePath(gameName);
             auto iconPath = gameFactory.iconPath(gameName);
@@ -81,7 +81,7 @@ namespace TrenchBroom {
                 gameName,
                 IO::loadPixmapResource(iconPath),
                 QString::fromStdString(gameName + (experimental ? " (experimental)" : "")),
-                QString::fromStdString(gamePath.isEmpty() ? String("Game not found") : gamePath.asString())
+                QString::fromStdString(gamePath.isEmpty() ? std::string("Game not found") : gamePath.asString())
             };
         }
 

@@ -94,7 +94,7 @@ namespace TrenchBroom {
 
         void EntityAttributeEditor::updateDocumentationAndSmartEditor() {
             auto document = lock(m_document);
-            const String& attributeName = m_attributeGrid->selectedRowName();
+            const auto& attributeName = m_attributeGrid->selectedRowName();
 
             m_smartEditorManager->switchEditor(attributeName, document->allSelectedAttributableNodes());
 
@@ -158,7 +158,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityAttributeEditor::updateDocumentation(const String &attributeName) {
+        void EntityAttributeEditor::updateDocumentation(const std::string& attributeName) {
             auto document = lock(m_document);
             const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(document->allSelectedAttributableNodes());
 

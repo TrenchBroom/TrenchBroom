@@ -20,11 +20,11 @@
 #ifndef TrenchBroom_SetModsCommand
 #define TrenchBroom_SetModsCommand
 
-#include "StringList.h"
 #include "View/DocumentCommand.h"
-#include "StringType.h"
 
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -33,12 +33,12 @@ namespace TrenchBroom {
             static const CommandType Type;
             using Ptr = std::shared_ptr<SetModsCommand>;
         private:
-            StringList m_oldMods;
-            StringList m_newMods;
+            std::vector<std::string> m_oldMods;
+            std::vector<std::string> m_newMods;
         public:
-            static Ptr set(const StringList& mods);
+            static Ptr set(const std::vector<std::string>& mods);
         private:
-            SetModsCommand(const String& name, const StringList& mods);
+            SetModsCommand(const std::string& name, const std::vector<std::string>& mods);
 
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

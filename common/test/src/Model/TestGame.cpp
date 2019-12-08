@@ -30,6 +30,8 @@
 #include "Model/GameConfig.h"
 #include "Model/World.h"
 
+#include <kdl/string_utils.h>
+
 #include <memory>
 #include <vector>
 
@@ -41,8 +43,8 @@ namespace TrenchBroom {
             m_smartTags = std::move(smartTags);
         }
 
-        const String& TestGame::doGameName() const {
-            static const String name("Test");
+        const std::string& TestGame::doGameName() const {
+            static const std::string name("Test");
             return name;
         }
 
@@ -87,13 +89,13 @@ namespace TrenchBroom {
 
         void TestGame::doExportMap(World& /* world */, const Model::ExportFormat /* format */, const IO::Path& /* path */) const {}
 
-        std::vector<Node*> TestGame::doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
+        std::vector<Node*> TestGame::doParseNodes(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
             IO::TestParserStatus status;
             IO::NodeReader reader(str, world);
             return reader.read(worldBounds, status);
         }
 
-        std::vector<BrushFace*> TestGame::doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
+        std::vector<BrushFace*> TestGame::doParseBrushFaces(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
             IO::TestParserStatus status;
             IO::BrushFaceReader reader(str, world);
             return reader.read(worldBounds, status);
@@ -144,11 +146,11 @@ namespace TrenchBroom {
                 return IO::Path::List(0);
             }
 
-            return IO::Path::asPaths(StringUtils::splitAndTrim(pathsValue, ';'));
+            return IO::Path::asPaths(kdl::str_split(pathsValue, ";"));
         }
 
         void TestGame::doUpdateTextureCollections(AttributableNode& node, const IO::Path::List& paths) const {
-            const String value = StringUtils::join(IO::Path::asStrings(paths, '/'), ';');
+            const std::string value = kdl::str_join(IO::Path::asStrings(paths, "/"), ";");
             node.addOrUpdateAttribute("wad", value);
         }
 
@@ -170,15 +172,15 @@ namespace TrenchBroom {
             return IO::Path();
         }
 
-        StringList TestGame::doAvailableMods() const {
-            return EmptyStringList;
+        std::vector<std::string> TestGame::doAvailableMods() const {
+            return {};
         }
 
-        StringList TestGame::doExtractEnabledMods(const AttributableNode& /* node */) const {
-            return EmptyStringList;
+        std::vector<std::string> TestGame::doExtractEnabledMods(const AttributableNode& /* node */) const {
+            return {};
         }
 
-        String TestGame::doDefaultMod() const {
+        std::string TestGame::doDefaultMod() const {
             return "";
         }
 

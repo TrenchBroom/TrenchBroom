@@ -24,6 +24,7 @@
 #include "IO/Path.h"
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -58,7 +59,7 @@ namespace TrenchBroom {
             WritableDiskFileSystem(const Path& root, bool create);
             WritableDiskFileSystem(std::shared_ptr<FileSystem> next, const Path& root, bool create);
         private:
-            void doCreateFile(const Path& path, const String& contents) override;
+            void doCreateFile(const Path& path, const std::string& contents) override;
             void doCreateDirectory(const Path& path) override;
             void doDeleteFile(const Path& path) override;
             void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite) override;

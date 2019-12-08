@@ -19,11 +19,9 @@
 
 #include "Logger.h"
 
-#include "StringUtils.h"
+#include <string>
 
 #include <QString>
-
-#include <cstdarg>
 
 namespace TrenchBroom {
     Logger::stream::stream(Logger* logger, const LogLevel logLevel) :
@@ -40,17 +38,13 @@ namespace TrenchBroom {
         return Logger::stream(this, LogLevel_Debug);
     }
 
-    void Logger::debug([[maybe_unused]] const char* format, ...) {
+    void Logger::debug([[maybe_unused]] const char* message) {
 #ifndef NDEBUG
-        va_list arguments;
-        va_start(arguments, format);
-        const String message = StringUtils::formatStringV(format, arguments);
-        va_end(arguments);
-        debug(message);
+        debug(QString(message));
 #endif
     }
 
-    void Logger::debug([[maybe_unused]] const String& message) {
+    void Logger::debug([[maybe_unused]] const std::string& message) {
 #ifndef NDEBUG
         log(LogLevel_Debug, message);
 #endif
@@ -66,15 +60,11 @@ namespace TrenchBroom {
         return stream(this, LogLevel_Info);
     }
 
-    void Logger::info(const char* format, ...) {
-        va_list arguments;
-        va_start(arguments, format);
-        const String message = StringUtils::formatStringV(format, arguments);
-        va_end(arguments);
-        info(message);
+    void Logger::info(const char* message) {
+        info(QString(message));
     }
 
-    void Logger::info(const String& message) {
+    void Logger::info(const std::string& message) {
         log(LogLevel_Info, message);
     }
 
@@ -86,15 +76,11 @@ namespace TrenchBroom {
         return stream(this, LogLevel_Warn);
     }
 
-    void Logger::warn(const char* format, ...) {
-        va_list arguments;
-        va_start(arguments, format);
-        const String message = StringUtils::formatStringV(format, arguments);
-        va_end(arguments);
-        warn(message);
+    void Logger::warn(const char* message) {
+        warn(QString(message));
     }
 
-    void Logger::warn(const String& message) {
+    void Logger::warn(const std::string& message) {
         log(LogLevel_Warn, message);
     }
 
@@ -106,15 +92,11 @@ namespace TrenchBroom {
         return stream(this, LogLevel_Error);
     }
 
-    void Logger::error(const char* format, ...) {
-        va_list arguments;
-        va_start(arguments, format);
-        const String message = StringUtils::formatStringV(format, arguments);
-        va_end(arguments);
-        error(message);
+    void Logger::error(const char* message) {
+        error(QString(message));
     }
 
-    void Logger::error(const String& message) {
+    void Logger::error(const std::string& message) {
         log(LogLevel_Error, message);
     }
 
@@ -122,7 +104,7 @@ namespace TrenchBroom {
         log(LogLevel_Error, message);
     }
 
-    void Logger::log(const LogLevel level, const String& message) {
+    void Logger::log(const LogLevel level, const std::string& message) {
 #ifdef NDEBUG
         if (level != LogLevel_Debug)
 #endif
@@ -136,6 +118,6 @@ namespace TrenchBroom {
         doLog(level, message);
     }
 
-    void NullLogger::doLog(Logger::LogLevel /* level */, const String& /* message */) {}
+    void NullLogger::doLog(Logger::LogLevel /* level */, const std::string& /* message */) {}
     void NullLogger::doLog(Logger::LogLevel /* level */, const QString& /* message */) {}
 }

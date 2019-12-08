@@ -33,15 +33,18 @@
 #include "View/QtUtils.h"
 
 #include <kdl/map_utils.h>
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 #include <kdl/vector_set.h>
 
 #include <iterator>
 #include <optional-lite/optional.hpp>
+#include <string>
 #include <vector>
 
-#include <QDebug>
 #include <QBrush>
+#include <QDebug>
+#include <QIcon>
 #include <QMessageBox>
 #include <QTimer>
 
@@ -86,7 +89,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        AttributeRow::AttributeRow(const String& name, const Model::AttributableNode* node) :
+        AttributeRow::AttributeRow(const std::string& name, const Model::AttributableNode* node) :
         m_name(name) {
             const Assets::AttributeDefinition* definition = node->attributeDefinition(name);
 
@@ -111,7 +114,7 @@ namespace TrenchBroom {
 
         void AttributeRow::merge(const Model::AttributableNode* other) {
             const bool otherHasAttribute = other->hasAttribute(m_name);
-            const String otherValue = other->attribute(m_name);
+            const std::string otherValue = other->attribute(m_name);
 
             // State transitions
             if (m_valueType == ValueType::Unset) {
@@ -135,11 +138,11 @@ namespace TrenchBroom {
             m_valueMutable = (m_valueMutable && other->isAttributeValueMutable(m_name));
         }
 
-        const String& AttributeRow::name() const {
+        const std::string& AttributeRow::name() const {
             return m_name;
         }
 
-        String AttributeRow::value() const {
+        std::string AttributeRow::value() const {
             if (m_valueType == ValueType::MultipleValues) {
                 return "multi";
             }
@@ -154,7 +157,7 @@ namespace TrenchBroom {
             return m_valueMutable;
         }
 
-        const String& AttributeRow::tooltip() const {
+        const std::string& AttributeRow::tooltip() const {
             return m_tooltip;
         }
 
@@ -170,7 +173,7 @@ namespace TrenchBroom {
             return m_valueType == ValueType::SingleValueAndUnset;
         }
 
-        AttributeRow AttributeRow::rowForAttributableNodes(const String& key, const std::vector<Model::AttributableNode*>& attributables) {
+        AttributeRow AttributeRow::rowForAttributableNodes(const std::string& key, const std::vector<Model::AttributableNode*>& attributables) {
             ensure(attributables.size() > 0, "rowForAttributableNodes requries a non-empty node list");
 
             nonstd::optional<AttributeRow> result;
@@ -191,8 +194,8 @@ namespace TrenchBroom {
             return result.value();
         }
 
-        std::set<String> AttributeRow::allKeys(const std::vector<Model::AttributableNode*>& attributables, const bool showDefaultRows) {
-            std::set<String> result;
+        std::set<std::string> AttributeRow::allKeys(const std::vector<Model::AttributableNode*>& attributables, const bool showDefaultRows) {
+            std::set<std::string> result;
             for (const Model::AttributableNode* node : attributables) {
                 // this happens at startup when the world is still null
                 if (node == nullptr) {
@@ -217,22 +220,19 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::map<String, AttributeRow> AttributeRow::rowsForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables, const bool showDefaultRows) {
-            std::map<String, AttributeRow> result;
-            for (const String& key : allKeys(attributables, showDefaultRows)) {
+        std::map<std::string, AttributeRow> AttributeRow::rowsForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables, const bool showDefaultRows) {
+            std::map<std::string, AttributeRow> result;
+            for (const std::string& key : allKeys(attributables, showDefaultRows)) {
                 result[key] = rowForAttributableNodes(key, attributables);
             }
             return result;
         }
 
-        String AttributeRow::newAttributeNameForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables) {
-            const std::map<String, AttributeRow> rows = rowsForAttributableNodes(attributables, true);
+        std::string AttributeRow::newAttributeNameForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables) {
+            const std::map<std::string, AttributeRow> rows = rowsForAttributableNodes(attributables, true);
 
             for (int i = 1; ; ++i) {
-                StringStream ss;
-                ss << "property " << i;
-
-                const String newName = ss.str();
+                const std::string newName = kdl::str_to_string("property ", i);
                 if (rows.find(newName) == rows.end()) {
                     return newName;
                 }
@@ -249,7 +249,7 @@ namespace TrenchBroom {
             updateFromMapDocument();
         }
 
-        static std::vector<AttributeRow> buildVec(const std::map<String, AttributeRow>& rows) {
+        static std::vector<AttributeRow> buildVec(const std::map<std::string, AttributeRow>& rows) {
             std::vector<AttributeRow> result;
             result.reserve(rows.size());
             for (auto& [key, row] : rows) {
@@ -261,7 +261,7 @@ namespace TrenchBroom {
 
         /* FIXME: remove unused code
         static auto buildAttributeToRowIndexMap(const std::vector<AttributeRow>& rows) {
-            std::map<String, int> result;
+            std::map<std::string, int> result;
             for (size_t i = 0; i < rows.size(); ++i) {
                 const AttributeRow& row = rows[i];
                 result[row.name()] = static_cast<int>(i);
@@ -269,8 +269,8 @@ namespace TrenchBroom {
             return result;
         }
 
-        static std::set<String> attributeRowKeySet(const std::vector<AttributeRow>& rows) {
-            std::set<String> result;
+        static std::set<std::string> attributeRowKeySet(const std::vector<AttributeRow>& rows) {
+            std::set<std::string> result;
             for (const auto& row : rows) {
                 result.insert(row.name());
             }
@@ -290,7 +290,7 @@ namespace TrenchBroom {
             updateFromMapDocument();
         }
 
-        void EntityAttributeModel::setRows(const std::map<String, AttributeRow>& newRowsKeyMap) {
+        void EntityAttributeModel::setRows(const std::map<std::string, AttributeRow>& newRowsKeyMap) {
             const auto newRowSet = kdl::vector_set(kdl::map_values(newRowsKeyMap));
             const auto oldRowSet = kdl::vector_set(std::begin(m_rows), std::end(m_rows));
 
@@ -371,7 +371,7 @@ namespace TrenchBroom {
             return &m_rows.at(static_cast<size_t>(index.row()));
         }
 
-        int EntityAttributeModel::rowForAttributeName(const String& name) const {
+        int EntityAttributeModel::rowForAttributeName(const std::string& name) const {
             for (size_t i = 0; i < m_rows.size(); ++i) {
                 auto& row = m_rows.at(i);
 
@@ -385,7 +385,7 @@ namespace TrenchBroom {
         QStringList EntityAttributeModel::getCompletions(const QModelIndex& index) const {
             const auto name = attributeName(index.row());
 
-            StringList result;
+            std::vector<std::string> result;
             if (index.column() == 0) {
                 result = getAllAttributeNames();
             } else if (index.column() == 1) {
@@ -418,10 +418,10 @@ namespace TrenchBroom {
             return result;
         }
 
-        StringList EntityAttributeModel::getAllAttributeNames() const {
+        std::vector<std::string> EntityAttributeModel::getAllAttributeNames() const {
             auto document = lock(m_document);
             const auto& index = document->world()->attributableNodeIndex();
-            auto result = kdl::vector_set<String>(index.allNames());
+            auto result = kdl::vector_set<std::string>(index.allNames());
 
             // also add keys from all loaded entity definitions
             for (const auto* entityDefinition : document->entityDefinitionManager().definitions()) {
@@ -435,11 +435,11 @@ namespace TrenchBroom {
             return result.release_data();
         }
 
-        StringList EntityAttributeModel::getAllValuesForAttributeNames(const StringList& names) const {
+        std::vector<std::string> EntityAttributeModel::getAllValuesForAttributeNames(const std::vector<std::string>& names) const {
             auto document = lock(m_document);
             const auto& index = document->world()->attributableNodeIndex();
 
-            auto result = StringList();
+            auto result = std::vector<std::string>();
             auto resultSet = kdl::wrap_set(result);
 
             for (const auto& name : names) {
@@ -454,7 +454,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        StringList EntityAttributeModel::getAllClassnames() const {
+        std::vector<std::string> EntityAttributeModel::getAllClassnames() const {
             auto document = lock(m_document);
 
             // start with currently used classnames
@@ -476,7 +476,7 @@ namespace TrenchBroom {
 
             auto document = lock(m_document);
 
-            const std::map<String, AttributeRow> rowsMap =
+            const std::map<std::string, AttributeRow> rowsMap =
                 AttributeRow::rowsForAttributableNodes(document->allSelectedAttributableNodes(), m_showDefaultRows);
 
             setRows(rowsMap);
@@ -608,7 +608,7 @@ namespace TrenchBroom {
                 // rename key
                 qDebug() << "tried to rename " << QString::fromStdString(attributeRow.name()) << " to " << value.toString();
 
-                const String newName = value.toString().toStdString();
+                const std::string newName = value.toString().toStdString();
                 if (renameAttribute(rowIndex, newName, attributables)) {
                     return true;
                 }
@@ -647,7 +647,7 @@ namespace TrenchBroom {
             const std::vector<Model::AttributableNode*> attributables = document->allSelectedAttributableNodes();
             ensure(!attributables.empty(), "no attributable nodes selected");
 
-            const String newKey = AttributeRow::newAttributeNameForAttributableNodes(attributables);
+            const std::string newKey = AttributeRow::newAttributeNameForAttributableNodes(attributables);
 
             const Transaction transaction(document);
             document->setAttribute(newKey, "");
@@ -680,11 +680,11 @@ namespace TrenchBroom {
             return rowForAttributeName(name) != -1;
         }
 
-        bool EntityAttributeModel::renameAttribute(const size_t rowIndex, const String& newName, const std::vector<Model::AttributableNode*>& /* attributables */) {
+        bool EntityAttributeModel::renameAttribute(const size_t rowIndex, const std::string& newName, const std::vector<Model::AttributableNode*>& /* attributables */) {
             ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
             const AttributeRow& row = m_rows.at(rowIndex);
-            const String& oldName = row.name();
+            const std::string& oldName = row.name();
 
             if (oldName == newName)
                 return true;
@@ -714,11 +714,11 @@ namespace TrenchBroom {
             return document->renameAttribute(oldName, newName);
         }
 
-        bool EntityAttributeModel::updateAttribute(const size_t rowIndex, const String& newValue, const std::vector<Model::AttributableNode*>& attributables) {
+        bool EntityAttributeModel::updateAttribute(const size_t rowIndex, const std::string& newValue, const std::vector<Model::AttributableNode*>& attributables) {
             ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
             bool hasChange = false;
-            const String name = m_rows.at(rowIndex).name();
+            const std::string name = m_rows.at(rowIndex).name();
             for (const Model::AttributableNode* attributable : attributables) {
                 if (attributable->hasAttribute(name)) {
                     ensure(attributable->canAddOrUpdateAttribute(name, newValue), "tried to modify immutable attribute value"); // this should be guaranteed by the AttributeRow constructor

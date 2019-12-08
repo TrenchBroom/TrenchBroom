@@ -44,7 +44,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            const std::string doGetDescription() const override {
                 const Entity* entity = static_cast<Entity*>(node());
                 return entity->classname() + " contains brushes";
             }

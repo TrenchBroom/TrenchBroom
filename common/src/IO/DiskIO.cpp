@@ -20,15 +20,17 @@
 #include "DiskIO.h"
 
 #include "Exceptions.h"
-#include "StringUtils.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/PathQt.h"
 
-#include <QDir>
-#include <QFileInfo>
+#include <kdl/string_compare.h>
 
 #include <fstream>
+#include <string>
+
+#include <QDir>
+#include <QFileInfo>
 
 namespace TrenchBroom {
     namespace IO {
@@ -53,7 +55,7 @@ namespace TrenchBroom {
 
             Path findCaseSensitivePath(const Path::List& list, const Path& path) {
                 for (const Path& entry : list) {
-                    if (StringUtils::caseInsensitiveEqual(entry.asString(), path.asString()))
+                    if (kdl::ci::is_equal(entry.asString(), path.asString()))
                         return entry;
                 }
                 return Path("");
@@ -151,7 +153,7 @@ namespace TrenchBroom {
                 return findItemsRecursively(path, FileTypeMatcher());
             }
 
-            void createFile(const Path& path, const String& contents) {
+            void createFile(const Path& path, const std::string& contents) {
                 const Path fixedPath = fixPath(path);
                 if (fileExists(fixedPath)) {
                     deleteFile(fixedPath);
@@ -161,7 +163,7 @@ namespace TrenchBroom {
                         createDirectory(directory);
                 }
 
-                const String fixedPathStr = fixedPath.asString();
+                const std::string fixedPathStr = fixedPath.asString();
                 std::ofstream stream(fixedPathStr.c_str());
                 stream  << contents;
             }

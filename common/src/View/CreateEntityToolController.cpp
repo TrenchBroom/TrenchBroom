@@ -19,10 +19,13 @@
 
 #include "CreateEntityToolController.h"
 
-#include "StringList.h"
-#include "StringUtils.h"
 #include "View/CreateEntityTool.h"
 #include "View/InputState.h"
+
+#include <kdl/string_utils.h>
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -41,8 +44,8 @@ namespace TrenchBroom {
             return m_tool;
         }
 
-        bool CreateEntityToolController::doDragEnter(const InputState& inputState, const String& payload) {
-            const StringList parts = StringUtils::split(payload, ':');
+        bool CreateEntityToolController::doDragEnter(const InputState& inputState, const std::string& payload) {
+            const std::vector<std::string> parts = kdl::str_split(payload, ":");
             if (parts.size() != 2)
                 return false;
             if (parts[0] != "entity")

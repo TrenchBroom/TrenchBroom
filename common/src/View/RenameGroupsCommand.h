@@ -20,11 +20,11 @@
 #ifndef TrenchBroom_RenameGroupsCommand
 #define TrenchBroom_RenameGroupsCommand
 
-#include "StringType.h"
 #include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
 
 #include <map>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -35,12 +35,12 @@ namespace TrenchBroom {
             static const CommandType Type;
             using Ptr = std::shared_ptr<RenameGroupsCommand>;
         private:
-            const String m_newName;
-            std::map<Model::Group*, String> m_oldNames;
+            const std::string m_newName;
+            std::map<Model::Group*, std::string> m_oldNames;
         public:
-            static Ptr rename(const String& newName);
+            static Ptr rename(const std::string& newName);
         private:
-            RenameGroupsCommand(const String& newName);
+            RenameGroupsCommand(const std::string& newName);
 
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

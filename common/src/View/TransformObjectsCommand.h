@@ -27,6 +27,8 @@
 #include <vecmath/mat.h>
 #include <vecmath/util.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
         class MapDocumentCommandFacade;
@@ -55,7 +57,7 @@ namespace TrenchBroom {
             static Ptr shearBBox(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta, bool lockTextures);
             static Ptr flip(const vm::vec3& center, vm::axis::type axis, bool lockTextures);
         private:
-            TransformObjectsCommand(Action action, const String& name, const vm::mat4x4& transform, bool lockTextures);
+            TransformObjectsCommand(Action action, const std::string& name, const vm::mat4x4& transform, bool lockTextures);
 
             bool doPerformDo(MapDocumentCommandFacade* document) override;
 

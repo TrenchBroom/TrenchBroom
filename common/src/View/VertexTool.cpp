@@ -28,8 +28,11 @@
 #include "View/MapDocument.h"
 #include "View/VertexCommand.h"
 
+#include <kdl/string_format.h>
+
 #include <cassert>
 #include <set>
+#include <string>
 #include <tuple>
 #include <vector>
 
@@ -179,10 +182,10 @@ namespace TrenchBroom {
             }
         }
 
-        String VertexTool::actionName() const {
+        std::string VertexTool::actionName() const {
             switch (m_mode) {
                 case Mode_Move:
-                    return StringUtils::safePlural(m_vertexHandles.selectedHandleCount(), "Move Vertex", "Move Vertices");
+                    return kdl::str_plural(m_vertexHandles.selectedHandleCount(), "Move Vertex", "Move Vertices");
                 case Mode_Split_Edge:
                     return "Split Edge";
                 case Mode_Split_Face:
@@ -197,7 +200,7 @@ namespace TrenchBroom {
             const auto handles = m_vertexHandles.selectedHandles();
             const auto brushMap = buildBrushMap(m_vertexHandles, std::begin(handles), std::end(handles));
 
-            Transaction transaction(m_document, StringUtils::safePlural(handleManager().selectedHandleCount(), "Remove Vertex", "Remove Vertices"));
+            Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Remove Vertex", "Remove Vertices"));
             lock(m_document)->removeVertices(brushMap);
         }
 

@@ -29,6 +29,8 @@
 
 #include <vecmath/vec.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
         inline Model::BrushFace*
@@ -44,7 +46,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseFailure_1424) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 "message" "yay"
@@ -68,7 +70,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseEmptyMap) {
-            const String data("");
+            const std::string data("");
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
@@ -82,7 +84,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseMapWithEmptyEntity) {
-            const String data("{}");
+            const std::string data("{}");
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
@@ -96,7 +98,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseMapWithWorldspawn) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 "message" "yay"
@@ -119,7 +121,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseMapWithWorldspawnAndOneMoreEntity) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 "message" "yay"
@@ -156,7 +158,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseMapWithWorldspawnAndOneBrush) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 {
@@ -206,7 +208,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseMapAndCheckFaceFlags) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 {
@@ -244,7 +246,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseBrushWithCurlyBraceInTextureName) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 {
@@ -286,7 +288,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseProblematicBrush1) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 {
@@ -327,7 +329,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseProblematicBrush2) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 {
@@ -352,7 +354,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseProblematicBrush3) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 {
@@ -377,7 +379,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseValveBrush) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 {
@@ -402,7 +404,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseQuake2Brush) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 {
@@ -427,7 +429,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseDaikatanaBrush) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 {
@@ -460,7 +462,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseDaikatanaMapHeader) {
-            const String data(R"(
+            const std::string data(R"(
 ////////////////////////////////////////////////////////////
 // ldef 000 "Base Brush Layer"
 ////////////////////////////////////////////////////////////
@@ -501,7 +503,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseQuakeBrushWithNumericalTextureName) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 {
@@ -526,7 +528,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseBrushesWithLayer) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 {
@@ -573,7 +575,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseEntitiesAndBrushesWithLayer) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 {
@@ -633,7 +635,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseEntitiesAndBrushesWithGroup) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 {
@@ -714,7 +716,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseBrushPrimitive) {
-            const String data(R"(
+            const std::string data(R"(
             {
                 "classname" "worldspawn"
                 {
@@ -742,7 +744,7 @@ namespace TrenchBroom {
         }
 
         TEST(WorldReaderTest, parseBrushPrimitiveAndLegacyBrush) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 {
@@ -778,7 +780,7 @@ brushDef
         }
 
         TEST(WorldReaderTest, parseQuake3Patch) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 {
@@ -808,7 +810,7 @@ common/caulk
         TEST(WorldReaderTest, parseMultipleClassnames) {
             // See https://github.com/kduske/TrenchBroom/issues/1485
 
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 "classname" "worldspawn"
@@ -823,7 +825,7 @@ common/caulk
         }
 
         TEST(WorldReaderTest, parseEscapedDoubleQuotationMarks) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 "message" "yay \"Mr. Robot!\""
@@ -844,7 +846,7 @@ common/caulk
         }
 
         TEST(WorldReaderTest, parseAttributeWithUnescapedPathAndTrailingBackslash) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 "path" "c:\a\b\c\"
@@ -865,7 +867,7 @@ common/caulk
         }
 
         TEST(WorldReaderTest, parseAttributeWithEscapedPathAndTrailingBackslash) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 "path" "c:\\a\\b\\c\\"
@@ -886,7 +888,7 @@ common/caulk
         }
 
         TEST(WorldReaderTest, parseAttributeTrailingEscapedBackslash) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 "message" "test\\"
@@ -909,7 +911,7 @@ common/caulk
 
         // https://github.com/kduske/TrenchBroom/issues/1739
         TEST(WorldReaderTest, parseAttributeNewlineEscapeSequence) {
-            const String data(R"(
+            const std::string data(R"(
 {
 "classname" "worldspawn"
 "message" "vm::line1\nvm::line2"
@@ -931,7 +933,7 @@ common/caulk
 
         /*
         TEST(WorldReaderTest, parseIssueIgnoreFlags) {
-            const String data("{"
+            const std::string data("{"
                               "\"classname\" \"worldspawn\""
                               "{\n"
                               "/// hideIssues 2\n"

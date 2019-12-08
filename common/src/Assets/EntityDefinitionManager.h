@@ -27,6 +27,7 @@
 #include "Model/Model_Forward.h"
 
 #include <map>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -39,7 +40,7 @@ namespace TrenchBroom {
     namespace Assets {
         class EntityDefinitionManager {
         private:
-            using Cache = std::map<String, EntityDefinition*>;
+            using Cache = std::map<std::string, EntityDefinition*>;
             std::vector<EntityDefinition*> m_definitions;
             EntityDefinitionGroup::List m_groups;
             Cache m_cache;
