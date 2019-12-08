@@ -114,7 +114,7 @@ namespace kdl {
         if (c < 'A' || c > 'Z') {
             return c;
         } else {
-            return c + ('a' - 'A');
+            return c + static_cast<char>('a' - 'A');
         }
     }
 
@@ -128,7 +128,7 @@ namespace kdl {
         if (c < 'a' || c > 'z') {
             return c;
         } else {
-            return c - ('a' - 'A');
+            return c - static_cast<char>('a' - 'A');
         }
     }
 
