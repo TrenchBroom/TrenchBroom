@@ -68,7 +68,7 @@ namespace TrenchBroom {
             const EntityAttribute::List& attributes() const;
             void setAttributes(const EntityAttribute::List& attributes);
 
-            std::set<AttributeName> attributeNames() const;
+            std::vector<AttributeName> attributeNames() const;
 
             bool hasAttribute(const AttributeName& name) const;
             bool hasAttribute(const AttributeName& name, const AttributeValue& value) const;

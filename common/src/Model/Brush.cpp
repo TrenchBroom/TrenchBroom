@@ -19,7 +19,6 @@
 
 #include "Brush.h"
 
-#include "CollectionUtils.h"
 #include "Constants.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
@@ -37,6 +36,8 @@
 #include "Model/TagVisitor.h"
 #include "Model/World.h"
 #include "Renderer/BrushRendererBrushCache.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vecmath/intersection.h>
 #include <vecmath/vec.h>
@@ -183,7 +184,7 @@ namespace TrenchBroom {
             }
 
             ~MoveVerticesCallback() override {
-                VectorUtils::clearAndDelete(m_removedFaces);
+                kdl::vec_clear_and_delete(m_removedFaces);
             }
         private:
             void buildIncidences(const BrushGeometry* geometry, const std::set<vm::vec3>& verticesToBeMoved, const vm::vec3& delta) {
@@ -317,7 +318,7 @@ namespace TrenchBroom {
 
         void Brush::cleanup() {
             deleteGeometry();
-            VectorUtils::clearAndDelete(m_faces);
+            kdl::vec_clear_and_delete(m_faces);
         }
 
         Brush* Brush::clone(const vm::bbox3& worldBounds) const {
@@ -412,7 +413,7 @@ namespace TrenchBroom {
             deleteGeometry();
 
             detachFaces(m_faces);
-            VectorUtils::clearAndDelete(m_faces);
+            kdl::vec_clear_and_delete(m_faces);
             addFaces(faces);
 
             buildGeometry(worldBounds);
@@ -446,7 +447,7 @@ namespace TrenchBroom {
         void Brush::addFace(BrushFace* face) {
             ensure(face != nullptr, "face is null");
             ensure(face->brush() == nullptr, "face brush is null");
-            assert(!VectorUtils::contains(m_faces, face));
+            assert(!kdl::vec_contains(m_faces, face));
 
             m_faces.push_back(face);
             face->setBrush(this);
@@ -664,15 +665,15 @@ namespace TrenchBroom {
         }
 
         bool Brush::hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const FloatType epsilon) const {
-            return hasFace(vm::polygon3(VectorUtils::create<vm::vec3>(p1, p2, p3)), epsilon);
+            return hasFace(vm::polygon3({ p1, p2, p3 }), epsilon);
         }
 
         bool Brush::hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, const FloatType epsilon) const {
-            return hasFace(vm::polygon3(VectorUtils::create<vm::vec3>(p1, p2, p3, p4)), epsilon);
+            return hasFace(vm::polygon3({ p1, p2, p3, p4 }), epsilon);
         }
 
         bool Brush::hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, const vm::vec3& p5, const FloatType epsilon) const {
-            return hasFace(vm::polygon3(VectorUtils::create<vm::vec3>(p1, p2, p3, p4, p5)), epsilon);
+            return hasFace(vm::polygon3({ p1, p2, p3, p4, p5 }), epsilon);
         }
 
 
@@ -1098,7 +1099,7 @@ namespace TrenchBroom {
             // TODO: When there are multiple choices of moving verts (unmovedVerts.size() + movedVerts.size() > 3)
             // we should sort them somehow. This can be seen if you select and move 3/5 verts of a pentagon;
             // which of the 3 moving verts currently gets UV lock is arbitrary.
-            VectorUtils::append(referenceVerts, movedVerts);
+            kdl::vec_append(referenceVerts, movedVerts);
 
             if (referenceVerts.size() < 3) {
                 // Can't create a transform as there are not enough verts
@@ -1163,7 +1164,7 @@ namespace TrenchBroom {
             });
 
             const NotifyNodeChange nodeChange(this);
-            VectorUtils::clearAndDelete(m_faces);
+            kdl::vec_clear_and_delete(m_faces);
             updateFacesFromGeometry(worldBounds, newGeometry);
             rebuildGeometry(worldBounds);
         }
@@ -1327,7 +1328,7 @@ namespace TrenchBroom {
                 if (geometry->payload() == nullptr) {
                     return false;
                 }
-                if (!VectorUtils::contains(m_faces, geometry->payload())) {
+                if (!kdl::vec_contains(m_faces, geometry->payload())) {
                     return false;
                 }
             }

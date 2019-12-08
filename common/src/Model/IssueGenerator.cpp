@@ -19,17 +19,18 @@
 
 #include "IssueGenerator.h"
 
-#include "CollectionUtils.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/Entity.h"
 #include "Model/World.h"
+
+#include <kdl/vector_utils.h>
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Model {
         IssueGenerator::~IssueGenerator() {
-            VectorUtils::clearAndDelete(m_quickFixes);
+            kdl::vec_clear_and_delete(m_quickFixes);
         }
 
         IssueType IssueGenerator::type() const {
@@ -70,7 +71,7 @@ namespace TrenchBroom {
 
         void IssueGenerator::addQuickFix(IssueQuickFix* quickFix) {
             ensure(quickFix != nullptr, "quickFix is null");
-            assert(!VectorUtils::contains(m_quickFixes, quickFix));
+            assert(!kdl::vec_contains(m_quickFixes, quickFix));
             m_quickFixes.push_back(quickFix);
         }
 

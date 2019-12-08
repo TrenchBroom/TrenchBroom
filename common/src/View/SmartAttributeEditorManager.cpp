@@ -19,7 +19,6 @@
 
 #include "SmartAttributeEditorManager.h"
 
-#include "CollectionUtils.h"
 #include "View/MapDocument.h"
 #include "View/SmartChoiceEditor.h"
 #include "View/SmartChoiceEditorMatcher.h"

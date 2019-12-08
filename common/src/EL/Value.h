@@ -309,7 +309,7 @@ namespace TrenchBroom {
             bool contains(const Value& indexValue) const;
             bool contains(size_t index) const;
             bool contains(const String& key) const;
-            StringSet keys() const;
+            StringList keys() const;
 
             Value operator[](const Value& indexValue) const;
             Value operator[](size_t index) const;

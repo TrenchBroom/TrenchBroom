@@ -36,6 +36,9 @@
 #include "Model/PickResult.h"
 #include "Model/World.h"
 
+#include <kdl/collection_utils.h>
+#include <kdl/vector_utils.h>
+
 #include <vecmath/vec.h>
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
@@ -1043,8 +1046,10 @@ namespace TrenchBroom {
             const auto M = vm::shear_bbox_matrix(brush->logicalBounds(), vm::vec3::pos_z(), delta);
 
             for (auto* oldFace : brush->faces()) {
-                const auto oldTexCoords = VectorUtils::map(oldFace->vertexPositions(), [&](auto x){ return oldFace->textureCoords(x); });
-                const auto shearedVertexPositions = VectorUtils::map(oldFace->vertexPositions(), [&](auto x){ return M * x; });
+                const auto oldTexCoords = kdl::vec_transform(oldFace->vertexPositions(),
+                    [&](auto x) { return oldFace->textureCoords(x); });
+                const auto shearedVertexPositions = kdl::vec_transform(oldFace->vertexPositions(),
+                    [&](auto x) { return M * x; });
                 const auto shearedPolygon = vm::polygon3(shearedVertexPositions);
 
                 const auto normal = oldFace->boundary().normal;
@@ -1053,8 +1058,8 @@ namespace TrenchBroom {
                 {
                     const BrushFace *newFace = changed->findFace(shearedPolygon);
                     ASSERT_NE(nullptr, newFace);
-                    const auto newTexCoords = VectorUtils::map(shearedVertexPositions,
-                                                               [&](auto x) { return newFace->textureCoords(x); });
+                    const auto newTexCoords = kdl::vec_transform(shearedVertexPositions,
+                        [&](auto x) { return newFace->textureCoords(x); });
                     if (normal == vm::vec3::pos_z()
                         || normal == vm::vec3::pos_y()
                         || normal == vm::vec3::neg_y()) {
@@ -1070,7 +1075,7 @@ namespace TrenchBroom {
                 {
                     const BrushFace *newFaceWithUVLock = changedWithUVLock->findFace(shearedPolygon);
                     ASSERT_NE(nullptr, newFaceWithUVLock);
-                    const auto newTexCoordsWithUVLock = VectorUtils::map(shearedVertexPositions, [&](auto x) {
+                    const auto newTexCoordsWithUVLock = kdl::vec_transform(shearedVertexPositions, [&](auto x) {
                         return newFaceWithUVLock->textureCoords(x);
                     });
                     if (normal == vm::vec3d::pos_z() || (GetParam() == MapFormat::Valve)) {
@@ -1187,8 +1192,11 @@ namespace TrenchBroom {
 
             Brush* brushClone = brush->clone(worldBounds);
 
-            const std::vector<vm::vec3> movedVertexPositions = VectorUtils::setCreate(brushClone->moveVertices(worldBounds, vertexPositions, delta));
-            const std::vector<vm::vec3> expectedVertexPositions = VectorUtils::setCreate(vertexPositions + delta);
+            auto movedVertexPositions = brushClone->moveVertices(worldBounds, vertexPositions, delta);
+            kdl::vec_sort_and_remove_duplicates(movedVertexPositions);
+
+            auto expectedVertexPositions = vertexPositions + delta;
+            kdl::vec_sort_and_remove_duplicates(expectedVertexPositions);
 
             ASSERT_EQ(expectedVertexPositions, movedVertexPositions);
 
@@ -1240,7 +1248,8 @@ namespace TrenchBroom {
                     vm::vec3(+64.0, +64.0, -64.0),
                     vm::vec3(+64.0, -64.0, -64.0)
             };
-            const std::vector<vm::vec3> vertexPositions = VectorUtils::concatenate(std::vector<vm::vec3>{peakPosition}, baseQuadVertexPositions);
+            const std::vector<vm::vec3> vertexPositions = kdl::vec_concat(std::vector<vm::vec3>{ peakPosition },
+                baseQuadVertexPositions);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
@@ -1519,8 +1528,8 @@ namespace TrenchBroom {
                     vm::vec3(+64.0, +64.0, -192.0),
             };
 
-            using VectorUtils::concatenate;
-            const std::vector<vm::vec3> vertexPositions = concatenate(concatenate(smallerTopPolygon, cubeTopFace), cubeBottomFace);
+            const std::vector<vm::vec3> vertexPositions = kdl::vec_concat(smallerTopPolygon, cubeTopFace,
+                cubeBottomFace);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
@@ -1577,8 +1586,8 @@ namespace TrenchBroom {
                     vm::vec3(+32.0, -32.0, +0.0),
             };
 
-            using VectorUtils::concatenate;
-            const std::vector<vm::vec3> vertexPositions = concatenate(concatenate(leftPolygon, bottomPolygon), bottomRightPolygon);
+            const std::vector<vm::vec3> vertexPositions = kdl::vec_concat(leftPolygon, bottomPolygon,
+                bottomRightPolygon);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
@@ -2705,7 +2714,7 @@ namespace TrenchBroom {
 
             delete minuend;
             delete subtrahend;
-            VectorUtils::deleteAll(result);
+            kdl::col_delete_all(result);
         }
 
         TEST(BrushTest, subtractDisjoint) {
@@ -2724,9 +2733,9 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, result.size());
 
             Brush* subtraction = result.at(0);
-            ASSERT_EQ(SetUtils::makeSet(brush1->vertexPositions()), SetUtils::makeSet(subtraction->vertexPositions()));
+            ASSERT_COLLECTIONS_EQUIVALENT(brush1->vertexPositions(), subtraction->vertexPositions());
 
-            VectorUtils::deleteAll(result);
+            kdl::col_delete_all(result);
         }
 
         TEST(BrushTest, subtractEnclosed) {
@@ -2744,7 +2753,7 @@ namespace TrenchBroom {
             std::vector<Brush*> result = brush1->subtract(world, worldBounds, "texture", brush2);
             ASSERT_EQ(0u, result.size());
 
-            VectorUtils::deleteAll(result);
+            kdl::col_delete_all(result);
         }
 
 
@@ -2821,7 +2830,7 @@ namespace TrenchBroom {
 
             delete minuend;
             delete subtrahend;
-            VectorUtils::deleteAll(result);
+            kdl::col_delete_all(result);
         }
 
         TEST(BrushTest, subtractDome) {
@@ -2847,13 +2856,14 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
             const auto* minuend = static_cast<Brush*>(IO::NodeReader::read(minuendStr, world, worldBounds, status).front());
-            const auto subtrahend = VectorUtils::cast<Brush*>(IO::NodeReader::read(subtrahendStr.str(), world, worldBounds, status));
+            const auto subtrahend = kdl::vec_element_cast<Brush*>(
+                IO::NodeReader::read(subtrahendStr.str(), world, worldBounds, status));
 
             const auto result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
 
             delete minuend;
-            VectorUtils::deleteAll(subtrahend);
-            VectorUtils::deleteAll(result);
+            kdl::col_delete_all(subtrahend);
+            kdl::col_delete_all(result);
         }
 
         TEST(BrushTest, subtractPipeFromCubeWithMissingFragments) {
@@ -2895,7 +2905,7 @@ namespace TrenchBroom {
 
             delete minuend;
             delete subtrahend;
-            VectorUtils::deleteAll(result);
+            kdl::col_delete_all(result);
         }
 
         TEST(BrushTest, testAlmostDegenerateBrush) {
@@ -3169,7 +3179,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             std::vector<Node*> nodes = reader.read(worldBounds, status); // assertion failure
-            VectorUtils::clearAndDelete(nodes);
+            kdl::vec_clear_and_delete(nodes);
         }
 
 
@@ -3220,7 +3230,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             std::vector<Node*> nodes = reader.read(worldBounds, status); // assertion failure
-            VectorUtils::clearAndDelete(nodes);
+            kdl::vec_clear_and_delete(nodes);
         }
 
         TEST(BrushTest, invalidBrush1801) {
@@ -3247,7 +3257,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             std::vector<Node*> nodes = reader.read(worldBounds, status); // assertion failure
-            VectorUtils::clearAndDelete(nodes);
+            kdl::vec_clear_and_delete(nodes);
         }
 
         TEST(BrushTest, snapToGrid64) {
@@ -3606,7 +3616,7 @@ namespace TrenchBroom {
             const vm::bbox3 expandedBBox(vm::vec3(-70, -70, -70), vm::vec3(70, 70, 70));
 
             EXPECT_EQ(expandedBBox, brush1->logicalBounds());
-            EXPECT_EQ(SetUtils::makeSet(expandedBBox.vertices()), SetUtils::makeSet(brush1->vertexPositions()));
+            EXPECT_COLLECTIONS_EQUIVALENT(expandedBBox.vertices(), brush1->vertexPositions());
         }
 
         TEST(BrushTest, contract) {
@@ -3621,7 +3631,7 @@ namespace TrenchBroom {
             const vm::bbox3 expandedBBox(vm::vec3(-32, -32, -32), vm::vec3(32, 32, 32));
 
             EXPECT_EQ(expandedBBox, brush1->logicalBounds());
-            EXPECT_EQ(SetUtils::makeSet(expandedBBox.vertices()), SetUtils::makeSet(brush1->vertexPositions()));
+            EXPECT_COLLECTIONS_EQUIVALENT(expandedBBox.vertices(), brush1->vertexPositions());
         }
 
         TEST(BrushTest, contractToZero) {

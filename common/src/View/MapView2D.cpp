@@ -18,6 +18,7 @@
  */
 
 #include "MapView2D.h"
+
 #include "Logger.h"
 #include "Macros.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -55,6 +56,8 @@
 #include "View/SelectionTool.h"
 #include "View/VertexTool.h"
 #include "View/VertexToolController.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vecmath/util.h>
 
@@ -221,7 +224,7 @@ namespace TrenchBroom {
             document->world()->acceptAndRecurse(visitor);
             document->select(visitor.nodes());
 
-            VectorUtils::clearAndDelete(tallBrushes);
+            kdl::vec_clear_and_delete(tallBrushes);
         }
 
         void MapView2D::doFocusCameraOnSelection(const bool animate) {

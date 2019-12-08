@@ -19,13 +19,12 @@
 
 #include "RecentDocuments.h"
 
-#include "CollectionUtils.h"
 #include "Notifier.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "View/QtUtils.h"
 
-#include <vector>
+#include <kdl/vector_utils.h>
 
 #include <QMenu>
 #include <QSettings>
@@ -53,7 +52,7 @@ namespace TrenchBroom {
         void RecentDocuments::removeMenu(QMenu* menu) {
             ensure(menu != nullptr, "menu is null");
             clearMenu(menu);
-            VectorUtils::erase(m_menus, menu);
+            kdl::vec_erase(m_menus, menu);
         }
 
         void RecentDocuments::updatePath(const IO::Path& path) {
@@ -67,7 +66,7 @@ namespace TrenchBroom {
             const size_t oldSize = m_recentDocuments.size();
 
             const IO::Path canonPath = path.makeCanonical();
-            VectorUtils::erase(m_recentDocuments, canonPath);
+            kdl::vec_erase(m_recentDocuments, canonPath);
 
             if (oldSize > m_recentDocuments.size()) {
                 updateMenus();

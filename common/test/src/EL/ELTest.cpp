@@ -19,7 +19,6 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
 #include "EL/ELExceptions.h"
 #include "EL/Types.h"
 #include "EL/Value.h"
@@ -140,16 +139,16 @@ namespace TrenchBroom {
             ASSERT_EQ(Value(""), Value("test")[Value(4)]);
 
 
-            ASSERT_EQ(Value("e"), Value("test")[Value(VectorUtils::create<Value>(Value(1)))]);
-            ASSERT_EQ(Value("te"), Value("test")[Value(VectorUtils::create<Value>(Value(0), Value(1)))]);
-            ASSERT_EQ(Value("es"), Value("test")[Value(VectorUtils::create<Value>(Value(1), Value(2)))]);
-            ASSERT_EQ(Value("tt"), Value("test")[Value(VectorUtils::create<Value>(Value(0), Value(3)))]);
-            ASSERT_EQ(Value("test"), Value("test")[Value(VectorUtils::create<Value>(Value(0), Value(1), Value(2), Value(3)))]);
-            ASSERT_EQ(Value(""), Value("test")[Value(VectorUtils::create<Value>(Value(4)))]);
-            ASSERT_EQ(Value("t"), Value("test")[Value(VectorUtils::create<Value>(Value(0), Value(4)))]);
+            ASSERT_EQ(Value("e"), Value("test")[Value(ArrayType({ Value(1) }))]);
+            ASSERT_EQ(Value("te"), Value("test")[Value(ArrayType({ Value(0), Value(1) }))]);
+            ASSERT_EQ(Value("es"), Value("test")[Value(ArrayType({ Value(1), Value(2) }))]);
+            ASSERT_EQ(Value("tt"), Value("test")[Value(ArrayType({ Value(0), Value(3) }))]);
+            ASSERT_EQ(Value("test"), Value("test")[Value(ArrayType({ Value(0), Value(1), Value(2), Value(3) }))]);
+            ASSERT_EQ(Value(""), Value("test")[Value(ArrayType({ Value(4) }))]);
+            ASSERT_EQ(Value("t"), Value("test")[Value(ArrayType({ Value(0), Value(4) }))]);
 
 
-            const Value arrayValue(VectorUtils::create<Value>(Value(1.0), Value("test")));
+            const Value arrayValue(ArrayType({ Value(1.0), Value("test") }));
 
             ASSERT_EQ(Value(1.0), arrayValue[Value(0)]);
             ASSERT_EQ(Value("test"), arrayValue[Value(1)]);
@@ -161,13 +160,13 @@ namespace TrenchBroom {
             ASSERT_THROW(arrayValue[Value("asdf")], EvaluationError);
             ASSERT_THROW(arrayValue[Value("")], EvaluationError);
 
-            ASSERT_EQ(Value(VectorUtils::create<Value>(Value(1.0))), arrayValue[Value(VectorUtils::create<Value>(Value(0)))]);
-            ASSERT_EQ(Value(VectorUtils::create<Value>(Value("test"))), arrayValue[Value(VectorUtils::create<Value>(Value(1)))]);
-            ASSERT_EQ(Value(VectorUtils::create<Value>(Value(1.0), Value("test"))), arrayValue[Value(VectorUtils::create<Value>(Value(0), Value(1)))]);
-            ASSERT_THROW(arrayValue[Value(VectorUtils::create<Value>(Value(2)))], EvaluationError);
-            ASSERT_THROW(arrayValue[Value(VectorUtils::create<Value>(Value(1), Value(2)))], EvaluationError);
-            ASSERT_THROW(arrayValue[Value(VectorUtils::create<Value>(Value("test")))], ConversionError);
-            ASSERT_THROW(arrayValue[Value(VectorUtils::create<Value>(Value(0), Value("test")))], ConversionError);
+            ASSERT_EQ(Value(ArrayType({ Value(1.0)} )), arrayValue[Value(ArrayType({ Value(0) }))]);
+            ASSERT_EQ(Value(ArrayType({ Value("test") })), arrayValue[Value(ArrayType({ Value(1) }))]);
+            ASSERT_EQ(Value(ArrayType({ Value(1.0), Value("test") })), arrayValue[Value(ArrayType({ Value(0), Value(1) }))]);
+            ASSERT_THROW(arrayValue[Value(ArrayType({ Value(2) }))], EvaluationError);
+            ASSERT_THROW(arrayValue[Value(ArrayType({ Value(1), Value(2) }))], EvaluationError);
+            ASSERT_THROW(arrayValue[Value(ArrayType({ Value("test") }))], ConversionError);
+            ASSERT_THROW(arrayValue[Value(ArrayType({ Value(0), Value("test") }))], ConversionError);
 
             MapType map;
             map["test"] = Value(1.0);
@@ -186,14 +185,14 @@ namespace TrenchBroom {
             MapType exp2;
             exp2["huhu"] = map["huhu"];
 
-            ASSERT_EQ(Value(exp1), mapValue[Value(VectorUtils::create<Value>(Value("test")))]);
-            ASSERT_EQ(Value(exp2), mapValue[Value(VectorUtils::create<Value>(Value("huhu")))]);
-            ASSERT_EQ(Value(map), mapValue[Value(VectorUtils::create<Value>(Value("test"), Value("huhu")))]);
-            ASSERT_EQ(Value(map), mapValue[Value(VectorUtils::create<Value>(Value("huhu"), Value("test")))]);
-            ASSERT_EQ(Value(MapType()), mapValue[Value(VectorUtils::create<Value>(Value("asdf")))]);
-            ASSERT_EQ(Value(exp1), mapValue[Value(VectorUtils::create<Value>(Value("test"), Value("asdf")))]);
-            ASSERT_THROW(mapValue[Value(VectorUtils::create<Value>(Value(0)))], ConversionError);
-            ASSERT_THROW(mapValue[Value(VectorUtils::create<Value>(Value("test"), Value(0)))], ConversionError);
+            ASSERT_EQ(Value(exp1), mapValue[Value(ArrayType({ Value("test") }))]);
+            ASSERT_EQ(Value(exp2), mapValue[Value(ArrayType({ Value("huhu") }))]);
+            ASSERT_EQ(Value(map), mapValue[Value(ArrayType({ Value("test"), Value("huhu") }))]);
+            ASSERT_EQ(Value(map), mapValue[Value(ArrayType({ Value("huhu"), Value("test") }))]);
+            ASSERT_EQ(Value(MapType()), mapValue[Value(ArrayType({ Value("asdf") }))]);
+            ASSERT_EQ(Value(exp1), mapValue[Value(ArrayType({ Value("test"), Value("asdf") }))]);
+            ASSERT_THROW(mapValue[Value(ArrayType({ Value(0) }))], ConversionError);
+            ASSERT_THROW(mapValue[Value(ArrayType({ Value("test"), Value(0) }))], ConversionError);
         }
 
         TEST(ELTest, unaryPlusOperator) {
@@ -238,9 +237,9 @@ namespace TrenchBroom {
             ASSERT_THROW(Value("tst") + Value(ArrayType()), EvaluationError);
             ASSERT_THROW(Value("tst") + Value(MapType()),   EvaluationError);
 
-            ASSERT_EQ(Value(VectorUtils::create<Value>(Value(1), Value(2), Value(2), Value(3))),
-                      Value(VectorUtils::create<Value>(Value(1), Value(2))) +
-                      Value(VectorUtils::create<Value>(Value(2), Value(3))));
+            ASSERT_EQ(Value(ArrayType({ Value(1), Value(2), Value(2), Value(3) })),
+                      Value(ArrayType({ Value(1), Value(2) })) +
+                      Value(ArrayType({ Value(2), Value(3) })));
 
             ASSERT_THROW(Value(ArrayType()) + Value(true),          EvaluationError);
             ASSERT_THROW(Value(ArrayType()) + Value(1.0),           EvaluationError);

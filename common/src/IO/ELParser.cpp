@@ -19,7 +19,6 @@
 
 #include "ELParser.h"
 
-#include "CollectionUtils.h"
 #include "EL/Expression.h"
 
 namespace TrenchBroom {
@@ -313,15 +312,15 @@ namespace TrenchBroom {
             EL::ExpressionBase::List elements;
             if (!m_tokenizer.peekToken().hasType(ELToken::CBracket)) {
                 do {
-                    elements.push_back(parseExpressionOrAnyRange());
+                    elements.emplace_back(parseExpressionOrAnyRange());
                 } while (expect(ELToken::Comma | ELToken::CBracket, m_tokenizer.nextToken()).hasType(ELToken::Comma));
             } else {
                 m_tokenizer.nextToken();
             }
 
             if (elements.size() == 1)
-                return EL::SubscriptOperator::create(lhs, elements.front(), startLine, startColumn);
-            return EL::SubscriptOperator::create(lhs, EL::ArrayExpression::create(elements, startLine, startColumn), startLine, startColumn);
+                return EL::SubscriptOperator::create(lhs, elements.front().release(), startLine, startColumn);
+            return EL::SubscriptOperator::create(lhs, EL::ArrayExpression::create(std::move(elements), startLine, startColumn), startLine, startColumn);
         }
 
         EL::ExpressionBase* ELParser::parseVariable() {
@@ -367,13 +366,13 @@ namespace TrenchBroom {
             EL::ExpressionBase::List elements;
             if (!m_tokenizer.peekToken().hasType(ELToken::CBracket)) {
                 do {
-                    elements.push_back(parseExpressionOrRange());
+                    elements.emplace_back(parseExpressionOrRange());
                 } while (expect(ELToken::Comma | ELToken::CBracket, m_tokenizer.nextToken()).hasType(ELToken::Comma));
             } else {
                 m_tokenizer.nextToken();
             }
 
-            return EL::ArrayExpression::create(elements, startLine, startColumn);
+            return EL::ArrayExpression::create(std::move(elements), startLine, startColumn);
         }
 
         EL::ExpressionBase* ELParser::parseExpressionOrRange() {
@@ -420,15 +419,13 @@ namespace TrenchBroom {
                     const String key = token.data();
 
                     expect(ELToken::Colon, m_tokenizer.nextToken());
-                    EL::ExpressionBase* value = parseExpression();
-
-                    MapUtils::insertOrReplaceAndDelete(elements, key, value);
+                    elements[key] = std::unique_ptr<EL::ExpressionBase>(parseExpression());
                 } while (expect(ELToken::Comma | ELToken::CBrace, m_tokenizer.nextToken()).hasType(ELToken::Comma));
             } else {
                 m_tokenizer.nextToken();
             }
 
-            return EL::MapExpression::create(elements, startLine, startColumn);
+            return EL::MapExpression::create(std::move(elements), startLine, startColumn);
         }
 
         EL::ExpressionBase* ELParser::parseUnaryOperator() {
@@ -460,13 +457,13 @@ namespace TrenchBroom {
 
             if (token.hasType(ELToken::SimpleTerm)) {
                 do {
-                    subExpressions.push_back(parseExpression());
+                    subExpressions.emplace_back(parseExpression());
                 } while (expect(ELToken::Comma | ELToken::DoubleCBrace, m_tokenizer.nextToken()).hasType(ELToken::Comma));
             } else if (token.hasType(ELToken::DoubleCBrace)) {
                 m_tokenizer.nextToken();
             }
 
-            return EL::SwitchOperator::create(subExpressions, startLine, startColumn);
+            return EL::SwitchOperator::create(std::move(subExpressions), startLine, startColumn);
         }
 
         EL::ExpressionBase* ELParser::parseCompoundTerm(EL::ExpressionBase* lhs) {

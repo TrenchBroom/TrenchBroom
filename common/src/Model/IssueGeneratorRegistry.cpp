@@ -19,8 +19,10 @@
 
 #include "IssueGeneratorRegistry.h"
 
-#include "CollectionUtils.h"
+#include "Ensure.h"
 #include "Model/IssueGenerator.h"
+
+#include <kdl/vector_utils.h>
 
 #include <cassert>
 
@@ -38,14 +40,14 @@ namespace TrenchBroom {
             std::vector<IssueQuickFix*> result;
             for (const IssueGenerator* generator : m_generators) {
                 if ((generator->type() & issueTypes) != 0)
-                    VectorUtils::append(result, generator->quickFixes());
+                    kdl::vec_append(result, generator->quickFixes());
             }
             return result;
         }
 
         void IssueGeneratorRegistry::registerGenerator(IssueGenerator* generator) {
             ensure(generator != nullptr, "generator is null");
-            assert(!VectorUtils::contains(m_generators, generator));
+            assert(!kdl::vec_contains(m_generators, generator));
             m_generators.push_back(generator);
         }
 
@@ -54,7 +56,7 @@ namespace TrenchBroom {
         }
 
         void IssueGeneratorRegistry::clearGenerators() {
-            VectorUtils::clearAndDelete(m_generators);
+            kdl::vec_clear_and_delete(m_generators);
         }
     }
 }

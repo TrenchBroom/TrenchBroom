@@ -19,19 +19,19 @@
 
 #include "ModEditor.h"
 
-#include "CollectionUtils.h"
 #include "Notifier.h"
-#include "Preferences.h"
 #include "PreferenceManager.h"
 #include "SharedPointer.h"
+#include "StringUtils.h"
 #include "Model/Entity.h"
 #include "Model/Game.h"
-#include "StringUtils.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
+
+#include <kdl/vector_utils.h>
 
 #include <QLineEdit>
 #include <QListWidget>
@@ -203,7 +203,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < m_availableMods.size(); ++i) {
                 const auto& mod = m_availableMods[i];
                 if (StringUtils::containsCaseInsensitive(mod, pattern) &&
-                    !VectorUtils::contains(enabledMods, mod)) {
+                    !kdl::vec_contains(enabledMods, mod)) {
                     m_availableModList->addItem(QString::fromStdString(mod));
                 }
             }
@@ -242,7 +242,7 @@ namespace TrenchBroom {
             StringList mods = document->mods();
             for (QListWidgetItem* item : selections) {
                 const std::string mod = item->text().toStdString();
-                VectorUtils::erase(mods, mod);
+                kdl::vec_erase(mods, mod);
             }
             document->setMods(mods);
         }

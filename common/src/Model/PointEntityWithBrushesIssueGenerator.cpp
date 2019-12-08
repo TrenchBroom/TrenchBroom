@@ -25,7 +25,8 @@
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
-#include "VectorUtilsMinimal.h"
+
+#include <kdl/vector_utils.h>
 
 #include <map>
 #include <vector>
@@ -65,7 +66,7 @@ namespace TrenchBroom {
                     nodesToReparent[node->parent()] = node->children();
 
                     affectedNodes.push_back(node);
-                    VectorUtils::append(affectedNodes, node->children());
+                    kdl::vec_append(affectedNodes, node->children());
                 }
 
                 facade->deselectAll();

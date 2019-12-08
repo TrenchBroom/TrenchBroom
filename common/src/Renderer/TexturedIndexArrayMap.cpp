@@ -19,7 +19,6 @@
 
 #include "TexturedIndexArrayMap.h"
 
-#include "CollectionUtils.h"
 #include "Renderer/RenderUtils.h"
 
 namespace TrenchBroom {
@@ -46,7 +45,8 @@ namespace TrenchBroom {
 
         IndexArrayMap::Size& TexturedIndexArrayMap::Size::findCurrent(const Texture* texture) {
             if (!isCurrent(texture)) {
-                m_current = MapUtils::findOrInsert(m_sizes, texture, IndexArrayMap::Size());
+                const auto result = m_sizes.try_emplace(texture);
+                m_current = result.first;
             }
             return m_current->second;
         }

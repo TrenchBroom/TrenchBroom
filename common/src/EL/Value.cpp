@@ -19,10 +19,13 @@
 
 #include "Value.h"
 
-#include "CollectionUtils.h"
 #include "EL/ELExceptions.h"
 #include "StringStream.h"
 #include "StringUtils.h"
+
+#include <kdl/collection_utils.h>
+#include <kdl/map_utils.h>
+#include <kdl/vector_utils.h>
 
 #include <algorithm>
 #include <cmath>
@@ -748,8 +751,8 @@ namespace TrenchBroom {
             return it != std::end(map);
         }
 
-        StringSet Value::keys() const {
-            return MapUtils::keySet(mapValue());
+        StringList Value::keys() const {
+            return kdl::map_keys(mapValue());
         }
 
         Value Value::operator[](const Value& indexValue) const {
@@ -1029,7 +1032,7 @@ namespace TrenchBroom {
                 case ValueType::Array:
                     switch (rhs.type()) {
                         case ValueType::Array:
-                            return Value(VectorUtils::concatenate(lhs.arrayValue(), rhs.arrayValue()));
+                            return Value(kdl::vec_concat(lhs.arrayValue(), rhs.arrayValue()));
                         case ValueType::Boolean:
                         case ValueType::Number:
                         case ValueType::String:
@@ -1043,7 +1046,7 @@ namespace TrenchBroom {
                 case ValueType::Map:
                     switch (rhs.type()) {
                         case ValueType::Map:
-                            return Value(MapUtils::concatenate(lhs.mapValue(), rhs.mapValue()));
+                            return Value(kdl::map_union(lhs.mapValue(), rhs.mapValue()));
                         case ValueType::Boolean:
                         case ValueType::Number:
                         case ValueType::String:
@@ -1296,7 +1299,7 @@ namespace TrenchBroom {
                 case ValueType::Array:
                     switch (rhs.type()) {
                         case ValueType::Array:
-                            return VectorUtils::compare(lhs.arrayValue(), rhs.arrayValue());
+                            return kdl::col_lexicographical_compare(lhs.arrayValue(), rhs.arrayValue());
                         case ValueType::Null:
                         case ValueType::Undefined:
                             return 1;
@@ -1311,7 +1314,7 @@ namespace TrenchBroom {
                 case ValueType::Map:
                     switch (rhs.type()) {
                         case ValueType::Map:
-                            return MapUtils::compare(lhs.mapValue(), rhs.mapValue());
+                            return kdl::map_lexicographical_compare(lhs.mapValue(), rhs.mapValue());
                         case ValueType::Null:
                         case ValueType::Undefined:
                             return 1;
@@ -1326,7 +1329,7 @@ namespace TrenchBroom {
                 case ValueType::Range:
                     switch (rhs.type()) {
                         case ValueType::Range:
-                            return VectorUtils::compare(lhs.rangeValue(), rhs.rangeValue());
+                            return kdl::col_lexicographical_compare(lhs.rangeValue(), rhs.rangeValue());
                         case ValueType::Null:
                         case ValueType::Undefined:
                             return 1;

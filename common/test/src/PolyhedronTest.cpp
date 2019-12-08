@@ -19,7 +19,6 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
 
 #include "TrenchBroom.h"
 #include "Polyhedron.h"

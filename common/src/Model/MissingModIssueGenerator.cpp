@@ -19,7 +19,6 @@
 
 #include "MissingModIssueGenerator.h"
 
-#include "CollectionUtils.h"
 #include "SharedPointer.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
@@ -28,6 +27,8 @@
 #include "Model/Game.h"
 #include "Model/MapFacade.h"
 #include "Model/PushSelection.h"
+
+#include <kdl/vector_utils.h>
 
 #include <cassert>
 #include <memory>
@@ -83,7 +84,7 @@ namespace TrenchBroom {
                     if (issue->type() == MissingModIssue::Type) {
                         const MissingModIssue* modIssue = static_cast<const MissingModIssue*>(issue);
                         const String missingMod = modIssue->mod();
-                        VectorUtils::erase(mods, missingMod);
+                        kdl::vec_erase(mods, missingMod);
                     }
                 }
                 return mods;

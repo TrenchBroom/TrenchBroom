@@ -20,9 +20,12 @@
 #ifndef Polyhedron_Matcher_h
 #define Polyhedron_Matcher_h
 
+#include "Ensure.h"
 #include "Polyhedron.h"
-#include "CollectionUtils.h"
 #include "Relation.h"
+
+#include <kdl/vector_utils.h>
+#include <kdl/vector_set.h>
 
 #include <limits>
 #include <list>
@@ -265,10 +268,9 @@ private:
      * @param delta the move delta
      * @return the vertex relation
      */
-    static VertexRelation buildVertexRelation(const P& left, const P& right, std::vector<V> vertices, const V& delta) {
+    static VertexRelation buildVertexRelation(const P& left, const P& right, const std::vector<V>& vertices, const V& delta) {
         VMap vertexMap;
-
-        VectorUtils::setCreate(vertices);
+        const auto vertexSet = kdl::vector_set<V>::create(vertices);
 
         auto* firstVertex = left.vertices().front();
         auto* currentVertex = firstVertex;
@@ -276,7 +278,7 @@ private:
             const auto& position = currentVertex->position();
             // vertices are expected to be exact positions of vertices in left, whereas the vertex positions searched for
             // in right allow an epsilon of vm::Constants<T>::almost_zero()
-            if (VectorUtils::setContains(vertices, position)) {
+            if (vertexSet.count(position) > 0u) {
                 if (right.hasVertex(position)) {
                     vertexMap.insert(std::make_pair(position, position));
                 }

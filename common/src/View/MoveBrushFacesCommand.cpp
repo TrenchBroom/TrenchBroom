@@ -20,7 +20,6 @@
 
 #include "MoveBrushFacesCommand.h"
 
-#include "CollectionUtils.h"
 #include "Constants.h"
 #include "Model/Brush.h"
 #include "Model/Snapshot.h"
@@ -73,7 +72,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            if (!VectorUtils::equals(m_newFacePositions, other->m_oldFacePositions)) {
+            if (m_newFacePositions != other->m_oldFacePositions) {
                 return false;
             }
 

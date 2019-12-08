@@ -19,7 +19,6 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
 #include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
@@ -32,6 +31,8 @@
 #include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
 #include "Model/Model_Forward.h"
+
+#include <kdl/vector_utils.h>
 
 #include <algorithm>
 
@@ -63,7 +64,7 @@ namespace TrenchBroom {
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseWhitespaceFile) {
@@ -74,7 +75,7 @@ namespace TrenchBroom {
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseCommentsFile) {
@@ -85,7 +86,7 @@ namespace TrenchBroom {
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseEmptyFlagDescription) {
@@ -104,7 +105,7 @@ namespace TrenchBroom {
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseSolidClass) {
@@ -140,7 +141,7 @@ namespace TrenchBroom {
             const auto& attributes = definition->attributeDefinitions();
             ASSERT_EQ(6u, attributes.size());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parsePointClass) {
@@ -170,7 +171,7 @@ namespace TrenchBroom {
             const auto& attributes = definition->attributeDefinitions();
             ASSERT_EQ(5u, attributes.size());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseBaseClass) {
@@ -191,7 +192,7 @@ namespace TrenchBroom {
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parsePointClassWithBaseClasses) {
@@ -235,7 +236,7 @@ namespace TrenchBroom {
             const auto& attributes = definition->attributeDefinitions();
             ASSERT_EQ(9u, attributes.size());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseType_TargetSourceAttribute) {
@@ -267,7 +268,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("Source"), attribute->shortDescription());
             ASSERT_EQ(String("A long description"), attribute->longDescription());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseType_TargetDestinationAttribute) {
@@ -299,7 +300,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("Target"), attribute->shortDescription());
             ASSERT_EQ(String(""), attribute->longDescription());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseStringAttribute) {
@@ -346,7 +347,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(stringAttribute2->hasDefaultValue());
             ASSERT_EQ(String("DefaultValue"), stringAttribute2->defaultValue());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         /**
@@ -397,7 +398,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(stringAttribute2->hasDefaultValue());
             ASSERT_EQ(String("1.5"), stringAttribute2->defaultValue());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseIntegerAttribute) {
@@ -444,7 +445,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(intAttribute2->hasDefaultValue());
             ASSERT_EQ(2, intAttribute2->defaultValue());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseReadOnlyAttribute) {
@@ -471,7 +472,7 @@ namespace TrenchBroom {
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("sounds2");
             ASSERT_FALSE(attribute2->readOnly());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseFloatAttribute) {
@@ -518,7 +519,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(floatAttribute2->hasDefaultValue());
             ASSERT_FLOAT_EQ(2.7f, floatAttribute2->defaultValue());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseChoiceAttribute) {
@@ -660,7 +661,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("1"), options5[2].value());
             ASSERT_EQ(String("Yet more"), options5[2].description());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseFlagsAttribute) {
@@ -715,7 +716,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("Not in Deathmatch"), options[3].shortDescription());
             ASSERT_TRUE(options[3].isDefault());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         static const String ModelDefinitionTemplate =
@@ -796,7 +797,7 @@ namespace TrenchBroom {
             auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseInvalidBounds) {
@@ -814,7 +815,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             const auto definition = static_cast<Assets::PointEntityDefinition*>(definitions[0]);
             ASSERT_EQ(vm::bbox3d(vm::vec3d(-32.0, -32.0, 0.0), vm::vec3d(32.0, 32.0, 256.0)), definition->bounds());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseInclude) {
@@ -831,7 +832,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "worldspawn"; }));
             ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "info_player_start"; }));
 
-            VectorUtils::clearAndDelete(defs);
+            kdl::vec_clear_and_delete(defs);
         }
 
         TEST(FgdParserTest, parseNestedInclude) {
@@ -849,7 +850,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "info_player_start"; }));
             ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "info_player_coop"; }));
 
-            VectorUtils::clearAndDelete(defs);
+            kdl::vec_clear_and_delete(defs);
         }
 
         TEST(FgdParserTest, parseRecursiveInclude) {
@@ -865,7 +866,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             ASSERT_EQ(1u, defs.size());
             ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "worldspawn"; }));
 
-            VectorUtils::clearAndDelete(defs);
+            kdl::vec_clear_and_delete(defs);
         }
 
         TEST(FgdParserTest, parseStringContinuations) {
@@ -888,7 +889,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             const auto* definition = definitions.front();
             ASSERT_EQ("This is an example description for this example entity. It will appear in the help dialog for this entity", definition->description());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
     }
 }

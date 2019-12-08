@@ -22,9 +22,11 @@
 
 #include "StringType.h"
 #include "Renderer/GL.h"
+#include "Renderer/Shader.h"
 #include "Renderer/ShaderProgram.h"
 
 #include <map>
+#include <memory>
 
 namespace TrenchBroom {
     namespace IO {
@@ -37,19 +39,17 @@ namespace TrenchBroom {
 
         class ShaderManager {
         private:
-            using ShaderCache = std::map<String, Shader*>;
-            using ShaderCacheEntry = std::pair<String, Shader*>;
-            using ShaderProgramCache = std::map<const ShaderConfig*, ShaderProgram*>;
-            using ShaderProgramCacheEntry = std::pair<const ShaderConfig*, ShaderProgram*>;
+            using ShaderCache = std::map<String, std::unique_ptr<Shader>>;
+            using ShaderProgramCache = std::map<const ShaderConfig*, std::unique_ptr<ShaderProgram>>;
 
             ShaderCache m_shaders;
             ShaderProgramCache m_programs;
         public:
             ~ShaderManager();
-
+        public:
             ShaderProgram& program(const ShaderConfig& config);
         private:
-            ShaderProgram* createProgram(const ShaderConfig& config);
+            std::unique_ptr<ShaderProgram> createProgram(const ShaderConfig& config);
             Shader& loadShader(const String& name, const GLenum type);
         };
 

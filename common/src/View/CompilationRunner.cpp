@@ -19,7 +19,6 @@
 
 #include "CompilationRunner.h"
 
-#include "CollectionUtils.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/FileMatcher.h"
