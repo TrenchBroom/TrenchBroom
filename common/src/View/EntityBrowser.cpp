@@ -37,7 +37,7 @@
 #include <QHBoxLayout>
 
 // for use in QVariant
-Q_DECLARE_METATYPE(TrenchBroom::Assets::EntityDefinitionSortOrder);
+Q_DECLARE_METATYPE(TrenchBroom::Assets::EntityDefinitionSortOrder)
 
 namespace TrenchBroom {
     namespace View {

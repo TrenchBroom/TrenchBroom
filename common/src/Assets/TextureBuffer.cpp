@@ -25,6 +25,8 @@
 
 #include <FreeImage.h>
 
+#include <algorithm> // for std::max
+
 namespace TrenchBroom {
     namespace Assets {
 
