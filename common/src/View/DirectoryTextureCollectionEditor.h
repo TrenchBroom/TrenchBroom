@@ -71,10 +71,10 @@ namespace TrenchBroom {
             void updateAllTextureCollections();
             void updateAvailableTextureCollections();
             void updateEnabledTextureCollections();
-            void updateListBox(QListWidget* box, const IO::Path::List& paths);
+            void updateListBox(QListWidget* box, const std::vector<IO::Path>& paths);
 
-            IO::Path::List availableTextureCollections() const;
-            IO::Path::List enabledTextureCollections() const;
+            std::vector<IO::Path> availableTextureCollections() const;
+            std::vector<IO::Path> enabledTextureCollections() const;
         };
     }
 }

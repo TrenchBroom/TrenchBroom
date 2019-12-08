@@ -49,7 +49,7 @@ namespace TrenchBroom {
 
         size_t RecentDocumentListBox::itemCount() const {
             const TrenchBroomApp& app = View::TrenchBroomApp::instance();
-            const IO::Path::List& recentDocuments = app.recentDocuments();
+            const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
             return recentDocuments.size();
         }
 
@@ -59,21 +59,21 @@ namespace TrenchBroom {
 
         QString RecentDocumentListBox::title(const size_t index) const {
             const auto& app = View::TrenchBroomApp::instance();
-            const IO::Path::List& recentDocuments = app.recentDocuments();
+            const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
             ensure(index < recentDocuments.size(), "index out of range");
             return IO::pathAsQString(recentDocuments[index].lastComponent());
         }
 
         QString RecentDocumentListBox::subtitle(const size_t index) const {
             const auto& app = View::TrenchBroomApp::instance();
-            const IO::Path::List& recentDocuments = app.recentDocuments();
+            const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
             ensure(index < recentDocuments.size(), "index out of range");
             return IO::pathAsQString(recentDocuments[index]);
         }
 
         void RecentDocumentListBox::doubleClicked(const size_t index) {
             auto& app = View::TrenchBroomApp::instance();
-            const IO::Path::List& recentDocuments = app.recentDocuments();
+            const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
 
             if (index < recentDocuments.size()) {
                 const IO::Path& documentPath = recentDocuments[index];

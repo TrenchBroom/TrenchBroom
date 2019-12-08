@@ -65,7 +65,7 @@ namespace TrenchBroom {
             clear();
         }
 
-        void TextureManager::setTextureCollections(const IO::Path::List& paths, IO::TextureLoader& loader) {
+        void TextureManager::setTextureCollections(const std::vector<IO::Path>& paths, IO::TextureLoader& loader) {
             auto collections = collectionMap();
             m_collections.clear();
             clear();

@@ -62,7 +62,7 @@ namespace TrenchBroom {
             size_t count = 0;
 
             auto document = lock(i_document);
-            IO::Path::List collections = document->enabledTextureCollections();
+            std::vector<IO::Path> collections = document->enabledTextureCollections();
 
             auto game = document->game();
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();

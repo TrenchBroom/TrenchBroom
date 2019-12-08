@@ -28,9 +28,6 @@ namespace TrenchBroom {
     namespace IO {
         class Path {
         public:
-            using List = std::vector<Path>;
-            static const List EmptyList;
-            static const Path EmptyPath;
             static std::string separator();
 
             struct ToString {
@@ -71,8 +68,8 @@ namespace TrenchBroom {
             bool operator>(const Path& rhs) const;
 
             std::string asString(const std::string& sep = separator()) const;
-            static std::vector<std::string> asStrings(const Path::List& paths, const std::string& sep = separator());
-            static List asPaths(const std::vector<std::string>& strs);
+            static std::vector<std::string> asStrings(const std::vector<Path>& paths, const std::string& sep = separator());
+            static std::vector<Path> asPaths(const std::vector<std::string>& strs);
 
             size_t length() const;
             bool isEmpty() const;
@@ -110,7 +107,7 @@ namespace TrenchBroom {
             Path makeCanonical() const;
             Path makeLowerCase() const;
 
-            static List makeAbsoluteAndCanonical(const List& paths, const Path& relativePath);
+            static std::vector<Path> makeAbsoluteAndCanonical(const std::vector<Path>& paths, const Path& relativePath);
         private:
             static bool hasDriveSpec(const std::vector<std::string>& components);
             static bool hasDriveSpec(const std::string& component);

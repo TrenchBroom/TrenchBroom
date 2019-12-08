@@ -42,7 +42,7 @@ namespace TrenchBroom {
         TEST(Md3ParserTest, loadValidMd3) {
             NullLogger logger;
             const auto shaderSearchPath = Path("scripts");
-            const auto textureSearchPaths = Path::List { Path("models") };
+            const auto textureSearchPaths = std::vector<Path> { Path("models") };
             std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Md3/bfg"));
                                         fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
 
@@ -86,7 +86,7 @@ namespace TrenchBroom {
 
             NullLogger logger;
             const auto shaderSearchPath = Path("scripts");
-            const auto textureSearchPaths = Path::List { Path("models") };
+            const auto textureSearchPaths = std::vector<Path> { Path("models") };
             std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Md3/armor"));
             fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
 

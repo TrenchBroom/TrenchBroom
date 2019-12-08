@@ -47,8 +47,8 @@ namespace TrenchBroom {
             const std::string& doGameName() const override;
             IO::Path doGamePath() const override;
             void doSetGamePath(const IO::Path& gamePath, Logger& logger) override;
-            void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger) override;
-            PathErrors doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const override;
+            void doSetAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths, Logger& logger) override;
+            PathErrors doCheckAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths) const override;
 
             CompilationConfig& doCompilationConfig() override;
             size_t doMaxPropertyLength() const override;
@@ -68,15 +68,15 @@ namespace TrenchBroom {
             TexturePackageType doTexturePackageType() const override;
             void doLoadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const override;
             bool doIsTextureCollection(const IO::Path& path) const override;
-            IO::Path::List doFindTextureCollections() const override;
-            IO::Path::List doExtractTextureCollections(const AttributableNode& node) const override;
-            void doUpdateTextureCollections(AttributableNode& node, const IO::Path::List& paths) const override;
+            std::vector<IO::Path> doFindTextureCollections() const override;
+            std::vector<IO::Path> doExtractTextureCollections(const AttributableNode& node) const override;
+            void doUpdateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const override;
             void doReloadShaders() override;
 
             bool doIsEntityDefinitionFile(const IO::Path& path) const override;
             Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const override;
             Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const override;
-            IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const override;
+            IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const override;
 
             std::vector<std::string> doAvailableMods() const override;
             std::vector<std::string> doExtractEnabledMods(const AttributableNode& node) const override;

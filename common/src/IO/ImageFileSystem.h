@@ -85,7 +85,7 @@ namespace TrenchBroom {
 
                 const Directory& findDirectory(const Path& path) const;
                 const FileEntry& findFile(const Path& path) const;
-                Path::List contents() const;
+                std::vector<Path> contents() const;
             private:
                 Directory& findOrCreateDirectory(const Path& path);
             };
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             bool doDirectoryExists(const Path& path) const override;
             bool doFileExists(const Path& path) const override;
 
-            Path::List doGetDirectoryContents(const Path& path) const override;
+            std::vector<Path> doGetDirectoryContents(const Path& path) const override;
             std::shared_ptr<File> doOpenFile(const Path& path) const override;
         private:
             virtual void doReadDirectory() = 0;

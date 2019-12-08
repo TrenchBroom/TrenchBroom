@@ -129,7 +129,7 @@ namespace TrenchBroom {
             if (kdl::ci::str_is_equal(textureFormat, "q3shader")) {
                 logger.info() << "Adding shader file system";
                 auto shaderSearchPath = textureConfig.shaderSearchPath;
-                auto textureSearchPaths = IO::Path::List {
+                auto textureSearchPaths = std::vector<IO::Path> {
                     textureConfig.package.rootDirectory,
                     IO::Path("models")
                 };
@@ -147,8 +147,8 @@ namespace TrenchBroom {
             return false;
         }
 
-        IO::Path::List GameFileSystem::doGetDirectoryContents(const IO::Path& /* path */) const {
-            return TrenchBroom::IO::Path::List();
+        std::vector<IO::Path> GameFileSystem::doGetDirectoryContents(const IO::Path& /* path */) const {
+            return std::vector<IO::Path>();
         }
 
         std::shared_ptr<IO::File> GameFileSystem::doOpenFile(const IO::Path& path) const {

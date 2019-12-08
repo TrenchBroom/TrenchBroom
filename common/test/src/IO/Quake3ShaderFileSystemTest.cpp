@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        void assertShader(const Path::List& paths, const Path& path);
+        void assertShader(const std::vector<Path>& paths, const Path& path);
 
         TEST(Quake3ShaderFileSystemTest, testShaderLinking) {
             NullLogger logger;
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             const auto fallbackDir = testDir + Path("fallback");
             const auto texturePrefix = Path("textures");
             const auto shaderSearchPath = Path("scripts");
-            const auto textureSearchPaths = Path::List { texturePrefix };
+            const auto textureSearchPaths = std::vector<Path> { texturePrefix };
 
             // We need to add the fallback dir so that we can find "__TB_empty.png" which is automatically linked when
             // no editor image is available.
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             const auto fallbackDir = testDir + Path("fallback");
             const auto texturePrefix = Path("textures");
             const auto shaderSearchPath = Path("scripts");
-            const auto textureSearchPaths = Path::List { texturePrefix };
+            const auto textureSearchPaths = std::vector<Path> { texturePrefix };
 
             // We need to add the fallback dir so that we can find "__TB_empty.png" which is automatically linked when
             // no editor image is available.
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             assertShader(items, texturePrefix + Path("test/not_existing2"));
         }
 
-        void assertShader(const Path::List& paths, const Path& path) {
+        void assertShader(const std::vector<Path>& paths, const Path& path) {
             ASSERT_EQ(1, std::count_if(std::begin(paths), std::end(paths), [&path](const auto& item) { return item == path; }));
         }
     }

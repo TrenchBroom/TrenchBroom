@@ -41,7 +41,7 @@ namespace TrenchBroom {
 
         TEST(EntParserTest, parseIncludedEntFiles) {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
-            const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("ent"));
+            const std::vector<Path> cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("ent"));
 
             for (const Path& path : cfgFiles) {
                 auto file = Disk::openFile(path);

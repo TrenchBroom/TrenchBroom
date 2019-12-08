@@ -138,7 +138,7 @@ namespace TrenchBroom {
             skipDirective("SCENE");
         }
 
-        void AseParser::parseMaterialList(Logger& logger, Path::List& paths) {
+        void AseParser::parseMaterialList(Logger& logger, std::vector<Path>& paths) {
             expectDirective("MATERIAL_LIST");
 
             parseBlock({
@@ -147,12 +147,12 @@ namespace TrenchBroom {
             });
         }
 
-        void AseParser::parseMaterialListMaterialCount(Logger& /* logger */, Path::List& paths) {
+        void AseParser::parseMaterialListMaterialCount(Logger& /* logger */, std::vector<Path>& paths) {
             expectDirective("MATERIAL_COUNT");
             paths.resize(parseSizeArgument());
         }
 
-        void AseParser::parseMaterialListMaterial(Logger& logger, Path::List& paths) {
+        void AseParser::parseMaterialListMaterial(Logger& logger, std::vector<Path>& paths) {
             expectDirective("MATERIAL");
             const auto index = parseSizeArgument();
             if (index < paths.size()) {
@@ -181,7 +181,7 @@ namespace TrenchBroom {
             path = Path(token.data());
         }
 
-        void AseParser::parseGeomObject(Logger& logger, GeomObject& geomObject, const Path::List& materialPaths) {
+        void AseParser::parseGeomObject(Logger& logger, GeomObject& geomObject, const std::vector<Path>& materialPaths) {
             expectDirective("GEOMOBJECT");
 
             parseBlock({

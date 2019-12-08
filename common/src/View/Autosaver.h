@@ -86,9 +86,9 @@ namespace TrenchBroom {
         private:
             void autosave(Logger& logger, std::shared_ptr<View::MapDocument> document);
             IO::WritableDiskFileSystem createBackupFileSystem(Logger& logger, const IO::Path& mapPath) const;
-            IO::Path::List collectBackups(const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const;
-            void thinBackups(Logger& logger, IO::WritableDiskFileSystem& fs, IO::Path::List& backups) const;
-            void cleanBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups, const IO::Path& mapBasename) const;
+            std::vector<IO::Path> collectBackups(const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const;
+            void thinBackups(Logger& logger, IO::WritableDiskFileSystem& fs, std::vector<IO::Path>& backups) const;
+            void cleanBackups(IO::WritableDiskFileSystem& fs, std::vector<IO::Path>& backups, const IO::Path& mapBasename) const;
             IO::Path makeBackupName(const IO::Path& mapBasename, const size_t index) const;
         private:
             void bindObservers();

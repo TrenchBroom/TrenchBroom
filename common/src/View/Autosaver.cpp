@@ -153,13 +153,13 @@ namespace TrenchBroom {
             return extractBackupNo(lhs) < extractBackupNo(rhs);
         }
 
-        IO::Path::List Autosaver::collectBackups(const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const {
+        std::vector<IO::Path> Autosaver::collectBackups(const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const {
             auto backups = fs.findItems(IO::Path(), BackupFileMatcher(mapBasename));
             std::sort(std::begin(backups), std::end(backups), compareBackupsByNo);
             return backups;
         }
 
-        void Autosaver::thinBackups(Logger& logger, IO::WritableDiskFileSystem& fs, IO::Path::List& backups) const {
+        void Autosaver::thinBackups(Logger& logger, IO::WritableDiskFileSystem& fs, std::vector<IO::Path>& backups) const {
             while (backups.size() > m_maxBackups - 1) {
                 const auto filename = backups.front();
                 try {
@@ -173,7 +173,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Autosaver::cleanBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups, const IO::Path& mapBasename) const {
+        void Autosaver::cleanBackups(IO::WritableDiskFileSystem& fs, std::vector<IO::Path>& backups, const IO::Path& mapBasename) const {
             for (size_t i = 0; i < backups.size(); ++i) {
                 const auto& oldName = backups[i].lastComponent();
                 const auto newName = makeBackupName(mapBasename, i + 1);

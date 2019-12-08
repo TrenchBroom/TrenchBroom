@@ -54,7 +54,7 @@ namespace TrenchBroom {
         private:
             bool doDirectoryExists(const IO::Path& path) const override;
             bool doFileExists(const IO::Path& path) const override;
-            IO::Path::List doGetDirectoryContents(const IO::Path& path) const override;
+            std::vector<IO::Path> doGetDirectoryContents(const IO::Path& path) const override;
             std::shared_ptr<IO::File> doOpenFile(const IO::Path& path) const override;
         };
     }

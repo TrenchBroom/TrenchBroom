@@ -31,7 +31,7 @@ namespace TrenchBroom {
             const Path wadPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Wad/cr8_czg.wad");
             NullLogger logger;
             WadFileSystem fs(wadPath, logger);
-            const IO::Path::List files = fs.findItems(IO::Path(""));
+            const std::vector<IO::Path> files = fs.findItems(IO::Path(""));
 
             ASSERT_EQ(21u, files.size());
             ASSERT_TRUE(kdl::vec_contains(files, IO::Path("blowjob_machine.D")));

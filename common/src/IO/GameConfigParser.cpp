@@ -194,7 +194,7 @@ namespace TrenchBroom {
                             "{}"
                             "]");
 
-            const Path::List defFilePaths = Path::asPaths(value["definitions"].asStringList());
+            const std::vector<Path> defFilePaths = Path::asPaths(value["definitions"].asStringList());
             const std::vector<std::string> modelFormats = value["modelformats"].asStringSet();
             const Color defaultColor = Color::parse(value["defaultcolor"].stringValue());
 

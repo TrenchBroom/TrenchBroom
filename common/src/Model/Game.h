@@ -54,10 +54,10 @@ namespace TrenchBroom {
 
             IO::Path gamePath() const;
             void setGamePath(const IO::Path& gamePath, Logger& logger);
-            void setAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger);
+            void setAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths, Logger& logger);
 
             using PathErrors = std::map<IO::Path, std::string>;
-            PathErrors checkAdditionalSearchPaths(const IO::Path::List& searchPaths) const;
+            PathErrors checkAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths) const;
 
             CompilationConfig& compilationConfig();
 
@@ -79,15 +79,15 @@ namespace TrenchBroom {
             TexturePackageType texturePackageType() const;
             void loadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const;
             bool isTextureCollection(const IO::Path& path) const;
-            IO::Path::List findTextureCollections() const;
-            IO::Path::List extractTextureCollections(const AttributableNode& node) const;
-            void updateTextureCollections(AttributableNode& node, const IO::Path::List& paths) const;
+            std::vector<IO::Path> findTextureCollections() const;
+            std::vector<IO::Path> extractTextureCollections(const AttributableNode& node) const;
+            void updateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const;
             void reloadShaders();
         public: // entity definition handling
             bool isEntityDefinitionFile(const IO::Path& path) const;
             Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
             Assets::EntityDefinitionFileSpec extractEntityDefinitionFile(const AttributableNode& node) const;
-            IO::Path findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
+            IO::Path findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const;
         public: // mods
             std::vector<std::string> availableMods() const;
             std::vector<std::string> extractEnabledMods(const AttributableNode& node) const;
@@ -99,8 +99,8 @@ namespace TrenchBroom {
             virtual const std::string& doGameName() const = 0;
             virtual IO::Path doGamePath() const = 0;
             virtual void doSetGamePath(const IO::Path& gamePath, Logger& logger) = 0;
-            virtual void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger) = 0;
-            virtual PathErrors doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const = 0;
+            virtual void doSetAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths, Logger& logger) = 0;
+            virtual PathErrors doCheckAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths) const = 0;
 
             virtual CompilationConfig& doCompilationConfig() = 0;
             virtual size_t doMaxPropertyLength() const = 0;
@@ -120,15 +120,15 @@ namespace TrenchBroom {
             virtual TexturePackageType doTexturePackageType() const = 0;
             virtual void doLoadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const = 0;
             virtual bool doIsTextureCollection(const IO::Path& path) const = 0;
-            virtual IO::Path::List doFindTextureCollections() const = 0;
-            virtual IO::Path::List doExtractTextureCollections(const AttributableNode& node) const = 0;
-            virtual void doUpdateTextureCollections(AttributableNode& node, const IO::Path::List& paths) const = 0;
+            virtual std::vector<IO::Path> doFindTextureCollections() const = 0;
+            virtual std::vector<IO::Path> doExtractTextureCollections(const AttributableNode& node) const = 0;
+            virtual void doUpdateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const = 0;
             virtual void doReloadShaders() = 0;
 
             virtual bool doIsEntityDefinitionFile(const IO::Path& path) const = 0;
             virtual Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const = 0;
             virtual Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const = 0;
-            virtual IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const = 0;
+            virtual IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const = 0;
 
             virtual std::vector<std::string> doAvailableMods() const = 0;
             virtual std::vector<std::string> doExtractEnabledMods(const AttributableNode& node) const = 0;

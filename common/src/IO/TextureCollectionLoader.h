@@ -56,9 +56,9 @@ namespace TrenchBroom {
 
         class FileTextureCollectionLoader : public TextureCollectionLoader {
         private:
-            const Path::List m_searchPaths;
+            const std::vector<Path> m_searchPaths;
         public:
-            FileTextureCollectionLoader(Logger& logger, const Path::List& searchPaths);
+            FileTextureCollectionLoader(Logger& logger, const std::vector<Path>& searchPaths);
         private:
             FileList doFindTextures(const Path& path, const std::vector<std::string>& extensions) override;
         };
