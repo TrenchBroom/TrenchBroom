@@ -312,7 +312,7 @@ namespace TrenchBroom {
 
         bool Path::hasFilename(const std::string& filename, const bool caseSensitive) const {
             if (caseSensitive) {
-                return kdl::cs::str_is_equal(filename, this->filename());
+                return filename == this->filename();
             } else {
                 return kdl::ci::str_is_equal(filename, this->filename());
             }
@@ -329,7 +329,7 @@ namespace TrenchBroom {
 
         bool Path::hasBasename(const std::string& basename, const bool caseSensitive) const {
             if (caseSensitive) {
-                return kdl::cs::str_is_equal(basename, this->basename());
+                return basename == this->basename();
             } else {
                 return kdl::ci::str_is_equal(basename, this->basename());
             }
@@ -346,7 +346,7 @@ namespace TrenchBroom {
 
         bool Path::hasExtension(const std::string& extension, const bool caseSensitive) const {
             if (caseSensitive) {
-                return kdl::cs::str_is_equal(extension, this->extension());
+                return extension == this->extension();
             } else {
                 return kdl::ci::str_is_equal(extension, this->extension());
             }
