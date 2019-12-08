@@ -20,7 +20,7 @@
 #ifndef VariableStore_h
 #define VariableStore_h
 
-#include "EL/Value.h"
+#include "EL/Value.h" // required by VariableTable::Table declaration
 
 #include <map>
 #include <string>

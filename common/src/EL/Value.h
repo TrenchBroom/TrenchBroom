@@ -223,13 +223,13 @@ namespace TrenchBroom {
 
             template <typename T>
             Value(const std::vector<T>& value, size_t line, size_t column) :
-            m_value(new ArrayValueHolder(makeArray(value))),
+            m_value(std::make_shared<ArrayValueHolder>(makeArray(value))),
             m_line(line),
             m_column(column){}
 
             template <typename T>
             explicit Value(const std::vector<T>& value) :
-            m_value(new ArrayValueHolder(makeArray(value))),
+            m_value(std::make_shared<ArrayValueHolder>(makeArray(value))),
             m_line(0),
             m_column(0) {}
 
@@ -238,13 +238,13 @@ namespace TrenchBroom {
 
             template <typename T, typename C>
             Value(const std::map<std::string, T, C>& value, size_t line, size_t column) :
-            m_value(new MapValueHolder(makeMap(value))),
+            m_value(std::make_shared<MapValueHolder>(makeMap(value))),
             m_line(line),
             m_column(column) {}
 
             template <typename T, typename C>
             explicit Value(const std::map<std::string, T, C>& value) :
-            m_value(new MapValueHolder(makeMap(value))),
+            m_value(std::make_shared<MapValueHolder>(makeMap(value))),
             m_line(0),
             m_column(0) {}
 
