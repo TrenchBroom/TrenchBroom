@@ -47,6 +47,22 @@ namespace kdl {
         ASSERT_EQ("abc", str_trim("xyxxabczzxzyz", "xyz"));
     }
 
+    TEST(string_format_test, str_to_lower_char) {
+        constexpr auto input = " !\"#$%&\\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+        constexpr auto expected = " !\"#$%&\\'()*+,-./0123456789:;<=>?@abcdefghijklmnopqrstuvwxyz[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+        for (std::size_t i = 0u; i < 98u; ++i) {
+            ASSERT_EQ(expected[i], str_to_lower(input[i]));
+        }
+    }
+
+    TEST(string_format_test, str_to_upper_char) {
+        constexpr auto input = " !\"#$%&\\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+        constexpr auto expected = " !\"#$%&\\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}~";
+        for (std::size_t i = 0u; i < 98u; ++i) {
+            ASSERT_EQ(expected[i], str_to_upper(input[i]));
+        }
+    }
+
     TEST(string_format_test, str_to_lower) {
         ASSERT_EQ("", str_to_lower(""));
         ASSERT_EQ("#?\"abc73474", str_to_lower("#?\"abc73474"));

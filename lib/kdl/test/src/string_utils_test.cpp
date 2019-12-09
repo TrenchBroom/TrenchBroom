@@ -21,6 +21,8 @@
 
 #include <ostream>
 
+#include <optional-lite/optional.hpp>
+
 namespace kdl {
     TEST(string_utils_test, str_split) {
         ASSERT_EQ(std::vector<std::string>({}), str_split("", " "));
@@ -75,5 +77,115 @@ namespace kdl {
         ASSERT_EQ("1234", str_to_string(1234));
         ASSERT_EQ("1", str_to_string(1.0));
         ASSERT_EQ("xyz;", str_to_string(to_string{"xyz"}));
+    }
+
+    TEST(string_format_test, str_to_int) {
+        ASSERT_EQ(nonstd::optional<int>{0}, str_to_int("0"));
+        ASSERT_EQ(nonstd::optional<int>{1}, str_to_int("1"));
+        ASSERT_EQ(nonstd::optional<int>{123231}, str_to_int("123231"));
+        ASSERT_EQ(nonstd::optional<int>{-123231}, str_to_int("-123231"));
+        ASSERT_EQ(nonstd::optional<int>{123231}, str_to_int("123231b"));
+        ASSERT_EQ(nonstd::optional<int>{123231}, str_to_int("   123231   "));
+        ASSERT_EQ(nonstd::nullopt, str_to_int("a123231"));
+        ASSERT_EQ(nonstd::nullopt, str_to_int(" "));
+        ASSERT_EQ(nonstd::nullopt, str_to_int(""));
+    }
+
+    TEST(string_format_test, str_to_long) {
+        ASSERT_EQ(nonstd::optional<long>{0}, str_to_long("0"));
+        ASSERT_EQ(nonstd::optional<long>{1}, str_to_long("1"));
+        ASSERT_EQ(nonstd::optional<long>{123231}, str_to_long("123231"));
+        ASSERT_EQ(nonstd::optional<long>{-123231}, str_to_long("-123231"));
+        ASSERT_EQ(nonstd::optional<long>{2147483647L}, str_to_long("2147483647"));
+        ASSERT_EQ(nonstd::optional<long>{-2147483646L}, str_to_long("-2147483646"));
+        ASSERT_EQ(nonstd::optional<long>{123231}, str_to_long("123231b"));
+        ASSERT_EQ(nonstd::optional<long>{123231}, str_to_long("   123231   "));
+        ASSERT_EQ(nonstd::nullopt, str_to_long("a123231"));
+        ASSERT_EQ(nonstd::nullopt, str_to_long(" "));
+        ASSERT_EQ(nonstd::nullopt, str_to_long(""));
+    }
+
+    TEST(string_format_test, str_to_long_long) {
+        ASSERT_EQ(nonstd::optional<long long>{0}, str_to_long_long("0"));
+        ASSERT_EQ(nonstd::optional<long long>{1}, str_to_long_long("1"));
+        ASSERT_EQ(nonstd::optional<long long>{123231}, str_to_long_long("123231"));
+        ASSERT_EQ(nonstd::optional<long long>{-123231}, str_to_long_long("-123231"));
+        ASSERT_EQ(nonstd::optional<long long>{2147483647L}, str_to_long_long("2147483647"));
+        ASSERT_EQ(nonstd::optional<long long>{-2147483646L}, str_to_long_long("-2147483646"));
+        ASSERT_EQ(nonstd::optional<long long>{9'223'372'036'854'775'807LL}, str_to_long_long("9223372036854775807"));
+        ASSERT_EQ(nonstd::optional<long long>{-9'223'372'036'854'775'806LL}, str_to_long_long("-9223372036854775806"));
+        ASSERT_EQ(nonstd::optional<long long>{123231}, str_to_long_long("123231b"));
+        ASSERT_EQ(nonstd::optional<long long>{123231}, str_to_long_long("   123231   "));
+        ASSERT_EQ(nonstd::nullopt, str_to_long_long("a123231"));
+        ASSERT_EQ(nonstd::nullopt, str_to_long_long(" "));
+        ASSERT_EQ(nonstd::nullopt, str_to_long_long(""));
+    }
+
+    TEST(string_format_test, str_to_u_long) {
+        ASSERT_EQ(nonstd::optional<unsigned long>{0}, str_to_u_long("0"));
+        ASSERT_EQ(nonstd::optional<unsigned long>{1}, str_to_u_long("1"));
+        ASSERT_EQ(nonstd::optional<unsigned long>{123231}, str_to_u_long("123231"));
+        ASSERT_EQ(nonstd::optional<unsigned long>{-123231}, str_to_u_long("-123231"));
+        ASSERT_EQ(nonstd::optional<unsigned long>{2147483647L}, str_to_u_long("2147483647"));
+        ASSERT_EQ(nonstd::optional<unsigned long>{-2147483646L}, str_to_u_long("-2147483646"));
+        ASSERT_EQ(nonstd::optional<unsigned long>{123231}, str_to_u_long("123231b"));
+        ASSERT_EQ(nonstd::optional<unsigned long>{123231}, str_to_u_long("   123231   "));
+        ASSERT_EQ(nonstd::nullopt, str_to_u_long("a123231"));
+        ASSERT_EQ(nonstd::nullopt, str_to_u_long(" "));
+        ASSERT_EQ(nonstd::nullopt, str_to_u_long(""));
+    }
+
+    TEST(string_format_test, str_to_u_long_long) {
+        ASSERT_EQ(nonstd::optional<unsigned long long>{0}, str_to_u_long_long("0"));
+        ASSERT_EQ(nonstd::optional<unsigned long long>{1}, str_to_u_long_long("1"));
+        ASSERT_EQ(nonstd::optional<unsigned long long>{123231}, str_to_u_long_long("123231"));
+        ASSERT_EQ(nonstd::optional<unsigned long long>{-123231}, str_to_u_long_long("-123231"));
+        ASSERT_EQ(nonstd::optional<unsigned long long>{2147483647L}, str_to_u_long_long("2147483647"));
+        ASSERT_EQ(nonstd::optional<unsigned long long>{-2147483646L}, str_to_u_long_long("-2147483646"));
+        ASSERT_EQ(nonstd::optional<unsigned long long>{9'223'372'036'854'775'807LL}, str_to_u_long_long("9223372036854775807"));
+        ASSERT_EQ(nonstd::optional<unsigned long long>{-9'223'372'036'854'775'806LL}, str_to_u_long_long("-9223372036854775806"));
+        ASSERT_EQ(nonstd::optional<unsigned long long>{123231}, str_to_u_long_long("123231b"));
+        ASSERT_EQ(nonstd::optional<unsigned long long>{123231}, str_to_u_long_long("   123231   "));
+        ASSERT_EQ(nonstd::nullopt, str_to_u_long_long("a123231"));
+        ASSERT_EQ(nonstd::nullopt, str_to_u_long_long(" "));
+        ASSERT_EQ(nonstd::nullopt, str_to_u_long_long(""));
+    }
+
+    TEST(string_format_test, str_to_size) {
+        ASSERT_EQ(nonstd::optional<std::size_t>{0}, str_to_size("0"));
+        ASSERT_EQ(nonstd::optional<std::size_t>{1}, str_to_size("1"));
+        ASSERT_EQ(nonstd::optional<std::size_t>{123231}, str_to_size("123231"));
+        ASSERT_EQ(nonstd::optional<std::size_t>{-123231}, str_to_size("-123231"));
+        ASSERT_EQ(nonstd::optional<std::size_t>{2147483647L}, str_to_size("2147483647"));
+        ASSERT_EQ(nonstd::optional<std::size_t>{-2147483646L}, str_to_size("-2147483646"));
+        ASSERT_EQ(nonstd::optional<std::size_t>{123231}, str_to_size("123231b"));
+        ASSERT_EQ(nonstd::optional<std::size_t>{123231}, str_to_size("   123231   "));
+        ASSERT_EQ(nonstd::nullopt, str_to_size("a123231"));
+        ASSERT_EQ(nonstd::nullopt, str_to_size(" "));
+        ASSERT_EQ(nonstd::nullopt, str_to_size(""));
+    }
+
+    TEST(string_format_test, str_to_float) {
+        ASSERT_EQ(nonstd::optional<float>{0.0f}, str_to_float("0"));
+        ASSERT_EQ(nonstd::optional<float>{1.0f}, str_to_float("1.0"));
+        ASSERT_EQ(nonstd::nullopt, str_to_float("a123231.0"));
+        ASSERT_EQ(nonstd::nullopt, str_to_float(" "));
+        ASSERT_EQ(nonstd::nullopt, str_to_float(""));
+    }
+
+    TEST(string_format_test, str_to_double) {
+        ASSERT_EQ(nonstd::optional<double>{0.0}, str_to_double("0"));
+        ASSERT_EQ(nonstd::optional<double>{1.0}, str_to_double("1.0"));
+        ASSERT_EQ(nonstd::nullopt, str_to_double("a123231.0"));
+        ASSERT_EQ(nonstd::nullopt, str_to_double(" "));
+        ASSERT_EQ(nonstd::nullopt, str_to_double(""));
+    }
+
+    TEST(string_format_test, str_to_long_double) {
+        ASSERT_EQ(nonstd::optional<long double>{0.0L}, str_to_long_double("0"));
+        ASSERT_EQ(nonstd::optional<long double>{1.0L}, str_to_long_double("1.0"));
+        ASSERT_EQ(nonstd::nullopt, str_to_long_double("a123231.0"));
+        ASSERT_EQ(nonstd::nullopt, str_to_long_double(" "));
+        ASSERT_EQ(nonstd::nullopt, str_to_long_double(""));
     }
 }
