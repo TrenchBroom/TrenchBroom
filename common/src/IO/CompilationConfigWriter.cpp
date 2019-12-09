@@ -23,6 +23,7 @@
 #include "EL/Types.h"
 #include "Model/CompilationConfig.h"
 #include "Model/CompilationProfile.h"
+#include "Model/CompilationTask.h"
 
 #include <cassert>
 #include <ostream>

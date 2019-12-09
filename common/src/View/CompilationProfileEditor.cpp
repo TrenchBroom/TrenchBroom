@@ -19,8 +19,9 @@
 
 #include "CompilationProfileEditor.h"
 
-#include "Model/CompilationProfile.h"
 #include "SharedPointer.h"
+#include "Model/CompilationProfile.h"
+#include "Model/CompilationTask.h"
 #include "View/BorderLine.h"
 #include "View/CompilationTaskListBox.h"
 #include "View/CompilationVariables.h"
