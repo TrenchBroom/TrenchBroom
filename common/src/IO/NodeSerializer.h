@@ -24,7 +24,6 @@
 #include "Model/Model_Forward.h"
 
 #include <list>
-#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -57,8 +56,6 @@ namespace TrenchBroom {
             ObjectNo m_entityNo;
             ObjectNo m_brushNo;
         public:
-            using Ptr = std::unique_ptr<NodeSerializer>;
-
             NodeSerializer();
             virtual ~NodeSerializer();
         protected:

@@ -25,6 +25,8 @@
 #include "Model/Model_Forward.h"
 
 #include <cstdio> // for FILE*
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -37,7 +39,7 @@ namespace TrenchBroom {
             size_t m_line;
             FILE* m_stream;
         public:
-            static Ptr create(Model::MapFormat format, FILE* stream);
+            static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, FILE* stream);
         protected:
             MapFileSerializer(FILE* file);
         private:
