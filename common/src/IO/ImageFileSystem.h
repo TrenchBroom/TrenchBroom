@@ -23,7 +23,6 @@
 #include "IO/FileSystem.h"
 #include "IO/Path.h"
 
-// FIXME: try to avoid this include here
 #include <kdl/string_compare.h>
 
 #include <map>

@@ -120,39 +120,5 @@ namespace TrenchBroom {
             std::fprintf(stream, "// Game: %s\n", gameName.c_str());
             std::fprintf(stream, "// Format: %s\n", mapFormat.c_str());
         }
-
-        vm::vec3f readVec3f(const char*& cursor) {
-            vm::vec3f value;
-            for (size_t i = 0; i < 3; i++) {
-                value[i] = readFloat<float>(cursor);
-            }
-            return value;
-        }
-
-        vm::vec3f readVec3f(const char* const& cursor) {
-            vm::vec3f value;
-            for (size_t i = 0; i < 3; i++) {
-                value[i] = readFloat<float>(cursor);
-            }
-            return value;
-        }
-
-        void readBytes(const char*& cursor, char* buffer, size_t n) {
-            std::memcpy(buffer, cursor, n);
-            cursor += n;
-        }
-
-        void readBytes(const char* const& cursor, char* buffer, size_t n) {
-            std::memcpy(buffer, cursor, n);
-        }
-
-        void readBytes(const char*& cursor, unsigned char* buffer, size_t n) {
-            std::memcpy(buffer, cursor, n);
-            cursor += n;
-        }
-
-        void readBytes(const char* const& cursor, unsigned char* buffer, size_t n) {
-            std::memcpy(buffer, cursor, n);
-        }
     }
 }
