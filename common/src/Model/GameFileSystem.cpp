@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "Logger.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/DkPakFileSystem.h"
 #include "IO/IdPakFileSystem.h"
 #include "IO/FileMatcher.h"

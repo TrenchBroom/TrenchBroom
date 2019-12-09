@@ -29,6 +29,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
 #include "Model/AttributeNameWithDoubleQuotationMarksIssueGenerator.h"

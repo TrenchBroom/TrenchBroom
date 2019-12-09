@@ -20,13 +20,14 @@
 #include <gtest/gtest.h>
 
 #include "Logger.h"
+#include "Assets/Quake3Shader.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "IO/Quake3ShaderFileSystem.h"
 
 #include <memory>
-#include <Assets/Quake3Shader.h>
 
 namespace TrenchBroom {
     namespace IO {

@@ -21,7 +21,6 @@
 #define ELParser_h
 
 #include "IO/Parser.h"
-#include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
 #ifdef _MSC_VER

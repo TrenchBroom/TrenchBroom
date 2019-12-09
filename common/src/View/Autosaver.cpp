@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "SharedPointer.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "View/MapDocument.h"
 
 #include <kdl/string_compare.h>

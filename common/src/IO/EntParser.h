@@ -23,7 +23,6 @@
 #include "Color.h"
 #include "TrenchBroom.h"
 #include "IO/EntityDefinitionParser.h"
-#include "IO/Path.h"
 
 #include <vecmath/forward.h>
 

@@ -22,7 +22,6 @@
 
 #include "Exceptions.h"
 #include "Macros.h"
-#include "IO/DiskIO.h"
 #include "IO/Path.h"
 
 #include <kdl/vector_utils.h>

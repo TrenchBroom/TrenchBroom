@@ -19,17 +19,15 @@
 
 #include "DkPakFileSystem.h"
 
-#include "IO/File.h"
-#include "IO/Reader.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/IOUtils.h"
+#include "IO/File.h"
+#include "IO/Path.h"
 
 #include <kdl/string_format.h>
 
 #include <cassert>
 #include <cstring>
 #include <memory>
-#include <string>
 
 namespace TrenchBroom {
     namespace IO {

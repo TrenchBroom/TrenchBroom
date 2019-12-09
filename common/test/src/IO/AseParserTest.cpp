@@ -23,6 +23,7 @@
 #include "Assets/EntityModel.h"
 #include "IO/AseParser.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/Quake3ShaderFileSystem.h"
 #include "IO/Reader.h"

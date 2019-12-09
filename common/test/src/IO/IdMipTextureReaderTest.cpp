@@ -24,6 +24,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/IdMipTextureReader.h"
 #include "IO/Path.h"
 #include "IO/TextureReader.h"

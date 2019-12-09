@@ -22,6 +22,7 @@
 #include "Assets/EntityModel.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/IOUtils.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"

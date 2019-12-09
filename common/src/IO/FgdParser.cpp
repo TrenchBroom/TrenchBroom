@@ -140,6 +140,9 @@ namespace TrenchBroom {
         FgdParser::FgdParser(const std::string& str, const Color& defaultEntityColor, const Path& path) :
         FgdParser(str.c_str(), str.c_str() + str.size(), defaultEntityColor, path) {}
 
+        FgdParser::FgdParser(const std::string& str, const Color& defaultEntityColor) :
+        FgdParser(str, defaultEntityColor, Path()) {}
+
         FgdParser::TokenNameMap FgdParser::tokenNames() const {
             using namespace FgdToken;
 

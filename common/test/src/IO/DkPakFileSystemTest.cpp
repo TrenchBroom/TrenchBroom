@@ -20,12 +20,11 @@
 #include <gtest/gtest.h>
 
 #include "Exceptions.h"
-#include "IO/DiskFileSystem.h"
-#include "IO/FileMatcher.h"
+#include "IO/DiskIO.h"
 #include "IO/DkPakFileSystem.h"
+#include "IO/FileMatcher.h"
 
 #include <algorithm>
-#include <cassert>
 
 namespace TrenchBroom {
     namespace IO {

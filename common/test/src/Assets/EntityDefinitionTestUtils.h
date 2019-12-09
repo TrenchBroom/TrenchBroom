@@ -21,6 +21,7 @@
 #define EntityDefinitionTestUtils_h
 
 #include "Color.h"
+#include "IO/Path.h"
 
 #include <kdl/string_utils.h>
 

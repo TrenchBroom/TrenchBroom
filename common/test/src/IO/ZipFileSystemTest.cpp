@@ -20,6 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "Exceptions.h"
+#include "IO/DiskIO.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/FileMatcher.h"
 #include "IO/ZipFileSystem.h"

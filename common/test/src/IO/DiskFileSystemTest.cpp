@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "Macros.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"

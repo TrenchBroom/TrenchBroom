@@ -26,7 +26,6 @@
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/Parser.h"
-#include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
 #include <vecmath/vec.h>
@@ -73,7 +72,7 @@ namespace TrenchBroom {
 
             Color m_defaultEntityColor;
             DefTokenizer m_tokenizer;
-            EntityDefinitionClassInfoMap m_baseClasses;
+            std::map<std::string, EntityDefinitionClassInfo> m_baseClasses;
         public:
             DefParser(const char* begin, const char* end, const Color& defaultEntityColor);
             DefParser(const std::string& str, const Color& defaultEntityColor);
