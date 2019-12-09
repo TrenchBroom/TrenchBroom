@@ -22,7 +22,6 @@
 
 #include "IO/EntityModelParser.h"
 #include "IO/Parser.h"
-#include "IO/Path.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
@@ -57,6 +56,7 @@ namespace TrenchBroom {
         }
 
         class FileSystem;
+        class Path;
 
         class AseTokenizer : public Tokenizer<AseToken::Type> {
         private:
