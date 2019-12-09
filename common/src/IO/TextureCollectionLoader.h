@@ -20,8 +20,6 @@
 #ifndef TextureCollectionLoader_h
 #define TextureCollectionLoader_h
 
-#include "IO/Path.h"
-
 #include <memory>
 #include <vector>
 
@@ -37,6 +35,7 @@ namespace TrenchBroom {
     namespace IO {
         class File;
         class FileSystem;
+        class Path;
         class TextureReader;
 
         class TextureCollectionLoader {

@@ -23,7 +23,6 @@
 #include "TrenchBroom.h"
 #include "IO/MapParser.h"
 #include "IO/Parser.h"
-#include "IO/Token.h"
 #include "IO/Tokenizer.h"
 #include "Model/MapFormat.h"
 

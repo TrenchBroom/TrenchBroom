@@ -19,6 +19,7 @@
 
 #include "CompilationTaskListBox.h"
 
+#include "SharedPointer.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
 #include "Model/CompilationProfile.h"

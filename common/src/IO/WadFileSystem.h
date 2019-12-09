@@ -22,12 +22,12 @@
 
 #include "IO/ImageFileSystem.h"
 
-#include "IO/Path.h"
-
 namespace TrenchBroom {
     class Logger;
 
     namespace IO {
+        class Path;
+
         class WadFileSystem : public ImageFileSystem {
         private:
             Logger& m_logger;

@@ -28,6 +28,7 @@
 #include "IO/HlMipTextureReader.h"
 #include "IO/IdMipTextureReader.h"
 #include "IO/Quake3ShaderTextureReader.h"
+#include "IO/TextureCollectionLoader.h"
 #include "IO/WalTextureReader.h"
 #include "IO/Path.h"
 #include "Model/GameConfig.h"
@@ -44,6 +45,8 @@ namespace TrenchBroom {
             ensure(m_textureReader != nullptr, "textureReader is null");
             ensure(m_textureCollectionLoader != nullptr, "textureCollectionLoader is null");
         }
+
+        TextureLoader::~TextureLoader() = default;
 
        std::vector<std::string> TextureLoader::getTextureExtensions(const Model::GameConfig::TextureConfig& textureConfig) {
             return textureConfig.format.extensions;

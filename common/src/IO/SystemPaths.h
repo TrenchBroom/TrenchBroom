@@ -24,7 +24,6 @@
 
 #include <vector>
 
-
 namespace TrenchBroom {
     namespace IO {
         namespace SystemPaths {

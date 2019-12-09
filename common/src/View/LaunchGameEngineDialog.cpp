@@ -19,6 +19,7 @@
 
 #include "LaunchGameEngineDialog.h"
 
+#include "SharedPointer.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
 #include "IO/PathQt.h"
