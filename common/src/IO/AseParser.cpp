@@ -19,6 +19,7 @@
 
 #include "AseParser.h"
 
+#include "Logger.h"
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "IO/FileSystem.h"

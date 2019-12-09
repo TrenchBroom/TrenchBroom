@@ -25,6 +25,7 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/ELParser.h"
 #include "IO/LegacyModelDefinitionParser.h"
+#include "IO/ParserStatus.h"
 
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>

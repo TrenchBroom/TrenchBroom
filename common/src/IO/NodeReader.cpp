@@ -19,6 +19,7 @@
 
 #include "NodeReader.h"
 
+#include "IO/ParserStatus.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"

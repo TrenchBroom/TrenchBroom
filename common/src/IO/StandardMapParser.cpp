@@ -20,6 +20,7 @@
 #include "StandardMapParser.h"
 
 #include "TemporarilySetAny.h"
+#include "IO/ParserStatus.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityAttributes.h"
 

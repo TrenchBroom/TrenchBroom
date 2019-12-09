@@ -19,10 +19,10 @@
 
 #include "TextureLoader.h"
 
+#include "Logger.h"
 #include "Assets/Palette.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
-#include "EL/Interpolator.h"
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/HlMipTextureReader.h"

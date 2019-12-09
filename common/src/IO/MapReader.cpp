@@ -19,6 +19,7 @@
 
 #include "MapReader.h"
 
+#include "IO/ParserStatus.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"

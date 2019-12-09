@@ -19,6 +19,7 @@
 
 #include "WorldReader.h"
 
+#include "IO/ParserStatus.h"
 #include "Model/Brush.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Layer.h"

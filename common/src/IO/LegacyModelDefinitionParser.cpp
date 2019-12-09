@@ -21,6 +21,7 @@
 
 #include "Assets/ModelDefinition.h"
 #include "EL/Value.h"
+#include "IO/ParserStatus.h"
 
 #include <kdl/string_compare.h>
 
