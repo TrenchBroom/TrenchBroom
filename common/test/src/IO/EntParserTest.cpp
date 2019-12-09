@@ -52,7 +52,7 @@ namespace TrenchBroom {
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing ENT file " << path.asString() << " failed";
-                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error))
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Error))
                                     << "Parsing ENT file " << path.asString() << " produced errors";
             }
         }

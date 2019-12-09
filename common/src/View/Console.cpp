@@ -62,15 +62,15 @@ namespace TrenchBroom {
         void Console::logToConsole(const LogLevel level, const QString& message) {
             QTextCharFormat format;
             switch (level) {
-                case LogLevel_Debug:
+                case LogLevel::Debug:
                     format.setForeground(QBrush(Colors::disabledText()));
                     break;
-                case LogLevel_Info:
+                case LogLevel::Info:
                     break;
-                case LogLevel_Warn:
+                case LogLevel::Warn:
                     format.setForeground(QBrush(Colors::defaultText()));
                     break;
-                case LogLevel_Error:
+                case LogLevel::Error:
                     format.setForeground(QBrush(QColor(250, 30, 60)));
                     break;
             }

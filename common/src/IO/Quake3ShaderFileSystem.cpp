@@ -19,6 +19,7 @@
 
 #include "Quake3ShaderFileSystem.h"
 
+#include "Logger.h"
 #include "Assets/Quake3Shader.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"

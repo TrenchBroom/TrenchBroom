@@ -52,8 +52,8 @@ namespace TrenchBroom {
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing FGD file " << path.asString() << " failed";
-                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Warn)) << "Parsing FGD file " << path.asString() << " produced warnings";
-                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error)) << "Parsing FGD file " << path.asString() << " produced errors";
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Warn)) << "Parsing FGD file " << path.asString() << " produced warnings";
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Error)) << "Parsing FGD file " << path.asString() << " produced errors";
             }
         }
 
