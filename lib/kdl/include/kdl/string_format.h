@@ -186,7 +186,7 @@ namespace kdl {
                 initial = true;
                 result.push_back(c);
             } else if (initial) {
-                result.push_back(static_cast<std::string::value_type>(std::toupper(c)));
+                result.push_back(str_to_upper(c));
                 initial = false;
             } else {
                 result.push_back(c);

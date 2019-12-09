@@ -264,7 +264,7 @@ namespace kdl {
      * @return the signed long long integer value or an empty optional if the given string cannot be interpreted as a
      * signed long long integer
      */
-    inline nonstd::optional<long> str_to_long_long(const std::string& str) {
+    inline nonstd::optional<long long> str_to_long_long(const std::string& str) {
         try {
             return stoll(str);
         } catch (std::invalid_argument&) {
@@ -353,7 +353,7 @@ namespace kdl {
      * @return the 64 bit floating point value value or an empty optional if the given string cannot be interpreted as an
      * 64 bit floating point value
      */
-    inline nonstd::optional<float> str_to_double(const std::string& str) {
+    inline nonstd::optional<double> str_to_double(const std::string& str) {
         try {
             return stod(str);
         } catch (std::invalid_argument&) {
@@ -371,7 +371,7 @@ namespace kdl {
      * @return the long double value value value or an empty optional if the given string cannot be interpreted as an
      * long double value value
      */
-    inline nonstd::optional<float> str_to_long_double(const std::string& str) {
+    inline nonstd::optional<long double> str_to_long_double(const std::string& str) {
         try {
             return stold(str);
         } catch (std::invalid_argument&) {
