@@ -22,7 +22,7 @@
 #include "Ensure.h"
 #include "Exceptions.h"
 #include "Macros.h"
-#include "IO/DiskFileSystem.h"
+#include "Model/Brush.h"
 #include "Model/BrushFace.h"
 
 #include <sstream>

@@ -27,8 +27,11 @@
 #include "IO/Tokenizer.h"
 #include "Model/MapFormat.h"
 
+#include <kdl/vector_set_forward.h>
+
 #include <vecmath/forward.h>
 
+#include <list>
 #include <string>
 #include <tuple>
 
@@ -69,7 +72,7 @@ namespace TrenchBroom {
         class StandardMapParser : public MapParser, public Parser<QuakeMapToken::Type> {
         private:
             using Token = QuakeMapTokenizer::Token;
-            using AttributeNames = std::set<Model::AttributeName>;
+            using AttributeNames = kdl::vector_set<Model::AttributeName>;
 
             static const std::string BrushPrimitiveId;
             static const std::string PatchId;
@@ -93,7 +96,7 @@ namespace TrenchBroom {
             void setFormat(Model::MapFormat format);
 
             void parseEntity(ParserStatus& status);
-            void parseEntityAttribute(Model::EntityAttribute::List& attributes, AttributeNames& names, ParserStatus& status);
+            void parseEntityAttribute(std::list<Model::EntityAttribute>& attributes, AttributeNames& names, ParserStatus& status);
 
             void parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status);
             void parseBrushPrimitive(ParserStatus& status, size_t startLine);

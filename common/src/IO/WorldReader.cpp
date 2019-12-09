@@ -20,6 +20,7 @@
 #include "WorldReader.h"
 
 #include "Model/Brush.h"
+#include "Model/EntityAttributes.h"
 #include "Model/Layer.h"
 #include "Model/World.h"
 
@@ -48,7 +49,7 @@ namespace TrenchBroom {
             return *m_world;
         }
 
-        Model::Node* WorldReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
+        Model::Node* WorldReader::onWorldspawn(const std::list<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
             m_world->setAttributes(attributes);
             setExtraAttributes(m_world.get(), extraAttributes);
             return m_world->defaultLayer();

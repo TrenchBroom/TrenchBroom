@@ -21,6 +21,9 @@
 
 #include "TemporarilySetAny.h"
 #include "Model/BrushFace.h"
+#include "Model/EntityAttributes.h"
+
+#include <kdl/vector_set.h>
 
 #include <vecmath/plane.h>
 #include <vecmath/vec.h>
@@ -248,7 +251,7 @@ namespace TrenchBroom {
 
             auto beginEntityCalled = false;
 
-            auto attributes = Model::EntityAttribute::List();
+            auto attributes = std::list<Model::EntityAttribute>();
             auto attributeNames = AttributeNames();
 
             auto extraAttributes = ExtraAttributes();
@@ -286,7 +289,7 @@ namespace TrenchBroom {
             }
         }
 
-        void StandardMapParser::parseEntityAttribute(Model::EntityAttribute::List& attributes, AttributeNames& names, ParserStatus& status) {
+        void StandardMapParser::parseEntityAttribute(std::list<Model::EntityAttribute>& attributes, AttributeNames& names, ParserStatus& status) {
             auto token = m_tokenizer.nextToken();
             assert(token.type() == QuakeMapToken::String);
             const auto name = token.data();

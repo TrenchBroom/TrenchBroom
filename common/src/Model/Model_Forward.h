@@ -43,6 +43,7 @@ namespace TrenchBroom {
         class NodeVisitor;
         class ConstNodeVisitor;
 
+        class EntityAttribute;
         using AttributeName = std::string;
         using AttributeValue = std::string;
 
@@ -57,6 +58,8 @@ namespace TrenchBroom {
         class IssueGenerator;
 
         enum class ExportFormat;
+
+        class ModelFactory;
     }
 }
 

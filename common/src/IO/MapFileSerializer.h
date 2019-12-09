@@ -22,9 +22,9 @@
 
 #include "IO/NodeSerializer.h"
 #include "Model/MapFormat.h"
-#include "Model/Brush.h"
+#include "Model/Model_Forward.h"
 
-#include <cstdio>
+#include <cstdio> // for FILE*
 
 namespace TrenchBroom {
     namespace IO {
