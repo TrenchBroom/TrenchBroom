@@ -61,7 +61,7 @@ namespace TrenchBroom {
                           (!trimmed.empty() && trimmed[0] == '/') ||
                           (!trimmed.empty() && trimmed[0] == '\\'));
 #else
-            m_absolute = !trimmed.empty() && kdl::cs::is_prefix(trimmed, separator());
+            m_absolute = !trimmed.empty() && kdl::cs::str_is_prefix(trimmed, separator());
 #endif
         }
 
@@ -88,7 +88,8 @@ namespace TrenchBroom {
             while (i < max) {
                 const auto& mcomp = m_components[i];
                 const auto& rcomp = rcomps[i];
-                const auto result = caseSensitive ? kdl::cs::compare(mcomp, rcomp) : kdl::ci::compare(mcomp, rcomp);
+                const auto result = caseSensitive ? kdl::cs::str_compare(mcomp, rcomp) : kdl::ci::str_compare(mcomp,
+                    rcomp);
                 if (result < 0) {
                     return -1;
                 } else if (result > 0) {
@@ -311,9 +312,9 @@ namespace TrenchBroom {
 
         bool Path::hasFilename(const std::string& filename, const bool caseSensitive) const {
             if (caseSensitive) {
-                return kdl::cs::is_equal(filename, this->filename());
+                return filename == this->filename();
             } else {
-                return kdl::ci::is_equal(filename, this->filename());
+                return kdl::ci::str_is_equal(filename, this->filename());
             }
         }
 
@@ -328,9 +329,9 @@ namespace TrenchBroom {
 
         bool Path::hasBasename(const std::string& basename, const bool caseSensitive) const {
             if (caseSensitive) {
-                return kdl::cs::is_equal(basename, this->basename());
+                return basename == this->basename();
             } else {
-                return kdl::ci::is_equal(basename, this->basename());
+                return kdl::ci::str_is_equal(basename, this->basename());
             }
         }
 
@@ -345,9 +346,9 @@ namespace TrenchBroom {
 
         bool Path::hasExtension(const std::string& extension, const bool caseSensitive) const {
             if (caseSensitive) {
-                return kdl::cs::is_equal(extension, this->extension());
+                return extension == this->extension();
             } else {
-                return kdl::ci::is_equal(extension, this->extension());
+                return kdl::ci::str_is_equal(extension, this->extension());
             }
         }
 

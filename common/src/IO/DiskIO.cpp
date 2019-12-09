@@ -55,7 +55,7 @@ namespace TrenchBroom {
 
             Path findCaseSensitivePath(const Path::List& list, const Path& path) {
                 for (const Path& entry : list) {
-                    if (kdl::ci::is_equal(entry.asString(), path.asString()))
+                    if (kdl::ci::str_is_equal(entry.asString(), path.asString()))
                         return entry;
                 }
                 return Path("");

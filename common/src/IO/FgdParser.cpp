@@ -219,7 +219,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            if (kdl::ci::is_equal(token.data(), "@include")) {
+            if (kdl::ci::str_is_equal(token.data(), "@include")) {
                 const auto includedDefinitions = parseInclude(status);
                 kdl::vec_append(definitions, includedDefinitions);
             } else {
@@ -235,15 +235,15 @@ namespace TrenchBroom {
             auto token = expect(status, FgdToken::Word, m_tokenizer.nextToken());
 
             const auto classname = token.data();
-            if (kdl::ci::is_equal(classname, "@SolidClass")) {
+            if (kdl::ci::str_is_equal(classname, "@SolidClass")) {
                 return parseSolidClass(status);
-            } else if (kdl::ci::is_equal(classname, "@PointClass")) {
+            } else if (kdl::ci::str_is_equal(classname, "@PointClass")) {
                 return parsePointClass(status);
-            } else if (kdl::ci::is_equal(classname, "@BaseClass")) {
+            } else if (kdl::ci::str_is_equal(classname, "@BaseClass")) {
                 const auto baseClass = parseBaseClass(status);
                 m_baseClasses[baseClass.name()] = baseClass;
                 return nullptr;
-            } else if (kdl::ci::is_equal(classname, "@Main")) {
+            } else if (kdl::ci::str_is_equal(classname, "@Main")) {
                 skipMainClass(status);
                 return nullptr;
             } else {
@@ -285,24 +285,24 @@ namespace TrenchBroom {
 
             while (token.type() == FgdToken::Word) {
                 const auto typeName = token.data();
-                if (kdl::ci::is_equal(typeName, "base")) {
+                if (kdl::ci::str_is_equal(typeName, "base")) {
                     if (!superClasses.empty()) {
                         status.warn(token.line(), token.column(), "Found multiple base attributes");
                     }
                     superClasses = parseSuperClasses(status);
-                } else if (kdl::ci::is_equal(typeName, "color")) {
+                } else if (kdl::ci::str_is_equal(typeName, "color")) {
                     if (classInfo.hasColor()) {
                         status.warn(token.line(), token.column(), "Found multiple color attributes");
                     }
                     classInfo.setColor(parseColor(status));
-                } else if (kdl::ci::is_equal(typeName, "size")) {
+                } else if (kdl::ci::str_is_equal(typeName, "size")) {
                     if (classInfo.hasSize()) {
                         status.warn(token.line(), token.column(), "Found multiple size attributes");
                     }
                     classInfo.setSize(parseSize(status));
-                } else if (kdl::ci::is_equal(typeName, "model") ||
-                           kdl::ci::is_equal(typeName, "studio") ||
-                           kdl::ci::is_equal(typeName, "studioprop")) {
+                } else if (kdl::ci::str_is_equal(typeName, "model") ||
+                           kdl::ci::str_is_equal(typeName, "studio") ||
+                           kdl::ci::str_is_equal(typeName, "studioprop")) {
                     if (classInfo.hasModelDefinition()) {
                         status.warn(token.line(), token.column(), "Found multiple model attributes");
                     }
@@ -421,19 +421,19 @@ namespace TrenchBroom {
                 const auto typeName = token.data();
                 token = expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
 
-                if (kdl::ci::is_equal(typeName, "target_source")) {
+                if (kdl::ci::str_is_equal(typeName, "target_source")) {
                     attributes[attributeKey] = parseTargetSourceAttribute(status, attributeKey);
-                } else if (kdl::ci::is_equal(typeName, "target_destination")) {
+                } else if (kdl::ci::str_is_equal(typeName, "target_destination")) {
                     attributes[attributeKey] = parseTargetDestinationAttribute(status, attributeKey);
-                } else if (kdl::ci::is_equal(typeName, "string")) {
+                } else if (kdl::ci::str_is_equal(typeName, "string")) {
                     attributes[attributeKey] = parseStringAttribute(status, attributeKey);
-                } else if (kdl::ci::is_equal(typeName, "integer")) {
+                } else if (kdl::ci::str_is_equal(typeName, "integer")) {
                     attributes[attributeKey] = parseIntegerAttribute(status, attributeKey);
-                } else if (kdl::ci::is_equal(typeName, "float")) {
+                } else if (kdl::ci::str_is_equal(typeName, "float")) {
                     attributes[attributeKey] = parseFloatAttribute(status, attributeKey);
-                } else if (kdl::ci::is_equal(typeName, "choices")) {
+                } else if (kdl::ci::str_is_equal(typeName, "choices")) {
                     attributes[attributeKey] = parseChoicesAttribute(status, attributeKey);
-                } else if (kdl::ci::is_equal(typeName, "flags")) {
+                } else if (kdl::ci::str_is_equal(typeName, "flags")) {
                     attributes[attributeKey] = parseFlagsAttribute(status, attributeKey);
                 } else {
                     status.debug(token.line(), token.column(), kdl::str_to_string("Unknown property definition type '", typeName, "' for attribute '", attributeKey, "'"));
@@ -699,7 +699,7 @@ namespace TrenchBroom {
 
         FgdParser::EntityDefinitionList FgdParser::parseInclude(ParserStatus& status) {
             auto token = expect(status, FgdToken::Word, m_tokenizer.nextToken());
-            assert(kdl::ci::is_equal(token.data(), "@include"));
+            assert(kdl::ci::str_is_equal(token.data(), "@include"));
 
             expect(status, FgdToken::String, token = m_tokenizer.nextToken());
             const auto path = Path(token.data());

@@ -276,11 +276,11 @@ namespace TrenchBroom {
 
         bool GameImpl::doIsEntityDefinitionFile(const IO::Path& path) const {
             const auto extension = path.extension();
-            if (kdl::ci::is_equal("fgd", extension)) {
+            if (kdl::ci::str_is_equal("fgd", extension)) {
                 return true;
-            } else if (kdl::ci::is_equal("def", extension)) {
+            } else if (kdl::ci::str_is_equal("def", extension)) {
                 return true;
-            } else if (kdl::ci::is_equal("ent", extension)) {
+            } else if (kdl::ci::str_is_equal("ent", extension)) {
                 return true;
             } else {
                 return false;
@@ -291,17 +291,17 @@ namespace TrenchBroom {
             const auto extension = path.extension();
             const auto& defaultColor = m_config.entityConfig().defaultColor;
 
-            if (kdl::ci::is_equal("fgd", extension)) {
+            if (kdl::ci::str_is_equal("fgd", extension)) {
                 auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 auto reader = file->reader().buffer();
                 IO::FgdParser parser(std::begin(reader), std::end(reader), defaultColor, file->path());
                 return parser.parseDefinitions(status);
-            } else if (kdl::ci::is_equal("def", extension)) {
+            } else if (kdl::ci::str_is_equal("def", extension)) {
                 auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 auto reader = file->reader().buffer();
                 IO::DefParser parser(std::begin(reader), std::end(reader), defaultColor);
                 return parser.parseDefinitions(status);
-            } else if (kdl::ci::is_equal("ent", extension)) {
+            } else if (kdl::ci::str_is_equal("ent", extension)) {
                 auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 auto reader = file->reader().buffer();
                 IO::EntParser parser(std::begin(reader), std::end(reader), defaultColor);
@@ -473,7 +473,7 @@ namespace TrenchBroom {
             const auto subDirs = fs.findItems(IO::Path(""), IO::FileTypeMatcher(false, true));
             for (size_t i = 0; i < subDirs.size(); ++i) {
                 const std::string mod = subDirs[i].lastComponent().asString();
-                if (!kdl::ci::is_equal(mod, defaultMod)) {
+                if (!kdl::ci::str_is_equal(mod, defaultMod)) {
                     result.push_back(mod);
                 }
             }

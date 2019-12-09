@@ -63,8 +63,8 @@ namespace kdl {
          * @param s2 the second string
          * @return the first position at which the given strings differ
          */
-        inline std::size_t mismatch(const std::string_view& s1, const std::string_view& s2) {
-            return kdl::mismatch(s1, s2, char_equal());
+        inline std::size_t str_mismatch(const std::string_view& s1, const std::string_view& s2) {
+            return kdl::str_mismatch(s1, s2, char_equal());
         }
 
         /**
@@ -74,8 +74,8 @@ namespace kdl {
          * @param needle the string to search for
          * @return true if the first string contains the second string and false otherwise
          */
-        inline bool contains(const std::string_view& haystack, const std::string_view& needle) {
-            return kdl::contains(haystack, needle, char_equal());
+        inline bool str_contains(const std::string_view& haystack, const std::string_view& needle) {
+            return kdl::str_contains(haystack, needle, char_equal());
         }
 
         /**
@@ -86,8 +86,8 @@ namespace kdl {
          * @param needle the string to search for
          * @return true if needle is a prefix of haystack
          */
-        inline bool is_prefix(const std::string_view& haystack, const std::string_view& needle) {
-            return kdl::is_prefix(haystack, needle, char_equal());
+        inline bool str_is_prefix(const std::string_view& haystack, const std::string_view& needle) {
+            return kdl::str_is_prefix(haystack, needle, char_equal());
         }
 
         /**
@@ -98,8 +98,8 @@ namespace kdl {
          * @param needle the string to search for
          * @return true if needle is a suffix of haystack
          */
-        inline bool is_suffix(const std::string_view& haystack, const std::string_view& needle) {
-            return kdl::is_suffix(haystack, needle, char_equal());
+        inline bool str_is_suffix(const std::string_view& haystack, const std::string_view& needle) {
+            return kdl::str_is_suffix(haystack, needle, char_equal());
         }
 
         /**
@@ -111,8 +111,8 @@ namespace kdl {
          * @param s2 the second string
          * @return an int indicating the result of the comparison
          */
-        inline int compare(const std::string_view& s1, const std::string_view& s2) {
-            return kdl::compare(s1, s2, char_less());
+        inline int str_compare(const std::string_view& s1, const std::string_view& s2) {
+            return kdl::str_compare(s1, s2, char_less());
         }
 
         /**
@@ -122,8 +122,8 @@ namespace kdl {
          * @param s2 the second string
          * @return true if the given strings are equal and false otherwise
          */
-        inline bool is_equal(const std::string_view& s1, const std::string_view& s2) {
-            return kdl::is_equal(s1, s2, char_equal());
+        inline bool str_is_equal(const std::string_view& s1, const std::string_view& s2) {
+            return kdl::str_is_equal(s1, s2, char_equal());
         }
 
         /**
@@ -136,8 +136,8 @@ namespace kdl {
          * @param p the patterm
          * @return true if the given pattern matches the given string
          */
-        inline bool matches_glob(const std::string_view& s, const std::string_view& p) {
-            return kdl::matches_glob(s, p, char_equal());
+        inline bool str_matches_glob(const std::string_view& s, const std::string_view& p) {
+            return kdl::str_matches_glob(s, p, char_equal());
         }
     }
 
@@ -180,8 +180,8 @@ namespace kdl {
          * @param s2 the second string
          * @return the first position at which the given strings differ
          */
-        inline std::size_t mismatch(const std::string_view& s1, const std::string_view& s2) {
-            return kdl::mismatch(s1, s2, char_equal());
+        inline std::size_t str_mismatch(const std::string_view& s1, const std::string_view& s2) {
+            return kdl::str_mismatch(s1, s2, char_equal());
         }
 
         /**
@@ -191,8 +191,8 @@ namespace kdl {
          * @param needle the string to search for
          * @return true if the first string contains the second string and false otherwise
          */
-        inline bool contains(const std::string_view& haystack, const std::string_view& needle) {
-            return kdl::contains(haystack, needle, char_equal());
+        inline bool str_contains(const std::string_view& haystack, const std::string_view& needle) {
+            return kdl::str_contains(haystack, needle, char_equal());
         }
 
         /**
@@ -203,8 +203,8 @@ namespace kdl {
          * @param needle the string to search for
          * @return true if needle is a prefix of haystack
          */
-        inline bool is_prefix(const std::string_view& haystack, const std::string_view& needle) {
-            return kdl::is_prefix(haystack, needle, char_equal());
+        inline bool str_is_prefix(const std::string_view& haystack, const std::string_view& needle) {
+            return kdl::str_is_prefix(haystack, needle, char_equal());
         }
 
         /**
@@ -215,8 +215,8 @@ namespace kdl {
          * @param needle the string to search for
          * @return true if needle is a suffix of haystack
          */
-        inline bool is_suffix(const std::string_view& haystack, const std::string_view& needle) {
-            return kdl::is_suffix(haystack, needle, char_equal());
+        inline bool str_is_suffix(const std::string_view& haystack, const std::string_view& needle) {
+            return kdl::str_is_suffix(haystack, needle, char_equal());
         }
 
         /**
@@ -228,8 +228,8 @@ namespace kdl {
          * @param s2 the second string
          * @return an int indicating the result of the comparison
          */
-        inline int compare(const std::string_view& s1, const std::string_view& s2) {
-            return kdl::compare(s1, s2, char_less());
+        inline int str_compare(const std::string_view& s1, const std::string_view& s2) {
+            return kdl::str_compare(s1, s2, char_less());
         }
 
         /**
@@ -239,8 +239,8 @@ namespace kdl {
          * @param s2 the second string
          * @return true if the given strings are equal and false otherwise
          */
-        inline bool is_equal(const std::string_view& s1, const std::string_view& s2) {
-            return kdl::is_equal(s1, s2, char_equal());
+        inline bool str_is_equal(const std::string_view& s1, const std::string_view& s2) {
+            return kdl::str_is_equal(s1, s2, char_equal());
         }
 
         /**
@@ -253,8 +253,8 @@ namespace kdl {
          * @param p the patterm
          * @return true if the given pattern matches the given string
          */
-        inline bool matches_glob(const std::string_view& s, const std::string_view& p) {
-            return kdl::matches_glob(s, p, char_equal());
+        inline bool str_matches_glob(const std::string_view& s, const std::string_view& p) {
+            return kdl::str_matches_glob(s, p, char_equal());
         }
     }
 }

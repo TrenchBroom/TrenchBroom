@@ -21,11 +21,14 @@
 #include "string_format.h"
 
 #include <algorithm> // for std::search
+#include <iterator>
 #include <cassert>
 #include <string>
 #include <string_view>
 #include <sstream>
 #include <vector>
+
+#include <optional-lite/optional.hpp>
 
 namespace kdl {
     /**
@@ -183,18 +186,24 @@ namespace kdl {
             return std::string(haystack);
         }
 
-        std::string result(haystack);
+        std::ostringstream result;
+        auto it = std::begin(haystack);
+        auto end = std::search(std::begin(haystack), std::end(haystack), std::begin(needle), std::end(needle));
+        while (end != std::end(haystack)) {
+            // copy everything up to needle
+            std::copy(it, end, std::ostream_iterator<char>(result));
 
-        using diff_type = std::string::iterator::difference_type;
-        auto it = std::search(std::begin(result), std::end(result), std::begin(needle), std::end(needle));
-        while (it != std::end(result)) {
-            // remember the position where the search will continue after replacement
-            const auto next_offset = std::distance(std::begin(result), it) + static_cast<diff_type>(replacement.size());
-            result.replace(it, std::next(it, static_cast<diff_type>(needle.size())), replacement); // invalidates it
+            // copy replacement
+            result << replacement;
 
-            it = std::search(std::next(std::begin(result), next_offset), std::end(result), std::begin(needle), std::end(needle));
+            // advance to just after needle
+            it = std::next(end, static_cast<std::string::iterator::difference_type>(needle.size()));
+            end = std::search(it, std::end(haystack), std::begin(needle), std::end(needle));
         }
-        return result;
+
+        // copy the remainder
+        std::copy(it, end, std::ostream_iterator<char>(result));
+        return result.str();
     }
 
     /**
@@ -210,6 +219,166 @@ namespace kdl {
         std::stringstream str;
         (str << ... << args);
         return str.str();
+    }
+
+    /**
+     * Interprets the given string as a signed integer and returns it. If the given string cannot be parsed, returns
+     * an empty optional.
+     *
+     * @param str the string
+     * @return the signed integer value or an empty optional if the given string cannot be interpreted as a signed integer
+     */
+    inline nonstd::optional<int> str_to_int(const std::string& str) {
+        try {
+            return stoi(str);
+        } catch (std::invalid_argument&) {
+            return nonstd::nullopt;
+        } catch (std::out_of_range&) {
+            return nonstd::nullopt;
+        }
+    }
+
+    /**
+     * Interprets the given string as a signed long integer and returns it. If the given string cannot be parsed,
+     * returns an empty optional.
+     *
+     * @param str the string
+     * @return the signed long integer value or an empty optional if the given string cannot be interpreted as a signed
+     * long integer
+     */
+    inline nonstd::optional<long> str_to_long(const std::string& str) {
+        try {
+            return stol(str);
+        } catch (std::invalid_argument&) {
+            return nonstd::nullopt;
+        } catch (std::out_of_range&) {
+            return nonstd::nullopt;
+        }
+    }
+
+    /**
+     * Interprets the given string as a signed long long integer and returns it. If the given string cannot be parsed,
+     * returns an empty optional.
+     *
+     * @param str the string
+     * @return the signed long long integer value or an empty optional if the given string cannot be interpreted as a
+     * signed long long integer
+     */
+    inline nonstd::optional<long long> str_to_long_long(const std::string& str) {
+        try {
+            return stoll(str);
+        } catch (std::invalid_argument&) {
+            return nonstd::nullopt;
+        } catch (std::out_of_range&) {
+            return nonstd::nullopt;
+        }
+    }
+
+    /**
+     * Interprets the given string as an unsigned long integer and returns it. If the given string cannot be parsed,
+     * returns an empty optional.
+     *
+     * @param str the string
+     * @return the unsigned long integer value or an empty optional if the given string cannot be interpreted as an
+     * unsigned long integer
+     */
+    inline nonstd::optional<unsigned long> str_to_u_long(const std::string& str) {
+        try {
+            return stoul(str);
+        } catch (std::invalid_argument&) {
+            return nonstd::nullopt;
+        } catch (std::out_of_range&) {
+            return nonstd::nullopt;
+        }
+    }
+
+    /**
+     * Interprets the given string as an unsigned long long integer and returns it. If the given string cannot be parsed,
+     * returns an empty optional.
+     *
+     * @param str the string
+     * @return the unsigned long long integer value or an empty optional if the given string cannot be interpreted as an
+     * unsigned long long integer
+     */
+    inline nonstd::optional<unsigned long long> str_to_u_long_long(const std::string& str) {
+        try {
+            return stoull(str);
+        } catch (std::invalid_argument&) {
+            return nonstd::nullopt;
+        } catch (std::out_of_range&) {
+            return nonstd::nullopt;
+        }
+    }
+
+    /**
+     * Interprets the given string as a std::size_t and returns it. If the given string cannot be parsed, returns an
+     * empty optional.
+     *
+     * @param str the string
+     * @return the std::size_t value or an empty optional if the given string cannot be interpreted as an std::size_t
+     */
+    inline nonstd::optional<std::size_t> str_to_size(const std::string& str) {
+        try {
+            return static_cast<std::size_t>(stoul(str));
+        } catch (std::invalid_argument&) {
+            return nonstd::nullopt;
+        } catch (std::out_of_range&) {
+            return nonstd::nullopt;
+        }
+    }
+
+    /**
+     * Interprets the given string as a 32 bit floating point value and returns it. If the given string cannot be parsed,
+     * returns an empty optional.
+     *
+     * @param str the string
+     * @return the 32 bit floating point value value or an empty optional if the given string cannot be interpreted as an
+     * 32 bit floating point value
+     */
+    inline nonstd::optional<float> str_to_float(const std::string& str) {
+        try {
+            return stof(str);
+        } catch (std::invalid_argument&) {
+            return nonstd::nullopt;
+        } catch (std::out_of_range&) {
+            return nonstd::nullopt;
+        }
+    }
+
+    /**
+     * Interprets the given string as a 64 bit floating point value and returns it. If the given string cannot be parsed,
+     * returns an empty optional.
+     *
+     * @param str the string
+     * @return the 64 bit floating point value value or an empty optional if the given string cannot be interpreted as an
+     * 64 bit floating point value
+     */
+    inline nonstd::optional<double> str_to_double(const std::string& str) {
+        try {
+            return stod(str);
+        } catch (std::invalid_argument&) {
+            return nonstd::nullopt;
+        } catch (std::out_of_range&) {
+            return nonstd::nullopt;
+        }
+    }
+
+    /**
+     * Interprets the given string as a long double value value and returns it. If the given string cannot be parsed,
+     * returns an empty optional.
+     *
+     * @param str the string
+     * @return the long double value value value or an empty optional if the given string cannot be interpreted as an
+     * long double value value
+     */
+    inline nonstd::optional<long double> str_to_long_double(const std::string& str) {
+        try {
+            return stold(str);
+        } catch (std::invalid_argument&) {
+            return nonstd::nullopt;
+        } catch (std::out_of_range&) {
+            return nonstd::nullopt;
+        }
     }
 }
 

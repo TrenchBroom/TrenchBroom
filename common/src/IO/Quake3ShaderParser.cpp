@@ -223,13 +223,13 @@ namespace TrenchBroom {
                         stage.blendFunc.reset();
                     }
                 } else {
-                    if (kdl::ci::is_equal(param1, "add")) {
+                    if (kdl::ci::str_is_equal(param1, "add")) {
                         stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::One;
                         stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::One;
-                    } else if (kdl::ci::is_equal(param1, "filter")) {
+                    } else if (kdl::ci::str_is_equal(param1, "filter")) {
                         stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::DestColor;
                         stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::Zero;
-                    } else if (kdl::ci::is_equal(param1, "blend")) {
+                    } else if (kdl::ci::str_is_equal(param1, "blend")) {
                         stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::SrcAlpha;
                         stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha;
                     } else {

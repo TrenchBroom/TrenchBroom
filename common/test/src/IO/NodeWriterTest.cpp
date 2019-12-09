@@ -189,7 +189,7 @@ R"(// entity 0
 )";
 
             const auto actual = str.str();
-            ASSERT_TRUE(kdl::cs::matches_glob(actual, expected));
+            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
         }
 
         TEST(NodeWriterTest, writeMapWithGroupInDefaultLayer) {
@@ -232,7 +232,7 @@ R"(// entity 0
 }
 )";
             const std::string actual = str.str();
-            ASSERT_TRUE(kdl::cs::matches_glob(actual, expected));
+            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
         }
 
         TEST(NodeWriterTest, writeMapWithGroupInCustomLayer) {
@@ -286,7 +286,7 @@ R"(// entity 0
 }
 )";
             const std::string actual = str.str();
-            ASSERT_TRUE(kdl::cs::matches_glob(actual, expected));
+            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
         }
 
         TEST(NodeWriterTest, writeMapWithNestedGroupInCustomLayer) {
@@ -352,7 +352,7 @@ R"(// entity 0
 )";
 
             const std::string actual = str.str();
-            ASSERT_TRUE(kdl::cs::matches_glob(actual, expected));
+            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
         }
 
         TEST(NodeWriterTest, writeNodesWithNestedGroup) {
@@ -414,7 +414,7 @@ R"(// entity 0
 )";
 
             const std::string actual = str.str();
-            ASSERT_TRUE(kdl::cs::matches_glob(actual, expected));
+            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
         }
 
         TEST(NodeWriterTest, writeFaces) {

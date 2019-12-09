@@ -144,7 +144,7 @@ namespace TrenchBroom {
                 });
             else
                 std::sort(std::begin(result), std::end(result), [] (const EntityDefinition* lhs, const EntityDefinition* rhs) {
-                    const int strCmp = kdl::ci::compare(lhs->name(), rhs->name());
+                    const int strCmp = kdl::ci::str_compare(lhs->name(), rhs->name());
                     if (strCmp == 0) {
                         return lhs->usageCount() > rhs->usageCount();
                     } else {

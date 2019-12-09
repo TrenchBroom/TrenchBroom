@@ -37,7 +37,7 @@ namespace kdl {
      * @return the first position at which the given strings differ
      */
     template <typename CharEqual>
-    std::size_t mismatch(const std::string_view& s1, const std::string_view& s2, const CharEqual& char_equal) {
+    std::size_t str_mismatch(const std::string_view& s1, const std::string_view& s2, const CharEqual& char_equal) {
         const auto mis = std::mismatch(std::begin(s1), std::end(s1), std::begin(s2), std::end(s2), char_equal);
         return static_cast<std::size_t>(std::distance(std::begin(s1), mis.first));
     }
@@ -53,7 +53,7 @@ namespace kdl {
      * @return true if the first string contains the second string and false otherwise
      */
     template <typename CharEqual>
-    bool contains(const std::string_view& haystack, const std::string_view& needle, const CharEqual& char_equal) {
+    bool str_contains(const std::string_view& haystack, const std::string_view& needle, const CharEqual& char_equal) {
         return std::search(std::begin(haystack), std::end(haystack), std::begin(needle), std::end(needle), char_equal) != std::end(haystack);
     }
 
@@ -68,7 +68,7 @@ namespace kdl {
      * @return true if needle is a prefix of haystack
      */
     template <typename CharEqual>
-    bool is_prefix(const std::string_view& haystack, const std::string_view& needle, const CharEqual& char_equal) {
+    bool str_is_prefix(const std::string_view& haystack, const std::string_view& needle, const CharEqual& char_equal) {
         return std::mismatch(std::begin(haystack), std::end(haystack), std::begin(needle), std::end(needle), char_equal).second == std::end(needle);
     }
 
@@ -83,7 +83,7 @@ namespace kdl {
      * @return true if needle is a suffix of haystack
      */
     template <typename CharEqual>
-    bool is_suffix(const std::string_view& haystack, const std::string_view& needle, const CharEqual& char_equal) {
+    bool str_is_suffix(const std::string_view& haystack, const std::string_view& needle, const CharEqual& char_equal) {
         return std::mismatch(std::rbegin(haystack), std::rend(haystack), std::rbegin(needle), std::rend(needle), char_equal).second == std::rend(needle);
     }
 
@@ -113,7 +113,7 @@ namespace kdl {
      * @return an int indicating the result of the comparison
      */
     template <typename CharCompare>
-    int compare(const std::string_view& s1, const std::string_view& s2, const CharCompare& char_compare) {
+    int str_compare(const std::string_view& s1, const std::string_view& s2, const CharCompare& char_compare) {
         return kdl::col_lexicographical_compare(s1, s2, char_compare);
     }
 
@@ -128,7 +128,7 @@ namespace kdl {
      * @return true if the given strings are equal and false otherwise
      */
     template <typename CharEqual>
-    bool is_equal(const std::string_view& s1, const std::string_view& s2, const CharEqual& char_equal) {
+    bool str_is_equal(const std::string_view& s1, const std::string_view& s2, const CharEqual& char_equal) {
         return std::equal(std::begin(s1), std::end(s1), std::begin(s2), std::end(s2), char_equal);
     }
 
@@ -155,7 +155,7 @@ namespace kdl {
      * @return true if the given pattern matches the given string
      */
     template <typename CharEqual>
-    bool matches_glob(const std::string_view& s, const std::string_view& p, const CharEqual& char_equal) {
+    bool str_matches_glob(const std::string_view& s, const std::string_view& p, const CharEqual& char_equal) {
         // If both the string and the pattern are exhausted, we have a successful match.
         if (s.empty() && p.empty()) {
             return true;
@@ -180,7 +180,7 @@ namespace kdl {
                     return false;
                 }
 
-                return matches_glob(s.substr(1u), p.substr(2u), char_equal);
+                return str_matches_glob(s.substr(1u), p.substr(2u), char_equal);
             } else {
                 return false; // Invalid escape sequence.
             }
@@ -188,7 +188,7 @@ namespace kdl {
 
         // If the pattern is a star and the string is consumed, continue matching at the next char in the pattern.
         if (p[0] == '*' && s.empty()) {
-            return matches_glob(s, p.substr(1u), char_equal);
+            return str_matches_glob(s, p.substr(1u), char_equal);
         }
 
         // If the pattern is a '?' and the string is consumed, there cannot be a match.
@@ -205,15 +205,15 @@ namespace kdl {
         // If the pattern contains '?', or current characters of both strings match, advance both the string and the
         // pattern and continue to match.
         if (p[0] == '?' || char_equal(p[0], s[0])) {
-            return matches_glob(s.substr(1u), p.substr(1u), char_equal);
+            return str_matches_glob(s.substr(1u), p.substr(1u), char_equal);
         }
 
         // If there is * in the pattern, then there are two possibilities
         // a) We consider the current character of the string.
         // b) We ignore the current character of the string.
         if (p[0] == '*') {
-            return matches_glob(s, p.substr(1u), char_equal) ||
-                   matches_glob(s.substr(1u), p, char_equal);
+            return str_matches_glob(s, p.substr(1u), char_equal) ||
+                   str_matches_glob(s.substr(1u), p, char_equal);
         }
 
         // All other possibilities are exhausted, the current characters of the string and the pattern do not match.

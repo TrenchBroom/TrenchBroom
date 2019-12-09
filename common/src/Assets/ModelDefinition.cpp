@@ -144,7 +144,7 @@ namespace TrenchBroom {
             if (value.type() != EL::ValueType::String)
                 return IO::Path();
             const std::string& path = value.stringValue();
-            return IO::Path(kdl::cs::is_prefix(path, ":") ? path.substr(1) : path);
+            return IO::Path(kdl::cs::str_is_prefix(path, ":") ? path.substr(1) : path);
         }
 
         size_t ModelDefinition::index(const EL::Value& value) const {

@@ -166,7 +166,7 @@ namespace TrenchBroom {
             // determine the type of rotation to apply to this entity
             const auto classname = entity->classname();
             if (classname != AttributeValues::NoClassname) {
-                if (kdl::cs::is_prefix(classname, "light")) {
+                if (kdl::cs::str_is_prefix(classname, "light")) {
                     if (entity->hasAttribute(AttributeNames::Mangle)) {
                         // spotlight without a target, update mangle
                         type = RotationType_Mangle;
@@ -205,7 +205,7 @@ namespace TrenchBroom {
                                 type = RotationType_Euler;
                                 attribute = AttributeNames::Angles;
                             } else if (entity->hasAttribute(AttributeNames::Mangle)) {
-                                if (kdl::cs::is_equal(classname, "info_intermission")) {
+                                if (kdl::cs::str_is_equal(classname, "info_intermission")) {
                                     type = RotationType_Euler_PositivePitchDown;
                                 } else {
                                     type = RotationType_Mangle;

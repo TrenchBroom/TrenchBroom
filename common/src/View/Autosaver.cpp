@@ -42,7 +42,7 @@ namespace TrenchBroom {
             if (directory) {
                 return false;
             }
-            if (!kdl::ci::is_equal(path.extension(), "map")) {
+            if (!kdl::ci::str_is_equal(path.extension(), "map")) {
                 return false;
             }
 
@@ -57,11 +57,8 @@ namespace TrenchBroom {
                 return false;
             }
 
-            try {
-                return std::stoul(backupName.extension()) > 0u;
-            } catch (const std::exception&) {
-                return false;
-            }
+            const auto backupNo = kdl::str_to_size(backupName.extension()).value_or(0u);
+            return backupNo > 0u;
         }
 
         Autosaver::Autosaver(std::weak_ptr<MapDocument> document, const std::time_t saveInterval, const std::time_t idleInterval, const size_t maxBackups) :
@@ -192,14 +189,10 @@ namespace TrenchBroom {
         }
 
         size_t extractBackupNo(const IO::Path& path) {
-            try {
-                return std::stoul(path.deleteExtension().extension());
-            } catch (const std::exception&) {
                 // currently this function is only used when comparing file names which have already been verified as
-                // valid backup file names, so this should not happen, but if it does, sort the invalid file names to
+                // valid backup file names, so this should not go wrong, but if it does, sort the invalid file names to
                 // the end to avoid modifying them
-                return std::numeric_limits<size_t>::max();
-            }
+                return kdl::str_to_size(path.deleteExtension().extension()).value_or(std::numeric_limits<size_t>::max());
         }
 
         void Autosaver::bindObservers() {
