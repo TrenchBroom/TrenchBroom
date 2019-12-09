@@ -35,6 +35,7 @@
 namespace TrenchBroom {
     namespace Assets {
         class EntityModelFrame;
+        struct ModelSpecification;
     }
 
     namespace Model {

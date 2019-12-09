@@ -19,6 +19,7 @@
 
 #include "TagMatcher.h"
 
+#include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"

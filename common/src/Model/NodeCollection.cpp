@@ -19,6 +19,7 @@
 
 #include "NodeCollection.h"
 
+#include "Ensure.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"

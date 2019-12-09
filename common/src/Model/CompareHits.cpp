@@ -19,6 +19,7 @@
 
 #include "CompareHits.h"
 
+#include "Ensure.h"
 #include "Model/Hit.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
