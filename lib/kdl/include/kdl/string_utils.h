@@ -21,6 +21,7 @@
 #include "string_format.h"
 
 #include <algorithm> // for std::search
+#include <iterator>
 #include <cassert>
 #include <string>
 #include <string_view>
