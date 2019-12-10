@@ -21,6 +21,7 @@
 
 #include "Preferences.h"
 #include "PreferenceManager.h"
+#include "SharedPointer.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectSelectableNodesVisitor.h"

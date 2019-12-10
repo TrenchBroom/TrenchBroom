@@ -22,6 +22,7 @@
 #include "Constants.h"
 #include "TrenchBroom.h"
 #include "PreferenceManager.h"
+#include "SharedPointer.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"

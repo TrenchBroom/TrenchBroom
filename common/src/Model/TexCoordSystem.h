@@ -53,7 +53,7 @@ namespace TrenchBroom {
         };
 
         enum class WrapStyle {
-        	Projection,
+            Projection,
             Rotation
         };
 

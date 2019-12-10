@@ -19,10 +19,11 @@
 
 #include "UVView.h"
 
-#include "TrenchBroom.h"
 #include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
+#include "TrenchBroom.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Renderer/Camera.h"

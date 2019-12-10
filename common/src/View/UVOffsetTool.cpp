@@ -20,6 +20,7 @@
 #include "UVOffsetTool.h"
 
 #include "Polyhedron.h"
+#include "SharedPointer.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"

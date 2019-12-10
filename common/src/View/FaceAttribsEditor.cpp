@@ -20,8 +20,8 @@
 #include "FaceAttribsEditor.h"
 
 #include "Color.h"
+#include "SharedPointer.h"
 #include "Assets/Texture.h"
-#include "IO/ResourceUtils.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Game.h"

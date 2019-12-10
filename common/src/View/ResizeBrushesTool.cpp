@@ -19,11 +19,12 @@
 
 #include "ResizeBrushesTool.h"
 
-#include "TrenchBroom.h"
 #include "Constants.h"
 #include "Polyhedron.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
+#include "SharedPointer.h"
+#include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"

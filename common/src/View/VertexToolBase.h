@@ -20,12 +20,13 @@
 #ifndef VertexToolBase_h
 #define VertexToolBase_h
 
-#include "TrenchBroom.h"
 #include "Disjunction.h"
 #include "Polyhedron.h"
 #include "Polyhedron3.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
+#include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Hit.h"

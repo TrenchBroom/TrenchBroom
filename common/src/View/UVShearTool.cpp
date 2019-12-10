@@ -19,6 +19,7 @@
 
 #include "UVShearTool.h"
 
+#include "SharedPointer.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/PickResult.h"

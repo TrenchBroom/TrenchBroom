@@ -21,21 +21,33 @@
 #include <type_traits>
 
 namespace kdl {
-    template <typename I, typename L>
+    /**
+     * Wraps an iterator and applies a transformation function and returns its result every time it is dereferenced.
+     *
+     * @tparam I the type of the wrapped iterator
+     * @tparam Transform the type of the transformation to apply
+     */
+    template <typename I, typename Transform>
     class transform_iterator {
     public:
         using iterator_category = typename I::iterator_category;
-        using value_type = std::result_of_t<L(typename I::value_type)>;
+        using value_type = std::invoke_result_t<Transform, typename I::value_type>;
         using difference_type = typename I::difference_type;
         using pointer = value_type*;
         using reference = value_type&;
     private:
         I m_iter;
-        L m_lambda;
+        Transform m_transform;
     public:
-        transform_iterator(I iter, L lambda) :
-        m_iter(iter),
-        m_lambda(std::move(lambda)) {}
+        /**
+         * Creates a new transform iterator with the given wrapped iterator and transformation function.
+         *
+         * @param iter the wrapped iterator
+         * @param transform the transformation function, must be movable
+         */
+        transform_iterator(I iter, Transform transform) :
+            m_iter(iter),
+            m_transform(std::move(transform)) {}
 
         bool operator<(const transform_iterator& other) const { return m_iter <  other.m_iter; }
         bool operator>(const transform_iterator& other) const { return m_iter >  other.m_iter; }
@@ -50,26 +62,45 @@ namespace kdl {
         transform_iterator operator++(int) { transform_iterator result(*this); ++m_iter; return result; }
         transform_iterator operator--(int) { transform_iterator result(*this); --m_iter; return result; }
 
-        value_type operator*()  { return m_lambda(*m_iter); }
+        value_type operator*()  { return m_transform(*m_iter); }
     };
 
-    template <typename C, typename L>
+    /**
+     * Adapts a collection with the given transformation function. Adaptation means that the collection produces
+     * ranges of the result type of the given transform.
+     *
+     * @tparam C the collection to adapt
+     * @tparam Transform the transformation to apply
+     */
+    template <typename C, typename Transform>
     class transform_adapter {
     public:
-        using const_iterator = transform_iterator<typename C::const_iterator, L>;
-        using const_reverse_iterator = transform_iterator<typename C::const_reverse_iterator, L>;
+        using const_iterator = transform_iterator<typename C::const_iterator, Transform>;
+        using const_reverse_iterator = transform_iterator<typename C::const_reverse_iterator, Transform>;
     private:
         const C& m_container;
-        const L m_lambda;
+        const Transform m_transform;
     public:
-        explicit transform_adapter(const C& container, L lambda) :
-        m_container(container),
-        m_lambda(std::move(lambda)) {}
+        /**
+         * Creates a new adapter for the given container and transformation function.
+         *
+         * @param container the container to adapt
+         * @param transform the transformation function, must be movable
+         */
+        explicit transform_adapter(const C& container, Transform transform) :
+            m_container(container),
+            m_transform(std::move(transform)) {}
 
+        /**
+         * Indicates whether the container is empty.
+         */
         bool empty() const {
             return m_container.empty();
         }
 
+        /**
+         * Returns the number of elements in the container.
+         */
         std::size_t size() const {
             return m_container.size();
         }
@@ -83,11 +114,11 @@ namespace kdl {
         }
 
         const_iterator cbegin() const {
-            return const_iterator(std::cbegin(m_container), m_lambda);
+            return const_iterator(std::cbegin(m_container), m_transform);
         }
 
         const_iterator cend() const {
-            return const_iterator(std::cend(m_container), m_lambda);
+            return const_iterator(std::cend(m_container), m_transform);
         }
 
         const_reverse_iterator rbegin() const {
@@ -99,11 +130,11 @@ namespace kdl {
         }
 
         const_reverse_iterator crbegin() const {
-            return const_reverse_iterator(std::crbegin(m_container), m_lambda);
+            return const_reverse_iterator(std::crbegin(m_container), m_transform);
         }
 
         const_reverse_iterator crend() const {
-            return const_reverse_iterator(std::crend(m_container), m_lambda);
+            return const_reverse_iterator(std::crend(m_container), m_transform);
         }
     };
 

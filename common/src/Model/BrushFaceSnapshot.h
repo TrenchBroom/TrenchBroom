@@ -27,6 +27,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class TexCoordSystemSnapshot;
+
         class BrushFaceSnapshot {
         private:
             BrushFaceReference m_faceRef;
@@ -34,6 +36,8 @@ namespace TrenchBroom {
             std::unique_ptr<TexCoordSystemSnapshot> m_coordSystemSnapshot;
         public:
             BrushFaceSnapshot(BrushFace* face, TexCoordSystem& coordSystemSnapshot);
+            ~BrushFaceSnapshot();
+
             void restore();
         };
     }

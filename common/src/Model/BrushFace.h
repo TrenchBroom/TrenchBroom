@@ -20,15 +20,15 @@
 #ifndef TrenchBroom_Face
 #define TrenchBroom_Face
 
+#include "Macros.h"
 #include "TrenchBroom.h"
-#include "ProjectingSequence.h"
-#include "SharedPointer.h"
 #include "Assets/Asset_Forward.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Model_Forward.h"
-#include "Model/Tag.h"
-#include "Model/TexCoordSystem.h"
+#include "Model/Tag.h" // BrushFace inherits from Taggable
+
+#include <kdl/transform_range.h>
 
 #include <vecmath/vec.h>
 #include <vecmath/plane.h>
@@ -50,6 +50,9 @@ namespace TrenchBroom {
     namespace Model {
         class Brush;
         class BrushFaceSnapshot;
+        class TexCoordSystem;
+        class TexCoordSystemSnapshot;
+        enum class WrapStyle;
 
         class BrushFace : public Taggable {
         public:
@@ -67,16 +70,22 @@ namespace TrenchBroom {
         public:
             static const std::string NoTextureName;
         private:
-            struct ProjectToVertex : public ProjectingSequenceProjector<const BrushHalfEdge*, const BrushVertex*> {
-                static Type project(const BrushHalfEdge* halfEdge);
+            /**
+             * For use in VertexList transformation below.
+             */
+            struct TransformHalfEdgeToVertex {
+                const BrushVertex* operator()(const BrushHalfEdge* halfEdge) const;
             };
 
-            struct ProjectToEdge : public ProjectingSequenceProjector<const BrushHalfEdge*, const BrushEdge*> {
-                static Type project(const BrushHalfEdge* halfEdge);
+            /**
+             * For use in EdgeList transformation below.
+             */
+            struct TransformHalfEdgeToEdge {
+                const BrushEdge* operator()(const BrushHalfEdge* halfEdge) const;
             };
         public:
-            using VertexList = ProjectingSequence<BrushHalfEdgeList, ProjectToVertex>;
-            using EdgeList = ProjectingSequence<BrushHalfEdgeList, ProjectToEdge>;
+            using VertexList = kdl::transform_adapter<BrushHalfEdgeList, TransformHalfEdgeToVertex>;
+            using EdgeList = kdl::transform_adapter<BrushHalfEdgeList, TransformHalfEdgeToEdge>;
         private:
             Brush* m_brush;
             BrushFace::Points m_points;

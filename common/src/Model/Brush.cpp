@@ -34,6 +34,7 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
+#include "Model/TexCoordSystem.h"
 #include "Model/World.h"
 #include "Renderer/BrushRendererBrushCache.h"
 

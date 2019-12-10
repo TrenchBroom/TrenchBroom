@@ -24,6 +24,7 @@
 #include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
 #include "Macros.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/Brush.h"
