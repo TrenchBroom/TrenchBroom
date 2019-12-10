@@ -19,6 +19,7 @@
 
 #include "BrushFaceSnapshot.h"
 
+#include "Model/BrushFace.h"
 #include "Model/TexCoordSystem.h"
 
 namespace TrenchBroom {

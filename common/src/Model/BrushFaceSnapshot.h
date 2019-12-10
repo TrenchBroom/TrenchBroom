@@ -20,13 +20,15 @@
 #ifndef TrenchBroom_BrushFaceSnapshot
 #define TrenchBroom_BrushFaceSnapshot
 
-#include "Model/BrushFace.h"
+#include "Model/BrushFaceAttributes.h"
 #include "Model/BrushFaceReference.h"
 
 #include <memory>
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFace;
+        class TexCoordSystem;
         class TexCoordSystemSnapshot;
 
         class BrushFaceSnapshot {
