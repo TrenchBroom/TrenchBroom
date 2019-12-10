@@ -92,10 +92,10 @@ namespace TrenchBroom {
         }
 
         TagReference::TagReference(const Tag& tag) :
-        m_tag(tag) {}
+        m_tag(&tag) {}
 
         const Tag& TagReference::tag() const {
-            return m_tag;
+            return *m_tag;
         }
 
         bool operator==(const TagReference& lhs, const TagReference& rhs) {

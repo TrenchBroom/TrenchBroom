@@ -20,11 +20,13 @@
 #ifndef TRENCHBROOM_TAG_H
 #define TRENCHBROOM_TAG_H
 
+#include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "Model/TagType.h"
 
+#include <kdl/vector_set.h>
+
 #include <memory>
-#include <set> // FIXME: use vector_set
 #include <string>
 #include <vector>
 
@@ -140,7 +142,7 @@ namespace TrenchBroom {
          */
         class TagReference {
         private:
-            const Tag& m_tag;
+            const Tag* m_tag;
         public:
             /**
              * Creates a new reference to the given tag.
@@ -148,6 +150,8 @@ namespace TrenchBroom {
              * @param tag the referenced tag
              */
             explicit TagReference(const Tag& tag);
+
+            defineMove(TagReference)
 
             /**
              * Returns the referenced tag.
@@ -164,7 +168,7 @@ namespace TrenchBroom {
         class Taggable {
         private:
             TagType::Type m_tagMask;
-            std::set<TagReference> m_tags;
+            kdl::vector_set<TagReference> m_tags;
             TagAttribute::AttributeType m_attributeMask;
         public:
             /**
