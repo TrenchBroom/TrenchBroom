@@ -33,8 +33,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class SmartTag;
-
         class GameConfig {
         public:
             struct MapFormatConfig {
