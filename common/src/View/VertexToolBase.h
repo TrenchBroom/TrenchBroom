@@ -57,6 +57,7 @@
 #include <vecmath/vec_io.h>
 
 #include <cassert>
+#include <list>
 #include <map>
 #include <memory>
 #include <set>
@@ -146,7 +147,7 @@ namespace TrenchBroom {
 
             virtual void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const = 0;
         public: // Handle selection
-            bool select(const Model::Hit::List& hits, const bool addToSelection) {
+            bool select(const std::list<Model::Hit>& hits, const bool addToSelection) {
                 assert(!hits.empty());
                 const Model::Hit& firstHit = hits.front();
                 if (firstHit.type() == handleManager().hitType()) {
@@ -208,7 +209,7 @@ namespace TrenchBroom {
             virtual HandleManager& handleManager() = 0;
             virtual const HandleManager& handleManager() const = 0;
         public: // performing moves
-            virtual bool startMove(const Model::Hit::List& hits) {
+            virtual bool startMove(const std::list<Model::Hit>& hits) {
                 assert(!hits.empty());
 
                 // Delesect all handles if any of the hit handles is not already selected.

@@ -27,13 +27,10 @@
 
 #include <vecmath/vec.h>
 
-#include <list>
-
 namespace TrenchBroom {
     namespace Model {
         class Hit {
         public:
-            using List = std::list<Hit>;
             static const Hit NoHit;
         private:
             HitType::Type m_type;

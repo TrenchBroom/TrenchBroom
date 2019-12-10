@@ -285,7 +285,7 @@ namespace TrenchBroom {
             }
         }
 
-        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const Model::Hit::List& hits) {
+        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::list<Model::Hit>& hits) {
             std::vector<Model::Node*> hitNodes;
             std::unordered_set<Model::Node*> duplicateCheck;
 

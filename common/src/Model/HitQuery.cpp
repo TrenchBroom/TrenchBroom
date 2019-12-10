@@ -28,13 +28,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        HitQuery::HitQuery(const Hit::List& hits, const EditorContext& editorContext) :
+        HitQuery::HitQuery(const std::list<Hit>& hits, const EditorContext& editorContext) :
         m_hits(&hits),
         m_editorContext(&editorContext),
         m_include(HitFilter::always()),
         m_exclude(HitFilter::never()) {}
 
-        HitQuery::HitQuery(const Hit::List& hits) :
+        HitQuery::HitQuery(const std::list<Hit>& hits) :
         m_hits(&hits),
         m_editorContext(nullptr),
         m_include(HitFilter::always()),
@@ -104,9 +104,9 @@ namespace TrenchBroom {
 
         const Hit& HitQuery::first() const {
             if (!m_hits->empty()) {
-                Hit::List::const_iterator it = m_hits->begin();
-                const Hit::List::const_iterator end = m_hits->end();
-                Hit::List::const_iterator bestMatch = end;
+                std::list<Hit>::const_iterator it = m_hits->begin();
+                const std::list<Hit>::const_iterator end = m_hits->end();
+                std::list<Hit>::const_iterator bestMatch = end;
                 FloatType bestMatchError = std::numeric_limits<FloatType>::max();
                 FloatType bestOccluderError = std::numeric_limits<FloatType>::max();
 
@@ -139,8 +139,8 @@ namespace TrenchBroom {
             return Hit::NoHit;
         }
 
-        Hit::List HitQuery::all() const {
-            Hit::List result;
+        std::list<Hit> HitQuery::all() const {
+            std::list<Hit> result;
             for (const Hit& hit : *m_hits) {
                 if (m_include->matches(hit))
                     result.push_back(hit);

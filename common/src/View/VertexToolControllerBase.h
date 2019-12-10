@@ -30,6 +30,7 @@
 
 #include <vecmath/intersection.h>
 
+#include <list>
 #include <set>
 
 namespace TrenchBroom {
@@ -56,7 +57,7 @@ namespace TrenchBroom {
                     return doFindDraggableHandle(inputState);
                 }
 
-                const Model::Hit::List findDraggableHandles(const InputState& inputState) const {
+                const std::list<Model::Hit> findDraggableHandles(const InputState& inputState) const {
                     return doFindDraggableHandles(inputState);
                 }
             private:
@@ -64,7 +65,7 @@ namespace TrenchBroom {
                     return findDraggableHandle(inputState, m_hitType);
                 }
 
-                virtual const Model::Hit::List doFindDraggableHandles(const InputState& inputState) const {
+                virtual const std::list<Model::Hit> doFindDraggableHandles(const InputState& inputState) const {
                     return findDraggableHandles(inputState, m_hitType);
                 }
             public:
@@ -82,7 +83,7 @@ namespace TrenchBroom {
                     return Model::Hit::NoHit;
                 }
 
-                const Model::Hit::List findDraggableHandles(const InputState& inputState, const Model::HitType::Type hitType) const {
+                const std::list<Model::Hit> findDraggableHandles(const InputState& inputState, const Model::HitType::Type hitType) const {
                     return inputState.pickResult().query().type(hitType).occluded().all();
                 }
             private:
@@ -200,15 +201,15 @@ namespace TrenchBroom {
                     }
                 }
             protected:
-                Model::Hit::List firstHits(const Model::PickResult& pickResult) const {
-                    Model::Hit::List result;
+                std::list<Model::Hit> firstHits(const Model::PickResult& pickResult) const {
+                    std::list<Model::Hit> result;
                     std::set<Model::Brush*> visitedBrushes;
 
                     const Model::Hit& first = pickResult.query().type(m_hitType).occluded().first();
                     if (first.isMatch()) {
                         const H& firstHandle = first.target<H>();
 
-                        const Model::Hit::List matches = pickResult.query().type(m_hitType).all();
+                        const std::list<Model::Hit> matches = pickResult.query().type(m_hitType).all();
                         for (const Model::Hit& match : matches) {
                             const H& handle = match.target<H>();
 
@@ -263,7 +264,7 @@ namespace TrenchBroom {
                         return MoveInfo();
                     }
 
-                    const Model::Hit::List hits = findDraggableHandles(inputState);
+                    const std::list<Model::Hit> hits = findDraggableHandles(inputState);
                     if (hits.empty()) {
                         return MoveInfo();
                     }

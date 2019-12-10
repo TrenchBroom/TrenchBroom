@@ -25,6 +25,7 @@
 #include "View/Tool.h"
 #include "View/ToolController.h"
 
+#include <list>
 #include <memory>
 #include <vector>
 
@@ -50,7 +51,7 @@ namespace TrenchBroom {
          * The order of the hits is preserved, but if multiple hits map to the same group, that group
          * will only be listed once in the output.
          */
-        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const Model::Hit::List& hits);
+        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::list<Model::Hit>& hits);
 
         class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:

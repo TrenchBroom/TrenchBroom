@@ -26,6 +26,8 @@
 
 #include <vecmath/util.h>
 
+#include <list>
+
 namespace TrenchBroom {
     namespace Model {
         class CompareHits;
@@ -37,7 +39,7 @@ namespace TrenchBroom {
             using ComparePtr = std::shared_ptr<CompareHits>;
         private:
             const EditorContext* m_editorContext;
-            Hit::List m_hits;
+            std::list<Hit> m_hits;
             ComparePtr m_compare;
             class CompareWrapper;
         public:
@@ -55,7 +57,7 @@ namespace TrenchBroom {
 
             void addHit(const Hit& hit);
 
-            const Hit::List& all() const;
+            const std::list<Hit>& all() const;
             HitQuery query() const;
 
             void clear();

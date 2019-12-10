@@ -23,6 +23,8 @@
 #include "Model/Hit.h"
 #include "Model/HitType.h"
 
+#include <list>
+
 namespace TrenchBroom {
     namespace Model {
         class EditorContext;
@@ -30,13 +32,13 @@ namespace TrenchBroom {
 
         class HitQuery {
         private:
-            const Hit::List* m_hits;
+            const std::list<Hit>* m_hits;
             const EditorContext* m_editorContext;
             HitFilter* m_include;
             HitFilter* m_exclude;
         public:
-            HitQuery(const Hit::List& hits, const EditorContext& editorContext);
-            HitQuery(const Hit::List& hits);
+            HitQuery(const std::list<Hit>& hits, const EditorContext& editorContext);
+            HitQuery(const std::list<Hit>& hits);
             HitQuery(const HitQuery& other);
             ~HitQuery();
 
@@ -52,7 +54,7 @@ namespace TrenchBroom {
 
             bool empty() const;
             const Hit& first() const;
-            Hit::List all() const;
+            std::list<Hit> all() const;
         private:
             bool visible(const Hit& hit) const;
         };
