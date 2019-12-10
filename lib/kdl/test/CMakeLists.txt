@@ -2,6 +2,7 @@ add_executable(kdl-test)
 target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/collection_utils_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/map_utils_test.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/transform_range_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/run_all.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/set_adapter_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/string_compare_test.cpp"
