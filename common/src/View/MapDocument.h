@@ -38,9 +38,8 @@
 #include <vecmath/bbox.h>
 #include <vecmath/util.h>
 
-// FIXME: try to get rid of functional and list
+// FIXME: try to get rid of functional
 #include <functional>
-#include <list>
 #include <map>
 #include <memory>
 #include <set>
@@ -477,7 +476,7 @@ namespace TrenchBroom {
             virtual void doSetIssueHidden(Model::Issue* issue, bool hidden) = 0;
         public: // tag management
             void registerSmartTags(); // public for testing
-            const std::list<Model::SmartTag>& smartTags() const;
+            const std::vector<Model::SmartTag>& smartTags() const;
             bool isRegisteredSmartTag(const std::string& name) const;
             const Model::SmartTag& smartTag(const std::string& name) const;
             bool isRegisteredSmartTag(size_t index) const;

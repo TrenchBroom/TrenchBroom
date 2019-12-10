@@ -1936,13 +1936,10 @@ namespace TrenchBroom {
             ensure(m_game.get() != nullptr, "game is null");
 
             m_tagManager->clearSmartTags();
-            for (const auto& tag : m_game->smartTags()) {
-                // we copy every tag into the tag manager intentionally
-                m_tagManager->registerSmartTag(tag);
-            }
+            m_tagManager->registerSmartTags(m_game->smartTags());
         }
 
-        const std::list<Model::SmartTag>& MapDocument::smartTags() const {
+        const std::vector<Model::SmartTag>& MapDocument::smartTags() const {
             return m_tagManager->smartTags();
         }
 

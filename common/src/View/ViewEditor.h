@@ -25,7 +25,6 @@
 
 #include <QWidget>
 
-#include <list>
 #include <memory>
 #include <vector>
 
@@ -108,7 +107,7 @@ namespace TrenchBroom {
             QWidget* createBrushesPanel(QWidget* parent);
             void createTagFilter(QWidget* parent);
             void createEmptyTagFilter(QWidget* parent);
-            void createTagFilter(QWidget* parent, const std::list<Model::SmartTag>& tags);
+            void createTagFilter(QWidget* parent, const std::vector<Model::SmartTag>& tags);
 
             QWidget* createRendererPanel(QWidget* parent);
 

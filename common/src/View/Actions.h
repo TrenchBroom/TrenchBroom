@@ -240,7 +240,7 @@ namespace TrenchBroom {
             /**
              * Note, unlike createAction(), these are not registered / owned by the ActionManager.
              */
-            std::vector<std::unique_ptr<Action>> createTagActions(const std::list<Model::SmartTag>& tags) const;
+            std::vector<std::unique_ptr<Action>> createTagActions(const std::vector<Model::SmartTag>& tags) const;
             /**
              * Note, unlike createAction(), these are not registered / owned by the ActionManager.
              */

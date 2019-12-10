@@ -370,7 +370,7 @@ namespace TrenchBroom {
             parent->setLayout(layout);
         }
 
-        void ViewEditor::createTagFilter(QWidget* parent, const std::list<Model::SmartTag>& tags) {
+        void ViewEditor::createTagFilter(QWidget* parent, const std::vector<Model::SmartTag>& tags) {
             assert(!tags.empty());
 
             auto* layout = new QVBoxLayout();
