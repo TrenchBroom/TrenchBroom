@@ -32,11 +32,6 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Model {
-        class BrushFaceAttributes;
-        class EntityAttribute;
-    }
-
     namespace IO {
         class ParserStatus;
 

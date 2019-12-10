@@ -23,15 +23,10 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
+#include "Model/Model_Forward.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
-        class Entity;
-        class Group;
-        class Layer;
-        class World;
-
         template <bool MatchSelected>
         class MatchSelectedNodes {
         public:

@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_EntityProperties
 #define TrenchBroom_EntityProperties
 
+#include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <list>
@@ -34,11 +35,6 @@ namespace TrenchBroom {
 
     template <typename V, typename P>
     class StringMap;
-
-    namespace Assets {
-        class EntityDefinition;
-        class AttributeDefinition;
-    }
 
     namespace Model {
         extern const std::string AttributeEscapeChars;

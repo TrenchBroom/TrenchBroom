@@ -39,21 +39,11 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class TextureManager;
-    }
-
     namespace Renderer {
         class IndexRangeMap;
     }
 
     namespace Model {
-        class Brush;
-        class BrushFaceSnapshot;
-        class TexCoordSystem;
-        class TexCoordSystemSnapshot;
-        enum class WrapStyle;
-
         class BrushFace : public Taggable {
         public:
             /*

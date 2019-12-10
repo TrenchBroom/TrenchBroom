@@ -21,12 +21,11 @@
 #define TrenchBroom_HitFilter
 
 #include "TrenchBroom.h"
-#include "HitType.h"
+#include "Model/HitType.h"
+#include "Model/Model_Forward.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Hit;
-
         class HitFilter {
         private:
             class Always;
@@ -88,8 +87,6 @@ namespace TrenchBroom {
             HitFilter* doClone() const override;
             bool doMatches(const Hit& hit) const override;
         };
-
-        class EditorContext;
 
         class ContextHitFilter : public HitFilter {
         private:

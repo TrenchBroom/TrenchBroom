@@ -21,12 +21,9 @@
 #define TrenchBroom_MapViewConfig
 
 #include "Notifier.h"
+#include "Model/Model_Forward.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class EditorContext;
-    }
-
     namespace View {
         class MapViewConfig {
         public:

@@ -21,6 +21,7 @@
 #define TestGame_h
 
 #include "Model/Game.h"
+#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <string>
@@ -34,8 +35,6 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class SmartTag;
-
         class TestGame : public Game {
         private:
             std::vector<SmartTag> m_smartTags;

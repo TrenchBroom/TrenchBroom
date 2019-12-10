@@ -22,11 +22,10 @@
 
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/MatchSelectedNodes.h"
+#include "Model/Model_Forward.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class EditorContext;
-
         template <typename C, typename M>
         class CollectSelectedNodesTemplate : public CollectMatchingNodesVisitor<M, C, NeverStopRecursion> {
         public:

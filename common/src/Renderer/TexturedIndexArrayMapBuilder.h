@@ -20,16 +20,13 @@
 #ifndef TexturedIndexArrayBuilder_h
 #define TexturedIndexArrayBuilder_h
 
+#include "Assets/Asset_Forward.h"
 #include "Renderer/GL.h"
 #include "Renderer/TexturedIndexArrayMap.h"
 
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
     namespace Renderer {
         /**
          * Builds index array map by recording textured rendering primitives. The corded data can be used to create an

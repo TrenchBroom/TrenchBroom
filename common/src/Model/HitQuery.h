@@ -20,16 +20,14 @@
 #ifndef TrenchBroom_HitQuery
 #define TrenchBroom_HitQuery
 
-#include "Model/Hit.h"
+#include "TrenchBroom.h"
+#include "Model/Model_Forward.h"
 #include "Model/HitType.h"
 
 #include <list>
 
 namespace TrenchBroom {
     namespace Model {
-        class EditorContext;
-        class HitFilter;
-
         class HitQuery {
         private:
             const std::list<Hit>* m_hits;

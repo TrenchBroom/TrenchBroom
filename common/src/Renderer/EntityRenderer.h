@@ -22,6 +22,7 @@
 
 #include "AttrString.h"
 #include "Color.h"
+#include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/EntityModelRenderer.h"
@@ -34,14 +35,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityModelManager;
-    }
-
-    namespace Model {
-        class EditorContext;
-    }
-
     namespace Renderer {
         class RenderBatch;
         class RenderContext;

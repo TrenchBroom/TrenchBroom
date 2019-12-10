@@ -20,6 +20,7 @@
 #ifndef CompilationProfileEditor_h
 #define CompilationProfileEditor_h
 
+#include "Model/Model_Forward.h"
 
 #include <QWidget>
 
@@ -30,10 +31,6 @@ class QLineEdit;
 class QStackedWidget;
 
 namespace TrenchBroom {
-    namespace Model {
-        class CompilationProfile;
-    }
-
     namespace View {
         class CompilationTaskListBox;
         class MapDocument;

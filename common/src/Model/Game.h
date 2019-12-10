@@ -35,10 +35,6 @@
 namespace TrenchBroom {
     class Logger;
 
-    namespace Assets {
-        class TextureManager;
-    }
-
     namespace Model {
         class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader {
         public:

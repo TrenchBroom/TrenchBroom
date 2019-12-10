@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_FaceInspector
 #define TrenchBroom_FaceInspector
 
+#include "Assets/Asset_Forward.h"
+#include "Model/Model_Forward.h"
 #include "View/TabBook.h"
 
 #include <memory>
@@ -28,16 +30,6 @@ class QSplitter;
 class QWidget;
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
-    namespace Model {
-        class BrushFace;
-        class Object;
-        class SelectionResult;
-    }
-
     namespace View {
         class FaceAttribsEditor;
         class GLContextManager;

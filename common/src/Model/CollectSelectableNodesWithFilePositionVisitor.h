@@ -22,13 +22,11 @@
 
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/MatchSelectableNodes.h"
+#include "Model/Model_Forward.h"
 #include "Model/NodePredicates.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class EditorContext;
-        class Node;
-
         class MatchNodesWithFilePosition {
         private:
             const std::vector<size_t> m_positions;

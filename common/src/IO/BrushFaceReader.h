@@ -28,10 +28,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class ModelFactory;
-    }
-
     namespace IO {
         class ParserStatus;
 

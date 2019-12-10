@@ -20,16 +20,11 @@
 #ifndef Polyhedron_BrushGeometryPayload_h
 #define Polyhedron_BrushGeometryPayload_h
 
+#include "Model/Model_Forward.h"
 //#include "Renderer/GL.h"
 
 #include <cstdint>
 #include <limits>
-
-namespace TrenchBroom {
-    namespace Model {
-        class BrushFace;
-    }
-}
 
 struct BrushVertexPayload {
     using Type = uint32_t; // FIXME: GLuint

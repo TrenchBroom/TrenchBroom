@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "Model/EntityAttributeSnapshot.h"
 #include "Model/EntityColor.h"
+#include "Model/Model_Forward.h"
 #include "Model/Node.h"
 #include "Model/TexCoordSystem.h"
 #include "View/CommandProcessor.h"
@@ -38,11 +39,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class ChangeBrushFaceAttributesRequest;
-        class Snapshot;
-    }
-
     namespace View {
         class MapDocumentCommandFacade : public MapDocument {
         private:

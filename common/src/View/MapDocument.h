@@ -49,24 +49,6 @@
 
 class Color;
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityDefinitionManager;
-        class EntityModelManager;
-        class TextureManager;
-    }
-
-    namespace Model {
-        class BrushFaceAttributes;
-        class ChangeBrushFaceAttributesRequest;
-        class EditorContext;
-        class Group;
-        class PickResult;
-        class PointFile;
-        class PortalFile;
-        class TagManager;
-        class SmartTag;
-    }
-
     namespace View {
         class Action;
         class Command;

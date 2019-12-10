@@ -22,15 +22,12 @@
 
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushFaceReference.h"
+#include "Model/Model_Forward.h"
 
 #include <memory>
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushFace;
-        class TexCoordSystem;
-        class TexCoordSystemSnapshot;
-
         class BrushFaceSnapshot {
         private:
             BrushFaceReference m_faceRef;

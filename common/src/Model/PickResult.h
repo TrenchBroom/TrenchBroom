@@ -23,6 +23,7 @@
 #include "Model/CompareHits.h"
 #include "Model/Hit.h"
 #include "Model/HitQuery.h"
+#include "Model/Model_Forward.h"
 
 #include <vecmath/util.h>
 
@@ -30,10 +31,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class CompareHits;
-        class HitFilter;
-        class EditorContext;
-
         class PickResult {
         public:
             using ComparePtr = std::shared_ptr<CompareHits>;

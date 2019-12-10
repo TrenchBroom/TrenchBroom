@@ -20,6 +20,7 @@
 #ifndef TRENCHBROOM_TAG_H
 #define TRENCHBROOM_TAG_H
 
+#include "Model/Model_Forward.h"
 #include "Model/TagType.h"
 
 #include <memory>
@@ -156,10 +157,6 @@ namespace TrenchBroom {
             friend bool operator==(const TagReference& lhs, const TagReference& rhs);
             friend bool operator<(const TagReference& lhs, const TagReference& rhs);
         };
-
-        class TagManager;
-        class TagVisitor;
-        class ConstTagVisitor;
 
         /**
          * Implementing this interface gives a class the ability to be tagged.

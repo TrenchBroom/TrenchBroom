@@ -21,6 +21,7 @@
 
 #include "Constants.h"
 #include "Model/EditorContext.h"
+#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
 

@@ -27,8 +27,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EditorContext;
-
         class Issue {
         private:
             size_t m_seqId;

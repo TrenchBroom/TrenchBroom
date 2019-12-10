@@ -20,10 +20,10 @@
 #ifndef TrenchBroom_BrushFacePredicates
 #define TrenchBroom_BrushFacePredicates
 
+#include "Model/Model_Forward.h"
+
 namespace TrenchBroom {
     namespace Model {
-        class BrushFace;
-
         namespace BrushFacePredicates {
             struct True {
                 bool operator()(const BrushFace* face) const;

@@ -20,15 +20,10 @@
 #ifndef TrenchBroom_MatchSelectableNodes
 #define TrenchBroom_MatchSelectableNodes
 
+#include "Model/Model_Forward.h"
+
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
-        class EditorContext;
-        class Entity;
-        class Group;
-        class Layer;
-        class World;
-
         class MatchSelectableNodes {
         private:
             const Model::EditorContext& m_editorContext;

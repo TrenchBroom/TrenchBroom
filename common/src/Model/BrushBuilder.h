@@ -23,6 +23,8 @@
 #include "TrenchBroom.h"
 #include "Polyhedron3.h"
 
+#include "Model/Model_Forward.h"
+
 #include <vecmath/bbox.h>
 
 #include <string>
@@ -30,9 +32,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
-        class ModelFactory;
-
         class BrushBuilder {
         private:
             ModelFactory* m_factory;

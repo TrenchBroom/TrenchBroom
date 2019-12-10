@@ -34,12 +34,6 @@
 namespace TrenchBroom {
     class Logger;
 
-    namespace Assets {
-        class EntityDefinitionManager;
-        class EntityModelManager;
-        class PointEntityDefinition;
-    }
-
     namespace Renderer {
         class FontDescriptor;
         class TexturedRenderer;

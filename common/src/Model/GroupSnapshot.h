@@ -27,9 +27,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Group;
-        class NodeSnapshot;
-
         class GroupSnapshot : public NodeSnapshot {
         private:
             std::vector<NodeSnapshot*> m_snapshots;

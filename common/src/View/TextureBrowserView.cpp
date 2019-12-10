@@ -25,6 +25,7 @@
 #include "StepIterator.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
+#include "Assets/TextureManager.h"
 #include "Renderer/GL.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/Shaders.h"

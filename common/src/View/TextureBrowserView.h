@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_TextureBrowserView
 #define TrenchBroom_TextureBrowserView
 
-#include "Assets/TextureManager.h"
+#include "Assets/Asset_Forward.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
@@ -34,11 +34,6 @@
 class QScrollBar;
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-        class TextureCollection;
-    }
-
     namespace View {
         class GLContextManager;
         class MapDocument;

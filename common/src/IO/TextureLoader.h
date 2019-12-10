@@ -31,11 +31,6 @@
 namespace TrenchBroom {
     class Logger;
 
-    namespace Assets {
-        class Palette;
-        class TextureManager;
-    }
-
     namespace IO {
         class FileSystem;
         class Path;

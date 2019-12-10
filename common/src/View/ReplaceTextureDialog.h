@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_ReplaceTextureDialog
 #define TrenchBroom_ReplaceTextureDialog
 
+#include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <memory>
@@ -30,10 +31,6 @@
 class QPushButton;
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
     namespace View {
         class GLContextManager;
         class MapDocument;

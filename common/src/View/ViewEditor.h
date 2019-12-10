@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_ViewEditor
 #define TrenchBroom_ViewEditor
 
+#include "Assets/Asset_Forward.h"
+#include "Model/Model_Forward.h"
 
 #include <QWidget>
 
@@ -32,16 +34,6 @@ class QWidget;
 class QButtonGroup;
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityDefinitionManager;
-        class EntityDefinition;
-    }
-
-    namespace Model {
-        class EditorContext;
-        class SmartTag;
-    }
-
     namespace View {
         class MapDocument;
         class PopupButton;

@@ -37,11 +37,6 @@ namespace TrenchBroom {
         class RenderContext;
     }
 
-    namespace Model {
-        class ModelFactory;
-        class PickResult;
-    }
-
     namespace View {
         class Grid;
         class MapDocument;

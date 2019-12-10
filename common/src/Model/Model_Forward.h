@@ -36,9 +36,19 @@ namespace TrenchBroom {
         class Entity;
         class Brush;
         class BrushFace;
+        class BrushFaceAttributes;
+
+        class TexCoordSystem;
+        class ParallelTexCoordSystem;
+        class ParaxialTexCoordSystem;
+        enum class WrapStyle;
+
+        class ChangeBrushFaceAttributesRequest;
 
         enum class VisibilityState;
         enum class LockState;
+
+        class NodeCollection;
 
         class NodeVisitor;
         class ConstNodeVisitor;
@@ -47,10 +57,19 @@ namespace TrenchBroom {
         using AttributeName = std::string;
         using AttributeValue = std::string;
 
+        class Tag;
+        class SmartTag;
+        class TagAttribute;
+        class TagManager;
+        class TagVisitor;
+        class ConstTagVisitor;
+
         class Game;
 
+        class Snapshot;
         class NodeSnapshot;
         class BrushFaceSnapshot;
+        class TexCoordSystemSnapshot;
 
         using IssueType = int;
         class Issue;
@@ -59,13 +78,26 @@ namespace TrenchBroom {
 
         enum class ExportFormat;
 
+        class EditorContext;
+
         class ModelFactory;
 
         class Hit;
+        class HitFilter;
+        class CompareHits;
+
+        class PickResult;
 
         class CompilationConfig;
         class CompilationProfile;
         class CompilationTask;
+        class CompilationExportMap;
+        class CompilationCopyFiles;
+        class CompilationRunTool;
+        class CompilationTaskVisitor;
+        class CompilationTaskConstVisitor;
+        class ConstCompilationTaskVisitor;
+        class ConstCompilationTaskConstVisitor;
 
         struct EntityConfig;
         struct FaceAttribsConfig;
@@ -78,9 +110,8 @@ namespace TrenchBroom {
         struct TextureConfig;
         struct TexturePackageConfig;
 
-        class Tag;
-        class SmartTag;
-        class TagAttribute;
+        class PointFile;
+        class PortalFile;
     }
 }
 

@@ -22,12 +22,11 @@
 
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/MatchSelectableNodes.h"
+#include "Model/Model_Forward.h"
 #include "Model/NodePredicates.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class EditorContext;
-
         template <typename I>
         class MatchTouchingNodes {
         private:

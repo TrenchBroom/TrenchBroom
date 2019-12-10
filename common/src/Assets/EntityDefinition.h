@@ -35,10 +35,6 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        class AttributeDefinition;
-        class FlagsAttributeDefinition;
-        class FlagsAttributeOption;
-
         enum class EntityDefinitionType {
             PointEntity,
             BrushEntity

@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_ViewUtils
 #define TrenchBroom_ViewUtils
 
+#include "Assets/Asset_Forward.h"
+
 #include <memory>
 #include <string>
 
@@ -29,12 +31,6 @@ class QStringList;
 
 namespace TrenchBroom {
     class Logger;
-
-    namespace Assets {
-        class EntityModel;
-        class EntityModelManager;
-        struct ModelSpecification;
-    }
 
     namespace View {
         class MapDocument;

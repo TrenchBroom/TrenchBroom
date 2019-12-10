@@ -27,6 +27,7 @@ namespace TrenchBroom {
 
         class Texture;
         class TextureCollection;
+        class TextureManager;
 
         class EntityDefinitionFileSpec;
 
@@ -40,10 +41,17 @@ namespace TrenchBroom {
         class EntityDefinitionGroup;
 
         class AttributeDefinition;
-        class ModelDefinition;
+        class FlagsAttributeDefinition;
+        class FlagsAttributeOption;
 
-        class EntityModelManager;
+        class ModelDefinition;
+        struct ModelSpecification;
+
         class EntityModel;
+        class EntityModelFrame;
+
+        class EntityDefinitionManager;
+        class EntityModelManager;
     }
 }
 

@@ -21,6 +21,7 @@
 #define TrenchBroom_CreateEntityTool
 
 #include "TrenchBroom.h"
+#include "Model/Model_Forward.h"
 #include "View/Tool.h"
 
 #include <vecmath/bbox.h>
@@ -29,11 +30,6 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Entity;
-        class PickResult;
-    }
-
     namespace View {
         class MapDocument;
 

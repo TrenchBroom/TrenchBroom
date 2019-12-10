@@ -20,24 +20,17 @@
 #ifndef TrenchBroom_TexCoordSystem
 #define TrenchBroom_TexCoordSystem
 
-#include "TrenchBroom.h"
 #include "Macros.h"
+#include "TrenchBroom.h"
+#include "Assets/Asset_Forward.h"
+#include "Model/Model_Forward.h"
 
 #include <vecmath/vec.h>
 
 #include <memory>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
     namespace Model {
-        class BrushFaceAttributes;
-        class TexCoordSystem;
-        class ParallelTexCoordSystem;
-        class ParaxialTexCoordSystem;
-
         class TexCoordSystemSnapshot {
         public:
             virtual ~TexCoordSystemSnapshot();

@@ -24,6 +24,7 @@
 #include "Macros.h"
 #include "Model/BrushGeometry.h"
 #include "Model/HitType.h"
+#include "Model/Model_Forward.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
 #include "Model/TagType.h"
@@ -44,8 +45,6 @@ namespace TrenchBroom {
 
     namespace Model {
         struct BrushAlgorithmResult;
-        class ModelFactory;
-        class PickResult;
 
         class Brush : public Node, public Object {
         private:

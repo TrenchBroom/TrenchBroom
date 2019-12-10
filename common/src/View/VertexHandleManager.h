@@ -24,6 +24,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/HitType.h"
+#include "Model/Model_Forward.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
 
@@ -34,11 +35,6 @@
 #include <set>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Brush;
-        class PickResult;
-    }
-
     namespace Renderer {
         class Camera;
     }

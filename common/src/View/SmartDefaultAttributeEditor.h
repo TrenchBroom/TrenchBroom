@@ -20,16 +20,13 @@
 #ifndef TrenchBroom_DefaultAttributeEditor
 #define TrenchBroom_DefaultAttributeEditor
 
+#include "Assets/Asset_Forward.h"
 #include "View/SmartAttributeEditor.h"
 
 #include <memory>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityDefinition;
-    }
-
     namespace View {
         class MapDocument;
 

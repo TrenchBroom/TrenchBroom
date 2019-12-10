@@ -22,6 +22,7 @@
 
 #include "Color.h"
 #include "TrenchBroom.h"
+#include "Assets/Asset_Forward.h"
 #include "IO/EntityDefinitionParser.h"
 
 #include <vecmath/forward.h>
@@ -38,10 +39,6 @@ namespace tinyxml2 {
 }
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityDefinition;
-    }
-
     namespace IO {
         class ParserStatus;
 
