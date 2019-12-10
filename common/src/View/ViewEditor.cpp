@@ -25,6 +25,7 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/EditorContext.h"
 #include "Model/Game.h"
+#include "Model/Tag.h"
 #include "Model/TagType.h"
 #include "View/BorderPanel.h"
 #include "View/MapDocument.h"

@@ -153,11 +153,11 @@ namespace TrenchBroom {
             return doDefaultMod();
         }
 
-        const GameConfig::FlagsConfig& Game::surfaceFlags() const {
+        const FlagsConfig& Game::surfaceFlags() const {
             return doSurfaceFlags();
         }
 
-        const GameConfig::FlagsConfig& Game::contentFlags() const {
+        const FlagsConfig& Game::contentFlags() const {
             return doContentFlags();
         }
     }

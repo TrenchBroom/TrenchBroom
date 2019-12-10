@@ -20,6 +20,7 @@
 #include "MissingModIssueGenerator.h"
 
 #include "SharedPointer.h"
+#include "IO/Path.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Issue.h"

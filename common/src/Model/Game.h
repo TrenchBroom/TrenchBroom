@@ -24,7 +24,6 @@
 #include "Assets/Asset_Forward.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/EntityModelLoader.h"
-#include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
 #include "Model/Model_Forward.h"
 
@@ -41,8 +40,6 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class SmartTag;
-
         class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader {
         public:
             enum class TexturePackageType {
@@ -94,8 +91,8 @@ namespace TrenchBroom {
             std::vector<std::string> extractEnabledMods(const AttributableNode& node) const;
             std::string defaultMod() const;
         public: // flag configs for faces
-            const GameConfig::FlagsConfig& surfaceFlags() const;
-            const GameConfig::FlagsConfig& contentFlags() const;
+            const FlagsConfig& surfaceFlags() const;
+            const FlagsConfig& contentFlags() const;
         private: // subclassing interface
             virtual const std::string& doGameName() const = 0;
             virtual IO::Path doGamePath() const = 0;
@@ -135,8 +132,8 @@ namespace TrenchBroom {
             virtual std::vector<std::string> doExtractEnabledMods(const AttributableNode& node) const = 0;
             virtual std::string doDefaultMod() const = 0;
 
-            virtual const GameConfig::FlagsConfig& doSurfaceFlags() const = 0;
-            virtual const GameConfig::FlagsConfig& doContentFlags() const = 0;
+            virtual const FlagsConfig& doSurfaceFlags() const = 0;
+            virtual const FlagsConfig& doContentFlags() const = 0;
         };
     }
 }

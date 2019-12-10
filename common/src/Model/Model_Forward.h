@@ -62,6 +62,25 @@ namespace TrenchBroom {
         class ModelFactory;
 
         class Hit;
+
+        class CompilationConfig;
+        class CompilationProfile;
+        class CompilationTask;
+
+        struct EntityConfig;
+        struct FaceAttribsConfig;
+        struct FileSystemConfig;
+        struct FlagConfig;
+        struct FlagsConfig;
+        class GameConfig;
+        struct MapFormatConfig;
+        struct PackageFormatConfig;
+        struct TextureConfig;
+        struct TexturePackageConfig;
+
+        class Tag;
+        class SmartTag;
+        class TagAttribute;
     }
 }
 

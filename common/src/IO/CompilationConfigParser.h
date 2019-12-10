@@ -22,15 +22,13 @@
 
 #include "Macros.h"
 #include "IO/ConfigParserBase.h"
+#include "Model/Model_Forward.h"
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class CompilationConfig;
-        class CompilationProfile;
-        class CompilationTask;
     }
     namespace IO {
         class Path;

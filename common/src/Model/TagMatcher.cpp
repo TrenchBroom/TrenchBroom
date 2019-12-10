@@ -27,6 +27,7 @@
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Game.h"
+#include "Model/GameConfig.h"
 #include "Model/Group.h"
 #include "Model/MapFacade.h"
 #include "Model/NodeCollection.h"

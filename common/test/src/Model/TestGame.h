@@ -82,8 +82,8 @@ namespace TrenchBroom {
             std::vector<std::string> doExtractEnabledMods(const AttributableNode& node) const override;
             std::string doDefaultMod() const override;
 
-            const GameConfig::FlagsConfig& doSurfaceFlags() const override;
-            const GameConfig::FlagsConfig& doContentFlags() const override;
+            const FlagsConfig& doSurfaceFlags() const override;
+            const FlagsConfig& doContentFlags() const override;
 
             std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const override;
             std::unique_ptr<Assets::EntityModel> doInitializeModel(const IO::Path& path, Logger& logger) const override;

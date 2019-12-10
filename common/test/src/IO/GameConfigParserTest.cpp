@@ -24,6 +24,7 @@
 #include "IO/FileMatcher.h"
 #include "IO/GameConfigParser.h"
 #include "IO/Reader.h"
+#include "Model/GameConfig.h"
 #include "Model/Tag.h"
 #include "Model/TagMatcher.h"
 
@@ -133,21 +134,21 @@ namespace TrenchBroom {
                 Path("Icon.png"),
                 false,
                 { // map formats
-                    GameConfig::MapFormatConfig("Standard", Path()),
-                    GameConfig::MapFormatConfig("Valve", Path())
+                    Model::MapFormatConfig("Standard", Path()),
+                    Model::MapFormatConfig("Valve", Path())
                 },
-                GameConfig::FileSystemConfig(Path("id1"), GameConfig::PackageFormatConfig("pak", "idpak")),
-                GameConfig::TextureConfig(
-                    GameConfig::TexturePackageConfig(GameConfig::PackageFormatConfig("wad", "wad2")),
-                    GameConfig::PackageFormatConfig("D", "idmip"),
+                Model::FileSystemConfig(Path("id1"), Model::PackageFormatConfig("pak", "idpak")),
+                Model::TextureConfig(
+                    Model::TexturePackageConfig(Model::PackageFormatConfig("wad", "wad2")),
+                    Model::PackageFormatConfig("D", "idmip"),
                     Path("gfx/palette.lmp"),
                     "wad",
                     Path()),
-                GameConfig::EntityConfig(
+                Model::EntityConfig(
                     { Path("Quake.fgd"), Path("Quoth2.fgd"), Path("Rubicon2.def"), Path("Teamfortress.fgd") },
                     { "bsp", "mdl" },
                     Color(0.6f, 0.6f, 0.6f, 1.0f)),
-                GameConfig::FaceAttribsConfig(),
+                Model::FaceAttribsConfig(),
                 {
                   Model::SmartTag("Trigger", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*", "")),
                   Model::SmartTag("Clip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("clip")),
@@ -390,21 +391,21 @@ namespace TrenchBroom {
                 Path(),
                 Path("Icon.png"),
                 false,
-                GameConfig::MapFormatConfig::List({
-                    GameConfig::MapFormatConfig("Quake2", Path())
+                std::vector<Model::MapFormatConfig>({
+                    Model::MapFormatConfig("Quake2", Path())
                 }),
-                GameConfig::FileSystemConfig(Path("baseq2"), GameConfig::PackageFormatConfig("pak", "idpak")),
-                GameConfig::TextureConfig(
-                    GameConfig::TexturePackageConfig(Path("textures")),
-                    GameConfig::PackageFormatConfig("wal", "wal"),
+                Model::FileSystemConfig(Path("baseq2"), Model::PackageFormatConfig("pak", "idpak")),
+                Model::TextureConfig(
+                    Model::TexturePackageConfig(Path("textures")),
+                    Model::PackageFormatConfig("wal", "wal"),
                     Path("pics/colormap.pcx"),
                     "_tb_textures",
                     Path()),
-                GameConfig::EntityConfig(
+                Model::EntityConfig(
                     { Path("Quake2.fgd") },
                     { "md2" },
                     Color(0.6f, 0.6f, 0.6f, 1.0f)),
-                GameConfig::FaceAttribsConfig(
+                Model::FaceAttribsConfig(
                     {
                         { "light", "Emit light from the surface, brightness is specified in the 'value' field" },
                         { "slick", "The surface is slippery" },

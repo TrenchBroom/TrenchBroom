@@ -20,6 +20,7 @@
 #ifndef CompilationProfileManager_h
 #define CompilationProfileManager_h
 
+#include "Model/Model_Forward.h"
 
 #include <memory>
 
@@ -28,11 +29,6 @@
 class QAbstractButton;
 
 namespace TrenchBroom {
-    namespace Model {
-        class CompilationConfig;
-        class CompilationProfile;
-    }
-
     namespace View {
         class CompilationProfileListBox;
         class CompilationProfileEditor;
