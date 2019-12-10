@@ -1548,10 +1548,10 @@ namespace TrenchBroom {
             Taggable::clearTags();
         }
 
-        bool Brush::allFacesHaveAnyTagInMask(Tag::TagType tagMask) const {
+        bool Brush::allFacesHaveAnyTagInMask(TagType::Type tagMask) const {
             // Possible optimization: Store the shared face tag mask in the brush and updated it when a face changes.
 
-            Tag::TagType sharedFaceTags = ~Tag::TagType(0); // set all bits to 1
+            TagType::Type sharedFaceTags = TagType::AnyType; // set all bits to 1
             for (const auto* face : m_faces) {
                 sharedFaceTags &= face->tagMask();
             }
@@ -1567,7 +1567,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool Brush::anyFacesHaveAnyTagInMask(Tag::TagType tagMask) const {
+        bool Brush::anyFacesHaveAnyTagInMask(TagType::Type tagMask) const {
             // Possible optimization: Store the shared face tag mask in the brush and updated it when a face changes.
 
             for (const auto* face : m_faces) {

@@ -20,6 +20,8 @@
 #ifndef TRENCHBROOM_TAG_H
 #define TRENCHBROOM_TAG_H
 
+#include "Model/TagType.h"
+
 #include <memory>
 #include <set> // FIXME: use vector_set
 #include <string>
@@ -71,8 +73,6 @@ namespace TrenchBroom {
          * Furthermore, a tag can have attributes.
          */
         class Tag {
-        public:
-            using TagType = unsigned long;
         protected:
             size_t m_index;
             std::string m_name;
@@ -106,7 +106,7 @@ namespace TrenchBroom {
             /**
              * Returns the type of this tag.
              */
-            TagType type() const;
+            TagType::Type type() const;
 
             /**
              * Returns the index of this tag.
@@ -166,7 +166,7 @@ namespace TrenchBroom {
          */
         class Taggable {
         private:
-            Tag::TagType m_tagMask;
+            TagType::Type m_tagMask;
             std::set<TagReference> m_tags;
             TagAttribute::AttributeType m_attributeMask;
         public:
@@ -198,14 +198,14 @@ namespace TrenchBroom {
              * @param mask the mask to check
              * @return true if this tag has any of the given tags
              */
-            bool hasTag(Tag::TagType mask) const;
+            bool hasTag(TagType::Type mask) const;
 
             /**
              * Returns a bit mask indicating which tags this object is tagged with.
              *
              * @return the tag mask
              */
-            Tag::TagType tagMask() const;
+            TagType::Type tagMask() const;
 
             /**
              * Adds the given tag to this object.

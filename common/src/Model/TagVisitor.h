@@ -20,7 +20,6 @@
 #ifndef TRENCHBROOM_TAGVISITOR_H
 #define TRENCHBROOM_TAGVISITOR_H
 
-
 namespace TrenchBroom {
     namespace Model {
         class World;

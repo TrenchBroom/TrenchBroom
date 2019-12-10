@@ -25,7 +25,7 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/EditorContext.h"
 #include "Model/Game.h"
-#include "Model/Tag.h"
+#include "Model/TagType.h"
 #include "View/BorderPanel.h"
 #include "View/MapDocument.h"
 #include "View/MapViewConfig.h"
@@ -34,12 +34,10 @@
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
-#include <string>
 #include <vector>
 
 #include <QCheckBox>
 #include <QGridLayout>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QScrollArea>
 #include <QButtonGroup>
@@ -475,7 +473,7 @@ namespace TrenchBroom {
             m_showBrushesCheckBox->setChecked(config.showBrushes());
 
             Model::EditorContext& editorContext = document->editorContext();
-            const Model::Tag::TagType hiddenTags = editorContext.hiddenTags();
+            const Model::TagType::Type hiddenTags = editorContext.hiddenTags();
 
             const auto& tags = document->smartTags();
             auto tagIt = std::begin(tags);
@@ -545,7 +543,7 @@ namespace TrenchBroom {
         void ViewEditor::showTagChanged(const bool /* checked */) {
             auto document = lock(m_document);
 
-            Model::Tag::TagType hiddenTags = 0;
+            Model::TagType::Type hiddenTags = Model::TagType::NoType;
             const auto& tags = document->smartTags();
 
             auto tagIt = std::begin(tags);

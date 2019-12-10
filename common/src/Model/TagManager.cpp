@@ -21,6 +21,7 @@
 
 #include "Ensure.h"
 #include "Model/Tag.h"
+#include "Model/TagType.h"
 
 #include <algorithm>
 #include <stdexcept>
@@ -106,7 +107,7 @@ namespace TrenchBroom {
         }
 
         size_t TagManager::freeTagIndex() {
-            static const size_t Bits = (sizeof(Tag::TagType) * 8);
+            static const size_t Bits = (sizeof(TagType::Type) * 8);
             const auto index = m_smartTags.size();
             ensure(index <= Bits, "no more tag types");
             return index;

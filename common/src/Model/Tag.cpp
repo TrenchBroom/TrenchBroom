@@ -63,7 +63,7 @@ namespace TrenchBroom {
         Tag& Tag::operator=(const Tag& other) = default;
         Tag& Tag::operator=(Tag&& other) = default;
 
-        Tag::TagType Tag::type() const {
+        TagType::Type Tag::type() const {
             return 1UL << m_index;
         }
 
@@ -120,11 +120,11 @@ namespace TrenchBroom {
             return hasTag(tag.type());
         }
 
-        bool Taggable::hasTag(Tag::TagType mask) const {
+        bool Taggable::hasTag(TagType::Type mask) const {
             return (m_tagMask & mask) != 0;
         }
 
-        Tag::TagType Taggable::tagMask() const {
+        TagType::Type Taggable::tagMask() const {
             return m_tagMask;
         }
 

@@ -26,6 +26,7 @@
 #include "Model/HitType.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
+#include "Model/TagType.h"
 
 #include <vecmath/forward.h>
 
@@ -321,7 +322,7 @@ namespace TrenchBroom {
              * @param tagMask the tags to check
              * @return true whether all faces of this brush have any of the given tags
              */
-            bool allFacesHaveAnyTagInMask(Tag::TagType tagMask) const;
+            bool allFacesHaveAnyTagInMask(TagType::Type tagMask) const;
 
             /**
              * Indicates whether any of the faces of this brush have any tags.
@@ -336,7 +337,7 @@ namespace TrenchBroom {
              * @param tagMask the tags to check
              * @return true whether any faces of this brush have any of the given tags
              */
-            bool anyFacesHaveAnyTagInMask(Tag::TagType tagMask) const;
+            bool anyFacesHaveAnyTagInMask(TagType::Type tagMask) const;
         private:
             void doAcceptTagVisitor(TagVisitor& visitor) override;
             void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
