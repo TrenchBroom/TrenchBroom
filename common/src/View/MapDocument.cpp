@@ -1600,7 +1600,7 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityDefinitionFileSpec::List MapDocument::allEntityDefinitionFiles() const {
+        std::vector<Assets::EntityDefinitionFileSpec> MapDocument::allEntityDefinitionFiles() const {
             return m_game->allEntityDefinitionFiles();
         }
 

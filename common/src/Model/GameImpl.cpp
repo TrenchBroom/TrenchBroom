@@ -23,6 +23,7 @@
 #include "Macros.h"
 #include "Assets/Palette.h"
 #include "Assets/EntityModel.h"
+#include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/AseParser.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/Bsp29Parser.h"
@@ -312,11 +313,11 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityDefinitionFileSpec::List GameImpl::doAllEntityDefinitionFiles() const {
+        std::vector<Assets::EntityDefinitionFileSpec> GameImpl::doAllEntityDefinitionFiles() const {
             const auto paths = m_config.entityConfig().defFilePaths;
             const auto count = paths.size();
 
-            Assets::EntityDefinitionFileSpec::List result;
+            std::vector<Assets::EntityDefinitionFileSpec> result;
             result.reserve(count);
 
             for (const auto& path : paths) {

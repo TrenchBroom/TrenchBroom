@@ -28,7 +28,7 @@
 namespace TrenchBroom {
     namespace Assets {
         EntityDefinitionFileSpec::EntityDefinitionFileSpec() :
-        m_type(Type_Unset),
+        m_type(Type::Unset),
         m_path("") {}
 
         EntityDefinitionFileSpec EntityDefinitionFileSpec::parse(const std::string& str) {
@@ -51,11 +51,11 @@ namespace TrenchBroom {
         }
 
         EntityDefinitionFileSpec EntityDefinitionFileSpec::builtin(const IO::Path& path) {
-            return EntityDefinitionFileSpec(Type_Builtin, path);
+            return EntityDefinitionFileSpec(Type::Builtin, path);
         }
 
         EntityDefinitionFileSpec EntityDefinitionFileSpec::external(const IO::Path& path) {
-            return EntityDefinitionFileSpec(Type_External, path);
+            return EntityDefinitionFileSpec(Type::External, path);
         }
 
         EntityDefinitionFileSpec EntityDefinitionFileSpec::unset() {
@@ -75,15 +75,15 @@ namespace TrenchBroom {
         }
 
         bool EntityDefinitionFileSpec::valid() const {
-            return m_type != Type_Unset;
+            return m_type != Type::Unset;
         }
 
         bool EntityDefinitionFileSpec::builtin() const {
-            return m_type == Type_Builtin;
+            return m_type == Type::Builtin;
         }
 
         bool EntityDefinitionFileSpec::external() const {
-            return m_type == Type_External;
+            return m_type == Type::External;
         }
 
         const IO::Path& EntityDefinitionFileSpec::path() const {

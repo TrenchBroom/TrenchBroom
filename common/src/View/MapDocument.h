@@ -430,7 +430,7 @@ namespace TrenchBroom {
             void clearWorld();
         public: // asset management
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
-            Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
+            std::vector<Assets::EntityDefinitionFileSpec> allEntityDefinitionFiles() const;
             void setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
 
             // For testing

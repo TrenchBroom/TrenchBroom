@@ -19,6 +19,7 @@
 
 #include "Game.h"
 
+#include "Assets/EntityDefinitionFileSpec.h"
 #include "Model/GameFactory.h"
 #include "Model/World.h"
 
@@ -128,7 +129,7 @@ namespace TrenchBroom {
             return doIsEntityDefinitionFile(path);
         }
 
-        Assets::EntityDefinitionFileSpec::List Game::allEntityDefinitionFiles() const {
+        std::vector<Assets::EntityDefinitionFileSpec> Game::allEntityDefinitionFiles() const {
             return doAllEntityDefinitionFiles();
         }
 

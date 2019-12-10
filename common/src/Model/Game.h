@@ -21,7 +21,7 @@
 #define TrenchBroom_Game
 
 #include "TrenchBroom.h"
-#include "Assets/EntityDefinitionFileSpec.h"
+#include "Assets/Asset_Forward.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/EntityModelLoader.h"
 #include "Model/GameConfig.h"
@@ -29,6 +29,7 @@
 #include "Model/Model_Forward.h"
 
 #include <memory>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -85,7 +86,7 @@ namespace TrenchBroom {
             void reloadShaders();
         public: // entity definition handling
             bool isEntityDefinitionFile(const IO::Path& path) const;
-            Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
+            std::vector<Assets::EntityDefinitionFileSpec> allEntityDefinitionFiles() const;
             Assets::EntityDefinitionFileSpec extractEntityDefinitionFile(const AttributableNode& node) const;
             IO::Path findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const;
         public: // mods
@@ -126,7 +127,7 @@ namespace TrenchBroom {
             virtual void doReloadShaders() = 0;
 
             virtual bool doIsEntityDefinitionFile(const IO::Path& path) const = 0;
-            virtual Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const = 0;
+            virtual std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles() const = 0;
             virtual Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const = 0;
             virtual IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const = 0;
 

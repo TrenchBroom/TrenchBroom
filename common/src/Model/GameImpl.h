@@ -81,7 +81,7 @@ namespace TrenchBroom {
 
             bool doIsEntityDefinitionFile(const IO::Path& path) const override;
             std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const override;
-            Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const override;
+            std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles() const override;
             Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const override;
             Assets::EntityDefinitionFileSpec defaultEntityDefinitionFile() const;
             IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const override;

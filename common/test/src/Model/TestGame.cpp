@@ -161,8 +161,8 @@ namespace TrenchBroom {
             return false;
         }
 
-        Assets::EntityDefinitionFileSpec::List TestGame::doAllEntityDefinitionFiles() const {
-            return Assets::EntityDefinitionFileSpec::List();
+        std::vector<Assets::EntityDefinitionFileSpec> TestGame::doAllEntityDefinitionFiles() const {
+            return std::vector<Assets::EntityDefinitionFileSpec>();
         }
 
         Assets::EntityDefinitionFileSpec TestGame::doExtractEntityDefinitionFile(const AttributableNode& /* node */) const {
