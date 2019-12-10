@@ -23,6 +23,7 @@
 #include "Logger.h"
 #include "Macros.h"
 #include "Assets/EntityModel.h"
+#include "Assets/ModelDefinition.h"
 #include "IO/EntityModelLoader.h"
 #include "Model/Entity.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"

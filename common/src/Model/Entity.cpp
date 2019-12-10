@@ -19,6 +19,7 @@
 
 #include "Entity.h"
 
+#include "Assets/EntityDefinition.h"
 #include "Assets/EntityModel.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
@@ -72,11 +73,11 @@ namespace TrenchBroom {
         }
 
         bool Entity::hasBrushEntityDefinition() const {
-            return hasEntityDefinition() && definition()->type() == Assets::EntityDefinition::Type_BrushEntity;
+            return hasEntityDefinition() && definition()->type() == Assets::EntityDefinitionType::BrushEntity;
         }
 
         bool Entity::hasPointEntityDefinition() const {
-            return hasEntityDefinition() && definition()->type() == Assets::EntityDefinition::Type_PointEntity;
+            return hasEntityDefinition() && definition()->type() == Assets::EntityDefinitionType::PointEntity;
         }
 
         bool Entity::hasPointEntityModel() const {

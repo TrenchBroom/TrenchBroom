@@ -22,6 +22,8 @@
 #include "Assets/Palette.h"
 #include "IO/Reader.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace IO {
         HlMipTextureReader::HlMipTextureReader(const NameStrategy& nameStrategy) :
@@ -31,11 +33,10 @@ namespace TrenchBroom {
             const size_t start = offset[0] + (width * height * 85 >> 6) + 2;
             reader.seekFromBegin(start);
 
-            const size_t paletteSize = reader.size() - start;
-            unsigned char* paletteData = new unsigned char[paletteSize];
-            reader.read(paletteData, paletteSize);
+            std::vector<unsigned char> data(reader.size() - start);
+            reader.read(data.data(), data.size());
 
-            return Assets::Palette(paletteSize, paletteData);
+            return Assets::Palette(std::move(data));
         }
     }
 }

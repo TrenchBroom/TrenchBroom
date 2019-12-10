@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "Macros.h"
 #include "Assets/Palette.h"
+#include "Assets/EntityModel.h"
 #include "IO/AseParser.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/Bsp29Parser.h"

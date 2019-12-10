@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_IOUtils_h
 #define TrenchBroom_IOUtils_h
 
-#include "ByteBuffer.h"
 #include "Macros.h"
 
 #include <vecmath/forward.h>
@@ -70,6 +69,7 @@ namespace TrenchBroom {
 
         void writeGameComment(FILE* stream, const std::string& gameName, const std::string& mapFormat);
 
+        // FIXME: remove the following functions if possible
         template <typename T>
         void advance(const char*& cursor, const size_t i = 1) {
             cursor += (i * sizeof(T));

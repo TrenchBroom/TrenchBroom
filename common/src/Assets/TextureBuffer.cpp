@@ -17,16 +17,53 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ImageUtils.h"
+#include "TextureBuffer.h"
+
 #include "Ensure.h"
 
 #include <vecmath/vec.h>
 
 #include <FreeImage.h>
 
+#include <algorithm> // for std::max
+
 namespace TrenchBroom {
     namespace Assets {
-        void resizeMips(TextureBuffer::List& buffers, const vm::vec2s& oldSize, const vm::vec2s& newSize) {
+
+        vm::vec2s sizeAtMipLevel(const size_t width, const size_t height, const size_t level) {
+            assert(width > 0);
+            assert(height > 0);
+
+            // from Issues 6 in: https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_texture_non_power_of_two.txt
+            return vm::vec2s(std::max(size_t(1), width >> level),
+                             std::max(size_t(1), height >> level));
+        }
+
+        size_t bytesPerPixelForFormat(const GLenum format) {
+            switch (format) {
+                case GL_RGB:
+                case GL_BGR:
+                    return 3U;
+                case GL_RGBA:
+                case GL_BGRA:
+                    return 4U;
+            }
+            ensure(false, "unknown format");
+            return 0U;
+        }
+
+        void setMipBufferSize(TextureBufferList& buffers, const size_t mipLevels, const size_t width, const size_t height, const GLenum format) {
+            const size_t bytesPerPixel = bytesPerPixelForFormat(format);
+
+            buffers.resize(mipLevels);
+            for (size_t level = 0u; level < buffers.size(); ++level) {
+                const auto mipSize = sizeAtMipLevel(width, height, level);
+                const auto numBytes = bytesPerPixel * mipSize.x() * mipSize.y();
+                buffers[level].resize(numBytes);
+            }
+        }
+
+        void resizeMips(TextureBufferList& buffers, const vm::vec2s& oldSize, const vm::vec2s& newSize) {
             if (oldSize == newSize)
                 return;
 
@@ -35,7 +72,7 @@ namespace TrenchBroom {
                 const auto oldWidth = static_cast<int>(oldSize.x() / div);
                 const auto oldHeight = static_cast<int>(oldSize.y() / div);
                 const auto oldPitch = oldWidth * 3;
-                auto* oldPtr = buffers[i].ptr();
+                auto* oldPtr = buffers[i].data();
 
                 auto* oldBitmap = FreeImage_ConvertFromRawBits(oldPtr, oldWidth, oldHeight, oldPitch, 24, 0xFF0000, 0x00FF00, 0x0000FF, true);
                 ensure(oldBitmap != nullptr, "oldBitmap is null");
@@ -46,8 +83,8 @@ namespace TrenchBroom {
                 auto* newBitmap = FreeImage_Rescale(oldBitmap, newWidth, newHeight, FILTER_BICUBIC);
                 ensure(newBitmap != nullptr, "newBitmap is null");
 
-                buffers[i] = TextureBuffer(3 * newSize.x() * newSize.y());
-                auto* newPtr = buffers[i].ptr();
+                buffers[i] = std::vector<unsigned char>(3 * newSize.x() * newSize.y());
+                auto* newPtr = buffers[i].data();
 
                 FreeImage_ConvertToRawBits(newPtr, newBitmap, newPitch, 24, 0xFF0000, 0x00FF00, 0x0000FF, true);
                 FreeImage_Unload(oldBitmap);

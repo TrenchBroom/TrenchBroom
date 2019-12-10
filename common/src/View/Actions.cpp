@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
+#include "Assets/EntityDefinition.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Tag.h"
 #include "View/Grid.h"

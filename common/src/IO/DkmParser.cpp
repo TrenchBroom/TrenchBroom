@@ -20,6 +20,7 @@
 #include "DkmParser.h"
 
 #include "Exceptions.h"
+#include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "IO/FileSystem.h"
 #include "IO/FileMatcher.h"
@@ -378,7 +379,7 @@ namespace TrenchBroom {
             return meshes;
         }
 
-        void DkmParser::loadSkins(Assets::EntityModel::Surface& surface, const DkmParser::DkmSkinList& skins) {
+        void DkmParser::loadSkins(Assets::EntityModelSurface& surface, const DkmParser::DkmSkinList& skins) {
             for (const auto& skin : skins) {
                 const auto skinPath = findSkin(skin);
                 surface.addSkin(loadSkin(m_fs.openFile(skinPath)));
@@ -415,7 +416,7 @@ namespace TrenchBroom {
             }
         }
 
-        void DkmParser::buildFrame(Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const size_t frameIndex, const DkmFrame& frame, const DkmMeshList& meshes) {
+        void DkmParser::buildFrame(Assets::EntityModel& model, Assets::EntityModelSurface& surface, const size_t frameIndex, const DkmFrame& frame, const DkmMeshList& meshes) {
             size_t vertexCount = 0;
             Renderer::IndexRangeMap::Size size;
             for (const auto& md2Mesh : meshes) {
@@ -429,7 +430,7 @@ namespace TrenchBroom {
 
             vm::bbox3f::builder bounds;
 
-            Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Type> builder(vertexCount, size);
+            Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type> builder(vertexCount, size);
             for (const auto& md2Mesh : meshes) {
                 if (!md2Mesh.vertices.empty()) {
                     vertexCount += md2Mesh.vertices.size();
@@ -449,8 +450,8 @@ namespace TrenchBroom {
             surface.addIndexedMesh(modelFrame, builder.vertices(), builder.indices());
         }
 
-        Assets::EntityModel::VertexList DkmParser::getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const {
-            using Vertex = Assets::EntityModel::Vertex;
+        Assets::EntityModelVertexList DkmParser::getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const {
+            using Vertex = Assets::EntityModelVertex;
 
             Vertex::List result(0);
             result.reserve(meshVertices.size());

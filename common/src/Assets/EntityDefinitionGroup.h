@@ -21,7 +21,6 @@
 #define TrenchBroom_EntityDefinitionGroup
 
 #include "Assets/Asset_Forward.h"
-#include "Assets/EntityDefinition.h"
 
 #include <string>
 #include <vector>
@@ -29,19 +28,17 @@
 namespace TrenchBroom {
     namespace Assets {
         class EntityDefinitionGroup {
-        public:
-            using List = std::vector<EntityDefinitionGroup>;
         private:
             std::string m_name;
             std::vector<EntityDefinition*> m_definitions;
         public:
-            EntityDefinitionGroup(const std::string& name, const std::vector<EntityDefinition*>& definitions);
+            EntityDefinitionGroup(const std::string& name, std::vector<EntityDefinition*> definitions);
 
             size_t index() const;
             const std::string& name() const;
             const std::string displayName() const;
             const std::vector<EntityDefinition*>& definitions() const;
-            std::vector<EntityDefinition*> definitions(EntityDefinition::Type type, const EntityDefinition::SortOrder order = EntityDefinition::Name) const;
+            std::vector<EntityDefinition*> definitions(EntityDefinitionType type, EntityDefinitionSortOrder order) const;
         };
     }
 }

@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "Polyhedron.h"
 #include "Polyhedron3.h"
+#include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModelManager.h"
 #include "Assets/Texture.h"

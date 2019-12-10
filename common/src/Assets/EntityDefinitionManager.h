@@ -22,8 +22,6 @@
 
 #include "Notifier.h"
 #include "Assets/Asset_Forward.h"
-#include "Assets/EntityDefinition.h"
-#include "Assets/EntityDefinitionGroup.h"
 #include "Model/Model_Forward.h"
 
 #include <map>
@@ -42,7 +40,7 @@ namespace TrenchBroom {
         private:
             using Cache = std::map<std::string, EntityDefinition*>;
             std::vector<EntityDefinition*> m_definitions;
-            EntityDefinitionGroup::List m_groups;
+            std::vector<EntityDefinitionGroup> m_groups;
             Cache m_cache;
         public:
             Notifier<> usageCountDidChangeNotifier;
@@ -55,10 +53,10 @@ namespace TrenchBroom {
 
             EntityDefinition* definition(const Model::AttributableNode* attributable) const;
             EntityDefinition* definition(const Model::AttributeValue& classname) const;
-            std::vector<EntityDefinition*> definitions(EntityDefinition::Type type, EntityDefinition::SortOrder order = EntityDefinition::Name) const;
+            std::vector<EntityDefinition*> definitions(EntityDefinitionType type, EntityDefinitionSortOrder order) const;
             const std::vector<EntityDefinition*>& definitions() const;
 
-            const EntityDefinitionGroup::List& groups() const;
+            const std::vector<EntityDefinitionGroup>& groups() const;
         private:
             void updateIndices();
             void updateGroups();

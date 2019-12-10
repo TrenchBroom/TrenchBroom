@@ -17,34 +17,27 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Asset_Forward_h
-#define TrenchBroom_Asset_Forward_h
+#ifndef TRENCHBROOM_ENTITYMODEL_FORWARD_H
+#define TRENCHBROOM_ENTITYMODEL_FORWARD_H
+
+#include "Renderer/GLVertexType.h"
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class IndexRangeMap;
+        class TexturedIndexRangeMap;
+    }
+
     namespace Assets {
-        class Palette;
-        class PaletteLoader;
-
-        class Texture;
-        class TextureCollection;
-
-        class EntityDefinitionFileSpec;
-
-        class EntityDefinition;
-        enum class EntityDefinitionType;
-        enum class EntityDefinitionSortOrder;
-
-        class PointEntityDefinition;
-        class BrushEntityDefinition;
-
-        class EntityDefinitionGroup;
-
-        class AttributeDefinition;
-        class ModelDefinition;
-
-        class EntityModelManager;
         class EntityModel;
+        class EntityModelLoadedFrame;
+        class EntityModelSurface;
+
+        using EntityModelVertex = Renderer::GLVertexTypes::P3T2::Vertex;
+        using EntityModelVertexList = EntityModelVertex::List;
+        using EntityModelIndices = Renderer::IndexRangeMap;
+        using EntityModelTexturedIndices = Renderer::TexturedIndexRangeMap;
     }
 }
 
-#endif
+#endif //TRENCHBROOM_ENTITYMODEL_FORWARD_H

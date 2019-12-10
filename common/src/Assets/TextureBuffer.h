@@ -17,17 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ImageUtils
-#define TrenchBroom_ImageUtils
+#ifndef TRENCHBROOM_TEXTUREBUFFER_H
+#define TRENCHBROOM_TEXTUREBUFFER_H
 
-#include "Assets/Texture.h"
+#include "Renderer/GL.h"
 
 #include <vecmath/forward.h>
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Assets {
-        void resizeMips(TextureBuffer::List& buffers, const vm::vec2s& oldSize, const vm::vec2s& newSize);
+        using TextureBuffer = std::vector<unsigned char>;
+        using TextureBufferList = std::vector<TextureBuffer>;
+
+        vm::vec2s sizeAtMipLevel(size_t width, size_t height, size_t level);
+        size_t bytesPerPixelForFormat(GLenum format);
+        void setMipBufferSize(TextureBufferList& buffers, size_t mipLevels, size_t width, size_t height, GLenum format);
+
+        void resizeMips(TextureBufferList& buffers, const vm::vec2s& oldSize, const vm::vec2s& newSize);
     }
 }
 
-#endif /* defined(TrenchBroom_ImageUtils) */
+#endif //TRENCHBROOM_TEXTUREBUFFER_H

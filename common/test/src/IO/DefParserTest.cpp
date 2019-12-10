@@ -19,22 +19,20 @@
 
 #include <gtest/gtest.h>
 
+#include "TestUtils.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionTestUtils.h"
-#include "Model/Model_Forward.h"
 #include "IO/DefParser.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
-#include "TestUtils.h"
+#include "Model/EntityAttributes.h"
 
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
-
-#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -132,7 +130,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_BrushEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinitionType::BrushEntity, definition->type());
             ASSERT_EQ(std::string("worldspawn"), definition->name());
             ASSERT_VEC_EQ(Color(0.0f, 0.0f, 0.0f, 1.0f), definition->color());
             ASSERT_EQ(std::string("Only used for the world entity. "
@@ -160,7 +158,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinitionType::PointEntity, definition->type());
             ASSERT_EQ(std::string("monster_zombie"), definition->name());
             ASSERT_VEC_EQ(Color(1.0f, 0.0f, 0.0f, 1.0f), definition->color());
             ASSERT_EQ(std::string("If crucified, stick the bounding box 12 pixels back into a wall to look right."), definition->description());
@@ -207,7 +205,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinitionType::PointEntity, definition->type());
             ASSERT_EQ(std::string("item_health"), definition->name());
             ASSERT_VEC_EQ(Color(0.3f, 0.3f, 1.0f, 1.0f), definition->color());
             ASSERT_EQ(std::string("some desc"), definition->description());
@@ -263,7 +261,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_BrushEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinitionType::BrushEntity, definition->type());
             ASSERT_EQ(std::string("item_health"), definition->name());
             ASSERT_VEC_EQ(Color(0.3f, 0.3f, 1.0f, 1.0f), definition->color());
             ASSERT_EQ(std::string("some desc"), definition->description());
@@ -338,7 +336,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinitionType::PointEntity, definition->type());
             ASSERT_EQ(std::string("light"), definition->name());
 
             const auto& attributes = definition->attributeDefinitions();

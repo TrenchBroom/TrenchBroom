@@ -30,7 +30,6 @@
 #include <vecmath/scalar.h>
 
 #include <ostream>
-#include <string>
 
 namespace TrenchBroom {
     namespace Assets {

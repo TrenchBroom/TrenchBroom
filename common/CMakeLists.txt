@@ -9,11 +9,11 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionManager.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityModel.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.cpp
-        ${COMMON_SOURCE_DIR}/Assets/ImageUtils.cpp
         ${COMMON_SOURCE_DIR}/Assets/ModelDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/Palette.cpp
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.cpp
         ${COMMON_SOURCE_DIR}/Assets/Texture.cpp
+        ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.cpp
         ${COMMON_SOURCE_DIR}/Assets/TextureCollection.cpp
         ${COMMON_SOURCE_DIR}/Assets/TextureManager.cpp
         ${COMMON_SOURCE_DIR}/EL/ELExceptions.cpp
@@ -514,12 +514,13 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionGroup.h
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionManager.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModel.h
+        ${COMMON_SOURCE_DIR}/Assets/EntityModel_Forward.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.h
-        ${COMMON_SOURCE_DIR}/Assets/ImageUtils.h
         ${COMMON_SOURCE_DIR}/Assets/ModelDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/Palette.h
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.h
         ${COMMON_SOURCE_DIR}/Assets/Texture.h
+        ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.h
         ${COMMON_SOURCE_DIR}/Assets/TextureCollection.h
         ${COMMON_SOURCE_DIR}/Assets/TextureManager.h
         ${COMMON_SOURCE_DIR}/EL/ELExceptions.h
@@ -1027,7 +1028,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Allocator.h
         ${COMMON_SOURCE_DIR}/AttrString.h
         ${COMMON_SOURCE_DIR}/Bitset.h
-        ${COMMON_SOURCE_DIR}/ByteBuffer.h
         ${COMMON_SOURCE_DIR}/Color.h
         ${COMMON_SOURCE_DIR}/Constants.h
         ${COMMON_SOURCE_DIR}/Disjunction.h

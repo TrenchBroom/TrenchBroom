@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_MapViewBase
 #define TrenchBroom_MapViewBase
 
-#include "Assets/EntityDefinition.h"
+#include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 #include "Model/NodeCollection.h"
 #include "Renderer/RenderContext.h"
@@ -197,7 +197,7 @@ namespace TrenchBroom {
             void createPointEntity();
             void createBrushEntity();
 
-            Assets::EntityDefinition* findEntityDefinition(Assets::EntityDefinition::Type type, size_t index) const;
+            Assets::EntityDefinition* findEntityDefinition(Assets::EntityDefinitionType type, size_t index) const;
             void createPointEntity(const Assets::PointEntityDefinition* definition);
             void createBrushEntity(const Assets::BrushEntityDefinition* definition);
             bool canCreateBrushEntity();
@@ -271,7 +271,7 @@ namespace TrenchBroom {
             void dragMoveEvent(QDragMoveEvent* event) override;
             void dropEvent(QDropEvent* event) override;
         private:
-            QMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type);
+            QMenu* makeEntityGroupsMenu(Assets::EntityDefinitionType type);
 
             bool canMergeGroups() const;
             bool canMakeStructural() const;

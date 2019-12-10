@@ -20,7 +20,9 @@
 #include "MdlParser.h"
 
 #include "Exceptions.h"
+#include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
+#include "Assets/TextureBuffer.h"
 #include "Assets/Palette.h"
 #include "IO/Reader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
@@ -292,7 +294,7 @@ namespace TrenchBroom {
             parseFrame(reader, model, frameIndex, surface, triangles, vertices, skinWidth, skinHeight, origin, scale);
         }
 
-        void MdlParser::parseSkins(Reader& reader, Assets::EntityModel::Surface& surface, const size_t count, const size_t width, const size_t height, const int flags) {
+        void MdlParser::parseSkins(Reader& reader, Assets::EntityModelSurface& surface, const size_t count, const size_t width, const size_t height, const int flags) {
             const auto size = width * height;
             const auto transparency = (flags & MF_HOLEY)
                     ? Assets::PaletteTransparency::Index255Transparent
@@ -305,22 +307,22 @@ namespace TrenchBroom {
             for (size_t i = 0; i < count; ++i) {
                 const auto skinGroup = reader.readSize<int32_t>();
                 if (skinGroup == 0) {
-                    Buffer<unsigned char> rgbaImage(size * 4);
+                    Assets::TextureBuffer rgbaImage(size * 4);
                     m_palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
 
                     const std::string textureName = m_name + "_" + kdl::str_to_string(i);
-                    surface.addSkin(new Assets::Texture(textureName, width, height, avgColor, rgbaImage, GL_RGBA, type));
+                    surface.addSkin(new Assets::Texture(textureName, width, height, avgColor, std::move(rgbaImage), GL_RGBA, type));
                 } else {
                     const auto pictureCount = reader.readSize<int32_t>();
 
-                    Buffer<unsigned char> rgbaImage(size * 4);
+                    Assets::TextureBuffer rgbaImage(size * 4);
                     reader.seekForward(pictureCount * 4); // skip the picture times
 
                     m_palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
                     reader.seekForward((pictureCount - 1) * size);  // skip all remaining pictures
 
                     const std::string textureName = m_name + "_" + kdl::str_to_string(i);
-                    surface.addSkin(new Assets::Texture(textureName, width, height, avgColor, rgbaImage, GL_RGBA, type));
+                    surface.addSkin(new Assets::Texture(textureName, width, height, avgColor, std::move(rgbaImage), GL_RGBA, type));
                 }
             }
         }
@@ -331,7 +333,6 @@ namespace TrenchBroom {
             for (size_t i = 0; i < count; ++i) {
                 const auto skinGroup = reader.readSize<int32_t>();
                 if (skinGroup == 0) {
-                    Buffer<unsigned char> rgbaImage(size * 4);
                     reader.seekForward(size);
                 } else {
                     const auto pictureCount = reader.readSize<int32_t>();
@@ -381,7 +382,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MdlParser::parseFrame(Reader& reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& triangles, const MdlSkinVertexList& vertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
+        void MdlParser::parseFrame(Reader& reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModelSurface& surface, const MdlSkinTriangleList& triangles, const MdlSkinVertexList& vertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
             const auto frameLength = MdlLayout::SimpleFrameName + MdlLayout::SimpleFrameLength + vertices.size() * 4;
 
             const auto type = reader.readInt<int32_t>();
@@ -396,8 +397,8 @@ namespace TrenchBroom {
             }
         }
 
-        void MdlParser::doParseFrame(Reader reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModel::Surface& surface, const MdlSkinTriangleList& triangles, const MdlSkinVertexList& vertices, const size_t skinWidth, const size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
-            using Vertex = Assets::EntityModel::Vertex;
+        void MdlParser::doParseFrame(Reader reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModelSurface& surface, const MdlSkinTriangleList& triangles, const MdlSkinVertexList& vertices, const size_t skinWidth, const size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
+            using Vertex = Assets::EntityModelVertex;
             using VertexList = Vertex::List;
 
             reader.seekForward(MdlLayout::SimpleFrameName);
@@ -439,7 +440,7 @@ namespace TrenchBroom {
             Renderer::IndexRangeMap::Size size;
             size.inc(GL_TRIANGLES, frameTriangles.size());
 
-            Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Type> builder(frameTriangles.size() * 3, size);
+            Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type> builder(frameTriangles.size() * 3, size);
             builder.addTriangles(frameTriangles);
 
             auto& frame = model.loadFrame(frameIndex, name, bounds.bounds());

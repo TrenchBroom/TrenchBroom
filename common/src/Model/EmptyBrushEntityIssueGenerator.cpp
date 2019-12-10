@@ -27,7 +27,6 @@
 #include "Model/MapFacade.h"
 
 #include <string>
-#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -68,7 +67,7 @@ namespace TrenchBroom {
         void EmptyBrushEntityIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
             ensure(entity != nullptr, "entity is null");
             const Assets::EntityDefinition* definition = entity->definition();
-            if (definition != nullptr && definition->type() == Assets::EntityDefinition::Type_BrushEntity && !entity->hasChildren())
+            if (definition != nullptr && definition->type() == Assets::EntityDefinitionType::BrushEntity && !entity->hasChildren())
                 issues.push_back(new EmptyBrushEntityIssue(entity));
         }
     }
