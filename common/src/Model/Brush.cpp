@@ -58,14 +58,6 @@ namespace TrenchBroom {
     namespace Model {
         const HitType::Type Brush::BrushHit = HitType::freeType();
 
-        Brush::ProjectToVertex::Type Brush::ProjectToVertex::project(const BrushVertex* vertex) {
-            return vertex;
-        }
-
-        Brush::ProjectToEdge::Type Brush::ProjectToEdge::project(const BrushEdge* edge) {
-            return edge;
-        }
-
         class Brush::AddFaceToGeometryCallback : public BrushGeometry::Callback {
         private:
             BrushFace* m_addedFace;
@@ -604,9 +596,9 @@ namespace TrenchBroom {
             return m_geometry->vertexCount();
         }
 
-        Brush::VertexList Brush::vertices() const {
+        const Brush::VertexList& Brush::vertices() const {
             ensure(m_geometry != nullptr, "geometry is null");
-            return VertexList(m_geometry->vertices());
+            return m_geometry->vertices();
         }
 
         const std::vector<vm::vec3> Brush::vertexPositions() const {
@@ -682,9 +674,9 @@ namespace TrenchBroom {
             return m_geometry->edgeCount();
         }
 
-        Brush::EdgeList Brush::edges() const {
+        const Brush::EdgeList& Brush::edges() const {
             ensure(m_geometry != nullptr, "geometry is null");
-            return EdgeList(m_geometry->edges());
+            return m_geometry->edges();
         }
 
         bool Brush::containsPoint(const vm::vec3& point) const {

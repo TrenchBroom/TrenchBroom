@@ -22,6 +22,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 
+#include <vecmath/polygon.h>
 #include <vecmath/scalar.h>
 
 #include <string>

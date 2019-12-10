@@ -219,7 +219,7 @@ namespace TrenchBroom {
             }
 
             const auto* brush = face->brush();
-            const auto brushEdges = brush->edges();
+            const auto& brushEdges = brush->edges();
             const auto faceVertices = face->vertices();
 
             // the edge rays indicate the direction into which each vertex of the given face moves if the face is dragged

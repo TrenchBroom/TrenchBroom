@@ -47,6 +47,8 @@
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
+#include <vecmath/polygon.h>
+
 #include <map>
 #include <memory>
 #include <set>

@@ -22,15 +22,12 @@
 
 #include "TrenchBroom.h"
 #include "Macros.h"
-#include "ProjectingSequence.h"
 #include "Model/BrushGeometry.h"
 #include "Model/HitType.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/vec.h>
-#include <vecmath/polygon.h>
 
 #include <memory>
 #include <string>
@@ -55,14 +52,6 @@ namespace TrenchBroom {
         public:
             static const HitType::Type BrushHit;
         private:
-            struct ProjectToVertex : public ProjectingSequenceProjector<const BrushVertex*, const BrushVertex*> {
-                static Type project(const BrushVertex* vertex);
-            };
-
-            struct ProjectToEdge : public ProjectingSequenceProjector<const BrushEdge*, const BrushEdge*> {
-                static Type project(const BrushEdge* edge);
-            };
-
             class AddFaceToGeometryCallback;
             class HealEdgesCallback;
             class AddFacesToGeometry;
@@ -70,9 +59,8 @@ namespace TrenchBroom {
             using RemoveVertexCallback = MoveVerticesCallback;
             class QueryCallback;
         public:
-            using VertexList = ProjectingSequence<BrushVertexList, ProjectToVertex>;
-            using EdgeList = ProjectingSequence<BrushEdgeList, ProjectToEdge>;
-
+            using VertexList = BrushVertexList;
+            using EdgeList = BrushEdgeList;
         private:
             std::vector<BrushFace*> m_faces;
             BrushGeometry* m_geometry;
@@ -150,7 +138,7 @@ namespace TrenchBroom {
         public:
             // geometry access
             size_t vertexCount() const;
-            VertexList vertices() const;
+            const VertexList& vertices() const;
             const std::vector<vm::vec3> vertexPositions() const;
             vm::vec3 findClosestVertexPosition(const vm::vec3& position) const;
 
@@ -166,7 +154,7 @@ namespace TrenchBroom {
             bool hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, const vm::vec3& p5, FloatType epsilon = static_cast<FloatType>(0.0)) const;
 
             size_t edgeCount() const;
-            EdgeList edges() const;
+            const EdgeList& edges() const;
             bool containsPoint(const vm::vec3& point) const;
 
             std::vector<BrushFace*> incidentFaces(const BrushVertex* vertex) const;
