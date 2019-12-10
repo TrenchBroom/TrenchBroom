@@ -67,17 +67,19 @@ namespace TrenchBroom {
             return Ptr(new SelectionCommand(Action_DeselectAll, {}, {}));
         }
 
-        static Model::BrushFaceReference::List faceRefs(const std::vector<Model::BrushFace*>& faces) {
-            Model::BrushFaceReference::List result;
-            for (Model::BrushFace* face : faces)
+        static std::vector<Model::BrushFaceReference> faceRefs(const std::vector<Model::BrushFace*>& faces) {
+            std::vector<Model::BrushFaceReference> result;
+            for (Model::BrushFace* face : faces) {
                 result.push_back(Model::BrushFaceReference(face));
+            }
             return result;
         }
 
-        static std::vector<Model::BrushFace*> resolveFaceRefs(const Model::BrushFaceReference::List& refs) {
+        static std::vector<Model::BrushFace*> resolveFaceRefs(const std::vector<Model::BrushFaceReference>& refs) {
             std::vector<Model::BrushFace*> result;
-            for (const Model::BrushFaceReference& ref : refs)
+            for (const Model::BrushFaceReference& ref : refs) {
                 result.push_back(ref.resolve());
+            }
             return result;
         }
 
