@@ -20,10 +20,11 @@
 #ifndef TrenchBroom_Entity
 #define TrenchBroom_Entity
 
+#include "Macros.h"
 #include "TrenchBroom.h"
-#include "Hit.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityRotationPolicy.h"
+#include "Model/HitType.h"
 #include "Model/Object.h"
 
 #include <vecmath/forward.h>
@@ -43,7 +44,7 @@ namespace TrenchBroom {
 
         class Entity : public AttributableNode, public Object, private EntityRotationPolicy {
         public:
-            static const Hit::HitType EntityHit;
+            static const HitType::Type EntityHit;
             static const vm::bbox3 DefaultBounds;
         private:
             mutable vm::bbox3 m_definitionBounds;

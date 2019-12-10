@@ -31,8 +31,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType UVShearTool::XHandleHit = Model::Hit::freeHitType();
-        const Model::Hit::HitType UVShearTool::YHandleHit = Model::Hit::freeHitType();
+        const Model::HitType::Type UVShearTool::XHandleHit = Model::HitType::freeType();
+        const Model::HitType::Type UVShearTool::YHandleHit = Model::HitType::freeType();
 
         UVShearTool::UVShearTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper) :
         ToolControllerBase(),
@@ -49,7 +49,7 @@ namespace TrenchBroom {
         }
 
         void UVShearTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
-            static const Model::Hit::HitType HitTypes[] = { XHandleHit, YHandleHit };
+            static const Model::HitType::Type HitTypes[] = { XHandleHit, YHandleHit };
             if (m_helper.valid())
                 m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, pickResult);
         }

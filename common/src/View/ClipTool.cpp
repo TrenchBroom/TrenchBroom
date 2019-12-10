@@ -51,7 +51,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType ClipTool::PointHit = Model::Hit::freeHitType();
+        const Model::HitType::Type ClipTool::PointHit = Model::HitType::freeType();
 
         ClipTool::ClipStrategy::~ClipStrategy() {}
 

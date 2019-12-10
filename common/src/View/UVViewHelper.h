@@ -21,7 +21,7 @@
 #define TrenchBroom_UVViewHelper
 
 #include "TrenchBroom.h"
-#include "Model/Hit.h"
+#include "Model/HitType.h"
 
 #include <vecmath/vec.h>
 
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             const Renderer::OrthographicCamera& camera() const;
             float cameraZoom() const;
 
-            void pickTextureGrid(const vm::ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const;
+            void pickTextureGrid(const vm::ray3& ray, const Model::HitType::Type hitTypes[2], Model::PickResult& pickResult) const;
 
             vm::vec2f snapDelta(const vm::vec2f& delta, const vm::vec2f& distance) const;
             vm::vec2f computeDistanceFromTextureGrid(const vm::vec3& position) const;

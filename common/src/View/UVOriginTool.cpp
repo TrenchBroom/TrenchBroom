@@ -45,8 +45,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType UVOriginTool::XHandleHit = Model::Hit::freeHitType();
-        const Model::Hit::HitType UVOriginTool::YHandleHit = Model::Hit::freeHitType();
+        const Model::HitType::Type UVOriginTool::XHandleHit = Model::HitType::freeType();
+        const Model::HitType::Type UVOriginTool::YHandleHit = Model::HitType::freeType();
         const FloatType UVOriginTool::MaxPickDistance = 5.0;
         const float UVOriginTool::OriginHandleRadius =  5.0f;
 

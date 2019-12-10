@@ -46,9 +46,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType ScaleObjectsTool::ScaleToolSideHit = Model::Hit::freeHitType();
-        const Model::Hit::HitType ScaleObjectsTool::ScaleToolEdgeHit = Model::Hit::freeHitType();
-        const Model::Hit::HitType ScaleObjectsTool::ScaleToolCornerHit = Model::Hit::freeHitType();
+        const Model::HitType::Type ScaleObjectsTool::ScaleToolSideHit = Model::HitType::freeType();
+        const Model::HitType::Type ScaleObjectsTool::ScaleToolEdgeHit = Model::HitType::freeType();
+        const Model::HitType::Type ScaleObjectsTool::ScaleToolCornerHit = Model::HitType::freeType();
 
         // Scale tool helper functions
 

@@ -23,7 +23,7 @@
 #include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/Hit.h"
+#include "Model/HitType.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
 
@@ -184,7 +184,7 @@ namespace TrenchBroom {
              *
              * @return the hit type value
              */
-            virtual Model::Hit::HitType hitType() const = 0;
+            virtual Model::HitType::Type hitType() const = 0;
 
             /**
              * The total number of selected handles, not counting duplicates.
@@ -545,7 +545,7 @@ namespace TrenchBroom {
          */
         class VertexHandleManager : public VertexHandleManagerBaseT<vm::vec3> {
         public:
-            static const Model::Hit::HitType HandleHit;
+            static const Model::HitType::Type HandleHit;
         public:
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;
@@ -563,7 +563,7 @@ namespace TrenchBroom {
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;
 
-            Model::Hit::HitType hitType() const override;
+            Model::HitType::Type hitType() const override;
         private:
             bool isIncident(const Handle& handle, const Model::Brush* brush) const override;
         };
@@ -579,7 +579,7 @@ namespace TrenchBroom {
          */
         class EdgeHandleManager : public VertexHandleManagerBaseT<vm::segment3> {
         public:
-            static const Model::Hit::HitType HandleHit;
+            static const Model::HitType::Type HandleHit;
             using HitType = std::tuple<vm::segment3, vm::vec3>;
         public:
             using VertexHandleManagerBase::addHandles;
@@ -608,7 +608,7 @@ namespace TrenchBroom {
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;
 
-            Model::Hit::HitType hitType() const override;
+            Model::HitType::Type hitType() const override;
         private:
             bool isIncident(const Handle& handle, const Model::Brush* brush) const override;
         };
@@ -624,7 +624,7 @@ namespace TrenchBroom {
         */
         class FaceHandleManager : public VertexHandleManagerBaseT<vm::polygon3> {
         public:
-            static const Model::Hit::HitType HandleHit;
+            static const Model::HitType::Type HandleHit;
             using HitType = std::tuple<vm::polygon3, vm::vec3>;
         public:
             using VertexHandleManagerBase::addHandles;
@@ -654,7 +654,7 @@ namespace TrenchBroom {
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;
 
-            Model::Hit::HitType hitType() const override;
+            Model::HitType::Type hitType() const override;
         private:
             bool isIncident(const Handle& handle, const Model::Brush* brush) const override;
         };

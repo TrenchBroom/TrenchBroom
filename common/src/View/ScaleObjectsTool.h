@@ -23,6 +23,8 @@
 
 #include "TrenchBroom.h"
 #include "Model/Hit.h"
+#include "Model/HitType.h"
+#include "Model/Model_Forward.h"
 #include "View/Tool.h"
 
 #include <vecmath/vec.h>
@@ -205,9 +207,9 @@ namespace TrenchBroom {
 
         class ScaleObjectsTool : public Tool {
         public:
-            static const Model::Hit::HitType ScaleToolSideHit;
-            static const Model::Hit::HitType ScaleToolEdgeHit;
-            static const Model::Hit::HitType ScaleToolCornerHit;
+            static const Model::HitType::Type ScaleToolSideHit;
+            static const Model::HitType::Type ScaleToolEdgeHit;
+            static const Model::HitType::Type ScaleToolCornerHit;
 
         private:
             std::weak_ptr<MapDocument> m_document;

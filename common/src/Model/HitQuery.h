@@ -21,11 +21,12 @@
 #define TrenchBroom_HitQuery
 
 #include "Model/Hit.h"
-#include "Model/HitFilter.h"
+#include "Model/HitType.h"
 
 namespace TrenchBroom {
     namespace Model {
         class EditorContext;
+        class HitFilter;
 
         class HitQuery {
         private:
@@ -43,8 +44,8 @@ namespace TrenchBroom {
             friend void swap(HitQuery& lhs, HitQuery& rhs);
 
             HitQuery& pickable();
-            HitQuery& type(Hit::HitType type);
-            HitQuery& occluded(Hit::HitType type = Hit::AnyType);
+            HitQuery& type(HitType::Type type);
+            HitQuery& occluded(HitType::Type type = HitType::AnyType);
             HitQuery& selected();
             HitQuery& transitivelySelected();
             HitQuery& minDistance(FloatType minDistance);

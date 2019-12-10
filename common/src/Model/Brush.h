@@ -22,9 +22,9 @@
 
 #include "TrenchBroom.h"
 #include "Macros.h"
-#include "Hit.h"
 #include "ProjectingSequence.h"
 #include "Model/BrushGeometry.h"
+#include "Model/HitType.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
 
@@ -53,7 +53,7 @@ namespace TrenchBroom {
         private:
             friend class SetTempFaceLinks;
         public:
-            static const Hit::HitType BrushHit;
+            static const HitType::Type BrushHit;
         private:
             struct ProjectToVertex : public ProjectingSequenceProjector<const BrushVertex*, const BrushVertex*> {
                 static Type project(const BrushVertex* vertex);

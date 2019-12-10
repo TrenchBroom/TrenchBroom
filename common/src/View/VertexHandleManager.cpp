@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace View {
         VertexHandleManagerBase::~VertexHandleManagerBase() {}
 
-        const Model::Hit::HitType VertexHandleManager::HandleHit = Model::Hit::freeHitType();
+        const Model::HitType::Type VertexHandleManager::HandleHit = Model::HitType::freeType();
 
         void VertexHandleManager::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             for (const auto& entry : m_handles) {
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             }
         }
 
-        Model::Hit::HitType VertexHandleManager::hitType() const {
+        Model::HitType::Type VertexHandleManager::hitType() const {
             return HandleHit;
         }
 
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             return brush->hasVertex(handle);
         }
 
-        const Model::Hit::HitType EdgeHandleManager::HandleHit = Model::Hit::freeHitType();
+        const Model::HitType::Type EdgeHandleManager::HandleHit = Model::HitType::freeType();
 
         void EdgeHandleManager::pickGridHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const {
             for (const HandleEntry& entry : m_handles) {
@@ -111,7 +111,7 @@ namespace TrenchBroom {
             }
         }
 
-        Model::Hit::HitType EdgeHandleManager::hitType() const {
+        Model::HitType::Type EdgeHandleManager::hitType() const {
             return HandleHit;
         }
 
@@ -119,7 +119,7 @@ namespace TrenchBroom {
             return brush->hasEdge(handle);
         }
 
-        const Model::Hit::HitType FaceHandleManager::HandleHit = Model::Hit::freeHitType();
+        const Model::HitType::Type FaceHandleManager::HandleHit = Model::HitType::freeType();
 
         void FaceHandleManager::pickGridHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const {
             for (const auto& entry : m_handles) {
@@ -168,7 +168,7 @@ namespace TrenchBroom {
             }
         }
 
-        Model::Hit::HitType FaceHandleManager::hitType() const {
+        Model::HitType::Type FaceHandleManager::hitType() const {
             return HandleHit;
         }
 

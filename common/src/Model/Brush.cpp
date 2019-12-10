@@ -56,7 +56,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const Hit::HitType Brush::BrushHit = Hit::freeHitType();
+        const HitType::Type Brush::BrushHit = HitType::freeType();
 
         Brush::ProjectToVertex::Type Brush::ProjectToVertex::project(const BrushVertex* vertex) {
             return vertex;

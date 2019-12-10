@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_SelectionTool
 #define TrenchBroom_SelectionTool
 
-#include "Model/Hit.h"
+#include "Model/HitType.h"
 #include "Model/Model_Forward.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             bool isFaceClick(const InputState& inputState) const;
             bool isMultiClick(const InputState& inputState) const;
 
-            const Model::Hit& firstHit(const InputState& inputState, Model::Hit::HitType type) const;
+            const Model::Hit& firstHit(const InputState& inputState, Model::HitType::Type type) const;
 
             std::vector<Model::Node*> collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) const;
 

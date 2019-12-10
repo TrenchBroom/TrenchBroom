@@ -44,7 +44,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType ShearObjectsTool::ShearToolSideHit = Model::Hit::freeHitType();
+        const Model::HitType::Type ShearObjectsTool::ShearToolSideHit = Model::HitType::freeType();
 
         ShearObjectsTool::ShearObjectsTool(std::weak_ptr<MapDocument> document) :
         Tool(false),

@@ -72,12 +72,12 @@ namespace TrenchBroom {
             return *this;
         }
 
-        HitQuery& HitQuery::type(const Hit::HitType type) {
+        HitQuery& HitQuery::type(const HitType::Type type) {
             m_include = new HitFilterChain(new TypedHitFilter(type), m_include);
             return *this;
         }
 
-        HitQuery& HitQuery::occluded(const Hit::HitType type) {
+        HitQuery& HitQuery::occluded(const HitType::Type type) {
             delete m_exclude;
             m_exclude = new TypedHitFilter(type);
             return *this;

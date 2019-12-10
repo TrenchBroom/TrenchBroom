@@ -22,7 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "ToolChain.h"
-#include "Model/Hit.h"
+#include "Model/HitType.h"
 #include "Model/HitQuery.h"
 #include "View/InputState.h"
 
@@ -152,8 +152,8 @@ namespace TrenchBroom {
 
             bool m_pickable;
             bool m_selected;
-            Model::Hit::HitType m_hitTypeValue;
-            Model::Hit::HitType m_occludedTypeValue;
+            Model::HitType::Type m_hitTypeValue;
+            Model::HitType::Type m_occludedTypeValue;
             FloatType m_minDistanceValue;
         public:
             SurfaceDragHelper();
@@ -161,8 +161,8 @@ namespace TrenchBroom {
 
             void setPickable(bool pickable);
             void setSelected(bool selected);
-            void setType(Model::Hit::HitType type);
-            void setOccluded(Model::Hit::HitType type);
+            void setType(Model::HitType::Type type);
+            void setOccluded(Model::HitType::Type type);
             void setMinDistance(FloatType minDistance);
         protected:
             Model::HitQuery query(const InputState& inputState) const;

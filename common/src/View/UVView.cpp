@@ -49,7 +49,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType UVView::FaceHit = Model::Hit::freeHitType();
+        const Model::HitType::Type UVView::FaceHit = Model::HitType::freeType();
 
         UVView::UVView(std::weak_ptr<MapDocument> document, GLContextManager& contextManager) :
         RenderView(contextManager),

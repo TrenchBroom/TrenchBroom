@@ -21,6 +21,7 @@
 
 #include "Constants.h"
 #include "TrenchBroom.h"
+#include "Model/HitType.h"
 #include "View/Grid.h"
 #include "View/Tool.h"
 
@@ -117,8 +118,8 @@ namespace TrenchBroom {
         m_minDistanceSet(false),
         m_pickable(false),
         m_selected(false),
-        m_hitTypeValue(Model::Hit::NoType),
-        m_occludedTypeValue(Model::Hit::NoType),
+        m_hitTypeValue(Model::HitType::NoType),
+        m_occludedTypeValue(Model::HitType::NoType),
         m_minDistanceValue(FloatType(0)) {}
 
         SurfaceDragHelper::~SurfaceDragHelper() = default;
@@ -131,12 +132,12 @@ namespace TrenchBroom {
             m_selected = selected;
         }
 
-        void SurfaceDragHelper::setType(const Model::Hit::HitType type) {
+        void SurfaceDragHelper::setType(const Model::HitType::Type type) {
             m_hitTypeSet = true;
             m_hitTypeValue = type;
         }
 
-        void SurfaceDragHelper::setOccluded(const Model::Hit::HitType type) {
+        void SurfaceDragHelper::setOccluded(const Model::HitType::Type type) {
             m_occludedTypeSet = true;
             m_occludedTypeValue = type;
         }

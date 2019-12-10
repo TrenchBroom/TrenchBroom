@@ -20,10 +20,13 @@
 #ifndef TrenchBroom_HitFilter
 #define TrenchBroom_HitFilter
 
-#include "Hit.h"
+#include "TrenchBroom.h"
+#include "HitType.h"
 
 namespace TrenchBroom {
     namespace Model {
+        class Hit;
+
         class HitFilter {
         private:
             class Always;
@@ -56,9 +59,9 @@ namespace TrenchBroom {
 
         class TypedHitFilter : public HitFilter {
         private:
-            Hit::HitType m_typeMask;
+            HitType::Type m_typeMask;
         public:
-            TypedHitFilter(Hit::HitType typeMask);
+            TypedHitFilter(HitType::Type typeMask);
         private:
             HitFilter* doClone() const override;
             bool doMatches(const Hit& hit) const override;

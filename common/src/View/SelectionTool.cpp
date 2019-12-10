@@ -31,7 +31,6 @@
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/Node.h"
-#include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
 #include "View/InputState.h"
 #include "View/Grid.h"
@@ -214,7 +213,7 @@ namespace TrenchBroom {
             return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
         }
 
-        const Model::Hit& SelectionTool::firstHit(const InputState& inputState, const Model::Hit::HitType type) const {
+        const Model::Hit& SelectionTool::firstHit(const InputState& inputState, const Model::HitType::Type type) const {
             return inputState.pickResult().query().pickable().type(type).occluded().first();
         }
 

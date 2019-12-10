@@ -46,7 +46,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType UVRotateTool::AngleHandleHit = Model::Hit::freeHitType();
+        const Model::HitType::Type UVRotateTool::AngleHandleHit = Model::HitType::freeType();
         const double UVRotateTool::CenterHandleRadius =  2.5;
         const double UVRotateTool::RotateHandleRadius = 32.0;
         const double UVRotateTool::RotateHandleWidth  =  5.0;

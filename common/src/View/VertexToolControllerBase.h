@@ -20,7 +20,7 @@
 #ifndef VertexToolControllerBase_h
 #define VertexToolControllerBase_h
 
-#include "Model/Hit.h"
+#include "Model/HitType.h"
 #include "Model/Model_Forward.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
@@ -44,9 +44,9 @@ namespace TrenchBroom {
             class PartBase {
             protected:
                 T* m_tool;
-                Model::Hit::HitType m_hitType;
+                Model::HitType::Type m_hitType;
             protected:
-                PartBase(T* tool, const Model::Hit::HitType hitType) :
+                PartBase(T* tool, const Model::HitType::Type hitType) :
                 m_tool(tool),
                 m_hitType(hitType) {}
             public:
@@ -68,7 +68,7 @@ namespace TrenchBroom {
                     return findDraggableHandles(inputState, m_hitType);
                 }
             public:
-                const Model::Hit findDraggableHandle(const InputState& inputState, const Model::Hit::HitType hitType) const {
+                const Model::Hit findDraggableHandle(const InputState& inputState, const Model::HitType::Type hitType) const {
                     const auto query = inputState.pickResult().query().type(hitType).occluded();
                     if (!query.empty()) {
                         const auto hits = query.all();
@@ -82,7 +82,7 @@ namespace TrenchBroom {
                     return Model::Hit::NoHit;
                 }
 
-                const Model::Hit::List findDraggableHandles(const InputState& inputState, const Model::Hit::HitType hitType) const {
+                const Model::Hit::List findDraggableHandles(const InputState& inputState, const Model::HitType::Type hitType) const {
                     return inputState.pickResult().query().type(hitType).occluded().all();
                 }
             private:
@@ -96,7 +96,7 @@ namespace TrenchBroom {
             private:
                 Lasso* m_lasso;
             protected:
-                SelectPartBase(T* tool, const Model::Hit::HitType hitType) :
+                SelectPartBase(T* tool, const Model::HitType::Type hitType) :
                 PartBase(tool, hitType),
                 m_lasso(nullptr) {}
             public:
@@ -236,7 +236,7 @@ namespace TrenchBroom {
 
             class MovePartBase : public MoveToolController<NoPickingPolicy, MousePolicy>, public PartBase {
             protected:
-                MovePartBase(T* tool, const Model::Hit::HitType hitType) :
+                MovePartBase(T* tool, const Model::HitType::Type hitType) :
                 MoveToolController(tool->grid()),
                 PartBase(tool, hitType) {}
             public:

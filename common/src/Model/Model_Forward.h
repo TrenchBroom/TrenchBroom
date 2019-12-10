@@ -60,6 +60,8 @@ namespace TrenchBroom {
         enum class ExportFormat;
 
         class ModelFactory;
+
+        class Hit;
     }
 }
 
