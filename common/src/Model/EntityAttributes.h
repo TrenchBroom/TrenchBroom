@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_EntityProperties
 #define TrenchBroom_EntityProperties
 
-#include "Model/EntityAttributeSnapshot.h"
 #include "Model/Model_Forward.h"
 
 #include <list>
@@ -81,6 +80,8 @@ namespace TrenchBroom {
 
         std::string numberedAttributePrefix(const std::string& name);
         bool isNumberedAttribute(const std::string& prefix, const AttributeName& name);
+
+        class EntityAttributeSnapshot;
 
         class EntityAttribute {
         private:

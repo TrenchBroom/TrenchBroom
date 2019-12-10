@@ -21,6 +21,7 @@
 
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
+#include "Model/EntityAttributeSnapshot.h"
 
 #include <kdl/vector_utils.h>
 

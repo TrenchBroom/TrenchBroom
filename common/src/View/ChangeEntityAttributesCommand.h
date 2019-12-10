@@ -24,7 +24,9 @@
 #include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
 
+#include <map>
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -46,7 +48,7 @@ namespace TrenchBroom {
             Model::AttributeName m_newName;
             Model::AttributeValue m_newValue;
 
-            Model::EntityAttributeSnapshot::Map m_snapshots;
+            std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>> m_snapshots;
         public:
             static Ptr set(const Model::AttributeName& name, const Model::AttributeValue& value);
             static Ptr remove(const Model::AttributeName& name);
