@@ -84,6 +84,7 @@ namespace TrenchBroom {
 
         class Hit;
         class HitFilter;
+        class HitQuery;
         class CompareHits;
 
         class PickResult;

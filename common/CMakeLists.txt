@@ -704,7 +704,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/Object.h
         ${COMMON_SOURCE_DIR}/Model/ParallelTexCoordSystem.h
         ${COMMON_SOURCE_DIR}/Model/ParaxialTexCoordSystem.h
-        ${COMMON_SOURCE_DIR}/Model/Pickable.h
         ${COMMON_SOURCE_DIR}/Model/PickResult.h
         ${COMMON_SOURCE_DIR}/Model/PlanePointFinder.h
         ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesIssueGenerator.h

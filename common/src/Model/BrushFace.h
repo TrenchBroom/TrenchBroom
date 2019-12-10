@@ -56,7 +56,7 @@ namespace TrenchBroom {
              * |
              * 0-----------2
              */
-            using Points = vm::vec3[3]; // TODO: use std::array
+            using Points = vm::vec3[3];
         public:
             static const std::string NoTextureName;
         private:

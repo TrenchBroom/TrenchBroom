@@ -21,8 +21,6 @@
 #define TrenchBroom_PickResult
 
 #include "Model/CompareHits.h"
-#include "Model/Hit.h"
-#include "Model/HitQuery.h"
 #include "Model/Model_Forward.h"
 
 #include <vecmath/util.h>

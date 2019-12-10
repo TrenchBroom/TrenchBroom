@@ -21,6 +21,7 @@
 
 #include "Constants.h"
 #include "TrenchBroom.h"
+#include "Model/BrushFace.h"
 
 #include <vecmath/plane.h>
 #include <vecmath/scalar.h>
@@ -170,7 +171,7 @@ namespace TrenchBroom {
             }
         }
 
-        void PlanePointFinder::findPoints(const vm::plane3& plane, BrushFace::Points& points, const size_t numPoints) {
+        void PlanePointFinder::findPoints(const vm::plane3& plane, FacePoints& points, const size_t numPoints) {
             using std::swap;
 
             assert(numPoints <= 3);
