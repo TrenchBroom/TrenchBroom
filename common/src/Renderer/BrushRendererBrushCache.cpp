@@ -24,6 +24,8 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace Renderer {
         BrushRendererBrushCache::CachedFace::CachedFace(Model::BrushFace* i_face,
