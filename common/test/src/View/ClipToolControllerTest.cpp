@@ -47,7 +47,7 @@ namespace TrenchBroom {
             document.pick(pickRequest.pickRay(), pickResult);
 
             inputState.setPickRequest(pickRequest);
-            inputState.setPickResult(pickResult);
+            inputState.setPickResult(std::move(pickResult));
         }
 
         // https://github.com/kduske/TrenchBroom/issues/2602

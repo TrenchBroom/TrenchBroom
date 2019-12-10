@@ -20,6 +20,7 @@
 #include "SpikeGuideRenderer.h"
 
 #include "Model/Hit.h"
+#include "Model/HitQuery.h"
 #include "Model/Brush.h"
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"

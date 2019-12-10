@@ -110,7 +110,7 @@ namespace TrenchBroom {
             void setPickRequest(const PickRequest& pickRequest);
 
             const Model::PickResult& pickResult() const;
-            void setPickResult(Model::PickResult& pickResult);
+            void setPickResult(Model::PickResult&& pickResult);
         };
     }
 }

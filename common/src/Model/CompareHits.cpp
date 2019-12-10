@@ -36,16 +36,11 @@ namespace TrenchBroom {
             return doCompare(lhs, rhs);
         }
 
-        CombineCompareHits::CombineCompareHits(CompareHits* first, CompareHits* second) :
-        m_first(first),
-        m_second(second) {
+        CombineCompareHits::CombineCompareHits(std::unique_ptr<CompareHits> first, std::unique_ptr<CompareHits> second) :
+        m_first(std::move(first)),
+        m_second(std::move(second)) {
             ensure(m_first != nullptr, "first is null");
             ensure(m_second != nullptr, "second is null");
-        }
-
-        CombineCompareHits::~CombineCompareHits() {
-            delete m_first;
-            delete m_second;
         }
 
         int CombineCompareHits::doCompare(const Hit& lhs, const Hit& rhs) const {

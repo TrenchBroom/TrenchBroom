@@ -29,6 +29,7 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
+#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Model/World.h"
 #include "Renderer/Camera.h"
