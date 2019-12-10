@@ -99,11 +99,11 @@ namespace TrenchBroom {
         }
 
         bool operator==(const TagReference& lhs, const TagReference& rhs) {
-            return lhs.m_tag == rhs.m_tag;
+            return *(lhs.m_tag) == *(rhs.m_tag);
         }
 
         bool operator<(const TagReference& lhs, const TagReference& rhs) {
-            return lhs.m_tag < rhs.m_tag;
+            return *(lhs.m_tag) < *(rhs.m_tag);
         }
 
         Taggable::Taggable() :
@@ -141,19 +141,17 @@ namespace TrenchBroom {
         }
 
         bool Taggable::removeTag(const Tag& tag) {
-            if (!hasTag(tag)) {
+            const auto it = m_tags.find(TagReference(tag));
+            if (it == std::end(m_tags)) {
                 return false;
-            } else {
-                m_tagMask &= ~tag.type();
-                auto it = m_tags.find(TagReference(tag));
-                assert(it != std::end(m_tags));
-                m_tags.erase(it);
-
-                assert(!hasTag(tag));
-
-                updateAttributeMask();
-                return true;
             }
+
+            m_tagMask &= ~tag.type();
+            m_tags.erase(it);
+            assert(!hasTag(tag));
+
+            updateAttributeMask();
+            return true;
         }
 
         void Taggable::initializeTags(TagManager& tagManager) {
