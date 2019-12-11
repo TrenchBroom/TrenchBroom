@@ -21,6 +21,8 @@
 
 #include "View/EdgeTool.h"
 
+#include <vecmath/polygon.h>
+
 namespace TrenchBroom {
     namespace View {
         class EdgeToolController::SelectEdgePart : public SelectPartBase<vm::segment3> {
