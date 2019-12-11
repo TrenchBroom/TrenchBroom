@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_EntityRenderer
 #define TrenchBroom_EntityRenderer
 
-#include "AttrString.h"
 #include "Color.h"
 #include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
@@ -31,10 +30,11 @@
 
 #include <vecmath/forward.h>
 
-#include <map>
 #include <vector>
 
 namespace TrenchBroom {
+    class AttrString;
+
     namespace Renderer {
         class RenderBatch;
         class RenderContext;

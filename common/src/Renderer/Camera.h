@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_Camera
 #define TrenchBroom_Camera
 
-#include "Color.h"
 #include "TrenchBroom.h"
 #include "Notifier.h"
 
@@ -28,6 +27,8 @@
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
 #include <vecmath/ray.h>
+
+class Color;
 
 namespace TrenchBroom {
     namespace Renderer {

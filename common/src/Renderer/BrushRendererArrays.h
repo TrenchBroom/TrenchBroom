@@ -22,17 +22,17 @@
 
 #include "Ensure.h"
 #include "Model/Model_Forward.h"
-#include "Renderer/GLVertexType.h"
-#include "Renderer/Vbo.h"
 #include "Renderer/AllocationTracker.h"
 #include "Renderer/GL.h"
+#include "Renderer/GLVertexType.h"
+#include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
 
 #include <vecmath/vec.h>
 
-#include <vector>
 #include <cassert>
 #include <unordered_map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {

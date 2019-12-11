@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "Assets/EntityModel.h"
 #include "Assets/EntityModelManager.h"
+#include "Assets/ModelDefinition.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Renderer/RenderBatch.h"

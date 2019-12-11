@@ -770,6 +770,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/Renderable.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderBatch.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderContext.h
+        ${COMMON_SOURCE_DIR}/Renderer/Renderer_Forward.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderService.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderUtils.h
         ${COMMON_SOURCE_DIR}/Renderer/SelectionBoundsRenderer.h

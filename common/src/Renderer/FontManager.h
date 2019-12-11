@@ -21,7 +21,6 @@
 #define TrenchBroom_FontManager
 
 #include "Macros.h"
-#include "Renderer/FontDescriptor.h"
 
 #include <map>
 #include <memory>
@@ -29,6 +28,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class FontDescriptor;
         class FontFactory;
         class TextureFont;
 

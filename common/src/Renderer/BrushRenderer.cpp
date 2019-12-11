@@ -24,7 +24,6 @@
 #include "PreferenceManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
 #include "Model/EditorContext.h"
 #include "Model/TagAttribute.h"
 #include "Renderer/IndexArrayMapBuilder.h"

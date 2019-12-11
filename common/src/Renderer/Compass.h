@@ -20,11 +20,12 @@
 #ifndef TrenchBroom_Compass
 #define TrenchBroom_Compass
 
-#include "Color.h"
 #include "Renderer/IndexRangeRenderer.h"
 #include "Renderer/Renderable.h"
 
 #include <vecmath/forward.h>
+
+class Color;
 
 namespace TrenchBroom {
     namespace Renderer {

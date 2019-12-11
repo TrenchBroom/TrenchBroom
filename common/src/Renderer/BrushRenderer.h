@@ -21,13 +21,14 @@
 #define TrenchBroom_BrushRenderer
 
 #include "Color.h"
+#include "Model/BrushGeometry.h"
 #include "Model/Model_Forward.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/FaceRenderer.h"
-#include "Model/Brush.h"
 #include "Renderer/AllocationTracker.h"
 
 #include <memory>
+#include <set>
 #include <tuple>
 #include <unordered_map>
 #include <vector>

@@ -20,6 +20,7 @@
 #include "FontGlyphBuilder.h"
 
 #include "Ensure.h"
+#include "Renderer/FontGlyph.h"
 #include "Renderer/FontTexture.h"
 
 #include <cassert>
