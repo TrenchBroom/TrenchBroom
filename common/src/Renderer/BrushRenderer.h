@@ -28,9 +28,9 @@
 #include "Renderer/AllocationTracker.h"
 
 #include <memory>
-#include <set>
 #include <tuple>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace TrenchBroom {
@@ -132,9 +132,11 @@ namespace TrenchBroom {
             /**
              * If a brush is in the VBO, it's always valid.
              * If a brush is valid, it might not be in the VBO if it was hidden by the Filter.
+             *
+             * Do not attempt to use vector_set here, it turns out to be slower.
              */
-            std::set<const Model::Brush*> m_allBrushes;
-            std::set<const Model::Brush*> m_invalidBrushes;
+            std::unordered_set<const Model::Brush*> m_allBrushes;
+            std::unordered_set<const Model::Brush*> m_invalidBrushes;
 
             BrushVertexArrayPtr m_vertexArray;
             BrushIndexArrayPtr m_edgeIndices;
