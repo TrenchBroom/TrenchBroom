@@ -25,6 +25,7 @@
 
 #include <functional>
 #include <map>
+#include <memory>
 
 namespace TrenchBroom {
     namespace Renderer {
