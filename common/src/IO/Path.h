@@ -35,7 +35,7 @@ namespace TrenchBroom {
 
             struct ToString {
                 std::string m_separator;
-                ToString(const std::string i_separator = separator()) :
+                ToString(const std::string& i_separator = separator()) :
                 m_separator(i_separator) {}
 
                 std::string operator()(const Path& path) const {

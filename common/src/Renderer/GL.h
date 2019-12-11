@@ -28,7 +28,7 @@
 namespace TrenchBroom {
     using PrimType = GLenum;
 
-    using GLIndices = std::vector<GLint>  ;
+    using GLIndices = std::vector<GLint>;
     using GLCounts = std::vector<GLsizei>;
 
     void glCheckError(const std::string& msg);

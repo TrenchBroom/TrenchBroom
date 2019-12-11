@@ -19,7 +19,6 @@
 #define TRENCHBROOM_STRING_FORMAT_H
 
 #include <cassert>
-#include <cctype> // for std::tolower
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -106,7 +105,35 @@ namespace kdl {
     }
 
     /**
-     * Convers the given string to lowercase using the C locale.
+     * Convers the given ASCII character to lowercase.
+     *
+     * @param c the character to convert
+     * @return the converted character
+     */
+    inline char str_to_lower(const char c) {
+        if (c < 'A' || c > 'Z') {
+            return c;
+        } else {
+            return static_cast<char>(c + 'a' - 'A');
+        }
+    }
+
+    /**
+     * Convers the given ASCII character to uppercase.
+     *
+     * @param c the character to convert
+     * @return the converted character
+     */
+    inline char str_to_upper(const char c) {
+        if (c < 'a' || c > 'z') {
+            return c;
+        } else {
+            return static_cast<char>(c - 'a' + 'A');
+        }
+    }
+
+    /**
+     * Convers the given string to lowercase (only supports ASCII).
      *
      * @param str the string to convert
      * @return the converted string
@@ -116,14 +143,14 @@ namespace kdl {
         result.reserve(str.size());
 
         for (const auto c : str) {
-            result.push_back(static_cast<std::string::value_type>(std::tolower(c)));
+            result.push_back(str_to_lower(c));
         }
 
         return result;
     }
 
     /**
-     * Convers the given string to uppercase using the C locale.
+     * Convers the given string to uppercase (only supports ASCII).
      *
      * @param str the string to convert
      * @return the converted string
@@ -133,7 +160,7 @@ namespace kdl {
         result.reserve(str.size());
 
         for (const auto c : str) {
-            result.push_back(static_cast<std::string::value_type>(std::toupper(c)));
+            result.push_back(str_to_upper(c));
         }
 
         return result;
@@ -159,7 +186,7 @@ namespace kdl {
                 initial = true;
                 result.push_back(c);
             } else if (initial) {
-                result.push_back(static_cast<std::string::value_type>(std::toupper(c)));
+                result.push_back(str_to_upper(c));
                 initial = false;
             } else {
                 result.push_back(c);

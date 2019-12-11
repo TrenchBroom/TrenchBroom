@@ -52,7 +52,7 @@ namespace TrenchBroom {
             if (definition == nullptr)
                 return false;
 
-            if (definition->type() != Assets::EntityDefinition::Type_PointEntity)
+            if (definition->type() != Assets::EntityDefinitionType::PointEntity)
                 return false;
 
             const Model::World* world = document->world();

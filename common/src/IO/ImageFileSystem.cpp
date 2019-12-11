@@ -19,9 +19,9 @@
 
 #include "ImageFileSystem.h"
 
+#include "Ensure.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/File.h"
-#include "IO/IOUtils.h"
 
 #include <cassert>
 #include <memory>

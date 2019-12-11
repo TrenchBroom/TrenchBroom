@@ -19,15 +19,17 @@
 
 #include "EntityDefinitionGroup.h"
 
+#include "Assets/EntityDefinition.h"
+
 #include <kdl/string_format.h>
 
 #include <string>
 
 namespace TrenchBroom {
     namespace Assets {
-        EntityDefinitionGroup::EntityDefinitionGroup(const std::string& name, const std::vector<EntityDefinition*>& definitions) :
+        EntityDefinitionGroup::EntityDefinitionGroup(const std::string& name, std::vector<EntityDefinition*> definitions) :
         m_name(name),
-        m_definitions(definitions) {}
+        m_definitions(std::move(definitions)) {}
 
         const std::string& EntityDefinitionGroup::name() const {
             return m_name;
@@ -43,7 +45,7 @@ namespace TrenchBroom {
             return m_definitions;
         }
 
-        std::vector<EntityDefinition*> EntityDefinitionGroup::definitions(const EntityDefinition::Type type, const EntityDefinition::SortOrder order) const {
+        std::vector<EntityDefinition*> EntityDefinitionGroup::definitions(const EntityDefinitionType type, const EntityDefinitionSortOrder order) const {
             return EntityDefinition::filterAndSort(m_definitions, type, order);
         }
     }

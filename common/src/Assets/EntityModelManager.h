@@ -20,17 +20,21 @@
 #ifndef TrenchBroom_EntityModelManager
 #define TrenchBroom_EntityModelManager
 
-#include "Assets/ModelDefinition.h"
 #include "IO/Path.h"
 #include "Model/Model_Forward.h"
 
+#include <kdl/vector_set.h>
+
 #include <map>
 #include <memory>
-#include <set>
 #include <vector>
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace Assets {
+        struct ModelSpecification;
+    }
 
     namespace IO {
         class EntityModelLoader;
@@ -48,11 +52,11 @@ namespace TrenchBroom {
         class EntityModelManager {
         private:
             using ModelCache = std::map<IO::Path, std::unique_ptr<EntityModel>>;
-            using ModelMismatches = std::set<IO::Path>;
+            using ModelMismatches = kdl::vector_set<IO::Path>;
             using ModelList = std::vector<EntityModel*>;
 
             using RendererCache = std::map<Assets::ModelSpecification, std::unique_ptr<Renderer::TexturedRenderer>>;
-            using RendererMismatches = std::set<Assets::ModelSpecification>;
+            using RendererMismatches = kdl::vector_set<Assets::ModelSpecification>;
             using RendererList = std::vector<Renderer::TexturedRenderer*>;
 
             Logger& m_logger;

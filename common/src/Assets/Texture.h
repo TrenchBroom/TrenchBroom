@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_Texture
 #define TrenchBroom_Texture
 
-#include "ByteBuffer.h"
 #include "Color.h"
 #include "Renderer/GL.h"
 
@@ -33,8 +32,6 @@
 namespace TrenchBroom {
     namespace Assets {
         class TextureCollection;
-
-        using TextureBuffer = Buffer<unsigned char>;
 
         enum class TextureType {
             Opaque,
@@ -58,11 +55,10 @@ namespace TrenchBroom {
             GLenum destFactor;
         };
 
-        vm::vec2s sizeAtMipLevel(size_t width, size_t height, size_t level);
-        size_t bytesPerPixelForFormat(GLenum format);
-        void setMipBufferSize(TextureBuffer::List& buffers, size_t mipLevels, size_t width, size_t height, GLenum format);
-
         class Texture {
+        private:
+            using Buffer = std::vector<unsigned char>;
+            using BufferList = std::vector<Buffer>;
         private:
             TextureCollection* m_collection;
             std::string m_name;
@@ -87,10 +83,10 @@ namespace TrenchBroom {
             TextureBlendFunc m_blendFunc;
 
             mutable GLuint m_textureId;
-            mutable TextureBuffer::List m_buffers;
+            mutable BufferList m_buffers;
         public:
-            Texture(const std::string& name, size_t width, size_t height, const Color& averageColor, const TextureBuffer& buffer, GLenum format, TextureType type);
-            Texture(const std::string& name, size_t width, size_t height, const Color& averageColor, const TextureBuffer::List& buffers, GLenum format, TextureType type);
+            Texture(const std::string& name, size_t width, size_t height, const Color& averageColor, Buffer&& buffer, GLenum format, TextureType type);
+            Texture(const std::string& name, size_t width, size_t height, const Color& averageColor, BufferList&& buffers, GLenum format, TextureType type);
             Texture(const std::string& name, size_t width, size_t height, GLenum format = GL_RGB, TextureType type = TextureType::Opaque);
             ~Texture();
 
@@ -130,13 +126,12 @@ namespace TrenchBroom {
              * Returns the texture data in the format returned by format().
              * Once prepare() is called, this will be an empty vector.
              */
-            const TextureBuffer::List& buffersIfUnprepared() const;
+            const BufferList& buffersIfUnprepared() const;
             /**
              * Will be one of GL_RGB, GL_BGR, GL_RGBA, GL_BGRA.
              */
             GLenum format() const;
             TextureType type() const;
-
         private:
             void setCollection(TextureCollection* collection);
             friend class TextureCollection;

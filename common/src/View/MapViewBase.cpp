@@ -24,6 +24,8 @@
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Assets/EntityDefinition.h"
+#include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -526,9 +528,9 @@ namespace TrenchBroom {
             auto* action = qobject_cast<const QAction*>(sender());
             auto document = lock(m_document);
             const size_t index = action->data().toUInt();
-            const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_PointEntity, index);
+            const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinitionType::PointEntity, index);
             ensure(definition != nullptr, "definition is null");
-            assert(definition->type() == Assets::EntityDefinition::Type_PointEntity);
+            assert(definition->type() == Assets::EntityDefinitionType::PointEntity);
             createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
         }
 
@@ -536,16 +538,16 @@ namespace TrenchBroom {
             auto* action = qobject_cast<const QAction*>(sender());
             auto document = lock(m_document);
             const size_t index = action->data().toUInt();
-            const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_BrushEntity, index);
+            const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinitionType::BrushEntity, index);
             ensure(definition != nullptr, "definition is null");
-            assert(definition->type() == Assets::EntityDefinition::Type_BrushEntity);
+            assert(definition->type() == Assets::EntityDefinitionType::BrushEntity);
             createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
         }
 
-        Assets::EntityDefinition* MapViewBase::findEntityDefinition(const Assets::EntityDefinition::Type type, const size_t index) const {
+        Assets::EntityDefinition* MapViewBase::findEntityDefinition(const Assets::EntityDefinitionType type, const size_t index) const {
             size_t count = 0;
             for (const Assets::EntityDefinitionGroup& group : lock(m_document)->entityDefinitionManager().groups()) {
-                const std::vector<Assets::EntityDefinition*> definitions = group.definitions(type, Assets::EntityDefinition::Name);
+                const std::vector<Assets::EntityDefinition*> definitions = group.definitions(type, Assets::EntityDefinitionSortOrder::Name);
                 if (index < count + definitions.size())
                     return definitions[index - count];
                 count += definitions.size();
@@ -644,7 +646,7 @@ namespace TrenchBroom {
 
         void MapViewBase::createEntity(const Assets::EntityDefinition* definition) {
             auto document = lock(m_document);
-            if (definition->type() == Assets::EntityDefinition::Type_PointEntity) {
+            if (definition->type() == Assets::EntityDefinitionType::PointEntity) {
                 createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
             } else if (canCreateBrushEntity()) {
                 createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
@@ -1043,8 +1045,8 @@ namespace TrenchBroom {
 
             menu.addSeparator();
 
-            menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_PointEntity));
-            menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_BrushEntity));
+            menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinitionType::PointEntity));
+            menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinitionType::BrushEntity));
 
             menu.exec(QCursor::pos());
 
@@ -1080,14 +1082,14 @@ namespace TrenchBroom {
             dropEvent->acceptProposedAction();
         }
 
-        QMenu* MapViewBase::makeEntityGroupsMenu(const Assets::EntityDefinition::Type type) {
+        QMenu* MapViewBase::makeEntityGroupsMenu(const Assets::EntityDefinitionType type) {
             auto* menu = new QMenu();
 
             switch (type) {
-                case Assets::EntityDefinition::Type_PointEntity:
+                case Assets::EntityDefinitionType::PointEntity:
                     menu->setTitle(tr("Create Point Entity"));
                     break;
-                case Assets::EntityDefinition::Type_BrushEntity:
+                case Assets::EntityDefinitionType::BrushEntity:
                     menu->setTitle(tr("Create Brush Entity"));
                     break;
             }
@@ -1097,11 +1099,11 @@ namespace TrenchBroom {
 
             auto document = lock(m_document);
             for (const Assets::EntityDefinitionGroup& group : document->entityDefinitionManager().groups()) {
-                const std::vector<Assets::EntityDefinition*> definitions = group.definitions(type, Assets::EntityDefinition::Name);
+                const std::vector<Assets::EntityDefinition*> definitions = group.definitions(type, Assets::EntityDefinitionSortOrder::Name);
 
                 std::vector<Assets::EntityDefinition*> filteredDefinitions;
                 for (auto* definition : definitions) {
-                    if (!kdl::cs::is_equal(definition->name(), Model::AttributeValues::WorldspawnClassname)) {
+                    if (!kdl::cs::str_is_equal(definition->name(), Model::AttributeValues::WorldspawnClassname)) {
                         filteredDefinitions.push_back(definition);
                     }
                 }
@@ -1115,11 +1117,11 @@ namespace TrenchBroom {
                         QAction *action = nullptr;
 
                         switch (type) {
-                            case Assets::EntityDefinition::Type_PointEntity: {
+                            case Assets::EntityDefinitionType::PointEntity: {
                                 action = groupMenu->addAction(label, this, qOverload<>(&MapViewBase::createPointEntity));
                                 break;
                             }
-                            case Assets::EntityDefinition::Type_BrushEntity: {
+                            case Assets::EntityDefinitionType::BrushEntity: {
                                 action = groupMenu->addAction(label, this, qOverload<>(&MapViewBase::createBrushEntity));
                                 action->setEnabled(enableMakeBrushEntity);
                                 break;

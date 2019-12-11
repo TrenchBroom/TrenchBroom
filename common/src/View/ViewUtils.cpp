@@ -137,7 +137,7 @@ namespace TrenchBroom {
                 if (kdl::str_is_blank(name)) {
                     if (QMessageBox::warning(parent, "Error", "Group names cannot be blank.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok)
                         return "";
-                } else if (kdl::ci::contains(name, "\"")) {
+                } else if (kdl::ci::str_contains(name, "\"")) {
                     if (QMessageBox::warning(parent, "Error", "Group names cannot contain double quotes.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok)
                         return "";
                 } else {

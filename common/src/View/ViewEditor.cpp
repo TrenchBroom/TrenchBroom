@@ -60,7 +60,7 @@ namespace TrenchBroom {
 
         void EntityDefinitionCheckBoxList::refresh() {
             size_t defIndex = 0;
-            const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
+            const std::vector<Assets::EntityDefinitionGroup>& groups = m_entityDefinitionManager.groups();
             for (size_t i = 0; i < groups.size(); ++i) {
                 const Assets::EntityDefinitionGroup& group = groups[i];
                 const std::vector<Assets::EntityDefinition*>& definitions = group.definitions();
@@ -87,7 +87,7 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionCheckBoxList::groupCheckBoxChanged(size_t groupIndex, bool checked) {
-            const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
+            const std::vector<Assets::EntityDefinitionGroup>& groups = m_entityDefinitionManager.groups();
             ensure(groupIndex < m_entityDefinitionManager.groups().size(), "index out of range");
             const Assets::EntityDefinitionGroup& group = groups[groupIndex];
 
@@ -114,7 +114,7 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionCheckBoxList::hideAll(const bool hidden) {
-            const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
+            const std::vector<Assets::EntityDefinitionGroup>& groups = m_entityDefinitionManager.groups();
             for (size_t i = 0; i < groups.size(); ++i) {
                 const Assets::EntityDefinitionGroup& group = groups[i];
                 const std::vector<Assets::EntityDefinition*>& definitions = group.definitions();
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             scrollWidgetLayout->setSpacing(0);
             scrollWidgetLayout->addSpacing(1);
 
-            const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
+            const std::vector<Assets::EntityDefinitionGroup>& groups = m_entityDefinitionManager.groups();
             for (size_t i = 0; i < groups.size(); ++i) {
                 const Assets::EntityDefinitionGroup& group = groups[i];
                 const std::vector<Assets::EntityDefinition*>& definitions = group.definitions();

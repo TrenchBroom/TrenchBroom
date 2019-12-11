@@ -20,6 +20,7 @@
 #include "Md2Parser.h"
 
 #include "Exceptions.h"
+#include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
 #include "IO/Reader.h"
@@ -343,13 +344,13 @@ namespace TrenchBroom {
             return meshes;
         }
 
-        void Md2Parser::loadSkins(Assets::EntityModel::Surface& surface, const Md2SkinList& skins) {
+        void Md2Parser::loadSkins(Assets::EntityModelSurface& surface, const Md2SkinList& skins) {
             for (const auto& skin : skins) {
                 surface.addSkin(loadSkin(m_fs.openFile(Path(skin)), m_palette));
             }
         }
 
-        void Md2Parser::buildFrame(Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const size_t frameIndex, const Md2Frame& frame, const Md2MeshList& meshes) {
+        void Md2Parser::buildFrame(Assets::EntityModel& model, Assets::EntityModelSurface& surface, const size_t frameIndex, const Md2Frame& frame, const Md2MeshList& meshes) {
             size_t vertexCount = 0;
             Renderer::IndexRangeMap::Size size;
             for (const auto& md2Mesh : meshes) {
@@ -363,7 +364,7 @@ namespace TrenchBroom {
 
             vm::bbox3f::builder bounds;
 
-            Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Type> builder(vertexCount, size);
+            Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type> builder(vertexCount, size);
             for (const auto& md2Mesh : meshes) {
                 if (!md2Mesh.vertices.empty()) {
                     vertexCount += md2Mesh.vertices.size();
@@ -383,8 +384,8 @@ namespace TrenchBroom {
             surface.addIndexedMesh(modelFrame, builder.vertices(), builder.indices());
         }
 
-        Assets::EntityModel::VertexList Md2Parser::getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const {
-            using Vertex = Assets::EntityModel::Vertex;
+        Assets::EntityModelVertexList Md2Parser::getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const {
+            using Vertex = Assets::EntityModelVertex;
 
             Vertex::List result(0);
             result.reserve(meshVertices.size());

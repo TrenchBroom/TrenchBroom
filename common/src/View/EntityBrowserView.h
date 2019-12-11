@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityBrowserView
 #define TrenchBroom_EntityBrowserView
 
-#include "Assets/EntityDefinitionManager.h"
+#include "Assets/Asset_Forward.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
@@ -35,6 +35,7 @@ namespace TrenchBroom {
     class Logger;
 
     namespace Assets {
+        class EntityDefinitionManager;
         class EntityModelManager;
         class PointEntityDefinition;
     }
@@ -77,7 +78,7 @@ namespace TrenchBroom {
 
             bool m_group;
             bool m_hideUnused;
-            Assets::EntityDefinition::SortOrder m_sortOrder;
+            Assets::EntityDefinitionSortOrder m_sortOrder;
             std::string m_filterText;
         public:
             EntityBrowserView(QScrollBar* scrollBar,
@@ -87,7 +88,7 @@ namespace TrenchBroom {
                               Logger& logger);
             ~EntityBrowserView() override;
         public:
-            void setSortOrder(Assets::EntityDefinition::SortOrder sortOrder);
+            void setSortOrder(Assets::EntityDefinitionSortOrder sortOrder);
             void setGroup(bool group);
             void setHideUnused(bool hideUnused);
             void setFilterText(const std::string& filterText);

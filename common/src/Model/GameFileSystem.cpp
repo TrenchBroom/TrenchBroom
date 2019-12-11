@@ -104,13 +104,13 @@ namespace TrenchBroom {
 
                 for (const auto& packagePath : packages) {
                     try {
-                        if (kdl::ci::is_equal(packageFormat, "idpak")) {
+                        if (kdl::ci::str_is_equal(packageFormat, "idpak")) {
                             logger.info() << "Adding file system package " << packagePath;
                             m_next = std::make_shared<IO::IdPakFileSystem>(m_next, diskFS.makeAbsolute(packagePath));
-                        } else if (kdl::ci::is_equal(packageFormat, "dkpak")) {
+                        } else if (kdl::ci::str_is_equal(packageFormat, "dkpak")) {
                             logger.info() << "Adding file system package " << packagePath;
                             m_next = std::make_shared<IO::DkPakFileSystem>(m_next, diskFS.makeAbsolute(packagePath));
-                        } else if (kdl::ci::is_equal(packageFormat, "zip")) {
+                        } else if (kdl::ci::str_is_equal(packageFormat, "zip")) {
                             logger.info() << "Adding file system package " << packagePath;
                             m_next = std::make_shared<IO::ZipFileSystem>(m_next, diskFS.makeAbsolute(packagePath));
                         }
@@ -126,7 +126,7 @@ namespace TrenchBroom {
             // and makes them available as virtual files.
             const auto& textureConfig = config.textureConfig();
             const auto& textureFormat = textureConfig.format.format;
-            if (kdl::ci::is_equal(textureFormat, "q3shader")) {
+            if (kdl::ci::str_is_equal(textureFormat, "q3shader")) {
                 logger.info() << "Adding shader file system";
                 auto shaderSearchPath = textureConfig.shaderSearchPath;
                 auto textureSearchPaths = IO::Path::List {

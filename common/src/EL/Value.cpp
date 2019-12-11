@@ -130,7 +130,7 @@ namespace TrenchBroom {
         ValueHolder* StringHolder::convertTo(const ValueType toType) const {
             switch (toType) {
                 case ValueType::Boolean:
-                    return new BooleanValueHolder(!kdl::cs::is_equal(doGetValue(), "false") && !doGetValue().empty());
+                    return new BooleanValueHolder(!kdl::cs::str_is_equal(doGetValue(), "false") && !doGetValue().empty());
                 case ValueType::String:
                     return new StringValueHolder(doGetValue());
                 case ValueType::Number: {

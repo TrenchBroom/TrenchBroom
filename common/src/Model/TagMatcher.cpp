@@ -87,7 +87,7 @@ namespace TrenchBroom {
             });
 
             std::sort(std::begin(matchingTextures), std::end(matchingTextures), [](const auto* lhs, const auto* rhs) {
-                return kdl::ci::compare(lhs->name(), rhs->name()) < 0;
+                return kdl::ci::str_compare(lhs->name(), rhs->name()) < 0;
             });
 
             Assets::Texture* texture = nullptr;
@@ -122,7 +122,7 @@ namespace TrenchBroom {
                 textureName = textureName.substr(pos + 1);
             }
 
-            return kdl::ci::matches_glob(textureName, m_pattern);
+            return kdl::ci::str_matches_glob(textureName, m_pattern);
         }
 
         SurfaceParmTagMatcher::SurfaceParmTagMatcher(const std::string& parameter) :
@@ -277,11 +277,11 @@ namespace TrenchBroom {
             auto matchingDefinitions = std::vector<Assets::EntityDefinition*>{};
 
             std::copy_if(std::begin(allDefinitions), std::end(allDefinitions), std::back_inserter(matchingDefinitions), [this](const auto* definition) {
-                return definition->type() == Assets::EntityDefinition::Type_BrushEntity && matchesClassname(definition->name());
+                return definition->type() == Assets::EntityDefinitionType::BrushEntity && matchesClassname(definition->name());
             });
 
             std::sort(std::begin(matchingDefinitions), std::end(matchingDefinitions), [](const auto* lhs, const auto* rhs) {
-                return kdl::ci::compare(lhs->name(), rhs->name()) < 0;
+                return kdl::ci::str_compare(lhs->name(), rhs->name()) < 0;
             });
 
             const Assets::EntityDefinition* definition = nullptr;
@@ -339,7 +339,7 @@ namespace TrenchBroom {
         }
 
         bool EntityClassNameTagMatcher::matchesClassname(const std::string& classname) const {
-            return kdl::ci::matches_glob(classname, m_pattern);
+            return kdl::ci::str_matches_glob(classname, m_pattern);
         }
     }
 }

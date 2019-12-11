@@ -32,12 +32,12 @@ namespace TrenchBroom {
         m_path("") {}
 
         EntityDefinitionFileSpec EntityDefinitionFileSpec::parse(const std::string& str) {
-            if (kdl::cs::is_prefix(str, "external:")) {
+            if (kdl::cs::str_is_prefix(str, "external:")) {
                 const IO::Path path(str.substr(9));
                 return EntityDefinitionFileSpec::external(path);
             }
 
-            if (kdl::cs::is_prefix(str, "builtin:")) {
+            if (kdl::cs::str_is_prefix(str, "builtin:")) {
                 const IO::Path path(str.substr(8));
                 return EntityDefinitionFileSpec::builtin(path);
             }
