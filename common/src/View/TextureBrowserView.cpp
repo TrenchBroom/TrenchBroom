@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "SharedPointer.h"
 #include "StepIterator.h"
+#include "Renderer/ActiveShader.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
@@ -310,7 +311,7 @@ namespace TrenchBroom {
 
         void TextureBrowserView::renderBounds(Layout& layout, const float y, const float height) {
             using BoundsVertex = Renderer::GLVertexTypes::P2C4::Vertex;
-            BoundsVertex::List vertices;
+            std::vector<BoundsVertex> vertices;
 
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Group& group = layout[i];
@@ -372,7 +373,7 @@ namespace TrenchBroom {
                                 const LayoutBounds& bounds = cell.itemBounds();
                                 const Assets::Texture* texture = cellData(cell).texture;
 
-                                Renderer::VertexArray vertexArray = Renderer::VertexArray::move(TextureVertex::List({
+                                Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::vector<TextureVertex>({
                                     TextureVertex(vm::vec2f(bounds.left(),  height - (bounds.top() - y)),    vm::vec2f(0.0f, 0.0f)),
                                     TextureVertex(vm::vec2f(bounds.left(),  height - (bounds.bottom() - y)), vm::vec2f(0.0f, 1.0f)),
                                     TextureVertex(vm::vec2f(bounds.right(), height - (bounds.bottom() - y)), vm::vec2f(1.0f, 1.0f)),

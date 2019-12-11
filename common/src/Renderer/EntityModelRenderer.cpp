@@ -26,6 +26,7 @@
 #include "Assets/ModelDefinition.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
+#include "Renderer/ActiveShader.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"

@@ -20,6 +20,7 @@
 #include "PrimitiveRenderer.h"
 
 #include "Color.h"
+#include "Renderer/ActiveShader.h"
 #include "Renderer/IndexRangeRenderer.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/RenderContext.h"

@@ -32,6 +32,7 @@
 
 #include <string>
 #include <sstream>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -233,7 +234,7 @@ namespace TrenchBroom {
 
         void Bsp29Parser::parseFrame(Reader reader, const size_t frameIndex, Assets::EntityModel& model, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
             using Vertex = Assets::EntityModelVertex;
-            using VertexList = Vertex::List;
+            using VertexList = std::vector<Vertex>;
 
             auto& surface = model.surface(0);
 

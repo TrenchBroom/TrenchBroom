@@ -46,6 +46,10 @@ namespace TrenchBroom {
         class IndexRangeRenderer;
 
         class ActiveShader;
+        class Shader;
+        class ShaderConfig;
+        class ShaderProgram;
+        class ShaderManager;
 
         class FontManager;
         class FontDescriptor;

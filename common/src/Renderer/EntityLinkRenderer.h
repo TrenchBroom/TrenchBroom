@@ -27,9 +27,10 @@
 #include "Renderer/Renderer_Forward.h"
 #include "Renderer/VertexArray.h"
 
-#include <memory>
-
 #include <vecmath/forward.h>
+
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -75,8 +76,8 @@ namespace TrenchBroom {
         private:
             void validate();
 
-            static void getArrows(ArrowVertex::List& arrows, const Vertex::List& links);
-            static void addArrow(ArrowVertex::List& arrows, const vm::vec4f& color, const vm::vec3f& arrowPosition, const vm::vec3f& lineDir);
+            static void getArrows(std::vector<ArrowVertex>& arrows, const std::vector<Vertex>& links);
+            static void addArrow(std::vector<ArrowVertex>& arrows, const vm::vec4f& color, const vm::vec3f& arrowPosition, const vm::vec3f& lineDir);
 
             class MatchEntities;
             class CollectEntitiesVisitor;
@@ -86,10 +87,10 @@ namespace TrenchBroom {
             class CollectTransitiveSelectedLinksVisitor;
             class CollectDirectSelectedLinksVisitor;
 
-            void getLinks(Vertex::List& links) const;
-            void getAllLinks(Vertex::List& links) const;
-            void getTransitiveSelectedLinks(Vertex::List& links) const;
-            void getDirectSelectedLinks(Vertex::List& links) const;
+            void getLinks(std::vector<Vertex>& links) const;
+            void getAllLinks(std::vector<Vertex>& links) const;
+            void getTransitiveSelectedLinks(std::vector<Vertex>& links) const;
+            void getDirectSelectedLinks(std::vector<Vertex>& links) const;
             void collectSelectedLinks(CollectLinksVisitor& collectLinks) const;
 
             EntityLinkRenderer(const EntityLinkRenderer& other);

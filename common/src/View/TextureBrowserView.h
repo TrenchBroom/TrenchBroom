@@ -58,7 +58,7 @@ namespace TrenchBroom {
             } SortOrder;
         private:
             using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
-            using StringMap = std::map<Renderer::FontDescriptor, TextVertex::List>;
+            using StringMap = std::map<Renderer::FontDescriptor, std::vector<TextVertex>>;
 
             std::weak_ptr<MapDocument> m_document;
             bool m_group;

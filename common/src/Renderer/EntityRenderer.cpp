@@ -281,10 +281,12 @@ namespace TrenchBroom {
         }
 
         struct EntityRenderer::BuildColoredSolidBoundsVertices {
-            GLVertexTypes::P3NC4::Vertex::List& vertices;
+            using Vertex = GLVertexTypes::P3NC4::Vertex;
+
+            std::vector<Vertex>& vertices;
             Color color;
 
-            BuildColoredSolidBoundsVertices(GLVertexTypes::P3NC4::Vertex::List& i_vertices, const Color& i_color) :
+            BuildColoredSolidBoundsVertices(std::vector<Vertex>& i_vertices, const Color& i_color) :
             vertices(i_vertices),
             color(i_color) {}
 
@@ -297,10 +299,12 @@ namespace TrenchBroom {
         };
 
         struct EntityRenderer::BuildColoredWireframeBoundsVertices {
-            GLVertexTypes::P3C4::Vertex::List& vertices;
+            using Vertex = GLVertexTypes::P3C4::Vertex;
+
+            std::vector<Vertex>& vertices;
             Color color;
 
-            BuildColoredWireframeBoundsVertices(GLVertexTypes::P3C4::Vertex::List& i_vertices, const Color& i_color) :
+            BuildColoredWireframeBoundsVertices(std::vector<Vertex>& i_vertices, const Color& i_color) :
             vertices(i_vertices),
             color(i_color) {}
 
@@ -327,12 +331,13 @@ namespace TrenchBroom {
         }
 
         void EntityRenderer::validateBounds() {
-            GLVertexTypes::P3NC4::Vertex::List solidVertices;
+            std::vector<GLVertexTypes::P3NC4::Vertex> solidVertices;
             solidVertices.reserve(36 * m_entities.size());
 
             if (m_overrideBoundsColor) {
-                std::vector<GLVertexTypes::P3::Vertex> pointEntityWireframeVertices;
-                std::vector<GLVertexTypes::P3::Vertex> brushEntityWireframeVertices;
+                using Vertex = GLVertexTypes::P3::Vertex;
+                std::vector<Vertex> pointEntityWireframeVertices;
+                std::vector<Vertex> brushEntityWireframeVertices;
 
                 pointEntityWireframeVertices.reserve(24 * m_entities.size());
                 brushEntityWireframeVertices.reserve(24 * m_entities.size());
@@ -359,8 +364,9 @@ namespace TrenchBroom {
                 m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(pointEntityWireframeVertices)), GL_LINES);
                 m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(brushEntityWireframeVertices)), GL_LINES);
             } else {
-                GLVertexTypes::P3C4::Vertex::List pointEntityWireframeVertices;
-                GLVertexTypes::P3C4::Vertex::List brushEntityWireframeVertices;
+                using Vertex = GLVertexTypes::P3C4::Vertex;
+                std::vector<Vertex> pointEntityWireframeVertices;
+                std::vector<Vertex> brushEntityWireframeVertices;
 
                 pointEntityWireframeVertices.reserve(24 * m_entities.size());
                 brushEntityWireframeVertices.reserve(24 * m_entities.size());

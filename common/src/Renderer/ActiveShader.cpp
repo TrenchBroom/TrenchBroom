@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010-2019 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,26 +17,20 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_ENTITYMODEL_FORWARD_H
-#define TRENCHBROOM_ENTITYMODEL_FORWARD_H
+#include "ActiveShader.h"
 
-#include "Renderer/GLVertexType.h"
+#include "Renderer/ShaderManager.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        class IndexRangeMap;
-        class TexturedIndexRangeMap;
-    }
 
-    namespace Assets {
-        class EntityModel;
-        class EntityModelLoadedFrame;
-        class EntityModelSurface;
+        ActiveShader::ActiveShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig) :
+            m_program(shaderManager.program(shaderConfig)) {
+            m_program.activate();
+        }
 
-        using EntityModelVertex = Renderer::GLVertexTypes::P3T2::Vertex;
-        using EntityModelIndices = Renderer::IndexRangeMap;
-        using EntityModelTexturedIndices = Renderer::TexturedIndexRangeMap;
+        ActiveShader::~ActiveShader() {
+            m_program.deactivate();
+        }
     }
 }
-
-#endif //TRENCHBROOM_ENTITYMODEL_FORWARD_H

@@ -450,10 +450,8 @@ namespace TrenchBroom {
             surface.addIndexedMesh(modelFrame, builder.vertices(), builder.indices());
         }
 
-        Assets::EntityModelVertexList DkmParser::getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const {
-            using Vertex = Assets::EntityModelVertex;
-
-            Vertex::List result(0);
+        std::vector<Assets::EntityModelVertex> DkmParser::getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const {
+            std::vector<Assets::EntityModelVertex> result;
             result.reserve(meshVertices.size());
 
             for (const DkmMeshVertex& md2MeshVertex : meshVertices) {

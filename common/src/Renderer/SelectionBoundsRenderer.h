@@ -21,14 +21,12 @@
 #define TrenchBroom_SelectionBoundsRenderer
 
 #include "TrenchBroom.h"
+#include "Renderer/Renderer_Forward.h"
 
 #include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Renderer {
-        class RenderBatch;
-        class RenderContext;
-
         class SelectionBoundsRenderer {
         private:
             const vm::bbox3 m_bounds;

@@ -97,7 +97,7 @@ namespace TrenchBroom {
             void doPrepareVertices(Vbo& vertexVbo) override;
             void prepare(EntryCollection& collection, bool onTop, Vbo& vbo);
 
-            void addEntry(const Entry& entry, bool onTop, TextVertex::List& textVertices, RectVertex::List& rectVertices);
+            void addEntry(const Entry& entry, bool onTop, std::vector<TextVertex>& textVertices, std::vector<RectVertex>& rectVertices);
 
             void doRender(RenderContext& renderContext) override;
             void render(EntryCollection& collection, RenderContext& renderContext);

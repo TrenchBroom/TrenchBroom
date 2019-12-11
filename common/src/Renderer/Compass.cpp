@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
@@ -39,6 +40,7 @@
 #include <vecmath/mat_ext.h>
 
 #include <cassert>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -118,10 +120,10 @@ namespace TrenchBroom {
             }
 
             using Vertex = GLVertexTypes::P3N::Vertex;
-            Vertex::List shaftVertices    = Vertex::toList(shaft.vertices.size(), std::begin(shaft.vertices), std::begin(shaft.normals));
-            Vertex::List headVertices     = Vertex::toList(head.vertices.size(), std::begin(head.vertices),  std::begin(head.normals));
-            Vertex::List shaftCapVertices = Vertex::toList(shaftCap.vertices.size(), std::begin(shaftCap.vertices), std::begin(shaftCap.normals));
-            Vertex::List headCapVertices  = Vertex::toList(headCap.vertices.size(), std::begin(headCap.vertices),  std::begin(headCap.normals));
+            std::vector<Vertex> shaftVertices    = Vertex::toList(shaft.vertices.size(), std::begin(shaft.vertices), std::begin(shaft.normals));
+            std::vector<Vertex> headVertices     = Vertex::toList(head.vertices.size(), std::begin(head.vertices),  std::begin(head.normals));
+            std::vector<Vertex> shaftCapVertices = Vertex::toList(shaftCap.vertices.size(), std::begin(shaftCap.vertices), std::begin(shaftCap.normals));
+            std::vector<Vertex> headCapVertices  = Vertex::toList(headCap.vertices.size(), std::begin(headCap.vertices),  std::begin(headCap.normals));
 
             const size_t vertexCount = shaftVertices.size() + headVertices.size() + shaftCapVertices.size() + headCapVertices.size();
             IndexRangeMap::Size indexArraySize;

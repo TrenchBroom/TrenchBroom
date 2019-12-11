@@ -29,6 +29,7 @@
 #include <vecmath/forward.h>
 
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -51,8 +52,8 @@ namespace TrenchBroom {
             using SpikeVertex = GLVertexTypes::P3C4::Vertex;
             using PointVertex = GLVertexTypes::P3C4::Vertex;
 
-            SpikeVertex::List m_spikeVertices;
-            PointVertex::List m_pointVertices;
+            std::vector<SpikeVertex> m_spikeVertices;
+            std::vector<PointVertex> m_pointVertices;
 
             VertexArray m_spikeArray;
             VertexArray m_pointArray;

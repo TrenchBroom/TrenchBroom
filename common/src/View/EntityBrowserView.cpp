@@ -23,6 +23,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "StepIterator.h"
+#include "Renderer/ActiveShader.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -239,9 +240,9 @@ namespace TrenchBroom {
         struct CollectBoundsVertices {
             const vm::mat4x4f& transformation;
             const Color& color;
-            typename Vertex::List& vertices;
+            std::vector<Vertex>& vertices;
 
-            CollectBoundsVertices(const vm::mat4x4f& i_transformation, const Color& i_color, typename Vertex::List& i_vertices) :
+            CollectBoundsVertices(const vm::mat4x4f& i_transformation, const Color& i_color, std::vector<Vertex>& i_vertices) :
             transformation(i_transformation),
             color(i_color),
             vertices(i_vertices) {}
@@ -254,7 +255,7 @@ namespace TrenchBroom {
 
         void EntityBrowserView::renderBounds(Layout& layout, const float y, const float height) {
             using BoundsVertex = Renderer::GLVertexTypes::P3C4::Vertex;
-            BoundsVertex::List vertices;
+            std::vector<BoundsVertex> vertices;
 
             for (size_t i = 0; i < layout.size(); ++i) {
                 const auto& group = layout[i];

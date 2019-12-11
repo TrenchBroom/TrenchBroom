@@ -30,6 +30,7 @@
 #include <kdl/string_utils.h>
 
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -398,9 +399,6 @@ namespace TrenchBroom {
         }
 
         void MdlParser::doParseFrame(Reader reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModelSurface& surface, const MdlSkinTriangleList& triangles, const MdlSkinVertexList& vertices, const size_t skinWidth, const size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
-            using Vertex = Assets::EntityModelVertex;
-            using VertexList = Vertex::List;
-
             reader.seekForward(MdlLayout::SimpleFrameName);
             const auto name = reader.readString(MdlLayout::SimpleFrameLength);
 
@@ -418,7 +416,7 @@ namespace TrenchBroom {
 
             vm::bbox3f::builder bounds;
 
-            VertexList frameTriangles;
+            std::vector<Assets::EntityModelVertex> frameTriangles;
             frameTriangles.reserve(triangles.size());
             for (size_t i = 0; i < triangles.size(); ++i) {
                 const auto& triangle = triangles[i];

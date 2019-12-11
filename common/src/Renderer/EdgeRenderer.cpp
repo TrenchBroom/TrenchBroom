@@ -19,6 +19,7 @@
 
 #include "EdgeRenderer.h"
 
+#include "Renderer/ActiveShader.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"

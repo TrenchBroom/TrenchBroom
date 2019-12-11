@@ -108,7 +108,7 @@ namespace TrenchBroom {
             const IO::Path findSkin(const std::string& skin) const;
 
             void buildFrame(Assets::EntityModel& model, Assets::EntityModelSurface& surface, size_t frameIndex, const DkmFrame& frame, const DkmMeshList& meshes);
-            Assets::EntityModelVertexList getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const;
+            std::vector<Assets::EntityModelVertex> getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const;
         };
     }
 }

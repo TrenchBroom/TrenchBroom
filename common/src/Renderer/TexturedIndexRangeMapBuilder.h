@@ -24,6 +24,8 @@
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/VertexListBuilder.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Renderer {
         /**
@@ -35,7 +37,7 @@ namespace TrenchBroom {
         class TexturedIndexRangeMapBuilder {
         public:
             using Vertex = typename VertexSpec::Vertex;
-            using VertexList = typename Vertex::List;
+            using VertexList = std::vector<Vertex>;
             using Texture = Assets::Texture;
         private:
             using IndexData = typename VertexListBuilder<VertexSpec>::IndexData;

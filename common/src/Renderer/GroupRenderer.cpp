@@ -152,10 +152,11 @@ namespace TrenchBroom {
         }
 
         struct GroupRenderer::BuildColoredBoundsVertices {
-            GLVertexTypes::P3C4::Vertex::List& vertices;
+            using Vertex = GLVertexTypes::P3C4::Vertex;
+            std::vector<Vertex>& vertices;
             Color color;
 
-            BuildColoredBoundsVertices(GLVertexTypes::P3C4::Vertex::List& i_vertices, const Color& i_color) :
+            BuildColoredBoundsVertices(std::vector<Vertex>& i_vertices, const Color& i_color) :
             vertices(i_vertices),
             color(i_color) {}
 
@@ -191,7 +192,7 @@ namespace TrenchBroom {
 
                 m_boundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(vertices)), GL_LINES);
             } else {
-                GLVertexTypes::P3C4::Vertex::List vertices;
+                std::vector<GLVertexTypes::P3C4::Vertex> vertices;
                 vertices.reserve(24 * m_groups.size());
 
                 for (const Model::Group* group : m_groups) {

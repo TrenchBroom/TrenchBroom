@@ -21,7 +21,6 @@
 #define TrenchBroom_RenderUtils_h
 
 #include "Assets/Asset_Forward.h"
-#include "Renderer/GLVertexType.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/util.h>
@@ -31,8 +30,6 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class Vbo;
-
         void glSetEdgeOffset(double f);
         void glResetEdgeOffset();
 
