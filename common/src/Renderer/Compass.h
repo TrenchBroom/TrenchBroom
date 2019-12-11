@@ -22,6 +22,7 @@
 
 #include "Renderer/IndexRangeRenderer.h"
 #include "Renderer/Renderable.h"
+#include "Renderer/Renderer_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -29,11 +30,6 @@ class Color;
 
 namespace TrenchBroom {
     namespace Renderer {
-        class Camera;
-        class RenderBatch;
-        class RenderContext;
-        class Vbo;
-
         class Compass : public DirectRenderable {
         private:
             static const size_t m_segments;

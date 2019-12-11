@@ -27,6 +27,7 @@
 #include "View/ToolController.h"
 
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -76,7 +77,7 @@ namespace TrenchBroom {
             vm::vec2f snap(const vm::vec2f& position) const;
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
-            EdgeVertex::List getHandleVertices(const Model::PickResult& pickResult) const;
+            std::vector<EdgeVertex> getHandleVertices(const Model::PickResult& pickResult) const;
 
             bool doCancel() override;
         };

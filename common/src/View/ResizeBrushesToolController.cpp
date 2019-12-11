@@ -125,7 +125,7 @@ namespace TrenchBroom {
 
         Renderer::DirectEdgeRenderer ResizeBrushesToolController::buildEdgeRenderer() {
             using Vertex = Renderer::GLVertexTypes::P3::Vertex;
-            Vertex::List vertices;
+            std::vector<Vertex> vertices;
 
             for (const auto* face : m_tool->dragFaces()) {
                 for (const auto* edge : face->edges()) {

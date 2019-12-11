@@ -280,7 +280,7 @@ namespace TrenchBroom {
             const auto faceVertices = face->vertices();
 
             using Vertex = Renderer::GLVertexTypes::P3::Vertex;
-            Vertex::List edgeVertices;
+            std::vector<Vertex> edgeVertices;
             edgeVertices.reserve(faceVertices.size());
 
             for (const auto* vertex : faceVertices) {

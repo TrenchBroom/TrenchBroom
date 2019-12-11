@@ -310,9 +310,9 @@ namespace TrenchBroom {
         };
 
         struct EntityRenderer::BuildWireframeBoundsVertices {
-            GLVertexTypes::P3::Vertex::List& vertices;
+            std::vector<GLVertexTypes::P3::Vertex>& vertices;
 
-            explicit BuildWireframeBoundsVertices(GLVertexTypes::P3::Vertex::List& i_vertices) :
+            explicit BuildWireframeBoundsVertices(std::vector<GLVertexTypes::P3::Vertex>& i_vertices) :
             vertices(i_vertices) {}
 
             void operator()(const vm::vec3& v1, const vm::vec3& v2) {
@@ -330,8 +330,8 @@ namespace TrenchBroom {
             solidVertices.reserve(36 * m_entities.size());
 
             if (m_overrideBoundsColor) {
-                GLVertexTypes::P3::Vertex::List pointEntityWireframeVertices;
-                GLVertexTypes::P3::Vertex::List brushEntityWireframeVertices;
+                std::vector<GLVertexTypes::P3::Vertex> pointEntityWireframeVertices;
+                std::vector<GLVertexTypes::P3::Vertex> brushEntityWireframeVertices;
 
                 pointEntityWireframeVertices.reserve(24 * m_entities.size());
                 brushEntityWireframeVertices.reserve(24 * m_entities.size());

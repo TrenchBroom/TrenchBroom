@@ -163,10 +163,10 @@ namespace TrenchBroom {
 
         // IndexedEdgeRenderer::Render
 
-        IndexedEdgeRenderer::Render::Render(const EdgeRenderer::Params& params, BrushVertexArrayPtr vertexArray, BrushIndexArrayPtr indexArray) :
+        IndexedEdgeRenderer::Render::Render(const EdgeRenderer::Params& params, std::shared_ptr<BrushVertexArray> vertexArray, std::shared_ptr<BrushIndexArray> indexArray) :
         RenderBase(params),
-        m_vertexArray(vertexArray),
-        m_indexArray(indexArray) {}
+        m_vertexArray(std::move(vertexArray)),
+        m_indexArray(std::move(indexArray)) {}
 
         void IndexedEdgeRenderer::Render::prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) {
             m_vertexArray->prepare(vertexVbo);
@@ -190,9 +190,9 @@ namespace TrenchBroom {
 
         IndexedEdgeRenderer::IndexedEdgeRenderer() {}
 
-        IndexedEdgeRenderer::IndexedEdgeRenderer(BrushVertexArrayPtr vertexArray, BrushIndexArrayPtr indexArray) :
-        m_vertexArray(vertexArray),
-        m_indexArray(indexArray) {}
+        IndexedEdgeRenderer::IndexedEdgeRenderer(std::shared_ptr<BrushVertexArray> vertexArray, std::shared_ptr<BrushIndexArray> indexArray) :
+        m_vertexArray(std::move(vertexArray)),
+        m_indexArray(std::move(indexArray)) {}
 
         IndexedEdgeRenderer::IndexedEdgeRenderer(const IndexedEdgeRenderer& other) :
         m_vertexArray(other.m_vertexArray),

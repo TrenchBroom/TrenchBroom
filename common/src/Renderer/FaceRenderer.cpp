@@ -65,7 +65,7 @@ namespace TrenchBroom {
         m_tint(false),
         m_alpha(1.0f) {}
 
-        FaceRenderer::FaceRenderer(BrushVertexArrayPtr vertexArray, TextureToBrushIndicesMapPtr indexArrayMap, const Color& faceColor) :
+        FaceRenderer::FaceRenderer(std::shared_ptr<BrushVertexArray> vertexArray, std::shared_ptr<TextureToBrushIndicesMap> indexArrayMap, const Color& faceColor) :
         m_vertexArray(std::move(vertexArray)),
         m_indexArrayMap(std::move(indexArrayMap)),
         m_faceColor(faceColor),

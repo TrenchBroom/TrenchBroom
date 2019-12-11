@@ -130,7 +130,6 @@ namespace TrenchBroom {
         template <typename AttrType>
         struct GLVertex<AttrType> {
             using Type = GLVertexType<AttrType>;
-            using List = std::vector<GLVertex<AttrType>>;
 
             typename AttrType::ElementType attr;
 
@@ -176,8 +175,8 @@ namespace TrenchBroom {
              * @return the list of vertices
              */
             template <typename I>
-            static List toList(const size_t count, I cur) {
-                List result;
+            static std::vector<GLVertex<AttrType>> toList(const size_t count, I cur) {
+                std::vector<GLVertex<AttrType>> result;
                 result.reserve(count);
                 for (size_t i = 0; i < count; ++i) {
                     result.emplace_back(*cur++);

@@ -402,7 +402,7 @@ namespace TrenchBroom {
 
         void TextureBrowserView::renderGroupTitleBackgrounds(Layout& layout, const float y, const float height) {
             using Vertex = Renderer::GLVertexTypes::P2::Vertex;
-            Vertex::List vertices;
+            std::vector<Vertex> vertices;
 
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Group& group = layout[i];

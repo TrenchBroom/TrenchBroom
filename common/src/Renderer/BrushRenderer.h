@@ -23,9 +23,10 @@
 #include "Color.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Model_Forward.h"
+#include "Renderer/AllocationTracker.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/FaceRenderer.h"
-#include "Renderer/AllocationTracker.h"
+#include "Renderer/Renderer_Forward.h"
 
 #include <memory>
 #include <tuple>
@@ -35,10 +36,6 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class RenderBatch;
-        class RenderContext;
-        class Vbo;
-
         class BrushRenderer {
         public:
             class Filter {
@@ -138,8 +135,10 @@ namespace TrenchBroom {
             std::unordered_set<const Model::Brush*> m_allBrushes;
             std::unordered_set<const Model::Brush*> m_invalidBrushes;
 
-            BrushVertexArrayPtr m_vertexArray;
-            BrushIndexArrayPtr m_edgeIndices;
+            std::shared_ptr<BrushVertexArray> m_vertexArray;
+            std::shared_ptr<BrushIndexArray> m_edgeIndices;
+
+            using TextureToBrushIndicesMap = std::unordered_map<const Assets::Texture*, std::shared_ptr<BrushIndexArray>>;
             std::shared_ptr<TextureToBrushIndicesMap> m_transparentFaces;
             std::shared_ptr<TextureToBrushIndicesMap> m_opaqueFaces;
 

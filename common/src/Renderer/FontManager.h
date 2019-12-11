@@ -34,10 +34,8 @@ namespace TrenchBroom {
 
         class FontManager {
         private:
-            using FontCache = std::map<FontDescriptor, std::unique_ptr<TextureFont>>;
-
             std::unique_ptr<FontFactory> m_factory;
-            FontCache m_cache;
+            std::map<FontDescriptor, std::unique_ptr<TextureFont>> m_cache;
         public:
             FontManager();
             ~FontManager();

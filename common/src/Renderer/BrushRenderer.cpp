@@ -31,8 +31,6 @@
 #include "Renderer/BrushRendererBrushCache.h"
 #include "Renderer/RenderContext.h"
 
-#include <kdl/vector_utils.h>
-
 #include <cassert>
 #include <cstring>
 #include <vector>

@@ -52,6 +52,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 // allow storing std::shared_ptr in QVariant
 Q_DECLARE_METATYPE(std::shared_ptr<TrenchBroom::View::EntityCellData>)
@@ -333,7 +334,7 @@ namespace TrenchBroom {
 
         void EntityBrowserView::renderGroupTitleBackgrounds(Layout& layout, const float y, const float height) {
             using Vertex = Renderer::GLVertexTypes::P2::Vertex;
-            Vertex::List vertices;
+            std::vector<Vertex> vertices;
 
             for (size_t i = 0; i < layout.size(); ++i) {
                 const auto& group = layout[i];

@@ -22,11 +22,14 @@
 
 #include <kdl/vector_utils.h>
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Renderer {
         template <typename VertexSpec>
         class VertexListBuilder {
         public:
+            // FIXME: move out or make private
             struct IndexData {
                 size_t index;
                 size_t count;
@@ -35,9 +38,9 @@ namespace TrenchBroom {
                 index(i_index),
                 count(i_count) {}
             };
-
+        private:
             using Vertex = typename VertexSpec::Vertex;
-            using VertexList = typename Vertex::List;
+            using VertexList = std::vector<Vertex>;
         private:
             VertexList m_vertices;
             bool m_dynamicGrowth;

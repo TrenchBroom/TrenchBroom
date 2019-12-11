@@ -30,6 +30,7 @@
 #include <kdl/vector_utils.h>
 
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -58,7 +59,7 @@ namespace TrenchBroom {
             template <typename VertexSpec>
             class Holder : public BaseHolder {
             private:
-                using VertexList = typename VertexSpec::Vertex::List;
+                using VertexList = std::vector<typename VertexSpec::Vertex>;
             private:
                 VboBlock* m_block;
                 size_t m_vertexCount;
@@ -106,8 +107,8 @@ namespace TrenchBroom {
 
             template <typename VertexSpec>
             class CopyHolder : public Holder<VertexSpec> {
-            public:
-                using VertexList = typename VertexSpec::Vertex::List;
+            private:
+                using VertexList = std::vector<typename VertexSpec::Vertex>;
             private:
                 VertexList m_vertices;
             public:
@@ -127,8 +128,8 @@ namespace TrenchBroom {
 
             template <typename VertexSpec>
             class MoveHolder : public Holder<VertexSpec> {
-            public:
-                using VertexList = typename VertexSpec::Vertex::List;
+            private:
+                using VertexList = std::vector<typename VertexSpec::Vertex>;
             private:
                 VertexList m_vertices;
             public:
@@ -148,8 +149,8 @@ namespace TrenchBroom {
 
             template <typename VertexSpec>
             class RefHolder : public Holder<VertexSpec> {
-            public:
-                using VertexList = typename VertexSpec::Vertex::List;
+            private:
+                using VertexList = std::vector<typename VertexSpec::Vertex>;
             private:
                 const VertexList& m_vertices;
             public:

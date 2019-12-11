@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "Notifier.h"
+#include "Renderer/Renderer_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -32,9 +33,6 @@ class Color;
 
 namespace TrenchBroom {
     namespace Renderer {
-        class RenderContext;
-        class Vbo;
-
         class Camera {
         public:
             struct Viewport {

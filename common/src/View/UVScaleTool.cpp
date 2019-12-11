@@ -218,7 +218,7 @@ namespace TrenchBroom {
             }
         }
 
-        UVScaleTool::EdgeVertex::List UVScaleTool::getHandleVertices(const Model::PickResult& pickResult) const {
+        std::vector<UVScaleTool::EdgeVertex> UVScaleTool::getHandleVertices(const Model::PickResult& pickResult) const {
             const auto& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
             const auto& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
             const auto stripeSize = m_helper.stripeSize();
@@ -230,7 +230,7 @@ namespace TrenchBroom {
             vm::vec3 h1, h2, v1, v2;
             m_helper.computeScaleHandleVertices(pos, v1, v2, h1, h2);
 
-            EdgeVertex::List vertices;
+            std::vector<EdgeVertex> vertices;
             vertices.reserve(4);
 
             if (xHandleHit.isMatch()) {
