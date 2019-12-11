@@ -83,11 +83,13 @@ namespace TrenchBroom {
 
                 void setup() override {
                     ensure(m_block != nullptr, "block is null");
+                    m_block->bind();
                     VertexSpec::setup(m_block->offset());
                 }
 
                 void cleanup() override {
                     VertexSpec::cleanup();
+                    m_block->unbind();
                 }
             protected:
                 Holder(const size_t vertexCount) :

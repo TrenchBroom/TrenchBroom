@@ -36,8 +36,8 @@ namespace TrenchBroom {
 
         GLContextManager::GLContextManager() :
         m_initialized(false),
-        m_vertexVbo(std::make_unique<Renderer::Vbo>(0xFFFFFF)),
-        m_indexVbo(std::make_unique<Renderer::Vbo>(0xFFFFF, GL_ELEMENT_ARRAY_BUFFER)),
+        m_vertexVbo(std::make_unique<Renderer::Vbo>(GL_ARRAY_BUFFER)),
+        m_indexVbo(std::make_unique<Renderer::Vbo>(GL_ELEMENT_ARRAY_BUFFER)),
         m_fontManager(std::make_unique<Renderer::FontManager>()),
         m_shaderManager(std::make_unique<Renderer::ShaderManager>()) {}
 

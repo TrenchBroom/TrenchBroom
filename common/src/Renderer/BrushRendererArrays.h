@@ -195,6 +195,14 @@ namespace TrenchBroom {
             size_t size() const {
                 return m_snapshot.size();
             }
+
+            void bindBlock() {
+                m_block->bind();
+            }
+            
+            void unbindBlock() {
+                m_block->unbind();
+            }
         };
 
         class IndexHolder : public VboBlockHolder<GLuint> {
@@ -246,6 +254,9 @@ namespace TrenchBroom {
             void render(const PrimType primType) const;
             bool prepared() const;
             void prepare(Vbo& vbo);
+
+            void setupIndices();
+            void cleanupIndices();
         };
 
         class VertexArrayInterface {
@@ -270,6 +281,7 @@ namespace TrenchBroom {
 
             bool setupVertices() override {
                 ensure(VboBlockHolder<V>::m_block != nullptr, "block is null");
+                VboBlockHolder<V>::m_block->bind();
                 V::Type::setup(VboBlockHolder<V>::m_block->offset());
                 return true;
             }
@@ -280,6 +292,7 @@ namespace TrenchBroom {
 
             void cleanupVertices() override {
                 V::Type::cleanup();
+                VboBlockHolder<V>::m_block->unbind();
             }
 
             static std::shared_ptr<VertexHolder<V>> swap(std::vector<V>& elements) {

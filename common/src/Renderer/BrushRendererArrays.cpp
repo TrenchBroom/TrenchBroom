@@ -144,6 +144,14 @@ namespace TrenchBroom {
             assert(m_indexHolder.prepared());
         }
 
+        void BrushIndexArray::setupIndices() {
+            m_indexHolder.bindBlock();
+        }
+
+        void BrushIndexArray::cleanupIndices() {
+            m_indexHolder.unbindBlock();
+        }
+
         // BrushVertexArray
 
         BrushVertexArray::BrushVertexArray() : m_vertexHolder(),

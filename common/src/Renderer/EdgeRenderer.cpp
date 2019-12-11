@@ -182,8 +182,12 @@ namespace TrenchBroom {
 
         void IndexedEdgeRenderer::Render::doRenderVertices(RenderContext&) {
             m_vertexArray->setupVertices();
+            m_indexArray->setupIndices();
+
             m_indexArray->render(GL_LINES);
+
             m_vertexArray->cleanupVertices();
+            m_indexArray->cleanupIndices();
         }
 
         // IndexedEdgeRenderer

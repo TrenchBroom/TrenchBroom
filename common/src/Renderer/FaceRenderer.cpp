@@ -168,7 +168,9 @@ namespace TrenchBroom {
                         continue;
                     }
                     func.before(texture);
+                    brushIndexHolderPtr->setupIndices();
                     brushIndexHolderPtr->render(GL_TRIANGLES);
+                    brushIndexHolderPtr->cleanupIndices();
                     func.after(texture);
                 }
                 if (m_alpha < 1.0f) {

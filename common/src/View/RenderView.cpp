@@ -109,11 +109,6 @@ namespace TrenchBroom {
 
             setMouseTracking(true); // request mouse move events even when no button is held down
             setFocusPolicy(Qt::StrongFocus); // accept focus by clicking or tab
-
-            connect(this, &QOpenGLWidget::frameSwapped, [this](){
-                this->vertexVbo().freePendingBlocks();
-                this->indexVbo().freePendingBlocks();
-            });
         }
 
         RenderView::~RenderView() = default;

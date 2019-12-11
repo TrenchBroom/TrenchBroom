@@ -29,87 +29,22 @@
 namespace TrenchBroom {
     namespace Renderer {
         class VboBlock;
-
-        class CompareVboBlocksByCapacity {
-        public:
-            bool operator() (const VboBlock* lhs, const VboBlock* rhs) const;
-        };
-
         class Vbo;
+
         class ActivateVbo {
-        private:
-            Vbo& m_vbo;
-            bool m_wasActive;
         public:
             explicit ActivateVbo(Vbo& vbo);
-            ~ActivateVbo();
         };
 
         class Vbo {
-        public:
-            using Ptr = std::shared_ptr<Vbo>;
         private:
-            typedef enum {
-                State_Inactive = 0,
-                State_Active = 1,
-                State_PartiallyMapped = 2,
-                State_FullyMapped = 3
-            } State;
-        private:
-            using VboBlockList = std::vector<VboBlock*>;
-            static const float GrowthFactor;
-
-            size_t m_totalCapacity;
-            size_t m_freeCapacity;
-            VboBlockList m_freeBlocks;
-            VboBlockList m_blocksPendingFree;
-            VboBlock* m_firstBlock;
-            VboBlock* m_lastBlock;
-            State m_state;
-
+            /**
+             * e.g. GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER
+             */
             GLenum m_type;
-            GLenum m_usage;
-            GLuint m_vboId;
         public:
-            explicit Vbo(size_t initialCapacity, GLenum type = GL_ARRAY_BUFFER, GLenum usage = GL_DYNAMIC_DRAW);
-            ~Vbo();
-
-            deleteCopyAndMove(Vbo)
-
+            Vbo(GLenum type);
             VboBlock* allocateBlock(size_t capacity);
-
-            bool active() const;
-            void activate();
-            void deactivate();
-        private:
-            friend class ActivateVbo;
-            friend class VboBlock;
-
-            GLenum type() const;
-
-            void free();
-            void enqueueBlockForFreeing(VboBlock* block);
-            void freeBlock(VboBlock* block);
-        public:
-            void freePendingBlocks();
-            
-        private:
-            void increaseCapacityToAccomodate(size_t capacity);
-            void increaseCapacity(size_t delta);
-            VboBlockList::iterator findFreeBlock(size_t minCapacity);
-            void insertFreeBlock(VboBlock* block);
-            void removeFreeBlock(VboBlock* block);
-            void removeFreeBlock(VboBlockList::iterator it);
-
-            bool partiallyMapped() const;
-            void mapPartially();
-            void unmapPartially();
-
-            bool fullyMapped() const;
-            unsigned char* map();
-            void unmap();
-
-            bool checkBlockChain() const;
         };
     }
 }
