@@ -23,13 +23,13 @@
 #include <vecmath/forward.h>
 #include <vecmath/mat.h>
 
-#include <list>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
         class Transformation {
         private:
-            using MatrixStack = std::list<vm::mat4x4f>;
+            using MatrixStack = std::vector<vm::mat4x4f>;
             MatrixStack m_projectionStack;
             MatrixStack m_viewStack;
             MatrixStack m_modelStack;

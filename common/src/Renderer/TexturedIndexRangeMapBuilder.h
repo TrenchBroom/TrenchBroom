@@ -40,7 +40,7 @@ namespace TrenchBroom {
             using VertexList = std::vector<Vertex>;
             using Texture = Assets::Texture;
         private:
-            using IndexData = typename VertexListBuilder<VertexSpec>::IndexData;
+            using IndexData = typename VertexListBuilder<VertexSpec>::Range;
         private:
             VertexListBuilder<VertexSpec> m_vertexListBuilder;
             TexturedIndexRangeMap m_indexRange;

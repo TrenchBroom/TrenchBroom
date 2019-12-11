@@ -37,7 +37,7 @@ namespace TrenchBroom {
         private:
             using Vertex = typename VertexSpec::Vertex;
             using VertexList = std::vector<Vertex>;
-            using IndexData = typename VertexListBuilder<VertexSpec>::IndexData;
+            using IndexData = typename VertexListBuilder<VertexSpec>::Range;
         private:
             VertexListBuilder<VertexSpec> m_vertexListBuilder;
             IndexRangeMap m_indexRange;

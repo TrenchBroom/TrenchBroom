@@ -51,7 +51,9 @@ namespace TrenchBroom {
         class ShaderProgram;
         class ShaderManager;
 
+        class FontGlyph;
         class FontManager;
+        class FontTexture;
         class FontDescriptor;
         class TextAnchor;
         class TextRenderer;
