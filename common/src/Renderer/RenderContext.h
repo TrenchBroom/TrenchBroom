@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_RenderContext
 #define TrenchBroom_RenderContext
 
-#include "Renderer/Transformation.h"
 #include "TrenchBroom.h"
+#include "Renderer/Transformation.h"
 
 namespace TrenchBroom {
     namespace View {

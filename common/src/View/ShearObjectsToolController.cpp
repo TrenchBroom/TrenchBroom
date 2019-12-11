@@ -32,6 +32,8 @@
 #include "View/ShearObjectsTool.h"
 #include "View/MapDocument.h"
 
+#include <vecmath/polygon.h>
+
 #include <cassert>
 
 namespace TrenchBroom {

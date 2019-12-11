@@ -26,7 +26,6 @@
 #include "Model/BrushFace.h"
 #include "Model/EditorContext.h"
 #include "Model/TagAttribute.h"
-#include "Renderer/IndexArrayMapBuilder.h"
 #include "Renderer/BrushRendererArrays.h"
 #include "Renderer/BrushRendererBrushCache.h"
 #include "Renderer/RenderContext.h"

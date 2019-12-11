@@ -47,6 +47,7 @@
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/MapRenderer.h"
+#include "Renderer/PrimitiveRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"
 #include "View/Actions.h"
@@ -932,14 +933,14 @@ namespace TrenchBroom {
             if (portalFile != nullptr) {
                 for (const auto& poly : portalFile->portals()) {
                     m_portalFileRenderer->renderFilledPolygon(pref(Preferences::PortalFileFillColor),
-                                                              Renderer::PrimitiveRenderer::OP_Hide,
-                                                              Renderer::PrimitiveRenderer::CP_ShowBackfaces,
+                                                              Renderer::PrimitiveRendererOcclusionPolicy::Hide,
+                                                              Renderer::PrimitiveRendererCullingPolicy::ShowBackfaces,
                                                               poly.vertices());
 
                     const auto lineWidth = 4.0f;
                     m_portalFileRenderer->renderPolygon(pref(Preferences::PortalFileBorderColor),
                                                         lineWidth,
-                                                        Renderer::PrimitiveRenderer::OP_Hide,
+                                                        Renderer::PrimitiveRendererOcclusionPolicy::Hide,
                                                         poly.vertices());
                 }
             }

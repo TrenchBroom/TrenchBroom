@@ -24,6 +24,7 @@ namespace TrenchBroom {
     namespace Renderer {
         template <typename VertexSpec> class IndexRangeMapBuilder;
 
+        class VertexArray;
         class BrushIndexArray;
         class BrushVertexArray;
 
@@ -34,7 +35,22 @@ namespace TrenchBroom {
         class TexturedRenderer;
         class Vbo;
 
+        class ObjectRenderer;
+        class EntityLinkRenderer;
+        class PointHandleRenderer;
+
+        enum class PrimitiveRendererOcclusionPolicy;
+        enum class PrimitiveRendererCullingPolicy;
+        class PrimitiveRenderer;
+
+        class IndexRangeRenderer;
+
         class ActiveShader;
+
+        class FontManager;
+        class FontDescriptor;
+        class TextAnchor;
+        class TextRenderer;
     }
 }
 

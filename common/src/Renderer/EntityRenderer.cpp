@@ -19,6 +19,7 @@
 
 #include "EntityRenderer.h"
 
+#include "AttrString.h"
 #include "TrenchBroom.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
