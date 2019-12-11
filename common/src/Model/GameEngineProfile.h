@@ -25,13 +25,10 @@
 #include "IO/Path.h"
 
 #include <string>
-#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class GameEngineProfile {
-        public:
-            using List = std::vector<GameEngineProfile*>;
         private:
             std::string m_name;
             IO::Path m_path;

@@ -38,7 +38,7 @@ namespace TrenchBroom {
             loadFromConfig();
         }
 
-        const IO::Path::List& RecentDocuments::recentDocuments() const {
+        const std::vector<IO::Path>& RecentDocuments::recentDocuments() const {
             return m_recentDocuments;
         }
 

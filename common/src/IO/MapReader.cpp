@@ -19,6 +19,7 @@
 
 #include "MapReader.h"
 
+#include "IO/ParserStatus.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
@@ -32,6 +33,7 @@
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
+#include <list>
 #include <string>
 
 namespace TrenchBroom {
@@ -96,7 +98,7 @@ namespace TrenchBroom {
             m_factory = &initialize(format);
         }
 
-        void MapReader::onBeginEntity(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+        void MapReader::onBeginEntity(const size_t line, const std::list<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             const EntityType type = entityType(attributes);
             switch (type) {
                 case EntityType_Layer:
@@ -137,7 +139,7 @@ namespace TrenchBroom {
             onBrushFace(face, status);
         }
 
-        void MapReader::createLayer(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+        void MapReader::createLayer(const size_t line, const std::list<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             const std::string& name = findAttribute(attributes, Model::AttributeNames::LayerName);
             if (kdl::str_is_blank(name)) {
                 status.error(line, "Skipping layer entity: missing name");
@@ -172,7 +174,7 @@ namespace TrenchBroom {
             m_brushParent = layer;
         }
 
-        void MapReader::createGroup(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+        void MapReader::createGroup(const size_t line, const std::list<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             const std::string& name = findAttribute(attributes, Model::AttributeNames::GroupName);
             if (kdl::str_is_blank(name)) {
                 status.error(line, "Skipping group entity: missing name");
@@ -207,7 +209,7 @@ namespace TrenchBroom {
             m_brushParent = group;
         }
 
-        void MapReader::createEntity(const size_t /* line */, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+        void MapReader::createEntity(const size_t /* line */, const std::list<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             Model::Entity* entity = m_factory->createEntity();
             entity->setAttributes(attributes);
             setExtraAttributes(entity, extraAttributes);
@@ -234,7 +236,7 @@ namespace TrenchBroom {
 
         }
 
-        MapReader::ParentInfo::Type MapReader::storeNode(Model::Node* node, const Model::EntityAttribute::List& attributes, ParserStatus& status) {
+        MapReader::ParentInfo::Type MapReader::storeNode(Model::Node* node, const std::list<Model::EntityAttribute>& attributes, ParserStatus& status) {
             const std::string& layerIdStr = findAttribute(attributes, Model::AttributeNames::Layer);
             if (!kdl::str_is_blank(layerIdStr)) {
                 const long rawId = std::atol(layerIdStr.c_str());
@@ -309,7 +311,7 @@ namespace TrenchBroom {
             return kdl::map_find_or_default(m_groups, groupId, static_cast<Model::Group*>(nullptr));
         }
 
-        MapReader::EntityType MapReader::entityType(const Model::EntityAttribute::List& attributes) const {
+        MapReader::EntityType MapReader::entityType(const std::list<Model::EntityAttribute>& attributes) const {
             const std::string& classname = findAttribute(attributes, Model::AttributeNames::Classname);
             if (isLayer(classname, attributes))
                 return EntityType_Layer;

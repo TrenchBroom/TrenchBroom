@@ -436,9 +436,9 @@ namespace TrenchBroom {
             // For testing
             void setEntityDefinitions(const std::vector<Assets::EntityDefinition*>& definitions);
 
-            IO::Path::List enabledTextureCollections() const;
-            IO::Path::List availableTextureCollections() const;
-            void setEnabledTextureCollections(const IO::Path::List& paths);
+            std::vector<IO::Path> enabledTextureCollections() const;
+            std::vector<IO::Path> availableTextureCollections() const;
+            void setEnabledTextureCollections(const std::vector<IO::Path>& paths);
             void reloadTextureCollections();
 
             void reloadEntityDefinitions();
@@ -481,7 +481,7 @@ namespace TrenchBroom {
             void unsetEntityModels();
             void unsetEntityModels(const std::vector<Model::Node*>& nodes);
         protected: // search paths and mods
-            IO::Path::List externalSearchPaths() const;
+            std::vector<IO::Path> externalSearchPaths() const;
             void updateGameSearchPaths();
         public:
             std::vector<std::string> mods() const override;

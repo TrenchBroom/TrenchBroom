@@ -37,12 +37,12 @@ namespace TrenchBroom {
             bool directoryExists(const Path& path);
             bool fileExists(const Path& path);
 
-            Path::List getDirectoryContents(const Path& path);
+            std::vector<Path> getDirectoryContents(const Path& path);
             std::shared_ptr<File> openFile(const Path& path);
             Path getCurrentWorkingDir();
 
             template <class M>
-            void doFindItems(const Path& searchPath, const M& matcher, const bool recurse, Path::List& result) {
+            void doFindItems(const Path& searchPath, const M& matcher, const bool recurse, std::vector<Path>& result) {
                 for (const Path& itemPath : getDirectoryContents(searchPath)) {
                     const bool directory = directoryExists(searchPath + itemPath);
                     if (directory && recurse)
@@ -53,22 +53,22 @@ namespace TrenchBroom {
             }
 
             template <typename M>
-            Path::List findItems(const Path& path, const M& matcher) {
-                Path::List result;
+            std::vector<Path> findItems(const Path& path, const M& matcher) {
+                std::vector<Path> result;
                 doFindItems(path, matcher, false, result);
                 return result;
             }
 
-            Path::List findItems(const Path& path);
+            std::vector<Path> findItems(const Path& path);
 
             template <typename M>
-            Path::List findItemsRecursively(const Path& path, const M& matcher) {
-                Path::List result;
+            std::vector<Path> findItemsRecursively(const Path& path, const M& matcher) {
+                std::vector<Path> result;
                 doFindItems(path, matcher, true, result);
                 return result;
             }
 
-            Path::List findItemsRecursively(const Path& path);
+            std::vector<Path> findItemsRecursively(const Path& path);
 
             void createFile(const Path& path, const std::string& contents);
             void createDirectory(const Path& path);
@@ -115,7 +115,7 @@ namespace TrenchBroom {
                     moveFile(filePath, destDirPath, overwrite);
             }
 
-            Path resolvePath(const Path::List& searchPaths, const Path& path);
+            Path resolvePath(const std::vector<Path>& searchPaths, const Path& path);
         }
     }
 }

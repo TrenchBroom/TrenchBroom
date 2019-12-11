@@ -19,11 +19,10 @@
 
 #include "CompilationContext.h"
 
+#include "SharedPointer.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
 #include "EL/Types.h"
-
-#include <string>
 
 namespace TrenchBroom {
     namespace View {

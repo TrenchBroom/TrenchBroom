@@ -171,7 +171,7 @@ namespace TrenchBroom {
             return m_frameManager.get();
         }
 
-         const IO::Path::List& TrenchBroomApp::recentDocuments() const {
+         const std::vector<IO::Path>& TrenchBroomApp::recentDocuments() const {
             return m_recentDocuments->recentDocuments();
         }
 

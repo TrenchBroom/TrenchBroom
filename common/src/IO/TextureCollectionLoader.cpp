@@ -51,7 +51,7 @@ namespace TrenchBroom {
             return collection;
         }
 
-        FileTextureCollectionLoader::FileTextureCollectionLoader(Logger& logger, const IO::Path::List& searchPaths) :
+        FileTextureCollectionLoader::FileTextureCollectionLoader(Logger& logger, const std::vector<IO::Path>& searchPaths) :
         TextureCollectionLoader(logger),
         m_searchPaths(searchPaths) {}
 

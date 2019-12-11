@@ -19,13 +19,15 @@
 
 #include "CompilationConfig.h"
 
+#include "Model/CompilationProfile.h"
+
 #include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace Model {
         CompilationConfig::CompilationConfig() {}
 
-        CompilationConfig::CompilationConfig(const CompilationProfile::List& profiles) :
+        CompilationConfig::CompilationConfig(const std::vector<CompilationProfile*>& profiles) :
         m_profiles(profiles) {}
 
         CompilationConfig::CompilationConfig(const CompilationConfig& other) {

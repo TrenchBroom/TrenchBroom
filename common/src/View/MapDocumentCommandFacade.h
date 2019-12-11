@@ -118,7 +118,7 @@ namespace TrenchBroom {
         public: // entity definition file management
             void performSetEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
         public: // texture collection management
-            void performSetTextureCollections(const IO::Path::List& paths);
+            void performSetTextureCollections(const std::vector<IO::Path>& paths);
         public: // mods management
             void performSetMods(const std::vector<std::string>& mods);
         private:

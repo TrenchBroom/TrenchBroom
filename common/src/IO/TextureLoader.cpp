@@ -19,15 +19,16 @@
 
 #include "TextureLoader.h"
 
+#include "Logger.h"
 #include "Assets/Palette.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
-#include "EL/Interpolator.h"
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/HlMipTextureReader.h"
 #include "IO/IdMipTextureReader.h"
 #include "IO/Quake3ShaderTextureReader.h"
+#include "IO/TextureCollectionLoader.h"
 #include "IO/WalTextureReader.h"
 #include "IO/Path.h"
 #include "Model/GameConfig.h"
@@ -37,13 +38,15 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TextureLoader::TextureLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger& logger) :
+        TextureLoader::TextureLoader(const FileSystem& gameFS, const std::vector<IO::Path>& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger& logger) :
         m_textureExtensions(getTextureExtensions(textureConfig)),
         m_textureReader(createTextureReader(gameFS, textureConfig, logger)),
         m_textureCollectionLoader(createTextureCollectionLoader(gameFS, fileSearchPaths, textureConfig, logger)) {
             ensure(m_textureReader != nullptr, "textureReader is null");
             ensure(m_textureCollectionLoader != nullptr, "textureCollectionLoader is null");
         }
+
+        TextureLoader::~TextureLoader() = default;
 
        std::vector<std::string> TextureLoader::getTextureExtensions(const Model::GameConfig::TextureConfig& textureConfig) {
             return textureConfig.format.extensions;
@@ -85,7 +88,7 @@ namespace TrenchBroom {
             }
         }
 
-        std::unique_ptr<TextureCollectionLoader> TextureLoader::createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger& logger) {
+        std::unique_ptr<TextureCollectionLoader> TextureLoader::createTextureCollectionLoader(const FileSystem& gameFS, const std::vector<IO::Path>& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger& logger) {
             using Model::GameConfig;
             switch (textureConfig.package.type) {
                 case GameConfig::TexturePackageConfig::PT_File:
@@ -102,7 +105,7 @@ namespace TrenchBroom {
             return m_textureCollectionLoader->loadTextureCollection(path, m_textureExtensions, *m_textureReader);
         }
 
-        void TextureLoader::loadTextures(const Path::List& paths, Assets::TextureManager& textureManager) {
+        void TextureLoader::loadTextures(const std::vector<Path>& paths, Assets::TextureManager& textureManager) {
             textureManager.setTextureCollections(paths, *this);
         }
     }

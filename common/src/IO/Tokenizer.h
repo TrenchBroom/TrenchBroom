@@ -21,9 +21,8 @@
 #define TrenchBroom_Tokenizer_h
 
 #include "Token.h"
-#include "SharedPointer.h"
 
-#include <stack>
+#include <memory>
 #include <string>
 
 namespace TrenchBroom {
@@ -79,8 +78,6 @@ namespace TrenchBroom {
         public:
             using Token = TokenTemplate<TokenType>;
         private:
-            using TokenStack = std::stack<Token>;
-
             using StatePtr = std::shared_ptr<TokenizerState>;
 
             class SaveState {
@@ -152,7 +149,7 @@ namespace TrenchBroom {
 
                 Token token = peekToken();
                 const char* startPos = std::begin(token);
-                const char* endPos = startPos;
+                const char* endPos = nullptr;
                 do {
                     token = nextToken();
                     endPos = std::end(token);

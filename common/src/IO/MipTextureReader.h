@@ -21,14 +21,15 @@
 #define MipTextureReader_h
 
 #include "IO/TextureReader.h"
-#include "Assets/Palette.h"
 
 #include <string>
 
 namespace TrenchBroom {
     namespace IO {
+        class BufferedReader;
         class File;
         class Path;
+        class Reader;
 
         class MipTextureReader : public TextureReader {
         protected:

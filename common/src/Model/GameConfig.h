@@ -104,12 +104,12 @@ namespace TrenchBroom {
             };
 
             struct EntityConfig {
-                IO::Path::List defFilePaths;
+                std::vector<IO::Path> defFilePaths;
                 std::vector<std::string> modelFormats;
                 Color defaultColor;
 
                 EntityConfig(const IO::Path& i_defFilePath, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor);
-                EntityConfig(const IO::Path::List& i_defFilePaths, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor);
+                EntityConfig(const std::vector<IO::Path>& i_defFilePaths, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor);
                 EntityConfig();
 
                 bool operator==(const EntityConfig& other) const;

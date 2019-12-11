@@ -41,7 +41,7 @@ namespace TrenchBroom {
     namespace IO {
         TEST(FgdParserTest, parseIncludedFgdFiles) {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
-            const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("fgd"));
+            const std::vector<Path> cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("fgd"));
 
             for (const Path& path : cfgFiles) {
                 auto file = Disk::openFile(path);
@@ -52,8 +52,8 @@ namespace TrenchBroom {
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing FGD file " << path.asString() << " failed";
-                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Warn)) << "Parsing FGD file " << path.asString() << " produced warnings";
-                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error)) << "Parsing FGD file " << path.asString() << " produced errors";
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Warn)) << "Parsing FGD file " << path.asString() << " produced warnings";
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Error)) << "Parsing FGD file " << path.asString() << " produced errors";
             }
         }
 

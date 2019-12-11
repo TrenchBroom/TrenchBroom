@@ -20,6 +20,7 @@
 #include "ELParser.h"
 
 #include "EL/Expression.h"
+#include "EL/Value.h"
 
 #include <kdl/string_format.h>
 

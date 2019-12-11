@@ -25,6 +25,7 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/ELParser.h"
 #include "IO/LegacyModelDefinitionParser.h"
+#include "IO/ParserStatus.h"
 
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
@@ -139,6 +140,9 @@ namespace TrenchBroom {
 
         FgdParser::FgdParser(const std::string& str, const Color& defaultEntityColor, const Path& path) :
         FgdParser(str.c_str(), str.c_str() + str.size(), defaultEntityColor, path) {}
+
+        FgdParser::FgdParser(const std::string& str, const Color& defaultEntityColor) :
+        FgdParser(str, defaultEntityColor, Path()) {}
 
         FgdParser::TokenNameMap FgdParser::tokenNames() const {
             using namespace FgdToken;

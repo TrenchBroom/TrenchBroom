@@ -20,6 +20,7 @@
 #include "Interpolator.h"
 
 #include "EL/Expression.h"
+#include "EL/Value.h"
 
 #include <sstream>
 #include <string>

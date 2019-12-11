@@ -22,7 +22,6 @@
 
 #include "Assets/Asset_Forward.h"
 #include "Assets/EntityModel_Forward.h"
-#include "Assets/TextureCollection.h"
 #include "IO/EntityModelParser.h"
 
 #include <vecmath/forward.h>

@@ -916,7 +916,7 @@ namespace TrenchBroom {
             reloadEntityDefinitionsInternal();
         }
 
-        void MapDocumentCommandFacade::performSetTextureCollections(const IO::Path::List& paths) {
+        void MapDocumentCommandFacade::performSetTextureCollections(const std::vector<IO::Path>& paths) {
             const std::vector<Model::Node*> nodes(1, m_world.get());
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier<>::NotifyBeforeAndAfter notifyTextureCollections(textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);

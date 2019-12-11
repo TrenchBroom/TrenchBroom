@@ -21,9 +21,10 @@
 #define TrenchBroom_ImageLoaderImpl
 
 #include "IO/ImageLoader.h"
-#include <FreeImage.h>
 
 #include <vector>
+
+#include <FreeImage.h>
 
 namespace TrenchBroom {
     namespace IO {

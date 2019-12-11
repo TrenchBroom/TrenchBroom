@@ -23,6 +23,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "EL/EvaluationContext.h"
+#include "EL/Value.h"
 #include "EL/Types.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionParser.h"

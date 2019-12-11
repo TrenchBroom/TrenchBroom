@@ -21,9 +21,11 @@
 
 #include "Macros.h"
 #include "Model/AttributableNode.h"
+#include "Model/EntityAttributes.h"
 
 #include <kdl/vector_utils.h>
 
+#include <list>
 #include <string>
 #include <vector>
 
@@ -73,7 +75,7 @@ namespace TrenchBroom {
             }
         }
 
-        Model::EntityAttribute::List AttributableNodeIndexQuery::execute(const AttributableNode* node) const {
+        std::list<Model::EntityAttribute> AttributableNodeIndexQuery::execute(const AttributableNode* node) const {
             switch (m_type) {
                 case Type_Exact:
                     return node->attributeWithName(m_pattern);
@@ -141,7 +143,7 @@ namespace TrenchBroom {
 
             const std::set<AttributableNode*> nameResult = keyQuery.execute(m_nameIndex);
             for (const auto node : nameResult) {
-                const Model::EntityAttribute::List matchingAttributes = keyQuery.execute(node);
+                const auto matchingAttributes = keyQuery.execute(node);
                 for (const auto& attribute : matchingAttributes) {
                     result.push_back(attribute.value());
                 }

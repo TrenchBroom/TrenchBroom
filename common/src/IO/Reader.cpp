@@ -26,6 +26,7 @@
 #include <cstring>
 #include <functional>
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {

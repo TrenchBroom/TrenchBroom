@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 #include "Assets/Quake3Shader.h"
+#include "IO/ParserStatus.h"
 
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>

@@ -22,6 +22,8 @@
 #include "Exceptions.h"
 #include "IO/CompilationConfigParser.h"
 #include "Model/CompilationConfig.h"
+#include "Model/CompilationProfile.h"
+#include "Model/CompilationTask.h"
 
 #include <string>
 

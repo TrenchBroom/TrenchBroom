@@ -19,11 +19,13 @@
 
 #include "LaunchGameEngineDialog.h"
 
+#include "SharedPointer.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
+#include "Model/GameEngineProfile.h"
 #include "View/BorderLine.h"
 #include "View/CompilationVariables.h"
 #include "View/CurrentGameIndicator.h"

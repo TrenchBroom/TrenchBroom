@@ -19,6 +19,7 @@
 
 #include "ParserStatus.h"
 #include "Exceptions.h"
+#include "Logger.h"
 
 #include <cassert>
 #include <sstream>
@@ -38,19 +39,19 @@ namespace TrenchBroom {
         }
 
         void ParserStatus::debug(const size_t line, const size_t column, const std::string& str) {
-            log(Logger::LogLevel_Debug, line, column, str);
+            log(LogLevel::Debug, line, column, str);
         }
 
         void ParserStatus::info(const size_t line, const size_t column, const std::string& str) {
-            log(Logger::LogLevel_Debug, line, column, str);
+            log(LogLevel::Debug, line, column, str);
         }
 
         void ParserStatus::warn(const size_t line, const size_t column, const std::string& str) {
-            log(Logger::LogLevel_Debug, line, column, str);
+            log(LogLevel::Debug, line, column, str);
         }
 
         void ParserStatus::error(const size_t line, const size_t column, const std::string& str) {
-            log(Logger::LogLevel_Debug, line, column, str);
+            log(LogLevel::Debug, line, column, str);
         }
 
         void ParserStatus::errorAndThrow(const size_t line, const size_t column, const std::string& str) {
@@ -59,19 +60,19 @@ namespace TrenchBroom {
         }
 
         void ParserStatus::debug(const size_t line, const std::string& str) {
-            log(Logger::LogLevel_Debug, line, str);
+            log(LogLevel::Debug, line, str);
         }
 
         void ParserStatus::info(const size_t line, const std::string& str) {
-            log(Logger::LogLevel_Info, line, str);
+            log(LogLevel::Info, line, str);
         }
 
         void ParserStatus::warn(const size_t line, const std::string& str) {
-            log(Logger::LogLevel_Warn, line, str);
+            log(LogLevel::Warn, line, str);
         }
 
         void ParserStatus::error(const size_t line, const std::string& str) {
-            log(Logger::LogLevel_Error, line, str);
+            log(LogLevel::Error, line, str);
         }
 
         void ParserStatus::errorAndThrow(size_t line, const std::string& str) {
@@ -80,19 +81,19 @@ namespace TrenchBroom {
         }
 
         void ParserStatus::debug(const std::string& str) {
-            log(Logger::LogLevel_Debug, str);
+            log(LogLevel::Debug, str);
         }
 
         void ParserStatus::info(const std::string& str) {
-            log(Logger::LogLevel_Info, str);
+            log(LogLevel::Info, str);
         }
 
         void ParserStatus::warn(const std::string& str) {
-            log(Logger::LogLevel_Warn, str);
+            log(LogLevel::Warn, str);
         }
 
         void ParserStatus::error(const std::string& str) {
-            log(Logger::LogLevel_Error, str);
+            log(LogLevel::Error, str);
         }
 
         void ParserStatus::errorAndThrow(const std::string& str) {
@@ -100,7 +101,7 @@ namespace TrenchBroom {
             throw ParserException(buildMessage(str));
         }
 
-        void ParserStatus::log(const Logger::LogLevel level, const size_t line, const size_t column, const std::string& str) {
+        void ParserStatus::log(const LogLevel level, const size_t line, const size_t column, const std::string& str) {
             doLog(level, buildMessage(line, column, str));
         }
 
@@ -113,7 +114,7 @@ namespace TrenchBroom {
             return msg.str();
         }
 
-        void ParserStatus::log(const Logger::LogLevel level, const size_t line, const std::string& str) {
+        void ParserStatus::log(const LogLevel level, const size_t line, const std::string& str) {
             doLog(level, buildMessage(line, str));
         }
 
@@ -126,7 +127,7 @@ namespace TrenchBroom {
             return msg.str();
         }
 
-        void ParserStatus::log(Logger::LogLevel level, const std::string& str) {
+        void ParserStatus::log(const LogLevel level, const std::string& str) {
             doLog(level, buildMessage(str));
         }
 
@@ -139,7 +140,7 @@ namespace TrenchBroom {
             return msg.str();
         }
 
-        void ParserStatus::doLog(const Logger::LogLevel level, const std::string& str) {
+        void ParserStatus::doLog(const LogLevel level, const std::string& str) {
             m_logger.log(level, str);
         }
     }

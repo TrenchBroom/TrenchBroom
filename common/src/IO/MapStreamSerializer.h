@@ -24,6 +24,7 @@
 #include "Model/MapFormat.h"
 
 #include <iosfwd>
+#include <memory>
 #include <string>
 
 namespace TrenchBroom {
@@ -32,7 +33,7 @@ namespace TrenchBroom {
         private:
             std::ostream& m_stream;
         public:
-            static Ptr create(Model::MapFormat format, std::ostream& stream);
+            static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, std::ostream& stream);
         protected:
             MapStreamSerializer(std::ostream& stream);
         public:

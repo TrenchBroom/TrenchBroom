@@ -22,7 +22,6 @@
 
 #include "Notifier.h"
 #include "Assets/Asset_Forward.h"
-#include "IO/Path.h"
 #include "Model/Model_Forward.h"
 
 #include <map>
@@ -33,6 +32,7 @@ namespace TrenchBroom {
     class Logger;
 
     namespace IO {
+        class Path;
         class TextureLoader;
     }
 
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             TextureManager(int magFilter, int minFilter, Logger& logger);
             ~TextureManager();
 
-            void setTextureCollections(const IO::Path::List& paths, IO::TextureLoader& loader);
+            void setTextureCollections(const std::vector<IO::Path>& paths, IO::TextureLoader& loader);
             void setTextureCollections(const std::vector<TextureCollection*>& collections);
         private:
             TextureCollectionMap collectionMap() const;

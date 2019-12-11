@@ -20,6 +20,7 @@
 #include "CompilationDialog.h"
 
 #include "Model/Game.h"
+#include "Model/CompilationProfile.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationProfileManager.h"
 #include "View/CompilationRunner.h"

@@ -22,7 +22,6 @@
 
 #include "IO/EntityModelParser.h"
 #include "IO/Parser.h"
-#include "IO/Path.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
@@ -57,6 +56,7 @@ namespace TrenchBroom {
         }
 
         class FileSystem;
+        class Path;
 
         class AseTokenizer : public Tokenizer<AseToken::Type> {
         private:
@@ -118,13 +118,13 @@ namespace TrenchBroom {
             void parseScene(Logger& logger);
 
             // MATERIALS
-            void parseMaterialList(Logger& logger, Path::List& paths);
-            void parseMaterialListMaterialCount(Logger& logger, Path::List& paths);
-            void parseMaterialListMaterial(Logger& logger, Path::List& paths);
+            void parseMaterialList(Logger& logger, std::vector<Path>& paths);
+            void parseMaterialListMaterialCount(Logger& logger, std::vector<Path>& paths);
+            void parseMaterialListMaterial(Logger& logger, std::vector<Path>& paths);
             void parseMaterialListMaterialMapDiffuse(Logger& logger, Path& path);
             void parseMaterialListMaterialMapDiffuseBitmap(Logger& logger, Path& path);
 
-            void parseGeomObject(Logger& logger, GeomObject& geomObject, const Path::List& materialPaths);
+            void parseGeomObject(Logger& logger, GeomObject& geomObject, const std::vector<Path>& materialPaths);
             void parseGeomObjectNodeName(Logger& logger, GeomObject& geomObject);
             void parseGeomObjectMaterialRef(Logger& logger, GeomObject& geomObject, size_t materialCount);
             void parseGeomObjectMesh(Logger& logger, Mesh& mesh);

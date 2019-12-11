@@ -22,6 +22,7 @@
 #include "Assets/EntityModel.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/IOUtils.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
@@ -53,8 +54,8 @@ namespace TrenchBroom {
         }
 
         void TestGame::doSetGamePath(const IO::Path& /* gamePath */, Logger& /* logger */) {}
-        void TestGame::doSetAdditionalSearchPaths(const IO::Path::List& /* searchPaths */, Logger& /* logger */) {}
-        Game::PathErrors TestGame::doCheckAdditionalSearchPaths(const IO::Path::List& /* searchPaths */) const { return PathErrors(); }
+        void TestGame::doSetAdditionalSearchPaths(const std::vector<IO::Path>& /* searchPaths */, Logger& /* logger */) {}
+        Game::PathErrors TestGame::doCheckAdditionalSearchPaths(const std::vector<IO::Path>& /* searchPaths */) const { return PathErrors(); }
 
         CompilationConfig& TestGame::doCompilationConfig() {
             static CompilationConfig config;
@@ -116,10 +117,10 @@ namespace TrenchBroom {
         }
 
         void TestGame::doLoadTextureCollections(AttributableNode& node, const IO::Path& /* documentPath */, Assets::TextureManager& textureManager, Logger& logger) const {
-            const IO::Path::List paths = extractTextureCollections(node);
+            const std::vector<IO::Path> paths = extractTextureCollections(node);
 
             const IO::Path root = IO::Disk::getCurrentWorkingDir();
-            const IO::Path::List fileSearchPaths{ root };
+            const std::vector<IO::Path> fileSearchPaths{ root };
             const IO::DiskFileSystem fileSystem(root, true);
 
             const GameConfig::TextureConfig textureConfig(GameConfig::TexturePackageConfig(GameConfig::PackageFormatConfig("wad", "idmip")),
@@ -136,20 +137,20 @@ namespace TrenchBroom {
             return false;
         }
 
-        IO::Path::List TestGame::doFindTextureCollections() const {
-            return IO::Path::List();
+        std::vector<IO::Path> TestGame::doFindTextureCollections() const {
+            return std::vector<IO::Path>();
         }
 
-        IO::Path::List TestGame::doExtractTextureCollections(const AttributableNode& node) const {
+        std::vector<IO::Path> TestGame::doExtractTextureCollections(const AttributableNode& node) const {
             const AttributeValue& pathsValue = node.attribute("wad");
             if (pathsValue.empty()) {
-                return IO::Path::List(0);
+                return std::vector<IO::Path>(0);
             }
 
             return IO::Path::asPaths(kdl::str_split(pathsValue, ";"));
         }
 
-        void TestGame::doUpdateTextureCollections(AttributableNode& node, const IO::Path::List& paths) const {
+        void TestGame::doUpdateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const {
             const std::string value = kdl::str_join(IO::Path::asStrings(paths, "/"), ";");
             node.addOrUpdateAttribute("wad", value);
         }
@@ -168,7 +169,7 @@ namespace TrenchBroom {
             return Assets::EntityDefinitionFileSpec();
         }
 
-        IO::Path TestGame::doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& /* spec */, const IO::Path::List& /* searchPaths */) const {
+        IO::Path TestGame::doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& /* spec */, const std::vector<IO::Path>& /* searchPaths */) const {
             return IO::Path();
         }
 

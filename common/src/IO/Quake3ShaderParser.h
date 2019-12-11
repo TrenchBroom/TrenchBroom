@@ -21,7 +21,6 @@
 #define TRENCHBROOM_Q3SHADERPARSER_H
 
 #include "IO/Parser.h"
-#include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
 #include <string>

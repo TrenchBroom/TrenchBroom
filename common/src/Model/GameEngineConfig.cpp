@@ -19,15 +19,18 @@
 
 #include "GameEngineConfig.h"
 
+#include "Model/GameEngineProfile.h"
+
 #include <kdl/vector_utils.h>
 
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         GameEngineConfig::GameEngineConfig() {}
 
-        GameEngineConfig::GameEngineConfig(const GameEngineProfile::List& profiles) :
+        GameEngineConfig::GameEngineConfig(const std::vector<GameEngineProfile*>& profiles) :
         m_profiles(profiles) {}
 
         GameEngineConfig::GameEngineConfig(const GameEngineConfig& other) {

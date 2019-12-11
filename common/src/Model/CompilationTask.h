@@ -24,7 +24,6 @@
 #include "Notifier.h"
 
 #include <string>
-#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -36,8 +35,6 @@ namespace TrenchBroom {
 
         class CompilationTask {
         public:
-            using List = std::vector<CompilationTask*>;
-
             Notifier<> taskWillBeRemoved;
             Notifier<> taskDidChange;
         protected:

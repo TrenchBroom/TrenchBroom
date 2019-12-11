@@ -21,7 +21,6 @@
 #define LegacyModelDefinitionParser_h
 
 #include "IO/Parser.h"
-#include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
 #include <string>

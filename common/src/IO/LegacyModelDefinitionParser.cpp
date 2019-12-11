@@ -20,9 +20,12 @@
 #include "LegacyModelDefinitionParser.h"
 
 #include "Assets/ModelDefinition.h"
+#include "EL/Value.h"
+#include "IO/ParserStatus.h"
 
 #include <kdl/string_compare.h>
 
+#include <algorithm>
 #include <string>
 
 namespace TrenchBroom {
@@ -106,7 +109,7 @@ namespace TrenchBroom {
             } while (token.hasType(MdlToken::Comma));
 
             // The legacy model expressions are evaluated back to front.
-            modelExpressions.reverse();
+            std::reverse(std::begin(modelExpressions), std::end(modelExpressions));
             return EL::Expression(EL::SwitchOperator::create(std::move(modelExpressions), startLine, startColumn));
         }
 

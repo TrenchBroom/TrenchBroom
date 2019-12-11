@@ -18,9 +18,11 @@
  */
 
 #include "MapParser.h"
-#include "Exceptions.h"
 
-#include <string>
+#include "Exceptions.h"
+#include "Model/EntityAttributes.h"
+
+#include <list>
 
 namespace TrenchBroom {
     namespace IO {
@@ -54,7 +56,7 @@ namespace TrenchBroom {
             onFormatSet(format);
         }
 
-        void MapParser::beginEntity(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+        void MapParser::beginEntity(const size_t line, const std::list<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             onBeginEntity(line, attributes, extraAttributes, status);
         }
 

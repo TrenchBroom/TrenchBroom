@@ -23,7 +23,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        CachingLogger::Message::Message(const Logger::LogLevel i_level, const QString& i_str) :
+        CachingLogger::Message::Message(const LogLevel i_level, const QString& i_str) :
         level(i_level),
         str(i_str) {}
 

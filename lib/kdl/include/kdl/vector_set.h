@@ -19,6 +19,7 @@
 #define KDL_VECTOR_SET_H
 
 #include "set_adapter.h"
+#include "vector_set_forward.h"
 
 #include <cassert>
 #include <functional> // for std::less
@@ -26,7 +27,8 @@
 #include <vector>
 
 namespace kdl {
-    template <typename T, typename Compare = std::less<T>, typename Allocator = std::allocator<T>>
+    // default template arguments are defined in vector_set_forward.h
+    template <typename T, typename Compare, typename Allocator>
     class vector_set : public set_adapter<std::vector<T, Allocator>, Compare> {
     private:
         using vec_type = std::vector<T, Allocator>;

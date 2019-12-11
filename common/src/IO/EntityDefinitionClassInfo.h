@@ -34,9 +34,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class EntityDefinitionClassInfo;
-        using EntityDefinitionClassInfoMap = std::map<std::string, EntityDefinitionClassInfo>;
-
         class EntityDefinitionClassInfo {
         private:
             size_t m_line;
@@ -77,7 +74,7 @@ namespace TrenchBroom {
             void addAttributeDefinitions(const std::map<std::string, std::shared_ptr<Assets::AttributeDefinition>>& attributeDefinitions);
             void setModelDefinition(const Assets::ModelDefinition& modelDefinition);
 
-            void resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const std::vector<std::string>& classnames);
+            void resolveBaseClasses(const std::map<std::string, EntityDefinitionClassInfo>& baseClasses, const std::vector<std::string>& classnames);
         private:
             static void mergeProperties(Assets::AttributeDefinition* classAttribute, const Assets::AttributeDefinition* baseclassAttribute);
         };

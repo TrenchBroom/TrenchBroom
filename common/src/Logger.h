@@ -26,15 +26,15 @@
 class QString;
 
 namespace TrenchBroom {
+    enum class LogLevel {
+        Debug,
+        Info,
+        Warn,
+        Error
+    };
+
     class Logger {
     public:
-        typedef enum {
-            LogLevel_Debug,
-            LogLevel_Info,
-            LogLevel_Warn,
-            LogLevel_Error
-        } LogLevel;
-
         class stream {
         private:
             Logger* m_logger;

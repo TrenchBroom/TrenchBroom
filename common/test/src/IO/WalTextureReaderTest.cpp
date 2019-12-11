@@ -21,6 +21,7 @@
 
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
+#include "IO/DiskIO.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
 #include "IO/WalTextureReader.h"

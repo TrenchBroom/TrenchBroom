@@ -32,9 +32,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        const Path::List Path::EmptyList = Path::List(0);
-        const Path Path::EmptyPath = Path();
-
         std::string Path::separator() {
 #ifdef _WIN32
             static const std::string sep = "\\";
@@ -139,7 +136,7 @@ namespace TrenchBroom {
 
 
 
-        std::vector<std::string> Path::asStrings(const Path::List& paths, const std::string& separator) {
+        std::vector<std::string> Path::asStrings(const std::vector<Path>& paths, const std::string& separator) {
             auto result = std::vector<std::string>();
             result.reserve(paths.size());
             for (const auto& path : paths) {
@@ -148,8 +145,8 @@ namespace TrenchBroom {
             return result;
         }
 
-        Path::List Path::asPaths(const std::vector<std::string>& strs) {
-            auto result = Path::List();
+        std::vector<Path> Path::asPaths(const std::vector<std::string>& strs) {
+            auto result = std::vector<Path>();
             result.reserve(strs.size());
             for (const auto& str : strs) {
                 result.push_back(Path(str));
@@ -488,8 +485,8 @@ namespace TrenchBroom {
             return Path(m_absolute, lcComponents);
         }
 
-        Path::List Path::makeAbsoluteAndCanonical(const List& paths, const Path& relativePath) {
-            auto result = List();
+        std::vector<Path> Path::makeAbsoluteAndCanonical(const std::vector<Path>& paths, const Path& relativePath) {
+            auto result = std::vector<Path>();
             result.reserve(paths.size());
             for (const auto& path : paths) {
                 result.push_back(path.makeAbsolute(relativePath).makeCanonical());

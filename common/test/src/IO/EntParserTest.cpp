@@ -41,7 +41,7 @@ namespace TrenchBroom {
 
         TEST(EntParserTest, parseIncludedEntFiles) {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
-            const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("ent"));
+            const std::vector<Path> cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("ent"));
 
             for (const Path& path : cfgFiles) {
                 auto file = Disk::openFile(path);
@@ -52,7 +52,7 @@ namespace TrenchBroom {
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing ENT file " << path.asString() << " failed";
-                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error))
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Error))
                                     << "Parsing ENT file " << path.asString() << " produced errors";
             }
         }
