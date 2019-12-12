@@ -27,6 +27,9 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        /**
+         * Wrapper around an OpenGL buffer
+         */
         class Vbo {
         private:
             /**
@@ -36,9 +39,18 @@ namespace TrenchBroom {
             size_t m_capacity;
             GLuint m_bufferId;
         public:
+            /**
+             * Immediately creates and binds to a buffer of the given type and capacity.
+             * The contents are initially unspecified.
+             */
             Vbo(GLenum type, const size_t capacity);
             ~Vbo();
 
+            /**
+             * Deletes the underlying OpenGL buffer with glDeleteBuffers.
+             * Must be called before the destructor.
+             * Calling any other methods after free() is disallowed.
+             */
             void free();
             size_t offset() const;
             size_t capacity() const;

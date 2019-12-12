@@ -20,11 +20,9 @@
 #ifndef TrenchBroom_VboManager
 #define TrenchBroom_VboManager
 
-#include "Macros.h"
 #include "Renderer/GL.h"
 
-#include <memory>
-#include <vector>
+#include <cstddef> // for size_t
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -35,14 +33,13 @@ namespace TrenchBroom {
             ElementArrayBuffer
         };
 
-        /**
-         * e.g. GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER
-         */
-        GLenum toOpenGL(VboType type);
-
         class VboManager {
         public:
             VboManager();
+            /**
+            * Immediately creates and binds to an OpenGL buffer of the given type and capacity.
+            * The contents are initially unspecified. See Vbo class.
+            */
             Vbo* allocateBlock(VboType type, size_t capacity);
         };
     }

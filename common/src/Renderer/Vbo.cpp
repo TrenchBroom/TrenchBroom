@@ -33,7 +33,7 @@ namespace TrenchBroom {
 
             glAssert(glGenBuffers(1, &m_bufferId));
             glAssert(glBindBuffer(m_type, m_bufferId));
-            glAssert(glBufferData(m_type, m_capacity, nullptr, GL_STATIC_DRAW));
+            glAssert(glBufferData(m_type, static_cast<GLsizeiptr>(m_capacity), nullptr, GL_STATIC_DRAW));
         }
 
         void Vbo::free() {
@@ -60,6 +60,7 @@ namespace TrenchBroom {
         }
 
         void Vbo::unbind() {
+            assert(m_bufferId != 0);
             glAssert(glBindBuffer(m_type, 0));
         }
     }

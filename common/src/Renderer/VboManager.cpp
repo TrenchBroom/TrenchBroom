@@ -19,19 +19,16 @@
 
 #include "VboManager.h"
 
-#include "Ensure.h"
+#include "Vbo.h"
+#include "GL.h"
 #include "Macros.h"
-#include "Exceptions.h"
-#include "Renderer/Vbo.h"
-
-#include <algorithm>
-#include <cassert>
-#include <cstring>
-#include <memory>
 
 namespace TrenchBroom {
     namespace Renderer {
-        GLenum toOpenGL(const VboType type) {
+        /**
+         * e.g. GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER
+         */
+        static GLenum toOpenGL(const VboType type) {
             switch (type) {
                 case VboType::ArrayBuffer:
                     return GL_ARRAY_BUFFER;
