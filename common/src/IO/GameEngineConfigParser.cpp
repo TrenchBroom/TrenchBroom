@@ -23,6 +23,7 @@
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
 #include "EL/Value.h"
+#include "Model/GameEngineConfig.h"
 #include "Model/GameEngineProfile.h"
 
 #include <kdl/vector_utils.h>
