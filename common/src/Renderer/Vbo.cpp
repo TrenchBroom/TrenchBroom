@@ -25,19 +25,6 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        // MapVboBlock
-
-        MapVboBlock::MapVboBlock(Vbo* block) :
-        m_block(block) {
-            m_block->bind();
-        }
-
-        MapVboBlock::~MapVboBlock() {
-            m_block->unbind();
-        }
-
-        // VboBlock
-
         Vbo::Vbo(GLenum type, const size_t capacity) :
         m_type(type),
         m_capacity(capacity) {

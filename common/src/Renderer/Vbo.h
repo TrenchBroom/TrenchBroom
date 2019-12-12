@@ -27,21 +27,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class VboManager;
-
-        class Vbo;
-        class MapVboBlock {
-        private:
-            Vbo* m_block;
-        public:
-            MapVboBlock(Vbo* block);
-            ~MapVboBlock();
-        };
-
         class Vbo {
         private:
-            friend class MapVboBlock;
-
             /**
              * e.g. GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER
              */

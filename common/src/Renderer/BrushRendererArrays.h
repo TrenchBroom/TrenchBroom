@@ -88,7 +88,6 @@ namespace TrenchBroom {
                 m_block = vboManager.allocateBlock(m_type, m_snapshot.size() * sizeof(T));
                 assert(m_block != nullptr);
 
-                MapVboBlock map(m_block);
                 m_block->writeElements(0, m_snapshot);
 
                 m_dirtyRange = DirtyRangeTracker(m_snapshot.size());
@@ -172,7 +171,6 @@ namespace TrenchBroom {
                 }
 
                 // otherwise, it's an incremental update of the dirty ranges.
-                MapVboBlock map(m_block);
 
                 if (!m_dirtyRange.clean()) {
                     const size_t pos = m_dirtyRange.m_dirtyPos;
