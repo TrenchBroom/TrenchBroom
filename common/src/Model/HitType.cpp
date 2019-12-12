@@ -31,7 +31,7 @@ namespace TrenchBroom {
                 static std::size_t currentShift = 0;
 
                 ensure(currentShift <= Bits, "No more hit types");
-                return 1u << currentShift++;
+                return Type(1) << currentShift++;
             }
         }
     }

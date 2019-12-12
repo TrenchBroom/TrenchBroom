@@ -64,7 +64,7 @@ namespace TrenchBroom {
         Tag& Tag::operator=(Tag&& other) = default;
 
         TagType::Type Tag::type() const {
-            return 1UL << m_index;
+            return TagType::Type(1) << m_index;
         }
 
         size_t Tag::index() const {
