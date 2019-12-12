@@ -20,14 +20,11 @@
 #ifndef TexturedIndexRangeBuilder_h
 #define TexturedIndexRangeBuilder_h
 
+#include "Assets/Asset_Forward.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/VertexListBuilder.h"
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
     namespace Renderer {
         /**
          * Builds an index range map and a corresponding vertex array by recording textured rendering primitives.

@@ -17,28 +17,20 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityModelParser
-#define TrenchBroom_EntityModelParser
+#ifndef TRENCHBROOM_TAGTYPE_H
+#define TRENCHBROOM_TAGTYPE_H
 
-#include "Assets/Asset_Forward.h"
-
-#include <memory>
+#include <cstdint>
 
 namespace TrenchBroom {
-    class Logger;
+    namespace Model {
+        namespace TagType {
+            using Type = uint64_t;
 
-    namespace IO {
-        class EntityModelParser {
-        public:
-            virtual ~EntityModelParser();
-
-            std::unique_ptr<Assets::EntityModel> initializeModel(Logger& logger);
-            void loadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger);
-        private:
-            virtual std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) = 0;
-            virtual void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger);
-        };
+            constexpr Type NoType  =  0u;
+            constexpr Type AnyType = ~NoType;
+        }
     }
 }
 
-#endif /* defined(TrenchBroom_EntityModelParser) */
+#endif //TRENCHBROOM_TAGTYPE_H

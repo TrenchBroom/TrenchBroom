@@ -19,11 +19,12 @@
 
 #include "ResizeBrushesTool.h"
 
-#include "TrenchBroom.h"
 #include "Constants.h"
 #include "Polyhedron.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
+#include "SharedPointer.h"
+#include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -54,8 +55,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType ResizeBrushesTool::ResizeHit2D = Model::Hit::freeHitType();
-        const Model::Hit::HitType ResizeBrushesTool::ResizeHit3D = Model::Hit::freeHitType();
+        const Model::HitType::Type ResizeBrushesTool::ResizeHit2D = Model::HitType::freeType();
+        const Model::HitType::Type ResizeBrushesTool::ResizeHit3D = Model::HitType::freeType();
 
         ResizeBrushesTool::ResizeBrushesTool(std::weak_ptr<MapDocument> document) :
         Tool(true),
@@ -96,11 +97,11 @@ namespace TrenchBroom {
 
         class ResizeBrushesTool::PickProximateFace : public Model::ConstNodeVisitor, public Model::NodeQuery<Model::Hit> {
         private:
-            const Model::Hit::HitType m_hitType;
+            const Model::HitType::Type m_hitType;
             const vm::ray3& m_pickRay;
             FloatType m_closest;
         public:
-            PickProximateFace(const Model::Hit::HitType hitType, const vm::ray3& pickRay) :
+            PickProximateFace(const Model::HitType::Type hitType, const vm::ray3& pickRay) :
             NodeQuery(Model::Hit::NoHit),
             m_hitType(hitType),
             m_pickRay(pickRay),
@@ -150,7 +151,7 @@ namespace TrenchBroom {
             }
         };
 
-        Model::Hit ResizeBrushesTool::pickProximateFace(const Model::Hit::HitType hitType, const vm::ray3& pickRay) const {
+        Model::Hit ResizeBrushesTool::pickProximateFace(const Model::HitType::Type hitType, const vm::ray3& pickRay) const {
             PickProximateFace visitor(hitType, pickRay);
 
             auto document = lock(m_document);

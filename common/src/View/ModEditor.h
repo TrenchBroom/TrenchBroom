@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_ModEditor
 #define TrenchBroom_ModEditor
 
+#include "Model/Model_Forward.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -34,10 +36,6 @@ class QAbstractButton;
 namespace TrenchBroom {
     namespace IO {
         class Path;
-    }
-
-    namespace Model {
-        class Object;
     }
 
     namespace View {

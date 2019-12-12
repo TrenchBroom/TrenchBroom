@@ -24,9 +24,8 @@
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
+#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
-
-#include <cassert>
 
 namespace TrenchBroom {
     namespace Model {
@@ -87,7 +86,7 @@ namespace TrenchBroom {
             return m_next->matches(hit);
         }
 
-        TypedHitFilter::TypedHitFilter(const Hit::HitType typeMask) :
+        TypedHitFilter::TypedHitFilter(const HitType::Type typeMask) :
         m_typeMask(typeMask) {}
 
         HitFilter* TypedHitFilter::doClone() const {

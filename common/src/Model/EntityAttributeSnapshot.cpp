@@ -34,10 +34,11 @@ namespace TrenchBroom {
         m_present(false) {}
 
         void EntityAttributeSnapshot::restore(AttributableNode* node) const {
-            if (!m_present)
+            if (!m_present) {
                 node->removeAttribute(m_name);
-            else
+            } else {
                 node->addOrUpdateAttribute(m_name, m_value);
+            }
         }
     }
 }

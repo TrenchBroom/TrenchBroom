@@ -48,10 +48,10 @@ namespace TrenchBroom {
             Action m_action;
 
             std::vector<Model::Node*> m_nodes;
-            Model::BrushFaceReference::List m_faceRefs;
+            std::vector<Model::BrushFaceReference> m_faceRefs;
 
             std::vector<Model::Node*> m_previouslySelectedNodes;
-            Model::BrushFaceReference::List m_previouslySelectedFaceRefs;
+            std::vector<Model::BrushFaceReference> m_previouslySelectedFaceRefs;
         public:
             static Ptr select(const std::vector<Model::Node*>& nodes);
             static Ptr select(const std::vector<Model::BrushFace*>& faces);

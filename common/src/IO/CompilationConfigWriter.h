@@ -21,6 +21,7 @@
 #define CompilationConfigWriter_h
 
 #include "Macros.h"
+#include "Model/Model_Forward.h"
 
 #include <iosfwd>
 #include <string>
@@ -28,11 +29,6 @@
 namespace TrenchBroom {
     namespace EL {
         class Value;
-    }
-
-    namespace Model {
-        class CompilationConfig;
-        class CompilationProfile;
     }
 
     namespace IO {

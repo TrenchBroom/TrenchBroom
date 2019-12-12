@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_EntityAttributeGridTable
 #define TrenchBroom_EntityAttributeGridTable
 
+#include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <QAbstractTableModel>
@@ -32,10 +33,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class AttributeDefinition;
-    }
-
     namespace View {
         class MapDocument;
 

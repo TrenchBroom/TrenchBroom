@@ -25,6 +25,8 @@
 #include <kdl/string_format.h>
 #include <kdl/vector_set.h>
 
+#include <vecmath/polygon.h>
+
 #include <set>
 #include <vector>
 

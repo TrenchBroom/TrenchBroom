@@ -34,6 +34,7 @@
 #include "IO/Path.h"
 #include "IO/SystemPaths.h"
 #include "Model/Game.h"
+#include "Model/GameConfig.h"
 #include "Model/GameImpl.h"
 
 #include <kdl/collection_utils.h>
@@ -41,7 +42,6 @@
 #include <kdl/string_utils.h>
 
 #include <memory>
-#include <sstream>
 #include <string>
 #include <vector>
 

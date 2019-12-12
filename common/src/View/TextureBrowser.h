@@ -20,7 +20,8 @@
 #ifndef TrenchBroom_TextureBrowser
 #define TrenchBroom_TextureBrowser
 
-#include "Assets/TextureManager.h"
+#include "Assets/Asset_Forward.h"
+#include "Model/Model_Forward.h"
 #include "View/TextureBrowserView.h"
 
 #include <memory>
@@ -35,10 +36,6 @@ class QLineEdit;
 class QScrollBar;
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
     namespace IO {
         class Path;
     }

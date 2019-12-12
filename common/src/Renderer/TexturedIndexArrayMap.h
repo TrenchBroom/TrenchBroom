@@ -20,15 +20,12 @@
 #ifndef TexturedIndexArrayMap_h
 #define TexturedIndexArrayMap_h
 
+#include "Assets/Asset_Forward.h"
 #include "Renderer/IndexArrayMap.h"
 
 #include <map>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
     namespace Renderer {
         class IndexArray;
         class TextureRenderFunc;

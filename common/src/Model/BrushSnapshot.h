@@ -27,9 +27,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
-        class BrushFaceSnapshot;
-
         class BrushSnapshot : public NodeSnapshot {
         private:
             Brush* m_brush;

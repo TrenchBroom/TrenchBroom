@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_EntityModelManager
 #define TrenchBroom_EntityModelManager
 
+#include "Assets/Asset_Forward.h"
 #include "IO/Path.h"
 #include "Model/Model_Forward.h"
 
@@ -32,10 +33,6 @@
 namespace TrenchBroom {
     class Logger;
 
-    namespace Assets {
-        struct ModelSpecification;
-    }
-
     namespace IO {
         class EntityModelLoader;
     }
@@ -46,9 +43,6 @@ namespace TrenchBroom {
     }
 
     namespace Assets {
-        class EntityModel;
-        class EntityModelFrame;
-
         class EntityModelManager {
         private:
             using ModelCache = std::map<IO::Path, std::unique_ptr<EntityModel>>;

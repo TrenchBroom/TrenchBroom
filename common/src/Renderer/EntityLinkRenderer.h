@@ -31,10 +31,6 @@
 #include <vecmath/forward.h>
 
 namespace TrenchBroom {
-    namespace Model {
-        class EditorContext;
-    }
-
     namespace View {
         class MapDocument; // FIXME: Renderer should not depend on View
     }

@@ -148,11 +148,10 @@ namespace TrenchBroom {
             const vm::vec3& normal = face->boundary().normal;
             const size_t normalIndex = m_normals.index(normal);
 
-            const Model::BrushFace::VertexList vertices = face->vertices();
             IndexedVertexList indexedVertices;
-            indexedVertices.reserve(vertices.size());
+            indexedVertices.reserve(face->vertexCount());
 
-            for (const Model::BrushVertex* vertex : vertices) {
+            for (const Model::BrushVertex* vertex : face->vertices()) {
                 const vm::vec3& position = vertex->position();
                 const vm::vec2f texCoords = face->textureCoords(position);
 

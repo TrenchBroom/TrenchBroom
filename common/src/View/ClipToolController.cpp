@@ -23,8 +23,8 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
-#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
+#include "Model/HitType.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
@@ -36,8 +36,6 @@
 #include <vecmath/segment.h>
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>
-
-#include <cassert>
 
 namespace TrenchBroom {
     namespace View {
@@ -360,7 +358,7 @@ namespace TrenchBroom {
                 SurfaceDragRestricter* restricter = new SurfaceDragRestricter();
                 restricter->setPickable(true);
                 restricter->setType(Model::Brush::BrushHit);
-                restricter->setOccluded(Model::Hit::AnyType);
+                restricter->setOccluded(Model::HitType::AnyType);
                 return restricter;
             }
 
@@ -380,7 +378,7 @@ namespace TrenchBroom {
                 SurfaceDragSnapper* snapper = new ClipPointSnapper(m_tool->grid());
                 snapper->setPickable(true);
                 snapper->setType(Model::Brush::BrushHit);
-                snapper->setOccluded(Model::Hit::AnyType);
+                snapper->setOccluded(Model::HitType::AnyType);
                 return snapper;
             }
 

@@ -23,6 +23,7 @@
 #include "Macros.h"
 
 #include "Model/CompilationTask.h"
+#include "Model/Model_Forward.h"
 #include "View/CompilationContext.h"
 
 #include <QProcess>
@@ -34,10 +35,6 @@
 class QProcess;
 
 namespace TrenchBroom {
-    namespace Model {
-        class CompilationProfile;
-    }
-
     namespace View {
         class CompilationTaskRunner : public QObject {
             Q_OBJECT

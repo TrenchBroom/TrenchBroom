@@ -24,6 +24,7 @@
 #include "View/VertexToolBase.h"
 #include "View/VertexHandleManager.h"
 
+#include <list>
 #include <set>
 #include <string>
 #include <vector>
@@ -77,7 +78,7 @@ namespace TrenchBroom {
             VertexHandleManager& handleManager() override;
             const VertexHandleManager& handleManager() const override;
         public: // Vertex moving
-            bool startMove(const Model::Hit::List& hits) override;
+            bool startMove(const std::list<Model::Hit>& hits) override;
             MoveResult move(const vm::vec3& delta) override;
             void endMove() override;
             void cancelMove() override;

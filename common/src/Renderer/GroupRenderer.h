@@ -28,10 +28,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class EditorContext;
-    }
-
     namespace Renderer {
         class RenderBatch;
         class RenderContext;

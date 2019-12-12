@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_UVRotateTool
 #define TrenchBroom_UVRotateTool
 
-#include "Model/Hit.h"
+#include "Model/HitType.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
 
@@ -42,7 +42,7 @@ namespace TrenchBroom {
 
         class UVRotateTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         public:
-            static const Model::Hit::HitType AngleHandleHit;
+            static const Model::HitType::Type AngleHandleHit;
         private:
             static const FloatType CenterHandleRadius;
             static const FloatType RotateHandleRadius;

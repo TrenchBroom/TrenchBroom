@@ -21,13 +21,12 @@
 #define CompilationConfig_h
 
 #include "Notifier.h"
+#include "Model/Model_Forward.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class CompilationProfile;
-
         class CompilationConfig {
         private:
             std::vector<CompilationProfile*> m_profiles;

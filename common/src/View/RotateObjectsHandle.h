@@ -22,7 +22,10 @@
 
 #include "TrenchBroom.h"
 #include "Macros.h"
-#include "Model/Hit.h"
+#include "Model/Model_Forward.h"
+#include "Model/HitType.h"
+
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -36,7 +39,7 @@ namespace TrenchBroom {
 
         class RotateObjectsHandle {
         public:
-            static const Model::Hit::HitType HandleHit;
+            static const Model::HitType::Type HandleHit;
 
             enum class HitArea {
                 HitArea_None = 0,

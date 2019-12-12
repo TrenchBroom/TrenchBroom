@@ -23,6 +23,7 @@
 #include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Model/Hit.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
@@ -56,7 +57,7 @@ namespace TrenchBroom {
             return { xAxis, yAxis, zAxis };
         }
 
-        const Model::Hit::HitType RotateObjectsHandle::HandleHit = Model::Hit::freeHitType();
+        const Model::HitType::Type RotateObjectsHandle::HandleHit = Model::HitType::freeType();
 
         RotateObjectsHandle::Handle::Handle(const vm::vec3& position) :
         m_position(position) {}

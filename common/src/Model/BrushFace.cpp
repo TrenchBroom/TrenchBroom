@@ -31,6 +31,7 @@
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/TagVisitor.h"
+#include "Model/TexCoordSystem.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/intersection.h>
@@ -49,11 +50,11 @@ namespace TrenchBroom {
     namespace Model {
         const std::string BrushFace::NoTextureName = "__TB_empty";
 
-        BrushFace::ProjectToVertex::Type BrushFace::ProjectToVertex::project(const BrushHalfEdge* halfEdge) {
+        const BrushVertex* BrushFace::TransformHalfEdgeToVertex::operator()(const BrushHalfEdge* halfEdge) const {
             return halfEdge->origin();
         }
 
-        BrushFace::ProjectToEdge::Type BrushFace::ProjectToEdge::project(const BrushHalfEdge* halfEdge) {
+        const BrushEdge* BrushFace::TransformHalfEdgeToEdge::operator()(const BrushHalfEdge* halfEdge) const {
             return halfEdge->edge();
         }
 
@@ -584,12 +585,12 @@ namespace TrenchBroom {
 
         BrushFace::EdgeList BrushFace::edges() const {
             ensure(m_geometry != nullptr, "geometry is null");
-            return EdgeList(m_geometry->boundary());
+            return EdgeList(m_geometry->boundary(), TransformHalfEdgeToEdge());
         }
 
         BrushFace::VertexList BrushFace::vertices() const {
             ensure(m_geometry != nullptr, "geometry is null");
-            return VertexList(m_geometry->boundary());
+            return VertexList(m_geometry->boundary(), TransformHalfEdgeToVertex());
         }
 
         std::vector<vm::vec3> BrushFace::vertexPositions() const {

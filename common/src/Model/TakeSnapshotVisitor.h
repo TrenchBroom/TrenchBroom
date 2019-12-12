@@ -27,8 +27,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class NodeSnapshot;
-
         class TakeSnapshotVisitor : public NodeVisitor {
         private:
             std::vector<NodeSnapshot*> m_result;

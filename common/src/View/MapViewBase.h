@@ -48,10 +48,6 @@ namespace TrenchBroom {
         class Path;
     }
 
-    namespace Model {
-        class SmartTag;
-    }
-
     namespace Renderer {
         class Camera;
         class Compass;

@@ -22,8 +22,8 @@
 
 #include "TrenchBroom.h"
 #include "Assets/Asset_Forward.h"
+#include "IO/Path.h"
 #include "Model/Game.h"
-#include "Model/GameConfig.h"
 #include "Model/GameFileSystem.h"
 #include "Model/Model_Forward.h"
 
@@ -81,7 +81,7 @@ namespace TrenchBroom {
 
             bool doIsEntityDefinitionFile(const IO::Path& path) const override;
             std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const override;
-            Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const override;
+            std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles() const override;
             Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const override;
             Assets::EntityDefinitionFileSpec defaultEntityDefinitionFile() const;
             IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const override;
@@ -95,8 +95,8 @@ namespace TrenchBroom {
             std::vector<std::string> doExtractEnabledMods(const AttributableNode& node) const override;
             std::string doDefaultMod() const override;
 
-            const GameConfig::FlagsConfig& doSurfaceFlags() const override;
-            const GameConfig::FlagsConfig& doContentFlags() const override;
+            const FlagsConfig& doSurfaceFlags() const override;
+            const FlagsConfig& doContentFlags() const override;
         private:
             void writeLongAttribute(AttributableNode& node, const AttributeName& baseName, const AttributeValue& value, size_t maxLength) const;
             std::string readLongAttribute(const AttributableNode& node, const AttributeName& baseName) const;

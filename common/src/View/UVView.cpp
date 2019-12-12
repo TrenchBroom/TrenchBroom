@@ -19,10 +19,11 @@
 
 #include "UVView.h"
 
-#include "TrenchBroom.h"
 #include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
+#include "TrenchBroom.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Renderer/Camera.h"
@@ -49,7 +50,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType UVView::FaceHit = Model::Hit::freeHitType();
+        const Model::HitType::Type UVView::FaceHit = Model::HitType::freeType();
 
         UVView::UVView(std::weak_ptr<MapDocument> document, GLContextManager& contextManager) :
         RenderView(contextManager),

@@ -22,7 +22,7 @@
 
 #include "Macros.h"
 #include "Assets/Asset_Forward.h"
-#include "Model/GameConfig.h"
+#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <string>
@@ -31,13 +31,9 @@
 namespace TrenchBroom {
     class Logger;
 
-    namespace Assets {
-        class Palette;
-        class TextureManager;
-    }
-
     namespace IO {
         class FileSystem;
+        class Path;
         class TextureCollectionLoader;
         class TextureReader;
 
@@ -47,13 +43,13 @@ namespace TrenchBroom {
             std::unique_ptr<TextureReader> m_textureReader;
             std::unique_ptr<TextureCollectionLoader> m_textureCollectionLoader;
         public:
-            TextureLoader(const FileSystem& gameFS, const std::vector<IO::Path>& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger& logger);
+            TextureLoader(const FileSystem& gameFS, const std::vector<IO::Path>& fileSearchPaths, const Model::TextureConfig& textureConfig, Logger& logger);
             ~TextureLoader();
         private:
-            static std::vector<std::string> getTextureExtensions(const Model::GameConfig::TextureConfig& textureConfig);
-            static std::unique_ptr<TextureReader> createTextureReader(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger& logger);
-            static Assets::Palette loadPalette(const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger& logger);
-            static std::unique_ptr<TextureCollectionLoader> createTextureCollectionLoader(const FileSystem& gameFS, const std::vector<IO::Path>& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger& logger);
+            static std::vector<std::string> getTextureExtensions(const Model::TextureConfig& textureConfig);
+            static std::unique_ptr<TextureReader> createTextureReader(const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger);
+            static Assets::Palette loadPalette(const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger);
+            static std::unique_ptr<TextureCollectionLoader> createTextureCollectionLoader(const FileSystem& gameFS, const std::vector<IO::Path>& fileSearchPaths, const Model::TextureConfig& textureConfig, Logger& logger);
         public:
             std::unique_ptr<Assets::TextureCollection> loadTextureCollection(const Path& path);
             void loadTextures(const std::vector<Path>& paths, Assets::TextureManager& textureManager);

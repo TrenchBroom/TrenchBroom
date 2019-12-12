@@ -21,7 +21,7 @@
 #define TrenchBroom_UVView
 
 #include "TrenchBroom.h"
-#include "Model/Hit.h"
+#include "Model/HitType.h"
 #include "Model/PickResult.h"
 #include "Model/Model_Forward.h"
 #include "Renderer/OrthographicCamera.h"
@@ -64,7 +64,7 @@ namespace TrenchBroom {
         class UVView : public RenderView, public ToolBoxConnector {
             Q_OBJECT
         public:
-            static const Model::Hit::HitType FaceHit;
+            static const Model::HitType::Type FaceHit;
         private:
             std::weak_ptr<MapDocument> m_document;
 

@@ -20,11 +20,10 @@
 #include "CreateSimpleBrushToolController3D.h"
 
 #include "TrenchBroom.h"
-
 #include "PreferenceManager.h"
+#include "SharedPointer.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"

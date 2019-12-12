@@ -145,6 +145,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/HitAdapter.cpp
         ${COMMON_SOURCE_DIR}/Model/HitFilter.cpp
         ${COMMON_SOURCE_DIR}/Model/HitQuery.cpp
+        ${COMMON_SOURCE_DIR}/Model/HitType.cpp
         ${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/Issue.cpp
         ${COMMON_SOURCE_DIR}/Model/IssueGenerator.cpp
@@ -667,6 +668,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/HitAdapter.h
         ${COMMON_SOURCE_DIR}/Model/HitFilter.h
         ${COMMON_SOURCE_DIR}/Model/HitQuery.h
+        ${COMMON_SOURCE_DIR}/Model/HitType.h
         ${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Issue.h
         ${COMMON_SOURCE_DIR}/Model/IssueGenerator.h
@@ -702,7 +704,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/Object.h
         ${COMMON_SOURCE_DIR}/Model/ParallelTexCoordSystem.h
         ${COMMON_SOURCE_DIR}/Model/ParaxialTexCoordSystem.h
-        ${COMMON_SOURCE_DIR}/Model/Pickable.h
         ${COMMON_SOURCE_DIR}/Model/PickResult.h
         ${COMMON_SOURCE_DIR}/Model/PlanePointFinder.h
         ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesIssueGenerator.h
@@ -715,6 +716,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/TagAttribute.h
         ${COMMON_SOURCE_DIR}/Model/TagManager.h
         ${COMMON_SOURCE_DIR}/Model/TagMatcher.h
+        ${COMMON_SOURCE_DIR}/Model/TagType.h
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.h
         ${COMMON_SOURCE_DIR}/Model/TakeSnapshotVisitor.h
         ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.h

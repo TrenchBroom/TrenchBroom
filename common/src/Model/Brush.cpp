@@ -34,6 +34,7 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
+#include "Model/TexCoordSystem.h"
 #include "Model/World.h"
 #include "Renderer/BrushRendererBrushCache.h"
 
@@ -56,15 +57,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const Hit::HitType Brush::BrushHit = Hit::freeHitType();
-
-        Brush::ProjectToVertex::Type Brush::ProjectToVertex::project(const BrushVertex* vertex) {
-            return vertex;
-        }
-
-        Brush::ProjectToEdge::Type Brush::ProjectToEdge::project(const BrushEdge* edge) {
-            return edge;
-        }
+        const HitType::Type Brush::BrushHit = HitType::freeType();
 
         class Brush::AddFaceToGeometryCallback : public BrushGeometry::Callback {
         private:
@@ -604,9 +597,9 @@ namespace TrenchBroom {
             return m_geometry->vertexCount();
         }
 
-        Brush::VertexList Brush::vertices() const {
+        const Brush::VertexList& Brush::vertices() const {
             ensure(m_geometry != nullptr, "geometry is null");
-            return VertexList(m_geometry->vertices());
+            return m_geometry->vertices();
         }
 
         const std::vector<vm::vec3> Brush::vertexPositions() const {
@@ -682,9 +675,9 @@ namespace TrenchBroom {
             return m_geometry->edgeCount();
         }
 
-        Brush::EdgeList Brush::edges() const {
+        const Brush::EdgeList& Brush::edges() const {
             ensure(m_geometry != nullptr, "geometry is null");
-            return EdgeList(m_geometry->edges());
+            return m_geometry->edges();
         }
 
         bool Brush::containsPoint(const vm::vec3& point) const {
@@ -1555,10 +1548,10 @@ namespace TrenchBroom {
             Taggable::clearTags();
         }
 
-        bool Brush::allFacesHaveAnyTagInMask(Tag::TagType tagMask) const {
+        bool Brush::allFacesHaveAnyTagInMask(TagType::Type tagMask) const {
             // Possible optimization: Store the shared face tag mask in the brush and updated it when a face changes.
 
-            Tag::TagType sharedFaceTags = ~Tag::TagType(0); // set all bits to 1
+            TagType::Type sharedFaceTags = TagType::AnyType; // set all bits to 1
             for (const auto* face : m_faces) {
                 sharedFaceTags &= face->tagMask();
             }
@@ -1574,7 +1567,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool Brush::anyFacesHaveAnyTagInMask(Tag::TagType tagMask) const {
+        bool Brush::anyFacesHaveAnyTagInMask(TagType::Type tagMask) const {
             // Possible optimization: Store the shared face tag mask in the brush and updated it when a face changes.
 
             for (const auto* face : m_faces) {

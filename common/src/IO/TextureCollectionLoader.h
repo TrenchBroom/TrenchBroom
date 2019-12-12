@@ -20,18 +20,14 @@
 #ifndef TextureCollectionLoader_h
 #define TextureCollectionLoader_h
 
+#include "Assets/Asset_Forward.h"
+
 #include <memory>
 #include <vector>
 
 namespace TrenchBroom {
     class Logger;
 
-    namespace Assets {
-        class TextureCollection;
-        class TextureReader;
-        class TextureManager;
-
-    }
     namespace IO {
         class File;
         class FileSystem;

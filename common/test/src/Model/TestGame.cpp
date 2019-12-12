@@ -19,6 +19,7 @@
 
 #include "TestGame.h"
 
+#include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/EntityModel.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/DiskFileSystem.h"
@@ -123,11 +124,13 @@ namespace TrenchBroom {
             const std::vector<IO::Path> fileSearchPaths{ root };
             const IO::DiskFileSystem fileSystem(root, true);
 
-            const GameConfig::TextureConfig textureConfig(GameConfig::TexturePackageConfig(GameConfig::PackageFormatConfig("wad", "idmip")),
-                                                          GameConfig::PackageFormatConfig("D", "idmip"),
-                                                          IO::Path("data/palette.lmp"),
-                                                          "wad",
-                                                          IO::Path());
+            const Model::TextureConfig textureConfig(
+                Model::TexturePackageConfig(
+                    Model::PackageFormatConfig("wad", "idmip")),
+                    Model::PackageFormatConfig("D", "idmip"),
+                    IO::Path("data/palette.lmp"),
+                    "wad",
+                    IO::Path());
 
             IO::TextureLoader textureLoader(fileSystem, fileSearchPaths, textureConfig, logger);
             textureLoader.loadTextures(paths, textureManager);
@@ -161,8 +164,8 @@ namespace TrenchBroom {
             return false;
         }
 
-        Assets::EntityDefinitionFileSpec::List TestGame::doAllEntityDefinitionFiles() const {
-            return Assets::EntityDefinitionFileSpec::List();
+        std::vector<Assets::EntityDefinitionFileSpec> TestGame::doAllEntityDefinitionFiles() const {
+            return std::vector<Assets::EntityDefinitionFileSpec>();
         }
 
         Assets::EntityDefinitionFileSpec TestGame::doExtractEntityDefinitionFile(const AttributableNode& /* node */) const {
@@ -185,13 +188,13 @@ namespace TrenchBroom {
             return "";
         }
 
-        const GameConfig::FlagsConfig& TestGame::doSurfaceFlags() const {
-            static const GameConfig::FlagsConfig config;
+        const Model::FlagsConfig& TestGame::doSurfaceFlags() const {
+            static const Model::FlagsConfig config;
             return config;
         }
 
-        const GameConfig::FlagsConfig& TestGame::doContentFlags() const {
-            static const GameConfig::FlagsConfig config;
+        const Model::FlagsConfig& TestGame::doContentFlags() const {
+            static const Model::FlagsConfig config;
             return config;
         }
 

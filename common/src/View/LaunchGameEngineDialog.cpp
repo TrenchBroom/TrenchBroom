@@ -24,6 +24,7 @@
 #include "EL/Interpolator.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
+#include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
 #include "Model/GameEngineProfile.h"
 #include "View/BorderLine.h"

@@ -17,22 +17,22 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Pickable_h
-#define TrenchBroom_Pickable_h
+#include "HitType.h"
 
-#include "TrenchBroom.h"
+#include "Ensure.h"
+
+#include <cstddef>
 
 namespace TrenchBroom {
     namespace Model {
-        class PickResult;
+        namespace HitType {
+            Type freeType() {
+                static const std::size_t Bits = (sizeof(Type) * 8);
+                static std::size_t currentShift = 0;
 
-        class Pickable {
-        public:
-            virtual ~Pickable() {}
-            virtual const vm::bbox3& bounds() const = 0;
-            virtual void pick(const vm::ray3& ray, PickResult& pickResult) const = 0;
-        };
+                ensure(currentShift <= Bits, "No more hit types");
+                return Type(1) << currentShift++;
+            }
+        }
     }
 }
-
-#endif

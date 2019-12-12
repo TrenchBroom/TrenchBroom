@@ -32,11 +32,6 @@
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityModel;
-        class Palette;
-    }
-
     namespace IO {
         class Reader;
 

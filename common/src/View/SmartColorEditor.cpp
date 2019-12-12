@@ -19,6 +19,7 @@
 
 #include "SmartColorEditor.h"
 
+#include "Color.h"
 #include "Assets/ColorRange.h"
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"

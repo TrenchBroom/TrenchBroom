@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityProperties
 #define TrenchBroom_EntityProperties
 
-#include "Model/EntityAttributeSnapshot.h"
+#include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <list>
@@ -35,11 +35,6 @@ namespace TrenchBroom {
 
     template <typename V, typename P>
     class StringMap;
-
-    namespace Assets {
-        class EntityDefinition;
-        class AttributeDefinition;
-    }
 
     namespace Model {
         extern const std::string AttributeEscapeChars;
@@ -81,6 +76,8 @@ namespace TrenchBroom {
 
         std::string numberedAttributePrefix(const std::string& name);
         bool isNumberedAttribute(const std::string& prefix, const AttributeName& name);
+
+        class EntityAttributeSnapshot;
 
         class EntityAttribute {
         private:

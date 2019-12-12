@@ -19,6 +19,7 @@
 
 #include "SetBrushFaceAttributesTool.h"
 
+#include "SharedPointer.h"
 #include "Model/BrushFace.h"
 #include "Model/Brush.h"
 #include "Model/HitAdapter.h"

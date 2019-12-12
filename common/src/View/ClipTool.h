@@ -21,7 +21,7 @@
 #define TrenchBroom_ClipTool
 
 #include "TrenchBroom.h"
-#include "Model/Hit.h"
+#include "Model/HitType.h"
 #include "Model/Model_Forward.h"
 #include "View/Tool.h"
 
@@ -37,11 +37,6 @@ namespace TrenchBroom {
         class RenderContext;
     }
 
-    namespace Model {
-        class ModelFactory;
-        class PickResult;
-    }
-
     namespace View {
         class Grid;
         class MapDocument;
@@ -49,7 +44,7 @@ namespace TrenchBroom {
 
         class ClipTool : public Tool {
         public:
-            static const Model::Hit::HitType PointHit;
+            static const Model::HitType::Type PointHit;
         private:
             enum ClipSide {
                 ClipSide_Front,

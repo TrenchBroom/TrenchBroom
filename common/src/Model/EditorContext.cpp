@@ -67,11 +67,11 @@ namespace TrenchBroom {
             }
         }
 
-        Model::Tag::TagType EditorContext::hiddenTags() const {
+        TagType::Type EditorContext::hiddenTags() const {
             return m_hiddenTags;
         }
 
-        void EditorContext::setHiddenTags(const Model::Tag::TagType hiddenTags) {
+        void EditorContext::setHiddenTags(const TagType::Type hiddenTags) {
             if (hiddenTags != m_hiddenTags) {
                 m_hiddenTags = hiddenTags;
                 editorContextDidChangeNotifier();

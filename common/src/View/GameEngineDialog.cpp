@@ -19,6 +19,7 @@
 
 #include "GameEngineDialog.h"
 
+#include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
 #include "View/BorderLine.h"
 #include "View/CurrentGameIndicator.h"

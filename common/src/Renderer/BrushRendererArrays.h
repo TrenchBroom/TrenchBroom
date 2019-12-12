@@ -21,6 +21,7 @@
 #define BrushRendererArray_h
 
 #include "Ensure.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/AllocationTracker.h"
@@ -34,9 +35,6 @@
 #include <unordered_map>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Brush;
-    }
     namespace Renderer {
         struct DirtyRangeTracker {
             size_t m_dirtyPos;

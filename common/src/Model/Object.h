@@ -21,15 +21,10 @@
 #define TrenchBroom_Object
 
 #include "TrenchBroom.h"
+#include "Model/Model_Forward.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Group;
-        class Layer;
-        class Node;
-        class NodeSnapshot;
-        class PickResult;
-
         class Object {
         protected:
             Object();

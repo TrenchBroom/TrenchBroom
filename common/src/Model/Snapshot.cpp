@@ -19,6 +19,7 @@
 
 #include "Snapshot.h"
 
+#include "Model/BrushFace.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/Node.h"
 #include "Model/NodeSnapshot.h"

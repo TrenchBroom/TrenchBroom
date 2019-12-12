@@ -21,7 +21,7 @@
 #define TrenchBroom_ResizeBrushesTool
 
 #include "TrenchBroom.h"
-#include "Model/Hit.h"
+#include "Model/HitType.h"
 #include "Model/Model_Forward.h"
 #include "View/Tool.h"
 
@@ -47,8 +47,8 @@ namespace TrenchBroom {
 
         class ResizeBrushesTool : public Tool {
         private:
-            static const Model::Hit::HitType ResizeHit3D;
-            static const Model::Hit::HitType ResizeHit2D;
+            static const Model::HitType::Type ResizeHit3D;
+            static const Model::HitType::Type ResizeHit2D;
 
             using FaceHandle = std::tuple<Model::Brush*, vm::vec3>;
 
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             Model::Hit pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
         private:
             class PickProximateFace;
-            Model::Hit pickProximateFace(Model::Hit::HitType hitType, const vm::ray3& pickRay) const;
+            Model::Hit pickProximateFace(Model::HitType::Type hitType, const vm::ray3& pickRay) const;
         public:
             bool hasDragFaces() const;
             std::vector<Model::BrushFace*> dragFaces() const;

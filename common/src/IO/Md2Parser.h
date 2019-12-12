@@ -31,10 +31,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Palette;
-    }
-
     namespace IO {
         class Reader;
         class FileSystem;

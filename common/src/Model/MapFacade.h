@@ -35,15 +35,7 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityDefinitionManager;
-        class TextureManager;
-    }
     namespace Model {
-        class BrushFaceAttributes;
-        class ChangeBrushFaceAttributesRequest;
-        class NodeCollection;
-
         class MapFacade {
         public:
             virtual ~MapFacade();

@@ -20,6 +20,7 @@
 #ifndef TexturedIndexRangeRenderer_h
 #define TexturedIndexRangeRenderer_h
 
+#include "Assets/Asset_Forward.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/VertexArray.h"
 
@@ -27,10 +28,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
     namespace Renderer {
         class Vbo;
         class TextureRenderFunc;

@@ -23,28 +23,17 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const Hit::HitType Hit::NoType = 0;
-        const Hit::HitType Hit::AnyType = 0xFFFFFFFF;
-
-        Hit::HitType Hit::freeHitType() {
-            static const size_t Bits = (sizeof(HitType) * 8);
-            static size_t currentShift = 0;
-
-            ensure(currentShift <= Bits, "No more hit types");
-            return 1u << currentShift++;
-        }
-
-        const Hit Hit::NoHit = Hit(NoType, 0.0, vm::vec3::zero(), false);
+        const Hit Hit::NoHit = Hit(HitType::NoType, 0.0, vm::vec3::zero(), false);
 
         bool Hit::isMatch() const {
-            return m_type != NoType;
+            return m_type != HitType::NoType;
         }
 
-        Hit::HitType Hit::type() const {
+        HitType::Type Hit::type() const {
             return m_type;
         }
 
-        bool Hit::hasType(const HitType typeMask) const {
+        bool Hit::hasType(const HitType::Type typeMask) const {
             return (m_type & typeMask) != 0;
         }
 

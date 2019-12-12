@@ -22,6 +22,8 @@
 
 #include "Ensure.h"
 #include "Preference.h"
+#include "Assets/Asset_Forward.h"
+#include "Model/Model_Forward.h"
 #include "View/ActionContext.h"
 
 #include <map>
@@ -32,16 +34,8 @@
 #include <QKeySequence>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityDefinition;
-    }
-
     namespace IO {
         class Path;
-    }
-
-    namespace Model {
-        class SmartTag;
     }
 
     namespace View {
@@ -246,7 +240,7 @@ namespace TrenchBroom {
             /**
              * Note, unlike createAction(), these are not registered / owned by the ActionManager.
              */
-            std::vector<std::unique_ptr<Action>> createTagActions(const std::list<Model::SmartTag>& tags) const;
+            std::vector<std::unique_ptr<Action>> createTagActions(const std::vector<Model::SmartTag>& tags) const;
             /**
              * Note, unlike createAction(), these are not registered / owned by the ActionManager.
              */

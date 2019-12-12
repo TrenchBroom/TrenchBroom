@@ -21,6 +21,7 @@
 #define TestGame_h
 
 #include "Model/Game.h"
+#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <string>
@@ -34,8 +35,6 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class SmartTag;
-
         class TestGame : public Game {
         private:
             std::vector<SmartTag> m_smartTags;
@@ -74,7 +73,7 @@ namespace TrenchBroom {
             void doReloadShaders() override;
 
             bool doIsEntityDefinitionFile(const IO::Path& path) const override;
-            Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const override;
+            std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles() const override;
             Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const override;
             IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const override;
 
@@ -82,8 +81,8 @@ namespace TrenchBroom {
             std::vector<std::string> doExtractEnabledMods(const AttributableNode& node) const override;
             std::string doDefaultMod() const override;
 
-            const GameConfig::FlagsConfig& doSurfaceFlags() const override;
-            const GameConfig::FlagsConfig& doContentFlags() const override;
+            const FlagsConfig& doSurfaceFlags() const override;
+            const FlagsConfig& doContentFlags() const override;
 
             std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const override;
             std::unique_ptr<Assets::EntityModel> doInitializeModel(const IO::Path& path, Logger& logger) const override;

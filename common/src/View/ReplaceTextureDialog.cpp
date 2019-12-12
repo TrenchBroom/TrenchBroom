@@ -19,6 +19,7 @@
 
 #include "ReplaceTextureDialog.h"
 
+#include "SharedPointer.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectMatchingBrushFacesVisitor.h"

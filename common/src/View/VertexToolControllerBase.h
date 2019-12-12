@@ -20,7 +20,7 @@
 #ifndef VertexToolControllerBase_h
 #define VertexToolControllerBase_h
 
-#include "Model/Hit.h"
+#include "Model/HitType.h"
 #include "Model/Model_Forward.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
@@ -30,6 +30,7 @@
 
 #include <vecmath/intersection.h>
 
+#include <list>
 #include <set>
 
 namespace TrenchBroom {
@@ -44,9 +45,9 @@ namespace TrenchBroom {
             class PartBase {
             protected:
                 T* m_tool;
-                Model::Hit::HitType m_hitType;
+                Model::HitType::Type m_hitType;
             protected:
-                PartBase(T* tool, const Model::Hit::HitType hitType) :
+                PartBase(T* tool, const Model::HitType::Type hitType) :
                 m_tool(tool),
                 m_hitType(hitType) {}
             public:
@@ -56,7 +57,7 @@ namespace TrenchBroom {
                     return doFindDraggableHandle(inputState);
                 }
 
-                const Model::Hit::List findDraggableHandles(const InputState& inputState) const {
+                const std::list<Model::Hit> findDraggableHandles(const InputState& inputState) const {
                     return doFindDraggableHandles(inputState);
                 }
             private:
@@ -64,11 +65,11 @@ namespace TrenchBroom {
                     return findDraggableHandle(inputState, m_hitType);
                 }
 
-                virtual const Model::Hit::List doFindDraggableHandles(const InputState& inputState) const {
+                virtual const std::list<Model::Hit> doFindDraggableHandles(const InputState& inputState) const {
                     return findDraggableHandles(inputState, m_hitType);
                 }
             public:
-                const Model::Hit findDraggableHandle(const InputState& inputState, const Model::Hit::HitType hitType) const {
+                const Model::Hit findDraggableHandle(const InputState& inputState, const Model::HitType::Type hitType) const {
                     const auto query = inputState.pickResult().query().type(hitType).occluded();
                     if (!query.empty()) {
                         const auto hits = query.all();
@@ -82,7 +83,7 @@ namespace TrenchBroom {
                     return Model::Hit::NoHit;
                 }
 
-                const Model::Hit::List findDraggableHandles(const InputState& inputState, const Model::Hit::HitType hitType) const {
+                const std::list<Model::Hit> findDraggableHandles(const InputState& inputState, const Model::HitType::Type hitType) const {
                     return inputState.pickResult().query().type(hitType).occluded().all();
                 }
             private:
@@ -96,7 +97,7 @@ namespace TrenchBroom {
             private:
                 Lasso* m_lasso;
             protected:
-                SelectPartBase(T* tool, const Model::Hit::HitType hitType) :
+                SelectPartBase(T* tool, const Model::HitType::Type hitType) :
                 PartBase(tool, hitType),
                 m_lasso(nullptr) {}
             public:
@@ -200,15 +201,15 @@ namespace TrenchBroom {
                     }
                 }
             protected:
-                Model::Hit::List firstHits(const Model::PickResult& pickResult) const {
-                    Model::Hit::List result;
+                std::list<Model::Hit> firstHits(const Model::PickResult& pickResult) const {
+                    std::list<Model::Hit> result;
                     std::set<Model::Brush*> visitedBrushes;
 
                     const Model::Hit& first = pickResult.query().type(m_hitType).occluded().first();
                     if (first.isMatch()) {
                         const H& firstHandle = first.target<H>();
 
-                        const Model::Hit::List matches = pickResult.query().type(m_hitType).all();
+                        const std::list<Model::Hit> matches = pickResult.query().type(m_hitType).all();
                         for (const Model::Hit& match : matches) {
                             const H& handle = match.target<H>();
 
@@ -236,7 +237,7 @@ namespace TrenchBroom {
 
             class MovePartBase : public MoveToolController<NoPickingPolicy, MousePolicy>, public PartBase {
             protected:
-                MovePartBase(T* tool, const Model::Hit::HitType hitType) :
+                MovePartBase(T* tool, const Model::HitType::Type hitType) :
                 MoveToolController(tool->grid()),
                 PartBase(tool, hitType) {}
             public:
@@ -263,7 +264,7 @@ namespace TrenchBroom {
                         return MoveInfo();
                     }
 
-                    const Model::Hit::List hits = findDraggableHandles(inputState);
+                    const std::list<Model::Hit> hits = findDraggableHandles(inputState);
                     if (hits.empty()) {
                         return MoveInfo();
                     }

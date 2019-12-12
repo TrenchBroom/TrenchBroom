@@ -20,10 +20,11 @@
 #ifndef TrenchBroom_ViewEditor
 #define TrenchBroom_ViewEditor
 
+#include "Assets/Asset_Forward.h"
+#include "Model/Model_Forward.h"
 
 #include <QWidget>
 
-#include <list>
 #include <memory>
 #include <vector>
 
@@ -32,16 +33,6 @@ class QWidget;
 class QButtonGroup;
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityDefinitionManager;
-        class EntityDefinition;
-    }
-
-    namespace Model {
-        class EditorContext;
-        class SmartTag;
-    }
-
     namespace View {
         class MapDocument;
         class PopupButton;
@@ -116,7 +107,7 @@ namespace TrenchBroom {
             QWidget* createBrushesPanel(QWidget* parent);
             void createTagFilter(QWidget* parent);
             void createEmptyTagFilter(QWidget* parent);
-            void createTagFilter(QWidget* parent, const std::list<Model::SmartTag>& tags);
+            void createTagFilter(QWidget* parent, const std::vector<Model::SmartTag>& tags);
 
             QWidget* createRendererPanel(QWidget* parent);
 

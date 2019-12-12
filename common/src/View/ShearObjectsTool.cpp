@@ -21,10 +21,9 @@
 #include "ShearObjectsTool.h"
 
 #include "Constants.h"
-#include "TrenchBroom.h"
 #include "Preferences.h"
-#include "PreferenceManager.h"
-#include "ScaleObjectsTool.h"
+#include "SharedPointer.h"
+#include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -33,6 +32,7 @@
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+#include "View/ScaleObjectsTool.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -44,7 +44,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType ShearObjectsTool::ShearToolSideHit = Model::Hit::freeHitType();
+        const Model::HitType::Type ShearObjectsTool::ShearToolSideHit = Model::HitType::freeType();
 
         ShearObjectsTool::ShearObjectsTool(std::weak_ptr<MapDocument> document) :
         Tool(false),

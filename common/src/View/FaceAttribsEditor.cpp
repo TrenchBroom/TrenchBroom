@@ -20,8 +20,8 @@
 #include "FaceAttribsEditor.h"
 
 #include "Color.h"
+#include "SharedPointer.h"
 #include "Assets/Texture.h"
-#include "IO/ResourceUtils.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Game.h"
@@ -588,8 +588,8 @@ namespace TrenchBroom {
         bool FaceAttribsEditor::hasSurfaceAttribs() const {
             auto document = lock(m_document);
             const auto game = document->game();
-            const Model::GameConfig::FlagsConfig& surfaceFlags = game->surfaceFlags();
-            const Model::GameConfig::FlagsConfig& contentFlags = game->contentFlags();
+            const Model::FlagsConfig& surfaceFlags = game->surfaceFlags();
+            const Model::FlagsConfig& contentFlags = game->contentFlags();
 
             return !surfaceFlags.flags.empty() && !contentFlags.flags.empty();
         }
@@ -627,8 +627,8 @@ namespace TrenchBroom {
             m_colorEditor->hide();
         }
 
-        void getFlags(const Model::GameConfig::FlagConfigList& flags, QStringList& names, QStringList& descriptions);
-        void getFlags(const Model::GameConfig::FlagConfigList& flags, QStringList& names, QStringList& descriptions) {
+        void getFlags(const std::vector<Model::FlagConfig>& flags, QStringList& names, QStringList& descriptions);
+        void getFlags(const std::vector<Model::FlagConfig>& flags, QStringList& names, QStringList& descriptions) {
             for (const auto& flag : flags) {
                 names.push_back(QString::fromStdString(flag.name));
                 descriptions.push_back(QString::fromStdString(flag.description));
@@ -638,14 +638,14 @@ namespace TrenchBroom {
         void FaceAttribsEditor::getSurfaceFlags(QStringList& names, QStringList& descriptions) const {
             auto document = lock(m_document);
             const auto game = document->game();
-            const Model::GameConfig::FlagsConfig& surfaceFlags = game->surfaceFlags();
+            const Model::FlagsConfig& surfaceFlags = game->surfaceFlags();
             getFlags(surfaceFlags.flags, names, descriptions);
         }
 
         void FaceAttribsEditor::getContentFlags(QStringList& names, QStringList& descriptions) const {
             auto document = lock(m_document);
             const auto game = document->game();
-            const Model::GameConfig::FlagsConfig& contentFlags = game->contentFlags();
+            const Model::FlagsConfig& contentFlags = game->contentFlags();
             getFlags(contentFlags.flags, names, descriptions);
         }
     }

@@ -219,15 +219,14 @@ namespace TrenchBroom {
             return instance;
         }
 
-        std::vector<std::unique_ptr<Action>> ActionManager::createTagActions(const std::list<Model::SmartTag>& tags) const {
+        std::vector<std::unique_ptr<Action>> ActionManager::createTagActions(const std::vector<Model::SmartTag>& tags) const {
             std::vector<std::unique_ptr<Action>> result;
 
-            const auto actionContext = ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool;
             for (const auto& tag : tags) {
                 result.push_back(makeAction(
                     IO::Path("Tags/Toggle/" + tag.name()),
                     QObject::tr("Toggle Tag %1").arg(QString::fromStdString(tag.name())),
-                    actionContext,
+                    ActionContext::Any,
                     [&tag](ActionExecutionContext& context) {
                         context.view()->toggleTagVisible(tag);
                     },
@@ -237,7 +236,7 @@ namespace TrenchBroom {
                     result.push_back(makeAction(
                         IO::Path("Tags/Enable/" + tag.name()),
                         QObject::tr("Enable Tag %1").arg(QString::fromStdString(tag.name())),
-                        actionContext,
+                        ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool,
                         [&tag](ActionExecutionContext& context) {
                             context.view()->enableTag(tag);
                         },
@@ -248,7 +247,7 @@ namespace TrenchBroom {
                     result.push_back(makeAction(
                         IO::Path("Tags/Disable/" + tag.name()),
                         QObject::tr("Disable Tag %1").arg(QString::fromStdString(tag.name())),
-                        actionContext,
+                        ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool,
                         [&tag](ActionExecutionContext& context) {
                             context.view()->disableTag(tag);
                         },
@@ -263,12 +262,11 @@ namespace TrenchBroom {
         std::vector<std::unique_ptr<Action>> ActionManager::createEntityDefinitionActions(const std::vector<Assets::EntityDefinition*>& entityDefinitions) const {
             std::vector<std::unique_ptr<Action>> result;
 
-            const auto actionContext = ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool;
             for (const auto* definition : entityDefinitions) {
                 result.push_back(makeAction(
                     IO::Path("Entity Definitions/Toggle/" + definition->name()),
                     QObject::tr("Toggle Entity %1").arg(QString::fromStdString(definition->name())),
-                    actionContext,
+                    ActionContext::Any,
                     [definition](ActionExecutionContext& context) {
                         context.view()->toggleEntityDefinitionVisible(definition);
                     },
@@ -278,7 +276,7 @@ namespace TrenchBroom {
                     result.push_back(makeAction(
                         IO::Path("Entity Definitions/Create/" + definition->name()),
                         QObject::tr("Create Entity %1").arg(QString::fromStdString(definition->name())),
-                        actionContext,
+                        ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool,
                         [definition](ActionExecutionContext& context) {
                             context.view()->createEntity(definition);
                         },

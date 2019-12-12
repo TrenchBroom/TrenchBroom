@@ -20,11 +20,12 @@
 #ifndef TrenchBroom_SelectionTool
 #define TrenchBroom_SelectionTool
 
-#include "Model/Hit.h"
+#include "Model/HitType.h"
 #include "Model/Model_Forward.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
 
+#include <list>
 #include <memory>
 #include <vector>
 
@@ -50,7 +51,7 @@ namespace TrenchBroom {
          * The order of the hits is preserved, but if multiple hits map to the same group, that group
          * will only be listed once in the output.
          */
-        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const Model::Hit::List& hits);
+        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::list<Model::Hit>& hits);
 
         class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:
@@ -68,7 +69,7 @@ namespace TrenchBroom {
             bool isFaceClick(const InputState& inputState) const;
             bool isMultiClick(const InputState& inputState) const;
 
-            const Model::Hit& firstHit(const InputState& inputState, Model::Hit::HitType type) const;
+            const Model::Hit& firstHit(const InputState& inputState, Model::HitType::Type type) const;
 
             std::vector<Model::Node*> collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) const;
 

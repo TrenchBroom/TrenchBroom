@@ -19,8 +19,9 @@
 
 #include "UVScaleTool.h"
 
-#include "TrenchBroom.h"
 #include "Polyhedron.h"
+#include "TrenchBroom.h"
+#include "SharedPointer.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -42,8 +43,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType UVScaleTool::XHandleHit = Model::Hit::freeHitType();
-        const Model::Hit::HitType UVScaleTool::YHandleHit = Model::Hit::freeHitType();
+        const Model::HitType::Type UVScaleTool::XHandleHit = Model::HitType::freeType();
+        const Model::HitType::Type UVScaleTool::YHandleHit = Model::HitType::freeType();
 
         UVScaleTool::UVScaleTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper) :
         ToolControllerBase(),
@@ -60,7 +61,7 @@ namespace TrenchBroom {
         }
 
         void UVScaleTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
-            static const Model::Hit::HitType HitTypes[] = { XHandleHit, YHandleHit };
+            static const Model::HitType::Type HitTypes[] = { XHandleHit, YHandleHit };
             if (m_helper.valid()) {
                 m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, pickResult);
             }

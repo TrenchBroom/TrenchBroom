@@ -20,22 +20,14 @@
 #ifndef TrenchBroom_IssueGenerator
 #define TrenchBroom_IssueGenerator
 
+#include "Model/Model_Forward.h"
+
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         using IssueType = int;
-
-        class AttributableNode;
-        class Brush;
-        class Entity;
-        class Group;
-        class Layer;
-        class World;
-
-        class Issue;
-        class IssueQuickFix;
 
         class IssueGenerator {
         protected:

@@ -26,19 +26,16 @@
 #include <QMetaType>
 
 #include <string>
-#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
         class EntityDefinitionFileSpec {
-        public:
-            using List = std::vector<EntityDefinitionFileSpec>;
         private:
-            typedef enum {
-                Type_Builtin,
-                Type_External,
-                Type_Unset
-            } Type;
+            enum class Type {
+                Builtin,
+                External,
+                Unset
+            };
 
             Type m_type;
             IO::Path m_path;

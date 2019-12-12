@@ -20,6 +20,8 @@
 #include "AttributableNode.h"
 
 #include "Assets/AttributeDefinition.h"
+#include "Assets/EntityDefinition.h"
+#include "Model/EntityAttributeSnapshot.h"
 
 #include <kdl/vector_utils.h>
 
@@ -121,16 +123,10 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::setAttributes(const std::list<EntityAttribute>& attributes) {
-            for (const EntityAttribute& attribute : m_attributes.attributes())
-                attributeWillBeRemovedNotifier(this, attribute.name());
-
             const NotifyAttributeChange notifyChange(this);
             updateAttributeIndex(attributes);
             m_attributes.setAttributes(attributes);
             m_attributes.updateDefinitions(m_definition);
-
-            for (const EntityAttribute& attribute : m_attributes.attributes())
-                attributeWasAddedNotifier(this, attribute.name());
         }
 
         std::vector<AttributeName> AttributableNode::attributeNames() const {
@@ -190,7 +186,6 @@ namespace TrenchBroom {
             const Assets::AttributeDefinition* definition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, name);
             const AttributeValue* oldValue = m_attributes.attribute(name);
             if (oldValue != nullptr) {
-                attributeWillChangeNotifier(this, name);
                 removeAttributeFromIndex(name, *oldValue);
                 removeLinks(name, *oldValue);
             }
@@ -199,8 +194,6 @@ namespace TrenchBroom {
             addAttributeToIndex(name, value);
             addLinks(name, value);
 
-            if (oldValue == nullptr)
-                attributeWasAddedNotifier(this, name);
             return oldValue == nullptr;
         }
 
@@ -221,12 +214,10 @@ namespace TrenchBroom {
 
             const Assets::AttributeDefinition* newDefinition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, newName);
 
-            attributeWillBeRemovedNotifier(this, name);
             m_attributes.renameAttribute(name, newName, newDefinition);
 
             updateAttributeIndex(name, value, newName, value);
             updateLinks(name, value, newName, value);
-            attributeWasAddedNotifier(this, newName);
         }
 
         bool AttributableNode::canRemoveAttribute(const AttributeName& name) const {
@@ -238,7 +229,6 @@ namespace TrenchBroom {
             if (valuePtr == nullptr)
                 return;
 
-            attributeWillBeRemovedNotifier(this, name);
             const NotifyAttributeChange notifyChange(this);
 
             const AttributeValue value = *valuePtr;
@@ -257,7 +247,6 @@ namespace TrenchBroom {
                     const AttributeName& name = attribute.name();
                     const AttributeValue& value = attribute.value();
 
-                    attributeWillBeRemovedNotifier(this, name);
                     m_attributes.removeAttribute(name);
                     removeAttributeFromIndex(name, value);
                     removeLinks(name, value);

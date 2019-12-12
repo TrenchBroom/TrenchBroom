@@ -18,6 +18,7 @@
  */
 
 #include "HitAdapter.h"
+
 #include "Hit.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"

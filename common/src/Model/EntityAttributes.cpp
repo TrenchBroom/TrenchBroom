@@ -19,8 +19,9 @@
 
 #include "EntityAttributes.h"
 
-#include "Assets/EntityDefinition.h"
 #include "StringMap.h"
+#include "Assets/EntityDefinition.h"
+#include "Model/EntityAttributeSnapshot.h"
 
 #include <kdl/vector_set.h>
 

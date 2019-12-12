@@ -20,7 +20,8 @@
 #ifndef TrenchBroom_UVScaleTool
 #define TrenchBroom_UVScaleTool
 
-#include "Model/Hit.h"
+#include "Assets/Asset_Forward.h"
+#include "Model/HitType.h"
 #include "Renderer/GLVertexType.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
@@ -28,10 +29,6 @@
 #include <memory>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
     namespace Model {
         class PickResult;
     }
@@ -47,8 +44,8 @@ namespace TrenchBroom {
 
         class UVScaleTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:
-            static const Model::Hit::HitType XHandleHit;
-            static const Model::Hit::HitType YHandleHit;
+            static const Model::HitType::Type XHandleHit;
+            static const Model::HitType::Type YHandleHit;
         private:
             using EdgeVertex = Renderer::GLVertexTypes::P3::Vertex;
 
