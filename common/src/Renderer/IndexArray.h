@@ -75,7 +75,7 @@ namespace TrenchBroom {
 
                 virtual void prepare(VboManager& vboManager) override {
                     if (m_indexCount > 0 && m_block == nullptr) {
-                        m_block = vboManager.allocateBlock(VboType::ElementArrayBuffer, sizeInBytes());
+                        m_block = vboManager.allocateVbo(VboType::ElementArrayBuffer, sizeInBytes());
                         m_block->writeBuffer(0, doGetIndices());
                     }
                 }

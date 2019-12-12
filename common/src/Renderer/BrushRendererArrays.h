@@ -85,7 +85,7 @@ namespace TrenchBroom {
             void allocateBlock(VboManager &vboManager) {
                 assert(m_block == nullptr);
 
-                m_block = vboManager.allocateBlock(m_type, m_snapshot.size() * sizeof(T));
+                m_block = vboManager.allocateVbo(m_type, m_snapshot.size() * sizeof(T));
                 assert(m_block != nullptr);
 
                 m_block->writeElements(0, m_snapshot);
