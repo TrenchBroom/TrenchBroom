@@ -581,7 +581,7 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             auto& editorContext = document->editorContext();
             auto hiddenTags = editorContext.hiddenTags();
-            hiddenTags ^= 1UL << tagIndex;
+            hiddenTags ^= Model::TagType::Type(1) << tagIndex;
             editorContext.setHiddenTags(hiddenTags);
         }
 
