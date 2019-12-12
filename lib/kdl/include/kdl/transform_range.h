@@ -66,11 +66,14 @@ namespace kdl {
     };
 
     /**
-     * Adapts a collection with the given transformation function. Adaptation means that the collection produces
-     * ranges of the result type of the given transform.
+     * Wraps a const reference to a collection, and provides transform_iterators which expose the underlying collection's
+     * elements transformed by a transformation function on every iterator dereference.
      *
-     * @tparam C the collection to adapt
-     * @tparam Transform the transformation to apply
+     * @see transform_iterator
+     *
+     * @tparam C the collection to wrap
+     * @tparam Transform the transformation function to apply to the collection's element when iterators are
+     * dereferenced
      */
     template <typename C, typename Transform>
     class transform_adapter {
@@ -82,7 +85,7 @@ namespace kdl {
         const Transform m_transform;
     public:
         /**
-         * Creates a new adapter for the given container and transformation function.
+         * Creates a new wrapper for the given container and transformation function.
          *
          * @param container the container to adapt
          * @param transform the transformation function, must be movable
@@ -105,34 +108,62 @@ namespace kdl {
             return m_container.size();
         }
 
+        /**
+         * Returns an iterator to the first element of the container. If the container is empty, the returned iterator
+         * will be equal to end().
+         */
         const_iterator begin() const {
             return cbegin();
         }
 
+        /**
+         * Returns an iterator to the element following the last element of the container.
+         */
         const_iterator end() const {
             return cend();
         }
 
+        /**
+         * Returns an iterator to the first element of the container. If the container is empty, the returned iterator
+         * will be equal to end().
+         */
         const_iterator cbegin() const {
             return const_iterator(std::cbegin(m_container), m_transform);
         }
 
+        /**
+         * Returns an iterator to the element following the last element of the container.
+         */
         const_iterator cend() const {
             return const_iterator(std::cend(m_container), m_transform);
         }
 
+        /**
+         * Returns a reverse iterator to the first element of the reverse container. If the container is empty, the
+         * returned iterator is equal to rend().
+         */
         const_reverse_iterator rbegin() const {
             return crbegin();
         }
 
+        /**
+         * Returns a reverse iterator to the element following the last element of the reverse container.
+         */
         const_reverse_iterator rend() const {
             return crend();
         }
 
+        /**
+         * Returns a reverse iterator to the first element of the reverse container. If the container is empty, the
+         * returned iterator is equal to rend().
+         */
         const_reverse_iterator crbegin() const {
             return const_reverse_iterator(std::crbegin(m_container), m_transform);
         }
 
+        /**
+         * Returns a reverse iterator to the element following the last element of the reverse container.
+         */
         const_reverse_iterator crend() const {
             return const_reverse_iterator(std::crend(m_container), m_transform);
         }

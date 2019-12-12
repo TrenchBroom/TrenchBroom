@@ -20,12 +20,14 @@
 #ifndef TRENCHBROOM_HITTYPE_H
 #define TRENCHBROOM_HITTYPE_H
 
+#include <cstdint>
+
 namespace TrenchBroom {
     namespace Model {
         namespace HitType {
-            using Type = unsigned long;
+            using Type = uint64_t;
             constexpr Type NoType  =  0u;
-            constexpr Type AnyType = ~0u;
+            constexpr Type AnyType = ~NoType;
 
             Type freeType();
         }

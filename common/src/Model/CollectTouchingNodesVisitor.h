@@ -45,6 +45,13 @@ namespace TrenchBroom {
                     }
                 }
 
+                for (auto it = m_begin; it != m_end; ++it) {
+                    const auto* cur = *it;
+                    if (cur->intersects(node)) {
+                        return true;
+                    }
+                }
+
                 return true;
             }
         };

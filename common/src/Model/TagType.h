@@ -20,13 +20,15 @@
 #ifndef TRENCHBROOM_TAGTYPE_H
 #define TRENCHBROOM_TAGTYPE_H
 
+#include <cstdint>
+
 namespace TrenchBroom {
     namespace Model {
         namespace TagType {
-            using Type = unsigned long;
+            using Type = uint64_t;
 
             constexpr Type NoType  =  0u;
-            constexpr Type AnyType = ~0u;
+            constexpr Type AnyType = ~NoType;
         }
     }
 }
