@@ -23,7 +23,7 @@
 #include "Ensure.h"
 #include "Renderer/GL.h"
 #include "Renderer/VboManager.h"
-#include "Renderer/VboBlock.h"
+#include "Renderer/Vbo.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
 
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             private:
                 using VertexList = typename VertexSpec::Vertex::List;
             private:
-                VboBlock* m_block;
+                Vbo* m_block;
                 size_t m_vertexCount;
             public:
                 size_t vertexCount() const override {

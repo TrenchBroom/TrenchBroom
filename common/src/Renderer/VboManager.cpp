@@ -22,7 +22,7 @@
 #include "Ensure.h"
 #include "Macros.h"
 #include "Exceptions.h"
-#include "Renderer/VboBlock.h"
+#include "Renderer/Vbo.h"
 
 #include <algorithm>
 #include <cassert>
@@ -43,8 +43,8 @@ namespace TrenchBroom {
 
         VboManager::VboManager() {}
 
-        VboBlock* VboManager::allocateBlock(VboType type, const size_t capacity) {
-            return new VboBlock(toOpenGL(type), capacity);
+        Vbo* VboManager::allocateBlock(VboType type, const size_t capacity) {
+            return new Vbo(toOpenGL(type), capacity);
         }
     }
 }

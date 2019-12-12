@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_VboBlock
-#define TrenchBroom_VboBlock
+#ifndef TrenchBroom_Vbo
+#define TrenchBroom_Vbo
 
 #include "Renderer/VboManager.h"
 
@@ -29,16 +29,16 @@ namespace TrenchBroom {
     namespace Renderer {
         class VboManager;
 
-        class VboBlock;
+        class Vbo;
         class MapVboBlock {
         private:
-            VboBlock* m_block;
+            Vbo* m_block;
         public:
-            MapVboBlock(VboBlock* block);
+            MapVboBlock(Vbo* block);
             ~MapVboBlock();
         };
 
-        class VboBlock {
+        class Vbo {
         private:
             friend class MapVboBlock;
 
@@ -49,8 +49,8 @@ namespace TrenchBroom {
             size_t m_capacity;
             GLuint m_bufferId;
         public:
-            VboBlock(GLenum type, const size_t capacity);
-            ~VboBlock();
+            Vbo(GLenum type, const size_t capacity);
+            ~Vbo();
 
             void free();
             size_t offset() const;
@@ -98,4 +98,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_VboBlock) */
+#endif /* defined(TrenchBroom_Vbo) */

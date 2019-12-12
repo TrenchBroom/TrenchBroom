@@ -25,7 +25,7 @@
 #include "Renderer/VboManager.h"
 #include "Renderer/AllocationTracker.h"
 #include "Renderer/GL.h"
-#include "Renderer/VboBlock.h"
+#include "Renderer/Vbo.h"
 
 #include <vecmath/vec.h>
 
@@ -73,7 +73,7 @@ namespace TrenchBroom {
             VboType m_type;
             std::vector<T> m_snapshot;
             DirtyRangeTracker m_dirtyRange;
-            VboBlock *m_block;
+            Vbo *m_block;
         private:
             void freeBlock() {
                 if (m_block != nullptr) {

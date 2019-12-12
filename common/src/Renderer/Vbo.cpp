@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "VboBlock.h"
+#include "Vbo.h"
 
 #include "Ensure.h"
 
@@ -27,7 +27,7 @@ namespace TrenchBroom {
     namespace Renderer {
         // MapVboBlock
 
-        MapVboBlock::MapVboBlock(VboBlock* block) :
+        MapVboBlock::MapVboBlock(Vbo* block) :
         m_block(block) {
             m_block->bind();
         }
@@ -38,7 +38,7 @@ namespace TrenchBroom {
 
         // VboBlock
 
-        VboBlock::VboBlock(GLenum type, const size_t capacity) :
+        Vbo::Vbo(GLenum type, const size_t capacity) :
         m_type(type),
         m_capacity(capacity) {
             assert(m_type == GL_ELEMENT_ARRAY_BUFFER
@@ -49,30 +49,30 @@ namespace TrenchBroom {
             glAssert(glBufferData(m_type, m_capacity, nullptr, GL_STATIC_DRAW));
         }
 
-        void VboBlock::free() {
+        void Vbo::free() {
             assert(m_bufferId != 0);
             glAssert(glDeleteBuffers(1, &m_bufferId));
             m_bufferId = 0;
         }
 
-        VboBlock::~VboBlock() {
+        Vbo::~Vbo() {
             assert(m_bufferId == 0);
         }
 
-        size_t VboBlock::offset() const {
+        size_t Vbo::offset() const {
             return 0;
         }
 
-        size_t VboBlock::capacity() const {
+        size_t Vbo::capacity() const {
             return m_capacity;
         }
 
-        void VboBlock::bind() {
+        void Vbo::bind() {
             assert(m_bufferId != 0);
             glAssert(glBindBuffer(m_type, m_bufferId));
         }
 
-        void VboBlock::unbind() {
+        void Vbo::unbind() {
             glAssert(glBindBuffer(m_type, 0));
         }
     }

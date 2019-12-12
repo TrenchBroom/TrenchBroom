@@ -23,7 +23,7 @@
 #include "Ensure.h"
 #include "Renderer/GL.h"
 #include "Renderer/VboManager.h"
-#include "Renderer/VboBlock.h"
+#include "Renderer/Vbo.h"
 
 #include <kdl/vector_utils.h>
 
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             protected:
                 using IndexList = std::vector<Index>;
             private:
-                VboBlock* m_block;
+                Vbo* m_block;
                 size_t m_indexCount;
             public:
                 size_t indexCount() const override {

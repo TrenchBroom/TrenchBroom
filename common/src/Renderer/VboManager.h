@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class VboBlock;
+        class Vbo;
 
         enum class VboType {
             ArrayBuffer,
@@ -43,7 +43,7 @@ namespace TrenchBroom {
         class VboManager {
         public:
             VboManager();
-            VboBlock* allocateBlock(VboType type, size_t capacity);
+            Vbo* allocateBlock(VboType type, size_t capacity);
         };
     }
 }
