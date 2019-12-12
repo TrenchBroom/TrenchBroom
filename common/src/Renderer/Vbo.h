@@ -22,6 +22,7 @@
 
 #include "Renderer/VboManager.h"
 
+#include <cassert>
 #include <vector>
 #include <type_traits>
 
