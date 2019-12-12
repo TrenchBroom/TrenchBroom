@@ -43,7 +43,6 @@ namespace TrenchBroom {
             }
 
             void doRender(RenderContext& renderContext) override {
-                ActivateVbo activate(m_indexBuffer);
                 m_wrappee->render(renderContext);
             }
         };
@@ -92,8 +91,6 @@ namespace TrenchBroom {
         }
 
         void RenderBatch::render(RenderContext& renderContext) {
-            ActivateVbo activate(m_vertexVbo);
-
             prepareRenderables();
             renderRenderables(renderContext);
         }
@@ -104,9 +101,6 @@ namespace TrenchBroom {
         }
 
         void RenderBatch::prepareRenderables() {
-            ActivateVbo activateVertexVbo(m_vertexVbo);
-            ActivateVbo activateIndexVbo(m_indexVbo);
-
             for (DirectRenderable* renderable : m_directRenderables) {
                 renderable->prepareVertices(m_vertexVbo);
             }

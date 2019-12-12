@@ -30,8 +30,6 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        ActivateVbo::ActivateVbo(Vbo&) {}
-
         Vbo::Vbo(GLenum type)
         : m_type(type) {}
 

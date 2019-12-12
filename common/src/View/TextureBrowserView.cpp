@@ -293,8 +293,6 @@ namespace TrenchBroom {
             const vm::mat4x4f view = vm::view_matrix(vm::vec3f::neg_z(), vm::vec3f::pos_y()) *vm::translation_matrix(vm::vec3f(0.0f, 0.0f, 0.1f));
             const Renderer::Transformation transformation(projection, view);
 
-            Renderer::ActivateVbo activate(vertexVbo());
-
             glAssert(glDisable(GL_DEPTH_TEST));
             glAssert(glFrontFace(GL_CCW));
 
@@ -335,7 +333,6 @@ namespace TrenchBroom {
             Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::TextureBrowserBorderShader);
 
-            Renderer::ActivateVbo activate(vertexVbo());
             vertexArray.prepare(vertexVbo());
             vertexArray.render(GL_QUADS);
         }
@@ -357,8 +354,6 @@ namespace TrenchBroom {
             shader.set("Brightness", pref(Preferences::Brightness));
 
             size_t num = 0;
-
-            Renderer::ActivateVbo activate(vertexVbo());
 
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Group& group = layout[i];
@@ -419,7 +414,6 @@ namespace TrenchBroom {
 
             Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
 
-            Renderer::ActivateVbo activate(vertexVbo());
             vertexArray.prepare(vertexVbo());
             vertexArray.render(GL_QUADS);
         }
@@ -427,8 +421,6 @@ namespace TrenchBroom {
         void TextureBrowserView::renderStrings(Layout& layout, const float y, const float height) {
             using StringRendererMap = std::map<Renderer::FontDescriptor, Renderer::VertexArray>;
             StringRendererMap stringRenderers;
-
-            Renderer::ActivateVbo activate(vertexVbo());
 
             for (const auto& entry : collectStringVertices(layout, y, height)) {
                 const auto& descriptor = entry.first;

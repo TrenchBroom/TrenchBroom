@@ -146,7 +146,6 @@ namespace TrenchBroom {
             auto triangleArray = VertexArray::ref(triangleVertices);
             auto lineArray = VertexArray::ref(lineVertices);
 
-            ActivateVbo activate(vbo);
             triangleArray.prepare(vbo);
             lineArray.prepare(vbo);
 

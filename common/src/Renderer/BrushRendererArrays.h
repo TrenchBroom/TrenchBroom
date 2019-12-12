@@ -85,7 +85,6 @@ namespace TrenchBroom {
             void allocateBlock(Vbo &vbo) {
                 assert(m_block == nullptr);
 
-                ActivateVbo activate(vbo);
                 m_block = vbo.allocateBlock(m_snapshot.size() * sizeof(T));
                 assert(m_block != nullptr);
 
@@ -171,7 +170,6 @@ namespace TrenchBroom {
                 }
 
                 // otherwise, it's an incremental update of the dirty ranges.
-                ActivateVbo activate(vbo);
                 MapVboBlock map(m_block);
 
                 if (!m_dirtyRange.clean()) {

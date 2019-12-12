@@ -29,12 +29,6 @@
 namespace TrenchBroom {
     namespace Renderer {
         class VboBlock;
-        class Vbo;
-
-        class ActivateVbo {
-        public:
-            explicit ActivateVbo(Vbo& vbo);
-        };
 
         class Vbo {
         private:

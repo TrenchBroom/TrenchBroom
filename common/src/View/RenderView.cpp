@@ -266,7 +266,6 @@ namespace TrenchBroom {
                 Vertex(vm::vec3f(t, h-t, 0.0f), inner)
             });
 
-            Renderer::ActivateVbo activate(vertexVbo());
             array.prepare(vertexVbo());
             array.render(GL_QUADS);
             glAssert(glEnable(GL_DEPTH_TEST));

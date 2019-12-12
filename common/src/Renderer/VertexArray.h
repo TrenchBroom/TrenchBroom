@@ -73,7 +73,6 @@ namespace TrenchBroom {
 
                 void prepare(Vbo& vbo) override {
                     if (m_vertexCount > 0 && m_block == nullptr) {
-                        ActivateVbo activate(vbo);
                         m_block = vbo.allocateBlock(sizeInBytes());
 
                         MapVboBlock map(m_block);
