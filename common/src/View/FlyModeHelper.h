@@ -20,19 +20,15 @@
 #ifndef TrenchBroom_FlyModeHelper
 #define TrenchBroom_FlyModeHelper
 
+#include "IO/IO_Forward.h"
+#include "Renderer/Renderer_Forward.h"
+
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
 class QKeyEvent;
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class Camera;
-    }
-    namespace IO {
-        class Path;
-    }
-
     namespace View {
         class FlyModeHelper {
         private:

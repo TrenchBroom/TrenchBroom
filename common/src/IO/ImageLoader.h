@@ -20,12 +20,13 @@
 #ifndef TrenchBroom_ImageLoader
 #define TrenchBroom_ImageLoader
 
+#include "IO/IO_Forward.h"
+
 #include <memory>
 #include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        class Path;
         class ImageLoaderImpl;
 
         class ImageLoader {

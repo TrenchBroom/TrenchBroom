@@ -20,6 +20,7 @@
 #ifndef TRENCHBROOM_Q3SHADERPARSER_H
 #define TRENCHBROOM_Q3SHADERPARSER_H
 
+#include "IO/IO_Forward.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 
@@ -43,8 +44,6 @@ namespace TrenchBroom {
             static const Type Eol           = 1 << 7; // end of line
             static const Type Eof           = 1 << 8; // end of file
         }
-
-        class ParserStatus;
 
         class Quake3ShaderTokenizer : public Tokenizer<Quake3ShaderToken::Type> {
         public:

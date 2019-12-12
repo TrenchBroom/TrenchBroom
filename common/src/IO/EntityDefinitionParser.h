@@ -21,6 +21,7 @@
 #define TrenchBroom_EntityDefinitionParser_h
 
 #include "Assets/Asset_Forward.h"
+#include "IO/IO_Forward.h"
 
 #include <map>
 #include <memory>
@@ -29,9 +30,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class ParserStatus;
-        class Path;
-
         class EntityDefinitionParser {
         protected:
             using EntityDefinitionList = std::vector<Assets::EntityDefinition*>;

@@ -20,13 +20,11 @@
 #ifndef CrashDialog_h
 #define CrashDialog_h
 
+#include "IO/IO_Forward.h"
+
 #include <QDialog>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-    
     namespace View {
         class CrashDialog : public QDialog {
             Q_OBJECT

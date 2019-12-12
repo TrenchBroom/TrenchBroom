@@ -23,6 +23,7 @@
 #include "Assets/Asset_Forward.h"
 #include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
+#include "IO/IO_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -32,10 +33,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class Reader;
-        class FileSystem;
-        class Path;
-
         namespace DkmLayout {
             static const int Ident = (('D'<<24) + ('M'<<16) + ('K'<<8) + 'D');
             static const int Version1 = 1;

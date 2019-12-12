@@ -26,10 +26,6 @@
 #include <QPixmap>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace View {
         class RecentDocumentListBox : public ImageListBox {
             Q_OBJECT

@@ -22,8 +22,8 @@
 
 #include "Assets/Asset_Forward.h"
 #include "IO/EntityModelParser.h"
+#include "IO/IO_Forward.h"
 #include "IO/Parser.h"
-#include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
 #include <vecmath/forward.h>
@@ -50,9 +50,6 @@ namespace TrenchBroom {
             static const Type Colon             = 1 <<  8; // colon: :
             static const Type Eof               = 1 << 12; // end of file
         }
-
-        class FileSystem;
-        class Path;
 
         class AseTokenizer : public Tokenizer<AseToken::Type> {
         private:

@@ -20,16 +20,13 @@
 #ifndef TrenchBroom_Shader
 #define TrenchBroom_Shader
 
+#include "IO/IO_Forward.h"
 #include "Renderer/GL.h"
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace Renderer {
         class Shader {
         private:

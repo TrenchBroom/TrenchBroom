@@ -21,7 +21,7 @@
 #define LegacyModelDefinitionParser_h
 
 #include "IO/Parser.h"
-#include "IO/Tokenizer.h"
+#include "IO/IO_Forward.h"
 
 #include <string>
 
@@ -32,8 +32,6 @@ namespace TrenchBroom {
     }
 
     namespace IO {
-        class ParserStatus;
-
         namespace MdlToken {
             using Type = size_t;
             static const Type Integer       = 1 << 0;

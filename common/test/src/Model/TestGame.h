@@ -20,6 +20,7 @@
 #ifndef TestGame_h
 #define TestGame_h
 
+#include "IO/IO_Forward.h"
 #include "Model/Game.h"
 #include "Model/Model_Forward.h"
 
@@ -29,10 +30,6 @@
 
 namespace TrenchBroom {
     class Logger;
-
-    namespace IO {
-        class ParserStatus;
-    }
 
     namespace Model {
         class TestGame : public Game {

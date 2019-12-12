@@ -21,6 +21,7 @@
 #define TrenchBroom_EntityModelLoader
 
 #include "Assets/Asset_Forward.h"
+#include "IO/IO_Forward.h"
 
 #include <memory>
 
@@ -28,8 +29,6 @@ namespace TrenchBroom {
     class Logger;
 
     namespace IO {
-        class Path;
-
         class EntityModelLoader {
         public:
             virtual ~EntityModelLoader();

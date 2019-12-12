@@ -21,6 +21,7 @@
 #define TRENCHBROOM_TAG_H
 
 #include "Macros.h"
+#include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 #include "Model/TagType.h"
 
@@ -31,10 +32,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace Model {
         /**
          * This class represents an attribute of a tag. A tag can have multiple attributes, but the names must

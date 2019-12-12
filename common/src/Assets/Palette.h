@@ -21,6 +21,7 @@
 #define TrenchBroom_Palette
 
 #include "Color.h"
+#include "IO/IO_Forward.h"
 #include "IO/Reader.h"
 
 #include <cassert>
@@ -28,12 +29,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class FileSystem;
-        class Path;
-        class Reader;
-    }
-
     namespace Assets {
         enum class PaletteTransparency {
             Opaque, Index255Transparent

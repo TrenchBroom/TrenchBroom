@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_FileTextureCollectionEditor
 #define TrenchBroom_FileTextureCollectionEditor
 
-
 #include <memory>
 
 #include <QWidget>
@@ -29,10 +28,6 @@ class QListWidget;
 class QAbstractButton;
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace View {
         class MapDocument;
 

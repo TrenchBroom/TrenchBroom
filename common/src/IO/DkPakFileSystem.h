@@ -21,13 +21,12 @@
 #define DkPakFileSystem_h
 
 #include "IO/ImageFileSystem.h"
+#include "IO/IO_Forward.h"
 
 #include <memory>
 
 namespace TrenchBroom {
     namespace IO {
-        class Path;
-
         class DkPakFileSystem : public ImageFileSystem {
         private:
             class DkCompressedFile : public CompressedFileEntry {
