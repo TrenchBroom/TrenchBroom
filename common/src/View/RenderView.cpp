@@ -166,12 +166,8 @@ namespace TrenchBroom {
         }
 
 
-       Renderer::Vbo& RenderView::vertexVbo() {
-            return m_glContext->vertexVbo();
-        }
-
-        Renderer::Vbo& RenderView::indexVbo() {
-            return m_glContext->indexVbo();
+       Renderer::Vbo& RenderView::vboManager() {
+            return m_glContext->vboManager();
         }
 
         Renderer::FontManager& RenderView::fontManager() {
@@ -266,7 +262,7 @@ namespace TrenchBroom {
                 Vertex(vm::vec3f(t, h-t, 0.0f), inner)
             });
 
-            array.prepare(vertexVbo());
+            array.prepare(vboManager());
             array.render(GL_QUADS);
             glAssert(glEnable(GL_DEPTH_TEST));
         }

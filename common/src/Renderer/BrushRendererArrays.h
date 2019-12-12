@@ -70,10 +70,10 @@ namespace TrenchBroom {
         template<typename T>
         class VboBlockHolder {
         protected:
+            VboType m_type;
             std::vector<T> m_snapshot;
             DirtyRangeTracker m_dirtyRange;
             VboBlock *m_block;
-
         private:
             void freeBlock() {
                 if (m_block != nullptr) {
@@ -85,7 +85,7 @@ namespace TrenchBroom {
             void allocateBlock(Vbo &vbo) {
                 assert(m_block == nullptr);
 
-                m_block = vbo.allocateBlock(m_snapshot.size() * sizeof(T));
+                m_block = vbo.allocateBlock(m_type, m_snapshot.size() * sizeof(T));
                 assert(m_block != nullptr);
 
                 MapVboBlock map(m_block);
@@ -97,9 +97,11 @@ namespace TrenchBroom {
             }
 
         public:
-            VboBlockHolder() : m_snapshot(),
-                               m_dirtyRange(0),
-                               m_block(nullptr) {}
+            VboBlockHolder(VboType type) :
+            m_type(type),
+            m_snapshot(),
+            m_dirtyRange(0),
+            m_block(nullptr) {}
 
             /**
              * NOTE: This destructively moves the contents of `elements` into the Holder.
@@ -268,8 +270,7 @@ namespace TrenchBroom {
         template<typename V>
         class VertexHolder : public VboBlockHolder<V>, public VertexArrayInterface {
         public:
-            VertexHolder()
-                    : VboBlockHolder<V>() {}
+            VertexHolder() : VboBlockHolder<V>(VboType::ArrayBuffer) {}
 
             /**
              * NOTE: This destructively moves the contents of `elements` into the Holder.

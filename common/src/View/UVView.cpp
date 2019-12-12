@@ -165,7 +165,7 @@ namespace TrenchBroom {
                 document->commitPendingAssets();
 
                 Renderer::RenderContext renderContext(Renderer::RenderContext::RenderMode_2D, m_camera, fontManager(), shaderManager());
-                Renderer::RenderBatch renderBatch(vertexVbo(), indexVbo());
+                Renderer::RenderBatch renderBatch(vboManager());
 
                 setupGL(renderContext);
                 renderTexture(renderContext, renderBatch);
@@ -229,8 +229,8 @@ namespace TrenchBroom {
                 });
             }
         private:
-            void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
-                m_vertexArray.prepare(vertexVbo);
+            void doPrepareVertices(Renderer::Vbo& vboManager) override {
+                m_vertexArray.prepare(vboManager);
             }
 
             void doRender(Renderer::RenderContext& renderContext) override {

@@ -73,7 +73,7 @@ namespace TrenchBroom {
 
                 void prepare(Vbo& vbo) override {
                     if (m_vertexCount > 0 && m_block == nullptr) {
-                        m_block = vbo.allocateBlock(sizeInBytes());
+                        m_block = vbo.allocateBlock(VboType::ArrayBuffer, sizeInBytes());
 
                         MapVboBlock map(m_block);
                         m_block->writeBuffer(0, doGetVertices());

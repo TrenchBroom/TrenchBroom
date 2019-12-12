@@ -94,7 +94,7 @@ namespace TrenchBroom {
 
             vm::vec2f stringSize(RenderContext& renderContext, const AttrString& string) const;
         private:
-            void doPrepareVertices(Vbo& vertexVbo) override;
+            void doPrepareVertices(Vbo& vboManager) override;
             void prepare(EntryCollection& collection, bool onTop, Vbo& vbo);
 
             void addEntry(const Entry& entry, bool onTop, TextVertex::List& textVertices, RectVertex::List& rectVertices);

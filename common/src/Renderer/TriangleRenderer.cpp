@@ -58,8 +58,8 @@ namespace TrenchBroom {
             m_tintColor = tintColor;
         }
 
-        void TriangleRenderer::doPrepareVertices(Vbo& vertexVbo) {
-            m_vertexArray.prepare(vertexVbo);
+        void TriangleRenderer::doPrepareVertices(Vbo& vboManager) {
+            m_vertexArray.prepare(vboManager);
         }
 
         void TriangleRenderer::doRender(RenderContext& context) {

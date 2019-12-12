@@ -69,8 +69,8 @@ namespace TrenchBroom {
             }
         }
 
-        void GridRenderer::doPrepareVertices(Vbo& vertexVbo) {
-            m_vertexArray.prepare(vertexVbo);
+        void GridRenderer::doPrepareVertices(Vbo& vboManager) {
+            m_vertexArray.prepare(vboManager);
         }
 
         void GridRenderer::doRender(RenderContext& renderContext) {

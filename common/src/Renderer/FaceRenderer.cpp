@@ -120,12 +120,12 @@ namespace TrenchBroom {
             renderBatch.add(this);
         }
 
-        void FaceRenderer::prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) {
-            m_vertexArray->prepare(vertexVbo);
+        void FaceRenderer::prepareVerticesAndIndices(Vbo& vboManager) {
+            m_vertexArray->prepare(vboManager);
 
             for (const auto& pair : *m_indexArrayMap) {
                 const auto& brushIndexHolderPtr = pair.second;
-                brushIndexHolderPtr->prepare(indexVbo);
+                brushIndexHolderPtr->prepare(vboManager);
             }
         }
 

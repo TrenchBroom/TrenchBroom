@@ -43,7 +43,7 @@ namespace TrenchBroom {
 
             bool empty() const;
 
-            void prepare(Vbo& indexVbo);
+            void prepare(Vbo& vboManager);
             void render();
             void render(TextureRenderFunc& func);
         };

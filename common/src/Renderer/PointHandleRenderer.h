@@ -49,7 +49,7 @@ namespace TrenchBroom {
             void addPoint(const Color& color, const vm::vec3f& position);
             void addHighlight(const Color& color, const vm::vec3f& position);
         private:
-            void doPrepareVertices(Vbo& vertexVbo) override;
+            void doPrepareVertices(Vbo& vboManager) override;
             void doRender(RenderContext& renderContext) override;
             void renderHandles(RenderContext& renderContext, const HandleMap& map, Circle& circle, float opacity);
 

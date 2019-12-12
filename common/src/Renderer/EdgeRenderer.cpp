@@ -117,8 +117,8 @@ namespace TrenchBroom {
         m_vertexArray(vertexArray),
         m_indexRanges(indexRanges) {}
 
-        void DirectEdgeRenderer::Render::doPrepareVertices(Vbo& vertexVbo) {
-            m_vertexArray.prepare(vertexVbo);
+        void DirectEdgeRenderer::Render::doPrepareVertices(Vbo& vboManager) {
+            m_vertexArray.prepare(vboManager);
         }
 
         void DirectEdgeRenderer::Render::doRender(RenderContext& renderContext) {
@@ -168,9 +168,9 @@ namespace TrenchBroom {
         m_vertexArray(vertexArray),
         m_indexArray(indexArray) {}
 
-        void IndexedEdgeRenderer::Render::prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) {
-            m_vertexArray->prepare(vertexVbo);
-            m_indexArray->prepare(indexVbo);
+        void IndexedEdgeRenderer::Render::prepareVerticesAndIndices(Vbo& vboManager) {
+            m_vertexArray->prepare(vboManager);
+            m_indexArray->prepare(vboManager);
         }
 
         void IndexedEdgeRenderer::Render::doRender(RenderContext& renderContext) {

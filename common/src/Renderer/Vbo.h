@@ -30,15 +30,20 @@ namespace TrenchBroom {
     namespace Renderer {
         class VboBlock;
 
+        enum class VboType {
+            ArrayBuffer,
+            ElementArrayBuffer
+        };
+
+        /**
+         * e.g. GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER
+         */
+        GLenum toOpenGL(VboType type);
+
         class Vbo {
-        private:
-            /**
-             * e.g. GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER
-             */
-            GLenum m_type;
         public:
-            Vbo(GLenum type);
-            VboBlock* allocateBlock(size_t capacity);
+            Vbo();
+            VboBlock* allocateBlock(VboType type, size_t capacity);
         };
     }
 }

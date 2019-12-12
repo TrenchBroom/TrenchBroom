@@ -237,26 +237,26 @@ namespace TrenchBroom {
             m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy, cullingPolicy)].addTriangleStrip(Vertex::toList(vertices.size(), std::begin(vertices)));
         }
 
-        void PrimitiveRenderer::doPrepareVertices(Vbo& vertexVbo) {
-            prepareLines(vertexVbo);
-            prepareTriangles(vertexVbo);
+        void PrimitiveRenderer::doPrepareVertices(Vbo& vboManager) {
+            prepareLines(vboManager);
+            prepareTriangles(vboManager);
         }
 
-        void PrimitiveRenderer::prepareLines(Vbo& vertexVbo) {
+        void PrimitiveRenderer::prepareLines(Vbo& vboManager) {
             for (auto& entry : m_lineMeshes) {
                 const LineRenderAttributes& attributes = entry.first;
                 IndexRangeMapBuilder<Vertex::Type>& mesh = entry.second;
                 IndexRangeRenderer& renderer = m_lineMeshRenderers.insert(std::make_pair(attributes, IndexRangeRenderer(mesh))).first->second;
-                renderer.prepare(vertexVbo);
+                renderer.prepare(vboManager);
             }
         }
 
-        void PrimitiveRenderer::prepareTriangles(Vbo& vertexVbo) {
+        void PrimitiveRenderer::prepareTriangles(Vbo& vboManager) {
             for (auto& entry : m_triangleMeshes) {
                 const TriangleRenderAttributes& attributes = entry.first;
                 IndexRangeMapBuilder<Vertex::Type>& mesh = entry.second;
                 IndexRangeRenderer& renderer = m_triangleMeshRenderers.insert(std::make_pair(attributes, IndexRangeRenderer(mesh))).first->second;
-                renderer.prepare(vertexVbo);
+                renderer.prepare(vboManager);
             }
         }
 

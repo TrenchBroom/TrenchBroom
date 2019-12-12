@@ -32,8 +32,7 @@ namespace TrenchBroom {
 
         class RenderBatch {
         private:
-            Vbo& m_vertexVbo;
-            Vbo& m_indexVbo;
+            Vbo& m_vboManager;
 
             class IndexedRenderableWrapper;
 
@@ -47,7 +46,7 @@ namespace TrenchBroom {
             RenderableList m_batch;
             RenderableList m_oneshots;
         public:
-            RenderBatch(Vbo& vertexVbo, Vbo& indexVbo);
+            RenderBatch(Vbo& vboManager);
             ~RenderBatch();
 
             void add(Renderable* renderable);

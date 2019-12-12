@@ -44,9 +44,9 @@ namespace TrenchBroom {
             DirectRenderable() = default;
             ~DirectRenderable() override = default;
 
-            void prepareVertices(Vbo& vertexVbo);
+            void prepareVertices(Vbo& vboManager);
         private:
-            virtual void doPrepareVertices(Vbo& vertexVbo) = 0;
+            virtual void doPrepareVertices(Vbo& vboManager) = 0;
 
             defineCopyAndMove(DirectRenderable)
         };
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             IndexedRenderable() = default;
             ~IndexedRenderable() override = default;
 
-            virtual void prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) = 0;
+            virtual void prepareVerticesAndIndices(Vbo& vboManager) = 0;
 
             defineCopyAndMove(IndexedRenderable)
         };

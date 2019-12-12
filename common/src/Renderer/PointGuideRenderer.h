@@ -53,7 +53,7 @@ namespace TrenchBroom {
             void setColor(const Color& color);
             void setPosition(const vm::vec3& position);
         private:
-            void doPrepareVertices(Vbo& vertexVbo) override;
+            void doPrepareVertices(Vbo& vboManager) override;
             void doRender(RenderContext& renderContext) override;
         };
     }

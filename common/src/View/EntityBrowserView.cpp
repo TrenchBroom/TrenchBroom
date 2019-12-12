@@ -281,7 +281,7 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPCShader);
             Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
 
-            vertexArray.prepare(vertexVbo());
+            vertexArray.prepare(vboManager());
             vertexArray.render(GL_LINES);
         }
 
@@ -293,7 +293,7 @@ namespace TrenchBroom {
 
             glAssert(glFrontFace(GL_CW));
 
-            m_entityModelManager.prepare(vertexVbo());
+            m_entityModelManager.prepare(vboManager());
 
             for (size_t i = 0; i < layout.size(); ++i) {
                 const auto& group = layout[i];
@@ -346,7 +346,7 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
             shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
 
-            vertexArray.prepare(vertexVbo());
+            vertexArray.prepare(vboManager());
             vertexArray.render(GL_QUADS);
         }
 
@@ -360,7 +360,7 @@ namespace TrenchBroom {
                     const auto& fontDescriptor = entry.first;
                     const auto& vertices = entry.second;
                     stringRenderers[fontDescriptor] = Renderer::VertexArray::ref(vertices);
-                    stringRenderers[fontDescriptor].prepare(vertexVbo());
+                    stringRenderers[fontDescriptor].prepare(vboManager());
                 }
             }
 

@@ -20,6 +20,7 @@
 #include "Vbo.h"
 
 #include "Ensure.h"
+#include "Macros.h"
 #include "Exceptions.h"
 #include "Renderer/VboBlock.h"
 
@@ -30,11 +31,20 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        Vbo::Vbo(GLenum type)
-        : m_type(type) {}
+        GLenum toOpenGL(const VboType type) {
+            switch (type) {
+                case VboType::ArrayBuffer:
+                    return GL_ARRAY_BUFFER;
+                case VboType::ElementArrayBuffer:
+                    return GL_ELEMENT_ARRAY_BUFFER;
+                switchDefault()
+            }
+        }
 
-        VboBlock* Vbo::allocateBlock(const size_t capacity) {
-            return new VboBlock(m_type, capacity);
+        Vbo::Vbo() {}
+
+        VboBlock* Vbo::allocateBlock(VboType type, const size_t capacity) {
+            return new VboBlock(toOpenGL(type), capacity);
         }
     }
 }

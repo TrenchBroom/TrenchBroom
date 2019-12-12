@@ -47,9 +47,9 @@ namespace TrenchBroom {
             m_highlights[color].push_back(position);
         }
 
-        void PointHandleRenderer::doPrepareVertices(Vbo& vertexVbo) {
-            m_handle.prepare(vertexVbo);
-            m_highlight.prepare(vertexVbo);
+        void PointHandleRenderer::doPrepareVertices(Vbo& vboManager) {
+            m_handle.prepare(vboManager);
+            m_highlight.prepare(vboManager);
         }
 
         void PointHandleRenderer::doRender(RenderContext& renderContext) {

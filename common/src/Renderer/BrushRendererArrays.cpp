@@ -69,7 +69,7 @@ namespace TrenchBroom {
 
         // IndexHolder
 
-        IndexHolder::IndexHolder() : VboBlockHolder<Index>() {}
+        IndexHolder::IndexHolder() : VboBlockHolder<Index>(VboType::ElementArrayBuffer) {}
 
         IndexHolder::IndexHolder(std::vector<Index> &elements)
                 : VboBlockHolder<Index>(elements) {}

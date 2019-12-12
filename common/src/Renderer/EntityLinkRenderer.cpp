@@ -70,13 +70,13 @@ namespace TrenchBroom {
             m_valid = false;
         }
 
-        void EntityLinkRenderer::doPrepareVertices(Vbo& vertexVbo) {
+        void EntityLinkRenderer::doPrepareVertices(Vbo& vboManager) {
             if (!m_valid) {
                 validate();
 
                 // Upload the VBO's
-                m_entityLinks.prepare(vertexVbo);
-                m_entityLinkArrows.prepare(vertexVbo);
+                m_entityLinks.prepare(vboManager);
+                m_entityLinkArrows.prepare(vboManager);
             }
         }
 

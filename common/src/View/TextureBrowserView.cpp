@@ -333,7 +333,7 @@ namespace TrenchBroom {
             Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::TextureBrowserBorderShader);
 
-            vertexArray.prepare(vertexVbo());
+            vertexArray.prepare(vboManager());
             vertexArray.render(GL_QUADS);
         }
 
@@ -376,7 +376,7 @@ namespace TrenchBroom {
                                 shader.set("GrayScale", texture->overridden());
                                 texture->activate();
 
-                                vertexArray.prepare(vertexVbo());
+                                vertexArray.prepare(vboManager());
                                 vertexArray.render(GL_QUADS);
 
                                 texture->deactivate();
@@ -414,7 +414,7 @@ namespace TrenchBroom {
 
             Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
 
-            vertexArray.prepare(vertexVbo());
+            vertexArray.prepare(vboManager());
             vertexArray.render(GL_QUADS);
         }
 
@@ -426,7 +426,7 @@ namespace TrenchBroom {
                 const auto& descriptor = entry.first;
                 const auto& vertices = entry.second;
                 stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
-                stringRenderers[descriptor].prepare(vertexVbo());
+                stringRenderers[descriptor].prepare(vboManager());
             }
 
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::ColoredTextShader);

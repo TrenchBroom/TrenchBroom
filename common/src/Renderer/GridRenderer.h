@@ -40,7 +40,7 @@ namespace TrenchBroom {
         private:
             static Vertex::List vertices(const OrthographicCamera& camera, const vm::bbox3& worldBounds);
 
-            void doPrepareVertices(Vbo& vertexVbo) override;
+            void doPrepareVertices(Vbo& vboManager) override;
             void doRender(RenderContext& renderContext) override;
         };
     }
