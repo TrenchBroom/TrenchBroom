@@ -31,9 +31,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class IssueGeneratorRegistry;
-        class PickResult;
-
         class Node : public Taggable {
         private:
             Node* m_parent;

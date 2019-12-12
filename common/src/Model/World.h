@@ -23,13 +23,12 @@
 #include "Macros.h"
 #include "TrenchBroom.h"
 #include "Model/AttributableNode.h"
-#include "Model/AttributableNodeIndex.h"
-#include "Model/IssueGeneratorRegistry.h"
 #include "Model/MapFormat.h"
+#include "Model/Model_Forward.h"
 #include "Model/ModelFactory.h"
-#include "Model/ModelFactoryImpl.h"
 #include "Model/Node.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -42,10 +41,10 @@ namespace TrenchBroom {
 
         class World : public AttributableNode, public ModelFactory {
         private:
-            ModelFactoryImpl m_factory;
+            std::unique_ptr<ModelFactory> m_factory;
             Layer* m_defaultLayer;
-            AttributableNodeIndex m_attributableIndex;
-            IssueGeneratorRegistry m_issueGeneratorRegistry;
+            std::unique_ptr<AttributableNodeIndex> m_attributableIndex;
+            std::unique_ptr<IssueGeneratorRegistry> m_issueGeneratorRegistry;
 
             using NodeTree = AABBTree<FloatType, 3, Node*>;
             std::unique_ptr<NodeTree> m_nodeTree;

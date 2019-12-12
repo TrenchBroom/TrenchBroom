@@ -20,6 +20,7 @@
 #ifndef LegacyModelDefinitionParser_h
 #define LegacyModelDefinitionParser_h
 
+#include "EL/EL_Forward.h"
 #include "IO/Tokenizer.h"
 #include "IO/Parser.h"
 #include "IO/IO_Forward.h"
@@ -27,11 +28,6 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace EL {
-        class Expression;
-        class ExpressionBase;
-    }
-
     namespace IO {
         namespace MdlToken {
             using Type = size_t;

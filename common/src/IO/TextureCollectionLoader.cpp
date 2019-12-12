@@ -20,9 +20,7 @@
 #include "TextureCollectionLoader.h"
 
 #include "Logger.h"
-#include "Assets/Asset_Forward.h"
 #include "Assets/TextureCollection.h"
-#include "Assets/TextureManager.h"
 #include "IO/DiskIO.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
@@ -30,7 +28,6 @@
 #include "IO/WadFileSystem.h"
 
 #include <memory>
-#include <string>
 #include <vector>
 
 namespace TrenchBroom {

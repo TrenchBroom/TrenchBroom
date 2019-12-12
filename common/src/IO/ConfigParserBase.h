@@ -20,18 +20,13 @@
 #ifndef ConfigParserBase_h
 #define ConfigParserBase_h
 
+#include "EL/EL_Forward.h"
 #include "IO/ELParser.h"
 #include "IO/Path.h"
 
 #include <string>
 
 namespace TrenchBroom {
-    namespace EL {
-        class Expression;
-        class Value;
-        enum class ValueType;
-    }
-
     namespace IO {
         class ConfigParserBase {
         private:

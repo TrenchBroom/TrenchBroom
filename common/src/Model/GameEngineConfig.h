@@ -21,14 +21,13 @@
 #define GameEngineConfig_h
 
 #include "Notifier.h"
+#include "Model/Model_Forward.h"
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class GameEngineProfile;
-
         class GameEngineConfig {
         private:
             std::vector<GameEngineProfile*> m_profiles;

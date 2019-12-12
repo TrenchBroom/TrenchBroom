@@ -28,12 +28,14 @@ namespace TrenchBroom {
 
         class TextureCollectionLoader;
         class EntityDefinitionLoader;
+        class EntityModelLoader;
         class TextureLoader;
         class TextureReader;
 
         class ParserStatus;
 
         class FileSystem;
+        class WritableDiskFileSystem;
         class Quake3ShaderFileSystem;
 
         class Reader;

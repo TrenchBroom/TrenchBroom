@@ -22,18 +22,23 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        template <typename VertexSpec> class IndexRangeMapBuilder;
+        class Vbo;
 
         class VertexArray;
         class BrushIndexArray;
         class BrushVertexArray;
+        class BrushRendererBrushCache;
 
         class Camera;
 
         class RenderBatch;
         class RenderContext;
+
+        template <typename VertexSpec> class IndexRangeMapBuilder;
+
+        class IndexRangeRenderer;
         class TexturedRenderer;
-        class Vbo;
+        class TexturedIndexRangeRenderer;
 
         class ObjectRenderer;
         class EntityLinkRenderer;

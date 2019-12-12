@@ -21,6 +21,7 @@
 #define Expression_h
 
 #include "Macros.h"
+#include "EL/EL_Forward.h"
 
 #include <iosfwd>
 #include <map>
@@ -30,10 +31,6 @@
 
 namespace TrenchBroom {
     namespace EL {
-        class EvaluationContext;
-        class ExpressionBase;
-        class Value;
-
         class Expression {
         private:
             using ExpressionPtr = std::shared_ptr<ExpressionBase>;

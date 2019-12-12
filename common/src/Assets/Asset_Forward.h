@@ -29,6 +29,7 @@ namespace TrenchBroom {
         class TextureCollection;
         class TextureManager;
         class Quake3Shader;
+        class Quake3ShaderStage;
 
         class EntityDefinitionFileSpec;
 

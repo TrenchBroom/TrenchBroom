@@ -39,10 +39,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class IndexRangeMap;
-    }
-
     namespace Model {
         class BrushFace : public Taggable {
         public:

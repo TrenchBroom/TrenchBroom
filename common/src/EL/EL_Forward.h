@@ -17,39 +17,21 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Types_h
-#define Types_h
-
-#include "EL/EL_Forward.h"
-
-#include <map>
-#include <string>
-#include <vector>
+#ifndef TRENCHBROOM_EL_FORWARD_H
+#define TRENCHBROOM_EL_FORWARD_H
 
 namespace TrenchBroom {
     namespace EL {
-        using BooleanType = bool;
-        using StringType = std::string;
-        using NumberType = double;
-        using IntegerType = long;
-        using ArrayType = std::vector<Value>;
-        using MapType = std::map<std::string, Value>;
-        using RangeType = std::vector<long>;
+        class Value;
+        enum class ValueType;
 
-        enum class ValueType {
-            Boolean,
-            String,
-            Number,
-            Array,
-            Map,
-            Range,
-            Null,
-            Undefined
-        };
+        class ExpressionBase;
+        class Expression;
 
-        std::string typeName(ValueType type);
-        ValueType typeForName(const std::string& type);
+        class EvaluationContext;
+
+        class VariableStore;
     }
 }
 
-#endif /* Types_h */
+#endif //TRENCHBROOM_EL_FORWARD_H

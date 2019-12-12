@@ -22,6 +22,7 @@
 
 #include "IO/FileSystem.h"
 #include "IO/IO_Forward.h"
+#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <vector>
@@ -30,8 +31,6 @@ namespace TrenchBroom {
     class Logger;
 
     namespace Model {
-        class GameConfig;
-
         class GameFileSystem : public IO::FileSystem {
         private:
             IO::Quake3ShaderFileSystem* m_shaderFS;

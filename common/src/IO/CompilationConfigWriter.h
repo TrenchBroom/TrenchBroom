@@ -21,16 +21,13 @@
 #define CompilationConfigWriter_h
 
 #include "Macros.h"
+#include "EL/EL_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <iosfwd>
 #include <string>
 
 namespace TrenchBroom {
-    namespace EL {
-        class Value;
-    }
-
     namespace IO {
         class CompilationConfigWriter {
         private:
