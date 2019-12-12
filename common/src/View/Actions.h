@@ -23,11 +23,11 @@
 #include "Macros.h"
 #include "Ensure.h"
 #include "Assets/Asset_Forward.h"
-#include "IO/IO_Forward.h"
 #include "IO/Path.h"
 #include "Model/Model_Forward.h"
 #include "View/ActionContext.h"
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <vector>
