@@ -29,7 +29,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class OrthographicCamera;
         class RenderContext;
-        class Vbo;
+        class VboManager;
 
         class GridRenderer : public DirectRenderable {
         private:
@@ -40,7 +40,7 @@ namespace TrenchBroom {
         private:
             static Vertex::List vertices(const OrthographicCamera& camera, const vm::bbox3& worldBounds);
 
-            void doPrepareVertices(Vbo& vboManager) override;
+            void doPrepareVertices(VboManager& vboManager) override;
             void doRender(RenderContext& renderContext) override;
         };
     }

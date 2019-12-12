@@ -22,7 +22,7 @@
 
 #include "Ensure.h"
 #include "Renderer/GLVertexType.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 #include "Renderer/AllocationTracker.h"
 #include "Renderer/GL.h"
 #include "Renderer/VboBlock.h"
@@ -82,10 +82,10 @@ namespace TrenchBroom {
                 }
             }
 
-            void allocateBlock(Vbo &vbo) {
+            void allocateBlock(VboManager &vboManager) {
                 assert(m_block == nullptr);
 
-                m_block = vbo.allocateBlock(m_type, m_snapshot.size() * sizeof(T));
+                m_block = vboManager.allocateBlock(m_type, m_snapshot.size() * sizeof(T));
                 assert(m_block != nullptr);
 
                 MapVboBlock map(m_block);
@@ -147,7 +147,7 @@ namespace TrenchBroom {
                 return m_dirtyRange.clean();
             }
 
-            void prepare(Vbo& vbo) {
+            void prepare(VboManager& vboManager) {
                 if (empty()) {
                     assert(prepared());
                     return;
@@ -158,7 +158,7 @@ namespace TrenchBroom {
 
                 // first ever upload?
                 if (m_block == nullptr) {
-                    allocateBlock(vbo);
+                    allocateBlock(vboManager);
                     assert(prepared());
                     return;
                 }
@@ -166,7 +166,7 @@ namespace TrenchBroom {
                 // resize?
                 if (m_dirtyRange.capacity() != (m_block->capacity() / sizeof(T))) {
                     freeBlock();
-                    allocateBlock(vbo);
+                    allocateBlock(vboManager);
                     assert(prepared());
                     return;
                 }
@@ -253,7 +253,7 @@ namespace TrenchBroom {
 
             void render(const PrimType primType) const;
             bool prepared() const;
-            void prepare(Vbo& vbo);
+            void prepare(VboManager& vboManager);
 
             void setupIndices();
             void cleanupIndices();
@@ -263,7 +263,7 @@ namespace TrenchBroom {
         public:
             virtual ~VertexArrayInterface() = 0;
             virtual bool setupVertices() = 0;
-            virtual void prepareVertices(Vbo& vbo) = 0;
+            virtual void prepareVertices(VboManager& vboManager) = 0;
             virtual void cleanupVertices() = 0;
         };
 
@@ -285,8 +285,8 @@ namespace TrenchBroom {
                 return true;
             }
 
-            void prepareVertices(Vbo& vbo) override {
-                VboBlockHolder<V>::prepare(vbo);
+            void prepareVertices(VboManager& vboManager) override {
+                VboBlockHolder<V>::prepare(vboManager);
             }
 
             void cleanupVertices() override {
@@ -331,7 +331,7 @@ namespace TrenchBroom {
 
             // uploading the VBO
             bool prepared() const;
-            void prepare(Vbo& vbo);
+            void prepare(VboManager& vboManager);
         };
     }
 }

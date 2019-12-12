@@ -42,7 +42,7 @@ namespace TrenchBroom {
 
     namespace Renderer {
         class TexturedRenderer;
-        class Vbo;
+        class VboManager;
     }
 
     namespace Assets {
@@ -93,11 +93,11 @@ namespace TrenchBroom {
             std::unique_ptr<EntityModel> loadModel(const IO::Path& path) const;
             void loadFrame(const Assets::ModelSpecification& spec, Assets::EntityModel& model) const;
         public:
-            void prepare(Renderer::Vbo& vbo);
+            void prepare(Renderer::VboManager& vboManager);
         private:
             void resetTextureMode();
             void prepareModels();
-            void prepareRenderers(Renderer::Vbo& vbo);
+            void prepareRenderers(Renderer::VboManager& vboManager);
         };
     }
 }

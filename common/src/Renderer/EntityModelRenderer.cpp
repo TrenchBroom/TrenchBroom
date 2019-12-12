@@ -105,7 +105,7 @@ namespace TrenchBroom {
             renderBatch.add(this);
         }
 
-        void EntityModelRenderer::doPrepareVertices(Vbo& vboManager) {
+        void EntityModelRenderer::doPrepareVertices(VboManager& vboManager) {
             m_entityModelManager.prepare(vboManager);
         }
 

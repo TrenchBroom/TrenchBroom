@@ -31,7 +31,7 @@ namespace TrenchBroom {
             return m_indexArray.empty();
         }
 
-        void TexturedIndexArrayRenderer::prepare(Vbo& vboManager) {
+        void TexturedIndexArrayRenderer::prepare(VboManager& vboManager) {
             m_indexArray.prepare(vboManager);
         }
 

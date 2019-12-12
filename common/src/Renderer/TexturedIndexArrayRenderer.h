@@ -29,7 +29,7 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
-        class Vbo;
+        class VboManager;
         class TextureRenderFunc;
 
         class TexturedIndexArrayRenderer {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
 
             bool empty() const;
 
-            void prepare(Vbo& vboManager);
+            void prepare(VboManager& vboManager);
             void render();
             void render(TextureRenderFunc& func);
         };

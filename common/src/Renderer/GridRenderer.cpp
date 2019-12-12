@@ -69,7 +69,7 @@ namespace TrenchBroom {
             }
         }
 
-        void GridRenderer::doPrepareVertices(Vbo& vboManager) {
+        void GridRenderer::doPrepareVertices(VboManager& vboManager) {
             m_vertexArray.prepare(vboManager);
         }
 

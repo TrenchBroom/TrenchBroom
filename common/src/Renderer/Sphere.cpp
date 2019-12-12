@@ -38,8 +38,8 @@ namespace TrenchBroom {
             return m_array.prepared();
         }
 
-        void Sphere::prepare(Vbo& vbo) {
-            m_array.prepare(vbo);
+        void Sphere::prepare(VboManager& vboManager) {
+            m_array.prepare(vboManager);
         }
 
         void Sphere::render() {

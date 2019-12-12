@@ -44,9 +44,9 @@ namespace TrenchBroom {
             return m_prepared;
         }
 
-        void IndexArray::prepare(Vbo& vbo) {
+        void IndexArray::prepare(VboManager& vboManager) {
             if (!prepared() && !empty())
-                m_holder->prepare(vbo);
+                m_holder->prepare(vboManager);
             m_prepared = true;
         }
 

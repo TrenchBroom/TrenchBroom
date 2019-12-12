@@ -23,7 +23,7 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/GLVertexType.h"
 
@@ -117,7 +117,7 @@ namespace TrenchBroom {
             leftPlane = vm::plane3f(position(), normalize(cross(up(), d)));
         }
 
-        void PerspectiveCamera::doRenderFrustum(RenderContext& renderContext, Vbo& vbo, const float size, const Color& color) const {
+        void PerspectiveCamera::doRenderFrustum(RenderContext& renderContext, VboManager& vboManager, const float size, const Color& color) const {
             using Vertex = GLVertexTypes::P3C4::Vertex;
             Vertex::List triangleVertices;
             Vertex::List lineVertices;
@@ -146,8 +146,8 @@ namespace TrenchBroom {
             auto triangleArray = VertexArray::ref(triangleVertices);
             auto lineArray = VertexArray::ref(lineVertices);
 
-            triangleArray.prepare(vbo);
-            lineArray.prepare(vbo);
+            triangleArray.prepare(vboManager);
+            lineArray.prepare(vboManager);
 
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
             triangleArray.render(GL_TRIANGLE_FAN);

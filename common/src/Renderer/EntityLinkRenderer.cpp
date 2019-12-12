@@ -70,7 +70,7 @@ namespace TrenchBroom {
             m_valid = false;
         }
 
-        void EntityLinkRenderer::doPrepareVertices(Vbo& vboManager) {
+        void EntityLinkRenderer::doPrepareVertices(VboManager& vboManager) {
             if (!m_valid) {
                 validate();
 

@@ -29,7 +29,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class FontManager;
         class ShaderManager;
-        class Vbo;
+        class VboManager;
     }
 
     namespace View {
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             std::string m_glRenderer;
             std::string m_glVersion;
 
-            std::unique_ptr<Renderer::Vbo> m_vboManager;
+            std::unique_ptr<Renderer::VboManager> m_vboManager;
             std::unique_ptr<Renderer::FontManager> m_fontManager;
             std::unique_ptr<Renderer::ShaderManager> m_shaderManager;
         public:
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             bool initialized() const;
             bool initialize();
 
-            Renderer::Vbo& vboManager();
+            Renderer::VboManager& vboManager();
             Renderer::FontManager& fontManager();
             Renderer::ShaderManager& shaderManager();
 

@@ -41,7 +41,7 @@ namespace TrenchBroom {
         class RenderContext;
         class TextAnchor;
         class TextRenderer;
-        class Vbo;
+        class VboManager;
 
         class RenderService {
         private:

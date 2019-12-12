@@ -45,9 +45,9 @@ namespace TrenchBroom {
             return m_prepared;
         }
 
-        void VertexArray::prepare(Vbo& vbo) {
+        void VertexArray::prepare(VboManager& vboManager) {
             if (!prepared() && !empty()) {
-                m_holder->prepare(vbo);
+                m_holder->prepare(vboManager);
             }
             m_prepared = true;
         }

@@ -59,7 +59,7 @@ namespace TrenchBroom {
         class PrimitiveRenderer;
         class RenderBatch;
         class RenderContext;
-        class Vbo;
+        class VboManager;
     }
 
     namespace View {

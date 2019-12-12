@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class Camera;
         class RenderBatch;
         class RenderContext;
-        class Vbo;
+        class VboManager;
 
         class Compass : public DirectRenderable {
         private:
@@ -51,7 +51,7 @@ namespace TrenchBroom {
 
             void render(RenderBatch& renderBatch);
         private: // implement Renderable interface
-            void doPrepareVertices(Vbo& vboManager) override;
+            void doPrepareVertices(VboManager& vboManager) override;
             void doRender(RenderContext& renderContext) override;
         private:
             void makeArrows();

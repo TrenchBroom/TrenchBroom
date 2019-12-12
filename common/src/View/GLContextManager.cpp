@@ -23,7 +23,7 @@
 #include "Renderer/FontManager.h"
 #include "Renderer/GL.h"
 #include "Renderer/ShaderManager.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 
 #include <sstream>
 #include <string>
@@ -36,7 +36,7 @@ namespace TrenchBroom {
 
         GLContextManager::GLContextManager() :
         m_initialized(false),
-        m_vboManager(std::make_unique<Renderer::Vbo>()),
+        m_vboManager(std::make_unique<Renderer::VboManager>()),
         m_fontManager(std::make_unique<Renderer::FontManager>()),
         m_shaderManager(std::make_unique<Renderer::ShaderManager>()) {}
 
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        Renderer::Vbo& GLContextManager::vboManager() {
+        Renderer::VboManager& GLContextManager::vboManager() {
             return *m_vboManager;
         }
 

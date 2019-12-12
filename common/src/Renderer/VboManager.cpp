@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Vbo.h"
+#include "VboManager.h"
 
 #include "Ensure.h"
 #include "Macros.h"
@@ -41,9 +41,9 @@ namespace TrenchBroom {
             }
         }
 
-        Vbo::Vbo() {}
+        VboManager::VboManager() {}
 
-        VboBlock* Vbo::allocateBlock(VboType type, const size_t capacity) {
+        VboBlock* VboManager::allocateBlock(VboType type, const size_t capacity) {
             return new VboBlock(toOpenGL(type), capacity);
         }
     }

@@ -257,7 +257,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/TextureFont.cpp
         ${COMMON_SOURCE_DIR}/Renderer/Transformation.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TriangleRenderer.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/Vbo.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/VboManager.cpp
         ${COMMON_SOURCE_DIR}/Renderer/VboBlock.cpp
         ${COMMON_SOURCE_DIR}/Renderer/VertexArray.cpp
         ${COMMON_SOURCE_DIR}/View/AboutDialog.cpp
@@ -789,7 +789,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/TextureFont.h
         ${COMMON_SOURCE_DIR}/Renderer/Transformation.h
         ${COMMON_SOURCE_DIR}/Renderer/TriangleRenderer.h
-        ${COMMON_SOURCE_DIR}/Renderer/Vbo.h
+        ${COMMON_SOURCE_DIR}/Renderer/VboManager.h
         ${COMMON_SOURCE_DIR}/Renderer/VboBlock.h
         ${COMMON_SOURCE_DIR}/Renderer/VertexArray.h
         ${COMMON_SOURCE_DIR}/Renderer/VertexListBuilder.h

@@ -20,14 +20,14 @@
 #ifndef TrenchBroom_VboBlock
 #define TrenchBroom_VboBlock
 
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 
 #include <vector>
 #include <type_traits>
 
 namespace TrenchBroom {
     namespace Renderer {
-        class Vbo;
+        class VboManager;
 
         class VboBlock;
         class MapVboBlock {

@@ -22,7 +22,7 @@
 #include "TrenchBroomApp.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/GLVertexType.h"
@@ -166,7 +166,7 @@ namespace TrenchBroom {
         }
 
 
-       Renderer::Vbo& RenderView::vboManager() {
+       Renderer::VboManager& RenderView::vboManager() {
             return m_glContext->vboManager();
         }
 

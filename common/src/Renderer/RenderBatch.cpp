@@ -21,7 +21,7 @@
 
 #include "Ensure.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 
 #include <kdl/vector_utils.h>
 
@@ -31,12 +31,12 @@ namespace TrenchBroom {
         private:
             IndexedRenderable* m_wrappee;
         public:
-            IndexedRenderableWrapper(Vbo&, IndexedRenderable* wrappee) :
+            IndexedRenderableWrapper(VboManager&, IndexedRenderable* wrappee) :
             m_wrappee(wrappee) {
                 ensure(m_wrappee != nullptr, "wrappee is null");
             }
         private:
-            void prepareVerticesAndIndices(Vbo& vboManager) override {
+            void prepareVerticesAndIndices(VboManager& vboManager) override {
                 m_wrappee->prepareVerticesAndIndices(vboManager);
             }
 
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             }
         };
 
-        RenderBatch::RenderBatch(Vbo& vboManager) :
+        RenderBatch::RenderBatch(VboManager& vboManager) :
         m_vboManager(vboManager) {}
 
         RenderBatch::~RenderBatch() {

@@ -32,7 +32,7 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/GLVertexType.h"
 #include "View/Grid.h"
@@ -229,7 +229,7 @@ namespace TrenchBroom {
                 });
             }
         private:
-            void doPrepareVertices(Renderer::Vbo& vboManager) override {
+            void doPrepareVertices(Renderer::VboManager& vboManager) override {
                 m_vertexArray.prepare(vboManager);
             }
 

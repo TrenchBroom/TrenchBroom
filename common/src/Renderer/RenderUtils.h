@@ -34,7 +34,7 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
-        class Vbo;
+        class VboManager;
 
         void glSetEdgeOffset(double f);
         void glResetEdgeOffset();

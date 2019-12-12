@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class BrushVertexArray;
         class RenderBatch;
         class RenderContext;
-        class Vbo;
+        class VboManager;
 
         using BrushVertexArrayPtr = std::shared_ptr<BrushVertexArray>;
         using TextureToBrushIndicesMap = std::unordered_map<const Assets::Texture*, std::shared_ptr<BrushIndexArray>>;
@@ -66,7 +66,7 @@ namespace TrenchBroom {
 
             void render(RenderBatch& renderBatch);
         private:
-            void prepareVerticesAndIndices(Vbo& vboManager) override;
+            void prepareVerticesAndIndices(VboManager& vboManager) override;
             void doRender(RenderContext& context) override;
         };
 

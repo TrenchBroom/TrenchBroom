@@ -25,7 +25,7 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 #include "View/MapDocument.h"
 
 #include <memory>
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             m_valid = true;
         }
 
-        void SpikeGuideRenderer::doPrepareVertices(Vbo& vboManager) {
+        void SpikeGuideRenderer::doPrepareVertices(VboManager& vboManager) {
             if (!m_valid)
                 validate();
             m_pointArray.prepare(vboManager);

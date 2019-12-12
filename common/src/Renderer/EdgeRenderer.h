@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class RenderBatch;
         class RenderContext;
-        class Vbo;
+        class VboManager;
         class BrushVertexArray;
         class BrushIndexArray;
 
@@ -85,7 +85,7 @@ namespace TrenchBroom {
             public:
                 Render(const Params& params, VertexArray& vertexArray, IndexRangeMap& indexRanges);
             private:
-                void doPrepareVertices(Vbo& vboManager) override;
+                void doPrepareVertices(VboManager& vboManager) override;
                 void doRender(RenderContext& renderContext) override;
                 void doRenderVertices(RenderContext& renderContext) override;
             };
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             public:
                 Render(const Params& params, BrushVertexArrayPtr vertexArray, BrushIndexArrayPtr indexArray);
             private:
-                void prepareVerticesAndIndices(Vbo& vboManager) override;
+                void prepareVerticesAndIndices(VboManager& vboManager) override;
                 void doRender(RenderContext& renderContext) override;
                 void doRenderVertices(RenderContext& renderContext) override;
             };

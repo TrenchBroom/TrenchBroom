@@ -25,7 +25,7 @@ namespace TrenchBroom {
             doRender(renderContext);
         }
 
-        void DirectRenderable::prepareVertices(Vbo& vboManager) {
+        void DirectRenderable::prepareVertices(VboManager& vboManager) {
             doPrepareVertices(vboManager);
         }
     }

@@ -33,7 +33,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class ActiveShader;
         class RenderContext;
-        class Vbo;
+        class VboManager;
 
         class PrimitiveRenderer : public DirectRenderable {
         public:
@@ -100,9 +100,9 @@ namespace TrenchBroom {
 
             void renderCylinder(const Color& color, float radius, size_t segments, OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy, const vm::vec3f& start, const vm::vec3f& end);
         private:
-            void doPrepareVertices(Vbo& vboManager) override;
-            void prepareLines(Vbo& vboManager);
-            void prepareTriangles(Vbo& vboManager);
+            void doPrepareVertices(VboManager& vboManager) override;
+            void prepareLines(VboManager& vboManager);
+            void prepareTriangles(VboManager& vboManager);
 
             void doRender(RenderContext& renderContext) override;
             void renderLines(RenderContext& renderContext);

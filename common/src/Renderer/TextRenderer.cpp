@@ -145,12 +145,12 @@ namespace TrenchBroom {
             return round(font.measure(string));
         }
 
-        void TextRenderer::doPrepareVertices(Vbo& vboManager) {
+        void TextRenderer::doPrepareVertices(VboManager& vboManager) {
             prepare(m_entries, false, vboManager);
             prepare(m_entriesOnTop, true, vboManager);
         }
 
-        void TextRenderer::prepare(EntryCollection& collection, const bool onTop, Vbo& vbo) {
+        void TextRenderer::prepare(EntryCollection& collection, const bool onTop, VboManager& vboManager) {
             TextVertex::List textVertices;
             textVertices.reserve(collection.textVertexCount);
 
@@ -164,8 +164,8 @@ namespace TrenchBroom {
             collection.textArray = VertexArray::move(std::move(textVertices));
             collection.rectArray = VertexArray::move(std::move(rectVertices));
 
-            collection.textArray.prepare(vbo);
-            collection.rectArray.prepare(vbo);
+            collection.textArray.prepare(vboManager);
+            collection.rectArray.prepare(vboManager);
         }
 
         void TextRenderer::addEntry(const Entry& entry, const bool /* onTop */, TextVertex::List& textVertices, RectVertex::List& rectVertices) {

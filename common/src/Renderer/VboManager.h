@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Vbo
-#define TrenchBroom_Vbo
+#ifndef TrenchBroom_VboManager
+#define TrenchBroom_VboManager
 
 #include "Macros.h"
 #include "Renderer/GL.h"
@@ -40,12 +40,12 @@ namespace TrenchBroom {
          */
         GLenum toOpenGL(VboType type);
 
-        class Vbo {
+        class VboManager {
         public:
-            Vbo();
+            VboManager();
             VboBlock* allocateBlock(VboType type, size_t capacity);
         };
     }
 }
 
-#endif /* defined(TrenchBroom_Vbo) */
+#endif /* defined(TrenchBroom_VboManager) */

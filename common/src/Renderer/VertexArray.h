@@ -22,7 +22,7 @@
 
 #include "Ensure.h"
 #include "Renderer/GL.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 #include "Renderer/VboBlock.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
@@ -50,7 +50,7 @@ namespace TrenchBroom {
                 virtual size_t vertexCount() const = 0;
                 virtual size_t sizeInBytes() const = 0;
 
-                virtual void prepare(Vbo& vbo) = 0;
+                virtual void prepare(VboManager& vboManager) = 0;
                 virtual void setup() = 0;
                 virtual void cleanup() = 0;
             };
@@ -71,9 +71,9 @@ namespace TrenchBroom {
                     return VertexSpec::Size * m_vertexCount;
                 }
 
-                void prepare(Vbo& vbo) override {
+                void prepare(VboManager& vboManager) override {
                     if (m_vertexCount > 0 && m_block == nullptr) {
-                        m_block = vbo.allocateBlock(VboType::ArrayBuffer, sizeInBytes());
+                        m_block = vboManager.allocateBlock(VboType::ArrayBuffer, sizeInBytes());
 
                         MapVboBlock map(m_block);
                         m_block->writeBuffer(0, doGetVertices());
@@ -116,8 +116,8 @@ namespace TrenchBroom {
                 Holder<VertexSpec>(vertices.size()),
                 m_vertices(vertices) {}
 
-                void prepare(Vbo& vbo) override {
-                    Holder<VertexSpec>::prepare(vbo);
+                void prepare(VboManager& vboManager) override {
+                    Holder<VertexSpec>::prepare(vboManager);
                     kdl::vec_clear_to_zero(m_vertices);
                 }
             private:
@@ -137,8 +137,8 @@ namespace TrenchBroom {
                 Holder<VertexSpec>(vertices.size()),
                 m_vertices(std::move(vertices)) {}
 
-                void prepare(Vbo& vbo) override {
-                    Holder<VertexSpec>::prepare(vbo);
+                void prepare(VboManager& vboManager) override {
+                    Holder<VertexSpec>::prepare(vboManager);
                     kdl::vec_clear_to_zero(m_vertices);
                 }
             private:
@@ -246,9 +246,9 @@ namespace TrenchBroom {
             /**
              * Prepares this vertex array by uploading its contents into the given vertex buffer object.
              *
-             * @param vbo the vertex buffer object to upload the contents of this vertex array into
+             * @param vboManager the vertex buffer object to upload the contents of this vertex array into
              */
-            void prepare(Vbo& vbo);
+            void prepare(VboManager& vboManager);
 
             /**
              * Sets this vertex array up for rendering. If this vertex array is only rendered once, then there is no

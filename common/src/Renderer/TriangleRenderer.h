@@ -51,7 +51,7 @@ namespace TrenchBroom {
             void setApplyTinting(bool applyTinting);
             void setTintColor(const Color& tintColor);
         private:
-            void doPrepareVertices(Vbo& vboManager) override;
+            void doPrepareVertices(VboManager& vboManager) override;
             void doRender(RenderContext& context) override;
         };
     }

@@ -40,7 +40,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class RenderBatch;
         class RenderContext;
-        class Vbo;
+        class VboManager;
 
         class BrushRenderer {
         public:

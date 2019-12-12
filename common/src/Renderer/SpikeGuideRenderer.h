@@ -42,7 +42,7 @@ namespace TrenchBroom {
 
     namespace Renderer {
         class RenderContext;
-        class Vbo;
+        class VboManager;
 
         class SpikeGuideRenderer : public DirectRenderable {
         private:
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             void add(const vm::ray3& ray, FloatType length, std::shared_ptr<View::MapDocument> document);
             void clear();
         private:
-            void doPrepareVertices(Vbo& vboManager) override;
+            void doPrepareVertices(VboManager& vboManager) override;
             void doRender(RenderContext& renderContext) override;
         private:
             void addPoint(const vm::vec3& position);

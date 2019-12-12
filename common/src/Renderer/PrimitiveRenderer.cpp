@@ -237,12 +237,12 @@ namespace TrenchBroom {
             m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy, cullingPolicy)].addTriangleStrip(Vertex::toList(vertices.size(), std::begin(vertices)));
         }
 
-        void PrimitiveRenderer::doPrepareVertices(Vbo& vboManager) {
+        void PrimitiveRenderer::doPrepareVertices(VboManager& vboManager) {
             prepareLines(vboManager);
             prepareTriangles(vboManager);
         }
 
-        void PrimitiveRenderer::prepareLines(Vbo& vboManager) {
+        void PrimitiveRenderer::prepareLines(VboManager& vboManager) {
             for (auto& entry : m_lineMeshes) {
                 const LineRenderAttributes& attributes = entry.first;
                 IndexRangeMapBuilder<Vertex::Type>& mesh = entry.second;
@@ -251,7 +251,7 @@ namespace TrenchBroom {
             }
         }
 
-        void PrimitiveRenderer::prepareTriangles(Vbo& vboManager) {
+        void PrimitiveRenderer::prepareTriangles(VboManager& vboManager) {
             for (auto& entry : m_triangleMeshes) {
                 const TriangleRenderAttributes& attributes = entry.first;
                 IndexRangeMapBuilder<Vertex::Type>& mesh = entry.second;

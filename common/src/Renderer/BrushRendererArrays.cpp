@@ -139,8 +139,8 @@ namespace TrenchBroom {
             return m_indexHolder.prepared();
         }
 
-        void BrushIndexArray::prepare(Vbo& vbo) {
-            m_indexHolder.prepare(vbo);
+        void BrushIndexArray::prepare(VboManager& vboManager) {
+            m_indexHolder.prepare(vboManager);
             assert(m_indexHolder.prepared());
         }
 
@@ -199,8 +199,8 @@ namespace TrenchBroom {
             return m_vertexHolder.prepared();
         }
 
-        void BrushVertexArray::prepare(Vbo& vbo) {
-            m_vertexHolder.prepare(vbo);
+        void BrushVertexArray::prepare(VboManager& vboManager) {
+            m_vertexHolder.prepare(vboManager);
             assert(m_vertexHolder.prepared());
         }
     }

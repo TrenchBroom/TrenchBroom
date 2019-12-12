@@ -22,7 +22,7 @@
 
 #include "Ensure.h"
 #include "Renderer/GL.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 #include "Renderer/VboBlock.h"
 
 #include <kdl/vector_utils.h>
@@ -48,7 +48,7 @@ namespace TrenchBroom {
                 virtual size_t indexCount() const = 0;
                 virtual size_t sizeInBytes() const = 0;
 
-                virtual void prepare(Vbo& vbo) = 0;
+                virtual void prepare(VboManager& vboManager) = 0;
             public:
                 void render(PrimType primType, size_t offset, size_t count) const;
 
@@ -73,9 +73,9 @@ namespace TrenchBroom {
                     return sizeof(Index) * m_indexCount;
                 }
 
-                virtual void prepare(Vbo& vbo) override {
+                virtual void prepare(VboManager& vboManager) override {
                     if (m_indexCount > 0 && m_block == nullptr) {
-                        m_block = vbo.allocateBlock(VboType::ElementArrayBuffer, sizeInBytes());
+                        m_block = vboManager.allocateBlock(VboType::ElementArrayBuffer, sizeInBytes());
 
                         MapVboBlock map(m_block);
                         m_block->writeBuffer(0, doGetIndices());
@@ -123,8 +123,8 @@ namespace TrenchBroom {
                 Holder<Index>(indices.size()),
                 m_indices(indices) {}
 
-                void prepare(Vbo& vbo) {
-                    Holder<Index>::prepare(vbo);
+                void prepare(VboManager& vboManager) {
+                    Holder<Index>::prepare(vboManager);
                     kdl::vec_clear_to_zero(m_indices);
                 }
             private:
@@ -147,8 +147,8 @@ namespace TrenchBroom {
                     swap(m_indices, indices);
                 }
 
-                void prepare(Vbo& vbo) override {
-                    Holder<Index>::prepare(vbo);
+                void prepare(VboManager& vboManager) override {
+                    Holder<Index>::prepare(vboManager);
                     kdl::vec_clear_to_zero(m_indices);
                 }
             private:
@@ -254,9 +254,9 @@ namespace TrenchBroom {
             /**
              * Prepares this index array by uploading its contents into the given vertex buffer object.
              *
-             * @param vbo the vertex buffer object to upload to
+             * @param vboManager the vertex buffer object to upload to
              */
-            void prepare(Vbo& vbo);
+            void prepare(VboManager& vboManager);
 
             /**
              * Renders a range of primitives of the given type using the indices stored in this index array. Assumes that
