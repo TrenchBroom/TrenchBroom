@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_FileTextureCollectionEditor
 #define TrenchBroom_FileTextureCollectionEditor
 
+#include "IO/IO_Forward.h"
+
 #include <memory>
 
 #include <QWidget>

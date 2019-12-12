@@ -58,6 +58,7 @@
 #include <vector>
 
 #include <QCommandLineParser>
+#include <QDebug>
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QMenuBar>

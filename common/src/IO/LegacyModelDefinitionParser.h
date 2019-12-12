@@ -20,6 +20,7 @@
 #ifndef LegacyModelDefinitionParser_h
 #define LegacyModelDefinitionParser_h
 
+#include "IO/Tokenizer.h"
 #include "IO/Parser.h"
 #include "IO/IO_Forward.h"
 
