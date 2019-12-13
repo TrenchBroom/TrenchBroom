@@ -20,14 +20,13 @@
 #ifndef TexturedIndexRangeBuilder_h
 #define TexturedIndexRangeBuilder_h
 
+#include "Assets/Asset_Forward.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/VertexListBuilder.h"
 
-namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
+#include <vector>
 
+namespace TrenchBroom {
     namespace Renderer {
         /**
          * Builds an index range map and a corresponding vertex array by recording textured rendering primitives.
@@ -38,10 +37,10 @@ namespace TrenchBroom {
         class TexturedIndexRangeMapBuilder {
         public:
             using Vertex = typename VertexSpec::Vertex;
-            using VertexList = typename Vertex::List;
+            using VertexList = std::vector<Vertex>;
             using Texture = Assets::Texture;
         private:
-            using IndexData = typename VertexListBuilder<VertexSpec>::IndexData;
+            using IndexData = typename VertexListBuilder<VertexSpec>::Range;
         private:
             VertexListBuilder<VertexSpec> m_vertexListBuilder;
             TexturedIndexRangeMap m_indexRange;

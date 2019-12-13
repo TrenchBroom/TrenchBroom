@@ -21,6 +21,7 @@
 
 #include "Ensure.h"
 #include "Assets/Texture.h"
+#include "IO/DiskIO.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"

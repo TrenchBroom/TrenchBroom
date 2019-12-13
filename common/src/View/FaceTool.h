@@ -24,6 +24,8 @@
 #include "View/VertexHandleManager.h"
 #include "View/VertexToolBase.h"
 
+#include <vecmath/polygon.h>
+
 #include <set>
 #include <string>
 

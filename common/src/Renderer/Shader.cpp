@@ -20,6 +20,7 @@
 #include "Shader.h"
 
 #include "Exceptions.h"
+#include "IO/Path.h"
 
 #include <cassert>
 #include <fstream>

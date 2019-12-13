@@ -19,6 +19,8 @@
 
 #include "IndexRangeMap.h"
 
+#include "Renderer/VertexArray.h"
+
 #include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
@@ -158,13 +160,7 @@ namespace TrenchBroom {
         }
 
         IndexRangeMap::IndicesAndCounts& IndexRangeMap::find(const PrimType primType) {
-            auto it = m_data->end();
-            if (m_dynamicGrowth) {
-                auto result = m_data->try_emplace(primType);
-                it = result.first;
-            } else {
-                it = m_data->find(primType);
-            }
+            const auto it = m_dynamicGrowth ? m_data->try_emplace(primType).first : m_data->find(primType);
             assert(it != m_data->end());
             return it->second;
         }

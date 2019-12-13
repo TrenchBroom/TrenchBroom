@@ -22,8 +22,8 @@
 #include "IO/Path.h"
 #include "IO/SystemPaths.h"
 #include "Renderer/Shader.h"
-#include "Renderer/ShaderConfig.h"
 #include "Renderer/ShaderProgram.h"
+#include "Renderer/ShaderConfig.h"
 
 #include <cassert>
 #include <string>
@@ -71,15 +71,6 @@ namespace TrenchBroom {
             assert(result.second);
 
             return *(result.first->second);
-        }
-
-        ActiveShader::ActiveShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig) :
-        m_program(shaderManager.program(shaderConfig)) {
-            m_program.activate();
-        }
-
-        ActiveShader::~ActiveShader() {
-            m_program.deactivate();
         }
     }
 }

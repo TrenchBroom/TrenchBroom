@@ -54,7 +54,7 @@ namespace TrenchBroom {
             m_inputState.setPickRequest(doGetPickRequest(m_inputState.mouseX(),  m_inputState.mouseY()));
             Model::PickResult pickResult = doPick(m_inputState.pickRay());
             m_toolBox->pick(m_toolChain, m_inputState, pickResult);
-            m_inputState.setPickResult(pickResult);
+            m_inputState.setPickResult(std::move(pickResult));
         }
 
         void ToolBoxConnector::setToolBox(ToolBox& toolBox) {

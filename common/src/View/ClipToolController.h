@@ -21,6 +21,7 @@
 #define TrenchBroom_ClipToolController
 
 #include "TrenchBroom.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/RenderContext.h"
 #include "View/ClipTool.h"
 #include "View/InputState.h"
@@ -31,11 +32,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class BrushFace;
-        class PickResult;
-    }
-
     namespace Renderer {
         class RenderBatch;
         class RenderContext;

@@ -33,7 +33,6 @@
 #include <vecmath/util.h>
 
 #include <sstream>
-#include <string>
 
 namespace TrenchBroom {
     namespace Renderer {

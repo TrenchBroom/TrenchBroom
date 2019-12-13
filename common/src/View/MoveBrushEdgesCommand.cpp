@@ -21,9 +21,10 @@
 
 #include "Constants.h"
 #include "Model/Brush.h"
-#include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
+
+#include <vecmath/polygon.h>
 
 #include <vector>
 

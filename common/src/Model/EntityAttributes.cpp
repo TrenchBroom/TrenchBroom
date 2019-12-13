@@ -19,11 +19,13 @@
 
 #include "EntityAttributes.h"
 
-#include "Assets/EntityDefinition.h"
 #include "StringMap.h"
+#include "Assets/EntityDefinition.h"
+#include "Model/EntityAttributeSnapshot.h"
 
 #include <kdl/vector_set.h>
 
+#include <list>
 #include <string>
 
 namespace TrenchBroom {
@@ -90,8 +92,6 @@ namespace TrenchBroom {
             return true;
         }
 
-        const EntityAttribute::List EntityAttribute::EmptyList(0);
-
         EntityAttribute::EntityAttribute() :
         m_definition(nullptr) {}
 
@@ -132,25 +132,25 @@ namespace TrenchBroom {
             m_value = value;
         }
 
-        bool isLayer(const std::string& classname, const EntityAttribute::List& attributes) {
+        bool isLayer(const std::string& classname, const std::list<EntityAttribute>& attributes) {
             if (classname != AttributeValues::LayerClassname)
                 return false;
             const AttributeValue& groupType = findAttribute(attributes, AttributeNames::GroupType);
             return groupType == AttributeValues::GroupTypeLayer;
         }
 
-        bool isGroup(const std::string& classname, const EntityAttribute::List& attributes) {
+        bool isGroup(const std::string& classname, const std::list<EntityAttribute>& attributes) {
             if (classname != AttributeValues::GroupClassname)
                 return false;
             const AttributeValue& groupType = findAttribute(attributes, AttributeNames::GroupType);
             return groupType == AttributeValues::GroupTypeGroup;
         }
 
-        bool isWorldspawn(const std::string& classname, const EntityAttribute::List& /* attributes */) {
+        bool isWorldspawn(const std::string& classname, const std::list<EntityAttribute>& /* attributes */) {
             return classname == AttributeValues::WorldspawnClassname;
         }
 
-        const AttributeValue& findAttribute(const EntityAttribute::List& attributes, const AttributeName& name, const AttributeValue& defaultValue) {
+        const AttributeValue& findAttribute(const std::list<EntityAttribute>& attributes, const AttributeName& name, const AttributeValue& defaultValue) {
             for (const EntityAttribute& attribute : attributes) {
                 if (name == attribute.name())
                     return attribute.value();
@@ -164,11 +164,11 @@ namespace TrenchBroom {
 
         EntityAttributes::~EntityAttributes() = default;
 
-        const EntityAttribute::List& EntityAttributes::attributes() const {
+        const std::list<EntityAttribute>& EntityAttributes::attributes() const {
             return m_attributes;
         }
 
-        void EntityAttributes::setAttributes(const EntityAttribute::List& attributes) {
+        void EntityAttributes::setAttributes(const std::list<EntityAttribute>& attributes) {
             m_attributes.clear();
 
             // ensure that there are no duplicate names
@@ -183,7 +183,7 @@ namespace TrenchBroom {
         }
 
         const EntityAttribute& EntityAttributes::addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value, const Assets::AttributeDefinition* definition) {
-            EntityAttribute::List::iterator it = findAttribute(name);
+            std::list<EntityAttribute>::iterator it = findAttribute(name);
             if (it != std::end(m_attributes)) {
                 assert(it->definition() == definition);
                 it->setValue(value);
@@ -205,7 +205,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributes::removeAttribute(const AttributeName& name) {
-            EntityAttribute::List::iterator it = findAttribute(name);
+            std::list<EntityAttribute>::iterator it = findAttribute(name);
             if (it == std::end(m_attributes))
                 return;
             m_index->remove(name, it);
@@ -225,7 +225,7 @@ namespace TrenchBroom {
         }
 
         bool EntityAttributes::hasAttribute(const AttributeName& name, const AttributeValue& value) const {
-            const EntityAttribute::List::const_iterator it = findAttribute(name);
+            const std::list<EntityAttribute>::const_iterator it = findAttribute(name);
             if (it == std::end(m_attributes))
                 return false;
             return it->value() == value;
@@ -261,8 +261,8 @@ namespace TrenchBroom {
             return false;
         }
 
-        EntityAttribute::List EntityAttributes::listFromQueryResult(const std::vector<IndexValue>& matches) const {
-            EntityAttribute::List result;
+        std::list<EntityAttribute> EntityAttributes::listFromQueryResult(const std::vector<IndexValue>& matches) const {
+            std::list<EntityAttribute> result;
 
             for (auto attrIt : matches) {
                 const EntityAttribute& attribute = *attrIt;
@@ -296,16 +296,16 @@ namespace TrenchBroom {
             return *value;
         }
 
-        EntityAttribute::List EntityAttributes::attributeWithName(const AttributeName& name) const {
+        std::list<EntityAttribute> EntityAttributes::attributeWithName(const AttributeName& name) const {
             return listFromQueryResult(m_index->queryExactMatches(name));
         }
 
-        EntityAttribute::List EntityAttributes::attributesWithPrefix(const AttributeName& prefix) const{
+        std::list<EntityAttribute> EntityAttributes::attributesWithPrefix(const AttributeName& prefix) const{
             return listFromQueryResult(m_index->queryPrefixMatches(prefix));
         }
 
-        EntityAttribute::List EntityAttributes::numberedAttributes(const std::string& prefix) const {
-            EntityAttribute::List result;
+        std::list<EntityAttribute> EntityAttributes::numberedAttributes(const std::string& prefix) const {
+            std::list<EntityAttribute> result;
 
             for (const EntityAttribute& attribute : m_attributes) {
                 if (isNumberedAttribute(prefix, attribute.name()))
@@ -315,7 +315,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        EntityAttribute::List::const_iterator EntityAttributes::findAttribute(const AttributeName& name) const {
+        std::list<EntityAttribute>::const_iterator EntityAttributes::findAttribute(const AttributeName& name) const {
             const AttributeIndex::QueryResult matches = m_index->queryExactMatches(name);
             if (matches.empty())
                 return std::end(m_attributes);
@@ -324,7 +324,7 @@ namespace TrenchBroom {
             return matches.front();
         }
 
-        EntityAttribute::List::iterator EntityAttributes::findAttribute(const AttributeName& name) {
+        std::list<EntityAttribute>::iterator EntityAttributes::findAttribute(const AttributeName& name) {
             const AttributeIndex::QueryResult matches = m_index->queryExactMatches(name);
             if (matches.empty())
                 return std::end(m_attributes);

@@ -3451,7 +3451,7 @@ namespace TrenchBroom {
             Model::Brush* brush1 = builder.createCube(128.0, "texture");
 
             std::vector<vm::vec3> allVertexPositions;
-            for (const auto vertex : brush1->vertices()) {
+            for (const auto* vertex : brush1->vertices()) {
                 allVertexPositions.push_back(vertex->position());
             }
 

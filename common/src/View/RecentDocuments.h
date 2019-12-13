@@ -38,13 +38,13 @@ namespace TrenchBroom {
             MenuList m_menus;
 
             size_t m_maxSize;
-            IO::Path::List m_recentDocuments;
+            std::vector<IO::Path> m_recentDocuments;
         public:
             Notifier<> didChangeNotifier;
         public:
             explicit RecentDocuments(size_t maxSize);
 
-            const IO::Path::List& recentDocuments() const;
+            const std::vector<IO::Path>& recentDocuments() const;
 
             void addMenu(QMenu* menu);
             void removeMenu(QMenu* menu);

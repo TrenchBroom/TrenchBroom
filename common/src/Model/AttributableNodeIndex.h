@@ -20,10 +20,10 @@
 #ifndef TrenchBroom_EntityAttributeIndex
 #define TrenchBroom_EntityAttributeIndex
 
-#include "Model/Model_Forward.h"
-#include "Model/EntityAttributes.h"
 #include "StringMap.h"
+#include "Model/Model_Forward.h"
 
+#include <list>
 #include <set>
 #include <string>
 #include <vector>
@@ -52,7 +52,7 @@ namespace TrenchBroom {
 
             std::set<AttributableNode*> execute(const AttributableNodeStringIndex& index) const;
             bool execute(const AttributableNode* node, const std::string& value) const;
-            Model::EntityAttribute::List execute(const AttributableNode* node) const;
+            std::list<Model::EntityAttribute> execute(const AttributableNode* node) const;
         private:
             AttributableNodeIndexQuery(Type type, const std::string& pattern = "");
         };

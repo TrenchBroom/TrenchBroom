@@ -23,17 +23,18 @@
 #include "Macros.h"
 #include "Assets/Palette.h"
 #include "Assets/EntityModel.h"
+#include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/AseParser.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/Bsp29Parser.h"
 #include "IO/DefParser.h"
+#include "IO/DiskIO.h"
 #include "IO/DkmParser.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/EntParser.h"
 #include "IO/FgdParser.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
-#include "IO/FileSystem.h"
 #include "IO/IOUtils.h"
 #include "IO/MdlParser.h"
 #include "IO/Md2Parser.h"
@@ -90,14 +91,14 @@ namespace TrenchBroom {
             }
         }
 
-        void GameImpl::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger) {
+        void GameImpl::doSetAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths, Logger& logger) {
             if (searchPaths != m_additionalSearchPaths) {
                 m_additionalSearchPaths = searchPaths;
                 initializeFileSystem(logger);
             }
         }
 
-        Game::PathErrors GameImpl::doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const {
+        Game::PathErrors GameImpl::doCheckAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths) const {
             PathErrors result;
             for (const auto& searchPath : searchPaths) {
                 const auto absPath = m_gamePath + searchPath;
@@ -190,11 +191,11 @@ namespace TrenchBroom {
         Game::TexturePackageType GameImpl::doTexturePackageType() const {
             using Model::GameConfig;
             switch (m_config.textureConfig().package.type) {
-                case GameConfig::TexturePackageConfig::PT_File:
+                case TexturePackageConfig::PT_File:
                     return TexturePackageType::File;
-                case GameConfig::TexturePackageConfig::PT_Directory:
+                case TexturePackageConfig::PT_Directory:
                     return TexturePackageType::Directory;
-                case GameConfig::TexturePackageConfig::PT_Unset:
+                case TexturePackageConfig::PT_Unset:
                     throw GameException("Texture package type is not set in game configuration");
                 switchDefault()
             }
@@ -208,8 +209,8 @@ namespace TrenchBroom {
             textureLoader.loadTextures(paths, textureManager);
         }
 
-        IO::Path::List GameImpl::textureCollectionSearchPaths(const IO::Path& documentPath) const {
-            IO::Path::List result;
+        std::vector<IO::Path> GameImpl::textureCollectionSearchPaths(const IO::Path& documentPath) const {
+            std::vector<IO::Path> result;
 
             // Search for assets relative to the map file.
             result.push_back(documentPath);
@@ -226,42 +227,42 @@ namespace TrenchBroom {
         bool GameImpl::doIsTextureCollection(const IO::Path& path) const {
             const auto& packageConfig = m_config.textureConfig().package;
             switch (packageConfig.type) {
-                case GameConfig::TexturePackageConfig::PT_File:
+                case TexturePackageConfig::PT_File:
                     return path.hasExtension(packageConfig.fileFormat.extensions, false);
-                case GameConfig::TexturePackageConfig::PT_Directory:
-                case GameConfig::TexturePackageConfig::PT_Unset:
+                case TexturePackageConfig::PT_Directory:
+                case TexturePackageConfig::PT_Unset:
                     return false;
                 switchDefault()
             }
         }
 
-        IO::Path::List GameImpl::doFindTextureCollections() const {
+        std::vector<IO::Path> GameImpl::doFindTextureCollections() const {
             try {
                 const auto& searchPath = m_config.textureConfig().package.rootDirectory;
                 if (!searchPath.isEmpty() && m_fs.directoryExists(searchPath)) {
                     return m_fs.findItems(searchPath, IO::FileTypeMatcher(false, true));
                 }
-                return IO::Path::List();
+                return std::vector<IO::Path>();
             } catch (FileSystemException& e) {
                 throw GameException("Could not find texture collections: " + std::string(e.what()));
             }
         }
 
-        IO::Path::List GameImpl::doExtractTextureCollections(const AttributableNode& node) const {
+        std::vector<IO::Path> GameImpl::doExtractTextureCollections(const AttributableNode& node) const {
             const auto& property = m_config.textureConfig().attribute;
             if (property.empty()) {
-                return IO::Path::List(0);
+                return std::vector<IO::Path>(0);
             }
 
             const auto& pathsValue = node.attribute(property);
             if (pathsValue.empty()) {
-                return IO::Path::List(0);
+                return std::vector<IO::Path>(0);
             }
 
             return IO::Path::asPaths(kdl::str_split(pathsValue, ";"));
         }
 
-        void GameImpl::doUpdateTextureCollections(AttributableNode& node, const IO::Path::List& paths) const {
+        void GameImpl::doUpdateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const {
             const auto& attribute = m_config.textureConfig().attribute;
             if (attribute.empty()) {
                 return;
@@ -312,11 +313,11 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityDefinitionFileSpec::List GameImpl::doAllEntityDefinitionFiles() const {
+        std::vector<Assets::EntityDefinitionFileSpec> GameImpl::doAllEntityDefinitionFiles() const {
             const auto paths = m_config.entityConfig().defFilePaths;
             const auto count = paths.size();
 
-            Assets::EntityDefinitionFileSpec::List result;
+            std::vector<Assets::EntityDefinitionFileSpec> result;
             result.reserve(count);
 
             for (const auto& path : paths) {
@@ -344,7 +345,7 @@ namespace TrenchBroom {
             return Assets::EntityDefinitionFileSpec::builtin(path);
         }
 
-        IO::Path GameImpl::doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const {
+        IO::Path GameImpl::doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const {
             if (!spec.valid()) {
                 throw GameException("Invalid entity definition file spec");
             }
@@ -495,11 +496,11 @@ namespace TrenchBroom {
             return m_config.fileSystemConfig().searchPath.asString();
         }
 
-        const GameConfig::FlagsConfig& GameImpl::doSurfaceFlags() const {
+        const FlagsConfig& GameImpl::doSurfaceFlags() const {
             return m_config.faceAttribsConfig().surfaceFlags;
         }
 
-        const GameConfig::FlagsConfig& GameImpl::doContentFlags() const {
+        const FlagsConfig& GameImpl::doContentFlags() const {
             return m_config.faceAttribsConfig().contentFlags;
         }
 

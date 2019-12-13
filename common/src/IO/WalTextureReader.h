@@ -20,6 +20,7 @@
 #ifndef WalTextureReader_h
 #define WalTextureReader_h
 
+#include "Assets/Asset_Forward.h"
 #include "Assets/Palette.h"
 #include "Assets/TextureBuffer.h"
 #include "IO/TextureReader.h"
@@ -27,10 +28,6 @@
 class Color;
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
     namespace IO {
         class Reader;
         class Path;

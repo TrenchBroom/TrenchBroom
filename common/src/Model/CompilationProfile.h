@@ -20,8 +20,9 @@
 #ifndef CompilationProfile_h
 #define CompilationProfile_h
 
+#include "Macros.h"
 #include "Notifier.h"
-#include "Model/CompilationTask.h"
+#include "Model/Model_Forward.h"
 
 #include <string>
 #include <vector>
@@ -30,17 +31,15 @@ namespace TrenchBroom {
     namespace Model {
         class CompilationProfile {
         public:
-            using List = std::vector<CompilationProfile*>;
-
             Notifier<> profileWillBeRemoved;
             Notifier<> profileDidChange;
         private:
             std::string m_name;
             std::string m_workDirSpec;
-            CompilationTask::List m_tasks;
+            std::vector<CompilationTask*> m_tasks;
         public:
             CompilationProfile(const std::string& name, const std::string& workDirSpec);
-            CompilationProfile(const std::string& name, const std::string& workDirSpec, const CompilationTask::List& tasks);
+            CompilationProfile(const std::string& name, const std::string& workDirSpec, const std::vector<CompilationTask*>& tasks);
             ~CompilationProfile();
 
             CompilationProfile* clone() const;

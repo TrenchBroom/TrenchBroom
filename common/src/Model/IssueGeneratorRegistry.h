@@ -26,8 +26,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class IssueGenerator;
-
         class IssueGeneratorRegistry {
         private:
             std::vector<IssueGenerator*> m_generators;

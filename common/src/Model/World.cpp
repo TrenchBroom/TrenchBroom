@@ -20,6 +20,7 @@
 #include "World.h"
 
 #include "AABBTree.h"
+#include "Ensure.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"

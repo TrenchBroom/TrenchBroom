@@ -21,22 +21,20 @@
 #define BrushRendererArray_h
 
 #include "Ensure.h"
-#include "Renderer/GLVertexType.h"
-#include "Renderer/VboManager.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/AllocationTracker.h"
 #include "Renderer/GL.h"
+#include "Renderer/GLVertexType.h"
+#include "Renderer/VboManager.h"
 #include "Renderer/Vbo.h"
 
 #include <vecmath/vec.h>
 
-#include <vector>
 #include <cassert>
 #include <unordered_map>
+#include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Brush;
-    }
     namespace Renderer {
         struct DirtyRangeTracker {
             size_t m_dirtyPos;

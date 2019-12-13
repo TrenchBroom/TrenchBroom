@@ -23,6 +23,7 @@
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
 #include "EL/Value.h"
+#include "Model/GameEngineProfile.h"
 
 #include <kdl/vector_utils.h>
 
@@ -46,13 +47,12 @@ namespace TrenchBroom {
             unused(version);
             assert(version == 1.0);
 
-            const Model::GameEngineProfile::List profiles = parseProfiles(root["profiles"]);
-
+            const auto profiles = parseProfiles(root["profiles"]);
             return Model::GameEngineConfig(profiles);
         }
 
-        Model::GameEngineProfile::List GameEngineConfigParser::parseProfiles(const EL::Value& value) const {
-            Model::GameEngineProfile::List result;
+        std::vector<Model::GameEngineProfile*> GameEngineConfigParser::parseProfiles(const EL::Value& value) const {
+            std::vector<Model::GameEngineProfile*> result;
 
             try {
                 for (size_t i = 0; i < value.length(); ++i) {

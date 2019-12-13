@@ -134,7 +134,7 @@ namespace TrenchBroom {
              * @param index the index of the first primitive's first vertex in the given vertex array
              * @param count the number of vertices that make up the primitive(s)
              */
-            void addToSpacialTree(const EntityModelVertexList& vertices, PrimType primType, size_t index, size_t count);
+            void addToSpacialTree(const std::vector<EntityModelVertex>& vertices, PrimType primType, size_t index, size_t count);
         };
 
         class EntityModelUnloadedFrame;
@@ -197,7 +197,7 @@ namespace TrenchBroom {
              * @param vertices the mesh vertices
              * @param indices the vertex indices
              */
-            void addIndexedMesh(EntityModelLoadedFrame& frame, const EntityModelVertexList& vertices, const EntityModelIndices& indices);
+            void addIndexedMesh(EntityModelLoadedFrame& frame, const std::vector<EntityModelVertex>& vertices, const EntityModelIndices& indices);
 
             /**
              * Adds a new multitextured mesh to this surface.
@@ -206,7 +206,7 @@ namespace TrenchBroom {
              * @param vertices the mesh vertices
              * @param indices the per texture vertex indices
              */
-            void addTexturedMesh(EntityModelLoadedFrame& frame, const EntityModelVertexList& vertices, const EntityModelTexturedIndices& indices);
+            void addTexturedMesh(EntityModelLoadedFrame& frame, const std::vector<EntityModelVertex>& vertices, const EntityModelTexturedIndices& indices);
 
             /**
              * Adds the given texture as a skin to this surface.

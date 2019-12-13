@@ -236,7 +236,7 @@ namespace TrenchBroom {
             glAssert(glDisable(GL_DEPTH_TEST));
 
             using Vertex = Renderer::GLVertexTypes::P3C4::Vertex;
-            auto array = Renderer::VertexArray::move(Vertex::List {
+            auto array = Renderer::VertexArray::move(std::vector<Vertex>({
             // top
                 Vertex(vm::vec3f(0.0f, 0.0f, 0.0f), outer),
                 Vertex(vm::vec3f(w, 0.0f, 0.0f), outer),
@@ -260,7 +260,7 @@ namespace TrenchBroom {
                 Vertex(vm::vec3f(0.0f, 0.0f, 0.0f), outer),
                 Vertex(vm::vec3f(t, t, 0.0f), inner),
                 Vertex(vm::vec3f(t, h-t, 0.0f), inner)
-            });
+            }));
 
             array.prepare(vboManager());
             array.render(GL_QUADS);

@@ -21,6 +21,7 @@
 #define TrenchBroom_ChangeBrushFaceAttributesRequest
 
 #include "Color.h"
+#include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
@@ -29,13 +30,7 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
     namespace Model {
-        class BrushFaceAttributes;
-
         class ChangeBrushFaceAttributesRequest {
         public:
             // TODO: replace with class based enum

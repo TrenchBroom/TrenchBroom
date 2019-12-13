@@ -39,7 +39,7 @@ namespace TrenchBroom {
         TEST(GameTest, loadCorruptPackages) {
             // https://github.com/kduske/TrenchBroom/issues/2496
 
-            const auto games = IO::Path::List {
+            const auto games = std::vector<IO::Path> {
                 IO:: Path("Quake"),
                 IO::Path("Daikatana"),
                 IO::Path("Quake3")

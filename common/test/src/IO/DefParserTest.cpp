@@ -38,7 +38,7 @@ namespace TrenchBroom {
     namespace IO {
         TEST(DefParserTest, parseIncludedDefFiles) {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
-            const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("def"));
+            const std::vector<Path> cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("def"));
 
             for (const Path& path : cfgFiles) {
                 auto file = Disk::openFile(path);
@@ -48,14 +48,14 @@ namespace TrenchBroom {
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing DEF file " << path.asString() << " failed";
-                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Warn)) << "Parsing DEF file " << path.asString() << " produced warnings";
-                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error)) << "Parsing DEF file " << path.asString() << " produced errors";
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Warn)) << "Parsing DEF file " << path.asString() << " produced warnings";
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Error)) << "Parsing DEF file " << path.asString() << " produced errors";
             }
         }
 
         TEST(DefParserTest, parseExtraDefFiles) {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Def");
-            const Path::List cfgFiles = Disk::findItems(basePath, [] (const Path& path, bool directory) {
+            const std::vector<Path> cfgFiles = Disk::findItems(basePath, [] (const Path& path, bool directory) {
                 return !directory && kdl::ci::str_is_equal(path.extension(), "def");
             });
 
@@ -67,8 +67,8 @@ namespace TrenchBroom {
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status));
-                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Warn));
-                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error));
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Warn));
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Error));
             }
         }
 

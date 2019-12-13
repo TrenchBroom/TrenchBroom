@@ -133,7 +133,7 @@ namespace TrenchBroom {
             m_hasModelDefinition = true;
         }
 
-        void EntityDefinitionClassInfo::resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const std::vector<std::string>& classnames) {
+        void EntityDefinitionClassInfo::resolveBaseClasses(const std::map<std::string, EntityDefinitionClassInfo>& baseClasses, const std::vector<std::string>& classnames) {
             for (auto classnameIt = classnames.rbegin(), classnameEnd = classnames.rend(); classnameIt != classnameEnd; ++classnameIt) {
                 const std::string& classname = *classnameIt;
                 const auto baseClassIt = baseClasses.find(classname);

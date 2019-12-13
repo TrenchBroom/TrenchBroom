@@ -24,6 +24,8 @@
 
 #include <kdl/vector_utils.h>
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Renderer {
         template <typename T>

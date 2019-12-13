@@ -22,11 +22,11 @@
 #include "Ensure.h"
 #include "Exceptions.h"
 #include "Macros.h"
-#include "IO/DiskFileSystem.h"
+#include "Model/Brush.h"
 #include "Model/BrushFace.h"
 
+#include <memory>
 #include <sstream>
-#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -201,21 +201,21 @@ namespace TrenchBroom {
             }
         };
 
-        NodeSerializer::Ptr MapFileSerializer::create(const Model::MapFormat format, FILE* stream) {
+        std::unique_ptr<NodeSerializer> MapFileSerializer::create(const Model::MapFormat format, FILE* stream) {
             switch (format) {
                 case Model::MapFormat::Standard:
-                    return NodeSerializer::Ptr(new QuakeFileSerializer(stream));
+                    return std::make_unique<QuakeFileSerializer>(stream);
                 case Model::MapFormat::Quake2:
                     // TODO 2427: Implement Quake3 serializers and use them
                 case Model::MapFormat::Quake3:
                 case Model::MapFormat::Quake3_Legacy:
-                    return NodeSerializer::Ptr(new Quake2FileSerializer(stream));
+                    return std::make_unique<Quake2FileSerializer>(stream);
                 case Model::MapFormat::Daikatana:
-                    return NodeSerializer::Ptr(new DaikatanaFileSerializer(stream));
+                    return std::make_unique<DaikatanaFileSerializer>(stream);
                 case Model::MapFormat::Valve:
-                    return NodeSerializer::Ptr(new ValveFileSerializer(stream));
+                    return std::make_unique<ValveFileSerializer>(stream);
                 case Model::MapFormat::Hexen2:
-                    return NodeSerializer::Ptr(new Hexen2FileSerializer(stream));
+                    return std::make_unique<Hexen2FileSerializer>(stream);
                 case Model::MapFormat::Unknown:
                     throw FileFormatException("Unknown map file format");
                 switchDefault()

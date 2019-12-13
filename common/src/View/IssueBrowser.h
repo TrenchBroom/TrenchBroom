@@ -31,10 +31,6 @@ class QStackedLayout;
 class QWidget;
 
 namespace TrenchBroom {
-    namespace Model {
-        class Issue;
-    }
-
     namespace View {
         class FlagChangedCommand;
         class FlagsPopupEditor;

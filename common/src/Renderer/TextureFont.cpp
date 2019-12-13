@@ -19,6 +19,8 @@
 
 #include "TextureFont.h"
 
+#include "AttrString.h"
+#include "Renderer/FontGlyph.h"
 #include "Renderer/FontTexture.h"
 
 #include <kdl/vector_utils.h>
@@ -30,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        TextureFont::TextureFont(std::unique_ptr<FontTexture> texture, const FontGlyph::List& glyphs, const int lineHeight, const unsigned char firstChar, const unsigned char charCount) :
+        TextureFont::TextureFont(std::unique_ptr<FontTexture> texture, const std::vector<FontGlyph>& glyphs, const int lineHeight, const unsigned char firstChar, const unsigned char charCount) :
         m_texture(std::move(texture)),
         m_glyphs(glyphs),
         m_lineHeight(lineHeight),

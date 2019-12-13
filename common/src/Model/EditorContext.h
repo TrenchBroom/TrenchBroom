@@ -22,14 +22,11 @@
 
 #include "Bitset.h"
 #include "Notifier.h"
-#include "Model/Tag.h"
+#include "Assets/Asset_Forward.h"
+#include "Model/TagType.h"
 #include "Model/Model_Forward.h"
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityDefinition;
-    }
-
     namespace Model {
         class EditorContext {
         public:
@@ -42,7 +39,7 @@ namespace TrenchBroom {
         private:
             bool m_showPointEntities;
             bool m_showBrushes;
-            Model::Tag::TagType m_hiddenTags;
+            TagType::Type m_hiddenTags;
             Bitset m_hiddenEntityDefinitions;
             EntityLinkMode m_entityLinkMode;
 
@@ -62,8 +59,8 @@ namespace TrenchBroom {
             bool showBrushes() const;
             void setShowBrushes(bool showBrushes);
 
-            Model::Tag::TagType hiddenTags() const;
-            void setHiddenTags(Model::Tag::TagType hiddenTags);
+            TagType::Type hiddenTags() const;
+            void setHiddenTags(TagType::Type hiddenTags);
 
             bool entityDefinitionHidden(const Model::AttributableNode* entity) const;
             bool entityDefinitionHidden(const Assets::EntityDefinition* definition) const;

@@ -20,6 +20,7 @@
 #include "PerspectiveCamera.h"
 
 #include "Color.h"
+#include "Renderer/ActiveShader.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
@@ -31,11 +32,10 @@
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
-#include <vecmath/ray.h>
-#include <vecmath/plane.h>
 #include <vecmath/intersection.h>
 
 #include <limits>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -119,8 +119,8 @@ namespace TrenchBroom {
 
         void PerspectiveCamera::doRenderFrustum(RenderContext& renderContext, VboManager& vboManager, const float size, const Color& color) const {
             using Vertex = GLVertexTypes::P3C4::Vertex;
-            Vertex::List triangleVertices;
-            Vertex::List lineVertices;
+            std::vector<Vertex> triangleVertices;
+            std::vector<Vertex> lineVertices;
             triangleVertices.reserve(6);
             lineVertices.reserve(8 * 2);
 

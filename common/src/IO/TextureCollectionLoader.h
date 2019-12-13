@@ -20,7 +20,7 @@
 #ifndef TextureCollectionLoader_h
 #define TextureCollectionLoader_h
 
-#include "IO/Path.h"
+#include "Assets/Asset_Forward.h"
 
 #include <memory>
 #include <vector>
@@ -28,15 +28,10 @@
 namespace TrenchBroom {
     class Logger;
 
-    namespace Assets {
-        class TextureCollection;
-        class TextureReader;
-        class TextureManager;
-
-    }
     namespace IO {
         class File;
         class FileSystem;
+        class Path;
         class TextureReader;
 
         class TextureCollectionLoader {
@@ -56,9 +51,9 @@ namespace TrenchBroom {
 
         class FileTextureCollectionLoader : public TextureCollectionLoader {
         private:
-            const Path::List m_searchPaths;
+            const std::vector<Path> m_searchPaths;
         public:
-            FileTextureCollectionLoader(Logger& logger, const Path::List& searchPaths);
+            FileTextureCollectionLoader(Logger& logger, const std::vector<Path>& searchPaths);
         private:
             FileList doFindTextures(const Path& path, const std::vector<std::string>& extensions) override;
         };

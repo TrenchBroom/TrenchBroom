@@ -20,7 +20,6 @@
 #ifndef HlMipTextureReader_h
 #define HlMipTextureReader_h
 
-#include "Assets/Palette.h"
 #include "IO/MipTextureReader.h"
 
 namespace TrenchBroom {

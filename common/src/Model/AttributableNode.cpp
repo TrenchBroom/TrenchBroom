@@ -20,10 +20,12 @@
 #include "AttributableNode.h"
 
 #include "Assets/AttributeDefinition.h"
+#include "Assets/EntityDefinition.h"
+#include "Model/EntityAttributeSnapshot.h"
 
 #include <kdl/vector_utils.h>
 
-#include <set>
+#include <list>
 #include <string>
 #include <vector>
 
@@ -116,21 +118,15 @@ namespace TrenchBroom {
             return m_definition == nullptr ? nullptr : m_definition->attributeDefinition(name);
         }
 
-        const EntityAttribute::List& AttributableNode::attributes() const {
+        const std::list<EntityAttribute>& AttributableNode::attributes() const {
             return m_attributes.attributes();
         }
 
-        void AttributableNode::setAttributes(const EntityAttribute::List& attributes) {
-            for (const EntityAttribute& attribute : m_attributes.attributes())
-                attributeWillBeRemovedNotifier(this, attribute.name());
-
+        void AttributableNode::setAttributes(const std::list<EntityAttribute>& attributes) {
             const NotifyAttributeChange notifyChange(this);
             updateAttributeIndex(attributes);
             m_attributes.setAttributes(attributes);
             m_attributes.updateDefinitions(m_definition);
-
-            for (const EntityAttribute& attribute : m_attributes.attributes())
-                attributeWasAddedNotifier(this, attribute.name());
         }
 
         std::vector<AttributeName> AttributableNode::attributeNames() const {
@@ -153,15 +149,15 @@ namespace TrenchBroom {
             return m_attributes.hasNumberedAttribute(prefix, value);
         }
 
-        EntityAttribute::List AttributableNode::attributeWithName(const AttributeName& name) const {
+        std::list<EntityAttribute> AttributableNode::attributeWithName(const AttributeName& name) const {
             return m_attributes.attributeWithName(name);
         }
 
-        EntityAttribute::List AttributableNode::attributesWithPrefix(const AttributeName& prefix) const {
+        std::list<EntityAttribute> AttributableNode::attributesWithPrefix(const AttributeName& prefix) const {
             return m_attributes.attributesWithPrefix(prefix);
         }
 
-        EntityAttribute::List AttributableNode::numberedAttributes(const std::string& prefix) const {
+        std::list<EntityAttribute> AttributableNode::numberedAttributes(const std::string& prefix) const {
             return m_attributes.numberedAttributes(prefix);
         }
 
@@ -190,7 +186,6 @@ namespace TrenchBroom {
             const Assets::AttributeDefinition* definition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, name);
             const AttributeValue* oldValue = m_attributes.attribute(name);
             if (oldValue != nullptr) {
-                attributeWillChangeNotifier(this, name);
                 removeAttributeFromIndex(name, *oldValue);
                 removeLinks(name, *oldValue);
             }
@@ -199,8 +194,6 @@ namespace TrenchBroom {
             addAttributeToIndex(name, value);
             addLinks(name, value);
 
-            if (oldValue == nullptr)
-                attributeWasAddedNotifier(this, name);
             return oldValue == nullptr;
         }
 
@@ -221,12 +214,10 @@ namespace TrenchBroom {
 
             const Assets::AttributeDefinition* newDefinition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, newName);
 
-            attributeWillBeRemovedNotifier(this, name);
             m_attributes.renameAttribute(name, newName, newDefinition);
 
             updateAttributeIndex(name, value, newName, value);
             updateLinks(name, value, newName, value);
-            attributeWasAddedNotifier(this, newName);
         }
 
         bool AttributableNode::canRemoveAttribute(const AttributeName& name) const {
@@ -238,7 +229,6 @@ namespace TrenchBroom {
             if (valuePtr == nullptr)
                 return;
 
-            attributeWillBeRemovedNotifier(this, name);
             const NotifyAttributeChange notifyChange(this);
 
             const AttributeValue value = *valuePtr;
@@ -249,7 +239,7 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::removeNumberedAttribute(const AttributeName& prefix) {
-            const EntityAttribute::List attributes = m_attributes.numberedAttributes(prefix);
+            const std::list<EntityAttribute> attributes = m_attributes.numberedAttributes(prefix);
             if (!attributes.empty()) {
                 const NotifyAttributeChange notifyChange(this);
 
@@ -257,7 +247,6 @@ namespace TrenchBroom {
                     const AttributeName& name = attribute.name();
                     const AttributeValue& value = attribute.value();
 
-                    attributeWillBeRemovedNotifier(this, name);
                     m_attributes.removeAttribute(name);
                     removeAttributeFromIndex(name, value);
                     removeLinks(name, value);
@@ -306,9 +295,9 @@ namespace TrenchBroom {
                 removeAttributeFromIndex(attribute.name(), attribute.value());
         }
 
-        void AttributableNode::updateAttributeIndex(const EntityAttribute::List& newAttributes) {
-            EntityAttribute::List oldSorted = m_attributes.attributes();
-            EntityAttribute::List newSorted = newAttributes;
+        void AttributableNode::updateAttributeIndex(const std::list<EntityAttribute>& newAttributes) {
+            std::list<EntityAttribute> oldSorted = m_attributes.attributes();
+            std::list<EntityAttribute> newSorted = newAttributes;
 
             oldSorted.sort();
             newSorted.sort();

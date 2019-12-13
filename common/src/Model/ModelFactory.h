@@ -31,8 +31,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushFaceAttributes;
-
         class ModelFactory {
         public:
             virtual ~ModelFactory();

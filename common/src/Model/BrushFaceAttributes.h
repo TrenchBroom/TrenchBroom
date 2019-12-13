@@ -21,16 +21,13 @@
 #define TrenchBroom_BrushFaceAttributes
 
 #include "Color.h"
+#include "Assets/Asset_Forward.h"
 
 #include <vecmath/forward.h>
 
 #include <string>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
     namespace Model {
         class BrushFaceAttributes {
         private:

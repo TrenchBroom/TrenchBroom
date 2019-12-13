@@ -21,15 +21,12 @@
 #define TrenchBroom_MoveObjectsTool
 
 #include "TrenchBroom.h"
+#include "Model/Model_Forward.h"
 #include "View/Tool.h"
 
 #include <memory>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Hit;
-    }
-
     namespace View {
         class Grid;
         class InputState;

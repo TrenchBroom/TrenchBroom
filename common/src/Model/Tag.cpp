@@ -63,8 +63,8 @@ namespace TrenchBroom {
         Tag& Tag::operator=(const Tag& other) = default;
         Tag& Tag::operator=(Tag&& other) = default;
 
-        Tag::TagType Tag::type() const {
-            return 1UL << m_index;
+        TagType::Type Tag::type() const {
+            return TagType::Type(1) << m_index;
         }
 
         size_t Tag::index() const {
@@ -92,18 +92,18 @@ namespace TrenchBroom {
         }
 
         TagReference::TagReference(const Tag& tag) :
-        m_tag(tag) {}
+        m_tag(&tag) {}
 
         const Tag& TagReference::tag() const {
-            return m_tag;
+            return *m_tag;
         }
 
         bool operator==(const TagReference& lhs, const TagReference& rhs) {
-            return lhs.m_tag == rhs.m_tag;
+            return *(lhs.m_tag) == *(rhs.m_tag);
         }
 
         bool operator<(const TagReference& lhs, const TagReference& rhs) {
-            return lhs.m_tag < rhs.m_tag;
+            return *(lhs.m_tag) < *(rhs.m_tag);
         }
 
         Taggable::Taggable() :
@@ -120,11 +120,11 @@ namespace TrenchBroom {
             return hasTag(tag.type());
         }
 
-        bool Taggable::hasTag(Tag::TagType mask) const {
+        bool Taggable::hasTag(TagType::Type mask) const {
             return (m_tagMask & mask) != 0;
         }
 
-        Tag::TagType Taggable::tagMask() const {
+        TagType::Type Taggable::tagMask() const {
             return m_tagMask;
         }
 
@@ -141,19 +141,17 @@ namespace TrenchBroom {
         }
 
         bool Taggable::removeTag(const Tag& tag) {
-            if (!hasTag(tag)) {
+            const auto it = m_tags.find(TagReference(tag));
+            if (it == std::end(m_tags)) {
                 return false;
-            } else {
-                m_tagMask &= ~tag.type();
-                auto it = m_tags.find(TagReference(tag));
-                assert(it != std::end(m_tags));
-                m_tags.erase(it);
-
-                assert(!hasTag(tag));
-
-                updateAttributeMask();
-                return true;
             }
+
+            m_tagMask &= ~tag.type();
+            m_tags.erase(it);
+            assert(!hasTag(tag));
+
+            updateAttributeMask();
+            return true;
         }
 
         void Taggable::initializeTags(TagManager& tagManager) {

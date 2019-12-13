@@ -29,14 +29,14 @@ namespace TrenchBroom {
     namespace Model {
         class EntityRotationPolicy {
         private:
-            typedef enum {
-                RotationType_None,
-                RotationType_Angle,
-                RotationType_AngleUpDown,
-                RotationType_Euler,
-                RotationType_Euler_PositivePitchDown,
-                RotationType_Mangle
-            } RotationType;
+            enum class RotationType {
+                None,
+                Angle,
+                AngleUpDown,
+                Euler,
+                Euler_PositivePitchDown,
+                Mangle
+            };
 
             struct RotationInfo {
                 const RotationType type;

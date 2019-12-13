@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_World
 #define TrenchBroom_World
 
+#include "Macros.h"
 #include "TrenchBroom.h"
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"

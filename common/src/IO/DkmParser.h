@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_DkmParser
 #define TrenchBroom_DkmParser
 
+#include "Assets/Asset_Forward.h"
 #include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
 
@@ -30,12 +31,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityModel;
-
-        class Palette;
-    }
-
     namespace IO {
         class Reader;
         class FileSystem;
@@ -113,7 +108,7 @@ namespace TrenchBroom {
             const IO::Path findSkin(const std::string& skin) const;
 
             void buildFrame(Assets::EntityModel& model, Assets::EntityModelSurface& surface, size_t frameIndex, const DkmFrame& frame, const DkmMeshList& meshes);
-            Assets::EntityModelVertexList getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const;
+            std::vector<Assets::EntityModelVertex> getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const;
         };
     }
 }

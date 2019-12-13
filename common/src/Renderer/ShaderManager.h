@@ -21,8 +21,7 @@
 #define TrenchBroom_ShaderManager
 
 #include "Renderer/GL.h"
-#include "Renderer/Shader.h"
-#include "Renderer/ShaderProgram.h"
+#include "Renderer/Renderer_Forward.h"
 
 #include <map>
 #include <memory>
@@ -34,9 +33,6 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
-        class Shader;
-        class ShaderConfig;
-
         class ShaderManager {
         private:
             using ShaderCache = std::map<std::string, std::unique_ptr<Shader>>;
@@ -51,19 +47,6 @@ namespace TrenchBroom {
         private:
             std::unique_ptr<ShaderProgram> createProgram(const ShaderConfig& config);
             Shader& loadShader(const std::string& name, const GLenum type);
-        };
-
-        class ActiveShader {
-        private:
-            ShaderProgram& m_program;
-        public:
-            ActiveShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig);
-            ~ActiveShader();
-
-            template <class T>
-            void set(const std::string& name, const T& value) {
-                m_program.set(name, value);
-            }
         };
     }
 }

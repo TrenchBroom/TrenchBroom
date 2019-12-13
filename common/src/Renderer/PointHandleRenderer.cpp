@@ -21,16 +21,15 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/VboManager.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
-#include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 
 namespace TrenchBroom {

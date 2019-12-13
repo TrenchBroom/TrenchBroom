@@ -49,7 +49,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const Hit::HitType Entity::EntityHit = Hit::freeHitType();
+        const HitType::Type Entity::EntityHit = HitType::freeType();
         const vm::bbox3 Entity::DefaultBounds(8.0);
 
         Entity::Entity() :

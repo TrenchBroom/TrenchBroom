@@ -34,7 +34,6 @@ namespace TrenchBroom {
         class EntityModelSurface;
 
         using EntityModelVertex = Renderer::GLVertexTypes::P3T2::Vertex;
-        using EntityModelVertexList = EntityModelVertex::List;
         using EntityModelIndices = Renderer::IndexRangeMap;
         using EntityModelTexturedIndices = Renderer::TexturedIndexRangeMap;
     }

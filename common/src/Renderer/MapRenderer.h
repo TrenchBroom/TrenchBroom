@@ -20,14 +20,15 @@
 #ifndef TrenchBroom_MapRenderer
 #define TrenchBroom_MapRenderer
 
-#include "Color.h"
 #include "Macros.h"
 #include "Model/Model_Forward.h"
+#include "Renderer/Renderer_Forward.h"
 
 #include <map>
 #include <memory>
-#include <set>
 #include <vector>
+
+class Color;
 
 namespace TrenchBroom {
     namespace IO {
@@ -41,12 +42,6 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
-        class EntityLinkRenderer;
-        class FontManager;
-        class ObjectRenderer;
-        class RenderBatch;
-        class RenderContext;
-
         class MapRenderer {
         private:
             class SelectedBrushRendererFilter;
@@ -135,7 +130,6 @@ namespace TrenchBroom {
             void brushFacesDidChange(const std::vector<Model::BrushFace*>& faces);
 
             void selectionDidChange(const View::Selection& selection);
-            std::set<Model::Brush*> collectBrushes(const std::vector<Model::BrushFace*>& faces);
 
             void textureCollectionsWillChange();
             void entityDefinitionsDidChange();

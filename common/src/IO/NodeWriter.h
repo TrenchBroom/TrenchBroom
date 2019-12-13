@@ -23,8 +23,9 @@
 #include "IO/NodeSerializer.h"
 #include "Model/Model_Forward.h"
 
-#include <cstdio>
+#include <cstdio> // FILE*
 #include <map>
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -39,7 +40,7 @@ namespace TrenchBroom {
             class WriteNode;
 
             Model::World& m_world;
-            NodeSerializer::Ptr m_serializer;
+            std::unique_ptr<NodeSerializer> m_serializer;
         public:
             NodeWriter(Model::World& world, FILE* stream);
             NodeWriter(Model::World& world, std::ostream& stream);

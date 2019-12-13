@@ -24,6 +24,8 @@
 #include "View/VertexHandleManager.h"
 #include "View/VertexToolBase.h"
 
+#include <vecmath/segment.h>
+
 #include <memory>
 #include <set>
 #include <string>

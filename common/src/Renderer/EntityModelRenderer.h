@@ -21,28 +21,15 @@
 #define TrenchBroom_EntityModelRenderer
 
 #include "Color.h"
-#include "Assets/ModelDefinition.h"
+#include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
+#include "Renderer/Renderer_Forward.h"
 #include "Renderer/Renderable.h"
 
 #include <map>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityModel;
-        class EntityModelManager;
-    }
-
-    namespace Model {
-        class EditorContext;
-        class Entity;
-    }
-
     namespace Renderer {
-        class RenderBatch;
-        class RenderContext;
-        class TexturedRenderer;
-
         class EntityModelRenderer : public DirectRenderable {
         private:
             using EntityMap = std::map<Model::Entity*, TexturedRenderer*>;

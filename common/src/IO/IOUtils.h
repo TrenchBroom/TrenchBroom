@@ -22,18 +22,8 @@
 
 #include "Macros.h"
 
-#include <vecmath/forward.h>
-
-#include <cassert>
-#include <cstdio>
-#include <cstring>
+#include <cstdio> // for FILE
 #include <fstream>
-#include <vector>
-
-#ifdef _MSC_VER
-#elif defined __GNUC__
-#include <stdint.h>
-#endif
 
 namespace TrenchBroom {
     namespace IO {
@@ -68,94 +58,6 @@ namespace TrenchBroom {
         std::string readInfoComment(std::istream& stream, const std::string& name);
 
         void writeGameComment(FILE* stream, const std::string& gameName, const std::string& mapFormat);
-
-        // FIXME: remove the following functions if possible
-        template <typename T>
-        void advance(const char*& cursor, const size_t i = 1) {
-            cursor += (i * sizeof(T));
-        }
-
-        template <typename T>
-        T read(const char*& cursor) {
-            T value;
-            memcpy(&value, cursor, sizeof(T));
-            cursor += sizeof(T);
-            return value;
-        }
-
-        template <typename T>
-        T read(const char* const& cursor) {
-            T value;
-            memcpy(&value, cursor, sizeof(T));
-            return value;
-        }
-
-        template <typename T>
-        int readInt(const char*& cursor) {
-            return static_cast<int>(read<T>(cursor));
-        }
-
-        template <typename T>
-        int readInt(const char* const& cursor) {
-            return static_cast<int>(read<T>(cursor));
-        }
-
-        template <typename T>
-        unsigned int readUnsignedInt(const char*& cursor) {
-            return static_cast<unsigned int>(read<T>(cursor));
-        }
-
-        template <typename T>
-        unsigned int readUnsignedInt(const char* const& cursor) {
-            return static_cast<unsigned int>(read<T>(cursor));
-        }
-
-        template <typename T>
-        size_t readSize(const char*& cursor) {
-            return static_cast<size_t>(read<T>(cursor));
-        }
-
-        template <typename T>
-        size_t readSize(const char* const& cursor) {
-            return static_cast<size_t>(read<T>(cursor));
-        }
-
-        template <typename T>
-        bool readBool(const char*& cursor) {
-            return read<T>(cursor) != 0;
-        }
-
-        template <typename T>
-        bool readBool(const char* const& cursor) {
-            return read<T>(cursor) != 0;
-        }
-
-        template <typename T>
-        float readFloat(const char*& cursor) {
-            return static_cast<float>(read<T>(cursor));
-        }
-
-        template <typename T>
-        float readFloat(const char* const& cursor) {
-            return static_cast<float>(read<T>(cursor));
-        }
-
-        vm::vec3f readVec3f(const char*& cursor);
-        vm::vec3f readVec3f(const char* const& cursor);
-        void readBytes(const char*& cursor, char* buffer, size_t n);
-        void readBytes(const char* const& cursor, char* buffer, size_t n);
-        void readBytes(const char*& cursor, unsigned char* buffer, size_t n);
-        void readBytes(const char* const& cursor, unsigned char* buffer, size_t n);
-
-        template <typename T>
-        void readVector(const char*& cursor, std::vector<T>& vec, const size_t size = sizeof(T)) {
-            readBytes(cursor, reinterpret_cast<char*>(&vec.front()), vec.size() * size);
-        }
-
-        template <typename T>
-        void readVector(const char* const& cursor, std::vector<T>& vec, const size_t size = sizeof(T)) {
-            readBytes(cursor, reinterpret_cast<char*>(&vec.front()), vec.size() * size);
-        }
     }
 }
 

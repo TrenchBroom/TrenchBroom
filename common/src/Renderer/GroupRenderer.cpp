@@ -29,6 +29,8 @@
 #include "Renderer/TextAnchor.h"
 #include "Renderer/GLVertexType.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Renderer {
         class GroupRenderer::GroupNameAnchor : public TextAnchor3D {
@@ -150,10 +152,11 @@ namespace TrenchBroom {
         }
 
         struct GroupRenderer::BuildColoredBoundsVertices {
-            GLVertexTypes::P3C4::Vertex::List& vertices;
+            using Vertex = GLVertexTypes::P3C4::Vertex;
+            std::vector<Vertex>& vertices;
             Color color;
 
-            BuildColoredBoundsVertices(GLVertexTypes::P3C4::Vertex::List& i_vertices, const Color& i_color) :
+            BuildColoredBoundsVertices(std::vector<Vertex>& i_vertices, const Color& i_color) :
             vertices(i_vertices),
             color(i_color) {}
 
@@ -164,9 +167,9 @@ namespace TrenchBroom {
         };
 
         struct GroupRenderer::BuildBoundsVertices {
-            GLVertexTypes::P3::Vertex::List& vertices;
+            std::vector<GLVertexTypes::P3::Vertex>& vertices;
 
-            BuildBoundsVertices(GLVertexTypes::P3::Vertex::List& i_vertices) :
+            BuildBoundsVertices(std::vector<GLVertexTypes::P3::Vertex>& i_vertices) :
             vertices(i_vertices) {}
 
             void operator()(const vm::vec3& v1, const vm::vec3& v2) {
@@ -177,7 +180,7 @@ namespace TrenchBroom {
 
         void GroupRenderer::validateBounds() {
             if (m_overrideBoundsColor) {
-                GLVertexTypes::P3::Vertex::List vertices;
+                std::vector<GLVertexTypes::P3::Vertex> vertices;
                 vertices.reserve(24 * m_groups.size());
 
                 BuildBoundsVertices boundsBuilder(vertices);
@@ -189,7 +192,7 @@ namespace TrenchBroom {
 
                 m_boundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(vertices)), GL_LINES);
             } else {
-                GLVertexTypes::P3C4::Vertex::List vertices;
+                std::vector<GLVertexTypes::P3C4::Vertex> vertices;
                 vertices.reserve(24 * m_groups.size());
 
                 for (const Model::Group* group : m_groups) {

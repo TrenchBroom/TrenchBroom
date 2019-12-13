@@ -23,6 +23,8 @@
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/VertexListBuilder.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Renderer {
         /**
@@ -32,10 +34,10 @@ namespace TrenchBroom {
          */
         template <typename VertexSpec>
         class IndexRangeMapBuilder {
-        public:
+        private:
             using Vertex = typename VertexSpec::Vertex;
-            using VertexList = typename Vertex::List;
-            using IndexData = typename VertexListBuilder<VertexSpec>::IndexData;
+            using VertexList = std::vector<Vertex>;
+            using IndexData = typename VertexListBuilder<VertexSpec>::Range;
         private:
             VertexListBuilder<VertexSpec> m_vertexListBuilder;
             IndexRangeMap m_indexRange;

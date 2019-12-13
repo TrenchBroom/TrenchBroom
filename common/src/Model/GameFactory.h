@@ -20,28 +20,31 @@
 #ifndef TrenchBroom_GameFactory
 #define TrenchBroom_GameFactory
 
-#include "Preference.h"
 #include "IO/Path.h"
-#include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
 #include "Model/Model_Forward.h"
 
 #include <memory>
+#include <map>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     class Logger;
 
+    template <typename T> class Preference;
+
     namespace IO {
         class WritableDiskFileSystem;
     }
 
     namespace Model {
+        class GameConfig;
+
         class GameFactory {
         private:
             using ConfigMap = std::map<std::string, GameConfig>;
-            using GamePathMap = std::map<std::string, Preference<IO::Path> >;
+            using GamePathMap = std::map<std::string, Preference<IO::Path>>;
 
             std::unique_ptr<IO::WritableDiskFileSystem> m_configFS;
 

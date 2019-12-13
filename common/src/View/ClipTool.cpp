@@ -24,11 +24,13 @@
 #include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
 #include "Macros.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
+#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Model/World.h"
 #include "Renderer/BrushRenderer.h"
@@ -51,7 +53,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType ClipTool::PointHit = Model::Hit::freeHitType();
+        const Model::HitType::Type ClipTool::PointHit = Model::HitType::freeType();
 
         ClipTool::ClipStrategy::~ClipStrategy() {}
 

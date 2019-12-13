@@ -19,12 +19,17 @@
 
 #include "BrushFaceSnapshot.h"
 
+#include "Model/BrushFace.h"
+#include "Model/TexCoordSystem.h"
+
 namespace TrenchBroom {
     namespace Model {
         BrushFaceSnapshot::BrushFaceSnapshot(BrushFace* face, TexCoordSystem& coordSystem) :
         m_faceRef(face),
         m_attribs(face->attribs().takeSnapshot()),
         m_coordSystemSnapshot(coordSystem.takeSnapshot()) {}
+
+        BrushFaceSnapshot::~BrushFaceSnapshot() = default;
 
         void BrushFaceSnapshot::restore() {
             auto* face = m_faceRef.resolve();

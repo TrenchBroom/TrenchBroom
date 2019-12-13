@@ -19,11 +19,12 @@
 
 #include "EdgeTool.h"
 
+#include "SharedPointer.h"
 #include "TrenchBroom.h"
 
 #include <kdl/string_format.h>
 
-#include <string>
+#include <vecmath/polygon.h>
 
 namespace TrenchBroom {
     namespace View {

@@ -20,8 +20,13 @@
 #ifndef TRENCHBROOM_TAG_H
 #define TRENCHBROOM_TAG_H
 
+#include "Macros.h"
+#include "Model/Model_Forward.h"
+#include "Model/TagType.h"
+
+#include <kdl/vector_set.h>
+
 #include <memory>
-#include <set> // FIXME: use vector_set
 #include <string>
 #include <vector>
 
@@ -71,8 +76,6 @@ namespace TrenchBroom {
          * Furthermore, a tag can have attributes.
          */
         class Tag {
-        public:
-            using TagType = unsigned long;
         protected:
             size_t m_index;
             std::string m_name;
@@ -106,7 +109,7 @@ namespace TrenchBroom {
             /**
              * Returns the type of this tag.
              */
-            TagType type() const;
+            TagType::Type type() const;
 
             /**
              * Returns the index of this tag.
@@ -139,7 +142,7 @@ namespace TrenchBroom {
          */
         class TagReference {
         private:
-            const Tag& m_tag;
+            const Tag* m_tag;
         public:
             /**
              * Creates a new reference to the given tag.
@@ -147,6 +150,8 @@ namespace TrenchBroom {
              * @param tag the referenced tag
              */
             explicit TagReference(const Tag& tag);
+
+            defineMove(TagReference)
 
             /**
              * Returns the referenced tag.
@@ -157,17 +162,13 @@ namespace TrenchBroom {
             friend bool operator<(const TagReference& lhs, const TagReference& rhs);
         };
 
-        class TagManager;
-        class TagVisitor;
-        class ConstTagVisitor;
-
         /**
          * Implementing this interface gives a class the ability to be tagged.
          */
         class Taggable {
         private:
-            Tag::TagType m_tagMask;
-            std::set<TagReference> m_tags;
+            TagType::Type m_tagMask;
+            kdl::vector_set<TagReference> m_tags;
             TagAttribute::AttributeType m_attributeMask;
         public:
             /**
@@ -198,14 +199,14 @@ namespace TrenchBroom {
              * @param mask the mask to check
              * @return true if this tag has any of the given tags
              */
-            bool hasTag(Tag::TagType mask) const;
+            bool hasTag(TagType::Type mask) const;
 
             /**
              * Returns a bit mask indicating which tags this object is tagged with.
              *
              * @return the tag mask
              */
-            Tag::TagType tagMask() const;
+            TagType::Type tagMask() const;
 
             /**
              * Adds the given tag to this object.

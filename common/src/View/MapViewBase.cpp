@@ -47,6 +47,7 @@
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/MapRenderer.h"
+#include "Renderer/PrimitiveRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"
 #include "View/Actions.h"
@@ -581,7 +582,7 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             auto& editorContext = document->editorContext();
             auto hiddenTags = editorContext.hiddenTags();
-            hiddenTags ^= 1UL << tagIndex;
+            hiddenTags ^= Model::TagType::Type(1) << tagIndex;
             editorContext.setHiddenTags(hiddenTags);
         }
 
@@ -932,14 +933,14 @@ namespace TrenchBroom {
             if (portalFile != nullptr) {
                 for (const auto& poly : portalFile->portals()) {
                     m_portalFileRenderer->renderFilledPolygon(pref(Preferences::PortalFileFillColor),
-                                                              Renderer::PrimitiveRenderer::OP_Hide,
-                                                              Renderer::PrimitiveRenderer::CP_ShowBackfaces,
+                                                              Renderer::PrimitiveRendererOcclusionPolicy::Hide,
+                                                              Renderer::PrimitiveRendererCullingPolicy::ShowBackfaces,
                                                               poly.vertices());
 
                     const auto lineWidth = 4.0f;
                     m_portalFileRenderer->renderPolygon(pref(Preferences::PortalFileBorderColor),
                                                         lineWidth,
-                                                        Renderer::PrimitiveRenderer::OP_Hide,
+                                                        Renderer::PrimitiveRendererOcclusionPolicy::Hide,
                                                         poly.vertices());
                 }
             }

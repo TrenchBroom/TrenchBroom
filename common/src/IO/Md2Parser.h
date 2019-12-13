@@ -22,7 +22,6 @@
 
 #include "Assets/Asset_Forward.h"
 #include "Assets/EntityModel_Forward.h"
-#include "Assets/TextureCollection.h"
 #include "IO/EntityModelParser.h"
 
 #include <vecmath/forward.h>
@@ -32,10 +31,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Palette;
-    }
-
     namespace IO {
         class Reader;
         class FileSystem;
@@ -111,7 +106,7 @@ namespace TrenchBroom {
             void loadSkins(Assets::EntityModelSurface& surface, const Md2SkinList& skins);
 
             void buildFrame(Assets::EntityModel& model, Assets::EntityModelSurface& surface, size_t frameIndex, const Md2Frame& frame, const Md2MeshList& meshes);
-            Assets::EntityModelVertexList getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const;
+            std::vector<Assets::EntityModelVertex> getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const;
         };
     }
 }

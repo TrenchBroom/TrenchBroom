@@ -25,13 +25,9 @@
 
 #include <vecmath/plane.h>
 
-#include <list>
-
 namespace TrenchBroom {
     namespace Model {
         class BrushFaceReference {
-        public:
-            using List = std::list<BrushFaceReference>;
         private:
             vm::plane3 m_facePlane;
             Model::Brush* m_brush;

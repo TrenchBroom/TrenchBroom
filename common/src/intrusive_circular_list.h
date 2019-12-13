@@ -110,7 +110,7 @@ public: // iterators
     public:
         using iterator_category = std::forward_iterator_tag;
         using difference_type = std::ptrdiff_t;
-        using value_type = TT;
+        using value_type = TT*;
         using pointer = TT*;
         using reference = TT&;
     private:

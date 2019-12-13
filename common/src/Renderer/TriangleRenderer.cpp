@@ -19,6 +19,7 @@
 
 #include "TriangleRenderer.h"
 
+#include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"

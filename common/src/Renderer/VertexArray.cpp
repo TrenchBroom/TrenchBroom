@@ -119,8 +119,8 @@ namespace TrenchBroom {
             }
         }
 
-        VertexArray::VertexArray(BaseHolder::Ptr holder) :
-        m_holder(holder),
+        VertexArray::VertexArray(std::shared_ptr<BaseHolder> holder) :
+        m_holder(std::move(holder)),
         m_prepared(false),
         m_setup(false) {}
     }

@@ -21,27 +21,21 @@
 #define TrenchBroom_BrushRenderer
 
 #include "Color.h"
+#include "Model/BrushGeometry.h"
 #include "Model/Model_Forward.h"
+#include "Renderer/AllocationTracker.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/FaceRenderer.h"
-#include "Model/Brush.h"
-#include "Renderer/AllocationTracker.h"
+#include "Renderer/Renderer_Forward.h"
 
 #include <memory>
 #include <tuple>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class EditorContext;
-    }
-
     namespace Renderer {
-        class RenderBatch;
-        class RenderContext;
-        class VboManager;
-
         class BrushRenderer {
         public:
             class Filter {
@@ -135,12 +129,16 @@ namespace TrenchBroom {
             /**
              * If a brush is in the VBO, it's always valid.
              * If a brush is valid, it might not be in the VBO if it was hidden by the Filter.
+             *
+             * Do not attempt to use vector_set here, it turns out to be slower.
              */
-            std::set<const Model::Brush*> m_allBrushes;
-            std::set<const Model::Brush*> m_invalidBrushes;
+            std::unordered_set<const Model::Brush*> m_allBrushes;
+            std::unordered_set<const Model::Brush*> m_invalidBrushes;
 
-            BrushVertexArrayPtr m_vertexArray;
-            BrushIndexArrayPtr m_edgeIndices;
+            std::shared_ptr<BrushVertexArray> m_vertexArray;
+            std::shared_ptr<BrushIndexArray> m_edgeIndices;
+
+            using TextureToBrushIndicesMap = std::unordered_map<const Assets::Texture*, std::shared_ptr<BrushIndexArray>>;
             std::shared_ptr<TextureToBrushIndicesMap> m_transparentFaces;
             std::shared_ptr<TextureToBrushIndicesMap> m_opaqueFaces;
 

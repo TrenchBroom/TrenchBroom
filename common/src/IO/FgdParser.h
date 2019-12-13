@@ -26,7 +26,6 @@
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/Parser.h"
-#include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
 #include <list>
@@ -75,10 +74,11 @@ namespace TrenchBroom {
             std::shared_ptr<FileSystem> m_fs;
 
             FgdTokenizer m_tokenizer;
-            EntityDefinitionClassInfoMap m_baseClasses;
+            std::map<std::string, EntityDefinitionClassInfo> m_baseClasses;
         public:
-            FgdParser(const char* begin, const char* end, const Color& defaultEntityColor, const Path& path = Path(""));
-            FgdParser(const std::string& str, const Color& defaultEntityColor, const Path& path = Path(""));
+            FgdParser(const char* begin, const char* end, const Color& defaultEntityColor, const Path& path);
+            FgdParser(const std::string& str, const Color& defaultEntityColor, const Path& path);
+            FgdParser(const std::string& str, const Color& defaultEntityColor);
         private:
             class PushIncludePath;
             void pushIncludePath(const Path& path);

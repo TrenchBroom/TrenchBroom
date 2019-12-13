@@ -80,7 +80,7 @@ namespace TrenchBroom {
             return closestDistance;
         }
 
-        void EntityModelLoadedFrame::addToSpacialTree(const EntityModelVertexList& vertices, const PrimType primType, const size_t index, const size_t count) {
+        void EntityModelLoadedFrame::addToSpacialTree(const std::vector<EntityModelVertex>& vertices, const PrimType primType, const size_t index, const size_t count) {
             switch (primType) {
                 case GL_POINTS:
                 case GL_LINES:
@@ -202,14 +202,14 @@ namespace TrenchBroom {
          */
         class EntityModelMesh {
         private:
-            EntityModelVertexList m_vertices;
+            std::vector<EntityModelVertex> m_vertices;
         protected:
             /**
              * Creates a new frame mesh that uses the given vertices.
              *
              * @param vertices the vertices
              */
-            explicit EntityModelMesh(const EntityModelVertexList& vertices) :
+            explicit EntityModelMesh(const std::vector<EntityModelVertex>& vertices) :
             m_vertices(vertices) {}
         public:
             virtual ~EntityModelMesh() = default;
@@ -251,7 +251,7 @@ namespace TrenchBroom {
              * @param vertices the vertices
              * @param indices the indices
              */
-            EntityModelIndexedMesh(EntityModelLoadedFrame& frame, const EntityModelVertexList& vertices, const EntityModelIndices& indices) :
+            EntityModelIndexedMesh(EntityModelLoadedFrame& frame, const std::vector<EntityModelVertex>& vertices, const EntityModelIndices& indices) :
             EntityModelMesh(vertices),
             m_indices(indices) {
                 m_indices.forEachPrimitive([&frame, &vertices](const PrimType primType, const size_t index, const size_t count) {
@@ -281,7 +281,7 @@ namespace TrenchBroom {
              * @param vertices the vertices
              * @param indices the per texture indices
              */
-            EntityModelTexturedMesh(EntityModelLoadedFrame& frame, const EntityModelVertexList& vertices, const EntityModelTexturedIndices& indices) :
+            EntityModelTexturedMesh(EntityModelLoadedFrame& frame, const std::vector<EntityModelVertex>& vertices, const EntityModelTexturedIndices& indices) :
             EntityModelMesh(vertices),
             m_indices(indices) {
                 m_indices.forEachPrimitive([&frame, &vertices](const Assets::Texture* /* texture */, const PrimType primType, const size_t index, const size_t count) {
@@ -315,12 +315,12 @@ namespace TrenchBroom {
             m_skins->setTextureMode(minFilter, magFilter);
         }
 
-        void EntityModelSurface::addIndexedMesh(EntityModelLoadedFrame& frame, const EntityModelVertexList& vertices, const EntityModelIndices& indices) {
+        void EntityModelSurface::addIndexedMesh(EntityModelLoadedFrame& frame, const std::vector<EntityModelVertex>& vertices, const EntityModelIndices& indices) {
             assert(frame.index() < frameCount());
             m_meshes[frame.index()] = std::make_unique<EntityModelIndexedMesh>(frame, vertices, indices);
         }
 
-        void EntityModelSurface::addTexturedMesh(EntityModelLoadedFrame& frame, const EntityModelVertexList& vertices, const EntityModelTexturedIndices& indices) {
+        void EntityModelSurface::addTexturedMesh(EntityModelLoadedFrame& frame, const std::vector<EntityModelVertex>& vertices, const EntityModelTexturedIndices& indices) {
             assert(frame.index() < frameCount());
             m_meshes[frame.index()] = std::make_unique<EntityModelTexturedMesh>(frame, vertices, indices);
         }

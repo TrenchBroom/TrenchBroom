@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "Macros.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
@@ -103,7 +104,7 @@ namespace TrenchBroom {
             ASSERT_THROW(Disk::getDirectoryContents(Path("asdf/bleh")), FileSystemException);
             ASSERT_THROW(Disk::getDirectoryContents(env.dir() + Path("does/not/exist")), FileSystemException);
 
-            const Path::List contents = Disk::getDirectoryContents(env.dir());
+            const std::vector<Path> contents = Disk::getDirectoryContents(env.dir());
             ASSERT_EQ(5u, contents.size());
             ASSERT_TRUE(std::find(std::begin(contents), std::end(contents), Path("dir1")) != std::end(contents));
             ASSERT_TRUE(std::find(std::begin(contents), std::end(contents), Path("dir2")) != std::end(contents));
@@ -126,11 +127,11 @@ namespace TrenchBroom {
         TEST(DiskTest, resolvePath) {
             FSTestEnvironment env;
 
-            Path::List rootPaths;
+            std::vector<Path> rootPaths;
             rootPaths.push_back(env.dir());
             rootPaths.push_back(env.dir() + Path("anotherDir"));
 
-            Path::List paths;
+            std::vector<Path> paths;
             paths.push_back(Path("test.txt"));
             paths.push_back(Path("test3.map"));
             paths.push_back(Path("subDirTest/test2.map"));
@@ -209,7 +210,7 @@ namespace TrenchBroom {
 #endif
             ASSERT_THROW(fs.findItems(Path("..")), FileSystemException);
 
-            Path::List items = fs.findItems(Path("."));
+            std::vector<Path> items = fs.findItems(Path("."));
             ASSERT_EQ(5u, items.size());
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./dir1")) != std::end(items));
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./dir2")) != std::end(items));
@@ -238,7 +239,7 @@ namespace TrenchBroom {
 #endif
             ASSERT_THROW(fs.findItemsRecursively(Path("..")), FileSystemException);
 
-            Path::List items = fs.findItemsRecursively(Path("."));
+            std::vector<Path> items = fs.findItemsRecursively(Path("."));
             ASSERT_EQ(8u, items.size());
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./dir1")) != std::end(items));
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./dir2")) != std::end(items));

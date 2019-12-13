@@ -19,6 +19,7 @@
 
 #include "AttributableNodeVariableStore.h"
 
+#include "Ensure.h"
 #include "EL/ELExceptions.h"
 #include "EL/Types.h"
 #include "Model/AttributableNode.h"

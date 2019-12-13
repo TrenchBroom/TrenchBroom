@@ -19,6 +19,7 @@
 
 #include "IssueGenerator.h"
 
+#include "Ensure.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/Entity.h"
 #include "Model/World.h"

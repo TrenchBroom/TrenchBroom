@@ -21,6 +21,7 @@
 
 #include "Preferences.h"
 #include "PreferenceManager.h"
+#include "SharedPointer.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectSelectableNodesVisitor.h"
@@ -31,7 +32,6 @@
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/Node.h"
-#include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
 #include "View/InputState.h"
 #include "View/Grid.h"
@@ -214,7 +214,7 @@ namespace TrenchBroom {
             return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
         }
 
-        const Model::Hit& SelectionTool::firstHit(const InputState& inputState, const Model::Hit::HitType type) const {
+        const Model::Hit& SelectionTool::firstHit(const InputState& inputState, const Model::HitType::Type type) const {
             return inputState.pickResult().query().pickable().type(type).occluded().first();
         }
 
@@ -285,7 +285,7 @@ namespace TrenchBroom {
             }
         }
 
-        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const Model::Hit::List& hits) {
+        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::list<Model::Hit>& hits) {
             std::vector<Model::Node*> hitNodes;
             std::unordered_set<Model::Node*> duplicateCheck;
 

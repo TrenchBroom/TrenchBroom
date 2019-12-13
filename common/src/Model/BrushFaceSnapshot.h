@@ -20,8 +20,9 @@
 #ifndef TrenchBroom_BrushFaceSnapshot
 #define TrenchBroom_BrushFaceSnapshot
 
-#include "Model/BrushFace.h"
+#include "Model/BrushFaceAttributes.h"
 #include "Model/BrushFaceReference.h"
+#include "Model/Model_Forward.h"
 
 #include <memory>
 
@@ -34,6 +35,8 @@ namespace TrenchBroom {
             std::unique_ptr<TexCoordSystemSnapshot> m_coordSystemSnapshot;
         public:
             BrushFaceSnapshot(BrushFace* face, TexCoordSystem& coordSystemSnapshot);
+            ~BrushFaceSnapshot();
+
             void restore();
         };
     }

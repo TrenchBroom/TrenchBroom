@@ -19,6 +19,7 @@
 
 #include "ModelUtils.h"
 
+#include "Ensure.h"
 #include "Model/CollectNodesVisitor.h"
 
 #include <kdl/vector_utils.h>

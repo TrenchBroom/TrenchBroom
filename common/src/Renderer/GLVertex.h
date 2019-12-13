@@ -55,7 +55,6 @@ namespace TrenchBroom {
         template <typename AttrType, typename... AttrTypeRest>
         struct GLVertex<AttrType, AttrTypeRest...> {
             using Type = GLVertexType<AttrType, AttrTypeRest...>;
-            using List = std::vector<GLVertex<AttrType, AttrTypeRest...>>;
 
             // To achieve standard memory layout and to allow a vector of vertices to be uploaded, this template stores
             // the value of its first attribute type parameter as a member, and the remaining attribute values using
@@ -110,9 +109,9 @@ namespace TrenchBroom {
              * @return the list of vertices
              */
             template <typename... I>
-            static List toList(const size_t count, I... cur) {
+            static std::vector<GLVertex<AttrType, AttrTypeRest...>> toList(const size_t count, I... cur) {
                 static_assert(sizeof...(I) == sizeof...(AttrTypeRest) + 1, "number of iterators must match number of vertex attributes");
-                List result;
+                std::vector<GLVertex<AttrType, AttrTypeRest...>> result;
                 result.reserve(count);
                 for (size_t i = 0; i < count; ++i) {
                     result.emplace_back((*cur++)...);
@@ -130,7 +129,6 @@ namespace TrenchBroom {
         template <typename AttrType>
         struct GLVertex<AttrType> {
             using Type = GLVertexType<AttrType>;
-            using List = std::vector<GLVertex<AttrType>>;
 
             typename AttrType::ElementType attr;
 
@@ -176,8 +174,8 @@ namespace TrenchBroom {
              * @return the list of vertices
              */
             template <typename I>
-            static List toList(const size_t count, I cur) {
-                List result;
+            static std::vector<GLVertex<AttrType>> toList(const size_t count, I cur) {
+                std::vector<GLVertex<AttrType>> result;
                 result.reserve(count);
                 for (size_t i = 0; i < count; ++i) {
                     result.emplace_back(*cur++);

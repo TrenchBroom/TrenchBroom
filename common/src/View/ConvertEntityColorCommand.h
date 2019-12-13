@@ -21,14 +21,18 @@
 #define TrenchBroom_ConvertEntityColorCommand
 
 #include "SharedPointer.h"
-#include "Model/EntityAttributeSnapshot.h"
 #include "Model/EntityColor.h"
 #include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
 
 #include <map>
+#include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class EntityAttributeSnapshot;
+    }
+
     namespace View {
         class MapDocumentCommandFacade;
 
@@ -40,7 +44,7 @@ namespace TrenchBroom {
             Model::AttributeName m_attributeName;
             Assets::ColorRange::Type m_colorRange;
 
-            Model::EntityAttributeSnapshot::Map m_snapshots;
+            std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>> m_snapshots;
         public:
             static Ptr convert(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
         private:

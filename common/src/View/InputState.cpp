@@ -21,6 +21,7 @@
 
 #include "TrenchBroom.h"
 #include "Macros.h"
+#include "Model/CompareHits.h"
 #include "Renderer/Camera.h"
 
 #include <vecmath/vec.h>
@@ -200,9 +201,8 @@ namespace TrenchBroom {
             return m_pickResult;
         }
 
-        void InputState::setPickResult(Model::PickResult& pickResult) {
-            using std::swap;
-            swap(m_pickResult, pickResult);
+        void InputState::setPickResult(Model::PickResult&& pickResult) {
+            m_pickResult = std::move(pickResult);
         }
     }
 }

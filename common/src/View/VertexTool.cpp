@@ -30,9 +30,10 @@
 
 #include <kdl/string_format.h>
 
+#include <vecmath/polygon.h>
+
 #include <cassert>
 #include <set>
-#include <string>
 #include <tuple>
 #include <vector>
 
@@ -80,7 +81,7 @@ namespace TrenchBroom {
             return m_vertexHandles;
         }
 
-        bool VertexTool::startMove(const Model::Hit::List& hits) {
+        bool VertexTool::startMove(const std::list<Model::Hit>& hits) {
             const auto& hit = hits.front();
             if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
                 m_vertexHandles.deselectAll();

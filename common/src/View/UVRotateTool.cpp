@@ -22,6 +22,8 @@
 #include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
+#include "Renderer/ActiveShader.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
@@ -46,7 +48,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType UVRotateTool::AngleHandleHit = Model::Hit::freeHitType();
+        const Model::HitType::Type UVRotateTool::AngleHandleHit = Model::HitType::freeType();
         const double UVRotateTool::CenterHandleRadius =  2.5;
         const double UVRotateTool::RotateHandleRadius = 32.0;
         const double UVRotateTool::RotateHandleWidth  =  5.0;

@@ -21,18 +21,20 @@
 #define CompilationConfig_h
 
 #include "Notifier.h"
-#include "Model/CompilationProfile.h"
+#include "Model/Model_Forward.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class CompilationConfig {
         private:
-            CompilationProfile::List m_profiles;
+            std::vector<CompilationProfile*> m_profiles;
         public:
             mutable Notifier<> profilesDidChange;
         public:
             CompilationConfig();
-            CompilationConfig(const CompilationProfile::List& profiles);
+            CompilationConfig(const std::vector<CompilationProfile*>& profiles);
             CompilationConfig(const CompilationConfig& other);
             ~CompilationConfig();
 

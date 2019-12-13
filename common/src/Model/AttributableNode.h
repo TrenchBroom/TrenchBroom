@@ -20,13 +20,14 @@
 #ifndef TrenchBroom_AttributableNode
 #define TrenchBroom_AttributableNode
 
-#include "Notifier.h"
 #include "Assets/Asset_Forward.h"
-#include "Assets/EntityDefinition.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Model_Forward.h"
 #include "Model/Node.h"
 
+#include <vecmath/bbox.h>
+
+#include <list>
 #include <set>
 #include <string>
 #include <vector>
@@ -56,18 +57,11 @@ namespace TrenchBroom {
         public: // definition
             Assets::EntityDefinition* definition() const;
             void setDefinition(Assets::EntityDefinition* definition);
-        public: // notification
-            using AttributeNotifier = Notifier<AttributableNode*, const AttributeName&>;
-
-            AttributeNotifier attributeWasAddedNotifier;
-            AttributeNotifier attributeWillBeRemovedNotifier;
-            AttributeNotifier attributeWillChangeNotifier;
-            AttributeNotifier attributeDidChangeNotifier;
         public: // attribute management
             const Assets::AttributeDefinition* attributeDefinition(const AttributeName& name) const;
 
-            const EntityAttribute::List& attributes() const;
-            void setAttributes(const EntityAttribute::List& attributes);
+            const std::list<EntityAttribute>& attributes() const;
+            void setAttributes(const std::list<EntityAttribute>& attributes);
 
             std::vector<AttributeName> attributeNames() const;
 
@@ -76,9 +70,9 @@ namespace TrenchBroom {
             bool hasAttributeWithPrefix(const AttributeName& prefix, const AttributeValue& value) const;
             bool hasNumberedAttribute(const AttributeName& prefix, const AttributeValue& value) const;
 
-            EntityAttribute::List attributeWithName(const AttributeName& name) const;
-            EntityAttribute::List attributesWithPrefix(const AttributeName& prefix) const;
-            EntityAttribute::List numberedAttributes(const std::string& prefix) const;
+            std::list<EntityAttribute> attributeWithName(const AttributeName& name) const;
+            std::list<EntityAttribute> attributesWithPrefix(const AttributeName& prefix) const;
+            std::list<EntityAttribute> numberedAttributes(const std::string& prefix) const;
 
             const AttributeValue& attribute(const AttributeName& name, const AttributeValue& defaultValue = DefaultAttributeValue) const;
             const AttributeValue& classname(const AttributeValue& defaultClassname = AttributeValues::NoClassname) const;
@@ -115,7 +109,7 @@ namespace TrenchBroom {
         private: // search index management
             void addAttributesToIndex();
             void removeAttributesFromIndex();
-            void updateAttributeIndex(const EntityAttribute::List& newAttributes);
+            void updateAttributeIndex(const std::list<EntityAttribute>& newAttributes);
 
             void addAttributeToIndex(const AttributeName& name, const AttributeValue& value);
             void removeAttributeFromIndex(const AttributeName& name, const AttributeValue& value);

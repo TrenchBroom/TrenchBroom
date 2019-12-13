@@ -22,6 +22,9 @@
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
 #include "EL/Value.h"
+#include "Model/CompilationConfig.h"
+#include "Model/CompilationProfile.h"
+#include "Model/CompilationTask.h"
 
 #include <kdl/vector_utils.h>
 
@@ -45,13 +48,12 @@ namespace TrenchBroom {
             unused(version);
             assert(version == 1.0);
 
-            const Model::CompilationProfile::List profiles = parseProfiles(root["profiles"]);
-
+            const auto profiles = parseProfiles(root["profiles"]);
             return Model::CompilationConfig(profiles);
         }
 
-        Model::CompilationProfile::List CompilationConfigParser::parseProfiles(const EL::Value& value) const {
-            Model::CompilationProfile::List result;
+        std::vector<Model::CompilationProfile*> CompilationConfigParser::parseProfiles(const EL::Value& value) const {
+            std::vector<Model::CompilationProfile*> result;
 
             try {
                 for (size_t i = 0; i < value.length(); ++i) {
@@ -69,13 +71,13 @@ namespace TrenchBroom {
 
             const std::string& name = value["name"].stringValue();
             const std::string& workdir = value["workdir"].stringValue();
-            const Model::CompilationTask::List tasks = parseTasks(value["tasks"]);
+            const auto tasks = parseTasks(value["tasks"]);
 
             return new Model::CompilationProfile(name, workdir, tasks);
         }
 
-        Model::CompilationTask::List CompilationConfigParser::parseTasks(const EL::Value& value) const {
-            Model::CompilationTask::List result;
+        std::vector<Model::CompilationTask*> CompilationConfigParser::parseTasks(const EL::Value& value) const {
+            std::vector<Model::CompilationTask*> result;
 
             try {
                 for (size_t i = 0; i < value.length(); ++i) {

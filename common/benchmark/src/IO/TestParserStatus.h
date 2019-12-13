@@ -31,15 +31,15 @@ namespace TrenchBroom {
         class TestParserStatus : public ParserStatus {
         private:
             static NullLogger _logger;
-            using StatusCounts = std::map<Logger::LogLevel, size_t>;
+            using StatusCounts = std::map<LogLevel, size_t>;
             StatusCounts m_statusCounts;
         public:
             TestParserStatus();
         public:
-            size_t countStatus(Logger::LogLevel level) const;
+            size_t countStatus(LogLevel level) const;
         private:
             void doProgress(double progress) override;
-            void doLog(Logger::LogLevel level, const std::string& str) override;
+            void doLog(LogLevel level, const std::string& str) override;
         };
     }
 }

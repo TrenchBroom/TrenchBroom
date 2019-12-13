@@ -20,6 +20,8 @@
 #ifndef CompilationRun_h
 #define CompilationRun_h
 
+#include "Model/Model_Forward.h"
+
 #include <QObject>
 #include <QTextEdit>
 
@@ -28,10 +30,6 @@
 
 namespace TrenchBroom {
     class VariableTable;
-
-    namespace Model {
-        class CompilationProfile;
-    }
 
     namespace View {
         class CompilationRunner;

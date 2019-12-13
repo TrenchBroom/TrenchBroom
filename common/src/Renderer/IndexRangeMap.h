@@ -21,10 +21,11 @@
 #define IndexRangeMap_h
 
 #include "Renderer/GL.h"
-#include "Renderer/VertexArray.h"
+#include "Renderer/Renderer_Forward.h"
 
 #include <functional>
 #include <map>
+#include <memory>
 
 namespace TrenchBroom {
     namespace Renderer {

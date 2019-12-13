@@ -22,22 +22,14 @@
 
 #include "Macros.h"
 #include "Notifier.h"
+#include "Model/Model_Forward.h"
 
 #include <string>
-#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class CompilationContext;
-        class CompilationTaskVisitor;
-        class ConstCompilationTaskVisitor;
-        class CompilationTaskConstVisitor;
-        class ConstCompilationTaskConstVisitor;
-
         class CompilationTask {
         public:
-            using List = std::vector<CompilationTask*>;
-
             Notifier<> taskWillBeRemoved;
             Notifier<> taskDidChange;
         protected:

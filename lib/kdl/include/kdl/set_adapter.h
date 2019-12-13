@@ -296,7 +296,8 @@ namespace kdl {
             return true;
         }
 
-        bool is_equivalent(const value_type& lhs, const value_type& rhs) const {
+        template <typename L, typename R>
+        bool is_equivalent(const L& lhs, const R& rhs) const {
             return !m_cmp(lhs, rhs) && !m_cmp(rhs, lhs);
         }
     };

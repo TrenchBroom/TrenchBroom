@@ -23,12 +23,14 @@
 #include "Preferences.h"
 #include "Polyhedron.h"
 #include "Polyhedron3.h"
+#include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModelManager.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
 #include "Model/AttributeNameWithDoubleQuotationMarksIssueGenerator.h"
@@ -1598,7 +1600,7 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityDefinitionFileSpec::List MapDocument::allEntityDefinitionFiles() const {
+        std::vector<Assets::EntityDefinitionFileSpec> MapDocument::allEntityDefinitionFiles() const {
             return m_game->allEntityDefinitionFiles();
         }
 
@@ -1610,15 +1612,15 @@ namespace TrenchBroom {
             m_entityDefinitionManager->setDefinitions(definitions);
         }
 
-        IO::Path::List MapDocument::enabledTextureCollections() const {
+        std::vector<IO::Path> MapDocument::enabledTextureCollections() const {
             return m_game->extractTextureCollections(*m_world);
         }
 
-        IO::Path::List MapDocument::availableTextureCollections() const {
+        std::vector<IO::Path> MapDocument::availableTextureCollections() const {
             return m_game->findTextureCollections();
         }
 
-        void MapDocument::setEnabledTextureCollections(const IO::Path::List& paths) {
+        void MapDocument::setEnabledTextureCollections(const std::vector<IO::Path>& paths) {
             submitAndStore(SetTextureCollectionsCommand::set(paths));
         }
 
@@ -1869,8 +1871,8 @@ namespace TrenchBroom {
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
         }
 
-        IO::Path::List MapDocument::externalSearchPaths() const {
-            IO::Path::List searchPaths;
+        std::vector<IO::Path> MapDocument::externalSearchPaths() const {
+            std::vector<IO::Path> searchPaths;
             if (!m_path.isEmpty() && m_path.isAbsolute()) {
                 searchPaths.push_back(m_path.deleteLastComponent());
             }
@@ -1885,7 +1887,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::updateGameSearchPaths() {
-            const IO::Path::List additionalSearchPaths = IO::Path::asPaths(mods());
+            const std::vector<IO::Path> additionalSearchPaths = IO::Path::asPaths(mods());
             m_game->setAdditionalSearchPaths(additionalSearchPaths, logger());
         }
 
@@ -1934,13 +1936,10 @@ namespace TrenchBroom {
             ensure(m_game.get() != nullptr, "game is null");
 
             m_tagManager->clearSmartTags();
-            for (const auto& tag : m_game->smartTags()) {
-                // we copy every tag into the tag manager intentionally
-                m_tagManager->registerSmartTag(tag);
-            }
+            m_tagManager->registerSmartTags(m_game->smartTags());
         }
 
-        const std::list<Model::SmartTag>& MapDocument::smartTags() const {
+        const std::vector<Model::SmartTag>& MapDocument::smartTags() const {
             return m_tagManager->smartTags();
         }
 

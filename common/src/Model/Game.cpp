@@ -19,6 +19,7 @@
 
 #include "Game.h"
 
+#include "Assets/EntityDefinitionFileSpec.h"
 #include "Model/GameFactory.h"
 #include "Model/World.h"
 
@@ -44,11 +45,11 @@ namespace TrenchBroom {
             doSetGamePath(gamePath, logger);
         }
 
-        void Game::setAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger) {
+        void Game::setAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths, Logger& logger) {
             doSetAdditionalSearchPaths(searchPaths, logger);
         }
 
-        Game::PathErrors Game::checkAdditionalSearchPaths(const IO::Path::List& searchPaths) const {
+        Game::PathErrors Game::checkAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths) const {
             return doCheckAdditionalSearchPaths(searchPaths);
         }
 
@@ -108,15 +109,15 @@ namespace TrenchBroom {
             return doIsTextureCollection(path);
         }
 
-        IO::Path::List Game::findTextureCollections() const {
+        std::vector<IO::Path> Game::findTextureCollections() const {
             return doFindTextureCollections();
         }
 
-        IO::Path::List Game::extractTextureCollections(const AttributableNode& node) const {
+        std::vector<IO::Path> Game::extractTextureCollections(const AttributableNode& node) const {
             return doExtractTextureCollections(node);
         }
 
-        void Game::updateTextureCollections(AttributableNode& node, const IO::Path::List& paths) const {
+        void Game::updateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const {
             doUpdateTextureCollections(node, paths);
         }
 
@@ -128,7 +129,7 @@ namespace TrenchBroom {
             return doIsEntityDefinitionFile(path);
         }
 
-        Assets::EntityDefinitionFileSpec::List Game::allEntityDefinitionFiles() const {
+        std::vector<Assets::EntityDefinitionFileSpec> Game::allEntityDefinitionFiles() const {
             return doAllEntityDefinitionFiles();
         }
 
@@ -136,7 +137,7 @@ namespace TrenchBroom {
             return doExtractEntityDefinitionFile(node);
         }
 
-        IO::Path Game::findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const {
+        IO::Path Game::findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const {
             return doFindEntityDefinitionFile(spec, searchPaths);
         }
 
@@ -152,11 +153,11 @@ namespace TrenchBroom {
             return doDefaultMod();
         }
 
-        const GameConfig::FlagsConfig& Game::surfaceFlags() const {
+        const FlagsConfig& Game::surfaceFlags() const {
             return doSurfaceFlags();
         }
 
-        const GameConfig::FlagsConfig& Game::contentFlags() const {
+        const FlagsConfig& Game::contentFlags() const {
             return doContentFlags();
         }
     }

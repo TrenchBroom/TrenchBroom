@@ -22,7 +22,7 @@
 #define TrenchBroom_ShearObjectsTool
 
 #include "TrenchBroom.h"
-#include "Model/Hit.h"
+#include "Model/HitType.h"
 #include "View/Tool.h"
 #include "View/ScaleObjectsTool.h"
 
@@ -46,7 +46,7 @@ namespace TrenchBroom {
 
         class ShearObjectsTool : public Tool {
         public:
-            static const Model::Hit::HitType ShearToolSideHit;
+            static const Model::HitType::Type ShearToolSideHit;
 
         private:
             std::weak_ptr<MapDocument> m_document;

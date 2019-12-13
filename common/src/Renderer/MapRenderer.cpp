@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -539,14 +540,6 @@ namespace TrenchBroom {
 
                 invalidateBrushesInRenderers(Renderer_All, brushesVec);
             }
-        }
-
-        std::set<Model::Brush*> MapRenderer::collectBrushes(const std::vector<Model::BrushFace*>& faces) {
-            std::set<Model::Brush*> result;
-            for (const Model::BrushFace* face : faces) {
-                result.insert(face->brush());
-            }
-            return result;
         }
 
         void MapRenderer::textureCollectionsWillChange() {
