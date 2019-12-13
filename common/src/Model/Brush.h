@@ -28,6 +28,7 @@
 #include "Model/Node.h"
 #include "Model/Object.h"
 #include "Model/TagType.h"
+#include "Renderer/Renderer_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -39,10 +40,6 @@ template <typename P>
 class PolyhedronMatcher;
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class BrushRendererBrushCache;
-    }
-
     namespace Model {
         struct BrushAlgorithmResult;
 

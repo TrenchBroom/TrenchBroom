@@ -22,6 +22,7 @@
 
 #include "Macros.h"
 #include "IO/ConfigParserBase.h"
+#include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <string>
@@ -29,8 +30,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class ParserStatus;
-
         class GameConfigParser : public ConfigParserBase {
         public:
             GameConfigParser(const char* begin, const char* end, const Path& path);

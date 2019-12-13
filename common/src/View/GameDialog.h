@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_GameDialog
 #define TrenchBroom_GameDialog
 
+#include "IO/IO_Forward.h"
 #include "Model/MapFormat.h"
 
 #include <string>
@@ -31,10 +32,6 @@ class QPushButton;
 class QWidget;
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace View {
         class GameListBox;
         class GameSelectionCommand;

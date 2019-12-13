@@ -23,6 +23,7 @@
 #include <QWidget>
 
 #include "TrenchBroom.h"
+#include "IO/IO_Forward.h"
 #include "View/MapView.h"
 #include "View/MapViewActivationTracker.h"
 #include "View/MapViewLayout.h"
@@ -34,10 +35,6 @@ namespace TrenchBroom {
 
     namespace Renderer {
         class MapRenderer;
-    }
-
-    namespace IO {
-        class Path;
     }
 
     namespace View {

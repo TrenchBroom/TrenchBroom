@@ -17,35 +17,21 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_PortalFile
-#define TrenchBroom_PortalFile
-
-#include "IO/IO_Forward.h"
-
-#include <vecmath/forward.h>
-#include <vecmath/polygon.h>
-
-#include <vector>
+#ifndef TRENCHBROOM_EL_FORWARD_H
+#define TRENCHBROOM_EL_FORWARD_H
 
 namespace TrenchBroom {
-    namespace Model {
-        class PortalFile {
-        private:
-            std::vector<vm::polygon3f> m_portals;
-        public:
-            PortalFile();
-            /**
-             * Constructor throws an exception if portalFilePath couldn't be read.
-             */
-            explicit PortalFile(const IO::Path& path);
+    namespace EL {
+        class Value;
+        enum class ValueType;
 
-            static bool canLoad(const IO::Path& path);
+        class ExpressionBase;
+        class Expression;
 
-            const std::vector<vm::polygon3f>& portals() const;
-        private:
-            void load(const IO::Path& path);
-        };
+        class EvaluationContext;
+
+        class VariableStore;
     }
 }
 
-#endif /* defined(TrenchBroom_PortalFile) */
+#endif //TRENCHBROOM_EL_FORWARD_H

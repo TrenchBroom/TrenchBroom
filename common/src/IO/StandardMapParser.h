@@ -21,6 +21,7 @@
 #define TrenchBroom_StandardMapParser
 
 #include "TrenchBroom.h"
+#include "IO/IO_Forward.h"
 #include "IO/MapParser.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
@@ -65,8 +66,6 @@ namespace TrenchBroom {
         private:
             Token emitToken() override;
         };
-
-        class ParserStatus;
 
         class StandardMapParser : public MapParser, public Parser<QuakeMapToken::Type> {
         private:

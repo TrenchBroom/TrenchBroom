@@ -22,19 +22,14 @@
 
 #include "Macros.h"
 #include "IO/ConfigParserBase.h"
-#include "Model/GameEngineConfig.h"
+#include "IO/IO_Forward.h"
+#include "Model/Model_Forward.h"
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class GameEngineProfile;
-    }
-
     namespace IO {
-        class Path;
-
         class GameEngineConfigParser : public ConfigParserBase {
         public:
             GameEngineConfigParser(const char* begin, const char* end, const Path& path);

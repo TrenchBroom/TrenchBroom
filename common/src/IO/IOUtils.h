@@ -21,14 +21,13 @@
 #define TrenchBroom_IOUtils_h
 
 #include "Macros.h"
+#include "IO/IO_Forward.h"
 
 #include <cstdio> // for FILE
 #include <fstream>
 
 namespace TrenchBroom {
     namespace IO {
-        class Path;
-
         class OpenFile {
         public:
             FILE* file;

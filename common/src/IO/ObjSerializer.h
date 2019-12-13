@@ -22,8 +22,9 @@
 
 #include "TrenchBroom.h"
 #include "IO/NodeSerializer.h"
-#include "IO/Path.h"
+#include "IO/IO_Forward.h"
 #include "IO/IOUtils.h"
+#include "IO/Path.h"
 #include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
@@ -35,8 +36,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class OpenFile;
-
         class ObjFileSerializer : public NodeSerializer {
         private:
             template <typename V>

@@ -31,8 +31,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushFaceAttributes;
-
         class ParaxialTexCoordSystem : public TexCoordSystem {
         private:
             static const vm::vec3 BaseAxes[];

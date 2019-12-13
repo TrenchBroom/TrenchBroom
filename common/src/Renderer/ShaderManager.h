@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_ShaderManager
 #define TrenchBroom_ShaderManager
 
+#include "IO/IO_Forward.h"
 #include "Renderer/GL.h"
 #include "Renderer/Renderer_Forward.h"
 
@@ -28,10 +29,6 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace Renderer {
         class ShaderManager {
         private:

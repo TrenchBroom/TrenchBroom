@@ -27,8 +27,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class MapFacade;
-
         class IssueQuickFix {
         private:
             IssueType m_issueType;

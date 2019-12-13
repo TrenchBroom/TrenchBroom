@@ -21,6 +21,7 @@
 #define TrenchBroom_ImageLoaderImpl
 
 #include "IO/ImageLoader.h"
+#include "IO/IO_Forward.h"
 
 #include <vector>
 
@@ -28,8 +29,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class Path;
-
         class InitFreeImage {
         private:
             InitFreeImage();

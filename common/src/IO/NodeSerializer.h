@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_NodeSerializer
 #define TrenchBroom_NodeSerializer
 
+#include "IO/IO_Forward.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Model_Forward.h"
 
@@ -30,8 +31,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class Path;
-
         class NodeSerializer {
         private:
             class BrushSerializer;

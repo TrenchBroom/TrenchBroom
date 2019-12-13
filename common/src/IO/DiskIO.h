@@ -20,6 +20,7 @@
 #ifndef DiskIO_h
 #define DiskIO_h
 
+#include "IO/IO_Forward.h"
 #include "IO/Path.h"
 
 #include <memory>
@@ -27,8 +28,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class File;
-
         namespace Disk {
             bool isCaseSensitive();
 

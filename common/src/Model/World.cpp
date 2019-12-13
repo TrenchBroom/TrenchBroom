@@ -22,10 +22,13 @@
 #include "AABBTree.h"
 #include "Ensure.h"
 #include "Model/AssortNodesVisitor.h"
+#include "Model/AttributableNodeIndex.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
 #include "Model/IssueGenerator.h"
+#include "Model/IssueGeneratorRegistry.h"
+#include "Model/ModelFactoryImpl.h"
 #include "Model/TagVisitor.h"
 
 #include <kdl/vector_utils.h>
@@ -39,8 +42,10 @@
 namespace TrenchBroom {
     namespace Model {
         World::World(MapFormat mapFormat) :
-        m_factory(mapFormat),
+        m_factory(std::make_unique<ModelFactoryImpl>(mapFormat)),
         m_defaultLayer(nullptr),
+        m_attributableIndex(std::make_unique<AttributableNodeIndex>()),
+        m_issueGeneratorRegistry(std::make_unique<IssueGeneratorRegistry>()),
         m_nodeTree(std::make_unique<NodeTree>()),
         m_updateNodeTree(true) {
             addOrUpdateAttribute(AttributeNames::Classname, AttributeValues::WorldspawnClassname);
@@ -73,24 +78,24 @@ namespace TrenchBroom {
         }
 
         const AttributableNodeIndex& World::attributableNodeIndex() const {
-            return m_attributableIndex;
+            return *m_attributableIndex;
         }
 
         const std::vector<IssueGenerator*>& World::registeredIssueGenerators() const {
-            return m_issueGeneratorRegistry.registeredGenerators();
+            return m_issueGeneratorRegistry->registeredGenerators();
         }
 
         std::vector<IssueQuickFix*> World::quickFixes(const IssueType issueTypes) const {
-            return m_issueGeneratorRegistry.quickFixes(issueTypes);
+            return m_issueGeneratorRegistry->quickFixes(issueTypes);
         }
 
         void World::registerIssueGenerator(IssueGenerator* issueGenerator) {
-            m_issueGeneratorRegistry.registerGenerator(issueGenerator);
+            m_issueGeneratorRegistry->registerGenerator(issueGenerator);
             invalidateAllIssues();
         }
 
         void World::unregisterAllIssueGenerators() {
-            m_issueGeneratorRegistry.unregisterAllGenerators();
+            m_issueGeneratorRegistry->unregisterAllGenerators();
             invalidateAllIssues();
         }
 
@@ -193,7 +198,7 @@ namespace TrenchBroom {
         }
 
         Node* World::doClone(const vm::bbox3& /* worldBounds */) const {
-            World* world = m_factory.createWorld();
+            World* world = m_factory->createWorld();
             cloneAttributes(world);
             return world;
         }
@@ -202,7 +207,7 @@ namespace TrenchBroom {
             const std::vector<Node*>& myChildren = children();
             assert(myChildren[0] == m_defaultLayer);
 
-            World* world = m_factory.createWorld();
+            World* world = m_factory->createWorld();
             cloneAttributes(world);
 
             world->defaultLayer()->addChildren(cloneRecursively(worldBounds, m_defaultLayer->children()));
@@ -314,20 +319,20 @@ namespace TrenchBroom {
 
         void World::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<Model::AttributableNode*>& result) const {
             kdl::vec_append(result,
-                m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::exact(name), value));
+                m_attributableIndex->findAttributableNodes(AttributableNodeIndexQuery::exact(name), value));
         }
 
         void World::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, std::vector<Model::AttributableNode*>& result) const {
             kdl::vec_append(result,
-                m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix), value));
+                m_attributableIndex->findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix), value));
         }
 
         void World::doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
-            m_attributableIndex.addAttribute(attributable, name, value);
+            m_attributableIndex->addAttribute(attributable, name, value);
         }
 
         void World::doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
-            m_attributableIndex.removeAttribute(attributable, name, value);
+            m_attributableIndex->removeAttribute(attributable, name, value);
         }
 
         void World::doAttributesDidChange(const vm::bbox3& /* oldBounds */) {}
@@ -367,35 +372,35 @@ namespace TrenchBroom {
         }
 
         MapFormat World::doGetFormat() const {
-            return m_factory.format();
+            return m_factory->format();
         }
 
         World* World::doCreateWorld() const {
-            return m_factory.createWorld();
+            return m_factory->createWorld();
         }
 
         Layer* World::doCreateLayer(const std::string& name) const {
-            return m_factory.createLayer(name);
+            return m_factory->createLayer(name);
         }
 
         Group* World::doCreateGroup(const std::string& name) const {
-            return m_factory.createGroup(name);
+            return m_factory->createGroup(name);
         }
 
         Entity* World::doCreateEntity() const {
-            return m_factory.createEntity();
+            return m_factory->createEntity();
         }
 
         Brush* World::doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
-            return m_factory.createBrush(worldBounds, faces);
+            return m_factory->createBrush(worldBounds, faces);
         }
 
         BrushFace* World::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
-            return m_factory.createFace(point1, point2, point3, attribs);
+            return m_factory->createFace(point1, point2, point3, attribs);
         }
 
         BrushFace* World::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
-            return m_factory.createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
+            return m_factory->createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
         }
 
         void World::doAcceptTagVisitor(TagVisitor& visitor) {

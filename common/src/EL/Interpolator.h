@@ -20,14 +20,13 @@
 #ifndef Interpolator_h
 #define Interpolator_h
 
+#include "EL/EL_Forward.h"
 #include "IO/ELParser.h"
 
 #include <string>
 
 namespace TrenchBroom {
     namespace EL {
-        class EvaluationContext;
-
         class Interpolator : private IO::ELParser {
         public:
             Interpolator(const std::string& str);

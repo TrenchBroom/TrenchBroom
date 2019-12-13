@@ -22,6 +22,7 @@
 
 #include "Macros.h"
 #include "Assets/Asset_Forward.h"
+#include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <memory>
@@ -32,11 +33,6 @@ namespace TrenchBroom {
     class Logger;
 
     namespace IO {
-        class FileSystem;
-        class Path;
-        class TextureCollectionLoader;
-        class TextureReader;
-
         class TextureLoader {
         private:
             std::vector<std::string> m_textureExtensions;

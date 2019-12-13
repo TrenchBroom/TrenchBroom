@@ -23,6 +23,7 @@
 #include "Assets/Asset_Forward.h"
 #include "Assets/TextureCollection.h"
 #include "IO/EntityModelParser.h"
+#include "IO/IO_Forward.h"
 
 #include <memory>
 #include <string>
@@ -33,8 +34,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class Reader;
-
         class Bsp29Parser : public EntityModelParser {
         private:
             struct TextureInfo {

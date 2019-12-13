@@ -53,7 +53,9 @@ namespace TrenchBroom {
         class NodeVisitor;
         class ConstNodeVisitor;
 
+        class AttributableNodeIndex;
         class EntityAttribute;
+        class EntityAttributes;
         using AttributeName = std::string;
         using AttributeValue = std::string;
 
@@ -75,6 +77,8 @@ namespace TrenchBroom {
         class Issue;
         class IssueQuickFix;
         class IssueGenerator;
+        class IssueGeneratorRegistry;
+        class MapFacade;
 
         enum class ExportFormat;
 
@@ -99,6 +103,9 @@ namespace TrenchBroom {
         class CompilationTaskConstVisitor;
         class ConstCompilationTaskVisitor;
         class ConstCompilationTaskConstVisitor;
+
+        class GameEngineConfig;
+        class GameEngineProfile;
 
         struct EntityConfig;
         struct FaceAttribsConfig;

@@ -22,17 +22,14 @@
 
 #include "Macros.h"
 #include "IO/ConfigParserBase.h"
+#include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-    }
     namespace IO {
-        class Path;
-
         class CompilationConfigParser : public ConfigParserBase {
         public:
             CompilationConfigParser(const char* begin, const char* end, const Path& path);

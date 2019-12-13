@@ -28,8 +28,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class File;
-
         DiskFileSystem::DiskFileSystem(const Path& root, const bool ensureExists) :
         DiskFileSystem(nullptr, root, ensureExists) {}
 

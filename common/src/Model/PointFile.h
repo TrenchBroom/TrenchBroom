@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_PointFile
 #define TrenchBroom_PointFile
 
+#include "IO/IO_Forward.h"
+
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
@@ -27,10 +29,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace Model {
         class PointFile {
         private:

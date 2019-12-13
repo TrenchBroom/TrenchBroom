@@ -21,13 +21,12 @@
 #define TrenchBroom_IdPakFileSystem
 
 #include "IO/ImageFileSystem.h"
+#include "IO/IO_Forward.h"
 
 #include <memory>
 
 namespace TrenchBroom {
     namespace IO {
-        class Path;
-
         class IdPakFileSystem : public ImageFileSystem {
         public:
             explicit IdPakFileSystem(const Path& path);

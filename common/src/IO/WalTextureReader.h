@@ -23,15 +23,13 @@
 #include "Assets/Asset_Forward.h"
 #include "Assets/Palette.h"
 #include "Assets/TextureBuffer.h"
+#include "IO/IO_Forward.h"
 #include "IO/TextureReader.h"
 
 class Color;
 
 namespace TrenchBroom {
     namespace IO {
-        class Reader;
-        class Path;
-
         class WalTextureReader : public TextureReader {
         private:
             mutable Assets::Palette m_palette;

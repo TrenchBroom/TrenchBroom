@@ -27,7 +27,6 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-
         class ActiveShader {
         private:
             ShaderProgram& m_program;
