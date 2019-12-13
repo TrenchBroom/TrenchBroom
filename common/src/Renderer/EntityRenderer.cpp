@@ -28,6 +28,7 @@
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Renderer/Camera.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
@@ -361,8 +362,8 @@ namespace TrenchBroom {
                     }
                 }
 
-                m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(pointEntityWireframeVertices)), GL_LINES);
-                m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(brushEntityWireframeVertices)), GL_LINES);
+                m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(pointEntityWireframeVertices)), PrimType::Lines);
+                m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(brushEntityWireframeVertices)), PrimType::Lines);
             } else {
                 using Vertex = GLVertexTypes::P3C4::Vertex;
                 std::vector<Vertex> pointEntityWireframeVertices;
@@ -391,11 +392,11 @@ namespace TrenchBroom {
                     }
                 }
 
-                m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(pointEntityWireframeVertices)), GL_LINES);
-                m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(brushEntityWireframeVertices)), GL_LINES);
+                m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(pointEntityWireframeVertices)), PrimType::Lines);
+                m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(brushEntityWireframeVertices)), PrimType::Lines);
             }
 
-            m_solidBoundsRenderer = TriangleRenderer(VertexArray::move(std::move(solidVertices)), GL_QUADS);
+            m_solidBoundsRenderer = TriangleRenderer(VertexArray::move(std::move(solidVertices)), PrimType::Quads);
             m_boundsValid = true;
         }
 

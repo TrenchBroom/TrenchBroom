@@ -29,6 +29,8 @@
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/GLVertexType.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
@@ -36,7 +38,6 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
-#include "Renderer/GLVertexType.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/UVCameraTool.h"
@@ -259,7 +260,7 @@ namespace TrenchBroom {
                 shader.set("CameraZoom", m_helper.cameraZoom());
                 shader.set("Texture", 0);
 
-                m_vertexArray.render(GL_QUADS);
+                m_vertexArray.render(Renderer::PrimType::Quads);
 
                 texture->deactivate();
             }
@@ -290,7 +291,7 @@ namespace TrenchBroom {
 
             const Color edgeColor(1.0f, 1.0f, 1.0f, 1.0f); // TODO: make this a preference
 
-            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(std::move(edgeVertices)), GL_LINE_LOOP);
+            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(std::move(edgeVertices)), Renderer::PrimType::LineLoop);
             edgeRenderer.renderOnTop(renderBatch, edgeColor, 2.5f);
         }
 
@@ -312,7 +313,7 @@ namespace TrenchBroom {
                 Vertex(center + length * xAxis, pref(Preferences::XAxisColor)),
                 Vertex(center, pref(Preferences::YAxisColor)),
                 Vertex(center + length * yAxis, pref(Preferences::YAxisColor)),
-            })), GL_LINES);
+            })), Renderer::PrimType::Lines);
             edgeRenderer.renderOnTop(renderBatch, 2.0f);
         }
 

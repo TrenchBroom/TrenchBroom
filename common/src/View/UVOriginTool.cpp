@@ -28,6 +28,7 @@
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Circle.h"
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
@@ -230,7 +231,7 @@ namespace TrenchBroom {
         }
 
         void UVOriginTool::renderLineHandles(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
-            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(getHandleVertices(inputState)), GL_LINES);
+            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(getHandleVertices(inputState)), Renderer::PrimType::Lines);
             edgeRenderer.renderOnTop(renderBatch, 0.25f);
         }
 

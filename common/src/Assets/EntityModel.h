@@ -22,6 +22,7 @@
 
 #include "Assets/Asset_Forward.h"
 #include "Assets/EntityModel_Forward.h"
+#include "Renderer/Renderer_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
@@ -134,7 +135,7 @@ namespace TrenchBroom {
              * @param index the index of the first primitive's first vertex in the given vertex array
              * @param count the number of vertices that make up the primitive(s)
              */
-            void addToSpacialTree(const std::vector<EntityModelVertex>& vertices, PrimType primType, size_t index, size_t count);
+            void addToSpacialTree(const std::vector<EntityModelVertex>& vertices, Renderer::PrimType primType, size_t index, size_t count);
         };
 
         class EntityModelUnloadedFrame;

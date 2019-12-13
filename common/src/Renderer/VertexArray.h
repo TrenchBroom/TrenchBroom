@@ -22,10 +22,11 @@
 
 #include "Ensure.h"
 #include "Renderer/GL.h"
-#include "Renderer/Vbo.h"
-#include "Renderer/VboBlock.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
+#include "Renderer/Renderer_Forward.h"
+#include "Renderer/Vbo.h"
+#include "Renderer/VboBlock.h"
 
 #include <kdl/vector_utils.h>
 

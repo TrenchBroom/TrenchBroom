@@ -23,9 +23,10 @@
 #include "PreferenceManager.h"
 #include "Assets/Texture.h"
 #include "Renderer/ActiveShader.h"
-#include "Renderer/Camera.h"
-#include "Renderer/RenderBatch.h"
 #include "Renderer/BrushRendererArrays.h"
+#include "Renderer/Camera.h"
+#include "Renderer/PrimType.h"
+#include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
@@ -169,7 +170,7 @@ namespace TrenchBroom {
                         continue;
                     }
                     func.before(texture);
-                    brushIndexHolderPtr->render(GL_TRIANGLES);
+                    brushIndexHolderPtr->render(PrimType::Triangles);
                     func.after(texture);
                 }
                 if (m_alpha < 1.0f) {

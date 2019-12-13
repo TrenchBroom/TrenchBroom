@@ -22,10 +22,11 @@
 #include "TrenchBroomApp.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/Vbo.h"
-#include "Renderer/Transformation.h"
-#include "Renderer/VertexArray.h"
 #include "Renderer/GLVertexType.h"
+#include "Renderer/PrimType.h"
+#include "Renderer/Transformation.h"
+#include "Renderer/Vbo.h"
+#include "Renderer/VertexArray.h"
 #include "View/GLContextManager.h"
 #include "View/InputEvent.h"
 #include "View/QtUtils.h"
@@ -273,7 +274,7 @@ namespace TrenchBroom {
 
             Renderer::ActivateVbo activate(vertexVbo());
             array.prepare(vertexVbo());
-            array.render(GL_QUADS);
+            array.render(Renderer::PrimType::Quads);
             glAssert(glEnable(GL_DEPTH_TEST));
         }
 

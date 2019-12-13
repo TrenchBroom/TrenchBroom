@@ -21,6 +21,7 @@
 #define TexturedIndexRangeBuilder_h
 
 #include "Assets/Asset_Forward.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/VertexListBuilder.h"
 
@@ -99,7 +100,7 @@ namespace TrenchBroom {
              * @param v the position of the point to add
              */
             void addPoint(const Texture* texture, const Vertex& v) {
-                add(texture, GL_POINTS, m_vertexListBuilder.addPoint(v));
+                add(texture, Renderer::PrimType::Points, m_vertexListBuilder.addPoint(v));
             }
 
             /**
@@ -109,7 +110,7 @@ namespace TrenchBroom {
              * @param vertices the positions of the points to add
              */
             void addPoints(const Texture* texture, const VertexList& vertices) {
-                add(texture, GL_POINTS, m_vertexListBuilder.addPoints(vertices));
+                add(texture, Renderer::PrimType::Points, m_vertexListBuilder.addPoints(vertices));
             }
 
             /**
@@ -120,7 +121,7 @@ namespace TrenchBroom {
              * @param v2 the position of the second end point
              */
             void addLine(const Texture* texture, const Vertex& v1, const Vertex& v2) {
-                add(texture, GL_LINES, m_vertexListBuilder.addLine(v1, v2));
+                add(texture, Renderer::PrimType::Lines, m_vertexListBuilder.addLine(v1, v2));
             }
 
             /**
@@ -131,7 +132,7 @@ namespace TrenchBroom {
              * @param vertices the end points of the lines to add
              */
             void addLines(const Texture* texture, const VertexList& vertices) {
-                add(texture, GL_LINES, m_vertexListBuilder.addLines(vertices));
+                add(texture, Renderer::PrimType::Lines, m_vertexListBuilder.addLines(vertices));
             }
 
             /**
@@ -141,7 +142,7 @@ namespace TrenchBroom {
              * @param vertices the end points of the lines to add
              */
             void addLineStrip(const Texture* texture, const VertexList& vertices) {
-                add(texture, GL_LINE_STRIP, m_vertexListBuilder.addLineStrip(vertices));
+                add(texture, Renderer::PrimType::LineStrip, m_vertexListBuilder.addLineStrip(vertices));
             }
 
             /**
@@ -151,7 +152,7 @@ namespace TrenchBroom {
              * @param vertices the end points of the lines to add
              */
             void addLineLoop(const Texture* texture, const VertexList& vertices) {
-                add(texture, GL_LINE_LOOP, m_vertexListBuilder.addLineLoop(vertices));
+                add(texture, Renderer::PrimType::LineLoop, m_vertexListBuilder.addLineLoop(vertices));
             }
 
             /**
@@ -163,7 +164,7 @@ namespace TrenchBroom {
              * @param v3 the position of the third corner
              */
             void addTriangle(const Texture* texture, const Vertex& v1, const Vertex& v2, const Vertex& v3) {
-                add(texture, GL_TRIANGLES, m_vertexListBuilder.addTriangle(v1, v2, v3));
+                add(texture, Renderer::PrimType::Triangles, m_vertexListBuilder.addTriangle(v1, v2, v3));
             }
 
             /**
@@ -174,7 +175,7 @@ namespace TrenchBroom {
              * @param vertices the corner positions
              */
             void addTriangles(const Texture* texture, const VertexList& vertices) {
-                add(texture, GL_TRIANGLES, m_vertexListBuilder.addTriangles(vertices));
+                add(texture, Renderer::PrimType::Triangles, m_vertexListBuilder.addTriangles(vertices));
             }
 
             /**
@@ -184,7 +185,7 @@ namespace TrenchBroom {
              * @param vertices the vertex positions
              */
             void addTriangleFan(const Texture* texture, const VertexList& vertices) {
-                add(texture, GL_TRIANGLE_FAN, m_vertexListBuilder.addTriangleFan(vertices));
+                add(texture, Renderer::PrimType::TriangleFan, m_vertexListBuilder.addTriangleFan(vertices));
             }
 
             /**
@@ -194,7 +195,7 @@ namespace TrenchBroom {
              * @param vertices the vertex positions
              */
             void addTriangleStrip(const Texture* texture, const VertexList& vertices) {
-                add(texture, GL_TRIANGLE_STRIP, m_vertexListBuilder.addTriangleStrip(vertices));
+                add(texture, Renderer::PrimType::TriangleStrip, m_vertexListBuilder.addTriangleStrip(vertices));
             }
 
             /**
@@ -207,7 +208,7 @@ namespace TrenchBroom {
              * @param v4 the position of the fourth corner
              */
             void addQuad(const Texture* texture, const Vertex& v1, const Vertex& v2, const Vertex& v3, const Vertex& v4) {
-                add(texture, GL_QUADS, m_vertexListBuilder.addQuad(v1, v2, v3, v4));
+                add(texture, Renderer::PrimType::Quads, m_vertexListBuilder.addQuad(v1, v2, v3, v4));
             }
 
             /**
@@ -218,7 +219,7 @@ namespace TrenchBroom {
              * @param vertices the corner positions
              */
             void addQuads(const Texture* texture, const VertexList& vertices) {
-                add(texture, GL_QUADS, m_vertexListBuilder.addQuads(vertices));
+                add(texture, Renderer::PrimType::Quads, m_vertexListBuilder.addQuads(vertices));
             }
 
             /**
@@ -228,7 +229,7 @@ namespace TrenchBroom {
              * @param vertices the vertex positions
              */
             void addQuadStrip(const Texture* texture, const VertexList& vertices) {
-                add(texture, GL_QUAD_STRIP, m_vertexListBuilder.addQuadStrip(vertices));
+                add(texture, Renderer::PrimType::QuadStrip, m_vertexListBuilder.addQuadStrip(vertices));
             }
 
             /**
@@ -238,7 +239,7 @@ namespace TrenchBroom {
              * @param vertices the croner positions
              */
             void addPolygon(const Texture* texture, const VertexList& vertices) {
-                add(texture, GL_POLYGON, m_vertexListBuilder.addPolygon(vertices));
+                add(texture, Renderer::PrimType::Polygon, m_vertexListBuilder.addPolygon(vertices));
             }
         private:
             void add(const Texture* texture, const PrimType primType, const IndexData& data) {

@@ -29,6 +29,7 @@
 #include "Assets/TextureManager.h"
 #include "Renderer/GL.h"
 #include "Renderer/FontManager.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/TextureFont.h"
@@ -339,7 +340,7 @@ namespace TrenchBroom {
 
             Renderer::ActivateVbo activate(vertexVbo());
             vertexArray.prepare(vertexVbo());
-            vertexArray.render(GL_QUADS);
+            vertexArray.render(Renderer::PrimType::Quads);
         }
 
         const Color& TextureBrowserView::textureColor(const Assets::Texture& texture) const {
@@ -384,7 +385,7 @@ namespace TrenchBroom {
                                 texture->activate();
 
                                 vertexArray.prepare(vertexVbo());
-                                vertexArray.render(GL_QUADS);
+                                vertexArray.render(Renderer::PrimType::Quads);
 
                                 texture->deactivate();
 
@@ -423,7 +424,7 @@ namespace TrenchBroom {
 
             Renderer::ActivateVbo activate(vertexVbo());
             vertexArray.prepare(vertexVbo());
-            vertexArray.render(GL_QUADS);
+            vertexArray.render(Renderer::PrimType::Quads);
         }
 
         void TextureBrowserView::renderStrings(Layout& layout, const float y, const float height) {
@@ -448,7 +449,7 @@ namespace TrenchBroom {
 
                 auto& font = fontManager().font(descriptor);
                 font.activate();
-                vertexArray.render(GL_QUADS);
+                vertexArray.render(Renderer::PrimType::Quads);
                 font.deactivate();
             }
         }

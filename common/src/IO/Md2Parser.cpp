@@ -27,9 +27,10 @@
 #include "IO/FileSystem.h"
 #include "IO/Path.h"
 #include "IO/SkinLoader.h"
+#include "Renderer/GLVertex.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
-#include "Renderer/GLVertex.h"
+#include "Renderer/PrimType.h"
 
 #include <string>
 
@@ -356,9 +357,9 @@ namespace TrenchBroom {
             for (const auto& md2Mesh : meshes) {
                 vertexCount += md2Mesh.vertices.size();
                 if (md2Mesh.type == Md2Mesh::Fan) {
-                    size.inc(GL_TRIANGLE_FAN);
+                    size.inc(Renderer::PrimType::TriangleFan);
                 } else {
-                    size.inc(GL_TRIANGLE_STRIP);
+                    size.inc(Renderer::PrimType::TriangleStrip);
                 }
             }
 

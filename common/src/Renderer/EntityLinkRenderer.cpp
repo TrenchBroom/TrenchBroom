@@ -29,6 +29,7 @@
 #include "Model/World.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
@@ -94,11 +95,11 @@ namespace TrenchBroom {
 
             glAssert(glDisable(GL_DEPTH_TEST));
             shader.set("Alpha", 0.4f);
-            m_entityLinks.render(GL_LINES);
+            m_entityLinks.render(PrimType::Lines);
 
             glAssert(glEnable(GL_DEPTH_TEST));
             shader.set("Alpha", 1.0f);
-            m_entityLinks.render(GL_LINES);
+            m_entityLinks.render(PrimType::Lines);
         }
 
         void EntityLinkRenderer::renderArrows(RenderContext& renderContext) {
@@ -108,11 +109,11 @@ namespace TrenchBroom {
 
             glAssert(glDisable(GL_DEPTH_TEST));
             shader.set("Alpha", 0.4f);
-            m_entityLinkArrows.render(GL_LINES);
+            m_entityLinkArrows.render(PrimType::Lines);
 
             glAssert(glEnable(GL_DEPTH_TEST));
             shader.set("Alpha", 1.0f);
-            m_entityLinkArrows.render(GL_LINES);
+            m_entityLinkArrows.render(PrimType::Lines);
         }
 
         void EntityLinkRenderer::validate() {

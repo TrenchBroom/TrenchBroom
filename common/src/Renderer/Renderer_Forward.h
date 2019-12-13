@@ -43,6 +43,7 @@ namespace TrenchBroom {
         enum class PrimitiveRendererCullingPolicy;
         class PrimitiveRenderer;
 
+        enum class PrimType;
         class IndexRangeRenderer;
 
         class ActiveShader;
