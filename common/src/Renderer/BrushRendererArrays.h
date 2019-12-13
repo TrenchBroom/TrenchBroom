@@ -31,6 +31,7 @@
 #include <vecmath/vec.h>
 
 #include <cassert>
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
