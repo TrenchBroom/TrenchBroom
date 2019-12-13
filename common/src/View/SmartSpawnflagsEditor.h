@@ -48,7 +48,6 @@ namespace TrenchBroom {
             class UpdateSpawnflag;
 
             QScrollArea* m_scrolledWindow;
-            QPoint m_lastScrollPos;
             FlagsEditor* m_flagsEditor;
             bool m_ignoreUpdates;
         public:
