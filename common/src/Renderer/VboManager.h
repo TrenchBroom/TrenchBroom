@@ -39,6 +39,10 @@ namespace TrenchBroom {
         };
 
         class VboManager {
+        private:
+            size_t m_peakVboCount;
+            size_t m_currentVboCount;
+            size_t m_currentVboSize;
         public:
             VboManager();
             /**
@@ -47,6 +51,10 @@ namespace TrenchBroom {
             */
             Vbo* allocateVbo(VboType type, size_t capacity, VboUsage usage = VboUsage::StaticDraw);
             void destroyVbo(Vbo* vbo);
+
+            size_t peakVboCount() const;
+            size_t currentVboCount() const;
+            size_t currentVboSize() const;
         };
     }
 }

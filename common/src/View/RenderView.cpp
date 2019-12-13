@@ -102,7 +102,12 @@ namespace TrenchBroom {
                 m_lastFPSCounterUpdate = currentTime;
 
                 m_currentFPS = std::string("Avg FPS: ") + std::to_string(avgFps) + " Max time between frames: " +
-                        std::to_string(maxFrameTime) + "ms. 1000ms QTimer actually took: " + std::to_string(fpsCounterPeriod);
+                    std::to_string(maxFrameTime) + "ms. " +
+                    std::to_string(m_glContext->vboManager().currentVboCount()) + " current VBOs (" +
+                    std::to_string(m_glContext->vboManager().peakVboCount()) + " peak) totalling " +
+                    std::to_string(m_glContext->vboManager().currentVboSize() / 1024u) + " KiB";
+
+
             });
 
             fpsCounter->start(1000);

@@ -23,6 +23,8 @@
 #include "GL.h"
 #include "Macros.h"
 
+#include <algorithm> // for std::max
+
 namespace TrenchBroom {
     namespace Renderer {
         /**
@@ -50,15 +52,39 @@ namespace TrenchBroom {
 
         // VboManager
 
-        VboManager::VboManager() {}
+        VboManager::VboManager() :
+        m_peakVboCount(0u),
+        m_currentVboCount(0u),
+        m_currentVboSize(0u) {}
 
         Vbo* VboManager::allocateVbo(VboType type, const size_t capacity, const VboUsage usage) {
-            return new Vbo(typeToOpenGL(type), capacity, usageToOpenGL(usage));
+            auto* result = new Vbo(typeToOpenGL(type), capacity, usageToOpenGL(usage));
+
+            m_currentVboSize += capacity;
+            m_currentVboCount++;
+            m_peakVboCount = std::max(m_peakVboCount, m_currentVboCount);
+
+            return result;
         }
 
         void VboManager::destroyVbo(Vbo* vbo) {
+            m_currentVboSize -= vbo->capacity();
+            m_currentVboCount--;
+
             vbo->free();
             delete vbo;
+        }
+
+        size_t VboManager::peakVboCount() const {
+            return m_peakVboCount;
+        }
+
+        size_t VboManager::currentVboCount() const {
+            return m_currentVboCount;
+        }
+
+        size_t VboManager::currentVboSize() const {
+            return m_currentVboSize;
         }
     }
 }

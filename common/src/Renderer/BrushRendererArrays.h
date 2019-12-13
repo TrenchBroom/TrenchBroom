@@ -83,11 +83,14 @@ namespace TrenchBroom {
             }
 
             void allocateBlock(VboManager& vboManager) {
-                assert(m_vboManager == nullptr);
+                if (m_vboManager != nullptr) {
+                    assert(m_vboManager == &vboManager);
+                } else {
+                    m_vboManager = &vboManager;
+                }
                 assert(m_block == nullptr);
 
-                m_vboManager = &vboManager;
-                m_block = vboManager.allocateVbo(m_type, m_snapshot.size() * sizeof(T), VboUsage::DynamicDraw);
+                m_block = m_vboManager->allocateVbo(m_type, m_snapshot.size() * sizeof(T), VboUsage::DynamicDraw);
                 assert(m_block != nullptr);
 
                 m_block->writeElements(0, m_snapshot);
