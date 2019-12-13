@@ -69,7 +69,7 @@ namespace TrenchBroom {
             setLayout(layout);
 
             layout->addWidget(m_gameListBox);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Vertical));
+            layout->addWidget(new BorderLine(BorderLine::Direction::Vertical));
             layout->addSpacing(LayoutConstants::MediumVMargin);
             layout->addWidget(m_stackedWidget, 1, Qt::AlignTop);
 

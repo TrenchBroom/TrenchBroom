@@ -68,7 +68,7 @@ namespace TrenchBroom {
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
             layout->addWidget(m_splitter, 1);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
             layout->addWidget(createTextureCollectionEditor(this, document));
             setLayout(layout);
 

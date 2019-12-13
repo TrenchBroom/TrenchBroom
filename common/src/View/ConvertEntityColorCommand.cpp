@@ -34,6 +34,8 @@ namespace TrenchBroom {
         m_attributeName(attributeName),
         m_colorRange(colorRange) {}
 
+        ConvertEntityColorCommand::~ConvertEntityColorCommand() = default;
+
         bool ConvertEntityColorCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_snapshots = document->performConvertColorRange(m_attributeName, m_colorRange);
             return true;

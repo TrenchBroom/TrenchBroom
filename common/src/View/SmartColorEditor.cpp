@@ -83,7 +83,7 @@ namespace TrenchBroom {
             outerLayout->setSpacing(0);
             outerLayout->addLayout(leftLayout);
             outerLayout->addSpacing(LayoutConstants::WideHMargin);
-            outerLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical));
+            outerLayout->addWidget(new BorderLine(BorderLine::Direction::Vertical));
             outerLayout->addWidget(colorHistoryScroller, 1);
             setLayout(outerLayout);
 

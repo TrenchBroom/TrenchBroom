@@ -263,7 +263,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/AddBrushVerticesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/Animation.cpp
-        ${COMMON_SOURCE_DIR}/View/AnimationCurve.cpp
         ${COMMON_SOURCE_DIR}/View/AppInfoPanel.cpp
         ${COMMON_SOURCE_DIR}/View/Autosaver.cpp
         ${COMMON_SOURCE_DIR}/View/BorderLine.cpp
@@ -796,7 +795,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/AddBrushVerticesCommand.h
         ${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.h
         ${COMMON_SOURCE_DIR}/View/Animation.h
-        ${COMMON_SOURCE_DIR}/View/AnimationCurve.h
         ${COMMON_SOURCE_DIR}/View/AppInfoPanel.h
         ${COMMON_SOURCE_DIR}/View/Autosaver.h
         ${COMMON_SOURCE_DIR}/View/BorderLine.h

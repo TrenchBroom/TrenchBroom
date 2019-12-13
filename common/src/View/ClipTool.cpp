@@ -498,15 +498,12 @@ namespace TrenchBroom {
         m_document(document),
         m_clipSide(ClipSide_Front),
         m_strategy(nullptr),
-        m_remainingBrushRenderer(new Renderer::BrushRenderer()),
-        m_clippedBrushRenderer(new Renderer::BrushRenderer()),
+        m_remainingBrushRenderer(std::make_unique<Renderer::BrushRenderer>()),
+        m_clippedBrushRenderer(std::make_unique<Renderer::BrushRenderer>()),
         m_ignoreNotifications(false),
         m_dragging(false) {}
 
         ClipTool::~ClipTool() {
-            delete m_strategy;
-            delete m_remainingBrushRenderer;
-            delete m_clippedBrushRenderer;
             kdl::map_clear_and_delete(m_frontBrushes);
             kdl::map_clear_and_delete(m_backBrushes);
         }
@@ -644,7 +641,7 @@ namespace TrenchBroom {
         void ClipTool::addPoint(const vm::vec3& point, const std::vector<vm::vec3>& helpVectors) {
             assert(canAddPoint(point));
             if (m_strategy == nullptr) {
-                m_strategy = new PointClipStrategy();
+                m_strategy = std::make_unique<PointClipStrategy>();
             }
 
             m_strategy->addPoint(point, helpVectors);
@@ -712,8 +709,7 @@ namespace TrenchBroom {
         }
 
         void ClipTool::setFace(const Model::BrushFace* face) {
-            delete m_strategy;
-            m_strategy = new FaceClipStrategy();
+            m_strategy = std::make_unique<FaceClipStrategy>();
             m_strategy->setFace(face);
             update();
         }
@@ -728,8 +724,7 @@ namespace TrenchBroom {
         }
 
         void ClipTool::resetStrategy() {
-            delete m_strategy;
-            m_strategy = nullptr;
+            m_strategy.reset();
             update();
         }
 
@@ -830,23 +825,23 @@ namespace TrenchBroom {
         void ClipTool::updateRenderers() {
             if (canClip()) {
                 if (keepFrontBrushes()) {
-                    addBrushesToRenderer(m_frontBrushes, m_remainingBrushRenderer);
+                    addBrushesToRenderer(m_frontBrushes, *m_remainingBrushRenderer);
                 } else {
-                    addBrushesToRenderer(m_frontBrushes, m_clippedBrushRenderer);
+                    addBrushesToRenderer(m_frontBrushes, *m_clippedBrushRenderer);
                 }
 
                 if (keepBackBrushes()) {
-                    addBrushesToRenderer(m_backBrushes, m_remainingBrushRenderer);
+                    addBrushesToRenderer(m_backBrushes, *m_remainingBrushRenderer);
                 } else {
-                    addBrushesToRenderer(m_backBrushes, m_clippedBrushRenderer);
+                    addBrushesToRenderer(m_backBrushes, *m_clippedBrushRenderer);
                 }
             } else {
-                addBrushesToRenderer(m_frontBrushes, m_remainingBrushRenderer);
-                addBrushesToRenderer(m_backBrushes, m_remainingBrushRenderer);
+                addBrushesToRenderer(m_frontBrushes, *m_remainingBrushRenderer);
+                addBrushesToRenderer(m_backBrushes, *m_remainingBrushRenderer);
             }
         }
 
-        void ClipTool::addBrushesToRenderer(const std::map<Model::Node*, std::vector<Model::Node*>>& map, Renderer::BrushRenderer* renderer) {
+        void ClipTool::addBrushesToRenderer(const std::map<Model::Node*, std::vector<Model::Node*>>& map, Renderer::BrushRenderer& renderer) {
             Model::CollectBrushesVisitor collect;
 
             for (const auto& entry : map) {
@@ -854,7 +849,7 @@ namespace TrenchBroom {
                 Model::Node::accept(std::begin(brushes), std::end(brushes), collect);
             }
 
-            renderer->addBrushes(collect.brushes());
+            renderer.addBrushes(collect.brushes());
         }
 
         bool ClipTool::keepFrontBrushes() const {
@@ -879,8 +874,7 @@ namespace TrenchBroom {
         bool ClipTool::doDeactivate() {
             unbindObservers();
 
-            delete m_strategy;
-            m_strategy = nullptr;
+            m_strategy.reset();
             clearRenderers();
             clearBrushes();
 

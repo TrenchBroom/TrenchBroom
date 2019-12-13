@@ -27,12 +27,12 @@ namespace TrenchBroom {
         class BorderLine : public QFrame {
         Q_OBJECT
         public:
-            typedef enum {
-                Direction_Horizontal,
-                Direction_Vertical
-            } Direction;
+            enum class Direction {
+                Horizontal,
+                Vertical
+            } ;
         public:
-            explicit BorderLine(Direction direction = Direction_Horizontal, int thickness = 1, QWidget* parent = nullptr);
+            explicit BorderLine(Direction direction = Direction::Horizontal, int thickness = 1, QWidget* parent = nullptr);
         };
     }
 }

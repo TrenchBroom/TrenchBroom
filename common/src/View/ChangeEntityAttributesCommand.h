@@ -21,7 +21,6 @@
 #define TrenchBroom_ChangeEntityAttributesCommand
 
 #include "Macros.h"
-#include "Model/EntityAttributeSnapshot.h"
 #include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
 #include "View/View_Forward.h"
@@ -57,6 +56,7 @@ namespace TrenchBroom {
             static std::unique_ptr<ChangeEntityAttributesCommand> rename(const Model::AttributeName& oldName, const Model::AttributeName& newName);
         public:
             ChangeEntityAttributesCommand(Action action);
+            ~ChangeEntityAttributesCommand() override;
         private:
             static std::string makeName(Action action);
 

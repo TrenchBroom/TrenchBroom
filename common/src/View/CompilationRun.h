@@ -23,10 +23,11 @@
 #include "Model/Model_Forward.h"
 
 #include <QObject>
-#include <QTextEdit>
 
 #include <memory>
 #include <string>
+
+class QTextEdit;
 
 namespace TrenchBroom {
     class VariableTable;

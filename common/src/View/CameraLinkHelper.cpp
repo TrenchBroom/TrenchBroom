@@ -36,8 +36,9 @@ namespace TrenchBroom {
         m_ignoreNotifications(false) {}
 
         CameraLinkHelper::~CameraLinkHelper() {
-            for (Renderer::Camera* camera : m_cameras)
+            for (Renderer::Camera* camera : m_cameras) {
                 camera->cameraDidChangeNotifier.removeObserver(this, &CameraLinkHelper::cameraDidChange);
+            }
         }
 
         void CameraLinkHelper::addCamera(Renderer::Camera* camera) {

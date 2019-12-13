@@ -119,7 +119,7 @@ namespace TrenchBroom {
 
             layout->setMenuBar(m_toolBar);
 #if !defined __APPLE__
-            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
 #endif
             layout->addWidget(m_stackedWidget, 1);
             layout->addLayout(wrapDialogButtonBox(m_buttonBox));

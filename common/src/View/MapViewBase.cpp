@@ -20,10 +20,11 @@
 #include "MapViewBase.h"
 
 #include "Constants.h"
-#include "TrenchBroom.h"
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
+#include "TrenchBroom.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"

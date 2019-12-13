@@ -114,7 +114,7 @@ namespace TrenchBroom {
             innerLayout->setContentsMargins(QMargins());
             innerLayout->setSpacing(0);
             innerLayout->addWidget(infoPanel, 1);
-            innerLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical), 1);
+            innerLayout->addWidget(new BorderLine(BorderLine::Direction::Vertical), 1);
             innerLayout->addWidget(selectionPanel, 1);
 
             auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
@@ -191,7 +191,7 @@ namespace TrenchBroom {
             outerSizer->setContentsMargins(QMargins());
             outerSizer->setSpacing(0);
             outerSizer->addWidget(m_gameListBox, 1);
-            outerSizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 1);
+            outerSizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 1);
             outerSizer->addLayout(mapFormatLayout);
             panel->setLayout(outerSizer);
 

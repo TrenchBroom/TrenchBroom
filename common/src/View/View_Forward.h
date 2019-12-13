@@ -25,11 +25,37 @@ namespace TrenchBroom {
         class MapDocumentCommandFacade;
         class MapDocument;
 
+        class Grid;
+
+        class Selection;
+
+        class InputState;
+
+        class Tool;
+        class ClipTool;
+        class CreateComplexBrushTool;
+        class CreateEntityTool;
+        class CreateSimpleBrushTool;
         class VertexTool;
+
+        class Command;
+        class UndoableCommand;
 
         class VertexHandleManager;
         class VertexHandleManagerBase;
         template <typename H> class VertexHandleManagerBaseT;
+
+        class MapFrame;
+        class GLContextManager;
+
+        class MapViewBase;
+        class MapViewToolBox;
+
+        class CompilationContext;
+        class CompilationRunner;
+        class CompilationProfileManager;
+
+        class BorderLine;
     }
 }
 

@@ -324,7 +324,7 @@ namespace TrenchBroom {
             auto* outerLayout = new QVBoxLayout();
             outerLayout->setContentsMargins(QMargins());
             outerLayout->setSpacing(0);
-            outerLayout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            outerLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
             outerLayout->addLayout(innerLayout);
 
             return outerLayout;
@@ -343,7 +343,7 @@ namespace TrenchBroom {
             auto* outerLayout = new QVBoxLayout();
             outerLayout->setContentsMargins(QMargins());
             outerLayout->setSpacing(0);
-            outerLayout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            outerLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
             outerLayout->addLayout(innerLayout);
 
             return outerLayout;

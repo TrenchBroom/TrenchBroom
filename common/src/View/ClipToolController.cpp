@@ -27,6 +27,8 @@
 #include "Model/HitType.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
+#include "Renderer/RenderContext.h"
+#include "View/ClipTool.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 

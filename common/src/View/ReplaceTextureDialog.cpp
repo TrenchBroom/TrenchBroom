@@ -124,7 +124,7 @@ namespace TrenchBroom {
             upperLayout->setContentsMargins(QMargins());
             upperLayout->setSpacing(0);
             upperLayout->addWidget(subjectPanel, 1);
-            upperLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical), 0);
+            upperLayout->addWidget(new BorderLine(BorderLine::Direction::Vertical), 0);
             upperLayout->addWidget(replacementPanel, 1);
 
             auto* buttonBox = new QDialogButtonBox(this);

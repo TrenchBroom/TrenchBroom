@@ -20,89 +20,17 @@
 #include "CommandProcessor.h"
 
 #include "Exceptions.h"
+#include "Notifier.h"
 #include "TemporarilySetAny.h"
-#include "View/MapDocumentCommandFacade.h"
+#include "View/Command.h"
+#include "View/UndoableCommand.h"
 
 #include <kdl/string_utils.h>
-
-#include <string>
 
 #include <QDateTime>
 
 namespace TrenchBroom {
     namespace View {
-        const Command::CommandType CommandGroup::Type = Command::freeType();
-
-        CommandGroup::CommandGroup(const std::string& name, std::vector<std::unique_ptr<UndoableCommand>>&& commands,
-                                   Notifier<Command*>& commandDoNotifier,
-                                   Notifier<Command*>& commandDoneNotifier,
-                                   Notifier<UndoableCommand*>& commandUndoNotifier,
-                                   Notifier<UndoableCommand*>& commandUndoneNotifier) :
-        UndoableCommand(Type, name),
-        m_commands(std::move(commands)),
-        m_commandDoNotifier(commandDoNotifier),
-        m_commandDoneNotifier(commandDoneNotifier),
-        m_commandUndoNotifier(commandUndoNotifier),
-        m_commandUndoneNotifier(commandUndoneNotifier) {}
-
-        bool CommandGroup::doPerformDo(MapDocumentCommandFacade* document) {
-            for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
-                auto& command = *it;
-                m_commandDoNotifier(command.get());
-                if (!command->performDo(document)) {
-                    throw CommandProcessorException("Partial failure while executing command group");
-                }
-                m_commandDoneNotifier(command.get());
-            }
-            return true;
-        }
-
-        bool CommandGroup::doPerformUndo(MapDocumentCommandFacade* document) {
-            for (auto it = m_commands.rbegin(), end = m_commands.rend(); it != end; ++it) {
-                auto& command = *it;
-                m_commandUndoNotifier(command.get());
-                if (!command->performUndo(document)) {
-                    throw CommandProcessorException("Partial failure while undoing command group");
-                }
-                m_commandUndoneNotifier(command.get());
-            }
-            return true;
-        }
-
-        bool CommandGroup::doIsRepeatDelimiter() const {
-            for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
-                auto& command = *it;
-                if (command->isRepeatDelimiter()) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        bool CommandGroup::doIsRepeatable(MapDocumentCommandFacade* document) const {
-            for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
-                auto& command = *it;
-                if (!command->isRepeatable(document)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        std::unique_ptr<UndoableCommand> CommandGroup::doRepeat(MapDocumentCommandFacade* document) const {
-            std::vector<std::unique_ptr<UndoableCommand>> clones;
-            for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
-                auto& command = *it;
-                assert(command->isRepeatable(document));
-                clones.push_back(command->repeat(document));
-            }
-            return std::make_unique<CommandGroup>(name(), std::move(clones), m_commandDoNotifier, m_commandDoneNotifier, m_commandUndoNotifier, m_commandUndoneNotifier);
-        }
-
-        bool CommandGroup::doCollateWith(UndoableCommand*) {
-            return false;
-        }
-
         const int64_t CommandProcessor::CollationInterval = 1000;
 
         struct CommandProcessor::SubmitAndStoreResult {
@@ -333,7 +261,92 @@ namespace TrenchBroom {
             m_groupName = "";
         }
 
-        std::unique_ptr<UndoableCommand> CommandProcessor::createCommandGroup(const std::string& name, std::vector<std::unique_ptr<UndoableCommand>>&& commands) {
+        class CommandProcessor::CommandGroup : public UndoableCommand {
+        public:
+            static const CommandType Type;
+        private:
+            std::vector<std::unique_ptr<UndoableCommand>> m_commands;
+
+            Notifier<Command*>& m_commandDoNotifier;
+            Notifier<Command*>& m_commandDoneNotifier;
+            Notifier<UndoableCommand*>& m_commandUndoNotifier;
+            Notifier<UndoableCommand*>& m_commandUndoneNotifier;
+        public:
+            CommandGroup(
+                const std::string& name, std::vector<std::unique_ptr<UndoableCommand>>&& commands,
+                Notifier<Command*>& commandDoNotifier,
+                Notifier<Command*>& commandDoneNotifier,
+                Notifier<UndoableCommand*>& commandUndoNotifier,
+                Notifier<UndoableCommand*>& commandUndoneNotifier) :
+                UndoableCommand(Type, name),
+                m_commands(std::move(commands)),
+                m_commandDoNotifier(commandDoNotifier),
+                m_commandDoneNotifier(commandDoneNotifier),
+                m_commandUndoNotifier(commandUndoNotifier),
+                m_commandUndoneNotifier(commandUndoneNotifier) {}
+        private:
+            bool doPerformDo(MapDocumentCommandFacade* document) override {
+                for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
+                    auto& command = *it;
+                    m_commandDoNotifier(command.get());
+                    if (!command->performDo(document)) {
+                        throw CommandProcessorException("Partial failure while executing command group");
+                    }
+                    m_commandDoneNotifier(command.get());
+                }
+                return true;
+            }
+
+            bool doPerformUndo(MapDocumentCommandFacade* document) override {
+                for (auto it = m_commands.rbegin(), end = m_commands.rend(); it != end; ++it) {
+                    auto& command = *it;
+                    m_commandUndoNotifier(command.get());
+                    if (!command->performUndo(document)) {
+                        throw CommandProcessorException("Partial failure while undoing command group");
+                    }
+                    m_commandUndoneNotifier(command.get());
+                }
+                return true;
+            }
+
+            bool doIsRepeatDelimiter() const override {
+                for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
+                    auto& command = *it;
+                    if (command->isRepeatDelimiter()) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const override {
+                for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
+                    auto& command = *it;
+                    if (!command->isRepeatable(document)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override {
+                std::vector<std::unique_ptr<UndoableCommand>> clones;
+                for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
+                    auto& command = *it;
+                    assert(command->isRepeatable(document));
+                    clones.push_back(command->repeat(document));
+                }
+                return std::make_unique<CommandGroup>(name(), std::move(clones), m_commandDoNotifier, m_commandDoneNotifier, m_commandUndoNotifier, m_commandUndoneNotifier);
+            }
+
+            bool doCollateWith(UndoableCommand*) override {
+                return false;
+            }
+        };
+
+        const Command::CommandType CommandProcessor::CommandGroup::Type = Command::freeType();
+
+            std::unique_ptr<UndoableCommand> CommandProcessor::createCommandGroup(const std::string& name, std::vector<std::unique_ptr<UndoableCommand>>&& commands) {
             return std::make_unique<CommandGroup>(
                 name, std::move(commands),
                 commandDoNotifier,

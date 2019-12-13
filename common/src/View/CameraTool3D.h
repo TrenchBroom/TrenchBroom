@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_CameraTool3D
 #define TrenchBroom_CameraTool3D
 
+#include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
 
@@ -29,10 +30,6 @@
 #include <memory>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class PerspectiveCamera;
-    }
-
     namespace View {
         class MapDocument;
 

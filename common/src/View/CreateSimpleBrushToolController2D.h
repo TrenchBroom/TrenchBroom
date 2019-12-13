@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "View/ToolController.h"
+#include "View/View_Forward.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/bbox.h>
@@ -30,10 +31,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        class CreateSimpleBrushTool;
-        class Grid;
-        class MapDocument;
-
         class CreateSimpleBrushToolController2D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
             CreateSimpleBrushTool* m_tool;

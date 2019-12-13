@@ -30,7 +30,7 @@ namespace TrenchBroom {
 
         Command::Command(const CommandType type, const std::string& name) :
         m_type(type),
-        m_state(CommandState_Default),
+        m_state(CommandState::Default),
         m_name(name) {}
 
         Command::~Command() {}
@@ -52,12 +52,12 @@ namespace TrenchBroom {
         }
 
         bool Command::performDo(MapDocumentCommandFacade* document) {
-            m_state = CommandState_Doing;
+            m_state = CommandState::Doing;
             if (doPerformDo(document)) {
-                m_state = CommandState_Done;
+                m_state = CommandState::Done;
                 return true;
             } else {
-                m_state = CommandState_Default;
+                m_state = CommandState::Default;
                 return false;
             }
         }

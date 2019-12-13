@@ -21,6 +21,7 @@
 #define TrenchBroom_CollapsibleTitledPanel
 
 #include "View/TitleBar.h"
+#include "View/View_Forward.h"
 
 #include <QWidget>
 
@@ -28,8 +29,6 @@ class QLabel;
 
 namespace TrenchBroom {
     namespace View {
-        class BorderLine;
-
         class CollapsibleTitleBar : public TitleBar {
             Q_OBJECT
         private:

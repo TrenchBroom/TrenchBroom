@@ -44,6 +44,7 @@ namespace TrenchBroom {
             static std::unique_ptr<ConvertEntityColorCommand> convert(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
 
             ConvertEntityColorCommand(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
+            ~ConvertEntityColorCommand() override;
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

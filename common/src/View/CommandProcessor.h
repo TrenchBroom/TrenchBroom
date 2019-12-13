@@ -21,8 +21,7 @@
 #define TrenchBroom_CommandProcessor
 
 #include "Notifier.h"
-#include "View/Command.h"
-#include "View/UndoableCommand.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 #include <string>
@@ -30,36 +29,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        class MapDocumentCommandFacade;
-
-        class CommandGroup : public UndoableCommand {
-        public:
-            static const CommandType Type;
-        private:
-            std::vector<std::unique_ptr<UndoableCommand>> m_commands;
-
-            Notifier<Command*>& m_commandDoNotifier;
-            Notifier<Command*>& m_commandDoneNotifier;
-            Notifier<UndoableCommand*>& m_commandUndoNotifier;
-            Notifier<UndoableCommand*>& m_commandUndoneNotifier;
-        public:
-            CommandGroup(
-                const std::string& name, std::vector<std::unique_ptr<UndoableCommand>>&& commands,
-                Notifier<Command*>& commandDoNotifier,
-                Notifier<Command*>& commandDoneNotifier,
-                Notifier<UndoableCommand*>& commandUndoNotifier,
-                Notifier<UndoableCommand*>& commandUndoneNotifier);
-        private:
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
-
-            bool doIsRepeatDelimiter() const override;
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
-
-            bool doCollateWith(UndoableCommand* command) override;
-        };
-
         class CommandProcessor {
         private:
             static const int64_t CollationInterval;
@@ -126,6 +95,8 @@ namespace TrenchBroom {
             bool pushGroupedCommand(std::unique_ptr<UndoableCommand>&& command, bool collate);
             std::unique_ptr<UndoableCommand> popGroupedCommand();
             void createAndStoreCommandGroup();
+
+            class CommandGroup;
             std::unique_ptr<UndoableCommand> createCommandGroup(const std::string& name, std::vector<std::unique_ptr<UndoableCommand>>&& commands);
 
             bool pushLastCommand(std::unique_ptr<UndoableCommand>&& command, bool collate);

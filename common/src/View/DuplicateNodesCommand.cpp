@@ -38,7 +38,7 @@ namespace TrenchBroom {
         m_firstExecution(true) {}
 
         DuplicateNodesCommand::~DuplicateNodesCommand() {
-            if (state() == CommandState_Default) {
+            if (state() == CommandState::Default) {
                 kdl::map_clear_and_delete(m_addedNodes);
             }
         }

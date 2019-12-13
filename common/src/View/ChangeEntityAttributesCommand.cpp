@@ -20,6 +20,7 @@
 #include "ChangeEntityAttributesCommand.h"
 
 #include "Macros.h"
+#include "Model/EntityAttributeSnapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
@@ -64,6 +65,8 @@ namespace TrenchBroom {
         ChangeEntityAttributesCommand::ChangeEntityAttributesCommand(const Action action) :
         DocumentCommand(Type, makeName(action)),
         m_action(action) {}
+
+        ChangeEntityAttributesCommand::~ChangeEntityAttributesCommand() = default;
 
         std::string ChangeEntityAttributesCommand::makeName(const Action action) {
             switch (action) {

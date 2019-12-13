@@ -32,7 +32,7 @@ namespace TrenchBroom {
             if (rowCount() > 0) {
                 auto* lineLayout = new QVBoxLayout();
                 lineLayout->setContentsMargins(0, 2 * LayoutConstants::MediumVMargin, 0, 0);
-                lineLayout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+                lineLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
                 QFormLayout::addRow(lineLayout);
             }
 

@@ -109,9 +109,9 @@ namespace TrenchBroom {
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
             layout->addWidget(upperPanel);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
             layout->addWidget(m_taskList, 1);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
             layout->addLayout(buttonLayout);
 
             containerPanel->setLayout(layout);

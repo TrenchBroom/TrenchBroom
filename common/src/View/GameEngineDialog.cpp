@@ -57,7 +57,7 @@ namespace TrenchBroom {
             setLayout(layout);
 
             layout->addWidget(gameIndicator);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
             layout->addWidget(m_profileManager, 1);
             layout->addLayout(wrapDialogButtonBox(buttons));
 

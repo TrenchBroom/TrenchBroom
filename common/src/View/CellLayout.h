@@ -23,11 +23,14 @@
 #include "Ensure.h"
 #include "Macros.h"
 
-#include <QVariant>
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 #include <algorithm>
 #include <cassert>
 #include <vector>
+
+#include <QVariant>
 
 namespace TrenchBroom {
     namespace View {

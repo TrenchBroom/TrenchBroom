@@ -42,7 +42,7 @@ namespace TrenchBroom {
             layout->setSpacing(0);
             layout->addWidget(m_titleBar);
             if (showDivider) {
-                layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+                layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
             }
             layout->addWidget(m_panel, 1);
             setLayout(layout);

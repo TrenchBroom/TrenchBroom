@@ -21,8 +21,11 @@
 #define EdgeTool_h
 
 #include "TrenchBroom.h"
+#include "Model/Model_Forward.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/VertexHandleManager.h"
 #include "View/VertexToolBase.h"
+#include "View/View_Forward.h"
 
 #include <vecmath/segment.h>
 
@@ -31,17 +34,7 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Model {
-        class PickResult;
-    }
-
-    namespace Renderer {
-        class Camera;
-    }
-
     namespace View {
-        class MapDocument;
-
         class EdgeTool : public VertexToolBase<vm::segment3> {
         private:
             EdgeHandleManager m_edgeHandles;

@@ -219,7 +219,7 @@ namespace TrenchBroom {
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
             layout->addWidget(m_table, 1);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
+            layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
             layout->addLayout(toolBar, 0);
             setLayout(layout);
 

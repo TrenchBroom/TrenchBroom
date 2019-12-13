@@ -27,9 +27,15 @@ namespace TrenchBroom {
         class VertexArray;
         class BrushIndexArray;
         class BrushVertexArray;
+
+        class BrushRenderer;
         class BrushRendererBrushCache;
 
+        class MapRenderer;
+
         class Camera;
+        class OrthographicCamera;
+        class PerspectiveCamera;
 
         class RenderBatch;
         class RenderContext;

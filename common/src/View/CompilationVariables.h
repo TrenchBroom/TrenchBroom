@@ -21,6 +21,7 @@
 #define CompilationVariables_h
 
 #include "EL/VariableStore.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 #include <string>
@@ -37,8 +38,6 @@ namespace TrenchBroom {
             extern const std::string MODS;
             extern const std::string APP_DIR_PATH;
         }
-
-        class MapDocument;
 
         class CommonVariables : public EL::VariableTable {
         protected:

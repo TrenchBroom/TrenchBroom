@@ -22,19 +22,12 @@
 
 #include "Polyhedron3.h"
 #include "View/CreateBrushToolBase.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class BrushRenderer;
-        class RenderBatch;
-        class RenderContext;
-    }
-
     namespace View {
-        class MapDocument;
-
         class CreateComplexBrushTool : public CreateBrushToolBase {
         private:
             std::unique_ptr<Polyhedron3> m_polyhedron;

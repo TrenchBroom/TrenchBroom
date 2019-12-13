@@ -29,7 +29,7 @@ namespace TrenchBroom {
             setFrameShadow(QFrame::Plain);
             setStyleSheet(" BorderLine { color: " + Colors::borderColor().name() + "; }");
             setLineWidth(thickness - 1);
-            if (direction == Direction_Horizontal) {
+            if (direction == Direction::Horizontal) {
                 setFrameShape(QFrame::HLine);
                 setFixedHeight(thickness); // necessary to remove extra space around the horizontal line
             } else {

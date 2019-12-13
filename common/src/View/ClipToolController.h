@@ -22,27 +22,16 @@
 
 #include "TrenchBroom.h"
 #include "Model/Model_Forward.h"
-#include "Renderer/RenderContext.h"
-#include "View/ClipTool.h"
-#include "View/InputState.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/ToolController.h"
+#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class RenderBatch;
-        class RenderContext;
-    }
-
     namespace View {
-        class ClipTool;
-        class Grid;
-        class InputState;
-        class Tool;
-
         class ClipToolController : public ToolControllerGroup {
         protected:
             class Callback {

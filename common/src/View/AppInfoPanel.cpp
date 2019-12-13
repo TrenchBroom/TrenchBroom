@@ -46,7 +46,7 @@ namespace TrenchBroom {
             QLabel* appName = new QLabel(tr("TrenchBroom"));
             makeHeader(appName);
 
-            BorderLine* appLine = new BorderLine(BorderLine::Direction_Horizontal);
+            BorderLine* appLine = new BorderLine(BorderLine::Direction::Horizontal);
             QLabel* appClaim = new QLabel(tr("Level Editor"));
 
             ClickableLabel* version = new ClickableLabel(QString(tr("Version ")) % getBuildVersion());

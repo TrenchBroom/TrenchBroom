@@ -31,12 +31,12 @@ namespace TrenchBroom {
         UndoableCommand::~UndoableCommand() {}
 
         bool UndoableCommand::performUndo(MapDocumentCommandFacade* document) {
-            m_state = CommandState_Undoing;
+            m_state = CommandState::Undoing;
             if (doPerformUndo(document)) {
-                m_state = CommandState_Default;
+                m_state = CommandState::Default;
                 return true;
             } else {
-                m_state = CommandState_Done;
+                m_state = CommandState::Done;
                 return false;
             }
         }
