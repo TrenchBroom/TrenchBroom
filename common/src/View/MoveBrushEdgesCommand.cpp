@@ -25,7 +25,8 @@
 #include "View/MapDocumentCommandFacade.h"
 #include "View/VertexHandleManager.h"
 
-#include <vecmath/segment.h>
+#include <vecmath/segment.h> // do not remove
+#include <vecmath/polygon.h> // do not remove
 
 #include <vector>
 
