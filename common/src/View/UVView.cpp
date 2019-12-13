@@ -185,7 +185,13 @@ namespace TrenchBroom {
 
         void UVView::setupGL(Renderer::RenderContext& renderContext) {
             const Renderer::Camera::Viewport& viewport = renderContext.camera().viewport();
-            glAssert(glViewport(viewport.x, viewport.y, viewport.width, viewport.height))
+            const qreal r = devicePixelRatioF();
+            const int x = static_cast<int>(viewport.x * r);
+            const int y = static_cast<int>(viewport.y * r);
+            const int width = static_cast<int>(viewport.width * r);
+            const int height = static_cast<int>(viewport.height * r);
+
+            glAssert(glViewport(x, y, width, height))
 
             glAssert(glEnable(GL_MULTISAMPLE))
             glAssert(glEnable(GL_BLEND))

@@ -244,17 +244,24 @@ namespace TrenchBroom {
             m_splitter->addWidget(m_smartEditorManager);
             m_splitter->addWidget(m_documentationText);
 
+            // give most space to the attribute grid
+            m_splitter->setSizes(QList<int>{1'000'000, 1, 1});
+
+            // NOTE: this should be done before setChildrenCollapsible() and setMinimumSize()
+            // otherwise it can override them.
+            restoreWindowState(m_splitter);
+
             m_attributeGrid->setMinimumSize(100, 50);
             m_smartEditorManager->setMinimumSize(100, 50);
             m_documentationText->setMinimumSize(100, 50);
+
+            // don't allow the user to collapse the panels, it's hard to see them
+            m_splitter->setChildrenCollapsible(false);
 
             // resize only the attribute grid when the container resizes
             m_splitter->setStretchFactor(0, 1);
             m_splitter->setStretchFactor(1, 0);
             m_splitter->setStretchFactor(2, 0);
-
-            // give most space to the attribute grid
-            m_splitter->setSizes(QList<int>{1'000'000, 1, 1});
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
@@ -262,8 +269,6 @@ namespace TrenchBroom {
             setLayout(layout);
 
             connect(m_attributeGrid, &EntityAttributeGrid::selectedRow, this, &EntityAttributeEditor::OnCurrentRowChanged);
-
-            restoreWindowState(m_splitter);
         }
     }
 }
