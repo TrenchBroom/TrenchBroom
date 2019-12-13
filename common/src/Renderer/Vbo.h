@@ -44,7 +44,7 @@ namespace TrenchBroom {
              * Immediately creates and binds to a buffer of the given type and capacity.
              * The contents are initially unspecified.
              */
-            Vbo(GLenum type, const size_t capacity);
+            Vbo(GLenum type, size_t capacity, GLenum usage);
             ~Vbo();
 
             /**

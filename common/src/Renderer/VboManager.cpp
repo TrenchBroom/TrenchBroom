@@ -28,7 +28,7 @@ namespace TrenchBroom {
         /**
          * e.g. GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER
          */
-        static GLenum toOpenGL(const VboType type) {
+        static GLenum typeToOpenGL(const VboType type) {
             switch (type) {
                 case VboType::ArrayBuffer:
                     return GL_ARRAY_BUFFER;
@@ -38,10 +38,20 @@ namespace TrenchBroom {
             }
         }
 
+        static GLenum usageToOpenGL(const VboUsage usage) {
+            switch (usage) {
+                case VboUsage::StaticDraw:
+                    return GL_STATIC_DRAW;
+                case VboUsage::DynamicDraw:
+                    return GL_DYNAMIC_DRAW;
+                switchDefault()
+            }
+        }
+
         VboManager::VboManager() {}
 
-        Vbo* VboManager::allocateVbo(VboType type, const size_t capacity) {
-            return new Vbo(toOpenGL(type), capacity);
+        Vbo* VboManager::allocateVbo(VboType type, const size_t capacity, const VboUsage usage) {
+            return new Vbo(typeToOpenGL(type), capacity, usageToOpenGL(usage));
         }
     }
 }

@@ -33,6 +33,11 @@ namespace TrenchBroom {
             ElementArrayBuffer
         };
 
+        enum class VboUsage {
+            StaticDraw,
+            DynamicDraw
+        };
+
         class VboManager {
         public:
             VboManager();
@@ -40,7 +45,7 @@ namespace TrenchBroom {
             * Immediately creates and binds to an OpenGL buffer of the given type and capacity.
             * The contents are initially unspecified. See Vbo class.
             */
-            Vbo* allocateVbo(VboType type, size_t capacity);
+            Vbo* allocateVbo(VboType type, size_t capacity, VboUsage usage = VboUsage::StaticDraw);
         };
     }
 }
