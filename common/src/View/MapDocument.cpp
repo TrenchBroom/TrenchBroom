@@ -2132,11 +2132,11 @@ namespace TrenchBroom {
             }
         }
 
-        void MapDocument::commandDone(std::shared_ptr<Command> command) {
+        void MapDocument::commandDone(Command* command) {
             debug() << "Command " << command->name() << "' executed";
         }
 
-        void MapDocument::commandUndone(std::shared_ptr<UndoableCommand> command) {
+        void MapDocument::commandUndone(UndoableCommand* command) {
             debug() << "Command " << command->name() << " undone";
         }
 

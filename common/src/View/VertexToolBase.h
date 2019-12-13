@@ -406,58 +406,58 @@ namespace TrenchBroom {
                 }
             }
 
-            void commandDo(std::shared_ptr<Command> command) {
+            void commandDo(Command* command) {
                 commandDoOrUndo(command);
             }
 
-            void commandDone(std::shared_ptr<Command> command) {
+            void commandDone(Command* command) {
                 commandDoneOrUndoFailed(command);
             }
 
-            void commandDoFailed(std::shared_ptr<Command> command) {
+            void commandDoFailed(Command* command) {
                 commandDoFailedOrUndone(command);
             }
 
-            void commandUndo(std::shared_ptr<UndoableCommand> command) {
+            void commandUndo(UndoableCommand* command) {
                 commandDoOrUndo(command);
             }
 
-            void commandUndone(std::shared_ptr<UndoableCommand> command) {
+            void commandUndone(UndoableCommand* command) {
                 commandDoFailedOrUndone(command);
             }
 
-            void commandUndoFailed(std::shared_ptr<UndoableCommand> command) {
+            void commandUndoFailed(UndoableCommand* command) {
                 commandDoneOrUndoFailed(command);
             }
 
-            void commandDoOrUndo(std::shared_ptr<Command> command) {
+            void commandDoOrUndo(Command* command) {
                 if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command.get());
+                    auto* vertexCommand = static_cast<VertexCommand*>(command);
                     deselectHandles();
                     removeHandles(vertexCommand);
                     m_ignoreChangeNotifications.pushLiteral();
                 }
             }
 
-            void commandDoneOrUndoFailed(std::shared_ptr<Command> command) {
+            void commandDoneOrUndoFailed(Command* command) {
                 if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command.get());
+                    auto* vertexCommand = static_cast<VertexCommand*>(command);
                     addHandles(vertexCommand);
                     selectNewHandlePositions(vertexCommand);
                     m_ignoreChangeNotifications.popLiteral();
                 }
             }
 
-            void commandDoFailedOrUndone(std::shared_ptr<Command> command) {
+            void commandDoFailedOrUndone(Command* command) {
                 if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command.get());
+                    auto* vertexCommand = static_cast<VertexCommand*>(command);
                     addHandles(vertexCommand);
                     selectOldHandlePositions(vertexCommand);
                     m_ignoreChangeNotifications.popLiteral();
                 }
             }
 
-            bool isVertexCommand(const std::shared_ptr<Command>& command) const {
+            bool isVertexCommand(const Command* command) const {
                 return command->isType(
                         AddBrushVerticesCommand::Type,
                         RemoveBrushVerticesCommand::Type,

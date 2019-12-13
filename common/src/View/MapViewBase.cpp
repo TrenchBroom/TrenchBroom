@@ -193,13 +193,13 @@ namespace TrenchBroom {
             update();
         }
 
-        void MapViewBase::commandDone(std::shared_ptr<Command>) {
+        void MapViewBase::commandDone(Command*) {
             updateActionStates();
             updatePickResult();
             update();
         }
 
-        void MapViewBase::commandUndone(std::shared_ptr<UndoableCommand>) {
+        void MapViewBase::commandUndone(UndoableCommand*) {
             updateActionStates();
             updatePickResult();
             update();

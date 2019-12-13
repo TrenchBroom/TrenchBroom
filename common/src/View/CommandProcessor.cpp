@@ -34,10 +34,10 @@ namespace TrenchBroom {
         const Command::CommandType CommandGroup::Type = Command::freeType();
 
         CommandGroup::CommandGroup(const std::string& name, const CommandList& commands,
-                                   Notifier<std::shared_ptr<Command>>& commandDoNotifier,
-                                   Notifier<std::shared_ptr<Command>>& commandDoneNotifier,
-                                   Notifier<std::shared_ptr<UndoableCommand>>& commandUndoNotifier,
-                                   Notifier<std::shared_ptr<UndoableCommand>>& commandUndoneNotifier) :
+                                   Notifier<Command*>& commandDoNotifier,
+                                   Notifier<Command*>& commandDoneNotifier,
+                                   Notifier<UndoableCommand*>& commandUndoNotifier,
+                                   Notifier<UndoableCommand*>& commandUndoneNotifier) :
         UndoableCommand(Type, name),
         m_commands(commands),
         m_commandDoNotifier(commandDoNotifier),
@@ -48,10 +48,10 @@ namespace TrenchBroom {
         bool CommandGroup::doPerformDo(MapDocumentCommandFacade* document) {
             for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
                 std::shared_ptr<UndoableCommand> command = *it;
-                m_commandDoNotifier(command);
+                m_commandDoNotifier(command.get());
                 if (!command->performDo(document))
                     throw CommandProcessorException("Partial failure while executing command group");
-                m_commandDoneNotifier(command);
+                m_commandDoneNotifier(command.get());
             }
             return true;
         }
@@ -59,10 +59,10 @@ namespace TrenchBroom {
         bool CommandGroup::doPerformUndo(MapDocumentCommandFacade* document) {
             for (auto it = m_commands.rbegin(), end = m_commands.rend(); it != end; ++it) {
                 std::shared_ptr<UndoableCommand> command = *it;
-                m_commandUndoNotifier(command);
+                m_commandUndoNotifier(command.get());
                 if (!command->performUndo(document))
                     throw CommandProcessorException("Partial failure while undoing command group");
-                m_commandUndoneNotifier(command);
+                m_commandUndoneNotifier(command.get());
             }
             return true;
         }
@@ -273,26 +273,26 @@ namespace TrenchBroom {
         }
 
         bool CommandProcessor::doCommand(std::shared_ptr<Command> command) {
-            commandDoNotifier(command);
+            commandDoNotifier(command.get());
             if (command->performDo(m_document)) {
-                commandDoneNotifier(command);
+                commandDoneNotifier(command.get());
                 if (m_groupLevel == 0) {
                     transactionDoneNotifier(command->name());
                 }
                 return true;
             } else {
-                commandDoFailedNotifier(command);
+                commandDoFailedNotifier(command.get());
             return false;
         }
         }
 
         bool CommandProcessor::undoCommand(std::shared_ptr<UndoableCommand> command) {
-            commandUndoNotifier(command);
+            commandUndoNotifier(command.get());
             if (command->performUndo(m_document)) {
-                commandUndoneNotifier(command);
+                commandUndoneNotifier(command.get());
                 return true;
             } else {
-                commandUndoFailedNotifier(command);
+                commandUndoFailedNotifier(command.get());
             return false;
         }
         }

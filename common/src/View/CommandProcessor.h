@@ -39,16 +39,16 @@ namespace TrenchBroom {
         private:
             CommandList m_commands;
 
-            Notifier<std::shared_ptr<Command>>& m_commandDoNotifier;
-            Notifier<std::shared_ptr<Command>>& m_commandDoneNotifier;
-            Notifier<std::shared_ptr<UndoableCommand>>& m_commandUndoNotifier;
-            Notifier<std::shared_ptr<UndoableCommand>>& m_commandUndoneNotifier;
+            Notifier<Command*>& m_commandDoNotifier;
+            Notifier<Command*>& m_commandDoneNotifier;
+            Notifier<UndoableCommand*>& m_commandUndoNotifier;
+            Notifier<UndoableCommand*>& m_commandUndoneNotifier;
         public:
             CommandGroup(const std::string& name, const CommandList& commands,
-                         Notifier<std::shared_ptr<Command>>& commandDoNotifier,
-                         Notifier<std::shared_ptr<Command>>& commandDoneNotifier,
-                         Notifier<std::shared_ptr<UndoableCommand>>& commandUndoNotifier,
-                         Notifier<std::shared_ptr<UndoableCommand>>& commandUndoneNotifier);
+                         Notifier<Command*>& commandDoNotifier,
+                         Notifier<Command*>& commandDoneNotifier,
+                         Notifier<UndoableCommand*>& commandUndoNotifier,
+                         Notifier<UndoableCommand*>& commandUndoneNotifier);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
@@ -81,12 +81,12 @@ namespace TrenchBroom {
         public:
             explicit CommandProcessor(MapDocumentCommandFacade* document);
 
-            Notifier<std::shared_ptr<Command>> commandDoNotifier;
-            Notifier<std::shared_ptr<Command>> commandDoneNotifier;
-            Notifier<std::shared_ptr<Command>> commandDoFailedNotifier;
-            Notifier<std::shared_ptr<UndoableCommand>> commandUndoNotifier;
-            Notifier<std::shared_ptr<UndoableCommand>> commandUndoneNotifier;
-            Notifier<std::shared_ptr<UndoableCommand>> commandUndoFailedNotifier;
+            Notifier<Command*> commandDoNotifier;
+            Notifier<Command*> commandDoneNotifier;
+            Notifier<Command*> commandDoFailedNotifier;
+            Notifier<UndoableCommand*> commandUndoNotifier;
+            Notifier<UndoableCommand*> commandUndoneNotifier;
+            Notifier<UndoableCommand*> commandUndoFailedNotifier;
 
             /**
              * Fired when a transaction completes successfully.

@@ -102,12 +102,12 @@ namespace TrenchBroom {
 
             ViewEffectsService* m_viewEffectsService;
         public: // notification
-            Notifier<std::shared_ptr<Command>> commandDoNotifier;
-            Notifier<std::shared_ptr<Command>> commandDoneNotifier;
-            Notifier<std::shared_ptr<Command>> commandDoFailedNotifier;
-            Notifier<std::shared_ptr<UndoableCommand>> commandUndoNotifier;
-            Notifier<std::shared_ptr<UndoableCommand>> commandUndoneNotifier;
-            Notifier<std::shared_ptr<UndoableCommand>> commandUndoFailedNotifier;
+            Notifier<Command*> commandDoNotifier;
+            Notifier<Command*> commandDoneNotifier;
+            Notifier<Command*> commandDoFailedNotifier;
+            Notifier<UndoableCommand*> commandUndoNotifier;
+            Notifier<UndoableCommand*> commandUndoneNotifier;
+            Notifier<UndoableCommand*> commandUndoFailedNotifier;
             Notifier<const std::string&> transactionDoneNotifier;
             Notifier<const std::string&> transactionUndoneNotifier;
 
@@ -508,8 +508,8 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             void preferenceDidChange(const IO::Path& path);
-            void commandDone(std::shared_ptr<Command> command);
-            void commandUndone(std::shared_ptr<UndoableCommand> command);
+            void commandDone(Command* command);
+            void commandUndone(UndoableCommand* command);
         };
 
         class Transaction {

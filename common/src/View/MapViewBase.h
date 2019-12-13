@@ -103,8 +103,8 @@ namespace TrenchBroom {
 
             void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void toolChanged(Tool* tool);
-            void commandDone(std::shared_ptr<Command> command);
-            void commandUndone(std::shared_ptr<UndoableCommand> command);
+            void commandDone(Command* command);
+            void commandUndone(UndoableCommand* command);
             void selectionDidChange(const Selection& selection);
             void textureCollectionsDidChange();
             void entityDefinitionsDidChange();
