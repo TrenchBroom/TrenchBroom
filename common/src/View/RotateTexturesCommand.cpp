@@ -26,8 +26,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType RotateTexturesCommand::Type = Command::freeType();
 
-        RotateTexturesCommand::Ptr RotateTexturesCommand::rotate(const float angle) {
-            return Ptr(new RotateTexturesCommand(angle));
+        std::shared_ptr<RotateTexturesCommand> RotateTexturesCommand::rotate(const float angle) {
+            return std::make_shared<RotateTexturesCommand>(angle);
         }
 
         RotateTexturesCommand::RotateTexturesCommand(const float angle) :
@@ -51,11 +51,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        UndoableCommand::Ptr RotateTexturesCommand::doRepeat(MapDocumentCommandFacade*) const {
-            return UndoableCommand::Ptr(new RotateTexturesCommand(m_angle));
+        std::shared_ptr<UndoableCommand> RotateTexturesCommand::doRepeat(MapDocumentCommandFacade*) const {
+            return std::make_shared<RotateTexturesCommand>(m_angle);
         }
 
-        bool RotateTexturesCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool RotateTexturesCommand::doCollateWith(std::shared_ptr<UndoableCommand> command) {
             const RotateTexturesCommand* other = static_cast<RotateTexturesCommand*>(command.get());
 
             m_angle += other->m_angle;

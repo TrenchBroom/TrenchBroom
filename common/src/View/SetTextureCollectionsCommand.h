@@ -20,28 +20,34 @@
 #ifndef TrenchBroom_TextureCollectionCommand
 #define TrenchBroom_TextureCollectionCommand
 
-#include "IO/Path.h"
+#include "Macros.h"
+#include "IO/IO_Forward.h"
 #include "View/DocumentCommand.h"
+#include "View/View_Forward.h"
+
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
         class SetTextureCollectionsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<SetTextureCollectionsCommand>;
         private:
             std::vector<IO::Path> m_paths;
             std::vector<IO::Path> m_oldPaths;
         public:
-            static Ptr set(const std::vector<IO::Path>& paths);
-        private:
-            SetTextureCollectionsCommand(const std::vector<IO::Path>& paths);
+            static std::shared_ptr<SetTextureCollectionsCommand> set(const std::vector<IO::Path>& paths);
 
+            SetTextureCollectionsCommand(const std::vector<IO::Path>& paths);
+        private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+
+            deleteCopyAndMove(SetTextureCollectionsCommand)
         };
     }
 }

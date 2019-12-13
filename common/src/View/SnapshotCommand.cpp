@@ -27,14 +27,9 @@
 namespace TrenchBroom {
     namespace View {
         SnapshotCommand::SnapshotCommand(Command::CommandType type, const std::string &name) :
-        DocumentCommand(type, name),
-        m_snapshot(nullptr) {}
+        DocumentCommand(type, name) {}
 
-        SnapshotCommand::~SnapshotCommand() {
-            if (m_snapshot != nullptr) {
-                deleteSnapshot();
-            }
-        }
+        SnapshotCommand::~SnapshotCommand() = default;
 
         bool SnapshotCommand::performDo(MapDocumentCommandFacade *document) {
             takeSnapshot(document);
@@ -57,20 +52,19 @@ namespace TrenchBroom {
 
         bool SnapshotCommand::restoreSnapshot(MapDocumentCommandFacade *document) {
             ensure(m_snapshot != nullptr, "snapshot is null");
-            document->restoreSnapshot(m_snapshot);
+            document->restoreSnapshot(m_snapshot.get());
             deleteSnapshot();
             return true;
         }
 
         void SnapshotCommand::deleteSnapshot() {
             assert(m_snapshot != nullptr);
-            delete m_snapshot;
-            m_snapshot = nullptr;
+            m_snapshot.reset();
         }
 
-        Model::Snapshot *SnapshotCommand::doTakeSnapshot(MapDocumentCommandFacade *document) const {
+        std::unique_ptr<Model::Snapshot> SnapshotCommand::doTakeSnapshot(MapDocumentCommandFacade *document) const {
             const auto& nodes = document->selectedNodes().nodes();
-            return new Model::Snapshot(std::begin(nodes), std::end(nodes));
+            return std::make_unique<Model::Snapshot>(std::begin(nodes), std::end(nodes));
         }
     }
 }

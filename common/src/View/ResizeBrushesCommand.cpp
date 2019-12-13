@@ -19,9 +19,9 @@
 
 #include "ResizeBrushesCommand.h"
 
+#include "TrenchBroom.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include "TrenchBroom.h"
 #include <vecmath/vec.h>
 #include <vecmath/polygon.h>
 
@@ -31,8 +31,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ResizeBrushesCommand::Type = Command::freeType();
 
-        ResizeBrushesCommand::Ptr ResizeBrushesCommand::resize(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
-            return Ptr(new ResizeBrushesCommand(faces, delta));
+        std::shared_ptr<ResizeBrushesCommand> ResizeBrushesCommand::resize(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
+            return std::make_shared<ResizeBrushesCommand>(faces, delta);
         }
 
         ResizeBrushesCommand::ResizeBrushesCommand(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) :
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool ResizeBrushesCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool ResizeBrushesCommand::doCollateWith(std::shared_ptr<UndoableCommand> command) {
             ResizeBrushesCommand* other = static_cast<ResizeBrushesCommand*>(command.get());
             if (other->m_faces == m_newFaces) {
                 m_newFaces = other->m_newFaces;

@@ -25,12 +25,12 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType CurrentGroupCommand::Type = Command::freeType();
 
-        CurrentGroupCommand::Ptr CurrentGroupCommand::push(Model::Group* group) {
-            return Ptr(new CurrentGroupCommand(group));
+        std::shared_ptr<CurrentGroupCommand> CurrentGroupCommand::push(Model::Group* group) {
+            return std::make_shared<CurrentGroupCommand>(group);
         }
 
-        CurrentGroupCommand::Ptr CurrentGroupCommand::pop() {
-            return Ptr(new CurrentGroupCommand(nullptr));
+        std::shared_ptr<CurrentGroupCommand> CurrentGroupCommand::pop() {
+            return std::make_shared<CurrentGroupCommand>(nullptr);
         }
 
         CurrentGroupCommand::CurrentGroupCommand(Model::Group* group) :
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool CurrentGroupCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool CurrentGroupCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
             return false;
         }
 

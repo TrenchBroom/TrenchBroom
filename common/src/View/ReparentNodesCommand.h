@@ -20,10 +20,13 @@
 #ifndef TrenchBroom_ReparentNodesCommand
 #define TrenchBroom_ReparentNodesCommand
 
+#include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
+#include "View/View_Forward.h"
 
 #include <map>
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -31,13 +34,12 @@ namespace TrenchBroom {
         class ReparentNodesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<ReparentNodesCommand>;
         private:
             std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
             std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;
         public:
-            static Ptr reparent(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove);
-        private:
+            static std::shared_ptr<ReparentNodesCommand> reparent(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove);
+
             ReparentNodesCommand(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
@@ -45,7 +47,9 @@ namespace TrenchBroom {
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+
+            deleteCopyAndMove(ReparentNodesCommand)
         };
     }
 }

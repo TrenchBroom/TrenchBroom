@@ -25,8 +25,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType FindPlanePointsCommand::Type = Command::freeType();
 
-        FindPlanePointsCommand::Ptr FindPlanePointsCommand::findPlanePoints() {
-            return Ptr(new FindPlanePointsCommand());
+        std::shared_ptr<FindPlanePointsCommand> FindPlanePointsCommand::findPlanePoints() {
+            return std::make_shared<FindPlanePointsCommand>();
         }
 
         FindPlanePointsCommand::FindPlanePointsCommand() :
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool FindPlanePointsCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool FindPlanePointsCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
             return false;
         }
     }

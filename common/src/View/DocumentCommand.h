@@ -35,7 +35,7 @@ namespace TrenchBroom {
         public:
             bool performDo(MapDocumentCommandFacade* document) override;
             bool performUndo(MapDocumentCommandFacade* document) override;
-            bool collateWith(UndoableCommand::Ptr command) override;
+            bool collateWith(std::shared_ptr<UndoableCommand> command) override;
         private:
             size_t documentModificationCount() const override;
         private:

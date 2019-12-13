@@ -20,9 +20,12 @@
 #ifndef TrenchBroom_RemoveBrushFacesCommand
 #define TrenchBroom_RemoveBrushFacesCommand
 
+#include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "View/RemoveBrushElementsCommand.h"
+#include "View/View_Forward.h"
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -34,15 +37,16 @@ namespace TrenchBroom {
         class RemoveBrushFacesCommand : public RemoveBrushElementsCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<RemoveBrushFacesCommand>;
         private:
             std::vector<vm::polygon3> m_oldFacePositions;
         public:
-            static Ptr remove(const FaceToBrushesMap& faces);
-        private:
-            RemoveBrushFacesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::polygon3>& facePositions);
+            static std::shared_ptr<RemoveBrushFacesCommand> remove(const FaceToBrushesMap& faces);
 
+            RemoveBrushFacesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::polygon3>& facePositions);
+        private:
             void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const override;
+
+            deleteCopyAndMove(RemoveBrushFacesCommand)
         };
     }
 }

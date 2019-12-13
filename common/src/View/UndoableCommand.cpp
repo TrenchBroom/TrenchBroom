@@ -49,11 +49,11 @@ namespace TrenchBroom {
             return doIsRepeatable(document);
         }
 
-        UndoableCommand::Ptr UndoableCommand::repeat(MapDocumentCommandFacade* document) const {
+        std::shared_ptr<UndoableCommand> UndoableCommand::repeat(MapDocumentCommandFacade* document) const {
             return doRepeat(document);
         }
 
-        bool UndoableCommand::collateWith(UndoableCommand::Ptr command) {
+        bool UndoableCommand::collateWith(std::shared_ptr<UndoableCommand> command) {
             assert(command.get() != this);
             if (command->type() != m_type)
                 return false;
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        UndoableCommand::Ptr UndoableCommand::doRepeat(MapDocumentCommandFacade*) const {
+        std::shared_ptr<UndoableCommand> UndoableCommand::doRepeat(MapDocumentCommandFacade*) const {
             throw CommandProcessorException("Command is not repeatable");
         }
 

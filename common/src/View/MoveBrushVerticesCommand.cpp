@@ -20,8 +20,10 @@
 #include "MoveBrushVerticesCommand.h"
 
 #include "Constants.h"
+#include "Model/Brush.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "View/VertexHandleManager.h"
 
 #include <vecmath/polygon.h>
 
@@ -32,17 +34,13 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveBrushVerticesCommand::Type = Command::freeType();
 
-        MoveBrushVerticesCommand::Ptr MoveBrushVerticesCommand::move(const VertexToBrushesMap& vertices, const vm::vec3& delta) {
+        std::shared_ptr<MoveBrushVerticesCommand> MoveBrushVerticesCommand::move(const VertexToBrushesMap& vertices, const vm::vec3& delta) {
             std::vector<Model::Brush*> brushes;
             BrushVerticesMap brushVertices;
             std::vector<vm::vec3> vertexPositions;
             extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
 
-            return Ptr(new MoveBrushVerticesCommand(brushes, brushVertices, vertexPositions, delta));
-        }
-
-        bool MoveBrushVerticesCommand::hasRemainingVertices() const {
-            return !m_newVertexPositions.empty();
+            return std::make_shared<MoveBrushVerticesCommand>(brushes, brushVertices, vertexPositions, delta);
         }
 
         MoveBrushVerticesCommand::MoveBrushVerticesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta) :
@@ -51,6 +49,10 @@ namespace TrenchBroom {
         m_oldVertexPositions(vertexPositions),
         m_delta(delta) {
             assert(!vm::is_zero(m_delta, vm::C::almost_zero()));
+        }
+
+        bool MoveBrushVerticesCommand::hasRemainingVertices() const {
+            return !m_newVertexPositions.empty();
         }
 
         bool MoveBrushVerticesCommand::doCanDoVertexOperation(const MapDocument* document) const {
@@ -69,7 +71,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MoveBrushVerticesCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool MoveBrushVerticesCommand::doCollateWith(std::shared_ptr<UndoableCommand> command) {
             MoveBrushVerticesCommand* other = static_cast<MoveBrushVerticesCommand*>(command.get());
 
             if (!canCollateWith(*other)) {

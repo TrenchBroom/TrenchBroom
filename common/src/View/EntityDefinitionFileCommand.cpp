@@ -26,8 +26,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType EntityDefinitionFileCommand::Type = Command::freeType();
 
-        EntityDefinitionFileCommand::Ptr EntityDefinitionFileCommand::set(const Assets::EntityDefinitionFileSpec& spec) {
-            return Ptr(new EntityDefinitionFileCommand("Set Entity Definitions", spec));
+        std::shared_ptr<EntityDefinitionFileCommand> EntityDefinitionFileCommand::set(const Assets::EntityDefinitionFileSpec& spec) {
+            return std::make_shared<EntityDefinitionFileCommand>("Set Entity Definitions", spec);
         }
 
         EntityDefinitionFileCommand::EntityDefinitionFileCommand(const std::string& name, const Assets::EntityDefinitionFileSpec& spec) :
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool EntityDefinitionFileCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool EntityDefinitionFileCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
             return false;
         }
     }

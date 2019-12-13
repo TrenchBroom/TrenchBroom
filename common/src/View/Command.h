@@ -21,18 +21,16 @@
 #define TrenchBroom_Command
 
 #include "Macros.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 #include <string>
 
 namespace TrenchBroom {
     namespace View {
-        class MapDocumentCommandFacade;
-
         class Command {
         public:
             using CommandType = size_t;
-            using Ptr = std::shared_ptr<Command>;
 
             typedef enum {
                 CommandState_Default,

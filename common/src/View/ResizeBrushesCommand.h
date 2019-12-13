@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_ResizeBrushesCommand
 #define TrenchBroom_ResizeBrushesCommand
 
+#include "Macros.h"
 #include "TrenchBroom.h"
 #include "Model/Model_Forward.h"
 #include "View/SnapshotCommand.h"
@@ -27,6 +28,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -34,21 +36,22 @@ namespace TrenchBroom {
         class ResizeBrushesCommand : public SnapshotCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<ResizeBrushesCommand>;
         private:
             std::vector<vm::polygon3> m_faces;
             std::vector<vm::polygon3> m_newFaces;
             vm::vec3 m_delta;
         public:
-            static Ptr resize(const std::vector<vm::polygon3>& faces, const vm::vec3& delta);
-        private:
-            ResizeBrushesCommand(const std::vector<vm::polygon3>& faces, const vm::vec3& delta);
+            static std::shared_ptr<ResizeBrushesCommand> resize(const std::vector<vm::polygon3>& faces, const vm::vec3& delta);
 
+            ResizeBrushesCommand(const std::vector<vm::polygon3>& faces, const vm::vec3& delta);
+        private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+
+            deleteCopyAndMove(ResizeBrushesCommand)
         };
     }
 }

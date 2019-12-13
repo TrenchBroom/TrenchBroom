@@ -20,10 +20,14 @@
 #ifndef TrenchBroom_VertexCommand
 #define TrenchBroom_VertexCommand
 
+#include "Macros.h"
+#include "TrenchBroom.h"
+#include "Model/BrushGeometry.h"
 #include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
-#include "View/VertexHandleManager.h"
+#include "View/View_Forward.h"
 
+#include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
 #include <map>
@@ -33,14 +37,7 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Snapshot;
-    }
-
     namespace View {
-        class MapDocument;
-        class VertexTool;
-
         class VertexCommand : public DocumentCommand {
         protected:
             using VertexToBrushesMap = std::map<vm::vec3, std::set<Model::Brush*>>;
@@ -115,6 +112,8 @@ namespace TrenchBroom {
             virtual void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const;
             virtual void doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const;
             virtual void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const;
+
+            deleteCopyAndMove(VertexCommand)
         };
     }
 }

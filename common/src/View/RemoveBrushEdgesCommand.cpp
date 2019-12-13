@@ -22,6 +22,7 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "View/VertexHandleManager.h"
 
 #include <vecmath/polygon.h>
 
@@ -31,7 +32,7 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType RemoveBrushEdgesCommand::Type = Command::freeType();
 
-        RemoveBrushEdgesCommand::Ptr RemoveBrushEdgesCommand::remove(const EdgeToBrushesMap& edges) {
+        std::shared_ptr<RemoveBrushEdgesCommand> RemoveBrushEdgesCommand::remove(const EdgeToBrushesMap& edges) {
             std::vector<Model::Brush*> brushes;
             BrushEdgesMap brushEdges;
             std::vector<vm::segment3> edgePositions;
@@ -39,7 +40,7 @@ namespace TrenchBroom {
             extractEdgeMap(edges, brushes, brushEdges, edgePositions);
             BrushVerticesMap brushVertices = brushVertexMap(brushEdges);
 
-            return Ptr(new RemoveBrushEdgesCommand(brushes, brushVertices, edgePositions));
+            return std::make_shared<RemoveBrushEdgesCommand>(brushes, brushVertices, edgePositions);
         }
 
         RemoveBrushEdgesCommand::RemoveBrushEdgesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::segment3>& edgePositions) :

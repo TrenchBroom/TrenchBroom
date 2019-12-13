@@ -20,24 +20,29 @@
 #ifndef TrenchBroom_FindPlanePointsCommand
 #define TrenchBroom_FindPlanePointsCommand
 
+#include "Macros.h"
 #include "View/SnapshotCommand.h"
+#include "View/View_Forward.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {
         class FindPlanePointsCommand : public SnapshotCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<FindPlanePointsCommand>;
         public:
-            static Ptr findPlanePoints();
-        private:
-            FindPlanePointsCommand();
+            static std::shared_ptr<FindPlanePointsCommand> findPlanePoints();
 
+            FindPlanePointsCommand();
+        private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+
+            deleteCopyAndMove(FindPlanePointsCommand)
         };
     }
 }

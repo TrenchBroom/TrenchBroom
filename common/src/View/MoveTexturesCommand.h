@@ -20,38 +20,40 @@
 #ifndef TrenchBroom_MoveTexturesCommand
 #define TrenchBroom_MoveTexturesCommand
 
+#include "Macros.h"
 #include "TrenchBroom.h"
 #include "View/DocumentCommand.h"
+#include "View/View_Forward.h"
 
 #include <vecmath/vec.h>
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {
         class MoveTexturesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<MoveTexturesCommand>;
         private:
             vm::vec3f m_cameraUp;
             vm::vec3f m_cameraRight;
             vm::vec2f m_delta;
         public:
-            static Ptr move(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
-        private:
-            MoveTexturesCommand(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
+            static std::shared_ptr<MoveTexturesCommand> move(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
 
+            MoveTexturesCommand(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
+        private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
 
             void moveTextures(MapDocumentCommandFacade* document, const vm::vec2f& delta) const;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;
+            std::shared_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
-        private:
-            MoveTexturesCommand(const MoveTexturesCommand& other);
-            MoveTexturesCommand& operator=(const MoveTexturesCommand& other);
+            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+
+            deleteCopyAndMove(MoveTexturesCommand)
         };
     }
 }

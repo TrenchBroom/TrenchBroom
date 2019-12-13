@@ -29,8 +29,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType DuplicateNodesCommand::Type = Command::freeType();
 
-        DuplicateNodesCommand::Ptr DuplicateNodesCommand::duplicate() {
-            return Ptr(new DuplicateNodesCommand());
+        std::shared_ptr<DuplicateNodesCommand> DuplicateNodesCommand::duplicate() {
+            return std::make_shared<DuplicateNodesCommand>();
         }
 
         DuplicateNodesCommand::DuplicateNodesCommand() :
@@ -111,11 +111,11 @@ namespace TrenchBroom {
             return document->hasSelectedNodes();
         }
 
-        UndoableCommand::Ptr DuplicateNodesCommand::doRepeat(MapDocumentCommandFacade*) const {
-            return UndoableCommand::Ptr(new DuplicateNodesCommand());
+        std::shared_ptr<UndoableCommand> DuplicateNodesCommand::doRepeat(MapDocumentCommandFacade*) const {
+            return std::make_shared<DuplicateNodesCommand>();
         }
 
-        bool DuplicateNodesCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool DuplicateNodesCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
             return false;
         }
     }

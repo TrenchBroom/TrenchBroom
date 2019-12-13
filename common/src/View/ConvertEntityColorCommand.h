@@ -20,42 +20,39 @@
 #ifndef TrenchBroom_ConvertEntityColorCommand
 #define TrenchBroom_ConvertEntityColorCommand
 
-#include "SharedPointer.h"
+#include "Macros.h"
 #include "Model/EntityColor.h"
 #include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
+#include "View/View_Forward.h"
 
 #include <map>
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class EntityAttributeSnapshot;
-    }
-
     namespace View {
-        class MapDocumentCommandFacade;
-
         class ConvertEntityColorCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<ConvertEntityColorCommand>;
         private:
             Model::AttributeName m_attributeName;
             Assets::ColorRange::Type m_colorRange;
 
             std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>> m_snapshots;
         public:
-            static Ptr convert(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
-        private:
-            ConvertEntityColorCommand(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
+            static std::shared_ptr<ConvertEntityColorCommand> convert(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
 
+            ConvertEntityColorCommand(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
+        private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+
+            deleteCopyAndMove(ConvertEntityColorCommand)
         };
     }
 }

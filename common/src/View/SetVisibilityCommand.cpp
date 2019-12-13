@@ -28,20 +28,20 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetVisibilityCommand::Type = Command::freeType();
 
-        SetVisibilityCommand::Ptr SetVisibilityCommand::show(const std::vector<Model::Node*>& nodes) {
-            return Ptr(new SetVisibilityCommand(nodes, Action_Show));
+        std::shared_ptr<SetVisibilityCommand> SetVisibilityCommand::show(const std::vector<Model::Node*>& nodes) {
+            return std::make_shared<SetVisibilityCommand>(nodes, Action::Show);
         }
 
-        SetVisibilityCommand::Ptr SetVisibilityCommand::hide(const std::vector<Model::Node*>& nodes) {
-            return Ptr(new SetVisibilityCommand(nodes, Action_Hide));
+        std::shared_ptr<SetVisibilityCommand> SetVisibilityCommand::hide(const std::vector<Model::Node*>& nodes) {
+            return std::make_shared<SetVisibilityCommand>(nodes, Action::Hide);
         }
 
-        SetVisibilityCommand::Ptr SetVisibilityCommand::ensureVisible(const std::vector<Model::Node*>& nodes) {
-            return Ptr(new SetVisibilityCommand(nodes, Action_Ensure));
+        std::shared_ptr<SetVisibilityCommand> SetVisibilityCommand::ensureVisible(const std::vector<Model::Node*>& nodes) {
+            return std::make_shared<SetVisibilityCommand>(nodes, Action::Ensure);
         }
 
-        SetVisibilityCommand::Ptr SetVisibilityCommand::reset(const std::vector<Model::Node*>& nodes) {
-            return Ptr(new SetVisibilityCommand(nodes, Action_Reset));
+        std::shared_ptr<SetVisibilityCommand> SetVisibilityCommand::reset(const std::vector<Model::Node*>& nodes) {
+            return std::make_shared<SetVisibilityCommand>(nodes, Action::Reset);
         }
 
         SetVisibilityCommand::SetVisibilityCommand(const std::vector<Model::Node*>& nodes, const Action action) :
@@ -51,13 +51,13 @@ namespace TrenchBroom {
 
         std::string SetVisibilityCommand::makeName(const Action action) {
             switch (action) {
-                case Action_Reset:
+                case Action::Reset:
                     return "Reset Visibility";
-                case Action_Hide:
+                case Action::Hide:
                     return "Hide Objects";
-                case Action_Show:
+                case Action::Show:
                     return "Show Objects";
-                case Action_Ensure:
+                case Action::Ensure:
                     return "Ensure Objects Visible";
                 switchDefault()
             }
@@ -65,16 +65,16 @@ namespace TrenchBroom {
 
         bool SetVisibilityCommand::doPerformDo(MapDocumentCommandFacade* document) {
             switch (m_action) {
-                case Action_Reset:
+                case Action::Reset:
                     m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Visibility_Inherited);
                     break;
-                case Action_Hide:
+                case Action::Hide:
                     m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Visibility_Hidden);
                     break;
-                case Action_Show:
+                case Action::Show:
                     m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Visibility_Shown);
                     break;
-                case Action_Ensure:
+                case Action::Ensure:
                     m_oldState = document->setVisibilityEnsured(m_nodes);
                     break;
                 switchDefault()
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SetVisibilityCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool SetVisibilityCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
             return false;
         }
 

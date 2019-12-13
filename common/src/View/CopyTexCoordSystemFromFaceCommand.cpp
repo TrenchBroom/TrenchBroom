@@ -32,38 +32,34 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType CopyTexCoordSystemFromFaceCommand::Type = Command::freeType();
 
-        CopyTexCoordSystemFromFaceCommand::Ptr CopyTexCoordSystemFromFaceCommand::command(const Model::TexCoordSystemSnapshot& coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle) {
-            return Ptr(new CopyTexCoordSystemFromFaceCommand(coordSystemSanpshot, attribs, sourceFacePlane, wrapStyle));
+        std::shared_ptr<CopyTexCoordSystemFromFaceCommand> CopyTexCoordSystemFromFaceCommand::command(const Model::TexCoordSystemSnapshot& coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle) {
+            return std::make_shared<CopyTexCoordSystemFromFaceCommand>(coordSystemSanpshot, attribs, sourceFacePlane, wrapStyle);
         }
 
         CopyTexCoordSystemFromFaceCommand::CopyTexCoordSystemFromFaceCommand(const Model::TexCoordSystemSnapshot& coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle) :
         DocumentCommand(Type, "Copy Texture Alignment"),
-        m_snapshot(nullptr),
-        m_coordSystemSanpshot(coordSystemSnapshot.clone()),
+        m_coordSystemSnapshot(coordSystemSnapshot.clone()),
         m_sourceFacePlane(sourceFacePlane),
         m_wrapStyle(wrapStyle),
         m_attribs(attribs) {}
-
-        CopyTexCoordSystemFromFaceCommand::~CopyTexCoordSystemFromFaceCommand() {
-            delete m_snapshot;
-            m_snapshot = nullptr;
-        }
 
         bool CopyTexCoordSystemFromFaceCommand::doPerformDo(MapDocumentCommandFacade* document) {
             const std::vector<Model::BrushFace*> faces = document->allSelectedBrushFaces();
             assert(!faces.empty());
 
             assert(m_snapshot == nullptr);
-            m_snapshot = new Model::Snapshot(std::begin(faces), std::end(faces));
+            m_snapshot = std::make_unique<Model::Snapshot>(std::begin(faces), std::end(faces));
 
-            document->performCopyTexCoordSystemFromFace(*m_coordSystemSanpshot, m_attribs, m_sourceFacePlane, m_wrapStyle);
+            document->performCopyTexCoordSystemFromFace(*m_coordSystemSnapshot, m_attribs, m_sourceFacePlane, m_wrapStyle);
             return true;
         }
 
         bool CopyTexCoordSystemFromFaceCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            document->restoreSnapshot(m_snapshot);
-            delete m_snapshot;
-            m_snapshot = nullptr;
+            assert(m_snapshot != nullptr);
+
+            document->restoreSnapshot(m_snapshot.get());
+            m_snapshot.reset();
+
             return true;
         }
 
@@ -71,11 +67,11 @@ namespace TrenchBroom {
             return document->hasSelectedBrushFaces();
         }
 
-        UndoableCommand::Ptr CopyTexCoordSystemFromFaceCommand::doRepeat(MapDocumentCommandFacade*) const {
-            return UndoableCommand::Ptr(new CopyTexCoordSystemFromFaceCommand(*m_coordSystemSanpshot, m_attribs, m_sourceFacePlane, m_wrapStyle));
+        std::shared_ptr<UndoableCommand> CopyTexCoordSystemFromFaceCommand::doRepeat(MapDocumentCommandFacade*) const {
+            return std::make_shared<CopyTexCoordSystemFromFaceCommand>(*m_coordSystemSnapshot, m_attribs, m_sourceFacePlane, m_wrapStyle);
         }
 
-        bool CopyTexCoordSystemFromFaceCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool CopyTexCoordSystemFromFaceCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
             return false;
         }
     }

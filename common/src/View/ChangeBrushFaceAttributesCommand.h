@@ -20,8 +20,12 @@
 #ifndef TrenchBroom_ChangeBrushFaceAttributesCommand
 #define TrenchBroom_ChangeBrushFaceAttributesCommand
 
-#include "View/DocumentCommand.h"
+#include "Macros.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "View/DocumentCommand.h"
+#include "View/View_Forward.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace Model {
@@ -32,25 +36,21 @@ namespace TrenchBroom {
         class ChangeBrushFaceAttributesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<ChangeBrushFaceAttributesCommand>;
         private:
-
             Model::ChangeBrushFaceAttributesRequest m_request;
-            Model::Snapshot* m_snapshot;
+            std::unique_ptr<Model::Snapshot> m_snapshot;
         public:
-            static Ptr command(const Model::ChangeBrushFaceAttributesRequest& request);
-        private:
+            static std::shared_ptr<ChangeBrushFaceAttributesCommand> command(const Model::ChangeBrushFaceAttributesRequest& request);
+
             explicit ChangeBrushFaceAttributesCommand(const Model::ChangeBrushFaceAttributesRequest& request);
-        public:
-            ~ChangeBrushFaceAttributesCommand() override;
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;
+            std::shared_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
         private:
             ChangeBrushFaceAttributesCommand(const ChangeBrushFaceAttributesCommand& other);
             ChangeBrushFaceAttributesCommand& operator=(const ChangeBrushFaceAttributesCommand& other);

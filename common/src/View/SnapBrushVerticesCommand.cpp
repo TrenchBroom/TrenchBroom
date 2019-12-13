@@ -26,8 +26,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SnapBrushVerticesCommand::Type = Command::freeType();
 
-        SnapBrushVerticesCommand::Ptr SnapBrushVerticesCommand::snap(const FloatType snapTo) {
-            return Ptr(new SnapBrushVerticesCommand(snapTo));
+        std::shared_ptr<SnapBrushVerticesCommand> SnapBrushVerticesCommand::snap(const FloatType snapTo) {
+            return std::make_shared<SnapBrushVerticesCommand>(snapTo);
         }
 
         SnapBrushVerticesCommand::SnapBrushVerticesCommand(const FloatType snapTo) :
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool SnapBrushVerticesCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool SnapBrushVerticesCommand::doCollateWith(std::shared_ptr<UndoableCommand> command) {
             SnapBrushVerticesCommand* other = static_cast<SnapBrushVerticesCommand*>(command.get());
             return other->m_snapTo == m_snapTo;
         }

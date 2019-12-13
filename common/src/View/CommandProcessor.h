@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace View {
         class MapDocumentCommandFacade;
 
-        using CommandList = std::vector<UndoableCommand::Ptr>;
+        using CommandList = std::vector<std::shared_ptr<UndoableCommand>>;
 
         class CommandGroup : public UndoableCommand {
         public:
@@ -39,25 +39,25 @@ namespace TrenchBroom {
         private:
             CommandList m_commands;
 
-            Notifier<Command::Ptr>& m_commandDoNotifier;
-            Notifier<Command::Ptr>& m_commandDoneNotifier;
-            Notifier<UndoableCommand::Ptr>& m_commandUndoNotifier;
-            Notifier<UndoableCommand::Ptr>& m_commandUndoneNotifier;
+            Notifier<std::shared_ptr<Command>>& m_commandDoNotifier;
+            Notifier<std::shared_ptr<Command>>& m_commandDoneNotifier;
+            Notifier<std::shared_ptr<UndoableCommand>>& m_commandUndoNotifier;
+            Notifier<std::shared_ptr<UndoableCommand>>& m_commandUndoneNotifier;
         public:
             CommandGroup(const std::string& name, const CommandList& commands,
-                         Notifier<Command::Ptr>& commandDoNotifier,
-                         Notifier<Command::Ptr>& commandDoneNotifier,
-                         Notifier<UndoableCommand::Ptr>& commandUndoNotifier,
-                         Notifier<UndoableCommand::Ptr>& commandUndoneNotifier);
+                         Notifier<std::shared_ptr<Command>>& commandDoNotifier,
+                         Notifier<std::shared_ptr<Command>>& commandDoneNotifier,
+                         Notifier<std::shared_ptr<UndoableCommand>>& commandUndoNotifier,
+                         Notifier<std::shared_ptr<UndoableCommand>>& commandUndoneNotifier);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatDelimiter() const override;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;
+            std::shared_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
         };
 
         class CommandProcessor {
@@ -81,12 +81,12 @@ namespace TrenchBroom {
         public:
             explicit CommandProcessor(MapDocumentCommandFacade* document);
 
-            Notifier<Command::Ptr> commandDoNotifier;
-            Notifier<Command::Ptr> commandDoneNotifier;
-            Notifier<Command::Ptr> commandDoFailedNotifier;
-            Notifier<UndoableCommand::Ptr> commandUndoNotifier;
-            Notifier<UndoableCommand::Ptr> commandUndoneNotifier;
-            Notifier<UndoableCommand::Ptr> commandUndoFailedNotifier;
+            Notifier<std::shared_ptr<Command>> commandDoNotifier;
+            Notifier<std::shared_ptr<Command>> commandDoneNotifier;
+            Notifier<std::shared_ptr<Command>> commandDoFailedNotifier;
+            Notifier<std::shared_ptr<UndoableCommand>> commandUndoNotifier;
+            Notifier<std::shared_ptr<UndoableCommand>> commandUndoneNotifier;
+            Notifier<std::shared_ptr<UndoableCommand>> commandUndoFailedNotifier;
 
             /**
              * Fired when a transaction completes successfully.
@@ -107,8 +107,8 @@ namespace TrenchBroom {
             void endGroup();
             void rollbackGroup();
 
-            bool submitCommand(Command::Ptr command);
-            bool submitAndStoreCommand(UndoableCommand::Ptr command);
+            bool submitCommand(std::shared_ptr<Command> command);
+            bool submitAndStoreCommand(std::shared_ptr<UndoableCommand> command);
             bool undoLastCommand();
             bool redoNextCommand();
 
@@ -118,27 +118,27 @@ namespace TrenchBroom {
 
             void clear();
         private:
-            SubmitAndStoreResult submitAndStoreCommand(UndoableCommand::Ptr command, bool collate);
-            bool doCommand(Command::Ptr command);
-            bool undoCommand(UndoableCommand::Ptr command);
-            bool storeCommand(UndoableCommand::Ptr command, bool collate);
+            SubmitAndStoreResult submitAndStoreCommand(std::shared_ptr<UndoableCommand> command, bool collate);
+            bool doCommand(std::shared_ptr<Command> command);
+            bool undoCommand(std::shared_ptr<UndoableCommand> command);
+            bool storeCommand(std::shared_ptr<UndoableCommand> command, bool collate);
 
             void beginGroup(const std::string& name, bool undoable);
-            bool pushGroupedCommand(UndoableCommand::Ptr command, bool collate);
-            UndoableCommand::Ptr popGroupedCommand();
+            bool pushGroupedCommand(std::shared_ptr<UndoableCommand> command, bool collate);
+            std::shared_ptr<UndoableCommand> popGroupedCommand();
             void createAndStoreCommandGroup();
-            UndoableCommand::Ptr createCommandGroup(const std::string& name, const CommandList& commands);
+            std::shared_ptr<UndoableCommand> createCommandGroup(const std::string& name, const CommandList& commands);
 
-            bool pushLastCommand(UndoableCommand::Ptr command, bool collate);
+            bool pushLastCommand(std::shared_ptr<UndoableCommand> command, bool collate);
             bool collatable(bool collate, int64_t timestamp) const;
 
-            void pushNextCommand(UndoableCommand::Ptr command);
-            void pushRepeatableCommand(UndoableCommand::Ptr command);
+            void pushNextCommand(std::shared_ptr<UndoableCommand> command);
+            void pushRepeatableCommand(std::shared_ptr<UndoableCommand> command);
 
 
-            UndoableCommand::Ptr popLastCommand();
-            UndoableCommand::Ptr popNextCommand();
-            void popLastRepeatableCommand(UndoableCommand::Ptr command);
+            std::shared_ptr<UndoableCommand> popLastCommand();
+            std::shared_ptr<UndoableCommand> popNextCommand();
+            void popLastRepeatableCommand(std::shared_ptr<UndoableCommand> command);
         };
     }
 }

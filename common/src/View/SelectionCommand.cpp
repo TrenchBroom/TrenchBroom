@@ -35,36 +35,36 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SelectionCommand::Type = Command::freeType();
 
-        SelectionCommand::Ptr SelectionCommand::select(const std::vector<Model::Node*>& nodes) {
-            return Ptr(new SelectionCommand(Action_SelectNodes, nodes, {}));
+        std::shared_ptr<SelectionCommand> SelectionCommand::select(const std::vector<Model::Node*>& nodes) {
+            return std::make_shared<SelectionCommand>(Action::SelectNodes, nodes, std::vector<Model::BrushFace*>({}));
         }
 
-        SelectionCommand::Ptr SelectionCommand::select(const std::vector<Model::BrushFace*>& faces) {
-            return Ptr(new SelectionCommand(Action_SelectFaces, {}, faces));
+        std::shared_ptr<SelectionCommand> SelectionCommand::select(const std::vector<Model::BrushFace*>& faces) {
+            return std::make_shared<SelectionCommand>(Action::SelectFaces, std::vector<Model::Node*>({}), faces);
         }
 
-        SelectionCommand::Ptr SelectionCommand::convertToFaces() {
-            return Ptr(new SelectionCommand(Action_ConvertToFaces, {}, {}));
+        std::shared_ptr<SelectionCommand> SelectionCommand::convertToFaces() {
+            return std::make_shared<SelectionCommand>(Action::ConvertToFaces, std::vector<Model::Node*>({}), std::vector<Model::BrushFace*>({}));
         }
 
-        SelectionCommand::Ptr SelectionCommand::selectAllNodes() {
-            return Ptr(new SelectionCommand(Action_SelectAllNodes, {}, {}));
+        std::shared_ptr<SelectionCommand> SelectionCommand::selectAllNodes() {
+            return std::make_shared<SelectionCommand>(Action::SelectAllNodes, std::vector<Model::Node*>({}), std::vector<Model::BrushFace*>({}));
         }
 
-        SelectionCommand::Ptr SelectionCommand::selectAllFaces() {
-            return Ptr(new SelectionCommand(Action_SelectAllFaces, {}, {}));
+        std::shared_ptr<SelectionCommand> SelectionCommand::selectAllFaces() {
+            return std::make_shared<SelectionCommand>(Action::SelectAllFaces, std::vector<Model::Node*>({}), std::vector<Model::BrushFace*>({}));
         }
 
-        SelectionCommand::Ptr SelectionCommand::deselect(const std::vector<Model::Node*>& nodes) {
-            return Ptr(new SelectionCommand(Action_DeselectNodes, nodes, {}));
+        std::shared_ptr<SelectionCommand> SelectionCommand::deselect(const std::vector<Model::Node*>& nodes) {
+            return std::make_shared<SelectionCommand>(Action::DeselectNodes, nodes, std::vector<Model::BrushFace*>({}));
         }
 
-        SelectionCommand::Ptr SelectionCommand::deselect(const std::vector<Model::BrushFace*>& faces) {
-            return Ptr(new SelectionCommand(Action_DeselectFaces, {}, faces));
+        std::shared_ptr<SelectionCommand> SelectionCommand::deselect(const std::vector<Model::BrushFace*>& faces) {
+            return std::make_shared<SelectionCommand>(Action::DeselectFaces, std::vector<Model::Node*>({}), faces);
         }
 
-        SelectionCommand::Ptr SelectionCommand::deselectAll() {
-            return Ptr(new SelectionCommand(Action_DeselectAll, {}, {}));
+        std::shared_ptr<SelectionCommand> SelectionCommand::deselectAll() {
+            return std::make_shared<SelectionCommand>(Action::DeselectAll, std::vector<Model::Node*>({}), std::vector<Model::BrushFace*>({}));
         }
 
         static std::vector<Model::BrushFaceReference> faceRefs(const std::vector<Model::BrushFace*>& faces) {
@@ -92,28 +92,28 @@ namespace TrenchBroom {
         std::string SelectionCommand::makeName(const Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces) {
             std::stringstream result;
             switch (action) {
-                case Action_SelectNodes:
+                case Action::SelectNodes:
                     result << "Select " << nodes.size() << " " << kdl::str_plural(nodes.size(), "Object", "Objects");
                     break;
-                case Action_SelectFaces:
+                case Action::SelectFaces:
                     result << "Select " << faces.size() << " " << kdl::str_plural(nodes.size(), "Brush Face", "Brush Faces");
                     break;
-                case Action_SelectAllNodes:
+                case Action::SelectAllNodes:
                     result << "Select All Objects";
                     break;
-                case Action_SelectAllFaces:
+                case Action::SelectAllFaces:
                     result << "Select All Brush Faces";
                     break;
-                case Action_ConvertToFaces:
+                case Action::ConvertToFaces:
                     result << "Convert to Brush Face Selection";
                     break;
-                case Action_DeselectNodes:
+                case Action::DeselectNodes:
                     result << "Deselect " << nodes.size() << " " << kdl::str_plural(nodes.size(), "Object", "Objects");
                     break;
-                case Action_DeselectFaces:
+                case Action::DeselectFaces:
                     result << "Deselect " << faces.size() << " " << kdl::str_plural(nodes.size(), "Brush Face", "Brush Faces");
                     break;
-                case Action_DeselectAll:
+                case Action::DeselectAll:
                     return "Select None";
                 switchDefault()
             }
@@ -125,28 +125,28 @@ namespace TrenchBroom {
             m_previouslySelectedFaceRefs = faceRefs(document->selectedBrushFaces());
 
             switch (m_action) {
-                case Action_SelectNodes:
+                case Action::SelectNodes:
                     document->performSelect(m_nodes);
                     break;
-                case Action_SelectFaces:
+                case Action::SelectFaces:
                     document->performSelect(resolveFaceRefs(m_faceRefs));
                     break;
-                case Action_SelectAllNodes:
+                case Action::SelectAllNodes:
                     document->performSelectAllNodes();
                     break;
-                case Action_SelectAllFaces:
+                case Action::SelectAllFaces:
                     document->performSelectAllBrushFaces();
                     break;
-                case Action_ConvertToFaces:
+                case Action::ConvertToFaces:
                     document->performConvertToBrushFaceSelection();
                     break;
-                case Action_DeselectNodes:
+                case Action::DeselectNodes:
                     document->performDeselect(m_nodes);
                     break;
-                case Action_DeselectFaces:
+                case Action::DeselectFaces:
                     document->performDeselect(resolveFaceRefs(m_faceRefs));
                     break;
-                case Action_DeselectAll:
+                case Action::DeselectAll:
                     document->performDeselectAll();
                     break;
             }
@@ -170,7 +170,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool SelectionCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool SelectionCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
             return false;
         }
     }

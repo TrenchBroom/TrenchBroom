@@ -20,10 +20,13 @@
 #ifndef TrenchBroom_SelectionCommand
 #define TrenchBroom_SelectionCommand
 
+#include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "Model/BrushFaceReference.h"
 #include "View/UndoableCommand.h"
+#include "View/View_Forward.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -32,18 +35,17 @@ namespace TrenchBroom {
         class SelectionCommand : public UndoableCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<SelectionCommand>;
         private:
-            typedef enum {
-                Action_SelectNodes,
-                Action_SelectFaces,
-                Action_SelectAllNodes,
-                Action_SelectAllFaces,
-                Action_ConvertToFaces,
-                Action_DeselectNodes,
-                Action_DeselectFaces,
-                Action_DeselectAll
-            } Action;
+            enum class Action {
+                SelectNodes,
+                SelectFaces,
+                SelectAllNodes,
+                SelectAllFaces,
+                ConvertToFaces,
+                DeselectNodes,
+                DeselectFaces,
+                DeselectAll
+            };
 
             Action m_action;
 
@@ -53,27 +55,30 @@ namespace TrenchBroom {
             std::vector<Model::Node*> m_previouslySelectedNodes;
             std::vector<Model::BrushFaceReference> m_previouslySelectedFaceRefs;
         public:
-            static Ptr select(const std::vector<Model::Node*>& nodes);
-            static Ptr select(const std::vector<Model::BrushFace*>& faces);
+            static std::shared_ptr<SelectionCommand> select(const std::vector<Model::Node*>& nodes);
+            static std::shared_ptr<SelectionCommand> select(const std::vector<Model::BrushFace*>& faces);
 
-            static Ptr convertToFaces();
-            static Ptr selectAllNodes();
-            static Ptr selectAllFaces();
+            static std::shared_ptr<SelectionCommand> convertToFaces();
+            static std::shared_ptr<SelectionCommand> selectAllNodes();
+            static std::shared_ptr<SelectionCommand> selectAllFaces();
 
-            static Ptr deselect(const std::vector<Model::Node*>& nodes);
-            static Ptr deselect(const std::vector<Model::BrushFace*>& faces);
-            static Ptr deselectAll();
-        private:
+            static std::shared_ptr<SelectionCommand> deselect(const std::vector<Model::Node*>& nodes);
+            static std::shared_ptr<SelectionCommand> deselect(const std::vector<Model::BrushFace*>& faces);
+            static std::shared_ptr<SelectionCommand> deselectAll();
+
             SelectionCommand(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces);
-            static std::string makeName(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces);
         private:
+            static std::string makeName(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces);
+
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatDelimiter() const override;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+
+            deleteCopyAndMove(SelectionCommand)
         };
     }
 }

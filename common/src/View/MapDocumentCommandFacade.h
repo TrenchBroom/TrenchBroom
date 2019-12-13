@@ -142,8 +142,8 @@ namespace TrenchBroom {
             void doEndTransaction() override;
             void doRollbackTransaction() override;
 
-            bool doSubmit(Command::Ptr command) override;
-            bool doSubmitAndStore(UndoableCommand::Ptr command) override;
+            bool doSubmit(std::shared_ptr<Command> command) override;
+            bool doSubmitAndStore(std::shared_ptr<UndoableCommand> command) override;
         };
     }
 }

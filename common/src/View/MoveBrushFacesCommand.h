@@ -20,38 +20,38 @@
 #ifndef TrenchBroom_MoveBrushFacesCommand
 #define TrenchBroom_MoveBrushFacesCommand
 
+#include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "View/VertexCommand.h"
+#include "View/View_Forward.h"
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Snapshot;
-    }
-
     namespace View {
         class MoveBrushFacesCommand : public VertexCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<MoveBrushFacesCommand>;
         private:
             BrushFacesMap m_faces;
             std::vector<vm::polygon3> m_oldFacePositions;
             std::vector<vm::polygon3> m_newFacePositions;
             vm::vec3 m_delta;
         public:
-            static Ptr move(const FaceToBrushesMap& faces, const vm::vec3& delta);
-        private:
-            MoveBrushFacesCommand(const std::vector<Model::Brush*>& brushes, const BrushFacesMap& faces, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta);
+            static std::shared_ptr<MoveBrushFacesCommand> move(const FaceToBrushesMap& faces, const vm::vec3& delta);
 
+            MoveBrushFacesCommand(const std::vector<Model::Brush*>& brushes, const BrushFacesMap& faces, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta);
+        private:
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
 
             void doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const override;
             void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const override;
+
+            deleteCopyAndMove(MoveBrushFacesCommand)
         };
     }
 }

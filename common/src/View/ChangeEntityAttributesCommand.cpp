@@ -27,21 +27,21 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ChangeEntityAttributesCommand::Type = Command::freeType();
 
-        ChangeEntityAttributesCommand::Ptr ChangeEntityAttributesCommand::set(const Model::AttributeName& name, const Model::AttributeValue& value) {
-            Ptr command(new ChangeEntityAttributesCommand(Action_Set));
+        std::shared_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::set(const Model::AttributeName& name, const Model::AttributeValue& value) {
+            auto command = std::make_shared<ChangeEntityAttributesCommand>(Action::Set);
             command->setName(name);
             command->setNewValue(value);
             return command;
         }
 
-        ChangeEntityAttributesCommand::Ptr ChangeEntityAttributesCommand::remove(const Model::AttributeName& name) {
-            Ptr command(new ChangeEntityAttributesCommand(Action_Remove));
+        std::shared_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::remove(const Model::AttributeName& name) {
+            auto command = std::make_shared<ChangeEntityAttributesCommand>(Action::Remove);
             command->setName(name);
             return command;
         }
 
-        ChangeEntityAttributesCommand::Ptr ChangeEntityAttributesCommand::rename(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
-            Ptr command(new ChangeEntityAttributesCommand(Action_Rename));
+        std::shared_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::rename(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
+            auto command = std::make_shared<ChangeEntityAttributesCommand>(Action::Rename);
             command->setName(oldName);
             command->setNewName(newName);
             return command;
@@ -52,12 +52,12 @@ namespace TrenchBroom {
         }
 
         void ChangeEntityAttributesCommand::setNewName(const Model::AttributeName& newName) {
-            assert(m_action == Action_Rename);
+            assert(m_action == Action::Rename);
             m_newName = newName;
         }
 
         void ChangeEntityAttributesCommand::setNewValue(const Model::AttributeValue& newValue) {
-            assert(m_action == Action_Set);
+            assert(m_action == Action::Set);
             m_newValue = newValue;
         }
 
@@ -67,11 +67,11 @@ namespace TrenchBroom {
 
         std::string ChangeEntityAttributesCommand::makeName(const Action action) {
             switch (action) {
-                case Action_Set:
+                case Action::Set:
                     return "Set Property";
-                case Action_Remove:
+                case Action::Remove:
                     return "Remove Property";
-                case Action_Rename:
+                case Action::Rename:
                     return "Rename Property";
 				switchDefault()
             }
@@ -79,13 +79,13 @@ namespace TrenchBroom {
 
         bool ChangeEntityAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             switch (m_action) {
-                case Action_Set:
+                case Action::Set:
                     m_snapshots = document->performSetAttribute(m_oldName, m_newValue);
                     break;
-                case Action_Remove:
+                case Action::Remove:
                     m_snapshots = document->performRemoveAttribute(m_oldName);
                     break;
-                case Action_Rename:
+                case Action::Rename:
                     m_snapshots = document->performRenameAttribute(m_oldName, m_newName);
                     break;
             };
@@ -102,7 +102,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool ChangeEntityAttributesCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool ChangeEntityAttributesCommand::doCollateWith(std::shared_ptr<UndoableCommand> command) {
             ChangeEntityAttributesCommand* other = static_cast<ChangeEntityAttributesCommand*>(command.get());
             if (other->m_action != m_action)
                 return false;

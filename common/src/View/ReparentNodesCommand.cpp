@@ -22,14 +22,12 @@
 #include "Model/ModelUtils.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <cassert>
-
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType ReparentNodesCommand::Type = Command::freeType();
 
-        ReparentNodesCommand::Ptr ReparentNodesCommand::reparent(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove) {
-            return Ptr(new ReparentNodesCommand(nodesToAdd, nodesToRemove));
+        std::shared_ptr<ReparentNodesCommand> ReparentNodesCommand::reparent(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove) {
+            return std::make_shared<ReparentNodesCommand>(nodesToAdd, nodesToRemove);
         }
 
         ReparentNodesCommand::ReparentNodesCommand(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove) :
@@ -53,7 +51,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool ReparentNodesCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool ReparentNodesCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
             return false;
         }
     }

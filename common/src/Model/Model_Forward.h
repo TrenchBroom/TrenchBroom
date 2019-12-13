@@ -72,6 +72,7 @@ namespace TrenchBroom {
         class NodeSnapshot;
         class BrushFaceSnapshot;
         class TexCoordSystemSnapshot;
+        class EntityAttributeSnapshot;
 
         using IssueType = int;
         class Issue;

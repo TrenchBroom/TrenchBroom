@@ -20,26 +20,29 @@
 #ifndef TrenchBroom_SnapBrushVerticesCommand
 #define TrenchBroom_SnapBrushVerticesCommand
 
+#include "Macros.h"
 #include "TrenchBroom.h"
 #include "View/SnapshotCommand.h"
+#include "View/View_Forward.h"
 
 namespace TrenchBroom {
     namespace View {
         class SnapBrushVerticesCommand : public SnapshotCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<SnapBrushVerticesCommand>;
         private:
             FloatType m_snapTo;
         public:
-            static SnapBrushVerticesCommand::Ptr snap(FloatType snapTo);
-        private:
+            static std::shared_ptr<SnapBrushVerticesCommand> snap(FloatType snapTo);
+
             explicit SnapBrushVerticesCommand(FloatType snapTo);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+
+            deleteCopyAndMove(SnapBrushVerticesCommand)
         };
     }
 }

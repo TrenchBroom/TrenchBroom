@@ -20,33 +20,35 @@
 #ifndef TrenchBroom_RotateTexturesCommand
 #define TrenchBroom_RotateTexturesCommand
 
+#include "Macros.h"
 #include "View/DocumentCommand.h"
+#include "View/View_Forward.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {
         class RotateTexturesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<RotateTexturesCommand>;
         private:
             float m_angle;
         public:
-            static Ptr rotate(float angle);
-        private:
-            RotateTexturesCommand(float angle);
+            static std::shared_ptr<RotateTexturesCommand> rotate(float angle);
 
+            RotateTexturesCommand(float angle);
+        private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool rotateTextures(MapDocumentCommandFacade* document, float angle) const;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;
+            std::shared_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
-        private:
-            RotateTexturesCommand(const RotateTexturesCommand& other);
-            RotateTexturesCommand& operator=(const RotateTexturesCommand& other);
+            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+
+            deleteCopyAndMove(RotateTexturesCommand)
         };
     }
 }

@@ -29,35 +29,31 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ChangeBrushFaceAttributesCommand::Type = Command::freeType();
 
-        ChangeBrushFaceAttributesCommand::Ptr ChangeBrushFaceAttributesCommand::command(const Model::ChangeBrushFaceAttributesRequest& request) {
-            return Ptr(new ChangeBrushFaceAttributesCommand(request));
+        std::shared_ptr<ChangeBrushFaceAttributesCommand> ChangeBrushFaceAttributesCommand::command(const Model::ChangeBrushFaceAttributesRequest& request) {
+            return std::make_shared<ChangeBrushFaceAttributesCommand>(request);
         }
 
         ChangeBrushFaceAttributesCommand::ChangeBrushFaceAttributesCommand(const Model::ChangeBrushFaceAttributesRequest& request) :
         DocumentCommand(Type, request.name()),
-        m_request(request),
-        m_snapshot(nullptr) {}
-
-        ChangeBrushFaceAttributesCommand::~ChangeBrushFaceAttributesCommand() {
-            delete m_snapshot;
-            m_snapshot = nullptr;
-        }
+        m_request(request) {}
 
         bool ChangeBrushFaceAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             const std::vector<Model::BrushFace*> faces = document->allSelectedBrushFaces();
             assert(!faces.empty());
 
             assert(m_snapshot == nullptr);
-            m_snapshot = new Model::Snapshot(std::begin(faces), std::end(faces));
+            m_snapshot = std::make_unique<Model::Snapshot>(std::begin(faces), std::end(faces));
 
             document->performChangeBrushFaceAttributes(m_request);
             return true;
         }
 
         bool ChangeBrushFaceAttributesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            document->restoreSnapshot(m_snapshot);
-            delete m_snapshot;
-            m_snapshot = nullptr;
+            assert(m_snapshot != nullptr);
+
+            document->restoreSnapshot(m_snapshot.get());
+            m_snapshot.reset();
+
             return true;
         }
 
@@ -65,11 +61,11 @@ namespace TrenchBroom {
             return document->hasSelectedBrushFaces();
         }
 
-        UndoableCommand::Ptr ChangeBrushFaceAttributesCommand::doRepeat(MapDocumentCommandFacade*) const {
-            return UndoableCommand::Ptr(new ChangeBrushFaceAttributesCommand(m_request));
+        std::shared_ptr<UndoableCommand> ChangeBrushFaceAttributesCommand::doRepeat(MapDocumentCommandFacade*) const {
+            return std::make_shared<ChangeBrushFaceAttributesCommand>(m_request);
         }
 
-        bool ChangeBrushFaceAttributesCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool ChangeBrushFaceAttributesCommand::doCollateWith(std::shared_ptr<UndoableCommand> command) {
             ChangeBrushFaceAttributesCommand* other = static_cast<ChangeBrushFaceAttributesCommand*>(command.get());
             return m_request.collateWith(other->m_request);
         }

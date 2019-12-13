@@ -20,10 +20,13 @@
 #ifndef TrenchBroom_RenameGroupsCommand
 #define TrenchBroom_RenameGroupsCommand
 
+#include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
+#include "View/View_Forward.h"
 
 #include <map>
+#include <memory>
 #include <string>
 
 namespace TrenchBroom {
@@ -33,21 +36,22 @@ namespace TrenchBroom {
         class RenameGroupsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<RenameGroupsCommand>;
         private:
             const std::string m_newName;
             std::map<Model::Group*, std::string> m_oldNames;
         public:
-            static Ptr rename(const std::string& newName);
-        private:
-            RenameGroupsCommand(const std::string& newName);
+            static std::shared_ptr<RenameGroupsCommand> rename(const std::string& newName);
 
+            RenameGroupsCommand(const std::string& newName);
+        private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+
+            deleteCopyAndMove(RenameGroupsCommand)
         };
     }
 }

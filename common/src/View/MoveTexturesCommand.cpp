@@ -28,8 +28,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveTexturesCommand::Type = Command::freeType();
 
-        MoveTexturesCommand::Ptr MoveTexturesCommand::move(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) {
-            return Ptr(new MoveTexturesCommand(cameraUp, cameraRight, delta));
+        std::shared_ptr<MoveTexturesCommand> MoveTexturesCommand::move(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) {
+            return std::make_shared<MoveTexturesCommand>(cameraUp, cameraRight, delta);
         }
 
         MoveTexturesCommand::MoveTexturesCommand(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) :
@@ -56,11 +56,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        UndoableCommand::Ptr MoveTexturesCommand::doRepeat(MapDocumentCommandFacade*) const {
-            return UndoableCommand::Ptr(new MoveTexturesCommand(m_cameraUp, m_cameraRight, m_delta));
+        std::shared_ptr<UndoableCommand> MoveTexturesCommand::doRepeat(MapDocumentCommandFacade*) const {
+            return std::make_shared<MoveTexturesCommand>(m_cameraUp, m_cameraRight, m_delta);
         }
 
-        bool MoveTexturesCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool MoveTexturesCommand::doCollateWith(std::shared_ptr<UndoableCommand> command) {
             const MoveTexturesCommand* other = static_cast<MoveTexturesCommand*>(command.get());
 
             if (other->m_cameraUp != m_cameraUp ||

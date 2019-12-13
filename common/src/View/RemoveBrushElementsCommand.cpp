@@ -24,8 +24,6 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <vecmath/polygon.h>
-
 #include <string>
 
 namespace TrenchBroom {
@@ -50,7 +48,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool RemoveBrushElementsCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool RemoveBrushElementsCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
             return false;
         }
     }

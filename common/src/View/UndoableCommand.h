@@ -20,8 +20,11 @@
 #ifndef TrenchBroom_UndoableCommand
 #define TrenchBroom_UndoableCommand
 
+#include "Macros.h"
 #include "View/Command.h"
+#include "View/View_Forward.h"
 
+#include <memory>
 #include <string>
 
 namespace TrenchBroom {
@@ -29,32 +32,30 @@ namespace TrenchBroom {
         class MapDocumentCommandFacade;
 
         class UndoableCommand : public Command {
-        public:
-            using Ptr = std::shared_ptr<UndoableCommand>;
-        public:
+        protected:
             UndoableCommand(CommandType type, const std::string& name);
+        public:
             virtual ~UndoableCommand();
 
             virtual bool performUndo(MapDocumentCommandFacade* document);
 
             bool isRepeatDelimiter() const;
             bool isRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand::Ptr repeat(MapDocumentCommandFacade* document) const;
+            std::shared_ptr<UndoableCommand> repeat(MapDocumentCommandFacade* document) const;
 
-            virtual bool collateWith(UndoableCommand::Ptr command);
+            virtual bool collateWith(std::shared_ptr<UndoableCommand> command);
         private:
             virtual bool doPerformUndo(MapDocumentCommandFacade* document) = 0;
 
             virtual bool doIsRepeatDelimiter() const;
             virtual bool doIsRepeatable(MapDocumentCommandFacade* document) const = 0;
-            virtual UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
+            virtual std::shared_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const;
 
-            virtual bool doCollateWith(UndoableCommand::Ptr command) = 0;
+            virtual bool doCollateWith(std::shared_ptr<UndoableCommand> command) = 0;
         public: // this method is just a service for DocumentCommand and should never be called from anywhere else
             virtual size_t documentModificationCount() const;
-        private:
-            UndoableCommand(const UndoableCommand& other);
-            UndoableCommand& operator=(const UndoableCommand& other);
+
+            deleteCopyAndMove(UndoableCommand)
         };
     }
 }

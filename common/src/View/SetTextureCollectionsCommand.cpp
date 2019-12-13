@@ -20,14 +20,12 @@
 #include "SetTextureCollectionsCommand.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <cassert>
-
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetTextureCollectionsCommand::Type = Command::freeType();
 
-        SetTextureCollectionsCommand::Ptr SetTextureCollectionsCommand::set(const std::vector<IO::Path>& paths) {
-            return Ptr(new SetTextureCollectionsCommand(paths));
+        std::shared_ptr<SetTextureCollectionsCommand> SetTextureCollectionsCommand::set(const std::vector<IO::Path>& paths) {
+            return std::make_shared<SetTextureCollectionsCommand>(paths);
         }
 
         SetTextureCollectionsCommand::SetTextureCollectionsCommand(const std::vector<IO::Path>& paths) :
@@ -50,7 +48,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool SetTextureCollectionsCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool SetTextureCollectionsCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
             return false;
         }
     }

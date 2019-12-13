@@ -20,7 +20,9 @@
 #ifndef TrenchBroom_SetModsCommand
 #define TrenchBroom_SetModsCommand
 
+#include "Macros.h"
 #include "View/DocumentCommand.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 #include <string>
@@ -31,20 +33,21 @@ namespace TrenchBroom {
         class SetModsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<SetModsCommand>;
         private:
             std::vector<std::string> m_oldMods;
             std::vector<std::string> m_newMods;
         public:
-            static Ptr set(const std::vector<std::string>& mods);
-        private:
-            SetModsCommand(const std::string& name, const std::vector<std::string>& mods);
+            static std::shared_ptr<SetModsCommand> set(const std::vector<std::string>& mods);
 
+            SetModsCommand(const std::string& name, const std::vector<std::string>& mods);
+        private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+
+            deleteCopyAndMove(SetModsCommand)
         };
     }
 }

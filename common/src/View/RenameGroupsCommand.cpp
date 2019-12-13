@@ -27,8 +27,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType RenameGroupsCommand::Type = Command::freeType();
 
-        RenameGroupsCommand::Ptr RenameGroupsCommand::rename(const std::string& newName) {
-            return Ptr(new RenameGroupsCommand(newName));
+        std::shared_ptr<RenameGroupsCommand> RenameGroupsCommand::rename(const std::string& newName) {
+            return std::make_shared<RenameGroupsCommand>(newName);
         }
 
         RenameGroupsCommand::RenameGroupsCommand(const std::string& newName) :
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool RenameGroupsCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool RenameGroupsCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
             return false;
         }
     }

@@ -102,12 +102,12 @@ namespace TrenchBroom {
 
             ViewEffectsService* m_viewEffectsService;
         public: // notification
-            Notifier<Command::Ptr> commandDoNotifier;
-            Notifier<Command::Ptr> commandDoneNotifier;
-            Notifier<Command::Ptr> commandDoFailedNotifier;
-            Notifier<UndoableCommand::Ptr> commandUndoNotifier;
-            Notifier<UndoableCommand::Ptr> commandUndoneNotifier;
-            Notifier<UndoableCommand::Ptr> commandUndoFailedNotifier;
+            Notifier<std::shared_ptr<Command>> commandDoNotifier;
+            Notifier<std::shared_ptr<Command>> commandDoneNotifier;
+            Notifier<std::shared_ptr<Command>> commandDoFailedNotifier;
+            Notifier<std::shared_ptr<UndoableCommand>> commandUndoNotifier;
+            Notifier<std::shared_ptr<UndoableCommand>> commandUndoneNotifier;
+            Notifier<std::shared_ptr<UndoableCommand>> commandUndoFailedNotifier;
             Notifier<const std::string&> transactionDoneNotifier;
             Notifier<const std::string&> transactionUndoneNotifier;
 
@@ -381,8 +381,8 @@ namespace TrenchBroom {
             void commitTransaction();
             void cancelTransaction();
         private:
-            bool submit(Command::Ptr command);
-            bool submitAndStore(UndoableCommand::Ptr command);
+            bool submit(std::shared_ptr<Command> command);
+            bool submitAndStore(std::shared_ptr<UndoableCommand> command);
         private: // subclassing interface for command processing
             virtual bool doCanUndoLastCommand() const = 0;
             virtual bool doCanRedoNextCommand() const = 0;
@@ -398,8 +398,8 @@ namespace TrenchBroom {
             virtual void doEndTransaction() = 0;
             virtual void doRollbackTransaction() = 0;
 
-            virtual bool doSubmit(Command::Ptr command) = 0;
-            virtual bool doSubmitAndStore(UndoableCommand::Ptr command) = 0;
+            virtual bool doSubmit(std::shared_ptr<Command> command) = 0;
+            virtual bool doSubmitAndStore(std::shared_ptr<UndoableCommand> command) = 0;
         public: // asset state management
             void commitPendingAssets();
         public: // picking
@@ -508,8 +508,8 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             void preferenceDidChange(const IO::Path& path);
-            void commandDone(Command::Ptr command);
-            void commandUndone(UndoableCommand::Ptr command);
+            void commandDone(std::shared_ptr<Command> command);
+            void commandUndone(std::shared_ptr<UndoableCommand> command);
         };
 
         class Transaction {

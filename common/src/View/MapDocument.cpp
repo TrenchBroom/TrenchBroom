@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "Polyhedron.h"
 #include "Polyhedron3.h"
+#include "SharedPointer.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -709,7 +710,7 @@ namespace TrenchBroom {
 
         std::vector<Model::Node*> MapDocument::addNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
             Transaction transaction(this, "Add Objects");
-            AddRemoveNodesCommand::Ptr command = AddRemoveNodesCommand::add(nodes);
+            auto command = AddRemoveNodesCommand::add(nodes);
             if (!submitAndStore(command)) {
                 return {};
             }
@@ -720,7 +721,7 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::Node*> MapDocument::addNodes(const std::vector<Model::Node*>& nodes, Model::Node* parent) {
-            AddRemoveNodesCommand::Ptr command = AddRemoveNodesCommand::add(parent, nodes);
+            auto command = AddRemoveNodesCommand::add(parent, nodes);
             if (!submitAndStore(command)) {
                 return {};
             }
@@ -1402,7 +1403,7 @@ namespace TrenchBroom {
         }
 
         MapDocument::MoveVerticesResult MapDocument::moveVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices, const vm::vec3& delta) {
-            MoveBrushVerticesCommand::Ptr command = MoveBrushVerticesCommand::move(vertices, delta);
+            auto command = MoveBrushVerticesCommand::move(vertices, delta);
             const bool success = submitAndStore(command);
             const bool hasRemainingVertices = command->hasRemainingVertices();
             return MoveVerticesResult(success, hasRemainingVertices);
@@ -1474,7 +1475,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            bool doCollateWith(UndoableCommand::Ptr) override {
+            bool doCollateWith(std::shared_ptr<UndoableCommand>) override {
                 return false;
             }
         };
@@ -1542,11 +1543,11 @@ namespace TrenchBroom {
             doEndTransaction();
         }
 
-        bool MapDocument::submit(Command::Ptr command) {
+        bool MapDocument::submit(std::shared_ptr<Command> command) {
             return doSubmit(command);
         }
 
-        bool MapDocument::submitAndStore(UndoableCommand::Ptr command) {
+        bool MapDocument::submitAndStore(std::shared_ptr<UndoableCommand> command) {
             return doSubmitAndStore(command);
         }
 
@@ -2131,11 +2132,11 @@ namespace TrenchBroom {
             }
         }
 
-        void MapDocument::commandDone(Command::Ptr command) {
+        void MapDocument::commandDone(std::shared_ptr<Command> command) {
             debug() << "Command " << command->name() << "' executed";
         }
 
-        void MapDocument::commandUndone(UndoableCommand::Ptr command) {
+        void MapDocument::commandUndone(std::shared_ptr<UndoableCommand> command) {
             debug() << "Command " << command->name() << " undone";
         }
 
