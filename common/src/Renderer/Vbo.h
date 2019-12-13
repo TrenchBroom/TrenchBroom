@@ -33,13 +33,15 @@ namespace TrenchBroom {
          */
         class Vbo {
         private:
+            friend class VboManager;
+
             /**
              * e.g. GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER
              */
             GLenum m_type;
             size_t m_capacity;
             GLuint m_bufferId;
-        public:
+
             /**
              * Immediately creates and binds to a buffer of the given type and capacity.
              * The contents are initially unspecified.
@@ -53,6 +55,11 @@ namespace TrenchBroom {
              * Calling any other methods after free() is disallowed.
              */
             void free();
+
+        public:
+            /**
+             * Deprecated, always returns 0.
+             */
             size_t offset() const;
             size_t capacity() const;
 

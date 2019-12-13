@@ -72,18 +72,21 @@ namespace TrenchBroom {
             VboType m_type;
             std::vector<T> m_snapshot;
             DirtyRangeTracker m_dirtyRange;
-            Vbo *m_block;
+            VboManager* m_vboManager;
+            Vbo* m_block;
         private:
             void freeBlock() {
                 if (m_block != nullptr) {
-                    m_block->free();
+                    m_vboManager->destroyVbo(m_block);
                     m_block = nullptr;
                 }
             }
 
-            void allocateBlock(VboManager &vboManager) {
+            void allocateBlock(VboManager& vboManager) {
+                assert(m_vboManager == nullptr);
                 assert(m_block == nullptr);
 
+                m_vboManager = &vboManager;
                 m_block = vboManager.allocateVbo(m_type, m_snapshot.size() * sizeof(T), VboUsage::DynamicDraw);
                 assert(m_block != nullptr);
 
@@ -99,6 +102,7 @@ namespace TrenchBroom {
             m_type(type),
             m_snapshot(),
             m_dirtyRange(0),
+            m_vboManager(nullptr),
             m_block(nullptr) {}
 
             /**

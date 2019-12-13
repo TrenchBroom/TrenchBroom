@@ -58,6 +58,7 @@ namespace TrenchBroom {
             template <typename VertexSpec>
             class Holder : public BaseHolder {
             private:
+                VboManager* m_vboManager;
                 Vbo* m_block;
                 size_t m_vertexCount;
             public:
@@ -71,6 +72,7 @@ namespace TrenchBroom {
 
                 void prepare(VboManager& vboManager) override {
                     if (m_vertexCount > 0 && m_block == nullptr) {
+                        m_vboManager = &vboManager;
                         m_block = vboManager.allocateVbo(VboType::ArrayBuffer, sizeInBytes());;
                         m_block->writeBuffer(0, doGetVertices());
                     }
@@ -88,12 +90,13 @@ namespace TrenchBroom {
                 }
             protected:
                 Holder(const size_t vertexCount) :
+                m_vboManager(nullptr),
                 m_block(nullptr),
                 m_vertexCount(vertexCount) {}
 
                 ~Holder() override {
                     if (m_block != nullptr) {
-                        m_block->free();
+                        m_vboManager->destroyVbo(m_block);
                         m_block = nullptr;
                     }
                 }

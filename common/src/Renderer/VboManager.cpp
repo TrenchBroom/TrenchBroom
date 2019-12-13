@@ -48,10 +48,17 @@ namespace TrenchBroom {
             }
         }
 
+        // VboManager
+
         VboManager::VboManager() {}
 
         Vbo* VboManager::allocateVbo(VboType type, const size_t capacity, const VboUsage usage) {
             return new Vbo(typeToOpenGL(type), capacity, usageToOpenGL(usage));
+        }
+
+        void VboManager::destroyVbo(Vbo* vbo) {
+            vbo->free();
+            delete vbo;
         }
     }
 }

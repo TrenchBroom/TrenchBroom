@@ -46,6 +46,7 @@ namespace TrenchBroom {
             * The contents are initially unspecified. See Vbo class.
             */
             Vbo* allocateVbo(VboType type, size_t capacity, VboUsage usage = VboUsage::StaticDraw);
+            void destroyVbo(Vbo* vbo);
         };
     }
 }
