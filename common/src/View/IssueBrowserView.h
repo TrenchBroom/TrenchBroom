@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_IssueBrowserView
 #define TrenchBroom_IssueBrowserView
 
-
 #include "Model/Model_Forward.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 #include <vector>
@@ -34,9 +34,6 @@ class QTableView;
 
 namespace TrenchBroom {
     namespace View {
-        class IssueBrowserModel;
-        class MapDocument;
-
         class IssueBrowserView : public QWidget {
             Q_OBJECT
         private:
@@ -51,10 +48,8 @@ namespace TrenchBroom {
             IssueBrowserModel* m_tableModel;
         public:
             explicit IssueBrowserView(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-
         private:
             void createGui();
-
         public:
             int hiddenGenerators() const;
             void setHiddenGenerators(int hiddenGenerators);

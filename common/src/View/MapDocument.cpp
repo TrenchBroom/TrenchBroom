@@ -1400,7 +1400,7 @@ namespace TrenchBroom {
             return submitAndStore(FindPlanePointsCommand::findPlanePoints());
         }
 
-        MapDocument::MoveVerticesResult MapDocument::moveVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices, const vm::vec3& delta) {
+        MapDocument::MoveVerticesResult MapDocument::moveVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices, const vm::vec3& delta) {
             /*
              * Don't auto this! We need the implicit conversion from std::unique_ptr<MoveBrushVerticesCommand> to
              * std::unique_ptr<UndoableCommand> here, otherwise it happens when calling submitAndStore, which leads to
@@ -1422,27 +1422,27 @@ namespace TrenchBroom {
             return MoveVerticesResult(success, hasRemainingVertices);
         }
 
-        bool MapDocument::moveEdges(const std::map<vm::segment3, std::set<Model::Brush*>>& edges, const vm::vec3& delta) {
+        bool MapDocument::moveEdges(const std::map<vm::segment3, std::vector<Model::Brush*>>& edges, const vm::vec3& delta) {
             return submitAndStore(MoveBrushEdgesCommand::move(edges, delta));
         }
 
-        bool MapDocument::moveFaces(const std::map<vm::polygon3, std::set<Model::Brush*>>& faces, const vm::vec3& delta) {
+        bool MapDocument::moveFaces(const std::map<vm::polygon3, std::vector<Model::Brush*>>& faces, const vm::vec3& delta) {
             return submitAndStore(MoveBrushFacesCommand::move(faces, delta));
         }
 
-        bool MapDocument::addVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices) {
+        bool MapDocument::addVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices) {
             return submitAndStore(AddBrushVerticesCommand::add(vertices));
         }
 
-        bool MapDocument::removeVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices) {
+        bool MapDocument::removeVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices) {
             return submitAndStore(RemoveBrushVerticesCommand::remove(vertices));
         }
 
-        bool MapDocument::removeEdges(const std::map<vm::segment3, std::set<Model::Brush*>>& edges) {
+        bool MapDocument::removeEdges(const std::map<vm::segment3, std::vector<Model::Brush*>>& edges) {
             return submitAndStore(RemoveBrushEdgesCommand::remove(edges));
         }
 
-        bool MapDocument::removeFaces(const std::map<vm::polygon3, std::set<Model::Brush*>>& faces) {
+        bool MapDocument::removeFaces(const std::map<vm::polygon3, std::vector<Model::Brush*>>& faces) {
             return submitAndStore(RemoveBrushFacesCommand::remove(faces));
         }
 

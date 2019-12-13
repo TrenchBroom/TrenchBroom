@@ -20,16 +20,14 @@
 #ifndef TrenchBroom_FlagsPopupEditor
 #define TrenchBroom_FlagsPopupEditor
 
+#include "View/View_Forward.h"
+
 #include <QWidget>
 
 class QWidget;
 
 namespace TrenchBroom {
     namespace View {
-        class ElidedLabel;
-        class FlagsEditor;
-        class PopupButton;
-
         /**
          * Button that opens up a flags editor popup
          */

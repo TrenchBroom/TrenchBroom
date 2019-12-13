@@ -105,6 +105,8 @@ namespace TrenchBroom {
         class ConstCompilationTaskVisitor;
         class ConstCompilationTaskConstVisitor;
 
+        enum class MapFormat;
+
         class GameEngineConfig;
         class GameEngineProfile;
 

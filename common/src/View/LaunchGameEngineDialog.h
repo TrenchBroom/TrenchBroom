@@ -20,8 +20,9 @@
 #ifndef LaunchGameEngineDialog_h
 #define LaunchGameEngineDialog_h
 
-#include "IO/Path.h"
+#include "Model/Model_Forward.h"
 #include "View/CompilationVariables.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 
@@ -30,15 +31,7 @@
 class QPushButton;
 
 namespace TrenchBroom {
-    namespace Model {
-        class GameEngineProfile;
-    }
-
     namespace View {
-        class GameEngineProfileListBox;
-        class MapDocument;
-        class MultiCompletionLineEdit;
-
         class LaunchGameEngineDialog : public QDialog {
         private:
             std::weak_ptr<MapDocument> m_document;

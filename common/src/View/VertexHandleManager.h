@@ -28,11 +28,13 @@
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
 
+#include <kdl/vector_set.h>
+
 #include <vecmath/segment.h>
 
 #include <iterator>
 #include <map>
-#include <set>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -480,10 +482,10 @@ namespace TrenchBroom {
              * @return a set of all brushes that are incident to the given handle
              */
             template <typename I>
-            std::set<Model::Brush*> findIncidentBrushes(const Handle& handle, I begin, I end) const {
-                std::set<Model::Brush*> result;
+            std::vector<Model::Brush*> findIncidentBrushes(const Handle& handle, I begin, I end) const {
+                kdl::vector_set<Model::Brush*> result;
                 findIncidentBrushes(handle, begin, end, std::inserter(result, result.end()));
-                return result;
+                return result.release_data();
             }
 
             /**
@@ -498,13 +500,13 @@ namespace TrenchBroom {
              * @return a set containing all incident brushes
              */
             template <typename I1, typename I2>
-            std::set<Model::Brush*> findIncidentBrushes(I1 hBegin, I1 hEnd, I2 bBegin, I2 bEnd) const {
-                std::set<Model::Brush*> result;
+            std::vector<Model::Brush*> findIncidentBrushes(I1 hBegin, I1 hEnd, I2 bBegin, I2 bEnd) const {
+                kdl::vector_set<Model::Brush*> result;
                 auto out = std::inserter(result, std::end(result));
                 for (auto hCur = hBegin; hCur != hEnd; ++hCur) {
                     findIncidentBrushes(*hCur, bBegin, bEnd, out);
                 }
-                return result;
+                return result.release_data();
             }
 
             /**

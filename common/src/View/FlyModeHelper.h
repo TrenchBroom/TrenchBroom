@@ -24,7 +24,8 @@
 #include "Renderer/Renderer_Forward.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/vec.h>
+
+#include <cstdint>
 
 class QKeyEvent;
 

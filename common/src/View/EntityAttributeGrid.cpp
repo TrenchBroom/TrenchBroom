@@ -30,8 +30,8 @@
 #include "View/QtUtils.h"
 
 #include <kdl/string_format.h>
+#include <kdl/vector_set.h>
 
-#include <string>
 #include <vector>
 
 #include <QHeaderView>
@@ -123,8 +123,8 @@ namespace TrenchBroom {
         /**
          * returns rows indices in the model (not proxy model).
          */
-        std::set<int> EntityAttributeGrid::selectedRowsAndCursorRow() const {
-            std::set<int> result;
+        std::vector<int> EntityAttributeGrid::selectedRowsAndCursorRow() const {
+            kdl::vector_set<int> result;
 
             QItemSelectionModel* selection = m_table->selectionModel();
 
@@ -142,7 +142,7 @@ namespace TrenchBroom {
                 }
             }
 
-            return result;
+            return result.release_data();
         }
 
         class EntitySortFilterProxyModel : public QSortFilterProxyModel {

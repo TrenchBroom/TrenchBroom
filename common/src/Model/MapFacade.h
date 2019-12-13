@@ -30,7 +30,6 @@
 
 #include <map>
 #include <memory>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -136,9 +135,9 @@ namespace TrenchBroom {
                 MoveVerticesResult(bool i_success, bool i_hasRemainingVertices);
             };
 
-            virtual MoveVerticesResult moveVertices(const std::map<vm::vec3, std::set<Brush*>>& vertices, const vm::vec3& delta) = 0;
-            virtual bool moveEdges(const std::map<vm::segment3, std::set<Brush*>>& edges, const vm::vec3& delta) = 0;
-            virtual bool moveFaces(const std::map<vm::polygon3, std::set<Brush*>>& faces, const vm::vec3& delta) = 0;
+            virtual MoveVerticesResult moveVertices(const std::map<vm::vec3, std::vector<Brush*>>& vertices, const vm::vec3& delta) = 0;
+            virtual bool moveEdges(const std::map<vm::segment3, std::vector<Brush*>>& edges, const vm::vec3& delta) = 0;
+            virtual bool moveFaces(const std::map<vm::polygon3, std::vector<Brush*>>& faces, const vm::vec3& delta) = 0;
         public: // search paths and mods
             virtual std::vector<std::string> mods() const = 0;
             virtual void setMods(const std::vector<std::string>& mods) = 0;

@@ -23,25 +23,24 @@
 #include "TrenchBroom.h"
 #include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"
-#include "View/VertexHandleManager.h"
 #include "View/VertexToolBase.h"
 #include "View/View_Forward.h"
 
 #include <vecmath/segment.h>
 
 #include <memory>
-#include <set>
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
         class EdgeTool : public VertexToolBase<vm::segment3> {
         private:
-            EdgeHandleManager m_edgeHandles;
+            std::unique_ptr<EdgeHandleManager> m_edgeHandles;
         public:
             EdgeTool(std::weak_ptr<MapDocument> document);
         public:
-            std::set<Model::Brush*> findIncidentBrushes(const vm::segment3& handle) const;
+            std::vector<Model::Brush*> findIncidentBrushes(const vm::segment3& handle) const;
         private:
             using VertexToolBase::findIncidentBrushes;
         public:

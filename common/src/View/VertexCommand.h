@@ -40,9 +40,9 @@ namespace TrenchBroom {
     namespace View {
         class VertexCommand : public DocumentCommand {
         protected:
-            using VertexToBrushesMap = std::map<vm::vec3, std::set<Model::Brush*>>;
-            using EdgeToBrushesMap = std::map<vm::segment3, std::set<Model::Brush*>>;
-            using FaceToBrushesMap = std::map<vm::polygon3, std::set<Model::Brush*>>;
+            using VertexToBrushesMap = std::map<vm::vec3, std::vector<Model::Brush*>>;
+            using EdgeToBrushesMap = std::map<vm::segment3, std::vector<Model::Brush*>>;
+            using FaceToBrushesMap = std::map<vm::polygon3, std::vector<Model::Brush*>>;
             using VertexToFacesMap = std::map<vm::vec3, std::set<Model::BrushFace*>>;
             using BrushVerticesMap = std::map<Model::Brush*, std::vector<vm::vec3>>;
             using BrushEdgesMap = std::map<Model::Brush*, std::vector<vm::segment3>>;
@@ -56,15 +56,15 @@ namespace TrenchBroom {
             ~VertexCommand() override;
         protected:
             template <typename H, typename C>
-            static void extract(const std::map<H, std::set<Model::Brush*>, C>& handleToBrushes, std::vector<Model::Brush*>& brushes, std::map<Model::Brush*, std::vector<H>>& brushToHandles, std::vector<H>& handles) {
-
+            static void extract(const std::map<H, std::vector<Model::Brush*>, C>& handleToBrushes, std::vector<Model::Brush*>& brushes, std::map<Model::Brush*, std::vector<H>>& brushToHandles, std::vector<H>& handles) {
                 for (const auto& entry : handleToBrushes) {
                     const H& handle = entry.first;
-                    const std::set<Model::Brush*>& mappedBrushes = entry.second;
+                    const std::vector<Model::Brush*>& mappedBrushes = entry.second;
                     for (Model::Brush* brush : mappedBrushes) {
                         const auto result = brushToHandles.insert(std::make_pair(brush, std::vector<H>()));
-                        if (result.second)
+                        if (result.second) {
                             brushes.push_back(brush);
+                        }
                         result.first->second.push_back(handle);
                     }
                     handles.push_back(handle);

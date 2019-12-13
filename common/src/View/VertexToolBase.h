@@ -50,6 +50,7 @@
 #include "View/VertexHandleManager.h"
 
 #include <kdl/string_utils.h>
+#include <kdl/vector_set.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>
@@ -60,7 +61,6 @@
 #include <list>
 #include <map>
 #include <memory>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -114,9 +114,9 @@ namespace TrenchBroom {
             }
         public:
             template <typename M, typename I>
-            std::map<typename M::Handle, std::set<Model::Brush*>> buildBrushMap(const M& manager, I cur, I end) const {
+            std::map<typename M::Handle, std::vector<Model::Brush*>> buildBrushMap(const M& manager, I cur, I end) const {
                 using H2 = typename M::Handle;
-                std::map<H2, std::set<Model::Brush*>> result;
+                std::map<H2, std::vector<Model::Brush*>> result;
                 while (cur != end) {
                     const H2& handle = *cur++;
                     result[handle] = findIncidentBrushes(manager, handle);
@@ -124,16 +124,18 @@ namespace TrenchBroom {
                 return result;
             }
 
+            // FIXME: use vector_set
             template <typename M, typename H2>
-            std::set<Model::Brush*> findIncidentBrushes(const M& manager, const H2& handle) const {
+            std::vector<Model::Brush*> findIncidentBrushes(const M& manager, const H2& handle) const {
                 const std::vector<Model::Brush*>& brushes = selectedBrushes();
                 return manager.findIncidentBrushes(handle, std::begin(brushes), std::end(brushes));
             }
 
+            // FIXME: use vector_set
             template <typename M, typename I>
-            std::set<Model::Brush*> findIncidentBrushes(const M& manager, I cur, I end) const {
+            std::vector<Model::Brush*> findIncidentBrushes(const M& manager, I cur, I end) const {
                 const std::vector<Model::Brush*>& brushes = selectedBrushes();
-                std::set<Model::Brush*> result;
+                kdl::vector_set<Model::Brush*> result;
                 auto out = std::inserter(result, std::end(result));
 
                 while (cur != end) {
@@ -142,7 +144,7 @@ namespace TrenchBroom {
                     ++cur;
                 }
 
-                return result;
+                return result.release_data();
             }
 
             virtual void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const = 0;

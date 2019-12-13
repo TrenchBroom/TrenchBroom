@@ -23,16 +23,11 @@
 #include "Notifier.h"
 #include "TrenchBroom.h"
 #include "Assets/Asset_Forward.h"
-#include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/Path.h"
-#include "Model/EntityColor.h"
 #include "Model/MapFacade.h"
-#include "Model/MapFormat.h"
 #include "Model/Model_Forward.h"
 #include "Model/NodeCollection.h"
-#include "Model/TexCoordSystem.h"
 #include "View/CachingLogger.h"
-#include "View/UndoableCommand.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
@@ -42,7 +37,6 @@
 #include <functional>
 #include <map>
 #include <memory>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -352,14 +346,14 @@ namespace TrenchBroom {
             bool snapVertices(FloatType snapTo) override;
             bool findPlanePoints() override;
 
-            MoveVerticesResult moveVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices, const vm::vec3& delta) override;
-            bool moveEdges(const std::map<vm::segment3, std::set<Model::Brush*>>& edges, const vm::vec3& delta) override;
-            bool moveFaces(const std::map<vm::polygon3, std::set<Model::Brush*>>& faces, const vm::vec3& delta) override;
+            MoveVerticesResult moveVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices, const vm::vec3& delta) override;
+            bool moveEdges(const std::map<vm::segment3, std::vector<Model::Brush*>>& edges, const vm::vec3& delta) override;
+            bool moveFaces(const std::map<vm::polygon3, std::vector<Model::Brush*>>& faces, const vm::vec3& delta) override;
 
-            bool addVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices);
-            bool removeVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices);
-            bool removeEdges(const std::map<vm::segment3, std::set<Model::Brush*>>& edges);
-            bool removeFaces(const std::map<vm::polygon3, std::set<Model::Brush*>>& faces);
+            bool addVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices);
+            bool removeVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices);
+            bool removeEdges(const std::map<vm::segment3, std::vector<Model::Brush*>>& edges);
+            bool removeFaces(const std::map<vm::polygon3, std::vector<Model::Brush*>>& faces);
         private: // subclassing interface for certain operations which are available from this class, but can only be implemented in a subclass
             virtual void performRebuildBrushGeometry(const std::vector<Model::Brush*>& brushes) = 0;
         public: // debug commands

@@ -21,14 +21,13 @@
 #define TrenchBroom_ImageListBox
 
 #include "View/ControlListBox.h"
+#include "View/View_Forward.h"
 
 class QLabel;
 class QPixmap;
 
 namespace TrenchBroom {
     namespace View {
-        class ElidedLabel;
-
         class ImageListBoxItemRenderer : public ControlListBoxItemRenderer {
             Q_OBJECT
         private:

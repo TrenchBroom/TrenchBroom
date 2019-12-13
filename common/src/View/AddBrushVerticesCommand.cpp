@@ -36,7 +36,7 @@ namespace TrenchBroom {
         std::unique_ptr<AddBrushVerticesCommand> AddBrushVerticesCommand::add(const VertexToBrushesMap& vertices) {
             kdl::vector_set<Model::Brush*> allBrushes;
             for (const auto& entry : vertices) {
-                const std::set<Model::Brush*>& brushes = entry.second;
+                const std::vector<Model::Brush*>& brushes = entry.second;
                 allBrushes.insert(std::begin(brushes), std::end(brushes));
             }
 
@@ -52,10 +52,11 @@ namespace TrenchBroom {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
                 const vm::vec3& position = entry.first;
-                const std::set<Model::Brush*>& brushes = entry.second;
+                const std::vector<Model::Brush*>& brushes = entry.second;
                 for (const Model::Brush* brush : brushes) {
-                    if (!brush->canAddVertex(worldBounds, position))
+                    if (!brush->canAddVertex(worldBounds, position)) {
                         return false;
+                    }
                 }
             }
             return true;

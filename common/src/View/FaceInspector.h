@@ -23,6 +23,7 @@
 #include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 #include "View/TabBook.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 
@@ -31,12 +32,6 @@ class QWidget;
 
 namespace TrenchBroom {
     namespace View {
-        class FaceAttribsEditor;
-        class GLContextManager;
-        class MapDocument;
-        class TextureBrowser;
-        class FileTextureCollectionEditor;
-
         class FaceInspector : public TabBookPage {
             Q_OBJECT
         private:

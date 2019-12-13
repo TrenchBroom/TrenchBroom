@@ -63,6 +63,8 @@ namespace TrenchBroom {
         class ShaderProgram;
         class ShaderManager;
 
+        class Transformation;
+
         class FontGlyph;
         class FontManager;
         class FontTexture;

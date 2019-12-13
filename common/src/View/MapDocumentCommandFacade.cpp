@@ -840,7 +840,7 @@ namespace TrenchBroom {
             return newFacePositions;
         }
 
-        void MapDocumentCommandFacade::performAddVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices) {
+        void MapDocumentCommandFacade::performAddVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);
 
@@ -849,7 +849,7 @@ namespace TrenchBroom {
 
             for (const auto& entry : vertices) {
                 const vm::vec3& position = entry.first;
-                const std::set<Model::Brush*>& brushes = entry.second;
+                const std::vector<Model::Brush*>& brushes = entry.second;
                 for (Model::Brush* brush : brushes)
                     brush->addVertex(m_worldBounds, position);
             }

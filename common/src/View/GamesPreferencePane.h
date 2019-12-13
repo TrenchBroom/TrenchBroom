@@ -21,6 +21,7 @@
 #define TrenchBroom_GamesPreferencePane
 
 #include "View/PreferencePane.h"
+#include "View/View_Forward.h"
 
 class QLineEdit;
 class QPushButton;
@@ -28,8 +29,6 @@ class QStackedWidget;
 
 namespace TrenchBroom {
     namespace View {
-        class GameListBox;
-
         class GamesPreferencePane : public PreferencePane {
             Q_OBJECT
         private:

@@ -20,22 +20,19 @@
 #ifndef InputEvent_h
 #define InputEvent_h
 
+#include "View/View_Forward.h"
+
 #include <QKeyEvent>
 
 #include <chrono>
-#include <list>
 #include <memory>
+#include <vector>
 
 // Undefine this symbol since it interferes somehow with our enums.
 #undef None
 
 namespace TrenchBroom {
     namespace View {
-        class KeyEvent;
-        class MouseEvent;
-        class CancelEvent;
-        class InputEventProcessor;
-
         /**
          * Superclass for all input events. Provides protocols for event collation and processing.
          */
@@ -213,7 +210,7 @@ namespace TrenchBroom {
          */
         class InputEventQueue {
         private:
-            using EventQueue = std::list<std::unique_ptr<InputEvent>>;
+            using EventQueue = std::vector<std::unique_ptr<InputEvent>>;
             EventQueue m_eventQueue;
         public:
             /**

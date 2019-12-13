@@ -45,7 +45,7 @@ namespace TrenchBroom {
             return createOrReuseFrame();
         }
 
-        FrameList FrameManager::frames() const {
+        std::vector<MapFrame*> FrameManager::frames() const {
             return m_frames;
         }
 
@@ -88,7 +88,7 @@ namespace TrenchBroom {
                 if (it != std::begin(m_frames)) {
                     assert(topFrame() != frame);
                     m_frames.erase(it);
-                    m_frames.push_front(frame);
+                    m_frames.insert(std::begin(m_frames), frame);
                 }
             }
         }
@@ -105,7 +105,7 @@ namespace TrenchBroom {
         MapFrame* FrameManager::createFrame(std::shared_ptr<MapDocument> document) {
             auto* frame = new MapFrame(this, std::move(document));
             frame->positionOnScreen(topFrame());
-            m_frames.push_front(frame);
+            m_frames.insert(std::begin(m_frames), frame);
 
             frame->show();
             frame->raise();

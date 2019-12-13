@@ -20,6 +20,7 @@
 #include "ViewUtils.h"
 
 #include "SharedPointer.h"
+#include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"

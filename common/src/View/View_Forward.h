@@ -36,26 +36,85 @@ namespace TrenchBroom {
         class CreateComplexBrushTool;
         class CreateEntityTool;
         class CreateSimpleBrushTool;
+        class EdgeTool;
+        class FaceTool;
         class VertexTool;
+
+        class KeyEvent;
+        class MouseEvent;
+        class CancelEvent;
+        class InputEventProcessor;
 
         class Command;
         class UndoableCommand;
 
+        class SmartAttributeEditorManager;
+
         class VertexHandleManager;
         class VertexHandleManagerBase;
         template <typename H> class VertexHandleManagerBaseT;
+        class EdgeHandleManager;
 
         class MapFrame;
         class GLContextManager;
 
         class MapViewBase;
+        class MapView2D;
+        class MapView3D;
         class MapViewToolBox;
 
         class CompilationContext;
         class CompilationRunner;
         class CompilationProfileManager;
 
+        class GameEngineProfileManager;
+        class GameEngineProfileEditor;
+        class GameEngineProfileListBox;
+
+        class MapInspector;
+        class EntityInspector;
+        class FaceInspector;
+
+        class EntityAttributeGrid;
+        class EntityAttributeModel;
+        class EntityAttributeTable;
+        class EntityAttributeEditor;
+
+        class EntityBrowser;
+        class EntityBrowserView;
+
+        class EntityDefinitionFileChooser;
+        class FlagsPopupEditor;
+
+        class UVEditor;
+
+        class FaceAttribsEditor;
+        class TextureBrowser;
+
+        class FileTextureCollectionEditor;
+
+        class Console;
+        class IssueBrowser;
+        class IssueBrowserView;
+        class IssueBrowserModel;
+
+        class Action;
+
+        class KeyboardShortcutModel;
+
+        class GameListBox;
+        class LayerListBox;
+
+        class ContainerBar;
+        class TabBook;
+
         class BorderLine;
+        class SpinControl;
+        class ElidedLabel;
+        class FlagsEditor;
+        class PopupButton;
+        class LimitedKeySequenceEdit;
+        class MultiCompletionLineEdit;
     }
 }
 

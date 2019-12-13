@@ -36,7 +36,6 @@ class QScrollArea;
 namespace TrenchBroom {
     namespace View {
         class FlagsEditor;
-        class FlagChangedCommand;
         class MapDocument;
 
         class SmartSpawnflagsEditor : public SmartAttributeEditor {

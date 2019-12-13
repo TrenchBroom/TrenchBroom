@@ -27,7 +27,6 @@
 
 #include <map>
 #include <memory>
-#include <set>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -87,7 +86,7 @@ namespace TrenchBroom {
             bool subset() const;
 
             static AttributeRow rowForAttributableNodes(const std::string& key, const std::vector<Model::AttributableNode*>& attributables);
-            static std::set<std::string> allKeys(const std::vector<Model::AttributableNode*>& attributables, bool showDefaultRows);
+            static std::vector<std::string> allKeys(const std::vector<Model::AttributableNode*>& attributables, bool showDefaultRows);
             static std::map<std::string, AttributeRow> rowsForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables, bool showDefaultRows);
             /**
              * Suggests a new, unused attribute name of the form "property X".

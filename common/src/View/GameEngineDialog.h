@@ -20,14 +20,14 @@
 #ifndef GameEngineDialog_h
 #define GameEngineDialog_h
 
+#include "View/View_Forward.h"
+
 #include <string>
 
 #include <QDialog>
 
 namespace TrenchBroom {
     namespace View {
-        class GameEngineProfileManager;
-
         class GameEngineDialog : public QDialog {
             Q_OBJECT
         private:

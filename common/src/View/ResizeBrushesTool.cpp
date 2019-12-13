@@ -349,9 +349,9 @@ namespace TrenchBroom {
                 return true;
             }
 
-            std::map<vm::polygon3, std::set<Model::Brush*>> brushMap;
+            std::map<vm::polygon3, std::vector<Model::Brush*>> brushMap;
             for (const auto* face : dragFaces()) {
-                brushMap[face->polygon()].insert(face->brush());
+                brushMap[face->polygon()] = { face->brush() };
             }
 
             if (document->moveFaces(brushMap, delta)) {

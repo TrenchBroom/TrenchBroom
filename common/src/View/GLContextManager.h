@@ -21,17 +21,12 @@
 #define TrenchBroom_GLContextManager
 
 #include "Macros.h"
+#include "Renderer/Renderer_Forward.h"
 
 #include <memory>
 #include <string>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class FontManager;
-        class ShaderManager;
-        class Vbo;
-    }
-
     namespace View {
         class GLContextManager {
         public:
