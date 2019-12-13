@@ -41,7 +41,7 @@ namespace TrenchBroom {
             std::vector<vm::polygon3> m_newFaces;
             vm::vec3 m_delta;
         public:
-            static std::shared_ptr<ResizeBrushesCommand> resize(const std::vector<vm::polygon3>& faces, const vm::vec3& delta);
+            static std::unique_ptr<ResizeBrushesCommand> resize(const std::vector<vm::polygon3>& faces, const vm::vec3& delta);
 
             ResizeBrushesCommand(const std::vector<vm::polygon3>& faces, const vm::vec3& delta);
         private:
@@ -49,7 +49,7 @@ namespace TrenchBroom {
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(ResizeBrushesCommand)
         };

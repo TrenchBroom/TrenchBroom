@@ -38,7 +38,7 @@ namespace TrenchBroom {
             Model::AttributeName m_attributeName;
             size_t m_flagIndex;
         public:
-            static std::shared_ptr<UpdateEntitySpawnflagCommand> update(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
+            static std::unique_ptr<UpdateEntitySpawnflagCommand> update(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
 
             UpdateEntitySpawnflagCommand(const Model::AttributeName& attributeName, const size_t flagIndex, const bool setFlag);
         private:
@@ -49,7 +49,7 @@ namespace TrenchBroom {
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(UpdateEntitySpawnflagCommand)
         };

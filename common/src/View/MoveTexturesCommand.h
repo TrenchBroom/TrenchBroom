@@ -39,7 +39,7 @@ namespace TrenchBroom {
             vm::vec3f m_cameraRight;
             vm::vec2f m_delta;
         public:
-            static std::shared_ptr<MoveTexturesCommand> move(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
+            static std::unique_ptr<MoveTexturesCommand> move(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
 
             MoveTexturesCommand(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
         private:
@@ -49,9 +49,9 @@ namespace TrenchBroom {
             void moveTextures(MapDocumentCommandFacade* document, const vm::vec2f& delta) const;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            std::shared_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
+            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(MoveTexturesCommand)
         };

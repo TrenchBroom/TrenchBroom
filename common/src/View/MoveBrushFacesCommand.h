@@ -39,14 +39,14 @@ namespace TrenchBroom {
             std::vector<vm::polygon3> m_newFacePositions;
             vm::vec3 m_delta;
         public:
-            static std::shared_ptr<MoveBrushFacesCommand> move(const FaceToBrushesMap& faces, const vm::vec3& delta);
+            static std::unique_ptr<MoveBrushFacesCommand> move(const FaceToBrushesMap& faces, const vm::vec3& delta);
 
             MoveBrushFacesCommand(const std::vector<Model::Brush*>& brushes, const BrushFacesMap& faces, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta);
         private:
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             void doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const override;
             void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const override;

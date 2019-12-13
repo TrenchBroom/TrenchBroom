@@ -25,14 +25,12 @@
 #include <vecmath/vec.h>
 #include <vecmath/polygon.h>
 
-#include <cassert>
-
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType ResizeBrushesCommand::Type = Command::freeType();
 
-        std::shared_ptr<ResizeBrushesCommand> ResizeBrushesCommand::resize(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
-            return std::make_shared<ResizeBrushesCommand>(faces, delta);
+        std::unique_ptr<ResizeBrushesCommand> ResizeBrushesCommand::resize(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
+            return std::make_unique<ResizeBrushesCommand>(faces, delta);
         }
 
         ResizeBrushesCommand::ResizeBrushesCommand(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) :
@@ -50,8 +48,8 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool ResizeBrushesCommand::doCollateWith(std::shared_ptr<UndoableCommand> command) {
-            ResizeBrushesCommand* other = static_cast<ResizeBrushesCommand*>(command.get());
+        bool ResizeBrushesCommand::doCollateWith(UndoableCommand* command) {
+            ResizeBrushesCommand* other = static_cast<ResizeBrushesCommand*>(command);
             if (other->m_faces == m_newFaces) {
                 m_newFaces = other->m_newFaces;
                 m_delta = m_delta + other->m_delta;

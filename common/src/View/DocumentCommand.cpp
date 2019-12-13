@@ -46,7 +46,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool DocumentCommand::collateWith(std::shared_ptr<UndoableCommand> command) {
+        bool DocumentCommand::collateWith(UndoableCommand* command) {
             if (UndoableCommand::collateWith(command)) {
                 m_modificationCount += command->documentModificationCount();
                 return true;

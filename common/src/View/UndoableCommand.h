@@ -41,17 +41,17 @@ namespace TrenchBroom {
 
             bool isRepeatDelimiter() const;
             bool isRepeatable(MapDocumentCommandFacade* document) const;
-            std::shared_ptr<UndoableCommand> repeat(MapDocumentCommandFacade* document) const;
+            std::unique_ptr<UndoableCommand> repeat(MapDocumentCommandFacade* document) const;
 
-            virtual bool collateWith(std::shared_ptr<UndoableCommand> command);
+            virtual bool collateWith(UndoableCommand* command);
         private:
             virtual bool doPerformUndo(MapDocumentCommandFacade* document) = 0;
 
             virtual bool doIsRepeatDelimiter() const;
             virtual bool doIsRepeatable(MapDocumentCommandFacade* document) const = 0;
-            virtual std::shared_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const;
+            virtual std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const;
 
-            virtual bool doCollateWith(std::shared_ptr<UndoableCommand> command) = 0;
+            virtual bool doCollateWith(UndoableCommand* command) = 0;
         public: // this method is just a service for DocumentCommand and should never be called from anywhere else
             virtual size_t documentModificationCount() const;
 

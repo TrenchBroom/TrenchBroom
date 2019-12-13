@@ -25,6 +25,8 @@
 #include "View/VertexCommand.h"
 #include "View/View_Forward.h"
 
+#include <vecmath/forward.h>
+
 #include <memory>
 #include <vector>
 
@@ -39,14 +41,15 @@ namespace TrenchBroom {
             std::vector<vm::segment3> m_newEdgePositions;
             vm::vec3 m_delta;
         public:
-            static std::shared_ptr<MoveBrushEdgesCommand> move(const EdgeToBrushesMap& edges, const vm::vec3& delta);
+            static std::unique_ptr<MoveBrushEdgesCommand> move(const EdgeToBrushesMap& edges, const vm::vec3& delta);
 
             MoveBrushEdgesCommand(const std::vector<Model::Brush*>& brushes, const BrushEdgesMap& edges, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta);
+            ~MoveBrushEdgesCommand() override;
         private:
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             void doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const override;
             void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const override;

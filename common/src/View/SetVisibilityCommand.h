@@ -47,10 +47,10 @@ namespace TrenchBroom {
             Action m_action;
             std::map<Model::Node*, Model::VisibilityState> m_oldState;
         public:
-            static std::shared_ptr<SetVisibilityCommand> show(const std::vector<Model::Node*>& nodes);
-            static std::shared_ptr<SetVisibilityCommand> hide(const std::vector<Model::Node*>& nodes);
-            static std::shared_ptr<SetVisibilityCommand> ensureVisible(const std::vector<Model::Node*>& nodes);
-            static std::shared_ptr<SetVisibilityCommand> reset(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SetVisibilityCommand> show(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SetVisibilityCommand> hide(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SetVisibilityCommand> ensureVisible(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SetVisibilityCommand> reset(const std::vector<Model::Node*>& nodes);
 
             SetVisibilityCommand(const std::vector<Model::Node*>& nodes, Action action);
         private:
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
             deleteCopyAndMove(SetVisibilityCommand)

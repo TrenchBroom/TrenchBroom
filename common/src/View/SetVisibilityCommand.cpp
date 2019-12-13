@@ -28,20 +28,20 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetVisibilityCommand::Type = Command::freeType();
 
-        std::shared_ptr<SetVisibilityCommand> SetVisibilityCommand::show(const std::vector<Model::Node*>& nodes) {
-            return std::make_shared<SetVisibilityCommand>(nodes, Action::Show);
+        std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::show(const std::vector<Model::Node*>& nodes) {
+            return std::make_unique<SetVisibilityCommand>(nodes, Action::Show);
         }
 
-        std::shared_ptr<SetVisibilityCommand> SetVisibilityCommand::hide(const std::vector<Model::Node*>& nodes) {
-            return std::make_shared<SetVisibilityCommand>(nodes, Action::Hide);
+        std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::hide(const std::vector<Model::Node*>& nodes) {
+            return std::make_unique<SetVisibilityCommand>(nodes, Action::Hide);
         }
 
-        std::shared_ptr<SetVisibilityCommand> SetVisibilityCommand::ensureVisible(const std::vector<Model::Node*>& nodes) {
-            return std::make_shared<SetVisibilityCommand>(nodes, Action::Ensure);
+        std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::ensureVisible(const std::vector<Model::Node*>& nodes) {
+            return std::make_unique<SetVisibilityCommand>(nodes, Action::Ensure);
         }
 
-        std::shared_ptr<SetVisibilityCommand> SetVisibilityCommand::reset(const std::vector<Model::Node*>& nodes) {
-            return std::make_shared<SetVisibilityCommand>(nodes, Action::Reset);
+        std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::reset(const std::vector<Model::Node*>& nodes) {
+            return std::make_unique<SetVisibilityCommand>(nodes, Action::Reset);
         }
 
         SetVisibilityCommand::SetVisibilityCommand(const std::vector<Model::Node*>& nodes, const Action action) :
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SetVisibilityCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
+        bool SetVisibilityCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
 

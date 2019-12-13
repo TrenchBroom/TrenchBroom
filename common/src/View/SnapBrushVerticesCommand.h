@@ -33,14 +33,14 @@ namespace TrenchBroom {
         private:
             FloatType m_snapTo;
         public:
-            static std::shared_ptr<SnapBrushVerticesCommand> snap(FloatType snapTo);
+            static std::unique_ptr<SnapBrushVerticesCommand> snap(FloatType snapTo);
 
             explicit SnapBrushVerticesCommand(FloatType snapTo);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(SnapBrushVerticesCommand)
         };

@@ -37,7 +37,7 @@ namespace TrenchBroom {
             std::vector<std::string> m_oldMods;
             std::vector<std::string> m_newMods;
         public:
-            static std::shared_ptr<SetModsCommand> set(const std::vector<std::string>& mods);
+            static std::unique_ptr<SetModsCommand> set(const std::vector<std::string>& mods);
 
             SetModsCommand(const std::string& name, const std::vector<std::string>& mods);
         private:
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(SetModsCommand)
         };

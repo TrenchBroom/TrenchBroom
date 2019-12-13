@@ -33,7 +33,7 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType AddBrushVerticesCommand::Type = Command::freeType();
 
-        std::shared_ptr<AddBrushVerticesCommand> AddBrushVerticesCommand::add(const VertexToBrushesMap& vertices) {
+        std::unique_ptr<AddBrushVerticesCommand> AddBrushVerticesCommand::add(const VertexToBrushesMap& vertices) {
             kdl::vector_set<Model::Brush*> allBrushes;
             for (const auto& entry : vertices) {
                 const std::set<Model::Brush*>& brushes = entry.second;
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             }
 
             const std::string actionName = kdl::str_plural(vertices.size(), "Add Vertex", "Add Vertices");
-            return std::make_shared<AddBrushVerticesCommand>(Type, actionName, allBrushes.release_data(), vertices);
+            return std::make_unique<AddBrushVerticesCommand>(Type, actionName, allBrushes.release_data(), vertices);
         }
 
         AddBrushVerticesCommand::AddBrushVerticesCommand(CommandType type, const std::string& name, const std::vector<Model::Brush*>& brushes, const VertexToBrushesMap& vertices) :
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool AddBrushVerticesCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
+        bool AddBrushVerticesCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

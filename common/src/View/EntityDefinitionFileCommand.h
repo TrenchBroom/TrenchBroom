@@ -37,7 +37,7 @@ namespace TrenchBroom {
             Assets::EntityDefinitionFileSpec m_oldSpec;
             Assets::EntityDefinitionFileSpec m_newSpec;
         public:
-            static std::shared_ptr<EntityDefinitionFileCommand> set(const Assets::EntityDefinitionFileSpec& spec);
+            static std::unique_ptr<EntityDefinitionFileCommand> set(const Assets::EntityDefinitionFileSpec& spec);
 
             EntityDefinitionFileCommand(const std::string& name, const Assets::EntityDefinitionFileSpec& spec);
         private:
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(EntityDefinitionFileCommand)
         };

@@ -28,8 +28,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ShearTexturesCommand::Type = Command::freeType();
 
-        std::shared_ptr<ShearTexturesCommand> ShearTexturesCommand::shear(const vm::vec2f& factors) {
-            return std::make_shared<ShearTexturesCommand>(factors);
+        std::unique_ptr<ShearTexturesCommand> ShearTexturesCommand::shear(const vm::vec2f& factors) {
+            return std::make_unique<ShearTexturesCommand>(factors);
         }
 
         ShearTexturesCommand::ShearTexturesCommand(const vm::vec2f& factors) :
@@ -55,12 +55,12 @@ namespace TrenchBroom {
             return true;
         }
 
-        std::shared_ptr<UndoableCommand> ShearTexturesCommand::doRepeat(MapDocumentCommandFacade*) const {
-            return std::make_shared<ShearTexturesCommand>(m_factors);
+        std::unique_ptr<UndoableCommand> ShearTexturesCommand::doRepeat(MapDocumentCommandFacade*) const {
+            return std::make_unique<ShearTexturesCommand>(m_factors);
         }
 
-        bool ShearTexturesCommand::doCollateWith(std::shared_ptr<UndoableCommand> command) {
-            ShearTexturesCommand* other = static_cast<ShearTexturesCommand*>(command.get());
+        bool ShearTexturesCommand::doCollateWith(UndoableCommand* command) {
+            ShearTexturesCommand* other = static_cast<ShearTexturesCommand*>(command);
             m_factors = m_factors + other->m_factors;
             return true;
         }

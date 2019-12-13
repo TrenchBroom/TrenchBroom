@@ -40,7 +40,7 @@ namespace TrenchBroom {
         private:
             std::vector<vm::polygon3> m_oldFacePositions;
         public:
-            static std::shared_ptr<RemoveBrushFacesCommand> remove(const FaceToBrushesMap& faces);
+            static std::unique_ptr<RemoveBrushFacesCommand> remove(const FaceToBrushesMap& faces);
 
             RemoveBrushFacesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::polygon3>& facePositions);
         private:

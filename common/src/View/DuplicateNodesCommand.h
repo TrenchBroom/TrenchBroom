@@ -40,7 +40,7 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> m_addedNodes;
             bool m_firstExecution;
         public:
-            static std::shared_ptr<DuplicateNodesCommand> duplicate();
+            static std::unique_ptr<DuplicateNodesCommand> duplicate();
 
             DuplicateNodesCommand();
             ~DuplicateNodesCommand() override;
@@ -52,9 +52,9 @@ namespace TrenchBroom {
             bool cloneParent(const Model::Node* node) const;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            std::shared_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
+            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(DuplicateNodesCommand)
         };

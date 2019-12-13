@@ -40,7 +40,7 @@ namespace TrenchBroom {
             const std::string m_newName;
             std::map<Model::Group*, std::string> m_oldNames;
         public:
-            static std::shared_ptr<RenameGroupsCommand> rename(const std::string& newName);
+            static std::unique_ptr<RenameGroupsCommand> rename(const std::string& newName);
 
             RenameGroupsCommand(const std::string& newName);
         private:
@@ -49,7 +49,7 @@ namespace TrenchBroom {
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(RenameGroupsCommand)
         };

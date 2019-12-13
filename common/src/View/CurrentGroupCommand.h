@@ -35,15 +35,15 @@ namespace TrenchBroom {
         private:
             Model::Group* m_group;
         public:
-            static std::shared_ptr<CurrentGroupCommand> push(Model::Group* group);
-            static std::shared_ptr<CurrentGroupCommand> pop();
+            static std::unique_ptr<CurrentGroupCommand> push(Model::Group* group);
+            static std::unique_ptr<CurrentGroupCommand> pop();
 
             CurrentGroupCommand(Model::Group* group);
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
             deleteCopyAndMove(CurrentGroupCommand)

@@ -44,9 +44,9 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
             std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;
         public:
-            static std::shared_ptr<AddRemoveNodesCommand> add(Model::Node* parent, const std::vector<Model::Node*>& children);
-            static std::shared_ptr<AddRemoveNodesCommand> add(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
-            static std::shared_ptr<AddRemoveNodesCommand> remove(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
+            static std::unique_ptr<AddRemoveNodesCommand> add(Model::Node* parent, const std::vector<Model::Node*>& children);
+            static std::unique_ptr<AddRemoveNodesCommand> add(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
+            static std::unique_ptr<AddRemoveNodesCommand> remove(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
 
             AddRemoveNodesCommand(Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
             ~AddRemoveNodesCommand() override;
@@ -58,7 +58,7 @@ namespace TrenchBroom {
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(AddRemoveNodesCommand)
         };

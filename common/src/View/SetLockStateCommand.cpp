@@ -28,16 +28,16 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetLockStateCommand::Type = Command::freeType();
 
-        std::shared_ptr<SetLockStateCommand> SetLockStateCommand::lock(const std::vector<Model::Node*>& nodes) {
-            return std::make_shared<SetLockStateCommand>(nodes, Model::LockState::Lock_Locked);
+        std::unique_ptr<SetLockStateCommand> SetLockStateCommand::lock(const std::vector<Model::Node*>& nodes) {
+            return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Lock_Locked);
         }
 
-        std::shared_ptr<SetLockStateCommand> SetLockStateCommand::unlock(const std::vector<Model::Node*>& nodes) {
-            return std::make_shared<SetLockStateCommand>(nodes, Model::LockState::Lock_Unlocked);
+        std::unique_ptr<SetLockStateCommand> SetLockStateCommand::unlock(const std::vector<Model::Node*>& nodes) {
+            return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Lock_Unlocked);
         }
 
-        std::shared_ptr<SetLockStateCommand> SetLockStateCommand::reset(const std::vector<Model::Node*>& nodes) {
-            return std::make_shared<SetLockStateCommand>(nodes, Model::LockState::Lock_Inherited);
+        std::unique_ptr<SetLockStateCommand> SetLockStateCommand::reset(const std::vector<Model::Node*>& nodes) {
+            return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Lock_Inherited);
         }
 
         SetLockStateCommand::SetLockStateCommand(const std::vector<Model::Node*>& nodes, const Model::LockState lockState) :
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SetLockStateCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
+        bool SetLockStateCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
 

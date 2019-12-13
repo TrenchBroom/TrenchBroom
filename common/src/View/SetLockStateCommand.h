@@ -40,9 +40,9 @@ namespace TrenchBroom {
             Model::LockState m_lockState;
             std::map<Model::Node*, Model::LockState> m_oldLockState;
         public:
-            static std::shared_ptr<SetLockStateCommand> lock(const std::vector<Model::Node*>& nodes);
-            static std::shared_ptr<SetLockStateCommand> unlock(const std::vector<Model::Node*>& nodes);
-            static std::shared_ptr<SetLockStateCommand> reset(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SetLockStateCommand> lock(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SetLockStateCommand> unlock(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SetLockStateCommand> reset(const std::vector<Model::Node*>& nodes);
 
             SetLockStateCommand(const std::vector<Model::Node*>& nodes, Model::LockState lockState);
         private:
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
             deleteCopyAndMove(SetLockStateCommand)

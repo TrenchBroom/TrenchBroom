@@ -48,7 +48,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool RemoveBrushElementsCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
+        bool RemoveBrushElementsCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

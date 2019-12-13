@@ -37,7 +37,7 @@ namespace TrenchBroom {
             std::vector<IO::Path> m_paths;
             std::vector<IO::Path> m_oldPaths;
         public:
-            static std::shared_ptr<SetTextureCollectionsCommand> set(const std::vector<IO::Path>& paths);
+            static std::unique_ptr<SetTextureCollectionsCommand> set(const std::vector<IO::Path>& paths);
 
             SetTextureCollectionsCommand(const std::vector<IO::Path>& paths);
         private:
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(SetTextureCollectionsCommand)
         };

@@ -25,6 +25,8 @@
 #include "View/RemoveBrushElementsCommand.h"
 #include "View/View_Forward.h"
 
+#include <vecmath/forward.h>
+
 #include <memory>
 #include <vector>
 
@@ -36,9 +38,10 @@ namespace TrenchBroom {
         private:
             std::vector<vm::segment3> m_oldEdgePositions;
         public:
-            static std::shared_ptr<RemoveBrushEdgesCommand> remove(const EdgeToBrushesMap& edges);
+            static std::unique_ptr<RemoveBrushEdgesCommand> remove(const EdgeToBrushesMap& edges);
 
             RemoveBrushEdgesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::segment3>& edgePositions);
+            ~RemoveBrushEdgesCommand() override;
         private:
             void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const override;
 

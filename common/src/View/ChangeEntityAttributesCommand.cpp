@@ -27,21 +27,21 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ChangeEntityAttributesCommand::Type = Command::freeType();
 
-        std::shared_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::set(const Model::AttributeName& name, const Model::AttributeValue& value) {
-            auto command = std::make_shared<ChangeEntityAttributesCommand>(Action::Set);
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::set(const Model::AttributeName& name, const Model::AttributeValue& value) {
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Set);
             command->setName(name);
             command->setNewValue(value);
             return command;
         }
 
-        std::shared_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::remove(const Model::AttributeName& name) {
-            auto command = std::make_shared<ChangeEntityAttributesCommand>(Action::Remove);
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::remove(const Model::AttributeName& name) {
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Remove);
             command->setName(name);
             return command;
         }
 
-        std::shared_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::rename(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
-            auto command = std::make_shared<ChangeEntityAttributesCommand>(Action::Rename);
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::rename(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Rename);
             command->setName(oldName);
             command->setNewName(newName);
             return command;
@@ -102,12 +102,15 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool ChangeEntityAttributesCommand::doCollateWith(std::shared_ptr<UndoableCommand> command) {
-            ChangeEntityAttributesCommand* other = static_cast<ChangeEntityAttributesCommand*>(command.get());
-            if (other->m_action != m_action)
+        bool ChangeEntityAttributesCommand::doCollateWith(UndoableCommand* command) {
+            ChangeEntityAttributesCommand* other = static_cast<ChangeEntityAttributesCommand*>(command);
+            if (other->m_action != m_action) {
                 return false;
-            if (other->m_oldName != m_oldName)
+            }
+            if (other->m_oldName != m_oldName) {
                 return false;
+            }
+
             m_newName = other->m_newName;
             m_newValue = other->m_newValue;
             return true;

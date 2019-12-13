@@ -710,8 +710,7 @@ namespace TrenchBroom {
 
         std::vector<Model::Node*> MapDocument::addNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
             Transaction transaction(this, "Add Objects");
-            auto command = AddRemoveNodesCommand::add(nodes);
-            if (!submitAndStore(command)) {
+            if (!submitAndStore(AddRemoveNodesCommand::add(nodes))) {
                 return {};
             }
 
@@ -721,8 +720,7 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::Node*> MapDocument::addNodes(const std::vector<Model::Node*>& nodes, Model::Node* parent) {
-            auto command = AddRemoveNodesCommand::add(parent, nodes);
-            if (!submitAndStore(command)) {
+            if (!submitAndStore(AddRemoveNodesCommand::add(parent, nodes))) {
                 return {};
             }
 
@@ -1404,8 +1402,17 @@ namespace TrenchBroom {
 
         MapDocument::MoveVerticesResult MapDocument::moveVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices, const vm::vec3& delta) {
             auto command = MoveBrushVerticesCommand::move(vertices, delta);
-            const bool success = submitAndStore(command);
-            const bool hasRemainingVertices = command->hasRemainingVertices();
+            auto* rawCommand = command.get();
+            const bool success = submitAndStore(std::move(command));
+
+            /*
+             * This is safe -- there are two cases:
+             * - The command succeeds and the command processor has taken ownership of the command object.
+             * - The command fails and the command process has not taken ownership of the command object. Since all
+             *   methods called by submitAndStore take the command by rvalue reference, no ownership has been transfered
+             *   and the command object is only destroyed when this method returns.
+             */
+            const bool hasRemainingVertices = rawCommand->hasRemainingVertices();
             return MoveVerticesResult(success, hasRemainingVertices);
         }
 
@@ -1475,7 +1482,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand>) override {
+            bool doCollateWith(UndoableCommand*) override {
                 return false;
             }
         };
@@ -1483,7 +1490,7 @@ namespace TrenchBroom {
         const ThrowExceptionCommand::CommandType ThrowExceptionCommand::Type = Command::freeType();
 
         bool MapDocument::throwExceptionDuringCommand() {
-            return submitAndStore(ThrowExceptionCommand::Ptr(new ThrowExceptionCommand()));
+            return submitAndStore(std::make_unique<ThrowExceptionCommand>());
         }
 
         bool MapDocument::canUndoLastCommand() const {
@@ -1543,12 +1550,12 @@ namespace TrenchBroom {
             doEndTransaction();
         }
 
-        bool MapDocument::submit(std::shared_ptr<Command> command) {
-            return doSubmit(command);
+        bool MapDocument::submit(std::unique_ptr<Command>&& command) {
+            return doSubmit(std::move(command));
         }
 
-        bool MapDocument::submitAndStore(std::shared_ptr<UndoableCommand> command) {
-            return doSubmitAndStore(command);
+        bool MapDocument::submitAndStore(std::unique_ptr<UndoableCommand>&& command) {
+            return doSubmitAndStore(std::move(command));
         }
 
         void MapDocument::commitPendingAssets() {

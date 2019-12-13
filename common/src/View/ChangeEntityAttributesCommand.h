@@ -52,9 +52,9 @@ namespace TrenchBroom {
 
             std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>> m_snapshots;
         public:
-            static std::shared_ptr<ChangeEntityAttributesCommand> set(const Model::AttributeName& name, const Model::AttributeValue& value);
-            static std::shared_ptr<ChangeEntityAttributesCommand> remove(const Model::AttributeName& name);
-            static std::shared_ptr<ChangeEntityAttributesCommand> rename(const Model::AttributeName& oldName, const Model::AttributeName& newName);
+            static std::unique_ptr<ChangeEntityAttributesCommand> set(const Model::AttributeName& name, const Model::AttributeValue& value);
+            static std::unique_ptr<ChangeEntityAttributesCommand> remove(const Model::AttributeName& name);
+            static std::unique_ptr<ChangeEntityAttributesCommand> rename(const Model::AttributeName& oldName, const Model::AttributeName& newName);
         public:
             ChangeEntityAttributesCommand(Action action);
         private:
@@ -69,7 +69,7 @@ namespace TrenchBroom {
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(ChangeEntityAttributesCommand)
         };

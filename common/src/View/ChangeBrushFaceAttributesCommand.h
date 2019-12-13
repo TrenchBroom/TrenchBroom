@@ -40,17 +40,18 @@ namespace TrenchBroom {
             Model::ChangeBrushFaceAttributesRequest m_request;
             std::unique_ptr<Model::Snapshot> m_snapshot;
         public:
-            static std::shared_ptr<ChangeBrushFaceAttributesCommand> command(const Model::ChangeBrushFaceAttributesRequest& request);
+            static std::unique_ptr<ChangeBrushFaceAttributesCommand> command(const Model::ChangeBrushFaceAttributesRequest& request);
 
             explicit ChangeBrushFaceAttributesCommand(const Model::ChangeBrushFaceAttributesRequest& request);
+            ~ChangeBrushFaceAttributesCommand() override;
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            std::shared_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
+            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
         private:
             ChangeBrushFaceAttributesCommand(const ChangeBrushFaceAttributesCommand& other);
             ChangeBrushFaceAttributesCommand& operator=(const ChangeBrushFaceAttributesCommand& other);

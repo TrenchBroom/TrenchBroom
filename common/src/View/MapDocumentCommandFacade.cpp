@@ -1037,12 +1037,12 @@ namespace TrenchBroom {
             m_commandProcessor.rollbackGroup();
         }
 
-        bool MapDocumentCommandFacade::doSubmit(std::shared_ptr<Command> command) {
-            return m_commandProcessor.submitCommand(command);
+        bool MapDocumentCommandFacade::doSubmit(std::unique_ptr<Command>&& command) {
+            return m_commandProcessor.submitCommand(std::move(command));
         }
 
-        bool MapDocumentCommandFacade::doSubmitAndStore(std::shared_ptr<UndoableCommand> command) {
-            return m_commandProcessor.submitAndStoreCommand(command);
+        bool MapDocumentCommandFacade::doSubmitAndStore(std::unique_ptr<UndoableCommand>&& command) {
+            return m_commandProcessor.submitAndStoreCommand(std::move(command));
         }
     }
 }

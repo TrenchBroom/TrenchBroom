@@ -35,7 +35,7 @@ namespace TrenchBroom {
         private:
             vm::vec2f m_factors;
         public:
-            static std::shared_ptr<ShearTexturesCommand> shear(const vm::vec2f& factors);
+            static std::unique_ptr<ShearTexturesCommand> shear(const vm::vec2f& factors);
 
             ShearTexturesCommand(const vm::vec2f& factors);
         private:
@@ -45,9 +45,9 @@ namespace TrenchBroom {
             bool shearTextures(MapDocumentCommandFacade* document, const vm::vec2f& factors);
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            std::shared_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
+            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(ShearTexturesCommand)
         };

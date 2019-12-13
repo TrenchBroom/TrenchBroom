@@ -32,7 +32,7 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType RemoveBrushFacesCommand::Type = Command::freeType();
 
-        std::shared_ptr<RemoveBrushFacesCommand> RemoveBrushFacesCommand::remove(const FaceToBrushesMap& faces) {
+        std::unique_ptr<RemoveBrushFacesCommand> RemoveBrushFacesCommand::remove(const FaceToBrushesMap& faces) {
             std::vector<Model::Brush*> brushes;
             BrushFacesMap brushFaces;
             std::vector<vm::polygon3> facePositions;
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             extractFaceMap(faces, brushes, brushFaces, facePositions);
             const BrushVerticesMap brushVertices = brushVertexMap(brushFaces);
 
-            return std::make_shared<RemoveBrushFacesCommand>(brushes, brushVertices, facePositions);
+            return std::make_unique<RemoveBrushFacesCommand>(brushes, brushVertices, facePositions);
         }
 
         RemoveBrushFacesCommand::RemoveBrushFacesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::polygon3>& facePositions) :

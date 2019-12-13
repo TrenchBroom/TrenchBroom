@@ -27,8 +27,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType UpdateEntitySpawnflagCommand::Type = Command::freeType();
 
-        std::shared_ptr<UpdateEntitySpawnflagCommand> UpdateEntitySpawnflagCommand::update(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) {
-            return std::make_shared<UpdateEntitySpawnflagCommand>(name, flagIndex, setFlag);
+        std::unique_ptr<UpdateEntitySpawnflagCommand> UpdateEntitySpawnflagCommand::update(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) {
+            return std::make_unique<UpdateEntitySpawnflagCommand>(name, flagIndex, setFlag);
         }
 
         UpdateEntitySpawnflagCommand::UpdateEntitySpawnflagCommand(const Model::AttributeName& attributeName, const size_t flagIndex, const bool setFlag) :
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool UpdateEntitySpawnflagCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
+        bool UpdateEntitySpawnflagCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

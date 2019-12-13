@@ -39,13 +39,14 @@ namespace TrenchBroom {
         private:
             VertexToBrushesMap m_vertices;
         public:
-            static std::shared_ptr<AddBrushVerticesCommand> add(const VertexToBrushesMap& vertices);
+            static std::unique_ptr<AddBrushVerticesCommand> add(const VertexToBrushesMap& vertices);
+
             AddBrushVerticesCommand(CommandType type, const std::string& name, const std::vector<Model::Brush*>& brushes, const VertexToBrushesMap& vertices);
         private:
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(AddBrushVerticesCommand)
         };

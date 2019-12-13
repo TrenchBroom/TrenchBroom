@@ -34,13 +34,13 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveBrushVerticesCommand::Type = Command::freeType();
 
-        std::shared_ptr<MoveBrushVerticesCommand> MoveBrushVerticesCommand::move(const VertexToBrushesMap& vertices, const vm::vec3& delta) {
+        std::unique_ptr<MoveBrushVerticesCommand> MoveBrushVerticesCommand::move(const VertexToBrushesMap& vertices, const vm::vec3& delta) {
             std::vector<Model::Brush*> brushes;
             BrushVerticesMap brushVertices;
             std::vector<vm::vec3> vertexPositions;
             extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
 
-            return std::make_shared<MoveBrushVerticesCommand>(brushes, brushVertices, vertexPositions, delta);
+            return std::make_unique<MoveBrushVerticesCommand>(brushes, brushVertices, vertexPositions, delta);
         }
 
         MoveBrushVerticesCommand::MoveBrushVerticesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta) :
@@ -71,8 +71,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MoveBrushVerticesCommand::doCollateWith(std::shared_ptr<UndoableCommand> command) {
-            MoveBrushVerticesCommand* other = static_cast<MoveBrushVerticesCommand*>(command.get());
+        bool MoveBrushVerticesCommand::doCollateWith(UndoableCommand* command) {
+            MoveBrushVerticesCommand* other = static_cast<MoveBrushVerticesCommand*>(command);
 
             if (!canCollateWith(*other)) {
                 return false;

@@ -35,36 +35,36 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SelectionCommand::Type = Command::freeType();
 
-        std::shared_ptr<SelectionCommand> SelectionCommand::select(const std::vector<Model::Node*>& nodes) {
-            return std::make_shared<SelectionCommand>(Action::SelectNodes, nodes, std::vector<Model::BrushFace*>({}));
+        std::unique_ptr<SelectionCommand> SelectionCommand::select(const std::vector<Model::Node*>& nodes) {
+            return std::make_unique<SelectionCommand>(Action::SelectNodes, nodes, std::vector<Model::BrushFace*>({}));
         }
 
-        std::shared_ptr<SelectionCommand> SelectionCommand::select(const std::vector<Model::BrushFace*>& faces) {
-            return std::make_shared<SelectionCommand>(Action::SelectFaces, std::vector<Model::Node*>({}), faces);
+        std::unique_ptr<SelectionCommand> SelectionCommand::select(const std::vector<Model::BrushFace*>& faces) {
+            return std::make_unique<SelectionCommand>(Action::SelectFaces, std::vector<Model::Node*>({}), faces);
         }
 
-        std::shared_ptr<SelectionCommand> SelectionCommand::convertToFaces() {
-            return std::make_shared<SelectionCommand>(Action::ConvertToFaces, std::vector<Model::Node*>({}), std::vector<Model::BrushFace*>({}));
+        std::unique_ptr<SelectionCommand> SelectionCommand::convertToFaces() {
+            return std::make_unique<SelectionCommand>(Action::ConvertToFaces, std::vector<Model::Node*>({}), std::vector<Model::BrushFace*>({}));
         }
 
-        std::shared_ptr<SelectionCommand> SelectionCommand::selectAllNodes() {
-            return std::make_shared<SelectionCommand>(Action::SelectAllNodes, std::vector<Model::Node*>({}), std::vector<Model::BrushFace*>({}));
+        std::unique_ptr<SelectionCommand> SelectionCommand::selectAllNodes() {
+            return std::make_unique<SelectionCommand>(Action::SelectAllNodes, std::vector<Model::Node*>({}), std::vector<Model::BrushFace*>({}));
         }
 
-        std::shared_ptr<SelectionCommand> SelectionCommand::selectAllFaces() {
-            return std::make_shared<SelectionCommand>(Action::SelectAllFaces, std::vector<Model::Node*>({}), std::vector<Model::BrushFace*>({}));
+        std::unique_ptr<SelectionCommand> SelectionCommand::selectAllFaces() {
+            return std::make_unique<SelectionCommand>(Action::SelectAllFaces, std::vector<Model::Node*>({}), std::vector<Model::BrushFace*>({}));
         }
 
-        std::shared_ptr<SelectionCommand> SelectionCommand::deselect(const std::vector<Model::Node*>& nodes) {
-            return std::make_shared<SelectionCommand>(Action::DeselectNodes, nodes, std::vector<Model::BrushFace*>({}));
+        std::unique_ptr<SelectionCommand> SelectionCommand::deselect(const std::vector<Model::Node*>& nodes) {
+            return std::make_unique<SelectionCommand>(Action::DeselectNodes, nodes, std::vector<Model::BrushFace*>({}));
         }
 
-        std::shared_ptr<SelectionCommand> SelectionCommand::deselect(const std::vector<Model::BrushFace*>& faces) {
-            return std::make_shared<SelectionCommand>(Action::DeselectFaces, std::vector<Model::Node*>({}), faces);
+        std::unique_ptr<SelectionCommand> SelectionCommand::deselect(const std::vector<Model::BrushFace*>& faces) {
+            return std::make_unique<SelectionCommand>(Action::DeselectFaces, std::vector<Model::Node*>({}), faces);
         }
 
-        std::shared_ptr<SelectionCommand> SelectionCommand::deselectAll() {
-            return std::make_shared<SelectionCommand>(Action::DeselectAll, std::vector<Model::Node*>({}), std::vector<Model::BrushFace*>({}));
+        std::unique_ptr<SelectionCommand> SelectionCommand::deselectAll() {
+            return std::make_unique<SelectionCommand>(Action::DeselectAll, std::vector<Model::Node*>({}), std::vector<Model::BrushFace*>({}));
         }
 
         static std::vector<Model::BrushFaceReference> faceRefs(const std::vector<Model::BrushFace*>& faces) {
@@ -170,7 +170,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool SelectionCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
+        bool SelectionCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

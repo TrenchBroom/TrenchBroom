@@ -26,8 +26,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ReparentNodesCommand::Type = Command::freeType();
 
-        std::shared_ptr<ReparentNodesCommand> ReparentNodesCommand::reparent(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove) {
-            return std::make_shared<ReparentNodesCommand>(nodesToAdd, nodesToRemove);
+        std::unique_ptr<ReparentNodesCommand> ReparentNodesCommand::reparent(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove) {
+            return std::make_unique<ReparentNodesCommand>(nodesToAdd, nodesToRemove);
         }
 
         ReparentNodesCommand::ReparentNodesCommand(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove) :
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool ReparentNodesCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
+        bool ReparentNodesCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

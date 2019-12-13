@@ -34,7 +34,7 @@ namespace TrenchBroom {
         private:
             float m_angle;
         public:
-            static std::shared_ptr<RotateTexturesCommand> rotate(float angle);
+            static std::unique_ptr<RotateTexturesCommand> rotate(float angle);
 
             RotateTexturesCommand(float angle);
         private:
@@ -44,9 +44,9 @@ namespace TrenchBroom {
             bool rotateTextures(MapDocumentCommandFacade* document, float angle) const;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            std::shared_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
+            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(RotateTexturesCommand)
         };

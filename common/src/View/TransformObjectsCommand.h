@@ -49,20 +49,20 @@ namespace TrenchBroom {
             vm::mat4x4 m_transform;
             bool m_lockTextures;
         public:
-            static std::shared_ptr<TransformObjectsCommand> translate(const vm::vec3& delta, bool lockTextures);
-            static std::shared_ptr<TransformObjectsCommand> rotate(const vm::vec3& center, const vm::vec3& axis, FloatType angle, bool lockTextures);
-            static std::shared_ptr<TransformObjectsCommand> scale(const vm::bbox3& oldBBox, const vm::bbox3& newBBox, bool lockTextures);
-            static std::shared_ptr<TransformObjectsCommand> scale(const vm::vec3& center, const vm::vec3& scaleFactors, bool lockTextures);
-            static std::shared_ptr<TransformObjectsCommand> shearBBox(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta, bool lockTextures);
-            static std::shared_ptr<TransformObjectsCommand> flip(const vm::vec3& center, vm::axis::type axis, bool lockTextures);
+            static std::unique_ptr<TransformObjectsCommand> translate(const vm::vec3& delta, bool lockTextures);
+            static std::unique_ptr<TransformObjectsCommand> rotate(const vm::vec3& center, const vm::vec3& axis, FloatType angle, bool lockTextures);
+            static std::unique_ptr<TransformObjectsCommand> scale(const vm::bbox3& oldBBox, const vm::bbox3& newBBox, bool lockTextures);
+            static std::unique_ptr<TransformObjectsCommand> scale(const vm::vec3& center, const vm::vec3& scaleFactors, bool lockTextures);
+            static std::unique_ptr<TransformObjectsCommand> shearBBox(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta, bool lockTextures);
+            static std::unique_ptr<TransformObjectsCommand> flip(const vm::vec3& center, vm::axis::type axis, bool lockTextures);
 
             TransformObjectsCommand(Action action, const std::string& name, const vm::mat4x4& transform, bool lockTextures);
             bool doPerformDo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            std::shared_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
+            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(TransformObjectsCommand)
         };

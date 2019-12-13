@@ -41,7 +41,7 @@ namespace TrenchBroom {
 
             std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>> m_snapshots;
         public:
-            static std::shared_ptr<ConvertEntityColorCommand> convert(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
+            static std::unique_ptr<ConvertEntityColorCommand> convert(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
 
             ConvertEntityColorCommand(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
         private:
@@ -50,7 +50,7 @@ namespace TrenchBroom {
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(ConvertEntityColorCommand)
         };

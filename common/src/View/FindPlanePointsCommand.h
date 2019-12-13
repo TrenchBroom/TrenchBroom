@@ -32,7 +32,7 @@ namespace TrenchBroom {
         public:
             static const CommandType Type;
         public:
-            static std::shared_ptr<FindPlanePointsCommand> findPlanePoints();
+            static std::unique_ptr<FindPlanePointsCommand> findPlanePoints();
 
             FindPlanePointsCommand();
         private:
@@ -40,7 +40,7 @@ namespace TrenchBroom {
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(FindPlanePointsCommand)
         };

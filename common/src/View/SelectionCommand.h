@@ -55,16 +55,16 @@ namespace TrenchBroom {
             std::vector<Model::Node*> m_previouslySelectedNodes;
             std::vector<Model::BrushFaceReference> m_previouslySelectedFaceRefs;
         public:
-            static std::shared_ptr<SelectionCommand> select(const std::vector<Model::Node*>& nodes);
-            static std::shared_ptr<SelectionCommand> select(const std::vector<Model::BrushFace*>& faces);
+            static std::unique_ptr<SelectionCommand> select(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SelectionCommand> select(const std::vector<Model::BrushFace*>& faces);
 
-            static std::shared_ptr<SelectionCommand> convertToFaces();
-            static std::shared_ptr<SelectionCommand> selectAllNodes();
-            static std::shared_ptr<SelectionCommand> selectAllFaces();
+            static std::unique_ptr<SelectionCommand> convertToFaces();
+            static std::unique_ptr<SelectionCommand> selectAllNodes();
+            static std::unique_ptr<SelectionCommand> selectAllFaces();
 
-            static std::shared_ptr<SelectionCommand> deselect(const std::vector<Model::Node*>& nodes);
-            static std::shared_ptr<SelectionCommand> deselect(const std::vector<Model::BrushFace*>& faces);
-            static std::shared_ptr<SelectionCommand> deselectAll();
+            static std::unique_ptr<SelectionCommand> deselect(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SelectionCommand> deselect(const std::vector<Model::BrushFace*>& faces);
+            static std::unique_ptr<SelectionCommand> deselectAll();
 
             SelectionCommand(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces);
         private:
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             bool doIsRepeatDelimiter() const override;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(std::shared_ptr<UndoableCommand> command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(SelectionCommand)
         };

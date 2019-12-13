@@ -25,7 +25,7 @@
 #include "View/MapDocumentCommandFacade.h"
 #include "View/VertexHandleManager.h"
 
-#include <vecmath/polygon.h>
+#include <vecmath/segment.h>
 
 #include <vector>
 
@@ -33,13 +33,13 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveBrushEdgesCommand::Type = Command::freeType();
 
-        std::shared_ptr<MoveBrushEdgesCommand> MoveBrushEdgesCommand::move(const EdgeToBrushesMap& edges, const vm::vec3& delta) {
+        std::unique_ptr<MoveBrushEdgesCommand> MoveBrushEdgesCommand::move(const EdgeToBrushesMap& edges, const vm::vec3& delta) {
             std::vector<Model::Brush*> brushes;
             BrushEdgesMap brushEdges;
             std::vector<vm::segment3> edgePositions;
             extractEdgeMap(edges, brushes, brushEdges, edgePositions);
 
-            return std::make_shared<MoveBrushEdgesCommand>(brushes, brushEdges, edgePositions, delta);
+            return std::make_unique<MoveBrushEdgesCommand>(brushes, brushEdges, edgePositions, delta);
         }
 
         MoveBrushEdgesCommand::MoveBrushEdgesCommand(const std::vector<Model::Brush*>& brushes, const BrushEdgesMap& edges, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) :
@@ -49,6 +49,8 @@ namespace TrenchBroom {
         m_delta(delta) {
             assert(!vm::is_zero(m_delta, vm::C::almost_zero()));
         }
+
+        MoveBrushEdgesCommand::~MoveBrushEdgesCommand() = default;
 
         bool MoveBrushEdgesCommand::doCanDoVertexOperation(const MapDocument* document) const {
             const vm::bbox3& worldBounds = document->worldBounds();
@@ -66,8 +68,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MoveBrushEdgesCommand::doCollateWith(std::shared_ptr<UndoableCommand> command) {
-            MoveBrushEdgesCommand* other = static_cast<MoveBrushEdgesCommand*>(command.get());
+        bool MoveBrushEdgesCommand::doCollateWith(UndoableCommand* command) {
+            MoveBrushEdgesCommand* other = static_cast<MoveBrushEdgesCommand*>(command);
 
             if (!canCollateWith(*other)) {
                 return false;

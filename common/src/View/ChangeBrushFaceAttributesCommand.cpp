@@ -29,13 +29,15 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ChangeBrushFaceAttributesCommand::Type = Command::freeType();
 
-        std::shared_ptr<ChangeBrushFaceAttributesCommand> ChangeBrushFaceAttributesCommand::command(const Model::ChangeBrushFaceAttributesRequest& request) {
-            return std::make_shared<ChangeBrushFaceAttributesCommand>(request);
+        std::unique_ptr<ChangeBrushFaceAttributesCommand> ChangeBrushFaceAttributesCommand::command(const Model::ChangeBrushFaceAttributesRequest& request) {
+            return std::make_unique<ChangeBrushFaceAttributesCommand>(request);
         }
 
         ChangeBrushFaceAttributesCommand::ChangeBrushFaceAttributesCommand(const Model::ChangeBrushFaceAttributesRequest& request) :
         DocumentCommand(Type, request.name()),
         m_request(request) {}
+
+        ChangeBrushFaceAttributesCommand::~ChangeBrushFaceAttributesCommand() = default;
 
         bool ChangeBrushFaceAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             const std::vector<Model::BrushFace*> faces = document->allSelectedBrushFaces();
@@ -61,12 +63,12 @@ namespace TrenchBroom {
             return document->hasSelectedBrushFaces();
         }
 
-        std::shared_ptr<UndoableCommand> ChangeBrushFaceAttributesCommand::doRepeat(MapDocumentCommandFacade*) const {
-            return std::make_shared<ChangeBrushFaceAttributesCommand>(m_request);
+        std::unique_ptr<UndoableCommand> ChangeBrushFaceAttributesCommand::doRepeat(MapDocumentCommandFacade*) const {
+            return std::make_unique<ChangeBrushFaceAttributesCommand>(m_request);
         }
 
-        bool ChangeBrushFaceAttributesCommand::doCollateWith(std::shared_ptr<UndoableCommand> command) {
-            ChangeBrushFaceAttributesCommand* other = static_cast<ChangeBrushFaceAttributesCommand*>(command.get());
+        bool ChangeBrushFaceAttributesCommand::doCollateWith(UndoableCommand* command) {
+            ChangeBrushFaceAttributesCommand* other = static_cast<ChangeBrushFaceAttributesCommand*>(command);
             return m_request.collateWith(other->m_request);
         }
     }

@@ -381,8 +381,8 @@ namespace TrenchBroom {
             void commitTransaction();
             void cancelTransaction();
         private:
-            bool submit(std::shared_ptr<Command> command);
-            bool submitAndStore(std::shared_ptr<UndoableCommand> command);
+            bool submit(std::unique_ptr<Command>&& command);
+            bool submitAndStore(std::unique_ptr<UndoableCommand>&& command);
         private: // subclassing interface for command processing
             virtual bool doCanUndoLastCommand() const = 0;
             virtual bool doCanRedoNextCommand() const = 0;
@@ -398,8 +398,8 @@ namespace TrenchBroom {
             virtual void doEndTransaction() = 0;
             virtual void doRollbackTransaction() = 0;
 
-            virtual bool doSubmit(std::shared_ptr<Command> command) = 0;
-            virtual bool doSubmitAndStore(std::shared_ptr<UndoableCommand> command) = 0;
+            virtual bool doSubmit(std::unique_ptr<Command>&& command) = 0;
+            virtual bool doSubmitAndStore(std::unique_ptr<UndoableCommand>&& command) = 0;
         public: // asset state management
             void commitPendingAssets();
         public: // picking

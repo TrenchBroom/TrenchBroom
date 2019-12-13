@@ -36,7 +36,7 @@ namespace TrenchBroom {
         private:
             std::vector<vm::vec3> m_oldVertexPositions;
         public:
-            static std::shared_ptr<RemoveBrushVerticesCommand> remove(const VertexToBrushesMap& vertices);
+            static std::unique_ptr<RemoveBrushVerticesCommand> remove(const VertexToBrushesMap& vertices);
 
             RemoveBrushVerticesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions);
 

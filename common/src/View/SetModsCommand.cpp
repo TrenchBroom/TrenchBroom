@@ -28,8 +28,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetModsCommand::Type = Command::freeType();
 
-        std::shared_ptr<SetModsCommand> SetModsCommand::set(const std::vector<std::string>& mods) {
-            return std::make_shared<SetModsCommand>("Set Mods", mods);
+        std::unique_ptr<SetModsCommand> SetModsCommand::set(const std::vector<std::string>& mods) {
+            return std::make_unique<SetModsCommand>("Set Mods", mods);
         }
 
         SetModsCommand::SetModsCommand(const std::string& name, const std::vector<std::string>& mods) :
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool SetModsCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
+        bool SetModsCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

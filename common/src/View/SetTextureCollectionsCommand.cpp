@@ -24,8 +24,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetTextureCollectionsCommand::Type = Command::freeType();
 
-        std::shared_ptr<SetTextureCollectionsCommand> SetTextureCollectionsCommand::set(const std::vector<IO::Path>& paths) {
-            return std::make_shared<SetTextureCollectionsCommand>(paths);
+        std::unique_ptr<SetTextureCollectionsCommand> SetTextureCollectionsCommand::set(const std::vector<IO::Path>& paths) {
+            return std::make_unique<SetTextureCollectionsCommand>(paths);
         }
 
         SetTextureCollectionsCommand::SetTextureCollectionsCommand(const std::vector<IO::Path>& paths) :
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool SetTextureCollectionsCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
+        bool SetTextureCollectionsCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

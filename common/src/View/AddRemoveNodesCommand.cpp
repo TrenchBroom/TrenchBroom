@@ -32,7 +32,7 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType AddRemoveNodesCommand::Type = Command::freeType();
 
-        std::shared_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(Model::Node* parent, const std::vector<Model::Node*>& children) {
+        std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(Model::Node* parent, const std::vector<Model::Node*>& children) {
             ensure(parent != nullptr, "parent is null");
             std::map<Model::Node*, std::vector<Model::Node*>> nodes;
             nodes[parent] = children;
@@ -40,12 +40,12 @@ namespace TrenchBroom {
             return add(nodes);
         }
 
-        std::shared_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
-            return std::make_shared<AddRemoveNodesCommand>(Action::Add, nodes);
+        std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
+            return std::make_unique<AddRemoveNodesCommand>(Action::Add, nodes);
         }
 
-        std::shared_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::remove(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
-            return std::make_shared<AddRemoveNodesCommand>(Action::Remove, nodes);
+        std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::remove(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
+            return std::make_unique<AddRemoveNodesCommand>(Action::Remove, nodes);
         }
 
         AddRemoveNodesCommand::~AddRemoveNodesCommand() {
@@ -112,7 +112,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool AddRemoveNodesCommand::doCollateWith(std::shared_ptr<UndoableCommand>) {
+        bool AddRemoveNodesCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }
