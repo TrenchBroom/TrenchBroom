@@ -20,6 +20,7 @@
 #include "MapFrame.h"
 
 #include "Console.h"
+#include "Exceptions.h"
 #include "FileLogger.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
@@ -35,8 +36,6 @@
 #include "Model/Group.h"
 #include "Model/Layer.h"
 #include "Model/Node.h"
-#include "Model/NodeCollection.h"
-#include "Model/World.h"
 #include "View/Actions.h"
 #include "View/Autosaver.h"
 #if !defined __APPLE__

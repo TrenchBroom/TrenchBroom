@@ -22,15 +22,13 @@
 
 #include "Macros.h"
 #include "EL/VariableStore.h"
+#include "Model/Model_Forward.h"
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
-
     namespace Model {
-        class EntityAttributes;
-
         class EntityAttributesVariableStore : public EL::VariableStore {
         private:
             const EntityAttributes& m_attributes;

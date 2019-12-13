@@ -24,6 +24,7 @@
 
 #include <QApplication>
 #include <QFileInfo>
+#include <QSettings>
 #include <QTextStream>
 
 #include <array>

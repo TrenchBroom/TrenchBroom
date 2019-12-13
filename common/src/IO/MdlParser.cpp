@@ -26,6 +26,7 @@
 #include "Assets/Palette.h"
 #include "IO/Reader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
+#include "Renderer/PrimType.h"
 
 #include <kdl/string_utils.h>
 
@@ -436,7 +437,7 @@ namespace TrenchBroom {
             }
 
             Renderer::IndexRangeMap::Size size;
-            size.inc(GL_TRIANGLES, frameTriangles.size());
+            size.inc(Renderer::PrimType::Triangles, frameTriangles.size());
 
             Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type> builder(frameTriangles.size() * 3, size);
             builder.addTriangles(frameTriangles);

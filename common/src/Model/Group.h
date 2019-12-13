@@ -33,8 +33,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class PickResult;
-
         class Group : public Node, public Object {
         private:
             typedef enum {

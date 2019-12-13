@@ -22,6 +22,7 @@
 
 #include "Notifier.h"
 #include "Assets/Asset_Forward.h"
+#include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <map>
@@ -29,12 +30,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class EntityDefinitionLoader;
-        class ParserStatus;
-        class Path;
-    }
-
     namespace Assets {
         class EntityDefinitionManager {
         private:

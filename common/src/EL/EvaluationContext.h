@@ -21,15 +21,13 @@
 #define EvaluationContext_h
 
 #include "Macros.h"
+#include "EL/EL_Forward.h"
 
 #include <memory>
 #include <string>
 
 namespace TrenchBroom {
     namespace EL {
-        class Value;
-        class VariableStore;
-
         class EvaluationContext {
         private:
             std::unique_ptr<VariableStore> m_store;

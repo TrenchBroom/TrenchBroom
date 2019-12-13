@@ -25,6 +25,7 @@
 #include "Assets/Asset_Forward.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
+#include "IO/IO_Forward.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 
@@ -52,8 +53,6 @@ namespace TrenchBroom {
             static const Type Plus              = 1 << 11; // plus: + (not used in string continuations)
             static const Type Eof               = 1 << 12; // end of file
         }
-
-        class FileSystem;
 
         class FgdTokenizer : public Tokenizer<FgdToken::Type> {
         public:

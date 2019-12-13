@@ -19,8 +19,9 @@
 
 #include "TransformEntityAttributesQuickFix.h"
 
-#include "Model/PushSelection.h"
 #include "Model/Issue.h"
+#include "Model/MapFacade.h"
+#include "Model/PushSelection.h"
 
 #include <string>
 

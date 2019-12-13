@@ -20,13 +20,13 @@
 #ifndef FileMatcher_h
 #define FileMatcher_h
 
+#include "IO/IO_Forward.h"
+
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        class Path;
-
         class FileTypeMatcher {
         private:
             bool m_files;

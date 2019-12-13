@@ -20,16 +20,13 @@
 #ifndef TRENCHBROOM_QUAKE3SHADERFILESYSTEM_H
 #define TRENCHBROOM_QUAKE3SHADERFILESYSTEM_H
 
+#include "Assets/Asset_Forward.h"
 #include "IO/ImageFileSystem.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     class Logger;
-
-    namespace Assets {
-        class Quake3Shader;
-    }
 
     namespace IO {
         /**

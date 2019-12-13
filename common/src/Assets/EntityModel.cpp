@@ -22,6 +22,7 @@
 #include "AABBTree.h"
 #include "Assets/TextureCollection.h"
 #include "Renderer/IndexRangeMap.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
 
@@ -80,14 +81,14 @@ namespace TrenchBroom {
             return closestDistance;
         }
 
-        void EntityModelLoadedFrame::addToSpacialTree(const std::vector<EntityModelVertex>& vertices, const PrimType primType, const size_t index, const size_t count) {
+        void EntityModelLoadedFrame::addToSpacialTree(const std::vector<EntityModelVertex>& vertices, const Renderer::PrimType primType, const size_t index, const size_t count) {
             switch (primType) {
-                case GL_POINTS:
-                case GL_LINES:
-                case GL_LINE_STRIP:
-                case GL_LINE_LOOP:
+                case Renderer::PrimType::Points:
+                case Renderer::PrimType::Lines:
+                case Renderer::PrimType::LineStrip:
+                case Renderer::PrimType::LineLoop:
                     break;
-                case GL_TRIANGLES: {
+                case Renderer::PrimType::Triangles: {
                     assert(count % 3 == 0);
                     m_tris.reserve(m_tris.size() + count);
                     for (size_t i = 0; i < count; i += 3) {
@@ -107,8 +108,8 @@ namespace TrenchBroom {
                     }
                     break;
                 }
-                case GL_POLYGON:
-                case GL_TRIANGLE_FAN: {
+                case Renderer::PrimType::Polygon:
+                case Renderer::PrimType::TriangleFan: {
                     assert(count > 2);
                     m_tris.reserve(m_tris.size() + (count - 2) * 3);
 
@@ -129,9 +130,9 @@ namespace TrenchBroom {
                     }
                     break;
                 }
-                case GL_QUADS:
-                case GL_QUAD_STRIP:
-                case GL_TRIANGLE_STRIP: {
+                case Renderer::PrimType::Quads:
+                case Renderer::PrimType::QuadStrip:
+                case Renderer::PrimType::TriangleStrip: {
                     assert(count > 2);
                     m_tris.reserve(m_tris.size() + (count - 2) * 3);
                     for (size_t i = 0; i < count-2; ++i) {
@@ -157,7 +158,7 @@ namespace TrenchBroom {
                     }
                     break;
                 }
-                    switchDefault();
+                switchDefault();
             }
         }
 
@@ -254,7 +255,7 @@ namespace TrenchBroom {
             EntityModelIndexedMesh(EntityModelLoadedFrame& frame, const std::vector<EntityModelVertex>& vertices, const EntityModelIndices& indices) :
             EntityModelMesh(vertices),
             m_indices(indices) {
-                m_indices.forEachPrimitive([&frame, &vertices](const PrimType primType, const size_t index, const size_t count) {
+                m_indices.forEachPrimitive([&frame, &vertices](const Renderer::PrimType primType, const size_t index, const size_t count) {
                     frame.addToSpacialTree(vertices, primType, index, count);
                 });
         }
@@ -284,7 +285,7 @@ namespace TrenchBroom {
             EntityModelTexturedMesh(EntityModelLoadedFrame& frame, const std::vector<EntityModelVertex>& vertices, const EntityModelTexturedIndices& indices) :
             EntityModelMesh(vertices),
             m_indices(indices) {
-                m_indices.forEachPrimitive([&frame, &vertices](const Assets::Texture* /* texture */, const PrimType primType, const size_t index, const size_t count) {
+                m_indices.forEachPrimitive([&frame, &vertices](const Assets::Texture* /* texture */, const Renderer::PrimType primType, const size_t index, const size_t count) {
                     frame.addToSpacialTree(vertices, primType, index, count);
                 });
             }

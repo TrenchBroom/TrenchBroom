@@ -32,6 +32,7 @@
 #include "Renderer/GL.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontManager.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/TextureFont.h"
@@ -284,7 +285,7 @@ namespace TrenchBroom {
             Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
 
             vertexArray.prepare(vboManager());
-            vertexArray.render(GL_LINES);
+            vertexArray.render(Renderer::PrimType::Lines);
         }
 
         void EntityBrowserView::renderModels(Layout& layout, const float y, const float height, Renderer::Transformation& transformation) {
@@ -349,7 +350,7 @@ namespace TrenchBroom {
             shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
 
             vertexArray.prepare(vboManager());
-            vertexArray.render(GL_QUADS);
+            vertexArray.render(Renderer::PrimType::Quads);
         }
 
         void EntityBrowserView::renderStrings(Layout& layout, const float y, const float height) {
@@ -375,7 +376,7 @@ namespace TrenchBroom {
 
                 auto& font = fontManager().font(fontDescriptor);
                 font.activate();
-                vertexArray.render(GL_QUADS);
+                vertexArray.render(Renderer::PrimType::Quads);
                 font.deactivate();
             }
         }

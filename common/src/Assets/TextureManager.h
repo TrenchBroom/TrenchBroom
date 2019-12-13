@@ -22,6 +22,7 @@
 
 #include "Notifier.h"
 #include "Assets/Asset_Forward.h"
+#include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <map>
@@ -30,11 +31,6 @@
 
 namespace TrenchBroom {
     class Logger;
-
-    namespace IO {
-        class Path;
-        class TextureLoader;
-    }
 
     namespace Assets {
         class TextureManager {

@@ -20,6 +20,7 @@
 #include "EdgeRenderer.h"
 
 #include "Renderer/ActiveShader.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
@@ -184,9 +185,7 @@ namespace TrenchBroom {
         void IndexedEdgeRenderer::Render::doRenderVertices(RenderContext&) {
             m_vertexArray->setupVertices();
             m_indexArray->setupIndices();
-
-            m_indexArray->render(GL_LINES);
-
+            m_indexArray->render(PrimType::Lines);
             m_vertexArray->cleanupVertices();
             m_indexArray->cleanupIndices();
         }

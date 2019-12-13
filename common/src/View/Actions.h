@@ -20,12 +20,14 @@
 #ifndef TRENCHBROOM_ACTIONS_H
 #define TRENCHBROOM_ACTIONS_H
 
+#include "Macros.h"
 #include "Ensure.h"
-#include "Preference.h"
 #include "Assets/Asset_Forward.h"
+#include "IO/Path.h"
 #include "Model/Model_Forward.h"
 #include "View/ActionContext.h"
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <vector>
@@ -34,10 +36,6 @@
 #include <QKeySequence>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace View {
         class MapDocument;
         class MapFrame;

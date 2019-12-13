@@ -20,14 +20,14 @@
 #ifndef Types_h
 #define Types_h
 
+#include "EL/EL_Forward.h"
+
 #include <map>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace EL {
-        class Value;
-
         using BooleanType = bool;
         using StringType = std::string;
         using NumberType = double;

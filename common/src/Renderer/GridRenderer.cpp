@@ -23,6 +23,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
@@ -86,7 +87,7 @@ namespace TrenchBroom {
                 shader.set("GridColor", pref(Preferences::GridColor2D));
                 shader.set("CameraZoom", camera.zoom());
 
-                m_vertexArray.render(GL_QUADS);
+                m_vertexArray.render(PrimType::Quads);
             }
         }
     }

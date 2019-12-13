@@ -21,14 +21,12 @@
 #define TrenchBroom_EntityDefinitionLoader
 
 #include "Assets/Asset_Forward.h"
+#include "IO/IO_Forward.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        class ParserStatus;
-        class Path;
-
         class EntityDefinitionLoader {
         public:
             virtual ~EntityDefinitionLoader();

@@ -21,6 +21,7 @@
 #define TrenchBroom_MapViewBase
 
 #include "Assets/Asset_Forward.h"
+#include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 #include "Model/NodeCollection.h"
 #include "Renderer/RenderContext.h"
@@ -43,10 +44,6 @@ class QAction;
 
 namespace TrenchBroom {
     class Logger;
-
-    namespace IO {
-        class Path;
-    }
 
     namespace Renderer {
         class Camera;

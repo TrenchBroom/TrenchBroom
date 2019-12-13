@@ -23,11 +23,14 @@
 #include "Preferences.h"
 #include "Model/EditorContext.h"
 #include "Model/Group.h"
+#include "Renderer/GLVertexType.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
 #include "Renderer/TextAnchor.h"
-#include "Renderer/GLVertexType.h"
+
+#include <vector>
 
 #include <vector>
 
@@ -190,7 +193,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                m_boundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(vertices)), GL_LINES);
+                m_boundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(vertices)), PrimType::Lines);
             } else {
                 std::vector<GLVertexTypes::P3C4::Vertex> vertices;
                 vertices.reserve(24 * m_groups.size());
@@ -202,7 +205,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                m_boundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(vertices)), GL_LINES);
+                m_boundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(vertices)), PrimType::Lines);
             }
 
             m_boundsValid = true;

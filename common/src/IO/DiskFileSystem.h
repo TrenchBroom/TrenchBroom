@@ -21,6 +21,7 @@
 #define TrenchBroom_DiskFileSystem
 
 #include "IO/FileSystem.h"
+#include "IO/IO_Forward.h"
 #include "IO/Path.h"
 
 #include <memory>
@@ -28,8 +29,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class File;
-
         class DiskFileSystem : public FileSystem {
         protected:
             Path m_root;

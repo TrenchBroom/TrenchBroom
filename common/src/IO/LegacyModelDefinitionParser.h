@@ -20,20 +20,15 @@
 #ifndef LegacyModelDefinitionParser_h
 #define LegacyModelDefinitionParser_h
 
-#include "IO/Parser.h"
+#include "EL/EL_Forward.h"
 #include "IO/Tokenizer.h"
+#include "IO/Parser.h"
+#include "IO/IO_Forward.h"
 
 #include <string>
 
 namespace TrenchBroom {
-    namespace EL {
-        class Expression;
-        class ExpressionBase;
-    }
-
     namespace IO {
-        class ParserStatus;
-
         namespace MdlToken {
             using Type = size_t;
             static const Type Integer       = 1 << 0;

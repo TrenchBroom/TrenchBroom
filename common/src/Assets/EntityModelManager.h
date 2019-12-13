@@ -21,8 +21,10 @@
 #define TrenchBroom_EntityModelManager
 
 #include "Assets/Asset_Forward.h"
+#include "IO/IO_Forward.h"
 #include "IO/Path.h"
 #include "Model/Model_Forward.h"
+#include "Renderer/Renderer_Forward.h"
 
 #include <kdl/vector_set.h>
 
@@ -32,15 +34,6 @@
 
 namespace TrenchBroom {
     class Logger;
-
-    namespace IO {
-        class EntityModelLoader;
-    }
-
-    namespace Renderer {
-        class TexturedRenderer;
-        class VboManager;
-    }
 
     namespace Assets {
         class EntityModelManager {

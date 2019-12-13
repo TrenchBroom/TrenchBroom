@@ -21,6 +21,7 @@
 
 #include "Color.h"
 #include "Renderer/ActiveShader.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
@@ -150,8 +151,8 @@ namespace TrenchBroom {
             lineArray.prepare(vboManager);
 
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
-            triangleArray.render(GL_TRIANGLE_FAN);
-            lineArray.render(GL_LINES);
+            triangleArray.render(PrimType::TriangleFan);
+            lineArray.render(PrimType::Lines);
         }
 
         float PerspectiveCamera::doPickFrustum(const float size, const vm::ray3f& ray) const {

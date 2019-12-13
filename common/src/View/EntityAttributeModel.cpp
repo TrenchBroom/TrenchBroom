@@ -26,6 +26,7 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "IO/ResourceUtils.h"
 #include "Model/AttributableNode.h"
+#include "Model/AttributableNodeIndex.h"
 #include "Model/EntityAttributes.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"

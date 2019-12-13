@@ -21,6 +21,7 @@
 #define TrenchBroom_MapReader
 
 #include "TrenchBroom.h"
+#include "IO/IO_Forward.h"
 #include "IO/StandardMapParser.h"
 #include "Model/Model_Forward.h"
 
@@ -33,8 +34,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class ParserStatus;
-
         class MapReader : public StandardMapParser {
         protected:
             class ParentInfo {

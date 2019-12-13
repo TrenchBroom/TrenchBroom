@@ -21,6 +21,7 @@
 #define TrenchBroom_Parser
 
 #include "Exceptions.h"
+#include "IO/IO_Forward.h"
 #include "IO/Token.h"
 
 #include <kdl/string_utils.h>
@@ -31,8 +32,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class ParserStatus;
-
         template <typename TokenType>
         class Parser {
         protected:

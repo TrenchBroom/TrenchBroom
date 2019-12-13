@@ -23,6 +23,7 @@
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/FontManager.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/ShaderManager.h"
@@ -215,14 +216,14 @@ namespace TrenchBroom {
             glAssert(glDisable(GL_TEXTURE_2D));
 
             ActiveShader backgroundShader(renderContext.shaderManager(), Shaders::TextBackgroundShader);
-            collection.rectArray.render(GL_TRIANGLES);
+            collection.rectArray.render(PrimType::Triangles);
 
             glAssert(glEnable(GL_TEXTURE_2D));
 
             ActiveShader textShader(renderContext.shaderManager(), Shaders::ColoredTextShader);
             textShader.set("Texture", 0);
             font.activate();
-            collection.textArray.render(GL_QUADS);
+            collection.textArray.render(PrimType::Quads);
             font.deactivate();
         }
     }

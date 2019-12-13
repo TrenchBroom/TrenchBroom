@@ -19,6 +19,7 @@
 
 #include "IndexRangeMap.h"
 
+#include "Renderer/PrimType.h"
 #include "Renderer/VertexArray.h"
 
 #include <kdl/vector_utils.h>
@@ -26,12 +27,16 @@
 namespace TrenchBroom {
     namespace Renderer {
         IndexRangeMap::IndicesAndCounts::IndicesAndCounts() :
-        indices(0),
-        counts(0) {}
+        indices(),
+        counts() {}
 
         IndexRangeMap::IndicesAndCounts::IndicesAndCounts(const size_t index, const size_t count) :
         indices(1, static_cast<GLint>(index)),
         counts(1,  static_cast<GLsizei>(count)) {}
+
+        bool IndexRangeMap::IndicesAndCounts::empty() const {
+            return indices.empty();
+        }
 
         size_t IndexRangeMap::IndicesAndCounts::size() const {
             return indices.size();
@@ -44,10 +49,10 @@ namespace TrenchBroom {
 
         void IndexRangeMap::IndicesAndCounts::add(const PrimType primType, const size_t index, const size_t count, [[maybe_unused]] const bool dynamicGrowth) {
             switch (primType) {
-                case GL_POINTS:
-                case GL_LINES:
-                case GL_TRIANGLES:
-                case GL_QUADS: {
+                case PrimType::Points:
+                case PrimType::Lines:
+                case PrimType::Triangles:
+                case PrimType::Quads: {
                     if (size() == 1) {
                         const auto myIndex = indices.front();
                         auto& myCount = counts.front();
@@ -59,12 +64,12 @@ namespace TrenchBroom {
                     }
                     switchFallthrough();
                 }
-                case GL_LINE_STRIP:
-                case GL_LINE_LOOP:
-                case GL_TRIANGLE_FAN:
-                case GL_TRIANGLE_STRIP:
-                case GL_QUAD_STRIP:
-                case GL_POLYGON:
+                case PrimType::LineStrip:
+                case PrimType::LineLoop:
+                case PrimType::TriangleFan:
+                case PrimType::TriangleStrip:
+                case PrimType::QuadStrip:
+                case PrimType::Polygon:
                     assert(dynamicGrowth || indices.capacity() > indices.size());
                     indices.push_back(static_cast<GLint>(index));
                     counts.push_back(static_cast<GLsizei>(count));
@@ -79,20 +84,18 @@ namespace TrenchBroom {
         }
 
         void IndexRangeMap::Size::inc(const PrimType primType, const size_t count) {
-            m_sizes[primType] += count; // unknown map values are value constructed, which initializes to 0 for size_t
+            m_sizes[primType] += count;
         }
 
         void IndexRangeMap::Size::inc(const IndexRangeMap::Size& other) {
-            for (const auto& entry : other.m_sizes) {
-                inc(entry.first, entry.second);
+            for (const auto& primType : PrimTypeValues) {
+                inc(primType, other.m_sizes[primType]);
             }
         }
 
         void IndexRangeMap::Size::initialize(PrimTypeToIndexData& data) const {
-            for (const auto& entry : m_sizes) {
-                const auto primType = entry.first;
-                const auto size = entry.second;
-                data[primType].reserve(size);
+            for (const auto& primType : PrimTypeValues) {
+                data[primType].reserve(m_sizes[primType]);
             }
         }
 
@@ -109,60 +112,51 @@ namespace TrenchBroom {
         IndexRangeMap::IndexRangeMap(const PrimType primType, const size_t index, const size_t count) :
         m_data(new PrimTypeToIndexData()),
         m_dynamicGrowth(false) {
-            m_data->insert(std::make_pair(primType, IndicesAndCounts(index, count)));
+            m_data->get(primType) = IndicesAndCounts(index, count);
         }
 
         IndexRangeMap::Size IndexRangeMap::size() const {
             Size result;
-            for (const auto& entry : *m_data) {
-                const auto primType = entry.first;
-                const auto& indices = entry.second;
-
-                result.inc(primType, indices.size());
+            for (const auto& primType : PrimTypeValues) {
+                result.inc(primType, m_data->get(primType).size());
             }
             return result;
         }
 
         void IndexRangeMap::add(const PrimType primType, const size_t index, const size_t count) {
-            auto& indicesAndCounts = find(primType);
+            auto& indicesAndCounts = m_data->get(primType);
             indicesAndCounts.add(primType, index, count, m_dynamicGrowth);
         }
 
         void IndexRangeMap::add(const IndexRangeMap& other) {
-            for (const auto& entry : *other.m_data) {
-                const auto primType = entry.first;
-                const auto& indicesToAdd = entry.second;
+            for (const auto& primType : PrimTypeValues) {
+                const auto& indicesToAdd = other.m_data->get(primType);
 
-                auto& indicesAndCounts = find(primType);
+                auto& indicesAndCounts = m_data->get(primType);
                 indicesAndCounts.add(indicesToAdd, m_dynamicGrowth);
             }
         }
 
         void IndexRangeMap::render(VertexArray& vertexArray) const {
-            for (const auto& entry : *m_data) {
-                const auto primType = entry.first;
-                const auto& indicesAndCounts = entry.second;
-                const auto primCount = static_cast<GLsizei>(indicesAndCounts.size());
-                vertexArray.render(primType, indicesAndCounts.indices, indicesAndCounts.counts, primCount);
-            }
-        }
-
-        void IndexRangeMap::forEachPrimitive(std::function<void(PrimType, size_t, size_t)> func) const {
-            for (const auto& entry : *m_data) {
-                const auto primType = entry.first;
-                const auto& indicesAndCounts = entry.second;
-                const auto primCount = indicesAndCounts.size();
-
-                for (size_t i = 0; i < primCount; ++i) {
-                    func(primType, static_cast<size_t>(indicesAndCounts.indices[i]), static_cast<size_t>(indicesAndCounts.counts[i]));
+            for (const auto& primType : PrimTypeValues) {
+                const auto& indicesAndCounts = m_data->get(primType);
+                if (!indicesAndCounts.empty()) {
+                    const auto primCount = static_cast<GLsizei>(indicesAndCounts.size());
+                    vertexArray.render(primType, indicesAndCounts.indices, indicesAndCounts.counts, primCount);
                 }
             }
         }
 
-        IndexRangeMap::IndicesAndCounts& IndexRangeMap::find(const PrimType primType) {
-            const auto it = m_dynamicGrowth ? m_data->try_emplace(primType).first : m_data->find(primType);
-            assert(it != m_data->end());
-            return it->second;
+        void IndexRangeMap::forEachPrimitive(std::function<void(PrimType, size_t, size_t)> func) const {
+            for (const auto& primType : PrimTypeValues) {
+                const auto& indicesAndCounts = m_data->get(primType);
+                if (!indicesAndCounts.empty()) {
+                    const auto primCount = indicesAndCounts.size();
+                    for (std::size_t i = 0; i < primCount; ++i) {
+                        func(primType, static_cast<std::size_t>(indicesAndCounts.indices[i]), static_cast<std::size_t>(indicesAndCounts.counts[i]));
+                    }
+                }
+            }
         }
     }
 }

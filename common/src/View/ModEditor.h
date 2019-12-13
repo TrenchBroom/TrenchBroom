@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_ModEditor
 #define TrenchBroom_ModEditor
 
+#include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <memory>
@@ -34,10 +35,6 @@ class QWidget;
 class QAbstractButton;
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace View {
         class MapDocument;
 

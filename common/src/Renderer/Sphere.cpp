@@ -19,9 +19,10 @@
 
 #include "Sphere.h"
 
-#include "Renderer/RenderUtils.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
+#include "Renderer/PrimType.h"
+#include "Renderer/RenderUtils.h"
 
 #include <vecmath/vec.h>
 
@@ -43,7 +44,7 @@ namespace TrenchBroom {
         }
 
         void Sphere::render() {
-            m_array.render(GL_TRIANGLES);
+            m_array.render(PrimType::Triangles);
         }
     }
 }

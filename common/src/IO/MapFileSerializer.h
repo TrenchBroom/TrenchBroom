@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_MapFileSerializer
 #define TrenchBroom_MapFileSerializer
 
+#include "IO/IO_Forward.h"
 #include "IO/NodeSerializer.h"
 #include "Model/MapFormat.h"
 #include "Model/Model_Forward.h"
@@ -30,8 +31,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class Path;
-
         class MapFileSerializer : public NodeSerializer {
         private:
             using LineStack = std::vector<size_t>;

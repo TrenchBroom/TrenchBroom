@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
@@ -127,9 +128,9 @@ namespace TrenchBroom {
 
             const size_t vertexCount = shaftVertices.size() + headVertices.size() + shaftCapVertices.size() + headCapVertices.size();
             IndexRangeMap::Size indexArraySize;
-            indexArraySize.inc(GL_TRIANGLE_STRIP);
-            indexArraySize.inc(GL_TRIANGLE_FAN, 2);
-            indexArraySize.inc(GL_TRIANGLES, headVertices.size() / 3);
+            indexArraySize.inc(PrimType::TriangleStrip);
+            indexArraySize.inc(PrimType::TriangleFan, 2);
+            indexArraySize.inc(PrimType::Triangles, headVertices.size() / 3);
 
             IndexRangeMapBuilder<Vertex::Type> builder(vertexCount, indexArraySize);
             builder.addTriangleStrip(shaftVertices);
@@ -146,7 +147,7 @@ namespace TrenchBroom {
             auto verts = Vertex::toList(circ.size(), std::begin(circ));
 
             IndexRangeMap::Size backgroundSize;
-            backgroundSize.inc(GL_TRIANGLE_FAN);
+            backgroundSize.inc(PrimType::TriangleFan);
 
             IndexRangeMapBuilder<Vertex::Type> backgroundBuilder(verts.size(), backgroundSize);
             backgroundBuilder.addTriangleFan(verts);
@@ -154,7 +155,7 @@ namespace TrenchBroom {
             m_backgroundRenderer = IndexRangeRenderer(backgroundBuilder);
 
             IndexRangeMap::Size outlineSize;
-            outlineSize.inc(GL_LINE_LOOP);
+            outlineSize.inc(PrimType::LineLoop);
 
             IndexRangeMapBuilder<Vertex::Type> outlineBuilder(verts.size(), outlineSize);
             outlineBuilder.addLineLoop(verts);

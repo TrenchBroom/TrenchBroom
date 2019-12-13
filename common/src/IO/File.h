@@ -20,6 +20,7 @@
 #ifndef TRENCHBROOM_FILE_H
 #define TRENCHBROOM_FILE_H
 
+#include "IO/IO_Forward.h"
 #include "IO/Path.h"
 #include "IO/Reader.h"
 
@@ -28,8 +29,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class Reader;
-
         /**
          * Represents an opened (logical) file. A logical file can be backed by a physical file on the disk, a memory
          * buffer, or a portion thereof. A special case is a file that is backed by a C++ object. These files are used

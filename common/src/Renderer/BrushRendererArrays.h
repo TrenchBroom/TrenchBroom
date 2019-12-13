@@ -25,6 +25,7 @@
 #include "Renderer/AllocationTracker.h"
 #include "Renderer/GL.h"
 #include "Renderer/GLVertexType.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/VboManager.h"
 #include "Renderer/Vbo.h"
 

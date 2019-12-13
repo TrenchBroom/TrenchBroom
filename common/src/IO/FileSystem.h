@@ -22,6 +22,7 @@
 
 #include "Exceptions.h"
 #include "Macros.h"
+#include "IO/IO_Forward.h"
 #include "IO/Path.h"
 
 #include <kdl/vector_utils.h>
@@ -32,9 +33,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class File;
-        class Path;
-
         class FileSystem {
             deleteCopyAndMove(FileSystem)
         protected:
