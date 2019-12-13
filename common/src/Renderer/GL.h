@@ -26,8 +26,6 @@
 #include <GL/glew.h>
 
 namespace TrenchBroom {
-    using PrimType = GLenum;
-
     using GLIndices = std::vector<GLint>;
     using GLCounts = std::vector<GLsizei>;
 

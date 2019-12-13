@@ -20,8 +20,10 @@
 #include "TextRenderer.h"
 
 #include "AttrString.h"
+#include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/FontManager.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/ShaderManager.h"
@@ -31,7 +33,6 @@
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
-#include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 
 namespace TrenchBroom {
@@ -151,10 +152,10 @@ namespace TrenchBroom {
         }
 
         void TextRenderer::prepare(EntryCollection& collection, const bool onTop, Vbo& vbo) {
-            TextVertex::List textVertices;
+            std::vector<TextVertex> textVertices;
             textVertices.reserve(collection.textVertexCount);
 
-            RectVertex::List rectVertices;
+            std::vector<RectVertex> rectVertices;
             rectVertices.reserve(collection.rectVertexCount);
 
             for (const Entry& entry : collection.entries) {
@@ -168,7 +169,7 @@ namespace TrenchBroom {
             collection.rectArray.prepare(vbo);
         }
 
-        void TextRenderer::addEntry(const Entry& entry, const bool /* onTop */, TextVertex::List& textVertices, RectVertex::List& rectVertices) {
+        void TextRenderer::addEntry(const Entry& entry, const bool /* onTop */, std::vector<TextVertex>& textVertices, std::vector<RectVertex>& rectVertices) {
             const std::vector<vm::vec2f>& stringVertices = entry.vertices;
             const vm::vec2f& stringSize = entry.size;
 
@@ -215,14 +216,14 @@ namespace TrenchBroom {
             glAssert(glDisable(GL_TEXTURE_2D));
 
             ActiveShader backgroundShader(renderContext.shaderManager(), Shaders::TextBackgroundShader);
-            collection.rectArray.render(GL_TRIANGLES);
+            collection.rectArray.render(PrimType::Triangles);
 
             glAssert(glEnable(GL_TEXTURE_2D));
 
             ActiveShader textShader(renderContext.shaderManager(), Shaders::ColoredTextShader);
             textShader.set("Texture", 0);
             font.activate();
-            collection.textArray.render(GL_QUADS);
+            collection.textArray.render(PrimType::Quads);
             font.deactivate();
         }
     }

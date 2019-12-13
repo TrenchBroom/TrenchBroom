@@ -27,11 +27,13 @@
 #include "IO/Reader.h"
 #include "IO/MipTextureReader.h"
 #include "IO/IdMipTextureReader.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
 #include <string>
 #include <sstream>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -233,7 +235,7 @@ namespace TrenchBroom {
 
         void Bsp29Parser::parseFrame(Reader reader, const size_t frameIndex, Assets::EntityModel& model, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
             using Vertex = Assets::EntityModelVertex;
-            using VertexList = Vertex::List;
+            using VertexList = std::vector<Vertex>;
 
             auto& surface = model.surface(0);
 
@@ -249,7 +251,7 @@ namespace TrenchBroom {
                 auto* skin = surface.skin(textureInfo.textureIndex);
                 if (skin != nullptr) {
                     const auto faceVertexCount = faceInfo.edgeCount;
-                    size.inc(skin, GL_POLYGON, faceVertexCount);
+                    size.inc(skin, Renderer::PrimType::Polygon, faceVertexCount);
                     totalVertexCount += faceVertexCount;
                 }
             }

@@ -22,10 +22,11 @@
 #include "TrenchBroomApp.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/Vbo.h"
-#include "Renderer/Transformation.h"
-#include "Renderer/VertexArray.h"
 #include "Renderer/GLVertexType.h"
+#include "Renderer/PrimType.h"
+#include "Renderer/Transformation.h"
+#include "Renderer/Vbo.h"
+#include "Renderer/VertexArray.h"
 #include "View/GLContextManager.h"
 #include "View/InputEvent.h"
 #include "View/QtUtils.h"
@@ -245,7 +246,7 @@ namespace TrenchBroom {
             glAssert(glDisable(GL_DEPTH_TEST));
 
             using Vertex = Renderer::GLVertexTypes::P3C4::Vertex;
-            auto array = Renderer::VertexArray::move(Vertex::List {
+            auto array = Renderer::VertexArray::move(std::vector<Vertex>({
             // top
                 Vertex(vm::vec3f(0.0f, 0.0f, 0.0f), outer),
                 Vertex(vm::vec3f(w, 0.0f, 0.0f), outer),
@@ -269,11 +270,11 @@ namespace TrenchBroom {
                 Vertex(vm::vec3f(0.0f, 0.0f, 0.0f), outer),
                 Vertex(vm::vec3f(t, t, 0.0f), inner),
                 Vertex(vm::vec3f(t, h-t, 0.0f), inner)
-            });
+            }));
 
             Renderer::ActivateVbo activate(vertexVbo());
             array.prepare(vertexVbo());
-            array.render(GL_QUADS);
+            array.render(Renderer::PrimType::Quads);
             glAssert(glEnable(GL_DEPTH_TEST));
         }
 

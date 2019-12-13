@@ -26,6 +26,7 @@
 #include "IO/Quake3ShaderTextureReader.h"
 #include "IO/Reader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
+#include "Renderer/PrimType.h"
 
 #include <string>
 
@@ -282,7 +283,7 @@ namespace TrenchBroom {
         void Md3Parser::buildFrameSurface(Assets::EntityModelLoadedFrame& frame, Assets::EntityModelSurface& surface, const std::vector<Md3Parser::Md3Triangle>& triangles, const std::vector<Assets::EntityModelVertex>& vertices) {
             using Vertex = Assets::EntityModelVertex;
 
-            const auto rangeMap = Renderer::IndexRangeMap(GL_TRIANGLES, 0, 3 * triangles.size());
+            const auto rangeMap = Renderer::IndexRangeMap(Renderer::PrimType::Triangles, 0, 3 * triangles.size());
             std::vector<Vertex> frameVertices;
             frameVertices.reserve(3 * triangles.size());
 

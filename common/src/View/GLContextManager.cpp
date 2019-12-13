@@ -23,6 +23,8 @@
 #include "Renderer/FontManager.h"
 #include "Renderer/GL.h"
 #include "Renderer/ShaderManager.h"
+#include "Renderer/Shader.h"
+#include "Renderer/ShaderProgram.h"
 #include "Renderer/Vbo.h"
 
 #include <sstream>

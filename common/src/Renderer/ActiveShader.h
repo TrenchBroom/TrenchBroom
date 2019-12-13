@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010-2019 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,29 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FontGlyph
-#define TrenchBroom_FontGlyph
+#ifndef TRENCHBROOM_ACTIVESHADER_H
+#define TRENCHBROOM_ACTIVESHADER_H
 
-#include <vecmath/forward.h>
+#include "Renderer/Renderer_Forward.h"
+#include "Renderer/ShaderProgram.h"
 
-#include <vector>
+#include <string>
 
 namespace TrenchBroom {
     namespace Renderer {
-        class FontGlyph {
-        private:
-            float m_x;
-            float m_y;
-            float m_w;
-            float m_h;
-            int m_a;
-        public:
-            FontGlyph(size_t x, size_t y, size_t w, size_t h, size_t a);
 
-            void appendVertices(std::vector<vm::vec2f>& vertices, int xOffset, int yOffset, size_t textureSize, bool clockwise) const;
-            int advance() const;
+        class ActiveShader {
+        private:
+            ShaderProgram& m_program;
+        public:
+            ActiveShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig);
+            ~ActiveShader();
+
+            template <class T>
+            void set(const std::string& name, const T& value) {
+                m_program.set(name, value);
+            }
         };
     }
 }
 
-#endif /* defined(TrenchBroom_FontGlyph) */
+#endif //TRENCHBROOM_ACTIVESHADER_H

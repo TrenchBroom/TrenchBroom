@@ -22,9 +22,11 @@
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Assets/Texture.h"
-#include "Renderer/Camera.h"
-#include "Renderer/RenderBatch.h"
+#include "Renderer/ActiveShader.h"
 #include "Renderer/BrushRendererArrays.h"
+#include "Renderer/Camera.h"
+#include "Renderer/PrimType.h"
+#include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
@@ -65,7 +67,7 @@ namespace TrenchBroom {
         m_tint(false),
         m_alpha(1.0f) {}
 
-        FaceRenderer::FaceRenderer(BrushVertexArrayPtr vertexArray, TextureToBrushIndicesMapPtr indexArrayMap, const Color& faceColor) :
+        FaceRenderer::FaceRenderer(std::shared_ptr<BrushVertexArray> vertexArray, std::shared_ptr<TextureToBrushIndicesMap> indexArrayMap, const Color& faceColor) :
         m_vertexArray(std::move(vertexArray)),
         m_indexArrayMap(std::move(indexArrayMap)),
         m_faceColor(faceColor),
@@ -168,7 +170,7 @@ namespace TrenchBroom {
                         continue;
                     }
                     func.before(texture);
-                    brushIndexHolderPtr->render(GL_TRIANGLES);
+                    brushIndexHolderPtr->render(PrimType::Triangles);
                     func.after(texture);
                 }
                 if (m_alpha < 1.0f) {

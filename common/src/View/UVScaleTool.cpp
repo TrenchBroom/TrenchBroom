@@ -28,6 +28,7 @@
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/PickResult.h"
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "View/MapDocument.h"
@@ -213,12 +214,12 @@ namespace TrenchBroom {
             if (!pickResult.query().type(UVOriginTool::XHandleHit | UVOriginTool::YHandleHit).occluded().first().isMatch()) {
                 const Color color(1.0f, 0.0f, 0.0f, 1.0f);
 
-                Renderer::DirectEdgeRenderer handleRenderer(Renderer::VertexArray::move(getHandleVertices(pickResult)), GL_LINES);
+                Renderer::DirectEdgeRenderer handleRenderer(Renderer::VertexArray::move(getHandleVertices(pickResult)), Renderer::PrimType::Lines);
                 handleRenderer.render(renderBatch, color, 0.5f);
             }
         }
 
-        UVScaleTool::EdgeVertex::List UVScaleTool::getHandleVertices(const Model::PickResult& pickResult) const {
+        std::vector<UVScaleTool::EdgeVertex> UVScaleTool::getHandleVertices(const Model::PickResult& pickResult) const {
             const auto& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
             const auto& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
             const auto stripeSize = m_helper.stripeSize();
@@ -230,7 +231,7 @@ namespace TrenchBroom {
             vm::vec3 h1, h2, v1, v2;
             m_helper.computeScaleHandleVertices(pos, v1, v2, h1, h2);
 
-            EdgeVertex::List vertices;
+            std::vector<EdgeVertex> vertices;
             vertices.reserve(4);
 
             if (xHandleHit.isMatch()) {

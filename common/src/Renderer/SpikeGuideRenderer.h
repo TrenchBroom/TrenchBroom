@@ -22,6 +22,7 @@
 
 #include "Color.h"
 #include "TrenchBroom.h"
+#include "Renderer/Renderer_Forward.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/GLVertexType.h"
@@ -29,6 +30,7 @@
 #include <vecmath/forward.h>
 
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -41,9 +43,6 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
-        class RenderContext;
-        class Vbo;
-
         class SpikeGuideRenderer : public DirectRenderable {
         private:
             Color m_color;
@@ -51,8 +50,8 @@ namespace TrenchBroom {
             using SpikeVertex = GLVertexTypes::P3C4::Vertex;
             using PointVertex = GLVertexTypes::P3C4::Vertex;
 
-            SpikeVertex::List m_spikeVertices;
-            PointVertex::List m_pointVertices;
+            std::vector<SpikeVertex> m_spikeVertices;
+            std::vector<PointVertex> m_pointVertices;
 
             VertexArray m_spikeArray;
             VertexArray m_pointArray;

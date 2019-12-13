@@ -19,8 +19,10 @@
 
 #include "AllocationTracker.h"
 
-#include <cassert>
+#include <kdl/vector_set.h>
+
 #include <algorithm>
+#include <cassert>
 #include <stdexcept>
 
 //#define EXPENSIVE_CHECKS
@@ -421,24 +423,24 @@ namespace TrenchBroom {
 
 // Testing / debugging
 
-        std::set<AllocationTracker::Range> AllocationTracker::freeBlocks() const {
-            std::set<Range> res;
+        std::vector<AllocationTracker::Range> AllocationTracker::freeBlocks() const {
+            kdl::vector_set<Range> res;
             for (Block* block = m_leftmostBlock; block != nullptr; block = block->right) {
                 if (block->free) {
                     res.insert(Range{block->pos, block->size});
                 }
             }
-            return res;
+            return res.release_data();
         }
 
-        std::set<AllocationTracker::Range> AllocationTracker::usedBlocks() const {
-            std::set<Range> res;
+        std::vector<AllocationTracker::Range> AllocationTracker::usedBlocks() const {
+            kdl::vector_set<Range> res;
             for (Block* block = m_leftmostBlock; block != nullptr; block = block->right) {
                 if (!block->free) {
                     res.insert(Range{block->pos, block->size});
                 }
             }
-            return res;
+            return res.release_data();
         }
 
         AllocationTracker::Index AllocationTracker::largestPossibleAllocation() const {

@@ -33,6 +33,7 @@
 #include "View/MapDocument.h"
 
 #include <vecmath/segment.h>
+#include <vecmath/polygon.h>
 
 #include <cassert>
 

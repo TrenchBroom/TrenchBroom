@@ -33,6 +33,7 @@
 
 #include <vecmath/intersection.h>
 #include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 #include <vecmath/scalar.h>

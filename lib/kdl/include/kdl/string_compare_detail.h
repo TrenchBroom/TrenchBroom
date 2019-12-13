@@ -15,8 +15,8 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef TRENCHBROOM_STRING_COMPARE_DETAIL_H
-#define TRENCHBROOM_STRING_COMPARE_DETAIL_H
+#ifndef KDL_STRING_COMPARE_DETAIL_H
+#define KDL_STRING_COMPARE_DETAIL_H
 
 #include <algorithm> // for std::mismatch, std::sort, std::search, std::equal
 #include <string_view>
@@ -221,4 +221,4 @@ namespace kdl {
     }
 }
 
-#endif //TRENCHBROOM_STRING_COMPARE_DETAIL_H
+#endif //KDL_STRING_COMPARE_DETAIL_H

@@ -20,25 +20,23 @@
 #ifndef TrenchBroom_EntityRenderer
 #define TrenchBroom_EntityRenderer
 
-#include "AttrString.h"
 #include "Color.h"
 #include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/EntityModelRenderer.h"
 #include "Renderer/Renderable.h"
+#include "Renderer/Renderer_Forward.h"
 #include "Renderer/TriangleRenderer.h"
 
 #include <vecmath/forward.h>
 
-#include <map>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class RenderBatch;
-        class RenderContext;
+    class AttrString;
 
+    namespace Renderer {
         class EntityRenderer {
         private:
             class EntityClassnameAnchor;

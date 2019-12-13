@@ -26,8 +26,11 @@
 #include "TrenchBroom.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
+#include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/GLVertexType.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
@@ -35,7 +38,6 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
-#include "Renderer/GLVertexType.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/UVCameraTool.h"
@@ -210,7 +212,7 @@ namespace TrenchBroom {
             m_helper(helper),
             m_vertexArray(Renderer::VertexArray::move(getVertices())) {}
         private:
-            Vertex::List getVertices() const {
+            std::vector<Vertex> getVertices() const {
                 const auto* face = m_helper.face();
                 const auto normal = vm::vec3f(face->boundary().normal);
 
@@ -228,12 +230,12 @@ namespace TrenchBroom {
                 const auto pos3 = +w2 * r -h2 * u + p;
                 const auto pos4 = -w2 * r -h2 * u + p;
 
-                return Vertex::List({
+                return {
                     Vertex(pos1, normal, face->textureCoords(vm::vec3(pos1))),
                     Vertex(pos2, normal, face->textureCoords(vm::vec3(pos2))),
                     Vertex(pos3, normal, face->textureCoords(vm::vec3(pos3))),
                     Vertex(pos4, normal, face->textureCoords(vm::vec3(pos4)))
-                });
+                };
             }
         private:
             void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
@@ -264,7 +266,7 @@ namespace TrenchBroom {
                 shader.set("CameraZoom", m_helper.cameraZoom());
                 shader.set("Texture", 0);
 
-                m_vertexArray.render(GL_QUADS);
+                m_vertexArray.render(Renderer::PrimType::Quads);
 
                 texture->deactivate();
             }
@@ -286,7 +288,7 @@ namespace TrenchBroom {
             const auto faceVertices = face->vertices();
 
             using Vertex = Renderer::GLVertexTypes::P3::Vertex;
-            Vertex::List edgeVertices;
+            std::vector<Vertex> edgeVertices;
             edgeVertices.reserve(faceVertices.size());
 
             for (const auto* vertex : faceVertices) {
@@ -295,7 +297,7 @@ namespace TrenchBroom {
 
             const Color edgeColor(1.0f, 1.0f, 1.0f, 1.0f); // TODO: make this a preference
 
-            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(std::move(edgeVertices)), GL_LINE_LOOP);
+            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(std::move(edgeVertices)), Renderer::PrimType::LineLoop);
             edgeRenderer.renderOnTop(renderBatch, edgeColor, 2.5f);
         }
 
@@ -312,12 +314,12 @@ namespace TrenchBroom {
             const auto length = 32.0f / m_helper.cameraZoom();
 
             using Vertex = Renderer::GLVertexTypes::P3C4::Vertex;
-            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(Vertex::List({
+            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(std::vector<Vertex>({
                 Vertex(center, pref(Preferences::XAxisColor)),
                 Vertex(center + length * xAxis, pref(Preferences::XAxisColor)),
                 Vertex(center, pref(Preferences::YAxisColor)),
                 Vertex(center + length * yAxis, pref(Preferences::YAxisColor)),
-            })), GL_LINES);
+            })), Renderer::PrimType::Lines);
             edgeRenderer.renderOnTop(renderBatch, 2.0f);
         }
 

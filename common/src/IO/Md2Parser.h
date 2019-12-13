@@ -106,7 +106,7 @@ namespace TrenchBroom {
             void loadSkins(Assets::EntityModelSurface& surface, const Md2SkinList& skins);
 
             void buildFrame(Assets::EntityModel& model, Assets::EntityModelSurface& surface, size_t frameIndex, const Md2Frame& frame, const Md2MeshList& meshes);
-            Assets::EntityModelVertexList getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const;
+            std::vector<Assets::EntityModelVertex> getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const;
         };
     }
 }

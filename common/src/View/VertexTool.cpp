@@ -30,9 +30,10 @@
 
 #include <kdl/string_format.h>
 
+#include <vecmath/polygon.h>
+
 #include <cassert>
 #include <set>
-#include <string>
 #include <tuple>
 #include <vector>
 

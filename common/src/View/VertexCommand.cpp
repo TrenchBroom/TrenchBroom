@@ -28,9 +28,10 @@
 
 #include <kdl/vector_utils.h>
 
+#include <vecmath/polygon.h>
+
 #include <iterator>
 #include <set>
-#include <string>
 
 namespace TrenchBroom {
     namespace View {

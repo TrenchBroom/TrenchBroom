@@ -23,6 +23,8 @@
 #include "Model/HitQuery.h"
 #include "Model/Brush.h"
 #include "Model/PickResult.h"
+#include "Renderer/ActiveShader.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
@@ -77,10 +79,10 @@ namespace TrenchBroom {
 
         void SpikeGuideRenderer::doRender(RenderContext& renderContext) {
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
-            m_spikeArray.render(GL_LINES);
+            m_spikeArray.render(PrimType::Lines);
 
             glAssert(glPointSize(3.0f));
-            m_pointArray.render(GL_POINTS);
+            m_pointArray.render(PrimType::Points);
             glAssert(glPointSize(1.0f));
         }
 

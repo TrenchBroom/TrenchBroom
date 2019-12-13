@@ -15,8 +15,8 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef TRENCHBROOM_TRANSFORM_RANGE_H
-#define TRENCHBROOM_TRANSFORM_RANGE_H
+#ifndef KDL_TRANSFORM_RANGE_H
+#define KDL_TRANSFORM_RANGE_H
 
 #include <type_traits>
 
@@ -176,4 +176,4 @@ namespace kdl {
     transform_adapter(const C& container, L lambda) -> transform_adapter<C, L>;
 }
 
-#endif //TRENCHBROOM_TRANSFORM_RANGE_H
+#endif //KDL_TRANSFORM_RANGE_H

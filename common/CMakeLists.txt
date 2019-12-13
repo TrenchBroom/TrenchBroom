@@ -198,6 +198,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/World.cpp
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/RecoverableExceptions.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/ActiveShader.cpp
         ${COMMON_SOURCE_DIR}/Renderer/AllocationTracker.cpp
         ${COMMON_SOURCE_DIR}/Renderer/BoundsGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/BrushRenderer.cpp
@@ -223,9 +224,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/GL.cpp
         ${COMMON_SOURCE_DIR}/Renderer/GridRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/GroupRenderer.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/IndexArray.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/IndexArrayMap.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/IndexArrayMapBuilder.cpp
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeMap.cpp
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/MapRenderer.cpp
@@ -234,6 +232,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/PerspectiveCamera.cpp
         ${COMMON_SOURCE_DIR}/Renderer/PointGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/PointHandleRenderer.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/PrimType.cpp
         ${COMMON_SOURCE_DIR}/Renderer/PrimitiveRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/Renderable.cpp
         ${COMMON_SOURCE_DIR}/Renderer/RenderBatch.cpp
@@ -250,9 +249,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/SpikeGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextAnchor.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextRenderer.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMap.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMapBuilder.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMap.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextureFont.cpp
@@ -725,6 +721,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/VisibilityState.h
         ${COMMON_SOURCE_DIR}/Model/World.h
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Renderer/ActiveShader.h
         ${COMMON_SOURCE_DIR}/Renderer/AllocationTracker.h
         ${COMMON_SOURCE_DIR}/Renderer/BoundsGuideRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/BrushRenderer.h
@@ -753,9 +750,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/GLVertexType.h
         ${COMMON_SOURCE_DIR}/Renderer/GridRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/GroupRenderer.h
-        ${COMMON_SOURCE_DIR}/Renderer/IndexArray.h
-        ${COMMON_SOURCE_DIR}/Renderer/IndexArrayMap.h
-        ${COMMON_SOURCE_DIR}/Renderer/IndexArrayMapBuilder.h
         ${COMMON_SOURCE_DIR}/Renderer/IndexedVertexList.h
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeMap.h
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeMapBuilder.h
@@ -767,9 +761,11 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/PointGuideRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/PointHandleRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/PrimitiveRenderer.h
+        ${COMMON_SOURCE_DIR}/Renderer/PrimType.h
         ${COMMON_SOURCE_DIR}/Renderer/Renderable.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderBatch.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderContext.h
+        ${COMMON_SOURCE_DIR}/Renderer/Renderer_Forward.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderService.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderUtils.h
         ${COMMON_SOURCE_DIR}/Renderer/SelectionBoundsRenderer.h
@@ -782,9 +778,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/SpikeGuideRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/TextAnchor.h
         ${COMMON_SOURCE_DIR}/Renderer/TextRenderer.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMap.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMapBuilder.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMap.h
         ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMapBuilder.h
         ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeRenderer.h

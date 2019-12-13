@@ -21,6 +21,8 @@
 
 #include "Renderer/RenderUtils.h"
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace Renderer {
         TexturedIndexRangeMap::Size::Size() :

@@ -22,6 +22,8 @@
 #include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Renderer/ActiveShader.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
@@ -33,9 +35,9 @@
 namespace TrenchBroom {
     namespace Renderer {
         GridRenderer::GridRenderer(const OrthographicCamera& camera, const vm::bbox3& worldBounds) :
-        m_vertexArray(VertexArray::copy(vertices(camera, worldBounds))) {}
+        m_vertexArray(VertexArray::move(vertices(camera, worldBounds))) {}
 
-        GridRenderer::Vertex::List GridRenderer::vertices(const OrthographicCamera& camera, const vm::bbox3& worldBounds) {
+        std::vector<GridRenderer::Vertex> GridRenderer::vertices(const OrthographicCamera& camera, const vm::bbox3& worldBounds) {
             const auto& viewport = camera.zoomedViewport();
             const auto w = float(viewport.width) / 2.0f;
             const auto h = float(viewport.height) / 2.0f;
@@ -85,7 +87,7 @@ namespace TrenchBroom {
                 shader.set("GridColor", pref(Preferences::GridColor2D));
                 shader.set("CameraZoom", camera.zoom());
 
-                m_vertexArray.render(GL_QUADS);
+                m_vertexArray.render(PrimType::Quads);
             }
         }
     }

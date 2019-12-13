@@ -26,6 +26,7 @@
 #include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
 #include "IO/Quake3ShaderTextureReader.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
@@ -484,7 +485,7 @@ namespace TrenchBroom {
                 }
 
                 const auto vertexCount = mesh.faces.size() * 3;
-                size.inc(texture, GL_TRIANGLES, vertexCount);
+                size.inc(texture, Renderer::PrimType::Triangles, vertexCount);
                 totalVertexCount += vertexCount;
             }
 

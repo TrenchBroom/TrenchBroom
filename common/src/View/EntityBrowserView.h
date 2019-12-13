@@ -30,6 +30,7 @@
 #include <vecmath/bbox.h>
 
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     class Logger;
@@ -63,7 +64,7 @@ namespace TrenchBroom {
             using EntityRenderer = Renderer::TexturedRenderer;
 
             using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
-            using StringMap = std::map<Renderer::FontDescriptor, TextVertex::List>;
+            using StringMap = std::map<Renderer::FontDescriptor, std::vector<TextVertex>>;
 
             Assets::EntityDefinitionManager& m_entityDefinitionManager;
             Assets::EntityModelManager& m_entityModelManager;

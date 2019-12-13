@@ -118,13 +118,14 @@ namespace kdl {
          * Creates a vector set containing the values in the given vector. The capacity is initialized to the size of the
          * given vector.
          *
+         * @tparam TT the value type of the given vector
          * @tparam AA the allocator type of the given vector
          * @param vec the vector
          * @param cmp the comparator to use, defaults to a newly created instance of Compare
          * @param alloc the allocator to use for the underlying vector, defaults to a newly created instance of Allocator
          */
-        template <typename AA>
-        vector_set(const std::vector<T,AA>& vec, const Compare& cmp = Compare(), const Allocator& alloc = Allocator()) :
+        template <typename TT, typename AA>
+        vector_set(const std::vector<TT,AA>& vec, const Compare& cmp = Compare(), const Allocator& alloc = Allocator()) :
             vector_set(vec.size(), std::begin(vec), std::end(vec), cmp, alloc) {}
 
         /**
@@ -177,6 +178,12 @@ namespace kdl {
     private:
         using base::check_invariant;
     };
+
+    /**
+     * Deduction guide for vector constructor.
+     */
+    template <typename TT, typename AA, typename T = TT, typename Compare = std::less<T>, typename Allocator = std::allocator<T>>
+    vector_set(std::vector<TT, AA>, const Compare& cmp = Compare(), const Allocator& alloc = Allocator()) -> vector_set<T, Compare, Allocator>;
 
     /**
      * Deduction guide for range constructor.

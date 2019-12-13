@@ -20,10 +20,11 @@
 #ifndef TrenchBroom_FontGlyphBuilder
 #define TrenchBroom_FontGlyphBuilder
 
-#include "Renderer/FontGlyph.h"
+#include <cstddef>
 
 namespace TrenchBroom {
     namespace Renderer {
+        class FontGlyph;
         class FontTexture;
 
         class FontGlyphBuilder {

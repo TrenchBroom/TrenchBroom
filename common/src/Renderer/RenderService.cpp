@@ -19,10 +19,14 @@
 
 #include "RenderService.h"
 
+#include "AttrString.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
 #include "Renderer/FontDescriptor.h"
+#include "Renderer/IndexRangeRenderer.h"
+#include "Renderer/IndexRangeMapBuilder.h"
+#include "Renderer/PrimitiveRenderer.h"
 #include "Renderer/PointHandleRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
@@ -70,8 +74,8 @@ namespace TrenchBroom {
         m_foregroundColor(1.0f, 1.0f, 1.0f, 1.0f),
         m_backgroundColor(0.0f, 0.0f, 0.0f, 1.0f),
         m_lineWidth(1.0f),
-        m_occlusionPolicy(PrimitiveRenderer::OP_Transparent),
-        m_cullingPolicy(PrimitiveRenderer::CP_CullBackfaces) {}
+        m_occlusionPolicy(PrimitiveRendererOcclusionPolicy::Transparent),
+        m_cullingPolicy(PrimitiveRendererCullingPolicy::CullBackfaces) {}
 
         RenderService::~RenderService() {
             flush();
@@ -90,23 +94,23 @@ namespace TrenchBroom {
         }
 
         void RenderService::setShowOccludedObjects() {
-            m_occlusionPolicy = PrimitiveRenderer::OP_Show;
+            m_occlusionPolicy = PrimitiveRendererOcclusionPolicy::Show;
         }
 
         void RenderService::setShowOccludedObjectsTransparent() {
-            m_occlusionPolicy = PrimitiveRenderer::OP_Transparent;
+            m_occlusionPolicy = PrimitiveRendererOcclusionPolicy::Transparent;
         }
 
         void RenderService::setHideOccludedObjects() {
-            m_occlusionPolicy = PrimitiveRenderer::OP_Hide;
+            m_occlusionPolicy = PrimitiveRendererOcclusionPolicy::Hide;
         }
 
         void RenderService::setShowBackfaces() {
-            m_cullingPolicy = PrimitiveRenderer::CP_ShowBackfaces;
+            m_cullingPolicy = PrimitiveRendererCullingPolicy::ShowBackfaces;
         }
 
         void RenderService::setCullBackfaces() {
-            m_cullingPolicy = PrimitiveRenderer::CP_CullBackfaces;
+            m_cullingPolicy = PrimitiveRendererCullingPolicy::CullBackfaces;
         }
 
         void RenderService::renderString(const AttrString& string, const vm::vec3f& position) {
@@ -114,7 +118,7 @@ namespace TrenchBroom {
         }
 
         void RenderService::renderString(const AttrString& string, const TextAnchor& position) {
-            if (m_occlusionPolicy != PrimitiveRenderer::OP_Hide) {
+            if (m_occlusionPolicy != PrimitiveRendererOcclusionPolicy::Hide) {
                 m_textRenderer->renderStringOnTop(m_renderContext, m_foregroundColor, m_backgroundColor, string, position);
             } else {
                 m_textRenderer->renderString(m_renderContext, m_foregroundColor, m_backgroundColor, string, position);
@@ -123,6 +127,18 @@ namespace TrenchBroom {
 
         void RenderService::renderHeadsUp(const AttrString& string) {
             m_textRenderer->renderStringOnTop(m_renderContext, m_foregroundColor, m_backgroundColor, string, HeadsUpTextAnchor());
+        }
+
+        void RenderService::renderString(const std::string& string, const vm::vec3f& position) {
+            renderString(AttrString(string), position);
+        }
+
+        void RenderService::renderString(const std::string& string, const TextAnchor& position) {
+            renderString(AttrString(string), position);
+        }
+
+        void RenderService::renderHeadsUp(const std::string& string) {
+            renderHeadsUp(AttrString(string));
         }
 
         void RenderService::renderHandles(const std::vector<vm::vec3f>& positions) {

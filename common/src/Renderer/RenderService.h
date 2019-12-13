@@ -20,33 +20,25 @@
 #ifndef TrenchBroom_RenderService
 #define TrenchBroom_RenderService
 
-#include "AttrString.h"
 #include "Macros.h"
 #include "Color.h"
-#include "Renderer/PrimitiveRenderer.h"
+#include "Renderer/Renderer_Forward.h"
 
+#include <vecmath/constants.h>
 #include <vecmath/forward.h>
-#include <vecmath/polygon.h>
 #include <vecmath/util.h>
 
 #include <memory>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class FontDescriptor;
-        class PointHandleRenderer;
-        class PrimitiveRenderer;
-        class RenderBatch;
-        class RenderContext;
-        class TextAnchor;
-        class TextRenderer;
-        class Vbo;
+    class AttrString;
 
+    namespace Renderer {
         class RenderService {
         private:
-            using OcclusionPolicy = PrimitiveRenderer::OcclusionPolicy;
-            using CullingPolicy = PrimitiveRenderer::CullingPolicy;
+            using OcclusionPolicy = PrimitiveRendererOcclusionPolicy;
+            using CullingPolicy = PrimitiveRendererCullingPolicy;
             class HeadsUpTextAnchor;
 
             RenderContext& m_renderContext;
@@ -80,6 +72,10 @@ namespace TrenchBroom {
             void renderString(const AttrString& string, const vm::vec3f& position);
             void renderString(const AttrString& string, const TextAnchor& position);
             void renderHeadsUp(const AttrString& string);
+
+            void renderString(const std::string& string, const vm::vec3f& position);
+            void renderString(const std::string& string, const TextAnchor& position);
+            void renderHeadsUp(const std::string& string);
 
             void renderHandles(const std::vector<vm::vec3f>& positions);
             void renderHandle(const vm::vec3f& position);
