@@ -301,13 +301,12 @@ namespace TrenchBroom {
             assert(m_groupLevel > 0);
             if (!m_groupedCommands.empty()) {
                 auto& lastCommand = m_groupedCommands.back();
-                if (collate && !lastCommand->collateWith(command.get())) {
-                    m_groupedCommands.push_back(std::move(command));
+                if (collate && lastCommand->collateWith(command.get())) {
+                    // the command is not stored because it was collated with its predecessor
                     return false;
                 }
-            } else {
-                m_groupedCommands.push_back(std::move(command));
             }
+            m_groupedCommands.push_back(std::move(command));
             return true;
         }
 

@@ -1401,14 +1401,20 @@ namespace TrenchBroom {
         }
 
         MapDocument::MoveVerticesResult MapDocument::moveVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices, const vm::vec3& delta) {
-            auto command = MoveBrushVerticesCommand::move(vertices, delta);
-            auto* rawCommand = command.get();
+            /*
+             * Don't auto this! We need the implicit conversion from std::unique_ptr<MoveBrushVerticesCommand> to
+             * std::unique_ptr<UndoableCommand> here, otherwise it happens when calling submitAndStore, which leads to
+             * the command object being deleted if the command fails. But we still need the command to check whether
+             * there were remaining vertices.
+             */
+            std::unique_ptr<UndoableCommand> command = MoveBrushVerticesCommand::move(vertices, delta);
+            auto* rawCommand = static_cast<MoveBrushVerticesCommand*>(command.get());
             const bool success = submitAndStore(std::move(command));
 
             /*
              * This is safe -- there are two cases:
              * - The command succeeds and the command processor has taken ownership of the command object.
-             * - The command fails and the command process has not taken ownership of the command object. Since all
+             * - The command fails and the command processor has not taken ownership of the command object. Since all
              *   methods called by submitAndStore take the command by rvalue reference, no ownership has been transfered
              *   and the command object is only destroyed when this method returns.
              */
