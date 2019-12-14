@@ -56,14 +56,26 @@ namespace TrenchBroom {
         template <typename H> class VertexHandleManagerBaseT;
         class EdgeHandleManager;
 
+        class FrameManager;
+
         class MapFrame;
         class GLContextManager;
+
+        enum class PasteType;
+
+        enum class InspectorPage;
+        class Inspector;
+
+        class MapViewContainer;
+        class SwitchableMapViewContainer;
 
         class MapViewConfig;
         class MapViewBase;
         class MapView2D;
         class MapView3D;
         class MapViewToolBox;
+
+        class MapViewActivationTracker;
 
         class ViewEffectsService;
 
@@ -77,6 +89,7 @@ namespace TrenchBroom {
         class GameEngineProfileEditor;
         class GameEngineProfileListBox;
 
+        class Inspector;
         class MapInspector;
         class EntityInspector;
         class FaceInspector;
@@ -99,10 +112,21 @@ namespace TrenchBroom {
 
         class FileTextureCollectionEditor;
 
+        class InfoPanel;
+
         class Console;
         class IssueBrowser;
         class IssueBrowserView;
         class IssueBrowserModel;
+
+        class ViewPopupEditor;
+
+        class Autosaver;
+
+        class FlyModeHelper;
+
+        class Animation;
+        class AnimationManager;
 
         class Action;
 

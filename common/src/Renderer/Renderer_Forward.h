@@ -39,6 +39,7 @@ namespace TrenchBroom {
 
         class RenderBatch;
         class RenderContext;
+        enum class RenderMode;
 
         template <typename VertexSpec> class IndexRangeMapBuilder;
 
@@ -71,6 +72,8 @@ namespace TrenchBroom {
         class FontDescriptor;
         class TextAnchor;
         class TextRenderer;
+
+        class Compass;
     }
 }
 

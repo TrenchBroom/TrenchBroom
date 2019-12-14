@@ -22,6 +22,8 @@
 #include "TrenchBroom.h"
 #include "View/MapViewContainer.h"
 
+#include <vecmath/vec.h>
+
 namespace TrenchBroom {
     namespace View {
         MapView::MapView() :

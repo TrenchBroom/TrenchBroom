@@ -50,6 +50,7 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/PrimitiveRenderer.h"
 #include "Renderer/RenderBatch.h"
+#include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
 #include "View/Actions.h"
 #include "View/Animation.h"

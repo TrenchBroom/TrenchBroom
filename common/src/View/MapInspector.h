@@ -21,21 +21,15 @@
 #define TrenchBroom_MapInspector
 
 #include "View/TabBook.h"
+#include "Renderer/Renderer_Forward.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 
 class QWidget;
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class Camera;
-    }
-
     namespace View {
-        class GLContextManager;
-        class MapDocument;
-        class ModEditor;
-
         class MapInspector : public TabBookPage {
             Q_OBJECT
         public:

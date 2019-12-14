@@ -449,8 +449,8 @@ namespace TrenchBroom {
             return false;
         }
 
-        Renderer::RenderContext::RenderMode MapView3D::doGetRenderMode() {
-            return Renderer::RenderContext::RenderMode_3D;
+        Renderer::RenderMode MapView3D::doGetRenderMode() {
+            return Renderer::RenderMode::Render3D;
         }
 
         Renderer::Camera& MapView3D::doGetCamera() {

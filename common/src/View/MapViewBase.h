@@ -24,7 +24,7 @@
 #include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 #include "Model/NodeCollection.h"
-#include "Renderer/RenderContext.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/ActionContext.h"
 #include "View/CameraLinkHelper.h"
 #include "View/InputState.h"
@@ -32,6 +32,7 @@
 #include "View/RenderView.h"
 #include "View/ToolBoxConnector.h"
 #include "View/UndoableCommand.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 #include <utility>
@@ -45,28 +46,7 @@ class QAction;
 namespace TrenchBroom {
     class Logger;
 
-    namespace Renderer {
-        class Camera;
-        class Compass;
-        class MapRenderer;
-        class PrimitiveRenderer;
-        class RenderBatch;
-        class RenderContext;
-        class Vbo;
-    }
-
     namespace View {
-        class Action;
-        class AnimationManager;
-        class Command;
-        class FlyModeHelper;
-        class GLContextManager;
-        class MapDocument;
-        class MapViewToolBox;
-        class MovementRestriction;
-        class Selection;
-        class Tool;
-
         class MapViewBase : public RenderView, public MapView, public ToolBoxConnector, public CameraLinkableView {
             Q_OBJECT
         public:
@@ -276,7 +256,7 @@ namespace TrenchBroom {
             virtual ActionView doGetActionView() const = 0;
             virtual bool doCancel() = 0;
 
-            virtual Renderer::RenderContext::RenderMode doGetRenderMode() = 0;
+            virtual Renderer::RenderMode doGetRenderMode() = 0;
             virtual Renderer::Camera& doGetCamera() = 0;
             virtual void doPreRender();
             virtual void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;

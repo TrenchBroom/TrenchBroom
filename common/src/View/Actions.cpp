@@ -1276,21 +1276,21 @@ namespace TrenchBroom {
             viewMenu.addSeparator();
             viewMenu.addItem(createMenuAction(IO::Path("Menu/View/Switch to Map Inspector"), QObject::tr("Show Map Inspector"), Qt::CTRL + Qt::Key_1,
                 [](ActionExecutionContext& context) {
-                    context.frame()->switchToInspectorPage(Inspector::InspectorPage_Map);
+                    context.frame()->switchToInspectorPage(InspectorPage::Map);
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
                 }));
             viewMenu.addItem(createMenuAction(IO::Path("Menu/View/Switch to Entity Inspector"), QObject::tr("Show Entity Inspector"), Qt::CTRL + Qt::Key_2,
                 [](ActionExecutionContext& context) {
-                    context.frame()->switchToInspectorPage(Inspector::InspectorPage_Entity);
+                    context.frame()->switchToInspectorPage(InspectorPage::Entity);
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
                 }));
             viewMenu.addItem(createMenuAction(IO::Path("Menu/View/Switch to Face Inspector"), QObject::tr("Show Face Inspector"), Qt::CTRL + Qt::Key_3,
                 [](ActionExecutionContext& context) {
-                    context.frame()->switchToInspectorPage(Inspector::InspectorPage_Face);
+                    context.frame()->switchToInspectorPage(InspectorPage::Face);
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();

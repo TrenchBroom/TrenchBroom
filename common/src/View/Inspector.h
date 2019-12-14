@@ -29,15 +29,14 @@
 
 namespace TrenchBroom {
     namespace View {
+        enum class InspectorPage {
+            Map = 0,
+            Entity = 1,
+            Face = 2
+        };
+
         class Inspector : public QWidget {
             Q_OBJECT
-        public:
-            typedef enum {
-                InspectorPage_Map = 0,
-                InspectorPage_Entity = 1,
-                InspectorPage_Face = 2
-            } InspectorPage;
-
         private:
             TabBook* m_tabBook;
             MapInspector* m_mapInspector;

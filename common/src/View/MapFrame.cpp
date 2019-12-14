@@ -95,12 +95,12 @@ namespace TrenchBroom {
         QMainWindow(),
         m_frameManager(frameManager),
         m_document(std::move(document)),
-        m_autosaver(nullptr),
+        m_autosaver(std::make_unique<Autosaver>(m_document)),
         m_autosaveTimer(nullptr),
         m_toolBar(nullptr),
         m_hSplitter(nullptr),
         m_vSplitter(nullptr),
-        m_contextManager(nullptr),
+        m_contextManager(std::make_unique<GLContextManager>()),
         m_mapView(nullptr),
         m_currentMapView(nullptr),
         m_infoPanel(nullptr),
@@ -119,9 +119,6 @@ namespace TrenchBroom {
 
             setAttribute(Qt::WA_DeleteOnClose);
             setObjectName("MapFrame");
-
-            m_autosaver = new Autosaver(m_document);
-            m_contextManager = new GLContextManager();
 
             createGui();
             createMenus();
@@ -164,9 +161,6 @@ namespace TrenchBroom {
             unbindObservers();
             removeRecentDocumentsMenu();
 
-            delete m_autosaver;
-            m_autosaver = nullptr;
-
             // The order of deletion here is important because both the document and the children
             // need the context manager (and its embedded VBO) to clean up their resources.
 
@@ -177,9 +171,6 @@ namespace TrenchBroom {
 
             m_document->setViewEffectsService(nullptr);
             m_document.reset();
-
-            delete m_contextManager;
-            m_contextManager = nullptr;
         }
 
         void MapFrame::positionOnScreen(QWidget* reference) {
@@ -1428,7 +1419,7 @@ namespace TrenchBroom {
             m_document->showAll();
         }
 
-        void MapFrame::switchToInspectorPage(const Inspector::InspectorPage page) {
+        void MapFrame::switchToInspectorPage(const InspectorPage page) {
             m_inspector->show();
             m_inspector->switchToPage(page);
         }

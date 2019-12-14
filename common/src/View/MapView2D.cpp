@@ -320,8 +320,8 @@ namespace TrenchBroom {
             return false;
         }
 
-        Renderer::RenderContext::RenderMode MapView2D::doGetRenderMode() {
-            return Renderer::RenderContext::RenderMode_2D;
+        Renderer::RenderMode MapView2D::doGetRenderMode() {
+            return Renderer::RenderMode::Render2D;
         }
 
         Renderer::Camera& MapView2D::doGetCamera() {
