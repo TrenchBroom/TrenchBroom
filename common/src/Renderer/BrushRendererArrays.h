@@ -68,7 +68,7 @@ namespace TrenchBroom {
          * it might be worth mapping the VBO and editing it directly.
          */
         template<typename T>
-        class VboBlockHolder {
+        class VboHolder {
         protected:
             VboType m_type;
             std::vector<T> m_snapshot;
@@ -102,7 +102,7 @@ namespace TrenchBroom {
             }
 
         public:
-            VboBlockHolder(VboType type) :
+            VboHolder(VboType type) :
             m_type(type),
             m_snapshot(),
             m_dirtyRange(0),
@@ -112,7 +112,7 @@ namespace TrenchBroom {
             /**
              * NOTE: This destructively moves the contents of `elements` into the Holder.
              */
-            explicit VboBlockHolder(std::vector<T> &elements) :
+            explicit VboHolder(std::vector<T> &elements) :
             m_snapshot(),
             m_dirtyRange(elements.size()),
             m_vbo(nullptr) {
@@ -128,9 +128,9 @@ namespace TrenchBroom {
                 }
             }
 
-            VboBlockHolder(const VboBlockHolder& other) = delete;
+            VboHolder(const VboHolder& other) = delete;
 
-            virtual ~VboBlockHolder() {
+            virtual ~VboHolder() {
                 freeBlock();
             }
 
@@ -210,7 +210,7 @@ namespace TrenchBroom {
             }
         };
 
-        class IndexHolder : public VboBlockHolder<GLuint> {
+        class IndexHolder : public VboHolder<GLuint> {
         public:
             using Index = GLuint;
 
@@ -273,30 +273,30 @@ namespace TrenchBroom {
         };
 
         template<typename V>
-        class VertexHolder : public VboBlockHolder<V>, public VertexArrayInterface {
+        class VertexHolder : public VboHolder<V>, public VertexArrayInterface {
         public:
-            VertexHolder() : VboBlockHolder<V>(VboType::ArrayBuffer) {}
+            VertexHolder() : VboHolder<V>(VboType::ArrayBuffer) {}
 
             /**
              * NOTE: This destructively moves the contents of `elements` into the Holder.
              */
             explicit VertexHolder(std::vector<V>& elements)
-                    : VboBlockHolder<V>(elements) {}
+                    : VboHolder<V>(elements) {}
 
             bool setupVertices() override {
-                ensure(VboBlockHolder<V>::m_vbo != nullptr, "block is null");
-                VboBlockHolder<V>::m_vbo->bind();
-                V::Type::setup(VboBlockHolder<V>::m_vbo->offset());
+                ensure(VboHolder<V>::m_vbo != nullptr, "block is null");
+                VboHolder<V>::m_vbo->bind();
+                V::Type::setup(VboHolder<V>::m_vbo->offset());
                 return true;
             }
 
             void prepareVertices(VboManager& vboManager) override {
-                VboBlockHolder<V>::prepare(vboManager);
+                VboHolder<V>::prepare(vboManager);
             }
 
             void cleanupVertices() override {
                 V::Type::cleanup();
-                VboBlockHolder<V>::m_vbo->unbind();
+                VboHolder<V>::m_vbo->unbind();
             }
 
             static std::shared_ptr<VertexHolder<V>> swap(std::vector<V>& elements) {

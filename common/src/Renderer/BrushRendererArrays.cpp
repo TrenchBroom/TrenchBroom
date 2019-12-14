@@ -69,10 +69,10 @@ namespace TrenchBroom {
 
         // IndexHolder
 
-        IndexHolder::IndexHolder() : VboBlockHolder<Index>(VboType::ElementArrayBuffer) {}
+        IndexHolder::IndexHolder() : VboHolder<Index>(VboType::ElementArrayBuffer) {}
 
         IndexHolder::IndexHolder(std::vector<Index> &elements)
-                : VboBlockHolder<Index>(elements) {}
+                : VboHolder<Index>(elements) {}
 
         void IndexHolder::zeroRange(const size_t offsetWithinBlock, const size_t count) {
             Index* dest = getPointerToWriteElementsTo(offsetWithinBlock, count);
