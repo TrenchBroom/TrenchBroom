@@ -60,7 +60,7 @@ namespace TrenchBroom {
             class Holder : public BaseHolder {
             private:
                 VboManager* m_vboManager;
-                Vbo* m_block;
+                Vbo* m_vbo;
                 size_t m_vertexCount;
             public:
                 size_t vertexCount() const override {
@@ -72,33 +72,33 @@ namespace TrenchBroom {
                 }
 
                 void prepare(VboManager& vboManager) override {
-                    if (m_vertexCount > 0 && m_block == nullptr) {
+                    if (m_vertexCount > 0 && m_vbo == nullptr) {
                         m_vboManager = &vboManager;
-                        m_block = vboManager.allocateVbo(VboType::ArrayBuffer, sizeInBytes());;
-                        m_block->writeBuffer(0, doGetVertices());
+                        m_vbo = vboManager.allocateVbo(VboType::ArrayBuffer, sizeInBytes());;
+                        m_vbo->writeBuffer(0, doGetVertices());
                     }
                 }
 
                 void setup() override {
-                    ensure(m_block != nullptr, "block is null");
-                    m_block->bind();
-                    VertexSpec::setup(m_block->offset());
+                    ensure(m_vbo != nullptr, "block is null");
+                    m_vbo->bind();
+                    VertexSpec::setup(m_vbo->offset());
                 }
 
                 void cleanup() override {
                     VertexSpec::cleanup();
-                    m_block->unbind();
+                    m_vbo->unbind();
                 }
             protected:
                 Holder(const size_t vertexCount) :
                 m_vboManager(nullptr),
-                m_block(nullptr),
+                m_vbo(nullptr),
                 m_vertexCount(vertexCount) {}
 
                 ~Holder() override {
-                    if (m_block != nullptr) {
-                        m_vboManager->destroyVbo(m_block);
-                        m_block = nullptr;
+                    if (m_vbo != nullptr) {
+                        m_vboManager->destroyVbo(m_vbo);
+                        m_vbo = nullptr;
                     }
                 }
             private:
