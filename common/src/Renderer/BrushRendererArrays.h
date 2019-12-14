@@ -74,12 +74,12 @@ namespace TrenchBroom {
             std::vector<T> m_snapshot;
             DirtyRangeTracker m_dirtyRange;
             VboManager* m_vboManager;
-            Vbo* m_block;
+            Vbo* m_vbo;
         private:
             void freeBlock() {
-                if (m_block != nullptr) {
-                    m_vboManager->destroyVbo(m_block);
-                    m_block = nullptr;
+                if (m_vbo != nullptr) {
+                    m_vboManager->destroyVbo(m_vbo);
+                    m_vbo = nullptr;
                 }
             }
 
@@ -89,16 +89,16 @@ namespace TrenchBroom {
                 } else {
                     m_vboManager = &vboManager;
                 }
-                assert(m_block == nullptr);
+                assert(m_vbo == nullptr);
 
-                m_block = m_vboManager->allocateVbo(m_type, m_snapshot.size() * sizeof(T), VboUsage::DynamicDraw);
-                assert(m_block != nullptr);
+                m_vbo = m_vboManager->allocateVbo(m_type, m_snapshot.size() * sizeof(T), VboUsage::DynamicDraw);
+                assert(m_vbo != nullptr);
 
-                m_block->writeElements(0, m_snapshot);
+                m_vbo->writeElements(0, m_snapshot);
 
                 m_dirtyRange = DirtyRangeTracker(m_snapshot.size());
                 assert(m_dirtyRange.clean());
-                assert((m_block->capacity() / sizeof(T)) == m_dirtyRange.capacity());
+                assert((m_vbo->capacity() / sizeof(T)) == m_dirtyRange.capacity());
             }
 
         public:
@@ -107,15 +107,15 @@ namespace TrenchBroom {
             m_snapshot(),
             m_dirtyRange(0),
             m_vboManager(nullptr),
-            m_block(nullptr) {}
+            m_vbo(nullptr) {}
 
             /**
              * NOTE: This destructively moves the contents of `elements` into the Holder.
              */
-            explicit VboBlockHolder(std::vector<T> &elements)
-                    : m_snapshot(),
-                      m_dirtyRange(elements.size()),
-                      m_block(nullptr) {
+            explicit VboBlockHolder(std::vector<T> &elements) :
+            m_snapshot(),
+            m_dirtyRange(elements.size()),
+            m_vbo(nullptr) {
 
                 const size_t elementsCount = elements.size();
                 m_dirtyRange.markDirty(0, elementsCount);
@@ -163,14 +163,14 @@ namespace TrenchBroom {
                 }
 
                 // first ever upload?
-                if (m_block == nullptr) {
+                if (m_vbo == nullptr) {
                     allocateBlock(vboManager);
                     assert(prepared());
                     return;
                 }
 
                 // resize?
-                if (m_dirtyRange.capacity() != (m_block->capacity() / sizeof(T))) {
+                if (m_dirtyRange.capacity() != (m_vbo->capacity() / sizeof(T))) {
                     freeBlock();
                     allocateBlock(vboManager);
                     assert(prepared());
@@ -184,9 +184,9 @@ namespace TrenchBroom {
                     const size_t size = m_dirtyRange.m_dirtySize;
 
                     const size_t bytesFromStart = pos * sizeof(T);
-                    m_block->writeArray(bytesFromStart,
-                                        m_snapshot.data() + pos,
-                                        size);
+                    m_vbo->writeArray(bytesFromStart,
+                                      m_snapshot.data() + pos,
+                                      size);
                 }
 
                 m_dirtyRange = DirtyRangeTracker(m_snapshot.size());
@@ -202,11 +202,11 @@ namespace TrenchBroom {
             }
 
             void bindBlock() {
-                m_block->bind();
+                m_vbo->bind();
             }
             
             void unbindBlock() {
-                m_block->unbind();
+                m_vbo->unbind();
             }
         };
 
@@ -284,9 +284,9 @@ namespace TrenchBroom {
                     : VboBlockHolder<V>(elements) {}
 
             bool setupVertices() override {
-                ensure(VboBlockHolder<V>::m_block != nullptr, "block is null");
-                VboBlockHolder<V>::m_block->bind();
-                V::Type::setup(VboBlockHolder<V>::m_block->offset());
+                ensure(VboBlockHolder<V>::m_vbo != nullptr, "block is null");
+                VboBlockHolder<V>::m_vbo->bind();
+                V::Type::setup(VboBlockHolder<V>::m_vbo->offset());
                 return true;
             }
 
@@ -296,7 +296,7 @@ namespace TrenchBroom {
 
             void cleanupVertices() override {
                 V::Type::cleanup();
-                VboBlockHolder<V>::m_block->unbind();
+                VboBlockHolder<V>::m_vbo->unbind();
             }
 
             static std::shared_ptr<VertexHolder<V>> swap(std::vector<V>& elements) {

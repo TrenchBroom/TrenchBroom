@@ -81,7 +81,7 @@ namespace TrenchBroom {
 
         void IndexHolder::render(const PrimType primType, const size_t offset, size_t count) const {
             const GLsizei renderCount = static_cast<GLsizei>(count);
-            const GLvoid *renderOffset = reinterpret_cast<GLvoid *>(m_block->offset() + sizeof(Index) * offset);
+            const GLvoid *renderOffset = reinterpret_cast<GLvoid *>(m_vbo->offset() + sizeof(Index) * offset);
 
             glAssert(glDrawElements(toGL(primType), renderCount, glType<Index>(), renderOffset));
         }
