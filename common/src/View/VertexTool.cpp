@@ -33,7 +33,6 @@
 #include <vecmath/polygon.h>
 
 #include <cassert>
-#include <set>
 #include <tuple>
 #include <vector>
 

@@ -24,6 +24,8 @@
 
 #include <kdl/string_format.h>
 
+#include <vecmath/polygon.h>
+
 namespace TrenchBroom {
     namespace View {
         EdgeTool::EdgeTool(std::weak_ptr<MapDocument> document) :
