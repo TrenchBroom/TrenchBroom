@@ -21,7 +21,6 @@
 #define TrenchBroom_MapView2D
 
 #include "Model/Model_Forward.h"
-#include "Renderer/OrthographicCamera.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/MapViewBase.h"
 #include "View/View_Forward.h"
@@ -43,7 +42,7 @@ namespace TrenchBroom {
                 ViewPlane_YZ
             } ViewPlane;
         private:
-            Renderer::OrthographicCamera m_camera;
+            std::unique_ptr<Renderer::OrthographicCamera> m_camera;
         public:
             MapView2D(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
                       GLContextManager& contextManager, ViewPlane viewPlane, Logger* logger);

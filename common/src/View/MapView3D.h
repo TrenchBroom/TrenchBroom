@@ -21,7 +21,6 @@
 #define TrenchBroom_MapView3D
 
 #include "Model/Model_Forward.h"
-#include "Renderer/PerspectiveCamera.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/MapViewBase.h"
 #include "View/View_Forward.h"
@@ -40,8 +39,8 @@ namespace TrenchBroom {
         class MapView3D : public MapViewBase {
             Q_OBJECT
         private:
-            Renderer::PerspectiveCamera m_camera;
-            FlyModeHelper* m_flyModeHelper;
+            std::unique_ptr<Renderer::PerspectiveCamera> m_camera;
+            std::unique_ptr<FlyModeHelper> m_flyModeHelper;
             bool m_ignoreCameraChangeEvents;
         public:
             MapView3D(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
