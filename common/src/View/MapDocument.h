@@ -28,31 +28,22 @@
 #include "Model/Model_Forward.h"
 #include "Model/NodeCollection.h"
 #include "View/CachingLogger.h"
+#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
 #include <vecmath/util.h>
 
 // FIXME: try to get rid of functional
-#include <functional>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
 class Color;
+
 namespace TrenchBroom {
     namespace View {
-        class Action;
-        class Command;
-        class Grid;
-        class MapViewConfig;
-        class Selection;
-        class UndoableCommand;
-        class ViewEffectsService;
-
-        enum class PasteType;
-
         class MapDocument : public Model::MapFacade, public CachingLogger {
         public:
             static const vm::bbox3 DefaultWorldBounds;
@@ -178,13 +169,25 @@ namespace TrenchBroom {
 
             void setViewEffectsService(ViewEffectsService* viewEffectsService);
         public: // tag and entity definition actions
-            using ActionVisitor = std::function<void(const Action&)>;
-            void visitTagActions(const ActionVisitor& visitor) const;
-            void visitEntityDefinitionActions(const ActionVisitor& visitor) const;
+            template <typename ActionVisitor>
+            void visitTagActions(const ActionVisitor& visitor) const {
+                visitActions(visitor, m_tagActions);
+            }
+
+            template <typename ActionVisitor>
+            void visitEntityDefinitionActions(const ActionVisitor& visitor) const {
+                visitActions(visitor, m_entityDefinitionActions);
+            }
         private: // tag and entity definition actions
+            template <typename ActionVisitor>
+            void visitActions(const ActionVisitor& visitor, const ActionList& actions) const {
+                for (const std::unique_ptr<Action>& action : actions) {
+                    visitor(*action);
+                }
+            }
+
             void createTagActions();
             void createEntityDefinitionActions();
-            void visitActions(const ActionVisitor& visitor, const ActionList& actions) const;
         public: // new, load, save document
             void newDocument(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game);
             void loadDocument(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game, const IO::Path& path);

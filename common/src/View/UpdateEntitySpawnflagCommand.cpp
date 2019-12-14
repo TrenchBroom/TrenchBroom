@@ -19,6 +19,7 @@
 
 #include "UpdateEntitySpawnflagCommand.h"
 
+#include "Model/EntityAttributeSnapshot.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <string>

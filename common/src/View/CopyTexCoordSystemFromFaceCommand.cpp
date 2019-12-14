@@ -22,6 +22,7 @@
 #include "TrenchBroom.h"
 #include "Model/BrushFace.h"
 #include "Model/Snapshot.h"
+#include "Model/TexCoordSystem.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <vecmath/plane.h>

@@ -257,14 +257,6 @@ namespace TrenchBroom {
             m_viewEffectsService = viewEffectsService;
         }
 
-        void MapDocument::visitTagActions(const ActionVisitor& visitor) const {
-            visitActions(visitor, m_tagActions);
-        }
-
-        void MapDocument::visitEntityDefinitionActions(const ActionVisitor& visitor) const {
-            visitActions(visitor, m_entityDefinitionActions);
-        }
-
         void MapDocument::createTagActions() {
             const auto& actionManager = ActionManager::instance();
             m_tagActions = actionManager.createTagActions(m_tagManager->smartTags());
@@ -273,12 +265,6 @@ namespace TrenchBroom {
         void MapDocument::createEntityDefinitionActions() {
             const auto& actionManager = ActionManager::instance();
             m_entityDefinitionActions = actionManager.createEntityDefinitionActions(m_entityDefinitionManager->definitions());
-        }
-
-        void MapDocument::visitActions(const ActionVisitor& visitor, const ActionList& actions) const {
-            for (const std::unique_ptr<Action>& action : actions) {
-                visitor(*action);
-            }
         }
 
         void MapDocument::newDocument(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game) {

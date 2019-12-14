@@ -21,20 +21,14 @@
 #define TrenchBroom_MapDocumentCommandFacade
 
 #include "TrenchBroom.h"
-#include "Model/EntityAttributeSnapshot.h"
-#include "Model/EntityColor.h"
 #include "Model/Model_Forward.h"
-#include "Model/Node.h"
-#include "Model/TexCoordSystem.h"
-#include "View/CommandProcessor.h"
 #include "View/MapDocument.h"
-#include "View/UndoableCommand.h"
+#include "View/View_Forward.h"
 
-#include <vecmath/segment.h>
+#include <vecmath/forward.h>
 
 #include <map>
 #include <memory>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -42,11 +36,13 @@ namespace TrenchBroom {
     namespace View {
         class MapDocumentCommandFacade : public MapDocument {
         private:
-            CommandProcessor m_commandProcessor;
+            std::unique_ptr<CommandProcessor> m_commandProcessor;
         public:
             static std::shared_ptr<MapDocument> newMapDocument();
         private:
             MapDocumentCommandFacade();
+        public:
+            ~MapDocumentCommandFacade() override;
         public: // selection modification
             void performSelect(const std::vector<Model::Node*>& nodes);
             void performSelect(const std::vector<Model::BrushFace*>& faces);

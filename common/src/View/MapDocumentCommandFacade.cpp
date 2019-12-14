@@ -32,6 +32,7 @@
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
+#include "Model/EntityAttributeSnapshot.h"
 #include "Model/Game.h"
 #include "Model/Group.h"
 #include "Model/Issue.h"
@@ -40,6 +41,8 @@
 #include "Model/TransformObjectVisitor.h"
 #include "Model/World.h"
 #include "Model/NodeVisitor.h"
+#include "View/CommandProcessor.h"
+#include "View/UndoableCommand.h"
 #include "View/Selection.h"
 
 #include <kdl/map_utils.h>
@@ -47,11 +50,11 @@
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
+#include <vecmath/segment.h>
 #include <vecmath/polygon.h>
 
 #include <map>
 #include <memory>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -63,9 +66,11 @@ namespace TrenchBroom {
         }
 
         MapDocumentCommandFacade::MapDocumentCommandFacade() :
-        m_commandProcessor(this) {
+        m_commandProcessor(std::make_unique<CommandProcessor>(this)) {
             bindObservers();
         }
+
+        MapDocumentCommandFacade::~MapDocumentCommandFacade() = default;
 
         void MapDocumentCommandFacade::performSelect(const std::vector<Model::Node*>& nodes) {
             selectionWillChangeNotifier();
@@ -969,80 +974,80 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::bindObservers() {
-            m_commandProcessor.commandDoNotifier.addObserver(commandDoNotifier);
-            m_commandProcessor.commandDoneNotifier.addObserver(commandDoneNotifier);
-            m_commandProcessor.commandDoFailedNotifier.addObserver(commandDoFailedNotifier);
-            m_commandProcessor.commandUndoNotifier.addObserver(commandUndoNotifier);
-            m_commandProcessor.commandUndoneNotifier.addObserver(commandUndoneNotifier);
-            m_commandProcessor.commandUndoFailedNotifier.addObserver(commandUndoFailedNotifier);
-            m_commandProcessor.transactionDoneNotifier.addObserver(transactionDoneNotifier);
-            m_commandProcessor.transactionUndoneNotifier.addObserver(transactionUndoneNotifier);
+            m_commandProcessor->commandDoNotifier.addObserver(commandDoNotifier);
+            m_commandProcessor->commandDoneNotifier.addObserver(commandDoneNotifier);
+            m_commandProcessor->commandDoFailedNotifier.addObserver(commandDoFailedNotifier);
+            m_commandProcessor->commandUndoNotifier.addObserver(commandUndoNotifier);
+            m_commandProcessor->commandUndoneNotifier.addObserver(commandUndoneNotifier);
+            m_commandProcessor->commandUndoFailedNotifier.addObserver(commandUndoFailedNotifier);
+            m_commandProcessor->transactionDoneNotifier.addObserver(transactionDoneNotifier);
+            m_commandProcessor->transactionUndoneNotifier.addObserver(transactionUndoneNotifier);
             documentWasNewedNotifier.addObserver(this, &MapDocumentCommandFacade::documentWasNewed);
             documentWasLoadedNotifier.addObserver(this, &MapDocumentCommandFacade::documentWasLoaded);
         }
 
         void MapDocumentCommandFacade::documentWasNewed(MapDocument*) {
-            m_commandProcessor.clear();
+            m_commandProcessor->clear();
         }
 
         void MapDocumentCommandFacade::documentWasLoaded(MapDocument*) {
-            m_commandProcessor.clear();
+            m_commandProcessor->clear();
         }
 
         bool MapDocumentCommandFacade::doCanUndoLastCommand() const {
-            return m_commandProcessor.hasLastCommand();
+            return m_commandProcessor->hasLastCommand();
         }
 
         bool MapDocumentCommandFacade::doCanRedoNextCommand() const {
-            return m_commandProcessor.hasNextCommand();
+            return m_commandProcessor->hasNextCommand();
         }
 
         const std::string& MapDocumentCommandFacade::doGetLastCommandName() const {
-            return m_commandProcessor.lastCommandName();
+            return m_commandProcessor->lastCommandName();
         }
 
         const std::string& MapDocumentCommandFacade::doGetNextCommandName() const {
-            return m_commandProcessor.nextCommandName();
+            return m_commandProcessor->nextCommandName();
         }
 
         void MapDocumentCommandFacade::doUndoLastCommand() {
-            m_commandProcessor.undoLastCommand();
+            m_commandProcessor->undoLastCommand();
         }
 
         void MapDocumentCommandFacade::doRedoNextCommand() {
-            m_commandProcessor.redoNextCommand();
+            m_commandProcessor->redoNextCommand();
         }
 
         bool MapDocumentCommandFacade::doHasRepeatableCommands() const {
-            return m_commandProcessor.hasRepeatableCommands();
+            return m_commandProcessor->hasRepeatableCommands();
         }
 
         bool MapDocumentCommandFacade::doRepeatLastCommands() {
-            return m_commandProcessor.repeatLastCommands();
+            return m_commandProcessor->repeatLastCommands();
         }
 
         void MapDocumentCommandFacade::doClearRepeatableCommands() {
-            m_commandProcessor.clearRepeatableCommands();
+            m_commandProcessor->clearRepeatableCommands();
         }
 
         void MapDocumentCommandFacade::doBeginTransaction(const std::string& name) {
-            m_commandProcessor.beginGroup(name);
+            m_commandProcessor->beginGroup(name);
         }
 
         void MapDocumentCommandFacade::doEndTransaction() {
-            m_commandProcessor.endGroup();
+            m_commandProcessor->endGroup();
         }
 
         void MapDocumentCommandFacade::doRollbackTransaction() {
-            m_commandProcessor.rollbackGroup();
+            m_commandProcessor->rollbackGroup();
         }
 
         bool MapDocumentCommandFacade::doSubmit(std::unique_ptr<Command>&& command) {
-            return m_commandProcessor.submitCommand(std::move(command));
+            return m_commandProcessor->submitCommand(std::move(command));
         }
 
         bool MapDocumentCommandFacade::doSubmitAndStore(std::unique_ptr<UndoableCommand>&& command) {
-            return m_commandProcessor.submitAndStoreCommand(std::move(command));
+            return m_commandProcessor->submitAndStoreCommand(std::move(command));
         }
     }
 }

@@ -47,6 +47,7 @@ namespace TrenchBroom {
 
         class Command;
         class UndoableCommand;
+        class CommandProcessor;
 
         class SmartAttributeEditorManager;
 
@@ -58,10 +59,15 @@ namespace TrenchBroom {
         class MapFrame;
         class GLContextManager;
 
+        class MapViewConfig;
         class MapViewBase;
         class MapView2D;
         class MapView3D;
         class MapViewToolBox;
+
+        class ViewEffectsService;
+
+        enum class PasteType;
 
         class CompilationContext;
         class CompilationRunner;

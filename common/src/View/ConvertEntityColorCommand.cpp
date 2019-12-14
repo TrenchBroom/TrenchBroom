@@ -19,6 +19,7 @@
 
 #include "ConvertEntityColorCommand.h"
 
+#include "Model/EntityAttributeSnapshot.h"
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom {
