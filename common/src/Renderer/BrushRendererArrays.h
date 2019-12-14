@@ -131,6 +131,8 @@ namespace TrenchBroom {
             VboHolder(const VboHolder& other) = delete;
 
             virtual ~VboHolder() {
+                // TODO: Revisit this revisiting OpenGL resource management. We should not store the VboManager,
+                // since it represents a safe time to delete the OpenGL buffer object.
                 freeBlock();
             }
 
