@@ -26,6 +26,7 @@
 #include "Renderer/PrimType.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 #include "Renderer/VertexArray.h"
 #include "View/GLContextManager.h"
 #include "View/InputEvent.h"
@@ -103,18 +104,18 @@ namespace TrenchBroom {
                 m_lastFPSCounterUpdate = currentTime;
 
                 m_currentFPS = std::string("Avg FPS: ") + std::to_string(avgFps) + " Max time between frames: " +
-                        std::to_string(maxFrameTime) + "ms. 1000ms QTimer actually took: " + std::to_string(fpsCounterPeriod);
+                    std::to_string(maxFrameTime) + "ms. " +
+                    std::to_string(m_glContext->vboManager().currentVboCount()) + " current VBOs (" +
+                    std::to_string(m_glContext->vboManager().peakVboCount()) + " peak) totalling " +
+                    std::to_string(m_glContext->vboManager().currentVboSize() / 1024u) + " KiB";
+
+
             });
 
             fpsCounter->start(1000);
 
             setMouseTracking(true); // request mouse move events even when no button is held down
             setFocusPolicy(Qt::StrongFocus); // accept focus by clicking or tab
-
-            connect(this, &QOpenGLWidget::frameSwapped, [this](){
-                this->vertexVbo().freePendingBlocks();
-                this->indexVbo().freePendingBlocks();
-            });
         }
 
         RenderView::~RenderView() = default;
@@ -172,12 +173,8 @@ namespace TrenchBroom {
         }
 
 
-       Renderer::Vbo& RenderView::vertexVbo() {
-            return m_glContext->vertexVbo();
-        }
-
-        Renderer::Vbo& RenderView::indexVbo() {
-            return m_glContext->indexVbo();
+       Renderer::VboManager& RenderView::vboManager() {
+            return m_glContext->vboManager();
         }
 
         Renderer::FontManager& RenderView::fontManager() {
@@ -272,8 +269,7 @@ namespace TrenchBroom {
                 Vertex(vm::vec3f(t, h-t, 0.0f), inner)
             }));
 
-            Renderer::ActivateVbo activate(vertexVbo());
-            array.prepare(vertexVbo());
+            array.prepare(vboManager());
             array.render(Renderer::PrimType::Quads);
             glAssert(glEnable(GL_DEPTH_TEST));
         }

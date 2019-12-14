@@ -21,7 +21,7 @@
 #define TrenchBroom_RenderView
 
 #include "Color.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 #include "View/InputEvent.h"
 
 #include <string>
@@ -71,8 +71,7 @@ namespace TrenchBroom {
             void mouseReleaseEvent(QMouseEvent* event) override;
             void wheelEvent(QWheelEvent* event) override;
         protected:
-            Renderer::Vbo& vertexVbo();
-            Renderer::Vbo& indexVbo();
+            Renderer::VboManager& vboManager();
             Renderer::FontManager& fontManager();
             Renderer::ShaderManager& shaderManager();
 

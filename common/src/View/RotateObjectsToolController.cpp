@@ -166,8 +166,8 @@ namespace TrenchBroom {
                 m_position(position),
                 m_circle(radius, 24, true, axis, vm::vec3f(startAxis), vm::vec3f(endAxis)) {}
             private:
-                void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
-                    m_circle.prepare(vertexVbo);
+                void doPrepareVertices(Renderer::VboManager& vboManager) override {
+                    m_circle.prepare(vboManager);
                 }
 
                 void doRender(Renderer::RenderContext& renderContext) override {

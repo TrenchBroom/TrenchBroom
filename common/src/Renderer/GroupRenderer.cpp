@@ -32,6 +32,8 @@
 
 #include <vector>
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Renderer {
         class GroupRenderer::GroupNameAnchor : public TextAnchor3D {

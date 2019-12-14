@@ -35,7 +35,7 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 #include "View/MapDocument.h"
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
@@ -230,9 +230,9 @@ namespace TrenchBroom {
                 return Renderer::Circle(radius / zoom, segments, fill);
             }
         private:
-            void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
-                m_center.prepare(vertexVbo);
-                m_outer.prepare(vertexVbo);
+            void doPrepareVertices(Renderer::VboManager& vboManager) override {
+                m_center.prepare(vboManager);
+                m_outer.prepare(vboManager);
             }
 
             void doRender(Renderer::RenderContext& renderContext) override {

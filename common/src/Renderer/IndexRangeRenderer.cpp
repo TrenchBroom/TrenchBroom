@@ -27,8 +27,8 @@ namespace TrenchBroom {
         m_vertexArray(vertexArray),
         m_indexArray(indexArray) {}
 
-        void IndexRangeRenderer::prepare(Vbo& vbo) {
-            m_vertexArray.prepare(vbo);
+        void IndexRangeRenderer::prepare(VboManager& vboManager) {
+            m_vertexArray.prepare(vboManager);
         }
 
         void IndexRangeRenderer::render() {

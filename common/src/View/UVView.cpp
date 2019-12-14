@@ -36,7 +36,7 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 #include "Renderer/VertexArray.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -168,7 +168,7 @@ namespace TrenchBroom {
                 document->commitPendingAssets();
 
                 Renderer::RenderContext renderContext(Renderer::RenderContext::RenderMode_2D, m_camera, fontManager(), shaderManager());
-                Renderer::RenderBatch renderBatch(vertexVbo(), indexVbo());
+                Renderer::RenderBatch renderBatch(vboManager());
 
                 setupGL(renderContext);
                 renderTexture(renderContext, renderBatch);
@@ -238,8 +238,8 @@ namespace TrenchBroom {
                 };
             }
         private:
-            void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
-                m_vertexArray.prepare(vertexVbo);
+            void doPrepareVertices(Renderer::VboManager& vboManager) override {
+                m_vertexArray.prepare(vboManager);
             }
 
             void doRender(Renderer::RenderContext& renderContext) override {

@@ -284,8 +284,7 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPCShader);
             Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
 
-            Renderer::ActivateVbo activate(vertexVbo());
-            vertexArray.prepare(vertexVbo());
+            vertexArray.prepare(vboManager());
             vertexArray.render(Renderer::PrimType::Lines);
         }
 
@@ -297,8 +296,7 @@ namespace TrenchBroom {
 
             glAssert(glFrontFace(GL_CW));
 
-            Renderer::ActivateVbo activate(vertexVbo());
-            m_entityModelManager.prepare(vertexVbo());
+            m_entityModelManager.prepare(vboManager());
 
             for (size_t i = 0; i < layout.size(); ++i) {
                 const auto& group = layout[i];
@@ -324,8 +322,6 @@ namespace TrenchBroom {
 
         void EntityBrowserView::renderNames(Layout& layout, const float y, const float height, const vm::mat4x4f& projection) {
             Renderer::Transformation transformation(projection, vm::view_matrix(vm::vec3f::neg_z(), vm::vec3f::pos_y()) *vm::translation_matrix(vm::vec3f(0.0f, 0.0f, -1.0f)));
-
-            Renderer::ActivateVbo activate(vertexVbo());
 
             glAssert(glDisable(GL_DEPTH_TEST));
             glAssert(glFrontFace(GL_CCW));
@@ -353,8 +349,7 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
             shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
 
-            Renderer::ActivateVbo activate(vertexVbo());
-            vertexArray.prepare(vertexVbo());
+            vertexArray.prepare(vboManager());
             vertexArray.render(Renderer::PrimType::Quads);
         }
 
@@ -363,14 +358,12 @@ namespace TrenchBroom {
             StringRendererMap stringRenderers;
 
             { // create and upload all vertex arrays
-                Renderer::ActivateVbo activate(vertexVbo());
-
                 const auto stringVertices = collectStringVertices(layout, y, height);
                 for (const auto& entry : stringVertices) {
                     const auto& fontDescriptor = entry.first;
                     const auto& vertices = entry.second;
                     stringRenderers[fontDescriptor] = Renderer::VertexArray::ref(vertices);
-                    stringRenderers[fontDescriptor].prepare(vertexVbo());
+                    stringRenderers[fontDescriptor].prepare(vboManager());
                 }
             }
 

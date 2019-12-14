@@ -63,11 +63,11 @@ namespace TrenchBroom {
             renderBatch.add(this);
         }
 
-        void Compass::doPrepareVertices(Vbo& vertexVbo) {
+        void Compass::doPrepareVertices(VboManager& vboManager) {
             if (!m_prepared) {
-                m_arrowRenderer.prepare(vertexVbo);
-                m_backgroundRenderer.prepare(vertexVbo);
-                m_backgroundOutlineRenderer.prepare(vertexVbo);
+                m_arrowRenderer.prepare(vboManager);
+                m_backgroundRenderer.prepare(vboManager);
+                m_backgroundOutlineRenderer.prepare(vboManager);
                 m_prepared = true;
             }
         }

@@ -30,7 +30,7 @@ namespace TrenchBroom {
 
     namespace Renderer {
         class MapRenderer;
-        class Vbo;
+        class VboManager;
     }
 
     namespace View {

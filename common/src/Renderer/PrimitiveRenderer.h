@@ -96,9 +96,9 @@ namespace TrenchBroom {
 
             void renderCylinder(const Color& color, float radius, size_t segments, PrimitiveRendererOcclusionPolicy occlusionPolicy, PrimitiveRendererCullingPolicy cullingPolicy, const vm::vec3f& start, const vm::vec3f& end);
         private:
-            void doPrepareVertices(Vbo& vertexVbo) override;
-            void prepareLines(Vbo& vertexVbo);
-            void prepareTriangles(Vbo& vertexVbo);
+            void doPrepareVertices(VboManager& vboManager) override;
+            void prepareLines(VboManager& vboManager);
+            void prepareTriangles(VboManager& vboManager);
 
             void doRender(RenderContext& renderContext) override;
             void renderLines(RenderContext& renderContext);

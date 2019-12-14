@@ -48,7 +48,7 @@ namespace TrenchBroom {
 
             void render(RenderBatch& renderBatch);
         private: // implement Renderable interface
-            void doPrepareVertices(Vbo& vertexVbo) override;
+            void doPrepareVertices(VboManager& vboManager) override;
             void doRender(RenderContext& renderContext) override;
         private:
             void makeArrows();

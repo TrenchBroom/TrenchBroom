@@ -25,8 +25,8 @@
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/Renderer_Forward.h"
+#include "Renderer/VboManager.h"
 #include "Renderer/Vbo.h"
-#include "Renderer/VboBlock.h"
 
 #include <kdl/vector_utils.h>
 
@@ -51,7 +51,7 @@ namespace TrenchBroom {
                 virtual size_t vertexCount() const = 0;
                 virtual size_t sizeInBytes() const = 0;
 
-                virtual void prepare(Vbo& vbo) = 0;
+                virtual void prepare(VboManager& vboManager) = 0;
                 virtual void setup() = 0;
                 virtual void cleanup() = 0;
             };
@@ -59,7 +59,8 @@ namespace TrenchBroom {
             template <typename VertexSpec>
             class Holder : public BaseHolder {
             private:
-                VboBlock* m_block;
+                VboManager* m_vboManager;
+                Vbo* m_vbo;
                 size_t m_vertexCount;
             public:
                 size_t vertexCount() const override {
@@ -70,33 +71,36 @@ namespace TrenchBroom {
                     return VertexSpec::Size * m_vertexCount;
                 }
 
-                void prepare(Vbo& vbo) override {
-                    if (m_vertexCount > 0 && m_block == nullptr) {
-                        ActivateVbo activate(vbo);
-                        m_block = vbo.allocateBlock(sizeInBytes());
-
-                        MapVboBlock map(m_block);
-                        m_block->writeBuffer(0, doGetVertices());
+                void prepare(VboManager& vboManager) override {
+                    if (m_vertexCount > 0 && m_vbo == nullptr) {
+                        m_vboManager = &vboManager;
+                        m_vbo = vboManager.allocateVbo(VboType::ArrayBuffer, sizeInBytes());;
+                        m_vbo->writeBuffer(0, doGetVertices());
                     }
                 }
 
                 void setup() override {
-                    ensure(m_block != nullptr, "block is null");
-                    VertexSpec::setup(m_block->offset());
+                    ensure(m_vbo != nullptr, "block is null");
+                    m_vbo->bind();
+                    VertexSpec::setup(m_vbo->offset());
                 }
 
                 void cleanup() override {
                     VertexSpec::cleanup();
+                    m_vbo->unbind();
                 }
             protected:
                 Holder(const size_t vertexCount) :
-                m_block(nullptr),
+                m_vboManager(nullptr),
+                m_vbo(nullptr),
                 m_vertexCount(vertexCount) {}
 
                 ~Holder() override {
-                    if (m_block != nullptr) {
-                        m_block->free();
-                        m_block = nullptr;
+                    // TODO: Revisit this revisiting OpenGL resource management. We should not store the VboManager,
+                    // since it represents a safe time to delete the OpenGL buffer object.
+                    if (m_vbo != nullptr) {
+                        m_vboManager->destroyVbo(m_vbo);
+                        m_vbo = nullptr;
                     }
                 }
             private:
@@ -119,8 +123,8 @@ namespace TrenchBroom {
                 Holder<VertexSpec>(vertices.size()),
                 m_vertices(std::move(vertices)) {}
 
-                void prepare(Vbo& vbo) override {
-                    Holder<VertexSpec>::prepare(vbo);
+                void prepare(VboManager& vboManager) override {
+                    Holder<VertexSpec>::prepare(vboManager);
                     kdl::vec_clear_to_zero(m_vertices);
                 }
             private:
@@ -227,9 +231,9 @@ namespace TrenchBroom {
             /**
              * Prepares this vertex array by uploading its contents into the given vertex buffer object.
              *
-             * @param vbo the vertex buffer object to upload the contents of this vertex array into
+             * @param vboManager the vertex buffer object to upload the contents of this vertex array into
              */
-            void prepare(Vbo& vbo);
+            void prepare(VboManager& vboManager);
 
             /**
              * Sets this vertex array up for rendering. If this vertex array is only rendered once, then there is no

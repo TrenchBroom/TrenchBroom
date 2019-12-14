@@ -27,6 +27,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
     namespace Renderer {
         class Shader {
         private:

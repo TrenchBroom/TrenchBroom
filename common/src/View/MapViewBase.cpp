@@ -861,7 +861,7 @@ namespace TrenchBroom {
             setupGL(renderContext);
             setRenderOptions(renderContext);
 
-            Renderer::RenderBatch renderBatch(vertexVbo(), indexVbo());
+            Renderer::RenderBatch renderBatch(vboManager());
 
             doRenderGrid(renderContext, renderBatch);
             doRenderMap(m_renderer, renderContext, renderBatch);

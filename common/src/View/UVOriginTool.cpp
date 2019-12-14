@@ -273,8 +273,8 @@ namespace TrenchBroom {
                 return Renderer::Circle(radius / zoom, segments, fill);
             }
         private:
-            void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
-                m_originHandle.prepare(vertexVbo);
+            void doPrepareVertices(Renderer::VboManager& vboManager) override {
+                m_originHandle.prepare(vboManager);
             }
 
             void doRender(Renderer::RenderContext& renderContext) override {
