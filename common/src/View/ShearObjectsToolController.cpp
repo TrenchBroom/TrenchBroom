@@ -29,6 +29,7 @@
 #include "Renderer/RenderService.h"
 #include "Renderer/Camera.h"
 #include "View/InputState.h"
+#include "View/ScaleObjectsTool.h"
 #include "View/ShearObjectsTool.h"
 #include "View/MapDocument.h"
 

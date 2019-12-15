@@ -23,14 +23,16 @@
 #include "TrenchBroom.h"
 #include "ToolChain.h"
 #include "Model/HitType.h"
-#include "Model/HitQuery.h"
+#include "Model/Model_Forward.h"
 #include "View/InputState.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/line.h>
 #include <vecmath/plane.h>
 
+#include <memory>
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -184,7 +186,7 @@ namespace TrenchBroom {
 
         class MultiDragSnapper : public DragSnapper {
         private:
-            using List = std::list<std::unique_ptr<DragSnapper>>;
+            using List = std::vector<std::unique_ptr<DragSnapper>>;
             List m_delegates;
         public:
             template <typename... T>

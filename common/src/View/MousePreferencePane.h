@@ -20,13 +20,14 @@
 #ifndef TrenchBroom_MousePreferencePane
 #define TrenchBroom_MousePreferencePane
 
-#include "Preferences.h"
 #include "View/PreferencePane.h"
 
 class QCheckBox;
 class QKeySequence;
 
 namespace TrenchBroom {
+    template <typename T> class Preference;
+
     namespace View {
         class KeySequenceEdit;
         class SliderWithLabel;

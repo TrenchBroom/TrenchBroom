@@ -23,7 +23,6 @@
 #include "Assets/Asset_Forward.h"
 #include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
-#include "View/TextureBrowserView.h"
 
 #include <memory>
 #include <string>
@@ -41,6 +40,7 @@ namespace TrenchBroom {
         class GLContextManager;
         class MapDocument;
         class TextureBrowserView;
+        enum class TextureSortOrder;
 
         class TextureBrowser : public QWidget {
             Q_OBJECT
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             Assets::Texture* selectedTexture() const;
             void setSelectedTexture(Assets::Texture* selectedTexture);
 
-            void setSortOrder(TextureBrowserView::SortOrder sortOrder);
+            void setSortOrder(TextureSortOrder sortOrder);
             void setGroup(bool group);
             void setHideUnused(bool hideUnused);
             void setFilterText(const std::string& filterText);

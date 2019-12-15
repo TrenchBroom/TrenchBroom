@@ -27,6 +27,7 @@
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
+#include "View/TextureBrowserView.h"
 
 #include <QtGlobal>
 #include <QPushButton>
@@ -34,6 +35,9 @@
 #include <QLineEdit>
 #include <QScrollBar>
 #include <QVBoxLayout>
+
+// for use in QVariant
+Q_DECLARE_METATYPE(TrenchBroom::View::TextureSortOrder)
 
 namespace TrenchBroom {
     namespace View {
@@ -64,13 +68,13 @@ namespace TrenchBroom {
             m_view->setSelectedTexture(selectedTexture);
         }
 
-        void TextureBrowser::setSortOrder(const TextureBrowserView::SortOrder sortOrder) {
+        void TextureBrowser::setSortOrder(const TextureSortOrder sortOrder) {
             m_view->setSortOrder(sortOrder);
             switch (sortOrder) {
-                case TextureBrowserView::SO_Name:
+                case TextureSortOrder::Name:
                     m_sortOrderChoice->setCurrentIndex(0);
                     break;
-                case TextureBrowserView::SO_Usage:
+                case TextureSortOrder::Usage:
                     m_sortOrderChoice->setCurrentIndex(1);
                     break;
                 switchDefault()
@@ -111,12 +115,12 @@ namespace TrenchBroom {
             browserPanel->setLayout(browserPanelSizer);
 
             m_sortOrderChoice = new QComboBox();
-            m_sortOrderChoice->addItem(tr("Name"), QVariant(TextureBrowserView::SO_Name));
-            m_sortOrderChoice->addItem(tr("Usage"), QVariant(TextureBrowserView::SO_Usage));
+            m_sortOrderChoice->addItem(tr("Name"), QVariant::fromValue(TextureSortOrder::Name));
+            m_sortOrderChoice->addItem(tr("Usage"), QVariant::fromValue(TextureSortOrder::Usage));
             m_sortOrderChoice->setCurrentIndex(0);
             m_sortOrderChoice->setToolTip(tr("Select ordering criterion"));
             connect(m_sortOrderChoice, QOverload<int>::of(&QComboBox::activated), this, [=](int index){
-                auto sortOrder = static_cast<TextureBrowserView::SortOrder>(m_sortOrderChoice->itemData(index).toInt());
+                auto sortOrder = static_cast<TextureSortOrder>(m_sortOrderChoice->itemData(index).toInt());
                 m_view->setSortOrder(sortOrder);
             });
 

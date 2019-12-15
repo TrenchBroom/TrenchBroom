@@ -22,7 +22,6 @@
 
 #include "View/InputEvent.h"
 #include "View/InputState.h"
-#include "View/PickRequest.h"
 
 #include <string>
 
@@ -38,6 +37,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class PickRequest;
         class ToolController;
         class ToolBox;
         class ToolChain;

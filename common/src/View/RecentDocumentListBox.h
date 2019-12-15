@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_RecentDocumentListBox
 #define TrenchBroom_RecentDocumentListBox
 
+#include "IO/IO_Forward.h"
 #include "View/ImageListBox.h"
-#include "IO/Path.h"
 
 #include <QPixmap>
 

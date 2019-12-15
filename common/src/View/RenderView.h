@@ -21,8 +21,10 @@
 #define TrenchBroom_RenderView
 
 #include "Color.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/GL.h" // must be included here, before QOpenGLWidget, because it includes glew
+#include "Renderer/Renderer_Forward.h"
 #include "View/InputEvent.h"
+#include "View/View_Forward.h"
 
 #include <string>
 
@@ -34,15 +36,7 @@
 #undef CursorShape
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class FontManager;
-        class RenderContext;
-        class ShaderManager;
-    }
-
     namespace View {
-        class GLContextManager;
-
         class RenderView : public QOpenGLWidget, public InputEventProcessor {
             Q_OBJECT
         private:

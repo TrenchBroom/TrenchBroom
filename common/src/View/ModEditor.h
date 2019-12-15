@@ -22,6 +22,7 @@
 
 #include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 #include <string>
@@ -36,8 +37,6 @@ class QAbstractButton;
 
 namespace TrenchBroom {
     namespace View {
-        class MapDocument;
-
         class ModEditor : public QWidget {
             Q_OBJECT
         private:

@@ -20,24 +20,21 @@
 #ifndef TrenchBroom_SmartColorEditor
 #define TrenchBroom_SmartColorEditor
 
-#include "SharedPointer.h"
 #include "Model/Model_Forward.h"
 #include "View/SmartAttributeEditor.h"
-#include "View/ColorButton.h"
 
 #include <memory>
 #include <vector>
 
-#include <QColor>
-
+class QColor;
 class QWidget;
 class QPushButton;
 class QRadioButton;
 
 namespace TrenchBroom {
     namespace View {
+        class ColorButton;
         class ColorTable;
-        class ColorTableSelectedCommand;
         class MapDocument;
 
         class SmartColorEditor : public SmartAttributeEditor {

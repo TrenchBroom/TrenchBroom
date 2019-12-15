@@ -20,6 +20,7 @@
 #include "SmartAttributeEditorManager.h"
 
 #include "Macros.h"
+#include "SharedPointer.h"
 #include "View/MapDocument.h"
 #include "View/SmartChoiceEditor.h"
 #include "View/SmartChoiceEditorMatcher.h"

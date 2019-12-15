@@ -20,7 +20,6 @@
 #ifndef TextureCollectionEditor_h
 #define TextureCollectionEditor_h
 
-
 #include <memory>
 
 #include <QWidget>

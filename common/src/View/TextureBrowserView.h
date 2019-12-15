@@ -22,7 +22,6 @@
 
 #include "Assets/Asset_Forward.h"
 #include "Renderer/FontDescriptor.h"
-#include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
 
@@ -49,13 +48,13 @@ namespace TrenchBroom {
             Renderer::FontDescriptor subTitleFont;
         };
 
+        enum class TextureSortOrder {
+            Name,
+            Usage
+        };
+
         class TextureBrowserView : public CellView {
             Q_OBJECT
-        public:
-            typedef enum {
-                SO_Name,
-                SO_Usage
-            } SortOrder;
         private:
             using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
             using StringMap = std::map<Renderer::FontDescriptor, std::vector<TextVertex>>;
@@ -63,7 +62,7 @@ namespace TrenchBroom {
             std::weak_ptr<MapDocument> m_document;
             bool m_group;
             bool m_hideUnused;
-            SortOrder m_sortOrder;
+            TextureSortOrder m_sortOrder;
             std::string m_filterText;
 
             Assets::Texture* m_selectedTexture;
@@ -73,7 +72,7 @@ namespace TrenchBroom {
                                std::weak_ptr<MapDocument> document);
             ~TextureBrowserView() override;
 
-            void setSortOrder(SortOrder sortOrder);
+            void setSortOrder(TextureSortOrder sortOrder);
             void setGroup(bool group);
             void setHideUnused(bool hideUnused);
             void setFilterText(const std::string& filterText);

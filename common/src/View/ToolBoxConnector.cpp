@@ -20,6 +20,7 @@
 #include "ToolBoxConnector.h"
 
 #include "Macros.h"
+#include "View/PickRequest.h"
 #include "View/ToolBox.h"
 #include "View/ToolChain.h"
 

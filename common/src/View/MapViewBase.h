@@ -23,15 +23,12 @@
 #include "Assets/Asset_Forward.h"
 #include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
-#include "Model/NodeCollection.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/ActionContext.h"
 #include "View/CameraLinkHelper.h"
-#include "View/InputState.h"
 #include "View/MapView.h"
 #include "View/RenderView.h"
 #include "View/ToolBoxConnector.h"
-#include "View/UndoableCommand.h"
 #include "View/View_Forward.h"
 
 #include <memory>

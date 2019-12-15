@@ -82,7 +82,7 @@ namespace TrenchBroom {
             if (vm::is_nan(distance)) {
                 return Model::Hit::NoHit;
             } else {
-                return Model::Hit(HandleHit, distance, vm::point_at_distance(pickRay, distance), HitArea::HitArea_Center);
+                return Model::Hit(HandleHit, distance, vm::point_at_distance(pickRay, distance), HitArea::Center);
             }
         }
 
@@ -117,13 +117,13 @@ namespace TrenchBroom {
 
             const auto scalingMatrix = vm::scaling_matrix(vm::vec3(scalingFactor, scalingFactor, scalingFactor));
             switch (area) {
-                case HitArea::HitArea_XAxis:
+                case HitArea::XAxis:
                     return vm::mat4x4::rot_90_y_ccw() * scalingMatrix;
-                case HitArea::HitArea_YAxis:
+                case HitArea::YAxis:
                     return vm::mat4x4::rot_90_x_cw() * scalingMatrix;
-                case HitArea::HitArea_ZAxis:
-                case HitArea::HitArea_Center:
-                case HitArea::HitArea_None:
+                case HitArea::ZAxis:
+                case HitArea::Center:
+                case HitArea::None:
                     return vm::mat4x4::identity() * scalingMatrix;
                 switchDefault();
             }
@@ -133,13 +133,13 @@ namespace TrenchBroom {
             switch (vm::find_abs_max_component(camera.direction())) {
                 case vm::axis::x:
                     return Model::selectClosest(pickCenterHandle(pickRay, camera),
-                                                pickRotateHandle(pickRay, camera, HitArea::HitArea_XAxis));
+                                                pickRotateHandle(pickRay, camera, HitArea::XAxis));
                 case vm::axis::y:
                     return Model::selectClosest(pickCenterHandle(pickRay, camera),
-                                                pickRotateHandle(pickRay, camera, HitArea::HitArea_YAxis));
+                                                pickRotateHandle(pickRay, camera, HitArea::YAxis));
                 default:
                     return Model::selectClosest(pickCenterHandle(pickRay, camera),
-                                                pickRotateHandle(pickRay, camera, HitArea::HitArea_ZAxis));
+                                                pickRotateHandle(pickRay, camera, HitArea::ZAxis));
             }
         }
 
@@ -172,18 +172,18 @@ namespace TrenchBroom {
             renderService.setShowOccludedObjects();
 
             switch (area) {
-                case HitArea::HitArea_Center:
+                case HitArea::Center:
                     renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
                     renderService.renderHandleHighlight(vm::vec3f(m_position));
                     break;
-                case HitArea::HitArea_XAxis:
-                case HitArea::HitArea_YAxis:
-                case HitArea::HitArea_ZAxis:
+                case HitArea::XAxis:
+                case HitArea::YAxis:
+                case HitArea::ZAxis:
                     renderService.setLineWidth(2.0f);
                     renderService.setForegroundColor(pref(Preferences::axisColor(vm::find_abs_max_component(camera.direction()))));
                     renderService.renderCircle(vm::vec3f(m_position), vm::find_abs_max_component(camera.direction()), 64, radius);
                     break;
-                case HitArea::HitArea_None:
+                case HitArea::None:
                     break;
                 switchDefault()
             }
@@ -192,9 +192,9 @@ namespace TrenchBroom {
         Model::Hit RotateObjectsHandle::Handle3D::pick(const vm::ray3& pickRay, const Renderer::Camera& camera) const {
             return Model::selectClosest(
                 pickCenterHandle(pickRay, camera),
-                pickRotateHandle(pickRay, camera, HitArea::HitArea_XAxis),
-                pickRotateHandle(pickRay, camera, HitArea::HitArea_YAxis),
-                pickRotateHandle(pickRay, camera, HitArea::HitArea_ZAxis));
+                pickRotateHandle(pickRay, camera, HitArea::XAxis),
+                pickRotateHandle(pickRay, camera, HitArea::YAxis),
+                pickRotateHandle(pickRay, camera, HitArea::ZAxis));
         }
 
         void RotateObjectsHandle::Handle3D::renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
@@ -233,29 +233,29 @@ namespace TrenchBroom {
             renderService.setShowOccludedObjects();
 
             switch (area) {
-                case HitArea::HitArea_Center:
+                case HitArea::Center:
                     renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
                     renderService.renderHandleHighlight(vm::vec3f(m_position));
                     renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
                     renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
                     renderService.renderString(kdl::str_to_string(m_position), vm::vec3f(m_position));
                     break;
-                case HitArea::HitArea_XAxis:
+                case HitArea::XAxis:
                     renderService.setForegroundColor(pref(Preferences::XAxisColor));
                     renderService.setLineWidth(2.0f);
                     renderService.renderCircle(vm::vec3f(m_position), vm::axis::x, 64, radius, zAxis, yAxis);
                     break;
-                case HitArea::HitArea_YAxis:
+                case HitArea::YAxis:
                     renderService.setForegroundColor(pref(Preferences::YAxisColor));
                     renderService.setLineWidth(2.0f);
                     renderService.renderCircle(vm::vec3f(m_position), vm::axis::y, 64, radius, xAxis, zAxis);
                     break;
-                case HitArea::HitArea_ZAxis:
+                case HitArea::ZAxis:
                     renderService.setForegroundColor(pref(Preferences::ZAxisColor));
                     renderService.setLineWidth(2.0f);
                     renderService.renderCircle(vm::vec3f(m_position), vm::axis::z, 64, radius, xAxis, yAxis);
                     break;
-                case HitArea::HitArea_None:
+                case HitArea::None:
                     break;
                     switchDefault()
             }
@@ -305,14 +305,14 @@ namespace TrenchBroom {
 
         vm::vec3 RotateObjectsHandle::rotationAxis(const HitArea area) const {
             switch (area) {
-                case HitArea::HitArea_XAxis:
+                case HitArea::XAxis:
                     return vm::vec3::pos_x();
-                case HitArea::HitArea_YAxis:
+                case HitArea::YAxis:
                     return vm::vec3::pos_y();
-                case HitArea::HitArea_ZAxis:
+                case HitArea::ZAxis:
                     return vm::vec3::pos_z();
-                case HitArea::HitArea_None:
-                case HitArea::HitArea_Center:
+                case HitArea::None:
+                case HitArea::Center:
                     return vm::vec3::pos_z();
                 switchDefault()
             }

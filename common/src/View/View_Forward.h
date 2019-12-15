@@ -38,7 +38,15 @@ namespace TrenchBroom {
         class CreateSimpleBrushTool;
         class EdgeTool;
         class FaceTool;
+        class MoveObjectsTool;
+        class ResizeBrushesTool;
+        class RotateObjectsTool;
+        class ScaleObjectsTool;
+        class ShearObjectsTool;
         class VertexTool;
+
+        class RotateObjectsToolPage;
+        class ScaleObjectsToolPage;
 
         class KeyEvent;
         class MouseEvent;
@@ -74,6 +82,9 @@ namespace TrenchBroom {
         class MapView2D;
         class MapView3D;
         class MapViewToolBox;
+        enum class MapViewLayout;
+
+        class CyclingMapView;
 
         class MapViewActivationTracker;
 
@@ -130,11 +141,14 @@ namespace TrenchBroom {
 
         class Action;
 
+        class PreferencePane;
+
         class KeyboardShortcutModel;
 
         class GameListBox;
         class LayerListBox;
 
+        class MapViewBar;
         class ContainerBar;
         class TabBook;
 

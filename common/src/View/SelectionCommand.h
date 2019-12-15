@@ -22,7 +22,6 @@
 
 #include "Macros.h"
 #include "Model/Model_Forward.h"
-#include "Model/BrushFaceReference.h"
 #include "View/UndoableCommand.h"
 #include "View/View_Forward.h"
 
@@ -67,6 +66,7 @@ namespace TrenchBroom {
             static std::unique_ptr<SelectionCommand> deselectAll();
 
             SelectionCommand(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces);
+            ~SelectionCommand() override;
         private:
             static std::string makeName(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces);
 

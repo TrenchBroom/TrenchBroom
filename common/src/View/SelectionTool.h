@@ -22,22 +22,17 @@
 
 #include "Model/HitType.h"
 #include "Model/Model_Forward.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
+#include "View/View_Forward.h"
 
 #include <list>
 #include <memory>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class RenderContext;
-    }
-
     namespace View {
-        class InputState;
-        class MapDocument;
-
         /**
          * Implements the Group picking logic: if `node` is inside a (possibly nested chain of)
          * closed group(s), the outermost closed group is returned. Otherwise, `node` itself is returned.

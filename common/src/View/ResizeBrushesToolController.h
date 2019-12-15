@@ -1,4 +1,4 @@
-#/*
+/*
  Copyright (C) 2010-2017 Kristian Duske
 
  This file is part of TrenchBroom.
@@ -20,24 +20,14 @@
 #ifndef TrenchBroom_ResizeBrushesToolController
 #define TrenchBroom_ResizeBrushesToolController
 
-#include "Model/Hit.h"
+#include "Model/Model_Forward.h"
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/ToolController.h"
+#include "View/View_Forward.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class PickResult;
-    }
-
-    namespace Renderer {
-        class RenderBatch;
-        class RenderContext;
-    }
-
     namespace View {
-        class InputState;
-        class ResizeBrushesTool;
-
         class ResizeBrushesToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:
             ResizeBrushesTool* m_tool;

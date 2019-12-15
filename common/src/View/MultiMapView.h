@@ -21,6 +21,7 @@
 #define TrenchBroom_MultiMapView
 
 #include "View/MapViewContainer.h"
+#include "View/View_Forward.h"
 
 #include <vector>
 
@@ -29,8 +30,6 @@ class QWidget;
 
 namespace TrenchBroom {
     namespace View {
-        class MapView;
-
         class MultiMapView : public MapViewContainer {
         private:
             using MapViewList = std::vector<MapView*>;

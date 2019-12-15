@@ -32,14 +32,12 @@ namespace TrenchBroom {
 
     namespace Renderer {
         class MapRenderer;
-        class Vbo;
     }
 
     namespace View {
         class CyclingMapView;
         class GLContextManager;
         class MapDocument;
-        class MapViewBase;
         class MapView3D;
         class MapViewToolBox;
 

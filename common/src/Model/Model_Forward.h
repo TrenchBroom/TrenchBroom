@@ -38,6 +38,8 @@ namespace TrenchBroom {
         class BrushFace;
         class BrushFaceAttributes;
 
+        class BrushFaceReference;
+
         class TexCoordSystem;
         class ParallelTexCoordSystem;
         class ParaxialTexCoordSystem;

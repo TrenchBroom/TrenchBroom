@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_UVEditor
 #define TrenchBroom_UVEditor
 
-
 #include <memory>
 
 #include <QWidget>

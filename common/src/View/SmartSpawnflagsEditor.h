@@ -27,8 +27,6 @@
 #include <memory>
 #include <vector>
 
-#include <QPoint>
-
 class QString;
 class QWidget;
 class QScrollArea;

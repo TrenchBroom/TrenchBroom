@@ -22,6 +22,7 @@
 #include "Macros.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceReference.h"
 #include "Model/Entity.h"
 #include "Model/World.h"
 #include "View/MapDocumentCommandFacade.h"
@@ -88,6 +89,8 @@ namespace TrenchBroom {
         m_action(action),
         m_nodes(nodes),
         m_faceRefs(faceRefs(faces)) {}
+
+        SelectionCommand::~SelectionCommand() = default;
 
         std::string SelectionCommand::makeName(const Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces) {
             std::stringstream result;
