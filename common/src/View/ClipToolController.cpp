@@ -24,6 +24,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/HitAdapter.h"
+#include "Model/HitQuery.h"
 #include "Model/HitType.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"

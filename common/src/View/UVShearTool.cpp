@@ -22,6 +22,7 @@
 #include "SharedPointer.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"

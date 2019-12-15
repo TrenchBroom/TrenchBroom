@@ -26,6 +26,7 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
+#include "Model/HitQuery.h"
 #include "Model/Layer.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushBuilder.h"

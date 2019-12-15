@@ -39,6 +39,7 @@
 #include "Model/Group.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
+#include "Model/HitQuery.h"
 #include "Model/Layer.h"
 #include "Model/PointFile.h"
 #include "Model/PortalFile.h"
