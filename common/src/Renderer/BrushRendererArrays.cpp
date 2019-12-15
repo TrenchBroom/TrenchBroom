@@ -69,10 +69,10 @@ namespace TrenchBroom {
 
         // IndexHolder
 
-        IndexHolder::IndexHolder() : VboBlockHolder<Index>() {}
+        IndexHolder::IndexHolder() : VboHolder<Index>(VboType::ElementArrayBuffer) {}
 
         IndexHolder::IndexHolder(std::vector<Index> &elements)
-                : VboBlockHolder<Index>(elements) {}
+                : VboHolder<Index>(elements) {}
 
         void IndexHolder::zeroRange(const size_t offsetWithinBlock, const size_t count) {
             Index* dest = getPointerToWriteElementsTo(offsetWithinBlock, count);
@@ -81,7 +81,7 @@ namespace TrenchBroom {
 
         void IndexHolder::render(const PrimType primType, const size_t offset, size_t count) const {
             const GLsizei renderCount = static_cast<GLsizei>(count);
-            const GLvoid *renderOffset = reinterpret_cast<GLvoid *>(m_block->offset() + sizeof(Index) * offset);
+            const GLvoid *renderOffset = reinterpret_cast<GLvoid *>(m_vbo->offset() + sizeof(Index) * offset);
 
             glAssert(glDrawElements(toGL(primType), renderCount, glType<Index>(), renderOffset));
         }
@@ -139,9 +139,17 @@ namespace TrenchBroom {
             return m_indexHolder.prepared();
         }
 
-        void BrushIndexArray::prepare(Vbo& vbo) {
-            m_indexHolder.prepare(vbo);
+        void BrushIndexArray::prepare(VboManager& vboManager) {
+            m_indexHolder.prepare(vboManager);
             assert(m_indexHolder.prepared());
+        }
+
+        void BrushIndexArray::setupIndices() {
+            m_indexHolder.bindBlock();
+        }
+
+        void BrushIndexArray::cleanupIndices() {
+            m_indexHolder.unbindBlock();
         }
 
         // BrushVertexArray
@@ -191,8 +199,8 @@ namespace TrenchBroom {
             return m_vertexHolder.prepared();
         }
 
-        void BrushVertexArray::prepare(Vbo& vbo) {
-            m_vertexHolder.prepare(vbo);
+        void BrushVertexArray::prepare(VboManager& vboManager) {
+            m_vertexHolder.prepare(vboManager);
             assert(m_vertexHolder.prepared());
         }
     }

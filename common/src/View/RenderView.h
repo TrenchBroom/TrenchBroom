@@ -65,8 +65,7 @@ namespace TrenchBroom {
             void mouseReleaseEvent(QMouseEvent* event) override;
             void wheelEvent(QWheelEvent* event) override;
         protected:
-            Renderer::Vbo& vertexVbo();
-            Renderer::Vbo& indexVbo();
+            Renderer::VboManager& vboManager();
             Renderer::FontManager& fontManager();
             Renderer::ShaderManager& shaderManager();
 

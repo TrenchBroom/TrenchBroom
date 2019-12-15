@@ -22,6 +22,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class VboManager;
         class Vbo;
 
         class VertexArray;

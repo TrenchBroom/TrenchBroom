@@ -39,8 +39,8 @@ namespace TrenchBroom {
             return m_vertexArray.empty();
         }
 
-        void TexturedIndexRangeRenderer::prepare(Vbo& vbo) {
-            m_vertexArray.prepare(vbo);
+        void TexturedIndexRangeRenderer::prepare(VboManager& vboManager) {
+            m_vertexArray.prepare(vboManager);
         }
 
         void TexturedIndexRangeRenderer::render() {
@@ -71,9 +71,9 @@ namespace TrenchBroom {
             return true;
         }
 
-        void MultiTexturedIndexRangeRenderer::prepare(Vbo& vbo) {
+        void MultiTexturedIndexRangeRenderer::prepare(VboManager& vboManager) {
             for (auto& renderer : m_renderers) {
-                renderer->prepare(vbo);
+                renderer->prepare(vboManager);
             }
         }
 

@@ -67,8 +67,8 @@ namespace TrenchBroom {
             return m_array.prepared();
         }
 
-        void Circle::prepare(Vbo& vbo) {
-            m_array.prepare(vbo);
+        void Circle::prepare(VboManager& vboManager) {
+            m_array.prepare(vboManager);
         }
 
         void Circle::render() {

@@ -152,7 +152,7 @@ namespace TrenchBroom {
              */
             vm::quatf clampRotationToUpright(const vm::quatf& rotation) const;
 
-            void renderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const;
+            void renderFrustum(RenderContext& renderContext, VboManager& vboManager, float size, const Color& color) const;
             float pickFrustum(float size, const vm::ray3f& ray) const;
 
             FloatType pickPointHandle(const vm::ray3& pickRay, const vm::vec3& handlePosition, FloatType handleRadius) const;
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             virtual vm::ray3f doGetPickRay(const vm::vec3f& point) const = 0;
             virtual void doComputeFrustumPlanes(vm::plane3f& topPlane, vm::plane3f& rightPlane, vm::plane3f& bottomPlane, vm::plane3f& leftPlane) const = 0;
 
-            virtual void doRenderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const = 0;
+            virtual void doRenderFrustum(RenderContext& renderContext, VboManager& vboManager, float size, const Color& color) const = 0;
             virtual float doPickFrustum(float size, const vm::ray3f& ray) const = 0;
             virtual float doGetPerspectiveScalingFactor(const vm::vec3f& position) const = 0;
             virtual bool isValidZoom(float zoom) const;

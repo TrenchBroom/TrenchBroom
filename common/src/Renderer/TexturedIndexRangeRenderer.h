@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class Vbo;
+        class VboManager;
         class TextureRenderFunc;
 
         class TexturedRenderer {
@@ -38,7 +38,7 @@ namespace TrenchBroom {
 
             virtual bool empty() const = 0;
 
-            virtual void prepare(Vbo& vbo) = 0;
+            virtual void prepare(VboManager& vboManager) = 0;
             virtual void render() = 0;
             virtual void render(TextureRenderFunc& func) = 0;
         };
@@ -55,7 +55,7 @@ namespace TrenchBroom {
 
             bool empty() const override;
 
-            void prepare(Vbo& vbo) override;
+            void prepare(VboManager& vboManager) override;
             void render() override;
             void render(TextureRenderFunc& func) override;
         };
@@ -69,7 +69,7 @@ namespace TrenchBroom {
 
             bool empty() const override;
 
-            void prepare(Vbo& vbo) override;
+            void prepare(VboManager& vboManager) override;
             void render() override;
             void render(TextureRenderFunc& func) override;
         };
