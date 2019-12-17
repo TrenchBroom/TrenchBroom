@@ -41,8 +41,8 @@ namespace TrenchBroom {
 
             SetTextureCollectionsCommand(const std::vector<IO::Path>& paths);
         private:
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
             bool doCollateWith(UndoableCommand* command) override;

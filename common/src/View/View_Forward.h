@@ -55,6 +55,7 @@ namespace TrenchBroom {
 
         class Command;
         class UndoableCommand;
+        class CommandResult;
         class CommandProcessor;
 
         class SmartAttributeEditorManager;

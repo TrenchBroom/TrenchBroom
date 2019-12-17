@@ -30,15 +30,15 @@ namespace TrenchBroom {
 
         UndoableCommand::~UndoableCommand() {}
 
-        bool UndoableCommand::performUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> UndoableCommand::performUndo(MapDocumentCommandFacade* document) {
             m_state = CommandState::Undoing;
-            if (doPerformUndo(document)) {
+            auto result = doPerformUndo(document);
+            if (result->success()) {
                 m_state = CommandState::Default;
-                return true;
             } else {
                 m_state = CommandState::Done;
-                return false;
             }
+            return result;
         }
 
         bool UndoableCommand::isRepeatDelimiter() const {

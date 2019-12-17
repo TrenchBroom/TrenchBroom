@@ -37,7 +37,7 @@ namespace TrenchBroom {
         UndoableCommand(Type, group != nullptr ? "Push Group" : "Pop Group"),
         m_group(group) {}
 
-        bool CurrentGroupCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformDo(MapDocumentCommandFacade* document) {
             if (m_group != nullptr) {
                 document->performPushGroup(m_group);
                 m_group = nullptr;
@@ -45,10 +45,10 @@ namespace TrenchBroom {
                 m_group = document->currentGroup();
                 document->performPopGroup();
             }
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool CurrentGroupCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             if (m_group == nullptr) {
                 m_group = document->currentGroup();
                 document->performPopGroup();
@@ -56,7 +56,7 @@ namespace TrenchBroom {
                 document->performPushGroup(m_group);
                 m_group = nullptr;
             }
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool CurrentGroupCommand::doCollateWith(UndoableCommand*) {

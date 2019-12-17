@@ -36,7 +36,7 @@ namespace TrenchBroom {
 
             FindPlanePointsCommand();
         private:
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 

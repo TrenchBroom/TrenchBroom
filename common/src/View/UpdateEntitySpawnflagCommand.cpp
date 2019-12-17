@@ -42,14 +42,14 @@ namespace TrenchBroom {
             return setFlag ? "Set Spawnflag" : "Unset Spawnflag";
         }
 
-        bool UpdateEntitySpawnflagCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> UpdateEntitySpawnflagCommand::doPerformDo(MapDocumentCommandFacade* document) {
             document->performUpdateSpawnflag(m_attributeName, m_flagIndex, m_setFlag);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool UpdateEntitySpawnflagCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> UpdateEntitySpawnflagCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performUpdateSpawnflag(m_attributeName, m_flagIndex, !m_setFlag);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool UpdateEntitySpawnflagCommand::doIsRepeatable(MapDocumentCommandFacade*) const {

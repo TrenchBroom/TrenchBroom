@@ -80,7 +80,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool ChangeEntityAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ChangeEntityAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             switch (m_action) {
                 case Action::Set:
                     m_snapshots = document->performSetAttribute(m_oldName, m_newValue);
@@ -92,13 +92,13 @@ namespace TrenchBroom {
                     m_snapshots = document->performRenameAttribute(m_oldName, m_newName);
                     break;
             };
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool ChangeEntityAttributesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ChangeEntityAttributesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->restoreAttributes(m_snapshots);
             m_snapshots.clear();
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool ChangeEntityAttributesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {

@@ -83,8 +83,8 @@ namespace TrenchBroom {
             static BrushVerticesMap brushVertexMap(const BrushEdgesMap& edges);
             static BrushVerticesMap brushVertexMap(const BrushFacesMap& faces);
         private:
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
             void restoreAndTakeNewSnapshot(MapDocumentCommandFacade* document);
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
         private:
@@ -95,6 +95,7 @@ namespace TrenchBroom {
         private:
             virtual bool doCanDoVertexOperation(const MapDocument* document) const = 0;
             virtual bool doVertexOperation(MapDocumentCommandFacade* document) = 0;
+            virtual std::unique_ptr<CommandResult> doCreateCommandResult(bool success);
         public:
             void removeHandles(VertexHandleManagerBase& manager);
             void addHandles(VertexHandleManagerBase& manager);

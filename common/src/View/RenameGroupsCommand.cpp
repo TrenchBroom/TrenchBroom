@@ -35,14 +35,14 @@ namespace TrenchBroom {
         DocumentCommand(Type, "Rename Groups"),
         m_newName(newName) {}
 
-        bool RenameGroupsCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> RenameGroupsCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_oldNames = document->performRenameGroups(m_newName);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool RenameGroupsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> RenameGroupsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performUndoRenameGroups(m_oldNames);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool RenameGroupsCommand::doIsRepeatable(MapDocumentCommandFacade*) const {

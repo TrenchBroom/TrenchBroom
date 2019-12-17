@@ -46,7 +46,7 @@ namespace TrenchBroom {
 
         CopyTexCoordSystemFromFaceCommand::~CopyTexCoordSystemFromFaceCommand() = default;
 
-        bool CopyTexCoordSystemFromFaceCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> CopyTexCoordSystemFromFaceCommand::doPerformDo(MapDocumentCommandFacade* document) {
             const std::vector<Model::BrushFace*> faces = document->allSelectedBrushFaces();
             assert(!faces.empty());
 
@@ -54,16 +54,16 @@ namespace TrenchBroom {
             m_snapshot = std::make_unique<Model::Snapshot>(std::begin(faces), std::end(faces));
 
             document->performCopyTexCoordSystemFromFace(*m_coordSystemSnapshot, m_attribs, m_sourceFacePlane, m_wrapStyle);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool CopyTexCoordSystemFromFaceCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> CopyTexCoordSystemFromFaceCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             assert(m_snapshot != nullptr);
 
             document->restoreSnapshot(m_snapshot.get());
             m_snapshot.reset();
 
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool CopyTexCoordSystemFromFaceCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {

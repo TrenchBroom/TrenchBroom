@@ -28,6 +28,16 @@
 
 namespace TrenchBroom {
     namespace View {
+        class CommandResult {
+        private:
+            bool m_success;
+        public:
+            CommandResult(bool success);
+            virtual ~CommandResult();
+
+            bool success() const;
+        };
+
         class Command {
         public:
             using CommandType = size_t;
@@ -60,9 +70,9 @@ namespace TrenchBroom {
             CommandState state() const;
             const std::string& name() const;
 
-            virtual bool performDo(MapDocumentCommandFacade* document);
+            virtual std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade* document);
         private:
-            virtual bool doPerformDo(MapDocumentCommandFacade* document) = 0;
+            virtual std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) = 0;
 
             deleteCopyAndMove(Command)
         };

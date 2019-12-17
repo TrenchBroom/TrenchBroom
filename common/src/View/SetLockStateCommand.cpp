@@ -57,14 +57,14 @@ namespace TrenchBroom {
             }
         }
 
-        bool SetLockStateCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SetLockStateCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_oldLockState = document->setLockState(m_nodes, m_lockState);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool SetLockStateCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SetLockStateCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->restoreLockState(m_oldLockState);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool SetLockStateCommand::doCollateWith(UndoableCommand*) {

@@ -123,7 +123,7 @@ namespace TrenchBroom {
             return result.str();
         }
 
-        bool SelectionCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_previouslySelectedNodes = document->selectedNodes().nodes();
             m_previouslySelectedFaceRefs = faceRefs(document->selectedBrushFaces());
 
@@ -153,16 +153,18 @@ namespace TrenchBroom {
                     document->performDeselectAll();
                     break;
             }
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool SelectionCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performDeselectAll();
-            if (!m_previouslySelectedNodes.empty())
+            if (!m_previouslySelectedNodes.empty()) {
                 document->performSelect(m_previouslySelectedNodes);
-            if (!m_previouslySelectedFaceRefs.empty())
+            }
+            if (!m_previouslySelectedFaceRefs.empty()) {
                 document->performSelect(resolveFaceRefs(m_previouslySelectedFaceRefs));
-            return true;
+            }
+            return std::make_unique<CommandResult>(true);
         }
 
         bool SelectionCommand::doIsRepeatDelimiter() const {

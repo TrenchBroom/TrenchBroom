@@ -30,6 +30,15 @@
 
 namespace TrenchBroom {
     namespace View {
+        class MoveBrushVerticesCommandResult : public CommandResult {
+        private:
+            bool m_hasRemainingVertices;
+        public:
+            MoveBrushVerticesCommandResult(bool success, bool hasRemainingVertices);
+
+            bool hasRemainingVertices() const;
+        };
+
         class MoveBrushVerticesCommand : public VertexCommand {
         public:
             static const CommandType Type;
@@ -42,11 +51,10 @@ namespace TrenchBroom {
             static std::unique_ptr<MoveBrushVerticesCommand> move(const VertexToBrushesMap& vertices, const vm::vec3& delta);
 
             MoveBrushVerticesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta);
-
-            bool hasRemainingVertices() const;
         private:
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doCreateCommandResult(bool success) override;
 
             bool doCollateWith(UndoableCommand* command) override;
 

@@ -57,7 +57,7 @@ namespace TrenchBroom {
             static std::unique_ptr<TransformObjectsCommand> flip(const vm::vec3& center, vm::axis::type axis, bool lockTextures);
 
             TransformObjectsCommand(Action action, const std::string& name, const vm::mat4x4& transform, bool lockTextures);
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
             std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;

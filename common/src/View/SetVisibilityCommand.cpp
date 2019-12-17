@@ -63,7 +63,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool SetVisibilityCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(MapDocumentCommandFacade* document) {
             switch (m_action) {
                 case Action::Reset:
                     m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Visibility_Inherited);
@@ -79,12 +79,12 @@ namespace TrenchBroom {
                     break;
                 switchDefault()
             }
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool SetVisibilityCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->restoreVisibilityState(m_oldState);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool SetVisibilityCommand::doCollateWith(UndoableCommand*) {

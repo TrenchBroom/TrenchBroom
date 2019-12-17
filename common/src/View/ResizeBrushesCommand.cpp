@@ -38,9 +38,9 @@ namespace TrenchBroom {
         m_faces(faces),
         m_delta(delta) {}
 
-        bool ResizeBrushesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ResizeBrushesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_newFaces = document->performResizeBrushes(m_faces, m_delta);
-            return !m_newFaces.empty();
+            return std::make_unique<CommandResult>(!m_newFaces.empty());
         }
 
 

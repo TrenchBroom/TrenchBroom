@@ -76,7 +76,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool AddRemoveNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             switch (m_action) {
                 case Action::Add:
                     document->performAddNodes(m_nodesToAdd);
@@ -89,10 +89,10 @@ namespace TrenchBroom {
             using std::swap;
             std::swap(m_nodesToAdd, m_nodesToRemove);
 
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool AddRemoveNodesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             switch (m_action) {
                 case Action::Add:
                     document->performRemoveNodes(m_nodesToRemove);
@@ -105,7 +105,7 @@ namespace TrenchBroom {
             using std::swap;
             std::swap(m_nodesToAdd, m_nodesToRemove);
 
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool AddRemoveNodesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {

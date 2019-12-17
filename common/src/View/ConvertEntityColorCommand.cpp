@@ -37,14 +37,14 @@ namespace TrenchBroom {
 
         ConvertEntityColorCommand::~ConvertEntityColorCommand() = default;
 
-        bool ConvertEntityColorCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ConvertEntityColorCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_snapshots = document->performConvertColorRange(m_attributeName, m_colorRange);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool ConvertEntityColorCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ConvertEntityColorCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->restoreAttributes(m_snapshots);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool ConvertEntityColorCommand::doIsRepeatable(MapDocumentCommandFacade*) const {

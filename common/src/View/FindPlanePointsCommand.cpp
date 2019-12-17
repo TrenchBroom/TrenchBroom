@@ -32,9 +32,9 @@ namespace TrenchBroom {
         FindPlanePointsCommand::FindPlanePointsCommand() :
         SnapshotCommand(Type, "Find Plane Points") {}
 
-        bool FindPlanePointsCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            document->performFindPlanePoints();
-            return true;
+        std::unique_ptr<CommandResult> FindPlanePointsCommand::doPerformDo(MapDocumentCommandFacade* document) {
+            const auto success = document->performFindPlanePoints();
+            return std::make_unique<CommandResult>(success);
         }
 
         bool FindPlanePointsCommand::doIsRepeatable(MapDocumentCommandFacade*) const {

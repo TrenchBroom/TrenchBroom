@@ -32,16 +32,16 @@ namespace TrenchBroom {
         DocumentCommand(Type, "Set Texture Collections"),
         m_paths(paths) {}
 
-        bool SetTextureCollectionsCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SetTextureCollectionsCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_oldPaths = document->enabledTextureCollections();
             document->performSetTextureCollections(m_paths);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool SetTextureCollectionsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SetTextureCollectionsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performSetTextureCollections(m_oldPaths);
             m_oldPaths.clear();
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool SetTextureCollectionsCommand::doIsRepeatable(MapDocumentCommandFacade*) const {

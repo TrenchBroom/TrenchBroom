@@ -36,11 +36,11 @@ namespace TrenchBroom {
             SnapshotCommand(CommandType type, const std::string& name);
             ~SnapshotCommand();
         public:
-            bool performDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
         private:
             void takeSnapshot(MapDocumentCommandFacade* document);
-            bool restoreSnapshot(MapDocumentCommandFacade* document);
+            std::unique_ptr<CommandResult> restoreSnapshot(MapDocumentCommandFacade* document);
             void deleteSnapshot();
         private:
             virtual std::unique_ptr<Model::Snapshot> doTakeSnapshot(MapDocumentCommandFacade* document) const;

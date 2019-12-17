@@ -38,21 +38,21 @@ namespace TrenchBroom {
             assert(factors.x() != 0.0f || factors.y() != 0.0f);
         }
 
-        bool ShearTexturesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ShearTexturesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             return shearTextures(document, m_factors);
         }
 
-        bool ShearTexturesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ShearTexturesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             return shearTextures(document, -m_factors);
         }
 
-        bool ShearTexturesCommand::shearTextures(MapDocumentCommandFacade* document, const vm::vec2f& factors) {
+        std::unique_ptr<CommandResult> ShearTexturesCommand::shearTextures(MapDocumentCommandFacade* document, const vm::vec2f& factors) {
             document->performShearTextures(factors);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool ShearTexturesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return true;
+        bool ShearTexturesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+            return document->hasSelectedBrushFaces();
         }
 
         std::unique_ptr<UndoableCommand> ShearTexturesCommand::doRepeat(MapDocumentCommandFacade*) const {

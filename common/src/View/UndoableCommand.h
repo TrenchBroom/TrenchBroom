@@ -37,7 +37,7 @@ namespace TrenchBroom {
         public:
             virtual ~UndoableCommand();
 
-            virtual bool performUndo(MapDocumentCommandFacade* document);
+            virtual std::unique_ptr<CommandResult> performUndo(MapDocumentCommandFacade* document);
 
             bool isRepeatDelimiter() const;
             bool isRepeatable(MapDocumentCommandFacade* document) const;
@@ -45,7 +45,7 @@ namespace TrenchBroom {
 
             virtual bool collateWith(UndoableCommand* command);
         private:
-            virtual bool doPerformUndo(MapDocumentCommandFacade* document) = 0;
+            virtual std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) = 0;
 
             virtual bool doIsRepeatDelimiter() const;
             virtual bool doIsRepeatable(MapDocumentCommandFacade* document) const = 0;

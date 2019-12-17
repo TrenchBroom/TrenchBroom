@@ -33,8 +33,8 @@ namespace TrenchBroom {
             DocumentCommand(CommandType type, const std::string& name);
             virtual ~DocumentCommand() override;
         public:
-            bool performDo(MapDocumentCommandFacade* document) override;
-            bool performUndo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> performUndo(MapDocumentCommandFacade* document) override;
             bool collateWith(UndoableCommand* command) override;
         private:
             size_t documentModificationCount() const override;

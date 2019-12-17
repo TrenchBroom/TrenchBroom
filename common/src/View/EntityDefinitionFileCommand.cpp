@@ -34,15 +34,15 @@ namespace TrenchBroom {
         DocumentCommand(Type, name),
         m_newSpec(spec) {}
 
-        bool EntityDefinitionFileCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> EntityDefinitionFileCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_oldSpec = document->entityDefinitionFile();
             document->performSetEntityDefinitionFile(m_newSpec);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool EntityDefinitionFileCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> EntityDefinitionFileCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performSetEntityDefinitionFile(m_oldSpec);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool EntityDefinitionFileCommand::doIsRepeatable(MapDocumentCommandFacade*) const {

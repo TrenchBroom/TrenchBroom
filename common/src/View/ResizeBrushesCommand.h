@@ -45,7 +45,7 @@ namespace TrenchBroom {
 
             ResizeBrushesCommand(const std::vector<vm::polygon3>& faces, const vm::vec3& delta);
         private:
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 

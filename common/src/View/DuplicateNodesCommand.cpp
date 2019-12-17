@@ -43,7 +43,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool DuplicateNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> DuplicateNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             if (m_firstExecution) {
                 std::map<Model::Node*, Model::Node*> newParentMap;
 
@@ -82,14 +82,14 @@ namespace TrenchBroom {
             document->performAddNodes(m_addedNodes);
             document->performDeselectAll();
             document->performSelect(m_nodesToSelect);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool DuplicateNodesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> DuplicateNodesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performDeselectAll();
             document->performRemoveNodes(m_addedNodes);
             document->performSelect(m_previouslySelectedNodes);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         class DuplicateNodesCommand::CloneParentQuery : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {

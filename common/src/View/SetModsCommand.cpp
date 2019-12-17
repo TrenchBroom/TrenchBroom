@@ -36,15 +36,15 @@ namespace TrenchBroom {
         DocumentCommand(Type, name),
         m_newMods(mods) {}
 
-        bool SetModsCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SetModsCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_oldMods = document->mods();
             document->performSetMods(m_newMods);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool SetModsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SetModsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performSetMods(m_oldMods);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool SetModsCommand::doIsRepeatable(MapDocumentCommandFacade*) const {

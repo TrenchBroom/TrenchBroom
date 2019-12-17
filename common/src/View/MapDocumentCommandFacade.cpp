@@ -995,19 +995,19 @@ namespace TrenchBroom {
         }
 
         bool MapDocumentCommandFacade::doCanUndoLastCommand() const {
-            return m_commandProcessor->hasLastCommand();
+            return m_commandProcessor->canUndo();
         }
 
         bool MapDocumentCommandFacade::doCanRedoNextCommand() const {
-            return m_commandProcessor->hasNextCommand();
+            return m_commandProcessor->canRedo();
         }
 
         const std::string& MapDocumentCommandFacade::doGetLastCommandName() const {
-            return m_commandProcessor->lastCommandName();
+            return m_commandProcessor->undoCommandName();
         }
 
         const std::string& MapDocumentCommandFacade::doGetNextCommandName() const {
-            return m_commandProcessor->nextCommandName();
+            return m_commandProcessor->redoCommandName();
         }
 
         void MapDocumentCommandFacade::doUndoLastCommand() {
@@ -1022,7 +1022,7 @@ namespace TrenchBroom {
             return m_commandProcessor->hasRepeatableCommands();
         }
 
-        bool MapDocumentCommandFacade::doRepeatLastCommands() {
+        std::unique_ptr<CommandResult> MapDocumentCommandFacade::doRepeatLastCommands() {
             return m_commandProcessor->repeatLastCommands();
         }
 
@@ -1031,23 +1031,23 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::doBeginTransaction(const std::string& name) {
-            m_commandProcessor->beginGroup(name);
+            m_commandProcessor->startTransaction(name);
         }
 
         void MapDocumentCommandFacade::doEndTransaction() {
-            m_commandProcessor->endGroup();
+            m_commandProcessor->commitTransaction();
         }
 
         void MapDocumentCommandFacade::doRollbackTransaction() {
-            m_commandProcessor->rollbackGroup();
+            m_commandProcessor->rollbackTransaction();
         }
 
-        bool MapDocumentCommandFacade::doSubmit(std::unique_ptr<Command>&& command) {
-            return m_commandProcessor->submitCommand(std::move(command));
+        std::unique_ptr<CommandResult> MapDocumentCommandFacade::doExecute(std::unique_ptr<Command>&& command) {
+            return m_commandProcessor->executeCommand(std::move(command));
         }
 
-        bool MapDocumentCommandFacade::doSubmitAndStore(std::unique_ptr<UndoableCommand>&& command) {
-            return m_commandProcessor->submitAndStoreCommand(std::move(command));
+        std::unique_ptr<CommandResult> MapDocumentCommandFacade::doExecuteAndStore(std::unique_ptr<UndoableCommand>&& command) {
+            return m_commandProcessor->executeAndStoreCommand(std::move(command));
         }
     }
 }

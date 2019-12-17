@@ -39,7 +39,7 @@ namespace TrenchBroom {
 
         ChangeBrushFaceAttributesCommand::~ChangeBrushFaceAttributesCommand() = default;
 
-        bool ChangeBrushFaceAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ChangeBrushFaceAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             const std::vector<Model::BrushFace*> faces = document->allSelectedBrushFaces();
             assert(!faces.empty());
 
@@ -47,16 +47,16 @@ namespace TrenchBroom {
             m_snapshot = std::make_unique<Model::Snapshot>(std::begin(faces), std::end(faces));
 
             document->performChangeBrushFaceAttributes(m_request);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool ChangeBrushFaceAttributesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ChangeBrushFaceAttributesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             assert(m_snapshot != nullptr);
 
             document->restoreSnapshot(m_snapshot.get());
             m_snapshot.reset();
 
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool ChangeBrushFaceAttributesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {

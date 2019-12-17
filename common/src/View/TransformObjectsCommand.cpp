@@ -66,8 +66,9 @@ namespace TrenchBroom {
         m_transform(transform),
         m_lockTextures(lockTextures) {}
 
-        bool TransformObjectsCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            return document->performTransform(m_transform, m_lockTextures);
+        std::unique_ptr<CommandResult> TransformObjectsCommand::doPerformDo(MapDocumentCommandFacade* document) {
+            const auto success = document->performTransform(m_transform, m_lockTextures);
+            return std::make_unique<CommandResult>(success);
         }
 
         bool TransformObjectsCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {

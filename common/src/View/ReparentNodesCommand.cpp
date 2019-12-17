@@ -35,16 +35,16 @@ namespace TrenchBroom {
         m_nodesToAdd(nodesToAdd),
         m_nodesToRemove(nodesToRemove) {}
 
-        bool ReparentNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             document->performRemoveNodes(m_nodesToRemove);
             document->performAddNodes(m_nodesToAdd);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool ReparentNodesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performRemoveNodes(m_nodesToAdd);
             document->performAddNodes(m_nodesToRemove);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool ReparentNodesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {

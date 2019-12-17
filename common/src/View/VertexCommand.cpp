@@ -125,23 +125,24 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool VertexCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> VertexCommand::doPerformDo(MapDocumentCommandFacade* document) {
             if (m_snapshot != nullptr) {
                 restoreAndTakeNewSnapshot(document);
-                return true;
+                return doCreateCommandResult(true);
             } else {
                 if (!doCanDoVertexOperation(document)) {
-                    return false;
+                    return doCreateCommandResult(false);
                 }
 
                 takeSnapshot();
-                return doVertexOperation(document);
+                const auto success = doVertexOperation(document);
+                return doCreateCommandResult(success);
             }
         }
 
-        bool VertexCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> VertexCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             restoreAndTakeNewSnapshot(document);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         void VertexCommand::restoreAndTakeNewSnapshot(MapDocumentCommandFacade* document) {
@@ -168,6 +169,10 @@ namespace TrenchBroom {
 
         bool VertexCommand::canCollateWith(const VertexCommand& other) const {
             return m_brushes == other.m_brushes;
+        }
+
+        std::unique_ptr<CommandResult> VertexCommand::doCreateCommandResult(const bool success) {
+            return std::make_unique<CommandResult>(success);
         }
 
         void VertexCommand::removeHandles(VertexHandleManagerBase& manager) {

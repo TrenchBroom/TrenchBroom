@@ -131,15 +131,15 @@ namespace TrenchBroom {
             void doUndoLastCommand() override;
             void doRedoNextCommand() override;
             bool doHasRepeatableCommands() const override;
-            bool doRepeatLastCommands() override;
+            std::unique_ptr<CommandResult> doRepeatLastCommands() override;
             void doClearRepeatableCommands() override;
 
             void doBeginTransaction(const std::string& name) override;
             void doEndTransaction() override;
             void doRollbackTransaction() override;
 
-            bool doSubmit(std::unique_ptr<Command>&& command) override;
-            bool doSubmitAndStore(std::unique_ptr<UndoableCommand>&& command) override;
+            std::unique_ptr<CommandResult> doExecute(std::unique_ptr<Command>&& command) override;
+            std::unique_ptr<CommandResult> doExecuteAndStore(std::unique_ptr<UndoableCommand>&& command) override;
         };
     }
 }

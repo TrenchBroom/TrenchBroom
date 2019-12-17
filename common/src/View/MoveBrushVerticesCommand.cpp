@@ -32,6 +32,14 @@
 
 namespace TrenchBroom {
     namespace View {
+        MoveBrushVerticesCommandResult::MoveBrushVerticesCommandResult(const bool success, const bool hasRemainingVertices) :
+        CommandResult(success),
+        m_hasRemainingVertices(hasRemainingVertices) {}
+
+        bool MoveBrushVerticesCommandResult::hasRemainingVertices() const {
+            return m_hasRemainingVertices;
+        }
+
         const Command::CommandType MoveBrushVerticesCommand::Type = Command::freeType();
 
         std::unique_ptr<MoveBrushVerticesCommand> MoveBrushVerticesCommand::move(const VertexToBrushesMap& vertices, const vm::vec3& delta) {
@@ -51,10 +59,6 @@ namespace TrenchBroom {
             assert(!vm::is_zero(m_delta, vm::C::almost_zero()));
         }
 
-        bool MoveBrushVerticesCommand::hasRemainingVertices() const {
-            return !m_newVertexPositions.empty();
-        }
-
         bool MoveBrushVerticesCommand::doCanDoVertexOperation(const MapDocument* document) const {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
@@ -69,6 +73,10 @@ namespace TrenchBroom {
         bool MoveBrushVerticesCommand::doVertexOperation(MapDocumentCommandFacade* document) {
             m_newVertexPositions = document->performMoveVertices(m_vertices, m_delta);
             return true;
+        }
+
+        std::unique_ptr<CommandResult> MoveBrushVerticesCommand::doCreateCommandResult(const bool success) {
+            return std::make_unique<MoveBrushVerticesCommandResult>(success, !m_newVertexPositions.empty());
         }
 
         bool MoveBrushVerticesCommand::doCollateWith(UndoableCommand* command) {

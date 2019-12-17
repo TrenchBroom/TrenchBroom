@@ -23,6 +23,15 @@
 
 namespace TrenchBroom {
     namespace View {
+        CommandResult::CommandResult(const bool success) :
+        m_success(success) {}
+
+        CommandResult::~CommandResult() = default;
+
+        bool CommandResult::success() const {
+            return m_success;
+        }
+
         Command::CommandType Command::freeType() {
             static CommandType type = 1;
             return type++;
@@ -51,15 +60,15 @@ namespace TrenchBroom {
             return m_name;
         }
 
-        bool Command::performDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> Command::performDo(MapDocumentCommandFacade* document) {
             m_state = CommandState::Doing;
-            if (doPerformDo(document)) {
+            auto result = doPerformDo(document);
+            if (result->success()) {
                 m_state = CommandState::Done;
-                return true;
             } else {
                 m_state = CommandState::Default;
-                return false;
             }
+            return result;
         }
     }
 }

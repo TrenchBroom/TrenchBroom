@@ -34,8 +34,9 @@ namespace TrenchBroom {
         SnapshotCommand(Type, "Snap Brush Vertices"),
         m_snapTo(snapTo) {}
 
-        bool SnapBrushVerticesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            return document->performSnapVertices(m_snapTo);
+        std::unique_ptr<CommandResult> SnapBrushVerticesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+            const auto success = document->performSnapVertices(m_snapTo);
+            return std::make_unique<CommandResult>(success);
         }
 
         bool SnapBrushVerticesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {

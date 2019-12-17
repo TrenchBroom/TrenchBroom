@@ -31,17 +31,16 @@ namespace TrenchBroom {
 
         SnapshotCommand::~SnapshotCommand() = default;
 
-        bool SnapshotCommand::performDo(MapDocumentCommandFacade *document) {
+        std::unique_ptr<CommandResult> SnapshotCommand::performDo(MapDocumentCommandFacade *document) {
             takeSnapshot(document);
-            if (DocumentCommand::performDo(document)) {
-                return true;
-            } else {
+            auto result = DocumentCommand::performDo(document);
+            if (!result->success()) {
                 deleteSnapshot();
-                return false;
             }
+            return result;
         }
 
-        bool SnapshotCommand::doPerformUndo(MapDocumentCommandFacade *document) {
+        std::unique_ptr<CommandResult> SnapshotCommand::doPerformUndo(MapDocumentCommandFacade *document) {
             return restoreSnapshot(document);
         }
 
@@ -50,11 +49,11 @@ namespace TrenchBroom {
             m_snapshot = doTakeSnapshot(document);
         }
 
-        bool SnapshotCommand::restoreSnapshot(MapDocumentCommandFacade *document) {
+        std::unique_ptr<CommandResult> SnapshotCommand::restoreSnapshot(MapDocumentCommandFacade *document) {
             ensure(m_snapshot != nullptr, "snapshot is null");
             document->restoreSnapshot(m_snapshot.get());
             deleteSnapshot();
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         void SnapshotCommand::deleteSnapshot() {

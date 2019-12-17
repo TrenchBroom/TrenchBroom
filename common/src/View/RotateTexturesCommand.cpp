@@ -34,21 +34,21 @@ namespace TrenchBroom {
         DocumentCommand(Type, "Move Textures"),
         m_angle(angle) {}
 
-        bool RotateTexturesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> RotateTexturesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             return rotateTextures(document, m_angle);
         }
 
-        bool RotateTexturesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> RotateTexturesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             return rotateTextures(document, -m_angle);
         }
 
-        bool RotateTexturesCommand::rotateTextures(MapDocumentCommandFacade* document, const float angle) const {
+        std::unique_ptr<CommandResult> RotateTexturesCommand::rotateTextures(MapDocumentCommandFacade* document, const float angle) const {
             document->performRotateTextures(angle);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool RotateTexturesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return true;
+        bool RotateTexturesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+            return document->hasSelectedBrushFaces();
         }
 
         std::unique_ptr<UndoableCommand> RotateTexturesCommand::doRepeat(MapDocumentCommandFacade*) const {
