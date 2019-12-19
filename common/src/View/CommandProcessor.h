@@ -29,6 +29,17 @@
 
 namespace TrenchBroom {
     namespace View {
+
+        /**
+         * The command processor is responsible for executing and undoing commands and for maintining the command
+         * history in the form of a stack of undo commands and a stack of redo commands.
+         *
+         * Furthermore, the command processor allows for repeating commands if they are repeatable. It manages a list
+         * of repeatable commands automatically, and can repeat them while keeping the command history consistent.
+         *
+         * The command processor supports nested transactions. Each transaction can be committed or rolled back
+         * individually. Committing a nested transaction adds it as a command to the containing transaction.
+         */
         class CommandProcessor {
         private:
             static const int64_t CollationInterval;
@@ -60,20 +71,12 @@ namespace TrenchBroom {
              */
             int64_t m_lastCommandTimestamp;
 
-            /**
-             * The name of the currently executed transaction.
-             */
-            std::string m_transactionName;
+            struct TransactionState;
 
             /**
-             * The commands which belong to the currently executed transaction.
+             * Holds the states of the currently executing transitions.
              */
-            std::vector<std::unique_ptr<UndoableCommand>> m_transactionCommands;
-
-            /**
-             * The nesting depth of the currently executed transactions.
-             */
-            size_t m_transactionLevel;
+            std::vector<TransactionState> m_transactionStack;
 
             struct SubmitAndStoreResult;
             class TransactionCommand;
@@ -85,6 +88,8 @@ namespace TrenchBroom {
              * @param document the document to pass to commands, may be null
              */
             explicit CommandProcessor(MapDocumentCommandFacade* document);
+
+            ~CommandProcessor();
 
             /**
              * Notifies observers when a command is going to be executed.
@@ -148,30 +153,31 @@ namespace TrenchBroom {
             const std::string& redoCommandName() const;
 
             /**
-             * Starts a new transaction if none is currently executing. If a transaction is already executing,
-             * then nothing happens, but it is required to call `commitTransaction` the same number of times that
-             * `startTransaction` was called in order to commit the currently executing transaction.
+             * Starts a new transaction. If a transaction is currently executing, then the newly started transaction
+             * becomes a nested transaction and will be added as a command to its parent transaction upon commit.
              *
              * @param name the name of the transaction to start
              */
             void startTransaction(const std::string& name = "");
 
             /**
-             * Commits the currently executing transaction if all nested transactions have been committed. Let `S` be
-             * the number of times that `startTransaction` has been called, and let `C` be the number of times that
-             * `commitTransaction` has been called. Then the current transaction is committed if and only if `S`-`C` = 1
-             * before `commitTransaction` is called.
+             * Commits the currently executing transaction. If it is a nested transaction, then its commands will be
+             * added to the containing transaction as a single command.
              *
              * If the current transaction does not contain any commands, then the transaction ends, but nothing
              * will be stored in the command processor.
              *
-             * @throws CommandProcessorException If `S` = `C` before `commitTransaction` is called
+             * @throws CommandProcessorException if no transaction is currently executing
              */
             void commitTransaction();
 
             /**
              * Rolls the currently executing transaction back by undoing all commands that belong to the transaction.
-             * The transaction does not end when it is rolled back, rather, it remains executing.
+             * The transaction does not end when it is rolled back, rather, it remains executing. To end a transaction
+             * after it was rolled back, call `commitTransaction`. Since the transaction will be empty, committing it
+             * will just do nothing but remove the transaction itself.
+             *
+             * @throws CommandProcessorException if no transaction is currently executing
              */
             void rollbackTransaction();
 
@@ -323,18 +329,6 @@ namespace TrenchBroom {
              * @return true if the given command was stored, and false if it was not stored
              */
             bool pushTransactionCommand(std::unique_ptr<UndoableCommand> command, bool collate);
-
-            /**
-             * Pops the last command that was added to the currently executing transaction and returns.
-             *
-             * Precondition: a transaction is currently executing
-             *
-             * @return the command
-             *
-             * @throws CommandProcessorException if no command has been stored in the currently executing transaction
-             * yet
-             */
-            std::unique_ptr<UndoableCommand> popTransactionCommand();
 
             /**
              * Creates a new transaction containing all commands which were stored in the scope of the current

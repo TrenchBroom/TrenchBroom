@@ -375,7 +375,6 @@ namespace TrenchBroom {
             "Menu/File/Reload Texture Collections",
             "Menu/File/Reload Entity Definitions",
             "Menu/Edit/Repeat",
-            "Menu/Edit/Clear Repeatable Commands",
             "Menu/Edit/Paste at Original Position",
             "Menu/Edit/Duplicate",
             "Menu/Edit/Delete",
