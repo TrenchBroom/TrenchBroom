@@ -124,18 +124,17 @@ namespace TrenchBroom {
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
         private: // implement MapDocument interface
-            bool doCanUndoLastCommand() const override;
-            bool doCanRedoNextCommand() const override;
-            const std::string& doGetLastCommandName() const override;
-            const std::string& doGetNextCommandName() const override;
-            void doUndoLastCommand() override;
-            void doRedoNextCommand() override;
-            bool doHasRepeatableCommands() const override;
-            std::unique_ptr<CommandResult> doRepeatLastCommands() override;
-            void doClearRepeatableCommands() override;
+            bool doCanUndoCommand() const override;
+            bool doCanRedoCommand() const override;
+            const std::string& doGetUndoCommandName() const override;
+            const std::string& doGetRedoCommandName() const override;
+            void doUndoCommand() override;
+            void doRedoCommand() override;
+            bool doCanRepeatCommands() const override;
+            std::unique_ptr<CommandResult> doRepeatCommands() override;
 
-            void doBeginTransaction(const std::string& name) override;
-            void doEndTransaction() override;
+            void doStartTransaction(const std::string& name) override;
+            void doCommitTransaction() override;
             void doRollbackTransaction() override;
 
             std::unique_ptr<CommandResult> doExecute(std::unique_ptr<Command>&& command) override;

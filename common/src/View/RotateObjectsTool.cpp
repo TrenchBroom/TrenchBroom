@@ -93,7 +93,7 @@ namespace TrenchBroom {
 
         void RotateObjectsTool::beginRotation() {
             auto document = lock(m_document);
-            document->beginTransaction("Rotate Objects");
+            document->startTransaction("Rotate Objects");
         }
 
         void RotateObjectsTool::commitRotation() {

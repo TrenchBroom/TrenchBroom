@@ -49,18 +49,29 @@ namespace TrenchBroom {
             MOCK_METHOD1(commandUndoFailed, void(UndoableCommand*));
             MOCK_METHOD1(transactionDone, void(const std::string&));
             MOCK_METHOD1(transactionUndone, void(const std::string&));
+
+            void expectTransactionDone(const std::string& name) {
+                EXPECT_CALL(*this, transactionDone(name)).RetiresOnSaturation();
+            }
+
+            void expectTransactionUndone(const std::string& name) {
+                EXPECT_CALL(*this, transactionUndone(name)).RetiresOnSaturation();
+            }
         };
 
         class TestCommand : public UndoableCommand {
+        private:
+            bool m_isRepeatDelimiter;
         public:
             static const CommandType Type;
 
-            static std::unique_ptr<TestCommand> create(const std::string& name) {
-                return std::make_unique<TestCommand>(name);
+            static std::unique_ptr<TestCommand> create(const std::string& name, const bool isRepeatDelimiter) {
+                return std::make_unique<TestCommand>(name, isRepeatDelimiter);
             }
 
-            TestCommand(const std::string& name) :
-            UndoableCommand(Type, name) {}
+            explicit TestCommand(const std::string& name, const bool isRepeatDelimiter) :
+            UndoableCommand(Type, name),
+            m_isRepeatDelimiter(isRepeatDelimiter) {}
         private:
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override {
                 return std::make_unique<CommandResult>(doPerformDoProxy(document));
@@ -70,6 +81,10 @@ namespace TrenchBroom {
                 return std::make_unique<CommandResult>(doPerformUndoProxy(document));
             }
 
+            bool doIsRepeatDelimiter() const override {
+                return m_isRepeatDelimiter;
+            }
+
             std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override {
                 return std::unique_ptr<UndoableCommand>(doRepeatProxy(document));
             }
@@ -77,7 +92,6 @@ namespace TrenchBroom {
             MOCK_METHOD1(doPerformDoProxy, bool(MapDocumentCommandFacade*));
             MOCK_METHOD1(doPerformUndoProxy, bool(MapDocumentCommandFacade*));
 
-            MOCK_CONST_METHOD0(doIsRepeatDelimiter, bool());
             MOCK_CONST_METHOD1(doIsRepeatable, bool(MapDocumentCommandFacade*));
             MOCK_CONST_METHOD1(doRepeatProxy, UndoableCommand*(MapDocumentCommandFacade*));
 
@@ -86,52 +100,47 @@ namespace TrenchBroom {
             void expectDo(const bool success, TestObserver& observer) {
                 using namespace ::testing;
 
-                EXPECT_CALL(observer, commandDo(this)).Times(1);
-                EXPECT_CALL(*this, doPerformDoProxy(nullptr)).Times(1).WillOnce(Return(success));
+                EXPECT_CALL(observer, commandDo(this)).RetiresOnSaturation();
+                EXPECT_CALL(*this, doPerformDoProxy(nullptr)).WillOnce(Return(success)).RetiresOnSaturation();
 
                 if (success) {
-                    EXPECT_CALL(observer, commandDone(this)).Times(1);
+                    EXPECT_CALL(observer, commandDone(this)).RetiresOnSaturation();
                 } else {
-                    EXPECT_CALL(observer, commandDoFailed(this)).Times(1);
+                    EXPECT_CALL(observer, commandDoFailed(this)).RetiresOnSaturation();
                 }
             }
 
             void expectUndo(const bool success, TestObserver& observer) {
                 using namespace ::testing;
 
-                EXPECT_CALL(observer, commandUndo(this)).Times(1);
-                EXPECT_CALL(*this, doPerformUndoProxy(nullptr)).Times(1).WillOnce(Return(success));
+                EXPECT_CALL(observer, commandUndo(this)).RetiresOnSaturation();
+                EXPECT_CALL(*this, doPerformUndoProxy(nullptr)).WillOnce(Return(success)).RetiresOnSaturation();
 
                 if (success) {
-                    EXPECT_CALL(observer, commandUndone(this)).Times(1);
+                    EXPECT_CALL(observer, commandUndone(this)).RetiresOnSaturation();
                 } else {
-                    EXPECT_CALL(observer, commandUndoFailed(this)).Times(1);
+                    EXPECT_CALL(observer, commandUndoFailed(this)).RetiresOnSaturation();
                 }
             }
 
             void expectCollate(UndoableCommand* command, const bool canCollate) {
                 using namespace ::testing;
 
-                EXPECT_CALL(*this, doCollateWith(command)).Times(1).WillOnce(Return(canCollate));
+                EXPECT_CALL(*this, doCollateWith(command)).WillOnce(Return(canCollate)).RetiresOnSaturation();
             }
 
             TestCommand* expectRepeat(const bool repeatable, const std::string& repeatCommandName = "") {
                 using namespace ::testing;
 
-                EXPECT_CALL(*this, doIsRepeatable(nullptr)).Times(1).WillOnce(Return(repeatable));
+                EXPECT_CALL(*this, doIsRepeatable(nullptr)).WillOnce(Return(repeatable)).RetiresOnSaturation();
 
                 if (repeatable) {
-                    auto* repeatCommand = new TestCommand(repeatCommandName);
-                    EXPECT_CALL(*this, doRepeatProxy(nullptr)).Times(1).WillOnce(Return(repeatCommand));
+                    auto* repeatCommand = new TestCommand(repeatCommandName, false);
+                    EXPECT_CALL(*this, doRepeatProxy(nullptr)).WillOnce(Return(repeatCommand)).RetiresOnSaturation();
                     return repeatCommand;
                 } else {
                     return nullptr;
                 }
-            }
-
-            void delimitRepeats(const bool delimit) {
-                using namespace ::testing;
-                EXPECT_CALL(*this, doIsRepeatDelimiter()).Times(1).WillOnce(Return(delimit));
             }
 
             deleteCopyAndMove(TestCommand)
@@ -144,30 +153,29 @@ namespace TrenchBroom {
              * Execute a successful command, then undo it successfully.
              */
 
-            using namespace ::testing;
-            InSequence s;
-
             CommandProcessor commandProcessor(nullptr);
             TestObserver observer(commandProcessor);
 
             const auto commandName = "test command";
-            auto command = TestCommand::create(commandName);
+            auto command = TestCommand::create(commandName, false);
             command->expectDo(true, observer);
-            command->delimitRepeats(false);
-            command->expectUndo(true, observer);
+            observer.expectTransactionDone(commandName);
 
-            const auto doResult = commandProcessor.executeAndStoreCommand(std::move(command));
+            command->expectUndo(true, observer);
+            observer.expectTransactionUndone(commandName);
+
+            const auto doResult = commandProcessor.executeAndStore(std::move(command));
             ASSERT_TRUE(doResult->success());
             ASSERT_TRUE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.hasRepeatableCommands());
+            ASSERT_TRUE(commandProcessor.canRepeat());
             ASSERT_EQ(commandName, commandProcessor.undoCommandName());
 
-            const auto undoResult = commandProcessor.undoLastCommand();
+            const auto undoResult = commandProcessor.undo();
             ASSERT_TRUE(undoResult->success());
             ASSERT_FALSE(commandProcessor.canUndo());
             ASSERT_TRUE(commandProcessor.canRedo());
-            ASSERT_FALSE(commandProcessor.hasRepeatableCommands());
+            ASSERT_FALSE(commandProcessor.canRepeat());
 
             ASSERT_EQ(commandName, commandProcessor.redoCommandName());
         }
@@ -177,30 +185,28 @@ namespace TrenchBroom {
              * Execute a successful command, then undo fails.
              */
 
-            using namespace ::testing;
-            InSequence s;
-
             CommandProcessor commandProcessor(nullptr);
             TestObserver observer(commandProcessor);
 
             const auto commandName = "test command";
-            auto command = TestCommand::create(commandName);
+            auto command = TestCommand::create(commandName, false);
             command->expectDo(true, observer);
-            command->delimitRepeats(false);
+            observer.expectTransactionDone(commandName);
+
             command->expectUndo(false, observer);
 
-            const auto doResult = commandProcessor.executeAndStoreCommand(std::move(command));
+            const auto doResult = commandProcessor.executeAndStore(std::move(command));
             ASSERT_TRUE(doResult->success());
             ASSERT_TRUE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.hasRepeatableCommands());
+            ASSERT_TRUE(commandProcessor.canRepeat());
             ASSERT_EQ(commandName, commandProcessor.undoCommandName());
 
-            const auto undoResult = commandProcessor.undoLastCommand();
+            const auto undoResult = commandProcessor.undo();
             ASSERT_FALSE(undoResult->success());
             ASSERT_FALSE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_FALSE(commandProcessor.hasRepeatableCommands());
+            ASSERT_FALSE(commandProcessor.canRepeat());
         }
 
         TEST(CommandProcessorTest, doFailingCommand) {
@@ -208,123 +214,158 @@ namespace TrenchBroom {
              * Execute a failing command.
              */
 
-            using namespace ::testing;
-            InSequence s;
-
             CommandProcessor commandProcessor(nullptr);
             TestObserver observer(commandProcessor);
 
             const auto commandName = "test command";
-            auto command = TestCommand::create(commandName);
+            auto command = TestCommand::create(commandName, false);
             command->expectDo(false, observer);
 
-            const auto doResult = commandProcessor.executeAndStoreCommand(std::move(command));
+            const auto doResult = commandProcessor.executeAndStore(std::move(command));
             ASSERT_FALSE(doResult->success());
 
             ASSERT_FALSE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_FALSE(commandProcessor.hasRepeatableCommands());
+            ASSERT_FALSE(commandProcessor.canRepeat());
         }
 
         TEST(CommandProcessorTest, repeatAndUndoSingleCommand) {
             /*
-             * Execute a successful command, then repeat it succesfully, and undo the repeated command
+             * Execute a successful command, then repeat it successfully, and undo the repeated command
              * successfully, too.
              */
-
-            using namespace ::testing;
-            InSequence s;
 
             CommandProcessor commandProcessor(nullptr);
             TestObserver observer(commandProcessor);
 
             const auto commandName = "test command";
-            auto command = TestCommand::create(commandName);
+            auto command = TestCommand::create(commandName, false);
             command->expectDo(true, observer);
-            command->delimitRepeats(false);
+            observer.expectTransactionDone(commandName);
 
             const auto repeatCommandName = "repeated command";
             auto* repeatCommand = command->expectRepeat(true, repeatCommandName);
             repeatCommand->expectDo(true, observer);
-            repeatCommand->delimitRepeats(false);
+            observer.expectTransactionDone(repeatCommandName);
+
             repeatCommand->expectUndo(true, observer);
+            observer.expectTransactionUndone(repeatCommandName);
 
-            commandProcessor.executeAndStoreCommand(std::move(command));
-            ASSERT_TRUE(commandProcessor.hasRepeatableCommands());
+            commandProcessor.executeAndStore(std::move(command));
+            ASSERT_TRUE(commandProcessor.canRepeat());
 
-            const auto repeatResult = commandProcessor.repeatLastCommands();
+            const auto repeatResult = commandProcessor.repeat();
             ASSERT_TRUE(repeatResult->success());
 
             ASSERT_TRUE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.hasRepeatableCommands());
+            ASSERT_TRUE(commandProcessor.canRepeat());
 
             ASSERT_EQ(repeatCommandName, commandProcessor.undoCommandName());
 
-            const auto undoResult = commandProcessor.undoLastCommand();
+            const auto undoResult = commandProcessor.undo();
             ASSERT_TRUE(undoResult->success());
 
             ASSERT_TRUE(commandProcessor.canUndo());
             ASSERT_TRUE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.hasRepeatableCommands());
+            ASSERT_TRUE(commandProcessor.canRepeat());
 
             ASSERT_EQ(commandName, commandProcessor.undoCommandName());
             ASSERT_EQ(repeatCommandName, commandProcessor.redoCommandName());
         }
 
-        TEST(CommandProcessorTest, repeatAndUndoMultipleCommands) {
+
+        TEST(CommandProcessorTest, repeatSingleCommandTwice) {
             /*
-             * Execute two successful commands, then repeat them succesfully, and undo the repeated commands
-             * successfully, too.
+             * Execute a successful command, then repeat it successfully two times
              */
 
-            using namespace ::testing;
-            InSequence s;
+            CommandProcessor commandProcessor(nullptr);
+            TestObserver observer(commandProcessor);
+
+            const auto commandName = "test command";
+            auto command = TestCommand::create(commandName, false);
+            command->expectDo(true, observer);
+            observer.expectTransactionDone(commandName);
+
+            const auto repeatCommandName1 = "repeated command 1";
+            auto* repeatCommand1 = command->expectRepeat(true, repeatCommandName1);
+            repeatCommand1->expectDo(true, observer);
+            observer.expectTransactionDone(repeatCommandName1);
+
+            const auto repeatCommandName2 = "repeated command 2";
+            auto* repeatCommand2 = command->expectRepeat(true, repeatCommandName2);
+            repeatCommand2->expectDo(true, observer);
+            observer.expectTransactionDone(repeatCommandName2);
+
+            commandProcessor.executeAndStore(std::move(command));
+            ASSERT_TRUE(commandProcessor.canRepeat());
+
+            const auto repeatResult1 = commandProcessor.repeat();
+            ASSERT_TRUE(repeatResult1->success());
+
+            ASSERT_TRUE(commandProcessor.canUndo());
+            ASSERT_FALSE(commandProcessor.canRedo());
+            ASSERT_TRUE(commandProcessor.canRepeat());
+
+            const auto repeatResult2 = commandProcessor.repeat();
+            ASSERT_TRUE(repeatResult2->success());
+
+            ASSERT_TRUE(commandProcessor.canUndo());
+            ASSERT_FALSE(commandProcessor.canRedo());
+            ASSERT_TRUE(commandProcessor.canRepeat());
+        }
+
+        TEST(CommandProcessorTest, repeatAndUndoMultipleCommands) {
+            /*
+             * Execute two successful commands, then repeat them successfully, and undo the repeated commands
+             * successfully, too.
+             */
 
             CommandProcessor commandProcessor(nullptr);
             TestObserver observer(commandProcessor);
 
             const auto commandName1 = "test command 1";
-            auto command1 = TestCommand::create(commandName1);
+            auto command1 = TestCommand::create(commandName1, false);
             command1->expectDo(true, observer);
-            command1->delimitRepeats(false);
+            observer.expectTransactionDone(commandName1);
 
             const auto commandName2 = "test command 2";
-            auto command2 = TestCommand::create(commandName2);
+            auto command2 = TestCommand::create(commandName2, false);
             command2->expectDo(true, observer);
             command1->expectCollate(command2.get(), false);
-            command2->delimitRepeats(false);
-
-            auto* rawCommand1 = command1.get();
-            auto* rawCommand2 = command2.get();
-
-            commandProcessor.executeAndStoreCommand(std::move(command1));
-            commandProcessor.executeAndStoreCommand(std::move(command2));
+            observer.expectTransactionDone(commandName2);
 
             const auto repeatCommandName1 = "repeated command 1";
             const auto repeatCommandName2 = "repeated command 2";
-            auto* repeatCommand1 = rawCommand1->expectRepeat(true, repeatCommandName1);
-            auto* repeatCommand2 = rawCommand2->expectRepeat(true, repeatCommandName2);
+            auto* repeatCommand1 = command1->expectRepeat(true, repeatCommandName1);
+            auto* repeatCommand2 = command2->expectRepeat(true, repeatCommandName2);
 
             repeatCommand1->expectDo(true, observer);
             repeatCommand2->expectDo(true, observer);
+            observer.expectTransactionDone("Repeat 2 Commands");
 
-            const auto repeatResult = commandProcessor.repeatLastCommands();
+
+            commandProcessor.executeAndStore(std::move(command1));
+            commandProcessor.executeAndStore(std::move(command2));
+
+            const auto repeatResult = commandProcessor.repeat();
             ASSERT_TRUE(repeatResult->success());
 
             ASSERT_TRUE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.hasRepeatableCommands());
+            ASSERT_TRUE(commandProcessor.canRepeat());
 
             repeatCommand2->expectUndo(true, observer);
             repeatCommand1->expectUndo(true, observer);
+            observer.expectTransactionUndone("Repeat 2 Commands");
 
-            const auto undoResult = commandProcessor.undoLastCommand();
+            const auto undoResult = commandProcessor.undo();
             ASSERT_TRUE(undoResult->success());
 
             ASSERT_TRUE(commandProcessor.canUndo());
             ASSERT_TRUE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.hasRepeatableCommands());
+            ASSERT_TRUE(commandProcessor.canRepeat());
 
             ASSERT_EQ(commandName2, commandProcessor.undoCommandName());
         }
@@ -335,61 +376,55 @@ namespace TrenchBroom {
              * Finally, redo it, also with success.
              */
 
-            using namespace ::testing;
-            InSequence s;
-
             CommandProcessor commandProcessor(nullptr);
             TestObserver observer(commandProcessor);
 
             const auto commandName1 = "test command 1";
-            auto command1 = TestCommand::create(commandName1);
+            auto command1 = TestCommand::create(commandName1, false);
 
             const auto commandName2 = "test command 2";
-            auto command2 = TestCommand::create(commandName2);
+            auto command2 = TestCommand::create(commandName2, false);
 
-            // execute commands in transaction
+            // execute commands in transaction (two times because of later redo)
             command1->expectDo(true, observer);
             command2->expectDo(true, observer);
-
-            command1->delimitRepeats(false);
-            command2->delimitRepeats(false);
+            command1->expectCollate(command2.get(), false);
 
             const auto transactionName = "transaction";
-            EXPECT_CALL(observer, transactionDone(transactionName)).Times(1);
+            observer.expectTransactionDone(transactionName);
 
             // undo transaction
             command2->expectUndo(true, observer);
             command1->expectUndo(true, observer);
-            EXPECT_CALL(observer, transactionUndone(transactionName)).Times(1);
+            observer.expectTransactionUndone(transactionName);
 
-            // redo transaction
+            // redo
             command1->expectDo(true, observer);
             command2->expectDo(true, observer);
-
-            EXPECT_CALL(observer, transactionDone(transactionName)).Times(1);
+            observer.expectTransactionDone(transactionName);
 
             commandProcessor.startTransaction(transactionName);
-            ASSERT_TRUE(commandProcessor.executeAndStoreCommand(std::move(command1))->success());
-            ASSERT_TRUE(commandProcessor.executeAndStoreCommand(std::move(command2))->success());
+            ASSERT_TRUE(commandProcessor.executeAndStore(std::move(command1))->success());
+            ASSERT_TRUE(commandProcessor.executeAndStore(std::move(command2))->success());
             commandProcessor.commitTransaction();
 
             ASSERT_TRUE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.hasRepeatableCommands());
+            ASSERT_TRUE(commandProcessor.canRepeat());
             ASSERT_EQ(transactionName, commandProcessor.undoCommandName());
 
-            ASSERT_TRUE(commandProcessor.undoLastCommand()->success());
+            ASSERT_TRUE(commandProcessor.undo()->success());
 
             ASSERT_FALSE(commandProcessor.canUndo());
             ASSERT_TRUE(commandProcessor.canRedo());
-            ASSERT_FALSE(commandProcessor.hasRepeatableCommands());
+            ASSERT_FALSE(commandProcessor.canRepeat());
             ASSERT_EQ(transactionName, commandProcessor.redoCommandName());
 
-            ASSERT_TRUE(commandProcessor.redoNextCommand()->success());
+            ASSERT_TRUE(commandProcessor.redo()->success());
 
             ASSERT_TRUE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.hasRepeatableCommands());
+            ASSERT_TRUE(commandProcessor.canRepeat());
             ASSERT_EQ(transactionName, commandProcessor.undoCommandName());
         }
     }

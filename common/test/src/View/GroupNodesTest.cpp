@@ -49,7 +49,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(group->selected());
             ASSERT_FALSE(brush->selected());
 
-            document->undoLastCommand();
+            document->undoCommand();
             ASSERT_EQ(nullptr, group->parent());
             ASSERT_EQ(document->currentParent(), brush->parent());
             ASSERT_TRUE(brush->selected());
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(group->selected());
             ASSERT_FALSE(brush1->selected());
 
-            document->undoLastCommand();
+            document->undoCommand();
             ASSERT_EQ(nullptr, group->parent());
             ASSERT_EQ(entity, brush1->parent());
             ASSERT_EQ(entity, brush2->parent());
@@ -109,7 +109,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush1->selected());
             ASSERT_FALSE(brush2->selected());
 
-            document->undoLastCommand();
+            document->undoCommand();
             ASSERT_EQ(nullptr, group->parent());
             ASSERT_EQ(entity, brush1->parent());
             ASSERT_EQ(entity, brush2->parent());
@@ -170,7 +170,7 @@ namespace TrenchBroom {
 
             ASSERT_FALSE(hasEmptyName(entity->attributeNames()));
 
-            document->undoLastCommand();
+            document->undoCommand();
 
             ASSERT_FALSE(hasEmptyName(entity->attributeNames()));
         }
@@ -194,7 +194,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(document->rotateObjects(vm::vec3::zero(), vm::vec3::pos_z(), static_cast<FloatType>(10.0)));
             EXPECT_FALSE(entity->hasAttribute("origin"));
 
-            document->undoLastCommand();
+            document->undoCommand();
 
             EXPECT_FALSE(entity->hasAttribute("origin"));
         }

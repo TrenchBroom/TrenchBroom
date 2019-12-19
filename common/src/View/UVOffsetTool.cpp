@@ -62,7 +62,7 @@ namespace TrenchBroom {
             m_lastPoint = computeHitPoint(inputState.pickRay());
 
             auto document = lock(m_document);
-            document->beginTransaction("Move Texture");
+            document->startTransaction("Move Texture");
             return true;
         }
 

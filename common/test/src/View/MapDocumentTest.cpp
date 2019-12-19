@@ -481,7 +481,7 @@ namespace TrenchBroom {
             EXPECT_TRUE(document->selectedNodes().empty());
 
             // check that the selection is restored after undo
-            document->undoLastCommand();
+            document->undoCommand();
 
             EXPECT_TRUE(document->selectedNodes().hasOnlyBrushes());
             EXPECT_EQ(std::vector<Model::Brush*>({ subtrahend1 }), document->selectedNodes().brushes());

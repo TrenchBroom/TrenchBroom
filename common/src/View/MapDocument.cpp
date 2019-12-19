@@ -1499,45 +1499,41 @@ namespace TrenchBroom {
             return result->success();
         }
 
-        bool MapDocument::canUndoLastCommand() const {
-            return doCanUndoLastCommand();
+        bool MapDocument::canUndoCommand() const {
+            return doCanUndoCommand();
         }
 
-        bool MapDocument::canRedoNextCommand() const {
-            return doCanRedoNextCommand();
+        bool MapDocument::canRedoCommand() const {
+            return doCanRedoCommand();
         }
 
-        const std::string& MapDocument::lastCommandName() const {
-            return doGetLastCommandName();
+        const std::string& MapDocument::undoCommandName() const {
+            return doGetUndoCommandName();
         }
 
-        const std::string& MapDocument::nextCommandName() const {
-            return doGetNextCommandName();
+        const std::string& MapDocument::redoCommandName() const {
+            return doGetRedoCommandName();
         }
 
-        void MapDocument::undoLastCommand() {
-            doUndoLastCommand();
+        void MapDocument::undoCommand() {
+            doUndoCommand();
         }
 
-        void MapDocument::redoNextCommand() {
-            doRedoNextCommand();
+        void MapDocument::redoCommand() {
+            doRedoCommand();
         }
 
-        bool MapDocument::hasRepeatableCommands() const {
-            return doHasRepeatableCommands();
+        bool MapDocument::canRepeatCommands() const {
+            return doCanRepeatCommands();
         }
 
-        std::unique_ptr<CommandResult> MapDocument::repeatLastCommands() {
-            return doRepeatLastCommands();
+        std::unique_ptr<CommandResult> MapDocument::repeatCommands() {
+            return doRepeatCommands();
         }
 
-        void MapDocument::clearRepeatableCommands() {
-            doClearRepeatableCommands();
-        }
-
-        void MapDocument::beginTransaction(const std::string& name) {
+        void MapDocument::startTransaction(const std::string& name) {
             debug("Starting transaction '" + name + "'");
-            doBeginTransaction(name);
+            doStartTransaction(name);
         }
 
         void MapDocument::rollbackTransaction() {
@@ -1547,13 +1543,13 @@ namespace TrenchBroom {
 
         void MapDocument::commitTransaction() {
             debug("Committing transaction");
-            doEndTransaction();
+            doCommitTransaction();
         }
 
         void MapDocument::cancelTransaction() {
             debug("Cancelling transaction");
             doRollbackTransaction();
-            doEndTransaction();
+            doCommitTransaction();
         }
 
         std::unique_ptr<CommandResult> MapDocument::execute(std::unique_ptr<Command>&& command) {
@@ -2186,7 +2182,7 @@ namespace TrenchBroom {
         }
 
         void Transaction::begin(const std::string& name) {
-            m_document->beginTransaction(name);
+            m_document->startTransaction(name);
         }
 
         void Transaction::commit() {

@@ -44,7 +44,7 @@ namespace TrenchBroom {
 
         bool MoveObjectsTool::startMove(const InputState& inputState) {
             auto document = lock(m_document);
-            document->beginTransaction(duplicateObjects(inputState) ? "Duplicate Objects" : "Move Objects");
+            document->startTransaction(duplicateObjects(inputState) ? "Duplicate Objects" : "Move Objects");
             m_duplicateObjects = duplicateObjects(inputState);
             return true;
         }

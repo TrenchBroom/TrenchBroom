@@ -121,7 +121,7 @@ namespace TrenchBroom {
             m_initalAngle = measureAngle(vm::vec2f(hitPointInFaceCoords)) - face->rotation();
 
             auto document = lock(m_document);
-            document->beginTransaction("Rotate Texture");
+            document->startTransaction("Rotate Texture");
 
             return true;
         }

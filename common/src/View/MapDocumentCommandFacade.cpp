@@ -994,47 +994,43 @@ namespace TrenchBroom {
             m_commandProcessor->clear();
         }
 
-        bool MapDocumentCommandFacade::doCanUndoLastCommand() const {
+        bool MapDocumentCommandFacade::doCanUndoCommand() const {
             return m_commandProcessor->canUndo();
         }
 
-        bool MapDocumentCommandFacade::doCanRedoNextCommand() const {
+        bool MapDocumentCommandFacade::doCanRedoCommand() const {
             return m_commandProcessor->canRedo();
         }
 
-        const std::string& MapDocumentCommandFacade::doGetLastCommandName() const {
+        const std::string& MapDocumentCommandFacade::doGetUndoCommandName() const {
             return m_commandProcessor->undoCommandName();
         }
 
-        const std::string& MapDocumentCommandFacade::doGetNextCommandName() const {
+        const std::string& MapDocumentCommandFacade::doGetRedoCommandName() const {
             return m_commandProcessor->redoCommandName();
         }
 
-        void MapDocumentCommandFacade::doUndoLastCommand() {
-            m_commandProcessor->undoLastCommand();
+        void MapDocumentCommandFacade::doUndoCommand() {
+            m_commandProcessor->undo();
         }
 
-        void MapDocumentCommandFacade::doRedoNextCommand() {
-            m_commandProcessor->redoNextCommand();
+        void MapDocumentCommandFacade::doRedoCommand() {
+            m_commandProcessor->redo();
         }
 
-        bool MapDocumentCommandFacade::doHasRepeatableCommands() const {
-            return m_commandProcessor->hasRepeatableCommands();
+        bool MapDocumentCommandFacade::doCanRepeatCommands() const {
+            return m_commandProcessor->canRepeat();
         }
 
-        std::unique_ptr<CommandResult> MapDocumentCommandFacade::doRepeatLastCommands() {
-            return m_commandProcessor->repeatLastCommands();
+        std::unique_ptr<CommandResult> MapDocumentCommandFacade::doRepeatCommands() {
+            return m_commandProcessor->repeat();
         }
 
-        void MapDocumentCommandFacade::doClearRepeatableCommands() {
-            m_commandProcessor->clearRepeatableCommands();
-        }
-
-        void MapDocumentCommandFacade::doBeginTransaction(const std::string& name) {
+        void MapDocumentCommandFacade::doStartTransaction(const std::string& name) {
             m_commandProcessor->startTransaction(name);
         }
 
-        void MapDocumentCommandFacade::doEndTransaction() {
+        void MapDocumentCommandFacade::doCommitTransaction() {
             m_commandProcessor->commitTransaction();
         }
 
@@ -1043,11 +1039,11 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<CommandResult> MapDocumentCommandFacade::doExecute(std::unique_ptr<Command>&& command) {
-            return m_commandProcessor->executeCommand(std::move(command));
+            return m_commandProcessor->execute(std::move(command));
         }
 
         std::unique_ptr<CommandResult> MapDocumentCommandFacade::doExecuteAndStore(std::unique_ptr<UndoableCommand>&& command) {
-            return m_commandProcessor->executeAndStoreCommand(std::move(command));
+            return m_commandProcessor->executeAndStore(std::move(command));
         }
     }
 }

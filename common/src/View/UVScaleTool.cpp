@@ -111,7 +111,7 @@ namespace TrenchBroom {
             m_lastHitPoint = getHitPoint(inputState.pickRay());
 
             auto document = lock(m_document);
-            document->beginTransaction("Scale Texture");
+            document->startTransaction("Scale Texture");
             return true;
         }
 

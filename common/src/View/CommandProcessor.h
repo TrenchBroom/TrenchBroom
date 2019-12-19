@@ -51,14 +51,9 @@ namespace TrenchBroom {
             std::vector<std::unique_ptr<UndoableCommand>> m_redoStack;
 
             /**
-             * Holds all commands that are potentially repeatable, in the order in which they should be repeated.
+             * Holds the commands that can be repeated.
              */
             std::vector<UndoableCommand*> m_repeatStack;
-
-            /**
-             * Indicates whether to clear the stack of repeatable commands when the next command is stored.
-             */
-            bool m_clearRepeatStack;
 
             /**
              * The time stamp of when the last command was executed.
@@ -81,7 +76,7 @@ namespace TrenchBroom {
             size_t m_transactionLevel;
 
             struct SubmitAndStoreResult;
-            class Transaction;
+            class TransactionCommand;
         public:
             /**
              * Creates a new command processor which will pass the given document to commands when they are
@@ -180,39 +175,244 @@ namespace TrenchBroom {
              */
             void rollbackTransaction();
 
-            std::unique_ptr<CommandResult> executeCommand(std::unique_ptr<Command> command);
-            std::unique_ptr<CommandResult> executeAndStoreCommand(std::unique_ptr<UndoableCommand> command);
-            std::unique_ptr<CommandResult> undoLastCommand();
-            std::unique_ptr<CommandResult> redoNextCommand();
+            /**
+             * Executes the given command by calling its `performDo` method without storing it for later undo. If the
+             * command is executed successfully, both the undo and the redo stacks are cleared since the application's
+             * state is likely to have become inconsistent with the state expected by the commands on these stacks.
+             *
+             * The command processor takes ownership of the given command, and since it is not stored, it will be
+             * deleted immediately after execution.
+             *
+             * @param command the command to execute
+             * @return the result of executing the given command
+             */
+            std::unique_ptr<CommandResult> execute(std::unique_ptr<Command> command);
 
-            bool hasRepeatableCommands() const;
-            std::unique_ptr<CommandResult> repeatLastCommands();
-            void clearRepeatableCommands();
+            /**
+             * Executes the given command by calling its `performDo` method and stores it for later undo if it is
+             * successfully executed. In that case, the redo stack is cleared since the application's state is likely to
+             * have become inconsistent with the state expected by the commands on the redo stack.
+             *
+             * If the given command is executed successfully, the command processor will attempt to collate it with the
+             * command at the top of the undo stack by calling its `collateWith` method. If the collation takes place,
+             * then the given command will not be stored on the undo stack.
+             *
+             * The command processor takes ownership of the given command, so unless it is stored on the undo stack
+             * under the previously described conditions, the command is deleted immediately after it is executed.
+             *
+             * @param command the command to execute
+             * @return the result of executing the given command
+             */
+            std::unique_ptr<CommandResult> executeAndStore(std::unique_ptr<UndoableCommand> command);
 
+            /**
+             * Undoes the most recently executed command by calling its `performUndo` method and stores the command on
+             * the redo stack if it could be undone successfully, i.e. its `performUndo` method returned a successful
+             * command result.
+             *
+             * @return the result of undoing the command
+             *
+             * @throws CommandProcessorException if a transaction is currently being executed or if the undo stack is
+             * empty
+             */
+            std::unique_ptr<CommandResult> undo();
+
+            /**
+             * Redoes the most recently undone comment by calling its `performDo` method and stores the command on
+             * the undo stack if it could be executed successfully, i.e. its `performDo` method returned a successful
+             * command result.
+             *
+             * @return the result of executing the command
+             *
+             * @throws CommandProcessorException if a transaction is currently being executed or if the redo stack is
+             * empty
+             */
+            std::unique_ptr<CommandResult> redo();
+
+            /**
+             * Checks whether it is potentially possible to repeat recently executed commands. This is the case if there
+             * is at least one command on the undo stack that is not a repeat delimiter. A command is a repeat delimiter
+             * if calling its `isRepeatDelimiter` method returns `true`.
+             *
+             * Note that, even if this method returns true, it is not guaranteed that command repetition takes place,
+             * because the potentially repeatable commands might not be actually repeatable in the current state of the
+             * application.
+             *
+             * @return true if there is at least one potentially repeatable command on the undo stack
+             */
+            bool canRepeat() const;
+
+            /**
+             * Attempts to repeat the potentially repeatable commands at the top of the undo stack, ignoring the
+             * topmost repeat delimiters.
+             *
+             * Consider the following example to understand which commands are repeated. Let C be a potentially
+             * repeatable command, that is, a command that is not a repeat delimiter. Let D be a repeat delimiter.
+             * Let CCCDDDCCCCC... denote an undo stack with the topmost commands at the left.
+             *
+             * - Given undo stack CCDDDCCC..., the topmost two commands will be attempted to be repeated.
+             * - Given undo Stack DDCCCDCCDDC..., the topmost three commands will be attempted to be repeated, ignoring
+             *   the initial two repeat delimiters.
+             *
+             * If more than one command can be successfully repeated, then the repeated commands are executed in a
+             * transaction.
+             *
+             * @return the result of executing the repeated commands.
+             */
+            std::unique_ptr<CommandResult> repeat();
+
+            /**
+             * Clears this command processor. Both the undo and the redo stack are cleared, and therefore all stored
+             * commands are deleted as well.
+             */
             void clear();
         private:
-            SubmitAndStoreResult executeAndStoreCommand(std::unique_ptr<UndoableCommand> command, const bool collate);
-            std::unique_ptr<CommandResult> doCommand(Command* command);
-            std::unique_ptr<CommandResult> undoCommand(UndoableCommand* command);
-            bool storeCommand(std::unique_ptr<UndoableCommand> command, bool collate);
+            /**
+             * Executes and stores the given command. The command will only be stored if it was executed successfully
+             * and if it wasn't collated with the topmost command on the undo stack.
+             *
+             * @param command the command to execute and store
+             * @param collate whether or not the given command should be collated with the topmost command on the undo
+             * stack
+             * @param whether or not the given command is potentially repeatable and should be pushed to the repeat stack
+             * @return a struct containing the result of executing the given command and a boolean indicating whether
+             * the given command was stored on the undo stack
+             */
+            SubmitAndStoreResult executeAndStoreCommand(std::unique_ptr<UndoableCommand> command, bool collate, bool repeatable);
 
-            void beginTransaction(const std::string& name, bool undoable);
+            /**
+             * Executes the given command by calling its `performDo` method and triggers the corresponding
+             * notifications.
+             *
+             * @param command the command to execute
+             * @return the result of executing the given command
+             */
+            std::unique_ptr<CommandResult> executeCommand(Command* command);
+
+            /**
+             * Undoes the given command by calling its `performUndo` method and triggers the corresponding
+             * notifications.
+             *
+             * @param command the command to undo
+             * @return the result of undoing the given command
+             */
+            std::unique_ptr<CommandResult> undoCommand(UndoableCommand* command);
+
+            /**
+             * Stores the given command or collates it with the topmost command on the undo stack.
+             *
+             * @param command the command to store
+             * @param collate whether not to attempt to collate the given command with the topmost command on the undo
+             * stack
+             * @param repeatable whether or not the given command should be considered potentially repeatable and should
+             * be pushed onto the repeat stack
+             * @return true if the command was stored, and false if it was not stored
+             */
+            bool storeCommand(std::unique_ptr<UndoableCommand> command, bool collate, bool repeatable);
+
+            /**
+             * Pushes the given command to the back of the list of commands belonging to the currently executing
+             * transaction. If `collate` is `true`, then it is attempted to collate the given command with the last
+             * command executed in the currently executing transaction.
+             *
+             * Precondition: a transaction is currently executing
+             *
+             * @param command the command to push
+             * @param collate whether or not to attempt to collate the given command with the last command executed in
+             * the currently executing transaction
+             * @return true if the given command was stored, and false if it was not stored
+             */
             bool pushTransactionCommand(std::unique_ptr<UndoableCommand> command, bool collate);
+
+            /**
+             * Pops the last command that was added to the currently executing transaction and returns.
+             *
+             * Precondition: a transaction is currently executing
+             *
+             * @return the command
+             *
+             * @throws CommandProcessorException if no command has been stored in the currently executing transaction
+             * yet
+             */
             std::unique_ptr<UndoableCommand> popTransactionCommand();
+
+            /**
+             * Creates a new transaction containing all commands which were stored in the scope of the current
+             * transaction. If no command was stored, then nothing happens.
+             *
+             * Triggers a `transactionDone` notification. Afterwards, the transaction is stored as a single command on
+             * the undo stack.
+             */
             void createAndStoreTransaction();
 
+            /**
+             * Creates and returns a command that, when executed, executes all commands which were stored in the scope
+             * of the current transaction. When this command is undone, it also undoes all of these commands in reverse
+             * order.
+             *
+             * @param name the name of the command to create
+             * @param commands the commands to store in the newly created transaction command
+             * @return the newly created command
+             */
             std::unique_ptr<UndoableCommand> createTransaction(const std::string& name, std::vector<std::unique_ptr<UndoableCommand>> commands);
 
-            bool pushLastCommand(std::unique_ptr<UndoableCommand> command, bool collate);
-            std::unique_ptr<UndoableCommand> popLastCommand();
+            /**
+             * Pushes the given command onto the undo stack, unless it can be collated with the topmost command on the
+             * undo stack. Takes ownership of the given command, so if it isn't stored on the undo stack, the command is
+             * deleted.
+             *
+             * @param command the command to push
+             * @param collate whether or not it should be attempted to collate the given command with the topmost command
+             * on the undo stack
+             * @param repeatable whether or not the given command should be considered potentially repeatable and should
+             * be pushed onto the repeat stack
+             * @return true if the given command was stored on the undo stack and false otherwise
+             */
+            bool pushToUndoStack(std::unique_ptr<UndoableCommand> command, bool collate, bool repeatable);
+
+            /**
+             * Pops the topmost command from the undo stack and returns it.
+             *
+             * Precondition: the undo stack is not empty, and no transaction is currently executing
+             *
+             * @return the topmost command of the undo stack
+             */
+            std::unique_ptr<UndoableCommand> popFromUndoStack();
 
             bool collatable(bool collate, int64_t timestamp) const;
 
-            void pushNextCommand(std::unique_ptr<UndoableCommand> command);
-            std::unique_ptr<UndoableCommand> popNextCommand();
+            /**
+             * Pushes the given command onto the redo stack. Takes ownership of the given command.
+             *
+             * @param command the command to push
+             */
+            void pushToRedoStack(std::unique_ptr<UndoableCommand> command);
 
-            void pushRepeatableCommand(UndoableCommand* command);
-            void popLastRepeatableCommand(UndoableCommand* command);
+            /**
+             * Pops the topmost command from the redo stack and returns it.
+             *
+             * Precondition: the redo stack is not empty, and no transaction is currently executing
+             *
+             * @return the topmost command of the redo stack
+             */
+            std::unique_ptr<UndoableCommand> popFromRedoStack();
+
+            /**
+             * Pushes the given command onto the repeat stack unless it is a repeat delimiter.
+             *
+             * If the undo stack is not empty and the topmost command on the undo stack is a repeat delimiter, then the
+             * repeat stack is cleared before the given command is pushed onto it.
+             *
+             * @param command the command to push onto the repeat stack
+             */
+            void pushToRepeatStack(UndoableCommand* command);
+
+            /**
+             * Pops the given command off the repeat stack if it is the topmost command on the repeat stack.
+             *
+             * @param command the command to compare the topmost command of the repeat stack to
+             */
+            void popFromRepeatStack(UndoableCommand* command);
         };
     }
 }

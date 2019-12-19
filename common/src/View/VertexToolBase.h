@@ -233,7 +233,7 @@ namespace TrenchBroom {
                 refreshViews();
 
                 auto document = lock(m_document);
-                document->beginTransaction(actionName());
+                document->startTransaction(actionName());
 
                 m_dragHandlePosition = getHandlePosition(hits.front());
                 m_dragging = true;

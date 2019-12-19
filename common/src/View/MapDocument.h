@@ -363,17 +363,16 @@ namespace TrenchBroom {
             void printVertices();
             bool throwExceptionDuringCommand();
         public: // command processing
-            bool canUndoLastCommand() const;
-            bool canRedoNextCommand() const;
-            const std::string& lastCommandName() const;
-            const std::string& nextCommandName() const;
-            void undoLastCommand();
-            void redoNextCommand();
-            bool hasRepeatableCommands() const;
-            std::unique_ptr<CommandResult> repeatLastCommands();
-            void clearRepeatableCommands();
+            bool canUndoCommand() const;
+            bool canRedoCommand() const;
+            const std::string& undoCommandName() const;
+            const std::string& redoCommandName() const;
+            void undoCommand();
+            void redoCommand();
+            bool canRepeatCommands() const;
+            std::unique_ptr<CommandResult> repeatCommands();
         public: // transactions
-            void beginTransaction(const std::string& name = "");
+            void startTransaction(const std::string& name = "");
             void rollbackTransaction();
             void commitTransaction();
             void cancelTransaction();
@@ -381,18 +380,17 @@ namespace TrenchBroom {
             std::unique_ptr<CommandResult> execute(std::unique_ptr<Command>&& command);
             std::unique_ptr<CommandResult> executeAndStore(std::unique_ptr<UndoableCommand>&& command);
         private: // subclassing interface for command processing
-            virtual bool doCanUndoLastCommand() const = 0;
-            virtual bool doCanRedoNextCommand() const = 0;
-            virtual const std::string& doGetLastCommandName() const = 0;
-            virtual const std::string& doGetNextCommandName() const = 0;
-            virtual void doUndoLastCommand() = 0;
-            virtual void doRedoNextCommand() = 0;
-            virtual bool doHasRepeatableCommands() const = 0;
-            virtual std::unique_ptr<CommandResult> doRepeatLastCommands() = 0;
-            virtual void doClearRepeatableCommands() = 0;
+            virtual bool doCanUndoCommand() const = 0;
+            virtual bool doCanRedoCommand() const = 0;
+            virtual const std::string& doGetUndoCommandName() const = 0;
+            virtual const std::string& doGetRedoCommandName() const = 0;
+            virtual void doUndoCommand() = 0;
+            virtual void doRedoCommand() = 0;
+            virtual bool doCanRepeatCommands() const = 0;
+            virtual std::unique_ptr<CommandResult> doRepeatCommands() = 0;
 
-            virtual void doBeginTransaction(const std::string& name) = 0;
-            virtual void doEndTransaction() = 0;
+            virtual void doStartTransaction(const std::string& name) = 0;
+            virtual void doCommitTransaction() = 0;
             virtual void doRollbackTransaction() = 0;
 
             virtual std::unique_ptr<CommandResult> doExecute(std::unique_ptr<Command>&& command) = 0;

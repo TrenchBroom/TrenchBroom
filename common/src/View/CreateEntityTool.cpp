@@ -63,7 +63,7 @@ namespace TrenchBroom {
 
             m_referenceBounds = document->referenceBounds();
 
-            document->beginTransaction("Create '" + definition->name() + "'");
+            document->startTransaction("Create '" + definition->name() + "'");
             document->deselectAll();
             document->addNode(m_entity, document->currentParent());
             document->select(m_entity);

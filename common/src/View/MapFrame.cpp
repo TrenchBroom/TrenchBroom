@@ -238,8 +238,8 @@ namespace TrenchBroom {
         void MapFrame::updateUndoRedoActions() {
             const auto document = lock(m_document);
             if (m_undoAction != nullptr) {
-                if (document->canUndoLastCommand()) {
-                    const auto text = "Undo " + document->lastCommandName();
+                if (document->canUndoCommand()) {
+                    const auto text = "Undo " + document->undoCommandName();
                     m_undoAction->setText(QString::fromStdString(text));
                     m_undoAction->setEnabled(true);
                 } else {
@@ -248,8 +248,8 @@ namespace TrenchBroom {
                 }
             }
             if (m_redoAction != nullptr) {
-                if (document->canRedoNextCommand()) {
-                    const auto text = "Redo " + document->nextCommandName();
+                if (document->canRedoCommand()) {
+                    const auto text = "Redo " + document->redoCommandName();
                     m_redoAction->setText(QString::fromStdString(text));
                     m_redoAction->setEnabled(true);
                 } else {
@@ -851,37 +851,31 @@ namespace TrenchBroom {
         void MapFrame::undo() {
             if (canUndo()) {
                 if (!m_mapView->cancelMouseDrag() && !m_inspector->cancelMouseDrag()) {
-                    m_document->undoLastCommand();
+                    m_document->undoCommand();
                 }
             }
         }
 
         void MapFrame::redo() {
             if (canRedo()) {
-                m_document->redoNextCommand();
+                m_document->redoCommand();
             }
         }
 
         bool MapFrame::canUndo() const {
-            return m_document->canUndoLastCommand();
+            return m_document->canUndoCommand();
         }
 
         bool MapFrame::canRedo() const {
-            return m_document->canRedoNextCommand();
+            return m_document->canRedoCommand();
         }
 
         void MapFrame::repeatLastCommands() {
-            m_document->repeatLastCommands();
-        }
-
-        void MapFrame::clearRepeatableCommands() {
-            if (hasRepeatableCommands()) {
-                m_document->clearRepeatableCommands();
-            }
+            m_document->repeatCommands();
         }
 
         bool MapFrame::hasRepeatableCommands() const {
-            return m_document->hasRepeatableCommands();
+            return m_document->canRepeatCommands();
         }
 
         void MapFrame::cutSelection() {
