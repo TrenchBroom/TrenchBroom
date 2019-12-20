@@ -24,7 +24,6 @@
 #include "TrenchBroom.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
-#include "SharedPointer.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
@@ -32,6 +31,7 @@
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsToolPage.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/string_utils.h>
 
 #include <vecmath/vec.h>
@@ -492,7 +492,7 @@ namespace TrenchBroom {
         }
 
         bool ScaleObjectsTool::applies() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return !document->selectedNodes().empty();
         }
 
@@ -637,7 +637,7 @@ namespace TrenchBroom {
 
 
         vm::bbox3 ScaleObjectsTool::bounds() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return document->selectionBounds();
         }
 
@@ -889,7 +889,7 @@ namespace TrenchBroom {
             m_dragStartHit = hit;
             m_dragCumulativeDelta = vm::vec3::zero();
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->startTransaction("Scale Objects");
             m_resizing = true;
         }
@@ -899,7 +899,7 @@ namespace TrenchBroom {
 
             m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             const auto newBox = moveBBoxForHit(m_bboxAtDragStart, m_dragStartHit, m_dragCumulativeDelta,
                                                m_proportionalAxes, m_anchorPos);
@@ -910,7 +910,7 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsTool::commitScale() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (vm::is_zero(m_dragCumulativeDelta, vm::C::almost_zero())) {
                 document->cancelTransaction();
             } else {
@@ -920,7 +920,7 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsTool::cancelScale() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
             m_resizing = false;
         }

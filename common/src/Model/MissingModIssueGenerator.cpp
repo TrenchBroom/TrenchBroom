@@ -19,7 +19,6 @@
 
 #include "MissingModIssueGenerator.h"
 
-#include "SharedPointer.h"
 #include "IO/Path.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
@@ -29,6 +28,7 @@
 #include "Model/MapFacade.h"
 #include "Model/PushSelection.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <cassert>
@@ -106,11 +106,11 @@ namespace TrenchBroom {
                 return;
             }
 
-            if (expired(m_game)) {
+            if (kdl::mem_expired(m_game)) {
                 return;
             }
 
-            auto game = lock(m_game);
+            auto game = kdl::mem_lock(m_game);
             const std::vector<std::string> mods = game->extractEnabledMods(*node);
 
             if (mods == m_lastMods) {

@@ -21,11 +21,12 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SharedPointer.h"
 #include "Model/Brush.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/SelectionBoundsRenderer.h"
 #include "View/MapDocument.h"
+
+#include <kdl/memory_utils.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -41,12 +42,12 @@ namespace TrenchBroom {
         }
 
         const Grid& CreateBrushToolBase::grid() const {
-            return lock(m_document)->grid();
+            return kdl::mem_lock(m_document)->grid();
         }
 
         void CreateBrushToolBase::createBrush() {
             if (m_brush != nullptr) {
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 const Transaction transaction(document, "Create Brush");
                 document->deselectAll();
                 document->addNode(m_brush, document->currentParent());

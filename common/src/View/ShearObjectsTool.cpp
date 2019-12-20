@@ -22,7 +22,6 @@
 
 #include "Constants.h"
 #include "Preferences.h"
-#include "SharedPointer.h"
 #include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -33,6 +32,8 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsTool.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -56,7 +57,7 @@ namespace TrenchBroom {
         ShearObjectsTool::~ShearObjectsTool() = default;
 
         bool ShearObjectsTool::applies() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return !document->selectedNodes().empty();
         }
 
@@ -125,7 +126,7 @@ namespace TrenchBroom {
 
 
         vm::bbox3 ShearObjectsTool::bounds() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return document->selectionBounds();
         }
 
@@ -162,7 +163,7 @@ namespace TrenchBroom {
             m_dragStartHit = hit;
             m_dragCumulativeDelta = vm::vec3::zero();
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->startTransaction("Shear Objects");
             m_resizing = true;
         }
@@ -170,7 +171,7 @@ namespace TrenchBroom {
         void ShearObjectsTool::commitShear() {
             ensure(m_resizing, "must be resizing already");
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (vm::is_zero(m_dragCumulativeDelta, vm::C::almost_zero())) {
                 document->cancelTransaction();
             } else {
@@ -182,7 +183,7 @@ namespace TrenchBroom {
         void ShearObjectsTool::cancelShear() {
             ensure(m_resizing, "must be resizing already");
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
 
             m_resizing = false;
@@ -193,7 +194,7 @@ namespace TrenchBroom {
 
             m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             if (!vm::is_zero(delta, vm::C::almost_zero())) {
                 const BBoxSide side = m_dragStartHit.target<BBoxSide>();

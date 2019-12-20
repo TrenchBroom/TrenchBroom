@@ -19,7 +19,6 @@
 
 #include "LayerEditor.h"
 
-#include "SharedPointer.h"
 #include "Model/Brush.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/Entity.h"
@@ -33,6 +32,7 @@
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 
@@ -58,7 +58,7 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::onSetCurrentLayer(Model::Layer* layer) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (layer->locked()) {
                 document->resetLock(std::vector<Model::Node*>(1, layer));
             }
@@ -102,7 +102,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!layer->hidden() && layer == document->currentLayer()) {
                 return false;
             }
@@ -112,7 +112,7 @@ namespace TrenchBroom {
 
         void LayerEditor::toggleLayerVisible(Model::Layer* layer) {
             ensure(layer != nullptr, "layer is null");
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!layer->hidden()) {
                 document->hide(std::vector<Model::Node*>(1, layer));
             } else {
@@ -134,7 +134,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!layer->locked() && layer == document->currentLayer()) {
                 return false;
             }
@@ -144,7 +144,7 @@ namespace TrenchBroom {
 
         void LayerEditor::toggleLayerLocked(Model::Layer* layer) {
             ensure(layer != nullptr, "layer is null");
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!layer->locked()) {
                 document->lock(std::vector<Model::Node*>(1, layer));
             } else {
@@ -210,7 +210,7 @@ namespace TrenchBroom {
             auto* layer = m_layerList->selectedLayer();
             ensure(layer != nullptr, "layer is null");
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Transaction transaction(document, "Move Nodes to " + layer->name());
             moveSelectedNodesToLayer(document, layer);
         }
@@ -221,7 +221,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& nodes = document->selectedNodes().nodes();
             if (nodes.empty()) {
                 return false;
@@ -248,7 +248,7 @@ namespace TrenchBroom {
             auto* layer = m_layerList->selectedLayer();
             ensure(layer != nullptr, "layer is null");
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             Model::CollectSelectableNodesVisitor visitor(document->editorContext());
             layer->recurse(visitor);
@@ -261,7 +261,7 @@ namespace TrenchBroom {
         void LayerEditor::onAddLayer() {
             const std::string name = queryLayerName();
             if (!name.empty()) {
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 auto* world = document->world();
                 auto* layer = world->createLayer(name);
 
@@ -299,7 +299,7 @@ namespace TrenchBroom {
             auto* layer = m_layerList->selectedLayer();
             ensure(layer != nullptr, "layer is null");
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             auto* defaultLayer = document->world()->defaultLayer();
 
             Transaction transaction(document, "Remove Layer " + layer->name());
@@ -323,18 +323,18 @@ namespace TrenchBroom {
                 return false;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return (layer != document->world()->defaultLayer());
         }
 
         void LayerEditor::onShowAllLayers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto layers = document->world()->allLayers();
             document->resetVisibility(std::vector<Model::Node*>(std::begin(layers), std::end(layers)));
         }
 
         Model::Layer* LayerEditor::findVisibleAndUnlockedLayer(const Model::Layer* except) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!document->world()->defaultLayer()->locked() && !document->world()->defaultLayer()->hidden()) {
                 return document->world()->defaultLayer();
             }

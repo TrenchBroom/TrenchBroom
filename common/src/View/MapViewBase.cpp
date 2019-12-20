@@ -23,7 +23,6 @@
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SharedPointer.h"
 #include "TrenchBroom.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
@@ -67,6 +66,7 @@
 #include "View/SelectionTool.h"
 #include "View/QtUtils.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 
@@ -119,7 +119,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->nodesWereAddedNotifier.addObserver(this, &MapViewBase::nodesDidChange);
             document->nodesWereRemovedNotifier.addObserver(this, &MapViewBase::nodesDidChange);
             document->nodesDidChangeNotifier.addObserver(this, &MapViewBase::nodesDidChange);
@@ -152,8 +152,8 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->nodesWereAddedNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
                 document->nodesWereRemovedNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
@@ -288,7 +288,7 @@ namespace TrenchBroom {
             // by the menu or toolbar since they would conflict.
             actionManager.visitMapViewActions(visitor);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->visitTagActions(visitor);
             document->visitEntityDefinitionActions(visitor);
         }
@@ -328,7 +328,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::moveRotationCenter(const vm::direction direction) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Grid& grid = document->grid();
             const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
             m_toolBox.moveRotationCenter(delta);
@@ -336,14 +336,14 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::moveVertices(const vm::direction direction) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Grid& grid = document->grid();
             const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
             m_toolBox.moveVertices(delta);
         }
 
         void MapViewBase::moveObjects(const vm::direction direction) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Grid& grid = document->grid();
             const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
             document->translateObjects(delta);
@@ -354,7 +354,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::duplicateObjects() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (document->hasSelectedNodes()) {
                 document->duplicateObjects();
             }
@@ -367,7 +367,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::rotateObjects(const vm::rotation_axis axisSpec, const bool clockwise) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!document->hasSelectedNodes())
                 return;
 
@@ -402,7 +402,7 @@ namespace TrenchBroom {
 
         void MapViewBase::flipObjects(const vm::direction direction) {
             if (canFlipObjects()) {
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
 
                 // If we snap the selection bounds' center to the grid size, then
                 // selections that are an odd number of grid units wide get translated.
@@ -419,12 +419,12 @@ namespace TrenchBroom {
         }
 
         bool MapViewBase::canFlipObjects() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return !m_toolBox.anyToolActive() && document->hasSelectedNodes();
         }
 
         void MapViewBase::moveTextures(const vm::direction direction) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (document->hasSelectedBrushFaces()) {
                 const auto offset = moveTextureOffset(direction);
                 document->moveTextures(doGetCamera().up(), doGetCamera().right(), offset);
@@ -449,7 +449,7 @@ namespace TrenchBroom {
         }
 
         float MapViewBase::moveTextureDistance() const {
-            const auto& grid = lock(m_document)->grid();
+            const auto& grid = kdl::mem_lock(m_document)->grid();
             const auto gridSize = static_cast<float>(grid.actualSize());
 
             const Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
@@ -464,7 +464,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::rotateTextures(const bool clockwise) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (document->hasSelectedBrushFaces()) {
                 const auto angle = rotateTextureAngle(clockwise);
                 document->rotateTextures(angle);
@@ -472,7 +472,7 @@ namespace TrenchBroom {
         }
 
         float MapViewBase::rotateTextureAngle(const bool clockwise) const {
-            const auto& grid = lock(m_document)->grid();
+            const auto& grid = kdl::mem_lock(m_document)->grid();
             const auto gridAngle = static_cast<float>(vm::to_degrees(grid.angle()));
             float angle;
 
@@ -517,7 +517,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (document->hasSelection()) {
                 document->deselectAll();
             } else if (document->currentGroup() != nullptr) {
@@ -531,7 +531,7 @@ namespace TrenchBroom {
 
         void MapViewBase::createPointEntity() {
             auto* action = qobject_cast<const QAction*>(sender());
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const size_t index = action->data().toUInt();
             const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinitionType::PointEntity, index);
             ensure(definition != nullptr, "definition is null");
@@ -541,7 +541,7 @@ namespace TrenchBroom {
 
         void MapViewBase::createBrushEntity() {
             auto* action = qobject_cast<const QAction*>(sender());
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const size_t index = action->data().toUInt();
             const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinitionType::BrushEntity, index);
             ensure(definition != nullptr, "definition is null");
@@ -551,7 +551,7 @@ namespace TrenchBroom {
 
         Assets::EntityDefinition* MapViewBase::findEntityDefinition(const Assets::EntityDefinitionType type, const size_t index) const {
             size_t count = 0;
-            for (const Assets::EntityDefinitionGroup& group : lock(m_document)->entityDefinitionManager().groups()) {
+            for (const Assets::EntityDefinitionGroup& group : kdl::mem_lock(m_document)->entityDefinitionManager().groups()) {
                 const std::vector<Assets::EntityDefinition*> definitions = group.definitions(type, Assets::EntityDefinitionSortOrder::Name);
                 if (index < count + definitions.size())
                     return definitions[index - count];
@@ -563,7 +563,7 @@ namespace TrenchBroom {
         void MapViewBase::createPointEntity(const Assets::PointEntityDefinition* definition) {
             ensure(definition != nullptr, "definition is null");
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto delta = doComputePointEntityPosition(definition->bounds());
             document->createPointEntity(definition, delta);
         }
@@ -571,19 +571,19 @@ namespace TrenchBroom {
         void MapViewBase::createBrushEntity(const Assets::BrushEntityDefinition* definition) {
             ensure(definition != nullptr, "definition is null");
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->createBrushEntity(definition);
         }
 
         bool MapViewBase::canCreateBrushEntity() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return document->selectedNodes().hasOnlyBrushes();
         }
 
         void MapViewBase::toggleTagVisible(const Model::SmartTag& tag) {
             const auto tagIndex = tag.index();
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             auto& editorContext = document->editorContext();
             auto hiddenTags = editorContext.hiddenTags();
             hiddenTags ^= Model::TagType::Type(1) << tagIndex;
@@ -593,7 +593,7 @@ namespace TrenchBroom {
 
         void MapViewBase::enableTag(const Model::SmartTag& tag) {
             assert(tag.canEnable());
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             Transaction transaction(document, "Turn Selection into " + tag.name());
             EnableDisableTagCallback callback;
@@ -602,14 +602,14 @@ namespace TrenchBroom {
 
         void MapViewBase::disableTag(const Model::SmartTag& tag) {
             assert(tag.canDisable());
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Transaction transaction(document, "Turn Selection into non-" + tag.name());
             EnableDisableTagCallback callback;
             tag.disable(callback, *document);
         }
 
         void MapViewBase::makeStructural() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!document->selectedNodes().hasBrushes()) {
                 return;
             }
@@ -643,14 +643,14 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::toggleEntityDefinitionVisible(const Assets::EntityDefinition* definition) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setEntityDefinitionHidden(definition, !editorContext.entityDefinitionHidden(definition));
         }
 
         void MapViewBase::createEntity(const Assets::EntityDefinition* definition) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (definition->type() == Assets::EntityDefinitionType::PointEntity) {
                 createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
             } else if (canCreateBrushEntity()) {
@@ -659,103 +659,103 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::toggleShowEntityClassnames() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowEntityClassnames(!config.showEntityClassnames());
         }
 
         void MapViewBase::toggleShowGroupBounds() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowGroupBounds(!config.showGroupBounds());
         }
 
         void MapViewBase::toggleShowBrushEntityBounds() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowBrushEntityBounds(!config.showBrushEntityBounds());
         }
 
         void MapViewBase::toggleShowPointEntityBounds() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowPointEntityBounds(!config.showPointEntityBounds());
         }
 
         void MapViewBase::toggleShowPointEntities() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setShowPointEntities(!editorContext.showPointEntities());
         }
 
         void MapViewBase::toggleShowPointEntityModels() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowPointEntityModels(!config.showPointEntityModels());
         }
 
         void MapViewBase::toggleShowBrushes() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setShowBrushes(!editorContext.showBrushes());
         }
 
         void MapViewBase::showTextures() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Textured);
         }
 
         void MapViewBase::hideTextures() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Flat);
         }
 
         void MapViewBase::hideFaces() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Skip);
         }
 
         void MapViewBase::toggleShadeFaces() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShadeFaces(!config.shadeFaces());
         }
 
         void MapViewBase::toggleShowFog() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowFog(!config.showFog());
         }
 
         void MapViewBase::toggleShowEdges() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowEdges(!config.showEdges());
         }
 
         void MapViewBase::showAllEntityLinks() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_All);
         }
 
         void MapViewBase::showTransitivelySelectedEntityLinks() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Transitive);
         }
 
         void MapViewBase::showDirectlySelectedEntityLinks() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Direct);
         }
 
         void MapViewBase::hideAllEntityLinks() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_None);
         }
@@ -788,7 +788,7 @@ namespace TrenchBroom {
             } else if (m_toolBox.shearObjectsToolActive()) {
                 return derivedContext | ActionContext::ShearTool;
             } else {
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 if (document->hasSelectedNodes()) {
                     return derivedContext | ActionContext::NodeSelection;
                 } else if (document->hasSelectedBrushFaces()) {
@@ -843,7 +843,7 @@ namespace TrenchBroom {
             const size_t fontSize = static_cast<size_t>(pref(Preferences::RendererFontSize));
             const Renderer::FontDescriptor fontDescriptor(fontPath, fontSize);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const MapViewConfig& mapViewConfig = document->mapViewConfig();
             const Grid& grid = document->grid();
 
@@ -898,7 +898,7 @@ namespace TrenchBroom {
 
         void MapViewBase::renderCoordinateSystem(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (pref(Preferences::ShowAxes)) {
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 const vm::bbox3& worldBounds = document->worldBounds();
 
                 Renderer::RenderService renderService(renderContext, renderBatch);
@@ -907,7 +907,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::renderPointFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Model::PointFile* pointFile = document->pointFile();
             if (pointFile != nullptr) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
@@ -932,7 +932,7 @@ namespace TrenchBroom {
             assert(m_portalFileRenderer == nullptr);
             m_portalFileRenderer = std::make_unique<Renderer::PrimitiveRenderer>();
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Model::PortalFile* portalFile = document->portalFile();
             if (portalFile != nullptr) {
                 for (const auto& poly : portalFile->portals()) {
@@ -1000,7 +1000,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const std::vector<Model::Node*>& nodes = document->selectedNodes().nodes();
             Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);
             Model::Node* currentGroup = document->editorContext().currentGroup();
@@ -1102,7 +1102,7 @@ namespace TrenchBroom {
             const bool enableMakeBrushEntity = canCreateBrushEntity();
             size_t id = 0;
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             for (const Assets::EntityDefinitionGroup& group : document->entityDefinitionManager().groups()) {
                 const std::vector<Assets::EntityDefinition*> definitions = group.definitions(type, Assets::EntityDefinitionSortOrder::Name);
 
@@ -1145,7 +1145,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::addSelectedObjectsToGroup() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const std::vector<Model::Node*> nodes = document->selectedNodes().nodes();
             Model::Node* newGroup = findNewGroupForObjects(nodes);
             ensure(newGroup != nullptr, "newGroup is null");
@@ -1157,7 +1157,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::removeSelectedObjectsFromGroup() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const std::vector<Model::Node*> nodes = document->selectedNodes().nodes();
             Model::Node* currentGroup = document->editorContext().currentGroup();
             ensure(currentGroup != nullptr, "currentGroup is null");
@@ -1174,7 +1174,7 @@ namespace TrenchBroom {
         Model::Node* MapViewBase::findNewGroupForObjects(const std::vector<Model::Node*>& nodes) const {
             Model::Node* newGroup = nullptr;
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().first();
             if (hit.isMatch())
                 newGroup = findOutermostClosedGroup(Model::hitToNode(hit));
@@ -1185,7 +1185,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::mergeSelectedGroups() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             auto* newGroup = findGroupToMergeGroupsInto(document->selectedNodes());
             ensure(newGroup != nullptr, "newGroup is null");
 
@@ -1200,7 +1200,7 @@ namespace TrenchBroom {
 
             Model::Group* mergeTarget = nullptr;
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().first();
             if (hit.isMatch()) {
                 mergeTarget = findOutermostClosedGroup(Model::hitToNode(hit));
@@ -1229,7 +1229,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::moveSelectedBrushesToEntity() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const std::vector<Model::Node*> nodes = document->selectedNodes().nodes();
             Model::Node* newParent = findNewParentEntityForBrushes(nodes);
             ensure(newParent != nullptr, "newParent is null");
@@ -1244,7 +1244,7 @@ namespace TrenchBroom {
         Model::Node* MapViewBase::findNewParentEntityForBrushes(const std::vector<Model::Node*>& nodes) const {
             Model::Node* newParent = nullptr;
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (hit.isMatch()) {
                 const Model::Brush* brush = Model::hitToBrush(hit);
@@ -1305,7 +1305,7 @@ namespace TrenchBroom {
         void MapViewBase::reparentNodes(const std::vector<Model::Node*>& nodes, Model::Node* newParent, const bool preserveEntities) {
             ensure(newParent != nullptr, "newParent is null");
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             std::vector<Model::Node*> inputNodes;
             if (preserveEntities) {
                 inputNodes = collectEntitiesForBrushes(nodes, document->world());
@@ -1336,13 +1336,13 @@ namespace TrenchBroom {
         }
 
         bool MapViewBase::canMergeGroups() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Model::Node* mergeGroup = findGroupToMergeGroupsInto(document->selectedNodes());
             return mergeGroup != nullptr;
         }
 
         bool MapViewBase::canMakeStructural() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (document->selectedNodes().hasOnlyBrushes()) {
                 const std::vector<Model::Brush*>& brushes = document->selectedNodes().brushes();
                 for (const auto* brush : brushes) {

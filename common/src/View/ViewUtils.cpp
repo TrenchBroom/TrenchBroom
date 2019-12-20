@@ -19,7 +19,6 @@
 
 #include "ViewUtils.h"
 
-#include "SharedPointer.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
@@ -27,6 +26,7 @@
 #include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 
@@ -62,7 +62,7 @@ namespace TrenchBroom {
 
             size_t count = 0;
 
-            auto document = lock(i_document);
+            auto document = kdl::mem_lock(i_document);
             std::vector<IO::Path> collections = document->enabledTextureCollections();
 
             auto game = document->game();
@@ -99,7 +99,7 @@ namespace TrenchBroom {
                 return 0;
             }
 
-            auto document = lock(i_document);
+            auto document = kdl::mem_lock(i_document);
             auto game = document->game();
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const IO::Path gamePath = gameFactory.gamePath(game->gameName());

@@ -20,7 +20,6 @@
 #include "FileTextureCollectionEditor.h"
 
 #include "PreferenceManager.h"
-#include "SharedPointer.h"
 #include "Assets/TextureManager.h"
 #include "IO/PathQt.h"
 #include "View/BorderLine.h"
@@ -29,6 +28,7 @@
 #include "View/ViewUtils.h"
 #include "View/QtUtils.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <QListWidget>
@@ -58,7 +58,7 @@ namespace TrenchBroom {
         }
 
         bool FileTextureCollectionEditor::debugUIConsistency() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             auto collections = document->enabledTextureCollections();
 
             assert(m_collections->count() == static_cast<int>(collections.size()));
@@ -87,7 +87,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             auto collections = document->enabledTextureCollections();
             for (size_t i = 0; i < selections.size(); ++i) {
                 const auto index = static_cast<size_t>(selections[i]);
@@ -107,7 +107,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             auto collections = document->enabledTextureCollections();
 
             const auto index = static_cast<size_t>(m_collections->currentRow());
@@ -122,7 +122,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             auto collections = document->enabledTextureCollections();
 
             const auto index = static_cast<size_t>(m_collections->currentRow());
@@ -148,7 +148,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             auto collections = document->enabledTextureCollections();
             decltype(collections) toRemove;
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             const QList<QListWidgetItem*> selections = m_collections->selectedItems();
             assert(selections.size() == 1);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             auto collections = document->enabledTextureCollections();
 
             const auto index = static_cast<size_t>(m_collections->currentRow());
@@ -191,7 +191,7 @@ namespace TrenchBroom {
             const QList<QListWidgetItem*> selections = m_collections->selectedItems();
             assert(selections.size() == 1);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             auto collections = document->enabledTextureCollections();
 
             const auto index = static_cast<size_t>(m_collections->currentRow());
@@ -204,7 +204,7 @@ namespace TrenchBroom {
         }
 
         void FileTextureCollectionEditor::reloadTextureCollections() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->reloadTextureCollections();
         }
 
@@ -259,7 +259,7 @@ namespace TrenchBroom {
         }
 
         void FileTextureCollectionEditor::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &FileTextureCollectionEditor::textureCollectionsDidChange);
 
             auto& prefs = PreferenceManager::instance();
@@ -267,8 +267,8 @@ namespace TrenchBroom {
         }
 
         void FileTextureCollectionEditor::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &FileTextureCollectionEditor::textureCollectionsDidChange);
             }
 
@@ -281,7 +281,7 @@ namespace TrenchBroom {
         }
 
         void FileTextureCollectionEditor::preferenceDidChange(const IO::Path& path) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (document->isGamePathPreference(path))
                 updateControls();
         }
@@ -297,7 +297,7 @@ namespace TrenchBroom {
 
             m_collections->clear();
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             for (const auto& path : document->enabledTextureCollections()) {
                 m_collections->addItem(IO::pathAsQString(path));
             }

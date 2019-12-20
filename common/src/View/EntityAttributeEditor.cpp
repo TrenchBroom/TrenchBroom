@@ -19,7 +19,6 @@
 
 #include "EntityAttributeEditor.h"
 
-#include "SharedPointer.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/AttributableNode.h"
@@ -29,6 +28,8 @@
 #include "View/Splitter.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
+
+#include <kdl/memory_utils.h>
 
 #include <QVBoxLayout>
 #include <QChar>
@@ -60,14 +61,14 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeEditor::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &EntityAttributeEditor::selectionDidChange);
             document->nodesDidChangeNotifier.addObserver(this, &EntityAttributeEditor::nodesDidChange);
         }
 
         void EntityAttributeEditor::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->selectionDidChangeNotifier.removeObserver(this, &EntityAttributeEditor::selectionDidChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &EntityAttributeEditor::nodesDidChange);
             }
@@ -82,7 +83,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeEditor::updateIfSelectedEntityDefinitionChanged() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(document->allSelectedAttributableNodes());
 
             if (entityDefinition != m_currentDefinition) {
@@ -93,7 +94,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeEditor::updateDocumentationAndSmartEditor() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& attributeName = m_attributeGrid->selectedRowName();
 
             m_smartEditorManager->switchEditor(attributeName, document->allSelectedAttributableNodes());
@@ -159,7 +160,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeEditor::updateDocumentation(const std::string& attributeName) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(document->allSelectedAttributableNodes());
 
             m_documentationText->clear();

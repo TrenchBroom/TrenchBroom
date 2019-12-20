@@ -1053,7 +1053,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Preferences.h
         ${COMMON_SOURCE_DIR}/RecoverableExceptions.h
         ${COMMON_SOURCE_DIR}/Reference.h
-        ${COMMON_SOURCE_DIR}/SharedPointer.h
         ${COMMON_SOURCE_DIR}/TemporarilySetAny.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
         ${COMMON_SOURCE_DIR}/TrenchBroom.h

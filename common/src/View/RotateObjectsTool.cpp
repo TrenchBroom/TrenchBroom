@@ -19,13 +19,13 @@
 
 #include "RotateObjectsTool.h"
 
-#include "SharedPointer.h"
 #include "Model/Hit.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/RotateObjectsHandle.h"
 #include "View/RotateObjectsToolPage.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/scalar.h>
@@ -45,7 +45,7 @@ namespace TrenchBroom {
         }
 
         const Grid& RotateObjectsTool::grid() const {
-            return lock(m_document)->grid();
+            return kdl::mem_lock(m_document)->grid();
         }
 
         void RotateObjectsTool::updateToolPageAxis(const RotateObjectsHandle::HitArea area) {
@@ -77,7 +77,7 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsTool::resetRotationCenter() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& bounds = document->selectionBounds();
             const auto position = document->grid().snap(bounds.center());
             setRotationCenter(position);
@@ -92,28 +92,28 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsTool::beginRotation() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->startTransaction("Rotate Objects");
         }
 
         void RotateObjectsTool::commitRotation() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->commitTransaction();
             updateRecentlyUsedCenters(rotationCenter());
         }
 
         void RotateObjectsTool::cancelRotation() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
         }
 
         FloatType RotateObjectsTool::snapRotationAngle(const FloatType angle) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return document->grid().snapAngle(angle);
         }
 
         void RotateObjectsTool::applyRotation(const vm::vec3& center, const vm::vec3& axis, const FloatType angle) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->rollbackTransaction();
             document->rotateObjects(center, axis, angle);
         }

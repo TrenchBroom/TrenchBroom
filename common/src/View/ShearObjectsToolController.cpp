@@ -22,7 +22,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SharedPointer.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
@@ -32,6 +31,8 @@
 #include "View/ScaleObjectsTool.h"
 #include "View/ShearObjectsTool.h"
 #include "View/MapDocument.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vecmath/polygon.h>
 
@@ -114,7 +115,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             if (vertical != m_tool->constrainVertical()) {
                 m_tool->setConstrainVertical(vertical);
@@ -152,7 +153,7 @@ namespace TrenchBroom {
                 return DragInfo();
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             const Model::PickResult& pickResult = inputState.pickResult();
             const Model::Hit& hit = pickResult.query().type(ShearObjectsTool::ShearToolSideHit).occluded().first();

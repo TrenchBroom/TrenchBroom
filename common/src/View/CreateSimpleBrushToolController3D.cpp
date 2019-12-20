@@ -21,7 +21,6 @@
 
 #include "TrenchBroom.h"
 #include "PreferenceManager.h"
-#include "SharedPointer.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/HitQuery.h"
@@ -31,6 +30,8 @@
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vecmath/vec.h>
 #include <vecmath/line.h>
@@ -73,7 +74,7 @@ namespace TrenchBroom {
                 return DragInfo();
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (document->hasSelection()) {
                 return DragInfo();
             }
@@ -124,7 +125,7 @@ namespace TrenchBroom {
             bounds.min = min(m_initialPoint, point);
             bounds.max = max(m_initialPoint, point);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& grid = document->grid();
 
             // prevent flickering due to very small rounding errors

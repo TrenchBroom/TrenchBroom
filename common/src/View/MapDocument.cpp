@@ -23,7 +23,6 @@
 #include "Preferences.h"
 #include "Polyhedron.h"
 #include "Polyhedron3.h"
-#include "SharedPointer.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -119,6 +118,7 @@
 
 #include <kdl/collection_utils.h>
 #include <kdl/map_utils.h>
+#include <kdl/memory_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/util.h>
@@ -2155,7 +2155,7 @@ namespace TrenchBroom {
         }
 
         Transaction::Transaction(std::weak_ptr<MapDocument> document, const std::string& name) :
-        m_document(lock(document).get()),
+        m_document(kdl::mem_lock(document).get()),
         m_cancelled(false) {
             begin(name);
         }

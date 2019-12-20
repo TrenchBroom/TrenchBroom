@@ -21,7 +21,6 @@
 
 #include "Polyhedron.h"
 #include "TrenchBroom.h"
-#include "SharedPointer.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -36,6 +35,8 @@
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
 #include "View/UVOriginTool.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vecmath/vec.h>
 #include <vecmath/ray.h>
@@ -110,7 +111,7 @@ namespace TrenchBroom {
             m_selector = vm::vec2b(xHit.isMatch(), yHit.isMatch());
             m_lastHitPoint = getHitPoint(inputState.pickRay());
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->startTransaction("Scale Texture");
             return true;
         }
@@ -144,7 +145,7 @@ namespace TrenchBroom {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setScale(newScale);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->setFaceAttributes(request);
 
             const auto newOriginInTexCoords = correct(m_helper.originInTexCoords(), 4, 0.0f);
@@ -159,12 +160,12 @@ namespace TrenchBroom {
         }
 
         void UVScaleTool::doEndMouseDrag(const InputState&) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->commitTransaction();
         }
 
         void UVScaleTool::doCancelMouseDrag() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
         }
 

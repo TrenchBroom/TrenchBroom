@@ -268,7 +268,7 @@ namespace TrenchBroom {
             toolActivatedNotifier.addObserver(this, &MapViewToolBox::toolActivated);
             toolDeactivatedNotifier.addObserver(this, &MapViewToolBox::toolDeactivated);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
         }
@@ -277,8 +277,8 @@ namespace TrenchBroom {
             toolActivatedNotifier.removeObserver(this, &MapViewToolBox::toolActivated);
             toolDeactivatedNotifier.removeObserver(this, &MapViewToolBox::toolDeactivated);
 
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->documentWasNewedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
             }
@@ -295,7 +295,7 @@ namespace TrenchBroom {
         }
 
         void MapViewToolBox::updateEditorContext() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setBlockSelection(createComplexBrushToolActive());
         }

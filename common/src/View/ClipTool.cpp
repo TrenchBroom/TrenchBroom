@@ -24,7 +24,6 @@
 #include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SharedPointer.h"
 #include "Macros.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/Brush.h"
@@ -40,6 +39,7 @@
 #include "View/Selection.h"
 
 #include <kdl/map_utils.h>
+#include <kdl/memory_utils.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
@@ -509,7 +509,7 @@ namespace TrenchBroom {
         }
 
         const Grid& ClipTool::grid() const {
-            return lock(m_document)->grid();
+            return kdl::mem_lock(m_document)->grid();
         }
 
         void ClipTool::toggleSide() {
@@ -574,7 +574,7 @@ namespace TrenchBroom {
         }
 
         bool ClipTool::hasBrushes() const {
-            const auto document = lock(m_document);
+            const auto document = kdl::mem_lock(m_document);
             return document->selectedNodes().hasBrushes();
         }
 
@@ -585,7 +585,7 @@ namespace TrenchBroom {
         void ClipTool::performClip() {
             if (!m_dragging && canClip()) {
                 const TemporarilySetBool ignoreNotifications(m_ignoreNotifications);
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 const Transaction transaction(document, "Clip Brushes");
 
                 // need to make a copies here so that we are not affected by the deselection
@@ -626,7 +626,7 @@ namespace TrenchBroom {
         }
 
         vm::vec3 ClipTool::defaultClipPointPos() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return document->selectionBounds().center();
         }
 
@@ -744,7 +744,7 @@ namespace TrenchBroom {
         }
 
         void ClipTool::updateBrushes() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& brushes = document->selectedNodes().brushes();
             const auto& worldBounds = document->worldBounds();
 
@@ -861,7 +861,7 @@ namespace TrenchBroom {
         }
 
         bool ClipTool::doActivate() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!document->selectedNodes().hasOnlyBrushes()) {
                 return false;
             } else {
@@ -886,7 +886,7 @@ namespace TrenchBroom {
         }
 
         void ClipTool::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &ClipTool::selectionDidChange);
             document->nodesWillChangeNotifier.addObserver(this, &ClipTool::nodesWillChange);
             document->nodesDidChangeNotifier.addObserver(this, &ClipTool::nodesDidChange);
@@ -894,8 +894,8 @@ namespace TrenchBroom {
         }
 
         void ClipTool::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->selectionDidChangeNotifier.removeObserver(this, &ClipTool::selectionDidChange);
                 document->nodesWillChangeNotifier.removeObserver(this, &ClipTool::nodesWillChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &ClipTool::nodesDidChange);

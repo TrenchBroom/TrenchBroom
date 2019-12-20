@@ -59,7 +59,7 @@ namespace TrenchBroom {
         }
 
         void VertexTool::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Grid& grid = document->grid();
 
             m_vertexHandles->pick(pickRay, camera, pickResult);
@@ -110,7 +110,7 @@ namespace TrenchBroom {
         }
 
         VertexTool::MoveResult VertexTool::move(const vm::vec3& delta) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             if (m_mode == Mode_Move) {
                 const auto handles = m_vertexHandles->selectedHandles();
@@ -204,7 +204,7 @@ namespace TrenchBroom {
             const auto brushMap = buildBrushMap(*m_vertexHandles, std::begin(handles), std::end(handles));
 
             Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Remove Vertex", "Remove Vertices"));
-            lock(m_document)->removeVertices(brushMap);
+            kdl::mem_lock(m_document)->removeVertices(brushMap);
         }
 
         void VertexTool::renderGuide(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch, const vm::vec3& position) const {

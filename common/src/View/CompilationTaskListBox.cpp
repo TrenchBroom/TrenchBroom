@@ -19,7 +19,6 @@
 
 #include "CompilationTaskListBox.h"
 
-#include "SharedPointer.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
 #include "Model/CompilationProfile.h"
@@ -32,6 +31,8 @@
 #include "View/TitledPanel.h"
 #include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
+
+#include <kdl/memory_utils.h>
 
 #include <QBoxLayout>
 #include <QCompleter>
@@ -83,8 +84,9 @@ namespace TrenchBroom {
         }
 
         void CompilationTaskEditorBase::updateCompleter(QCompleter* completer) {
-            const auto workDir = EL::interpolate(m_profile->workDirSpec(), EL::EvaluationContext(CompilationWorkDirVariables(lock(m_document))));
-            const auto variables = CompilationVariables(lock(m_document), workDir);
+            const auto workDir = EL::interpolate(m_profile->workDirSpec(), EL::EvaluationContext(CompilationWorkDirVariables(
+                kdl::mem_lock(m_document))));
+            const auto variables = CompilationVariables(kdl::mem_lock(m_document), workDir);
             completer->setModel(new VariableStoreModel(variables));
         }
 

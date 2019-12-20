@@ -24,7 +24,6 @@
 #include "Polyhedron3.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SharedPointer.h"
 #include "TemporarilySetAny.h"
 #include "TrenchBroom.h"
 #include "Model/Brush.h"
@@ -49,6 +48,7 @@
 #include "View/VertexCommand.h"
 #include "View/VertexHandleManager.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_set.h>
 #include <kdl/vector_utils.h>
@@ -105,11 +105,11 @@ namespace TrenchBroom {
             virtual ~VertexToolBase() override {}
         public:
             const Grid& grid() const {
-                return lock(m_document)->grid();
+                return kdl::mem_lock(m_document)->grid();
             }
 
             const std::vector<Model::Brush*>& selectedBrushes() const {
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 return document->selectedNodes().brushes();
             }
         public:
@@ -232,7 +232,7 @@ namespace TrenchBroom {
                 }
                 refreshViews();
 
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 document->startTransaction(actionName());
 
                 m_dragHandlePosition = getHandlePosition(hits.front());
@@ -244,14 +244,14 @@ namespace TrenchBroom {
             virtual MoveResult move(const vm::vec3& delta) = 0;
 
             virtual void endMove() {
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 document->commitTransaction();
                 m_dragging = false;
                 --m_ignoreChangeNotifications;
             }
 
             virtual void cancelMove() {
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 document->cancelTransaction();
                 m_dragging = false;
                 --m_ignoreChangeNotifications;
@@ -272,7 +272,7 @@ namespace TrenchBroom {
                     return;
                 }
 
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 const Model::BrushBuilder builder(document->world(), document->worldBounds());
                 auto* brush = builder.createBrush(polyhedron, document->currentTextureName());
                 brush->cloneFaceAttributesFrom(document->selectedNodes().brushes());
@@ -381,7 +381,7 @@ namespace TrenchBroom {
             }
         private: // Observers and state management
             void bindObservers() {
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 document->selectionDidChangeNotifier.addObserver(this,  &VertexToolBase::selectionDidChange);
                 document->nodesWillChangeNotifier.addObserver(this,  &VertexToolBase::nodesWillChange);
                 document->nodesDidChangeNotifier.addObserver(this,  &VertexToolBase::nodesDidChange);
@@ -394,8 +394,8 @@ namespace TrenchBroom {
             }
 
             void unbindObservers() {
-                if (!expired(m_document)) {
-                    auto document = lock(m_document);
+                if (!kdl::mem_expired(m_document)) {
+                    auto document = kdl::mem_lock(m_document);
                     document->selectionDidChangeNotifier.removeObserver(this,  &VertexToolBase::selectionDidChange);
                     document->nodesWillChangeNotifier.removeObserver(this,  &VertexToolBase::nodesWillChange);
                     document->nodesDidChangeNotifier.removeObserver(this,  &VertexToolBase::nodesDidChange);

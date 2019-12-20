@@ -19,7 +19,6 @@
 
 #include "EntityDefinitionFileChooser.h"
 
-#include "SharedPointer.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
@@ -30,6 +29,7 @@
 #include "View/ViewUtils.h"
 #include "View/QtUtils.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <QPushButton>
@@ -131,15 +131,15 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &EntityDefinitionFileChooser::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &EntityDefinitionFileChooser::documentWasLoaded);
             document->entityDefinitionsDidChangeNotifier.addObserver(this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
         }
 
         void EntityDefinitionFileChooser::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &EntityDefinitionFileChooser::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &EntityDefinitionFileChooser::documentWasLoaded);
                 document->entityDefinitionsDidChangeNotifier.removeObserver(this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
@@ -163,7 +163,7 @@ namespace TrenchBroom {
             m_builtin->clear();
             m_builtin->setAllowDeselectAll(false);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             auto specs = document->allEntityDefinitionFiles();
             kdl::vec_sort(specs);
 
@@ -217,7 +217,7 @@ namespace TrenchBroom {
             QListWidgetItem* item = m_builtin->selectedItems().first();
             auto spec = item->data(Qt::UserRole).value<Assets::EntityDefinitionFileSpec>();
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (document->entityDefinitionFile() == spec) {
                 return;
             }
@@ -242,7 +242,7 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::reloadExternalClicked() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Assets::EntityDefinitionFileSpec& spec = document->entityDefinitionFile();
             document->setEntityDefinitionFile(spec);
         }

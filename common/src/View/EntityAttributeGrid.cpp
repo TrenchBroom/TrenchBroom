@@ -19,7 +19,6 @@
 
 #include "EntityAttributeGrid.h"
 
-#include "SharedPointer.h"
 #include "Model/EntityAttributes.h"
 #include "View/BorderLine.h"
 #include "View/EntityAttributeItemDelegate.h"
@@ -29,6 +28,7 @@
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/string_format.h>
 #include <kdl/vector_set.h>
 
@@ -59,7 +59,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeGrid::addAttribute() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const std::string newAttributeName = AttributeRow::newAttributeNameForAttributableNodes(document->allSelectedAttributableNodes());
 
             document->setAttribute(newAttributeName, "");
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             }
 
             const size_t numRows = attributes.size();
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             {
                 Transaction transaction(document, kdl::str_plural(numRows, "Remove Attribute", "Remove Attributes"));
@@ -227,7 +227,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeGrid::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &EntityAttributeGrid::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &EntityAttributeGrid::documentWasLoaded);
             document->nodesDidChangeNotifier.addObserver(this, &EntityAttributeGrid::nodesDidChange);
@@ -236,8 +236,8 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeGrid::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &EntityAttributeGrid::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &EntityAttributeGrid::documentWasLoaded);
                 document->nodesDidChangeNotifier.removeObserver(this, &EntityAttributeGrid::nodesDidChange);
@@ -273,7 +273,7 @@ namespace TrenchBroom {
             QMetaObject::invokeMethod(m_model, "updateFromMapDocument", Qt::QueuedConnection);
 
             // Update buttons/checkboxes
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto nodes = document->allSelectedAttributableNodes();
             m_table->setEnabled(!nodes.empty());
             m_addAttributeButton->setEnabled(!nodes.empty());

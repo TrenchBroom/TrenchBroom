@@ -21,11 +21,12 @@
 
 #include "Polyhedron.h"
 #include "PreferenceManager.h"
-#include "SharedPointer.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"
+
+#include <kdl/memory_utils.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -40,7 +41,7 @@ namespace TrenchBroom {
         void CreateComplexBrushTool::update(const Polyhedron3& polyhedron) {
             *m_polyhedron = polyhedron;
             if (m_polyhedron->closed()) {
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 const Model::BrushBuilder builder(document->world(), document->worldBounds());
                 Model::Brush* brush = builder.createBrush(*m_polyhedron, document->currentTextureName());
                 updateBrush(brush);

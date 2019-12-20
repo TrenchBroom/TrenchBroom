@@ -186,7 +186,7 @@ namespace TrenchBroom {
         }
 
         Model::PickResult MapView3D::doPick(const vm::ray3& pickRay) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
             Model::PickResult pickResult = Model::PickResult::byDistance(editorContext);
 
@@ -199,7 +199,7 @@ namespace TrenchBroom {
         }
 
         vm::vec3 MapView3D::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& /* referenceBounds */) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& grid = document->grid();
 
             const QPoint pos = QCursor::pos();
@@ -239,7 +239,7 @@ namespace TrenchBroom {
         void MapView3D::doSelectTall() {}
 
         void MapView3D::doFocusCameraOnSelection(const bool animate) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& nodes = document->selectedNodes().nodes();
             if (!nodes.empty()) {
                 const auto newPosition = focusCameraOnObjectsPosition(nodes);
@@ -377,7 +377,7 @@ namespace TrenchBroom {
         }
 
         void MapView3D::doMoveCameraToCurrentTracePoint() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             assert(document->isPointFileLoaded());
             Model::PointFile* pointFile = document->pointFile();
@@ -423,7 +423,7 @@ namespace TrenchBroom {
         }
 
         vm::vec3 MapView3D::doComputePointEntityPosition(const vm::bbox3& bounds) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             auto& grid = document->grid();
             const auto& worldBounds = document->worldBounds();
@@ -469,7 +469,7 @@ namespace TrenchBroom {
         void MapView3D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderer.render(renderContext, renderBatch);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (renderContext.showSelectionGuide() && document->hasSelectedNodes()) {
                 const vm::bbox3& bounds = document->selectionBounds();
                 Renderer::SelectionBoundsRenderer boundsRenderer(bounds);
