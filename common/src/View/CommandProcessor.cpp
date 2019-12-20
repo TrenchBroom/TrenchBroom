@@ -40,8 +40,6 @@ namespace TrenchBroom {
             }
         }
 
-        const int64_t CommandProcessor::CollationInterval = 1000;
-
         struct CommandProcessor::TransactionState {
             std::string name;
             std::vector<std::unique_ptr<UndoableCommand>> commands;
@@ -148,18 +146,19 @@ namespace TrenchBroom {
 
         const Command::CommandType CommandProcessor::TransactionCommand::Type = Command::freeType();
 
-        CommandProcessor::CommandProcessor(MapDocumentCommandFacade* document) :
+        CommandProcessor::CommandProcessor(MapDocumentCommandFacade* document, const std::chrono::milliseconds collationInterval) :
         m_document(document),
-        m_lastCommandTimestamp(0) {}
+        m_collationInterval(collationInterval),
+        m_lastCommandTimestamp(std::chrono::time_point<std::chrono::system_clock>()) {}
 
         CommandProcessor::~CommandProcessor() = default;
 
         bool CommandProcessor::canUndo() const {
-            return !m_undoStack.empty();
+            return m_transactionStack.empty() && !m_undoStack.empty();
         }
 
         bool CommandProcessor::canRedo() const {
-            return !m_redoStack.empty();
+            return m_transactionStack.empty() && !m_redoStack.empty();
         }
 
         const std::string& CommandProcessor::undoCommandName() const {
@@ -195,11 +194,11 @@ namespace TrenchBroom {
                 throw CommandProcessorException("No transaction is currently executing");
             }
 
-            const auto transaction = std::move(m_transactionStack.back());
-            m_transactionStack.pop_back();
+            auto& transaction = m_transactionStack.back();
             for (auto it = std::rbegin(transaction.commands), end = std::rend(transaction.commands); it != end; ++it) {
                 undoCommand(it->get());
             }
+            transaction.commands.clear();
         }
 
         std::unique_ptr<CommandResult> CommandProcessor::execute(std::unique_ptr<Command> command) {
@@ -278,7 +277,7 @@ namespace TrenchBroom {
             m_repeatStack.clear();
             m_undoStack.clear();
             m_redoStack.clear();
-            m_lastCommandTimestamp = 0;
+            m_lastCommandTimestamp = std::chrono::time_point<std::chrono::system_clock>();
         }
 
         CommandProcessor::SubmitAndStoreResult CommandProcessor::executeAndStoreCommand(std::unique_ptr<UndoableCommand> command, const bool collate, const bool repeatable) {
@@ -350,7 +349,12 @@ namespace TrenchBroom {
                     transaction.name = transaction.commands.front()->name();
                 }
                 auto command = createTransaction(transaction.name, std::move(transaction.commands));
-                pushToUndoStack(std::move(command), false, true);
+
+                if (m_transactionStack.empty()) {
+                    pushToUndoStack(std::move(command), false, true);
+                } else {
+                    pushTransactionCommand(std::move(command), false);
+                }
                 transactionDoneNotifier(transaction.name);
             }
         }
@@ -367,8 +371,8 @@ namespace TrenchBroom {
         bool CommandProcessor::pushToUndoStack(std::unique_ptr<UndoableCommand> command, const bool collate, const bool repeatable) {
             assert(m_transactionStack.empty());
 
-            const int64_t timestamp = QDateTime::currentMSecsSinceEpoch();
-            const SetLate<int64_t> setLastCommandTimestamp(m_lastCommandTimestamp, timestamp);
+            const auto timestamp = std::chrono::system_clock::now();
+            const SetLate<std::chrono::system_clock::time_point> setLastCommandTimestamp(m_lastCommandTimestamp, timestamp);
 
             if (collatable(collate, timestamp)) {
                 auto& lastCommand = m_undoStack.back();
@@ -395,8 +399,8 @@ namespace TrenchBroom {
             return lastCommand;
         }
 
-        bool CommandProcessor::collatable(const bool collate, const int64_t timestamp) const {
-            return collate && !m_undoStack.empty() && timestamp - m_lastCommandTimestamp <= CollationInterval;
+        bool CommandProcessor::collatable(const bool collate, const std::chrono::system_clock::time_point timestamp) const {
+            return collate && !m_undoStack.empty() && timestamp - m_lastCommandTimestamp <= m_collationInterval;
         }
 
         void CommandProcessor::pushToRedoStack(std::unique_ptr<UndoableCommand> command) {

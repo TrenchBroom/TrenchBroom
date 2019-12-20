@@ -23,6 +23,7 @@
 #include "Notifier.h"
 #include "View/View_Forward.h"
 
+#include <chrono>
 #include <memory>
 #include <string>
 #include <vector>
@@ -34,6 +35,13 @@ namespace TrenchBroom {
          * The command processor is responsible for executing and undoing commands and for maintining the command
          * history in the form of a stack of undo commands and a stack of redo commands.
          *
+         * Successive commands can be collated if they meet certain conditions. For two commands to be collated, the
+         * following conditions must apply:
+         *
+         * - the commands are not executed as part of an undo or redo
+         * - the previous command's `collateWith` method returns true when passed the succeeding command
+         * - the time passed between the execution of the commands does not exceed the collation interval.
+         *
          * Furthermore, the command processor allows for repeating commands if they are repeatable. It manages a list
          * of repeatable commands automatically, and can repeat them while keeping the command history consistent.
          *
@@ -42,12 +50,15 @@ namespace TrenchBroom {
          */
         class CommandProcessor {
         private:
-            static const int64_t CollationInterval;
-
             /**
              * The document to pass on to commands when they are executed, undone, or repeated.
              */
             MapDocumentCommandFacade* m_document;
+
+            /**
+             * Limits the time after which to succeeding commands can be collated.
+             */
+            std::chrono::milliseconds m_collationInterval;
 
             /**
              * Holds the commands that were executed so far, with the most recently executed command at the
@@ -69,7 +80,7 @@ namespace TrenchBroom {
             /**
              * The time stamp of when the last command was executed.
              */
-            int64_t m_lastCommandTimestamp;
+            std::chrono::system_clock::time_point m_lastCommandTimestamp;
 
             struct TransactionState;
 
@@ -87,7 +98,7 @@ namespace TrenchBroom {
              *
              * @param document the document to pass to commands, may be null
              */
-            explicit CommandProcessor(MapDocumentCommandFacade* document);
+            explicit CommandProcessor(MapDocumentCommandFacade* document, std::chrono::milliseconds collationInterval = std::chrono::milliseconds(1000));
 
             ~CommandProcessor();
 
@@ -373,7 +384,7 @@ namespace TrenchBroom {
              */
             std::unique_ptr<UndoableCommand> popFromUndoStack();
 
-            bool collatable(bool collate, int64_t timestamp) const;
+            bool collatable(bool collate, std::chrono::system_clock::time_point timestamp) const;
 
             /**
              * Pushes the given command onto the redo stack. Takes ownership of the given command.

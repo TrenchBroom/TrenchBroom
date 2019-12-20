@@ -24,7 +24,9 @@
 #include "View/UndoableCommand.h"
 #include "View/CommandProcessor.h"
 
+#include <chrono>
 #include <memory>
+#include <thread>
 
 namespace TrenchBroom {
     namespace View {
@@ -370,7 +372,7 @@ namespace TrenchBroom {
             ASSERT_EQ(commandName2, commandProcessor.undoCommandName());
         }
 
-        TEST(CommandProcessorTest, transaction) {
+        TEST(CommandProcessorTest, commitUndoRedoTransaction) {
             /*
              * Execute two successful commands in a transaction, then undo the transaction successfully.
              * Finally, redo it, also with success.
@@ -385,7 +387,6 @@ namespace TrenchBroom {
             const auto commandName2 = "test command 2";
             auto command2 = TestCommand::create(commandName2, false);
 
-            // execute commands in transaction (two times because of later redo)
             command1->expectDo(true, observer);
             command2->expectDo(true, observer);
             command1->expectCollate(command2.get(), false);
@@ -426,6 +427,185 @@ namespace TrenchBroom {
             ASSERT_FALSE(commandProcessor.canRedo());
             ASSERT_TRUE(commandProcessor.canRepeat());
             ASSERT_EQ(transactionName, commandProcessor.undoCommandName());
+        }
+
+        TEST(CommandProcessorTest, rollbackTransaction) {
+            /*
+             * Execute two successful commands in a transaction, then rollback the transaction and commit it.
+             */
+
+            CommandProcessor commandProcessor(nullptr);
+            TestObserver observer(commandProcessor);
+
+            const auto commandName1 = "test command 1";
+            auto command1 = TestCommand::create(commandName1, false);
+
+            const auto commandName2 = "test command 2";
+            auto command2 = TestCommand::create(commandName2, false);
+
+            command1->expectDo(true, observer);
+            command2->expectDo(true, observer);
+            command1->expectCollate(command2.get(), false);
+
+            // rollback
+            command2->expectUndo(true, observer);
+            command1->expectUndo(true, observer);
+
+            const auto transactionName = "transaction";
+            commandProcessor.startTransaction(transactionName);
+            ASSERT_TRUE(commandProcessor.executeAndStore(std::move(command1))->success());
+            ASSERT_TRUE(commandProcessor.executeAndStore(std::move(command2))->success());
+            commandProcessor.rollbackTransaction();
+
+            ASSERT_FALSE(commandProcessor.canUndo());
+            ASSERT_FALSE(commandProcessor.canRedo());
+            ASSERT_FALSE(commandProcessor.canRepeat());
+
+            // does nothing, but closes the transaction
+            commandProcessor.commitTransaction();
+
+            ASSERT_FALSE(commandProcessor.canUndo());
+            ASSERT_FALSE(commandProcessor.canRedo());
+            ASSERT_FALSE(commandProcessor.canRepeat());
+        }
+
+        TEST(CommandProcessorTest, nestedTransactions) {
+            /*
+             * Execute a command in a transaction, start a nested transaction, execute a command, and
+             * commit both transactions. Then undo the outer transaction.
+             */
+
+            CommandProcessor commandProcessor(nullptr);
+            TestObserver observer(commandProcessor);
+
+            const auto outerCommandName = "outer command";
+            auto outerCommand = TestCommand::create(outerCommandName, false);
+
+            const auto innerCommandName = "inner command";
+            auto innerCommand = TestCommand::create(innerCommandName, false);
+
+            outerCommand->expectDo(true, observer);
+            innerCommand->expectDo(true, observer);
+
+            const auto innerTransactionName = "inner transaction";
+            observer.expectTransactionDone(innerTransactionName);
+
+            const auto outerTransactionName = "outer transaction";
+            observer.expectTransactionDone(outerTransactionName);
+
+            // undo transaction
+            innerCommand->expectUndo(true, observer);
+            outerCommand->expectUndo(true, observer);
+            observer.expectTransactionUndone(outerTransactionName);
+
+            commandProcessor.startTransaction(outerTransactionName);
+            ASSERT_TRUE(commandProcessor.executeAndStore(std::move(outerCommand))->success());
+
+            commandProcessor.startTransaction(innerTransactionName);
+            ASSERT_TRUE(commandProcessor.executeAndStore(std::move(innerCommand))->success());
+
+            commandProcessor.commitTransaction();
+            commandProcessor.commitTransaction();
+
+            ASSERT_TRUE(commandProcessor.canUndo());
+            ASSERT_FALSE(commandProcessor.canRedo());
+            ASSERT_TRUE(commandProcessor.canRepeat());
+            ASSERT_EQ(outerTransactionName, commandProcessor.undoCommandName());
+
+            ASSERT_TRUE(commandProcessor.undo()->success());
+
+            ASSERT_FALSE(commandProcessor.canUndo());
+            ASSERT_TRUE(commandProcessor.canRedo());
+            ASSERT_FALSE(commandProcessor.canRepeat());
+            ASSERT_EQ(outerTransactionName, commandProcessor.redoCommandName());
+        }
+
+        TEST(CommandProcessorTest, collateCommands) {
+            /*
+             * Execute a command and collate the next command, then undo.
+             */
+
+            CommandProcessor commandProcessor(nullptr);
+            TestObserver observer(commandProcessor);
+
+            const auto commandName1 = "test command 1";
+            auto command1 = TestCommand::create(commandName1, false);
+
+            const auto commandName2 = "test command 2";
+            auto command2 = TestCommand::create(commandName2, false);
+
+            command1->expectDo(true, observer);
+            observer.expectTransactionDone(commandName1);
+
+            command2->expectDo(true, observer);
+            observer.expectTransactionDone(commandName2);
+
+            command1->expectCollate(command2.get(), true);
+
+            command1->expectUndo(true, observer);
+            observer.expectTransactionUndone(commandName1);
+
+
+            commandProcessor.executeAndStore(std::move(command1));
+            commandProcessor.executeAndStore(std::move(command2));
+
+            ASSERT_TRUE(commandProcessor.canUndo());
+            ASSERT_FALSE(commandProcessor.canRedo());
+            ASSERT_TRUE(commandProcessor.canRepeat());
+            ASSERT_EQ(commandName1, commandProcessor.undoCommandName());
+
+            ASSERT_TRUE(commandProcessor.undo()->success());
+
+            ASSERT_FALSE(commandProcessor.canUndo());
+            ASSERT_TRUE(commandProcessor.canRedo());
+            ASSERT_FALSE(commandProcessor.canRepeat());
+            ASSERT_EQ(commandName1, commandProcessor.redoCommandName());
+        }
+
+
+        TEST(CommandProcessorTest, collationInterval) {
+            /*
+             * Execute two commands, with time passing between their execution exceeding the collation interval.
+             */
+
+            CommandProcessor commandProcessor(nullptr, std::chrono::milliseconds(100));
+            TestObserver observer(commandProcessor);
+
+            const auto commandName1 = "test command 1";
+            auto command1 = TestCommand::create(commandName1, false);
+
+            const auto commandName2 = "test command 2";
+            auto command2 = TestCommand::create(commandName2, false);
+
+            command1->expectDo(true, observer);
+            observer.expectTransactionDone(commandName1);
+
+            command2->expectDo(true, observer);
+            observer.expectTransactionDone(commandName2);
+
+            command2->expectUndo(true, observer);
+            observer.expectTransactionUndone(commandName2);
+
+
+            commandProcessor.executeAndStore(std::move(command1));
+
+            using namespace std::chrono_literals;
+            std::this_thread::sleep_for(100ms);
+
+            commandProcessor.executeAndStore(std::move(command2));
+
+            ASSERT_TRUE(commandProcessor.canUndo());
+            ASSERT_FALSE(commandProcessor.canRedo());
+            ASSERT_TRUE(commandProcessor.canRepeat());
+            ASSERT_EQ(commandName2, commandProcessor.undoCommandName());
+
+            ASSERT_TRUE(commandProcessor.undo()->success());
+
+            ASSERT_TRUE(commandProcessor.canUndo());
+            ASSERT_TRUE(commandProcessor.canRedo());
+            ASSERT_TRUE(commandProcessor.canRepeat());
+            ASSERT_EQ(commandName1, commandProcessor.undoCommandName());
+            ASSERT_EQ(commandName2, commandProcessor.redoCommandName());
         }
     }
 }
