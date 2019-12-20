@@ -30,8 +30,8 @@
 #include <cassert>
 #include <functional>
 #include <iostream>
-#include <list>
 #include <unordered_map>
+#include <vector>
 
 /**
  * An axis aligned bounding box tree that allows for quick ray intersection queries.
@@ -43,7 +43,7 @@
 template <typename T, size_t S, typename U>
 class AABBTree {
 public:
-    using List = std::list<U>;
+    using List = std::vector<U>;
     using Box = vm::bbox<T,S>;
     using DataType = U;
     using FloatType = T;
