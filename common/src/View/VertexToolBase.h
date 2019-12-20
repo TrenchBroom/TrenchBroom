@@ -20,12 +20,12 @@
 #ifndef VertexToolBase_h
 #define VertexToolBase_h
 
-#include "Disjunction.h"
 #include "Polyhedron.h"
 #include "Polyhedron3.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "SharedPointer.h"
+#include "TemporarilySetAny.h"
 #include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -90,9 +90,8 @@ namespace TrenchBroom {
             std::weak_ptr<MapDocument> m_document;
         private:
             size_t m_changeCount;
+            size_t m_ignoreChangeNotifications;
         protected:
-            Disjunction m_ignoreChangeNotifications;
-
             H m_dragHandlePosition;
             bool m_dragging;
         protected:
@@ -100,6 +99,7 @@ namespace TrenchBroom {
             Tool(false),
             m_document(document),
             m_changeCount(0),
+            m_ignoreChangeNotifications(0u),
             m_dragging(false) {}
         public:
             virtual ~VertexToolBase() override {}
@@ -237,7 +237,7 @@ namespace TrenchBroom {
 
                 m_dragHandlePosition = getHandlePosition(hits.front());
                 m_dragging = true;
-                m_ignoreChangeNotifications.pushLiteral();
+                ++m_ignoreChangeNotifications;
                 return true;
             }
 
@@ -247,14 +247,14 @@ namespace TrenchBroom {
                 auto document = lock(m_document);
                 document->commitTransaction();
                 m_dragging = false;
-                m_ignoreChangeNotifications.popLiteral();
+                --m_ignoreChangeNotifications;
             }
 
             virtual void cancelMove() {
                 auto document = lock(m_document);
                 document->cancelTransaction();
                 m_dragging = false;
-                m_ignoreChangeNotifications.popLiteral();
+                --m_ignoreChangeNotifications;
             }
 
         public: // csg convex merge
@@ -291,7 +291,7 @@ namespace TrenchBroom {
             virtual std::string actionName() const = 0;
         public:
             void moveSelection(const vm::vec3& delta) {
-                const Disjunction::TemporarilySetLiteral ignoreChangeNotifications(m_ignoreChangeNotifications);
+                TemporarilyInc ignoreChangeNotifications(m_ignoreChangeNotifications);
 
                 Transaction transaction(m_document, actionName());
                 move(delta);
@@ -437,7 +437,7 @@ namespace TrenchBroom {
                     auto* vertexCommand = static_cast<VertexCommand*>(command);
                     deselectHandles();
                     removeHandles(vertexCommand);
-                    m_ignoreChangeNotifications.pushLiteral();
+                    ++m_ignoreChangeNotifications;
                 }
             }
 
@@ -446,7 +446,7 @@ namespace TrenchBroom {
                     auto* vertexCommand = static_cast<VertexCommand*>(command);
                     addHandles(vertexCommand);
                     selectNewHandlePositions(vertexCommand);
-                    m_ignoreChangeNotifications.popLiteral();
+                    --m_ignoreChangeNotifications;
                 }
             }
 
@@ -455,7 +455,7 @@ namespace TrenchBroom {
                     auto* vertexCommand = static_cast<VertexCommand*>(command);
                     addHandles(vertexCommand);
                     selectOldHandlePositions(vertexCommand);
-                    m_ignoreChangeNotifications.popLiteral();
+                    --m_ignoreChangeNotifications;
                 }
             }
 
@@ -477,13 +477,13 @@ namespace TrenchBroom {
             }
 
             void nodesWillChange(const std::vector<Model::Node*>& nodes) {
-                if (!m_ignoreChangeNotifications) {
+                if (m_ignoreChangeNotifications == 0u) {
                     removeHandles(nodes);
                 }
             }
 
             void nodesDidChange(const std::vector<Model::Node*>& nodes) {
-                if (!m_ignoreChangeNotifications) {
+                if (m_ignoreChangeNotifications == 0u) {
                     addHandles(nodes);
                 }
             }

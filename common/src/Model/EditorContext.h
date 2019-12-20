@@ -20,11 +20,12 @@
 #ifndef TrenchBroom_EditorContext
 #define TrenchBroom_EditorContext
 
-#include "Bitset.h"
 #include "Notifier.h"
 #include "Assets/Asset_Forward.h"
 #include "Model/TagType.h"
 #include "Model/Model_Forward.h"
+
+#include <kdl/bitset.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -40,7 +41,7 @@ namespace TrenchBroom {
             bool m_showPointEntities;
             bool m_showBrushes;
             TagType::Type m_hiddenTags;
-            Bitset m_hiddenEntityDefinitions;
+            kdl::bitset m_hiddenEntityDefinitions;
             EntityLinkMode m_entityLinkMode;
 
             bool m_blockSelection;

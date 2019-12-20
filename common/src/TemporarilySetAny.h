@@ -80,6 +80,21 @@ namespace TrenchBroom {
             (m_receiver->*m_function)(!m_setTo);
         }
     };
+
+    template <typename T>
+    class TemporarilyInc {
+    private:
+        T& m_value;
+    public:
+        TemporarilyInc(T& value) :
+        m_value(value) {
+            ++m_value;
+        }
+
+        ~TemporarilyInc() {
+            --m_value;
+        }
+    };
 }
 
 #endif /* defined(TrenchBroom_TemporarilySetAny) */

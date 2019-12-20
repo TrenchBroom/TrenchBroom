@@ -485,7 +485,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/WelcomeWindow.cpp
         ${COMMON_SOURCE_DIR}/View/QtUtils.cpp
         ${COMMON_SOURCE_DIR}/Color.cpp
-        ${COMMON_SOURCE_DIR}/Disjunction.cpp
         ${COMMON_SOURCE_DIR}/Ensure.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
         ${COMMON_SOURCE_DIR}/Exceptions.cpp
@@ -1023,10 +1022,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/WelcomeWindow.h
         ${COMMON_SOURCE_DIR}/View/QtUtils.h
         ${COMMON_SOURCE_DIR}/Allocator.h
-        ${COMMON_SOURCE_DIR}/Bitset.h
         ${COMMON_SOURCE_DIR}/Color.h
         ${COMMON_SOURCE_DIR}/Constants.h
-        ${COMMON_SOURCE_DIR}/Disjunction.h
         ${COMMON_SOURCE_DIR}/Ensure.h
         ${COMMON_SOURCE_DIR}/Exceptions.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
