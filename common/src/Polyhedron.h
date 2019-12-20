@@ -21,9 +21,10 @@
 #define TrenchBroom_Polyhedron_h
 
 #include "Allocator.h"
-#include "intrusive_circular_list.h"
 
 #include "Polyhedron_Forward.h"
+
+#include <kdl/intrusive_circular_list.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -37,12 +38,12 @@
 /* ====================== Implementation in Polyhedron_Vertex.h ====================== */
 
 /**
- * Maps a vertex to its contained intrusive_circular_link member, used for intrusive_circular_list.
+ * Maps a vertex to its contained kdl::intrusive_circular_link member, used for intrusive_circular_list.
  */
 template <typename T, typename FP, typename VP>
 struct Polyhedron_GetVertexLink {
-    intrusive_circular_link<Polyhedron_Vertex<T,FP,VP>>& operator()(Polyhedron_Vertex<T,FP,VP>* vertex) const;
-    const intrusive_circular_link<Polyhedron_Vertex<T,FP,VP>>& operator()(const Polyhedron_Vertex<T,FP,VP>* vertex) const;
+    kdl::intrusive_circular_link<Polyhedron_Vertex<T,FP,VP>>& operator()(Polyhedron_Vertex<T,FP,VP>* vertex) const;
+    const kdl::intrusive_circular_link<Polyhedron_Vertex<T,FP,VP>>& operator()(const Polyhedron_Vertex<T,FP,VP>* vertex) const;
 };
 
 /**
@@ -80,9 +81,9 @@ private:
     HalfEdge* m_leaving;
 
     /**
-     * The intrusive_circular_link member required to put vertices in an intrusive_circular_list.
+     * The kdl::intrusive_circular_link member required to put vertices in an intrusive_circular_list.
      */
-    intrusive_circular_link<Vertex> m_link;
+    kdl::intrusive_circular_link<Vertex> m_link;
 
     /**
      * A payload data item that can be set on this vertex.
@@ -165,12 +166,12 @@ public:
 /* ====================== Implementation in Polyhedron_Edge.h ====================== */
 
 /**
- * Maps an edge to its contained intrusive_circular_link member, used for intrusive_circular_list.
+ * Maps an edge to its contained kdl::intrusive_circular_link member, used for intrusive_circular_list.
  */
 template <typename T, typename FP, typename VP>
 struct Polyhedron_GetEdgeLink {
-    intrusive_circular_link<Polyhedron_Edge<T,FP,VP>>& operator()(Polyhedron_Edge<T,FP,VP>* edge) const;
-    const intrusive_circular_link<Polyhedron_Edge<T,FP,VP>>& operator()(const Polyhedron_Edge<T,FP,VP>* edge) const;
+    kdl::intrusive_circular_link<Polyhedron_Edge<T,FP,VP>>& operator()(Polyhedron_Edge<T,FP,VP>* edge) const;
+    const kdl::intrusive_circular_link<Polyhedron_Edge<T,FP,VP>>& operator()(const Polyhedron_Edge<T,FP,VP>* edge) const;
 };
 
 /**
@@ -213,9 +214,9 @@ private:
     HalfEdge* m_second;
 
     /**
-     * The intrusive_circular_link member required to put vertices in an intrusive_circular_list.
+     * The kdl::intrusive_circular_link member required to put vertices in an intrusive_circular_list.
      */
-    intrusive_circular_link<Edge> m_link;
+    kdl::intrusive_circular_link<Edge> m_link;
 private:
     /**
      * Creates a new edge with the given half edges.
@@ -432,12 +433,12 @@ private:
 /* ====================== Implementation in Polyhedron_HalfEdge.h ====================== */
 
 /**
- * Maps a half edge to its contained intrusive_circular_link member, used for intrusive_circular_list.
+ * Maps a half edge to its contained kdl::intrusive_circular_link member, used for intrusive_circular_list.
  */
 template <typename T, typename FP, typename VP>
 struct Polyhedron_GetHalfEdgeLink {
-    intrusive_circular_link<Polyhedron_HalfEdge<T,FP,VP>>& operator()(Polyhedron_HalfEdge<T,FP,VP>* halfEdge) const;
-    const intrusive_circular_link<Polyhedron_HalfEdge<T,FP,VP>>& operator()(const Polyhedron_HalfEdge<T,FP,VP>* halfEdge) const;
+    kdl::intrusive_circular_link<Polyhedron_HalfEdge<T,FP,VP>>& operator()(Polyhedron_HalfEdge<T,FP,VP>* halfEdge) const;
+    const kdl::intrusive_circular_link<Polyhedron_HalfEdge<T,FP,VP>>& operator()(const Polyhedron_HalfEdge<T,FP,VP>* halfEdge) const;
 };
 
 /**
@@ -490,9 +491,9 @@ private:
     Face* m_face;
 
     /**
-     * The intrusive_circular_link member required to put half edges in an intrusive_circular_list.
+     * The kdl::intrusive_circular_link member required to put half edges in an intrusive_circular_list.
      */
-    intrusive_circular_link<HalfEdge> m_link;
+    kdl::intrusive_circular_link<HalfEdge> m_link;
 private:
     /**
      * Creates a new half edge with the given vertex as its origin. This half edge will be set as the leaving
@@ -651,12 +652,12 @@ private:
 /* ====================== Implementation in Polyhedron_Face.h ====================== */
 
 /**
- * Maps a face to its contained intrusive_circular_link member, used for intrusive_circular_list.
+ * Maps a face to its contained kdl::intrusive_circular_link member, used for intrusive_circular_list.
  */
 template <typename T, typename FP, typename VP>
 struct Polyhedron_GetFaceLink {
-    intrusive_circular_link<Polyhedron_Face<T,FP,VP>>& operator()(Polyhedron_Face<T,FP,VP>* face) const;
-    const intrusive_circular_link<Polyhedron_Face<T,FP,VP>>& operator()(const Polyhedron_Face<T,FP,VP>* face) const;
+    kdl::intrusive_circular_link<Polyhedron_Face<T,FP,VP>>& operator()(Polyhedron_Face<T,FP,VP>* face) const;
+    const kdl::intrusive_circular_link<Polyhedron_Face<T,FP,VP>>& operator()(const Polyhedron_Face<T,FP,VP>* face) const;
 };
 
 /**
@@ -694,9 +695,9 @@ private:
     typename FP::Type m_payload;
 
     /**
-     * The intrusive_circular_link member required to put half edges in an intrusive_circular_list.
+     * The kdl::intrusive_circular_link member required to put half edges in an intrusive_circular_list.
      */
-    intrusive_circular_link<Face> m_link;
+    kdl::intrusive_circular_link<Face> m_link;
 private:
     /**
      * Creates a new face with the given boundary and sets the face of each of the boundary's half edges
@@ -977,10 +978,10 @@ public:
     using HalfEdge = Polyhedron_HalfEdge<T,FP,VP>;
     using Face = Polyhedron_Face<T,FP,VP>;
 private:
-    using VertexLink = intrusive_circular_link<Vertex>;
-    using EdgeLink = intrusive_circular_link<Edge>;
-    using HalfEdgeLink = intrusive_circular_link<HalfEdge>;
-    using FaceLink = intrusive_circular_link<Face>;
+    using VertexLink = kdl::intrusive_circular_link<Vertex>;
+    using EdgeLink = kdl::intrusive_circular_link<Edge>;
+    using HalfEdgeLink = kdl::intrusive_circular_link<HalfEdge>;
+    using FaceLink = kdl::intrusive_circular_link<Face>;
 public:
     using VertexList = Polyhedron_VertexList<T,FP,VP>;
     using EdgeList = Polyhedron_EdgeList<T,FP,VP>;

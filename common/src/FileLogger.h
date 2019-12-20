@@ -24,8 +24,9 @@
 #include "Logger.h"
 #include "IO/IO_Forward.h"
 
-#include <cstdio>
 #include <string>
+
+class QString;
 
 namespace TrenchBroom {
     class FileLogger : public Logger {

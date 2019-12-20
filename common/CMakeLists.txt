@@ -1028,7 +1028,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Exceptions.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
         ${COMMON_SOURCE_DIR}/FreeType.h
-        ${COMMON_SOURCE_DIR}/intrusive_circular_list.h
         ${COMMON_SOURCE_DIR}/Logger.h
         ${COMMON_SOURCE_DIR}/Macros.h
         ${COMMON_SOURCE_DIR}/Notifier.h
