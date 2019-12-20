@@ -34,9 +34,9 @@
 #include <vector>
 
 namespace TrenchBroom {
-    class AttrString;
-
     namespace Renderer {
+        class AttrString;
+
         class EntityRenderer {
         private:
             class EntityClassnameAnchor;

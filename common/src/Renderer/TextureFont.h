@@ -30,9 +30,9 @@
 #include <vector>
 
 namespace TrenchBroom {
-    class AttrString;
-
     namespace Renderer {
+        class AttrString;
+
         class TextureFont {
         private:
             std::unique_ptr<FontTexture> m_texture;

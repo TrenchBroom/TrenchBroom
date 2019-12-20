@@ -32,9 +32,9 @@
 #include <vector>
 
 namespace TrenchBroom {
-    class AttrString;
-
     namespace Renderer {
+        class AttrString;
+
         class RenderService {
         private:
             using OcclusionPolicy = PrimitiveRendererOcclusionPolicy;

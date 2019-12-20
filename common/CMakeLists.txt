@@ -200,6 +200,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/RecoverableExceptions.cpp
         ${COMMON_SOURCE_DIR}/Renderer/ActiveShader.cpp
         ${COMMON_SOURCE_DIR}/Renderer/AllocationTracker.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/AttrString.cpp
         ${COMMON_SOURCE_DIR}/Renderer/BoundsGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/BrushRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/BrushRendererArrays.cpp
@@ -483,7 +484,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/ViewUtils.cpp
         ${COMMON_SOURCE_DIR}/View/WelcomeWindow.cpp
         ${COMMON_SOURCE_DIR}/View/QtUtils.cpp
-        ${COMMON_SOURCE_DIR}/AttrString.cpp
         ${COMMON_SOURCE_DIR}/Color.cpp
         ${COMMON_SOURCE_DIR}/Disjunction.cpp
         ${COMMON_SOURCE_DIR}/Ensure.cpp
@@ -724,6 +724,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Renderer/ActiveShader.h
         ${COMMON_SOURCE_DIR}/Renderer/AllocationTracker.h
+        ${COMMON_SOURCE_DIR}/Renderer/AttrString.h
         ${COMMON_SOURCE_DIR}/Renderer/BoundsGuideRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/BrushRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/BrushRendererArrays.h
@@ -1022,7 +1023,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/WelcomeWindow.h
         ${COMMON_SOURCE_DIR}/View/QtUtils.h
         ${COMMON_SOURCE_DIR}/Allocator.h
-        ${COMMON_SOURCE_DIR}/AttrString.h
         ${COMMON_SOURCE_DIR}/Bitset.h
         ${COMMON_SOURCE_DIR}/Color.h
         ${COMMON_SOURCE_DIR}/Constants.h
