@@ -562,7 +562,6 @@ namespace TrenchBroom {
             ASSERT_EQ(commandName1, commandProcessor.redoCommandName());
         }
 
-
         TEST(CommandProcessorTest, collationInterval) {
             /*
              * Execute two commands, with time passing between their execution exceeding the collation interval.

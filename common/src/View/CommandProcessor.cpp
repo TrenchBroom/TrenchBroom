@@ -26,6 +26,7 @@
 #include "View/UndoableCommand.h"
 
 #include <kdl/string_utils.h>
+#include <kdl/vector_utils.h>
 
 #include <algorithm>
 
@@ -341,9 +342,7 @@ namespace TrenchBroom {
         void CommandProcessor::createAndStoreTransaction() {
             assert(!m_transactionStack.empty());
 
-            auto transaction = std::move(m_transactionStack.back());
-            m_transactionStack.pop_back();
-
+            auto transaction = kdl::vec_pop_back(m_transactionStack);
             if (!transaction.commands.empty()) {
                 if (transaction.name.empty()) {
                     transaction.name = transaction.commands.front()->name();
@@ -393,8 +392,7 @@ namespace TrenchBroom {
             assert(m_transactionStack.empty());
             assert(!m_undoStack.empty());
 
-            auto lastCommand = std::move(m_undoStack.back());
-            m_undoStack.pop_back();
+            auto lastCommand = kdl::vec_pop_back(m_undoStack);
             popFromRepeatStack(lastCommand.get());
             return lastCommand;
         }
@@ -412,9 +410,7 @@ namespace TrenchBroom {
             assert(m_transactionStack.empty());
             assert(!m_redoStack.empty());
 
-            auto nextCommand = std::move(m_redoStack.back());
-            m_redoStack.pop_back();
-            return nextCommand;
+            return kdl::vec_pop_back(m_redoStack);
         }
 
         void CommandProcessor::pushToRepeatStack(UndoableCommand* command) {
