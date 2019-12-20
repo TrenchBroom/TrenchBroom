@@ -171,6 +171,8 @@ namespace TrenchBroom {
 
             m_document->setViewEffectsService(nullptr);
             m_document.reset();
+
+            // FIXME: m_contextManager is deleted via smart pointer; it may release openGL resources in its destructor
         }
 
         void MapFrame::positionOnScreen(QWidget* reference) {
