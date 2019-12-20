@@ -66,6 +66,23 @@ namespace kdl {
     }
 
     /**
+     * Removes the last element of the given vector and returns it.
+     *
+     * If the given vector is empty, the behavior is undefined.
+     *
+     * @tparam T the type of the vector elements
+     * @param v the vector
+     * @return the last element of the given vector
+     */
+    template <typename T>
+    T vec_pop_back(std::vector<T>& v) {
+        assert(!v.empty());
+        T result = std::move(v.back());
+        v.pop_back();
+        return result;
+    }
+
+    /**
      * Returns a vector containing elements of type O, each of which is constructed by passing the corresponding
      * element of v to the constructor of o, e.g. result.push_back(O(e)), where result is the resulting vector, and e
      * is an element from v.
