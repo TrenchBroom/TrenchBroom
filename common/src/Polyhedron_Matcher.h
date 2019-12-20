@@ -22,8 +22,8 @@
 
 #include "Ensure.h"
 #include "Polyhedron.h"
-#include "Relation.h"
 
+#include <kdl/binary_relation.h>
 #include <kdl/vector_utils.h>
 #include <kdl/vector_set.h>
 
@@ -66,7 +66,7 @@ private:
     using Face = typename P::Face;
     using VMap = std::map<V,V>;
 
-    using VertexRelation = relation<Vertex*, Vertex*>;
+    using VertexRelation = kdl::binary_relation<Vertex*, Vertex*>;
 
     const P& m_left;
     const P& m_right;

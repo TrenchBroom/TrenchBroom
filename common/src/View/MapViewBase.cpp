@@ -76,10 +76,11 @@
 #include <vector>
 
 #include <QtGlobal>
-#include <QShortcut>
+#include <QDebug>
 #include <QMenu>
-#include <QString>
 #include <QMimeData>
+#include <QShortcut>
+#include <QString>
 
 namespace TrenchBroom {
     namespace View {

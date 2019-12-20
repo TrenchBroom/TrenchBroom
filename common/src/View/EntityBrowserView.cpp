@@ -22,7 +22,6 @@
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "StepIterator.h"
 #include "Renderer/ActiveShader.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
@@ -43,6 +42,7 @@
 #include "View/MapFrame.h"
 #include "View/QtUtils.h"
 
+#include <kdl/skip_iterator.h>
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
@@ -400,9 +400,9 @@ namespace TrenchBroom {
                         const auto quads = font.quads(title, false, offset);
                         const auto titleVertices = TextVertex::toList(
                             quads.size() / 2,
-                            stepIterator(std::begin(quads), std::end(quads), 0, 2),
-                            stepIterator(std::begin(quads), std::end(quads), 1, 2),
-                            stepIterator(std::begin(textColor), std::end(textColor), 0, 0));
+                            kdl::skip_iterator(std::begin(quads), std::end(quads), 0, 2),
+                            kdl::skip_iterator(std::begin(quads), std::end(quads), 1, 2),
+                            kdl::skip_iterator(std::begin(textColor), std::end(textColor), 0, 0));
                         kdl::vec_append(stringVertices[defaultDescriptor], titleVertices);
                     }
 
@@ -418,9 +418,9 @@ namespace TrenchBroom {
                                 const auto quads = font.quads(cellData(cell).entityDefinition->name(), false, offset);
                                 const auto titleVertices = TextVertex::toList(
                                     quads.size() / 2,
-                                    stepIterator(std::begin(quads), std::end(quads), 0, 2),
-                                    stepIterator(std::begin(quads), std::end(quads), 1, 2),
-                                    stepIterator(std::begin(textColor), std::end(textColor), 0, 0));
+                                    kdl::skip_iterator(std::begin(quads), std::end(quads), 0, 2),
+                                    kdl::skip_iterator(std::begin(quads), std::end(quads), 1, 2),
+                                    kdl::skip_iterator(std::begin(textColor), std::end(textColor), 0, 0));
                                 kdl::vec_append(stringVertices[cellData(cell).fontDescriptor], titleVertices);
                             }
                         }

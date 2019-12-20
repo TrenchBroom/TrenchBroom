@@ -18,7 +18,7 @@ target_include_directories(kdl INTERFACE
 target_link_libraries(kdl INTERFACE optlite)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -pedantic -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded)
+    target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -pedantic -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-exit-time-destructors)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -pedantic)
 elseif(MSVC EQUAL 1)
