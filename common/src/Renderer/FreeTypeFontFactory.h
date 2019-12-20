@@ -20,7 +20,9 @@
 #ifndef TrenchBroom_FreeTypeFontFactory
 #define TrenchBroom_FreeTypeFontFactory
 
-#include "FreeType.h"
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include "Renderer/FontFactory.h"
 
 #include <memory>
