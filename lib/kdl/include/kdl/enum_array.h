@@ -18,6 +18,7 @@
 #ifndef KDL_ENUM_ARRAY_H
 #define KDL_ENUM_ARRAY_H
 
+#include <assert>
 #include <cstddef>
 
 namespace kdl {
