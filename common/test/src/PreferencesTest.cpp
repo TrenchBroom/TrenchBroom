@@ -19,7 +19,6 @@
 
 #include <gtest/gtest.h>
 
-#include <QFile>
 #include <QTextStream>
 #include <QString>
 
@@ -376,6 +375,7 @@ namespace TrenchBroom {
             "Menu/File/Reload Entity Definitions",
             "Menu/Edit/Repeat",
             "Menu/Edit/Paste at Original Position",
+            "Menu/Edit/Clear Repeatable Commands",
             "Menu/Edit/Duplicate",
             "Menu/Edit/Delete",
             "Menu/Edit/Select All",

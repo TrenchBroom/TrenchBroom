@@ -32,7 +32,7 @@ namespace kdl {
     /**
      * Returns the vector element at the given index.
      *
-     * If the given index is out of bounds, the behavior is undefined.
+     * Precondition: 0 <= index < v.size()
      *
      * @tparam T the type of the vector elements
      * @param v the vector
@@ -50,7 +50,7 @@ namespace kdl {
     /**
      * Returns the vector element at the given index.
      *
-     * If the given index is out of bounds, the behavior is undefined.
+     * Precondition: 0 <= index < v.size()
      *
      * @tparam T the type of the vector elements
      * @param v the vector
@@ -68,7 +68,7 @@ namespace kdl {
     /**
      * Removes the last element of the given vector and returns it.
      *
-     * If the given vector is empty, the behavior is undefined.
+     * Precondition: !v.empty()
      *
      * @tparam T the type of the vector elements
      * @param v the vector
@@ -222,6 +222,8 @@ namespace kdl {
     /**
      * Erases the element at the given index from the given vector. The element is swapped with the last element of the
      * vector, and then the last element is erased.
+     *
+     * Precondition: i < v.size()
      *
      * @tparam T the type of the vector elements
      * @tparam A the vector's allocator type

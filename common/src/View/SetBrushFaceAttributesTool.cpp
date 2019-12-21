@@ -70,7 +70,7 @@ namespace TrenchBroom {
             Model::BrushFace* source = selectedFaces.front();
             Model::BrushFace* targetFace = Model::hitToFace(hit);
             Model::Brush* targetBrush = targetFace->brush();
-            const std::vector<Model::BrushFace*> targetList = applyToBrush ? targetBrush->faces() : std::vector<Model::BrushFace*>{};
+            const std::vector<Model::BrushFace*> targetList = applyToBrush ? targetBrush->faces() : std::vector<Model::BrushFace*>({ targetFace });
 
             const Model::WrapStyle wrapStyle = inputState.modifierKeysDown(ModifierKeys::MKShift) ? Model::WrapStyle::Rotation : Model::WrapStyle::Projection;
 

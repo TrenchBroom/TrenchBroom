@@ -169,6 +169,10 @@ namespace TrenchBroom {
             const auto children = this->children();
             qDeleteAll(std::rbegin(children), std::rend(children));
 
+            // let's trigger a final autosave before releasing the document
+            NullLogger logger;
+            m_autosaver->triggerAutosave(logger);
+
             m_document->setViewEffectsService(nullptr);
             m_document.reset();
 
@@ -874,6 +878,12 @@ namespace TrenchBroom {
 
         void MapFrame::repeatLastCommands() {
             m_document->repeatCommands();
+        }
+
+        void MapFrame::clearRepeatableCommands() {
+            if (hasRepeatableCommands()) {
+                m_document->clearRepeatableCommands();
+            }
         }
 
         bool MapFrame::hasRepeatableCommands() const {

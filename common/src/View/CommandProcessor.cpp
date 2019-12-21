@@ -35,7 +35,7 @@
 namespace TrenchBroom {
     namespace View {
         template <typename T, typename C>
-        void notifyCommand(T& notifier, const Command::CommandType ignore, C* command) {
+        void notifyCommandIfNotType(T& notifier, const Command::CommandType ignore, C* command) {
             if (command->type() != ignore) {
                 notifier(command);
             }
@@ -93,13 +93,12 @@ namespace TrenchBroom {
             }
         private:
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override {
-                for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
-                    auto& command = *it;
-                    notifyCommand(m_commandDoNotifier, TransactionCommand::Type, command.get());
+                for (auto& command : m_commands) {
+                    notifyCommandIfNotType(m_commandDoNotifier, TransactionCommand::Type, command.get());
                     if (!command->performDo(document)) {
                         throw CommandProcessorException("Partial failure while executing transaction");
                     }
-                    notifyCommand(m_commandDoneNotifier, TransactionCommand::Type, command.get());
+                    notifyCommandIfNotType(m_commandDoneNotifier, TransactionCommand::Type, command.get());
                 }
                 return std::make_unique<CommandResult>(true);
             }
@@ -107,11 +106,11 @@ namespace TrenchBroom {
             std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override {
                 for (auto it = m_commands.rbegin(), end = m_commands.rend(); it != end; ++it) {
                     auto& command = *it;
-                    notifyCommand(m_commandUndoNotifier, TransactionCommand::Type, command.get());
+                    notifyCommandIfNotType(m_commandUndoNotifier, TransactionCommand::Type, command.get());
                     if (!command->performUndo(document)) {
                         throw CommandProcessorException("Partial failure while undoing transaction");
                     }
-                    notifyCommand(m_commandUndoneNotifier, TransactionCommand::Type, command.get());
+                    notifyCommandIfNotType(m_commandUndoneNotifier, TransactionCommand::Type, command.get());
                 }
                 return std::make_unique<CommandResult>(true);
             }
@@ -179,7 +178,7 @@ namespace TrenchBroom {
         }
 
         void CommandProcessor::startTransaction(const std::string& name) {
-            m_transactionStack.emplace_back(name);
+            m_transactionStack.push_back(TransactionState(name));
         }
 
         void CommandProcessor::commitTransaction() {
@@ -272,10 +271,14 @@ namespace TrenchBroom {
             }
         }
 
+        void CommandProcessor::clearRepeatStack() {
+            m_repeatStack.clear();
+        }
+
         void CommandProcessor::clear() {
             assert(m_transactionStack.empty());
 
-            m_repeatStack.clear();
+            clearRepeatStack();
             m_undoStack.clear();
             m_redoStack.clear();
             m_lastCommandTimestamp = std::chrono::time_point<std::chrono::system_clock>();
@@ -293,26 +296,26 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<CommandResult> CommandProcessor::executeCommand(Command* command) {
-            notifyCommand(commandDoNotifier, TransactionCommand::Type, command);
+            notifyCommandIfNotType(commandDoNotifier, TransactionCommand::Type, command);
             auto result = command->performDo(m_document);
             if (result->success()) {
-                notifyCommand(commandDoneNotifier, TransactionCommand::Type, command);
+                notifyCommandIfNotType(commandDoneNotifier, TransactionCommand::Type, command);
                 if (m_transactionStack.empty()) {
                     transactionDoneNotifier(command->name());
                 }
             } else {
-                notifyCommand(commandDoFailedNotifier, TransactionCommand::Type, command);
+                notifyCommandIfNotType(commandDoFailedNotifier, TransactionCommand::Type, command);
             }
             return result;
         }
 
         std::unique_ptr<CommandResult> CommandProcessor::undoCommand(UndoableCommand* command) {
-            notifyCommand(commandUndoNotifier, TransactionCommand::Type, command);
+            notifyCommandIfNotType(commandUndoNotifier, TransactionCommand::Type, command);
             auto result = command->performUndo(m_document);
             if (result->success()) {
-                notifyCommand(commandUndoneNotifier, TransactionCommand::Type, command);
+                notifyCommandIfNotType(commandUndoneNotifier, TransactionCommand::Type, command);
             } else {
-                notifyCommand(commandUndoFailedNotifier, TransactionCommand::Type, command);
+                notifyCommandIfNotType(commandUndoFailedNotifier, TransactionCommand::Type, command);
             }
             return result;
         }
@@ -419,7 +422,7 @@ namespace TrenchBroom {
             }
 
             if (!m_undoStack.empty() && m_undoStack.back()->isRepeatDelimiter()) {
-                m_repeatStack.clear();
+                clearRepeatStack();
             }
 
             m_repeatStack.push_back(command);

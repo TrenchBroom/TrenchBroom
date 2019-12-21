@@ -1410,9 +1410,10 @@ namespace TrenchBroom {
 
         MapDocument::MoveVerticesResult MapDocument::moveVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices, const vm::vec3& delta) {
             const auto result = executeAndStore(MoveBrushVerticesCommand::move(vertices, delta));
-            const auto success = result->success();
-            const auto hasRemainingVertices = static_cast<MoveBrushVerticesCommandResult*>(result.get())->hasRemainingVertices();
-            return MoveVerticesResult(success, hasRemainingVertices);
+            const auto* moveVerticesResult = dynamic_cast<MoveBrushVerticesCommandResult*>(result.get());
+            ensure(moveVerticesResult != nullptr, "command processor returned unexpected command result type");
+
+            return MoveVerticesResult(moveVerticesResult->success(), moveVerticesResult->hasRemainingVertices());
         }
 
         bool MapDocument::moveEdges(const std::map<vm::segment3, std::vector<Model::Brush*>>& edges, const vm::vec3& delta) {
@@ -1529,6 +1530,10 @@ namespace TrenchBroom {
 
         std::unique_ptr<CommandResult> MapDocument::repeatCommands() {
             return doRepeatCommands();
+        }
+
+        void MapDocument::clearRepeatableCommands() {
+            doClearRepeatableCommands();
         }
 
         void MapDocument::startTransaction(const std::string& name) {

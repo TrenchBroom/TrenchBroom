@@ -226,6 +226,8 @@ namespace kdl {
      * backslash. This function checks whether a character is already escaped in the given string before escaping it,
      * and a character will only be escaped if it needs to be.
      *
+     * Precondition: chars does not contain the escape character
+     *
      * @param str the string to escape
      * @param chars the characters to escape if encountered in the string, this must not include the escape character
      * @param esc the escape character

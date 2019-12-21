@@ -73,7 +73,8 @@ namespace TrenchBroom {
             std::vector<std::unique_ptr<UndoableCommand>> m_redoStack;
 
             /**
-             * Holds the commands that can be repeated.
+             * Holds the commands that can be repeated. The commands referenced here are owned by the undo or redo stack.
+             * Updates to the undo or redo stacks take care to erase stale pointers from the repeat stack as needed.
              */
             std::vector<UndoableCommand*> m_repeatStack;
 
@@ -277,6 +278,12 @@ namespace TrenchBroom {
              * @return the result of executing the repeated commands.
              */
             std::unique_ptr<CommandResult> repeat();
+
+            /**
+             * Clears the repeat stack, which removes all potentially repeatable commands. The commands themselves are
+             * not deleted by this.
+             */
+            void clearRepeatStack();
 
             /**
              * Clears this command processor. Both the undo and the redo stack are cleared, and therefore all stored

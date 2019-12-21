@@ -371,6 +371,7 @@ namespace TrenchBroom {
             void redoCommand();
             bool canRepeatCommands() const;
             std::unique_ptr<CommandResult> repeatCommands();
+            void clearRepeatableCommands();
         public: // transactions
             void startTransaction(const std::string& name = "");
             void rollbackTransaction();
@@ -388,6 +389,7 @@ namespace TrenchBroom {
             virtual void doRedoCommand() = 0;
             virtual bool doCanRepeatCommands() const = 0;
             virtual std::unique_ptr<CommandResult> doRepeatCommands() = 0;
+            virtual void doClearRepeatableCommands() = 0;
 
             virtual void doStartTransaction(const std::string& name) = 0;
             virtual void doCommitTransaction() = 0;

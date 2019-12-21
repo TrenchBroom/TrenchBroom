@@ -88,21 +88,6 @@ namespace kdl {
     }
 
     /**
-     * Performs lexicographical comparison of the given collections c1 and c2 using the given comparator. Returns -1 if
-     * the first collection is less than the second collection, or +1 in the opposite case, or 0 if both collections are
-     * equivalent.
-     *
-     * @tparam C1 the type of the first collection
-     * @tparam C2 the type of the second collection
-     * @tparam Compare the comparator type, defaults to std::less<T>, where T both C1::value_type and C2::value_type
-     * must be convertible to T
-     * @param c1 the first collection
-     * @param c2 the second collection
-     * @param cmp the comparator to use
-     * @return an int indicating the result of the comparison
-     */
-
-    /**
      * Performs lexicographical comparison of the given strings s1 and s2 using the given comparator. Returns -1 if
      * the first string is less than the second string, or +1 in the opposite case, or 0 if both strings are equal.
      *

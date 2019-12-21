@@ -773,7 +773,12 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
                 }));
-            editMenu.addSeparator();
+            editMenu.addItem(createMenuAction(IO::Path("Menu/Edit/Clear Repeatable Commands"), QObject::tr("Clear Repeatable Commands"), Qt::CTRL + Qt::SHIFT + Qt::Key_R,[](ActionExecutionContext& context) {
+                    context.frame()->clearRepeatableCommands();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.frame()->hasRepeatableCommands();
+                }));            editMenu.addSeparator();
             editMenu.addItem(createMenuAction(IO::Path("Menu/Edit/Cut"), QObject::tr("Cut"), QKeySequence::Cut,
                 [](ActionExecutionContext& context) {
                     context.frame()->cutSelection();

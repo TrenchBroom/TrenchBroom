@@ -1026,6 +1026,10 @@ namespace TrenchBroom {
             return m_commandProcessor->repeat();
         }
 
+        void MapDocumentCommandFacade::doClearRepeatableCommands() {
+            m_commandProcessor->clearRepeatStack();
+        }
+
         void MapDocumentCommandFacade::doStartTransaction(const std::string& name) {
             m_commandProcessor->startTransaction(name);
         }

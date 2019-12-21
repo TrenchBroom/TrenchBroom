@@ -166,6 +166,7 @@ namespace TrenchBroom {
             bool canRedo() const;
 
             void repeatLastCommands();
+            void clearRepeatableCommands();
             bool hasRepeatableCommands() const;
 
             void cutSelection();

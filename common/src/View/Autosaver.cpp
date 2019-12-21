@@ -75,11 +75,13 @@ namespace TrenchBroom {
 
         Autosaver::~Autosaver() {
             unbindObservers();
-            NullLogger logger;
-            triggerAutosave(logger);
         }
 
         void Autosaver::triggerAutosave(Logger& logger) {
+            if (expired(m_document)) {
+                return;
+            }
+
             const auto currentTime = std::time(nullptr);
 
             auto document = lock(m_document);
