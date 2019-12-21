@@ -21,9 +21,10 @@
 
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
-#include "View/MapDocumentCommandFacade.h"
+#include "View/VertexHandleManager.h"
 
-#include <vecmath/polygon.h>
+#include <vecmath/segment.h> // do not remove
+#include <vecmath/polygon.h> // do not remove
 
 #include <vector>
 
@@ -31,7 +32,7 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType RemoveBrushEdgesCommand::Type = Command::freeType();
 
-        RemoveBrushEdgesCommand::Ptr RemoveBrushEdgesCommand::remove(const EdgeToBrushesMap& edges) {
+        std::unique_ptr<RemoveBrushEdgesCommand> RemoveBrushEdgesCommand::remove(const EdgeToBrushesMap& edges) {
             std::vector<Model::Brush*> brushes;
             BrushEdgesMap brushEdges;
             std::vector<vm::segment3> edgePositions;
@@ -39,12 +40,14 @@ namespace TrenchBroom {
             extractEdgeMap(edges, brushes, brushEdges, edgePositions);
             BrushVerticesMap brushVertices = brushVertexMap(brushEdges);
 
-            return Ptr(new RemoveBrushEdgesCommand(brushes, brushVertices, edgePositions));
+            return std::make_unique<RemoveBrushEdgesCommand>(brushes, brushVertices, edgePositions);
         }
 
         RemoveBrushEdgesCommand::RemoveBrushEdgesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::segment3>& edgePositions) :
         RemoveBrushElementsCommand(Type, "Remove Brush Edges", brushes, vertices),
         m_oldEdgePositions(edgePositions) {}
+
+        RemoveBrushEdgesCommand::~RemoveBrushEdgesCommand() = default;
 
         void RemoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const {
             manager.select(std::begin(m_oldEdgePositions), std::end(m_oldEdgePositions));

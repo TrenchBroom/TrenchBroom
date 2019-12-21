@@ -52,7 +52,7 @@ namespace TrenchBroom {
         CollapsibleTitledPanel::CollapsibleTitledPanel(const QString& title, const bool initiallyExpanded, QWidget* parent) :
         QWidget(parent),
         m_titleBar(new CollapsibleTitleBar(title, "hide")),
-        m_divider(new BorderLine(BorderLine::Direction_Horizontal)),
+        m_divider(new BorderLine(BorderLine::Direction::Horizontal)),
         m_panel(new QWidget()),
         m_expanded(initiallyExpanded) {
             auto* sizer = new QVBoxLayout();

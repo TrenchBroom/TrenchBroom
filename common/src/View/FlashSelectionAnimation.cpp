@@ -29,7 +29,7 @@ namespace TrenchBroom {
         const Animation::Type FlashSelectionAnimation::AnimationType = Animation::freeType();
 
         FlashSelectionAnimation::FlashSelectionAnimation(Renderer::MapRenderer& renderer, QWidget* view, const double duration) :
-        Animation(AnimationType, Curve_EaseInEaseOut, duration),
+        Animation(AnimationType, Curve::EaseInEaseOut, duration),
         m_renderer(renderer),
         m_view(view) {}
 

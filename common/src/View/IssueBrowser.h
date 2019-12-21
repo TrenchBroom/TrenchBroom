@@ -22,6 +22,7 @@
 
 #include "Model/Model_Forward.h"
 #include "View/TabBook.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 #include <vector>
@@ -32,11 +33,6 @@ class QWidget;
 
 namespace TrenchBroom {
     namespace View {
-        class FlagChangedCommand;
-        class FlagsPopupEditor;
-        class IssueBrowserView;
-        class MapDocument;
-
         class IssueBrowser : public TabBookPage {
             Q_OBJECT
         private:

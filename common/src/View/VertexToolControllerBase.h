@@ -20,6 +20,7 @@
 #ifndef VertexToolControllerBase_h
 #define VertexToolControllerBase_h
 
+#include "Model/HitQuery.h"
 #include "Model/HitType.h"
 #include "Model/Model_Forward.h"
 #include "Renderer/Camera.h"

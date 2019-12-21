@@ -264,7 +264,7 @@ namespace TrenchBroom {
             m_splitBrushes = split;
 
             auto document = lock(m_document);
-            document->beginTransaction("Resize Brushes");
+            document->startTransaction("Resize Brushes");
             m_dragging = true;
             return true;
         }
@@ -328,7 +328,7 @@ namespace TrenchBroom {
             m_splitBrushes = false;
 
             auto document = lock(m_document);
-            document->beginTransaction("Move Faces");
+            document->startTransaction("Move Faces");
             m_dragging = true;
             return true;
         }
@@ -349,9 +349,9 @@ namespace TrenchBroom {
                 return true;
             }
 
-            std::map<vm::polygon3, std::set<Model::Brush*>> brushMap;
+            std::map<vm::polygon3, std::vector<Model::Brush*>> brushMap;
             for (const auto* face : dragFaces()) {
-                brushMap[face->polygon()].insert(face->brush());
+                brushMap[face->polygon()] = { face->brush() };
             }
 
             if (document->moveFaces(brushMap, delta)) {

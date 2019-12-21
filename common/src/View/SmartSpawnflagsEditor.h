@@ -27,8 +27,6 @@
 #include <memory>
 #include <vector>
 
-#include <QPoint>
-
 class QString;
 class QWidget;
 class QScrollArea;
@@ -36,7 +34,6 @@ class QScrollArea;
 namespace TrenchBroom {
     namespace View {
         class FlagsEditor;
-        class FlagChangedCommand;
         class MapDocument;
 
         class SmartSpawnflagsEditor : public SmartAttributeEditor {

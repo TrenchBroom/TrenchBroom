@@ -41,7 +41,7 @@ namespace TrenchBroom {
             sizer->setSpacing(0);
 
             sizer->addWidget(createLayerEditor(this, document), 1);
-            sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
+            sizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
             sizer->addWidget(createModEditor(this, document), 0);
             setLayout(sizer);
         }

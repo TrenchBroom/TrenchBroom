@@ -890,7 +890,7 @@ namespace TrenchBroom {
             m_dragCumulativeDelta = vm::vec3::zero();
 
             auto document = lock(m_document);
-            document->beginTransaction("Scale Objects");
+            document->startTransaction("Scale Objects");
             m_resizing = true;
         }
 

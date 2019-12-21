@@ -21,6 +21,7 @@
 #define TrenchBroom_EntityBrowser
 
 #include "IO/IO_Forward.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 
@@ -33,10 +34,6 @@ class QScrollBar;
 
 namespace TrenchBroom {
     namespace View {
-        class EntityBrowserView;
-        class GLContextManager;
-        class MapDocument;
-
         class EntityBrowser : public QWidget {
             Q_OBJECT
         private:

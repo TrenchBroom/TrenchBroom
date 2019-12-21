@@ -50,6 +50,7 @@
 #include "View/VertexHandleManager.h"
 
 #include <kdl/string_utils.h>
+#include <kdl/vector_set.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>
@@ -60,7 +61,6 @@
 #include <list>
 #include <map>
 #include <memory>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -114,9 +114,9 @@ namespace TrenchBroom {
             }
         public:
             template <typename M, typename I>
-            std::map<typename M::Handle, std::set<Model::Brush*>> buildBrushMap(const M& manager, I cur, I end) const {
+            std::map<typename M::Handle, std::vector<Model::Brush*>> buildBrushMap(const M& manager, I cur, I end) const {
                 using H2 = typename M::Handle;
-                std::map<H2, std::set<Model::Brush*>> result;
+                std::map<H2, std::vector<Model::Brush*>> result;
                 while (cur != end) {
                     const H2& handle = *cur++;
                     result[handle] = findIncidentBrushes(manager, handle);
@@ -124,16 +124,18 @@ namespace TrenchBroom {
                 return result;
             }
 
+            // FIXME: use vector_set
             template <typename M, typename H2>
-            std::set<Model::Brush*> findIncidentBrushes(const M& manager, const H2& handle) const {
+            std::vector<Model::Brush*> findIncidentBrushes(const M& manager, const H2& handle) const {
                 const std::vector<Model::Brush*>& brushes = selectedBrushes();
                 return manager.findIncidentBrushes(handle, std::begin(brushes), std::end(brushes));
             }
 
+            // FIXME: use vector_set
             template <typename M, typename I>
-            std::set<Model::Brush*> findIncidentBrushes(const M& manager, I cur, I end) const {
+            std::vector<Model::Brush*> findIncidentBrushes(const M& manager, I cur, I end) const {
                 const std::vector<Model::Brush*>& brushes = selectedBrushes();
-                std::set<Model::Brush*> result;
+                kdl::vector_set<Model::Brush*> result;
                 auto out = std::inserter(result, std::end(result));
 
                 while (cur != end) {
@@ -142,7 +144,7 @@ namespace TrenchBroom {
                     ++cur;
                 }
 
-                return result;
+                return result.release_data();
             }
 
             virtual void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const = 0;
@@ -231,7 +233,7 @@ namespace TrenchBroom {
                 refreshViews();
 
                 auto document = lock(m_document);
-                document->beginTransaction(actionName());
+                document->startTransaction(actionName());
 
                 m_dragHandlePosition = getHandlePosition(hits.front());
                 m_dragging = true;
@@ -406,58 +408,58 @@ namespace TrenchBroom {
                 }
             }
 
-            void commandDo(Command::Ptr command) {
+            void commandDo(Command* command) {
                 commandDoOrUndo(command);
             }
 
-            void commandDone(Command::Ptr command) {
+            void commandDone(Command* command) {
                 commandDoneOrUndoFailed(command);
             }
 
-            void commandDoFailed(Command::Ptr command) {
+            void commandDoFailed(Command* command) {
                 commandDoFailedOrUndone(command);
             }
 
-            void commandUndo(UndoableCommand::Ptr command) {
+            void commandUndo(UndoableCommand* command) {
                 commandDoOrUndo(command);
             }
 
-            void commandUndone(UndoableCommand::Ptr command) {
+            void commandUndone(UndoableCommand* command) {
                 commandDoFailedOrUndone(command);
             }
 
-            void commandUndoFailed(UndoableCommand::Ptr command) {
+            void commandUndoFailed(UndoableCommand* command) {
                 commandDoneOrUndoFailed(command);
             }
 
-            void commandDoOrUndo(Command::Ptr command) {
+            void commandDoOrUndo(Command* command) {
                 if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command.get());
+                    auto* vertexCommand = static_cast<VertexCommand*>(command);
                     deselectHandles();
                     removeHandles(vertexCommand);
                     m_ignoreChangeNotifications.pushLiteral();
                 }
             }
 
-            void commandDoneOrUndoFailed(Command::Ptr command) {
+            void commandDoneOrUndoFailed(Command* command) {
                 if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command.get());
+                    auto* vertexCommand = static_cast<VertexCommand*>(command);
                     addHandles(vertexCommand);
                     selectNewHandlePositions(vertexCommand);
                     m_ignoreChangeNotifications.popLiteral();
                 }
             }
 
-            void commandDoFailedOrUndone(Command::Ptr command) {
+            void commandDoFailedOrUndone(Command* command) {
                 if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command.get());
+                    auto* vertexCommand = static_cast<VertexCommand*>(command);
                     addHandles(vertexCommand);
                     selectOldHandlePositions(vertexCommand);
                     m_ignoreChangeNotifications.popLiteral();
                 }
             }
 
-            bool isVertexCommand(const Command::Ptr& command) const {
+            bool isVertexCommand(const Command* command) const {
                 return command->isType(
                         AddBrushVerticesCommand::Type,
                         RemoveBrushVerticesCommand::Type,

@@ -22,17 +22,15 @@
 
 #include "Macros.h"
 
-#include "Model/CompilationTask.h"
 #include "Model/Model_Forward.h"
-#include "View/CompilationContext.h"
-
-#include <QProcess>
+#include "View/View_Forward.h"
 
 #include <list>
 #include <memory>
 #include <string>
 
-class QProcess;
+#include <QObject>
+#include <QProcess> // for QProcess::ProcessError
 
 namespace TrenchBroom {
     namespace View {
@@ -66,6 +64,7 @@ namespace TrenchBroom {
             std::unique_ptr<const Model::CompilationExportMap> m_task;
         public:
             CompilationExportMapTaskRunner(CompilationContext& context, const Model::CompilationExportMap& task);
+            ~CompilationExportMapTaskRunner() override;
         private:
             void doExecute() override;
             void doTerminate() override;
@@ -79,6 +78,7 @@ namespace TrenchBroom {
             std::unique_ptr<const Model::CompilationCopyFiles> m_task;
         public:
             CompilationCopyFilesTaskRunner(CompilationContext& context, const Model::CompilationCopyFiles& task);
+            ~CompilationCopyFilesTaskRunner() override;
         private:
             void doExecute() override;
             void doTerminate() override;
@@ -94,6 +94,7 @@ namespace TrenchBroom {
             bool m_terminated;
         public:
             CompilationRunToolTaskRunner(CompilationContext& context, const Model::CompilationRunTool& task);
+            ~CompilationRunToolTaskRunner() override;
         private:
             void doExecute() override;
             void doTerminate() override;
@@ -118,6 +119,7 @@ namespace TrenchBroom {
             TaskRunnerList::iterator m_currentTask;
         public:
             CompilationRunner(std::unique_ptr<CompilationContext> context, const Model::CompilationProfile* profile);
+            ~CompilationRunner() override;
         private:
             class CreateTaskRunnerVisitor;
             static TaskRunnerList createTaskRunners(CompilationContext& context, const Model::CompilationProfile* profile);

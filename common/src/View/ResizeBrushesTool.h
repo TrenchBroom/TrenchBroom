@@ -23,28 +23,19 @@
 #include "TrenchBroom.h"
 #include "Model/HitType.h"
 #include "Model/Model_Forward.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
+#include "View/View_Forward.h"
 
+#include <vecmath/forward.h>
 #include <vecmath/vec.h>
-#include <vecmath/polygon.h>
 
 #include <memory>
 #include <tuple>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class PickResult;
-    }
-
-    namespace Renderer {
-        class Camera;
-    }
-
     namespace View {
-        class MapDocument;
-        class Selection;
-
         class ResizeBrushesTool : public Tool {
         private:
             static const Model::HitType::Type ResizeHit3D;

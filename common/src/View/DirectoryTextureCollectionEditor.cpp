@@ -156,9 +156,9 @@ namespace TrenchBroom {
             layout->setSpacing(0);
 
             layout->addWidget(availableCollectionsContainer,                    0, 0);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Vertical),   0, 1, 3, 1);
+            layout->addWidget(new BorderLine(BorderLine::Direction::Vertical),   0, 1, 3, 1);
             layout->addWidget(enabledCollectionsContainer,                      0, 2);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 1, 0, 1, 3);
+            layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 1, 0, 1, 3);
             layout->addLayout(toolBar,                                     2, 2);
 
             setLayout(layout);

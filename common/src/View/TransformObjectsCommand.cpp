@@ -30,34 +30,34 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType TransformObjectsCommand::Type = Command::freeType();
 
-        TransformObjectsCommand::Ptr TransformObjectsCommand::translate(const vm::vec3& delta, const bool lockTextures) {
+        std::unique_ptr<TransformObjectsCommand> TransformObjectsCommand::translate(const vm::vec3& delta, const bool lockTextures) {
             const auto transform = vm::translation_matrix(delta);
-            return Ptr(new TransformObjectsCommand(Action_Translate, "Move Objects", transform, lockTextures));
+            return std::make_unique<TransformObjectsCommand>(Action::Translate, "Move Objects", transform, lockTextures);
         }
 
-        TransformObjectsCommand::Ptr TransformObjectsCommand::rotate(const vm::vec3& center, const vm::vec3& axis, const FloatType angle, const bool lockTextures) {
+        std::unique_ptr<TransformObjectsCommand> TransformObjectsCommand::rotate(const vm::vec3& center, const vm::vec3& axis, const FloatType angle, const bool lockTextures) {
             const auto transform = vm::translation_matrix(center) * vm::rotation_matrix(axis, angle) * vm::translation_matrix(-center);
-            return Ptr(new TransformObjectsCommand(Action_Rotate, "Rotate Objects", transform, lockTextures));
+            return std::make_unique<TransformObjectsCommand>(Action::Rotate, "Rotate Objects", transform, lockTextures);
         }
 
-        TransformObjectsCommand::Ptr TransformObjectsCommand::scale(const vm::bbox3& oldBBox, const vm::bbox3& newBBox, const bool lockTextures) {
+        std::unique_ptr<TransformObjectsCommand> TransformObjectsCommand::scale(const vm::bbox3& oldBBox, const vm::bbox3& newBBox, const bool lockTextures) {
             const auto transform = vm::scale_bbox_matrix(oldBBox, newBBox);
-            return Ptr(new TransformObjectsCommand(Action_Scale, "Scale Objects", transform, lockTextures));
+            return std::make_unique<TransformObjectsCommand>(Action::Scale, "Scale Objects", transform, lockTextures);
         }
 
-        TransformObjectsCommand::Ptr TransformObjectsCommand::scale(const vm::vec3& center, const vm::vec3& scaleFactors, const bool lockTextures) {
+        std::unique_ptr<TransformObjectsCommand> TransformObjectsCommand::scale(const vm::vec3& center, const vm::vec3& scaleFactors, const bool lockTextures) {
             const auto transform = vm::translation_matrix(center) * vm::scaling_matrix(scaleFactors) * vm::translation_matrix(-center);
-            return Ptr(new TransformObjectsCommand(Action_Scale, "Scale Objects", transform, lockTextures));
+            return std::make_unique<TransformObjectsCommand>(Action::Scale, "Scale Objects", transform, lockTextures);
         }
 
-        TransformObjectsCommand::Ptr TransformObjectsCommand::shearBBox(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta, const bool lockTextures) {
+        std::unique_ptr<TransformObjectsCommand> TransformObjectsCommand::shearBBox(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta, const bool lockTextures) {
             const auto transform = vm::shear_bbox_matrix(box, sideToShear, delta);
-            return Ptr(new TransformObjectsCommand(Action_Shear, "Shear Objects", transform, lockTextures));
+            return std::make_unique<TransformObjectsCommand>(Action::Shear, "Shear Objects", transform, lockTextures);
         }
 
-        TransformObjectsCommand::Ptr TransformObjectsCommand::flip(const vm::vec3& center, const vm::axis::type axis, const bool lockTextures) {
+        std::unique_ptr<TransformObjectsCommand> TransformObjectsCommand::flip(const vm::vec3& center, const vm::axis::type axis, const bool lockTextures) {
             const auto transform = vm::translation_matrix(center) * vm::mirror_matrix<FloatType>(axis) * vm::translation_matrix(-center);
-            return Ptr(new TransformObjectsCommand(Action_Flip, "Flip Objects", transform, lockTextures));
+            return std::make_unique<TransformObjectsCommand>(Action::Flip, "Flip Objects", transform, lockTextures);
         }
 
         TransformObjectsCommand::TransformObjectsCommand(const Action action, const std::string& name, const vm::mat4x4& transform, const bool lockTextures) :
@@ -66,20 +66,21 @@ namespace TrenchBroom {
         m_transform(transform),
         m_lockTextures(lockTextures) {}
 
-        bool TransformObjectsCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            return document->performTransform(m_transform, m_lockTextures);
+        std::unique_ptr<CommandResult> TransformObjectsCommand::doPerformDo(MapDocumentCommandFacade* document) {
+            const bool success = document->performTransform(m_transform, m_lockTextures);
+            return std::make_unique<CommandResult>(success);
         }
 
         bool TransformObjectsCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
             return document->hasSelectedNodes();
         }
 
-        UndoableCommand::Ptr TransformObjectsCommand::doRepeat(MapDocumentCommandFacade*) const {
-            return UndoableCommand::Ptr(new TransformObjectsCommand(m_action, m_name, m_transform, m_lockTextures));
+        std::unique_ptr<UndoableCommand> TransformObjectsCommand::doRepeat(MapDocumentCommandFacade*) const {
+            return std::make_unique<TransformObjectsCommand>(m_action, m_name, m_transform, m_lockTextures);
         }
 
-        bool TransformObjectsCommand::doCollateWith(UndoableCommand::Ptr command) {
-            auto* other = static_cast<TransformObjectsCommand*>(command.get());
+        bool TransformObjectsCommand::doCollateWith(UndoableCommand* command) {
+            auto* other = static_cast<TransformObjectsCommand*>(command);
             if (other->m_lockTextures != m_lockTextures) {
                 return false;
             } else if (other->m_action != m_action) {

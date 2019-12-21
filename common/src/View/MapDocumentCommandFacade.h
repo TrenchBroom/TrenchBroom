@@ -21,20 +21,14 @@
 #define TrenchBroom_MapDocumentCommandFacade
 
 #include "TrenchBroom.h"
-#include "Model/EntityAttributeSnapshot.h"
-#include "Model/EntityColor.h"
 #include "Model/Model_Forward.h"
-#include "Model/Node.h"
-#include "Model/TexCoordSystem.h"
-#include "View/CommandProcessor.h"
 #include "View/MapDocument.h"
-#include "View/UndoableCommand.h"
+#include "View/View_Forward.h"
 
-#include <vecmath/segment.h>
+#include <vecmath/forward.h>
 
 #include <map>
 #include <memory>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -42,11 +36,13 @@ namespace TrenchBroom {
     namespace View {
         class MapDocumentCommandFacade : public MapDocument {
         private:
-            CommandProcessor m_commandProcessor;
+            std::unique_ptr<CommandProcessor> m_commandProcessor;
         public:
             static std::shared_ptr<MapDocument> newMapDocument();
         private:
             MapDocumentCommandFacade();
+        public:
+            ~MapDocumentCommandFacade() override;
         public: // selection modification
             void performSelect(const std::vector<Model::Node*>& nodes);
             void performSelect(const std::vector<Model::BrushFace*>& faces);
@@ -106,7 +102,7 @@ namespace TrenchBroom {
             std::vector<vm::vec3> performMoveVertices(const std::map<Model::Brush*, std::vector<vm::vec3>>& vertices, const vm::vec3& delta);
             std::vector<vm::segment3> performMoveEdges(const std::map<Model::Brush*, std::vector<vm::segment3>>& edges, const vm::vec3& delta);
             std::vector<vm::polygon3> performMoveFaces(const std::map<Model::Brush*, std::vector<vm::polygon3>>& faces, const vm::vec3& delta);
-            void performAddVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices);
+            void performAddVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices);
             void performRemoveVertices(const std::map<Model::Brush*, std::vector<vm::vec3>>& vertices);
         private: // implement MapDocument operations
             void performRebuildBrushGeometry(const std::vector<Model::Brush*>& brushes) override;
@@ -128,22 +124,22 @@ namespace TrenchBroom {
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
         private: // implement MapDocument interface
-            bool doCanUndoLastCommand() const override;
-            bool doCanRedoNextCommand() const override;
-            const std::string& doGetLastCommandName() const override;
-            const std::string& doGetNextCommandName() const override;
-            void doUndoLastCommand() override;
-            void doRedoNextCommand() override;
-            bool doHasRepeatableCommands() const override;
-            bool doRepeatLastCommands() override;
+            bool doCanUndoCommand() const override;
+            bool doCanRedoCommand() const override;
+            const std::string& doGetUndoCommandName() const override;
+            const std::string& doGetRedoCommandName() const override;
+            void doUndoCommand() override;
+            void doRedoCommand() override;
+            bool doCanRepeatCommands() const override;
+            std::unique_ptr<CommandResult> doRepeatCommands() override;
             void doClearRepeatableCommands() override;
 
-            void doBeginTransaction(const std::string& name) override;
-            void doEndTransaction() override;
+            void doStartTransaction(const std::string& name) override;
+            void doCommitTransaction() override;
             void doRollbackTransaction() override;
 
-            bool doSubmit(Command::Ptr command) override;
-            bool doSubmitAndStore(UndoableCommand::Ptr command) override;
+            std::unique_ptr<CommandResult> doExecute(std::unique_ptr<Command>&& command) override;
+            std::unique_ptr<CommandResult> doExecuteAndStore(std::unique_ptr<UndoableCommand>&& command) override;
         };
     }
 }

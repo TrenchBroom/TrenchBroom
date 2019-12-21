@@ -167,7 +167,7 @@ namespace TrenchBroom {
                 auto document = lock(m_document);
                 document->commitPendingAssets();
 
-                Renderer::RenderContext renderContext(Renderer::RenderContext::RenderMode_2D, m_camera, fontManager(), shaderManager());
+                Renderer::RenderContext renderContext(Renderer::RenderMode::Render2D, m_camera, fontManager(), shaderManager());
                 Renderer::RenderBatch renderBatch(vboManager());
 
                 setupGL(renderContext);

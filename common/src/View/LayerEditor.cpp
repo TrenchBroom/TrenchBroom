@@ -391,7 +391,7 @@ namespace TrenchBroom {
             sizer->setContentsMargins(0, 0, 0, 0);
             sizer->setSpacing(0);
             sizer->addWidget(m_layerList, 1);
-            sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
+            sizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
             sizer->addLayout(buttonSizer, 0);
             setLayout(sizer);
         }

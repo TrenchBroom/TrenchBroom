@@ -40,14 +40,14 @@ namespace TrenchBroom {
             setSizePolicy(sizePolicy);
         }
 
-        void ColorTable::setColors(const ColorList& colors) {
+        void ColorTable::setColors(const std::vector<QColor>& colors) {
             m_colors = colors;
             m_selectedColors.clear();
 
             updateGeometry();
         }
 
-        void ColorTable::setSelection(const ColorList& colors) {
+        void ColorTable::setSelection(const std::vector<QColor>& colors) {
             m_selectedColors = colors;
             update();
         }

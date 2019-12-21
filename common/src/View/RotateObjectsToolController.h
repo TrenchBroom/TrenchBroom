@@ -20,19 +20,13 @@
 #ifndef TrenchBroom_RotateObjectsToolController
 #define TrenchBroom_RotateObjectsToolController
 
-#include "Model/Hit.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/RotateObjectsHandle.h"
 #include "View/ToolController.h"
+#include "View/View_Forward.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class PickResult;
-    }
-
     namespace View {
-        class MovementRestriction;
-        class RotateObjectsTool;
-
         class RotateObjectsToolController : public ToolControllerGroup {
         protected:
             class MoveCenterBase;

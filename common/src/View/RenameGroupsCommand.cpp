@@ -27,29 +27,29 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType RenameGroupsCommand::Type = Command::freeType();
 
-        RenameGroupsCommand::Ptr RenameGroupsCommand::rename(const std::string& newName) {
-            return Ptr(new RenameGroupsCommand(newName));
+        std::unique_ptr<RenameGroupsCommand> RenameGroupsCommand::rename(const std::string& newName) {
+            return std::make_unique<RenameGroupsCommand>(newName);
         }
 
         RenameGroupsCommand::RenameGroupsCommand(const std::string& newName) :
         DocumentCommand(Type, "Rename Groups"),
         m_newName(newName) {}
 
-        bool RenameGroupsCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> RenameGroupsCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_oldNames = document->performRenameGroups(m_newName);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool RenameGroupsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> RenameGroupsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performUndoRenameGroups(m_oldNames);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool RenameGroupsCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool RenameGroupsCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool RenameGroupsCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

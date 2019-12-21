@@ -30,15 +30,15 @@ namespace TrenchBroom {
 
         UndoableCommand::~UndoableCommand() {}
 
-        bool UndoableCommand::performUndo(MapDocumentCommandFacade* document) {
-            m_state = CommandState_Undoing;
-            if (doPerformUndo(document)) {
-                m_state = CommandState_Default;
-                return true;
+        std::unique_ptr<CommandResult> UndoableCommand::performUndo(MapDocumentCommandFacade* document) {
+            m_state = CommandState::Undoing;
+            auto result = doPerformUndo(document);
+            if (result->success()) {
+                m_state = CommandState::Default;
             } else {
-                m_state = CommandState_Done;
-                return false;
+                m_state = CommandState::Done;
             }
+            return result;
         }
 
         bool UndoableCommand::isRepeatDelimiter() const {
@@ -49,12 +49,12 @@ namespace TrenchBroom {
             return doIsRepeatable(document);
         }
 
-        UndoableCommand::Ptr UndoableCommand::repeat(MapDocumentCommandFacade* document) const {
+        std::unique_ptr<UndoableCommand> UndoableCommand::repeat(MapDocumentCommandFacade* document) const {
             return doRepeat(document);
         }
 
-        bool UndoableCommand::collateWith(UndoableCommand::Ptr command) {
-            assert(command.get() != this);
+        bool UndoableCommand::collateWith(UndoableCommand* command) {
+            assert(command != this);
             if (command->type() != m_type)
                 return false;
             return doCollateWith(command);
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        UndoableCommand::Ptr UndoableCommand::doRepeat(MapDocumentCommandFacade*) const {
+        std::unique_ptr<UndoableCommand> UndoableCommand::doRepeat(MapDocumentCommandFacade*) const {
             throw CommandProcessorException("Command is not repeatable");
         }
 

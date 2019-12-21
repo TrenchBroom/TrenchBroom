@@ -20,8 +20,8 @@
 #include "SmartAttributeEditorMatcher.h"
 
 #include <kdl/string_compare.h>
+#include <kdl/vector_utils.h>
 
-#include <set>
 #include <vector>
 
 namespace TrenchBroom {
@@ -36,15 +36,19 @@ namespace TrenchBroom {
         SmartAttributeEditorKeyMatcher({ pattern }) {}
 
         SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const std::initializer_list<std::string> patterns) :
-        m_patterns(patterns) {}
+        m_patterns(patterns) {
+            kdl::vec_sort_and_remove_duplicates(m_patterns);
+        }
 
         bool SmartAttributeEditorKeyMatcher::doMatches(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const {
-            if (attributables.empty())
+            if (attributables.empty()) {
                 return false;
+            }
 
             for (const std::string& pattern : m_patterns) {
-                if (kdl::cs::str_matches_glob(name, pattern))
+                if (kdl::cs::str_matches_glob(name, pattern)) {
                     return true;
+                }
             }
 
             return false;

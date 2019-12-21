@@ -23,42 +23,27 @@
 #include "Notifier.h"
 #include "TrenchBroom.h"
 #include "Assets/Asset_Forward.h"
-#include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/Path.h"
-#include "Model/EntityColor.h"
 #include "Model/MapFacade.h"
-#include "Model/MapFormat.h"
 #include "Model/Model_Forward.h"
 #include "Model/NodeCollection.h"
-#include "Model/TexCoordSystem.h"
 #include "View/CachingLogger.h"
-#include "View/UndoableCommand.h"
+#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
 #include <vecmath/util.h>
 
 // FIXME: try to get rid of functional
-#include <functional>
 #include <map>
 #include <memory>
-#include <set>
 #include <string>
 #include <vector>
 
 class Color;
+
 namespace TrenchBroom {
     namespace View {
-        class Action;
-        class Command;
-        class Grid;
-        class MapViewConfig;
-        class Selection;
-        class UndoableCommand;
-        class ViewEffectsService;
-
-        enum class PasteType;
-
         class MapDocument : public Model::MapFacade, public CachingLogger {
         public:
             static const vm::bbox3 DefaultWorldBounds;
@@ -102,12 +87,12 @@ namespace TrenchBroom {
 
             ViewEffectsService* m_viewEffectsService;
         public: // notification
-            Notifier<Command::Ptr> commandDoNotifier;
-            Notifier<Command::Ptr> commandDoneNotifier;
-            Notifier<Command::Ptr> commandDoFailedNotifier;
-            Notifier<UndoableCommand::Ptr> commandUndoNotifier;
-            Notifier<UndoableCommand::Ptr> commandUndoneNotifier;
-            Notifier<UndoableCommand::Ptr> commandUndoFailedNotifier;
+            Notifier<Command*> commandDoNotifier;
+            Notifier<Command*> commandDoneNotifier;
+            Notifier<Command*> commandDoFailedNotifier;
+            Notifier<UndoableCommand*> commandUndoNotifier;
+            Notifier<UndoableCommand*> commandUndoneNotifier;
+            Notifier<UndoableCommand*> commandUndoFailedNotifier;
             Notifier<const std::string&> transactionDoneNotifier;
             Notifier<const std::string&> transactionUndoneNotifier;
 
@@ -184,13 +169,25 @@ namespace TrenchBroom {
 
             void setViewEffectsService(ViewEffectsService* viewEffectsService);
         public: // tag and entity definition actions
-            using ActionVisitor = std::function<void(const Action&)>;
-            void visitTagActions(const ActionVisitor& visitor) const;
-            void visitEntityDefinitionActions(const ActionVisitor& visitor) const;
+            template <typename ActionVisitor>
+            void visitTagActions(const ActionVisitor& visitor) const {
+                visitActions(visitor, m_tagActions);
+            }
+
+            template <typename ActionVisitor>
+            void visitEntityDefinitionActions(const ActionVisitor& visitor) const {
+                visitActions(visitor, m_entityDefinitionActions);
+            }
         private: // tag and entity definition actions
+            template <typename ActionVisitor>
+            void visitActions(const ActionVisitor& visitor, const ActionList& actions) const {
+                for (const std::unique_ptr<Action>& action : actions) {
+                    visitor(*action);
+                }
+            }
+
             void createTagActions();
             void createEntityDefinitionActions();
-            void visitActions(const ActionVisitor& visitor, const ActionList& actions) const;
         public: // new, load, save document
             void newDocument(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game);
             void loadDocument(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game, const IO::Path& path);
@@ -352,54 +349,54 @@ namespace TrenchBroom {
             bool snapVertices(FloatType snapTo) override;
             bool findPlanePoints() override;
 
-            MoveVerticesResult moveVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices, const vm::vec3& delta) override;
-            bool moveEdges(const std::map<vm::segment3, std::set<Model::Brush*>>& edges, const vm::vec3& delta) override;
-            bool moveFaces(const std::map<vm::polygon3, std::set<Model::Brush*>>& faces, const vm::vec3& delta) override;
+            MoveVerticesResult moveVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices, const vm::vec3& delta) override;
+            bool moveEdges(const std::map<vm::segment3, std::vector<Model::Brush*>>& edges, const vm::vec3& delta) override;
+            bool moveFaces(const std::map<vm::polygon3, std::vector<Model::Brush*>>& faces, const vm::vec3& delta) override;
 
-            bool addVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices);
-            bool removeVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices);
-            bool removeEdges(const std::map<vm::segment3, std::set<Model::Brush*>>& edges);
-            bool removeFaces(const std::map<vm::polygon3, std::set<Model::Brush*>>& faces);
+            bool addVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices);
+            bool removeVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices);
+            bool removeEdges(const std::map<vm::segment3, std::vector<Model::Brush*>>& edges);
+            bool removeFaces(const std::map<vm::polygon3, std::vector<Model::Brush*>>& faces);
         private: // subclassing interface for certain operations which are available from this class, but can only be implemented in a subclass
             virtual void performRebuildBrushGeometry(const std::vector<Model::Brush*>& brushes) = 0;
         public: // debug commands
             void printVertices();
             bool throwExceptionDuringCommand();
         public: // command processing
-            bool canUndoLastCommand() const;
-            bool canRedoNextCommand() const;
-            const std::string& lastCommandName() const;
-            const std::string& nextCommandName() const;
-            void undoLastCommand();
-            void redoNextCommand();
-            bool hasRepeatableCommands() const;
-            bool repeatLastCommands();
+            bool canUndoCommand() const;
+            bool canRedoCommand() const;
+            const std::string& undoCommandName() const;
+            const std::string& redoCommandName() const;
+            void undoCommand();
+            void redoCommand();
+            bool canRepeatCommands() const;
+            std::unique_ptr<CommandResult> repeatCommands();
             void clearRepeatableCommands();
         public: // transactions
-            void beginTransaction(const std::string& name = "");
+            void startTransaction(const std::string& name = "");
             void rollbackTransaction();
             void commitTransaction();
             void cancelTransaction();
         private:
-            bool submit(Command::Ptr command);
-            bool submitAndStore(UndoableCommand::Ptr command);
+            std::unique_ptr<CommandResult> execute(std::unique_ptr<Command>&& command);
+            std::unique_ptr<CommandResult> executeAndStore(std::unique_ptr<UndoableCommand>&& command);
         private: // subclassing interface for command processing
-            virtual bool doCanUndoLastCommand() const = 0;
-            virtual bool doCanRedoNextCommand() const = 0;
-            virtual const std::string& doGetLastCommandName() const = 0;
-            virtual const std::string& doGetNextCommandName() const = 0;
-            virtual void doUndoLastCommand() = 0;
-            virtual void doRedoNextCommand() = 0;
-            virtual bool doHasRepeatableCommands() const = 0;
-            virtual bool doRepeatLastCommands() = 0;
+            virtual bool doCanUndoCommand() const = 0;
+            virtual bool doCanRedoCommand() const = 0;
+            virtual const std::string& doGetUndoCommandName() const = 0;
+            virtual const std::string& doGetRedoCommandName() const = 0;
+            virtual void doUndoCommand() = 0;
+            virtual void doRedoCommand() = 0;
+            virtual bool doCanRepeatCommands() const = 0;
+            virtual std::unique_ptr<CommandResult> doRepeatCommands() = 0;
             virtual void doClearRepeatableCommands() = 0;
 
-            virtual void doBeginTransaction(const std::string& name) = 0;
-            virtual void doEndTransaction() = 0;
+            virtual void doStartTransaction(const std::string& name) = 0;
+            virtual void doCommitTransaction() = 0;
             virtual void doRollbackTransaction() = 0;
 
-            virtual bool doSubmit(Command::Ptr command) = 0;
-            virtual bool doSubmitAndStore(UndoableCommand::Ptr command) = 0;
+            virtual std::unique_ptr<CommandResult> doExecute(std::unique_ptr<Command>&& command) = 0;
+            virtual std::unique_ptr<CommandResult> doExecuteAndStore(std::unique_ptr<UndoableCommand>&& command) = 0;
         public: // asset state management
             void commitPendingAssets();
         public: // picking
@@ -508,8 +505,8 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             void preferenceDidChange(const IO::Path& path);
-            void commandDone(Command::Ptr command);
-            void commandUndone(UndoableCommand::Ptr command);
+            void commandDone(Command* command);
+            void commandUndone(UndoableCommand* command);
         };
 
         class Transaction {

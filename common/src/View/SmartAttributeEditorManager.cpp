@@ -19,6 +19,8 @@
 
 #include "SmartAttributeEditorManager.h"
 
+#include "Macros.h"
+#include "SharedPointer.h"
 #include "View/MapDocument.h"
 #include "View/SmartChoiceEditor.h"
 #include "View/SmartChoiceEditorMatcher.h"
@@ -29,7 +31,6 @@
 #include "View/SmartSpawnflagsEditor.h"
 
 #include <QWidget>
-#include <QVBoxLayout>
 #include <QStackedLayout>
 
 namespace TrenchBroom {

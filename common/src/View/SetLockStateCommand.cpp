@@ -28,16 +28,16 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetLockStateCommand::Type = Command::freeType();
 
-        SetLockStateCommand::Ptr SetLockStateCommand::lock(const std::vector<Model::Node*>& nodes) {
-            return Ptr(new SetLockStateCommand(nodes, Model::LockState::Lock_Locked));
+        std::unique_ptr<SetLockStateCommand> SetLockStateCommand::lock(const std::vector<Model::Node*>& nodes) {
+            return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Lock_Locked);
         }
 
-        SetLockStateCommand::Ptr SetLockStateCommand::unlock(const std::vector<Model::Node*>& nodes) {
-            return Ptr(new SetLockStateCommand(nodes, Model::LockState::Lock_Unlocked));
+        std::unique_ptr<SetLockStateCommand> SetLockStateCommand::unlock(const std::vector<Model::Node*>& nodes) {
+            return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Lock_Unlocked);
         }
 
-        SetLockStateCommand::Ptr SetLockStateCommand::reset(const std::vector<Model::Node*>& nodes) {
-            return Ptr(new SetLockStateCommand(nodes, Model::LockState::Lock_Inherited));
+        std::unique_ptr<SetLockStateCommand> SetLockStateCommand::reset(const std::vector<Model::Node*>& nodes) {
+            return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Lock_Inherited);
         }
 
         SetLockStateCommand::SetLockStateCommand(const std::vector<Model::Node*>& nodes, const Model::LockState lockState) :
@@ -57,17 +57,17 @@ namespace TrenchBroom {
             }
         }
 
-        bool SetLockStateCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SetLockStateCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_oldLockState = document->setLockState(m_nodes, m_lockState);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool SetLockStateCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SetLockStateCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->restoreLockState(m_oldLockState);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool SetLockStateCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool SetLockStateCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
 

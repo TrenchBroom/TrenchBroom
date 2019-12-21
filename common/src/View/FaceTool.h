@@ -21,31 +21,25 @@
 #define FaceTool_h
 
 #include "TrenchBroom.h"
-#include "View/VertexHandleManager.h"
 #include "View/VertexToolBase.h"
+#include "View/View_Forward.h"
 
 #include <vecmath/polygon.h>
 
-#include <set>
+#include <memory>
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class PickResult;
-    }
-
-    namespace Renderer {
-        class Camera;
-    }
-
     namespace View {
         class FaceTool : public VertexToolBase<vm::polygon3> {
         private:
-            FaceHandleManager m_faceHandles;
+            std::unique_ptr<FaceHandleManager> m_faceHandles;
         public:
             FaceTool(std::weak_ptr<MapDocument> document);
         public:
-            std::set<Model::Brush*> findIncidentBrushes(const vm::polygon3& handle) const;
+            // FIXME: use vector_set
+            std::vector<Model::Brush*> findIncidentBrushes(const vm::polygon3& handle) const;
         private:
             using VertexToolBase::findIncidentBrushes;
         public:

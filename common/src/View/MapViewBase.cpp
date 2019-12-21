@@ -20,10 +20,11 @@
 #include "MapViewBase.h"
 
 #include "Constants.h"
-#include "TrenchBroom.h"
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
+#include "TrenchBroom.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -38,6 +39,7 @@
 #include "Model/Group.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
+#include "Model/HitQuery.h"
 #include "Model/Layer.h"
 #include "Model/PointFile.h"
 #include "Model/PortalFile.h"
@@ -49,6 +51,7 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/PrimitiveRenderer.h"
 #include "Renderer/RenderBatch.h"
+#include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
 #include "View/Actions.h"
 #include "View/Animation.h"
@@ -193,13 +196,13 @@ namespace TrenchBroom {
             update();
         }
 
-        void MapViewBase::commandDone(Command::Ptr) {
+        void MapViewBase::commandDone(Command*) {
             updateActionStates();
             updatePickResult();
             update();
         }
 
-        void MapViewBase::commandUndone(UndoableCommand::Ptr) {
+        void MapViewBase::commandUndone(UndoableCommand*) {
             updateActionStates();
             updatePickResult();
             update();

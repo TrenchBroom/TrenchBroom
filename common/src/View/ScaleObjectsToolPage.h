@@ -21,6 +21,9 @@
 #define TrenchBroom_ScaleObjectsToolPage
 
 #include "TrenchBroom.h"
+#include "View/View_Forward.h"
+
+#include <vecmath/forward.h>
 
 #include <memory>
 
@@ -34,10 +37,6 @@ class QAbstractButton;
 
 namespace TrenchBroom {
     namespace View {
-        class MapDocument;
-        class Selection;
-        class ScaleObjectsTool;
-
         class ScaleObjectsToolPage : public QWidget {
             Q_OBJECT
         private:

@@ -23,8 +23,8 @@
 #include "IO/IO_Forward.h"
 #include "Model/MapFormat.h"
 #include "Model/Model_Forward.h"
-#include "View/Inspector.h"
 #include "View/Selection.h"
+#include "View/View_Forward.h"
 
 #include <QMainWindow>
 #include <QPointer>
@@ -47,27 +47,13 @@ namespace TrenchBroom {
     class Logger;
 
     namespace View {
-        class Action;
-        class Autosaver;
-        class Console;
-        class InfoPanel;
-        class FrameManager;
-        class GLContextManager;
-        class Inspector;
-        class MapDocument;
-        class SwitchableMapViewContainer;
-        class Tool;
-        class MapViewBase;
-
-        enum class PasteType;
-
         class MapFrame : public QMainWindow {
             Q_OBJECT
         private:
             FrameManager* m_frameManager;
             std::shared_ptr<MapDocument> m_document;
 
-            Autosaver* m_autosaver;
+            std::unique_ptr<Autosaver> m_autosaver;
             QTimer* m_autosaveTimer;
 
             QToolBar* m_toolBar;
@@ -75,7 +61,7 @@ namespace TrenchBroom {
             QSplitter* m_hSplitter;
             QSplitter* m_vSplitter;
 
-            GLContextManager* m_contextManager;
+            std::unique_ptr<GLContextManager> m_contextManager;
             SwitchableMapViewContainer* m_mapView;
             /**
              * Last focused MapViewBase. It's a QPointer to handle changing from e.g. a 2-pane map view to 1-pane.
@@ -309,7 +295,7 @@ namespace TrenchBroom {
 
             void showAll();
 
-            void switchToInspectorPage(Inspector::InspectorPage page);
+            void switchToInspectorPage(InspectorPage page);
 
             void toggleToolbar();
             bool toolbarVisible() const;

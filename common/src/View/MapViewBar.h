@@ -21,6 +21,7 @@
 #define TrenchBroom_MapViewBar
 
 #include "View/ContainerBar.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 
@@ -29,9 +30,6 @@ class QLabel;
 
 namespace TrenchBroom {
     namespace View {
-        class MapDocument;
-        class ViewPopupEditor;
-
         class MapViewBar : public ContainerBar {
             Q_OBJECT
         private:

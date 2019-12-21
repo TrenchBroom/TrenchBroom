@@ -19,13 +19,12 @@
 
 #include "AddBrushVerticesCommand.h"
 
+#include "Model/Brush.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <kdl/string_format.h>
 #include <kdl/vector_set.h>
-
-#include <vecmath/polygon.h>
 
 #include <set>
 #include <vector>
@@ -34,15 +33,15 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType AddBrushVerticesCommand::Type = Command::freeType();
 
-        AddBrushVerticesCommand::Ptr AddBrushVerticesCommand::add(const VertexToBrushesMap& vertices) {
+        std::unique_ptr<AddBrushVerticesCommand> AddBrushVerticesCommand::add(const VertexToBrushesMap& vertices) {
             kdl::vector_set<Model::Brush*> allBrushes;
             for (const auto& entry : vertices) {
-                const std::set<Model::Brush*>& brushes = entry.second;
+                const std::vector<Model::Brush*>& brushes = entry.second;
                 allBrushes.insert(std::begin(brushes), std::end(brushes));
             }
 
             const std::string actionName = kdl::str_plural(vertices.size(), "Add Vertex", "Add Vertices");
-            return Ptr(new AddBrushVerticesCommand(Type, actionName, allBrushes.release_data(), vertices));
+            return std::make_unique<AddBrushVerticesCommand>(Type, actionName, allBrushes.release_data(), vertices);
         }
 
         AddBrushVerticesCommand::AddBrushVerticesCommand(CommandType type, const std::string& name, const std::vector<Model::Brush*>& brushes, const VertexToBrushesMap& vertices) :
@@ -53,10 +52,11 @@ namespace TrenchBroom {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
                 const vm::vec3& position = entry.first;
-                const std::set<Model::Brush*>& brushes = entry.second;
+                const std::vector<Model::Brush*>& brushes = entry.second;
                 for (const Model::Brush* brush : brushes) {
-                    if (!brush->canAddVertex(worldBounds, position))
+                    if (!brush->canAddVertex(worldBounds, position)) {
                         return false;
+                    }
                 }
             }
             return true;
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool AddBrushVerticesCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool AddBrushVerticesCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

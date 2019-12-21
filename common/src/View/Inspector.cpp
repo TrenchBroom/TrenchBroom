@@ -63,7 +63,7 @@ namespace TrenchBroom {
         }
 
         void Inspector::switchToPage(const InspectorPage page) {
-            m_tabBook->switchToPage(page);
+            m_tabBook->switchToPage(static_cast<int>(page));
         }
 
         bool Inspector::cancelMouseDrag() {

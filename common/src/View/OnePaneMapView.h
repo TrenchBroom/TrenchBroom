@@ -20,27 +20,17 @@
 #ifndef TrenchBroom_OnePaneMapView
 #define TrenchBroom_OnePaneMapView
 
+#include "Renderer/Renderer_Forward.h"
 #include "View/CameraLinkHelper.h"
 #include "View/MultiMapView.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 
 namespace TrenchBroom {
     class Logger;
 
-    namespace Renderer {
-        class MapRenderer;
-        class VboManager;
-    }
-
     namespace View {
-        class CyclingMapView;
-        class GLContextManager;
-        class MapDocument;
-        class MapViewBase;
-        class MapView3D;
-        class MapViewToolBox;
-
         class OnePaneMapView : public MultiMapView {
         private:
             Logger* m_logger;

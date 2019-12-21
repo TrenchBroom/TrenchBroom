@@ -195,8 +195,8 @@ namespace TrenchBroom {
             return result.value();
         }
 
-        std::set<std::string> AttributeRow::allKeys(const std::vector<Model::AttributableNode*>& attributables, const bool showDefaultRows) {
-            std::set<std::string> result;
+        std::vector<std::string> AttributeRow::allKeys(const std::vector<Model::AttributableNode*>& attributables, const bool showDefaultRows) {
+            kdl::vector_set<std::string> result;
             for (const Model::AttributableNode* node : attributables) {
                 // this happens at startup when the world is still null
                 if (node == nullptr) {
@@ -218,7 +218,7 @@ namespace TrenchBroom {
                     }
                 }
             }
-            return result;
+            return result.release_data();
         }
 
         std::map<std::string, AttributeRow> AttributeRow::rowsForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables, const bool showDefaultRows) {

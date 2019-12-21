@@ -28,12 +28,19 @@ namespace TrenchBroom {
         class VertexArray;
         class BrushIndexArray;
         class BrushVertexArray;
+
+        class BrushRenderer;
         class BrushRendererBrushCache;
 
+        class MapRenderer;
+
         class Camera;
+        class OrthographicCamera;
+        class PerspectiveCamera;
 
         class RenderBatch;
         class RenderContext;
+        enum class RenderMode;
 
         template <typename VertexSpec> class IndexRangeMapBuilder;
 
@@ -58,12 +65,16 @@ namespace TrenchBroom {
         class ShaderProgram;
         class ShaderManager;
 
+        class Transformation;
+
         class FontGlyph;
         class FontManager;
         class FontTexture;
         class FontDescriptor;
         class TextAnchor;
         class TextRenderer;
+
+        class Compass;
     }
 }
 

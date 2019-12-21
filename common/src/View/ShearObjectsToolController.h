@@ -21,32 +21,20 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TrenchBroom_ShearObjectsToolController
 #define TrenchBroom_ShearObjectsToolController
 
-#include "Renderer/EdgeRenderer.h"
+#include "Model/Model_Forward.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/ToolController.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 
 namespace TrenchBroom {
-    namespace Model {
-        class PickResult;
-    }
-
-    namespace Renderer {
-        class RenderBatch;
-        class RenderContext;
-    }
-
     namespace View {
-        class InputState;
-        class MapDocument;
-        class ShearObjectsTool;
-
         class ShearObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:
             ShearObjectsTool* m_tool;
         private:
             std::weak_ptr<MapDocument> m_document;
-
         public:
             explicit ShearObjectsToolController(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document);
             ~ShearObjectsToolController() override;

@@ -23,6 +23,7 @@
 #include "Assets/Asset_Forward.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/GLVertexType.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/CellView.h"
 
 #include <vecmath/forward.h>
@@ -35,15 +36,7 @@
 namespace TrenchBroom {
     class Logger;
 
-    namespace Renderer {
-        class FontDescriptor;
-        class TexturedRenderer;
-        class Transformation;
-    }
-
     namespace View {
-        class GLContextManager;
-
         using EntityGroupData = std::string;
 
         class EntityCellData {

@@ -62,7 +62,7 @@ namespace TrenchBroom {
         m_document(document),
         m_group(false),
         m_hideUnused(false),
-        m_sortOrder(SO_Name),
+        m_sortOrder(TextureSortOrder::Name),
         m_selectedTexture(nullptr) {
             auto doc = lock(m_document);
             doc->textureManager().usageCountDidChange.addObserver(this, &TextureBrowserView::usageCountDidChange);
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             clear();
         }
 
-        void TextureBrowserView::setSortOrder(const SortOrder sortOrder) {
+        void TextureBrowserView::setSortOrder(const TextureSortOrder sortOrder) {
             if (sortOrder == m_sortOrder) {
                 return;
             }
@@ -242,7 +242,7 @@ namespace TrenchBroom {
             if (m_hideUnused) {
                 kdl::vec_erase_if(collections, MatchUsageCount());
             }
-            if (m_sortOrder == SO_Usage) {
+            if (m_sortOrder == TextureSortOrder::Usage) {
                 kdl::vec_sort(collections, CompareByUsageCount());
             }
             return collections;
@@ -272,10 +272,10 @@ namespace TrenchBroom {
 
         void TextureBrowserView::sortTextures(std::vector<Assets::Texture*>& textures) const {
             switch (m_sortOrder) {
-                case SO_Name:
+                case TextureSortOrder::Name:
                     kdl::vec_sort(textures, CompareByName());
                     break;
-                case SO_Usage:
+                case TextureSortOrder::Usage:
                     kdl::vec_sort(textures, CompareByUsageCount());
                     break;
             }

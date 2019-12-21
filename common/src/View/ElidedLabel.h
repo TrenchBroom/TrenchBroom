@@ -20,6 +20,7 @@
 #ifndef TRENCHBROOM_ELIDEDLABEL_H
 #define TRENCHBROOM_ELIDEDLABEL_H
 
+#include <QString>
 #include <QWidget>
 
 class QLabel;

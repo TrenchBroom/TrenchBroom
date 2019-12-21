@@ -22,6 +22,7 @@
 #include "SharedPointer.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -87,7 +88,7 @@ namespace TrenchBroom {
                 return false;
 
             auto document = lock(m_document);
-            document->beginTransaction("Shear Texture");
+            document->startTransaction("Shear Texture");
             return true;
         }
 

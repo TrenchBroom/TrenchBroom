@@ -32,7 +32,7 @@ namespace kdl {
     /**
      * Returns the vector element at the given index.
      *
-     * If the given index is out of bounds, the behavior is undefined.
+     * Precondition: 0 <= index < v.size()
      *
      * @tparam T the type of the vector elements
      * @param v the vector
@@ -50,7 +50,7 @@ namespace kdl {
     /**
      * Returns the vector element at the given index.
      *
-     * If the given index is out of bounds, the behavior is undefined.
+     * Precondition: 0 <= index < v.size()
      *
      * @tparam T the type of the vector elements
      * @param v the vector
@@ -63,6 +63,23 @@ namespace kdl {
         const auto index_s = static_cast<typename std::vector<T>::size_type>(index);
         assert(index_s < v.size());
         return v[index_s];
+    }
+
+    /**
+     * Removes the last element of the given vector and returns it.
+     *
+     * Precondition: !v.empty()
+     *
+     * @tparam T the type of the vector elements
+     * @param v the vector
+     * @return the last element of the given vector
+     */
+    template <typename T>
+    T vec_pop_back(std::vector<T>& v) {
+        assert(!v.empty());
+        T result = std::move(v.back());
+        v.pop_back();
+        return result;
     }
 
     /**
@@ -205,6 +222,8 @@ namespace kdl {
     /**
      * Erases the element at the given index from the given vector. The element is swapped with the last element of the
      * vector, and then the last element is erased.
+     *
+     * Precondition: i < v.size()
      *
      * @tparam T the type of the vector elements
      * @tparam A the vector's allocator type

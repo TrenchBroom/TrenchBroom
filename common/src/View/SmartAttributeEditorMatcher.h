@@ -23,7 +23,6 @@
 #include "Model/Model_Forward.h"
 
 #include <initializer_list>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -39,7 +38,7 @@ namespace TrenchBroom {
 
         class SmartAttributeEditorKeyMatcher : public SmartAttributeEditorMatcher {
         private:
-            std::set<Model::AttributeName> m_patterns;
+            std::vector<Model::AttributeName> m_patterns;
         public:
             SmartAttributeEditorKeyMatcher(const std::string& pattern);
             SmartAttributeEditorKeyMatcher(std::initializer_list<std::string> patterns);

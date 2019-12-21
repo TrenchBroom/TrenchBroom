@@ -29,7 +29,6 @@
 #include <QBoxLayout>
 #include <QObject>
 #include <QSettings>
-#include <QString>
 #include <QStringList>
 #include <QWidget>
 
@@ -47,6 +46,7 @@ class QMainWindow;
 class QPalette;
 class QSlider;
 class QSplitter;
+class QString;
 class QTableView;
 
 namespace TrenchBroom {

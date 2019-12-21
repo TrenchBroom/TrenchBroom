@@ -26,6 +26,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/PrimType.h"
@@ -110,7 +111,7 @@ namespace TrenchBroom {
             m_lastHitPoint = getHitPoint(inputState.pickRay());
 
             auto document = lock(m_document);
-            document->beginTransaction("Scale Texture");
+            document->startTransaction("Scale Texture");
             return true;
         }
 

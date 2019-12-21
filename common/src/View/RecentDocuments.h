@@ -21,7 +21,7 @@
 #define TrenchBroom_RecentDocuments
 
 #include "Notifier.h"
-#include "IO/Path.h"
+#include "IO/IO_Forward.h"
 
 #include <vector>
 

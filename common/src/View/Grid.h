@@ -33,6 +33,7 @@
 
 #include <array>
 
+// FIXME: should this be moved to Model?
 namespace TrenchBroom {
     namespace View {
         class Grid {

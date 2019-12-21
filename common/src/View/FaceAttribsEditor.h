@@ -21,6 +21,7 @@
 #define TrenchBroom_FaceAttribsEditor
 
 #include "Model/Model_Forward.h"
+#include "View/View_Forward.h"
 
 #include <QWidget>
 
@@ -33,14 +34,6 @@ class QGridLayout;
 
 namespace TrenchBroom {
     namespace View {
-        class FlagChangedCommand;
-        class FlagsPopupEditor;
-        class GLContextManager;
-        class MapDocument;
-        class Selection;
-        class SpinControl;
-        class UVEditor;
-
         class FaceAttribsEditor : public QWidget {
             Q_OBJECT
         private:

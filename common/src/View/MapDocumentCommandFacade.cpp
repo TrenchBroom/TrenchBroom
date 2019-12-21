@@ -32,6 +32,7 @@
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
+#include "Model/EntityAttributeSnapshot.h"
 #include "Model/Game.h"
 #include "Model/Group.h"
 #include "Model/Issue.h"
@@ -40,6 +41,8 @@
 #include "Model/TransformObjectVisitor.h"
 #include "Model/World.h"
 #include "Model/NodeVisitor.h"
+#include "View/CommandProcessor.h"
+#include "View/UndoableCommand.h"
 #include "View/Selection.h"
 
 #include <kdl/map_utils.h>
@@ -47,11 +50,11 @@
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
+#include <vecmath/segment.h>
 #include <vecmath/polygon.h>
 
 #include <map>
 #include <memory>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -63,9 +66,11 @@ namespace TrenchBroom {
         }
 
         MapDocumentCommandFacade::MapDocumentCommandFacade() :
-        m_commandProcessor(this) {
+        m_commandProcessor(std::make_unique<CommandProcessor>(this)) {
             bindObservers();
         }
+
+        MapDocumentCommandFacade::~MapDocumentCommandFacade() = default;
 
         void MapDocumentCommandFacade::performSelect(const std::vector<Model::Node*>& nodes) {
             selectionWillChangeNotifier();
@@ -840,7 +845,7 @@ namespace TrenchBroom {
             return newFacePositions;
         }
 
-        void MapDocumentCommandFacade::performAddVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices) {
+        void MapDocumentCommandFacade::performAddVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);
 
@@ -849,7 +854,7 @@ namespace TrenchBroom {
 
             for (const auto& entry : vertices) {
                 const vm::vec3& position = entry.first;
-                const std::set<Model::Brush*>& brushes = entry.second;
+                const std::vector<Model::Brush*>& brushes = entry.second;
                 for (Model::Brush* brush : brushes)
                     brush->addVertex(m_worldBounds, position);
             }
@@ -969,80 +974,80 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::bindObservers() {
-            m_commandProcessor.commandDoNotifier.addObserver(commandDoNotifier);
-            m_commandProcessor.commandDoneNotifier.addObserver(commandDoneNotifier);
-            m_commandProcessor.commandDoFailedNotifier.addObserver(commandDoFailedNotifier);
-            m_commandProcessor.commandUndoNotifier.addObserver(commandUndoNotifier);
-            m_commandProcessor.commandUndoneNotifier.addObserver(commandUndoneNotifier);
-            m_commandProcessor.commandUndoFailedNotifier.addObserver(commandUndoFailedNotifier);
-            m_commandProcessor.transactionDoneNotifier.addObserver(transactionDoneNotifier);
-            m_commandProcessor.transactionUndoneNotifier.addObserver(transactionUndoneNotifier);
+            m_commandProcessor->commandDoNotifier.addObserver(commandDoNotifier);
+            m_commandProcessor->commandDoneNotifier.addObserver(commandDoneNotifier);
+            m_commandProcessor->commandDoFailedNotifier.addObserver(commandDoFailedNotifier);
+            m_commandProcessor->commandUndoNotifier.addObserver(commandUndoNotifier);
+            m_commandProcessor->commandUndoneNotifier.addObserver(commandUndoneNotifier);
+            m_commandProcessor->commandUndoFailedNotifier.addObserver(commandUndoFailedNotifier);
+            m_commandProcessor->transactionDoneNotifier.addObserver(transactionDoneNotifier);
+            m_commandProcessor->transactionUndoneNotifier.addObserver(transactionUndoneNotifier);
             documentWasNewedNotifier.addObserver(this, &MapDocumentCommandFacade::documentWasNewed);
             documentWasLoadedNotifier.addObserver(this, &MapDocumentCommandFacade::documentWasLoaded);
         }
 
         void MapDocumentCommandFacade::documentWasNewed(MapDocument*) {
-            m_commandProcessor.clear();
+            m_commandProcessor->clear();
         }
 
         void MapDocumentCommandFacade::documentWasLoaded(MapDocument*) {
-            m_commandProcessor.clear();
+            m_commandProcessor->clear();
         }
 
-        bool MapDocumentCommandFacade::doCanUndoLastCommand() const {
-            return m_commandProcessor.hasLastCommand();
+        bool MapDocumentCommandFacade::doCanUndoCommand() const {
+            return m_commandProcessor->canUndo();
         }
 
-        bool MapDocumentCommandFacade::doCanRedoNextCommand() const {
-            return m_commandProcessor.hasNextCommand();
+        bool MapDocumentCommandFacade::doCanRedoCommand() const {
+            return m_commandProcessor->canRedo();
         }
 
-        const std::string& MapDocumentCommandFacade::doGetLastCommandName() const {
-            return m_commandProcessor.lastCommandName();
+        const std::string& MapDocumentCommandFacade::doGetUndoCommandName() const {
+            return m_commandProcessor->undoCommandName();
         }
 
-        const std::string& MapDocumentCommandFacade::doGetNextCommandName() const {
-            return m_commandProcessor.nextCommandName();
+        const std::string& MapDocumentCommandFacade::doGetRedoCommandName() const {
+            return m_commandProcessor->redoCommandName();
         }
 
-        void MapDocumentCommandFacade::doUndoLastCommand() {
-            m_commandProcessor.undoLastCommand();
+        void MapDocumentCommandFacade::doUndoCommand() {
+            m_commandProcessor->undo();
         }
 
-        void MapDocumentCommandFacade::doRedoNextCommand() {
-            m_commandProcessor.redoNextCommand();
+        void MapDocumentCommandFacade::doRedoCommand() {
+            m_commandProcessor->redo();
         }
 
-        bool MapDocumentCommandFacade::doHasRepeatableCommands() const {
-            return m_commandProcessor.hasRepeatableCommands();
+        bool MapDocumentCommandFacade::doCanRepeatCommands() const {
+            return m_commandProcessor->canRepeat();
         }
 
-        bool MapDocumentCommandFacade::doRepeatLastCommands() {
-            return m_commandProcessor.repeatLastCommands();
+        std::unique_ptr<CommandResult> MapDocumentCommandFacade::doRepeatCommands() {
+            return m_commandProcessor->repeat();
         }
 
         void MapDocumentCommandFacade::doClearRepeatableCommands() {
-            m_commandProcessor.clearRepeatableCommands();
+            m_commandProcessor->clearRepeatStack();
         }
 
-        void MapDocumentCommandFacade::doBeginTransaction(const std::string& name) {
-            m_commandProcessor.beginGroup(name);
+        void MapDocumentCommandFacade::doStartTransaction(const std::string& name) {
+            m_commandProcessor->startTransaction(name);
         }
 
-        void MapDocumentCommandFacade::doEndTransaction() {
-            m_commandProcessor.endGroup();
+        void MapDocumentCommandFacade::doCommitTransaction() {
+            m_commandProcessor->commitTransaction();
         }
 
         void MapDocumentCommandFacade::doRollbackTransaction() {
-            m_commandProcessor.rollbackGroup();
+            m_commandProcessor->rollbackTransaction();
         }
 
-        bool MapDocumentCommandFacade::doSubmit(Command::Ptr command) {
-            return m_commandProcessor.submitCommand(command);
+        std::unique_ptr<CommandResult> MapDocumentCommandFacade::doExecute(std::unique_ptr<Command>&& command) {
+            return m_commandProcessor->execute(std::move(command));
         }
 
-        bool MapDocumentCommandFacade::doSubmitAndStore(UndoableCommand::Ptr command) {
-            return m_commandProcessor.submitAndStoreCommand(command);
+        std::unique_ptr<CommandResult> MapDocumentCommandFacade::doExecuteAndStore(std::unique_ptr<UndoableCommand>&& command) {
+            return m_commandProcessor->executeAndStore(std::move(command));
         }
     }
 }

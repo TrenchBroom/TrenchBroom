@@ -32,6 +32,7 @@
 #include <string>
 
 #include <QtGlobal>
+#include <QProcess>
 
 namespace TrenchBroom {
     namespace View {
@@ -60,6 +61,8 @@ namespace TrenchBroom {
         CompilationExportMapTaskRunner::CompilationExportMapTaskRunner(CompilationContext& context, const Model::CompilationExportMap& task) :
         CompilationTaskRunner(context),
         m_task(task.clone()) {}
+
+        CompilationExportMapTaskRunner::~CompilationExportMapTaskRunner() = default;
 
         void CompilationExportMapTaskRunner::doExecute() {
             emit start();
@@ -95,6 +98,8 @@ namespace TrenchBroom {
         CompilationTaskRunner(context),
         m_task(task.clone()) {}
 
+        CompilationCopyFilesTaskRunner::~CompilationCopyFilesTaskRunner() = default;
+
         void CompilationCopyFilesTaskRunner::doExecute() {
             emit start();
 
@@ -126,6 +131,8 @@ namespace TrenchBroom {
         CompilationTaskRunner(context),
         m_task(task.clone()),
         m_terminated(false) {}
+
+        CompilationRunToolTaskRunner::~CompilationRunToolTaskRunner() = default;
 
         void CompilationRunToolTaskRunner::doExecute() {
             startProcess();
@@ -208,6 +215,8 @@ namespace TrenchBroom {
         m_context(std::move(context)),
         m_taskRunners(createTaskRunners(*m_context, profile)),
         m_currentTask(std::end(m_taskRunners)) {}
+
+        CompilationRunner::~CompilationRunner() = default;
 
         class CompilationRunner::CreateTaskRunnerVisitor : public Model::ConstCompilationTaskVisitor {
         private:

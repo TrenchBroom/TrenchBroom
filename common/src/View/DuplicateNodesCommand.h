@@ -20,10 +20,13 @@
 #ifndef TrenchBroom_DuplicateNodesCommand
 #define TrenchBroom_DuplicateNodesCommand
 
+#include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
+#include "View/View_Forward.h"
 
 #include <map>
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -31,29 +34,29 @@ namespace TrenchBroom {
         class DuplicateNodesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<DuplicateNodesCommand>;
         private:
             std::vector<Model::Node*> m_previouslySelectedNodes;
             std::vector<Model::Node*> m_nodesToSelect;
             std::map<Model::Node*, std::vector<Model::Node*>> m_addedNodes;
             bool m_firstExecution;
         public:
-            static Ptr duplicate();
-        private:
+            static std::unique_ptr<DuplicateNodesCommand> duplicate();
+
             DuplicateNodesCommand();
-        public:
             ~DuplicateNodesCommand() override;
         private:
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             class CloneParentQuery;
             bool cloneParent(const Model::Node* node) const;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;
+            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(DuplicateNodesCommand)
         };
     }
 }

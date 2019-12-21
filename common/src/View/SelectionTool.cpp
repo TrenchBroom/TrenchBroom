@@ -343,7 +343,7 @@ namespace TrenchBroom {
 
                 auto* face = Model::hitToFace(hit);
                 if (editorContext.selectable(face)) {
-                    document->beginTransaction("Drag Select Brush Faces");
+                    document->startTransaction("Drag Select Brush Faces");
                     if (document->hasSelection() && !document->hasSelectedBrushFaces()) {
                         document->deselectAll();
                     }
@@ -361,7 +361,7 @@ namespace TrenchBroom {
 
                 auto* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
                 if (editorContext.selectable(node)) {
-                    document->beginTransaction("Drag Select Objects");
+                    document->startTransaction("Drag Select Objects");
                     if (document->hasSelection() && !document->hasSelectedNodes()) {
                         document->deselectAll();
                     }

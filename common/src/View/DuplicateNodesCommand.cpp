@@ -29,8 +29,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType DuplicateNodesCommand::Type = Command::freeType();
 
-        DuplicateNodesCommand::Ptr DuplicateNodesCommand::duplicate() {
-            return Ptr(new DuplicateNodesCommand());
+        std::unique_ptr<DuplicateNodesCommand> DuplicateNodesCommand::duplicate() {
+            return std::make_unique<DuplicateNodesCommand>();
         }
 
         DuplicateNodesCommand::DuplicateNodesCommand() :
@@ -38,12 +38,12 @@ namespace TrenchBroom {
         m_firstExecution(true) {}
 
         DuplicateNodesCommand::~DuplicateNodesCommand() {
-            if (state() == CommandState_Default) {
+            if (state() == CommandState::Default) {
                 kdl::map_clear_and_delete(m_addedNodes);
             }
         }
 
-        bool DuplicateNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> DuplicateNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             if (m_firstExecution) {
                 std::map<Model::Node*, Model::Node*> newParentMap;
 
@@ -82,14 +82,14 @@ namespace TrenchBroom {
             document->performAddNodes(m_addedNodes);
             document->performDeselectAll();
             document->performSelect(m_nodesToSelect);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool DuplicateNodesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> DuplicateNodesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performDeselectAll();
             document->performRemoveNodes(m_addedNodes);
             document->performSelect(m_previouslySelectedNodes);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         class DuplicateNodesCommand::CloneParentQuery : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
@@ -111,11 +111,11 @@ namespace TrenchBroom {
             return document->hasSelectedNodes();
         }
 
-        UndoableCommand::Ptr DuplicateNodesCommand::doRepeat(MapDocumentCommandFacade*) const {
-            return UndoableCommand::Ptr(new DuplicateNodesCommand());
+        std::unique_ptr<UndoableCommand> DuplicateNodesCommand::doRepeat(MapDocumentCommandFacade*) const {
+            return std::make_unique<DuplicateNodesCommand>();
         }
 
-        bool DuplicateNodesCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool DuplicateNodesCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

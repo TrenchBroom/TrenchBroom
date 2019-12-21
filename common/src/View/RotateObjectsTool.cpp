@@ -20,6 +20,7 @@
 #include "RotateObjectsTool.h"
 
 #include "SharedPointer.h"
+#include "Model/Hit.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/RotateObjectsHandle.h"
@@ -48,11 +49,11 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsTool::updateToolPageAxis(const RotateObjectsHandle::HitArea area) {
-            if (area == RotateObjectsHandle::HitArea::HitArea_XAxis) {
+            if (area == RotateObjectsHandle::HitArea::XAxis) {
                 m_toolPage->setAxis(vm::axis::x);
-            } else if (area == RotateObjectsHandle::HitArea::HitArea_YAxis) {
+            } else if (area == RotateObjectsHandle::HitArea::YAxis) {
                 m_toolPage->setAxis(vm::axis::y);
-            } else if (area == RotateObjectsHandle::HitArea::HitArea_ZAxis) {
+            } else if (area == RotateObjectsHandle::HitArea::ZAxis) {
                 m_toolPage->setAxis(vm::axis::z);
             }
         }
@@ -92,7 +93,7 @@ namespace TrenchBroom {
 
         void RotateObjectsTool::beginRotation() {
             auto document = lock(m_document);
-            document->beginTransaction("Rotate Objects");
+            document->startTransaction("Rotate Objects");
         }
 
         void RotateObjectsTool::commitRotation() {

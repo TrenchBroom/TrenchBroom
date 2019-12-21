@@ -163,7 +163,7 @@ namespace TrenchBroom {
             m_dragCumulativeDelta = vm::vec3::zero();
 
             auto document = lock(m_document);
-            document->beginTransaction("Shear Objects");
+            document->startTransaction("Shear Objects");
             m_resizing = true;
         }
 

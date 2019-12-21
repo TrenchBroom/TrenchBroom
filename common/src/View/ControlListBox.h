@@ -20,6 +20,8 @@
 #ifndef ControlListBox_h
 #define ControlListBox_h
 
+#include "View/View_Forward.h"
+
 #include <QWidget>
 
 class QLabel;
@@ -28,8 +30,6 @@ class QListWidgetItem;
 
 namespace TrenchBroom {
     namespace View {
-        class BorderLine;
-
         class ControlListBoxItemRenderer : public QWidget {
             Q_OBJECT
         protected:

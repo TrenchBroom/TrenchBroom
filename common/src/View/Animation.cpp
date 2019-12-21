@@ -20,13 +20,43 @@
 #include "Animation.h"
 
 #include "Ensure.h"
-#include "View/AnimationCurve.h"
 
 #include <algorithm>
 #include <cassert>
 
+#include <QTimer>
+
 namespace TrenchBroom {
     namespace View {
+        // AnimationCurve
+        AnimationCurve::~AnimationCurve() {}
+
+        double AnimationCurve::apply(const double progress) const {
+            return doApply(progress);
+        }
+
+        double FlatAnimationCurve::doApply(const double progress) const {
+            return progress;
+        }
+
+        EaseInEaseOutAnimationCurve::EaseInEaseOutAnimationCurve(const double duration) {
+            if (duration < 100 + 100)
+                m_threshold = 0.5;
+            else
+                m_threshold = 100.0 / duration;
+        }
+
+        double EaseInEaseOutAnimationCurve::doApply(const double progress) const {
+            if (progress < m_threshold)
+                return progress * progress / m_threshold;
+            if (progress > 1.0 - m_threshold) {
+                double temp = 1.0 - progress;
+                temp = temp * temp / m_threshold;
+                return 1.0 - m_threshold + temp;
+            }
+            return progress;
+        }
+
         // Animation
 
         Animation::Type Animation::freeType() {
@@ -61,12 +91,12 @@ namespace TrenchBroom {
 
         std::unique_ptr<AnimationCurve> Animation::createAnimationCurve(const Curve curve, const double duration) {
             switch (curve) {
-                case Curve_EaseInEaseOut:
+                case Curve::EaseInEaseOut:
                     return std::make_unique<EaseInEaseOutAnimationCurve>(duration);
-                case Curve_Flat:
+                case Curve::Flat:
                     return std::make_unique<FlatAnimationCurve>();
             }
-            return { nullptr };
+            return nullptr;
         }
 
         // AnimationManager

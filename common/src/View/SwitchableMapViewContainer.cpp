@@ -26,15 +26,17 @@
 #include "Model/PointFile.h"
 #include "Renderer/MapRenderer.h"
 #include "View/CyclingMapView.h"
-#include "View/TwoPaneMapView.h"
-#include "View/ThreePaneMapView.h"
 #include "View/FourPaneMapView.h"
 #include "View/GLContextManager.h"
 #include "View/Inspector.h"
 #include "View/MapDocument.h"
+#include "View/MapViewActivationTracker.h"
 #include "View/MapViewContainer.h"
 #include "View/MapViewBar.h"
+#include "View/MapViewLayout.h"
 #include "View/MapViewToolBox.h"
+#include "View/ThreePaneMapView.h"
+#include "View/TwoPaneMapView.h"
 #include "View/QtUtils.h"
 
 #include <QGridLayout>
@@ -49,7 +51,8 @@ namespace TrenchBroom {
         m_mapViewBar(new MapViewBar(m_document)),
         m_toolBox(std::make_unique<MapViewToolBox>(m_document, m_mapViewBar->toolBook())),
         m_mapRenderer(std::make_unique<Renderer::MapRenderer>(m_document)),
-        m_mapView(nullptr) {
+        m_mapView(nullptr),
+        m_activationTracker(std::make_unique<MapViewActivationTracker>()) {
             setObjectName("SwitchableMapViewContainer");
             switchToMapView(static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));
             bindObservers();
@@ -59,7 +62,7 @@ namespace TrenchBroom {
             unbindObservers();
 
             // we must destroy our children before we destroy our resources because they might still use them in their destructors
-            m_activationTracker.clear();
+            m_activationTracker->clear();
             delete m_mapView;
         }
 
@@ -68,35 +71,35 @@ namespace TrenchBroom {
         }
 
         void SwitchableMapViewContainer::windowActivationStateChanged(const bool active) {
-            m_activationTracker.windowActivationChanged(active);
+            m_activationTracker->windowActivationChanged(active);
         }
 
         bool SwitchableMapViewContainer::active() const {
-            return m_activationTracker.active();
+            return m_activationTracker->active();
         }
 
         void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId) {
-            m_activationTracker.clear();
+            m_activationTracker->clear();
 
             deleteChildWidgetsAndLayout(this);
 
             switch (viewId) {
-                case MapViewLayout_1Pane:
+                case MapViewLayout::OnePane:
                     m_mapView = new CyclingMapView(m_document, *m_toolBox, *m_mapRenderer, m_contextManager, CyclingMapView::View_ALL, m_logger);
                     break;
-                case MapViewLayout_2Pane:
+                case MapViewLayout::TwoPanes:
                     m_mapView = new TwoPaneMapView(m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger);
                     break;
-                case MapViewLayout_3Pane:
+                case MapViewLayout::ThreePanes:
                     m_mapView = new ThreePaneMapView(m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger);
                     break;
-                case MapViewLayout_4Pane:
+                case MapViewLayout::FourPanes:
                     m_mapView = new FourPaneMapView(m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger);
                     break;
                 switchDefault()
             }
 
-            installActivationTracker(m_activationTracker);
+            installActivationTracker(*m_activationTracker);
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);

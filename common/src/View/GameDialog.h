@@ -22,6 +22,7 @@
 
 #include "IO/IO_Forward.h"
 #include "Model/MapFormat.h"
+#include "View/View_Forward.h"
 
 #include <string>
 
@@ -33,9 +34,6 @@ class QWidget;
 
 namespace TrenchBroom {
     namespace View {
-        class GameListBox;
-        class GameSelectionCommand;
-
         class GameDialog : public QDialog {
             Q_OBJECT
         protected:

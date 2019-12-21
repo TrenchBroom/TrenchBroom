@@ -27,6 +27,7 @@
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
 #include "View/BorderLine.h"
+#include "View/ColorButton.h"
 #include "View/ColorTable.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
@@ -34,6 +35,7 @@
 
 #include <kdl/vector_set.h>
 
+#include <QColor>
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QRadioButton>
@@ -83,7 +85,7 @@ namespace TrenchBroom {
             outerLayout->setSpacing(0);
             outerLayout->addLayout(leftLayout);
             outerLayout->addSpacing(LayoutConstants::WideHMargin);
-            outerLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical));
+            outerLayout->addWidget(new BorderLine(BorderLine::Direction::Vertical));
             outerLayout->addWidget(colorHistoryScroller, 1);
             setLayout(outerLayout);
 

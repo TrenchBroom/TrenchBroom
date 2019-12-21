@@ -24,8 +24,8 @@
 #include "View/VertexToolBase.h"
 #include "View/VertexHandleManager.h"
 
-#include <list>
-#include <set>
+#include <list> // FIXME: get rid of this
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -57,17 +57,17 @@ namespace TrenchBroom {
 
             Mode m_mode;
 
-            VertexHandleManager m_vertexHandles;
-            EdgeHandleManager m_edgeHandles;
-            FaceHandleManager m_faceHandles;
+            std::unique_ptr<VertexHandleManager> m_vertexHandles;
+            std::unique_ptr<EdgeHandleManager> m_edgeHandles;
+            std::unique_ptr<FaceHandleManager> m_faceHandles;
 
             mutable Renderer::PointGuideRenderer m_guideRenderer;
         public:
             VertexTool(std::weak_ptr<MapDocument> document);
         public:
-            std::set<Model::Brush*> findIncidentBrushes(const vm::vec3& handle) const;
-            std::set<Model::Brush*> findIncidentBrushes(const vm::segment3& handle) const;
-            std::set<Model::Brush*> findIncidentBrushes(const vm::polygon3& handle) const;
+            std::vector<Model::Brush*> findIncidentBrushes(const vm::vec3& handle) const;
+            std::vector<Model::Brush*> findIncidentBrushes(const vm::segment3& handle) const;
+            std::vector<Model::Brush*> findIncidentBrushes(const vm::polygon3& handle) const;
         private:
             using VertexToolBase::findIncidentBrushes;
         public:

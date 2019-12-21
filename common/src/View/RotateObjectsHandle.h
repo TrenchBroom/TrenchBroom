@@ -24,29 +24,23 @@
 #include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "Model/HitType.h"
+#include "Renderer/Renderer_Forward.h"
+#include "View/View_Forward.h"
 
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class Camera;
-        class RenderBatch;
-        class RenderContext;
-    }
-
     namespace View {
-        class InputState;
-
         class RotateObjectsHandle {
         public:
             static const Model::HitType::Type HandleHit;
 
             enum class HitArea {
-                HitArea_None = 0,
-                HitArea_Center = 1,
-                HitArea_XAxis = 2,
-                HitArea_YAxis = 4,
-                HitArea_ZAxis = 8
+                None = 0,
+                Center = 1,
+                XAxis = 2,
+                YAxis = 4,
+                ZAxis = 8
             };
         private:
             class Handle {

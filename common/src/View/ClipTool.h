@@ -23,24 +23,16 @@
 #include "TrenchBroom.h"
 #include "Model/HitType.h"
 #include "Model/Model_Forward.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
+#include "View/View_Forward.h"
 
 #include <map>
 #include <memory>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class BrushRenderer;
-        class Camera;
-        class RenderBatch;
-        class RenderContext;
-    }
-
     namespace View {
-        class Grid;
-        class MapDocument;
-        class Selection;
 
         class ClipTool : public Tool {
         public:
@@ -111,13 +103,13 @@ namespace TrenchBroom {
             std::weak_ptr<MapDocument> m_document;
 
             ClipSide m_clipSide;
-            ClipStrategy* m_strategy;
+            std::unique_ptr<ClipStrategy> m_strategy;
 
             std::map<Model::Node*, std::vector<Model::Node*>> m_frontBrushes;
             std::map<Model::Node*, std::vector<Model::Node*>> m_backBrushes;
 
-            Renderer::BrushRenderer* m_remainingBrushRenderer;
-            Renderer::BrushRenderer* m_clippedBrushRenderer;
+            std::unique_ptr<Renderer::BrushRenderer> m_remainingBrushRenderer;
+            std::unique_ptr<Renderer::BrushRenderer> m_clippedBrushRenderer;
 
             bool m_ignoreNotifications;
             bool m_dragging;
@@ -172,7 +164,7 @@ namespace TrenchBroom {
 
             void clearRenderers();
             void updateRenderers();
-            void addBrushesToRenderer(const std::map<Model::Node*, std::vector<Model::Node*>>& map, Renderer::BrushRenderer* renderer);
+            void addBrushesToRenderer(const std::map<Model::Node*, std::vector<Model::Node*>>& map, Renderer::BrushRenderer& renderer);
 
             bool keepFrontBrushes() const;
             bool keepBackBrushes() const;

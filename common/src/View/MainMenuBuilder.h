@@ -21,6 +21,7 @@
 #define TRENCHBROOM_MAINMENUBUILDER_H
 
 #include "View/Actions.h"
+#include "View/View_Forward.h"
 
 #include <functional>
 
@@ -30,9 +31,6 @@ class QMenuBar;
 
 namespace TrenchBroom {
     namespace View {
-        class Action;
-        class MapFrame;
-
         /**
          * Builds actions for a menu and saves them in the given ActionMap.
          */

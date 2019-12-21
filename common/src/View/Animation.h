@@ -20,29 +20,49 @@
 #ifndef TrenchBroom_Animation
 #define TrenchBroom_Animation
 
-#include "SharedPointer.h"
+#include "View_Forward.h"
 
 #include <map>
 #include <memory>
 #include <vector>
 
-#include <QTimer>
+#include <QObject>
 #include <QElapsedTimer>
+
+class QTimer;
 
 namespace TrenchBroom {
     namespace View {
-        class AnimationCurve;
+        class AnimationCurve {
+        public:
+            virtual ~AnimationCurve();
+            double apply(double progress) const;
+        private:
+            virtual double doApply(double progress) const = 0;
+        };
+
+        class FlatAnimationCurve : public AnimationCurve {
+        private:
+            double doApply(double progress) const override;
+        };
+
+        class EaseInEaseOutAnimationCurve : public AnimationCurve {
+        private:
+            double m_threshold;
+        public:
+            EaseInEaseOutAnimationCurve(double duration);
+            double doApply(double progress) const override;
+        };
 
         class Animation {
         public:
             using Type = int;
             static const Type NoType = -1;
 
-            typedef enum {
-                Curve_Flat,
-                Curve_EaseInEaseOut
-            } Curve;
-
+            enum class Curve {
+                Flat,
+                EaseInEaseOut
+            };
         private:
             const Type m_type;
             std::unique_ptr<AnimationCurve> m_curve;

@@ -22,14 +22,12 @@
 #include "Model/ModelUtils.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <cassert>
-
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType ReparentNodesCommand::Type = Command::freeType();
 
-        ReparentNodesCommand::Ptr ReparentNodesCommand::reparent(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove) {
-            return Ptr(new ReparentNodesCommand(nodesToAdd, nodesToRemove));
+        std::unique_ptr<ReparentNodesCommand> ReparentNodesCommand::reparent(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove) {
+            return std::make_unique<ReparentNodesCommand>(nodesToAdd, nodesToRemove);
         }
 
         ReparentNodesCommand::ReparentNodesCommand(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove) :
@@ -37,23 +35,23 @@ namespace TrenchBroom {
         m_nodesToAdd(nodesToAdd),
         m_nodesToRemove(nodesToRemove) {}
 
-        bool ReparentNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             document->performRemoveNodes(m_nodesToRemove);
             document->performAddNodes(m_nodesToAdd);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool ReparentNodesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performRemoveNodes(m_nodesToAdd);
             document->performAddNodes(m_nodesToRemove);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool ReparentNodesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool ReparentNodesCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool ReparentNodesCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

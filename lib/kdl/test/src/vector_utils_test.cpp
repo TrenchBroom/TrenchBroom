@@ -34,6 +34,16 @@ namespace kdl {
         ASSERT_EQ(4, mv[2]);
     }
 
+    TEST(vector_utils_test, vec_pop_back) {
+        auto v = std::vector<int>({ 1, 2, 3 });
+        ASSERT_EQ(3, vec_pop_back(v));
+        ASSERT_EQ(std::vector<int>({ 1, 2 }), v);
+        ASSERT_EQ(2, vec_pop_back(v));
+        ASSERT_EQ(std::vector<int>({ 1 }), v);
+        ASSERT_EQ(1, vec_pop_back(v));
+        ASSERT_EQ(std::vector<int>({}), v);
+    }
+
     struct base {
         virtual ~base();
     };

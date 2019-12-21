@@ -18,6 +18,7 @@
 #ifndef KDL_ENUM_ARRAY_H
 #define KDL_ENUM_ARRAY_H
 
+#include <cassert>
 #include <cstddef>
 
 namespace kdl {
@@ -54,6 +55,8 @@ namespace kdl {
         /**
          * Returns a const reference to the element at the given index.
          *
+         * Precondition: index < Size
+
          * @param index the index
          * @return a const reference to the element at the given index
          */
@@ -64,6 +67,8 @@ namespace kdl {
         /**
          * Returns a reference to the element at the given index.
          *
+         * Precondition: index < Size
+
          * @param index the index
          * @return a reference to the element at the given index
          */
@@ -74,21 +79,29 @@ namespace kdl {
         /**
          * Returns a const reference to the element at the given index.
          *
+         * Precondition: index < Size
+         *
          * @param index the index
          * @return a const reference to the element at the given index
          */
         const T& get(const Enum index) const {
-            return m_array[static_cast<std::size_t>(index)];
+            const auto i = static_cast<std::size_t>(index);
+            assert(i < Size);
+            return m_array[i];
         }
 
         /**
          * Returns a reference to the element at the given index.
          *
+         * Precondition: index < Size
+         *
          * @param index the index
          * @return a reference to the element at the given index
          */
         T& get(const Enum index) {
-            return m_array[static_cast<std::size_t>(index)];
+            const auto i = static_cast<std::size_t>(index);
+            assert(i < Size);
+            return m_array[i];
         }
 
         /**

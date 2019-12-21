@@ -21,6 +21,7 @@
 #define TrenchBroom_EntityInspector
 
 #include "View/TabBook.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 
@@ -28,12 +29,6 @@ class QSplitter;
 
 namespace TrenchBroom {
     namespace View {
-        class EntityBrowser;
-        class EntityDefinitionFileChooser;
-        class EntityAttributeEditor;
-        class GLContextManager;
-        class MapDocument;
-
         class EntityInspector : public TabBookPage {
             Q_OBJECT
         private:

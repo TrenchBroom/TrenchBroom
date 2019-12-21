@@ -55,7 +55,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(document->reparentNodes(newParent, { entity }));
             ASSERT_EQ(newParent, entity->parent());
 
-            document->undoLastCommand();
+            document->undoCommand();
             ASSERT_EQ(oldParent, entity->parent());
         }
 
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             ASSERT_EQ(document->currentParent(), entity->parent());
             ASSERT_TRUE(group->parent() == nullptr);
 
-            document->undoLastCommand();
+            document->undoCommand();
             ASSERT_EQ(document->currentParent(), group->parent());
             ASSERT_EQ(group, entity->parent());
         }
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(inner->parent() == nullptr);
             ASSERT_TRUE(outer->parent() == nullptr);
 
-            document->undoLastCommand();
+            document->undoCommand();
             ASSERT_EQ(document->currentParent(), outer->parent());
             ASSERT_EQ(outer, inner->parent());
             ASSERT_EQ(inner, entity->parent());
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             ASSERT_EQ(document->currentParent(), brush->parent());
             ASSERT_TRUE(entity->parent() == nullptr);
 
-            document->undoLastCommand();
+            document->undoCommand();
             ASSERT_EQ(document->currentParent(), entity->parent());
             ASSERT_EQ(entity, brush->parent());
         }
@@ -144,7 +144,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(group->parent() == nullptr);
             ASSERT_TRUE(entity->parent() == nullptr);
 
-            document->undoLastCommand();
+            document->undoCommand();
             ASSERT_EQ(document->currentParent(), group->parent());
             ASSERT_EQ(group, entity->parent());
             ASSERT_EQ(entity, brush->parent());

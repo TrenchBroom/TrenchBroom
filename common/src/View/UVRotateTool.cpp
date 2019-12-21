@@ -27,6 +27,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/Circle.h"
 #include "Renderer/Renderable.h"
@@ -120,7 +121,7 @@ namespace TrenchBroom {
             m_initalAngle = measureAngle(vm::vec2f(hitPointInFaceCoords)) - face->rotation();
 
             auto document = lock(m_document);
-            document->beginTransaction("Rotate Texture");
+            document->startTransaction("Rotate Texture");
 
             return true;
         }

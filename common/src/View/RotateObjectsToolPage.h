@@ -21,8 +21,9 @@
 #define TrenchBroom_RotateObjectsToolPage
 
 #include "TrenchBroom.h"
+#include "View/View_Forward.h"
 
-#include <vecmath/vec.h>
+#include <vecmath/forward.h>
 #include <vecmath/util.h>
 
 #include <memory>
@@ -34,11 +35,6 @@ class QComboBox;
 
 namespace TrenchBroom {
     namespace View {
-        class MapDocument;
-        class RotateObjectsTool;
-        class Selection;
-        class SpinControl;
-
         class RotateObjectsToolPage : public QWidget {
             Q_OBJECT
         private:

@@ -55,16 +55,16 @@ namespace TrenchBroom {
 
             // Start undoing changes
 
-            document->undoLastCommand();
+            document->undoCommand();
             ASSERT_EQ(vm::vec3::zero(), brush->logicalBounds().center());
             ASSERT_EQ(std::vector<Model::Brush*>({ brush }), document->selectedNodes().brushes());
             ASSERT_EQ(std::vector<Model::BrushFace*>({}), document->selectedBrushFaces());
 
-            document->undoLastCommand();
+            document->undoCommand();
             ASSERT_EQ(std::vector<Model::Brush*>({}), document->selectedNodes().brushes());
             ASSERT_EQ(std::vector<Model::BrushFace*>({}), document->selectedBrushFaces());
 
-            document->undoLastCommand();
+            document->undoCommand();
             ASSERT_EQ(std::vector<Model::BrushFace*>({ brush->findFace(vm::vec3::pos_z()) }), document->selectedBrushFaces());
         }
     }

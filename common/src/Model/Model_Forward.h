@@ -38,6 +38,8 @@ namespace TrenchBroom {
         class BrushFace;
         class BrushFaceAttributes;
 
+        class BrushFaceReference;
+
         class TexCoordSystem;
         class ParallelTexCoordSystem;
         class ParaxialTexCoordSystem;
@@ -72,6 +74,7 @@ namespace TrenchBroom {
         class NodeSnapshot;
         class BrushFaceSnapshot;
         class TexCoordSystemSnapshot;
+        class EntityAttributeSnapshot;
 
         using IssueType = int;
         class Issue;
@@ -103,6 +106,8 @@ namespace TrenchBroom {
         class CompilationTaskConstVisitor;
         class ConstCompilationTaskVisitor;
         class ConstCompilationTaskConstVisitor;
+
+        enum class MapFormat;
 
         class GameEngineConfig;
         class GameEngineProfile;

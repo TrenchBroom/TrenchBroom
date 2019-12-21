@@ -95,12 +95,12 @@ namespace TrenchBroom {
         QMainWindow(),
         m_frameManager(frameManager),
         m_document(std::move(document)),
-        m_autosaver(nullptr),
+        m_autosaver(std::make_unique<Autosaver>(m_document)),
         m_autosaveTimer(nullptr),
         m_toolBar(nullptr),
         m_hSplitter(nullptr),
         m_vSplitter(nullptr),
-        m_contextManager(nullptr),
+        m_contextManager(std::make_unique<GLContextManager>()),
         m_mapView(nullptr),
         m_currentMapView(nullptr),
         m_infoPanel(nullptr),
@@ -119,9 +119,6 @@ namespace TrenchBroom {
 
             setAttribute(Qt::WA_DeleteOnClose);
             setObjectName("MapFrame");
-
-            m_autosaver = new Autosaver(m_document);
-            m_contextManager = new GLContextManager();
 
             createGui();
             createMenus();
@@ -164,9 +161,6 @@ namespace TrenchBroom {
             unbindObservers();
             removeRecentDocumentsMenu();
 
-            delete m_autosaver;
-            m_autosaver = nullptr;
-
             // The order of deletion here is important because both the document and the children
             // need the context manager (and its embedded VBO) to clean up their resources.
 
@@ -175,11 +169,14 @@ namespace TrenchBroom {
             const auto children = this->children();
             qDeleteAll(std::rbegin(children), std::rend(children));
 
+            // let's trigger a final autosave before releasing the document
+            NullLogger logger;
+            m_autosaver->triggerAutosave(logger);
+
             m_document->setViewEffectsService(nullptr);
             m_document.reset();
 
-            delete m_contextManager;
-            m_contextManager = nullptr;
+            // FIXME: m_contextManager is deleted via smart pointer; it may release openGL resources in its destructor
         }
 
         void MapFrame::positionOnScreen(QWidget* reference) {
@@ -247,8 +244,8 @@ namespace TrenchBroom {
         void MapFrame::updateUndoRedoActions() {
             const auto document = lock(m_document);
             if (m_undoAction != nullptr) {
-                if (document->canUndoLastCommand()) {
-                    const auto text = "Undo " + document->lastCommandName();
+                if (document->canUndoCommand()) {
+                    const auto text = "Undo " + document->undoCommandName();
                     m_undoAction->setText(QString::fromStdString(text));
                     m_undoAction->setEnabled(true);
                 } else {
@@ -257,8 +254,8 @@ namespace TrenchBroom {
                 }
             }
             if (m_redoAction != nullptr) {
-                if (document->canRedoNextCommand()) {
-                    const auto text = "Redo " + document->nextCommandName();
+                if (document->canRedoCommand()) {
+                    const auto text = "Redo " + document->redoCommandName();
                     m_redoAction->setText(QString::fromStdString(text));
                     m_redoAction->setEnabled(true);
                 } else {
@@ -860,27 +857,27 @@ namespace TrenchBroom {
         void MapFrame::undo() {
             if (canUndo()) {
                 if (!m_mapView->cancelMouseDrag() && !m_inspector->cancelMouseDrag()) {
-                    m_document->undoLastCommand();
+                    m_document->undoCommand();
                 }
             }
         }
 
         void MapFrame::redo() {
             if (canRedo()) {
-                m_document->redoNextCommand();
+                m_document->redoCommand();
             }
         }
 
         bool MapFrame::canUndo() const {
-            return m_document->canUndoLastCommand();
+            return m_document->canUndoCommand();
         }
 
         bool MapFrame::canRedo() const {
-            return m_document->canRedoNextCommand();
+            return m_document->canRedoCommand();
         }
 
         void MapFrame::repeatLastCommands() {
-            m_document->repeatLastCommands();
+            m_document->repeatCommands();
         }
 
         void MapFrame::clearRepeatableCommands() {
@@ -890,7 +887,7 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::hasRepeatableCommands() const {
-            return m_document->hasRepeatableCommands();
+            return m_document->canRepeatCommands();
         }
 
         void MapFrame::cutSelection() {
@@ -1428,7 +1425,7 @@ namespace TrenchBroom {
             m_document->showAll();
         }
 
-        void MapFrame::switchToInspectorPage(const Inspector::InspectorPage page) {
+        void MapFrame::switchToInspectorPage(const InspectorPage page) {
             m_inspector->show();
             m_inspector->switchToPage(page);
         }

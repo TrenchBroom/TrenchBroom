@@ -114,7 +114,7 @@ namespace TrenchBroom {
             midLayout->addSpacing(20);
             midLayout->addLayout(midLeftLayout, 1);
             midLayout->addSpacing(20);
-            midLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical));
+            midLayout->addWidget(new BorderLine(BorderLine::Direction::Vertical));
             midLayout->addWidget(m_gameEngineList);
             midPanel->setLayout(midLayout);
 
@@ -126,7 +126,7 @@ namespace TrenchBroom {
             outerLayout->setContentsMargins(0, 0, 0, 0);
             outerLayout->setSpacing(0);
             outerLayout->addWidget(gameIndicator);
-            outerLayout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            outerLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
             outerLayout->addWidget(midPanel, 1);
             outerLayout->addLayout(wrapDialogButtonBox(buttonBox));
             setLayout(outerLayout);

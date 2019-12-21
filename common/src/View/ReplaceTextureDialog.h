@@ -22,6 +22,7 @@
 
 #include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 #include <vector>
@@ -32,10 +33,6 @@ class QPushButton;
 
 namespace TrenchBroom {
     namespace View {
-        class GLContextManager;
-        class MapDocument;
-        class TextureBrowser;
-
         class ReplaceTextureDialog : public QDialog {
             Q_OBJECT
         private:

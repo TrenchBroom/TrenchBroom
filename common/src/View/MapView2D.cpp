@@ -33,6 +33,7 @@
 #include "Renderer/GridRenderer.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/OrthographicCamera.h"
 #include "Renderer/SelectionBoundsRenderer.h"
 #include "View/CameraAnimation.h"
 #include "View/CameraLinkHelper.h"
@@ -68,7 +69,7 @@ namespace TrenchBroom {
         MapView2D::MapView2D(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
                              GLContextManager& contextManager, ViewPlane viewPlane, Logger* logger) :
         MapViewBase(logger, document, toolBox, renderer, contextManager),
-        m_camera(){
+        m_camera(std::make_unique<Renderer::OrthographicCamera>()) {
             bindObservers();
             initializeCamera(viewPlane);
             initializeToolChain(toolBox);
@@ -94,25 +95,25 @@ namespace TrenchBroom {
         void MapView2D::initializeCamera(const ViewPlane viewPlane) {
             switch (viewPlane) {
                 case MapView2D::ViewPlane_XY:
-                    m_camera.setDirection(vm::vec3f::neg_z(), vm::vec3f::pos_y());
-                    m_camera.moveTo(vm::vec3f(0.0f, 0.0f, 16384.0f));
+                    m_camera->setDirection(vm::vec3f::neg_z(), vm::vec3f::pos_y());
+                    m_camera->moveTo(vm::vec3f(0.0f, 0.0f, 16384.0f));
                     break;
                 case MapView2D::ViewPlane_XZ:
-                    m_camera.setDirection(vm::vec3f::pos_y(), vm::vec3f::pos_z());
-                    m_camera.moveTo(vm::vec3f(0.0f, -16384.0f, 0.0f));
+                    m_camera->setDirection(vm::vec3f::pos_y(), vm::vec3f::pos_z());
+                    m_camera->moveTo(vm::vec3f(0.0f, -16384.0f, 0.0f));
                     break;
                 case MapView2D::ViewPlane_YZ:
-                    m_camera.setDirection(vm::vec3f::neg_x(), vm::vec3f::pos_z());
-                    m_camera.moveTo(vm::vec3f(16384.0f, 0.0f, 0.0f));
+                    m_camera->setDirection(vm::vec3f::neg_x(), vm::vec3f::pos_z());
+                    m_camera->moveTo(vm::vec3f(16384.0f, 0.0f, 0.0f));
                     break;
             }
-            m_camera.setNearPlane(1.0f);
-            m_camera.setFarPlane(32768.0f);
+            m_camera->setNearPlane(1.0f);
+            m_camera->setFarPlane(32768.0f);
 
         }
 
         void MapView2D::initializeToolChain(MapViewToolBox& toolBox) {
-            addTool(new CameraTool2D(m_camera));
+            addTool(new CameraTool2D(*m_camera));
             addTool(new MoveObjectsToolController(toolBox.moveObjectsTool()));
             addTool(new RotateObjectsToolController2D(toolBox.rotateObjectsTool()));
             addTool(new ScaleObjectsToolController2D(toolBox.scaleObjectsTool(), m_document));
@@ -128,11 +129,11 @@ namespace TrenchBroom {
         }
 
         void MapView2D::bindObservers() {
-            m_camera.cameraDidChangeNotifier.addObserver(this, &MapView2D::cameraDidChange);
+            m_camera->cameraDidChangeNotifier.addObserver(this, &MapView2D::cameraDidChange);
         }
 
         void MapView2D::unbindObservers() {
-            m_camera.cameraDidChangeNotifier.removeObserver(this, &MapView2D::cameraDidChange);
+            m_camera->cameraDidChangeNotifier.removeObserver(this, &MapView2D::cameraDidChange);
         }
 
         void MapView2D::cameraDidChange(const Renderer::Camera*) {
@@ -140,7 +141,7 @@ namespace TrenchBroom {
         }
 
         PickRequest MapView2D::doGetPickRequest(const int x, const int y) const {
-            return PickRequest(vm::ray3(m_camera.pickRay(x, y)), m_camera);
+            return PickRequest(vm::ray3(m_camera->pickRay(x, y)), *m_camera);
         }
 
         Model::PickResult MapView2D::doPick(const vm::ray3& pickRay) const {
@@ -160,7 +161,7 @@ namespace TrenchBroom {
         }
 
         void MapView2D::doUpdateViewport(const int x, const int y, const int width, const int height) {
-            m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
+            m_camera->setViewport(Renderer::Camera::Viewport(x, y, width, height));
         }
 
         vm::vec3 MapView2D::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
@@ -191,11 +192,11 @@ namespace TrenchBroom {
             const auto document = lock(m_document);
             const vm::bbox3& worldBounds = document->worldBounds();
 
-            const FloatType min = dot(worldBounds.min, vm::vec3(m_camera.direction()));
-            const FloatType max = dot(worldBounds.max, vm::vec3(m_camera.direction()));
+            const FloatType min = dot(worldBounds.min, vm::vec3(m_camera->direction()));
+            const FloatType max = dot(worldBounds.max, vm::vec3(m_camera->direction()));
 
-            const vm::plane3 minPlane(min, vm::vec3(m_camera.direction()));
-            const vm::plane3 maxPlane(max, vm::vec3(m_camera.direction()));
+            const vm::plane3 minPlane(min, vm::vec3(m_camera->direction()));
+            const vm::plane3 maxPlane(max, vm::vec3(m_camera->direction()));
 
             const std::vector<Model::Brush*>& selectionBrushes = document->selectedNodes().brushes();
             assert(!selectionBrushes.empty());
@@ -230,22 +231,22 @@ namespace TrenchBroom {
         void MapView2D::doFocusCameraOnSelection(const bool animate) {
             const auto document = lock(m_document);
             const auto& bounds = document->referenceBounds();
-            const auto diff = bounds.center() - vm::vec3(m_camera.position());
-            const auto delta = diff * vm::vec3(m_camera.up() + m_camera.right());
-            moveCameraToPosition(vm::vec3(m_camera.position()) + delta, animate);
+            const auto diff = bounds.center() - vm::vec3(m_camera->position());
+            const auto delta = diff * vm::vec3(m_camera->up() + m_camera->right());
+            moveCameraToPosition(vm::vec3(m_camera->position()) + delta, animate);
         }
 
         void MapView2D::doMoveCameraToPosition(const vm::vec3& position, const bool animate) {
             if (animate) {
-                animateCamera(vm::vec3f(position), m_camera.direction(), m_camera.up());
+                animateCamera(vm::vec3f(position), m_camera->direction(), m_camera->up());
             } else {
-                m_camera.moveTo(vm::vec3f(position));
+                m_camera->moveTo(vm::vec3f(position));
             }
         }
 
         void MapView2D::animateCamera(const vm::vec3f& position, const vm::vec3f& /* direction */, const vm::vec3f& /* up */, const int duration) {
-            const auto actualPosition = dot(position, m_camera.up()) * m_camera.up() + dot(position, m_camera.right()) * m_camera.right() + dot(m_camera.position(), m_camera.direction()) * m_camera.direction();
-            auto animation = std::make_unique<CameraAnimation>(m_camera, actualPosition, m_camera.direction(), m_camera.up(), duration);
+            const auto actualPosition = dot(position, m_camera->up()) * m_camera->up() + dot(position, m_camera->right()) * m_camera->right() + dot(m_camera->position(), m_camera->direction()) * m_camera->direction();
+            auto animation = std::make_unique<CameraAnimation>(*m_camera, actualPosition, m_camera->direction(), m_camera->up(), duration);
             m_animationManager->runAnimation(std::move(animation), true);
         }
 
@@ -265,17 +266,17 @@ namespace TrenchBroom {
             // bounds to the forward action (which makes sense in 3D), but should move objects "up" in 2D.
             switch (direction) {
                 case vm::direction::forward:
-                    return vm::vec3(vm::get_abs_max_component_axis(m_camera.up()));
+                    return vm::vec3(vm::get_abs_max_component_axis(m_camera->up()));
                 case vm::direction::backward:
-                    return vm::vec3(-vm::get_abs_max_component_axis(m_camera.up()));
+                    return vm::vec3(-vm::get_abs_max_component_axis(m_camera->up()));
                 case vm::direction::left:
-                    return vm::vec3(-vm::get_abs_max_component_axis(m_camera.right()));
+                    return vm::vec3(-vm::get_abs_max_component_axis(m_camera->right()));
                 case vm::direction::right:
-                    return vm::vec3(vm::get_abs_max_component_axis(m_camera.right()));
+                    return vm::vec3(vm::get_abs_max_component_axis(m_camera->right()));
                 case vm::direction::up:
-                    return vm::vec3(-vm::get_abs_max_component_axis(m_camera.direction()));
+                    return vm::vec3(-vm::get_abs_max_component_axis(m_camera->direction()));
                 case vm::direction::down:
-                    return vm::vec3(vm::get_abs_max_component_axis(m_camera.direction()));
+                    return vm::vec3(vm::get_abs_max_component_axis(m_camera->direction()));
                 switchDefault()
             }
         }
@@ -320,17 +321,17 @@ namespace TrenchBroom {
             return false;
         }
 
-        Renderer::RenderContext::RenderMode MapView2D::doGetRenderMode() {
-            return Renderer::RenderContext::RenderMode_2D;
+        Renderer::RenderMode MapView2D::doGetRenderMode() {
+            return Renderer::RenderMode::Render2D;
         }
 
         Renderer::Camera& MapView2D::doGetCamera() {
-            return m_camera;
+            return *m_camera;
         }
 
         void MapView2D::doRenderGrid(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             auto document = lock(m_document);
-            renderBatch.addOneShot(new Renderer::GridRenderer(m_camera, document->worldBounds()));
+            renderBatch.addOneShot(new Renderer::GridRenderer(*m_camera, document->worldBounds()));
         }
 
         void MapView2D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -351,7 +352,7 @@ namespace TrenchBroom {
         void MapView2D::doRenderExtras(Renderer::RenderContext&, Renderer::RenderBatch&) {}
 
         void MapView2D::doLinkCamera(CameraLinkHelper& helper) {
-            helper.addCamera(&m_camera);
+            helper.addCamera(m_camera.get());
         }
     }
 }

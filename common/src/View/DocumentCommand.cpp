@@ -30,23 +30,23 @@ namespace TrenchBroom {
 
         DocumentCommand::~DocumentCommand() {}
 
-        bool DocumentCommand::performDo(MapDocumentCommandFacade* document) {
-            if (UndoableCommand::performDo(document)) {
+        std::unique_ptr<CommandResult> DocumentCommand::performDo(MapDocumentCommandFacade* document) {
+            auto result = UndoableCommand::performDo(document);
+            if (result->success()) {
                 document->incModificationCount(m_modificationCount);
-                return true;
             }
-            return false;
+            return result;
         }
 
-        bool DocumentCommand::performUndo(MapDocumentCommandFacade* document) {
-            if (UndoableCommand::performUndo(document)) {
+        std::unique_ptr<CommandResult> DocumentCommand::performUndo(MapDocumentCommandFacade* document) {
+            auto result = UndoableCommand::performUndo(document);
+            if (result->success()) {
                 document->decModificationCount(m_modificationCount);
-                return true;
             }
-            return false;
+            return result;
         }
 
-        bool DocumentCommand::collateWith(UndoableCommand::Ptr command) {
+        bool DocumentCommand::collateWith(UndoableCommand* command) {
             if (UndoableCommand::collateWith(command)) {
                 m_modificationCount += command->documentModificationCount();
                 return true;

@@ -20,6 +20,7 @@
 #include "ChangeEntityAttributesCommand.h"
 
 #include "Macros.h"
+#include "Model/EntityAttributeSnapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
@@ -27,21 +28,21 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ChangeEntityAttributesCommand::Type = Command::freeType();
 
-        ChangeEntityAttributesCommand::Ptr ChangeEntityAttributesCommand::set(const Model::AttributeName& name, const Model::AttributeValue& value) {
-            Ptr command(new ChangeEntityAttributesCommand(Action_Set));
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::set(const Model::AttributeName& name, const Model::AttributeValue& value) {
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Set);
             command->setName(name);
             command->setNewValue(value);
             return command;
         }
 
-        ChangeEntityAttributesCommand::Ptr ChangeEntityAttributesCommand::remove(const Model::AttributeName& name) {
-            Ptr command(new ChangeEntityAttributesCommand(Action_Remove));
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::remove(const Model::AttributeName& name) {
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Remove);
             command->setName(name);
             return command;
         }
 
-        ChangeEntityAttributesCommand::Ptr ChangeEntityAttributesCommand::rename(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
-            Ptr command(new ChangeEntityAttributesCommand(Action_Rename));
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::rename(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Rename);
             command->setName(oldName);
             command->setNewName(newName);
             return command;
@@ -52,12 +53,12 @@ namespace TrenchBroom {
         }
 
         void ChangeEntityAttributesCommand::setNewName(const Model::AttributeName& newName) {
-            assert(m_action == Action_Rename);
+            assert(m_action == Action::Rename);
             m_newName = newName;
         }
 
         void ChangeEntityAttributesCommand::setNewValue(const Model::AttributeValue& newValue) {
-            assert(m_action == Action_Set);
+            assert(m_action == Action::Set);
             m_newValue = newValue;
         }
 
@@ -65,49 +66,54 @@ namespace TrenchBroom {
         DocumentCommand(Type, makeName(action)),
         m_action(action) {}
 
+        ChangeEntityAttributesCommand::~ChangeEntityAttributesCommand() = default;
+
         std::string ChangeEntityAttributesCommand::makeName(const Action action) {
             switch (action) {
-                case Action_Set:
+                case Action::Set:
                     return "Set Property";
-                case Action_Remove:
+                case Action::Remove:
                     return "Remove Property";
-                case Action_Rename:
+                case Action::Rename:
                     return "Rename Property";
 				switchDefault()
             }
         }
 
-        bool ChangeEntityAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ChangeEntityAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             switch (m_action) {
-                case Action_Set:
+                case Action::Set:
                     m_snapshots = document->performSetAttribute(m_oldName, m_newValue);
                     break;
-                case Action_Remove:
+                case Action::Remove:
                     m_snapshots = document->performRemoveAttribute(m_oldName);
                     break;
-                case Action_Rename:
+                case Action::Rename:
                     m_snapshots = document->performRenameAttribute(m_oldName, m_newName);
                     break;
             };
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool ChangeEntityAttributesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ChangeEntityAttributesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->restoreAttributes(m_snapshots);
             m_snapshots.clear();
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool ChangeEntityAttributesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool ChangeEntityAttributesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            ChangeEntityAttributesCommand* other = static_cast<ChangeEntityAttributesCommand*>(command.get());
-            if (other->m_action != m_action)
+        bool ChangeEntityAttributesCommand::doCollateWith(UndoableCommand* command) {
+            ChangeEntityAttributesCommand* other = static_cast<ChangeEntityAttributesCommand*>(command);
+            if (other->m_action != m_action) {
                 return false;
-            if (other->m_oldName != m_oldName)
+            }
+            if (other->m_oldName != m_oldName) {
                 return false;
+            }
+
             m_newName = other->m_newName;
             m_newValue = other->m_newValue;
             return true;

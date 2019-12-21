@@ -25,6 +25,7 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "View/VertexHandleManager.h"
 
 #include <vecmath/polygon.h>
 
@@ -34,13 +35,13 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveBrushFacesCommand::Type = Command::freeType();
 
-        MoveBrushFacesCommand::Ptr MoveBrushFacesCommand::move(const FaceToBrushesMap& faces, const vm::vec3& delta) {
+        std::unique_ptr<MoveBrushFacesCommand> MoveBrushFacesCommand::move(const FaceToBrushesMap& faces, const vm::vec3& delta) {
             std::vector<Model::Brush*> brushes;
             BrushFacesMap brushFaces;
             std::vector<vm::polygon3> facePositions;
             extractFaceMap(faces, brushes, brushFaces, facePositions);
 
-            return Ptr(new MoveBrushFacesCommand(brushes, brushFaces, facePositions, delta));
+            return std::make_unique<MoveBrushFacesCommand>(brushes, brushFaces, facePositions, delta);
         }
 
         MoveBrushFacesCommand::MoveBrushFacesCommand(const std::vector<Model::Brush*>& brushes, const BrushFacesMap& faces, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) :
@@ -67,8 +68,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MoveBrushFacesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            MoveBrushFacesCommand* other = static_cast<MoveBrushFacesCommand*>(command.get());
+        bool MoveBrushFacesCommand::doCollateWith(UndoableCommand* command) {
+            MoveBrushFacesCommand* other = static_cast<MoveBrushFacesCommand*>(command);
 
             if (!canCollateWith(*other)) {
                 return false;

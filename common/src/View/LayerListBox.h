@@ -22,6 +22,7 @@
 
 #include "Model/Model_Forward.h"
 #include "View/ControlListBox.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 #include <vector>
@@ -32,8 +33,6 @@ class QListWidget;
 
 namespace TrenchBroom {
     namespace View {
-        class MapDocument;
-
         class LayerListBoxWidget : public ControlListBoxItemRenderer {
             Q_OBJECT
         private:
@@ -76,7 +75,6 @@ namespace TrenchBroom {
             ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
 
             void selectedRowChanged(int index) override;
-
         private:
             void bindObservers();
             void unbindObservers();
