@@ -298,7 +298,7 @@ namespace TrenchBroom {
              * @param command the command to execute and store
              * @param collate whether or not the given command should be collated with the topmost command on the undo
              * stack
-             * @param whether or not the given command is potentially repeatable and should be pushed to the repeat stack
+             * @param repeatable whether or not the given command is potentially repeatable and should be pushed to the repeat stack
              * @return a struct containing the result of executing the given command and a boolean indicating whether
              * the given command was stored on the undo stack
              */
