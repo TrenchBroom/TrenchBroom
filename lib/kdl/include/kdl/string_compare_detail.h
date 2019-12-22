@@ -124,14 +124,20 @@ namespace kdl {
      * A glob pattern is a string that has the following special characters:
      * - ? matches any character one time
      * - * matches any character any number of times, including 0
+     * - % matches any digit one time
+     * - %* matches any digit any number of times, include 0
      * - \? matches a literal '?' character
      * - \* matches a literal '*' character
+     * - \% matches a literal '%' character
      * - \\ matches a literal '\' character
      *
      * Consider the following examples:
      * - ?o? matches 'god' and 'dog', but not 'dug'
      * - he*o matches 'hello' and 'hero', but not 'hera' nor 'hiro'
      * - wh*\? matches 'what?' and 'why?'
+     * - wh%% matches 'wh34'
+     * - wh%* matches 'wh343433'
+     * - wh%* matches 'wh'
      *
      * @tparam CharEqual the type of the binary predicate used to test characters for equality
      * @param s the string to match the pattern against
@@ -160,7 +166,7 @@ namespace kdl {
 
             // Look ahead at the next character.
             const auto& n = p[1u];
-            if (n == '*' || n == '?' || n == '\\') {
+            if (n == '*' || n == '?' ||n == '%' || n == '\\') {
                 if (s[0] != n) {
                     return false;
                 }
@@ -171,13 +177,23 @@ namespace kdl {
             }
         }
 
-        // If the pattern is a star and the string is consumed, continue matching at the next char in the pattern.
+        // If the pattern is a '*' and the string is consumed, continue matching at the next char in the pattern.
         if (p[0] == '*' && s.empty()) {
             return str_matches_glob(s, p.substr(1u), char_equal);
         }
 
+        // If the pattern is "%*" and the string is consumed, continue matching at the next char in the pattern.
+        if (p[0] == '%' && p.size() > 1u && p[1] == '*' && s.empty()) {
+            return str_matches_glob(s, p.substr(2u), char_equal);
+        }
+
         // If the pattern is a '?' and the string is consumed, there cannot be a match.
         if (p[0] == '?' && s.empty()) {
+            return false;
+        }
+
+        // If the pattern is a '%' not followed by a '*' and the string is consumed, there cannot be a match.
+        if (p[0] == '%' && (p.size() == 1u || p[1] != '*') && s.empty()) {
             return false;
         }
 
@@ -187,15 +203,42 @@ namespace kdl {
             return false;
         }
 
-        // If the pattern contains '?', or current characters of both strings match, advance both the string and the
-        // pattern and continue to match.
-        if (p[0] == '?' || char_equal(p[0], s[0])) {
+        // If the pattern contains '?', advance both and continue.
+        if (p[0] == '?') {
+            return str_matches_glob(s.substr(1u), p.substr(1u), char_equal);
+        }
+
+        if (p[0] == '%') {
+            // If the pattern contains "%*", then there are two possibilities
+            // a) Consider the churrent character of the string.
+            // b) Ignore the current character of the string
+            if (p.size() > 1u && p[1] == '*') {
+                if (str_matches_glob(s, p.substr(2u), char_equal)) {
+                    return true;
+                } else if (s[0] >= '0' && s[0] <= '9') {
+                    return str_matches_glob(s.substr(1u), p, char_equal);
+                } else {
+                    return false;
+                }
+            } else {
+                // If the pattern contains '%' not followed by '*', check if the current character of the string is a
+                // digit, and if so, continue, otherwise there is no match.
+                if (s[0] >= '0' && s[0] <= '9') {
+                    return str_matches_glob(s.substr(1u), p.substr(1u), char_equal);
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        // If the current characters of the pattern and the string match, advance both and continue.
+        if (char_equal(p[0], s[0])) {
             return str_matches_glob(s.substr(1u), p.substr(1u), char_equal);
         }
 
         // If there is * in the pattern, then there are two possibilities
-        // a) We consider the current character of the string.
-        // b) We ignore the current character of the string.
+        // a) Consider the current character of the string.
+        // b) Ignore the current character of the string.
         if (p[0] == '*') {
             return str_matches_glob(s, p.substr(1u), char_equal) ||
                    str_matches_glob(s.substr(1u), p, char_equal);
