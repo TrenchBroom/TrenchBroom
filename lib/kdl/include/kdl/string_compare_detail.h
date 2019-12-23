@@ -125,7 +125,7 @@ namespace kdl {
      * - ? matches any character one time
      * - * matches any character any number of times, including 0
      * - % matches any digit one time
-     * - %* matches any digit any number of times, include 0
+     * - %* matches any digit any number of times, including 0
      * - \? matches a literal '?' character
      * - \* matches a literal '*' character
      * - \% matches a literal '%' character
@@ -147,104 +147,84 @@ namespace kdl {
      */
     template <typename CharEqual>
     bool str_matches_glob(const std::string_view& s, const std::string_view& p, const CharEqual& char_equal) {
-        // If both the string and the pattern are exhausted, we have a successful match.
-        if (s.empty() && p.empty()) {
-            return true;
-        }
+        using match_state = std::pair<std::size_t, std::size_t>;
+        std::vector<match_state> match_states({{ 0u, 0u }});
 
-        // If the pattern is exhausted but the string is not, there cannot be a match.
-        if (p.empty()) {
-            return false;
-        }
+        while (!match_states.empty()) {
+            const auto [s_i, p_i] = match_states.back();
+            match_states.pop_back();
 
-        // Handle escaped characters in pattern.
-        if (p[0] == '\\' && p.size() > 1u) {
-            // If the string is exhausted, there cannot be a match.
-            if (s.empty()) {
-                return false;
+            if (s_i == s.length() && p_i == p.length()) {
+                // both the string and the pattern are exhausted, so we have a match
+                return true;
             }
 
-            // Look ahead at the next character.
-            const auto& n = p[1u];
-            if (n == '*' || n == '?' ||n == '%' || n == '\\') {
-                if (s[0] != n) {
-                    return false;
+            if (p_i == p.length()) {
+                // the pattern is exhausted but the string is not, so we cannot have a match
+                continue;
+            }
+
+            if (p[p_i] == '\\' && p_i < p.length() - 1u) {
+                // handle escaped characters in the pattern
+                if (s_i < s.length()) {
+                    // check the next character in the pattern against the next character in the string
+                    const auto& n = p[p_i + 1u];
+                    if (n == '*' || n == '?' || n == '%' || n == '\\') {
+                        if (s[s_i] == n) {
+                            // the string matches the escaped character, continue to match
+                            match_states.push_back({ s_i + 1u, p_i + 2u });
+                        }
+                    } else {
+                        // invalid escape sequence in pattern
+                        return false;
+                    }
                 }
-
-                return str_matches_glob(s.substr(1u), p.substr(2u), char_equal);
-            } else {
-                return false; // Invalid escape sequence.
-            }
-        }
-
-        // If the pattern is a '*' and the string is consumed, continue matching at the next char in the pattern.
-        if (p[0] == '*' && s.empty()) {
-            return str_matches_glob(s, p.substr(1u), char_equal);
-        }
-
-        // If the pattern is "%*" and the string is consumed, continue matching at the next char in the pattern.
-        if (p[0] == '%' && p.size() > 1u && p[1] == '*' && s.empty()) {
-            return str_matches_glob(s, p.substr(2u), char_equal);
-        }
-
-        // If the pattern is a '?' and the string is consumed, there cannot be a match.
-        if (p[0] == '?' && s.empty()) {
-            return false;
-        }
-
-        // If the pattern is a '%' not followed by a '*' and the string is consumed, there cannot be a match.
-        if (p[0] == '%' && (p.size() == 1u || p[1] != '*') && s.empty()) {
-            return false;
-        }
-
-        // If the pattern is not consumed, and the current char is not a wildcard, and the pattern is not consumed,
-        // there cannot be a match.
-        if (s.empty()) {
-            return false;
-        }
-
-        // If the pattern contains '?', advance both and continue.
-        if (p[0] == '?') {
-            return str_matches_glob(s.substr(1u), p.substr(1u), char_equal);
-        }
-
-        if (p[0] == '%') {
-            // If the pattern contains "%*", then there are two possibilities
-            // a) Consider the churrent character of the string.
-            // b) Ignore the current character of the string
-            if (p.size() > 1u && p[1] == '*') {
-                if (str_matches_glob(s, p.substr(2u), char_equal)) {
+            } else if (p[p_i] == '*') {
+                // handle '*' in the pattern
+                if (p_i == p.length() - 1u) {
+                    // the pattern is exhausted after the '*', it doesn't matter what the rest of the string looks like
                     return true;
-                } else if (s[0] >= '0' && s[0] <= '9') {
-                    return str_matches_glob(s.substr(1u), p, char_equal);
-                } else {
-                    return false;
                 }
-            } else {
-                // If the pattern contains '%' not followed by '*', check if the current character of the string is a
-                // digit, and if so, continue, otherwise there is no match.
-                if (s[0] >= '0' && s[0] <= '9') {
-                    return str_matches_glob(s.substr(1u), p.substr(1u), char_equal);
+
+                if (s_i == s.length()) {
+                    // the string is exhausted, continue matching at the next char in the pattern
+                    match_states.push_back({ s_i, p_i + 1u });
                 } else {
-                    return false;
+                    // '*' matches any character
+                    // consume the '*' and continue matching at the current character of the string
+                    match_states.push_back({ s_i, p_i + 1u });
+                    // consume the current character of the string and continue matching at '*'
+                    match_states.push_back({ s_i + 1u, p_i });
                 }
+            } else if (p[p_i] == '?') {
+                // handle '?' in the pattern
+                if (s_i < s.length()) {
+                    // '?' matches any character, continue at the next chars in both the pattern and the string
+                    match_states.push_back({ p_i + 1u, s_i + 1u });
+                }
+            } else if (p[p_i] == '%') {
+                // handle '%' in the pattern
+                if (p_i < p.length() - 1u && p[p_i + 1u] == '*') {
+                    // handle "%*" in the pattern
+                    // try to continue matching after "%*"
+                    match_states.push_back({ s_i, p_i + 2u });
+                    if (s_i < s.length() && s[s_i] >= '0' && s[s_i] <= '9') {
+                        // try to match more digits
+                        match_states.push_back({ s_i + 1u, p_i });
+                    }
+                } else if (s_i < s.length()) {
+                    // handle '%' in the pattern (not followed by '*')
+                    if (s[s_i] >= '0' && s[s_i] <= '9') {
+                        // continue matching after the digit
+                        match_states.push_back({ s_i + 1u, p_i + 1u });
+                    }
+                }
+            } else if (s_i < s.length() && char_equal(p[p_i], s[s_i])) {
+                // handle a regular character in the pattern
+                match_states.push_back({ s_i + 1u, p_i + 1u });
             }
         }
 
-        // If the current characters of the pattern and the string match, advance both and continue.
-        if (char_equal(p[0], s[0])) {
-            return str_matches_glob(s.substr(1u), p.substr(1u), char_equal);
-        }
-
-        // If there is * in the pattern, then there are two possibilities
-        // a) Consider the current character of the string.
-        // b) Ignore the current character of the string.
-        if (p[0] == '*') {
-            return str_matches_glob(s, p.substr(1u), char_equal) ||
-                   str_matches_glob(s.substr(1u), p, char_equal);
-        }
-
-        // All other possibilities are exhausted, the current characters of the string and the pattern do not match.
         return false;
     }
 }
