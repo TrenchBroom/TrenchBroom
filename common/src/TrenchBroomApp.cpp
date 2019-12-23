@@ -89,13 +89,6 @@ namespace TrenchBroom {
             // When this flag is enabled, font and palette changes propagate as though the user had manually called the corresponding QWidget methods.
             setAttribute(Qt::AA_UseStyleSheetPropagationInWidgetStyles);
 
-#if defined __APPLE__
-            // fix default palette higlight text color
-            QPalette palette;
-            palette.setColor(QPalette::HighlightedText, Qt::white);
-            setPalette(palette);
-#endif
-
 #if defined(_WIN32) && defined(_MSC_VER)
             // with MSVC, set our own handler for segfaults so we can access the context
             // pointer, to allow StackWalker to read the backtrace.
