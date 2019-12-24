@@ -17,6 +17,7 @@
 
 #include <gtest/gtest.h>
 
+#include "test_utils.h"
 #include "kdl/map_utils.h"
 
 #include <map>
@@ -196,13 +197,6 @@ namespace kdl {
                                   { 2, { 3, 4 }}}, {{ 1, { 1, 2 }}}, {{ 2, { 3, 4 }}});
         test_map_merge<int, int>({{ 1, { 1, 2, 3, 4 }}}, {{ 1, { 1, 2 }}}, {{ 1, { 3, 4 }}});
     }
-
-    struct deletable {
-        bool& deleted;
-
-        deletable(bool& i_deleted) : deleted(i_deleted) { deleted = false; }
-        ~deletable() { deleted = true; }
-    };
 
     TEST(map_utils_test, map_clear_and_delete) {
         bool d1, d2, d3, d4;

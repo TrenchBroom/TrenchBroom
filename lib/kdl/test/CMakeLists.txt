@@ -10,6 +10,7 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/string_utils_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/vector_set_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/vector_utils_test.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/test_utils.cpp"
         )
 
 target_link_libraries(kdl-test gtest kdl)

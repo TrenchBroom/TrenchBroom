@@ -17,6 +17,7 @@
 
 #include <gtest/gtest.h>
 
+#include "test_utils.h"
 #include "kdl/collection_utils.h"
 
 #include <vector>
@@ -43,13 +44,6 @@ namespace kdl {
         test_range_remove_all<int>({ 1, 2, 4, 5, 6, 7, 8, 9 }, { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, { 3 });
         test_range_remove_all<int>({ 1, 2, 5, 6, 8, 9 }, { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, { 7, 3, 4 });
     }
-
-    struct deletable {
-        bool& deleted;
-
-        deletable(bool& i_deleted) : deleted(i_deleted) { deleted = false; }
-        ~deletable() { deleted = true; }
-    };
 
     TEST(collection_utils_test, range_delete_all) {
         bool d1, d2, d3;
