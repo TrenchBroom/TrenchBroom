@@ -2,6 +2,7 @@ add_executable(kdl-test)
 target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/binary_relation_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/collection_utils_test.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/glob_index_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/intrusive_circular_list_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/map_utils_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/transform_range_test.cpp"

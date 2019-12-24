@@ -140,13 +140,13 @@ namespace kdl {
      * - wh%* matches 'wh'
      *
      * @tparam CharEqual the type of the binary predicate used to test characters for equality
-     * @param s the string to match the pattern against
-     * @param p the pattern
+     * @param str the string to match the pattern against
+     * @param pattern the pattern
      * @param char_equal the binary predicate
      * @return true if the given pattern matches the given string
      */
     template <typename CharEqual>
-    bool str_matches_glob(const std::string_view& s, const std::string_view& p, const CharEqual& char_equal) {
+    bool str_matches_glob(const std::string_view& str, const std::string_view& pattern, const CharEqual& char_equal) {
         using match_state = std::pair<std::size_t, std::size_t>;
         std::vector<match_state> match_states({{ 0u, 0u }});
 
@@ -154,74 +154,74 @@ namespace kdl {
             const auto [s_i, p_i] = match_states.back();
             match_states.pop_back();
 
-            if (s_i == s.length() && p_i == p.length()) {
-                // both the string and the pattern are exhausted, so we have a match
+            if (s_i == str.length() && p_i == pattern.length()) {
+                // both the string and the pattern are consumed, so we have a match
                 return true;
             }
 
-            if (p_i == p.length()) {
-                // the pattern is exhausted but the string is not, so we cannot have a match
+            if (p_i == pattern.length()) {
+                // the pattern is consumed but the string is not, so we cannot have a match
                 continue;
             }
 
-            if (p[p_i] == '\\' && p_i < p.length() - 1u) {
+            if (pattern[p_i] == '\\' && p_i < pattern.length() - 1u) {
                 // handle escaped characters in the pattern
-                if (s_i < s.length()) {
+                if (s_i < str.length()) {
                     // check the next character in the pattern against the next character in the string
-                    const auto& n = p[p_i + 1u];
+                    const auto& n = pattern[p_i + 1u];
                     if (n == '*' || n == '?' || n == '%' || n == '\\') {
-                        if (s[s_i] == n) {
+                        if (str[s_i] == n) {
                             // the string matches the escaped character, continue to match
-                            match_states.push_back({ s_i + 1u, p_i + 2u });
+                            match_states.emplace_back(s_i + 1u, p_i + 2u);
                         }
                     } else {
                         // invalid escape sequence in pattern
                         return false;
                     }
                 }
-            } else if (p[p_i] == '*') {
+            } else if (pattern[p_i] == '*') {
                 // handle '*' in the pattern
-                if (p_i == p.length() - 1u) {
-                    // the pattern is exhausted after the '*', it doesn't matter what the rest of the string looks like
+                if (p_i == pattern.length() - 1u) {
+                    // the pattern is consumed after the '*', it doesn't matter what the rest of the string looks like
                     return true;
                 }
 
-                if (s_i == s.length()) {
-                    // the string is exhausted, continue matching at the next char in the pattern
-                    match_states.push_back({ s_i, p_i + 1u });
+                if (s_i == str.length()) {
+                    // the string is consumed, continue matching at the next char in the pattern
+                    match_states.emplace_back(s_i, p_i + 1u);
                 } else {
                     // '*' matches any character
                     // consume the '*' and continue matching at the current character of the string
-                    match_states.push_back({ s_i, p_i + 1u });
+                    match_states.emplace_back(s_i, p_i + 1u);
                     // consume the current character of the string and continue matching at '*'
-                    match_states.push_back({ s_i + 1u, p_i });
+                    match_states.emplace_back(s_i + 1u, p_i);
                 }
-            } else if (p[p_i] == '?') {
+            } else if (pattern[p_i] == '?') {
                 // handle '?' in the pattern
-                if (s_i < s.length()) {
+                if (s_i < str.length()) {
                     // '?' matches any character, continue at the next chars in both the pattern and the string
-                    match_states.push_back({ p_i + 1u, s_i + 1u });
+                    match_states.emplace_back(s_i + 1u, p_i + 1u);
                 }
-            } else if (p[p_i] == '%') {
+            } else if (pattern[p_i] == '%') {
                 // handle '%' in the pattern
-                if (p_i < p.length() - 1u && p[p_i + 1u] == '*') {
+                if (p_i < pattern.length() - 1u && pattern[p_i + 1u] == '*') {
                     // handle "%*" in the pattern
                     // try to continue matching after "%*"
-                    match_states.push_back({ s_i, p_i + 2u });
-                    if (s_i < s.length() && s[s_i] >= '0' && s[s_i] <= '9') {
+                    match_states.emplace_back(s_i, p_i + 2u);
+                    if (s_i < str.length() && str[s_i] >= '0' && str[s_i] <= '9') {
                         // try to match more digits
-                        match_states.push_back({ s_i + 1u, p_i });
+                        match_states.emplace_back(s_i + 1u, p_i);
                     }
-                } else if (s_i < s.length()) {
+                } else if (s_i < str.length()) {
                     // handle '%' in the pattern (not followed by '*')
-                    if (s[s_i] >= '0' && s[s_i] <= '9') {
+                    if (str[s_i] >= '0' && str[s_i] <= '9') {
                         // continue matching after the digit
-                        match_states.push_back({ s_i + 1u, p_i + 1u });
+                        match_states.emplace_back(s_i + 1u, p_i + 1u);
                     }
                 }
-            } else if (s_i < s.length() && char_equal(p[p_i], s[s_i])) {
+            } else if (s_i < str.length() && char_equal(pattern[p_i], str[s_i])) {
                 // handle a regular character in the pattern
-                match_states.push_back({ s_i + 1u, p_i + 1u });
+                match_states.emplace_back(s_i + 1u, p_i + 1u);
             }
         }
 
