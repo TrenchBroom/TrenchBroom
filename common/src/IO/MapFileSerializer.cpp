@@ -101,9 +101,9 @@ namespace TrenchBroom {
                 writeFacePoints(stream, face);
                 writeTextureInfo(stream, face);
 
-                if (face->hasSurfaceAttributes()) {
-                    writeSurfaceAttributes(stream, face);
-                }
+                // Neverball's "mapc" doesn't like it if surface attributes aren't present.
+                // This suggests the Radiants always output these, so it's probably a compatibility danger.
+                writeSurfaceAttributes(stream, face);
 
                 std::fprintf(stream, "\n");
                 return 1;
