@@ -56,7 +56,7 @@ echo.
 echo "cppcheck detected issues, see below"
 echo.
 
-type common\cppcheck-errors.txt
+type cppcheck-errors.txt
 
 echo.
 

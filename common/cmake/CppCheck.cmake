@@ -35,7 +35,7 @@ else()
         --verbose
         --error-exitcode=1
         ${COMMON_SOURCE_DIR}
-        2> ./cppcheck-errors.txt
+        2> "${CMAKE_BINARY_DIR}/cppcheck-errors.txt"
     )
 
     string(REPLACE ";" " " CPPCHECK_ARGS_STR "${CPPCHECK_ARGS}")

@@ -36,7 +36,7 @@ if [[ $? -ne 0 ]] ; then
     echo "cppcheck detected issues, see below"
     echo
 
-    cat common/cppcheck-errors.txt
+    cat cppcheck-errors.txt
     echo
 
     exit 1
