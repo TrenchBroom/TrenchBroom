@@ -41,6 +41,7 @@
 #include "IO/Md3Parser.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
+#include "IO/ObjParser.h"
 #include "IO/ObjSerializer.h"
 #include "IO/WorldReader.h"
 #include "IO/SimpleParserStatus.h"
@@ -397,6 +398,10 @@ namespace TrenchBroom {
                 } else if (extension == "ase" && kdl::vec_contains(supported, "ase")) {
                     auto reader = file->reader().buffer();
                     IO::AseParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
+                    return parser.initializeModel(logger);
+                } else if (extension == "obj" && kdl::vec_contains(supported, "obj_neverball")) {
+                    auto reader = file->reader().buffer();
+                    IO::ObjParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     return parser.initializeModel(logger);
                 } else {
                     throw GameException("Unsupported model format '" + path.asString() + "'");
