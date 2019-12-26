@@ -27,6 +27,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace kdl {
@@ -127,7 +128,7 @@ namespace kdl {
             }
 
             template <typename O>
-            void query(const std::string_view& pattern, const std::size_t pattern_position, O out) const {
+            void query(const std::string_view& pattern, const std::size_t pattern_position, std::unordered_set<const node*>& matched_nodes, O out) const {
                 using match_state = std::pair<std::size_t, std::size_t>;
 
                 std::vector<match_state> match_states({{ 0u, pattern_position }});
@@ -139,8 +140,17 @@ namespace kdl {
 
                     if (k_i == m_key.length() && p_i == pattern.length()) {
                         // both the key and the pattern are consumed, so we have a match
-                        get_values(out);
-                        continue;
+                        if (matched_nodes.insert(this).second) {
+                            get_values(out);
+                        }
+                        if (m_children.empty()) {
+                            // if there are no children to recurse into, we can abort all match attempts at this node
+                            return;
+                        } else {
+                            // otherwise we must continue because we don't know if any of the remaining attempts could
+                            // still match a child node
+                            continue;
+                        }
                     }
 
                     if (p_i == pattern.length()) {
@@ -168,7 +178,7 @@ namespace kdl {
                             for (const auto& c : { "*", "?", "%", "\\" }) {
                                 const auto it = m_children.find(c);
                                 if (it != std::end(m_children)) {
-                                    it->query(pattern, p_i, out);
+                                    it->query(pattern, p_i, matched_nodes, out);
                                 }
                             }
                         }
@@ -189,7 +199,7 @@ namespace kdl {
                         } else {
                             // the key is consumed, so continue matching at the children
                             for (const auto& child : m_children) {
-                                child.query(pattern, p_i, out);
+                                child.query(pattern, p_i, matched_nodes, out);
                             }
                         }
                     } else if (pattern[p_i] == '?') {
@@ -200,7 +210,7 @@ namespace kdl {
                         } else {
                             // the key is consumed, so continue matching at the children
                             for (const auto& child : m_children) {
-                                child.query(pattern, p_i, out);
+                                child.query(pattern, p_i, matched_nodes, out);
                             }
                         }
                     } else if (pattern[p_i] == '%') {
@@ -217,7 +227,7 @@ namespace kdl {
                             } else {
                                 // the key is consumed, so continue matching at the children
                                 for (auto it = m_children.lower_bound("0"), end = m_children.upper_bound("9"); it != end; ++it) {
-                                    it->query(pattern, p_i, out);
+                                    it->query(pattern, p_i, matched_nodes, out);
                                 }
                             }
                         } else {
@@ -230,7 +240,7 @@ namespace kdl {
                             } else {
                                 // the key is consumed, so continue matching at the children
                                 for (auto it = m_children.lower_bound("0"), end = m_children.upper_bound("9"); it != end; ++it) {
-                                    it->query(pattern, p_i, out);
+                                    it->query(pattern, p_i, matched_nodes, out);
                                 }
                             }
                         }
@@ -243,7 +253,7 @@ namespace kdl {
                         } else {
                             // the key is consumed, so continue matching at the children
                             for (auto [it, end] = m_children.equal_range(pattern.substr(p_i, 1u)); it != end; ++it) {
-                                it->query(pattern, p_i, out);
+                                it->query(pattern, p_i, matched_nodes, out);
                             }
                         }
                     }
@@ -367,7 +377,8 @@ namespace kdl {
 
         template <typename O>
         void query(const std::string_view& pattern, O out) const {
-            m_root.query(pattern, { 0u }, out);
+            std::unordered_set<const node*> matched_nodes;
+            m_root.query(pattern, { 0u }, matched_nodes, out);
         }
     };
 }

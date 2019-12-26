@@ -151,8 +151,15 @@ namespace kdl {
         index.insert("this2345that", "value5");
         ASSERT_QUERY(std::vector<std::string>({ "value5" }), index, "t*%%%%that")
         ASSERT_QUERY(std::vector<std::string>({ "value5" }), index, "t*%*that")
-        ASSERT_QUERY(std::vector<std::string>({ "value5" }), index, "t*%**t")
-        ASSERT_QUERY(std::vector<std::string>({ "value5" }), index, "t*%**")
+        ASSERT_QUERY(std::vector<std::string>({ "value4", "value5" }), index, "t*%**t")
+        ASSERT_QUERY(std::vector<std::string>({ "value4", "value5" }), index, "t*%**")
+        ASSERT_QUERY(std::vector<std::string>({ "value4", "value5" }), index, "t*")
+        ASSERT_QUERY(std::vector<std::string>({ "value4", "value5" }), index, "t**")
+        ASSERT_QUERY(std::vector<std::string>({ "value4", "value5" }), index, "t?*")
+        ASSERT_QUERY(std::vector<std::string>({ "value4", "value5" }), index, "t??*")
+        ASSERT_QUERY(std::vector<std::string>({ "value4", "value5" }), index, "t???*")
+        ASSERT_QUERY(std::vector<std::string>({ "value5" }), index, "t????*")
+        ASSERT_QUERY(std::vector<std::string>({}), index, "t*%*")
     }
 
     TEST(glob_index_test, query_digit_suffix) {
