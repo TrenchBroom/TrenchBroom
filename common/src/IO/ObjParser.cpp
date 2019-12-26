@@ -54,7 +54,7 @@ namespace TrenchBroom {
         }
 
         ObjParser::ObjParser(const std::string& name, const char* begin, const char* end, const FileSystem& fs) :
-        m_name(name), m_text(begin, end - begin), m_fs(fs) {}
+        m_name(name), m_text(begin, (size_t) (end - begin)), m_fs(fs) {}
 
         std::unique_ptr<Assets::EntityModel> ObjParser::doInitializeModel(Logger& logger) {
             // Model construction prestart (skins are added to this mid-parse)
