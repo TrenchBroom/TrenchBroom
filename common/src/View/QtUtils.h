@@ -23,6 +23,7 @@
 #undef CursorShape
 
 #include "View/ViewConstants.h"
+#include "Ensure.h"
 
 #include <string>
 
