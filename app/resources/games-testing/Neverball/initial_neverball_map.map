@@ -67,8 +67,7 @@
 // entity 1
 {
 "classname" "info_player_start"
-"origin" "0 0 96"
-"radius" "0.25"
+"origin" "0 0 104"
 }
 // entity 2
 {

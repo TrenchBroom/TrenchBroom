@@ -63,15 +63,15 @@
 ]
 
 // Of course, as you may have surmised, this is reliant on OBJ support...
-@PointClass size(32 32 32) studio("__tb_info_player_start.obj") = info_player_start : "The player start. In Neverball, there should only be one; in Neverputt, one must be defined per player slot. Beware! Rotating this entity will not work; to correct your vision in the editor, set 'angle' to the provided default."
+@PointClass size(-16 -16 -24, 16 16 8) studio("__tb_info_player_start.obj") = info_player_start : "The player start. In Neverball, there should only be one; in Neverputt, one must be defined per player slot. Beware! Rotating this entity will not work; to correct your vision in the editor, set 'angle' to the provided default."
 [
     angle(integer) : "The starting angle - completely ignored, mind! - is always 90, or towards +Y." : 90
-    radius(float) : "The radius, in 'meters' (1 meter = 128 units). Defaults to 0.25, but if in Neverputt, this should be set to 0.0625." : "0.25"
+    radius(float) : "The radius, in 'meters' (1 meter = 64 units). Defaults to 0.25, but if in Neverputt, this should be set to 0.0625." : "0.25"
 ]
 
 @PointClass size(32 32 48) studio("__tb_info_player_deathmatch.obj") = info_player_deathmatch : "The goal (or one thereof). For Neverball, usually accompanied by a mtrl/goal detail-brush decal. For Neverputt, usually in a hole."
 [
-    radius(float) : "The radius, in 'meters' (1 meter = 128 units). Defaults to 0.75 (though be aware that the collision rules make this effectively 0.5). In Neverputt, usually 0.1375." : "0.75"
+    radius(float) : "The radius, in 'meters' (1 meter = 64 units). Defaults to 0.75 (though be aware that the collision rules make this effectively 0.5). In Neverputt, usually 0.1375." : "0.75"
 ]
 
 // -- Need to calibrate the sizes for all of these. Also: model scaling? --
@@ -92,12 +92,12 @@
 // Rather than explain that this is to be centred, the size has simply been adjusted accordingly...
 @PointClass size(32 32 0) = target_teleporter : "A teleporter. Usually accompanied by a mtrl/teleporter detail-brush decal."
 [
-    radius(float) : "The radius, in 'meters' (1 meter = 128 units). Defaults to 0.5." : "0.5"
+    radius(float) : "The radius, in 'meters' (1 meter = 64 units). Defaults to 0.5." : "0.5"
     target(target_destination) : "A target_position entity that is the destination of the teleporter. Two-way teleporters have target_position entities at each other's exits."
 ]
 @PointClass size(32 32 0) = info_camp : "A switch. Usually accompanied by a mtrl/switch detail-brush decal."
 [
-    radius(float) : "The radius, in 'meters' (1 meter = 128 units). Defaults to 0.5." : "0.5"
+    radius(float) : "The radius, in 'meters' (1 meter = 64 units). Defaults to 0.5." : "0.5"
     target(target_destination) : "The path_corner that is turned on/off by this switch."
     state(choices) : "The initial state of the switch. Should always match the initial state of the path_corner." : 0 =
     [
