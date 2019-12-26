@@ -86,6 +86,114 @@
   
   In general, it is preferable to not delete the parameter name and it should be done with care.
 
+# Compilation Times
+
+This section presents some guidelines to keep compilation times low.
+
+## Avoid Including Headers
+
+Avoid including headers in other headers. Remember that including a header B in another header A includes B in every
+file that includes A, and so on.
+- Use forward declarations wherever possible. Remember that you can forward declare classes, class templates, and
+  scoped enums. Furthermore, type aliases and even template aliases can use forward declarations.
+- If you need to refer to a type in a header file, you should use a forward declaration except for the following reasons:
+  1. It's a typed defined in namespace `std`.
+  2. The type is used as a by value member of a class that you are declaring in your header.
+  3. The type is used in the implementation of a template function.
+  - Note that you should also use forward declarations for types used in the following contexts:
+    - By value function parameters or return types - it is ok to use a fwd declaration, the type need only be fully
+      defined the call site, where it can be included.
+    - Type parameters for standard library containers - if you are declaring a member of type `std::vector<Foo>` in a
+      class, you need not include `Foo` in the header file where your class is declared. You may have to declare a
+      destructor which you must implement in the corresponding cpp file, where `Foo` must be fully defined. Defaulting
+      the constructor in the cpp file is sufficient.
+- Split off a part of a header into a separate header, e.g. declare some functions separately if they must include
+  large headers. See the next item for examples involving std library headers.
+
+Avoid including std library headers. Since names in std cannot be forward declared, this is sometimes unavoidable,
+but there are some ways to mitigate the effects.
+- Split off parts of a header into a separate header. Consider the following header `X.h`:
+  ```
+  #include <ostream>
+  
+  class X { ... }
+  
+  std::ostream& operator<<(std::ostream& s, const X& x) { ... }
+  ```
+  The stream insertion operator requires that `<ostream>` be included in `X.h`, with the effect that `<ostream>` is
+  included wherever `X.h` is included, even if the stream insertion operator is not used in that place. In this case,
+  it is useful to split off a header `X_IO.h` that declares the stream insertion operator while removing the 
+  `<ostream>` include and the operator declaration from `X.h`.
+
+  As an alternative when using the std library iostreams, you can include `<iosfwd>` in the header file. `<iosfwd>` has
+  forward declarations for all iostream related types, so it can be used when stream operators are only declared and not
+  implemented in your header file.
+
+- Use a function template to avoid specifying the std library type directly. Consider the following example: 
+
+  ```
+  #include <set>
+  
+  class X {
+      ...
+  
+      void doIt(const std::set& s); 
+   }
+  ```
+
+  Here, the same problem arises: `<set>` is included everywhere where `X.h` is included. Since the member function
+  declaration for `X::doIt` cannot easily be moved to another header, we might consider turning it into a function
+  template:
+
+  ```
+  class X {
+      ...
+  
+      template <typename S>
+      void doIt(const S& s) { ... } 
+   }
+  ```
+
+  Now, `<set>` must only be included at the call sites of `X::doIt`, which are often `cpp` files where includes do not
+  propagate.
+
+# Preinstantiated Templates
+In certain cases involving templates, it might be useful to explicitly instantiate them if the template arguments are
+known, if there is a small set of combinations of template arguments in use and if the function templates and class
+template member functions need not be inlined by the compiler. Consider this example:
+
+```
+template <typename T, std::size_t S>
+class vec<T,S> {...}
+```
+
+Assume that we are only ever using `vec<float,3>` and `vec<double,3>`. Then we can avoid instantiating the member
+functions of these templates at every use site by preinstantiating the class templates. This requires creating a 
+header file `vec_instantiation.h` and `vec_instantiation.cpp` with the following contents:
+
+```
+// vec_instantiation.h
+#include "vec.h"
+extern template class vec<float,3>;
+extern template class vec<double,3>;
+```
+
+```
+// vec_instantiation.cpp
+#include "vec.h"
+template class vec<float,3>;
+template class vec<double,3>;
+```
+
+The compiler will still instantiate the class template `vec` wherever it is used, but depending on whether or not
+its member functions are implemented inline, it will not instantiate the functions bodies. Specifically, if a
+member function is implemented inline in the class template `vec`, then its function body will be instantiated by the
+compiler to facilitate inlining. If the function body is implemented out of line, the compiler will not instantiate
+it, but it will also not be able to inline it at the call site.
+
+Therefore, using preinstiated templates requires careful consideration of performance, as it precludes function body
+inlining by the compiler.
+
 # Features
 - We use C++17.
 - The entire source code and test cases must compile without warnings.
