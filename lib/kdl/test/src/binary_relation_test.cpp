@@ -28,14 +28,14 @@ namespace kdl {
     }
 
     TEST(binary_relation_test, constructor_default) {
-        using relation = binary_relation<size_t, std::string>;
+        using relation = binary_relation<int, std::string>;
 
         relation r;
         ASSERT_TRUE(r.empty());
     }
 
     TEST(binary_relation_test, constructor_intializer_list) {
-        using relation = binary_relation<size_t, std::string>;
+        using relation = binary_relation<int, std::string>;
 
         relation r({
             { 1, "a" },
@@ -56,14 +56,14 @@ namespace kdl {
     }
 
     TEST(binary_relation_test, empty) {
-        using relation = binary_relation<size_t, std::string>;
+        using relation = binary_relation<int, std::string>;
 
         ASSERT_TRUE(relation().empty());
         ASSERT_FALSE(relation({{ 1, "a" }}).empty());
     }
 
     TEST(binary_relation_test, size) {
-        using relation = binary_relation<size_t, std::string>;
+        using relation = binary_relation<int, std::string>;
 
         ASSERT_EQ(0u, relation().size());
         ASSERT_EQ(1u, relation({{ 1, "a" }}).size());
@@ -72,7 +72,7 @@ namespace kdl {
     }
 
     TEST(binary_relation_test, contains) {
-        using relation = binary_relation<size_t, std::string>;
+        using relation = binary_relation<int, std::string>;
 
         ASSERT_FALSE(relation().contains(1, "a"));
         ASSERT_FALSE(relation({{ 1, "b" }}).contains(1, "a"));
@@ -81,7 +81,7 @@ namespace kdl {
     }
 
     TEST(binary_relation_test, count_left) {
-        using relation = binary_relation<size_t, std::string>;
+        using relation = binary_relation<int, std::string>;
 
         ASSERT_EQ(0u, relation().count_left("a"));
         ASSERT_EQ(0u, relation({{ 1, "b" }}).count_left("a"));
@@ -91,7 +91,7 @@ namespace kdl {
     }
 
     TEST(binary_relation_test, count_right) {
-        using relation = binary_relation<size_t, std::string>;
+        using relation = binary_relation<int, std::string>;
 
         ASSERT_EQ(0u, relation().count_right(1));
         ASSERT_EQ(0u, relation({{ 2, "a" }}).count_right(1));
@@ -101,38 +101,38 @@ namespace kdl {
     }
 
     TEST(binary_relation_test, iterator) {
-        using relation = binary_relation<size_t, std::string>;
+        using relation = binary_relation<int, std::string>;
 
         relation r;
         ASSERT_TRUE(std::begin(r) == std::end(r));
         ASSERT_FALSE(std::begin(r) != std::end(r));
 
-        r.insert(1u, "a");
-        r.insert(1u, "b");
-        r.insert(2u, "b");
-        r.insert(3u, "c");
+        r.insert(1, "a");
+        r.insert(1, "b");
+        r.insert(2, "b");
+        r.insert(3, "c");
 
         auto it = std::begin(r);
         auto end = std::end(r);
 
         ASSERT_FALSE(it == end);
         ASSERT_TRUE(it != end);
-        ASSERT_EQ(std::make_pair(1ul, std::string("a")), *it);
+        ASSERT_EQ(std::make_pair(1, std::string("a")), *it);
 
         ++it;
         ASSERT_FALSE(it == end);
         ASSERT_TRUE(it != end);
-        ASSERT_EQ(std::make_pair(1ul, std::string("b")), *it);
+        ASSERT_EQ(std::make_pair(1, std::string("b")), *it);
 
         ++it;
         ASSERT_FALSE(it == end);
         ASSERT_TRUE(it != end);
-        ASSERT_EQ(std::make_pair(2ul, std::string("b")), *it);
+        ASSERT_EQ(std::make_pair(2, std::string("b")), *it);
 
         ++it;
         ASSERT_FALSE(it == end);
         ASSERT_TRUE(it != end);
-        ASSERT_EQ(std::make_pair(3ul, std::string("c")), *it);
+        ASSERT_EQ(std::make_pair(3, std::string("c")), *it);
 
         ++it;
         ASSERT_TRUE(it == end);
@@ -145,7 +145,7 @@ namespace kdl {
     }
 
     TEST(binary_relation_test, left_range) {
-        using relation = binary_relation<size_t, std::string>;
+        using relation = binary_relation<int, std::string>;
 
         assertRange<size_t>({}, relation().left_range("a"));
         assertRange<size_t>({}, relation({{ 1, "b" }}).left_range("a"));
@@ -154,7 +154,7 @@ namespace kdl {
     }
 
     TEST(binary_relation_test, right_range) {
-        using relation = binary_relation<size_t, std::string>;
+        using relation = binary_relation<int, std::string>;
 
         assertRange<std::string>({}, relation().right_range(1));
         assertRange<std::string>({}, relation({{ 2, "b" }}).right_range(1));
@@ -163,7 +163,7 @@ namespace kdl {
     }
 
     TEST(binary_relation_test, insert_relation) {
-        using relation = binary_relation<size_t, std::string>;
+        using relation = binary_relation<int, std::string>;
 
         relation r;
         r.insert(relation({
@@ -187,7 +187,7 @@ namespace kdl {
 
 
     TEST(binary_relation_test, insert_right_range) {
-        using relation = binary_relation<size_t, std::string>;
+        using relation = binary_relation<int, std::string>;
 
         relation r;
 
@@ -279,7 +279,7 @@ namespace kdl {
     }
 
     TEST(binary_relation_test, insert_values) {
-        using relation = binary_relation<size_t, std::string>;
+        using relation = binary_relation<int, std::string>;
 
         relation r;
         ASSERT_TRUE(r.insert(1, "a"));
@@ -309,7 +309,7 @@ namespace kdl {
     }
 
     TEST(binary_relation_test, erase) {
-        using relation = binary_relation<size_t, std::string>;
+        using relation = binary_relation<int, std::string>;
 
         relation r;
         r.insert(1, "a");
