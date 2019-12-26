@@ -18,6 +18,7 @@
 #include <gtest/gtest.h>
 
 #include "test_utils.h"
+
 #include "kdl/map_utils.h"
 
 #include <map>

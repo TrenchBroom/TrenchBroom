@@ -18,6 +18,7 @@
 #include <gtest/gtest.h>
 
 #include "test_utils.h"
+
 #include "kdl/collection_utils.h"
 
 #include <vector>
