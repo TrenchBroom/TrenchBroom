@@ -25,7 +25,6 @@
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
-#include "IO/Quake3ShaderTextureReader.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
@@ -97,13 +96,12 @@ namespace TrenchBroom {
             std::vector<vm::vec2f> texcoords;
             std::vector<ObjFace> faces;
             // Begin parsing.
-            auto lines = kdl::str_split(m_text, "\n");
             size_t current_material = 0;
             size_t last_material = 0;
-            for (const std::string& line : lines) {
+            for (const std::string& line : kdl::str_split(m_text, "\n")) {
                 // logger.debug() << "obj line: " << line;
                 const std::string trimmed = kdl::str_trim(line);
-                auto tokens = kdl::str_split(trimmed, " \t");
+                const auto tokens = kdl::str_split(trimmed, " \t");
                 if (tokens.size() != 0) {
                     if (tokens[0] == "v") {
                         if (tokens.size() < 4) {
