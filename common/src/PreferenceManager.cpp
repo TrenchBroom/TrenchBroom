@@ -27,13 +27,16 @@
 
 #include <QDebug>
 #include <QDir>
-#include <QStandardPaths>
-#include <QStringBuilder>
+#include <QFileSystemWatcher>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QSaveFile>
-#include <QFileSystemWatcher>
+#if defined(Q_OS_WIN)
+#include <QSettings>
+#endif
+#include <QStandardPaths>
+#include <QStringBuilder>
 
 #include <string>
 #include <vector>

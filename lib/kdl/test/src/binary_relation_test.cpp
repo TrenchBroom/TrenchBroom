@@ -24,7 +24,7 @@
 namespace kdl {
     template <typename L, typename R>
     void assertRelation(const std::vector<std::pair<L, R>>& exp, const binary_relation<L, R>& act) {
-        std::equal(std::begin(exp), std::end(exp), std::begin(act), std::end(act));
+        ASSERT_TRUE(std::equal(std::begin(exp), std::end(exp), std::begin(act), std::end(act)));
     }
 
     TEST(binary_relation_test, constructor_default) {
@@ -147,10 +147,10 @@ namespace kdl {
     TEST(binary_relation_test, left_range) {
         using relation = binary_relation<int, std::string>;
 
-        assertRange<size_t>({}, relation().left_range("a"));
-        assertRange<size_t>({}, relation({{ 1, "b" }}).left_range("a"));
-        assertRange<size_t>({ 1 }, relation({{ 1, "a" }}).left_range("a"));
-        assertRange<size_t>({ 1, 2 }, relation({{ 1, "a" }, { 2, "a" }, { 3, "b" }}).left_range("a"));
+        assertRange<int>({}, relation().left_range("a"));
+        assertRange<int>({}, relation({{ 1, "b" }}).left_range("a"));
+        assertRange<int>({ 1 }, relation({{ 1, "a" }}).left_range("a"));
+        assertRange<int>({ 1, 2 }, relation({{ 1, "a" }, { 2, "a" }, { 3, "b" }}).left_range("a"));
     }
 
     TEST(binary_relation_test, right_range) {
