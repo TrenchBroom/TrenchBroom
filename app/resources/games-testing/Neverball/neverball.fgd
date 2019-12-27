@@ -1,10 +1,15 @@
 // Unofficial Neverball FGD for use in TrenchBroom
 // Details were taken from https://github.com/Neverball/neverball-docs/blob/8e4b71c0eea12f5cab8d925964682fb2eaee625e/Entities.md and co.
+// After those turned out to be insufficient, mapc.c was consulted for reference.
+// Yet, this may still be inaccurate in the fine details.
 
-@BaseClass = NeverballBody : "internal class; 'bodies' are described in the manual"
+@BaseClass = NeverballBody : "internal class; 'bodies' are described in the manual, but incompletely"
 [
+    // These all being properties of 'body' is a weird undocumented quirk of mapc - that is actually used in Neverball to some extent.
     target(target_destination) : "An optional path for the body to move along. This also specifies the origin of the body relative to the path."
     target2(target_destination) : "An optional secondary path to specifically control the body's rotation."
+    material(string) : "Optional fallback material override filename. Must appear in the MAP file before 'model' to work. For standard map materials, prefix 'textures/'."
+    model(string) : "An optional filename of an OBJ file. The geometry in this is added, without collision, to this entity."
 ]
 
 @SolidClass base(NeverballBody) = worldspawn : "Defines level attributes and static geometry."
@@ -140,10 +145,9 @@
 
 @SolidClass base(NeverballBody) = func_train : "A moving object." []
 
-@PointClass base(NeverballBody) studio(model) = misc_model : "An imported model. Has no collision by itself, but collision can be built and moved around it."
-[
-    model(string): "Filename of the model."
-]
+// Yes, misc_model MAY be used as a brush entity; yes, geometry in a misc_model works properly.
+@SolidClass base(NeverballBody) studio(model) = misc_model : "A dummy body entity." []
+@PointClass base(NeverballBody) studio(model) = misc_model : "A dummy body entity." []
 
 @PointClass = target_position : "An abstract point referred to by other entities."
 [
