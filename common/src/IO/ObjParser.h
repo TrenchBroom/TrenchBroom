@@ -35,32 +35,10 @@ namespace TrenchBroom {
     class Logger;
 
     namespace IO {
-        class ObjVertexRef {
-        public:
-            /**
-             * Parses a vertex reference.
-             *
-             * @param text the text of this reference (such as "1/2/3")
-             */
-            ObjVertexRef(const std::string& text);
-            // Position index (1-based. Should always be present.)
-            size_t m_position;
-            size_t m_texcoord;
-        };
-
-        class ObjFace {
-        public:
-            // The material of this face (as a skin index)
-            size_t m_material;
-            // The vertices of this face.
-            std::vector<ObjVertexRef> m_vertices;
-        };
-
         class ObjParser : public EntityModelParser {
         private:
             std::string m_name;
             std::string m_text;
-            const FileSystem& m_fs;
         public:
             /**
              * Creates a new parser for Wavefront OBJ models.
@@ -69,9 +47,51 @@ namespace TrenchBroom {
              * @param begin the start of the text
              * @param end the end of the text
              */
-            ObjParser(const std::string& name, const char* begin, const char* end, const FileSystem& fs);
+            ObjParser(const std::string& name, const char* begin, const char* end);
+
+            /**
+             * Transforms the various sets of coordinates.
+             * @param positions Vertex positions to transform in-place.
+             * @param texcoords Texture coordinates to transform in-place.
+             */
+            virtual void transformObjCoordinateSet(std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) = 0;
+
+            /**
+             * Loads a material. On failure, return the empty unique_ptr (as the original exceptions are usually caught anyway to test each format).
+             * @param name The name of the material.
+             */
+            virtual std::unique_ptr<Assets::Texture> loadMaterial(const std::string& name) = 0;
+
+            /**
+             * Loads the "fallback material". This is used if no material is specified or if loadMaterial fails.
+             * This function is not supposed to fail in any way. Should it still fail regardless, it should throw a ParserException.
+             */
+            virtual std::unique_ptr<Assets::Texture> loadFallbackMaterial() = 0;
+
         private:
             std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
+        };
+
+        /**
+         * The specific instantiation of the ObjParser as it applies to Neverball.
+         */
+        class NvObjParser : public ObjParser {
+        private:
+            std::string m_path;
+            const FileSystem& m_fs;
+        public:
+            /**
+             *
+             * @param path the path of the model (important for texture lookup)
+             * @param begin the start of the text
+             * @param end the end of the text
+             * @param fs the filesystem used to lookup textures
+             */
+            NvObjParser(const std::string& path, const char* begin, const char* end, const FileSystem& fs) : ObjParser(path, begin, end), m_path(path), m_fs(fs) {}
+
+            void transformObjCoordinateSet(std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) override;
+            std::unique_ptr<Assets::Texture> loadMaterial(const std::string& name) override;
+            std::unique_ptr<Assets::Texture> loadFallbackMaterial() override;
         };
     }
 }

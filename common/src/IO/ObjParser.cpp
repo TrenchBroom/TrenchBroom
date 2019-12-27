@@ -39,22 +39,48 @@
 namespace TrenchBroom {
     namespace IO {
 
-        ObjVertexRef::ObjVertexRef(const std::string& text) : m_texcoord(0) {
-            auto components = kdl::str_split(text, "/");
-            std::vector<size_t> components_num;
-            for (const std::string & com : components)
-                components_num.push_back((size_t) std::stoul(com));
-            if (components_num.size() == 0) {
-                throw ParserException("OBJ file has an empty vertex reference");
-            } else {
-                m_position = components_num[0];
+        struct ObjVertexRef {
+            /**
+             * Parses a vertex reference.
+             *
+             * @param text the text of this reference (such as "1/2/3")
+             */
+            ObjVertexRef(const std::string& text) : m_texcoord(0) {
+                const auto components = kdl::str_split(text, "/");
+                std::vector<size_t> components_num;
+                for (const std::string& com : components) {
+                    const auto csize = kdl::str_to_size(com);
+                    if (csize) {
+                        components_num.push_back(*csize);
+                    } else {
+                        throw ParserException("OBJ file has invalid number in vertex reference");
+                    }
+                }
+                if (components_num.size() == 0) {
+                    throw ParserException("OBJ file has an empty vertex reference");
+                } else if (components_num.size() == 1) {
+                    m_position = components_num[0];
+                } else {
+                    m_position = components_num[0];
+                    m_texcoord = components_num[1];
+                }
             }
-            if (components_num.size() >= 2)
-                m_texcoord = components_num[1];
-        }
 
-        ObjParser::ObjParser(const std::string& name, const char* begin, const char* end, const FileSystem& fs) :
-        m_name(name), m_text(begin, (size_t) (end - begin)), m_fs(fs) {}
+            // Position index (1-based. Should always be present.)
+            size_t m_position;
+            // Texture coordinate index (Also 1-based. If not present, 0.)
+            size_t m_texcoord;
+        };
+
+        struct ObjFace {
+            // The material of this face (as a skin index)
+            size_t m_material;
+            // The vertices of this face.
+            std::vector<ObjVertexRef> m_vertices;
+        };
+
+        ObjParser::ObjParser(const std::string& name, const char* begin, const char* end) :
+        m_name(name), m_text(begin, (size_t) (end - begin)) {}
 
         std::unique_ptr<Assets::EntityModel> ObjParser::doInitializeModel(Logger& logger) {
             // Model construction prestart (skins are added to this mid-parse)
@@ -62,10 +88,11 @@ namespace TrenchBroom {
             model->addFrames(1);
             auto& surface = model->addSurface(m_name);
 
-            IO::FreeImageTextureReader imageReader(IO::TextureReader::StaticNameStrategy(""));
-            surface.addSkin(imageReader.readTexture(m_fs.openFile(IO::Path("textures/__TB_empty.png"))));
-
-            // 'v': Defines a 3D position.
+            // Load the default material (skin 0) ; must be present as a default for materialless faces
+            // This default skin is used for all unloadable textures and all unspecified textures.
+            // As such this implicitly covers situations where the default skin is intended to be used, but is manually specified incorrectly.
+            surface.addSkin(loadFallbackMaterial().release());
+            // Define the various OBJ parsing state.
             std::vector<vm::vec3f> positions;
             std::vector<vm::vec2f> texcoords;
             std::vector<ObjFace> faces;
@@ -79,46 +106,44 @@ namespace TrenchBroom {
                 auto tokens = kdl::str_split(trimmed, " \t");
                 if (tokens.size() != 0) {
                     if (tokens[0] == "v") {
-                        if (tokens.size() < 4)
+                        if (tokens.size() < 4) {
                             throw ParserException("OBJ file has a vertex with too few dimensions");
+                        }
                         // This can and should be replaced with a less Neverball-specific transform
-                        positions.push_back(vm::vec3f(std::stof(tokens[1]) * 64, std::stof(tokens[3]) * 64, std::stof(tokens[2]) * 64));
+                        positions.push_back(vm::vec3f(std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3])));
                     } else if (tokens[0] == "vt") {
-                        if (tokens.size() < 3)
+                        if (tokens.size() < 3) {
                             throw ParserException("OBJ file has a texcoord with too few dimensions");
+                        }
                         texcoords.push_back(vm::vec2f(std::stof(tokens[1]), std::stof(tokens[2])));
                     } else if (tokens[0] == "usemtl") {
-                        if (tokens.size() < 2)
-                            throw ParserException("OBJ file has usemtl with no material name");
-                        // NOTE: This can and should be replaced with something less Neverball-specific.
-                        // A reasonable solution here would be to use the same material handling as the brushes unless otherwise required.
-                        // But there's raw pointers all over the Texture system, so I can't really trust it...
-                        std::unique_ptr<Assets::Texture> tex;
-                        try {
-                            tex = std::unique_ptr<Assets::Texture> (imageReader.readTexture(m_fs.openFile(IO::Path("textures/" + tokens[1] + ".png"))));
-                        } catch (const Exception& /*ex1*/) {
-                            try {
-                                tex = std::unique_ptr<Assets::Texture> (imageReader.readTexture(m_fs.openFile(IO::Path("textures/" + tokens[1] + ".jpg"))));
-                            } catch (const Exception& /*ex2*/) {
+                        if (tokens.size() < 2) {
+                            // Assume they meant "use default material" (just in case; this doesn't really make sense, but...)
+                            current_material = 0;
+                        } else {
+                            std::unique_ptr<Assets::Texture> tex = loadMaterial(tokens[1]);
+                            if (tex) {
+                                surface.addSkin(tex.release());
+                                last_material++;
+                                current_material = last_material;
+                            } else {
                                 current_material = 0;
-                                logger.warn() << "unable to find Neverball model material " << tokens[1];
+                                logger.warn() << "unable to find OBJ model material " << tokens[1];
                             }
-                        }
-                        if (tex) {
-                            surface.addSkin(tex.release());
-                            last_material++;
-                            current_material = last_material;
                         }
                     } else if (tokens[0] == "f") {
                         ObjFace face;
                         face.m_material = current_material;
-                        for (size_t i = 1; i < tokens.size(); i++)
+                        for (size_t i = 1; i < tokens.size(); i++) {
                             face.m_vertices.push_back(ObjVertexRef(tokens[i]));
+                        }
                         faces.push_back(face);
                     }
                 }
             }
-            // Done parsing; setup bounds.
+            // Done parsing; transform.
+            transformObjCoordinateSet(positions, texcoords);
+            // Everything's in TrenchBroom Relative Coordinates! Build bounds.
             auto bounds = vm::bbox3f::builder();
             if (positions.size() == 0) {
                 // passing empty bounds as bbox crashes the program, don't let it happen
@@ -142,16 +167,19 @@ namespace TrenchBroom {
                 std::vector<Assets::EntityModelVertex> vertices;
                 for (const ObjVertexRef & ref : face.m_vertices) {
                     size_t point = ref.m_position;
-                    if (point == 0)
+                    if (point == 0) {
                         throw ParserException("OBJ file has vertex with no position (was this generated/parsed correctly?)");
+                    }
                     point--;
-                    if (point >= positions.size())
+                    if (point >= positions.size()) {
                         throw ParserException("OBJ file has vertex referring to a position that hasn't been defined");
+                    }
                     vm::vec2f texcoord = vm::vec2f(0, 0);
                     if (ref.m_texcoord != 0) {
-                        size_t c = ref.m_texcoord - 1;
-                        if (c >= texcoords.size())
+                        const size_t c = ref.m_texcoord - 1;
+                        if (c >= texcoords.size()) {
                             throw ParserException("OBJ file has vertex referring to a texcoord that hasn't been defined");
+                        }
                         texcoord = texcoords[c];
                     }
                     vertices.push_back(Assets::EntityModelVertex(positions[point], texcoord));
@@ -161,6 +189,63 @@ namespace TrenchBroom {
             // }
             surface.addTexturedMesh(frame, builder.vertices(), builder.indices());
             return model;
+        }
+
+        // -- Neverball --
+
+        void NvObjParser::transformObjCoordinateSet(std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) {
+            for (vm::vec3f& pos : positions) {
+                pos[0] *= 64.0f;
+                float z = pos[2];
+                pos[2] = pos[1] * 64.0f;
+                pos[1] = z * 64.0f;
+            }
+            for (vm::vec2f& uv : texcoords) {
+                uv[0] = 1.0f - uv[0];
+                uv[1] = 1.0f - uv[1];
+            }
+        }
+
+        std::unique_ptr<Assets::Texture> NvObjParser::loadMaterial(const std::string& text) {
+            // NOTE: A reasonable solution here would be to use the same material handling as the brushes unless otherwise required.
+            // Then Neverball just gets an additional texture search directory.
+            // But there's raw pointers all over the Texture system, so without further details on how memory is managed there, that's a bad idea.
+            IO::FreeImageTextureReader imageReader(IO::TextureReader::StaticNameStrategy(""));
+            try {
+                return std::unique_ptr<Assets::Texture>(imageReader.readTexture(m_fs.openFile(IO::Path("textures/" + text + ".png"))));
+            } catch (const Exception& /*ex1*/) {
+                try {
+                    return std::unique_ptr<Assets::Texture>(imageReader.readTexture(m_fs.openFile(IO::Path("textures/" + text + ".jpg"))));
+                } catch (const Exception& /*ex2*/) {
+                    try {
+                        return std::unique_ptr<Assets::Texture>(imageReader.readTexture(m_fs.openFile(IO::Path(text + ".png"))));
+                    } catch (const Exception& /*ex3*/) {
+                        try {
+                            return std::unique_ptr<Assets::Texture>(imageReader.readTexture(m_fs.openFile(IO::Path(text + ".jpg"))));
+                        } catch (const Exception& /*ex4*/) {
+                            return NULL;
+                        }
+                    }
+                }
+            }
+        }
+
+        std::unique_ptr<Assets::Texture> NvObjParser::loadFallbackMaterial() {
+            // Try to remove the '.obj' extension and grab that as a texture.
+            // This isn't really how it works, but the Neverball-side truth involves MAP files acting as a replacement for something like JSON.
+            // This is a less Neverball-specific set of logic which should be useful for any game.
+            std::string basic_skin_name = m_path;
+            if (basic_skin_name.size() > 4) {
+                basic_skin_name = basic_skin_name.substr(0, basic_skin_name.size() - 4);
+            }
+            std::unique_ptr<Assets::Texture> default_material = loadMaterial(basic_skin_name);
+            if (!default_material) {
+                default_material = loadMaterial("__TB_empty");
+            }
+            if (!default_material) {
+                throw ParserException("Unable to load object-wide texture, and unable to load fallback texture __TB_empty");
+            }
+            return default_material;
         }
     }
 }
