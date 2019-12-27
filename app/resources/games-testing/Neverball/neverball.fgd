@@ -68,20 +68,32 @@
 ]
 
 // Of course, as you may have surmised, this is reliant on OBJ support...
-@PointClass size(-16 -16 -24, 16 16 8) studio("__tb_info_player_start.obj") = info_player_start : "The player start. In Neverball, there should only be one; in Neverputt, one must be defined per player slot. Beware! Rotating this entity will not work; to correct your vision in the editor, set 'angle' to the provided default."
+@PointClass size(-16 -16 -24, 16 16 8) model("__tb_info_player_start.obj") = info_player_start : "The player start. In Neverball, there should only be one; in Neverputt, one must be defined per player slot. Beware! Rotating this entity will not work; the angle must always be 0. Usually accompanied by a mtrl/arrow* detail-brush decal."
 [
     angle(integer) : "The starting angle - completely ignored, mind! - is always 90, or towards +Y." : 90
     radius(float) : "The radius, in 'meters' (1 meter = 64 units). Defaults to 0.25, but if in Neverputt, this should be set to 0.0625." : "0.25"
 ]
 
-@PointClass size(32 32 48) studio("__tb_info_player_deathmatch.obj") = info_player_deathmatch : "The goal (or one thereof). For Neverball, usually accompanied by a mtrl/goal detail-brush decal. For Neverputt, usually in a hole."
+@PointClass size(32 32 48) model("__tb_info_player_deathmatch.obj") = info_player_deathmatch : "The goal (or one thereof). For Neverball, usually accompanied by a mtrl/goal detail-brush decal. For Neverputt, usually in a hole."
 [
     radius(float) : "The radius, in 'meters' (1 meter = 64 units). Defaults to 0.75 (though be aware that the collision rules make this effectively 0.5). In Neverputt, usually 0.1375." : "0.75"
 ]
 
-// -- Need to calibrate the sizes for all of these. Also: model scaling? --
-
-@PointClass size(16 16 16) = light : "Neverball: A coin. Usually accompanied by a 'coin pad' (mtrl/coin-*)."
+// Items need to have their boxes be sized 32x32x32 for accurate placement on coin pads.
+// Then they need custom models because the actual real models have three issues:
+// 1. They don't match any other Neverball units
+//    (& we can't just change the definition of the units, since it'd break misc_model, which we can't work around)
+// 2. They're manually coloured
+// 3. A WYSIWYG approach for grow/shrink items is rather unhelpful
+// So I'm adding more models.
+@PointClass
+    size(32 32 32)
+    model({{
+        light >= 10 ->   "__tb_light_10.obj",
+        light >= 5 ->   "__tb_light_5.obj",
+        "__tb_light_1.obj"
+    }}) =
+    light : "Neverball: A coin. Usually accompanied by a 'coin pad' (mtrl/coin-*)."
 [
     light(choices) : "The amount of coins this individual coin counts as." : 1 =
     [
@@ -91,16 +103,19 @@
     ]
 ]
 
-@PointClass size(32 32 32) = item_health_small : "A 'shrink' item. Shrinks the ball to 50% of it's original size." []
-@PointClass size(32 32 32) = item_health_large : "A 'grow' item. Grows the ball to 150% of it's original size." []
+// For shrink & grow objects, the boxes in practice need to be sized to whatever the "recommended" item height is.
+@PointClass size(32 32 32) model("__tb_item_health_small.obj") = item_health_small : "A 'shrink' item. Shrinks the ball to 50% of it's original size. If it was grown previously, it instead reverts. If already shrunk, it does nothing." []
+@PointClass size(32 32 32) model("__tb_item_health_large.obj") = item_health_large : "A 'grow' item. Grows the ball to 150% of it's original size. If it was shrunk previously, it instead reverts. If already grown, it does nothing." []
 
-// Rather than explain that this is to be centred, the size has simply been adjusted accordingly...
-@PointClass size(32 32 0) = target_teleporter : "A teleporter. Usually accompanied by a mtrl/teleporter detail-brush decal."
+// These extend a unit upwards from their origins so that they aren't embedded in the brush below.
+
+@PointClass size(-32 -32 0, 32 32 1) model("__tb_generic_ring_05.obj") = target_teleporter : "A teleporter. Usually accompanied by a mtrl/teleporter detail-brush decal."
 [
     radius(float) : "The radius, in 'meters' (1 meter = 64 units). Defaults to 0.5." : "0.5"
     target(target_destination) : "A target_position entity that is the destination of the teleporter. Two-way teleporters have target_position entities at each other's exits."
 ]
-@PointClass size(32 32 0) = info_camp : "A switch. Usually accompanied by a mtrl/switch detail-brush decal."
+
+@PointClass size(-32 -32 0, 32 32 1) model("__tb_generic_ring_05.obj") = info_camp : "A switch. Usually accompanied by a mtrl/switch detail-brush decal."
 [
     radius(float) : "The radius, in 'meters' (1 meter = 64 units). Defaults to 0.5." : "0.5"
     target(target_destination) : "The path_corner that is turned on/off by this switch."
@@ -124,7 +139,7 @@
     target(target_destination) : "A target_position entity that the camera tries to look at."
 ]
 
-@PointClass size(32 32 32) = path_corner : "Represents a point on a path, and describes the journey to the next point on the path."
+@PointClass size(32 32 32) model("__tb_fancy_path_corner.obj") = path_corner : "Represents a point on a path, and describes the journey to the next point on the path."
 [
     targetname(target_source) : "The name of this point."
     target(target_destination) : "The name of the next point."
@@ -146,8 +161,8 @@
 @SolidClass base(NeverballBody) = func_train : "A moving object." []
 
 // Yes, misc_model MAY be used as a brush entity; yes, geometry in a misc_model works properly.
-@SolidClass base(NeverballBody) studio(model) = misc_model : "A dummy body entity." []
-@PointClass base(NeverballBody) studio(model) = misc_model : "A dummy body entity." []
+@SolidClass base(NeverballBody) model(model) = misc_model : "A dummy body entity." []
+@PointClass base(NeverballBody) model(model) = misc_model : "A dummy body entity." []
 
 @PointClass = target_position : "An abstract point referred to by other entities."
 [
