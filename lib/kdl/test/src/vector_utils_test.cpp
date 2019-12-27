@@ -17,6 +17,8 @@
 
 #include <gtest/gtest.h>
 
+#include "test_utils.h"
+
 #include "kdl/vector_utils.h"
 
 #include <set>
@@ -244,13 +246,6 @@ namespace kdl {
         ASSERT_TRUE(v.empty());
         ASSERT_EQ(0u, v.capacity());
     }
-
-    struct deletable {
-        bool& deleted;
-
-        deletable(bool& i_deleted) : deleted(i_deleted) { deleted = false; }
-        ~deletable() { deleted = true; }
-    };
 
     TEST(vector_utils_test, vec_clear_and_delete) {
         bool d1, d2, d3;
