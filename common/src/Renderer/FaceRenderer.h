@@ -25,6 +25,8 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/Renderer_Forward.h"
 
+#include <vecmath/vec.h>
+
 #include <memory>
 #include <unordered_map>
 
