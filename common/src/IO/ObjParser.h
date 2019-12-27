@@ -51,10 +51,11 @@ namespace TrenchBroom {
 
             /**
              * Transforms the various sets of coordinates.
+             * Returns true to reverse vertex order (needed for switching between left/right-handed transforms)
              * @param positions Vertex positions to transform in-place.
              * @param texcoords Texture coordinates to transform in-place.
              */
-            virtual void transformObjCoordinateSet(std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) = 0;
+            virtual bool transformObjCoordinateSet(std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) = 0;
 
             /**
              * Loads a material. On failure, return the empty unique_ptr (as the original exceptions are usually caught anyway to test each format).
@@ -89,7 +90,7 @@ namespace TrenchBroom {
              */
             NvObjParser(const std::string& path, const char* begin, const char* end, const FileSystem& fs) : ObjParser(path, begin, end), m_path(path), m_fs(fs) {}
 
-            void transformObjCoordinateSet(std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) override;
+            bool transformObjCoordinateSet(std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) override;
             std::unique_ptr<Assets::Texture> loadMaterial(const std::string& name) override;
             std::unique_ptr<Assets::Texture> loadFallbackMaterial() override;
         };

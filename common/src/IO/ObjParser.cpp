@@ -79,7 +79,7 @@ namespace TrenchBroom {
         };
 
         ObjParser::ObjParser(const std::string& name, const char* begin, const char* end) :
-        m_name(name), m_text(begin, (size_t) (end - begin)) {}
+        m_name(name), m_text(begin, end) {}
 
         std::unique_ptr<Assets::EntityModel> ObjParser::doInitializeModel(Logger& logger) {
             // Model construction prestart (skins are added to this mid-parse)
@@ -139,8 +139,8 @@ namespace TrenchBroom {
                     }
                 }
             }
-            // Done parsing; transform.
-            transformObjCoordinateSet(positions, texcoords);
+            // Done parsing; transform (and get the 'reverse' flag for future use)
+            const bool reverse = transformObjCoordinateSet(positions, texcoords);
             // Everything's in TrenchBroom Relative Coordinates! Build bounds.
             auto bounds = vm::bbox3f::builder();
             if (positions.size() == 0) {
@@ -181,7 +181,11 @@ namespace TrenchBroom {
                         }
                         texcoord = texcoords[c];
                     }
-                    vertices.push_back(Assets::EntityModelVertex(positions[point], texcoord));
+                    if (reverse) {
+                        vertices.insert(vertices.begin(), Assets::EntityModelVertex(positions[point], texcoord));
+                    } else {
+                        vertices.push_back(Assets::EntityModelVertex(positions[point], texcoord));
+                    }
                 }
                 builder.addPolygon(surface.skin(face.m_material), vertices);
             }
@@ -192,17 +196,21 @@ namespace TrenchBroom {
 
         // -- Neverball --
 
-        void NvObjParser::transformObjCoordinateSet(std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) {
+        bool NvObjParser::transformObjCoordinateSet(std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) {
             for (vm::vec3f& pos : positions) {
+                // The transform we want to perform is OBJ-To-MAP.
+                // The transform used in make_body is MAP-To-OBJ, as Neverball uses the OBJ coordinate space natively.
+                // The output is (X, Z, -Y); thus the inverse transform is (X, -Z, Y)
                 pos[0] *= 64.0f;
-                float z = pos[2];
-                pos[2] = pos[1] * 64.0f;
-                pos[1] = z * 64.0f;
+                float y = pos[1];
+                pos[1] = pos[2] * -64.0f;
+                pos[2] = y * 64.0f;
             }
             for (vm::vec2f& uv : texcoords) {
-                uv[0] = 1.0f - uv[0];
+                // This should be checked using the __TB_info_player_start model; Blender-defaults-output files are consistent with Neverball.
                 uv[1] = 1.0f - uv[1];
             }
+            return true;
         }
 
         std::unique_ptr<Assets::Texture> NvObjParser::loadMaterial(const std::string& text) {
