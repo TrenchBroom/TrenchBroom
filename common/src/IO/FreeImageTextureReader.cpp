@@ -29,8 +29,6 @@
 
 #include <kdl/collection_utils.h>
 
-#include <cassert>
-
 namespace TrenchBroom {
     namespace IO {
         FreeImageTextureReader::FreeImageTextureReader(const NameStrategy& nameStrategy) :
@@ -62,7 +60,7 @@ namespace TrenchBroom {
         }
 
         static Color getAverageColor(const Assets::TextureBuffer& buffer, const GLenum format) {
-            assert(format == GL_RGBA || format == GL_BGRA);
+            ensure(format == GL_RGBA || format == GL_BGRA, "expected RGBA or BGRA");
 
             const unsigned char* const data = buffer.data();
 
