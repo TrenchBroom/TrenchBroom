@@ -139,9 +139,9 @@ namespace kdl {
         ASSERT_FALSE(it != end);
     }
 
-    template <typename L, typename I>
-    void assertRange(const std::vector<L>& exp, const std::pair<I, I>& act) {
-        std::equal(std::begin(exp), std::end(exp), act.first, act.second);
+    template <typename T, typename I>
+    void assertRange(const std::vector<T>& exp, const std::pair<I, I>& act) {
+        ASSERT_TRUE(std::equal(std::begin(exp), std::end(exp), act.first, act.second));
     }
 
     TEST(binary_relation_test, left_range) {
