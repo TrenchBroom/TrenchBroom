@@ -137,7 +137,7 @@ namespace TrenchBroom {
             }
             if ((texture->averageColor().r() +
                  texture->averageColor().g() +
-                 texture->averageColor().b()) / 3.0f > 0.85f) {
+                 texture->averageColor().b()) / 3.0f > 0.50f) {
                 // bright texture grid color
                 return vm::vec3f::fill(0.0f);
             } else {
