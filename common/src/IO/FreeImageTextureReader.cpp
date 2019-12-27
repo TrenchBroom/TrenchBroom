@@ -63,12 +63,13 @@ namespace TrenchBroom {
             ensure(format == GL_RGBA || format == GL_BGRA, "expected RGBA or BGRA");
 
             const unsigned char* const data = buffer.data();
+            const std::size_t bufferSize = buffer.size();
 
             Color average;
-            for (int64_t i = 0; i < kdl::col_size<int64_t>(buffer); i += 4) {
+            for (std::size_t i = 0; i < bufferSize; i += 4) {
                 average = average + Color(data[i], data[i+1], data[i+2], data[i+3]);
             }
-            const std::size_t numPixels = buffer.size() / 4;
+            const std::size_t numPixels = bufferSize / 4;
             average = average / static_cast<float>(numPixels);
 
             return average;
