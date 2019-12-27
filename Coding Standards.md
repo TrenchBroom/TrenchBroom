@@ -25,6 +25,15 @@
    ```
 - No inline if statements such as `if (…) doThis();`
 - Avoid header files that declare more than one class
+- Class members are usually ordered as follows, but it is ok to deviate from this if there is a good reason.
+  1. Type aliases and static const members.
+  2. Member variables
+  3. Constructors / destructors
+  4. Operators
+  5. Public member functions
+  6. Protected member functions
+  7. Private member functions
+  8. Extension interface (private pure virtual member functions)
 
 # Types
 - Only use `auto` when the type is obvious from surrounding visible code, e.g.:
