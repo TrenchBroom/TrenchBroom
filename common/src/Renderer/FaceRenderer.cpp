@@ -131,7 +131,7 @@ namespace TrenchBroom {
             }
         }
 
-        static vm::vec3f gridColorForTexture(const Assets::Texture* texture) {
+        vm::vec3f FaceRenderer::gridColorForTexture(const Assets::Texture* texture) {
             if (texture == nullptr) {
                 return vm::vec3f::fill(1.0f);
             }
