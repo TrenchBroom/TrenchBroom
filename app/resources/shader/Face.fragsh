@@ -29,6 +29,7 @@ uniform bool GrayScale;
 uniform bool RenderGrid;
 uniform float GridSize;
 uniform float GridAlpha;
+uniform vec3 GridColor;
 uniform bool ShadeFaces;
 uniform bool ShowFog;
 
@@ -101,6 +102,6 @@ void main() {
         float minGridSize = 2.0 * maxWorldSpaceChange;
 
         float gridValue = grid(coords, modelNormal.xyz, GridSize, minGridSize, 1.0);
-        gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), gridValue * GridAlpha);
+        gl_FragColor.rgb = mix(gl_FragColor.rgb, GridColor, gridValue * GridAlpha);
 	}
 }

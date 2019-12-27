@@ -25,6 +25,9 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/Renderer_Forward.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+
 #include <memory>
 #include <unordered_map>
 
@@ -57,6 +60,7 @@ namespace TrenchBroom {
             void setAlpha(float alpha);
 
             void render(RenderBatch& renderBatch);
+            static vm::vec3f gridColorForTexture(const Assets::Texture* texture);
         private:
             void prepareVerticesAndIndices(VboManager& vboManager) override;
             void doRender(RenderContext& context) override;
