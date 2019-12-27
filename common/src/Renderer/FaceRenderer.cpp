@@ -131,6 +131,21 @@ namespace TrenchBroom {
             }
         }
 
+        static vm::vec3f gridColorForTexture(const Assets::Texture* texture) {
+            if (texture == nullptr) {
+                return vm::vec3f::fill(1.0f);
+            }
+            if ((texture->averageColor().r() +
+                 texture->averageColor().g() +
+                 texture->averageColor().b()) / 3.0f > 0.85f) {
+                // bright texture grid color
+                return vm::vec3f::fill(0.0f);
+            } else {
+                // dark texture grid color
+                return vm::vec3f::fill(1.0f);
+            }
+        }
+
         void FaceRenderer::doRender(RenderContext& context) {
             if (m_indexArrayMap->empty())
                 return;
@@ -169,6 +184,10 @@ namespace TrenchBroom {
                     if (!brushIndexHolderPtr->hasValidIndices()) {
                         continue;
                     }
+
+                    // set any per-texture uniforms
+                    shader.set("GridColor", gridColorForTexture(texture));
+
                     func.before(texture);
                     brushIndexHolderPtr->setupIndices();
                     brushIndexHolderPtr->render(PrimType::Triangles);

@@ -27,6 +27,10 @@
 #include "IO/File.h"
 #include "IO/ImageLoaderImpl.h"
 
+#include <kdl/collection_utils.h>
+
+#include <cassert>
+
 namespace TrenchBroom {
     namespace IO {
         FreeImageTextureReader::FreeImageTextureReader(const NameStrategy& nameStrategy) :
@@ -55,6 +59,21 @@ namespace TrenchBroom {
             } else {
                 throw std::runtime_error("Expected FreeImage to use RGBA or BGRA");
             }
+        }
+
+        static Color getAverageColor(const Assets::TextureBuffer& buffer, const GLenum format) {
+            assert(format == GL_RGBA || format == GL_BGRA);
+
+            const unsigned char* const data = buffer.data();
+
+            Color average;
+            for (int64_t i = 0; i < kdl::col_size<int64_t>(buffer); i += 4) {
+                average = average + Color(data[i], data[i+1], data[i+2], data[i+3]);
+            }
+            const std::size_t numPixels = buffer.size() / 4;
+            average = average / static_cast<float>(numPixels);
+
+            return average;
         }
 
         Assets::Texture* FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file) const {
@@ -113,7 +132,9 @@ namespace TrenchBroom {
             FreeImage_CloseMemory(imageMemory);
 
             const auto textureType = Assets::Texture::selectTextureType(masked);
-            return new Assets::Texture(textureName(path), imageWidth, imageHeight, Color(), std::move(buffers), format, textureType);
+            const Color averageColor = getAverageColor(buffers.at(0), format);
+
+            return new Assets::Texture(textureName(path), imageWidth, imageHeight, averageColor, std::move(buffers), format, textureType);
         }
     }
 }
