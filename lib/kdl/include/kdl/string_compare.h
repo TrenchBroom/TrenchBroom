@@ -23,7 +23,6 @@
 #include <algorithm> // for std::mismatch, std::sort, std::search, std::equal
 #include <cctype> // for std::tolower
 #include <string_view>
-#include <vector> // used in str_matches_glob
 
 namespace kdl {
     /**

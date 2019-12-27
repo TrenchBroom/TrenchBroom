@@ -20,6 +20,7 @@
 
 #include <algorithm> // for std::mismatch, std::sort, std::search, std::equal
 #include <string_view>
+#include <vector> // used in str_matches_glob
 
 #include "collection_utils.h"
 
