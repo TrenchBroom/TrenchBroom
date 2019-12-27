@@ -102,7 +102,7 @@ namespace TrenchBroom {
             size_t last_material = 0;
             for (const std::string& line : lines) {
                 // logger.debug() << "obj line: " << line;
-                std::string trimmed = kdl::str_trim(line);
+                const std::string trimmed = kdl::str_trim(line);
                 auto tokens = kdl::str_split(trimmed, " \t");
                 if (tokens.size() != 0) {
                     if (tokens[0] == "v") {
@@ -124,7 +124,7 @@ namespace TrenchBroom {
                             std::unique_ptr<Assets::Texture> tex = loadMaterial(tokens[1]);
                             if (tex) {
                                 surface.addSkin(tex.release());
-                                last_material++;
+                                ++last_material;
                                 current_material = last_material;
                             } else {
                                 current_material = 0;
@@ -134,7 +134,7 @@ namespace TrenchBroom {
                     } else if (tokens[0] == "f") {
                         ObjFace face;
                         face.m_material = current_material;
-                        for (size_t i = 1; i < tokens.size(); i++) {
+                        for (size_t i = 1; i < tokens.size(); ++i) {
                             face.m_vertices.push_back(ObjVertexRef(tokens[i]));
                         }
                         faces.push_back(face);
@@ -155,7 +155,7 @@ namespace TrenchBroom {
             // Begin model construction, part 1. Collation
             size_t totalVertexCount = 0;
             Renderer::TexturedIndexRangeMap::Size size;
-            for (const ObjFace & face : faces) {
+            for (const ObjFace& face : faces) {
                 size.inc(surface.skin(face.m_material), Renderer::PrimType::Polygon, face.m_vertices.size());
                 totalVertexCount += face.m_vertices.size();
             }
@@ -163,14 +163,15 @@ namespace TrenchBroom {
             auto& frame = model->loadFrame(0, m_name, bounds.bounds());
             Renderer::TexturedIndexRangeMapBuilder<Assets::EntityModelVertex::Type> builder(totalVertexCount, size);
             // Actual build {
-            for (const ObjFace & face : faces) {
+            for (const ObjFace &face : faces) {
                 std::vector<Assets::EntityModelVertex> vertices;
-                for (const ObjVertexRef & ref : face.m_vertices) {
+                for (const ObjVertexRef& ref : face.m_vertices) {
                     size_t point = ref.m_position;
                     if (point == 0) {
                         throw ParserException("OBJ file has vertex with no position (was this generated/parsed correctly?)");
                     }
-                    point--;
+                    // As previously stated, OBJ file indexes are 1-based. This converts it to a 0-based index.
+                    --point;
                     if (point >= positions.size()) {
                         throw ParserException("OBJ file has vertex referring to a position that hasn't been defined");
                     }
