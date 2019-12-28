@@ -28,11 +28,11 @@ public:
     static Color parse(const std::string& str);
 
     Color();
-    Color(const vec<float,4>& v);
+    explicit Color(const vec<float,4>& v);
     Color(float r, float g, float b, float a = 1.0f);
     Color(const Color& color, float a);
     Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 0xFF);
-    Color(const int r, const int g, const int b, const float a);
+    Color(int r, int g, int b, float a);
     Color(int r, int g, int b, int a = 0xFF);
 
     float r() const;
@@ -49,7 +49,7 @@ public:
         return *this;
     }
 
-    const Color mixed(const Color& other, const float f) const {
+    Color mixed(const Color& other, const float f) const {
         return Color(*this).mix(other, f);
     }
 

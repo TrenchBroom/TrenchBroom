@@ -36,7 +36,7 @@ namespace kdl {
          * Sets the given value to the given new value.
          *
          * @param value the value to change
-         * @param the new value to set temporarily
+         * @param newValue the new value to set temporarily
          */
         set_temp(T& value, T newValue) :
         m_value(value),
@@ -47,7 +47,7 @@ namespace kdl {
         /**
          * Constructor for setting boolean values to true, this is only enabled if T = bool.
          *
-         * @tparam the type of the value to set (must be bool)
+         * @tparam B the type of the value to set (must be bool)
          * @param value the value to set to true temporarily
          */
         template <typename B, typename X = typename std::enable_if<std::is_same<B, bool>::value>::type>
