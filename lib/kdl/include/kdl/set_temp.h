@@ -17,6 +17,9 @@
 #ifndef KDL_SET_TEMP_H
 #define KDL_SET_TEMP_H
 
+#include <utility>
+#include <type_traits>
+
 namespace kdl {
     /**
      * RAII class that temporarily sets a value and resets it to its original value when going out of scope.
