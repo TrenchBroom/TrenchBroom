@@ -1,0 +1,97 @@
+// Game: Neverball
+// Format: Quake3
+// entity 0
+{
+"classname" "worldspawn"
+"_tb_textures" "textures/mtrl"
+"back" "map-back/clouds.sol"
+"_tb_def" "builtin:neverball.fgd"
+"grad" "back/land.png"
+"message" "Welcome."
+"song" "bgm/track1.ogg"
+// brush 0
+{
+( -72 -72 80 ) ( -72 -72 64 ) ( -72 200 64 ) mtrl/turf-grey 0 0 0 0.5 0.5 0 0 0
+( -72 200 64 ) ( -72 -72 64 ) ( -64 -64 64 ) mtrl/turf-grey 0 0 0 0.5 0.5 0 0 0
+( -64 -64 80 ) ( -72 -72 80 ) ( -72 200 80 ) mtrl/edge-green-offset 0 0 0 0.5 0.5 0 0 0
+( -64 -64 64 ) ( -72 -72 64 ) ( -72 -72 80 ) mtrl/invisible -192 0 0 0.5 1 0 0 0
+( -64 192 64 ) ( -64 192 80 ) ( -72 200 80 ) mtrl/invisible -192 0 0 0.5 1 0 0 0
+( -64 -64 64 ) ( -64 -64 80 ) ( -64 192 80 ) mtrl/invisible -192 0 0 0.5 1 0 0 0
+}
+// brush 1
+{
+( -64 192 80 ) ( -64 -64 80 ) ( -64 -64 64 ) mtrl/invisible -64 0 0 0.5 1 0 0 0
+( -64 -64 64 ) ( -64 -64 80 ) ( 64 -64 80 ) mtrl/invisible 64 0 0 0.5 1 0 0 0
+( 64 192 64 ) ( -64 192 64 ) ( -64 -64 64 ) mtrl/turf-grey 0 0 0 0.5 0.5 0 0 0
+( 64 -64 80 ) ( -64 -64 80 ) ( -64 192 80 ) mtrl/turf-green-small 0 0 0 0.5 0.5 0 0 0
+( 64 192 80 ) ( -64 192 80 ) ( -64 192 64 ) mtrl/invisible 64 0 0 0.5 1 0 0 0
+( 64 192 64 ) ( 64 -64 64 ) ( 64 -64 80 ) mtrl/invisible -64 0 0 0.5 1 0 0 0
+}
+// brush 2
+{
+( -64 192 80 ) ( -64 64 80 ) ( -64 64 64 ) mtrl/invisible -128 0 0 0.5 1 0 0 0
+( 64 64 80 ) ( 64 64 64 ) ( -64 64 64 ) mtrl/invisible -128 0 0 0.5 1 0 0 0
+( 64 64 64 ) ( 64 192 64 ) ( -64 192 64 ) mtrl/invisible -128 128 0 0.5 0.5 0 0 0
+( 64 192 80 ) ( 64 64 80 ) ( -64 64 80 ) mtrl/goal -128 128 0 0.5 0.5 0 0 0
+( -64 192 64 ) ( 64 192 64 ) ( 64 192 80 ) mtrl/invisible -128 0 0 0.5 1 0 0 0
+( 64 192 80 ) ( 64 192 64 ) ( 64 64 64 ) mtrl/invisible -128 0 0 0.5 1 0 0 0
+}
+// brush 3
+{
+( 64 192 64 ) ( 64 192 80 ) ( 64 -64 80 ) mtrl/invisible -192 0 0 0.5 1 0 0 0
+( 64 -64 64 ) ( 64 -64 80 ) ( 72 -72 80 ) mtrl/invisible -192 0 0 0.5 1 0 0 0
+( 64 192 64 ) ( 72 200 64 ) ( 72 200 80 ) mtrl/invisible -192 0 0 0.5 1 0 0 0
+( 72 -72 64 ) ( 72 200 64 ) ( 64 192 64 ) mtrl/turf-grey 0 0 0 0.5 0.5 0 0 0
+( 64 192 80 ) ( 72 200 80 ) ( 72 -72 80 ) mtrl/edge-green-offset 0 0 0 0.5 0.5 0 0 0
+( 72 200 80 ) ( 72 200 64 ) ( 72 -72 64 ) mtrl/turf-grey 0 0 0 0.5 0.5 0 0 0
+}
+// brush 4
+{
+( -64 -64 80 ) ( -72 -72 80 ) ( -72 -72 64 ) mtrl/invisible -64 0 0 0.5 1 0 0 0
+( 72 -72 80 ) ( 72 -72 64 ) ( -72 -72 64 ) mtrl/turf-grey 0 0 0 0.5 0.5 0 0 0
+( 72 -72 64 ) ( 64 -64 64 ) ( -64 -64 64 ) mtrl/turf-grey 0 0 0 0.5 0.5 0 0 0
+( 64 -64 80 ) ( 72 -72 80 ) ( -72 -72 80 ) mtrl/edge-green-offset 0 0 0 0.5 0.5 0 0 0
+( -64 -64 64 ) ( 64 -64 64 ) ( 64 -64 80 ) mtrl/invisible -192 0 0 0.5 1 0 0 0
+( 64 -64 80 ) ( 64 -64 64 ) ( 72 -72 64 ) mtrl/invisible 160 0 0 0.5 1 0 0 0
+}
+// brush 5
+{
+( -72 200 64 ) ( -72 200 80 ) ( -64 192 80 ) mtrl/invisible -32 0 0 0.5 1 0 0 0
+( 64 192 80 ) ( 64 192 64 ) ( -64 192 64 ) mtrl/invisible -192 0 0 0.5 1 0 0 0
+( -64 192 64 ) ( 64 192 64 ) ( 72 200 64 ) mtrl/turf-grey 0 0 0 0.5 0.5 0 0 0
+( 72 200 80 ) ( 64 192 80 ) ( -64 192 80 ) mtrl/edge-green-offset 0 0 0 0.5 0.5 0 0 0
+( 72 200 64 ) ( 72 200 80 ) ( -72 200 80 ) mtrl/turf-grey 0 0 0 0.5 0.5 0 0 0
+( 72 200 64 ) ( 64 192 64 ) ( 64 192 80 ) mtrl/invisible -64 0 0 0.5 1 0 0 0
+}
+// brush 6
+{
+( -64 64 80 ) ( -64 -64 80 ) ( -64 -64 64 ) mtrl/invisible -128 0 0 0.5 1 0 0 0
+( 64 -64 80 ) ( 64 -64 64 ) ( -64 -64 64 ) mtrl/invisible -128 0 0 0.5 1 0 0 0
+( 64 -64 64 ) ( 64 64 64 ) ( -64 64 64 ) mtrl/invisible -128 128 0 0.5 0.5 0 0 0
+( 64 64 80 ) ( 64 -64 80 ) ( -64 -64 80 ) mtrl/arrow-green-light -128 128 0 0.5 0.5 0 0 0
+( -64 64 64 ) ( 64 64 64 ) ( 64 64 80 ) mtrl/invisible -128 0 0 0.5 1 0 0 0
+( 64 64 80 ) ( 64 64 64 ) ( 64 -64 64 ) mtrl/invisible -128 0 0 0.5 1 0 0 0
+}
+}
+// entity 1
+{
+"classname" "info_player_start"
+"origin" "0 0 104"
+}
+// entity 2
+{
+"classname" "info_player_deathmatch"
+"origin" "0 128 104"
+}
+// entity 3
+{
+"classname" "target_position"
+"origin" "0 64 80"
+"targetname" "camera_target"
+}
+// entity 4
+{
+"classname" "info_player_intermission"
+"origin" "-200 -168 224"
+"target" "camera_target"
+}

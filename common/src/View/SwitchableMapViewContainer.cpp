@@ -82,7 +82,11 @@ namespace TrenchBroom {
         void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId) {
             m_activationTracker->clear();
 
-            deleteChildWidgetsAndLayout(this);
+            // NOTE: not all widgets are deleted so we can't use deleteChildWidgetsAndLayout()
+            delete m_mapView;
+            m_mapView = nullptr;
+            
+            delete layout();
 
             switch (viewId) {
                 case MapViewLayout::OnePane:

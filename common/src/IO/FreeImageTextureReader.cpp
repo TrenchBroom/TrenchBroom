@@ -57,6 +57,22 @@ namespace TrenchBroom {
             }
         }
 
+        static Color getAverageColor(const Assets::TextureBuffer& buffer, const GLenum format) {
+            ensure(format == GL_RGBA || format == GL_BGRA, "expected RGBA or BGRA");
+
+            const unsigned char* const data = buffer.data();
+            const std::size_t bufferSize = buffer.size();
+
+            Color average;
+            for (std::size_t i = 0; i < bufferSize; i += 4) {
+                average = average + Color(data[i], data[i+1], data[i+2], data[i+3]);
+            }
+            const std::size_t numPixels = bufferSize / 4;
+            average = average / static_cast<float>(numPixels);
+
+            return average;
+        }
+
         Assets::Texture* FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file) const {
             auto reader = file->reader().buffer();
 
@@ -113,7 +129,9 @@ namespace TrenchBroom {
             FreeImage_CloseMemory(imageMemory);
 
             const auto textureType = Assets::Texture::selectTextureType(masked);
-            return new Assets::Texture(textureName(path), imageWidth, imageHeight, Color(), std::move(buffers), format, textureType);
+            const Color averageColor = getAverageColor(buffers.at(0), format);
+
+            return new Assets::Texture(textureName(path), imageWidth, imageHeight, averageColor, std::move(buffers), format, textureType);
         }
     }
 }
