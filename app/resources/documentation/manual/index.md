@@ -907,9 +907,9 @@ To change the offset of the texture in relation to the brush face, you can just 
 
 You can scale the texture by clicking and dragging the gray texture grid lines, which will also snap to the vertices of the brush face. Scaling is relative to the origin of the texture, as marked by the yellow circle. To change the scaling origin, you can left click and drag the yellow circle, or you can left click and drag the red lines meeting at the origin. The lines allow you to set the X and Y coordinates of the origin separately. The origin snaps to the vertices of the face and to its center.
 
-The large yellow circle allows you to rotate the texture about the origin. Left click and drag the circle with the mouse to adjust the rotation angle. The angle will snap to the edges of the brush face to make it easier to adjust it to the shape of the face.
+To rotate the texture about the origin, left click and drag the large yellow circle, or hold #key(308) and left click and drag anywhere in the UV editor. The angle will snap to the edges of the brush face to make it easier to adjust it to the shape of the face.
 
-If the map you are currently editing uses a [parallel texture projection](#texture_projection_modes), you can also shear the texture by left clicking and dragging the gray texture grid lines while holding #key(307).
+Shearing the texture is possible if the map uses a [parallel texture projection](#texture_projection_modes). Shear by holding #key(307) while left clicking and dragging the gray texture grid lines.
 
 At the bottom of the UV editor, you can find a number of controls. On the left, there are five buttons. The first button resets the face attributes to their defaults. The second and third buttons flip the texture horizontally and vertically, respectively, and the fourth and firth buttons rotate the texture by 90° counter clockwise and clockwise. The two controls on the right allow you to subdivide the texture grid. This can be useful to align the texture to smaller brush faces.
 
