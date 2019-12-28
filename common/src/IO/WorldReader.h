@@ -24,9 +24,9 @@
 #include "IO/MapReader.h"
 #include "Model/Model_Forward.h"
 
-#include <list>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -34,12 +34,12 @@ namespace TrenchBroom {
             std::unique_ptr<Model::World> m_world;
         public:
             WorldReader(const char* begin, const char* end);
-            WorldReader(const std::string& str);
+            explicit WorldReader(const std::string& str);
 
             std::unique_ptr<Model::World> read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
         private: // implement MapReader interface
             Model::ModelFactory& initialize(Model::MapFormat format) override;
-            Model::Node* onWorldspawn(const std::list<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
+            Model::Node* onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
             void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount, ParserStatus& status) override;
             void onLayer(Model::Layer* layer, ParserStatus& status) override;
             void onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) override;

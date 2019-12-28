@@ -211,4 +211,22 @@ namespace kdl {
         // exception will be thrown.
         ASSERT_TRUE(index.remove("3.6", "value2"));
     }
+
+    TEST(compact_trie_test, get_keys) {
+        test_index index;
+        index.insert("key", "value");
+        index.insert("key2", "value");
+        index.insert("key22", "value2");
+        index.insert("key22bs", "value4");
+        index.insert("k1", "value3");
+
+        std::vector<std::string> actual;
+        index.get_keys(std::back_inserter(actual));
+        kdl::sort(actual);
+
+        std::vector<std::string> expected({ "key", "key2", "key22", "key22bs", "k1" });
+        kdl::sort(expected);
+
+        ASSERT_EQ(expected, actual);
+    }
 }

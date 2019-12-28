@@ -23,29 +23,17 @@
 #include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 
-#include <list>
-#include <memory>
-#include <set>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
-    template <typename V>
-    class StringMapValueContainer;
-
-    template <typename V, typename P>
-    class StringMap;
-
     namespace Model {
-        extern const std::string AttributeEscapeChars;
-
         namespace AttributeNames {
             extern const AttributeName Classname;
             extern const AttributeName Origin;
             extern const AttributeName Wad;
             extern const AttributeName Textures;
             extern const AttributeName Mods;
-            extern const AttributeName GameEngineParameterSpecs;
             extern const AttributeName Spawnflags;
             extern const AttributeName EntityDefinitions;
             extern const AttributeName Angle;
@@ -74,8 +62,7 @@ namespace TrenchBroom {
             extern const AttributeValue GroupTypeGroup;
         }
 
-        std::string numberedAttributePrefix(const std::string& name);
-        bool isNumberedAttribute(const std::string& prefix, const AttributeName& name);
+        bool isNumberedAttribute(const std::string_view& prefix, const std::string_view& name);
 
         class EntityAttributeSnapshot;
 
@@ -94,29 +81,29 @@ namespace TrenchBroom {
             const AttributeValue& value() const;
             const Assets::AttributeDefinition* definition() const;
 
+            bool hasName(const std::string_view& name) const;
+            bool hasValue(const std::string_view& value) const;
+            bool hasNameAndValue(const std::string_view& name, const std::string_view& value) const;
+            bool hasPrefix(const std::string_view& prefix) const;
+            bool hasPrefixAndValue(const std::string_view& prefix, const std::string_view& value) const;
+            bool hasNumberedPrefix(const std::string_view& prefix) const;
+            bool hasNumberedPrefixAndValue(const std::string_view& prefix, const std::string_view& value) const;
+
             void setName(const AttributeName& name, const Assets::AttributeDefinition* definition);
             void setValue(const AttributeValue& value);
         };
 
-        bool isLayer(const std::string& classname, const std::list<EntityAttribute>& attributes);
-        bool isGroup(const std::string& classname, const std::list<EntityAttribute>& attributes);
-        bool isWorldspawn(const std::string& classname, const std::list<EntityAttribute>& attributes);
-        const AttributeValue& findAttribute(const std::list<EntityAttribute>& attributes, const AttributeName& name, const AttributeValue& defaultValue = "");
+        bool isLayer(const std::string& classname, const std::vector<EntityAttribute>& attributes);
+        bool isGroup(const std::string& classname, const std::vector<EntityAttribute>& attributes);
+        bool isWorldspawn(const std::string& classname, const std::vector<EntityAttribute>& attributes);
+        const AttributeValue& findAttribute(const std::vector<EntityAttribute>& attributes, const AttributeName& name, const AttributeValue& defaultValue = "");
 
         class EntityAttributes {
         private:
-            std::list<EntityAttribute> m_attributes;
-
-            using IndexValue = std::list<EntityAttribute>::iterator;
-            using IndexValueContainer = StringMapValueContainer<IndexValue>;
-            using AttributeIndex = StringMap<IndexValue, IndexValueContainer>;
-            std::unique_ptr<AttributeIndex> m_index;
+            std::vector<EntityAttribute> m_attributes;
         public:
-            explicit EntityAttributes();
-            ~EntityAttributes();
-
-            const std::list<EntityAttribute>& attributes() const;
-            void setAttributes(const std::list<EntityAttribute>& attributes);
+            const std::vector<EntityAttribute>& attributes() const;
+            void setAttributes(const std::vector<EntityAttribute>& attributes);
 
             const EntityAttribute& addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value, const Assets::AttributeDefinition* definition);
             void renameAttribute(const AttributeName& name, const AttributeName& newName, const Assets::AttributeDefinition* newDefinition);
@@ -129,22 +116,16 @@ namespace TrenchBroom {
             bool hasNumberedAttribute(const AttributeName& prefix, const AttributeValue& value) const;
 
             EntityAttributeSnapshot snapshot(const AttributeName& name) const;
-        private:
-            bool containsValue(const std::vector<IndexValue>& matches, const AttributeValue& value) const;
-            std::list<EntityAttribute> listFromQueryResult(const std::vector<IndexValue>& matches) const;
         public:
-            const std::vector<AttributeName> names() const;
+            std::vector<AttributeName> names() const;
             const AttributeValue* attribute(const AttributeName& name) const;
-            const AttributeValue& safeAttribute(const AttributeName& name, const AttributeValue& defaultValue) const;
 
-            std::list<EntityAttribute> attributeWithName(const AttributeName& name) const;
-            std::list<EntityAttribute> attributesWithPrefix(const AttributeName& prefix) const;
-            std::list<EntityAttribute> numberedAttributes(const std::string& prefix) const;
+            std::vector<EntityAttribute> attributeWithName(const AttributeName& name) const;
+            std::vector<EntityAttribute> attributesWithPrefix(const AttributeName& prefix) const;
+            std::vector<EntityAttribute> numberedAttributes(const AttributeName& prefix) const;
         private:
-            std::list<EntityAttribute>::const_iterator findAttribute(const AttributeName& name) const;
-            std::list<EntityAttribute>::iterator findAttribute(const AttributeName& name);
-
-            void rebuildIndex();
+            std::vector<EntityAttribute>::const_iterator findAttribute(const AttributeName& name) const;
+            std::vector<EntityAttribute>::iterator findAttribute(const AttributeName& name);
         };
     }
 }

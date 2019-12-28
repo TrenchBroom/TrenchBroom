@@ -504,6 +504,25 @@ namespace kdl {
                     }
                 }
             }
+
+            /**
+             * Adds the keys of all nodes in this subtree to the given output iterator.
+             *
+             * @tparam O the type of the output iterator
+             * @param prefix the prefix of all keys in this subtree
+             * @param out the output iterator
+             */
+            template <typename O>
+            void get_keys(const std::string& prefix, O out) const {
+                const auto key = prefix + m_key;
+                if (!m_values.empty()) {
+                    out++ = key;
+                }
+
+                for (const auto& child : m_children) {
+                    child.get_keys(key, out);
+                }
+            }
         private:
             void insert_value(const V& value) const {
                 m_values[value]++;
@@ -677,6 +696,17 @@ namespace kdl {
         void find_matches(const std::string_view& pattern, O out) const {
             match_state match_state;
             m_root.find_matches(pattern, { 0u }, nullptr, match_state, out);
+        }
+
+        /**
+         * Adds the keys of all nodes in this trie to the give output iterator.
+         *
+         * @tparam O the type of the output iterator
+         * @param out the output iterator
+         */
+        template <typename O>
+        void get_keys(O out) const {
+            m_root.get_keys("", out);
         }
     };
 }

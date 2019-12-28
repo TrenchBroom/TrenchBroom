@@ -31,9 +31,9 @@
 
 #include <vecmath/forward.h>
 
-#include <list>
 #include <string>
 #include <tuple>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             bool m_skipEol;
         public:
             QuakeMapTokenizer(const char* begin, const char* end);
-            QuakeMapTokenizer(const std::string& str);
+            explicit QuakeMapTokenizer(const std::string& str);
 
             void setSkipEol(bool skipEol);
         private:
@@ -79,9 +79,9 @@ namespace TrenchBroom {
             Model::MapFormat m_format;
         public:
             StandardMapParser(const char* begin, const char* end);
-            StandardMapParser(const std::string& str);
+            explicit StandardMapParser(const std::string& str);
 
-            virtual ~StandardMapParser() override;
+            ~StandardMapParser() override;
         protected:
             Model::MapFormat detectFormat();
 
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             void setFormat(Model::MapFormat format);
 
             void parseEntity(ParserStatus& status);
-            void parseEntityAttribute(std::list<Model::EntityAttribute>& attributes, AttributeNames& names, ParserStatus& status);
+            void parseEntityAttribute(std::vector<Model::EntityAttribute>& attributes, AttributeNames& names, ParserStatus& status);
 
             void parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status);
             void parseBrushPrimitive(ParserStatus& status, size_t startLine);

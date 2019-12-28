@@ -79,7 +79,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/QtPrettyPrinters.h"
         "${COMMON_TEST_SOURCE_DIR}/RunAllTests.cpp"
         "${COMMON_TEST_SOURCE_DIR}/StackWalkerTest.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/StringMapTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/TestUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/TestUtils.h"
 )

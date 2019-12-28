@@ -252,7 +252,7 @@ namespace TrenchBroom {
 
             auto beginEntityCalled = false;
 
-            auto attributes = std::list<Model::EntityAttribute>();
+            auto attributes = std::vector<Model::EntityAttribute>();
             auto attributeNames = AttributeNames();
 
             auto extraAttributes = ExtraAttributes();
@@ -290,7 +290,7 @@ namespace TrenchBroom {
             }
         }
 
-        void StandardMapParser::parseEntityAttribute(std::list<Model::EntityAttribute>& attributes, AttributeNames& names, ParserStatus& status) {
+        void StandardMapParser::parseEntityAttribute(std::vector<Model::EntityAttribute>& attributes, AttributeNames& names, ParserStatus& status) {
             auto token = m_tokenizer.nextToken();
             assert(token.type() == QuakeMapToken::String);
             const auto name = token.data();

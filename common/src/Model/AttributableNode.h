@@ -27,7 +27,6 @@
 
 #include <vecmath/bbox.h>
 
-#include <list>
 #include <set>
 #include <string>
 #include <vector>
@@ -60,8 +59,8 @@ namespace TrenchBroom {
         public: // attribute management
             const Assets::AttributeDefinition* attributeDefinition(const AttributeName& name) const;
 
-            const std::list<EntityAttribute>& attributes() const;
-            void setAttributes(const std::list<EntityAttribute>& attributes);
+            const std::vector<EntityAttribute>& attributes() const;
+            void setAttributes(const std::vector<EntityAttribute>& attributes);
 
             std::vector<AttributeName> attributeNames() const;
 
@@ -70,9 +69,9 @@ namespace TrenchBroom {
             bool hasAttributeWithPrefix(const AttributeName& prefix, const AttributeValue& value) const;
             bool hasNumberedAttribute(const AttributeName& prefix, const AttributeValue& value) const;
 
-            std::list<EntityAttribute> attributeWithName(const AttributeName& name) const;
-            std::list<EntityAttribute> attributesWithPrefix(const AttributeName& prefix) const;
-            std::list<EntityAttribute> numberedAttributes(const std::string& prefix) const;
+            std::vector<EntityAttribute> attributeWithName(const AttributeName& name) const;
+            std::vector<EntityAttribute> attributesWithPrefix(const AttributeName& prefix) const;
+            std::vector<EntityAttribute> numberedAttributes(const std::string& prefix) const;
 
             const AttributeValue& attribute(const AttributeName& name, const AttributeValue& defaultValue = DefaultAttributeValue) const;
             const AttributeValue& classname(const AttributeValue& defaultClassname = AttributeValues::NoClassname) const;
@@ -109,7 +108,7 @@ namespace TrenchBroom {
         private: // search index management
             void addAttributesToIndex();
             void removeAttributesFromIndex();
-            void updateAttributeIndex(const std::list<EntityAttribute>& newAttributes);
+            void updateAttributeIndex(const std::vector<EntityAttribute>& newAttributes);
 
             void addAttributeToIndex(const AttributeName& name, const AttributeValue& value);
             void removeAttributeFromIndex(const AttributeName& name, const AttributeValue& value);
