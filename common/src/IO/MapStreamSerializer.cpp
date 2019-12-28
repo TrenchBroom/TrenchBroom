@@ -78,11 +78,9 @@ namespace TrenchBroom {
                 writeFacePoints(stream, face);
                 stream << " ";
                 writeTextureInfo(stream, face);
-                if (face->hasSurfaceAttributes()) {
-                    stream << " ";
-                    writeSurfaceAttributes(stream, face);
-
-                }
+                // While it is possible to omit surface attributes, see MapFileSerializer for a description of why it's best to keep them.
+                stream << " ";
+                writeSurfaceAttributes(stream, face);
                 stream << "\n";
             }
         protected:
