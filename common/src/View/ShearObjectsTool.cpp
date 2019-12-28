@@ -21,6 +21,7 @@
 #include "ShearObjectsTool.h"
 
 #include "Constants.h"
+#include "Ensure.h"
 #include "Preferences.h"
 #include "TrenchBroom.h"
 #include "Model/Brush.h"
@@ -41,15 +42,13 @@
 #include <vecmath/polygon.h>
 #include <vecmath/intersection.h>
 
-#include <iterator>
-
 namespace TrenchBroom {
     namespace View {
         const Model::HitType::Type ShearObjectsTool::ShearToolSideHit = Model::HitType::freeType();
 
         ShearObjectsTool::ShearObjectsTool(std::weak_ptr<MapDocument> document) :
         Tool(false),
-        m_document(document),
+        m_document(std::move(document)),
         m_resizing(false),
         m_constrainVertical(false),
         m_dragStartHit(Model::Hit::NoHit) {}

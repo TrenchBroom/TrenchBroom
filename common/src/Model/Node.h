@@ -56,7 +56,7 @@ namespace TrenchBroom {
             Node(const Node&);
             Node& operator=(const Node&);
         public:
-            virtual ~Node();
+            ~Node() override;
         public: // getters
             const std::string& name() const;
             /**
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             static void clone(const vm::bbox3& worldBounds, I cur, I end, O result) {
                 while (cur != end) {
                     const Node* node = *cur;
-                    result = node->clone(worldBounds);
+                    result++ = node->clone(worldBounds);
                     ++cur;
                 }
             }
@@ -96,7 +96,7 @@ namespace TrenchBroom {
             static void cloneRecursively(const vm::bbox3& worldBounds, I cur, I end, O result) {
                 while (cur != end) {
                     const Node* node = *cur;
-                    result = node->cloneRecursively(worldBounds);
+                    result++ = node->cloneRecursively(worldBounds);
                     ++cur;
                 }
             }
@@ -262,7 +262,7 @@ namespace TrenchBroom {
             LockState lockState() const;
             bool setLockState(LockState lockState);
         public: // picking
-            void pick(const vm::ray3& ray, PickResult& result) const;
+            void pick(const vm::ray3& ray, PickResult& result);
             void findNodesContaining(const vm::vec3& point, std::vector<Node*>& result);
         public: // file position
             size_t lineNumber() const;
@@ -456,7 +456,7 @@ namespace TrenchBroom {
 
             virtual bool doSelectable() const = 0;
 
-            virtual void doPick(const vm::ray3& ray, PickResult& pickResult) const = 0;
+            virtual void doPick(const vm::ray3& ray, PickResult& pickResult) = 0;
             virtual void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) = 0;
 
             virtual void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) = 0;

@@ -19,6 +19,7 @@
 
 #include "EntityDefinitionManager.h"
 
+#include "Ensure.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "IO/EntityDefinitionLoader.h"

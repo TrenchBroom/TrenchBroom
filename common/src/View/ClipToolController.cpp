@@ -19,6 +19,7 @@
 
 #include "ClipToolController.h"
 
+#include "Ensure.h"
 #include "Polyhedron.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -47,7 +48,7 @@ namespace TrenchBroom {
             ensure(m_tool != nullptr, "tool is null");
         }
 
-        ClipToolController::Callback::~Callback() {}
+        ClipToolController::Callback::~Callback() = default;
 
         ClipTool* ClipToolController::Callback::tool() const {
             return m_tool;
@@ -222,7 +223,7 @@ namespace TrenchBroom {
         ClipToolController::ClipToolController(ClipTool* tool) :
         m_tool(tool) {}
 
-        ClipToolController::~ClipToolController() {}
+        ClipToolController::~ClipToolController() = default;
 
         Tool* ClipToolController::doGetTool() {
             return m_tool;
@@ -259,7 +260,7 @@ namespace TrenchBroom {
 
         class ClipToolController2D::Callback2D : public Callback {
         public:
-            Callback2D(ClipTool* tool) :
+            explicit Callback2D(ClipTool* tool) :
             Callback(tool) {}
 
             DragRestricter* createDragRestricter(const InputState& inputState, const vm::vec3& initialPoint) const override {
@@ -354,7 +355,7 @@ namespace TrenchBroom {
 
         class ClipToolController3D::Callback3D : public Callback {
         public:
-            Callback3D(ClipTool* tool) :
+            explicit Callback3D(ClipTool* tool) :
             Callback(tool) {}
 
             DragRestricter* createDragRestricter(const InputState&, const vm::vec3& /* initialPoint */) const override {
@@ -367,7 +368,7 @@ namespace TrenchBroom {
 
             class ClipPointSnapper : public SurfaceDragSnapper {
             public:
-                ClipPointSnapper(const Grid& grid) :
+                explicit ClipPointSnapper(const Grid& grid) :
                 SurfaceDragSnapper(grid) {}
             private:
                 vm::plane3 doGetPlane(const InputState&, const Model::Hit& hit) const override {
@@ -402,7 +403,7 @@ namespace TrenchBroom {
                     return false;
                 }
 
-                Model::BrushFace* face = hit.target<Model::BrushFace*>();
+                Model::BrushFace* face = Model::hitToFace(hit);
                 const Grid& grid = m_tool->grid();
                 position = grid.snap(hit.hitPoint(), face->boundary());
                 return true;

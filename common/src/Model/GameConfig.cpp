@@ -19,6 +19,7 @@
 
 #include "GameConfig.h"
 
+#include "Ensure.h"
 #include "IO/DiskFileSystem.h"
 
 #include <kdl/string_utils.h>

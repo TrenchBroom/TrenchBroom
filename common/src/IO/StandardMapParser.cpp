@@ -19,11 +19,11 @@
 
 #include "StandardMapParser.h"
 
-#include "TemporarilySetAny.h"
 #include "IO/ParserStatus.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityAttributes.h"
 
+#include <kdl/invoke.h>
 #include <kdl/vector_set.h>
 
 #include <vecmath/plane.h>
@@ -143,7 +143,7 @@ namespace TrenchBroom {
         m_tokenizer(QuakeMapTokenizer(str)),
         m_format(Model::MapFormat::Unknown) {}
 
-        StandardMapParser::~StandardMapParser() {}
+        StandardMapParser::~StandardMapParser() = default;
 
         Model::MapFormat StandardMapParser::detectFormat() {
             auto format = Model::MapFormat::Unknown;
@@ -672,7 +672,11 @@ namespace TrenchBroom {
         }
 
         void StandardMapParser::parseExtraAttributes(ExtraAttributes& attributes, ParserStatus& /* status */) {
-            const TemporarilySetBoolFun<QuakeMapTokenizer> parseEof(&m_tokenizer, &QuakeMapTokenizer::setSkipEol, false);
+            // do not skip EOLs for the duration of this function call
+            const kdl::invoke_now_and_later parseEof(
+                [this]() { m_tokenizer.setSkipEol(false); },
+                [this]() { m_tokenizer.setSkipEol(true); });
+
             auto token = m_tokenizer.nextToken();
             expect(QuakeMapToken::String | QuakeMapToken::Eol | QuakeMapToken::Eof, token);
             while (token.type() != QuakeMapToken::Eol && token.type() != QuakeMapToken::Eof) {

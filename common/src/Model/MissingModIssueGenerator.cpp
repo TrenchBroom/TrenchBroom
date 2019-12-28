@@ -54,7 +54,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const std::string doGetDescription() const override {
+            std::string doGetDescription() const override {
                 return "Mod '" + m_mod + "' could not be used: " + m_message;
             }
         public:
@@ -85,7 +85,7 @@ namespace TrenchBroom {
                 for (const Issue* issue : issues) {
                     if (issue->type() == MissingModIssue::Type) {
                         const MissingModIssue* modIssue = static_cast<const MissingModIssue*>(issue);
-                        const std::string missingMod = modIssue->mod();
+                        const std::string& missingMod = modIssue->mod();
                         kdl::vec_erase(mods, missingMod);
                     }
                 }
@@ -95,7 +95,7 @@ namespace TrenchBroom {
 
         MissingModIssueGenerator::MissingModIssueGenerator(std::weak_ptr<Game> game) :
         IssueGenerator(MissingModIssue::Type, "Missing mod directory"),
-        m_game(game) {
+        m_game(std::move(game)) {
             addQuickFix(new MissingModIssueQuickFix());
         }
 

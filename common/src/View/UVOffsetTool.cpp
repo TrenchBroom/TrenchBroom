@@ -19,6 +19,7 @@
 
 #include "UVOffsetTool.h"
 
+#include "Ensure.h"
 #include "Polyhedron.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -41,7 +42,7 @@ namespace TrenchBroom {
         UVOffsetTool::UVOffsetTool(std::weak_ptr<MapDocument> document, const UVViewHelper& helper) :
         ToolControllerBase(),
         Tool(true),
-        m_document(document),
+        m_document(std::move(document)),
         m_helper(helper) {}
 
         Tool* UVOffsetTool::doGetTool() {

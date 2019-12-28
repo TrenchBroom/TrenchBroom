@@ -34,14 +34,14 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            LinkSourceIssue(AttributableNode* node) :
+            explicit LinkSourceIssue(AttributableNode* node) :
             Issue(node) {}
 
             IssueType doGetType() const override {
                 return Type;
             }
 
-            const std::string doGetDescription() const override {
+            std::string doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
                 return attributableNode->classname() + " has unused targetname key";
             }

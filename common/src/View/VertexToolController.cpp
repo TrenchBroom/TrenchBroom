@@ -65,14 +65,14 @@ namespace TrenchBroom {
 
         class VertexToolController::SelectVertexPart : public SelectPartBase<vm::vec3> {
         public:
-            SelectVertexPart(VertexTool* tool) :
+            explicit SelectVertexPart(VertexTool* tool) :
             SelectPartBase(tool, VertexHandleManager::HandleHit) {}
         private:
-            const Model::Hit doFindDraggableHandle(const InputState& inputState) const override {
+            Model::Hit doFindDraggableHandle(const InputState& inputState) const override {
                 return VertexToolController::findHandleHit(inputState, *this);
             }
 
-            const std::list<Model::Hit> doFindDraggableHandles(const InputState& inputState) const override {
+            std::list<Model::Hit> doFindDraggableHandles(const InputState& inputState) const override {
                 return VertexToolController::findHandleHits(inputState, *this);
             }
 
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             SnapType m_lastSnapType;
             vm::vec3 m_handleOffset;
         public:
-            MoveVertexPart(VertexTool* tool) :
+            explicit MoveVertexPart(VertexTool* tool) :
             MovePartBase(tool, VertexHandleManager::HandleHit),
             m_lastSnapType(SnapType::Relative) {}
         private:
@@ -183,11 +183,11 @@ namespace TrenchBroom {
                 }
             }
         private:
-            const Model::Hit doFindDraggableHandle(const InputState& inputState) const override {
+            Model::Hit doFindDraggableHandle(const InputState& inputState) const override {
                 return VertexToolController::findHandleHit(inputState, *this);
             }
 
-            const std::list<Model::Hit> doFindDraggableHandles(const InputState& inputState) const override {
+            std::list<Model::Hit> doFindDraggableHandles(const InputState& inputState) const override {
                 return VertexToolController::findHandleHits(inputState, *this);
             }
         };

@@ -19,6 +19,7 @@
 
 #include "EmptyBrushEntityIssueGenerator.h"
 
+#include "Ensure.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
@@ -34,14 +35,14 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            EmptyBrushEntityIssue(Entity* entity) :
+            explicit EmptyBrushEntityIssue(Entity* entity) :
             Issue(entity) {}
         private:
             IssueType doGetType() const override {
                 return Type;
             }
 
-            const std::string doGetDescription() const override {
+            std::string doGetDescription() const override {
                 const Entity* entity = static_cast<Entity*>(node());
                 return "Entity '" + entity->classname() + "' does not contain any brushes";
             }

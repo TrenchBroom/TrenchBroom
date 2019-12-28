@@ -1398,7 +1398,7 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
 
-        void Brush::doPick(const vm::ray3& ray, PickResult& pickResult) const {
+        void Brush::doPick(const vm::ray3& ray, PickResult& pickResult) {
             const auto hit = findFaceHit(ray);
             if (hit.face != nullptr) {
                 ensure(!vm::is_nan(hit.distance), "nan hit distance");

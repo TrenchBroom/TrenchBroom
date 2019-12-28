@@ -24,8 +24,8 @@
 #include "IO/PathQt.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
-#include "TemporarilySetAny.h"
 
+#include <kdl/set_temp.h>
 #include <kdl/string_compare.h>
 
 #include <QBoxLayout>
@@ -158,14 +158,14 @@ namespace TrenchBroom {
         void GameEngineProfileEditor::nameChanged(const QString& text) {
             ensure(m_profile != nullptr, "profile is null");
 
-            const TemporarilySetBool ignore(m_ignoreNotifications);
+            const kdl::set_temp ignore(m_ignoreNotifications);
             m_profile->setName(text.toStdString());
         }
 
         void GameEngineProfileEditor::pathChanged() {
             ensure(m_profile != nullptr, "profile is null");
 
-            const TemporarilySetBool ignore(m_ignoreNotifications);
+            const kdl::set_temp ignore(m_ignoreNotifications);
             updatePath(m_pathEdit->text());
         }
 

@@ -48,7 +48,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const std::string doGetDescription() const override {
+            std::string doGetDescription() const override {
                 return "Entity property key '" + m_attributeName.substr(0, 8) + "...' is too long.";
             }
         };

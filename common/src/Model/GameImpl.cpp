@@ -19,6 +19,7 @@
 
 #include "GameImpl.h"
 
+#include "Ensure.h"
 #include "Exceptions.h"
 #include "Macros.h"
 #include "Assets/Palette.h"
@@ -61,7 +62,6 @@
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
-#include <sstream>
 #include <string>
 #include <vector>
 

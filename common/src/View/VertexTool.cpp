@@ -38,7 +38,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        VertexTool::VertexTool(std::weak_ptr<MapDocument> document) :
+        VertexTool::VertexTool(const std::weak_ptr<MapDocument>& document) :
         VertexToolBase(document),
         m_mode(Mode_Move),
         m_vertexHandles(std::make_unique<VertexHandleManager>()),

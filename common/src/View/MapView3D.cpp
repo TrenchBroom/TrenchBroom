@@ -23,7 +23,6 @@
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "TemporarilySetAny.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
@@ -64,13 +63,15 @@
 #include "View/VertexToolController.h"
 #include "View/QtUtils.h"
 
+#include <kdl/set_temp.h>
+
 #include <vecmath/util.h>
 
 namespace TrenchBroom {
     namespace View {
         MapView3D::MapView3D(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
                              GLContextManager& contextManager, Logger* logger) :
-        MapViewBase(logger, document, toolBox, renderer, contextManager),
+        MapViewBase(logger, std::move(document), toolBox, renderer, contextManager),
         m_camera(std::make_unique<Renderer::PerspectiveCamera>()),
         m_flyModeHelper(std::make_unique<FlyModeHelper>(*m_camera)),
         m_ignoreCameraChangeEvents(false) {
@@ -460,7 +461,7 @@ namespace TrenchBroom {
         }
 
         void MapView3D::doPreRender() {
-            const TemporarilySetBool ignoreCameraUpdates(m_ignoreCameraChangeEvents);
+            const kdl::set_temp ignoreCameraUpdates(m_ignoreCameraChangeEvents);
             m_flyModeHelper->pollAndUpdate();
         }
 

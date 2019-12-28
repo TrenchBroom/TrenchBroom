@@ -29,6 +29,8 @@
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
 
+#include <kdl/set_temp.h>
+
 #include <cassert>
 #include <memory>
 #include <vector>
@@ -170,7 +172,7 @@ namespace TrenchBroom {
 
             const bool set = m_flagsEditor->isFlagSet(index);
 
-            const TemporarilySetBool ignoreUpdates(m_ignoreUpdates);
+            const kdl::set_temp ignoreUpdates(m_ignoreUpdates);
 
             const Transaction transaction(document(), "Set Spawnflags");
             UpdateSpawnflag visitor(document(), name(), index, set);

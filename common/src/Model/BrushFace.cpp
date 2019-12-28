@@ -20,6 +20,7 @@
 #include "BrushFace.h"
 
 #include "Constants.h"
+#include "Ensure.h"
 #include "Exceptions.h"
 #include "Polyhedron.h"
 #include "Assets/Texture.h"

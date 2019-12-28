@@ -19,6 +19,7 @@
 
 #include "IssueBrowserView.h"
 
+#include "Ensure.h"
 #include "Model/CollectMatchingIssuesVisitor.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"

@@ -50,7 +50,6 @@
 
 #include <limits>
 #include <map>
-#include <set>
 #include <vector>
 
 namespace TrenchBroom {
@@ -60,7 +59,7 @@ namespace TrenchBroom {
 
         ResizeBrushesTool::ResizeBrushesTool(std::weak_ptr<MapDocument> document) :
         Tool(true),
-        m_document(document),
+        m_document(std::move(document)),
         m_splitBrushes(false),
         m_dragging(false) {
             bindObservers();
@@ -204,7 +203,7 @@ namespace TrenchBroom {
         private:
             const Model::BrushFace* m_reference;
         public:
-            MatchFaceBoundary(const Model::BrushFace* reference) :
+            explicit MatchFaceBoundary(const Model::BrushFace* reference) :
             m_reference(reference) {
                 ensure(m_reference != nullptr, "reference is null");
             }
@@ -228,7 +227,7 @@ namespace TrenchBroom {
                     kdl::vec_append(result, collectDragFaces(faces[1]));
                 }
             } else {
-                Model::BrushFace* face = hit.target<Model::BrushFace*>();
+                Model::BrushFace* face = Model::hitToFace(hit);
                 result.push_back(face);
                 kdl::vec_append(result, collectDragFaces(face));
             }

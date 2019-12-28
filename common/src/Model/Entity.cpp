@@ -243,7 +243,7 @@ namespace TrenchBroom {
             return !hasChildren();
         }
 
-        void Entity::doPick(const vm::ray3& ray, PickResult& pickResult) const {
+        void Entity::doPick(const vm::ray3& ray, PickResult& pickResult) {
             if (!hasChildren()) {
                 const vm::bbox3& myBounds = definitionBounds();
                 if (!myBounds.contains(ray.origin)) {

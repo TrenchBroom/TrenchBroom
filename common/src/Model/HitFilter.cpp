@@ -19,6 +19,7 @@
 
 #include "HitFilter.h"
 
+#include "Ensure.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/EditorContext.h"
@@ -54,7 +55,7 @@ namespace TrenchBroom {
         HitFilter* HitFilter::always() { return new Always(); }
         HitFilter* HitFilter::never() { return new Never(); }
 
-        HitFilter::~HitFilter() {}
+        HitFilter::~HitFilter() = default;
 
         HitFilter* HitFilter::clone() const {
             return doClone();

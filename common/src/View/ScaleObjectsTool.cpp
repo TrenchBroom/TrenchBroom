@@ -41,7 +41,6 @@
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>
 
-#include <iterator>
 #include <set>
 
 namespace TrenchBroom {
@@ -471,7 +470,7 @@ namespace TrenchBroom {
 
         ScaleObjectsTool::ScaleObjectsTool(std::weak_ptr<MapDocument> document) :
         Tool(false),
-        m_document(document),
+        m_document(std::move(document)),
         m_toolPage(nullptr),
         m_resizing(false),
         m_anchorPos(AnchorPos::Opposite),

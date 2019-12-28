@@ -24,7 +24,6 @@
 #include "Polyhedron3.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "TemporarilySetAny.h"
 #include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -49,6 +48,7 @@
 #include "View/VertexHandleManager.h"
 
 #include <kdl/memory_utils.h>
+#include <kdl/set_temp.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_set.h>
 #include <kdl/vector_utils.h>
@@ -95,14 +95,14 @@ namespace TrenchBroom {
             H m_dragHandlePosition;
             bool m_dragging;
         protected:
-            VertexToolBase(std::weak_ptr<MapDocument> document) :
+            explicit VertexToolBase(std::weak_ptr<MapDocument> document) :
             Tool(false),
-            m_document(document),
+            m_document(std::move(document)),
             m_changeCount(0),
             m_ignoreChangeNotifications(0u),
             m_dragging(false) {}
         public:
-            virtual ~VertexToolBase() override {}
+            ~VertexToolBase() override = default;
         public:
             const Grid& grid() const {
                 return kdl::mem_lock(m_document)->grid();
@@ -159,8 +159,7 @@ namespace TrenchBroom {
                     // Count the number of hit handles which are selected already.
                     size_t selected = 0u;
                     for (const auto& hit : hits) {
-                        const auto& handle = hit.target<H>();
-                        if (handleManager().selected(handle)) {
+                        if (handleManager().selected(hit.target<H>())) {
                             ++selected;
                         }
                     }
@@ -194,8 +193,7 @@ namespace TrenchBroom {
             }
 
             bool selected(const Model::Hit& hit) const {
-                const H& handle = hit.target<H>();
-                return handleManager().selected(handle);
+                return handleManager().selected(hit.target<H>());
             }
 
             virtual bool deselectAll() {
@@ -291,7 +289,7 @@ namespace TrenchBroom {
             virtual std::string actionName() const = 0;
         public:
             void moveSelection(const vm::vec3& delta) {
-                TemporarilyInc ignoreChangeNotifications(m_ignoreChangeNotifications);
+                const kdl::inc_temp ignoreChangeNotifications(m_ignoreChangeNotifications);
 
                 Transaction transaction(m_document, actionName());
                 move(delta);
@@ -363,7 +361,7 @@ namespace TrenchBroom {
 
             virtual void renderGuide(Renderer::RenderContext&, Renderer::RenderBatch&, const vm::vec3& /* position */) const {}
         protected: // Tool interface
-            virtual bool doActivate() override {
+            bool doActivate() override {
                 m_changeCount = 0;
                 bindObservers();
 
@@ -374,7 +372,7 @@ namespace TrenchBroom {
                 return true;
             }
 
-            virtual bool doDeactivate() override {
+            bool doDeactivate() override {
                 unbindObservers();
                 handleManager().clear();
                 return true;
@@ -513,7 +511,7 @@ namespace TrenchBroom {
             private:
                 VertexHandleManagerBaseT<HT>& m_handles;
             public:
-                AddHandles(VertexHandleManagerBaseT<HT>& handles) :
+                explicit AddHandles(VertexHandleManagerBaseT<HT>& handles) :
                 m_handles(handles) {}
             private:
                 void doVisit(Model::World*) override  {}
@@ -530,7 +528,7 @@ namespace TrenchBroom {
             private:
                 VertexHandleManagerBaseT<HT>& m_handles;
             public:
-                RemoveHandles(VertexHandleManagerBaseT<HT>& handles) :
+                explicit RemoveHandles(VertexHandleManagerBaseT<HT>& handles) :
                 m_handles(handles) {}
             private:
                 void doVisit(Model::World*) override  {}

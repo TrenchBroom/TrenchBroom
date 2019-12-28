@@ -177,7 +177,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void Group::doPick(const vm::ray3& /* ray */, PickResult&) const {
+        void Group::doPick(const vm::ray3& /* ray */, PickResult&) {
             // For composite nodes (Groups, brush entities), pick rays don't hit the group
             // but instead just the primitives inside (brushes, point entities).
             // This avoids a potential performance trap where we'd have to exhaustively

@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Notifier_h
 #define TrenchBroom_Notifier_h
 
-#include "TemporarilySetAny.h"
+#include <kdl/set_temp.h>
 
 #include <cassert>
 #include <memory>
@@ -102,8 +102,7 @@ namespace TrenchBroom {
         template <typename... A>
         void notify(A... a) {
             {
-                const TemporarilySetBool notifying(m_notifying);
-
+                const kdl::set_temp notifying(m_notifying);
                 for (auto& observer : m_observers) {
                     if (!observer->skip()) {
                         (*observer)(a...);
@@ -252,7 +251,7 @@ namespace TrenchBroom {
             private:
                 T m_func;
             public:
-                Holder(T&& func) : m_func(std::move(func)) {}
+                explicit Holder(T&& func) : m_func(std::move(func)) {}
 
                 void apply() override {
                     m_func();

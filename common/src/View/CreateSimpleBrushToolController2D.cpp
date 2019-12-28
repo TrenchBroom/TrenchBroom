@@ -19,6 +19,7 @@
 
 #include "CreateSimpleBrushToolController2D.h"
 
+#include "Ensure.h"
 #include "Renderer/Camera.h"
 #include "View/CreateSimpleBrushTool.h"
 #include "View/Grid.h"
@@ -29,8 +30,6 @@
 
 #include <vecmath/intersection.h>
 #include <vecmath/scalar.h>
-
-#include <cassert>
 
 namespace TrenchBroom {
     namespace View {

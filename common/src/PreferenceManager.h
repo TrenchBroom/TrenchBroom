@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_PreferenceManager
 #define TrenchBroom_PreferenceManager
 
+#include "Ensure.h"
 #include "Notifier.h"
 #include "Preference.h"
 #include "IO/IO_Forward.h"

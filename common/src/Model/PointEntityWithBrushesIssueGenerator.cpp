@@ -19,6 +19,7 @@
 
 #include "PointEntityWithBrushesIssueGenerator.h"
 
+#include "Ensure.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
@@ -37,14 +38,14 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            PointEntityWithBrushesIssue(Entity* entity) :
+            explicit PointEntityWithBrushesIssue(Entity* entity) :
             Issue(entity) {}
         private:
             IssueType doGetType() const override {
                 return Type;
             }
 
-            const std::string doGetDescription() const override {
+            std::string doGetDescription() const override {
                 const Entity* entity = static_cast<Entity*>(node());
                 return entity->classname() + " contains brushes";
             }

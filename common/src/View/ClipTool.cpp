@@ -40,6 +40,7 @@
 
 #include <kdl/map_utils.h>
 #include <kdl/memory_utils.h>
+#include <kdl/set_temp.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
@@ -55,7 +56,7 @@ namespace TrenchBroom {
     namespace View {
         const Model::HitType::Type ClipTool::PointHit = Model::HitType::freeType();
 
-        ClipTool::ClipStrategy::~ClipStrategy() {}
+        ClipTool::ClipStrategy::~ClipStrategy() = default;
 
         void ClipTool::ClipStrategy::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             doPick(pickRay, camera, pickResult);
@@ -140,7 +141,7 @@ namespace TrenchBroom {
                 vm::vec3 point;
                 std::vector<vm::vec3> helpVectors;
 
-                ClipPoint() {}
+                ClipPoint() = default;
 
                 ClipPoint(const vm::vec3& i_point, const std::vector<vm::vec3>& i_helpVectors) :
                 point(i_point),
@@ -495,7 +496,7 @@ namespace TrenchBroom {
 
         ClipTool::ClipTool(std::weak_ptr<MapDocument> document) :
         Tool(false),
-        m_document(document),
+        m_document(std::move(document)),
         m_clipSide(ClipSide_Front),
         m_strategy(nullptr),
         m_remainingBrushRenderer(std::make_unique<Renderer::BrushRenderer>()),
@@ -584,7 +585,8 @@ namespace TrenchBroom {
 
         void ClipTool::performClip() {
             if (!m_dragging && canClip()) {
-                const TemporarilySetBool ignoreNotifications(m_ignoreNotifications);
+                const kdl::set_temp ignoreNotifications(m_ignoreNotifications);
+
                 auto document = kdl::mem_lock(m_document);
                 const Transaction transaction(document, "Clip Brushes");
 

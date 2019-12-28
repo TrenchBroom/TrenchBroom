@@ -20,6 +20,7 @@
 #include "ToolController.h"
 
 #include "Constants.h"
+#include "Ensure.h"
 #include "TrenchBroom.h"
 #include "Model/HitQuery.h"
 #include "Model/HitType.h"

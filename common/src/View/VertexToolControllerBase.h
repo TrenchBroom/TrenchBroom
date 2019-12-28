@@ -52,25 +52,25 @@ namespace TrenchBroom {
                 m_tool(tool),
                 m_hitType(hitType) {}
             public:
-                virtual ~PartBase() {}
+                virtual ~PartBase() = default;
             protected:
-                const Model::Hit findDraggableHandle(const InputState& inputState) const {
+                Model::Hit findDraggableHandle(const InputState& inputState) const {
                     return doFindDraggableHandle(inputState);
                 }
 
-                const std::list<Model::Hit> findDraggableHandles(const InputState& inputState) const {
+                std::list<Model::Hit> findDraggableHandles(const InputState& inputState) const {
                     return doFindDraggableHandles(inputState);
                 }
             private:
-                virtual const Model::Hit doFindDraggableHandle(const InputState& inputState) const {
+                virtual Model::Hit doFindDraggableHandle(const InputState& inputState) const {
                     return findDraggableHandle(inputState, m_hitType);
                 }
 
-                virtual const std::list<Model::Hit> doFindDraggableHandles(const InputState& inputState) const {
+                virtual std::list<Model::Hit> doFindDraggableHandles(const InputState& inputState) const {
                     return findDraggableHandles(inputState, m_hitType);
                 }
             public:
-                const Model::Hit findDraggableHandle(const InputState& inputState, const Model::HitType::Type hitType) const {
+                Model::Hit findDraggableHandle(const InputState& inputState, const Model::HitType::Type hitType) const {
                     const auto query = inputState.pickResult().query().type(hitType).occluded();
                     if (!query.empty()) {
                         const auto hits = query.all();
@@ -84,7 +84,7 @@ namespace TrenchBroom {
                     return Model::Hit::NoHit;
                 }
 
-                const std::list<Model::Hit> findDraggableHandles(const InputState& inputState, const Model::HitType::Type hitType) const {
+                std::list<Model::Hit> findDraggableHandles(const InputState& inputState, const Model::HitType::Type hitType) const {
                     return inputState.pickResult().query().type(hitType).occluded().all();
                 }
             private:
@@ -102,7 +102,7 @@ namespace TrenchBroom {
                 PartBase(tool, hitType),
                 m_lasso(nullptr) {}
             public:
-                virtual ~SelectPartBase() override {
+                ~SelectPartBase() override {
                     delete m_lasso;
                 }
             protected:
@@ -179,11 +179,11 @@ namespace TrenchBroom {
                     return m_tool->deselectAll();
                 }
             protected:
-                virtual void doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const override {
+                void doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const override {
                     renderContext.setForceHideSelectionGuide();
                 }
 
-                virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
+                void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                     m_tool->renderHandles(renderContext, renderBatch);
                     if (m_lasso != nullptr) {
                         m_lasso->render(renderContext, renderBatch);
@@ -242,7 +242,7 @@ namespace TrenchBroom {
                 MoveToolController(tool->grid()),
                 PartBase(tool, hitType) {}
             public:
-                virtual ~MovePartBase() override {}
+                ~MovePartBase() override = default;
             protected:
                 using PartBase::m_tool;
                 using PartBase::findDraggableHandle;
@@ -323,10 +323,10 @@ namespace TrenchBroom {
         protected:
             T* m_tool;
         protected:
-            VertexToolControllerBase(T* tool) :
+            explicit VertexToolControllerBase(T* tool) :
             m_tool(tool) {}
         public:
-            virtual ~VertexToolControllerBase() override {}
+            ~VertexToolControllerBase() override = default;
         private:
             Tool* doGetTool() override {
                 return m_tool;

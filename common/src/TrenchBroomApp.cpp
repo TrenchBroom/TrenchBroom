@@ -45,6 +45,7 @@
 #include "View/MainMenuBuilder.h"
 #endif
 
+#include <kdl/set_temp.h>
 #include <kdl/string_utils.h>
 
 #include <clocale>
@@ -242,7 +243,7 @@ namespace TrenchBroom {
 
                 const auto result = QMessageBox::question(nullptr, QString("TrenchBroom"), QString::fromStdString(message.str()), QMessageBox::Yes | QMessageBox::No);
                 if (result == QMessageBox::Yes) {
-                    TemporarilySetBool setRecovering(recovering);
+                    const kdl::set_temp setRecovering(recovering);
                     e.recover();
                     return retry(); // Recursive call here.
                 } else {

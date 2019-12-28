@@ -35,14 +35,14 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            MixedBrushContentsIssue(Brush* brush) :
+            explicit MixedBrushContentsIssue(Brush* brush) :
             Issue(brush) {}
 
             IssueType doGetType() const override {
                 return Type;
             }
 
-            const std::string doGetDescription() const override {
+            std::string doGetDescription() const override {
                 return "Brush has mixed content flags";
             }
         };
