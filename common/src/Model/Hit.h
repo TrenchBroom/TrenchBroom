@@ -26,7 +26,7 @@
 
 #include <vecmath/vec.h>
 
-#include <any-lite/any.hpp>
+#include <nonstd/any.hpp>
 
 namespace TrenchBroom {
     namespace Model {

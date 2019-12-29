@@ -22,7 +22,7 @@
 #include <QTextStream>
 #include <QString>
 
-#include <optional-lite/optional.hpp>
+#include <nonstd/optional.hpp>
 
 #include "PreferenceManager.h"
 #include "QtPrettyPrinters.h"

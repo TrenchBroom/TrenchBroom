@@ -39,7 +39,7 @@
 #include <kdl/vector_set.h>
 
 #include <iterator>
-#include <optional-lite/optional.hpp>
+#include <nonstd/optional.hpp>
 #include <string>
 #include <vector>
 

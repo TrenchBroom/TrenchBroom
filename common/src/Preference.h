@@ -24,7 +24,7 @@
 #include "IO/Path.h"
 #include "View/KeyboardShortcut.h"
 
-#include <optional-lite/optional.hpp>
+#include <nonstd/optional.hpp>
 
 #include <QString>
 #include <QTextStream>
