@@ -88,7 +88,7 @@ namespace TrenchBroom {
 
         void FaceAttribsEditor::xOffsetChanged(const double value) {
             auto document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
@@ -101,7 +101,7 @@ namespace TrenchBroom {
 
         void FaceAttribsEditor::yOffsetChanged(const double value) {
             auto document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
@@ -114,7 +114,7 @@ namespace TrenchBroom {
 
         void FaceAttribsEditor::rotationChanged(const double value) {
             auto document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
@@ -127,7 +127,7 @@ namespace TrenchBroom {
 
         void FaceAttribsEditor::xScaleChanged(const double value) {
             auto document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
@@ -140,7 +140,7 @@ namespace TrenchBroom {
 
         void FaceAttribsEditor::yScaleChanged(const double value) {
             auto document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
@@ -153,7 +153,7 @@ namespace TrenchBroom {
 
         void FaceAttribsEditor::surfaceFlagChanged(const size_t index, const int setFlag, const int /* mixedFlag */) {
             auto document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
@@ -170,7 +170,7 @@ namespace TrenchBroom {
 
         void FaceAttribsEditor::contentFlagChanged(const size_t index, const int setFlag, const int /* mixedFlag */) {
             auto document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
@@ -187,7 +187,7 @@ namespace TrenchBroom {
 
         void FaceAttribsEditor::surfaceValueChanged(const double value) {
             auto document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
@@ -200,7 +200,7 @@ namespace TrenchBroom {
 
         void FaceAttribsEditor::colorValueChanged(const QString& /* text */) {
             auto document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
