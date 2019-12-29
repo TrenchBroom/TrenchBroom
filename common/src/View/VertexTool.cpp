@@ -172,16 +172,16 @@ namespace TrenchBroom {
             m_mode = Mode_Move;
         }
 
-        const vm::vec3& VertexTool::getHandlePosition(const Model::Hit& hit) const {
+        vm::vec3 VertexTool::getHandlePosition(const Model::Hit& hit) const {
             assert(hit.isMatch());
             assert(hit.hasType(VertexHandleManager::HandleHit | EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit));
 
             if (hit.hasType(VertexHandleManager::HandleHit)) {
-                return hit.target<const vm::vec3&>();
+                return hit.target<vm::vec3>();
             } else if (hit.hasType(EdgeHandleManager::HandleHit)) {
-                return std::get<1>(hit.target<const EdgeHandleManager::HitType&>());
+                return std::get<1>(hit.target<EdgeHandleManager::HitType>());
             } else {
-                return std::get<1>(hit.target<const FaceHandleManager::HitType&>());
+                return std::get<1>(hit.target<FaceHandleManager::HitType>());
             }
         }
 

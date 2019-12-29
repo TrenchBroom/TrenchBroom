@@ -83,7 +83,7 @@ namespace TrenchBroom {
             void endMove() override;
             void cancelMove() override;
 
-            const vm::vec3& getHandlePosition(const Model::Hit& hit) const override;
+            vm::vec3 getHandlePosition(const Model::Hit& hit) const override;
             std::string actionName() const override;
 
             void removeSelection();

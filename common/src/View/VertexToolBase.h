@@ -214,7 +214,7 @@ namespace TrenchBroom {
 
                 // Delesect all handles if any of the hit handles is not already selected.
                 for (const auto& hit : hits) {
-                    const H& handle = getHandlePosition(hit);
+                    const H handle = getHandlePosition(hit);
                     if (!handleManager().selected(handle)) {
                         handleManager().deselectAll();
                         break;
@@ -223,7 +223,7 @@ namespace TrenchBroom {
 
                 // Now select all of the hit handles.
                 for (const auto& hit : hits) {
-                    const H& handle = getHandlePosition(hit);
+                    const H handle = getHandlePosition(hit);
                     if (hit.hasType(handleManager().hitType())) {
                         handleManager().select(handle);
                     }
@@ -280,10 +280,10 @@ namespace TrenchBroom {
                 document->addNode(brush, document->currentParent());
             }
 
-            virtual const H& getHandlePosition(const Model::Hit& hit) const {
+            virtual H getHandlePosition(const Model::Hit& hit) const {
                 assert(hit.isMatch());
                 assert(hit.hasType(handleManager().hitType()));
-                return hit.target<const H&>();
+                return hit.target<H>();
             }
 
             virtual std::string actionName() const = 0;

@@ -191,7 +191,7 @@ namespace TrenchBroom {
                         if (!anyToolDragging(inputState)) {
                             const auto hit = findDraggableHandle(inputState);
                             if (hit.hasType(m_hitType)) {
-                                const auto& handle = m_tool->getHandlePosition(hit);
+                                const auto handle = m_tool->getHandlePosition(hit);
                                 m_tool->renderHighlight(renderContext, renderBatch, handle);
 
                                 if (inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
