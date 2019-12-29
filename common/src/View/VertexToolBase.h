@@ -283,7 +283,7 @@ namespace TrenchBroom {
             virtual const H& getHandlePosition(const Model::Hit& hit) const {
                 assert(hit.isMatch());
                 assert(hit.hasType(handleManager().hitType()));
-                return hit.target<H>();
+                return hit.target<const H&>();
             }
 
             virtual std::string actionName() const = 0;

@@ -177,11 +177,11 @@ namespace TrenchBroom {
             assert(hit.hasType(VertexHandleManager::HandleHit | EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit));
 
             if (hit.hasType(VertexHandleManager::HandleHit)) {
-                return hit.target<vm::vec3>();
+                return hit.target<const vm::vec3&>();
             } else if (hit.hasType(EdgeHandleManager::HandleHit)) {
-                return std::get<1>(hit.target<EdgeHandleManager::HitType>());
+                return std::get<1>(hit.target<const EdgeHandleManager::HitType&>());
             } else {
-                return std::get<1>(hit.target<FaceHandleManager::HitType>());
+                return std::get<1>(hit.target<const FaceHandleManager::HitType&>());
             }
         }
 

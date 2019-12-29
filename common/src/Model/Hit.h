@@ -63,14 +63,8 @@ namespace TrenchBroom {
             FloatType error() const;
 
             template <typename T>
-            T& target() {
-                return nonstd::any_cast<T&>(m_target);
-            }
-
-            template <typename T>
-            T const & target() const {
-                // Don't change the return type / cast argument to const T&, AppleClang doesn't like it.
-                return nonstd::any_cast<T const &>(m_target);
+            T target() const {
+                return nonstd::any_cast<T>(m_target);
             }
         };
 
