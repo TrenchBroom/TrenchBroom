@@ -68,8 +68,9 @@ namespace TrenchBroom {
             }
 
             template <typename T>
-            const T& target() const {
-                return nonstd::any_cast<const T&>(m_target);
+            T const & target() const {
+                // Don't change the return type / cast argument to const T&, AppleClang doesn't like it.
+                return nonstd::any_cast<T const &>(m_target);
             }
         };
 
