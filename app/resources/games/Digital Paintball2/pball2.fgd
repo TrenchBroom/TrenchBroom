@@ -1,0 +1,275 @@
+// Paintball2 Entities - http://www.digitalpaint.org/
+// Ported from pb2ents_b41.c by sort 3/18/2019
+// Merged with original pball2.fgd and added spawnflags. 3/23/2019
+// TB addon changes 20190403 - xaGe
+
+@baseclass = AppearFlags [
+	spawnflags(Flags) =
+	[
+		256 : "Not in Easy" : 0
+		512 : "Not in Normal" : 0
+		1024 : "Not in Hard" : 0
+		2048 : "Not in Deathmatch" : 0
+	]
+]
+
+@BaseClass = Target
+[
+    target(string) : "sets the target to a func_areaportal or target_speaker with the same targetname"
+]
+@BaseClass = TargetName
+[
+    targetname(string) : "sets the target from a func_button, func_timer, etc. with the same target"
+]
+@BaseClass = TeamNumber
+[
+    teamnumber(integer) : "sets the team for the base."
+]
+@BaseClass = Angle
+[
+    angle(angle) : "sets the direction the entity faces when spawning.  0 = right (East), 90 = up (North), 180 = left (West), 270 = down (South)."
+]
+@BaseClass base(AppearFlags) = Group
+[
+    group(string) : "sets a group where randomly spawned guns will be the same"
+]
+
+@SolidClass = worldspawn : "World entity"
+[
+	gamemode(Flags) = 
+	[
+		1 : "Deathmatch" : 0
+		2 : "Single flag CTF" : 0
+		4 : "CTF" : 0
+		8 : "Siege" : 0
+		16 : "KOTH" : 0
+		64 : "Pong" : 0
+	]
+	maxteams(choices) : "sets the max number of teams supported in the map" =
+	[
+        2 : "for two teams"
+        3 : "for three teams"
+        4 : "for four teams"
+	]
+	team1(choices) : "sets the color for team 1." =
+	[
+        "red" : "red"
+        "blue" : "blue"
+        "yellow" : "yellow"
+        "purple" : "purple"
+	]
+	team2(choices) : "sets the color for team 2." =
+	[
+        "red" : "red"
+        "blue" : "blue"
+        "yellow" : "yellow"
+        "purple" : "purple"
+	]
+	team3(choices) : "sets the color for team 3." =
+	[
+        "red" : "red"
+        "blue" : "blue"
+        "yellow" : "yellow"
+        "purple" : "purple"
+	]
+	team4(choices) : "sets the color for team 4." =
+	[
+        "red" : "red"
+        "blue" : "blue"
+        "yellow" : "yellow"
+        "purple" : "purple"
+	]
+	message(string) : "sets a string while the map is loading."
+	sky(string) : "sets a sky to your sky brushes - <skyname> can be one of the following: unit1_, pbsky1, pbsky2, pbsky3, pbsky4, riverscape1, arctic1"
+    _sun_angle(string) : "for arghrad. example: 200 -30"
+    _sun_light(integer) : "for arghrad. example: 250"
+    _sun_surface(integer) : "for arghrad. example: 120"
+    requiredfiles(string) : "sets paths for additional files required by the map (such as scripts) that do not download by default - <path> is the path to your file. Always use the forward slash. Keep filenames lowercase. Separate different pathes with a space.Example: 'requiredfiles' 'scripts/maps/mymap1.txt scripts/maps/mymap2.txt' for two of your own files"
+    forcejail(choices) : "forces eliminated players into jail spawns (no observer/ghosts)." =
+    [
+        0 : "no force jail"
+        1 : "force jail"
+    ]
+    minclientbuild(integer) : "sets the minimum version a client must have to play the map (useful if you use advanced features)"
+    _ambient(integer) : "sets a general map ambient."
+]
+
+@SolidClass base(AppearFlags) = trigger_multiple : "Variable sized repeatable trigger.  Must be targeted at one or more entities."
+[
+	spawnflags(Flags) =
+	[
+		1 : "Monster" : 0
+		2 : "Not Player" : 0
+		4 : "Triggered" : 0
+	]
+    target(target_destination) : "sets the target to any other entities with the same targetname"
+    message(string) : "sets a string to be displayed when triggered"
+    delay(integer) : "sets a delay before first firing when turned on (0 default)."
+    wait(integer) : "sets the seconds between triggerings (2 default)."
+    sounds(choices) : "sets a sound to be played when triggered" =
+    [
+        1 : "secret"
+        2 : "beep beep"
+        3 : "large switch"
+    ]
+]
+
+@SolidClass base(AppearFlags, TeamNumber) = base : "Base trigger.  A player must touch this while holding the flag to get points."
+[
+    count(integer) : "sets a multiplier for the points scored when capturing. Default is 5, so if you want a flag captured at this base to only be worth 1 point, you can set 'count' '.2'"
+]
+
+@SolidClass base(AppearFlags) = hill : "Hill for gamemode KOTH.  When a player touches the hill, their team gets points. A flag with no teamnumber is also suggested, so that it's easy to tell if somebody is on the hill (players can also get points by touching the flag itself)."
+[
+    gamemode(integer) : "sets the gamemode (KOTH only, should always be 16)."
+]
+
+@SolidClass base(AppearFlags, TeamNumber) = func_teamwall : "Wall that exists only when the team has no players." []
+
+@SolidClass base(AppearFlags) = func_dsm : "Dynamically Sizing Map entity.  Apply this to brushes to seal off/open areas depending on the number of players present."
+[
+	spawnflags(Flags) =
+	[
+		1 : "invert_behavior" : 0 : "closes off areas instead of open up when more players are present."
+	]
+    open_pcount_all(integer) : "if # or more players are in the game, the entity will disappear, opening a new path."
+    close_pcount_all(integer) : "if # or fewer players are present, the entity will reappear and close off the path."
+]
+
+@baseclass base(Appearflags, Targetname) size(-16 -16 -24, 16 16 32) color(0 255 0) = PlayerClass []
+
+@PointClass base(PlayerClass) = info_player_start : "Player 1 start" []
+@PointClass base(PlayerClass) = info_player_deathmatch : "Player deathmatch start" 
+[
+    teamnumber(integer) : "sets which team's players will spawn at this point.  Setting to 0 means any team can spawn here."
+    givegun(choices) : "sets the type of the weapon the player starts with instead of the pgp" =
+    [
+        "trracer" : "for spawning a Trracer"
+        "stingray" : "for spawning a Stingray"
+        "vm68" : "for spawning a VM-68"
+        "carbine" : "for spawning a 68 Carbine"
+        "spyder" : "for spawning a Spyder SE"
+        "autococker" : "for spawning an Autococker"
+        "automag" : "for spawning an Automag"
+        "low" : "for randomly spawning a Trracer or Stingray"
+        "medium" : "for randomly spawning a VM-68, 68 Carbine or Spyder SE"
+        "high" : "for randomly spawning an Autococker or Automag"
+    ]
+    givehopper(choices) : "sets the type of the hopper the player starts with" =
+    [
+        100 : "for spawning a hopper of 100"
+        200 : "for spawning a hopper of 200"
+    ]
+    giveammo(choices) : "sets the type of the ammo pack the player starts with" =
+    [
+        "25" : "for spawning an ammo pack of 25"
+        "50" : "for spawning an ammo pack of 50"
+        "100" : "for spawning an ammo pack of 100"
+        "150" : "for spawning an ammo pack of 150"
+        "200" : "for spawning an ammo pack of 200"
+        "small" : "for randomly spawning an ammo pack of 25, 50 or 100"
+        "medium" : "for randomly spawning an ammo pack of 50, 100 or 150"
+        "large" : "for randomly spawning an ammo pack of 100, 150 or 200"
+    ]
+    givebarrel(choices) : "sets the type of the barrel the player starts with" =
+    [
+        "brass" : "for a brass barrel"
+        "chrome" : "for a chrome barrel"
+        "steel" : "for a steel barrel"
+    ]
+    giveco2(choices) : "sets the type of the co2 tank the player starts with" =
+    [
+        "12g" : "for spawning a co2 tank of 12g"
+        "7oz" : "for spawning a co2 tank of 7oz"
+        "12oz" : "for spawning a co2 tank of 12oz"
+        "20oz" : "for spawning a co2 tank of 20oz"
+        "small" : "for randomly spawning a co2 tank of 12g or 7oz"
+        "medium" : "for randomly spawning a co2 tank of 7oz or 12oz"
+        "large" : "for randomly spawning a co2 tank of 12oz or 20oz"
+    ]
+    loadedco2(choices) : "sets the type of the loaded co2 the player starts with" =
+    [
+        "12g" : "for spawning a co2 tank of 12g"
+        "7oz" : "for spawning a co2 tank of 7oz"
+        "12oz" : "for spawning a co2 tank of 12oz"
+        "20oz" : "for spawning a co2 tank of 20oz"
+        "small" : "for randomly spawning a co2 tank of 12g or 7oz"
+        "medium" : "for randomly spawning a co2 tank of 7oz or 12oz"
+        "large" : "for randomly spawning a co2 tank of 12oz or 20oz"
+    ]
+    jail(integer) : "set to 1 to make it a jail spawn for eliminated players."
+]
+@PointClass base(AppearFlags, Angle) size(-8 -8 -8, 8 8 8) studio({ "path" : model, "skin" : skin, "frame" : frame}) = func_model : "Places a model in the map.  Not affected by gravity.Example: 'model' 'models/items/ammo/tris.md2' for the plant model seen in several maps (Pay attention of additional files required by the model.)  Add 'requiredfiles' '<path>' to the worldspawn if necessary."
+[
+    model(string) : "sets what model to use - <modelpath> `models/items/ammo/tris.md2` can be the path of available or your added models"
+    //skin(string) : "sets what skin # to use - example `3` skin selection defaults to `0` of available or your added models"
+    //frame(string) : "sets what frame # to use - example `2` can be the frame of available or your added models"
+]
+
+@PointClass base(Group) size(-8 -8 6, 8 8 26) studio({{
+type == "paint" -> 	{"path":"models/items/grenades/paint/ground.md2", "skin": 0},
+type == "smoke" -> 	{"path":"models/items/grenades/smoke/ground.md2", "skin": 0},
+                        "models/items/grenades/paint/ground.md2"
+}}) = item_pballgrenade : "Spawning spot for grenades. If no type is specified, the grenade will be random."
+[
+    type(choices) : "set the type of the grenade" =
+    [
+        "paint" : "for a paint grenade"
+        "smoke" : "for a smoke grenade"
+    ]
+    angle(angle) : "-1 sets that the grenade will spawn exactly where you placed the entity and not somewhere in the area."
+    count(integer) : "1 sets that grenades always spawn there in addition to the number of grenades set by the server."
+]
+
+// xaGe
+@PointClass base(Group) color(80 80 255) size(-32 -32 -4, 32 32 28) studio({{
+type == "autococker" -> 	{"path":"models/weapons/g_autoc/tris.md2"},
+type == "automag" -> 	{"path":"models/weapons/g_autom/tris.md2"},
+type == "carbine" -> 	{"path":"models/weapons/g_68carbine/tris.md2"},
+type == "high" -> 	{"path":"models/weapons/g_autoc/tris.md2"},
+type == "low" -> 	{"path":"models/weapons/g_trrac/tris.md2"},
+type == "medium" -> 	{"path":"models/weapons/g_vm68/tris.md2"},
+type == "spyder" -> 	{"path":"models/weapons/g_spyder/tris.md2"},
+type == "stingray" -> 	{"path":"models/weapons/g_sting/tris.md2"},
+type == "trracer" -> 	{"path":"models/weapons/g_trrac/tris.md2"},
+type == "vm68" -> 	{"path":"models/weapons/g_vm68/tris.md2"},
+                    "models/weapons/g_vm68/tris.md2"
+}}) = weapon_pballgun :
+	
+	"Spawning spot for guns. If no type is specified, the gun will be random.
+	
+    autococker : Spawns an Autococker
+    automag : Spawns an Automag
+    carbine : Spawns a 68 Carbine
+    high : Randomly spawns either an Autococker or Automag
+    low : Randomly spawns a Trracer or Stingray
+    medium : Randomly spawns a VM-68, 68 Carbine or Spyder SE
+    spyder : Spawns a Spyder SE
+    stingray : Spawns a Stingray
+    trracer : Spawns a Trracer
+    vm68 : Spawns a VM-68"
+    [
+    type(choices) : "sets the type of the weapon"  =
+    [
+    "autococker" : "for spawning an Autococker"
+    "automag" : "for spawning an Automag"
+    "carbine" : "for spawning a 68 Carbine"
+    "high" : "for randomly spawning an Autococker or Automag"
+    "low" : "for randomly spawning a Trracer or Stingray"
+    "medium" : "for randomly spawning a VM-68, 68 Carbine or Spyder SE"
+    "spyder" : "for spawning a Spyder SE"
+    "stingray" : "for spawning a Stingray"
+    "trracer" : "for spawning a Trracer"
+    "vm68" : "for spawning a VM-68"
+    ]
+]
+
+@PointClass base(Group) color(200 0 200) size(-8 -8 16, 8 8 32) studio({{
+type == 100 -> 	{"path":"models/items/hopper/tris.md2", "skin": 0},
+type == 200 -> 	{"path":"models/items/hopper/tris.md2", "skin": 1},
+                        "models/items/hopper/tris.md2"
+}}) = item_pballhopper :
+
+    "Spawning spot for hoppers. If no type is specified, the hopper will be random."
+    [
+    type(choices) : "sets the tt
