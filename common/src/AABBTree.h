@@ -62,24 +62,19 @@ private:
         virtual void visit(const LeafNode* leaf) = 0;
     };
 
-    template <typename OverloadedVisitor>
+    template <typename I_V, typename L_V>
     class LambdaVisitor : public Visitor {
     private:
-        OverloadedVisitor m_visitor;
+        I_V m_innerNodeVisitor;
+        L_V m_leafNodeVisitor;
     public:
-        template <typename OverloadedVisitor_>
-        LambdaVisitor(OverloadedVisitor_&& visitor) :
-        m_visitor(std::forward<OverloadedVisitor_>(visitor)) {}
+        LambdaVisitor(I_V innerNodeVisitor, L_V leafNodeVisitor) :
+        m_innerNodeVisitor(std::move(innerNodeVisitor)),
+        m_leafNodeVisitor(std::move(leafNodeVisitor)) {}
 
-        bool visit(const InnerNode* innerNode) override { return m_visitor(innerNode); }
-        void visit(const LeafNode* leafNode)   override { m_visitor(leafNode); }
+        bool visit(const InnerNode* innerNode) override { return m_innerNodeVisitor(innerNode); }
+        void visit(const LeafNode* leafNode)   override { m_leafNodeVisitor(leafNode); }
     };
-
-    /**
-     * Deduction guide.
-     */
-    template <typename OverloadedVisitor_>
-    LambdaVisitor(OverloadedVisitor_&& visitor) -> LambdaVisitor<OverloadedVisitor_>;
 
     class Node {
     public:
@@ -374,7 +369,7 @@ private:
             m_right->appendTo(str, indent, level + 1);
         }
 
-        virtual void checkParentPointers([[maybe_unused]] const Node* expectedParent) const override {
+        void checkParentPointers([[maybe_unused]] const Node* expectedParent) const override {
             assert(this->m_parent == expectedParent);
             m_left->checkParentPointers(this);
             m_left->checkParentPointers(this);
@@ -633,16 +628,14 @@ public:
     void findIntersectors(const vm::ray<T,S>& ray, O out) const {
         if (!empty()) {
             LambdaVisitor visitor(
-                kdl::overloaded {
-                    [&](const InnerNode* innerNode) {
-                        return innerNode->bounds().contains(ray.origin) || !vm::is_nan(
-                            vm::intersect_ray_bbox(ray, innerNode->bounds()));
-                    },
-                    [&](const LeafNode* leaf) {
-                        if (leaf->bounds().contains(ray.origin) || !vm::is_nan(vm::intersect_ray_bbox(ray, leaf->bounds()))) {
-                            out = leaf->data();
-                            ++out;
-                        }
+                [&](const InnerNode* innerNode) {
+                    return innerNode->bounds().contains(ray.origin) || !vm::is_nan(
+                        vm::intersect_ray_bbox(ray, innerNode->bounds()));
+                },
+                [&](const LeafNode* leaf) {
+                    if (leaf->bounds().contains(ray.origin) || !vm::is_nan(vm::intersect_ray_bbox(ray, leaf->bounds()))) {
+                        out = leaf->data();
+                        ++out;
                     }
                 }
             );
@@ -674,15 +667,13 @@ public:
     void findContainers(const vm::vec<T,S>& point, O out) const {
         if (!empty()) {
             LambdaVisitor visitor(
-                kdl::overloaded{
-                    [&](const InnerNode* innerNode) {
-                        return innerNode->bounds().contains(point);
-                    },
-                    [&](const LeafNode* leaf) {
-                        if (leaf->bounds().contains(point)) {
-                            out = leaf->data();
-                            ++out;
-                        }
+                [&](const InnerNode* innerNode) {
+                    return innerNode->bounds().contains(point);
+                },
+                [&](const LeafNode* leaf) {
+                    if (leaf->bounds().contains(point)) {
+                        out = leaf->data();
+                        ++out;
                     }
                 }
             );
