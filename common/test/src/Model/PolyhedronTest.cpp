@@ -21,11 +21,11 @@
 
 
 #include "TrenchBroom.h"
-#include "Polyhedron.h"
-#include "Polyhedron_BrushGeometryPayload.h"
-#include "Polyhedron_DefaultPayload.h"
-#include "Polyhedron_Instantiation.h"
 #include "TestUtils.h"
+#include "Model/Polyhedron.h"
+#include "Model/Polyhedron_BrushGeometryPayload.h"
+#include "Model/Polyhedron_DefaultPayload.h"
+#include "Model/Polyhedron_Instantiation.h"
 
 #include <vecmath/plane.h>
 #include <vecmath/scalar.h>
