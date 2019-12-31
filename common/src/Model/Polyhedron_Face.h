@@ -22,7 +22,7 @@
 
 #include "Macros.h"
 
-#include <vecmath/intersection.h>
+#include "Polyhedron.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/ray.h>
@@ -30,6 +30,7 @@
 #include <vecmath/constants.h>
 #include <vecmath/scalar.h>
 #include <vecmath/util.h>
+#include <vecmath/intersection.h>
 
 #include <unordered_set>
 

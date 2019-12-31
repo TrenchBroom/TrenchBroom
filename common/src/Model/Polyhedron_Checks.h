@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Polyhedron.h"
+
 namespace TrenchBroom {
     namespace Model {
         template <typename T, typename FP, typename VP>

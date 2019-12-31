@@ -21,8 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Polyhedron.h"
-#include "Polyhedron3.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -77,6 +75,8 @@
 #include "Model/WorldBoundsIssueGenerator.h"
 #include "Model/PointEntityWithBrushesIssueGenerator.h"
 #include "Model/PointFile.h"
+#include "Model/Polyhedron.h"
+#include "Model/Polyhedron3.h"
 #include "Model/PortalFile.h"
 #include "Model/TagManager.h"
 #include "Model/World.h"

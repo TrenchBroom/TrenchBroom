@@ -21,7 +21,6 @@
 
 #include "TrenchBroom.h"
 #include "Constants.h"
-#include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Macros.h"
@@ -31,6 +30,7 @@
 #include "Model/BrushGeometry.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
 #include "Model/World.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/Camera.h"

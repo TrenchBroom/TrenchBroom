@@ -20,7 +20,6 @@
 #include "ClipToolController.h"
 
 #include "Ensure.h"
-#include "Polyhedron.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -28,6 +27,7 @@
 #include "Model/HitQuery.h"
 #include "Model/HitType.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "View/ClipTool.h"

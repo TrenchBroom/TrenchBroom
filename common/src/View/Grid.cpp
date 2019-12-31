@@ -20,10 +20,10 @@
 #include "Grid.h"
 
 #include "Constants.h"
-#include "Polyhedron.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
+#include "Model/Polyhedron.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/ray.h>

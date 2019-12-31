@@ -20,8 +20,6 @@
 #include "CreateComplexBrushToolController3D.h"
 
 #include "TrenchBroom.h"
-#include "Polyhedron.h"
-#include "Polyhedron3.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
@@ -30,6 +28,8 @@
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
+#include "Model/Polyhedron3.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderService.h"
 #include "View/CreateComplexBrushTool.h"
@@ -40,7 +40,6 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_ext.h>
 #include <vecmath/line.h>
-#include <vecmath/plane.h>
 
 #include <cassert>
 #include <algorithm>

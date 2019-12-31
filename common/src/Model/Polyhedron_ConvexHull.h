@@ -22,6 +22,8 @@
 
 #include "Macros.h"
 
+#include "Polyhedron.h"
+
 #include <vecmath/segment.h>
 #include <vecmath/plane.h>
 #include <vecmath/bbox.h>

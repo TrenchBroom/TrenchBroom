@@ -20,7 +20,6 @@
 #include "ResizeBrushesTool.h"
 
 #include "Constants.h"
-#include "Polyhedron.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "TrenchBroom.h"
@@ -33,6 +32,7 @@
 #include "Model/HitQuery.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"

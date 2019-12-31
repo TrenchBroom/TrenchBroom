@@ -19,9 +19,9 @@
 
 #include "VertexHandleManager.h"
 
-#include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Model/Polyhedron.h"
 #include "View/Grid.h"
 #include "TrenchBroom.h"
 

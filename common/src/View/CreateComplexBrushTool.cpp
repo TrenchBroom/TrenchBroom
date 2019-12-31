@@ -19,10 +19,10 @@
 
 #include "CreateComplexBrushTool.h"
 
-#include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
+#include "Model/Polyhedron.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"
 

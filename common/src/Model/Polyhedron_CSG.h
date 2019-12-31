@@ -20,6 +20,8 @@
 #ifndef Polyhedron_CSG_h
 #define Polyhedron_CSG_h
 
+#include "Polyhedron.h"
+
 #include <vector>
 
 namespace TrenchBroom {

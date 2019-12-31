@@ -19,7 +19,6 @@
 
 #include "UVScaleTool.h"
 
-#include "Polyhedron.h"
 #include "TrenchBroom.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
@@ -27,6 +26,7 @@
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderBatch.h"

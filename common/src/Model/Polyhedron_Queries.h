@@ -20,12 +20,15 @@
 #ifndef Polyhedron_Queries_h
 #define Polyhedron_Queries_h
 
+#include "Polyhedron.h"
+
 #include <vecmath/segment.h>
 #include <vecmath/ray.h>
 #include <vecmath/plane.h>
 #include <vecmath/constants.h>
 #include <vecmath/util.h>
 #include <vecmath/distance.h>
+#include <vecmath/intersection.h>
 
 namespace TrenchBroom {
     namespace Model {

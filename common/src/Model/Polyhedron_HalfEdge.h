@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Polyhedron_HalfEdge_h
 #define TrenchBroom_Polyhedron_HalfEdge_h
 
+#include "Polyhedron.h"
+
 namespace TrenchBroom {
     namespace Model {
         template <typename T, typename FP, typename VP>

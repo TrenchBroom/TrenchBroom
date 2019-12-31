@@ -19,12 +19,12 @@
 
 #include "UVView.h"
 
-#include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroom.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
+#include "Model/Polyhedron.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"

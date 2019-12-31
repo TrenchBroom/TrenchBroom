@@ -20,8 +20,6 @@
 #ifndef VertexToolBase_h
 #define VertexToolBase_h
 
-#include "Polyhedron.h"
-#include "Polyhedron3.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroom.h"
@@ -30,6 +28,8 @@
 #include "Model/Hit.h"
 #include "Model/Model_Forward.h"
 #include "Model/NodeVisitor.h"
+#include "Model/Polyhedron.h"
+#include "Model/Polyhedron3.h"
 #include "Model/World.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"

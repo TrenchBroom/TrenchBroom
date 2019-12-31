@@ -20,6 +20,10 @@
 #ifndef TrenchBroom_Polyhedron_Vertex_h
 #define TrenchBroom_Polyhedron_Vertex_h
 
+#include "Polyhedron.h"
+
+#include <kdl/intrusive_circular_list.h>
+
 namespace TrenchBroom {
     namespace Model {
         template <typename T, typename FP, typename VP>

@@ -20,10 +20,10 @@
 #include "UVOffsetTool.h"
 
 #include "Ensure.h"
-#include "Polyhedron.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/Polyhedron.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/UVView.h"

@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Polyhedron_Edge_h
 #define TrenchBroom_Polyhedron_Edge_h
 
+#include "Polyhedron.h"
+
 #include <vecmath/vec.h>
 #include <vecmath/plane.h>
 #include <vecmath/segment.h>

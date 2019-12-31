@@ -19,12 +19,12 @@
 
 #include "BrushRenderer.h"
 
-#include "Polyhedron.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/EditorContext.h"
+#include "Model/Polyhedron.h"
 #include "Model/TagAttribute.h"
 #include "Renderer/BrushRendererArrays.h"
 #include "Renderer/BrushRendererBrushCache.h"

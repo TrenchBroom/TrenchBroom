@@ -183,6 +183,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/PlanePointFinder.cpp
         ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/PointFile.cpp
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Instantiation.cpp
         ${COMMON_SOURCE_DIR}/Model/PortalFile.cpp
         ${COMMON_SOURCE_DIR}/Model/PushSelection.cpp
         ${COMMON_SOURCE_DIR}/Model/RemoveEntityAttributesQuickFix.cpp
@@ -490,7 +491,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
         ${COMMON_SOURCE_DIR}/Exceptions.cpp
         ${COMMON_SOURCE_DIR}/Logger.cpp
-        ${COMMON_SOURCE_DIR}/Polyhedron_Instantiation.cpp
         ${COMMON_SOURCE_DIR}/PreferenceManager.cpp
         ${COMMON_SOURCE_DIR}/Preference.cpp
         ${COMMON_SOURCE_DIR}/Preferences.cpp
@@ -704,6 +704,24 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/PlanePointFinder.h
         ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/PointFile.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron3.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_BrushGeometryPayload.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Checks.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Clip.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_ConvexHull.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_CSG.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_DefaultPayload.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Edge.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Face.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Forward.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_HalfEdge.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Instantiation.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_IO.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Matcher.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Misc.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Queries.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Vertex.h
         ${COMMON_SOURCE_DIR}/Model/PortalFile.h
         ${COMMON_SOURCE_DIR}/Model/PushSelection.h
         ${COMMON_SOURCE_DIR}/Model/RemoveEntityAttributesQuickFix.h
@@ -1030,24 +1048,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Logger.h
         ${COMMON_SOURCE_DIR}/Macros.h
         ${COMMON_SOURCE_DIR}/Notifier.h
-        ${COMMON_SOURCE_DIR}/Polyhedron.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_BrushGeometryPayload.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Checks.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Clip.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_ConvexHull.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_CSG.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_DefaultPayload.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Edge.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Face.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Forward.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_HalfEdge.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Instantiation.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_IO.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Matcher.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Misc.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Queries.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Vertex.h
-        ${COMMON_SOURCE_DIR}/Polyhedron3.h
         ${COMMON_SOURCE_DIR}/Preference.h
         ${COMMON_SOURCE_DIR}/PreferenceManager.h
         ${COMMON_SOURCE_DIR}/Preferences.h
