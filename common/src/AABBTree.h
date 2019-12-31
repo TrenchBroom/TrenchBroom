@@ -21,14 +21,16 @@
 #define TRENCHBROOM_AABBTREE_H
 
 #include "Exceptions.h"
+
 #include <vecmath/scalar.h>
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>
 #include <vecmath/ray.h>
 #include <vecmath/intersection.h>
 
+#include <kdl/overloaded.h>
+
 #include <cassert>
-#include <functional>
 #include <iostream>
 #include <unordered_map>
 #include <vector>
@@ -60,21 +62,24 @@ private:
         virtual void visit(const LeafNode* leaf) = 0;
     };
 
+    template <typename OverloadedVisitor>
     class LambdaVisitor : public Visitor {
-    public:
-        using InnerNodeVisitor = std::function<bool(const InnerNode*)>;
-        using LeafVisitor = std::function<void(const LeafNode*)>;
     private:
-        const InnerNodeVisitor m_innerNodeVisitor;
-        const LeafVisitor m_leafVisitor;
+        OverloadedVisitor m_visitor;
     public:
-        LambdaVisitor(const InnerNodeVisitor& innerNodeVisitor, const LeafVisitor& leafVisitor) :
-        m_innerNodeVisitor(innerNodeVisitor),
-        m_leafVisitor(leafVisitor) {}
+        template <typename OverloadedVisitor_>
+        LambdaVisitor(OverloadedVisitor_&& visitor) :
+        m_visitor(std::forward<OverloadedVisitor_>(visitor)) {}
 
-        bool visit(const InnerNode* innerNode) override { return m_innerNodeVisitor(innerNode); }
-        void visit(const LeafNode* leaf)           override { m_leafVisitor(leaf); }
+        bool visit(const InnerNode* innerNode) override { return m_visitor(innerNode); }
+        void visit(const LeafNode* leafNode)   override { m_visitor(leafNode); }
     };
+
+    /**
+     * Deduction guide.
+     */
+    template <typename OverloadedVisitor_>
+    LambdaVisitor(OverloadedVisitor_&& visitor) -> LambdaVisitor<OverloadedVisitor_>;
 
     class Node {
     public:
@@ -628,6 +633,7 @@ public:
     void findIntersectors(const vm::ray<T,S>& ray, O out) const {
         if (!empty()) {
             LambdaVisitor visitor(
+                kdl::overloaded {
                     [&](const InnerNode* innerNode) {
                         return innerNode->bounds().contains(ray.origin) || !vm::is_nan(
                             vm::intersect_ray_bbox(ray, innerNode->bounds()));
@@ -638,6 +644,7 @@ public:
                             ++out;
                         }
                     }
+                }
             );
             m_root->accept(visitor);
         }
@@ -667,6 +674,7 @@ public:
     void findContainers(const vm::vec<T,S>& point, O out) const {
         if (!empty()) {
             LambdaVisitor visitor(
+                kdl::overloaded{
                     [&](const InnerNode* innerNode) {
                         return innerNode->bounds().contains(point);
                     },
@@ -676,6 +684,7 @@ public:
                             ++out;
                         }
                     }
+                }
             );
             m_root->accept(visitor);
         }
