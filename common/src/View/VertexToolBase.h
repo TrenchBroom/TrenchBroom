@@ -265,7 +265,7 @@ namespace TrenchBroom {
                 const auto handles = handleManager().selectedHandles();
                 H::get_vertices(std::begin(handles), std::end(handles), std::back_inserter(vertices));
 
-                const Polyhedron3 polyhedron(vertices);
+                const Model::Polyhedron3 polyhedron(vertices);
                 if (!polyhedron.polyhedron() || !polyhedron.closed()) {
                     return;
                 }

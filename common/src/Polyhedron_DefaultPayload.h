@@ -20,11 +20,15 @@
 #ifndef Polyhedron_DefaultPayload_h
 #define Polyhedron_DefaultPayload_h
 
-struct DefaultPolyhedronPayload {
-    using Type = char;
-    static Type defaultValue() {
-        return '0';
+namespace TrenchBroom {
+    namespace Model {
+        struct DefaultPolyhedronPayload {
+            using Type = char;
+            static Type defaultValue() {
+                return '0';
+            }
+        };
     }
-};
+}
 
 #endif /* Polyhedron_DefaultPayload_h */

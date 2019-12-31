@@ -32,13 +32,13 @@ namespace TrenchBroom {
     namespace View {
         CreateComplexBrushTool::CreateComplexBrushTool(std::weak_ptr<MapDocument> document) :
         CreateBrushToolBase(false, document),
-        m_polyhedron(std::make_unique<Polyhedron3>()){}
+        m_polyhedron(std::make_unique<Model::Polyhedron3>()){}
 
-        const Polyhedron3& CreateComplexBrushTool::polyhedron() const {
+        const Model::Polyhedron3& CreateComplexBrushTool::polyhedron() const {
             return *m_polyhedron;
         }
 
-        void CreateComplexBrushTool::update(const Polyhedron3& polyhedron) {
+        void CreateComplexBrushTool::update(const Model::Polyhedron3& polyhedron) {
             *m_polyhedron = polyhedron;
             if (m_polyhedron->closed()) {
                 auto document = kdl::mem_lock(m_document);
@@ -51,17 +51,17 @@ namespace TrenchBroom {
         }
 
         bool CreateComplexBrushTool::doActivate() {
-            update(Polyhedron3());
+            update(Model::Polyhedron3());
             return true;
         }
 
         bool CreateComplexBrushTool::doDeactivate() {
-            update(Polyhedron3());
+            update(Model::Polyhedron3());
             return true;
         }
 
         void CreateComplexBrushTool::doBrushWasCreated() {
-            update(Polyhedron3());
+            update(Model::Polyhedron3());
         }
     }
 }

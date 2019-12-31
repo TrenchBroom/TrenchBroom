@@ -26,18 +26,22 @@
 #include <cstdint>
 #include <limits>
 
-struct BrushVertexPayload {
-    using Type = uint32_t; // FIXME: GLuint
-    static Type defaultValue() {
-        return std::numeric_limits<Type>::max();
-    }
-};
+namespace TrenchBroom {
+    namespace Model {
+        struct BrushVertexPayload {
+            using Type = uint32_t; // FIXME: GLuint
+            static Type defaultValue() {
+                return std::numeric_limits<Type>::max();
+            }
+        };
 
-struct BrushFacePayload {
-    using Type = TrenchBroom::Model::BrushFace*;
-    static Type defaultValue() {
-        return nullptr;
+        struct BrushFacePayload {
+            using Type = TrenchBroom::Model::BrushFace*;
+            static Type defaultValue() {
+                return nullptr;
+            }
+        };
     }
-};
+}
 
 #endif /* Polyhedron_BrushGeometryPayload_h */

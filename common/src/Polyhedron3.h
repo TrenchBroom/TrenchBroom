@@ -26,6 +26,10 @@
 #include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"
 
-using Polyhedron3 = Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+namespace TrenchBroom {
+    namespace Model {
+        using Polyhedron3 = Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+    }
+}
 
 #endif

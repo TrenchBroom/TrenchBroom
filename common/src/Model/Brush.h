@@ -36,11 +36,11 @@
 #include <string>
 #include <vector>
 
-template <typename P>
-class PolyhedronMatcher;
-
 namespace TrenchBroom {
     namespace Model {
+        template <typename P>
+        class PolyhedronMatcher;
+
         struct BrushAlgorithmResult;
 
         class Brush : public Node, public Object {

@@ -1117,7 +1117,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            Polyhedron3 polyhedron;
+            Model::Polyhedron3 polyhedron;
 
             if (hasSelectedBrushFaces()) {
                 for (const Model::BrushFace* face : selectedBrushFaces()) {
