@@ -52,6 +52,17 @@ namespace TrenchBroom {
             }
         }
 
+        BrushFaceAttributes::BrushFaceAttributes(const std::string& textureName, const BrushFaceAttributes& other) :
+        m_textureName(textureName),
+        m_texture(nullptr),
+        m_offset(other.m_offset),
+        m_scale(other.m_scale),
+        m_rotation(other.m_rotation),
+        m_surfaceContents(other.m_surfaceContents),
+        m_surfaceFlags(other.m_surfaceFlags),
+        m_surfaceValue(other.m_surfaceValue),
+        m_color(other.m_color) {}
+
         BrushFaceAttributes::~BrushFaceAttributes() {
             if (m_texture != nullptr) {
                 m_texture->decUsageCount();
@@ -62,6 +73,18 @@ namespace TrenchBroom {
             using std::swap;
             swap(*this, other);
             return *this;
+        }
+
+        bool BrushFaceAttributes::operator==(const BrushFaceAttributes& other) const {
+            return (m_textureName == other.m_textureName &&
+                m_texture == other.m_texture &&
+                m_offset == other.m_offset &&
+                m_scale == other.m_scale &&
+                m_rotation == other.m_rotation &&
+                m_surfaceContents == other.m_surfaceContents &&
+                m_surfaceFlags == other.m_surfaceFlags &&
+                m_surfaceValue == other.m_surfaceValue &&
+                m_color == other.m_color);
         }
 
         void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs) {

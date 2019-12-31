@@ -129,7 +129,7 @@ namespace TrenchBroom {
             } else {
                 auto world = std::make_unique<World>(format);
 
-                const Model::BrushBuilder builder(world.get(), worldBounds);
+                const Model::BrushBuilder builder(world.get(), worldBounds, defaultFaceAttribs());
                 auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
                 world->defaultLayer()->addChild(brush);
 
@@ -513,6 +513,10 @@ namespace TrenchBroom {
 
         const FlagsConfig& GameImpl::doContentFlags() const {
             return m_config.faceAttribsConfig().contentFlags;
+        }
+
+        const BrushFaceAttributes& GameImpl::doDefaultFaceAttribs() const {
+            return m_config.faceAttribsConfig().defaults;
         }
 
         void GameImpl::writeLongAttribute(AttributableNode& node, const std::string& baseName, const std::string& value, const size_t maxLength) const {

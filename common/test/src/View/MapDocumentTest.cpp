@@ -73,7 +73,7 @@ namespace TrenchBroom {
         }
 
         Model::Brush* MapDocumentTest::createBrush(const std::string& textureName) {
-            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::BrushBuilder builder(document->world(), document->worldBounds(), document->game()->defaultFaceAttribs());
             return builder.createCube(32.0, textureName);
         }
 

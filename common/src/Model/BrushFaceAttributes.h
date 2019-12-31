@@ -49,8 +49,10 @@ namespace TrenchBroom {
         public:
             BrushFaceAttributes(const std::string& textureName);
             BrushFaceAttributes(const BrushFaceAttributes& other);
+            BrushFaceAttributes(const std::string& textureName, const BrushFaceAttributes& other);
             ~BrushFaceAttributes();
             BrushFaceAttributes& operator=(BrushFaceAttributes other);
+            bool operator==(const BrushFaceAttributes& other) const;
             friend void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs);
 
             BrushFaceAttributes takeSnapshot() const;
