@@ -344,7 +344,7 @@ type == "steel" -> 	{"path":"models/items/barrel/tris.md2", "skin": 0},
 
 
 
-@PointClass base(AppearFlags, TeamNumber) color(0 255 255) size(-8 -16 -16, 8 16 48) studio({"path": "models/items/flag/tris.md2"}) = flag : ""
+@PointClass base(AppearFlags, TeamNumber) color(0 255 255) size(-8 -16 -16, 8 16 48) studio({"path": "models/items/flag/tris.md2", "skin": 0}) = flag : ""
 [
     count(integer) : "
     0.2 - for a flag with one point
