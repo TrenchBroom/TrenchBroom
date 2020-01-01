@@ -76,7 +76,7 @@ private:
         void visit(const LeafNode* leafNode)   override { m_leafNodeVisitor(leafNode); }
     };
 
-#if (not defined __GNUC__) || (defined __clang__)
+#if !defined __GNUC__ || defined __clang__
     /**
      * Deduction guide.
      *
