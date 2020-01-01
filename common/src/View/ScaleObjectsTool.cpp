@@ -20,10 +20,9 @@
 
 #include "ScaleObjectsTool.h"
 
-#include "Constants.h"
-#include "TrenchBroom.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
+#include "FloatType.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"

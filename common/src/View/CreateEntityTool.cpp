@@ -19,8 +19,7 @@
 
 #include "CreateEntityTool.h"
 
-#include "Constants.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"

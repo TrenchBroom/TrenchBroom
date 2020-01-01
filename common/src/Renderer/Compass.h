@@ -26,9 +26,9 @@
 
 #include <vecmath/forward.h>
 
-class Color;
-
 namespace TrenchBroom {
+    class Color;
+
     namespace Renderer {
         class Compass : public DirectRenderable {
         private:

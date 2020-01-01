@@ -19,7 +19,7 @@
 
 #include "MoveBrushEdgesCommand.h"
 
-#include "Constants.h"
+#include "FloatType.h"
 #include "Model/Brush.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"

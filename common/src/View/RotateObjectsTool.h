@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_RotateObjectsTool
 #define TrenchBroom_RotateObjectsTool
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
 #include "View/RotateObjectsHandle.h"

@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Exceptions.h"
 #include "TestUtils.h"
 #include "Assets/Texture.h"

@@ -21,7 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/Polyhedron.h"

@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Hit
 #define TrenchBroom_Hit
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Macros.h"
 #include "Model/HitType.h"
 

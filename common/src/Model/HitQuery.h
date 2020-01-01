@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_HitQuery
 #define TrenchBroom_HitQuery
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/Model_Forward.h"
 #include "Model/HitType.h"
 

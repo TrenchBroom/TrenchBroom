@@ -19,7 +19,7 @@
 
 #include "Grid.h"
 
-#include "Constants.h"
+#include "FloatType.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"

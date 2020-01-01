@@ -19,7 +19,7 @@
 
 #include "CreateComplexBrushToolController3D.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"

@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Node
 #define TrenchBroom_Node
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/Model_Forward.h"
 #include "Model/Tag.h"
 

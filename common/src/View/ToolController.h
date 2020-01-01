@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_ToolController
 #define TrenchBroom_ToolController
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "ToolChain.h"
 #include "Model/HitType.h"
 #include "Model/Model_Forward.h"

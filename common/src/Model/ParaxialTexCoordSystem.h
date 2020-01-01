@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_ParaxialTexCoordSystem
 #define TrenchBroom_ParaxialTexCoordSystem
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "Model/TexCoordSystem.h"

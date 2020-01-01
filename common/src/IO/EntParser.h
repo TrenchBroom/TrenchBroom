@@ -21,7 +21,7 @@
 #define TRENCHBROOM_ENTPARSER_H
 
 #include "Color.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Assets/Asset_Forward.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/IO_Forward.h"

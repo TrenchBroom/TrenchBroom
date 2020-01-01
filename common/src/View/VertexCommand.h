@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_VertexCommand
 #define TrenchBroom_VertexCommand
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"

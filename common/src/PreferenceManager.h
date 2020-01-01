@@ -39,9 +39,9 @@
 class QTextStream;
 class QFileSystemWatcher;
 
-class Color;
-
 namespace TrenchBroom {
+    class Color;
+
     /**
      * Used by wxWidgets versions of TB
      */

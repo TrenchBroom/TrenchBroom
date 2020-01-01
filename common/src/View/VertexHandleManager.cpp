@@ -19,11 +19,11 @@
 
 #include "VertexHandleManager.h"
 
+#include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Polyhedron.h"
 #include "View/Grid.h"
-#include "TrenchBroom.h"
 
 #include <vecmath/distance.h>
 #include <vecmath/vec.h>

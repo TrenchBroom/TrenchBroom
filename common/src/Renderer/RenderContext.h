@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_RenderContext
 #define TrenchBroom_RenderContext
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Renderer/Renderer_Forward.h"
 #include "Renderer/Transformation.h"
 #include "View/View_Forward.h"

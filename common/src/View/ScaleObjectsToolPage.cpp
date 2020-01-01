@@ -19,7 +19,7 @@
 
 #include "ScaleObjectsToolPage.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsTool.h"

@@ -19,7 +19,7 @@
 
 #include "FaceTool.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 
 #include <kdl/memory_utils.h>
 #include <kdl/string_format.h>

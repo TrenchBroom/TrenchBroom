@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Misc.h"
 #include "Polyhedron_Vertex.h"

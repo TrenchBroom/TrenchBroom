@@ -22,7 +22,7 @@
 
 #include "Ensure.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Notifier.h"
 #include "Model/Model_Forward.h"
 

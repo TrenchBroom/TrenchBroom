@@ -19,7 +19,7 @@
 
 #include "HitQuery.h"
 
-#include "Constants.h"
+#include "FloatType.h"
 #include "Model/EditorContext.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"

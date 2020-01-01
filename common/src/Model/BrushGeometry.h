@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_BrushGeometry_h
 #define TrenchBroom_BrushGeometry_h
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 
 #include "Model/Model_Forward.h"
 #include "Model/Polyhedron_BrushGeometryPayload.h"

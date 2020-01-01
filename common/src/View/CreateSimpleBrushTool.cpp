@@ -19,7 +19,7 @@
 
 #include "CreateSimpleBrushTool.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/BrushBuilder.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"

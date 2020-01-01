@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Brush
 #define TrenchBroom_Brush
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Macros.h"
 #include "Model/BrushGeometry.h"
 #include "Model/HitType.h"

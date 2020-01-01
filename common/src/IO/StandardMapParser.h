@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_StandardMapParser
 #define TrenchBroom_StandardMapParser
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "IO/IO_Forward.h"
 #include "IO/MapParser.h"
 #include "IO/Parser.h"

@@ -19,7 +19,7 @@
 
 #include "PointGuideRenderer.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 
 #include <kdl/memory_utils.h>
 

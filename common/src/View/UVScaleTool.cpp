@@ -19,7 +19,7 @@
 
 #include "UVScaleTool.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"

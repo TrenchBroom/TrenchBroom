@@ -20,9 +20,9 @@
 #ifndef VertexToolBase_h
 #define VertexToolBase_h
 
+#include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Hit.h"

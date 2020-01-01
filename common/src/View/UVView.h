@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_UVView
 #define TrenchBroom_UVView
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "IO/IO_Forward.h"
 #include "Model/HitType.h"
 #include "Model/PickResult.h"

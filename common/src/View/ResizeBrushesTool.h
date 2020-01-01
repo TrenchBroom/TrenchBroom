@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_ResizeBrushesTool
 #define TrenchBroom_ResizeBrushesTool
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/HitType.h"
 #include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"

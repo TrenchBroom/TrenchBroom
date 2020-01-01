@@ -19,14 +19,10 @@
 
 #include <gtest/gtest.h>
 
-#include "TrenchBroom.h"
-#include "Exceptions.h"
-#include "TestUtils.h"
+#include "FloatType.h"
 #include "Model/BrushFaceAttributes.h"
-#include "Model/TexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"
-#include "Model/Model_Forward.h"
 
 #include <vecmath/vec.h>
 

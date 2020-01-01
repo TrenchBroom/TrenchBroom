@@ -20,8 +20,7 @@
 #ifndef TrenchBroom_Polyhedron3_h
 #define TrenchBroom_Polyhedron3_h
 
-#include "TrenchBroom.h"
-
+#include "FloatType.h"
 #include "Polyhedron_Forward.h"
 #include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"

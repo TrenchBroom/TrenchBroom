@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_TrenchBroom_h
 #define TrenchBroom_TrenchBroom_h
 
+#include <vecmath/constants.h>
 #include <vecmath/forward.h>
 
 using FloatType = double;
@@ -36,6 +37,8 @@ namespace vm {
     using polygon3 = vm::polygon<FloatType,3>;
     using bbox3 = vm::bbox<FloatType,3>;
     using bbox2 = vm::bbox<FloatType,2>;
+
+    using C = constants<FloatType>;
 }
 
 #endif

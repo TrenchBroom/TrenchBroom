@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Group
 #define TrenchBroom_Group
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "Model/Node.h"

@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_MapDocumentCommandFacade
 #define TrenchBroom_MapDocumentCommandFacade
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/Model_Forward.h"
 #include "View/MapDocument.h"
 #include "View/View_Forward.h"

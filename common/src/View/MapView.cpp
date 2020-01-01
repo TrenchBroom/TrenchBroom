@@ -19,7 +19,7 @@
 
 #include "MapView.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/MapViewContainer.h"
 
 #include <vecmath/vec.h>

@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_MapView
 #define TrenchBroom_MapView
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/View_Forward.h"
 #include "View/ViewEffectsService.h"
 

@@ -19,10 +19,9 @@
 
 #include "ResizeBrushesTool.h"
 
-#include "Constants.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"

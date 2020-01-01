@@ -19,7 +19,7 @@
 
 #include "MoveObjectsTool.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/Brush.h"
 #include "View/Grid.h"
 #include "View/InputState.h"

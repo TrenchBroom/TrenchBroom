@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_CopyTexCoordSystemFromFaceCommand
 #define TrenchBroom_CopyTexCoordSystemFromFaceCommand
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
 #include "View/DocumentCommand.h"
 #include "Model/Model_Forward.h"
 #include "Model/BrushFaceAttributes.h"

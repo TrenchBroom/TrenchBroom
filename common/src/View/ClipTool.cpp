@@ -19,11 +19,10 @@
 
 #include "ClipTool.h"
 
-#include "TrenchBroom.h"
-#include "Constants.h"
+#include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Macros.h"
+#include "FloatType.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"

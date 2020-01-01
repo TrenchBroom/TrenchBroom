@@ -20,7 +20,7 @@
 #ifndef ObjSerializer_h
 #define ObjSerializer_h
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "IO/NodeSerializer.h"
 #include "IO/IO_Forward.h"
 #include "IO/IOUtils.h"

@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_MapDocument
 #define TrenchBroom_MapDocument
 
+#include "FloatType.h"
 #include "Notifier.h"
-#include "TrenchBroom.h"
 #include "Assets/Asset_Forward.h"
 #include "IO/Path.h"
 #include "Model/MapFacade.h"
@@ -40,9 +40,9 @@
 #include <string>
 #include <vector>
 
-class Color;
-
 namespace TrenchBroom {
+    class Color;
+
     namespace View {
         class MapDocument : public Model::MapFacade, public CachingLogger {
         public:

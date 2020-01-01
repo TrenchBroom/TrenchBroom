@@ -20,7 +20,7 @@
 #include "ParallelTexCoordSystem.h"
 
 #include "Ensure.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Assets/Texture.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/BrushFace.h"

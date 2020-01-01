@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_World
 #define TrenchBroom_World
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
 #include "Model/AttributableNode.h"
 #include "Model/MapFormat.h"
 #include "Model/Model_Forward.h"
@@ -32,10 +32,9 @@
 #include <string>
 #include <vector>
 
-template <typename T, size_t S, typename U>
-class AABBTree;
-
 namespace TrenchBroom {
+    template <typename T, size_t S, typename U> class AABBTree;
+
     namespace Model {
         class PickResult;
 

@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_CreateSimpleBrushTool
 #define TrenchBroom_CreateSimpleBrushTool
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/CreateBrushToolBase.h"
 #include "View/View_Forward.h"
 

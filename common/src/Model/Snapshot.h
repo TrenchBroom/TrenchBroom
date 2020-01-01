@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Snapshot
 #define TrenchBroom_Snapshot
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/Model_Forward.h"
 
 #include <vector>

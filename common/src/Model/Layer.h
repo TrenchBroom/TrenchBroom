@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_Layer
 #define TrenchBroom_Layer
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
 #include "Model/Model_Forward.h"
 #include "Model/Node.h"
 

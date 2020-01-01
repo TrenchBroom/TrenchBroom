@@ -22,7 +22,7 @@
 
 #include <QWidget>
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "IO/IO_Forward.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/MapView.h"

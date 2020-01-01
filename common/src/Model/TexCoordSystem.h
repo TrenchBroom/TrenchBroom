@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_TexCoordSystem
 #define TrenchBroom_TexCoordSystem
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
 #include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 

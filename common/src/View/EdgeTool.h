@@ -20,7 +20,7 @@
 #ifndef EdgeTool_h
 #define EdgeTool_h
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/VertexToolBase.h"

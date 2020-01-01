@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_WorldBoundsIssueGenerator
 #define TrenchBroom_WorldBoundsIssueGenerator
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/IssueGenerator.h"
 #include "Model/Model_Forward.h"
 

@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_ClipTool
 #define TrenchBroom_ClipTool
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/HitType.h"
 #include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"

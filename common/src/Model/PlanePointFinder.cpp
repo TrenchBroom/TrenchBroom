@@ -19,8 +19,7 @@
 
 #include "PlanePointFinder.h"
 
-#include "Constants.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/BrushFace.h"
 
 #include <vecmath/plane.h>

@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "TestUtils.h"
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron_BrushGeometryPayload.h"

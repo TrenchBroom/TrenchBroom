@@ -19,8 +19,8 @@
 
 #include "Brush.h"
 
-#include "Constants.h"
 #include "Exceptions.h"
+#include "FloatType.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
 #include "Model/BrushFace.h"

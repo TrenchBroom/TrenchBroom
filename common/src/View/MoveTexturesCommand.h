@@ -21,7 +21,7 @@
 #define TrenchBroom_MoveTexturesCommand
 
 #include "Macros.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/DocumentCommand.h"
 #include "View/View_Forward.h"
 

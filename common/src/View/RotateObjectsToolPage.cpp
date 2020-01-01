@@ -19,7 +19,7 @@
 
 #include "RotateObjectsToolPage.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/BorderLine.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"

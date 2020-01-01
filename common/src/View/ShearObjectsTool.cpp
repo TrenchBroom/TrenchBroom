@@ -20,10 +20,9 @@
 
 #include "ShearObjectsTool.h"
 
-#include "Constants.h"
 #include "Ensure.h"
+#include "FloatType.h"
 #include "Preferences.h"
-#include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"

@@ -19,7 +19,7 @@
 
 #include "GridRenderer.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"

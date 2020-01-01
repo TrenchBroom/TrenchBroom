@@ -19,10 +19,10 @@
 
 #include "MapView3D.h"
 
-#include "Constants.h"
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "FloatType.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"

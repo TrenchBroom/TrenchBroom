@@ -31,10 +31,9 @@
 #include <string>
 #include <vector>
 
-template <typename T, size_t S, typename U>
-class AABBTree;
-
 namespace TrenchBroom {
+    template <typename T, size_t S, typename U> class AABBTree;
+
     namespace Assets {
         /**
          * One frame of the model. Since frames are loaded on demand, each frame has two possible states: loaded

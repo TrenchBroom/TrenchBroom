@@ -1041,10 +1041,10 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/QtUtils.h
         ${COMMON_SOURCE_DIR}/Allocator.h
         ${COMMON_SOURCE_DIR}/Color.h
-        ${COMMON_SOURCE_DIR}/Constants.h
         ${COMMON_SOURCE_DIR}/Ensure.h
         ${COMMON_SOURCE_DIR}/Exceptions.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
+        ${COMMON_SOURCE_DIR}/FloatType.h
         ${COMMON_SOURCE_DIR}/Logger.h
         ${COMMON_SOURCE_DIR}/Macros.h
         ${COMMON_SOURCE_DIR}/Notifier.h
@@ -1053,7 +1053,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Preferences.h
         ${COMMON_SOURCE_DIR}/RecoverableExceptions.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
-        ${COMMON_SOURCE_DIR}/TrenchBroom.h
         ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.h
 )
 

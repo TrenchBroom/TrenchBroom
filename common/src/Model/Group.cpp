@@ -19,7 +19,7 @@
 
 #include "Group.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/Brush.h"

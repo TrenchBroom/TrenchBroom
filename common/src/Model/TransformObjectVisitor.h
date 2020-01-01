@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_TransformObjectVisitor
 #define TrenchBroom_TransformObjectVisitor
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {

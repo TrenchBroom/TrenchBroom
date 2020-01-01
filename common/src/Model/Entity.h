@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_Entity
 #define TrenchBroom_Entity
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
 #include "Assets/Asset_Forward.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityRotationPolicy.h"

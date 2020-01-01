@@ -29,11 +29,11 @@
 #include <QString>
 #include <QTextStream>
 
-class Color;
-
 class QKeySequence;
 
 namespace TrenchBroom {
+    class Color;
+
     class PrefSerializer {
     public:
         virtual ~PrefSerializer();

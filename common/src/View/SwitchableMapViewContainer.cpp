@@ -19,7 +19,7 @@
 
 #include "SwitchableMapViewContainer.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/PointFile.h"
@@ -85,7 +85,7 @@ namespace TrenchBroom {
             // NOTE: not all widgets are deleted so we can't use deleteChildWidgetsAndLayout()
             delete m_mapView;
             m_mapView = nullptr;
-            
+
             delete layout();
 
             switch (viewId) {
