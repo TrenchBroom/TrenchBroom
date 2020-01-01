@@ -76,6 +76,17 @@ private:
         void visit(const LeafNode* leafNode)   override { m_leafNodeVisitor(leafNode); }
     };
 
+#if (not defined __GNUC__) || (defined __clang__)
+    /**
+     * Deduction guide.
+     *
+     * Note that as of GCC 9.2, there appears to be a bug in GCC that disallows deduction guides in non-namespace scope.
+     * Luckily, GCC does not need a guide to deduce the template parameters of LambdaVisitor, but clang does!
+     */
+    template <typename I_V, typename L_V>
+    LambdaVisitor(I_V innerNodeVisitor, L_V outerNodeVisitor) -> LambdaVisitor<I_V, L_V>;
+#endif
+
     class Node {
     public:
         Box m_bounds;
