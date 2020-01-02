@@ -31,7 +31,7 @@
 #include <kdl/overloaded.h>
 
 #include <cassert>
-#include <iostream>
+#include <iosfwd>
 #include <unordered_map>
 #include <vector>
 
@@ -698,7 +698,7 @@ namespace TrenchBroom {
          *
          * @param str the output stream to print to
          */
-        void print(std::ostream& str = std::cout) const {
+        void print(std::ostream& str) const {
             if (!empty()) {
                 m_root->appendTo(str);
             }

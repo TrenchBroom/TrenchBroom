@@ -24,7 +24,8 @@
 #include "IO/IO_Forward.h"
 
 #include <cstdio> // for FILE
-#include <fstream>
+#include <iosfwd>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -36,18 +37,6 @@ namespace TrenchBroom {
             ~OpenFile();
 
             deleteCopyAndMove(OpenFile)
-        };
-
-        class OpenStream {
-        public:
-            std::fstream stream;
-        public:
-            OpenStream(const Path& path, bool write);
-            ~OpenStream();
-
-            std::string readAll();
-
-            deleteCopyAndMove(OpenStream)
         };
 
         size_t fileSize(std::FILE* file);
