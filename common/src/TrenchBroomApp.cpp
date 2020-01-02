@@ -144,6 +144,10 @@ namespace TrenchBroom {
             }
 
 #endif
+
+            connect(this, &QCoreApplication::aboutToQuit, this, []() {
+                Model::GameFactory::instance().writeConfigs();
+            });
         }
 
         // must be implemented in cpp file in order to use std::unique_ptr with forward declared type as members

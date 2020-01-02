@@ -50,7 +50,7 @@ namespace TrenchBroom {
             mutable GamePathMap m_gamePaths;
             mutable GamePathMap m_defaultEngines;
         public:
-            ~GameFactory();
+            void writeConfigs();
 
             static GameFactory& instance();
 

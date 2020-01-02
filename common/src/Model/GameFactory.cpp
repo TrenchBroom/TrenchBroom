@@ -47,7 +47,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GameFactory::~GameFactory() {
+        void GameFactory::writeConfigs() {
             writeCompilationConfigs();
             writeGameEngineConfigs();
         }
