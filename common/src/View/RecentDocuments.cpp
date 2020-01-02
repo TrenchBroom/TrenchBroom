@@ -32,7 +32,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        RecentDocuments::RecentDocuments(const size_t maxSize) :
+        RecentDocuments::RecentDocuments(const size_t maxSize, QObject* parent) :
+        QObject(parent),
         m_maxSize(maxSize) {
             assert(m_maxSize > 0);
             loadFromConfig();
@@ -59,7 +60,7 @@ namespace TrenchBroom {
             insertPath(path);
             updateMenus();
             saveToConfig();
-            didChangeNotifier();
+            emit didChange();
         }
 
         void RecentDocuments::removePath(const IO::Path& path) {
@@ -71,7 +72,7 @@ namespace TrenchBroom {
             if (oldSize > m_recentDocuments.size()) {
                 updateMenus();
                 saveToConfig();
-                didChangeNotifier();
+                emit didChange();
             }
         }
 

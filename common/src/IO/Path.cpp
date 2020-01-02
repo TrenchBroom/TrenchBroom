@@ -32,18 +32,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        std::string Path::separator() {
-#ifdef _WIN32
-            static const std::string sep = "\\";
-#else
-            static const std::string sep = "/";
-#endif
-            return sep;
-        }
-
-        const std::string& Path::separators() {
-            static const std::string sep("/\\");
-            return sep;
+        static constexpr std::string_view separators() {
+            return std::string_view("/\\");
         }
 
         Path::Path(bool absolute, const std::vector<std::string>& components) :
@@ -119,16 +109,16 @@ namespace TrenchBroom {
             return compare(rhs) > 0;
         }
 
-        std::string Path::asString(const std::string& separator) const {
+        std::string Path::asString(const std::string_view separator) const {
             if (m_absolute) {
 #ifdef _WIN32
                 if (hasDriveSpec(m_components)) {
                     return kdl::str_join(m_components, separator);
                 } else {
-                    return separator + kdl::str_join(m_components, separator);
+                    return std::string(separator) + kdl::str_join(m_components, separator);
                 }
 #else
-                return separator + kdl::str_join(m_components, separator);
+                return std::string(separator) + kdl::str_join(m_components, separator);
 #endif
             }
             return kdl::str_join(m_components, separator);
@@ -136,7 +126,7 @@ namespace TrenchBroom {
 
 
 
-        std::vector<std::string> Path::asStrings(const std::vector<Path>& paths, const std::string& separator) {
+        std::vector<std::string> Path::asStrings(const std::vector<Path>& paths, const std::string_view separator) {
             auto result = std::vector<std::string>();
             result.reserve(paths.size());
             for (const auto& path : paths) {

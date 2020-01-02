@@ -23,22 +23,19 @@
 #include <iosfwd>
 #include <string>
 #include <vector>
+#include <string_view>
 
 namespace TrenchBroom {
     namespace IO {
         class Path {
         public:
-            static std::string separator();
-
-            struct ToString {
-                std::string m_separator;
-                ToString(const std::string& i_separator = separator()) :
-                m_separator(i_separator) {}
-
-                std::string operator()(const Path& path) const {
-                    return path.asString(m_separator);
-                }
-            };
+            static constexpr std::string_view separator() {
+#ifdef _WIN32
+                return std::string_view("\\");
+#else
+                return std::string_view("/");
+#endif
+            }
 
             template <typename StringLess>
             class Less {
@@ -51,8 +48,6 @@ namespace TrenchBroom {
                 }
             };
         private:
-            static const std::string& separators();
-
             std::vector<std::string> m_components;
             bool m_absolute;
 
@@ -67,8 +62,8 @@ namespace TrenchBroom {
             bool operator<(const Path& rhs) const;
             bool operator>(const Path& rhs) const;
 
-            std::string asString(const std::string& sep = separator()) const;
-            static std::vector<std::string> asStrings(const std::vector<Path>& paths, const std::string& sep = separator());
+            std::string asString(std::string_view sep = separator()) const;
+            static std::vector<std::string> asStrings(const std::vector<Path>& paths, std::string_view sep = separator());
             static std::vector<Path> asPaths(const std::vector<std::string>& strs);
 
             size_t length() const;

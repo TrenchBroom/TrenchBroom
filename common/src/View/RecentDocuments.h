@@ -40,9 +40,7 @@ namespace TrenchBroom {
             size_t m_maxSize;
             std::vector<IO::Path> m_recentDocuments;
         public:
-            Notifier<> didChangeNotifier;
-        public:
-            explicit RecentDocuments(size_t maxSize);
+            explicit RecentDocuments(size_t maxSize, QObject* parent = nullptr);
 
             const std::vector<IO::Path>& recentDocuments() const;
 
@@ -62,6 +60,7 @@ namespace TrenchBroom {
             void createMenuItems(QMenu* menu);
         signals:
             void loadDocument(const IO::Path& path) const;
+            void didChange();
         };
     }
 }
