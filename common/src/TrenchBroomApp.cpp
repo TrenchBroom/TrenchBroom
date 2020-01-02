@@ -113,9 +113,21 @@ namespace TrenchBroom {
             }
 
             // initialize style sheets
-            QDir d(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("styles")), "*.qss", QFlags<QDir::SortFlag>(QDir::Name | QDir::IgnoreCase), QDir::Files);
             QString styleSheet;
+
+            QFile baseStyle = QFile(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("styles/base.qss")));
+            assert(baseStyle.exists());
+            baseStyle.open(QFile::ReadOnly | QFile::Text);
+            QTextStream ts(&baseStyle);
+            styleSheet += ts.readAll() + "\n";
+            baseStyle.close();
+
+            QDir d(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("styles")), "*.qss", QFlags<QDir::SortFlag>(QDir::Name | QDir::IgnoreCase), QDir::Files);
             foreach(QString str, d.entryList()) {
+                if (str == "base.qss") {
+                    continue;
+                }
+
 	            QString styleSheetPath = d.filePath(str);
 
 	            QFile f(styleSheetPath);
