@@ -47,6 +47,8 @@ namespace TrenchBroom {
 
             m_hiddenButton = createBitmapToggleButton("Hidden.png", "");
             m_lockButton = createBitmapToggleButton("Lock.png", "");
+            m_moveLayerUpButton = createBitmapButton("Up.png", "Move the selected layer up");
+            m_moveLayerDownButton = createBitmapButton("Down.png", "Move the selected layer down");
 
             auto documentS = lock(m_document);
             connect(m_hiddenButton, &QAbstractButton::clicked, this, [this](){
@@ -54,6 +56,12 @@ namespace TrenchBroom {
             });
             connect(m_lockButton, &QAbstractButton::clicked, this, [this]() {
                 emit layerLockToggled(m_layer);
+            });
+            connect(m_moveLayerUpButton, &QAbstractButton::clicked, this, [this]() {
+                emit layerMovedUp(m_layer);
+            });
+            connect(m_moveLayerDownButton, &QAbstractButton::clicked, this, [this]() {
+                emit layerMovedDown(m_layer);
             });
 
             installEventFilter(this);
@@ -66,6 +74,8 @@ namespace TrenchBroom {
 
             itemPanelBottomLayout->addWidget(m_hiddenButton, 0, Qt::AlignVCenter);
             itemPanelBottomLayout->addWidget(m_lockButton, 0, Qt::AlignVCenter);
+            itemPanelBottomLayout->addWidget(m_moveLayerUpButton, 0, Qt::AlignVCenter);
+            itemPanelBottomLayout->addWidget(m_moveLayerDownButton, 0, Qt::AlignVCenter);
             itemPanelBottomLayout->addWidget(m_infoText, 0, Qt::AlignVCenter);
             itemPanelBottomLayout->addStretch(1);
             itemPanelBottomLayout->addSpacing(LayoutConstants::NarrowHMargin);
@@ -109,6 +119,10 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             m_lockButton->setEnabled(m_layer->locked() || m_layer != document->currentLayer());
             m_hiddenButton->setEnabled(m_layer->hidden() || m_layer != document->currentLayer());
+
+            const auto* world = document->world();
+            m_moveLayerUpButton->setEnabled(m_layer != world->allLayers().front());
+            m_moveLayerDownButton->setEnabled(m_layer != world->allLayers().back());
         }
 
         Model::Layer* LayerListBoxWidget::layer() const {
@@ -233,6 +247,12 @@ namespace TrenchBroom {
             });
             connect(renderer, &LayerListBoxWidget::layerLockToggled, this, [this](auto* layer) {
                 emit layerLockToggled(layer);
+            });
+            connect(renderer, &LayerListBoxWidget::layerMovedUp, this, [this](auto* layer) {
+                emit layerMovedUp(layer);
+            });
+            connect(renderer, &LayerListBoxWidget::layerMovedDown, this, [this](auto* layer) {
+                emit layerMovedDown(layer);
             });
 
             return renderer;
