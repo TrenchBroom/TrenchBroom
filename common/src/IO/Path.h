@@ -29,7 +29,13 @@ namespace TrenchBroom {
     namespace IO {
         class Path {
         public:
-            static std::string_view separator();
+            static constexpr std::string_view separator() {
+#ifdef _WIN32
+                return std::string_view("\\");
+#else
+                return std::string_view("/");
+#endif
+            }
 
             template <typename StringLess>
             class Less {

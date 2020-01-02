@@ -32,16 +32,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        std::string_view Path::separator() {
-#ifdef _WIN32
-            return std::string_view("\\", 1u);
-#else
-            return std::string_view("/", 1u);
-#endif
-        }
-
-        static std::string_view separators() {
-            return std::string_view("/\\", 2u);
+        static constexpr std::string_view separators() {
+            return std::string_view("/\\");
         }
 
         Path::Path(bool absolute, const std::vector<std::string>& components) :
@@ -126,7 +118,7 @@ namespace TrenchBroom {
                     return std::string(separator) + kdl::str_join(m_components, separator);
                 }
 #else
-                return separator + kdl::str_join(m_components, separator);
+                return std::string(separator) + kdl::str_join(m_components, separator);
 #endif
             }
             return kdl::str_join(m_components, separator);
