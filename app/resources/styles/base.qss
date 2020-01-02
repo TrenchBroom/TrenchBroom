@@ -9,3 +9,7 @@ QListWidget {
 QListWidget#controlListBox_listWidget {
   border: none;
 }
+
+QCheckBox#entityDefinition_checkboxWidget {
+  margin-left: 11px;
+}
