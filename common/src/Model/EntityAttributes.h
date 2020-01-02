@@ -62,7 +62,7 @@ namespace TrenchBroom {
             extern const AttributeValue GroupTypeGroup;
         }
 
-        bool isNumberedAttribute(const std::string_view& prefix, const std::string_view& name);
+        bool isNumberedAttribute(std::string_view prefix, std::string_view name);
 
         class EntityAttributeSnapshot;
 
@@ -81,13 +81,13 @@ namespace TrenchBroom {
             const AttributeValue& value() const;
             const Assets::AttributeDefinition* definition() const;
 
-            bool hasName(const std::string_view& name) const;
-            bool hasValue(const std::string_view& value) const;
-            bool hasNameAndValue(const std::string_view& name, const std::string_view& value) const;
-            bool hasPrefix(const std::string_view& prefix) const;
-            bool hasPrefixAndValue(const std::string_view& prefix, const std::string_view& value) const;
-            bool hasNumberedPrefix(const std::string_view& prefix) const;
-            bool hasNumberedPrefixAndValue(const std::string_view& prefix, const std::string_view& value) const;
+            bool hasName(std::string_view name) const;
+            bool hasValue(std::string_view value) const;
+            bool hasNameAndValue(std::string_view name, std::string_view value) const;
+            bool hasPrefix(std::string_view prefix) const;
+            bool hasPrefixAndValue(std::string_view prefix, std::string_view value) const;
+            bool hasNumberedPrefix(std::string_view prefix) const;
+            bool hasNumberedPrefixAndValue(std::string_view prefix, std::string_view value) const;
 
             void setName(const AttributeName& name, const Assets::AttributeDefinition* definition);
             void setValue(const AttributeValue& value);

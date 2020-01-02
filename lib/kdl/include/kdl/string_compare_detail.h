@@ -38,7 +38,7 @@ namespace kdl {
      * @return the first position at which the given strings differ
      */
     template <typename CharEqual>
-    std::size_t str_mismatch(const std::string_view& s1, const std::string_view& s2, const CharEqual& char_equal) {
+    std::size_t str_mismatch(const std::string_view s1, const std::string_view s2, const CharEqual& char_equal) {
         const auto mis = std::mismatch(std::begin(s1), std::end(s1), std::begin(s2), std::end(s2), char_equal);
         return static_cast<std::size_t>(std::distance(std::begin(s1), mis.first));
     }
@@ -54,7 +54,7 @@ namespace kdl {
      * @return true if the first string contains the second string and false otherwise
      */
     template <typename CharEqual>
-    bool str_contains(const std::string_view& haystack, const std::string_view& needle, const CharEqual& char_equal) {
+    bool str_contains(const std::string_view haystack, const std::string_view needle, const CharEqual& char_equal) {
         return std::search(std::begin(haystack), std::end(haystack), std::begin(needle), std::end(needle), char_equal) != std::end(haystack);
     }
 
@@ -69,7 +69,7 @@ namespace kdl {
      * @return true if needle is a prefix of haystack
      */
     template <typename CharEqual>
-    bool str_is_prefix(const std::string_view& haystack, const std::string_view& needle, const CharEqual& char_equal) {
+    bool str_is_prefix(const std::string_view haystack, const std::string_view needle, const CharEqual& char_equal) {
         return std::mismatch(std::begin(haystack), std::end(haystack), std::begin(needle), std::end(needle), char_equal).second == std::end(needle);
     }
 
@@ -84,7 +84,7 @@ namespace kdl {
      * @return true if needle is a suffix of haystack
      */
     template <typename CharEqual>
-    bool str_is_suffix(const std::string_view& haystack, const std::string_view& needle, const CharEqual& char_equal) {
+    bool str_is_suffix(const std::string_view haystack, const std::string_view needle, const CharEqual& char_equal) {
         return std::mismatch(std::rbegin(haystack), std::rend(haystack), std::rbegin(needle), std::rend(needle), char_equal).second == std::rend(needle);
     }
 
@@ -99,7 +99,7 @@ namespace kdl {
      * @return an int indicating the result of the comparison
      */
     template <typename CharCompare>
-    int str_compare(const std::string_view& s1, const std::string_view& s2, const CharCompare& char_compare) {
+    int str_compare(const std::string_view s1, const std::string_view s2, const CharCompare& char_compare) {
         return kdl::col_lexicographical_compare(s1, s2, char_compare);
     }
 
@@ -114,7 +114,7 @@ namespace kdl {
      * @return true if the given strings are equal and false otherwise
      */
     template <typename CharEqual>
-    bool str_is_equal(const std::string_view& s1, const std::string_view& s2, const CharEqual& char_equal) {
+    bool str_is_equal(const std::string_view s1, const std::string_view s2, const CharEqual& char_equal) {
         return std::equal(std::begin(s1), std::end(s1), std::begin(s2), std::end(s2), char_equal);
     }
 
@@ -147,7 +147,7 @@ namespace kdl {
      * @return true if the given pattern matches the given string
      */
     template <typename CharEqual>
-    bool str_matches_glob(const std::string_view& str, const std::string_view& pattern, const CharEqual& char_equal) {
+    bool str_matches_glob(const std::string_view str, const std::string_view pattern, const CharEqual& char_equal) {
         using match_task = std::pair<std::size_t, std::size_t>;
         std::vector<match_task> match_tasks({{ 0u, 0u }});
 

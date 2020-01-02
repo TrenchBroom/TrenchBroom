@@ -38,7 +38,7 @@ namespace kdl {
      * @param delims the delimiters to split with
      * @return the parts
      */
-    inline std::vector<std::string> str_split(const std::string_view& str, const std::string_view& delims) {
+    inline std::vector<std::string> str_split(const std::string_view str, const std::string_view delims) {
         if (str.empty()) {
             return {};
         }
@@ -94,7 +94,7 @@ namespace kdl {
      * @return the joined string
      */
     template <typename I>
-    std::string str_join(I it, I end, const std::string_view& delim, const std::string_view& last_delim, const std::string_view& delim_for_two) {
+    std::string str_join(I it, I end, const std::string_view delim, const std::string_view last_delim, const std::string_view delim_for_two) {
         if (it == end) {
             return "";
         }
@@ -127,7 +127,7 @@ namespace kdl {
      * Joins the objects in the given range [it, end) using the given delimiter. The delimiter is used as the delimiter
      * for collections of two objects as well as for the last two objects in collections of more than two objects.
      *
-     * @see str_join(I, I, const std::string_view&, const std::string_view&, const std::string_view&)
+     * @see str_join(I, I, const std::string_view, const std::string_view, const std::string_view)
      *
      * @tparam I the range iterator type
      * @param it the beginning of the range
@@ -136,14 +136,14 @@ namespace kdl {
      * @return the joined string
      */
     template <typename I>
-    std::string str_join(I it, I end, const std::string_view& delim) {
+    std::string str_join(I it, I end, const std::string_view delim) {
         return str_join(it, end, delim, delim, delim);
     }
 
     /**
      * Joins the objects in the given collection using the given delimiters.
      *
-     * @see str_join(I, I, const std::string_view&, const std::string_view&, const std::string_view&)
+     * @see str_join(I, I, const std::string_view, const std::string_view, const std::string_view)
      *
      * @tparam C the collection type
      * @param c the collection of objects to join
@@ -153,7 +153,7 @@ namespace kdl {
      * @return the joined string
      */
     template <typename C>
-    std::string str_join(const C& c, const std::string_view& delim, const std::string_view& last_delim, const std::string_view& delim_for_two) {
+    std::string str_join(const C& c, const std::string_view delim, const std::string_view last_delim, const std::string_view& delim_for_two) {
         return str_join(std::begin(c), std::end(c), delim, last_delim, delim_for_two);
     }
 
