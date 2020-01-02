@@ -1,0 +1,11 @@
+QTableView {
+  border: none;
+}
+
+QListWidget {
+  border: none;
+}
+
+QListWidget#controlListBox_listWidget {
+  border: none;
+}

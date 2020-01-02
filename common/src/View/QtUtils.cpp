@@ -269,7 +269,6 @@ namespace TrenchBroom {
             button->setToolTip(tooltip);
             button->setIcon(icon);
             // button->setFlat(true);
-            button->setStyleSheet("QToolButton { border: none; }");
 
             return button;
         }
