@@ -47,11 +47,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GameFactory::~GameFactory() {
-            writeCompilationConfigs();
-            writeGameEngineConfigs();
-        }
-
         GameFactory& GameFactory::instance() {
             static GameFactory instance;
             return instance;
@@ -60,6 +55,11 @@ namespace TrenchBroom {
         void GameFactory::initialize() {
             initializeFileSystem();
             loadGameConfigs();
+        }
+
+        void GameFactory::saveAllConfigs() {
+            writeCompilationConfigs();
+            writeGameEngineConfigs();
         }
 
         void GameFactory::saveConfigs(const std::string& gameName) {

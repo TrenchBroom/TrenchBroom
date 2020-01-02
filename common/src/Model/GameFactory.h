@@ -50,8 +50,6 @@ namespace TrenchBroom {
             mutable GamePathMap m_gamePaths;
             mutable GamePathMap m_defaultEngines;
         public:
-            ~GameFactory();
-
             static GameFactory& instance();
 
             /**
@@ -69,7 +67,7 @@ namespace TrenchBroom {
              * @throw std::vector<std::string> if loading game configurations fails
              */
             void initialize();
-
+            void saveAllConfigs();
             /**
              * Saves the compilation and game engine configurations for the game with the given name.
              *
