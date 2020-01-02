@@ -43,13 +43,6 @@ namespace TrenchBroom {
             centerOnScreen(this);
         }
 
-        void WelcomeWindow::closeEvent(QCloseEvent* event) {
-            event->ignore();
-
-            auto& app = TrenchBroomApp::instance();
-            app.hideWelcomeWindow();
-        }
-
         void WelcomeWindow::createGui() {
             setWindowIconTB(this);
             setWindowTitle("Welcome to TrenchBroom");

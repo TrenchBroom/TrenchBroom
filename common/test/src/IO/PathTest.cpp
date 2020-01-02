@@ -21,6 +21,7 @@
 
 #include "Exceptions.h"
 #include "IO/Path.h"
+#include "IO/PathQt.h"
 
 #include <string>
 
@@ -168,6 +169,16 @@ namespace TrenchBroom {
             ASSERT_TRUE(Path("c:\\asdf\\test\\..").canMakeRelative(Path("c:\\asdf\\.\\hello")));
             ASSERT_TRUE(Path("c:\\asdf\\test\\..\\").canMakeRelative(Path("c:\\asdf\\hurr\\..\\hello")));
         }
+
+        TEST(PathTest, pathAsQString) {
+            ASSERT_EQ(QString::fromLatin1("c:\\asdf\\test"), pathAsQString(Path("c:\\asdf\\test")));
+            ASSERT_EQ(QString::fromLatin1("asdf\\test"), pathAsQString(Path("asdf\\test")));
+        }
+
+        TEST(PathTest, pathFromQString) {
+            ASSERT_EQ(Path("c:\\asdf\\test"), pathFromQString(QString::fromLatin1("c:\\asdf\\test")));
+            ASSERT_EQ(Path("asdf\\test"), pathFromQString(QString::fromLatin1("asdf\\test")));
+        }
 #else
         TEST(PathTest, constructWithString) {
             ASSERT_EQ(std::string(""), Path("").asString());
@@ -299,6 +310,16 @@ namespace TrenchBroom {
             ASSERT_TRUE(Path("dir/dir") < Path("dir/dir2"));
             ASSERT_FALSE(Path("dir/dir2") < Path("dir/dir2"));
             ASSERT_FALSE(Path("dir/dir2/dir3") < Path("dir/dir2"));
+        }
+
+        TEST(PathTest, pathAsQString) {
+            ASSERT_EQ(QString::fromLatin1("/asdf/test"), pathAsQString(Path("/asdf/test")));
+            ASSERT_EQ(QString::fromLatin1("asdf/test"), pathAsQString(Path("asdf/test")));
+        }
+
+        TEST(PathTest, pathFromQString) {
+            ASSERT_EQ(Path("/asdf/test"), pathFromQString(QString::fromLatin1("/asdf/test")));
+            ASSERT_EQ(Path("asdf/test"), pathFromQString(QString::fromLatin1("asdf/test")));
         }
 #endif
     }
