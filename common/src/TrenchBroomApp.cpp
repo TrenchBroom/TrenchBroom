@@ -173,7 +173,7 @@ namespace TrenchBroom {
             QString styleSheetString;
 
             // load base stylesheet
-            QFile baseStyle = QFile(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("styles/base.qss")));
+            QFile baseStyle = QFile(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("stylesheets/base.qss")));
             assert(baseStyle.exists());
             
             baseStyle.open(QFile::ReadOnly | QFile::Text);
@@ -181,7 +181,7 @@ namespace TrenchBroom {
             baseStyle.close();
 
             // load override stylesheets
-            const QDir styleDir(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("styles")), "*.qss", QFlags<QDir::SortFlag>(QDir::Name | QDir::IgnoreCase), QDir::Files);
+            const QDir styleDir(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("stylesheets")), "*.qss", QFlags<QDir::SortFlag>(QDir::Name | QDir::IgnoreCase), QDir::Files);
             for(const QString str : styleDir.entryList()) {
                 if (str == "base.qss") {
                     continue;

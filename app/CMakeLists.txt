@@ -176,7 +176,8 @@ macro(configure_app_target APP_TARGET_NAME)
 
         # Copy stylesheet files to resources directory
         add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/styles" "${APP_RESOURCE_DEST_DIR}/styles")
+                COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/stylesheets/"
+                COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/stylesheets" "${APP_RESOURCE_DEST_DIR}/stylesheets")
 
         # Copy manual files to resource directory
         add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
