@@ -33,10 +33,9 @@ namespace TrenchBroom {
             QPixmap m_documentIcon;
         public:
             explicit RecentDocumentListBox(QWidget* parent = nullptr);
-            ~RecentDocumentListBox() override;
-        private:
+        private slots:
             void recentDocumentsDidChange();
-
+        private:
             size_t itemCount() const override;
             QPixmap image(size_t index) const override;
             QString title(size_t index) const override;

@@ -34,13 +34,8 @@ namespace TrenchBroom {
         m_documentIcon(IO::loadPixmapResource("DocIcon.png")) {
             assert(!m_documentIcon.isNull());
             TrenchBroomApp& app = View::TrenchBroomApp::instance();
-            app.recentDocumentsDidChangeNotifier.addObserver(this, &RecentDocumentListBox::recentDocumentsDidChange);
+            connect(&app, &TrenchBroomApp::recentDocumentsDidChange, this, &RecentDocumentListBox::recentDocumentsDidChange);
             reload();
-        }
-
-        RecentDocumentListBox::~RecentDocumentListBox() {
-            TrenchBroomApp& app = View::TrenchBroomApp::instance();
-            app.recentDocumentsDidChangeNotifier.removeObserver(this, &RecentDocumentListBox::recentDocumentsDidChange);
         }
 
         void RecentDocumentListBox::recentDocumentsDidChange() {

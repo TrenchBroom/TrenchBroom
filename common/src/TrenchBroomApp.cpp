@@ -117,7 +117,7 @@ namespace TrenchBroom {
 
             m_recentDocuments = std::make_unique<RecentDocuments>(10);
             connect(m_recentDocuments.get(), &RecentDocuments::loadDocument, this, [this](const IO::Path& path) { openDocument(path); });
-
+            connect(m_recentDocuments.get(), &RecentDocuments::didChange, this, &TrenchBroomApp::recentDocumentsDidChange);
 #ifdef __APPLE__
             setQuitOnLastWindowClosed(false);
 
@@ -144,8 +144,6 @@ namespace TrenchBroom {
             }
 
 #endif
-
-            m_recentDocuments->didChangeNotifier.addObserver(recentDocumentsDidChangeNotifier);
         }
 
         // must be implemented in cpp file in order to use std::unique_ptr with forward declared type as members
