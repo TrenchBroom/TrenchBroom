@@ -175,6 +175,7 @@ namespace TrenchBroom {
             // load base stylesheet
             QFile baseStyle = QFile(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("styles/base.qss")));
             assert(baseStyle.exists());
+            
             baseStyle.open(QFile::ReadOnly | QFile::Text);
             styleSheetString += QTextStream(&baseStyle).readAll() + "\n";
             baseStyle.close();
