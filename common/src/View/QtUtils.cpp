@@ -269,6 +269,7 @@ namespace TrenchBroom {
             button->setToolTip(tooltip);
             button->setIcon(icon);
             // button->setFlat(true);
+            button->setObjectName("toolButton_borderless");
 
             return button;
         }
