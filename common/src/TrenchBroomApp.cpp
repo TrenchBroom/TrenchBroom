@@ -112,36 +112,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            // initialize stylesheets
-            QString styleSheetString;
-
-            // load base stylesheet
-            QFile baseStyle = QFile(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("styles/base.qss")));
-            assert(baseStyle.exists());
-            baseStyle.open(QFile::ReadOnly | QFile::Text);
-            QTextStream baseStyleStream(&baseStyle);
-            styleSheetString += baseStyleStream.readAll() + "\n";
-            baseStyle.close();
-
-            // load override stylesheets
-            QDir styleDir(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("styles")), "*.qss", QFlags<QDir::SortFlag>(QDir::Name | QDir::IgnoreCase), QDir::Files);
-            foreach(QString str, styleDir.entryList()) {
-                if (str == "base.qss") {
-                    continue;
-                }
-
-	            QString styleSheetPath = styleDir.filePath(str);
-
-	            QFile styleSheet(styleSheetPath);
-	            assert(styleSheet.exists());
-
-                styleSheet.open(QFile::ReadOnly | QFile::Text);
-	            QTextStream ts(&styleSheet);
-                styleSheetString += ts.readAll() + "\n";
-            }
-
-            // apply stylesheet
-            qApp->setStyleSheet(styleSheetString);
+            loadStyleSheets();
 
             // these must be initialized here and not earlier
             m_frameManager = std::make_unique<FrameManager>(useSDI());
@@ -198,7 +169,40 @@ namespace TrenchBroom {
             return m_frameManager.get();
         }
 
-         const std::vector<IO::Path>& TrenchBroomApp::recentDocuments() const {
+        void TrenchBroomApp::loadStyleSheets() {
+            // initialize stylesheets
+            QString styleSheetString;
+
+            // load base stylesheet
+            QFile baseStyle = QFile(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("styles/base.qss")));
+            assert(baseStyle.exists());
+            baseStyle.open(QFile::ReadOnly | QFile::Text);
+            QTextStream baseStyleStream(&baseStyle);
+            styleSheetString += baseStyleStream.readAll() + "\n";
+            baseStyle.close();
+
+            // load override stylesheets
+            QDir styleDir(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("styles")), "*.qss", QFlags<QDir::SortFlag>(QDir::Name | QDir::IgnoreCase), QDir::Files);
+            foreach(QString str, styleDir.entryList()) {
+                if (str == "base.qss") {
+                    continue;
+                }
+
+                QString styleSheetPath = styleDir.filePath(str);
+
+                QFile styleSheet(styleSheetPath);
+                assert(styleSheet.exists());
+
+                styleSheet.open(QFile::ReadOnly | QFile::Text);
+                QTextStream ts(&styleSheet);
+                styleSheetString += ts.readAll() + "\n";
+            }
+
+            // apply stylesheet
+            qApp->setStyleSheet(styleSheetString);
+        }
+
+        const std::vector<IO::Path>& TrenchBroomApp::recentDocuments() const {
             return m_recentDocuments->recentDocuments();
         }
 
