@@ -170,32 +170,29 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::loadStyleSheets() {
-            // initialize stylesheets
             QString styleSheetString;
 
             // load base stylesheet
             QFile baseStyle = QFile(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("styles/base.qss")));
             assert(baseStyle.exists());
             baseStyle.open(QFile::ReadOnly | QFile::Text);
-            QTextStream baseStyleStream(&baseStyle);
-            styleSheetString += baseStyleStream.readAll() + "\n";
+            styleSheetString += QTextStream(&baseStyle).readAll() + "\n";
             baseStyle.close();
 
             // load override stylesheets
-            QDir styleDir(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("styles")), "*.qss", QFlags<QDir::SortFlag>(QDir::Name | QDir::IgnoreCase), QDir::Files);
-            foreach(QString str, styleDir.entryList()) {
+            const QDir styleDir(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("styles")), "*.qss", QFlags<QDir::SortFlag>(QDir::Name | QDir::IgnoreCase), QDir::Files);
+            for(const QString str : styleDir.entryList()) {
                 if (str == "base.qss") {
                     continue;
                 }
 
-                QString styleSheetPath = styleDir.filePath(str);
+                const QString styleSheetPath = styleDir.filePath(str);
 
                 QFile styleSheet(styleSheetPath);
                 assert(styleSheet.exists());
 
                 styleSheet.open(QFile::ReadOnly | QFile::Text);
-                QTextStream ts(&styleSheet);
-                styleSheetString += ts.readAll() + "\n";
+                styleSheetString += QTextStream(&styleSheet).readAll() + "\n";
             }
 
             // apply stylesheet
