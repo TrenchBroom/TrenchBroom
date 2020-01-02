@@ -99,17 +99,16 @@ namespace TrenchBroom {
         bool UVRotateTool::doStartMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
 
-            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
+            // If Ctrl is pressed, allow starting the drag anywhere, not just on the handle
+            const bool ctrlPressed = inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd);
+
+            if (!(inputState.modifierKeysPressed(ModifierKeys::MKNone) || ctrlPressed) ||
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return false;
             }
 
             const auto& pickResult = inputState.pickResult();
             const auto& angleHandleHit = pickResult.query().type(AngleHandleHit).occluded().first();
-
-            if (!angleHandleHit.isMatch()) {
-                return false;
-            }
 
             const auto* face = m_helper.face();
             if (!face->attribs().valid()) {
@@ -118,8 +117,23 @@ namespace TrenchBroom {
 
             const auto toFace = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
-            const auto hitPointInFaceCoords(toFace * angleHandleHit.hitPoint());
-            m_initalAngle = measureAngle(vm::vec2f(hitPointInFaceCoords)) - face->rotation();
+            vm::vec2f hitPointInFaceCoords;
+            if (angleHandleHit.isMatch()) {
+                hitPointInFaceCoords = vm::vec2f(toFace * angleHandleHit.hitPoint());
+            } else if (ctrlPressed) {
+                const auto& boundary = face->boundary();
+                const auto& pickRay = inputState.pickRay();
+                const auto distanceToFace = vm::intersect_ray_plane(pickRay, boundary);
+                if (vm::is_nan(distanceToFace)) {
+                    return false;
+                }
+                const auto hitPoint = vm::point_at_distance(pickRay, distanceToFace);
+                hitPointInFaceCoords = vm::vec2f(toFace * hitPoint);
+            } else {
+                return false;
+            }
+
+            m_initalAngle = measureAngle(hitPointInFaceCoords) - face->rotation();
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Rotate Texture");

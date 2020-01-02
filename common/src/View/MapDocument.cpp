@@ -493,6 +493,10 @@ namespace TrenchBroom {
             return !m_selectedBrushFaces.empty();
         }
 
+        bool MapDocument::hasAnySelectedBrushFaces() const {
+            return hasSelectedBrushFaces() || selectedNodes().hasBrushes();
+        }
+
         std::vector<Model::AttributableNode*> MapDocument::allSelectedAttributableNodes() const {
             if (!hasSelection())
                 return std::vector<Model::AttributableNode*>({ m_world.get() });

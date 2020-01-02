@@ -26,6 +26,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <string>
 
 namespace TrenchBroom {
     class Logger;
