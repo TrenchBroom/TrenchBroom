@@ -78,11 +78,16 @@ namespace TrenchBroom {
             QAction* toggleLayerVisibleAction = popupMenu.addAction(layer->hidden() ? tr("Show layer") : tr("Hide layer"), this, &LayerEditor::onToggleLayerVisibleFromMenu);
             QAction* toggleLayerLockedAction = popupMenu.addAction(layer->locked() ? tr("Unlock layer") : tr("Lock layer"), this, &LayerEditor::onToggleLayerLockedFromMenu);
             popupMenu.addSeparator();
+            QAction* moveLayerUpAction = popupMenu.addAction(tr("Move layer up"), this, &LayerEditor::onMoveLayerUpFromMenu);
+            QAction* moveLayerDownAction = popupMenu.addAction(tr("Move layer down"), this, &LayerEditor::onMoveLayerDownFromMenu);
+            popupMenu.addSeparator();
             QAction* removeLayerAction = popupMenu.addAction(tr("Remove layer"), this, &LayerEditor::onRemoveLayer);
 
             moveSelectionToLayerAction->setEnabled(canMoveSelectionToLayer());
             toggleLayerVisibleAction->setEnabled(canToggleLayerVisible());
             toggleLayerLockedAction->setEnabled(canToggleLayerLocked());
+            moveLayerUpAction->setEnabled(canMoveLayerUp());
+            moveLayerDownAction->setEnabled(canMoveLayerDown());
             removeLayerAction->setEnabled(canRemoveLayer());
 
             popupMenu.exec(QCursor::pos());
@@ -327,6 +332,53 @@ namespace TrenchBroom {
             return (layer != document->world()->defaultLayer());
         }
 
+        void LayerEditor::onMoveLayerUpFromMenu() {
+            moveLayer(m_layerList->selectedLayer(), -1);
+        }
+
+        void LayerEditor::onMoveLayerUpFromList(Model::Layer* layer) {
+            moveLayer(layer, -1);
+        }
+
+        bool LayerEditor::canMoveLayerUp() const {
+            const auto* layer = m_layerList->selectedLayer();
+            if (layer == nullptr) {
+                return false;
+            }
+
+            auto document = lock(m_document);
+            const auto layers = document->world()->allLayers();
+            return (layer != layers.front());
+        }
+
+        void LayerEditor::onMoveLayerDownFromMenu() {
+            moveLayer(m_layerList->selectedLayer(), 1);
+        }
+
+        void LayerEditor::onMoveLayerDownFromList(Model::Layer* layer) {
+            moveLayer(layer, 1);
+        }
+
+        bool LayerEditor::canMoveLayerDown() const {
+            const auto* layer = m_layerList->selectedLayer();
+            if (layer == nullptr) {
+                return false;
+            }
+
+            auto document = lock(m_document);
+            const auto layers = document->world()->allLayers();
+            return (layer != layers.back());
+        }
+
+        void LayerEditor::moveLayer(Model::Layer* layer, int delta) {
+            if (delta == 0) {
+                return;
+            }
+
+            ensure(layer != nullptr, "layer is null");
+            qDebug() << "Move layer, delta: " << delta;
+        }
+
         void LayerEditor::onShowAllLayers() {
             auto document = kdl::mem_lock(m_document);
             const auto layers = document->world()->allLayers();
@@ -371,20 +423,28 @@ namespace TrenchBroom {
             connect(m_layerList, &LayerListBox::layerRightClicked, this, &LayerEditor::onLayerRightClick);
             connect(m_layerList, &LayerListBox::layerVisibilityToggled, this, &LayerEditor::onToggleLayerVisibleFromList);
             connect(m_layerList, &LayerListBox::layerLockToggled, this, &LayerEditor::onToggleLayerLockedFromList);
+            connect(m_layerList, &LayerListBox::layerMovedUp, this, &LayerEditor::onMoveLayerUpFromList);
+            connect(m_layerList, &LayerListBox::layerMovedDown, this, &LayerEditor::onMoveLayerDownFromList);
             connect(m_layerList, &LayerListBox::itemSelectionChanged, this, &LayerEditor::updateButtons);
 
             m_addLayerButton = createBitmapButton("Add.png", tr("Add a new layer from the current selection"));
             m_removeLayerButton = createBitmapButton("Remove.png", tr("Remove the selected layer and move its objects to the default layer"));
             m_showAllLayersButton = createBitmapButton("Hidden_off.png", tr("Show all layers"));
+            m_moveLayerUpButton = createBitmapButton("Up.png", "Move the selected layer up");
+            m_moveLayerDownButton = createBitmapButton("Down.png", "Move the selected layer down");
 
             connect(m_addLayerButton, &QAbstractButton::pressed, this, &LayerEditor::onAddLayer);
             connect(m_removeLayerButton, &QAbstractButton::pressed, this, &LayerEditor::onRemoveLayer);
             connect(m_showAllLayersButton, &QAbstractButton::pressed, this, &LayerEditor::onShowAllLayers);
+            connect(m_moveLayerUpButton, &QAbstractButton::pressed, this, &LayerEditor::onMoveLayerUpFromMenu);
+            connect(m_moveLayerDownButton, &QAbstractButton::pressed, this, &LayerEditor::onMoveLayerDownFromMenu);
 
             auto* buttonSizer = new QHBoxLayout();
             buttonSizer->addWidget(m_addLayerButton);
             buttonSizer->addWidget(m_removeLayerButton);
             buttonSizer->addWidget(m_showAllLayersButton);
+            buttonSizer->addWidget(m_moveLayerUpButton);
+            buttonSizer->addWidget(m_moveLayerDownButton);
             buttonSizer->addStretch(1);
 
             auto* sizer = new QVBoxLayout();
@@ -398,6 +458,8 @@ namespace TrenchBroom {
 
         void LayerEditor::updateButtons() {
             m_removeLayerButton->setEnabled(canRemoveLayer());
+            m_moveLayerUpButton->setEnabled(canMoveLayerUp());
+            m_moveLayerDownButton->setEnabled(canMoveLayerDown());
         }
     }
 }

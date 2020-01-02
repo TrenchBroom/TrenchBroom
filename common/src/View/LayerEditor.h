@@ -45,6 +45,8 @@ namespace TrenchBroom {
             QAbstractButton* m_addLayerButton;
             QAbstractButton* m_removeLayerButton;
             QAbstractButton* m_showAllLayersButton;
+            QAbstractButton* m_moveLayerUpButton;
+            QAbstractButton* m_moveLayerDownButton;
         public:
             explicit LayerEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
@@ -74,6 +76,16 @@ namespace TrenchBroom {
             bool canRemoveLayer() const;
 
             void onShowAllLayers();
+
+            void onMoveLayerUpFromMenu();
+            void onMoveLayerUpFromList(Model::Layer* layer);
+            bool canMoveLayerUp() const;
+
+            void onMoveLayerDownFromMenu();
+            void onMoveLayerDownFromList(Model::Layer* layer);
+            bool canMoveLayerDown() const;
+
+            void moveLayer(Model::Layer* layer, int delta);
         private:
             Model::Layer* findVisibleAndUnlockedLayer(const Model::Layer* except) const;
             void moveSelectedNodesToLayer(std::shared_ptr<MapDocument> document, Model::Layer* layer);

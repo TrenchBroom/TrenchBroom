@@ -47,6 +47,8 @@ namespace TrenchBroom {
             QLabel* m_infoText;
             QAbstractButton* m_hiddenButton;
             QAbstractButton* m_lockButton;
+            QAbstractButton* m_moveLayerUpButton;
+            QAbstractButton* m_moveLayerDownButton;
         public:
             LayerListBoxWidget(std::weak_ptr<MapDocument> document, Model::Layer* layer, QWidget* parent = nullptr);
 
@@ -60,6 +62,8 @@ namespace TrenchBroom {
         signals:
             void layerVisibilityToggled(Model::Layer* layer);
             void layerLockToggled(Model::Layer* layer);
+            void layerMovedUp(Model::Layer* layer);
+            void layerMovedDown(Model::Layer* layer);
             void layerDoubleClicked(Model::Layer* layer);
             void layerRightClicked(Model::Layer* layer);
         };
@@ -97,6 +101,8 @@ namespace TrenchBroom {
             void layerRightClicked(Model::Layer* layer);
             void layerVisibilityToggled(Model::Layer* layer);
             void layerLockToggled(Model::Layer* layer);
+            void layerMovedUp(Model::Layer* layer);
+            void layerMovedDown(Model::Layer* layer);
         };
     }
 }
