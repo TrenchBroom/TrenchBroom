@@ -112,32 +112,36 @@ namespace TrenchBroom {
                 return;
             }
 
-            // initialize style sheets
-            QString styleSheet;
+            // initialize stylesheets
+            QString styleSheetString;
 
+            // load base stylesheet
             QFile baseStyle = QFile(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("styles/base.qss")));
             assert(baseStyle.exists());
             baseStyle.open(QFile::ReadOnly | QFile::Text);
-            QTextStream ts(&baseStyle);
-            styleSheet += ts.readAll() + "\n";
+            QTextStream baseStyleStream(&baseStyle);
+            styleSheetString += baseStyleStream.readAll() + "\n";
             baseStyle.close();
 
-            QDir d(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("styles")), "*.qss", QFlags<QDir::SortFlag>(QDir::Name | QDir::IgnoreCase), QDir::Files);
-            foreach(QString str, d.entryList()) {
+            // load override stylesheets
+            QDir styleDir(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("styles")), "*.qss", QFlags<QDir::SortFlag>(QDir::Name | QDir::IgnoreCase), QDir::Files);
+            foreach(QString str, styleDir.entryList()) {
                 if (str == "base.qss") {
                     continue;
                 }
 
-	            QString styleSheetPath = d.filePath(str);
+	            QString styleSheetPath = styleDir.filePath(str);
 
-	            QFile f(styleSheetPath);
-	            assert(f.exists());
+	            QFile styleSheet(styleSheetPath);
+	            assert(styleSheet.exists());
 
-	            f.open(QFile::ReadOnly | QFile::Text);
-	            QTextStream ts(&f);
-	            styleSheet += ts.readAll() + "\n";
+                styleSheet.open(QFile::ReadOnly | QFile::Text);
+	            QTextStream ts(&styleSheet);
+                styleSheetString += ts.readAll() + "\n";
             }
-            qApp->setStyleSheet(styleSheet);
+
+            // apply stylesheet
+            qApp->setStyleSheet(styleSheetString);
 
             // these must be initialized here and not earlier
             m_frameManager = std::make_unique<FrameManager>(useSDI());
