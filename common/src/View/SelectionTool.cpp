@@ -286,19 +286,17 @@ namespace TrenchBroom {
             }
         }
 
-        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::list<Model::Hit>& hits) {
+        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::vector<Model::Hit>& hits) {
             std::vector<Model::Node*> hitNodes;
             std::unordered_set<Model::Node*> duplicateCheck;
 
             for (const auto& hit : hits) {
                 Model::Node* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
-
-                if (duplicateCheck.find(node) != duplicateCheck.end()) {
+                if (!duplicateCheck.insert(node).second) {
                     continue;
                 }
 
                 // Note that the order of the input hits are preserved, although duplicates later in the list are dropped
-                duplicateCheck.insert(node);
                 hitNodes.push_back(node);
             }
 

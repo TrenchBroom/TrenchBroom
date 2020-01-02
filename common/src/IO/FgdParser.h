@@ -29,7 +29,6 @@
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 
-#include <list>
 #include <memory>
 #include <nonstd/optional.hpp>
 #include <string>
@@ -69,7 +68,7 @@ namespace TrenchBroom {
 
             Color m_defaultEntityColor;
 
-            std::list<Path> m_paths;
+            std::vector<Path> m_paths;
             std::shared_ptr<FileSystem> m_fs;
 
             FgdTokenizer m_tokenizer;

@@ -24,6 +24,7 @@
 #include "Model/Model_Forward.h"
 
 #include <memory>
+#include <vector>
 
 class QCompleter;
 class QLineEdit;
@@ -44,7 +45,7 @@ namespace TrenchBroom {
             Model::CompilationTask* m_task;
             TitledPanel* m_panel;
 
-            using Completers = std::list<QCompleter*>;
+            using Completers = std::vector<QCompleter*>;
             Completers m_completers;
         protected:
             CompilationTaskEditorBase(const QString& title, std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationTask& task, QWidget* parent);

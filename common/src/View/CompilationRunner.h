@@ -25,9 +25,9 @@
 #include "Model/Model_Forward.h"
 #include "View/View_Forward.h"
 
-#include <list>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <QObject>
 #include <QProcess> // for QProcess::ProcessError
@@ -112,7 +112,7 @@ namespace TrenchBroom {
         class CompilationRunner : public QObject {
             Q_OBJECT
         private:
-            using TaskRunnerList = std::list<std::unique_ptr<CompilationTaskRunner>>;
+            using TaskRunnerList = std::vector<std::unique_ptr<CompilationTaskRunner>>;
 
             std::unique_ptr<CompilationContext> m_context;
             TaskRunnerList m_taskRunners;

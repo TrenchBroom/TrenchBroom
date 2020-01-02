@@ -29,13 +29,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        HitQuery::HitQuery(const std::list<Hit>& hits, const EditorContext& editorContext) :
+        HitQuery::HitQuery(const std::vector<Hit>& hits, const EditorContext& editorContext) :
         m_hits(&hits),
         m_editorContext(&editorContext),
         m_include(HitFilter::always()),
         m_exclude(HitFilter::never()) {}
 
-        HitQuery::HitQuery(const std::list<Hit>& hits) :
+        HitQuery::HitQuery(const std::vector<Hit>& hits) :
         m_hits(&hits),
         m_editorContext(nullptr),
         m_include(HitFilter::always()),
@@ -105,9 +105,10 @@ namespace TrenchBroom {
 
         const Hit& HitQuery::first() const {
             if (!m_hits->empty()) {
-                std::list<Hit>::const_iterator it = m_hits->begin();
-                const std::list<Hit>::const_iterator end = m_hits->end();
-                std::list<Hit>::const_iterator bestMatch = end;
+                auto it = m_hits->begin();
+                auto end = m_hits->end();
+                auto bestMatch = end;
+
                 FloatType bestMatchError = std::numeric_limits<FloatType>::max();
                 FloatType bestOccluderError = std::numeric_limits<FloatType>::max();
 
@@ -134,27 +135,33 @@ namespace TrenchBroom {
                     } while (it != end && vm::is_equal(it->distance(), distance, vm::C::almost_zero()));
                 }
 
-                if (bestMatch != end && bestMatchError <= bestOccluderError)
+                if (bestMatch != end && bestMatchError <= bestOccluderError) {
                     return *bestMatch;
+                }
             }
             return Hit::NoHit;
         }
 
-        std::list<Hit> HitQuery::all() const {
-            std::list<Hit> result;
+        std::vector<Hit> HitQuery::all() const {
+            std::vector<Hit> result;
             for (const Hit& hit : *m_hits) {
-                if (m_include->matches(hit))
+                if (m_include->matches(hit)) {
                     result.push_back(hit);
+                }
             }
             return result;
         }
 
         bool HitQuery::visible(const Hit& hit) const {
-            if (m_editorContext == nullptr)
+            if (m_editorContext == nullptr) {
                 return true;
+            }
+
             Node* node = hitToNode(hit);
-            if (node == nullptr)
+            if (node == nullptr) {
                 return true;
+            }
+
             return m_editorContext->visible(hitToNode(hit));
         }
     }

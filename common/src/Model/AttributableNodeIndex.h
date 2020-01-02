@@ -24,7 +24,6 @@
 
 #include <kdl/compact_trie_forward.h>
 
-#include <list>
 #include <memory>
 #include <set>
 #include <string>

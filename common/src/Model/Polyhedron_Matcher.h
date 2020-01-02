@@ -28,8 +28,8 @@
 #include <kdl/vector_set.h>
 
 #include <limits>
-#include <list>
 #include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -107,7 +107,7 @@ namespace TrenchBroom {
                 } while (currentRightFace != firstRightFace);
             }
 
-            using MatchingFaces = std::list<Face*>;
+            using MatchingFaces = std::vector<Face*>;
         private:
             /**
              * Find the best matching face from the left polyhedron for the given face of the right polyhedron. The best match

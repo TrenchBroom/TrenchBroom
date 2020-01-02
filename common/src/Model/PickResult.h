@@ -26,15 +26,15 @@
 
 #include <vecmath/util.h>
 
-#include <list>
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class PickResult {
         private:
             const EditorContext* m_editorContext;
-            std::list<Hit> m_hits;
+            std::vector<Hit> m_hits;
             std::shared_ptr<CompareHits> m_compare;
             class CompareWrapper;
         public:
@@ -53,7 +53,7 @@ namespace TrenchBroom {
 
             void addHit(const Hit& hit);
 
-            const std::list<Hit>& all() const;
+            const std::vector<Hit>& all() const;
             HitQuery query() const;
 
             void clear();

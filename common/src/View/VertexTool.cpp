@@ -83,7 +83,7 @@ namespace TrenchBroom {
             return *m_vertexHandles;
         }
 
-        bool VertexTool::startMove(const std::list<Model::Hit>& hits) {
+        bool VertexTool::startMove(const std::vector<Model::Hit>& hits) {
             const auto& hit = hits.front();
             if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
                 m_vertexHandles->deselectAll();
