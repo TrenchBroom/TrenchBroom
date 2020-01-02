@@ -193,6 +193,7 @@ namespace TrenchBroom {
 
                 styleSheet.open(QFile::ReadOnly | QFile::Text);
                 styleSheetString += QTextStream(&styleSheet).readAll() + "\n";
+                styleSheet.close();
             }
 
             // apply stylesheet
