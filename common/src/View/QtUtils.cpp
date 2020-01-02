@@ -181,6 +181,8 @@ namespace TrenchBroom {
         QWidget* makeInfo(QWidget* widget) {
             makeDefault(widget);
 
+            widget->setAttribute(Qt::WA_MacSmallSize);
+
             const auto defaultPalette = QPalette();
             auto palette = widget->palette();
             palette.setColor(QPalette::Normal, QPalette::WindowText, defaultPalette.color(QPalette::Disabled, QPalette::WindowText));
