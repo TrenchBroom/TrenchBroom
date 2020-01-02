@@ -181,10 +181,6 @@ namespace TrenchBroom {
         QWidget* makeInfo(QWidget* widget) {
             makeDefault(widget);
 
-            auto font = widget->font();
-            font.setPointSize(font.pointSize() - 2);
-            widget->setFont(font);
-
             const auto defaultPalette = QPalette();
             auto palette = widget->palette();
             palette.setColor(QPalette::Normal, QPalette::WindowText, defaultPalette.color(QPalette::Disabled, QPalette::WindowText));
