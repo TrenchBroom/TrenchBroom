@@ -34,16 +34,14 @@ namespace TrenchBroom {
     namespace IO {
         std::string Path::separator() {
 #ifdef _WIN32
-            static const std::string sep = "\\";
+            return std::string("\\");
 #else
-            static const std::string sep = "/";
+            return std::string("/");
 #endif
-            return sep;
         }
 
-        const std::string& Path::separators() {
-            static const std::string sep("/\\");
-            return sep;
+        static std::string separators() {
+            return std::string("/\\");
         }
 
         Path::Path(bool absolute, const std::vector<std::string>& components) :

@@ -51,8 +51,6 @@ namespace TrenchBroom {
                 }
             };
         private:
-            static const std::string& separators();
-
             std::vector<std::string> m_components;
             bool m_absolute;
 
