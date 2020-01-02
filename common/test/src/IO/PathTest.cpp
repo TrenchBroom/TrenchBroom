@@ -313,13 +313,13 @@ namespace TrenchBroom {
         }
 
         TEST(PathTest, pathAsQString) {
-            ASSERT_EQ(QString::fromLatin1("\\asdf\\test"), pathAsQString(Path("\\asdf\\test")));
-            ASSERT_EQ(QString::fromLatin1("asdf\\test"), pathAsQString(Path("asdf\\test")));
+            ASSERT_EQ(QString::fromLatin1("/asdf/test"), pathAsQString(Path("/asdf/test")));
+            ASSERT_EQ(QString::fromLatin1("asdf/test"), pathAsQString(Path("asdf/test")));
         }
 
         TEST(PathTest, pathFromQString) {
-            ASSERT_EQ(Path("\\asdf\\test"), pathFromQString(QString::fromLatin1("\\asdf\\test")));
-            ASSERT_EQ(Path("asdf\\test"), pathFromQString(QString::fromLatin1("asdf\\test")));
+            ASSERT_EQ(Path("/asdf/test"), pathFromQString(QString::fromLatin1("/asdf/test")));
+            ASSERT_EQ(Path("asdf/test"), pathFromQString(QString::fromLatin1("asdf/test")));
         }
 #endif
     }
