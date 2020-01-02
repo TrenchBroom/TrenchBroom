@@ -146,7 +146,7 @@ namespace TrenchBroom {
 #endif
 
             connect(this, &QCoreApplication::aboutToQuit, this, []() {
-                Model::GameFactory::instance().writeConfigs();
+                Model::GameFactory::instance().saveAllConfigs();
             });
         }
 
