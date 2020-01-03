@@ -21,7 +21,6 @@
 #define TrenchBroom_TextureReader_h
 
 #include "Macros.h"
-#include "IO/IO_Forward.h"
 
 #include <memory>
 #include <string>
@@ -32,6 +31,9 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        class File;
+        class Path;
+
         class TextureReader {
         public:
             class NameStrategy {

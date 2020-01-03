@@ -22,7 +22,6 @@
 
 #include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
-#include "IO/IO_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -31,6 +30,10 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class FileSystem;
+        class Path;
+        class Reader;
+
         class Md3Parser : public EntityModelParser {
         private:
             std::string m_name;

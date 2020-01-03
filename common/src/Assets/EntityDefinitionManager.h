@@ -21,7 +21,6 @@
 #define TrenchBroom_EntityDefinitionManager
 
 #include "Notifier.h"
-#include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <map>
@@ -29,6 +28,12 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace IO {
+        class EntityDefinitionLoader;
+        class ParserStatus;
+        class Path;
+    }
+
     namespace Assets {
         class EntityDefinition;
         class EntityDefinitionGroup;

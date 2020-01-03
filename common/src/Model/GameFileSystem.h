@@ -21,7 +21,6 @@
 #define TRENCHBROOM_GAMEFILESYSTEM_H
 
 #include "IO/FileSystem.h"
-#include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <memory>
@@ -29,6 +28,11 @@
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace IO {
+        class Path;
+        class Quake3ShaderFileSystem;
+    }
 
     namespace Model {
         class GameFileSystem : public IO::FileSystem {

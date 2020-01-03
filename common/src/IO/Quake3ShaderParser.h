@@ -20,7 +20,6 @@
 #ifndef TRENCHBROOM_Q3SHADERPARSER_H
 #define TRENCHBROOM_Q3SHADERPARSER_H
 
-#include "IO/IO_Forward.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 
@@ -33,6 +32,8 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        class ParserStatus;
+
         namespace Quake3ShaderToken {
             using Type = unsigned int;
             static const Type Number        = 1 << 1; // decimal number
@@ -69,11 +70,11 @@ namespace TrenchBroom {
              */
             std::vector<Assets::Quake3Shader> parse(ParserStatus& status);
         private:
-            void parseTexture(ParserStatus& status, Assets::Quake3Shader& shader);
-            void parseBody(ParserStatus& status, Assets::Quake3Shader& shader);
-            void parseStage(ParserStatus& status, Assets::Quake3Shader& shader);
-            void parseBodyEntry(ParserStatus& status, Assets::Quake3Shader& shader);
-            void parseStageEntry(ParserStatus& status, Assets::Quake3ShaderStage& stage);
+            void parseTexture(Assets::Quake3Shader& shader, ParserStatus& status);
+            void parseBody(Assets::Quake3Shader& shader, ParserStatus& status);
+            void parseStage(Assets::Quake3Shader& shader, ParserStatus& status);
+            void parseBodyEntry(Assets::Quake3Shader& shader, ParserStatus& status);
+            void parseStageEntry(Assets::Quake3ShaderStage& stage, ParserStatus& status);
             void skipRemainderOfEntry();
         private:
             TokenNameMap tokenNames() const override;

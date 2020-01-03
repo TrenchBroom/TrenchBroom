@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_BrushFaceReader
 #define TrenchBroom_BrushFaceReader
 
-#include "IO/IO_Forward.h"
 #include "IO/MapReader.h"
 #include "Model/Model_Forward.h"
 
@@ -29,6 +28,8 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class ParserStatus;
+
         class BrushFaceReader : public MapReader {
         private:
             Model::ModelFactory& m_factory;

@@ -20,7 +20,6 @@
 #ifndef TRENCHBROOM_FILE_H
 #define TRENCHBROOM_FILE_H
 
-#include "IO/IO_Forward.h"
 #include "IO/Path.h"
 #include "IO/Reader.h"
 

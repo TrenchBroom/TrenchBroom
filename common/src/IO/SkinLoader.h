@@ -20,8 +20,6 @@
 #ifndef TRENCHBROOM_SKINLOADER_H
 #define TRENCHBROOM_SKINLOADER_H
 
-#include "IO/IO_Forward.h"
-
 #include <memory>
 
 namespace TrenchBroom {
@@ -31,6 +29,8 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        class File;
+
         Assets::Texture* loadSkin(std::shared_ptr<File> file);
         Assets::Texture* loadSkin(std::shared_ptr<File> file, const Assets::Palette& palette);
     }

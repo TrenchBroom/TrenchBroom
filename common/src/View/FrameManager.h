@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_FrameManager
 #define TrenchBroom_FrameManager
 
-#include "IO/IO_Forward.h"
 #include "View/View_Forward.h"
 
 #include <QObject>

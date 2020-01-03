@@ -20,27 +20,26 @@
 #include <gtest/gtest.h>
 
 #include "Logger.h"
+#include "Assets/EntityModel.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/ObjParser.h"
 #include "IO/Reader.h"
-#include "Model/Entity.h"
-#include "Assets/EntityModel.h"
 
 namespace TrenchBroom {
     namespace IO {
         TEST(ObjParserTest, loadValidObj) {
             NullLogger logger;
 
-            DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
+            DiskFileSystem fs(Disk::getCurrentWorkingDir());
 
-            const auto mdlPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Obj/pointyship.obj");
+            const auto mdlPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Obj/pointyship.obj");
             const auto mdlFile = Disk::openFile(mdlPath);
             ASSERT_NE(nullptr, mdlFile);
 
             auto reader = mdlFile->reader().buffer();
-            auto parser = NvObjParser("fixture/test/IO/Obj/pointyship.obj", std::begin(reader), std::end(reader), fs);
+            auto parser = NvObjParser(Path("fixture/test/IO/Obj/pointyship.obj"), std::begin(reader), std::end(reader), fs);
             auto model = parser.initializeModel(logger);
             parser.loadFrame(0, *model, logger);
 

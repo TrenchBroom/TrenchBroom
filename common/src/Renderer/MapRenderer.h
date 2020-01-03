@@ -21,7 +21,6 @@
 #define TrenchBroom_MapRenderer
 
 #include "Macros.h"
-#include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"
 
@@ -31,6 +30,10 @@
 
 namespace TrenchBroom {
     class Color;
+
+    namespace IO {
+        class Path;
+    }
 
     namespace View {
         // FIXME: Renderer should not depend on View

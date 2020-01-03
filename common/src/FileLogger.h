@@ -22,13 +22,16 @@
 
 #include "Macros.h"
 #include "Logger.h"
-#include "IO/IO_Forward.h"
 
 #include <string>
 
 class QString;
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
     class FileLogger : public Logger {
     private:
         FILE* m_file;

@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_EntityDefinitionLoader
 #define TrenchBroom_EntityDefinitionLoader
 
-#include "IO/IO_Forward.h"
-
 #include <vector>
 
 namespace TrenchBroom {
@@ -30,12 +28,15 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        class ParserStatus;
+        class Path;
+
         class EntityDefinitionLoader {
         public:
             virtual ~EntityDefinitionLoader();
-            std::vector<Assets::EntityDefinition*> loadEntityDefinitions(ParserStatus& status, const IO::Path& path) const;
+            std::vector<Assets::EntityDefinition*> loadEntityDefinitions(ParserStatus& status, const Path& path) const;
         private:
-            virtual std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(ParserStatus& status, const IO::Path& path) const = 0;
+            virtual std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(ParserStatus& status, const Path& path) const = 0;
         };
     }
 }

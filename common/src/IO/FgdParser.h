@@ -24,7 +24,6 @@
 #include "Color.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
-#include "IO/IO_Forward.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 
@@ -39,6 +38,10 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        class FileSystem;
+        class ParserStatus;
+        class Path;
+
         namespace FgdToken {
             using Type = unsigned int;
             static const Type Integer           = 1 <<  0; // integer number

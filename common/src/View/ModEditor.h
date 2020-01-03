@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_ModEditor
 #define TrenchBroom_ModEditor
 
-#include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 #include "View/View_Forward.h"
 
@@ -36,6 +35,10 @@ class QWidget;
 class QAbstractButton;
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
     namespace View {
         class ModEditor : public QWidget {
             Q_OBJECT

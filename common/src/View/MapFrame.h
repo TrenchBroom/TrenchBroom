@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_MapFrame
 #define TrenchBroom_MapFrame
 
-#include "IO/IO_Forward.h"
 #include "Model/MapFormat.h"
 #include "Model/Model_Forward.h"
 #include "View/Selection.h"
@@ -45,6 +44,10 @@ class QToolBar;
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace IO {
+        class Path;
+    }
 
     namespace View {
         class MapFrame : public QMainWindow {

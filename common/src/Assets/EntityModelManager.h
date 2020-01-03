@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_EntityModelManager
 #define TrenchBroom_EntityModelManager
 
-#include "IO/IO_Forward.h"
 #include "IO/Path.h"
 #include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"
@@ -33,6 +32,10 @@
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace IO {
+        class EntityModelLoader;
+    }
 
     namespace Assets {
         class EntityModel;

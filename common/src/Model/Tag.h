@@ -21,7 +21,6 @@
 #define TRENCHBROOM_TAG_H
 
 #include "Macros.h"
-#include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 #include "Model/TagType.h"
 

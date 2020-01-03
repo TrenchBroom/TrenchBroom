@@ -20,12 +20,15 @@
 #ifndef TrenchBroom_RecentDocumentListBox
 #define TrenchBroom_RecentDocumentListBox
 
-#include "IO/IO_Forward.h"
 #include "View/ImageListBox.h"
 
 #include <QPixmap>
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
     namespace View {
         class RecentDocumentListBox : public ImageListBox {
             Q_OBJECT

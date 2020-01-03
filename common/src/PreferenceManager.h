@@ -23,7 +23,6 @@
 #include "Ensure.h"
 #include "Notifier.h"
 #include "Preference.h"
-#include "IO/IO_Forward.h"
 
 #include <kdl/vector_set.h>
 

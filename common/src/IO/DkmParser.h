@@ -22,7 +22,6 @@
 
 #include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
-#include "IO/IO_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -32,6 +31,10 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class FileSystem;
+        class Path;
+        class Reader;
+
         namespace DkmLayout {
             static const int Ident = (('D'<<24) + ('M'<<16) + ('K'<<8) + 'D');
             static const int Version1 = 1;
@@ -101,7 +104,7 @@ namespace TrenchBroom {
             DkmMeshList parseMeshes(Reader reader, size_t commandCount);
 
             void loadSkins(Assets::EntityModelSurface& surface, const DkmSkinList& skins);
-            const IO::Path findSkin(const std::string& skin) const;
+            Path findSkin(const std::string& skin) const;
 
             void buildFrame(Assets::EntityModel& model, Assets::EntityModelSurface& surface, size_t frameIndex, const DkmFrame& frame, const DkmMeshList& meshes);
             std::vector<Assets::EntityModelVertex> getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const;

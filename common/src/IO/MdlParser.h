@@ -22,7 +22,6 @@
 
 #include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
-#include "IO/IO_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -36,6 +35,8 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        class Reader;
+
         class MdlParser : public EntityModelParser {
         private:
             static const vm::vec3f Normals[162];

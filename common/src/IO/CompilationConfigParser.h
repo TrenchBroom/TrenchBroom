@@ -21,8 +21,8 @@
 #define CompilationConfigParser_h
 
 #include "Macros.h"
+#include "EL/EL_Forward.h"
 #include "IO/ConfigParserBase.h"
-#include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <string>
@@ -30,6 +30,8 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class Path;
+
         class CompilationConfigParser : public ConfigParserBase {
         public:
             CompilationConfigParser(const char* begin, const char* end, const Path& path);

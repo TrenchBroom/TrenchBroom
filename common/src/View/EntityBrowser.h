@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_EntityBrowser
 #define TrenchBroom_EntityBrowser
 
-#include "IO/IO_Forward.h"
 #include "View/View_Forward.h"
 
 #include <memory>
@@ -33,6 +32,10 @@ class QLineEdit;
 class QScrollBar;
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
     namespace View {
         class EntityBrowser : public QWidget {
             Q_OBJECT

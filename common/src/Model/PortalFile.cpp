@@ -26,13 +26,16 @@
 #include <kdl/string_utils.h>
 
 #include <vecmath/forward.h>
+#include <vecmath/polygon.h>
+#include <vecmath/vec.h>
 
 #include <fstream>
 #include <string>
 
 namespace TrenchBroom {
     namespace Model {
-        PortalFile::PortalFile() {}
+        PortalFile::PortalFile() = default;
+        PortalFile::~PortalFile() = default;
 
         PortalFile::PortalFile(const IO::Path& path) {
             load(path);

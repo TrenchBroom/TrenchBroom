@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_GameDialog
 #define TrenchBroom_GameDialog
 
-#include "IO/IO_Forward.h"
 #include "Model/MapFormat.h"
 #include "View/View_Forward.h"
 
@@ -33,6 +32,10 @@ class QPushButton;
 class QWidget;
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
     namespace View {
         class GameDialog : public QDialog {
             Q_OBJECT

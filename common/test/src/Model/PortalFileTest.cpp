@@ -27,6 +27,8 @@
 #include "IO/Path.h"
 #include "TestUtils.h"
 
+#include <vecmath/polygon.h>
+
 namespace TrenchBroom {
     namespace Model {
         TEST(PortalFileTest, parseInvalidPRT1) {

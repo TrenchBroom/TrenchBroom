@@ -22,8 +22,6 @@
 
 #include "Notifier.h"
 
-#include "IO/IO_Forward.h"
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -36,6 +34,10 @@ class QSettings;
 namespace TrenchBroom {
     class Logger;
     class RecoverableException;
+
+    namespace IO {
+        class Path;
+    }
 
     namespace View {
         class ExecutableEvent;

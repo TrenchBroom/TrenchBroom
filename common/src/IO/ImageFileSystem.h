@@ -21,7 +21,6 @@
 #define ImageFileSystem_h
 
 #include "IO/FileSystem.h"
-#include "IO/IO_Forward.h"
 #include "IO/Path.h"
 
 #include <kdl/string_compare.h>
@@ -31,6 +30,9 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class CFile;
+        class File;
+
         class ImageFileSystemBase : public FileSystem {
         protected:
             class FileEntry {

@@ -20,8 +20,6 @@
 #ifndef TextureCollectionLoader_h
 #define TextureCollectionLoader_h
 
-#include "IO/IO_Forward.h"
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -35,6 +33,11 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        class File;
+        class FileSystem;
+        class Path;
+        class TextureReader;
+
         class TextureCollectionLoader {
         protected:
             using FileList = std::vector<std::shared_ptr<File>>;

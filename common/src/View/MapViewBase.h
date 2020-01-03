@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_MapViewBase
 #define TrenchBroom_MapViewBase
 
-#include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/ActionContext.h"
@@ -47,6 +46,10 @@ namespace TrenchBroom {
         class EntityDefinition;
         enum class EntityDefinitionType;
         class PointEntityDefinition;
+    }
+
+    namespace IO {
+        class Path;
     }
 
     namespace View {

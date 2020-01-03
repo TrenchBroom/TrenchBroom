@@ -21,7 +21,6 @@
 #define TrenchBroom_StandardMapParser
 
 #include "FloatType.h"
-#include "IO/IO_Forward.h"
 #include "IO/MapParser.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
@@ -37,6 +36,8 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class ParserStatus;
+
         namespace QuakeMapToken {
             using Type = unsigned int;
             static const Type Integer       = 1 <<  0; // integer number

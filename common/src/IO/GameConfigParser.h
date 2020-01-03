@@ -21,8 +21,8 @@
 #define TrenchBroom_GameConfigParser
 
 #include "Macros.h"
+#include "EL/EL_Forward.h"
 #include "IO/ConfigParserBase.h"
-#include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <string>
@@ -30,6 +30,8 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class Path;
+
         class GameConfigParser : public ConfigParserBase {
         public:
             GameConfigParser(const char* begin, const char* end, const Path& path);

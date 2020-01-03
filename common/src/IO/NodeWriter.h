@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_NodeWriter
 #define TrenchBroom_NodeWriter
 
-#include "IO/IO_Forward.h"
 #include "IO/NodeSerializer.h"
 #include "Model/Model_Forward.h"
 

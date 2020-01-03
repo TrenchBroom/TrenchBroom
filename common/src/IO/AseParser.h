@@ -21,7 +21,6 @@
 #define TRENCHBROOM_ASEPARSER_H
 
 #include "IO/EntityModelParser.h"
-#include "IO/IO_Forward.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 
@@ -41,6 +40,9 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        class FileSystem;
+        class Path;
+
         namespace AseToken {
             typedef unsigned int Type;
             static const Type Directive         = 1 <<  0; // Any directive, i.e. *SCENE
