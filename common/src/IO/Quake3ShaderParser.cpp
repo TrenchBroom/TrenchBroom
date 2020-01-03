@@ -151,7 +151,7 @@ namespace TrenchBroom {
             expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
         }
 
-        void Quake3ShaderParser::parseTexture(Assets::Quake3Shader& shader, ParserStatus& status) {
+        void Quake3ShaderParser::parseTexture(Assets::Quake3Shader& shader, ParserStatus& /* status */) {
             const auto token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
             const auto pathStr = token.data();
             if (!pathStr.empty() && pathStr[0] == '/') {
@@ -162,7 +162,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Quake3ShaderParser::parseBodyEntry(Assets::Quake3Shader& shader, ParserStatus& status) {
+        void Quake3ShaderParser::parseBodyEntry(Assets::Quake3Shader& shader, ParserStatus& /* status */) {
             auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
             expect(Quake3ShaderToken::String, token);
             const auto key = token.data();
