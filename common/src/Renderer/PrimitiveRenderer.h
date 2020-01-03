@@ -21,7 +21,6 @@
 #define TrenchBroom_PrimitiveRenderer
 
 #include "Color.h"
-#include "Renderer/Renderer_Forward.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/GLVertexType.h"
 
@@ -30,6 +29,10 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class ActiveShader;
+        template <typename VertexSpec> class IndexRangeMapBuilder;
+        class IndexRangeRenderer;
+
         enum class PrimitiveRendererOcclusionPolicy {
             Hide,
             Show,

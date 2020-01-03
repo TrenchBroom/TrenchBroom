@@ -21,11 +21,16 @@
 #define TrenchBroom_ResizeBrushesToolController
 
 #include "Renderer/EdgeRenderer.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/ToolController.h"
 #include "View/View_Forward.h"
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class DirectEdgeRenderer;
+        class RenderBatch;
+        class RenderContext;
+    }
+
     namespace View {
         class ResizeBrushesToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:

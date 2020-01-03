@@ -21,7 +21,6 @@
 #define TrenchBroom_RotateObjectsTool
 
 #include "FloatType.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
 #include "View/RotateObjectsHandle.h"
 #include "View/View_Forward.h"
@@ -32,6 +31,12 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class Camera;
+        class RenderBatch;
+        class RenderContext;
+    }
+
     namespace View {
         class RotateObjectsTool : public Tool {
         private:

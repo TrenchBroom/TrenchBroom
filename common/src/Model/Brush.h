@@ -27,7 +27,6 @@
 #include "Model/Node.h"
 #include "Model/Object.h"
 #include "Model/TagType.h"
-#include "Renderer/Renderer_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -36,6 +35,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class BrushRendererBrushCache;
+    }
+
     namespace Model {
         class ModelFactory;
         template <typename P> class PolyhedronMatcher;

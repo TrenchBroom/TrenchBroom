@@ -25,7 +25,6 @@
 #include "Renderer/AllocationTracker.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/FaceRenderer.h"
-#include "Renderer/Renderer_Forward.h"
 
 #include <memory>
 #include <tuple>

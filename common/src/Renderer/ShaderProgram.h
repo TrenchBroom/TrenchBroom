@@ -21,7 +21,6 @@
 #define TrenchBroom_ShaderProgram
 
 #include "Renderer/GL.h"
-#include "Renderer/Renderer_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -30,6 +29,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class Shader;
+
         class ShaderProgram {
         private:
             using UniformVariableCache = std::map<std::string, GLint>;

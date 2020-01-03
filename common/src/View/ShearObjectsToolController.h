@@ -21,13 +21,18 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TrenchBroom_ShearObjectsToolController
 #define TrenchBroom_ShearObjectsToolController
 
-#include "Renderer/Renderer_Forward.h"
 #include "View/ToolController.h"
 #include "View/View_Forward.h"
 
 #include <memory>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class Camera;
+        class RenderBatch;
+        class RenderContext;
+    }
+
     namespace View {
         class ShearObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:

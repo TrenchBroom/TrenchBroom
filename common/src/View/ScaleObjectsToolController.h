@@ -21,7 +21,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TrenchBroom_ScaleObjectsToolController
 #define TrenchBroom_ScaleObjectsToolController
 
-#include "Renderer/Renderer_Forward.h"
 #include "View/ToolController.h"
 #include "View/View_Forward.h"
 
@@ -30,6 +29,12 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class Camera;
+        class RenderBatch;
+        class RenderContext;
+    }
+
     namespace View {
         class ScaleObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:

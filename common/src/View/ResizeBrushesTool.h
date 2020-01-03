@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "Model/HitType.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
 #include "View/View_Forward.h"
 
@@ -40,6 +39,10 @@ namespace TrenchBroom {
         class Hit;
         class Node;
         class PickResult;
+    }
+
+    namespace Renderer {
+        class Camera;
     }
 
     namespace View {

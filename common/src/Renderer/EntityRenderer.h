@@ -24,7 +24,6 @@
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/EntityModelRenderer.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/Renderer_Forward.h"
 #include "Renderer/TriangleRenderer.h"
 
 #include <vecmath/forward.h>

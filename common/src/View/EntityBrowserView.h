@@ -22,7 +22,6 @@
 
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/GLVertexType.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/CellView.h"
 
 #include <vecmath/forward.h>
@@ -40,6 +39,12 @@ namespace TrenchBroom {
         enum class EntityDefinitionSortOrder;
         class EntityModelManager;
         class PointEntityDefinition;
+    }
+
+    namespace Renderer {
+        class FontDescriptor;
+        class TexturedRenderer;
+        class Transformation;
     }
 
     namespace View {

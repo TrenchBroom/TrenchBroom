@@ -24,7 +24,6 @@
 #include "FloatType.h"
 #include "Model/Hit.h"
 #include "Model/HitType.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
 #include "View/View_Forward.h"
 
@@ -37,6 +36,10 @@
 namespace TrenchBroom {
     namespace Model {
         class PickResult;
+    }
+
+    namespace Renderer {
+        class Camera;
     }
 
     namespace View {

@@ -21,7 +21,6 @@
 #define EdgeTool_h
 
 #include "FloatType.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/VertexToolBase.h"
 #include "View/View_Forward.h"
 
@@ -35,6 +34,10 @@ namespace TrenchBroom {
     namespace Model {
         class Brush;
         class PickResult;
+    }
+
+    namespace Renderer {
+        class Camera;
     }
 
     namespace View {

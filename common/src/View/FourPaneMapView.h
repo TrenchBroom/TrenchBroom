@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_FourPaneMapView
 #define TrenchBroom_FourPaneMapView
 
-#include "Renderer/Renderer_Forward.h"
 #include "View/CameraLinkHelper.h"
 #include "View/MultiMapView.h"
 #include "View/View_Forward.h"
@@ -31,6 +30,10 @@ class QSplitter;
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace Renderer {
+        class MapRenderer;
+    }
 
     namespace View {
         class FourPaneMapView : public MultiMapView {

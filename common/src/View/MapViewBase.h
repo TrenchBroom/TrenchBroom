@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_MapViewBase
 #define TrenchBroom_MapViewBase
 
-#include "Renderer/Renderer_Forward.h"
 #include "View/ActionContext.h"
 #include "View/CameraLinkHelper.h"
 #include "View/MapView.h"
@@ -56,6 +55,16 @@ namespace TrenchBroom {
         class Node;
         class NodeCollection;
         class SmartTag;
+    }
+
+    namespace Renderer {
+        class Camera;
+        class Compass;
+        class MapRenderer;
+        class PrimitiveRenderer;
+        class RenderBatch;
+        class RenderContext;
+        enum class RenderMode;
     }
 
     namespace View {

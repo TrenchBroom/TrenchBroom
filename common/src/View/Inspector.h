@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_Inspector
 #define TrenchBroom_Inspector
 
-#include "Renderer/Renderer_Forward.h"
 #include "View/View_Forward.h"
 
 #include <memory>

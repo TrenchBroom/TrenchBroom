@@ -22,7 +22,6 @@
 
 #include "Color.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/Renderer_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -36,6 +35,10 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
+        class BrushIndexArray;
+        class BrushVertexArray;
+        class RenderBatch;
+
         class FaceRenderer : public IndexedRenderable {
         private:
             struct RenderFunc;

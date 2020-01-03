@@ -21,7 +21,6 @@
 #define TrenchBroom_MapViewToolBox
 
 #include "FloatType.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/ToolBox.h"
 #include "View/View_Forward.h"
 

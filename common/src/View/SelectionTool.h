@@ -21,7 +21,6 @@
 #define TrenchBroom_SelectionTool
 
 #include "Model/HitType.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
 #include "View/View_Forward.h"
@@ -32,6 +31,10 @@
 namespace TrenchBroom {
     namespace Model {
         class Node;
+    }
+
+    namespace Renderer {
+        class RenderContext;
     }
 
     namespace View {

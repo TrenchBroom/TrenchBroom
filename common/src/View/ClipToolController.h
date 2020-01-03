@@ -21,7 +21,6 @@
 #define TrenchBroom_ClipToolController
 
 #include "FloatType.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/ToolController.h"
 #include "View/View_Forward.h"
 
@@ -33,6 +32,11 @@ namespace TrenchBroom {
     namespace Model {
         class BrushFace;
         class PickResult;
+    }
+
+    namespace Renderer {
+        class RenderBatch;
+        class RenderContext;
     }
 
     namespace View {

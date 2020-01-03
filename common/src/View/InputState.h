@@ -22,10 +22,13 @@
 
 #include "FloatType.h"
 #include "Model/PickResult.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/PickRequest.h"
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class Camera;
+    }
+
     namespace View {
         using ModifierKeyState = unsigned int;
         namespace ModifierKeys {

@@ -21,7 +21,6 @@
 #define TrenchBroom_EntityModel
 
 #include "Assets/EntityModel_Forward.h"
-#include "Renderer/Renderer_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
@@ -32,6 +31,12 @@
 
 namespace TrenchBroom {
     template <typename T, size_t S, typename U> class AABBTree;
+
+    namespace Renderer {
+        enum class PrimType;
+        class TexturedIndexRangeRenderer;
+        class TexturedRenderer;
+    }
 
     namespace Assets {
         class Texture;

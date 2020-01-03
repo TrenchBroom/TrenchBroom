@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_MapView2D
 #define TrenchBroom_MapView2D
 
-#include "Renderer/Renderer_Forward.h"
 #include "View/MapViewBase.h"
 #include "View/View_Forward.h"
 
@@ -33,6 +32,14 @@ namespace TrenchBroom {
 
     namespace Model {
         class PickResult;
+    }
+
+    namespace Renderer {
+        class MapRenderer;
+        class OrthographicCamera;
+        class RenderBatch;
+        class RenderContext;
+        enum class RenderMode;
     }
 
     namespace View {

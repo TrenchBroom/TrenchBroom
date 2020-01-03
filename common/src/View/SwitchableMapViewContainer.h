@@ -23,7 +23,6 @@
 #include <QWidget>
 
 #include "FloatType.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/MapView.h"
 #include "View/View_Forward.h"
 
@@ -31,6 +30,10 @@
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace Renderer {
+        class MapRenderer;
+    }
 
     namespace View {
         class SwitchableMapViewContainer : public QWidget, public MapView {

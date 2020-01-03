@@ -21,7 +21,6 @@
 #define TrenchBroom_MapRenderer
 
 #include "Macros.h"
-#include "Renderer/Renderer_Forward.h"
 
 #include <map>
 #include <memory>
@@ -49,6 +48,11 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
+        class EntityLinkRenderer;
+        class ObjectRenderer;
+        class RenderBatch;
+        class RenderContext;
+
         class MapRenderer {
         private:
             class SelectedBrushRendererFilter;

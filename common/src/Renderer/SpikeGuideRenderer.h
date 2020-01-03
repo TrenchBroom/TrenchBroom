@@ -22,7 +22,6 @@
 
 #include "Color.h"
 #include "FloatType.h"
-#include "Renderer/Renderer_Forward.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/GLVertexType.h"
