@@ -170,35 +170,12 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::loadStyleSheets() {
-            QString styleSheetString;
-
-            // load base stylesheet
             QFile baseStyle = QFile(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("stylesheets/base.qss")));
             assert(baseStyle.exists());
             
             baseStyle.open(QFile::ReadOnly | QFile::Text);
-            styleSheetString += QTextStream(&baseStyle).readAll() + "\n";
+            qApp->setStyleSheet(QTextStream(&baseStyle).readAll());
             baseStyle.close();
-
-            // load override stylesheets
-            const QDir styleDir(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("stylesheets")), "*.qss", QFlags<QDir::SortFlag>(QDir::Name | QDir::IgnoreCase), QDir::Files);
-            for(const QString str : styleDir.entryList()) {
-                if (str == "base.qss") {
-                    continue;
-                }
-
-                const QString styleSheetPath = styleDir.filePath(str);
-
-                QFile styleSheet(styleSheetPath);
-                assert(styleSheet.exists());
-
-                styleSheet.open(QFile::ReadOnly | QFile::Text);
-                styleSheetString += QTextStream(&styleSheet).readAll() + "\n";
-                styleSheet.close();
-            }
-
-            // apply stylesheet
-            qApp->setStyleSheet(styleSheetString);
         }
 
         const std::vector<IO::Path>& TrenchBroomApp::recentDocuments() const {
