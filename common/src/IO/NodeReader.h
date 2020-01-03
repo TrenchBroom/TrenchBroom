@@ -21,7 +21,6 @@
 #define TrenchBroom_NodeReader
 
 #include "IO/MapReader.h"
-#include "Model/Model_Forward.h"
 
 #include <string>
 #include <vector>

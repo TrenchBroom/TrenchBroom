@@ -22,7 +22,6 @@
 
 #include "Macros.h"
 #include "Model/Hit.h"
-#include "Model/Model_Forward.h"
 
 #include <vecmath/util.h>
 
@@ -31,6 +30,10 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class CompareHits;
+        class EditorContext;
+        class HitQuery;
+
         class PickResult {
         private:
             const EditorContext* m_editorContext;

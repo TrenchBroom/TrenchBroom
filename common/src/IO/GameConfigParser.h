@@ -23,12 +23,25 @@
 #include "Macros.h"
 #include "EL/EL_Forward.h"
 #include "IO/ConfigParserBase.h"
-#include "Model/Model_Forward.h"
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        struct EntityConfig;
+        struct FaceAttribsConfig;
+        struct FileSystemConfig;
+        struct FlagConfig;
+        struct FlagsConfig;
+        class GameConfig;
+        struct MapFormatConfig;
+        struct PackageFormatConfig;
+        class SmartTag;
+        class TagAttribute;
+        struct TextureConfig;
+        struct TexturePackageConfig;
+    }
     namespace IO {
         class Path;
 

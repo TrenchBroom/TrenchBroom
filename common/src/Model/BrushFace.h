@@ -24,7 +24,6 @@
 #include "Macros.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
-#include "Model/Model_Forward.h"
 #include "Model/Tag.h" // BrushFace inherits from Taggable
 
 #include <kdl/transform_range.h>
@@ -44,6 +43,12 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        class Brush;
+        class BrushFaceSnapshot;
+        class TexCoordSystem;
+        class TexCoordSystemSnapshot;
+        enum class WrapStyle;
+
         class BrushFace : public Taggable {
         public:
             /*

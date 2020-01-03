@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_SmartColorEditor
 #define TrenchBroom_SmartColorEditor
 
-#include "Model/Model_Forward.h"
 #include "View/SmartAttributeEditor.h"
 
 #include <memory>

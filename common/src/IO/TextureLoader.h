@@ -21,7 +21,6 @@
 #define TextureLoader_h
 
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <string>
@@ -34,6 +33,10 @@ namespace TrenchBroom {
         class Palette;
         class TextureCollection;
         class TextureManager;
+    }
+
+    namespace Model {
+        struct TextureConfig;
     }
 
     namespace IO {

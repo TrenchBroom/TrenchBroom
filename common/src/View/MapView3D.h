@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_MapView3D
 #define TrenchBroom_MapView3D
 
-#include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/MapViewBase.h"
 #include "View/View_Forward.h"

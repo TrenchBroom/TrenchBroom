@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_LayerListBox
 #define TrenchBroom_LayerListBox
 
-#include "Model/Model_Forward.h"
 #include "View/ControlListBox.h"
 #include "View/View_Forward.h"
 
@@ -32,6 +31,11 @@ class QAbstractButton;
 class QListWidget;
 
 namespace TrenchBroom {
+    namespace Model {
+        class Layer;
+        class Node;
+    }
+
     namespace View {
         class LayerListBoxWidget : public ControlListBoxItemRenderer {
             Q_OBJECT

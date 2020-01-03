@@ -82,7 +82,7 @@ namespace TrenchBroom {
             return std::make_unique<ParaxialTexCoordSystem>(m_index, m_xAxis, m_yAxis);
         }
 
-        std::unique_ptr<TexCoordSystemSnapshot> ParaxialTexCoordSystem::doTakeSnapshot() {
+        std::unique_ptr<TexCoordSystemSnapshot> ParaxialTexCoordSystem::doTakeSnapshot() const {
             return std::unique_ptr<TexCoordSystemSnapshot>();
         }
 

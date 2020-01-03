@@ -21,7 +21,6 @@
 #define TrenchBroom_ReparentNodesCommand
 
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
 #include "View/View_Forward.h"
 
@@ -30,6 +29,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Node;
+    }
+
     namespace View {
         class ReparentNodesCommand : public DocumentCommand {
         public:

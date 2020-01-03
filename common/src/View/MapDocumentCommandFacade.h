@@ -21,7 +21,6 @@
 #define TrenchBroom_MapDocumentCommandFacade
 
 #include "FloatType.h"
-#include "Model/Model_Forward.h"
 #include "View/MapDocument.h"
 #include "View/View_Forward.h"
 
@@ -33,6 +32,13 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class EntityAttributeSnapshot;
+        enum class LockState;
+        class Snapshot;
+        enum class VisibilityState;
+    }
+
     namespace View {
         class MapDocumentCommandFacade : public MapDocument {
         private:
@@ -82,11 +88,11 @@ namespace TrenchBroom {
             bool performTransform(const vm::mat4x4& transform, bool lockTextures);
         public: // entity attributes
             using EntityAttributeSnapshotMap = std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>>;
-            EntityAttributeSnapshotMap performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
-            EntityAttributeSnapshotMap performRemoveAttribute(const Model::AttributeName& name);
-            EntityAttributeSnapshotMap performUpdateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
-            EntityAttributeSnapshotMap performConvertColorRange(const Model::AttributeName& name, Assets::ColorRange::Type colorRange);
-            EntityAttributeSnapshotMap performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
+            EntityAttributeSnapshotMap performSetAttribute(const std::string& name, const std::string& value);
+            EntityAttributeSnapshotMap performRemoveAttribute(const std::string& name);
+            EntityAttributeSnapshotMap performUpdateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag);
+            EntityAttributeSnapshotMap performConvertColorRange(const std::string& name, Assets::ColorRange::Type colorRange);
+            EntityAttributeSnapshotMap performRenameAttribute(const std::string& oldName, const std::string& newName);
             void restoreAttributes(const EntityAttributeSnapshotMap& attributes);
         public: // brush resizing
             std::vector<vm::polygon3> performResizeBrushes(const std::vector<vm::polygon3>& polygons, const vm::vec3& delta);

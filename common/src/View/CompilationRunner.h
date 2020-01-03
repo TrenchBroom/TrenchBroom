@@ -22,7 +22,6 @@
 
 #include "Macros.h"
 
-#include "Model/Model_Forward.h"
 #include "View/View_Forward.h"
 
 #include <memory>
@@ -33,6 +32,13 @@
 #include <QProcess> // for QProcess::ProcessError
 
 namespace TrenchBroom {
+    namespace Model {
+        class CompilationCopyFiles;
+        class CompilationExportMap;
+        class CompilationProfile;
+        class CompilationRunTool;
+    }
+
     namespace View {
         class CompilationTaskRunner : public QObject {
             Q_OBJECT

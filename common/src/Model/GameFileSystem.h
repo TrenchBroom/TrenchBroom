@@ -21,7 +21,6 @@
 #define TRENCHBROOM_GAMEFILESYSTEM_H
 
 #include "IO/FileSystem.h"
-#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <vector>
@@ -35,6 +34,8 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        class GameConfig;
+
         class GameFileSystem : public IO::FileSystem {
         private:
             IO::Quake3ShaderFileSystem* m_shaderFS;

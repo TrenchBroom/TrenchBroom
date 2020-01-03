@@ -21,7 +21,6 @@
 #define TrenchBroom_MoveObjectsTool
 
 #include "FloatType.h"
-#include "Model/Model_Forward.h"
 #include "View/Tool.h"
 #include "View/View_Forward.h"
 

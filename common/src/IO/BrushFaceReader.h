@@ -21,12 +21,21 @@
 #define TrenchBroom_BrushFaceReader
 
 #include "IO/MapReader.h"
-#include "Model/Model_Forward.h"
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+        class BrushFace;
+        class EntityAttribute;
+        class Layer;
+        enum class MapFormat;
+        class ModelFactory;
+        class Node;
+    }
+
     namespace IO {
         class ParserStatus;
 

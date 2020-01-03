@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "Model/HitType.h"
-#include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
 #include "View/View_Forward.h"
@@ -35,6 +34,14 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+        class BrushFace;
+        class Hit;
+        class Node;
+        class PickResult;
+    }
+
     namespace View {
         class ResizeBrushesTool : public Tool {
         private:

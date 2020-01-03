@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_FaceAttribsEditor
 #define TrenchBroom_FaceAttribsEditor
 
-#include "Model/Model_Forward.h"
 #include "View/View_Forward.h"
 
 #include <QWidget>
@@ -33,6 +32,10 @@ class QLineEdit;
 class QGridLayout;
 
 namespace TrenchBroom {
+    namespace Model {
+        class BrushFace;
+    }
+
     namespace View {
         class FaceAttribsEditor : public QWidget {
             Q_OBJECT

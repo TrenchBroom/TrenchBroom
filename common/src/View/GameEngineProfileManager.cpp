@@ -81,7 +81,7 @@ namespace TrenchBroom {
         }
 
         void GameEngineProfileManager::addProfile() {
-            m_config.addProfile(new Model::GameEngineProfile("", IO::Path(), ""));
+            m_config.addProfile(std::make_unique<Model::GameEngineProfile>("", IO::Path(), ""));
             m_profileList->setCurrentRow(static_cast<int>(m_config.profileCount() - 1));
         }
 

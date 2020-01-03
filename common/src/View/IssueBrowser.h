@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_IssueBrowser
 #define TrenchBroom_IssueBrowser
 
-#include "Model/Model_Forward.h"
 #include "View/TabBook.h"
 #include "View/View_Forward.h"
 
@@ -32,6 +31,12 @@ class QStackedLayout;
 class QWidget;
 
 namespace TrenchBroom {
+    namespace Model {
+        class BrushFace;
+        class Issue;
+        class Node;
+    }
+
     namespace View {
         class IssueBrowser : public TabBookPage {
             Q_OBJECT

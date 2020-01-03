@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_TextureBrowser
 #define TrenchBroom_TextureBrowser
 
-#include "Model/Model_Forward.h"
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -40,6 +38,11 @@ namespace TrenchBroom {
 
     namespace IO {
         class Path;
+    }
+
+    namespace Model {
+        class BrushFace;
+        class Node;
     }
 
     namespace View {

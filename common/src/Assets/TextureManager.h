@@ -21,7 +21,6 @@
 #define TrenchBroom_TextureManager
 
 #include "Notifier.h"
-#include "Model/Model_Forward.h"
 
 #include <map>
 #include <string>

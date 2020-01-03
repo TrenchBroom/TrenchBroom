@@ -21,7 +21,6 @@
 #define TrenchBroom_ChangeEntityAttributesCommand
 
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
 #include "View/View_Forward.h"
 
@@ -31,6 +30,11 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class AttributableNode;
+        class EntityAttributeSnapshot;
+    }
+
     namespace View {
         class MapDocumentCommandFacade;
 
@@ -45,24 +49,24 @@ namespace TrenchBroom {
             };
 
             Action m_action;
-            Model::AttributeName m_oldName;
-            Model::AttributeName m_newName;
-            Model::AttributeValue m_newValue;
+            std::string m_oldName;
+            std::string m_newName;
+            std::string m_newValue;
 
             std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>> m_snapshots;
         public:
-            static std::unique_ptr<ChangeEntityAttributesCommand> set(const Model::AttributeName& name, const Model::AttributeValue& value);
-            static std::unique_ptr<ChangeEntityAttributesCommand> remove(const Model::AttributeName& name);
-            static std::unique_ptr<ChangeEntityAttributesCommand> rename(const Model::AttributeName& oldName, const Model::AttributeName& newName);
+            static std::unique_ptr<ChangeEntityAttributesCommand> set(const std::string& name, const std::string& value);
+            static std::unique_ptr<ChangeEntityAttributesCommand> remove(const std::string& name);
+            static std::unique_ptr<ChangeEntityAttributesCommand> rename(const std::string& oldName, const std::string& newName);
         public:
             ChangeEntityAttributesCommand(Action action);
             ~ChangeEntityAttributesCommand() override;
         private:
             static std::string makeName(Action action);
 
-            void setName(const Model::AttributeName& name);
-            void setNewName(const Model::AttributeName& newName);
-            void setNewValue(const Model::AttributeValue& newValue);
+            void setName(const std::string& name);
+            void setNewName(const std::string& newName);
+            void setNewValue(const std::string& newValue);
 
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
             std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;

@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_LayerEditor
 #define TrenchBroom_LayerEditor
 
-#include "Model/Model_Forward.h"
 #include "View/View_Forward.h"
 
 #include <memory>
@@ -31,6 +30,10 @@
 class QAbstractButton;
 
 namespace TrenchBroom {
+    namespace Model {
+        class Layer;
+    }
+
     namespace View {
         class LayerEditor : public QWidget {
             Q_OBJECT

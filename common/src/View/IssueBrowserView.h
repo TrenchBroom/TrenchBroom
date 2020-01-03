@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_IssueBrowserView
 #define TrenchBroom_IssueBrowserView
 
-#include "Model/Model_Forward.h"
+#include "Model/IssueType.h"
 #include "View/View_Forward.h"
 
 #include <memory>
@@ -33,6 +33,11 @@ class QWidget;
 class QTableView;
 
 namespace TrenchBroom {
+    namespace Model {
+        class Issue;
+        class IssueQuickFix;
+    }
+
     namespace View {
         class IssueBrowserView : public QWidget {
             Q_OBJECT

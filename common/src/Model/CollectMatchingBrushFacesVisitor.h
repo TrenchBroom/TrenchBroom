@@ -23,7 +23,6 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFacePredicates.h"
-#include "Model/Model_Forward.h"
 #include "Model/NodeVisitor.h"
 
 #include <vector>
@@ -45,8 +44,9 @@ namespace TrenchBroom {
             void doVisit(Entity*) override {}
             void doVisit(Brush* brush) override {
                 for (BrushFace* face : brush->faces()) {
-                    if (m_p(face))
+                    if (m_p(face)) {
                         m_faces.push_back(face);
+                    }
                 }
             }
         };

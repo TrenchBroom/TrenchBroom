@@ -23,12 +23,17 @@
 #include "Macros.h"
 #include "EL/EL_Forward.h"
 #include "IO/ConfigParserBase.h"
-#include "Model/Model_Forward.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class GameEngineConfig;
+        class GameEngineProfile;
+    }
+
     namespace IO {
         class Path;
 
@@ -39,8 +44,8 @@ namespace TrenchBroom {
 
             Model::GameEngineConfig parse();
         private:
-            std::vector<Model::GameEngineProfile*> parseProfiles(const EL::Value& value) const;
-            Model::GameEngineProfile* parseProfile(const EL::Value& value) const;
+            std::vector<std::unique_ptr<Model::GameEngineProfile>> parseProfiles(const EL::Value& value) const;
+            std::unique_ptr<Model::GameEngineProfile> parseProfile(const EL::Value& value) const;
 
             deleteCopyAndMove(GameEngineConfigParser)
         };

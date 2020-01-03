@@ -21,7 +21,6 @@
 #define TrenchBroom_EntityModelRenderer
 
 #include "Color.h"
-#include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"
 #include "Renderer/Renderable.h"
 
@@ -30,6 +29,11 @@
 namespace TrenchBroom {
     namespace Assets {
         class EntityModelManager;
+    }
+
+    namespace Model {
+        class EditorContext;
+        class Entity;
     }
 
     namespace Renderer {

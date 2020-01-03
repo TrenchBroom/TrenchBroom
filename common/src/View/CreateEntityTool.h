@@ -21,7 +21,6 @@
 #define TrenchBroom_CreateEntityTool
 
 #include "FloatType.h"
-#include "Model/Model_Forward.h"
 #include "View/Tool.h"
 #include "View/View_Forward.h"
 
@@ -31,6 +30,11 @@
 #include <string>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Entity;
+        class PickResult;
+    }
+
     namespace View {
         class CreateEntityTool : public Tool {
         private:

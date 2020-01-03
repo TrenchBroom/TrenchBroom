@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_CreateBrushToolBase
 #define TrenchBroom_CreateBrushToolBase
 
-#include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
 #include "View/View_Forward.h"
@@ -28,6 +27,10 @@
 #include <memory>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+    }
+
     namespace View {
         class CreateBrushToolBase : public Tool {
         protected:

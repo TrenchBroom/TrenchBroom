@@ -145,7 +145,7 @@ namespace TrenchBroom {
         }
 
         std::vector<IO::Path> TestGame::doExtractTextureCollections(const AttributableNode& node) const {
-            const AttributeValue& pathsValue = node.attribute("wad");
+            const auto& pathsValue = node.attribute("wad");
             if (pathsValue.empty()) {
                 return std::vector<IO::Path>(0);
             }

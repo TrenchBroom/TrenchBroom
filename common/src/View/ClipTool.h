@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "Model/HitType.h"
-#include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
 #include "View/View_Forward.h"
@@ -32,8 +31,13 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace View {
+    namespace Model {
+        class BrushFace;
+        class Node;
+        class PickResult;
+    }
 
+    namespace View {
         class ClipTool : public Tool {
         public:
             static const Model::HitType::Type PointHit;

@@ -24,7 +24,6 @@
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/EntityModelLoader.h"
 #include "Model/MapFormat.h"
-#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <map>
@@ -40,6 +39,15 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        class AttributableNode;
+        class BrushFace;
+        class CompilationConfig;
+        enum class ExportFormat;
+        struct FlagsConfig;
+        class Node;
+        class SmartTag;
+        class World;
+
         class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader {
         public:
             enum class TexturePackageType {

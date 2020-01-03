@@ -21,7 +21,6 @@
 #define TrenchBroom_SetLockStateCommand
 
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "View/UndoableCommand.h"
 #include "View/View_Forward.h"
 
@@ -31,6 +30,11 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        enum class LockState;
+        class Node;
+    }
+
     namespace View {
         class SetLockStateCommand : public UndoableCommand {
         public:

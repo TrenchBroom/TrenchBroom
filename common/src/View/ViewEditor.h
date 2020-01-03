@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_ViewEditor
 #define TrenchBroom_ViewEditor
 
-#include "Model/Model_Forward.h"
-
 #include <QWidget>
 
 #include <memory>
@@ -35,6 +33,11 @@ namespace TrenchBroom {
     namespace Assets {
         class EntityDefinition;
         class EntityDefinitionManager;
+    }
+
+    namespace Model {
+        class EditorContext;
+        class SmartTag;
     }
 
     namespace View {

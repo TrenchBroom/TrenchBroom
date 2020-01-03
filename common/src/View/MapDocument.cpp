@@ -1292,27 +1292,27 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MapDocument::setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) {
+        bool MapDocument::setAttribute(const std::string& name, const std::string& value) {
             const auto result = executeAndStore(ChangeEntityAttributesCommand::set(name, value));
             return result->success();
         }
 
-        bool MapDocument::renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
+        bool MapDocument::renameAttribute(const std::string& oldName, const std::string& newName) {
             const auto result = executeAndStore(ChangeEntityAttributesCommand::rename(oldName, newName));
             return result->success();
         }
 
-        bool MapDocument::removeAttribute(const Model::AttributeName& name) {
+        bool MapDocument::removeAttribute(const std::string& name) {
             const auto result = executeAndStore(ChangeEntityAttributesCommand::remove(name));
             return result->success();
         }
 
-        bool MapDocument::convertEntityColorRange(const Model::AttributeName& name, Assets::ColorRange::Type range) {
+        bool MapDocument::convertEntityColorRange(const std::string& name, Assets::ColorRange::Type range) {
             const auto result = executeAndStore(ConvertEntityColorCommand::convert(name, range));
             return result->success();
         }
 
-        bool MapDocument::updateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) {
+        bool MapDocument::updateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag) {
             const auto result = executeAndStore(UpdateEntitySpawnflagCommand::update(name, flagIndex, setFlag));
             return result->success();
         }

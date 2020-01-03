@@ -33,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        EntityRotationPolicy::RotationInfo::RotationInfo(const RotationType i_type, const AttributeName& i_attribute) :
+        EntityRotationPolicy::RotationInfo::RotationInfo(const RotationType i_type, const std::string& i_attribute) :
         type(i_type),
         attribute(i_attribute) {}
 
@@ -154,14 +154,14 @@ namespace TrenchBroom {
             }
         }
 
-        AttributeName EntityRotationPolicy::getAttribute(const Entity* entity) {
+        std::string EntityRotationPolicy::getAttribute(const Entity* entity) {
             const auto info = rotationInfo(entity);
             return info.attribute;
         }
 
         EntityRotationPolicy::RotationInfo EntityRotationPolicy::rotationInfo(const Entity* entity) {
             auto type = RotationType::None;
-            AttributeName attribute;
+            std::string attribute;
 
             // determine the type of rotation to apply to this entity
             const auto classname = entity->classname();
@@ -223,7 +223,7 @@ namespace TrenchBroom {
             return RotationInfo(type, attribute);
         }
 
-        void EntityRotationPolicy::setAngle(Entity* entity, const AttributeName& attribute, const vm::vec3& direction) {
+        void EntityRotationPolicy::setAngle(Entity* entity, const std::string& attribute, const vm::vec3& direction) {
             const auto angle = getAngle(direction);
             entity->addOrUpdateAttribute(attribute, kdl::str_to_string(vm::round(angle)));
         }

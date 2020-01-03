@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 
-#include "Model/Model_Forward.h"
 #include "Model/Polyhedron_BrushGeometryPayload.h"
 #include "Model/Polyhedron_DefaultPayload.h"
 #include "Model/Polyhedron_Forward.h"

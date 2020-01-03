@@ -23,7 +23,6 @@
 #include "FloatType.h"
 #include "Macros.h"
 #include "Model/BrushGeometry.h"
-#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
 #include "View/View_Forward.h"
 
@@ -37,6 +36,11 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+        class Snapshot;
+    }
+
     namespace View {
         class VertexCommand : public DocumentCommand {
         protected:

@@ -21,7 +21,6 @@
 #define TrenchBroom_SelectionTool
 
 #include "Model/HitType.h"
-#include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
@@ -31,6 +30,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Node;
+    }
+
     namespace View {
         /**
          * Implements the Group picking logic: if `node` is inside a (possibly nested chain of)

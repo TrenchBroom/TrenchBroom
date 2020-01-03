@@ -21,8 +21,6 @@
 #define TrenchBroom_ModelFactory
 
 #include "FloatType.h"
-#include "Model/MapFormat.h"
-#include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -31,6 +29,15 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class Brush;
+        class BrushFace;
+        class BrushFaceAttributes;
+        class Entity;
+        class Group;
+        class Layer;
+        enum class MapFormat;
+        class World;
+
         class ModelFactory {
         public:
             virtual ~ModelFactory();

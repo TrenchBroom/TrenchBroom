@@ -20,12 +20,17 @@
 #ifndef TrenchBroom_NodeVisitor
 #define TrenchBroom_NodeVisitor
 
-#include "Model/Model_Forward.h"
-
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Model {
+        class Brush;
+        class Entity;
+        class Group;
+        class Layer;
+        class Node;
+        class World;
+
         class BaseNodeVisitor {
         private:
             bool m_cancelled;

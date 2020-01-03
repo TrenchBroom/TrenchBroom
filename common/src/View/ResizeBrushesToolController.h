@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_ResizeBrushesToolController
 #define TrenchBroom_ResizeBrushesToolController
 
-#include "Model/Model_Forward.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/ToolController.h"

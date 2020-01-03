@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 
 #include <vecmath/vec.h>
 
@@ -30,6 +29,11 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFaceAttributes;
+        class ParallelTexCoordSystem;
+        class ParaxialTexCoordSystem;
+        class TexCoordSystem;
+
         class TexCoordSystemSnapshot {
         public:
             virtual ~TexCoordSystemSnapshot();
@@ -55,7 +59,7 @@ namespace TrenchBroom {
             virtual ~TexCoordSystem();
 
             std::unique_ptr<TexCoordSystem> clone() const;
-            std::unique_ptr<TexCoordSystemSnapshot> takeSnapshot();
+            std::unique_ptr<TexCoordSystemSnapshot> takeSnapshot() const;
 
             vm::vec3 xAxis() const;
             vm::vec3 yAxis() const;
@@ -80,7 +84,7 @@ namespace TrenchBroom {
             float measureAngle(float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const;
         private:
             virtual std::unique_ptr<TexCoordSystem> doClone() const = 0;
-            virtual std::unique_ptr<TexCoordSystemSnapshot> doTakeSnapshot() = 0;
+            virtual std::unique_ptr<TexCoordSystemSnapshot> doTakeSnapshot() const = 0;
             virtual void doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) = 0;
             friend class TexCoordSystemSnapshot;
 

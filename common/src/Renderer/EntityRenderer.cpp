@@ -401,7 +401,7 @@ namespace TrenchBroom {
         }
 
         AttrString EntityRenderer::entityString(const Model::Entity* entity) const {
-            const Model::AttributeValue& classname = entity->classname();
+            const auto& classname = entity->classname();
             // const Model::AttributeValue& targetname = entity->attribute(Model::AttributeNames::Targetname);
 
             AttrString str;

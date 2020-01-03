@@ -22,12 +22,16 @@
 
 #include "AttrString.h"
 #include "Color.h"
-#include "Model/Model_Forward.h"
 #include "Renderer/EdgeRenderer.h"
 
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class EditorContext;
+        class Group;
+    }
+
     namespace Renderer {
         class RenderBatch;
         class RenderContext;

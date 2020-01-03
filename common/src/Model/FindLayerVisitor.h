@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_FindLayerVisitor
 #define TrenchBroom_FindLayerVisitor
 
-#include "Model/Model_Forward.h"
 #include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {

@@ -28,11 +28,11 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType UpdateEntitySpawnflagCommand::Type = Command::freeType();
 
-        std::unique_ptr<UpdateEntitySpawnflagCommand> UpdateEntitySpawnflagCommand::update(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) {
-            return std::make_unique<UpdateEntitySpawnflagCommand>(name, flagIndex, setFlag);
+        std::unique_ptr<UpdateEntitySpawnflagCommand> UpdateEntitySpawnflagCommand::update(const std::string& attributeName, const size_t flagIndex, const bool setFlag) {
+            return std::make_unique<UpdateEntitySpawnflagCommand>(attributeName, flagIndex, setFlag);
         }
 
-        UpdateEntitySpawnflagCommand::UpdateEntitySpawnflagCommand(const Model::AttributeName& attributeName, const size_t flagIndex, const bool setFlag) :
+        UpdateEntitySpawnflagCommand::UpdateEntitySpawnflagCommand(const std::string& attributeName, const size_t flagIndex, const bool setFlag) :
         DocumentCommand(Type, makeName(setFlag)),
         m_setFlag(setFlag),
         m_attributeName(attributeName),

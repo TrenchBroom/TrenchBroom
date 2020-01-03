@@ -20,7 +20,6 @@
 #ifndef LaunchGameEngineDialog_h
 #define LaunchGameEngineDialog_h
 
-#include "Model/Model_Forward.h"
 #include "View/CompilationVariables.h"
 #include "View/View_Forward.h"
 
@@ -31,6 +30,10 @@
 class QPushButton;
 
 namespace TrenchBroom {
+    namespace Model {
+        class GameEngineProfile;
+    }
+
     namespace View {
         class LaunchGameEngineDialog : public QDialog {
         private:

@@ -21,7 +21,6 @@
 #define CompilationTaskList_h
 
 #include "View/ControlListBox.h"
-#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <vector>
@@ -31,6 +30,14 @@ class QLineEdit;
 class QWidget;
 
 namespace TrenchBroom {
+    namespace Model {
+        class CompilationCopyFiles;
+        class CompilationExportMap;
+        class CompilationProfile;
+        class CompilationRunTool;
+        class CompilationTask;
+    }
+
     namespace View {
         class MapDocument;
         class MultiCompletionLineEdit;

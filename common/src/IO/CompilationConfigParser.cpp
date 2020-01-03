@@ -48,84 +48,77 @@ namespace TrenchBroom {
             unused(version);
             assert(version == 1.0);
 
-            const auto profiles = parseProfiles(root["profiles"]);
-            return Model::CompilationConfig(profiles);
+            auto profiles = parseProfiles(root["profiles"]);
+            return Model::CompilationConfig(std::move(profiles));
         }
 
-        std::vector<Model::CompilationProfile*> CompilationConfigParser::parseProfiles(const EL::Value& value) const {
-            std::vector<Model::CompilationProfile*> result;
+        std::vector<std::unique_ptr<Model::CompilationProfile>> CompilationConfigParser::parseProfiles(const EL::Value& value) const {
+            std::vector<std::unique_ptr<Model::CompilationProfile>> result;
+            result.reserve(value.length());
 
-            try {
-                for (size_t i = 0; i < value.length(); ++i) {
-                    result.push_back(parseProfile(value[i]));
-                }
-                return result;
-            } catch (...) {
-                kdl::vec_clear_and_delete(result);
-                throw;
+            for (size_t i = 0; i < value.length(); ++i) {
+                result.push_back(parseProfile(value[i]));
             }
+            return result;
         }
 
-        Model::CompilationProfile* CompilationConfigParser::parseProfile(const EL::Value& value) const {
+        std::unique_ptr<Model::CompilationProfile> CompilationConfigParser::parseProfile(const EL::Value& value) const {
             expectStructure(value, "[ {'name': 'String', 'workdir': 'String', 'tasks': 'Array'}, {} ]");
 
             const std::string& name = value["name"].stringValue();
             const std::string& workdir = value["workdir"].stringValue();
-            const auto tasks = parseTasks(value["tasks"]);
+            auto tasks = parseTasks(value["tasks"]);
 
-            return new Model::CompilationProfile(name, workdir, tasks);
+            return std::make_unique<Model::CompilationProfile>(name, workdir, std::move(tasks));
         }
 
-        std::vector<Model::CompilationTask*> CompilationConfigParser::parseTasks(const EL::Value& value) const {
-            std::vector<Model::CompilationTask*> result;
+        std::vector<std::unique_ptr<Model::CompilationTask>> CompilationConfigParser::parseTasks(const EL::Value& value) const {
+            std::vector<std::unique_ptr<Model::CompilationTask>> result;
+            result.reserve(value.length());
 
-            try {
-                for (size_t i = 0; i < value.length(); ++i) {
-                    result.push_back(parseTask(value[i]));
-                }
-                return result;
-            } catch (...) {
-                kdl::vec_clear_and_delete(result);
-                throw;
+            for (size_t i = 0; i < value.length(); ++i) {
+                result.push_back(parseTask(value[i]));
             }
+            return result;
         }
 
-        Model::CompilationTask* CompilationConfigParser::parseTask(const EL::Value& value) const {
+        std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseTask(const EL::Value& value) const {
             expectMapEntry(value, "type", EL::ValueType::String);
             const std::string& type = value["type"].stringValue();
 
-            if (type == "export")
+            if (type == "export") {
                 return parseExportTask(value);
-            else if (type == "copy")
+            } else if (type == "copy") {
                 return parseCopyTask(value);
-            else if (type == "tool")
+            } else if (type == "tool") {
                 return parseToolTask(value);
-            else
+            } else {
                 throw ParserException("Unknown compilation task type '" + type + "'");
+            }
         }
 
-        Model::CompilationTask* CompilationConfigParser::parseExportTask(const EL::Value& value) const {
+        std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseExportTask(const EL::Value& value) const {
             expectStructure(value, "[ {'type': 'String', 'target': 'String'}, {} ]");
             const std::string& target = value["target"].stringValue();
-            return new Model::CompilationExportMap(target);
+            return std::make_unique<Model::CompilationExportMap>(target);
         }
 
-        Model::CompilationTask* CompilationConfigParser::parseCopyTask(const EL::Value& value) const {
+        std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseCopyTask(const EL::Value& value) const {
             expectStructure(value, "[ {'type': 'String', 'source': 'String', 'target': 'String'}, {} ]");
 
             const std::string& source = value["source"].stringValue();
             const std::string& target = value["target"].stringValue();
 
-            return new Model::CompilationCopyFiles(source, target);
+            return std::make_unique<Model::CompilationCopyFiles>(source, target);
         }
 
-        Model::CompilationTask* CompilationConfigParser::parseToolTask(const EL::Value& value) const {
+        std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseToolTask(const EL::Value& value) const {
             expectStructure(value, "[ {'type': 'String', 'tool': 'String', 'parameters': 'String'}, {} ]");
 
             const std::string& tool = value["tool"].stringValue();
             const std::string& parameters = value["parameters"].stringValue();
 
-            return new Model::CompilationRunTool(tool, parameters);
+            return std::make_unique<Model::CompilationRunTool>(tool, parameters);
         }
     }
 }

@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "Model/MapFormat.h"
-#include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -32,6 +31,11 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class EntityAttribute;
+        class BrushFaceAttributes;
+    }
+
     namespace IO {
         class ParserStatus;
 

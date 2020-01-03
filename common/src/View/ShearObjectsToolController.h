@@ -21,7 +21,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TrenchBroom_ShearObjectsToolController
 #define TrenchBroom_ShearObjectsToolController
 
-#include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/ToolController.h"
 #include "View/View_Forward.h"

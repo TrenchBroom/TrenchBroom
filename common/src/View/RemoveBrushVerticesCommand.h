@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_RemoveBrushVerticesCommand
 #define TrenchBroom_RemoveBrushVerticesCommand
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "View/RemoveBrushElementsCommand.h"
 #include "View/View_Forward.h"
 

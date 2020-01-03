@@ -22,13 +22,19 @@
 
 #include "Macros.h"
 #include "Notifier.h"
-#include "Model/Model_Forward.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class CompilationTask;
+        class CompilationTaskConstVisitor;
+        class CompilationTaskVisitor;
+        class ConstCompilationTaskVisitor;
+        class ConstCompilationTaskConstVisitor;
+
         class CompilationProfile {
         public:
             Notifier<> profileWillBeRemoved;
@@ -36,13 +42,13 @@ namespace TrenchBroom {
         private:
             std::string m_name;
             std::string m_workDirSpec;
-            std::vector<CompilationTask*> m_tasks;
+            std::vector<std::unique_ptr<CompilationTask>> m_tasks;
         public:
             CompilationProfile(const std::string& name, const std::string& workDirSpec);
-            CompilationProfile(const std::string& name, const std::string& workDirSpec, const std::vector<CompilationTask*>& tasks);
+            CompilationProfile(const std::string& name, const std::string& workDirSpec, std::vector<std::unique_ptr<CompilationTask>> tasks);
             ~CompilationProfile();
 
-            CompilationProfile* clone() const;
+            std::unique_ptr<CompilationProfile> clone() const;
 
             const std::string& name() const;
             void setName(const std::string& name);
@@ -53,8 +59,8 @@ namespace TrenchBroom {
             size_t taskCount() const;
             CompilationTask* task(size_t index) const;
 
-            void addTask(CompilationTask* task);
-            void insertTask(size_t index, CompilationTask* task);
+            void addTask(std::unique_ptr<CompilationTask> task);
+            void insertTask(size_t index, std::unique_ptr<CompilationTask> task);
             void removeTask(size_t index);
 
             void moveTaskUp(size_t index);

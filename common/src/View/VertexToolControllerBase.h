@@ -22,7 +22,6 @@
 
 #include "Model/HitQuery.h"
 #include "Model/HitType.h"
-#include "Model/Model_Forward.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "View/Lasso.h"
@@ -35,6 +34,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+    }
+
     namespace View {
         class Tool;
 

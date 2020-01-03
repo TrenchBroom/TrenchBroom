@@ -24,7 +24,6 @@
 #include "FloatType.h"
 #include "Model/Hit.h"
 #include "Model/HitType.h"
-#include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
 #include "View/View_Forward.h"
@@ -36,6 +35,10 @@
 #include <memory>
 
 namespace TrenchBroom {
+    namespace Model {
+        class PickResult;
+    }
+
     namespace View {
         class ShearObjectsTool : public Tool {
         public:

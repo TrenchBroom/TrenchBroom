@@ -22,19 +22,22 @@
 
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushFaceReference.h"
-#include "Model/Model_Forward.h"
 
 #include <memory>
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFace;
+        class TexCoordSystem;
+        class TexCoordSystemSnapshot;
+
         class BrushFaceSnapshot {
         private:
             BrushFaceReference m_faceRef;
             BrushFaceAttributes m_attribs;
             std::unique_ptr<TexCoordSystemSnapshot> m_coordSystemSnapshot;
         public:
-            BrushFaceSnapshot(BrushFace* face, TexCoordSystem& coordSystemSnapshot);
+            BrushFaceSnapshot(BrushFace* face, const TexCoordSystem& coordSystem);
             ~BrushFaceSnapshot();
 
             void restore();

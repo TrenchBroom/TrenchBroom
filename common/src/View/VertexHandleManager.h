@@ -24,7 +24,6 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/HitType.h"
-#include "Model/Model_Forward.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
 
@@ -252,8 +251,9 @@ namespace TrenchBroom {
                 for (const HandleEntry& entry : m_handles) {
                     const Handle& handle = entry.first;
                     const HandleInfo& info = entry.second;
-                    if (test(info))
-                        out = handle;
+                    if (test(info)) {
+                        out++ = handle;
+                    }
                 }
             }
         public:

@@ -515,7 +515,7 @@ namespace TrenchBroom {
             return m_config.faceAttribsConfig().contentFlags;
         }
 
-        void GameImpl::writeLongAttribute(AttributableNode& node, const AttributeName& baseName, const AttributeValue& value, const size_t maxLength) const {
+        void GameImpl::writeLongAttribute(AttributableNode& node, const std::string& baseName, const std::string& value, const size_t maxLength) const {
             node.removeNumberedAttribute(baseName);
 
             std::stringstream nameStr;
@@ -526,7 +526,7 @@ namespace TrenchBroom {
             }
         }
 
-        std::string GameImpl::readLongAttribute(const AttributableNode& node, const AttributeName& baseName) const {
+        std::string GameImpl::readLongAttribute(const AttributableNode& node, const std::string& baseName) const {
             size_t index = 1;
             std::stringstream nameStr;
             std::stringstream valueStr;

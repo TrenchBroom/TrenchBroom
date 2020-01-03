@@ -20,11 +20,14 @@
 #ifndef TrenchBroom_Selection
 #define TrenchBroom_Selection
 
-#include "Model/Model_Forward.h"
-
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class BrushFace;
+        class Node;
+    }
+
     namespace View {
         class Selection {
         private:

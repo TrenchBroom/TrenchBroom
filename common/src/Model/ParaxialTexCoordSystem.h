@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "Model/TexCoordSystem.h"
 
 #include <vecmath/vec.h>
@@ -48,7 +47,7 @@ namespace TrenchBroom {
             static void axes(size_t index, vm::vec3& xAxis, vm::vec3& yAxis, vm::vec3& projectionAxis);
         private:
             std::unique_ptr<TexCoordSystem> doClone() const override;
-            std::unique_ptr<TexCoordSystemSnapshot> doTakeSnapshot() override;
+            std::unique_ptr<TexCoordSystemSnapshot> doTakeSnapshot() const override;
             void doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) override;
 
             vm::vec3 getXAxis() const override;

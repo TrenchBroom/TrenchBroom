@@ -20,14 +20,23 @@
 #ifndef TrenchBroom_NodeSerializer
 #define TrenchBroom_NodeSerializer
 
-#include "Model/EntityAttributes.h"
-#include "Model/Model_Forward.h"
+#include "Model/IdType.h"
 
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+        class BrushFace;
+        class EntityAttribute;
+        class Group;
+        class Layer;
+        class Node;
+        class World;
+    }
+
     namespace IO {
         class NodeSerializer {
         private:

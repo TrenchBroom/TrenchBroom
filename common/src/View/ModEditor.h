@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_ModEditor
 #define TrenchBroom_ModEditor
 
-#include "Model/Model_Forward.h"
 #include "View/View_Forward.h"
 
 #include <memory>

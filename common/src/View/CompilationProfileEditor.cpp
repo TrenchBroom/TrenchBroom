@@ -150,24 +150,24 @@ namespace TrenchBroom {
             auto* copyFilesAction = menu.addAction("Copy Files");
             auto* runToolAction   = menu.addAction("Run Tool");
 
-            Model::CompilationTask* task = nullptr;
+            std::unique_ptr<Model::CompilationTask> task = nullptr;
             auto* chosenAction = menu.exec(QCursor::pos());
             if (chosenAction == exportMapAction) {
-                task = new Model::CompilationExportMap("${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map");
+                task = std::make_unique<Model::CompilationExportMap>("${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map");
             } else if (chosenAction == copyFilesAction) {
-                task = new Model::CompilationCopyFiles("", "");
+                task = std::make_unique<Model::CompilationCopyFiles>("", "");
             } else if (chosenAction == runToolAction) {
-                task = new Model::CompilationRunTool("", "");
+                task = std::make_unique<Model::CompilationRunTool>("", "");
             } else {
                 return;
             }
 
             const int index = m_taskList->currentRow();
             if (index < 0) {
-                m_profile->addTask(task);
+                m_profile->addTask(std::move(task));
                 m_taskList->setCurrentRow(static_cast<int>(m_profile->taskCount()) - 1);
             } else {
-                m_profile->insertTask(static_cast<size_t>(index + 1), task);
+                m_profile->insertTask(static_cast<size_t>(index + 1), std::move(task));
                 m_taskList->setCurrentRow(index + 1);
             }
         }

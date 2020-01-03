@@ -24,7 +24,6 @@
 #include "IO/NodeSerializer.h"
 #include "IO/IOUtils.h"
 #include "IO/Path.h"
-#include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -34,6 +33,13 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+        class BrushFace;
+        class EntityAttribute;
+        class Node;
+    }
+
     namespace IO {
         class ObjFileSerializer : public NodeSerializer {
         private:

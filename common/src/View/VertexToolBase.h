@@ -26,7 +26,6 @@
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Hit.h"
-#include "Model/Model_Forward.h"
 #include "Model/NodeVisitor.h"
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron3.h"

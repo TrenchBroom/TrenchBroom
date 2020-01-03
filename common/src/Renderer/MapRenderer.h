@@ -21,7 +21,6 @@
 #define TrenchBroom_MapRenderer
 
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"
 
 #include <map>
@@ -39,6 +38,14 @@ namespace TrenchBroom {
         // FIXME: Renderer should not depend on View
         class MapDocument;
         class Selection;
+    }
+
+    namespace Model {
+        class Brush;
+        class BrushFace;
+        class Group;
+        class Layer;
+        class Node;
     }
 
     namespace Renderer {

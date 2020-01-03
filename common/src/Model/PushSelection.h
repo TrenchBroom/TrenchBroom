@@ -20,13 +20,15 @@
 #ifndef PushSelection_h
 #define PushSelection_h
 
-#include "Model/Model_Forward.h"
-
 #include <memory>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFace;
+        class MapFacade;
+        class Node;
+
         class PushSelection {
         private:
             MapFacade* m_facade;

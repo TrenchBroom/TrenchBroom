@@ -122,7 +122,7 @@ namespace TrenchBroom {
 
         AttributeIssue::~AttributeIssue() = default;
 
-        const AttributeValue& AttributeIssue::attributeValue() const {
+        const std::string& AttributeIssue::attributeValue() const {
             const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
             return attributableNode->attribute(attributeName());
         }

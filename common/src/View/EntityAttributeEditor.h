@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_EntityAttributeEditor
 #define TrenchBroom_EntityAttributeEditor
 
-#include "Model/Model_Forward.h"
 #include "View/View_Forward.h"
 
 #include <memory>
@@ -36,6 +35,10 @@ namespace TrenchBroom {
     namespace Assets {
         class AttributeDefinition;
         class EntityDefinition;
+    }
+
+    namespace Model {
+        class Node;
     }
 
     namespace View {

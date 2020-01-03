@@ -21,7 +21,6 @@
 #define MissingModIssueGenerator_h
 
 #include "Model/IssueGenerator.h"
-#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <string>
@@ -29,6 +28,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class Game;
+
         class MissingModIssueGenerator : public IssueGenerator {
         private:
             class MissingModIssue;

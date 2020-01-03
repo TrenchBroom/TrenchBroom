@@ -23,7 +23,6 @@
 #include <gtest/gtest.h>
 
 #include "Model/MapFormat.h"
-#include "Model/Model_Forward.h"
 #include "View/MapDocument.h"
 
 #include <memory>

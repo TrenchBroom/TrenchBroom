@@ -45,11 +45,11 @@ namespace TrenchBroom {
         class SmartSpawnflagsEditor::UpdateSpawnflag : public Model::NodeVisitor {
         private:
             std::shared_ptr<MapDocument> m_document;
-            const Model::AttributeName& m_name;
+            const std::string& m_name;
             size_t m_flagIndex;
             bool m_setFlag;
         public:
-            UpdateSpawnflag(std::shared_ptr<MapDocument> document, const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) :
+            UpdateSpawnflag(std::shared_ptr<MapDocument> document, const std::string& name, const size_t flagIndex, const bool setFlag) :
             m_document(document),
             m_name(name),
             m_flagIndex(flagIndex),
@@ -161,7 +161,7 @@ namespace TrenchBroom {
             if (!attributable->hasAttribute(name()))
                 return 0;
 
-            const Model::AttributeValue& value = attributable->attribute(name());
+            const std::string& value = attributable->attribute(name());
             return std::atoi(value.c_str());
         }
 

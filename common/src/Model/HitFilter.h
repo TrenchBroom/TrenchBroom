@@ -22,10 +22,12 @@
 
 #include "FloatType.h"
 #include "Model/HitType.h"
-#include "Model/Model_Forward.h"
 
 namespace TrenchBroom {
     namespace Model {
+        class EditorContext;
+        class Hit;
+
         class HitFilter {
         private:
             class Always;

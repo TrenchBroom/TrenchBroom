@@ -21,13 +21,16 @@
 #define TrenchBroom_HitQuery
 
 #include "FloatType.h"
-#include "Model/Model_Forward.h"
 #include "Model/HitType.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class EditorContext;
+        class Hit;
+        class HitFilter;
+
         class HitQuery {
         private:
             const std::vector<Hit>* m_hits;

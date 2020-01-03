@@ -22,13 +22,19 @@
 
 #include "IO/NodeSerializer.h"
 #include "Model/MapFormat.h"
-#include "Model/Model_Forward.h"
 
 #include <cstdio> // for FILE*
 #include <memory>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+        class BrushFace;
+        class EntityAttribute;
+        class Node;
+    }
+
     namespace IO {
         class MapFileSerializer : public NodeSerializer {
         private:

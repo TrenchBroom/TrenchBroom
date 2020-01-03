@@ -21,7 +21,6 @@
 #define TRENCHBROOM_TAG_H
 
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "Model/TagType.h"
 
 #include <kdl/vector_set.h>
@@ -32,6 +31,10 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class ConstTagVisitor;
+        class TagManager;
+        class TagVisitor;
+
         /**
          * This class represents an attribute of a tag. A tag can have multiple attributes, but the names must
          * be unique.

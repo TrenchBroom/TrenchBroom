@@ -22,13 +22,14 @@
 
 #include "Macros.h"
 #include "EL/VariableStore.h"
-#include "Model/Model_Forward.h"
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class AttributableNode;
+
         class AttributableNodeVariableStore : public EL::VariableStore {
         private:
             AttributableNode* m_node;

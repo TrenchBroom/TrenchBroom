@@ -281,7 +281,7 @@ namespace TrenchBroom {
             m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
         }
 
-        Model::AttributeName EntityAttributeGrid::selectedRowName() const {
+        std::string EntityAttributeGrid::selectedRowName() const {
             QModelIndex current = m_proxyModel->mapToSource(m_table->currentIndex());
             const AttributeRow* rowModel = m_model->dataForModelIndex(current);
             if (rowModel == nullptr) {

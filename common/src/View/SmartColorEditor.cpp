@@ -150,10 +150,10 @@ namespace TrenchBroom {
 
         class SmartColorEditor::CollectColorsVisitor : public Model::ConstNodeVisitor {
         private:
-            const Model::AttributeName& m_name;
+            const std::string& m_name;
             kdl::vector_set<QColor, ColorCmp> m_colors;
         public:
-            explicit CollectColorsVisitor(const Model::AttributeName& name) :
+            explicit CollectColorsVisitor(const std::string& name) :
             m_name(name) {}
 
             const std::vector<QColor>& colors() const { return m_colors.get_data(); }

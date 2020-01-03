@@ -28,7 +28,9 @@
 
 #include <kdl/vector_utils.h>
 
+#include <memory>
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -48,32 +50,28 @@ namespace TrenchBroom {
             unused(version);
             assert(version == 1.0);
 
-            const auto profiles = parseProfiles(root["profiles"]);
-            return Model::GameEngineConfig(profiles);
+            auto profiles = parseProfiles(root["profiles"]);
+            return Model::GameEngineConfig(std::move(profiles));
         }
 
-        std::vector<Model::GameEngineProfile*> GameEngineConfigParser::parseProfiles(const EL::Value& value) const {
-            std::vector<Model::GameEngineProfile*> result;
+        std::vector<std::unique_ptr<Model::GameEngineProfile>> GameEngineConfigParser::parseProfiles(const EL::Value& value) const {
+            std::vector<std::unique_ptr<Model::GameEngineProfile>> result;
+            result.reserve(value.length());
 
-            try {
-                for (size_t i = 0; i < value.length(); ++i) {
-                    result.push_back(parseProfile(value[i]));
-                }
-                return result;
-            } catch (...) {
-                kdl::vec_clear_and_delete(result);
-                throw;
+            for (size_t i = 0; i < value.length(); ++i) {
+                result.push_back(parseProfile(value[i]));
             }
+            return result;
         }
 
-        Model::GameEngineProfile* GameEngineConfigParser::parseProfile(const EL::Value& value) const {
+        std::unique_ptr<Model::GameEngineProfile> GameEngineConfigParser::parseProfile(const EL::Value& value) const {
             expectStructure(value, "[ {'name': 'String', 'path': 'String'}, { 'parameters': 'String' } ]");
 
             const std::string& name = value["name"].stringValue();
             const Path path = Path(value["path"].stringValue());
             const std::string& parameterSpec = value["parameters"].stringValue();
 
-            return new Model::GameEngineProfile(name, path, parameterSpec);
+            return std::make_unique<Model::GameEngineProfile>(name, path, parameterSpec);
         }
     }
 }

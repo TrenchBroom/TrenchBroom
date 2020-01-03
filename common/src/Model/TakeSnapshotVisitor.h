@@ -20,13 +20,14 @@
 #ifndef TrenchBroom_TakeSnapshotVisitor
 #define TrenchBroom_TakeSnapshotVisitor
 
-#include "Model/Model_Forward.h"
 #include "Model/NodeVisitor.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class NodeSnapshot;
+
         class TakeSnapshotVisitor : public NodeVisitor {
         private:
             std::vector<NodeSnapshot*> m_result;

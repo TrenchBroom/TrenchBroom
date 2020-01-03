@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010-2019 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,28 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityAttributeSnapshot.h"
+#ifndef TRENCHBROOM_IDTYPE_H
+#define TRENCHBROOM_IDTYPE_H
 
-#include "Model/AttributableNode.h"
+#include <cstddef>
 
 namespace TrenchBroom {
     namespace Model {
-        EntityAttributeSnapshot::EntityAttributeSnapshot(const std::string& name, const std::string& value) :
-        m_name(name),
-        m_value(value),
-        m_present(true) {}
-
-        EntityAttributeSnapshot::EntityAttributeSnapshot(const std::string& name) :
-        m_name(name),
-        m_value(""),
-        m_present(false) {}
-
-        void EntityAttributeSnapshot::restore(AttributableNode* node) const {
-            if (!m_present) {
-                node->removeAttribute(m_name);
-            } else {
-                node->addOrUpdateAttribute(m_name, m_value);
-            }
-        }
+        using IdType = std::size_t;
     }
 }
+
+#endif //TRENCHBROOM_IDTYPE_H

@@ -24,7 +24,6 @@
 #include "FloatType.h"
 #include "Model/Hit.h"
 #include "Model/HitType.h"
-#include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
 #include "View/View_Forward.h"
@@ -37,6 +36,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class PickResult;
+    }
+
     namespace View {
         /**
          * Identifies the side of a bbox using a normal. The normal will be one of +/- 1.0 along X, Y, or Z.

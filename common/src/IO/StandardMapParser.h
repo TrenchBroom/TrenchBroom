@@ -71,7 +71,7 @@ namespace TrenchBroom {
         class StandardMapParser : public MapParser, public Parser<QuakeMapToken::Type> {
         private:
             using Token = QuakeMapTokenizer::Token;
-            using AttributeNames = kdl::vector_set<Model::AttributeName>;
+            using AttributeNames = kdl::vector_set<std::string>;
 
             static const std::string BrushPrimitiveId;
             static const std::string PatchId;

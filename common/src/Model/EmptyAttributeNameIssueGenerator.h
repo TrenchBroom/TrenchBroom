@@ -21,7 +21,6 @@
 #define EmptyAttributeNameIssueGenerator_h
 
 #include "Model/IssueGenerator.h"
-#include "Model/Model_Forward.h"
 
 #include <vector>
 

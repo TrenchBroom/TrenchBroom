@@ -21,7 +21,6 @@
 #define TrenchBroom_GameFactory
 
 #include "Model/MapFormat.h"
-#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <map>
@@ -39,6 +38,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        class Game;
         class GameConfig;
 
         class GameFactory {

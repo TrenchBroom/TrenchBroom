@@ -21,7 +21,6 @@
 #define TrenchBroom_BoundsContainsNodeVisitor
 
 #include "FloatType.h"
-#include "Model/Model_Forward.h"
 #include "Model/NodeVisitor.h"
 
 #include <vecmath/bbox.h>

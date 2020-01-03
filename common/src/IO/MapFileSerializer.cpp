@@ -24,6 +24,7 @@
 #include "Macros.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/EntityAttributes.h"
 
 #include <memory>
 #include <sstream>

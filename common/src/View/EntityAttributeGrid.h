@@ -20,10 +20,10 @@
 #ifndef TrenchBroom_EntityAttributeGrid
 #define TrenchBroom_EntityAttributeGrid
 
-#include "Model/Model_Forward.h"
 #include "View/View_Forward.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <QWidget>
@@ -35,6 +35,10 @@ class QShortcut;
 class QSortFilterProxyModel;
 
 namespace TrenchBroom {
+    namespace Model {
+        class Node;
+    }
+
     namespace View {
         /**
          * Panel with the entity attribute table, and the toolbar below it (add/remove icons,
@@ -75,7 +79,7 @@ namespace TrenchBroom {
         private:
             void updateControls();
         public:
-            Model::AttributeName selectedRowName() const;
+            std::string selectedRowName() const;
         signals:
             void selectedRow();
         };

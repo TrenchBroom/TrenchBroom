@@ -21,7 +21,6 @@
 #define TrenchBroom_EntityDefinitionManager
 
 #include "Notifier.h"
-#include "Model/Model_Forward.h"
 
 #include <map>
 #include <string>
@@ -32,6 +31,10 @@ namespace TrenchBroom {
         class EntityDefinitionLoader;
         class ParserStatus;
         class Path;
+    }
+
+    namespace Model {
+        class AttributableNode;
     }
 
     namespace Assets {
@@ -56,7 +59,7 @@ namespace TrenchBroom {
             void clear();
 
             EntityDefinition* definition(const Model::AttributableNode* attributable) const;
-            EntityDefinition* definition(const Model::AttributeValue& classname) const;
+            EntityDefinition* definition(const std::string& classname) const;
             std::vector<EntityDefinition*> definitions(EntityDefinitionType type, EntityDefinitionSortOrder order) const;
             const std::vector<EntityDefinition*>& definitions() const;
 

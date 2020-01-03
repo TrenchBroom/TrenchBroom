@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_FaceInspector
 #define TrenchBroom_FaceInspector
 
-#include "Model/Model_Forward.h"
 #include "View/TabBook.h"
 #include "View/View_Forward.h"
 

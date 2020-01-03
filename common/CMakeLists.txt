@@ -663,11 +663,13 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/HitFilter.h
         ${COMMON_SOURCE_DIR}/Model/HitQuery.h
         ${COMMON_SOURCE_DIR}/Model/HitType.h
+        ${COMMON_SOURCE_DIR}/Model/IdType.h
         ${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Issue.h
         ${COMMON_SOURCE_DIR}/Model/IssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/IssueGeneratorRegistry.h
         ${COMMON_SOURCE_DIR}/Model/IssueQuickFix.h
+        ${COMMON_SOURCE_DIR}/Model/IssueType.h
         ${COMMON_SOURCE_DIR}/Model/Layer.h
         ${COMMON_SOURCE_DIR}/Model/LinkSourceIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/LinkTargetIssueGenerator.h
@@ -684,7 +686,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/MissingDefinitionIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MissingModIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MixedBrushContentsIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/Model_Forward.h
         ${COMMON_SOURCE_DIR}/Model/ModelFactory.h
         ${COMMON_SOURCE_DIR}/Model/ModelFactoryImpl.h
         ${COMMON_SOURCE_DIR}/Model/ModelUtils.h

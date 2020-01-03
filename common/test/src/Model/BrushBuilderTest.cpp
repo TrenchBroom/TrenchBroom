@@ -24,7 +24,6 @@
 #include "Model/BrushFace.h"
 #include "Model/MapFormat.h"
 #include "Model/World.h"
-#include "Model/Model_Forward.h"
 
 #include <string>
 

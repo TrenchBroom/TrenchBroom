@@ -21,7 +21,6 @@
 #define TrenchBroom_MapFrame
 
 #include "Model/MapFormat.h"
-#include "Model/Model_Forward.h"
 #include "View/Selection.h"
 #include "View/View_Forward.h"
 
@@ -47,6 +46,13 @@ namespace TrenchBroom {
 
     namespace IO {
         class Path;
+    }
+
+    namespace Model {
+        enum class ExportFormat;
+        class Game;
+        class Group;
+        class Layer;
     }
 
     namespace View {

@@ -20,13 +20,17 @@
 #ifndef TrenchBroom_Issue
 #define TrenchBroom_Issue
 
-#include "Model/Model_Forward.h"
+#include "Model/IssueType.h"
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFace;
+        class EditorContext;
+        class Node;
+
         class Issue {
         private:
             size_t m_seqId;
@@ -75,8 +79,8 @@ namespace TrenchBroom {
             using Issue::Issue;
 
             ~AttributeIssue() override;
-            virtual const AttributeName& attributeName() const = 0;
-            const AttributeValue& attributeValue() const;
+            virtual const std::string& attributeName() const = 0;
+            const std::string& attributeValue() const;
         };
     }
 }
