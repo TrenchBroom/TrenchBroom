@@ -47,10 +47,7 @@ namespace TrenchBroom {
         m_include(other.m_include->clone()),
         m_exclude(other.m_exclude->clone()) {}
 
-        HitQuery::~HitQuery() {
-            delete m_include;
-            delete m_exclude;
-        }
+        HitQuery::~HitQuery() = default;
 
         HitQuery& HitQuery::operator=(HitQuery other) {
             using std::swap;
@@ -68,39 +65,33 @@ namespace TrenchBroom {
 
         HitQuery& HitQuery::pickable() {
             if (m_editorContext != nullptr) {
-                delete m_include;
-                m_include = new HitFilterChain(new ContextHitFilter(*m_editorContext), m_include);
+                m_include = std::make_unique<HitFilterChain>(std::make_unique<ContextHitFilter>(*m_editorContext), std::move(m_include));
             }
             return *this;
         }
 
         HitQuery& HitQuery::type(const HitType::Type type) {
-            delete m_include;
-            m_include = new HitFilterChain(new TypedHitFilter(type), m_include);
+            m_include = std::make_unique<HitFilterChain>(std::make_unique<TypedHitFilter>(type), std::move(m_include));
             return *this;
         }
 
         HitQuery& HitQuery::occluded(const HitType::Type type) {
-            delete m_exclude;
-            m_exclude = new TypedHitFilter(type);
+            m_exclude = std::make_unique<TypedHitFilter>(type);
             return *this;
         }
 
         HitQuery& HitQuery::selected() {
-            delete m_include;
-            m_include = new HitFilterChain(new Model::SelectionHitFilter(), m_include);
+            m_include = std::make_unique<HitFilterChain>(std::make_unique<SelectionHitFilter>(), std::move(m_include));
             return *this;
         }
 
         HitQuery& HitQuery::transitivelySelected() {
-            delete m_include;
-            m_include = new HitFilterChain(new Model::TransitivelySelectedHitFilter(), m_include);
+            m_include = std::make_unique<HitFilterChain>(std::make_unique<TransitivelySelectedHitFilter>(), std::move(m_include));
             return *this;
         }
 
         HitQuery& HitQuery::minDistance(const FloatType minDistance) {
-            delete m_include;
-            m_include = new HitFilterChain(new Model::MinDistanceHitFilter(minDistance), m_include);
+            m_include = std::make_unique<HitFilterChain>(std::make_unique<MinDistanceHitFilter>(minDistance), std::move(m_include));
             return *this;
         }
 

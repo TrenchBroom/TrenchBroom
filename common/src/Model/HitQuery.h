@@ -23,6 +23,7 @@
 #include "FloatType.h"
 #include "Model/HitType.h"
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -35,8 +36,8 @@ namespace TrenchBroom {
         private:
             const std::vector<Hit>* m_hits;
             const EditorContext* m_editorContext;
-            HitFilter* m_include;
-            HitFilter* m_exclude;
+            std::unique_ptr<HitFilter> m_include;
+            std::unique_ptr<HitFilter> m_exclude;
         public:
             HitQuery(const std::vector<Hit>& hits, const EditorContext& editorContext);
             HitQuery(const std::vector<Hit>& hits);
