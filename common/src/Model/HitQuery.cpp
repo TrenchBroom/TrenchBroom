@@ -68,12 +68,14 @@ namespace TrenchBroom {
 
         HitQuery& HitQuery::pickable() {
             if (m_editorContext != nullptr) {
+                delete m_include;
                 m_include = new HitFilterChain(new ContextHitFilter(*m_editorContext), m_include);
             }
             return *this;
         }
 
         HitQuery& HitQuery::type(const HitType::Type type) {
+            delete m_include;
             m_include = new HitFilterChain(new TypedHitFilter(type), m_include);
             return *this;
         }
@@ -85,16 +87,19 @@ namespace TrenchBroom {
         }
 
         HitQuery& HitQuery::selected() {
+            delete m_include;
             m_include = new HitFilterChain(new Model::SelectionHitFilter(), m_include);
             return *this;
         }
 
         HitQuery& HitQuery::transitivelySelected() {
+            delete m_include;
             m_include = new HitFilterChain(new Model::TransitivelySelectedHitFilter(), m_include);
             return *this;
         }
 
         HitQuery& HitQuery::minDistance(const FloatType minDistance) {
+            delete m_include;
             m_include = new HitFilterChain(new Model::MinDistanceHitFilter(minDistance), m_include);
             return *this;
         }
