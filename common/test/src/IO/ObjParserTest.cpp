@@ -32,14 +32,15 @@ namespace TrenchBroom {
         TEST(ObjParserTest, loadValidObj) {
             NullLogger logger;
 
-            DiskFileSystem fs(Disk::getCurrentWorkingDir());
+            const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Obj");
+            DiskFileSystem fs(basePath);
 
-            const auto mdlPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Obj/pointyship.obj");
-            const auto mdlFile = Disk::openFile(mdlPath);
+            const auto mdlPath = Path("pointyship.obj");
+            const auto mdlFile = fs.openFile(mdlPath);
             ASSERT_NE(nullptr, mdlFile);
 
             auto reader = mdlFile->reader().buffer();
-            auto parser = NvObjParser(Path("fixture/test/IO/Obj/pointyship.obj"), std::begin(reader), std::end(reader), fs);
+            auto parser = NvObjParser(mdlPath, std::begin(reader), std::end(reader), fs);
             auto model = parser.initializeModel(logger);
             parser.loadFrame(0, *model, logger);
 
