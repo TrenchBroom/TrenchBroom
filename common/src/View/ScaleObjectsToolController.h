@@ -22,7 +22,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #define TrenchBroom_ScaleObjectsToolController
 
 #include "View/ToolController.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -36,6 +35,9 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+        class ScaleObjectsTool;
+
         class ScaleObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:
             ScaleObjectsTool* m_tool;

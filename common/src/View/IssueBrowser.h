@@ -21,7 +21,6 @@
 #define TrenchBroom_IssueBrowser
 
 #include "View/TabBook.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 #include <vector>
@@ -38,6 +37,10 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class FlagsPopupEditor;
+        class IssueBrowserView;
+        class MapDocument;
+
         class IssueBrowser : public TabBookPage {
             Q_OBJECT
         private:

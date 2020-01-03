@@ -22,7 +22,6 @@
 
 #include "Macros.h"
 #include "View/VertexCommand.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 

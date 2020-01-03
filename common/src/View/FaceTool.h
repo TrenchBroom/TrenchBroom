@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "View/VertexToolBase.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/polygon.h>
 
@@ -32,6 +31,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        class FaceHandleManager;
+
         class FaceTool : public VertexToolBase<vm::polygon3> {
         private:
             std::unique_ptr<FaceHandleManager> m_faceHandles;

@@ -22,7 +22,6 @@
 
 #include "View/RotateObjectsHandle.h"
 #include "View/ToolController.h"
-#include "View/View_Forward.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -31,6 +30,8 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class RotateObjectsTool;
+
         class RotateObjectsToolController : public ToolControllerGroup {
         protected:
             class MoveCenterBase;

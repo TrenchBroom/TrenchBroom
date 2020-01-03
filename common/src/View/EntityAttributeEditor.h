@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_EntityAttributeEditor
 #define TrenchBroom_EntityAttributeEditor
 
-#include "View/View_Forward.h"
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -42,6 +40,11 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class EntityAttributeGrid;
+        class MapDocument;
+        class Selection;
+        class SmartAttributeEditorManager;
+
         /**
          * Panel containing the EntityAttributeGrid (the key/value editor table),
          * smart editor, and documentation text view.

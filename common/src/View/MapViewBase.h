@@ -25,7 +25,6 @@
 #include "View/MapView.h"
 #include "View/RenderView.h"
 #include "View/ToolBoxConnector.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 #include <utility>
@@ -68,6 +67,15 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class Action;
+        class AnimationManager;
+        class Command;
+        class MapDocument;
+        class MapViewToolBox;
+        class Selection;
+        class Tool;
+        class UndoableCommand;
+
         class MapViewBase : public RenderView, public MapView, public ToolBoxConnector, public CameraLinkableView {
             Q_OBJECT
         public:

@@ -22,12 +22,15 @@
 
 #include "FloatType.h"
 #include "View/Tool.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 
 namespace TrenchBroom {
     namespace View {
+        class Grid;
+        class InputState;
+        class MapDocument;
+
         class MoveObjectsTool : public Tool {
         public:
             typedef enum {

@@ -21,7 +21,6 @@
 #define TrenchBroom_KeyboardPreferencePane
 
 #include "View/PreferencePane.h"
-#include "View/View_Forward.h"
 
 class QWidget;
 class QTableView;
@@ -29,6 +28,9 @@ class QSortFilterProxyModel;
 
 namespace TrenchBroom {
     namespace View {
+        class KeyboardShortcutModel;
+        class MapDocument;
+
         class KeyboardPreferencePane : public PreferencePane {
             Q_OBJECT
         private:

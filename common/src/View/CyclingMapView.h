@@ -23,7 +23,6 @@
 #include "FloatType.h"
 #include "View/CameraLinkHelper.h"
 #include "View/MapViewContainer.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 #include <vector>
@@ -38,6 +37,10 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class GLContextManager;
+        class MapDocument;
+        class MapViewToolBox;
+
         class CyclingMapView : public MapViewContainer, public CameraLinkableView {
             Q_OBJECT
         public:

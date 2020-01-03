@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_EntityAttributeGrid
 #define TrenchBroom_EntityAttributeGrid
 
-#include "View/View_Forward.h"
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -40,6 +38,11 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class EntityAttributeModel;
+        class EntityAttributeTable;
+        class MapDocument;
+        class Selection;
+
         /**
          * Panel with the entity attribute table, and the toolbar below it (add/remove icons,
          * "show default properties" checkbox, etc.)

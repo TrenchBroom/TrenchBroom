@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "View/MapDocument.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -40,6 +39,8 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class CommandProcessor;
+
         class MapDocumentCommandFacade : public MapDocument {
         private:
             std::unique_ptr<CommandProcessor> m_commandProcessor;

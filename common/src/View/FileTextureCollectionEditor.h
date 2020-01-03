@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_FileTextureCollectionEditor
 #define TrenchBroom_FileTextureCollectionEditor
 
-#include "View/View_Forward.h"
-
 #include <memory>
 
 #include <QWidget>
@@ -35,6 +33,8 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+
         class FileTextureCollectionEditor : public QWidget {
             Q_OBJECT
         private:

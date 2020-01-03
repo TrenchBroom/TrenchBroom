@@ -21,7 +21,6 @@
 #define LaunchGameEngineDialog_h
 
 #include "View/CompilationVariables.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 
@@ -35,6 +34,9 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class GameEngineProfileListBox;
+        class MultiCompletionLineEdit;
+
         class LaunchGameEngineDialog : public QDialog {
         private:
             std::weak_ptr<MapDocument> m_document;

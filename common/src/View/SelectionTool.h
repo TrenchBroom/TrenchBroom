@@ -23,7 +23,6 @@
 #include "Model/HitType.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 #include <vector>
@@ -38,6 +37,8 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+
         /**
          * Implements the Group picking logic: if `node` is inside a (possibly nested chain of)
          * closed group(s), the outermost closed group is returned. Otherwise, `node` itself is returned.

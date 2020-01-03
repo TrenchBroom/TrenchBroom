@@ -22,8 +22,6 @@
 
 #include "Macros.h"
 
-#include "View/View_Forward.h"
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -40,6 +38,8 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class CompilationContext;
+
         class CompilationTaskRunner : public QObject {
             Q_OBJECT
         protected:

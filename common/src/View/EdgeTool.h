@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "View/VertexToolBase.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/segment.h>
 

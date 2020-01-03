@@ -24,7 +24,6 @@
 #include "Macros.h"
 #include "View/DocumentCommand.h"
 #include "Model/BrushFaceAttributes.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/plane.h>
 

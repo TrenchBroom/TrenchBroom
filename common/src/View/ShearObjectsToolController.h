@@ -22,7 +22,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #define TrenchBroom_ShearObjectsToolController
 
 #include "View/ToolController.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 
@@ -34,6 +33,9 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+        class ShearObjectsTool;
+
         class ShearObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:
             ShearObjectsTool* m_tool;

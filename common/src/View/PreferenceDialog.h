@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_PreferenceDialog
 #define TrenchBroom_PreferenceDialog
 
-#include "View/View_Forward.h"
-
 #include <memory>
 
 #include <QDialog>
@@ -33,6 +31,9 @@ class QWidget;
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+        class PreferencePane;
+
         class PreferenceDialog : public QDialog {
             Q_OBJECT
         private:

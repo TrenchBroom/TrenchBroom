@@ -22,7 +22,6 @@
 
 #include "View/CameraLinkHelper.h"
 #include "View/MultiMapView.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 
@@ -36,6 +35,12 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class GLContextManager;
+        class MapDocument;
+        class MapView2D;
+        class MapView3D;
+        class MapViewToolBox;
+
         class FourPaneMapView : public MultiMapView {
             Q_OBJECT
         private:

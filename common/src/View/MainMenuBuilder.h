@@ -21,7 +21,6 @@
 #define TRENCHBROOM_MAINMENUBUILDER_H
 
 #include "View/Actions.h"
-#include "View/View_Forward.h"
 
 #include <functional>
 

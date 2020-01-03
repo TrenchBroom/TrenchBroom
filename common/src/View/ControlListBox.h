@@ -20,8 +20,6 @@
 #ifndef ControlListBox_h
 #define ControlListBox_h
 
-#include "View/View_Forward.h"
-
 #include <QWidget>
 
 class QLabel;

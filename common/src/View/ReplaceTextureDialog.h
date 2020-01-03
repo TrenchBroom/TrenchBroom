@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_ReplaceTextureDialog
 #define TrenchBroom_ReplaceTextureDialog
 
-#include "View/View_Forward.h"
-
 #include <memory>
 #include <vector>
 
@@ -39,6 +37,10 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class GLContextManager;
+        class MapDocument;
+        class TextureBrowser;
+
         class ReplaceTextureDialog : public QDialog {
             Q_OBJECT
         private:

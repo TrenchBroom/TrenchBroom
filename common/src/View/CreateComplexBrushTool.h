@@ -22,7 +22,6 @@
 
 #include "Model/Polyhedron3.h"
 #include "View/CreateBrushToolBase.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 

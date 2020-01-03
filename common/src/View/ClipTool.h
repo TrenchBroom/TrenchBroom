@@ -23,7 +23,6 @@
 #include "FloatType.h"
 #include "Model/HitType.h"
 #include "View/Tool.h"
-#include "View/View_Forward.h"
 
 #include <map>
 #include <memory>
@@ -44,6 +43,10 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class Grid;
+        class MapDocument;
+        class Selection;
+
         class ClipTool : public Tool {
         public:
             static const Model::HitType::Type PointHit;

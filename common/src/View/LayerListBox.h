@@ -21,7 +21,6 @@
 #define TrenchBroom_LayerListBox
 
 #include "View/ControlListBox.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 #include <vector>
@@ -37,6 +36,8 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+
         class LayerListBoxWidget : public ControlListBoxItemRenderer {
             Q_OBJECT
         private:

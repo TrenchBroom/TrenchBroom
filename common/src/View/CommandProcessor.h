@@ -21,7 +21,6 @@
 #define TrenchBroom_CommandProcessor
 
 #include "Notifier.h"
-#include "View/View_Forward.h"
 
 #include <chrono>
 #include <memory>
@@ -30,6 +29,10 @@
 
 namespace TrenchBroom {
     namespace View {
+        class Command;
+        class CommandResult;
+        class MapDocumentCommandFacade;
+        class UndoableCommand;
 
         /**
          * The command processor is responsible for executing and undoing commands and for maintining the command

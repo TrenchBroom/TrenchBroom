@@ -21,7 +21,6 @@
 #define TrenchBroom_MapView2D
 
 #include "View/MapViewBase.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 

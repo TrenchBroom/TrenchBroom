@@ -25,7 +25,6 @@
 #include "Model/Hit.h"
 #include "Model/HitType.h"
 #include "View/Tool.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -43,10 +42,11 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+
         class ShearObjectsTool : public Tool {
         public:
             static const Model::HitType::Type ShearToolSideHit;
-
         private:
             std::weak_ptr<MapDocument> m_document;
             bool m_resizing;

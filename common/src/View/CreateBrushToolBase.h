@@ -21,7 +21,6 @@
 #define TrenchBroom_CreateBrushToolBase
 
 #include "View/Tool.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 
@@ -37,6 +36,9 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class Grid;
+        class MapDocument;
+
         class CreateBrushToolBase : public Tool {
         protected:
             std::weak_ptr<MapDocument> m_document;

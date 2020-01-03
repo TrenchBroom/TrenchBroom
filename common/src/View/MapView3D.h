@@ -21,7 +21,6 @@
 #define TrenchBroom_MapView3D
 
 #include "View/MapViewBase.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -38,6 +37,8 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class FlyModeHelper;
+
         class MapView3D : public MapViewBase {
             Q_OBJECT
         private:

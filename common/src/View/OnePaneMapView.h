@@ -22,7 +22,6 @@
 
 #include "View/CameraLinkHelper.h"
 #include "View/MultiMapView.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 
@@ -34,6 +33,11 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class CyclingMapView;
+        class GLContextManager;
+        class MapDocument;
+        class MapViewToolBox;
+
         class OnePaneMapView : public MultiMapView {
         private:
             Logger* m_logger;

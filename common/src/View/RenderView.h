@@ -23,7 +23,6 @@
 #include "Color.h"
 #include "Renderer/GL.h" // must be included here, before QOpenGLWidget, because it includes glew
 #include "View/InputEvent.h"
-#include "View/View_Forward.h"
 
 #include <string>
 
@@ -42,6 +41,8 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class GLContextManager;
+
         class RenderView : public QOpenGLWidget, public InputEventProcessor {
             Q_OBJECT
         private:

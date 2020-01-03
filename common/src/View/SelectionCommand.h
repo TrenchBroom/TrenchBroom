@@ -22,7 +22,6 @@
 
 #include "Macros.h"
 #include "View/UndoableCommand.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 #include <string>

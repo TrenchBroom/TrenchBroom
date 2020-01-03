@@ -21,7 +21,6 @@
 #define TrenchBroom_GameDialog
 
 #include "Model/MapFormat.h"
-#include "View/View_Forward.h"
 
 #include <string>
 
@@ -37,6 +36,8 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class GameListBox;
+
         class GameDialog : public QDialog {
             Q_OBJECT
         protected:

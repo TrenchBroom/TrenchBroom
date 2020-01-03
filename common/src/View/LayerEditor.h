@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_LayerEditor
 #define TrenchBroom_LayerEditor
 
-#include "View/View_Forward.h"
-
 #include <memory>
 #include <string>
 
@@ -35,6 +33,9 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class LayerListBox;
+        class MapDocument;
+
         class LayerEditor : public QWidget {
             Q_OBJECT
         private:

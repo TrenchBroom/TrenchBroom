@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "Renderer/Transformation.h"
-#include "View/View_Forward.h"
 
 namespace TrenchBroom {
     namespace Renderer {

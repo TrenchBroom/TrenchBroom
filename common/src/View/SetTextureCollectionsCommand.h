@@ -22,7 +22,6 @@
 
 #include "Macros.h"
 #include "View/DocumentCommand.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 #include <vector>

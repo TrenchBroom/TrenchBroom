@@ -23,7 +23,6 @@
 #include "Macros.h"
 #include "Model/EntityColor.h"
 #include "View/DocumentCommand.h"
-#include "View/View_Forward.h"
 
 #include <map>
 #include <memory>

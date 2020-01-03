@@ -23,7 +23,6 @@
 #include "FloatType.h"
 #include "Model/HitType.h"
 #include "View/Tool.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -46,6 +45,9 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+        class Selection;
+
         class ResizeBrushesTool : public Tool {
         private:
             static const Model::HitType::Type ResizeHit3D;

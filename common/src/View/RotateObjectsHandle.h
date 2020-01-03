@@ -23,7 +23,6 @@
 #include "FloatType.h"
 #include "Macros.h"
 #include "Model/HitType.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/vec.h>
 

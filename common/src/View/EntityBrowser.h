@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_EntityBrowser
 #define TrenchBroom_EntityBrowser
 
-#include "View/View_Forward.h"
-
 #include <memory>
 
 #include <QWidget>
@@ -37,6 +35,10 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class EntityBrowserView;
+        class GLContextManager;
+        class MapDocument;
+
         class EntityBrowser : public QWidget {
             Q_OBJECT
         private:

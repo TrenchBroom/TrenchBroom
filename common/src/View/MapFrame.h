@@ -22,7 +22,6 @@
 
 #include "Model/MapFormat.h"
 #include "View/Selection.h"
-#include "View/View_Forward.h"
 
 #include <QMainWindow>
 #include <QPointer>
@@ -56,6 +55,20 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class Action;
+        class Autosaver;
+        class Console;
+        class FrameManager;
+        class GLContextManager;
+        class InfoPanel;
+        class Inspector;
+        enum class InspectorPage;
+        class MapDocument;
+        class MapViewBase;
+        enum class PasteType;
+        class SwitchableMapViewContainer;
+        class Tool;
+
         class MapFrame : public QMainWindow {
             Q_OBJECT
         private:

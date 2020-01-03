@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "View/ToolController.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -40,6 +39,8 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class ClipTool;
+
         class ClipToolController : public ToolControllerGroup {
         protected:
             class Callback {

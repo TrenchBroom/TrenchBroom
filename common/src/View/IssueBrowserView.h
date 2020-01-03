@@ -21,7 +21,6 @@
 #define TrenchBroom_IssueBrowserView
 
 #include "Model/IssueType.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 #include <vector>
@@ -39,6 +38,9 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class IssueBrowserModel;
+        class MapDocument;
+
         class IssueBrowserView : public QWidget {
             Q_OBJECT
         private:

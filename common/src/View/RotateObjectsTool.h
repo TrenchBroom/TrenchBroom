@@ -23,7 +23,6 @@
 #include "FloatType.h"
 #include "View/Tool.h"
 #include "View/RotateObjectsHandle.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -38,6 +37,10 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class Grid;
+        class MapDocument;
+        class RotateObjectsToolPage;
+
         class RotateObjectsTool : public Tool {
         private:
             std::weak_ptr<MapDocument> m_document;

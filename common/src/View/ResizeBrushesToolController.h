@@ -22,7 +22,6 @@
 
 #include "Renderer/EdgeRenderer.h"
 #include "View/ToolController.h"
-#include "View/View_Forward.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -32,6 +31,8 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class ResizeBrushesTool;
+
         class ResizeBrushesToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:
             ResizeBrushesTool* m_tool;

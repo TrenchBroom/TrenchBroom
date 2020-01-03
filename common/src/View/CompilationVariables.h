@@ -21,13 +21,14 @@
 #define CompilationVariables_h
 
 #include "EL/VariableStore.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 #include <string>
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+
         namespace CompilationVariableNames {
             extern const std::string WORK_DIR_PATH;
             extern const std::string MAP_DIR_PATH;

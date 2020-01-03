@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_MoveObjectsToolPage
 #define TrenchBroom_MoveObjectsToolPage
 
-#include "View/View_Forward.h"
-
 #include <memory>
 
 #include <QWidget>
@@ -31,6 +29,9 @@ class QLineEdit;
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+        class Selection;
+
         class MoveObjectsToolPage : public QWidget {
             Q_OBJECT
         private:

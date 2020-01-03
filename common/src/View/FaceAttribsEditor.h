@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_FaceAttribsEditor
 #define TrenchBroom_FaceAttribsEditor
 
-#include "View/View_Forward.h"
-
 #include <QWidget>
 
 #include <memory>
@@ -37,6 +35,13 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class FlagsPopupEditor;
+        class GLContextManager;
+        class MapDocument;
+        class Selection;
+        class SpinControl;
+        class UVEditor;
+
         class FaceAttribsEditor : public QWidget {
             Q_OBJECT
         private:

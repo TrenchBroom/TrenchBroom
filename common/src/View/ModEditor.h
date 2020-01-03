@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_ModEditor
 #define TrenchBroom_ModEditor
 
-#include "View/View_Forward.h"
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -39,6 +37,8 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+
         class ModEditor : public QWidget {
             Q_OBJECT
         private:

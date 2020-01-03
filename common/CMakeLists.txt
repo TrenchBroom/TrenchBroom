@@ -1029,7 +1029,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/VertexToolBase.h
         ${COMMON_SOURCE_DIR}/View/VertexToolController.h
         ${COMMON_SOURCE_DIR}/View/VertexToolControllerBase.h
-        ${COMMON_SOURCE_DIR}/View/View_Forward.h
         ${COMMON_SOURCE_DIR}/View/ViewConstants.h
         ${COMMON_SOURCE_DIR}/View/ViewEditor.h
         ${COMMON_SOURCE_DIR}/View/ViewEffectsService.h

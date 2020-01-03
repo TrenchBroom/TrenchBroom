@@ -23,13 +23,14 @@
 #include "FloatType.h"
 #include "Macros.h"
 #include "View/RemoveBrushElementsCommand.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 #include <vector>
 
 namespace TrenchBroom {
     namespace View {
+        class VertexHandleManager;
+
         class RemoveBrushVerticesCommand : public RemoveBrushElementsCommand {
         public:
             static const CommandType Type;

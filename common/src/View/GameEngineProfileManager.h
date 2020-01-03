@@ -20,8 +20,6 @@
 #ifndef GameEngineProfileManager_h
 #define GameEngineProfileManager_h
 
-#include "View/View_Forward.h"
-
 #include <QWidget>
 
 class QAbstractButton;
@@ -33,6 +31,9 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class GameEngineProfileEditor;
+        class GameEngineProfileListBox;
+
         class GameEngineProfileManager : public QWidget {
             Q_OBJECT
         private:

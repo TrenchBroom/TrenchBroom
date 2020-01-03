@@ -26,7 +26,6 @@
 #include "Model/MapFacade.h"
 #include "Model/NodeCollection.h"
 #include "View/CachingLogger.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
@@ -67,6 +66,16 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class Action;
+        class Command;
+        class CommandResult;
+        class Grid;
+        class MapViewConfig;
+        enum class PasteType;
+        class Selection;
+        class UndoableCommand;
+        class ViewEffectsService;
+
         class MapDocument : public Model::MapFacade, public CachingLogger {
         public:
             static const vm::bbox3 DefaultWorldBounds;

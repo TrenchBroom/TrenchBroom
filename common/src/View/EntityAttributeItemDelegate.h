@@ -20,8 +20,6 @@
 #ifndef TRENCHBROOM_ENTITYATTRIBUTEITEMDELEGATE_H
 #define TRENCHBROOM_ENTITYATTRIBUTEITEMDELEGATE_H
 
-#include "View/View_Forward.h"
-
 #include <QStyledItemDelegate>
 
 class QLineEdit;
@@ -29,6 +27,9 @@ class QSortFilterProxyModel;
 
 namespace TrenchBroom {
     namespace View {
+        class EntityAttributeModel;
+        class EntityAttributeTable;
+
         class EntityAttributeItemDelegate : public QStyledItemDelegate {
             Q_OBJECT
         private:
