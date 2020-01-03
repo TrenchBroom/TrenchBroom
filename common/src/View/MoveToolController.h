@@ -27,7 +27,6 @@
 #include "Preferences.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderService.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>

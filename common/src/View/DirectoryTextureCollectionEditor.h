@@ -20,9 +20,6 @@
 #ifndef DirectoryTextureCollectionEditor_h
 #define DirectoryTextureCollectionEditor_h
 
-#include "IO/IO_Forward.h"
-#include "View/View_Forward.h"
-
 #include <memory>
 #include <vector>
 
@@ -32,7 +29,13 @@ class QListWidget;
 class QAbstractButton;
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
     namespace View {
+        class MapDocument;
+
         class DirectoryTextureCollectionEditor : public QWidget {
             Q_OBJECT
         private:

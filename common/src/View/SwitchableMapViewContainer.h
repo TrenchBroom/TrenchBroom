@@ -23,17 +23,30 @@
 #include <QWidget>
 
 #include "FloatType.h"
-#include "IO/IO_Forward.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/MapView.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 
 namespace TrenchBroom {
     class Logger;
 
+    namespace Renderer {
+        class MapRenderer;
+    }
+
     namespace View {
+        class ClipTool;
+        class EdgeTool;
+        class FaceTool;
+        class GLContextManager;
+        class Inspector;
+        class MapDocument;
+        class MapViewBar;
+        enum class MapViewLayout;
+        class MapViewToolBox;
+        class Tool;
+        class VertexTool;
+
         class SwitchableMapViewContainer : public QWidget, public MapView {
             Q_OBJECT
         private:

@@ -20,15 +20,19 @@
 #ifndef TrenchBroom_Inspector
 #define TrenchBroom_Inspector
 
-#include "Renderer/Renderer_Forward.h"
-#include "View/View_Forward.h"
-
 #include <memory>
 
 #include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
+        class FaceInspector;
+        class EntityInspector;
+        class GLContextManager;
+        class MapDocument;
+        class MapInspector;
+        class TabBook;
+
         enum class InspectorPage {
             Map = 0,
             Entity = 1,

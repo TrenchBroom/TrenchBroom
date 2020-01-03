@@ -20,15 +20,15 @@
 #ifndef TrenchBroom_NodeReader
 #define TrenchBroom_NodeReader
 
-#include "IO/IO_Forward.h"
 #include "IO/MapReader.h"
-#include "Model/Model_Forward.h"
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace IO {
+        class ParserStatus;
+
         class NodeReader : public MapReader {
         private:
             Model::ModelFactory& m_factory;

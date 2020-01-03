@@ -37,10 +37,10 @@ namespace TrenchBroom {
     namespace Model {
         class DetectColorRangeVisitor : public ConstNodeVisitor {
         private:
-            const AttributeName& m_name;
+            const std::string& m_name;
             Assets::ColorRange::Type m_range;
         public:
-            DetectColorRangeVisitor(const AttributeName& name) :
+            DetectColorRangeVisitor(const std::string& name) :
             m_name(name),
             m_range(Assets::ColorRange::Unset) {}
 
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             }
         };
 
-        Assets::ColorRange::Type detectColorRange(const AttributeName& name, const std::vector<AttributableNode*>& attributables) {
+        Assets::ColorRange::Type detectColorRange(const std::string& name, const std::vector<AttributableNode*>& attributables) {
             DetectColorRangeVisitor visitor(name);
             Node::accept(std::begin(attributables), std::end(attributables), visitor);
             return visitor.result();

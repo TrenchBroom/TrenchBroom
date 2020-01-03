@@ -21,15 +21,30 @@
 #define TrenchBroom_GameConfigParser
 
 #include "Macros.h"
+#include "EL/EL_Forward.h"
 #include "IO/ConfigParserBase.h"
-#include "IO/IO_Forward.h"
-#include "Model/Model_Forward.h"
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        struct EntityConfig;
+        struct FaceAttribsConfig;
+        struct FileSystemConfig;
+        struct FlagConfig;
+        struct FlagsConfig;
+        class GameConfig;
+        struct MapFormatConfig;
+        struct PackageFormatConfig;
+        class SmartTag;
+        class TagAttribute;
+        struct TextureConfig;
+        struct TexturePackageConfig;
+    }
     namespace IO {
+        class Path;
+
         class GameConfigParser : public ConfigParserBase {
         public:
             GameConfigParser(const char* begin, const char* end, const Path& path);

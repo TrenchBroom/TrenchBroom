@@ -20,11 +20,8 @@
 #ifndef TrenchBroom_EntityAttributeIndex
 #define TrenchBroom_EntityAttributeIndex
 
-#include "Model/Model_Forward.h"
-
 #include <kdl/compact_trie_forward.h>
 
-#include <list>
 #include <memory>
 #include <set>
 #include <string>
@@ -32,6 +29,9 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class AttributableNode;
+        class EntityAttribute;
+
         using AttributableNodeStringIndex = kdl::compact_trie<AttributableNode*>;
 
         class AttributableNodeIndexQuery {
@@ -69,10 +69,10 @@ namespace TrenchBroom {
             void addAttributableNode(AttributableNode* attributable);
             void removeAttributableNode(AttributableNode* attributable);
 
-            void addAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
-            void removeAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
+            void addAttribute(AttributableNode* attributable, const std::string& name, const std::string& value);
+            void removeAttribute(AttributableNode* attributable, const std::string& name, const std::string& value);
 
-            std::vector<AttributableNode*> findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const AttributeValue& value) const;
+            std::vector<AttributableNode*> findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const std::string& value) const;
             std::vector<std::string> allNames() const;
             std::vector<std::string> allValuesForNames(const AttributableNodeIndexQuery& keyQuery) const;
         };

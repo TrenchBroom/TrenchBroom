@@ -22,7 +22,6 @@
 
 #include "Macros.h"
 #include "FloatType.h"
-#include "Model/Model_Forward.h"
 #include "View/SnapshotCommand.h"
 
 #include <vecmath/forward.h>

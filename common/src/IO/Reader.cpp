@@ -23,6 +23,7 @@
 #include "IO/ReaderException.h"
 
 #include <cassert>
+#include <cerrno>
 #include <cstring>
 #include <functional>
 #include <string>

@@ -21,14 +21,16 @@
 #define TrenchBroom_TextureCollectionCommand
 
 #include "Macros.h"
-#include "IO/IO_Forward.h"
 #include "View/DocumentCommand.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
     namespace View {
         class SetTextureCollectionsCommand : public DocumentCommand {
         public:

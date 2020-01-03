@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_CameraTool2D
 #define TrenchBroom_CameraTool2D
 
-#include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
 
@@ -28,6 +27,10 @@
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class OrthographicCamera;
+    }
+
     namespace View {
         class CameraTool2D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:

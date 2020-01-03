@@ -23,10 +23,16 @@
 #undef True
 #undef False
 
-#include "Model/Model_Forward.h"
-
 namespace TrenchBroom {
     namespace Model {
+        class Brush;
+        class Entity;
+        class Group;
+        class Layer;
+        class Node;
+        class Object;
+        class World;
+
         namespace NodePredicates {
             struct True {
                 bool operator()(const Node* node) const;

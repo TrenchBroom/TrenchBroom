@@ -22,11 +22,9 @@
 
 #include "Color.h"
 #include "Model/BrushGeometry.h"
-#include "Model/Model_Forward.h"
 #include "Renderer/AllocationTracker.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/FaceRenderer.h"
-#include "Renderer/Renderer_Forward.h"
 
 #include <memory>
 #include <tuple>
@@ -35,6 +33,12 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+        class BrushFace;
+        class EditorContext;
+    }
+
     namespace Renderer {
         class BrushRenderer {
         public:

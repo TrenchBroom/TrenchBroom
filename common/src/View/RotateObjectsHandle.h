@@ -22,14 +22,21 @@
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "Model/HitType.h"
-#include "Renderer/Renderer_Forward.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Hit;
+    }
+
+    namespace Renderer {
+        class Camera;
+        class RenderBatch;
+        class RenderContext;
+    }
+
     namespace View {
         class RotateObjectsHandle {
         public:

@@ -21,12 +21,14 @@
 #define BrushFaceReference_h
 
 #include "FloatType.h"
-#include "Model/Model_Forward.h"
 
 #include <vecmath/plane.h>
 
 namespace TrenchBroom {
     namespace Model {
+        class Brush;
+        class BrushFace;
+
         class BrushFaceReference {
         private:
             vm::plane3 m_facePlane;

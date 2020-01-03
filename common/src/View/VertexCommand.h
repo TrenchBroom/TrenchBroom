@@ -23,9 +23,7 @@
 #include "FloatType.h"
 #include "Macros.h"
 #include "Model/BrushGeometry.h"
-#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -37,7 +35,16 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+        class Snapshot;
+    }
+
     namespace View {
+        class MapDocument;
+        class VertexHandleManagerBase;
+        template <typename H> class VertexHandleManagerBaseT;
+
         class VertexCommand : public DocumentCommand {
         protected:
             using VertexToBrushesMap = std::map<vm::vec3, std::vector<Model::Brush*>>;

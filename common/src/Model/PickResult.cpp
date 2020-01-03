@@ -72,7 +72,7 @@ namespace TrenchBroom {
             m_hits.insert(pos, hit);
         }
 
-        const std::list<Hit>& PickResult::all() const {
+        const std::vector<Hit>& PickResult::all() const {
             return m_hits;
         }
 

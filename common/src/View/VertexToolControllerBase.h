@@ -22,7 +22,6 @@
 
 #include "Model/HitQuery.h"
 #include "Model/HitType.h"
-#include "Model/Model_Forward.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "View/Lasso.h"
@@ -31,10 +30,14 @@
 
 #include <vecmath/intersection.h>
 
-#include <list>
-#include <set>
+#include <unordered_set>
+#include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+    }
+
     namespace View {
         class Tool;
 
@@ -58,7 +61,7 @@ namespace TrenchBroom {
                     return doFindDraggableHandle(inputState);
                 }
 
-                std::list<Model::Hit> findDraggableHandles(const InputState& inputState) const {
+                std::vector<Model::Hit> findDraggableHandles(const InputState& inputState) const {
                     return doFindDraggableHandles(inputState);
                 }
             private:
@@ -66,7 +69,7 @@ namespace TrenchBroom {
                     return findDraggableHandle(inputState, m_hitType);
                 }
 
-                virtual std::list<Model::Hit> doFindDraggableHandles(const InputState& inputState) const {
+                virtual std::vector<Model::Hit> doFindDraggableHandles(const InputState& inputState) const {
                     return findDraggableHandles(inputState, m_hitType);
                 }
             public:
@@ -84,7 +87,7 @@ namespace TrenchBroom {
                     return Model::Hit::NoHit;
                 }
 
-                std::list<Model::Hit> findDraggableHandles(const InputState& inputState, const Model::HitType::Type hitType) const {
+                std::vector<Model::Hit> findDraggableHandles(const InputState& inputState, const Model::HitType::Type hitType) const {
                     return inputState.pickResult().query().type(hitType).occluded().all();
                 }
             private:
@@ -202,21 +205,22 @@ namespace TrenchBroom {
                     }
                 }
             protected:
-                std::list<Model::Hit> firstHits(const Model::PickResult& pickResult) const {
-                    std::list<Model::Hit> result;
-                    std::set<Model::Brush*> visitedBrushes;
+                std::vector<Model::Hit> firstHits(const Model::PickResult& pickResult) const {
+                    std::vector<Model::Hit> result;
+                    std::unordered_set<Model::Brush*> visitedBrushes;
 
                     const Model::Hit& first = pickResult.query().type(m_hitType).occluded().first();
                     if (first.isMatch()) {
                         const H& firstHandle = first.target<H>();
 
-                        const std::list<Model::Hit> matches = pickResult.query().type(m_hitType).all();
+                        const std::vector<Model::Hit> matches = pickResult.query().type(m_hitType).all();
                         for (const Model::Hit& match : matches) {
                             const H& handle = match.target<H>();
 
                             if (equalHandles(handle, firstHandle)) {
-                                if (allIncidentBrushesVisited(handle, visitedBrushes))
+                                if (allIncidentBrushesVisited(handle, visitedBrushes)) {
                                     result.push_back(match);
+                                }
                             }
                         }
                     }
@@ -224,7 +228,7 @@ namespace TrenchBroom {
                     return result;
                 }
 
-                bool allIncidentBrushesVisited(const H& handle, std::set<Model::Brush*>& visitedBrushes) const {
+                bool allIncidentBrushesVisited(const H& handle, std::unordered_set<Model::Brush*>& visitedBrushes) const {
                     bool result = true;
                     for (auto brush : m_tool->findIncidentBrushes(handle)) {
                         const bool unvisited = visitedBrushes.insert(brush).second;
@@ -265,7 +269,7 @@ namespace TrenchBroom {
                         return MoveInfo();
                     }
 
-                    const std::list<Model::Hit> hits = findDraggableHandles(inputState);
+                    const std::vector<Model::Hit> hits = findDraggableHandles(inputState);
                     if (hits.empty()) {
                         return MoveInfo();
                     }

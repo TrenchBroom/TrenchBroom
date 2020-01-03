@@ -24,7 +24,6 @@
 #include "View/VertexToolBase.h"
 #include "View/VertexHandleManager.h"
 
-#include <list> // FIXME: get rid of this
 #include <memory>
 #include <string>
 #include <vector>
@@ -78,7 +77,7 @@ namespace TrenchBroom {
             VertexHandleManager& handleManager() override;
             const VertexHandleManager& handleManager() const override;
         public: // Vertex moving
-            bool startMove(const std::list<Model::Hit>& hits) override;
+            bool startMove(const std::vector<Model::Hit>& hits) override;
             MoveResult move(const vm::vec3& delta) override;
             void endMove() override;
             void cancelMove() override;

@@ -19,6 +19,7 @@
 
 #include "GameEngineProfile.h"
 
+#include <memory>
 #include <string>
 
 namespace TrenchBroom {
@@ -28,8 +29,8 @@ namespace TrenchBroom {
         m_path(path),
         m_parameterSpec(parameterSpec) {}
 
-        GameEngineProfile* GameEngineProfile::clone() const {
-            return new GameEngineProfile(m_name, m_path, m_parameterSpec);
+        std::unique_ptr<GameEngineProfile> GameEngineProfile::clone() const {
+            return std::make_unique<GameEngineProfile>(m_name, m_path, m_parameterSpec);
         }
 
         const std::string& GameEngineProfile::name() const {

@@ -21,18 +21,25 @@
 #define TrenchBroom_UVViewHelper
 
 #include "FloatType.h"
-#include "Assets/Asset_Forward.h"
-#include "Model/Model_Forward.h"
 #include "Model/HitType.h"
 
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+
     namespace Renderer {
         class ActiveShader;
         class Camera;
         class OrthographicCamera;
         class RenderContext;
+    }
+
+    namespace Model {
+        class BrushFace;
+        class PickResult;
     }
 
     namespace View {

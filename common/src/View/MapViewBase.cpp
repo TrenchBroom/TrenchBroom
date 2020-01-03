@@ -69,6 +69,7 @@
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 
+#include <vecmath/polygon.h>
 #include <vecmath/util.h>
 
 #include <sstream>

@@ -115,17 +115,17 @@ namespace TrenchBroom {
                 removeAttribute(attributable, attribute.name(), attribute.value());
         }
 
-        void AttributableNodeIndex::addAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
+        void AttributableNodeIndex::addAttribute(AttributableNode* attributable, const std::string& name, const std::string& value) {
             m_nameIndex->insert(name, attributable);
             m_valueIndex->insert(value, attributable);
         }
 
-        void AttributableNodeIndex::removeAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
+        void AttributableNodeIndex::removeAttribute(AttributableNode* attributable, const std::string& name, const std::string& value) {
             m_nameIndex->remove(name, attributable);
             m_valueIndex->remove(value, attributable);
         }
 
-        std::vector<AttributableNode*> AttributableNodeIndex::findAttributableNodes(const AttributableNodeIndexQuery& nameQuery, const AttributeValue& value) const {
+        std::vector<AttributableNode*> AttributableNodeIndex::findAttributableNodes(const AttributableNodeIndexQuery& nameQuery, const std::string& value) const {
             const std::set<AttributableNode*> nameResult = nameQuery.execute(*m_nameIndex);
 
             std::set<AttributableNode*> valueResult;

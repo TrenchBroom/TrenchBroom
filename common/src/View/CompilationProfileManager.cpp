@@ -91,7 +91,7 @@ namespace TrenchBroom {
         }
 
         void CompilationProfileManager::addProfile() {
-            m_config.addProfile(new Model::CompilationProfile("unnamed", "${MAP_DIR_PATH}"));
+            m_config.addProfile(std::make_unique<Model::CompilationProfile>("unnamed", "${MAP_DIR_PATH}"));
             m_profileList->setCurrentRow(static_cast<int>(m_config.profileCount() - 1));
         }
 

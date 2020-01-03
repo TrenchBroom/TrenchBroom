@@ -22,21 +22,26 @@
 
 #include "FloatType.h"
 #include "Color.h"
-#include "Assets/Asset_Forward.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
-#include "IO/IO_Forward.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 
-#include <list>
 #include <memory>
 #include <nonstd/optional.hpp>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class ModelDefinition;
+    }
+
     namespace IO {
+        class FileSystem;
+        class ParserStatus;
+        class Path;
+
         namespace FgdToken {
             using Type = unsigned int;
             static const Type Integer           = 1 <<  0; // integer number
@@ -69,7 +74,7 @@ namespace TrenchBroom {
 
             Color m_defaultEntityColor;
 
-            std::list<Path> m_paths;
+            std::vector<Path> m_paths;
             std::shared_ptr<FileSystem> m_fs;
 
             FgdTokenizer m_tokenizer;

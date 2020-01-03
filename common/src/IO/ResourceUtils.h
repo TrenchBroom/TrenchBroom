@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_ResourceUtils
 #define TrenchBroom_ResourceUtils
 
-#include "IO/IO_Forward.h"
-
 #include <string>
 
 class QIcon;
@@ -29,10 +27,12 @@ class QPixmap;
 
 namespace TrenchBroom {
     namespace IO {
-        QPixmap loadPixmapResource(const std::string& name);
-        QPixmap loadPixmapResource(const IO::Path& imagePath);
+        class Path;
 
-        QIcon loadIconResourceQt(const IO::Path& imagePath);
+        QPixmap loadPixmapResource(const std::string& name);
+        QPixmap loadPixmapResource(const Path& imagePath);
+
+        QIcon loadIconResourceQt(const Path& imagePath);
     }
 }
 

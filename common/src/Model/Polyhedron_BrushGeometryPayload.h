@@ -20,7 +20,6 @@
 #ifndef Polyhedron_BrushGeometryPayload_h
 #define Polyhedron_BrushGeometryPayload_h
 
-#include "Model/Model_Forward.h"
 //#include "Renderer/GL.h"
 
 #include <cstdint>
@@ -28,6 +27,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFace;
+
         struct BrushVertexPayload {
             using Type = uint32_t; // FIXME: GLuint
             static Type defaultValue() {
@@ -36,7 +37,7 @@ namespace TrenchBroom {
         };
 
         struct BrushFacePayload {
-            using Type = TrenchBroom::Model::BrushFace*;
+            using Type = BrushFace*;
             static Type defaultValue() {
                 return nullptr;
             }

@@ -500,7 +500,6 @@ set(COMMON_SOURCE
 
 set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/AABBTree.h
-        ${COMMON_SOURCE_DIR}/Assets/Asset_Forward.h
         ${COMMON_SOURCE_DIR}/Assets/AttributeDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/ColorRange.h
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinition.h
@@ -557,7 +556,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/ImageFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/ImageLoader.h
         ${COMMON_SOURCE_DIR}/IO/ImageLoaderImpl.h
-        ${COMMON_SOURCE_DIR}/IO/IO_Forward.h
         ${COMMON_SOURCE_DIR}/IO/IOUtils.h
         ${COMMON_SOURCE_DIR}/IO/LegacyModelDefinitionParser.h
         ${COMMON_SOURCE_DIR}/IO/MapFileSerializer.h
@@ -665,11 +663,13 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/HitFilter.h
         ${COMMON_SOURCE_DIR}/Model/HitQuery.h
         ${COMMON_SOURCE_DIR}/Model/HitType.h
+        ${COMMON_SOURCE_DIR}/Model/IdType.h
         ${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Issue.h
         ${COMMON_SOURCE_DIR}/Model/IssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/IssueGeneratorRegistry.h
         ${COMMON_SOURCE_DIR}/Model/IssueQuickFix.h
+        ${COMMON_SOURCE_DIR}/Model/IssueType.h
         ${COMMON_SOURCE_DIR}/Model/Layer.h
         ${COMMON_SOURCE_DIR}/Model/LinkSourceIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/LinkTargetIssueGenerator.h
@@ -686,7 +686,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/MissingDefinitionIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MissingModIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MixedBrushContentsIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/Model_Forward.h
         ${COMMON_SOURCE_DIR}/Model/ModelFactory.h
         ${COMMON_SOURCE_DIR}/Model/ModelFactoryImpl.h
         ${COMMON_SOURCE_DIR}/Model/ModelUtils.h
@@ -784,7 +783,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/Renderable.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderBatch.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderContext.h
-        ${COMMON_SOURCE_DIR}/Renderer/Renderer_Forward.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderService.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderUtils.h
         ${COMMON_SOURCE_DIR}/Renderer/SelectionBoundsRenderer.h
@@ -1031,7 +1029,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/VertexToolBase.h
         ${COMMON_SOURCE_DIR}/View/VertexToolController.h
         ${COMMON_SOURCE_DIR}/View/VertexToolControllerBase.h
-        ${COMMON_SOURCE_DIR}/View/View_Forward.h
         ${COMMON_SOURCE_DIR}/View/ViewConstants.h
         ${COMMON_SOURCE_DIR}/View/ViewEditor.h
         ${COMMON_SOURCE_DIR}/View/ViewEffectsService.h

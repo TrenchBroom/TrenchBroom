@@ -20,9 +20,6 @@
 #ifndef TrenchBroom_FrameManager
 #define TrenchBroom_FrameManager
 
-#include "IO/IO_Forward.h"
-#include "View/View_Forward.h"
-
 #include <QObject>
 
 #include <memory>
@@ -30,6 +27,9 @@
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+        class MapFrame;
+
         class FrameManager : public QObject {
             Q_OBJECT
         private:

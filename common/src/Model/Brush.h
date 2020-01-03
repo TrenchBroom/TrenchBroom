@@ -24,11 +24,9 @@
 #include "Macros.h"
 #include "Model/BrushGeometry.h"
 #include "Model/HitType.h"
-#include "Model/Model_Forward.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
 #include "Model/TagType.h"
-#include "Renderer/Renderer_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -37,9 +35,13 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class BrushRendererBrushCache;
+    }
+
     namespace Model {
-        template <typename P>
-        class PolyhedronMatcher;
+        class ModelFactory;
+        template <typename P> class PolyhedronMatcher;
 
         struct BrushAlgorithmResult;
 

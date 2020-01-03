@@ -24,7 +24,6 @@
 #include "Macros.h"
 #include "FloatType.h"
 #include "Notifier.h"
-#include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -36,6 +35,10 @@
 
 // FIXME: should this be moved to Model?
 namespace TrenchBroom {
+    namespace Model {
+        class BrushFace;
+    }
+
     namespace View {
         class Grid {
         public:

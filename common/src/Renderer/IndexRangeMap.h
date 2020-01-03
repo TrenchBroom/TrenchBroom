@@ -21,7 +21,6 @@
 #define IndexRangeMap_h
 
 #include "Renderer/GL.h"
-#include "Renderer/Renderer_Forward.h"
 #include "Renderer/PrimType.h"
 
 #include <kdl/enum_array.h>
@@ -31,6 +30,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class VertexArray;
+
         /**
          * Manages ranges of primitives that consist of vertices stored in a vertex array. For each primitive type,
          * multiple ranges of vertices can be stored, each range having an offset and a length. When rendered using a

@@ -23,9 +23,7 @@
 #include "Color.h"
 #include "FloatType.h"
 #include "Notifier.h"
-#include "Assets/Asset_Forward.h"
 #include "Assets/ModelDefinition.h"
-#include "Model/Model_Forward.h"
 
 #include <vecmath/bbox.h>
 
@@ -35,6 +33,10 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        class AttributeDefinition;
+        class FlagsAttributeDefinition;
+        class FlagsAttributeOption;
+
         enum class EntityDefinitionType {
             PointEntity,
             BrushEntity
@@ -76,9 +78,9 @@ namespace TrenchBroom {
 
             const FlagsAttributeDefinition* spawnflags() const;
             const AttributeDefinitionList& attributeDefinitions() const;
-            const AttributeDefinition* attributeDefinition(const Model::AttributeName& attributeKey) const;
+            const AttributeDefinition* attributeDefinition(const std::string& attributeKey) const;
 
-            static const AttributeDefinition* safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const Model::AttributeName& attributeName);
+            static const AttributeDefinition* safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName);
             static const FlagsAttributeDefinition* safeGetSpawnflagsAttributeDefinition(const EntityDefinition* entityDefinition);
             static const FlagsAttributeOption* safeGetSpawnflagsAttributeOption(const EntityDefinition* entityDefinition, size_t flagIndex);
 

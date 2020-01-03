@@ -21,14 +21,16 @@
 #define TrenchBroom_MoveObjectsTool
 
 #include "FloatType.h"
-#include "Model/Model_Forward.h"
 #include "View/Tool.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 
 namespace TrenchBroom {
     namespace View {
+        class Grid;
+        class InputState;
+        class MapDocument;
+
         class MoveObjectsTool : public Tool {
         public:
             typedef enum {

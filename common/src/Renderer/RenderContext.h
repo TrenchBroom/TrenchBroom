@@ -21,12 +21,13 @@
 #define TrenchBroom_RenderContext
 
 #include "FloatType.h"
-#include "Renderer/Renderer_Forward.h"
 #include "Renderer/Transformation.h"
-#include "View/View_Forward.h"
 
 namespace TrenchBroom {
     namespace Renderer {
+        class Camera;
+        class FontManager;
+        class ShaderManager;
 
         enum class RenderMode {
             Render3D,

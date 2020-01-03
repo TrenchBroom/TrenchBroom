@@ -34,13 +34,13 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         private:
-            const AttributeName m_attributeName;
+            const std::string m_attributeName;
         public:
-            LongAttributeNameIssue(AttributableNode* node, const AttributeName& attributeName) :
+            LongAttributeNameIssue(AttributableNode* node, const std::string& attributeName) :
             AttributeIssue(node),
             m_attributeName(attributeName) {}
 
-            const AttributeName& attributeName() const override {
+            const std::string& attributeName() const override {
                 return m_attributeName;
             }
         private:
@@ -63,9 +63,10 @@ namespace TrenchBroom {
 
         void LongAttributeNameIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
             for (const EntityAttribute& attribute : node->attributes()) {
-                const AttributeName& attributeName = attribute.name();
-                if (attributeName.size() >= m_maxLength)
+                const std::string& attributeName = attribute.name();
+                if (attributeName.size() >= m_maxLength) {
                     issues.push_back(new LongAttributeNameIssue(node, attributeName));
+                }
             }
         }
     }

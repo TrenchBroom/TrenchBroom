@@ -22,9 +22,7 @@
 
 #include "Color.h"
 #include "FloatType.h"
-#include "Assets/Asset_Forward.h"
 #include "IO/EntityDefinitionParser.h"
-#include "IO/IO_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -40,7 +38,13 @@ namespace tinyxml2 {
 }
 
 namespace TrenchBroom {
+    namespace Assets {
+        class ModelDefinition;
+    }
+
     namespace IO {
+        class ParserStatus;
+
         class EntParser : public EntityDefinitionParser {
         private:
             using AttributeFactory = std::function<std::shared_ptr<Assets::AttributeDefinition>(const std::string&, const std::string&, const std::string&)>;

@@ -21,9 +21,7 @@
 #define TrenchBroom_MapViewToolBox
 
 #include "FloatType.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/ToolBox.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 
@@ -31,6 +29,20 @@ class QStackedLayout;
 
 namespace TrenchBroom {
     namespace View {
+        class ClipTool;
+        class CreateComplexBrushTool;
+        class CreateEntityTool;
+        class CreateSimpleBrushTool;
+        class MoveObjectsTool;
+        class ResizeBrushesTool;
+        class RotateObjectsTool;
+        class ScaleObjectsTool;
+        class ShearObjectsTool;
+        class VertexTool;
+        class EdgeTool;
+        class FaceTool;
+        class MapDocument;
+
         class MapViewToolBox : public ToolBox {
         private:
             std::weak_ptr<MapDocument> m_document;

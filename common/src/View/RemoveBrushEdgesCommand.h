@@ -21,9 +21,7 @@
 #define TrenchBroom_RemoveBrushEdgesCommand
 
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "View/RemoveBrushElementsCommand.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 

@@ -403,7 +403,7 @@ namespace TrenchBroom {
             return toQStringList(std::begin(result), std::end(result));
         }
 
-        Model::AttributeName EntityAttributeModel::attributeName(const int row) const {
+        std::string EntityAttributeModel::attributeName(const int row) const {
             if (row < 0 || row >= static_cast<int>(m_rows.size())) {
                 return "";
             } else {
@@ -411,8 +411,10 @@ namespace TrenchBroom {
             }
         }
 
-        std::vector<Model::AttributeName> EntityAttributeModel::attributeNames(const int row, const int count) const {
-            std::vector<Model::AttributeName> result;
+        std::vector<std::string> EntityAttributeModel::attributeNames(const int row, const int count) const {
+            std::vector<std::string> result;
+            result.reserve(static_cast<std::size_t>(count));
+
             for (int i = 0; i < count; ++i) {
                 result.push_back(this->attributeName(row + i));
             }
@@ -660,7 +662,7 @@ namespace TrenchBroom {
             return InsertRow(m_rows.size());
         }
 
-        int EntityAttributeModel::rowForName(const Model::AttributeName& name) const {
+        int EntityAttributeModel::rowForName(const std::string& name) const {
             for (size_t i = 0; i < m_rows.size(); ++i) {
                 if (m_rows[i].name() == name) {
                     return static_cast<int>(i);
@@ -677,7 +679,7 @@ namespace TrenchBroom {
             return row.nameMutable() && row.valueMutable();
         }
 
-        bool EntityAttributeModel::hasRowWithAttributeName(const Model::AttributeName& name) const {
+        bool EntityAttributeModel::hasRowWithAttributeName(const std::string& name) const {
             return rowForAttributeName(name) != -1;
         }
 

@@ -21,12 +21,13 @@
 #define TrenchBroom_CreateEntityToolController
 
 #include "View/ToolController.h"
-#include "View/View_Forward.h"
 
 #include <string>
 
 namespace TrenchBroom {
     namespace View {
+        class CreateEntityTool;
+
         class CreateEntityToolController : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, NoRenderPolicy, DropPolicy> {
         protected:
             CreateEntityTool* m_tool;

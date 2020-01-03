@@ -20,13 +20,15 @@
 #ifndef TrenchBroom_EntityDefinitionGroup
 #define TrenchBroom_EntityDefinitionGroup
 
-#include "Assets/Asset_Forward.h"
-
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
+        class EntityDefinition;
+        enum class EntityDefinitionSortOrder;
+        enum class EntityDefinitionType;
+
         class EntityDefinitionGroup {
         private:
             std::string m_name;

@@ -402,7 +402,7 @@ namespace TrenchBroom {
                 } else if (extension == "obj" && kdl::vec_contains(supported, "obj_neverball")) {
                     auto reader = file->reader().buffer();
                     // has to be the whole path for implicit textures!
-                    IO::NvObjParser parser(path.asString(), std::begin(reader), std::end(reader), m_fs);
+                    IO::NvObjParser parser(path, std::begin(reader), std::end(reader), m_fs);
                     return parser.initializeModel(logger);
                 } else {
                     throw GameException("Unsupported model format '" + path.asString() + "'");
@@ -458,7 +458,7 @@ namespace TrenchBroom {
                 } else if (extension == "obj" && kdl::vec_contains(supported, "obj_neverball")) {
                     auto reader = file->reader().buffer();
                     // has to be the whole path for implicit textures!
-                    IO::NvObjParser parser(path.asString(), std::begin(reader), std::end(reader), m_fs);
+                    IO::NvObjParser parser(path, std::begin(reader), std::end(reader), m_fs);
                     parser.loadFrame(frameIndex, model, logger);
                 } else {
                     throw GameException("Unsupported model format '" + path.asString() + "'");
@@ -515,7 +515,7 @@ namespace TrenchBroom {
             return m_config.faceAttribsConfig().contentFlags;
         }
 
-        void GameImpl::writeLongAttribute(AttributableNode& node, const AttributeName& baseName, const AttributeValue& value, const size_t maxLength) const {
+        void GameImpl::writeLongAttribute(AttributableNode& node, const std::string& baseName, const std::string& value, const size_t maxLength) const {
             node.removeNumberedAttribute(baseName);
 
             std::stringstream nameStr;
@@ -526,7 +526,7 @@ namespace TrenchBroom {
             }
         }
 
-        std::string GameImpl::readLongAttribute(const AttributableNode& node, const AttributeName& baseName) const {
+        std::string GameImpl::readLongAttribute(const AttributableNode& node, const std::string& baseName) const {
             size_t index = 1;
             std::stringstream nameStr;
             std::stringstream valueStr;

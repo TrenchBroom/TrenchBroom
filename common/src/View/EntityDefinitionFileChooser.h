@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_EntityDefinitionFileChooser
 #define TrenchBroom_EntityDefinitionFileChooser
 
-#include "View/View_Forward.h"
-
 #include <memory>
 
 #include <QListWidget>
@@ -32,6 +30,8 @@ class QLabel;
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+
         class SingleSelectionListWidget : public QListWidget {
             Q_OBJECT
         private:

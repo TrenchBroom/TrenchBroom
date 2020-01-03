@@ -20,10 +20,9 @@
 #ifndef TrenchBroom_MoveBrushFacesCommand
 #define TrenchBroom_MoveBrushFacesCommand
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "View/VertexCommand.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 #include <vector>

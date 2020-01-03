@@ -23,7 +23,6 @@
 #include "FloatType.h"
 #include "ToolChain.h"
 #include "Model/HitType.h"
-#include "Model/Model_Forward.h"
 #include "View/InputState.h"
 
 #include <vecmath/vec.h>
@@ -36,6 +35,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class Hit;
+        class HitQuery;
         class PickResult;
     }
 
@@ -45,6 +46,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class InputState;
         class Tool;
 
         class PickingPolicy {

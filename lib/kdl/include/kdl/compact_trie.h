@@ -261,7 +261,7 @@ namespace kdl {
              * @param key the key to insert
              * @param value the value to insert
              */
-            void insert(const std::string_view& key, const V& value) const {
+            void insert(const std::string_view key, const V& value) const {
                 /*
                  Possible cases for insertion:
                   index: 01234567 |   | #m_key: 6
@@ -316,7 +316,7 @@ namespace kdl {
              * @param value the value to remove
              * @return true if the given key and value were removed from this node's subtree
              */
-            bool remove(const std::string_view& key, const V& value) const {
+            bool remove(const std::string_view key, const V& value) const {
                 bool result = false;
 
                 const std::size_t mismatch = kdl::cs::str_mismatch(key, m_key);
@@ -371,7 +371,7 @@ namespace kdl {
              * @throws std::invalid_argument if the given pattern contains an invalid escape sequence
              */
             template <typename O>
-            void find_matches(const std::string_view& pattern, const std::size_t pattern_position, const node* parent, match_state& match_state, O out) const {
+            void find_matches(const std::string_view pattern, const std::size_t pattern_position, const node* parent, match_state& match_state, O out) const {
                 using match_task = std::pair<std::size_t, std::size_t>;
 
                 match_state.insert(this, parent);
@@ -631,15 +631,15 @@ namespace kdl {
                 return compare(lhs.m_key, rhs.m_key);
             }
 
-            bool operator()(const std::string_view& lhs, const node& rhs) const {
+            bool operator()(const std::string_view lhs, const node& rhs) const {
                 return compare(lhs, rhs.m_key);
             }
 
-            bool operator()(const node& lhs, const std::string_view& rhs) const {
+            bool operator()(const node& lhs, const std::string_view rhs) const {
                 return compare(lhs.m_key, rhs);
             }
 
-            bool compare(const std::string_view& lhs, const std::string_view& rhs) const {
+            bool compare(const std::string_view lhs, const std::string_view& rhs) const {
                 assert(!lhs.empty() && !rhs.empty());
                 return lhs[0] < rhs[0];
             }
@@ -659,7 +659,7 @@ namespace kdl {
          * @param key the key to insert
          * @param value the value to insert
          */
-        void insert(const std::string_view& key, const V& value) {
+        void insert(const std::string_view key, const V& value) {
             m_root.insert(key, value);
         }
 
@@ -670,7 +670,7 @@ namespace kdl {
          * @param value the value to remove
          * @return `true` if the given value was found under the given key, and `false` otherwise
          */
-        bool remove(const std::string_view& key, const V& value) {
+        bool remove(const std::string_view key, const V& value) {
             return m_root.remove(key, value);
         }
 
@@ -690,7 +690,7 @@ namespace kdl {
          * @param out the output iterator
          */
         template <typename O>
-        void find_matches(const std::string_view& pattern, O out) const {
+        void find_matches(const std::string_view pattern, O out) const {
             match_state match_state;
             m_root.find_matches(pattern, { 0u }, nullptr, match_state, out);
         }

@@ -20,16 +20,20 @@
 #ifndef TrenchBroom_WorldReader
 #define TrenchBroom_WorldReader
 
-#include "IO/IO_Forward.h"
 #include "IO/MapReader.h"
-#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class World;
+    }
+
     namespace IO {
+        class ParserStatus;
+
         class WorldReader : public MapReader {
             std::unique_ptr<Model::World> m_world;
         public:

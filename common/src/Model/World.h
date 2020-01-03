@@ -24,7 +24,6 @@
 #include "Macros.h"
 #include "Model/AttributableNode.h"
 #include "Model/MapFormat.h"
-#include "Model/Model_Forward.h"
 #include "Model/ModelFactory.h"
 #include "Model/Node.h"
 
@@ -36,6 +35,9 @@ namespace TrenchBroom {
     template <typename T, size_t S, typename U> class AABBTree;
 
     namespace Model {
+        class AttributableNodeIndex;
+        class IssueGeneratorRegistry;
+        class IssueQuickFix;
         class PickResult;
 
         class World : public AttributableNode, public ModelFactory {
@@ -97,14 +99,14 @@ namespace TrenchBroom {
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
-            void doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<AttributableNode*>& result) const override;
-            void doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, std::vector<AttributableNode*>& result) const override;
-            void doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) override;
-            void doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) override;
+            void doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<AttributableNode*>& result) const override;
+            void doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<AttributableNode*>& result) const override;
+            void doAddToIndex(AttributableNode* attributable, const std::string& name, const std::string& value) override;
+            void doRemoveFromIndex(AttributableNode* attributable, const std::string& name, const std::string& value) override;
         private: // implement AttributableNode interface
             void doAttributesDidChange(const vm::bbox3& oldBounds) override;
-            bool doIsAttributeNameMutable(const AttributeName& name) const override;
-            bool doIsAttributeValueMutable(const AttributeName& name) const override;
+            bool doIsAttributeNameMutable(const std::string& name) const override;
+            bool doIsAttributeValueMutable(const std::string& name) const override;
             vm::vec3 doGetLinkSourceAnchor() const override;
             vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement ModelFactory interface

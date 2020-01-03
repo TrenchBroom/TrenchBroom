@@ -24,7 +24,6 @@
 #include "IO/Path.h"
 #include "Model/CompilationConfig.h"
 #include "Model/GameEngineConfig.h"
-#include "Model/Model_Forward.h"
 #include "Model/Tag.h"
 
 #include <set>

@@ -21,7 +21,7 @@
 #define TrenchBroom_Node
 
 #include "FloatType.h"
-#include "Model/Model_Forward.h"
+#include "Model/IssueType.h"
 #include "Model/Tag.h"
 
 #include <vecmath/forward.h>
@@ -31,6 +31,16 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class AttributableNode;
+        class ConstNodeVisitor;
+        class Issue;
+        class IssueGenerator;
+        enum class LockState;
+        class NodeSnapshot;
+        class NodeVisitor;
+        class PickResult;
+        enum class VisibilityState;
+
         class Node : public Taggable {
         private:
             Node* m_parent;
@@ -409,11 +419,11 @@ namespace TrenchBroom {
                 }
             }
         protected: // index management
-            void findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<AttributableNode*>& result) const;
-            void findAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, std::vector<AttributableNode*>& result) const;
+            void findAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<AttributableNode*>& result) const;
+            void findAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<AttributableNode*>& result) const;
 
-            void addToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
-            void removeFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
+            void addToIndex(AttributableNode* attributable, const std::string& name, const std::string& value);
+            void removeFromIndex(AttributableNode* attributable, const std::string& name, const std::string& value);
         private: // subclassing interface
             virtual const std::string& doGetName() const = 0;
             virtual const vm::bbox3& doGetLogicalBounds() const = 0;
@@ -464,11 +474,11 @@ namespace TrenchBroom {
             virtual void doAccept(NodeVisitor& visitor) = 0;
             virtual void doAccept(ConstNodeVisitor& visitor) const = 0;
 
-            virtual void doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<AttributableNode*>& result) const;
-            virtual void doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, std::vector<AttributableNode*>& result) const;
+            virtual void doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<AttributableNode*>& result) const;
+            virtual void doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<AttributableNode*>& result) const;
 
-            virtual void doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
-            virtual void doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
+            virtual void doAddToIndex(AttributableNode* attributable, const std::string& name, const std::string& value);
+            virtual void doRemoveFromIndex(AttributableNode* attributable, const std::string& name, const std::string& value);
         };
     }
 }

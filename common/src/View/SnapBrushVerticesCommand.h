@@ -23,7 +23,6 @@
 #include "FloatType.h"
 #include "Macros.h"
 #include "View/SnapshotCommand.h"
-#include "View/View_Forward.h"
 
 namespace TrenchBroom {
     namespace View {

@@ -19,6 +19,7 @@
 
 #include "CurrentGameIndicator.h"
 
+#include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "Model/GameFactory.h"
 #include "View/ViewConstants.h"

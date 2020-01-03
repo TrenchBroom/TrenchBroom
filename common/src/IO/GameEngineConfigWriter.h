@@ -22,11 +22,15 @@
 
 #include "Macros.h"
 #include "EL/EL_Forward.h"
-#include "Model/Model_Forward.h"
 
 #include <iosfwd>
 
 namespace TrenchBroom {
+    namespace Model {
+        class GameEngineConfig;
+        class GameEngineProfile;
+    }
+
     namespace IO {
         class GameEngineConfigWriter {
         private:

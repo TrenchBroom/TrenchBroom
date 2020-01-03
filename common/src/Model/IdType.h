@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010-2019 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,30 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_IO_FORWARD_H
-#define TRENCHBROOM_IO_FORWARD_H
+#ifndef TRENCHBROOM_IDTYPE_H
+#define TRENCHBROOM_IDTYPE_H
+
+#include <cstddef>
 
 namespace TrenchBroom {
-    namespace IO {
-        class File;
-        class CFile;
-        class Path;
-
-        class TextureCollectionLoader;
-        class EntityDefinitionLoader;
-        class EntityModelLoader;
-        class TextureLoader;
-        class TextureReader;
-
-        class ParserStatus;
-
-        class FileSystem;
-        class WritableDiskFileSystem;
-        class Quake3ShaderFileSystem;
-
-        class Reader;
-        class BufferedReader;
+    namespace Model {
+        using IdType = std::size_t;
     }
 }
 
-#endif //TRENCHBROOM_IO_FORWARD_H
+#endif //TRENCHBROOM_IDTYPE_H

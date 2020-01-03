@@ -512,7 +512,7 @@ namespace TrenchBroom {
           return true;
         }
 
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) {
+        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performSetAttribute(const std::string& name, const std::string& value) {
             const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
             const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
             const std::vector<Model::Node*> parents = collectParents(std::begin(nodes), std::end(nodes));
@@ -535,7 +535,7 @@ namespace TrenchBroom {
             return snapshot;
         }
 
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performRemoveAttribute(const Model::AttributeName& name) {
+        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performRemoveAttribute(const std::string& name) {
             const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
             const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
             const std::vector<Model::Node*> parents = collectParents(std::begin(nodes), std::end(nodes));
@@ -558,7 +558,7 @@ namespace TrenchBroom {
             return snapshot;
         }
 
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performUpdateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) {
+        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performUpdateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag) {
             const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
             const std::vector<Model::Node*> nodes(attributableNodes.begin(), attributableNodes.end());
             const std::vector<Model::Node*> parents = collectParents(nodes.begin(), nodes.end());
@@ -592,7 +592,7 @@ namespace TrenchBroom {
             return snapshot;
         }
 
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performConvertColorRange(const Model::AttributeName& name, Assets::ColorRange::Type colorRange) {
+        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performConvertColorRange(const std::string& name, Assets::ColorRange::Type colorRange) {
             const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
             const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
             const std::vector<Model::Node*> parents = collectParents(std::begin(nodes), std::end(nodes));
@@ -602,11 +602,11 @@ namespace TrenchBroom {
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
 
-            static const Model::AttributeValue DefaultValue = "";
+            static const std::string DefaultValue = "";
             MapDocumentCommandFacade::EntityAttributeSnapshotMap snapshot;
 
             for (Model::AttributableNode* node : attributableNodes) {
-                const Model::AttributeValue& oldValue = node->attribute(name, DefaultValue);
+                const std::string& oldValue = node->attribute(name, DefaultValue);
                 if (oldValue != DefaultValue) {
                     snapshot[node].push_back(node->attributeSnapshot(name));
                     node->addOrUpdateAttribute(name, Model::convertEntityColor(oldValue, colorRange));
@@ -616,7 +616,7 @@ namespace TrenchBroom {
             return snapshot;
         }
 
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
+        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performRenameAttribute(const std::string& oldName, const std::string& newName) {
             const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
             const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
             const std::vector<Model::Node*> parents = collectParents(std::begin(nodes), std::end(nodes));

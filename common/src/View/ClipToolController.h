@@ -21,17 +21,26 @@
 #define TrenchBroom_ClipToolController
 
 #include "FloatType.h"
-#include "Model/Model_Forward.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/ToolController.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class BrushFace;
+        class PickResult;
+    }
+
+    namespace Renderer {
+        class RenderBatch;
+        class RenderContext;
+    }
+
     namespace View {
+        class ClipTool;
+
         class ClipToolController : public ToolControllerGroup {
         protected:
             class Callback {

@@ -20,10 +20,6 @@
 #ifndef TrenchBroom_EntityAttributeEditor
 #define TrenchBroom_EntityAttributeEditor
 
-#include "Assets/Asset_Forward.h"
-#include "Model/Model_Forward.h"
-#include "View/View_Forward.h"
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -34,7 +30,21 @@ class QTextEdit;
 class QSplitter;
 
 namespace TrenchBroom {
+    namespace Assets {
+        class AttributeDefinition;
+        class EntityDefinition;
+    }
+
+    namespace Model {
+        class Node;
+    }
+
     namespace View {
+        class EntityAttributeGrid;
+        class MapDocument;
+        class Selection;
+        class SmartAttributeEditorManager;
+
         /**
          * Panel containing the EntityAttributeGrid (the key/value editor table),
          * smart editor, and documentation text view.

@@ -26,11 +26,11 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ConvertEntityColorCommand::Type = Command::freeType();
 
-        std::unique_ptr<ConvertEntityColorCommand> ConvertEntityColorCommand::convert(const Model::AttributeName& attributeName, const Assets::ColorRange::Type colorRange) {
+        std::unique_ptr<ConvertEntityColorCommand> ConvertEntityColorCommand::convert(const std::string& attributeName, const Assets::ColorRange::Type colorRange) {
             return std::make_unique<ConvertEntityColorCommand>(attributeName, colorRange);
         }
 
-        ConvertEntityColorCommand::ConvertEntityColorCommand(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange) :
+        ConvertEntityColorCommand::ConvertEntityColorCommand(const std::string& attributeName, Assets::ColorRange::Type colorRange) :
         DocumentCommand(Type, "Convert Color"),
         m_attributeName(attributeName),
         m_colorRange(colorRange) {}

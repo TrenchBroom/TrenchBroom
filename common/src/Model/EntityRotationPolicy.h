@@ -21,12 +21,15 @@
 #define TrenchBroom_EntityRotationPolicy
 
 #include "FloatType.h"
-#include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
+        class Entity;
+
         class EntityRotationPolicy {
         private:
             enum class RotationType {
@@ -40,17 +43,17 @@ namespace TrenchBroom {
 
             struct RotationInfo {
                 const RotationType type;
-                const AttributeName attribute;
-                RotationInfo(RotationType i_type, const AttributeName& i_attribute);
+                const std::string attribute;
+                RotationInfo(RotationType i_type, const std::string& i_attribute);
             };
         protected:
             EntityRotationPolicy();
             static vm::mat4x4 getRotation(const Entity* entity);
             static void applyRotation(Entity* entity, const vm::mat4x4& transformation);
-            static AttributeName getAttribute(const Entity* entity);
+            static std::string getAttribute(const Entity* entity);
         private:
             static RotationInfo rotationInfo(const Entity* entity);
-            static void setAngle(Entity* entity, const AttributeName& attribute, const vm::vec3& direction);
+            static void setAngle(Entity* entity, const std::string& attribute, const vm::vec3& direction);
             static FloatType getAngle(vm::vec3 direction);
         public:
             /**

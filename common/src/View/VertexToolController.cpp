@@ -44,23 +44,23 @@ namespace TrenchBroom {
         }
 
 
-        std::list<Model::Hit> VertexToolController::findHandleHits(const InputState& inputState, const VertexToolController::PartBase& base) {
+        std::vector<Model::Hit> VertexToolController::findHandleHits(const InputState& inputState, const VertexToolController::PartBase& base) {
             const auto vertexHits = base.findDraggableHandles(inputState, VertexHandleManager::HandleHit);
             if (!vertexHits.empty())
                 return vertexHits;
             if (inputState.modifierKeysDown(ModifierKeys::MKShift)) {
                 const auto& firstHit = inputState.pickResult().query().first();
                 if (firstHit.hasType(EdgeHandleManager::HandleHit)) {
-                    const std::list<Model::Hit> edgeHits = inputState.pickResult().query().type(EdgeHandleManager::HandleHit).all();
+                    const std::vector<Model::Hit> edgeHits = inputState.pickResult().query().type(EdgeHandleManager::HandleHit).all();
                     if (!edgeHits.empty())
                         return edgeHits;
                 } else if (firstHit.hasType(FaceHandleManager::HandleHit)) {
-                    const std::list<Model::Hit> faceHits = inputState.pickResult().query().type(FaceHandleManager::HandleHit).all();
+                    const std::vector<Model::Hit> faceHits = inputState.pickResult().query().type(FaceHandleManager::HandleHit).all();
                     if (!faceHits.empty())
                         return faceHits;
                 }
             }
-            return std::list<Model::Hit>();
+            return std::vector<Model::Hit>();
         }
 
         class VertexToolController::SelectVertexPart : public SelectPartBase<vm::vec3> {
@@ -72,7 +72,7 @@ namespace TrenchBroom {
                 return VertexToolController::findHandleHit(inputState, *this);
             }
 
-            std::list<Model::Hit> doFindDraggableHandles(const InputState& inputState) const override {
+            std::vector<Model::Hit> doFindDraggableHandles(const InputState& inputState) const override {
                 return VertexToolController::findHandleHits(inputState, *this);
             }
 
@@ -187,7 +187,7 @@ namespace TrenchBroom {
                 return VertexToolController::findHandleHit(inputState, *this);
             }
 
-            std::list<Model::Hit> doFindDraggableHandles(const InputState& inputState) const override {
+            std::vector<Model::Hit> doFindDraggableHandles(const InputState& inputState) const override {
                 return VertexToolController::findHandleHits(inputState, *this);
             }
         };

@@ -21,9 +21,7 @@
 #define TrenchBroom_SetVisibilityCommand
 
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "View/UndoableCommand.h"
-#include "View/View_Forward.h"
 
 #include <map>
 #include <memory>
@@ -31,6 +29,11 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Node;
+        enum class VisibilityState;
+    }
+
     namespace View {
         class SetVisibilityCommand : public UndoableCommand {
         public:

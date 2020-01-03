@@ -20,10 +20,15 @@
 #ifndef TRENCHBROOM_TAGVISITOR_H
 #define TRENCHBROOM_TAGVISITOR_H
 
-#include "Model/Model_Forward.h"
-
 namespace TrenchBroom {
     namespace Model {
+        class Brush;
+        class BrushFace;
+        class Entity;
+        class Group;
+        class Layer;
+        class World;
+
         class TagVisitor {
         public:
             virtual ~TagVisitor();

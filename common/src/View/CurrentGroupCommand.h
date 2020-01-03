@@ -21,13 +21,15 @@
 #define TrenchBroom_CurrentGroupCommand
 
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "View/UndoableCommand.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Group;
+    }
+
     namespace View {
         class CurrentGroupCommand : public UndoableCommand {
         public:

@@ -63,7 +63,7 @@ namespace TrenchBroom {
             return definition(attributable->attribute(Model::AttributeNames::Classname));
         }
 
-        EntityDefinition* EntityDefinitionManager::definition(const Model::AttributeValue& classname) const {
+        EntityDefinition* EntityDefinitionManager::definition(const std::string& classname) const {
             auto it = m_cache.find(classname);
             if (it == std::end(m_cache)) {
                 return nullptr;

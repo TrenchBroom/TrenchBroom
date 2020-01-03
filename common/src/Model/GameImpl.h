@@ -21,11 +21,9 @@
 #define TrenchBroom_GameImpl
 
 #include "FloatType.h"
-#include "Assets/Asset_Forward.h"
 #include "IO/Path.h"
 #include "Model/Game.h"
 #include "Model/GameFileSystem.h"
-#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <string>
@@ -33,6 +31,10 @@
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace Assets {
+        class Palette;
+    }
 
     namespace Model {
         class GameImpl : public Game {
@@ -98,8 +100,8 @@ namespace TrenchBroom {
             const FlagsConfig& doSurfaceFlags() const override;
             const FlagsConfig& doContentFlags() const override;
         private:
-            void writeLongAttribute(AttributableNode& node, const AttributeName& baseName, const AttributeValue& value, size_t maxLength) const;
-            std::string readLongAttribute(const AttributableNode& node, const AttributeName& baseName) const;
+            void writeLongAttribute(AttributableNode& node, const std::string& baseName, const std::string& value, size_t maxLength) const;
+            std::string readLongAttribute(const AttributableNode& node, const std::string& baseName) const;
         };
     }
 }

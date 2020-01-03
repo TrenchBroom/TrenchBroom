@@ -36,13 +36,13 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         private:
-            const AttributeName m_attributeName;
+            const std::string m_attributeName;
         public:
-            LongAttributeValueIssue(AttributableNode* node, const AttributeName& attributeName) :
+            LongAttributeValueIssue(AttributableNode* node, const std::string& attributeName) :
             AttributeIssue(node),
             m_attributeName(attributeName) {}
 
-            const AttributeName& attributeName() const override {
+            const std::string& attributeName() const override {
                 return m_attributeName;
             }
         private:
@@ -69,8 +69,8 @@ namespace TrenchBroom {
                 const PushSelection push(facade);
 
                 const LongAttributeValueIssue* attrIssue = static_cast<const LongAttributeValueIssue*>(issue);
-                const AttributeName& attributeName = attrIssue->attributeName();
-                const AttributeValue& attributeValue = attrIssue->attributeValue();
+                const auto& attributeName = attrIssue->attributeName();
+                const auto& attributeValue = attrIssue->attributeValue();
 
                 // If world node is affected, the selection will fail, but if nothing is selected,
                 // the removeAttribute call will correctly affect worldspawn either way.
@@ -90,10 +90,11 @@ namespace TrenchBroom {
 
         void LongAttributeValueIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
             for (const EntityAttribute& attribute : node->attributes()) {
-                const AttributeName& attributeName = attribute.name();
-                const AttributeValue& attributeValue = attribute.value();
-                if (attributeValue.size() >= m_maxLength)
+                const auto& attributeName = attribute.name();
+                const auto& attributeValue = attribute.value();
+                if (attributeValue.size() >= m_maxLength) {
                     issues.push_back(new LongAttributeValueIssue(node, attributeName));
+                }
             }
         }
     }

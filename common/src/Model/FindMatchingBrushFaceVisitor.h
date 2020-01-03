@@ -22,7 +22,6 @@
 
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/Model_Forward.h"
 #include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {

@@ -22,11 +22,11 @@
 #include "Exceptions.h"
 #include "Macros.h"
 #include "Model/BrushFace.h"
+#include "Model/EntityAttributes.h"
 
 #include <memory>
 #include <ostream>
 #include <sstream>
-#include <string>
 
 namespace TrenchBroom {
     namespace IO {

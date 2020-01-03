@@ -21,11 +21,12 @@
 
 #include <memory>
 
-#include "Model/Model_Forward.h"
 #include "Model/PortalFile.h"
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
 #include "TestUtils.h"
+
+#include <vecmath/polygon.h>
 
 namespace TrenchBroom {
     namespace Model {

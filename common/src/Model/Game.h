@@ -21,11 +21,9 @@
 #define TrenchBroom_Game
 
 #include "FloatType.h"
-#include "Assets/Asset_Forward.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/EntityModelLoader.h"
 #include "Model/MapFormat.h"
-#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <map>
@@ -35,7 +33,21 @@
 namespace TrenchBroom {
     class Logger;
 
+    namespace Assets {
+        class EntityDefinitionFileSpec;
+        class TextureManager;
+    }
+
     namespace Model {
+        class AttributableNode;
+        class BrushFace;
+        class CompilationConfig;
+        enum class ExportFormat;
+        struct FlagsConfig;
+        class Node;
+        class SmartTag;
+        class World;
+
         class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader {
         public:
             enum class TexturePackageType {

@@ -21,7 +21,6 @@
 #define TrenchBroom_CompareHits
 
 #include "FloatType.h"
-#include "Model/Model_Forward.h"
 
 #include <vecmath/util.h>
 
@@ -29,6 +28,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class Hit;
+
         class CompareHits {
         public:
             virtual ~CompareHits();

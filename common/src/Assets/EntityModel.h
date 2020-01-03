@@ -20,9 +20,7 @@
 #ifndef TrenchBroom_EntityModel
 #define TrenchBroom_EntityModel
 
-#include "Assets/Asset_Forward.h"
 #include "Assets/EntityModel_Forward.h"
-#include "Renderer/Renderer_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
@@ -34,7 +32,16 @@
 namespace TrenchBroom {
     template <typename T, size_t S, typename U> class AABBTree;
 
+    namespace Renderer {
+        enum class PrimType;
+        class TexturedIndexRangeRenderer;
+        class TexturedRenderer;
+    }
+
     namespace Assets {
+        class Texture;
+        class TextureCollection;
+
         /**
          * One frame of the model. Since frames are loaded on demand, each frame has two possible states: loaded
          * and unloaded. These states are modeled as subclasses of this class.
@@ -207,7 +214,7 @@ namespace TrenchBroom {
              *
              *@param skin the skin to add
              */
-            void addSkin(Assets::Texture* skin);
+            void addSkin(Texture* skin);
 
             /**
              * Returns the number of frame meshes in this surface, should match the model's frame count.
@@ -229,7 +236,7 @@ namespace TrenchBroom {
              * @param name the name of the skin to find
              * @return the skin with the given name, or null if no such skin was found
              */
-            Assets::Texture* skin(const std::string& name) const;
+            Texture* skin(const std::string& name) const;
 
             /**
              * Returns the skin with the given index.
@@ -237,7 +244,7 @@ namespace TrenchBroom {
              * @param index the index of the skin to find
              * @return the skin with the given index, or null if the index is out of bounds
              */
-            Assets::Texture* skin(size_t index) const;
+            Texture* skin(size_t index) const;
 
             std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(size_t skinIndex, size_t frameIndex);
         };

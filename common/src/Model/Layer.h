@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "Model/Node.h"
 
 #include <vecmath/bbox.h>

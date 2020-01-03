@@ -20,13 +20,15 @@
 #ifndef TRENCHBROOM_ACTIVESHADER_H
 #define TRENCHBROOM_ACTIVESHADER_H
 
-#include "Renderer/Renderer_Forward.h"
 #include "Renderer/ShaderProgram.h"
 
 #include <string>
 
 namespace TrenchBroom {
     namespace Renderer {
+        class ShaderConfig;
+        class ShaderManager;
+
         class ActiveShader {
         private:
             ShaderProgram& m_program;
