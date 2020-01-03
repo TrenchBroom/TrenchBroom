@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_GameImpl
 #define TrenchBroom_GameImpl
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Assets/Asset_Forward.h"
 #include "IO/Path.h"
 #include "Model/Game.h"

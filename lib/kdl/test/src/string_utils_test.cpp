@@ -21,7 +21,7 @@
 
 #include <ostream>
 
-#include <optional-lite/optional.hpp>
+#include <nonstd/optional.hpp>
 
 namespace kdl {
     TEST(string_utils_test, str_split) {

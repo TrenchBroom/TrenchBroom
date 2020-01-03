@@ -20,7 +20,6 @@
 #include "EntityAttributeModel.h"
 
 #include "Macros.h"
-#include "SharedPointer.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -34,12 +33,13 @@
 #include "View/QtUtils.h"
 
 #include <kdl/map_utils.h>
+#include <kdl/memory_utils.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 #include <kdl/vector_set.h>
 
 #include <iterator>
-#include <optional-lite/optional.hpp>
+#include <nonstd/optional.hpp>
 #include <string>
 #include <vector>
 
@@ -420,7 +420,7 @@ namespace TrenchBroom {
         }
 
         std::vector<std::string> EntityAttributeModel::getAllAttributeNames() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& index = document->world()->attributableNodeIndex();
             auto result = kdl::vector_set<std::string>(index.allNames());
 
@@ -437,7 +437,7 @@ namespace TrenchBroom {
         }
 
         std::vector<std::string> EntityAttributeModel::getAllValuesForAttributeNames(const std::vector<std::string>& names) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& index = document->world()->attributableNodeIndex();
 
             auto result = std::vector<std::string>();
@@ -456,7 +456,7 @@ namespace TrenchBroom {
         }
 
         std::vector<std::string> EntityAttributeModel::getAllClassnames() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             // start with currently used classnames
             auto result = getAllValuesForAttributeNames({ Model::AttributeNames::Classname });
@@ -475,7 +475,7 @@ namespace TrenchBroom {
         void EntityAttributeModel::updateFromMapDocument() {
             qDebug() << "updateFromMapDocument";
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             const std::map<std::string, AttributeRow> rowsMap =
                 AttributeRow::rowsForAttributableNodes(document->allSelectedAttributableNodes(), m_showDefaultRows);
@@ -597,7 +597,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             const size_t rowIndex = static_cast<size_t>(index.row());
             const std::vector<Model::AttributableNode*> attributables = document->allSelectedAttributableNodes();
@@ -643,7 +643,7 @@ namespace TrenchBroom {
         bool EntityAttributeModel::InsertRow(const size_t pos) {
             ensure(pos <= m_rows.size(), "insertion position out of bounds");
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             const std::vector<Model::AttributableNode*> attributables = document->allSelectedAttributableNodes();
             ensure(!attributables.empty(), "no attributable nodes selected");
@@ -711,7 +711,7 @@ namespace TrenchBroom {
                 }
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return document->renameAttribute(oldName, newName);
         }
 
@@ -734,7 +734,7 @@ namespace TrenchBroom {
             if (!hasChange)
                 return true;
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return document->setAttribute(name, newValue);
         }
 

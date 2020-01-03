@@ -33,8 +33,6 @@
 #include <QStringList>
 #include <QWidget>
 
-class Color;
-
 class QAbstractButton;
 class QButtonGroup;
 class QColor;
@@ -51,6 +49,8 @@ class QString;
 class QTableView;
 
 namespace TrenchBroom {
+    class Color;
+
     namespace View {
         class DisableWindowUpdates {
         private:

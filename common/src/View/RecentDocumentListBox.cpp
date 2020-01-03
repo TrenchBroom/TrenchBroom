@@ -19,6 +19,7 @@
 
 #include "RecentDocumentListBox.h"
 
+#include "Ensure.h"
 #include "TrenchBroomApp.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"

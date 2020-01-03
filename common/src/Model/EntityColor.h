@@ -25,9 +25,9 @@
 #include <string>
 #include <vector>
 
-class Color;
-
 namespace TrenchBroom {
+    class Color;
+
     namespace Assets {
         namespace ColorRange {
             using Type = int;

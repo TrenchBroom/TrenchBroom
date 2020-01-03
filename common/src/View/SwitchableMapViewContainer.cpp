@@ -19,10 +19,9 @@
 
 #include "SwitchableMapViewContainer.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SharedPointer.h"
 #include "Model/PointFile.h"
 #include "Renderer/MapRenderer.h"
 #include "View/CyclingMapView.h"
@@ -38,6 +37,8 @@
 #include "View/ThreePaneMapView.h"
 #include "View/TwoPaneMapView.h"
 #include "View/QtUtils.h"
+
+#include <kdl/memory_utils.h>
 
 #include <QGridLayout>
 
@@ -84,7 +85,7 @@ namespace TrenchBroom {
             // NOTE: not all widgets are deleted so we can't use deleteChildWidgetsAndLayout()
             delete m_mapView;
             m_mapView = nullptr;
-            
+
             delete layout();
 
             switch (viewId) {
@@ -142,7 +143,7 @@ namespace TrenchBroom {
         }
 
         bool SwitchableMapViewContainer::canToggleClipTool() const {
-            return clipToolActive() || lock(m_document)->selectedNodes().hasOnlyBrushes();
+            return clipToolActive() || kdl::mem_lock(m_document)->selectedNodes().hasOnlyBrushes();
         }
 
         void SwitchableMapViewContainer::toggleClipTool() {
@@ -159,7 +160,7 @@ namespace TrenchBroom {
         }
 
         bool SwitchableMapViewContainer::canToggleRotateObjectsTool() const {
-            return rotateObjectsToolActive() || lock(m_document)->hasSelectedNodes();
+            return rotateObjectsToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
         }
 
         void SwitchableMapViewContainer::toggleRotateObjectsTool() {
@@ -176,7 +177,7 @@ namespace TrenchBroom {
         }
 
         bool SwitchableMapViewContainer::canToggleScaleObjectsTool() const {
-            return scaleObjectsToolActive() || lock(m_document)->hasSelectedNodes();
+            return scaleObjectsToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
         }
 
         void SwitchableMapViewContainer::toggleScaleObjectsTool() {
@@ -185,7 +186,7 @@ namespace TrenchBroom {
         }
 
         bool SwitchableMapViewContainer::canToggleShearObjectsTool() const {
-            return shearObjectsToolActive() || lock(m_document)->hasSelectedNodes();
+            return shearObjectsToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
         }
 
         void SwitchableMapViewContainer::toggleShearObjectsTool() {
@@ -194,7 +195,7 @@ namespace TrenchBroom {
         }
 
         bool SwitchableMapViewContainer::canToggleVertexTools() const {
-            return vertexToolActive() || edgeToolActive() || faceToolActive() || lock(m_document)->selectedNodes().hasOnlyBrushes();
+            return vertexToolActive() || edgeToolActive() || faceToolActive() || kdl::mem_lock(m_document)->selectedNodes().hasOnlyBrushes();
         }
 
         bool SwitchableMapViewContainer::anyVertexToolActive() const {
@@ -245,7 +246,7 @@ namespace TrenchBroom {
         }
 
         bool SwitchableMapViewContainer::canMoveCameraToNextTracePoint() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!document->isPointFileLoaded())
                 return false;
 
@@ -254,7 +255,7 @@ namespace TrenchBroom {
         }
 
         bool SwitchableMapViewContainer::canMoveCameraToPreviousTracePoint() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!document->isPointFileLoaded())
                 return false;
 
@@ -263,7 +264,7 @@ namespace TrenchBroom {
         }
 
         void SwitchableMapViewContainer::moveCameraToNextTracePoint() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             assert(document->isPointFileLoaded());
 
             m_mapView->moveCameraToCurrentTracePoint();
@@ -273,7 +274,7 @@ namespace TrenchBroom {
         }
 
         void SwitchableMapViewContainer::moveCameraToPreviousTracePoint() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             assert(document->isPointFileLoaded());
 
             Model::PointFile* pointFile = document->pointFile();

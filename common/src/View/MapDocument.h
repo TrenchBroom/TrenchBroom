@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_MapDocument
 #define TrenchBroom_MapDocument
 
+#include "FloatType.h"
 #include "Notifier.h"
-#include "TrenchBroom.h"
 #include "Assets/Asset_Forward.h"
 #include "IO/Path.h"
 #include "Model/MapFacade.h"
@@ -40,9 +40,9 @@
 #include <string>
 #include <vector>
 
-class Color;
-
 namespace TrenchBroom {
+    class Color;
+
     namespace View {
         class MapDocument : public Model::MapFacade, public CachingLogger {
         public:
@@ -226,9 +226,9 @@ namespace TrenchBroom {
             bool hasSelectedBrushFaces() const override;
             bool hasAnySelectedBrushFaces() const override;
 
-            const std::vector<Model::AttributableNode*> allSelectedAttributableNodes() const override;
+            std::vector<Model::AttributableNode*> allSelectedAttributableNodes() const override;
             const Model::NodeCollection& selectedNodes() const override;
-            const std::vector<Model::BrushFace*> allSelectedBrushFaces() const override;
+            std::vector<Model::BrushFace*> allSelectedBrushFaces() const override;
             const std::vector<Model::BrushFace*>& selectedBrushFaces() const override;
 
             const vm::bbox3& referenceBounds() const override;

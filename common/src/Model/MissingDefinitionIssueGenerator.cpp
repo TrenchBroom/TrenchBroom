@@ -34,14 +34,14 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            MissingDefinitionIssue(AttributableNode* node) :
+            explicit MissingDefinitionIssue(AttributableNode* node) :
             Issue(node) {}
         private:
             IssueType doGetType() const override {
                 return Type;
             }
 
-            const std::string doGetDescription() const override {
+            std::string doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
                 return attributableNode->classname() + " not found in entity definitions";
             }

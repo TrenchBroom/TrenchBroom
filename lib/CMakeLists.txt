@@ -1,3 +1,4 @@
+add_subdirectory(any-lite)
 add_subdirectory(freeimage)
 add_subdirectory(freetype)
 add_subdirectory(glew)

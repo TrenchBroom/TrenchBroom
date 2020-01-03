@@ -19,6 +19,7 @@
 
 #include "GameEngineConfig.h"
 
+#include "Ensure.h"
 #include "Model/GameEngineProfile.h"
 
 #include <kdl/vector_utils.h>

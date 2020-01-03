@@ -29,9 +29,9 @@
 #include <memory>
 #include <vector>
 
-class Color;
-
 namespace TrenchBroom {
+    class Color;
+
     namespace View {
         // FIXME: Renderer should not depend on View
         class MapDocument;

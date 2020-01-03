@@ -21,7 +21,7 @@
 #ifndef TrenchBroom_ShearObjectsTool
 #define TrenchBroom_ShearObjectsTool
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/Hit.h"
 #include "Model/HitType.h"
 #include "Model/Model_Forward.h"

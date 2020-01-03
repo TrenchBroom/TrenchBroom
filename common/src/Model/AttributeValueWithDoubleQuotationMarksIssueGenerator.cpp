@@ -50,7 +50,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const std::string doGetDescription() const override {
+            std::string doGetDescription() const override {
                 return "The value of entity property '" + m_attributeName + "' contains double quotation marks. This may cause errors during compilation or in the game.";
             }
         };

@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_Face
 #define TrenchBroom_Face
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
 #include "Assets/Asset_Forward.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"

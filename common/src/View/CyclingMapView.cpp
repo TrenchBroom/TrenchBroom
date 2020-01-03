@@ -19,7 +19,7 @@
 
 #include "CyclingMapView.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/Brush.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"

@@ -22,7 +22,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SharedPointer.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
@@ -33,6 +32,8 @@
 #include "View/ShearObjectsTool.h"
 #include "View/MapDocument.h"
 
+#include <kdl/memory_utils.h>
+
 #include <vecmath/polygon.h>
 
 #include <cassert>
@@ -41,7 +42,7 @@ namespace TrenchBroom {
     namespace View {
         ShearObjectsToolController::ShearObjectsToolController(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document) :
         m_tool(tool),
-        m_document(document) {
+        m_document(std::move(document)) {
             ensure(m_tool != nullptr, "tool is null");
         }
 
@@ -114,7 +115,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             if (vertical != m_tool->constrainVertical()) {
                 m_tool->setConstrainVertical(vertical);
@@ -152,7 +153,7 @@ namespace TrenchBroom {
                 return DragInfo();
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             const Model::PickResult& pickResult = inputState.pickResult();
             const Model::Hit& hit = pickResult.query().type(ShearObjectsTool::ShearToolSideHit).occluded().first();
@@ -246,7 +247,7 @@ namespace TrenchBroom {
         // ShearObjectsToolController2D
 
         ShearObjectsToolController2D::ShearObjectsToolController2D(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document) :
-        ShearObjectsToolController(tool, document) {}
+        ShearObjectsToolController(tool, std::move(document)) {}
 
         void ShearObjectsToolController2D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
@@ -256,7 +257,7 @@ namespace TrenchBroom {
         // ShearObjectsToolController3D
 
         ShearObjectsToolController3D::ShearObjectsToolController3D(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document) :
-        ShearObjectsToolController(tool, document) {}
+        ShearObjectsToolController(tool, std::move(document)) {}
 
         void ShearObjectsToolController3D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {

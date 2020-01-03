@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Game
 #define TrenchBroom_Game
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Assets/Asset_Forward.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/EntityModelLoader.h"

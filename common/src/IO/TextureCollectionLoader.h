@@ -24,6 +24,7 @@
 #include "IO/IO_Forward.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 #include <string>
 
@@ -37,7 +38,7 @@ namespace TrenchBroom {
         protected:
             Logger& m_logger;
         protected:
-            TextureCollectionLoader(Logger& logger);
+            explicit TextureCollectionLoader(Logger& logger);
         public:
             virtual ~TextureCollectionLoader();
         public:

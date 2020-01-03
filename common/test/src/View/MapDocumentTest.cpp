@@ -20,7 +20,6 @@
 #include "MapDocumentTest.h"
 
 #include "Exceptions.h"
-#include "Polyhedron.h"
 #include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/Brush.h"
@@ -33,6 +32,7 @@
 #include "Model/MapFormat.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
 #include "Model/TestGame.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"
@@ -47,8 +47,7 @@
 namespace TrenchBroom {
     namespace View {
         MapDocumentTest::MapDocumentTest() :
-        ::testing::Test(),
-        m_mapFormat(Model::MapFormat::Standard) {}
+        MapDocumentTest(Model::MapFormat::Standard) {}
 
         MapDocumentTest::MapDocumentTest(const Model::MapFormat mapFormat) :
         ::testing::Test(),

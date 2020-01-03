@@ -19,7 +19,7 @@
 
 #include "CopyTexCoordSystemFromFaceCommand.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/Snapshot.h"
 #include "Model/TexCoordSystem.h"

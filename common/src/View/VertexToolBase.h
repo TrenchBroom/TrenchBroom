@@ -20,18 +20,16 @@
 #ifndef VertexToolBase_h
 #define VertexToolBase_h
 
-#include "Disjunction.h"
-#include "Polyhedron.h"
-#include "Polyhedron3.h"
+#include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SharedPointer.h"
-#include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Hit.h"
 #include "Model/Model_Forward.h"
 #include "Model/NodeVisitor.h"
+#include "Model/Polyhedron.h"
+#include "Model/Polyhedron3.h"
 #include "Model/World.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"
@@ -49,6 +47,8 @@
 #include "View/VertexCommand.h"
 #include "View/VertexHandleManager.h"
 
+#include <kdl/memory_utils.h>
+#include <kdl/set_temp.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_set.h>
 #include <kdl/vector_utils.h>
@@ -90,26 +90,26 @@ namespace TrenchBroom {
             std::weak_ptr<MapDocument> m_document;
         private:
             size_t m_changeCount;
+            size_t m_ignoreChangeNotifications;
         protected:
-            Disjunction m_ignoreChangeNotifications;
-
             H m_dragHandlePosition;
             bool m_dragging;
         protected:
-            VertexToolBase(std::weak_ptr<MapDocument> document) :
+            explicit VertexToolBase(std::weak_ptr<MapDocument> document) :
             Tool(false),
-            m_document(document),
+            m_document(std::move(document)),
             m_changeCount(0),
+            m_ignoreChangeNotifications(0u),
             m_dragging(false) {}
         public:
-            virtual ~VertexToolBase() override {}
+            ~VertexToolBase() override = default;
         public:
             const Grid& grid() const {
-                return lock(m_document)->grid();
+                return kdl::mem_lock(m_document)->grid();
             }
 
             const std::vector<Model::Brush*>& selectedBrushes() const {
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 return document->selectedNodes().brushes();
             }
         public:
@@ -159,8 +159,7 @@ namespace TrenchBroom {
                     // Count the number of hit handles which are selected already.
                     size_t selected = 0u;
                     for (const auto& hit : hits) {
-                        const auto& handle = hit.target<H>();
-                        if (handleManager().selected(handle)) {
+                        if (handleManager().selected(hit.target<H>())) {
                             ++selected;
                         }
                     }
@@ -194,8 +193,7 @@ namespace TrenchBroom {
             }
 
             bool selected(const Model::Hit& hit) const {
-                const H& handle = hit.target<H>();
-                return handleManager().selected(handle);
+                return handleManager().selected(hit.target<H>());
             }
 
             virtual bool deselectAll() {
@@ -216,7 +214,7 @@ namespace TrenchBroom {
 
                 // Delesect all handles if any of the hit handles is not already selected.
                 for (const auto& hit : hits) {
-                    const H& handle = getHandlePosition(hit);
+                    const H handle = getHandlePosition(hit);
                     if (!handleManager().selected(handle)) {
                         handleManager().deselectAll();
                         break;
@@ -225,36 +223,36 @@ namespace TrenchBroom {
 
                 // Now select all of the hit handles.
                 for (const auto& hit : hits) {
-                    const H& handle = getHandlePosition(hit);
+                    const H handle = getHandlePosition(hit);
                     if (hit.hasType(handleManager().hitType())) {
                         handleManager().select(handle);
                     }
                 }
                 refreshViews();
 
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 document->startTransaction(actionName());
 
                 m_dragHandlePosition = getHandlePosition(hits.front());
                 m_dragging = true;
-                m_ignoreChangeNotifications.pushLiteral();
+                ++m_ignoreChangeNotifications;
                 return true;
             }
 
             virtual MoveResult move(const vm::vec3& delta) = 0;
 
             virtual void endMove() {
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 document->commitTransaction();
                 m_dragging = false;
-                m_ignoreChangeNotifications.popLiteral();
+                --m_ignoreChangeNotifications;
             }
 
             virtual void cancelMove() {
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 document->cancelTransaction();
                 m_dragging = false;
-                m_ignoreChangeNotifications.popLiteral();
+                --m_ignoreChangeNotifications;
             }
 
         public: // csg convex merge
@@ -267,12 +265,12 @@ namespace TrenchBroom {
                 const auto handles = handleManager().selectedHandles();
                 H::get_vertices(std::begin(handles), std::end(handles), std::back_inserter(vertices));
 
-                const Polyhedron3 polyhedron(vertices);
+                const Model::Polyhedron3 polyhedron(vertices);
                 if (!polyhedron.polyhedron() || !polyhedron.closed()) {
                     return;
                 }
 
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 const Model::BrushBuilder builder(document->world(), document->worldBounds());
                 auto* brush = builder.createBrush(polyhedron, document->currentTextureName());
                 brush->cloneFaceAttributesFrom(document->selectedNodes().brushes());
@@ -282,7 +280,7 @@ namespace TrenchBroom {
                 document->addNode(brush, document->currentParent());
             }
 
-            virtual const H& getHandlePosition(const Model::Hit& hit) const {
+            virtual H getHandlePosition(const Model::Hit& hit) const {
                 assert(hit.isMatch());
                 assert(hit.hasType(handleManager().hitType()));
                 return hit.target<H>();
@@ -291,7 +289,7 @@ namespace TrenchBroom {
             virtual std::string actionName() const = 0;
         public:
             void moveSelection(const vm::vec3& delta) {
-                const Disjunction::TemporarilySetLiteral ignoreChangeNotifications(m_ignoreChangeNotifications);
+                const kdl::inc_temp ignoreChangeNotifications(m_ignoreChangeNotifications);
 
                 Transaction transaction(m_document, actionName());
                 move(delta);
@@ -363,7 +361,7 @@ namespace TrenchBroom {
 
             virtual void renderGuide(Renderer::RenderContext&, Renderer::RenderBatch&, const vm::vec3& /* position */) const {}
         protected: // Tool interface
-            virtual bool doActivate() override {
+            bool doActivate() override {
                 m_changeCount = 0;
                 bindObservers();
 
@@ -374,14 +372,14 @@ namespace TrenchBroom {
                 return true;
             }
 
-            virtual bool doDeactivate() override {
+            bool doDeactivate() override {
                 unbindObservers();
                 handleManager().clear();
                 return true;
             }
         private: // Observers and state management
             void bindObservers() {
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 document->selectionDidChangeNotifier.addObserver(this,  &VertexToolBase::selectionDidChange);
                 document->nodesWillChangeNotifier.addObserver(this,  &VertexToolBase::nodesWillChange);
                 document->nodesDidChangeNotifier.addObserver(this,  &VertexToolBase::nodesDidChange);
@@ -394,8 +392,8 @@ namespace TrenchBroom {
             }
 
             void unbindObservers() {
-                if (!expired(m_document)) {
-                    auto document = lock(m_document);
+                if (!kdl::mem_expired(m_document)) {
+                    auto document = kdl::mem_lock(m_document);
                     document->selectionDidChangeNotifier.removeObserver(this,  &VertexToolBase::selectionDidChange);
                     document->nodesWillChangeNotifier.removeObserver(this,  &VertexToolBase::nodesWillChange);
                     document->nodesDidChangeNotifier.removeObserver(this,  &VertexToolBase::nodesDidChange);
@@ -437,7 +435,7 @@ namespace TrenchBroom {
                     auto* vertexCommand = static_cast<VertexCommand*>(command);
                     deselectHandles();
                     removeHandles(vertexCommand);
-                    m_ignoreChangeNotifications.pushLiteral();
+                    ++m_ignoreChangeNotifications;
                 }
             }
 
@@ -446,7 +444,7 @@ namespace TrenchBroom {
                     auto* vertexCommand = static_cast<VertexCommand*>(command);
                     addHandles(vertexCommand);
                     selectNewHandlePositions(vertexCommand);
-                    m_ignoreChangeNotifications.popLiteral();
+                    --m_ignoreChangeNotifications;
                 }
             }
 
@@ -455,7 +453,7 @@ namespace TrenchBroom {
                     auto* vertexCommand = static_cast<VertexCommand*>(command);
                     addHandles(vertexCommand);
                     selectOldHandlePositions(vertexCommand);
-                    m_ignoreChangeNotifications.popLiteral();
+                    --m_ignoreChangeNotifications;
                 }
             }
 
@@ -477,13 +475,13 @@ namespace TrenchBroom {
             }
 
             void nodesWillChange(const std::vector<Model::Node*>& nodes) {
-                if (!m_ignoreChangeNotifications) {
+                if (m_ignoreChangeNotifications == 0u) {
                     removeHandles(nodes);
                 }
             }
 
             void nodesDidChange(const std::vector<Model::Node*>& nodes) {
-                if (!m_ignoreChangeNotifications) {
+                if (m_ignoreChangeNotifications == 0u) {
                     addHandles(nodes);
                 }
             }
@@ -513,7 +511,7 @@ namespace TrenchBroom {
             private:
                 VertexHandleManagerBaseT<HT>& m_handles;
             public:
-                AddHandles(VertexHandleManagerBaseT<HT>& handles) :
+                explicit AddHandles(VertexHandleManagerBaseT<HT>& handles) :
                 m_handles(handles) {}
             private:
                 void doVisit(Model::World*) override  {}
@@ -530,7 +528,7 @@ namespace TrenchBroom {
             private:
                 VertexHandleManagerBaseT<HT>& m_handles;
             public:
-                RemoveHandles(VertexHandleManagerBaseT<HT>& handles) :
+                explicit RemoveHandles(VertexHandleManagerBaseT<HT>& handles) :
                 m_handles(handles) {}
             private:
                 void doVisit(Model::World*) override  {}

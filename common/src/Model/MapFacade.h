@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_MapFacade
 #define TrenchBroom_MapFacade
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Assets/Asset_Forward.h"
 #include "Model/EntityColor.h"
 #include "Model/Model_Forward.h"
@@ -54,9 +54,9 @@ namespace TrenchBroom {
             virtual bool hasSelectedBrushFaces() const = 0;
             virtual bool hasAnySelectedBrushFaces() const = 0;
 
-            virtual const std::vector<AttributableNode*> allSelectedAttributableNodes() const = 0;
+            virtual std::vector<AttributableNode*> allSelectedAttributableNodes() const = 0;
             virtual const NodeCollection& selectedNodes() const = 0;
-            virtual const std::vector<BrushFace*> allSelectedBrushFaces() const = 0;
+            virtual std::vector<BrushFace*> allSelectedBrushFaces() const = 0;
             virtual const std::vector<BrushFace*>& selectedBrushFaces() const = 0;
 
             virtual const vm::bbox3& referenceBounds() const = 0;

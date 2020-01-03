@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Object
 #define TrenchBroom_Object
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/Model_Forward.h"
 
 namespace TrenchBroom {

@@ -24,7 +24,6 @@
 #include "Model/EntityAttributes.h"
 #include "Model/Model_Forward.h"
 
-#include <list>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -66,16 +65,16 @@ namespace TrenchBroom {
         public:
             void defaultLayer(Model::World& world);
             void customLayer(Model::Layer* layer);
-            void group(Model::Group* group, const std::list<Model::EntityAttribute>& parentAttributes);
+            void group(Model::Group* group, const std::vector<Model::EntityAttribute>& parentAttributes);
 
-            void entity(Model::Node* node, const std::list<Model::EntityAttribute>& attributes, const std::list<Model::EntityAttribute>& parentAttributes, Model::Node* brushParent);
-            void entity(Model::Node* node, const std::list<Model::EntityAttribute>& attributes, const std::list<Model::EntityAttribute>& parentAttributes, const std::vector<Model::Brush*>& entityBrushes);
+            void entity(Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, Model::Node* brushParent);
+            void entity(Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, const std::vector<Model::Brush*>& entityBrushes);
         private:
-            void beginEntity(const Model::Node* node, const std::list<Model::EntityAttribute>& attributes, const std::list<Model::EntityAttribute>& extraAttributes);
+            void beginEntity(const Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& extraAttributes);
             void beginEntity(const Model::Node* node);
             void endEntity(Model::Node* node);
 
-            void entityAttributes(const std::list<Model::EntityAttribute>& attributes);
+            void entityAttributes(const std::vector<Model::EntityAttribute>& attributes);
             void entityAttribute(const Model::EntityAttribute& attribute);
 
             void brushes(const std::vector<Model::Brush*>& brushes);
@@ -90,10 +89,10 @@ namespace TrenchBroom {
         private:
             class GetParentAttributes;
         public:
-            std::list<Model::EntityAttribute> parentAttributes(const Model::Node* node);
+            std::vector<Model::EntityAttribute> parentAttributes(const Model::Node* node);
         private:
-            std::list<Model::EntityAttribute> layerAttributes(const Model::Layer* layer);
-            std::list<Model::EntityAttribute> groupAttributes(const Model::Group* group);
+            std::vector<Model::EntityAttribute> layerAttributes(const Model::Layer* layer);
+            std::vector<Model::EntityAttribute> groupAttributes(const Model::Group* group);
         protected:
             std::string escapeEntityAttribute(const std::string& str) const;
         private:

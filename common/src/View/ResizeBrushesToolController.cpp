@@ -19,12 +19,12 @@
 
 #include "ResizeBrushesToolController.h"
 
-#include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"

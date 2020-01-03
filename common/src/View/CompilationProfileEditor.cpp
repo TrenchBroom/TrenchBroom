@@ -19,7 +19,6 @@
 
 #include "CompilationProfileEditor.h"
 
-#include "SharedPointer.h"
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
 #include "View/BorderLine.h"
@@ -29,6 +28,8 @@
 #include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
+
+#include <kdl/memory_utils.h>
 
 #include <QAbstractButton>
 #include <QCompleter>
@@ -80,7 +81,7 @@ namespace TrenchBroom {
             m_nameTxt = new QLineEdit();
             m_workDirTxt = new MultiCompletionLineEdit();
 
-            const auto variables = CompilationWorkDirVariables(lock(m_document));
+            const auto variables = CompilationWorkDirVariables(kdl::mem_lock(m_document));
             auto* completer = new QCompleter(new VariableStoreModel(variables));
             completer->setCaseSensitivity(Qt::CaseInsensitive);
 

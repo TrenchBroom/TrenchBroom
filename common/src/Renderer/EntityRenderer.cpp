@@ -20,7 +20,7 @@
 #include "EntityRenderer.h"
 
 #include "AttrString.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Assets/EntityDefinition.h"

@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_RotateObjectsHandle
 #define TrenchBroom_RotateObjectsHandle
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "Model/HitType.h"

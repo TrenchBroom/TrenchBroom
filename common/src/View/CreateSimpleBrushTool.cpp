@@ -19,11 +19,12 @@
 
 #include "CreateSimpleBrushTool.h"
 
-#include "SharedPointer.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/BrushBuilder.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"
+
+#include <kdl/memory_utils.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -31,7 +32,7 @@ namespace TrenchBroom {
         CreateBrushToolBase(true, document) {}
 
         void CreateSimpleBrushTool::update(const vm::bbox3& bounds) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
             updateBrush(builder.createCuboid(bounds, document->currentTextureName()));
         }

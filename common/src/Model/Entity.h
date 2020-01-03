@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_Entity
 #define TrenchBroom_Entity
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
 #include "Assets/Asset_Forward.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityRotationPolicy.h"
@@ -97,7 +97,7 @@ namespace TrenchBroom {
 
             bool doSelectable() const override;
 
-            void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
+            void doPick(const vm::ray3& ray, PickResult& pickResult) override;
             void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
 
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;

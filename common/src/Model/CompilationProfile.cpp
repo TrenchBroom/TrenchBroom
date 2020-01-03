@@ -19,6 +19,7 @@
 
 #include "CompilationProfile.h"
 
+#include "Ensure.h"
 #include "Model/CompilationTask.h"
 
 #include <kdl/vector_utils.h>

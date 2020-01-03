@@ -21,13 +21,14 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SharedPointer.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "View/EntityBrowserView.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
+
+#include <kdl/memory_utils.h>
 
 #include <QtGlobal>
 #include <QPushButton>
@@ -68,7 +69,7 @@ namespace TrenchBroom {
         void EntityBrowser::createGui(GLContextManager& contextManager) {
             m_scrollBar = new QScrollBar(Qt::Vertical);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             m_view = new EntityBrowserView(
                 m_scrollBar,
@@ -133,7 +134,7 @@ namespace TrenchBroom {
         }
 
         void EntityBrowser::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &EntityBrowser::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &EntityBrowser::documentWasLoaded);
             document->modsDidChangeNotifier.addObserver(this, &EntityBrowser::modsDidChange);
@@ -144,8 +145,8 @@ namespace TrenchBroom {
         }
 
         void EntityBrowser::unbindObservers() {
-            if (!expired(m_document)) {
-            auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+            auto document = kdl::mem_lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &EntityBrowser::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &EntityBrowser::documentWasLoaded);
                 document->modsDidChangeNotifier.removeObserver(this, &EntityBrowser::modsDidChange);
@@ -173,7 +174,7 @@ namespace TrenchBroom {
         }
 
         void EntityBrowser::preferenceDidChange(const IO::Path& path) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (document->isGamePathPreference(path)) {
                 reload();
             } else {

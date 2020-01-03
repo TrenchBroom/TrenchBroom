@@ -19,7 +19,7 @@
 
 #include "RotateObjectsHandle.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"

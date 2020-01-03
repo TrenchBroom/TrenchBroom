@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_CyclingMapView
 #define TrenchBroom_CyclingMapView
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/CameraLinkHelper.h"
 #include "View/MapViewContainer.h"

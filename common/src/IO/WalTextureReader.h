@@ -26,9 +26,9 @@
 #include "IO/IO_Forward.h"
 #include "IO/TextureReader.h"
 
-class Color;
-
 namespace TrenchBroom {
+    class Color;
+
     namespace IO {
         class WalTextureReader : public TextureReader {
         private:

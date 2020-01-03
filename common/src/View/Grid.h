@@ -20,8 +20,9 @@
 #ifndef TrenchBroom_Grid
 #define TrenchBroom_Grid
 
+#include "Ensure.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Notifier.h"
 #include "Model/Model_Forward.h"
 
@@ -323,7 +324,7 @@ namespace TrenchBroom {
                 return ps;
             }
         public:
-            FloatType intersectWithRay(const vm::ray3& ray, const size_t skip) const;
+            FloatType intersectWithRay(const vm::ray3& ray, size_t skip) const;
 
             /**
              * Returns a copy of `delta` that snaps the result to grid, if the grid snapping moves the result in the same direction as delta (tested on each axis).

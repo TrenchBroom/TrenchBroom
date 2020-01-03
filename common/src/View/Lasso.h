@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Lasso
 #define TrenchBroom_Lasso
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Renderer/Renderer_Forward.h"
 
 #include <vecmath/plane.h>

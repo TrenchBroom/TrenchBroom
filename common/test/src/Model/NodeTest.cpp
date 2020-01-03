@@ -90,7 +90,7 @@ namespace TrenchBroom {
                 mockDoAncestorDidChange();
             }
 
-            void doPick(const vm::ray3& ray, PickResult& pickResult) const override {
+            void doPick(const vm::ray3& ray, PickResult& pickResult) override {
                 mockDoPick(ray, pickResult);
             }
 
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             MOCK_METHOD0(mockDoAncestorWillChange, void());
             MOCK_METHOD0(mockDoAncestorDidChange, void());
 
-            MOCK_CONST_METHOD2(mockDoPick, void(const vm::ray3&, PickResult&));
+            MOCK_METHOD2(mockDoPick, void(const vm::ray3&, PickResult&));
             MOCK_CONST_METHOD2(mockDoFindNodesContaining, void(const vm::vec3&, std::vector<Node*>&));
             MOCK_CONST_METHOD1(mockDoIntersectWithRay, FloatType(const vm::ray3&));
 
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             void doAncestorWillChange() override {}
             void doAncestorDidChange() override {}
 
-            void doPick(const vm::ray3& /* ray */, PickResult& /* pickResult */) const override {}
+            void doPick(const vm::ray3& /* ray */, PickResult& /* pickResult */) override {}
             void doFindNodesContaining(const vm::vec3& /* point */, std::vector<Node*>& /* result */) override {}
 
             void doAccept(NodeVisitor& /* visitor */) override {}

@@ -21,9 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Polyhedron.h"
-#include "Polyhedron3.h"
-#include "SharedPointer.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -78,6 +75,8 @@
 #include "Model/WorldBoundsIssueGenerator.h"
 #include "Model/PointEntityWithBrushesIssueGenerator.h"
 #include "Model/PointFile.h"
+#include "Model/Polyhedron.h"
+#include "Model/Polyhedron3.h"
 #include "Model/PortalFile.h"
 #include "Model/TagManager.h"
 #include "Model/World.h"
@@ -119,6 +118,7 @@
 
 #include <kdl/collection_utils.h>
 #include <kdl/map_utils.h>
+#include <kdl/memory_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/util.h>
@@ -497,7 +497,7 @@ namespace TrenchBroom {
             return hasSelectedBrushFaces() || selectedNodes().hasBrushes();
         }
 
-        const std::vector<Model::AttributableNode*> MapDocument::allSelectedAttributableNodes() const {
+        std::vector<Model::AttributableNode*> MapDocument::allSelectedAttributableNodes() const {
             if (!hasSelection())
                 return std::vector<Model::AttributableNode*>({ m_world.get() });
 
@@ -510,7 +510,7 @@ namespace TrenchBroom {
             return m_selectedNodes;
         }
 
-        const std::vector<Model::BrushFace*> MapDocument::allSelectedBrushFaces() const {
+        std::vector<Model::BrushFace*> MapDocument::allSelectedBrushFaces() const {
             if (hasSelectedBrushFaces())
                 return selectedBrushFaces();
             Model::CollectBrushFacesVisitor visitor;
@@ -1121,7 +1121,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            Polyhedron3 polyhedron;
+            Model::Polyhedron3 polyhedron;
 
             if (hasSelectedBrushFaces()) {
                 for (const Model::BrushFace* face : selectedBrushFaces()) {
@@ -2159,7 +2159,7 @@ namespace TrenchBroom {
         }
 
         Transaction::Transaction(std::weak_ptr<MapDocument> document, const std::string& name) :
-        m_document(lock(document).get()),
+        m_document(kdl::mem_lock(document).get()),
         m_cancelled(false) {
             begin(name);
         }

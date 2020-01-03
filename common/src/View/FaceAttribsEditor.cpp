@@ -20,7 +20,6 @@
 #include "FaceAttribsEditor.h"
 
 #include "Color.h"
-#include "SharedPointer.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
@@ -38,6 +37,7 @@
 #include "View/ViewUtils.h"
 #include "View/QtUtils.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
 
@@ -87,7 +87,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::xOffsetChanged(const double value) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
@@ -100,7 +100,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::yOffsetChanged(const double value) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
@@ -113,7 +113,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::rotationChanged(const double value) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
@@ -126,7 +126,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::xScaleChanged(const double value) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
@@ -139,7 +139,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::yScaleChanged(const double value) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
@@ -152,7 +152,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::surfaceFlagChanged(const size_t index, const int setFlag, const int /* mixedFlag */) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
@@ -169,7 +169,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::contentFlagChanged(const size_t index, const int setFlag, const int /* mixedFlag */) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
@@ -186,7 +186,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::surfaceValueChanged(const double value) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
@@ -199,7 +199,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::colorValueChanged(const QString& /* text */) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
@@ -223,7 +223,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::gridDidChange() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Grid& grid = document->grid();
 
             m_xOffsetEditor->setIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
@@ -379,7 +379,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &FaceAttribsEditor::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &FaceAttribsEditor::documentWasLoaded);
             document->brushFacesDidChangeNotifier.addObserver(this, &FaceAttribsEditor::brushFacesDidChange);
@@ -389,8 +389,8 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasLoaded);
                 document->brushFacesDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::brushFacesDidChange);
@@ -411,13 +411,13 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::brushFacesDidChange(const std::vector<Model::BrushFace*>&) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             m_faces = document->allSelectedBrushFaces();
             updateControls();
         }
 
         void FaceAttribsEditor::selectionDidChange(const Selection&) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             m_faces = document->allSelectedBrushFaces();
             updateControls();
         }
@@ -586,7 +586,7 @@ namespace TrenchBroom {
 
 
         bool FaceAttribsEditor::hasSurfaceAttribs() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto game = document->game();
             const Model::FlagsConfig& surfaceFlags = game->surfaceFlags();
             const Model::FlagsConfig& contentFlags = game->contentFlags();
@@ -613,7 +613,7 @@ namespace TrenchBroom {
         }
 
         bool FaceAttribsEditor::hasColorAttribs() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return document->world()->format() == Model::MapFormat::Daikatana;
         }
 
@@ -636,14 +636,14 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::getSurfaceFlags(QStringList& names, QStringList& descriptions) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto game = document->game();
             const Model::FlagsConfig& surfaceFlags = game->surfaceFlags();
             getFlags(surfaceFlags.flags, names, descriptions);
         }
 
         void FaceAttribsEditor::getContentFlags(QStringList& names, QStringList& descriptions) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto game = document->game();
             const Model::FlagsConfig& contentFlags = game->contentFlags();
             getFlags(contentFlags.flags, names, descriptions);

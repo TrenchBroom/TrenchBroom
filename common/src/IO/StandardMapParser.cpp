@@ -19,11 +19,11 @@
 
 #include "StandardMapParser.h"
 
-#include "TemporarilySetAny.h"
 #include "IO/ParserStatus.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityAttributes.h"
 
+#include <kdl/invoke.h>
 #include <kdl/vector_set.h>
 
 #include <vecmath/plane.h>
@@ -143,7 +143,7 @@ namespace TrenchBroom {
         m_tokenizer(QuakeMapTokenizer(str)),
         m_format(Model::MapFormat::Unknown) {}
 
-        StandardMapParser::~StandardMapParser() {}
+        StandardMapParser::~StandardMapParser() = default;
 
         Model::MapFormat StandardMapParser::detectFormat() {
             auto format = Model::MapFormat::Unknown;
@@ -252,7 +252,7 @@ namespace TrenchBroom {
 
             auto beginEntityCalled = false;
 
-            auto attributes = std::list<Model::EntityAttribute>();
+            auto attributes = std::vector<Model::EntityAttribute>();
             auto attributeNames = AttributeNames();
 
             auto extraAttributes = ExtraAttributes();
@@ -290,7 +290,7 @@ namespace TrenchBroom {
             }
         }
 
-        void StandardMapParser::parseEntityAttribute(std::list<Model::EntityAttribute>& attributes, AttributeNames& names, ParserStatus& status) {
+        void StandardMapParser::parseEntityAttribute(std::vector<Model::EntityAttribute>& attributes, AttributeNames& names, ParserStatus& status) {
             auto token = m_tokenizer.nextToken();
             assert(token.type() == QuakeMapToken::String);
             const auto name = token.data();
@@ -672,7 +672,10 @@ namespace TrenchBroom {
         }
 
         void StandardMapParser::parseExtraAttributes(ExtraAttributes& attributes, ParserStatus& /* status */) {
-            const TemporarilySetBoolFun<QuakeMapTokenizer> parseEof(&m_tokenizer, &QuakeMapTokenizer::setSkipEol, false);
+            // do not skip EOLs for the duration of this function call
+            m_tokenizer.setSkipEol(false);
+            const kdl::invoke_later parseEof([this]() { m_tokenizer.setSkipEol(true); });
+
             auto token = m_tokenizer.nextToken();
             expect(QuakeMapToken::String | QuakeMapToken::Eol | QuakeMapToken::Eof, token);
             while (token.type() != QuakeMapToken::Eol && token.type() != QuakeMapToken::Eof) {

@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_CreateBrushToolController3D
 #define TrenchBroom_CreateBrushToolController3D
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/ToolController.h"
 #include "View/View_Forward.h"
 

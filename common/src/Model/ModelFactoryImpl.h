@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_ModelFactoryImpl
 #define TrenchBroom_ModelFactoryImpl
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelFactory.h"
 #include "Model/Model_Forward.h"

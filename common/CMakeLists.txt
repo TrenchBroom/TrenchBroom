@@ -183,6 +183,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/PlanePointFinder.cpp
         ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/PointFile.cpp
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Instantiation.cpp
         ${COMMON_SOURCE_DIR}/Model/PortalFile.cpp
         ${COMMON_SOURCE_DIR}/Model/PushSelection.cpp
         ${COMMON_SOURCE_DIR}/Model/RemoveEntityAttributesQuickFix.cpp
@@ -201,6 +202,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/RecoverableExceptions.cpp
         ${COMMON_SOURCE_DIR}/Renderer/ActiveShader.cpp
         ${COMMON_SOURCE_DIR}/Renderer/AllocationTracker.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/AttrString.cpp
         ${COMMON_SOURCE_DIR}/Renderer/BoundsGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/BrushRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/BrushRendererArrays.cpp
@@ -484,19 +486,14 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/ViewUtils.cpp
         ${COMMON_SOURCE_DIR}/View/WelcomeWindow.cpp
         ${COMMON_SOURCE_DIR}/View/QtUtils.cpp
-        ${COMMON_SOURCE_DIR}/AttrString.cpp
         ${COMMON_SOURCE_DIR}/Color.cpp
-        ${COMMON_SOURCE_DIR}/Disjunction.cpp
         ${COMMON_SOURCE_DIR}/Ensure.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
         ${COMMON_SOURCE_DIR}/Exceptions.cpp
         ${COMMON_SOURCE_DIR}/Logger.cpp
-        ${COMMON_SOURCE_DIR}/Polyhedron_Instantiation.cpp
         ${COMMON_SOURCE_DIR}/PreferenceManager.cpp
         ${COMMON_SOURCE_DIR}/Preference.cpp
         ${COMMON_SOURCE_DIR}/Preferences.cpp
-        ${COMMON_SOURCE_DIR}/Reference.cpp
-        ${COMMON_SOURCE_DIR}/TemporarilySetAny.cpp
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.cpp
         ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.cpp
 )
@@ -707,6 +704,24 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/PlanePointFinder.h
         ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/PointFile.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron3.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_BrushGeometryPayload.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Checks.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Clip.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_ConvexHull.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_CSG.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_DefaultPayload.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Edge.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Face.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Forward.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_HalfEdge.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Instantiation.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_IO.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Matcher.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Misc.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Queries.h
+        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Vertex.h
         ${COMMON_SOURCE_DIR}/Model/PortalFile.h
         ${COMMON_SOURCE_DIR}/Model/PushSelection.h
         ${COMMON_SOURCE_DIR}/Model/RemoveEntityAttributesQuickFix.h
@@ -726,6 +741,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Renderer/ActiveShader.h
         ${COMMON_SOURCE_DIR}/Renderer/AllocationTracker.h
+        ${COMMON_SOURCE_DIR}/Renderer/AttrString.h
         ${COMMON_SOURCE_DIR}/Renderer/BoundsGuideRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/BrushRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/BrushRendererArrays.h
@@ -1024,49 +1040,19 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/WelcomeWindow.h
         ${COMMON_SOURCE_DIR}/View/QtUtils.h
         ${COMMON_SOURCE_DIR}/Allocator.h
-        ${COMMON_SOURCE_DIR}/AttrString.h
-        ${COMMON_SOURCE_DIR}/Bitset.h
         ${COMMON_SOURCE_DIR}/Color.h
-        ${COMMON_SOURCE_DIR}/Constants.h
-        ${COMMON_SOURCE_DIR}/Disjunction.h
         ${COMMON_SOURCE_DIR}/Ensure.h
         ${COMMON_SOURCE_DIR}/Exceptions.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
-        ${COMMON_SOURCE_DIR}/FreeType.h
-        ${COMMON_SOURCE_DIR}/intrusive_circular_list.h
+        ${COMMON_SOURCE_DIR}/FloatType.h
         ${COMMON_SOURCE_DIR}/Logger.h
         ${COMMON_SOURCE_DIR}/Macros.h
         ${COMMON_SOURCE_DIR}/Notifier.h
-        ${COMMON_SOURCE_DIR}/Polyhedron.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_BrushGeometryPayload.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Checks.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Clip.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_ConvexHull.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_CSG.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_DefaultPayload.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Edge.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Face.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Forward.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_HalfEdge.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Instantiation.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_IO.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Matcher.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Misc.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Queries.h
-        ${COMMON_SOURCE_DIR}/Polyhedron_Vertex.h
-        ${COMMON_SOURCE_DIR}/Polyhedron3.h
         ${COMMON_SOURCE_DIR}/Preference.h
         ${COMMON_SOURCE_DIR}/PreferenceManager.h
         ${COMMON_SOURCE_DIR}/Preferences.h
-        ${COMMON_SOURCE_DIR}/ProjectingSequence.h
         ${COMMON_SOURCE_DIR}/RecoverableExceptions.h
-        ${COMMON_SOURCE_DIR}/Reference.h
-        ${COMMON_SOURCE_DIR}/Relation.h
-        ${COMMON_SOURCE_DIR}/SharedPointer.h
-        ${COMMON_SOURCE_DIR}/StepIterator.h
-        ${COMMON_SOURCE_DIR}/TemporarilySetAny.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
-        ${COMMON_SOURCE_DIR}/TrenchBroom.h
         ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.h
 )
 
@@ -1074,7 +1060,7 @@ add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_compile_features(common PRIVATE cxx_std_17)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
-target_link_libraries(common PUBLIC tinyxml2 kdl vecmath optlite glew miniz freeimage freetype OpenGL::GL Qt5::Widgets)
+target_link_libraries(common PUBLIC tinyxml2 kdl vecmath anylite optlite glew miniz freeimage freetype OpenGL::GL Qt5::Widgets)
 
 # use precompiled headers on CMake 3.16 or later
 if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")

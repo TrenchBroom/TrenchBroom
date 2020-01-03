@@ -20,11 +20,11 @@
 #include "Autosaver.h"
 
 #include "Exceptions.h"
-#include "SharedPointer.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "View/MapDocument.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
@@ -69,7 +69,7 @@ namespace TrenchBroom {
         m_maxBackups(maxBackups),
         m_lastSaveTime(time(nullptr)),
         m_lastModificationTime(0),
-        m_lastModificationCount(lock(m_document)->modificationCount()) {
+        m_lastModificationCount(kdl::mem_lock(m_document)->modificationCount()) {
             bindObservers();
         }
 
@@ -78,13 +78,13 @@ namespace TrenchBroom {
         }
 
         void Autosaver::triggerAutosave(Logger& logger) {
-            if (expired(m_document)) {
+            if (kdl::mem_expired(m_document)) {
                 return;
             }
 
             const auto currentTime = std::time(nullptr);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (!document->modified()) {
                 return;
             }
@@ -199,13 +199,13 @@ namespace TrenchBroom {
         }
 
         void Autosaver::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->documentModificationStateDidChangeNotifier.addObserver(this, &Autosaver::documentModificationCountDidChangeNotifier);
         }
 
         void Autosaver::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->documentModificationStateDidChangeNotifier.removeObserver(this, &Autosaver::documentModificationCountDidChangeNotifier);
             }
         }

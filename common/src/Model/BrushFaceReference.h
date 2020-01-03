@@ -20,7 +20,7 @@
 #ifndef BrushFaceReference_h
 #define BrushFaceReference_h
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/Model_Forward.h"
 
 #include <vecmath/plane.h>

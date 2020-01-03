@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_UVViewHelper
 #define TrenchBroom_UVViewHelper
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 #include "Model/HitType.h"

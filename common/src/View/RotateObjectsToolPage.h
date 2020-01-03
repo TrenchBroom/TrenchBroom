@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_RotateObjectsToolPage
 #define TrenchBroom_RotateObjectsToolPage
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/View_Forward.h"
 
 #include <vecmath/forward.h>

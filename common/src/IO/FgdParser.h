@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_FgdParser
 #define TrenchBroom_FgdParser
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Color.h"
 #include "Assets/Asset_Forward.h"
 #include "IO/EntityDefinitionClassInfo.h"
@@ -31,7 +31,7 @@
 
 #include <list>
 #include <memory>
-#include <optional-lite/optional.hpp>
+#include <nonstd/optional.hpp>
 #include <string>
 #include <vector>
 

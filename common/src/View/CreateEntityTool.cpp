@@ -19,10 +19,8 @@
 
 #include "CreateEntityTool.h"
 
-#include "Constants.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "PreferenceManager.h"
-#include "SharedPointer.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
@@ -36,6 +34,7 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 
+#include <kdl/memory_utils.h>
 #include <vecmath/bbox.h>
 
 #include <string>
@@ -48,7 +47,7 @@ namespace TrenchBroom {
         m_entity(nullptr) {}
 
         bool CreateEntityTool::createEntity(const std::string& classname) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Assets::EntityDefinitionManager& definitionManager = document->entityDefinitionManager();
             Assets::EntityDefinition* definition = definitionManager.definition(classname);
             if (definition == nullptr)
@@ -73,14 +72,14 @@ namespace TrenchBroom {
 
         void CreateEntityTool::removeEntity() {
             ensure(m_entity != nullptr, "entity is null");
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
             m_entity = nullptr;
         }
 
         void CreateEntityTool::commitEntity() {
             ensure(m_entity != nullptr, "entity is null");
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->commitTransaction();
             m_entity = nullptr;
         }
@@ -88,7 +87,7 @@ namespace TrenchBroom {
         void CreateEntityTool::updateEntityPosition2D(const vm::ray3& pickRay) {
             ensure(m_entity != nullptr, "entity is null");
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             const auto toMin = m_referenceBounds.min - pickRay.origin;
             const auto toMax = m_referenceBounds.max - pickRay.origin;
@@ -111,7 +110,7 @@ namespace TrenchBroom {
         void CreateEntityTool::updateEntityPosition3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             ensure(m_entity != nullptr, "entity is null");
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             vm::vec3 delta;
             const auto& grid = document->grid();

@@ -20,7 +20,7 @@
 #ifndef FaceTool_h
 #define FaceTool_h
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/VertexToolBase.h"
 #include "View/View_Forward.h"
 

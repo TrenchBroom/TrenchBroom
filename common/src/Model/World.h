@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_World
 #define TrenchBroom_World
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
 #include "Model/AttributableNode.h"
 #include "Model/MapFormat.h"
 #include "Model/Model_Forward.h"
@@ -32,10 +32,9 @@
 #include <string>
 #include <vector>
 
-template <typename T, size_t S, typename U>
-class AABBTree;
-
 namespace TrenchBroom {
+    template <typename T, size_t S, typename U> class AABBTree;
+
     namespace Model {
         class PickResult;
 
@@ -93,7 +92,7 @@ namespace TrenchBroom {
             void doDescendantPhysicalBoundsDidChange(Node* node) override;
 
             bool doSelectable() const override;
-            void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
+            void doPick(const vm::ray3& ray, PickResult& pickResult) override;
             void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
             void doAccept(NodeVisitor& visitor) override;

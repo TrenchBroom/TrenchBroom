@@ -47,7 +47,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const std::string doGetDescription() const override {
+            std::string doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
                 return attributableNode->classname() + " has missing target for key '" + m_name + "'";
             }

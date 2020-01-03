@@ -28,7 +28,7 @@
 #include <sstream>
 #include <vector>
 
-#include <optional-lite/optional.hpp>
+#include <nonstd/optional.hpp>
 
 namespace kdl {
     /**

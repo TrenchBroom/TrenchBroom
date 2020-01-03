@@ -19,12 +19,9 @@
 
 #include "ResizeBrushesTool.h"
 
-#include "Constants.h"
-#include "Polyhedron.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
-#include "SharedPointer.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -34,11 +31,13 @@
 #include "Model/HitQuery.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 
 #include <kdl/collection_utils.h>
+#include <kdl/memory_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/vec.h>
@@ -50,7 +49,6 @@
 
 #include <limits>
 #include <map>
-#include <set>
 #include <vector>
 
 namespace TrenchBroom {
@@ -60,7 +58,7 @@ namespace TrenchBroom {
 
         ResizeBrushesTool::ResizeBrushesTool(std::weak_ptr<MapDocument> document) :
         Tool(true),
-        m_document(document),
+        m_document(std::move(document)),
         m_splitBrushes(false),
         m_dragging(false) {
             bindObservers();
@@ -71,12 +69,12 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesTool::applies() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return document->selectedNodes().hasBrushes();
         }
 
         Model::Hit ResizeBrushesTool::pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
             if (hit.isMatch()) {
                 return Model::Hit::NoHit;
@@ -86,7 +84,7 @@ namespace TrenchBroom {
         }
 
         Model::Hit ResizeBrushesTool::pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
             if (hit.isMatch()) {
                 return Model::Hit(ResizeHit3D, hit.distance(), hit.hitPoint(), Model::hitToFace(hit));
@@ -154,7 +152,7 @@ namespace TrenchBroom {
         Model::Hit ResizeBrushesTool::pickProximateFace(const Model::HitType::Type hitType, const vm::ray3& pickRay) const {
             PickProximateFace visitor(hitType, pickRay);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& nodes = document->selectedNodes().nodes();
             Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
 
@@ -204,7 +202,7 @@ namespace TrenchBroom {
         private:
             const Model::BrushFace* m_reference;
         public:
-            MatchFaceBoundary(const Model::BrushFace* reference) :
+            explicit MatchFaceBoundary(const Model::BrushFace* reference) :
             m_reference(reference) {
                 ensure(m_reference != nullptr, "reference is null");
             }
@@ -228,7 +226,7 @@ namespace TrenchBroom {
                     kdl::vec_append(result, collectDragFaces(faces[1]));
                 }
             } else {
-                Model::BrushFace* face = hit.target<Model::BrushFace*>();
+                Model::BrushFace* face = Model::hitToFace(hit);
                 result.push_back(face);
                 kdl::vec_append(result, collectDragFaces(face));
             }
@@ -239,7 +237,7 @@ namespace TrenchBroom {
         std::vector<Model::BrushFace*> ResizeBrushesTool::collectDragFaces(Model::BrushFace* face) const {
             Model::CollectMatchingBrushFacesVisitor<MatchFaceBoundary> visitor((MatchFaceBoundary(face)));
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& nodes = document->selectedNodes().nodes();
             Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
             return visitor.faces();
@@ -263,7 +261,7 @@ namespace TrenchBroom {
             m_totalDelta = vm::vec3::zero();
             m_splitBrushes = split;
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->startTransaction("Resize Brushes");
             m_dragging = true;
             return true;
@@ -282,7 +280,7 @@ namespace TrenchBroom {
 
             const auto dragDist = dist.position2;
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& grid = document->grid();
             const auto relativeFaceDelta = grid.snap(dragDist) * faceNormal;
             const auto absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
@@ -327,7 +325,7 @@ namespace TrenchBroom {
             m_totalDelta = vm::vec3::zero();
             m_splitBrushes = false;
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->startTransaction("Move Faces");
             m_dragging = true;
             return true;
@@ -342,7 +340,7 @@ namespace TrenchBroom {
 
             const auto hitPoint = vm::point_at_distance(pickRay, hitDist);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& grid = document->grid();
             const auto delta = grid.snap(hitPoint - m_lastPoint);
             if (vm::is_zero(delta, vm::C::almost_zero())) {
@@ -363,7 +361,7 @@ namespace TrenchBroom {
         }
 
         void ResizeBrushesTool::commit() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (vm::is_zero(m_totalDelta, vm::C::almost_zero())) {
                 document->cancelTransaction();
             } else {
@@ -374,14 +372,14 @@ namespace TrenchBroom {
         }
 
         void ResizeBrushesTool::cancel() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
             m_dragHandles.clear();
             m_dragging = false;
         }
 
         bool ResizeBrushesTool::splitBrushes(const vm::vec3& delta) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const vm::bbox3& worldBounds = document->worldBounds();
             const bool lockTextures = pref(Preferences::TextureLock);
 
@@ -459,7 +457,7 @@ namespace TrenchBroom {
         }
 
         void ResizeBrushesTool::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->nodesWereAddedNotifier.addObserver(this, &ResizeBrushesTool::nodesDidChange);
             document->nodesWillChangeNotifier.addObserver(this, &ResizeBrushesTool::nodesDidChange);
             document->nodesWillBeRemovedNotifier.addObserver(this, &ResizeBrushesTool::nodesDidChange);
@@ -467,8 +465,8 @@ namespace TrenchBroom {
         }
 
         void ResizeBrushesTool::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->nodesWereAddedNotifier.removeObserver(this, &ResizeBrushesTool::nodesDidChange);
                 document->nodesWillChangeNotifier.removeObserver(this, &ResizeBrushesTool::nodesDidChange);
                 document->nodesWillBeRemovedNotifier.removeObserver(this, &ResizeBrushesTool::nodesDidChange);

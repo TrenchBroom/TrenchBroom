@@ -19,9 +19,9 @@
 
 #include "FaceTool.h"
 
-#include "SharedPointer.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/string_format.h>
 
 namespace TrenchBroom {
@@ -47,7 +47,7 @@ namespace TrenchBroom {
         }
 
         FaceTool::MoveResult FaceTool::move(const vm::vec3& delta) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             const auto handles = m_faceHandles->selectedHandles();
             const auto brushMap = buildBrushMap(*m_faceHandles, std::begin(handles), std::end(handles));
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             const auto brushMap = buildBrushMap(*m_faceHandles, std::begin(handles), std::end(handles));
 
             Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Remove Face", "Remove Faces"));
-            lock(m_document)->removeFaces(brushMap);
+            kdl::mem_lock(m_document)->removeFaces(brushMap);
         }
     }
 }

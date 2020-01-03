@@ -21,7 +21,7 @@
 #define TrenchBroom_SpikeGuideRenderer
 
 #include "Color.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Renderer/Renderer_Forward.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"

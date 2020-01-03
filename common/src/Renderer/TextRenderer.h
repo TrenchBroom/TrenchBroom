@@ -32,9 +32,8 @@
 #include <vector>
 
 namespace TrenchBroom {
-    class AttrString;
-
     namespace Renderer {
+        class AttrString;
         class RenderContext;
         class TextAnchor;
 

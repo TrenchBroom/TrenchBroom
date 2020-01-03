@@ -19,7 +19,6 @@
 
 #include "FaceInspector.h"
 
-#include "SharedPointer.h"
 #include "Assets/Texture.h"
 #include "Model/Entity.h"
 #include "View/BorderLine.h"
@@ -31,6 +30,8 @@
 #include "View/TextureCollectionEditor.h"
 #include "View/TitledPanel.h"
 #include "View/QtUtils.h"
+
+#include <kdl/memory_utils.h>
 
 #include <QVBoxLayout>
 
@@ -108,7 +109,7 @@ namespace TrenchBroom {
         }
 
         void FaceInspector::textureSelected(Assets::Texture* texture) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->setTexture(texture);
         }
     }

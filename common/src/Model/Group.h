@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Group
 #define TrenchBroom_Group
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "Model/Node.h"
@@ -83,7 +83,7 @@ namespace TrenchBroom {
 
             bool doSelectable() const override;
 
-            void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
+            void doPick(const vm::ray3& ray, PickResult& pickResult) override;
             void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
 
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;

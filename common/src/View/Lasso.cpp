@@ -19,14 +19,12 @@
 
 #include "Lasso.h"
 
-#include "TrenchBroom.h"
-
+#include "FloatType.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderService.h"
 
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
-#include <vecmath/plane.h>
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
 #include <vecmath/intersection.h>

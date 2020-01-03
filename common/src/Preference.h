@@ -20,21 +20,20 @@
 #ifndef TrenchBroom_Preference
 #define TrenchBroom_Preference
 
-#include "Color.h"
 #include "Macros.h"
 #include "IO/Path.h"
 #include "View/KeyboardShortcut.h"
 
-#include <QSettings>
-#include <QDebug>
+#include <nonstd/optional.hpp>
 
-#include <optional-lite/optional.hpp>
+#include <QString>
+#include <QTextStream>
 
-class QString;
-class QTextStream;
 class QKeySequence;
 
 namespace TrenchBroom {
+    class Color;
+
     class PrefSerializer {
     public:
         virtual ~PrefSerializer();
@@ -107,7 +106,7 @@ namespace TrenchBroom {
         IO::Path m_pathPattern;
     public:
         explicit DynamicPreferencePattern(const IO::Path& pathPattern) :
-            m_pathPattern(pathPattern) {}
+        m_pathPattern(pathPattern) {}
 
         const IO::Path& pathPattern() const override {
             return m_pathPattern;
@@ -154,15 +153,15 @@ namespace TrenchBroom {
         void setValue(const T& value) {
             m_value = value;
         }
-        
+
         void resetToDefault() override {
             m_value = m_defaultValue;
         }
-        
+
         bool valid() const override {
             return m_valid;
         }
-        
+
         void setValid(const bool _valid) override {
             m_valid = _valid;
         }

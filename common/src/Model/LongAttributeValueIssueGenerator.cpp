@@ -50,7 +50,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const std::string doGetDescription() const override {
+            std::string doGetDescription() const override {
                 return "The value of entity property '" + m_attributeName + "' is too long.";
             }
         };
@@ -61,7 +61,7 @@ namespace TrenchBroom {
         private:
             size_t m_maxLength;
         public:
-            TruncateLongAttributeValueIssueQuickFix(const size_t maxLength) :
+            explicit TruncateLongAttributeValueIssueQuickFix(const size_t maxLength) :
             IssueQuickFix(LongAttributeValueIssue::Type, "Truncate property values"),
             m_maxLength(maxLength) {}
         private:

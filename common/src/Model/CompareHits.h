@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_CompareHits
 #define TrenchBroom_CompareHits
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/Model_Forward.h"
 
 #include <vecmath/util.h>

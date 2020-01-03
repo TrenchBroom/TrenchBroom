@@ -21,7 +21,6 @@
 
 #include "TestUtils.h"
 
-#include "Polyhedron.h"
 #include "Assets/Texture.h"
 #include "IO/DiskIO.h"
 #include "IO/NodeReader.h"
@@ -34,6 +33,7 @@
 #include "Model/Hit.h"
 #include "Model/MapFormat.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
 #include "Model/World.h"
 
 #include <kdl/collection_utils.h>
@@ -46,7 +46,6 @@
 
 #include <algorithm>
 #include <fstream>
-#include <iterator>
 #include <memory>
 #include <string>
 #include <vector>

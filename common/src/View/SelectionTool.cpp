@@ -21,7 +21,6 @@
 
 #include "Preferences.h"
 #include "PreferenceManager.h"
-#include "SharedPointer.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectSelectableNodesVisitor.h"
@@ -36,6 +35,8 @@
 #include "View/InputState.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+
+#include <kdl/memory_utils.h>
 
 #include <unordered_set>
 #include <vector>
@@ -69,7 +70,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& editorContext = document->editorContext();
             if (isFaceClick(inputState)) {
                 const auto& hit = firstHit(inputState, Model::Brush::BrushHit);
@@ -137,7 +138,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& editorContext = document->editorContext();
             if (isFaceClick(inputState)) {
                 const auto& hit = firstHit(inputState, Model::Brush::BrushHit);
@@ -202,7 +203,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return document->editorContext().canChangeSelection();
         }
 
@@ -234,7 +235,7 @@ namespace TrenchBroom {
 
         void SelectionTool::adjustGrid(const InputState& inputState) {
             const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             auto& grid = document->grid();
             if (factor * inputState.scrollY() < 0.0f) {
                 grid.incSize();
@@ -311,7 +312,7 @@ namespace TrenchBroom {
             // to group hits using findOutermostClosedGroupOrNode() and multiple hits on the same Group need to be collapsed.
             const std::vector<Model::Node*> hitNodes = hitsToNodesWithGroupPicking(hits);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& editorContext = document->editorContext();
 
             const auto forward = (inputState.scrollY() > 0.0f) != (pref(Preferences::CameraMouseWheelInvert));
@@ -332,7 +333,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& editorContext = document->editorContext();
 
             if (isFaceClick(inputState)) {
@@ -376,7 +377,7 @@ namespace TrenchBroom {
         }
 
         bool SelectionTool::doMouseDrag(const InputState& inputState) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& editorContext = document->editorContext();
             if (document->hasSelectedBrushFaces()) {
                 const auto& hit = firstHit(inputState, Model::Brush::BrushHit);
@@ -400,17 +401,17 @@ namespace TrenchBroom {
         }
 
         void SelectionTool::doEndMouseDrag(const InputState&) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->commitTransaction();
         }
 
         void SelectionTool::doCancelMouseDrag() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
         }
 
         void SelectionTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
             if (hit.isMatch()) {
                 Model::Node* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));

@@ -570,7 +570,7 @@ namespace TrenchBroom {
 
         }
 
-        void Node::pick(const vm::ray3& ray, PickResult& pickResult) const {
+        void Node::pick(const vm::ray3& ray, PickResult& pickResult) {
             doPick(ray, pickResult);
         }
 

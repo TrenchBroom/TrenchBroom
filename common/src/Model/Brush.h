@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Brush
 #define TrenchBroom_Brush
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Macros.h"
 #include "Model/BrushGeometry.h"
 #include "Model/HitType.h"
@@ -36,11 +36,11 @@
 #include <string>
 #include <vector>
 
-template <typename P>
-class PolyhedronMatcher;
-
 namespace TrenchBroom {
     namespace Model {
+        template <typename P>
+        class PolyhedronMatcher;
+
         struct BrushAlgorithmResult;
 
         class Brush : public Node, public Object {
@@ -278,7 +278,7 @@ namespace TrenchBroom {
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
         private: // implement Object interface
-            void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
+            void doPick(const vm::ray3& ray, PickResult& pickResult) override;
             void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
 
             struct BrushFaceHit {

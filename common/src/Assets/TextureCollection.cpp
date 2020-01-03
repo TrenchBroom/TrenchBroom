@@ -19,6 +19,7 @@
 
 #include "TextureCollection.h"
 
+#include "Ensure.h"
 #include "Assets/Texture.h"
 
 #include <kdl/vector_utils.h>

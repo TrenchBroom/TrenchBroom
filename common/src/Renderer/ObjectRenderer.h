@@ -28,9 +28,9 @@
 
 #include <vector>
 
-class Color;
-
 namespace TrenchBroom {
+    class Color;
+
     namespace Renderer {
         class FontManager;
         class RenderBatch;

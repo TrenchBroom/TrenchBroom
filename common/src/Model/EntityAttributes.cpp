@@ -19,26 +19,23 @@
 
 #include "EntityAttributes.h"
 
-#include "StringMap.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/EntityAttributeSnapshot.h"
 
+#include <kdl/string_compare.h>
 #include <kdl/vector_set.h>
 
-#include <list>
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        const std::string AttributeEscapeChars = "\"\n\\";
-
         namespace AttributeNames {
             const AttributeName Classname         = "classname";
             const AttributeName Origin            = "origin";
             const AttributeName Wad               = "wad";
             const AttributeName Textures          = "_tb_textures";
             const AttributeName Mods              = "_tb_mod";
-            const AttributeName GameEngineParameterSpecs = "_tb_engines";
             const AttributeName Spawnflags        = "spawnflags";
             const AttributeName EntityDefinitions = "_tb_def";
             const AttributeName Angle             = "angle";
@@ -67,29 +64,9 @@ namespace TrenchBroom {
             const AttributeValue GroupTypeGroup      = "_tb_group";
         }
 
-        std::string numberedAttributePrefix(const std::string& name) {
-            size_t i = 0;
-            while (i < name.size() && name[i] < '0' && name[i] > '9')
-                ++i;
-            if (i == name.size())
-                return "";
-            for (size_t j = i; j < name.size(); ++j) {
-                if (name[j] < '0' || name[j] > '9')
-                    return "";
-            }
-            return name.substr(0, i);
-        }
-
-        bool isNumberedAttribute(const std::string& prefix, const AttributeName& name) {
-            if (name.size() < prefix.size())
-                return false;
-            for (size_t i = 0; i < prefix.size(); ++i)
-                if (name[i] != prefix[i])
-                    return false;
-            for (size_t i = prefix.size(); i < name.size(); ++i)
-                if (name[i] < '0' || name[i] > '9')
-                    return false;
-            return true;
+        bool isNumberedAttribute(const std::string_view& prefix, const std::string_view& name) {
+            // %* matches 0 or more digits
+            return kdl::cs::str_matches_glob(name, std::string(prefix) + "%*");
         }
 
         EntityAttribute::EntityAttribute() :
@@ -123,6 +100,34 @@ namespace TrenchBroom {
             return m_definition;
         }
 
+        bool EntityAttribute::hasName(const std::string_view& name) const {
+            return kdl::cs::str_is_equal(m_name, name);
+        }
+
+        bool EntityAttribute::hasValue(const std::string_view& value) const {
+            return kdl::cs::str_is_equal(m_value, value);
+        }
+
+        bool EntityAttribute::hasNameAndValue(const std::string_view& name, const std::string_view& value) const {
+            return hasName(name) && hasValue(value);
+        }
+
+        bool EntityAttribute::hasPrefix(const std::string_view& prefix) const {
+            return kdl::cs::str_is_prefix(m_name, prefix);
+        }
+
+        bool EntityAttribute::hasPrefixAndValue(const std::string_view& prefix, const std::string_view& value) const {
+            return hasPrefix(prefix) && hasValue(value);
+        }
+
+        bool EntityAttribute::hasNumberedPrefix(const std::string_view& prefix) const {
+            return isNumberedAttribute(prefix, m_name);
+        }
+
+        bool EntityAttribute::hasNumberedPrefixAndValue(const std::string_view& prefix, const std::string_view& value) const {
+            return hasNumberedPrefix(prefix) && hasValue(value);
+        }
+
         void EntityAttribute::setName(const AttributeName& name, const Assets::AttributeDefinition* definition) {
             m_name = name;
             m_definition = definition;
@@ -132,43 +137,39 @@ namespace TrenchBroom {
             m_value = value;
         }
 
-        bool isLayer(const std::string& classname, const std::list<EntityAttribute>& attributes) {
+        bool isLayer(const std::string& classname, const std::vector<EntityAttribute>& attributes) {
             if (classname != AttributeValues::LayerClassname)
                 return false;
             const AttributeValue& groupType = findAttribute(attributes, AttributeNames::GroupType);
             return groupType == AttributeValues::GroupTypeLayer;
         }
 
-        bool isGroup(const std::string& classname, const std::list<EntityAttribute>& attributes) {
+        bool isGroup(const std::string& classname, const std::vector<EntityAttribute>& attributes) {
             if (classname != AttributeValues::GroupClassname)
                 return false;
             const AttributeValue& groupType = findAttribute(attributes, AttributeNames::GroupType);
             return groupType == AttributeValues::GroupTypeGroup;
         }
 
-        bool isWorldspawn(const std::string& classname, const std::list<EntityAttribute>& /* attributes */) {
+        bool isWorldspawn(const std::string& classname, const std::vector<EntityAttribute>& /* attributes */) {
             return classname == AttributeValues::WorldspawnClassname;
         }
 
-        const AttributeValue& findAttribute(const std::list<EntityAttribute>& attributes, const AttributeName& name, const AttributeValue& defaultValue) {
+        const AttributeValue& findAttribute(const std::vector<EntityAttribute>& attributes, const AttributeName& name, const AttributeValue& defaultValue) {
             for (const EntityAttribute& attribute : attributes) {
-                if (name == attribute.name())
+                if (name == attribute.name()) {
                     return attribute.value();
+                }
             }
             return defaultValue;
         }
 
         // EntityAttributes
-
-        EntityAttributes::EntityAttributes() : m_index(std::make_unique<AttributeIndex>()) {}
-
-        EntityAttributes::~EntityAttributes() = default;
-
-        const std::list<EntityAttribute>& EntityAttributes::attributes() const {
+        const std::vector<EntityAttribute>& EntityAttributes::attributes() const {
             return m_attributes;
         }
 
-        void EntityAttributes::setAttributes(const std::list<EntityAttribute>& attributes) {
+        void EntityAttributes::setAttributes(const std::vector<EntityAttribute>& attributes) {
             m_attributes.clear();
 
             // ensure that there are no duplicate names
@@ -178,26 +179,24 @@ namespace TrenchBroom {
                     m_attributes.push_back(attribute);
                 }
             }
-
-            rebuildIndex();
         }
 
         const EntityAttribute& EntityAttributes::addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value, const Assets::AttributeDefinition* definition) {
-            std::list<EntityAttribute>::iterator it = findAttribute(name);
+            auto it = findAttribute(name);
             if (it != std::end(m_attributes)) {
                 assert(it->definition() == definition);
                 it->setValue(value);
                 return *it;
             } else {
                 m_attributes.push_back(EntityAttribute(name, value, definition));
-                m_index->insert(name, --std::end(m_attributes));
                 return m_attributes.back();
             }
         }
 
         void EntityAttributes::renameAttribute(const AttributeName& name, const AttributeName& newName, const Assets::AttributeDefinition* newDefinition) {
-            if (!hasAttribute(name))
+            if (!hasAttribute(name)) {
                 return;
+            }
 
             const AttributeValue value = *attribute(name);
             removeAttribute(name);
@@ -205,11 +204,10 @@ namespace TrenchBroom {
         }
 
         void EntityAttributes::removeAttribute(const AttributeName& name) {
-            std::list<EntityAttribute>::iterator it = findAttribute(name);
-            if (it == std::end(m_attributes))
-                return;
-            m_index->remove(name, it);
-            m_attributes.erase(it);
+            auto it = findAttribute(name);
+            if (it != std::end(m_attributes)) {
+                m_attributes.erase(it);
+            }
         }
 
         void EntityAttributes::updateDefinitions(const Assets::EntityDefinition* entityDefinition) {
@@ -225,54 +223,42 @@ namespace TrenchBroom {
         }
 
         bool EntityAttributes::hasAttribute(const AttributeName& name, const AttributeValue& value) const {
-            const std::list<EntityAttribute>::const_iterator it = findAttribute(name);
-            if (it == std::end(m_attributes))
-                return false;
-            return it->value() == value;
-        }
-
-        bool EntityAttributes::hasAttributeWithPrefix(const AttributeName& prefix, const AttributeValue& value) const {
-            return containsValue(m_index->queryPrefixMatches(prefix), value);
-        }
-
-        bool EntityAttributes::hasNumberedAttribute(const AttributeName& prefix, const AttributeValue& value) const {
-            return containsValue(m_index->queryNumberedMatches(prefix), value);
-        }
-
-        EntityAttributeSnapshot EntityAttributes::snapshot(const AttributeName& name) const {
-            const AttributeIndex::QueryResult matches = m_index->queryExactMatches(name);
-            if (matches.empty())
-                return EntityAttributeSnapshot(name);
-
-            assert(matches.size() == 1);
-            return EntityAttributeSnapshot(name, matches.front()->value());
-        }
-
-        bool EntityAttributes::containsValue(const std::vector<IndexValue>& matches, const AttributeValue& value) const {
-            if (matches.empty())
-                return false;
-
-            for (auto attrIt : matches) {
-                const EntityAttribute& attribute = *attrIt;
-                if (attribute.value() == value)
+            for (const auto& attribute : m_attributes) {
+                if (attribute.hasNameAndValue(name, value)) {
                     return true;
+                }
             }
-
             return false;
         }
 
-        std::list<EntityAttribute> EntityAttributes::listFromQueryResult(const std::vector<IndexValue>& matches) const {
-            std::list<EntityAttribute> result;
-
-            for (auto attrIt : matches) {
-                const EntityAttribute& attribute = *attrIt;
-                result.push_back(attribute);
+        bool EntityAttributes::hasAttributeWithPrefix(const AttributeName& prefix, const AttributeValue& value) const {
+            for (const auto& attribute : m_attributes) {
+                if (attribute.hasPrefixAndValue(prefix, value)) {
+                    return true;
+                }
             }
-
-            return result;
+            return false;
         }
 
-        const std::vector<AttributeName> EntityAttributes::names() const {
+        bool EntityAttributes::hasNumberedAttribute(const AttributeName& prefix, const AttributeValue& value) const {
+            for (const auto& attribute : m_attributes) {
+                if (attribute.hasNumberedPrefixAndValue(prefix, value)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        EntityAttributeSnapshot EntityAttributes::snapshot(const AttributeName& name) const {
+            for (const auto& attribute : m_attributes) {
+                if (attribute.hasName(name)) {
+                    return EntityAttributeSnapshot(attribute.name(), attribute.value());
+                }
+            }
+            return EntityAttributeSnapshot(name);
+        }
+
+        std::vector<AttributeName> EntityAttributes::names() const {
             std::vector<AttributeName> result;
             result.reserve(m_attributes.size());
 
@@ -284,62 +270,59 @@ namespace TrenchBroom {
 
         const AttributeValue* EntityAttributes::attribute(const AttributeName& name) const {
             auto it = findAttribute(name);
-            if (it == std::end(m_attributes))
+            if (it == std::end(m_attributes)) {
                 return nullptr;
-            return &it->value();
-        }
-
-        const AttributeValue& EntityAttributes::safeAttribute(const AttributeName& name, const AttributeValue& defaultValue) const {
-            const AttributeValue* value = attribute(name);
-            if (value == nullptr)
-                return defaultValue;
-            return *value;
-        }
-
-        std::list<EntityAttribute> EntityAttributes::attributeWithName(const AttributeName& name) const {
-            return listFromQueryResult(m_index->queryExactMatches(name));
-        }
-
-        std::list<EntityAttribute> EntityAttributes::attributesWithPrefix(const AttributeName& prefix) const{
-            return listFromQueryResult(m_index->queryPrefixMatches(prefix));
-        }
-
-        std::list<EntityAttribute> EntityAttributes::numberedAttributes(const std::string& prefix) const {
-            std::list<EntityAttribute> result;
-
-            for (const EntityAttribute& attribute : m_attributes) {
-                if (isNumberedAttribute(prefix, attribute.name()))
-                    result.push_back(attribute);
+            } else {
+                return &it->value();
             }
+        }
 
+        std::vector<EntityAttribute> EntityAttributes::attributeWithName(const AttributeName& name) const {
+            std::vector<EntityAttribute> result;
+            for (const auto& attribute : m_attributes) {
+                if (attribute.hasName(name)) {
+                    result.push_back(attribute);
+                }
+            }
             return result;
         }
 
-        std::list<EntityAttribute>::const_iterator EntityAttributes::findAttribute(const AttributeName& name) const {
-            const AttributeIndex::QueryResult matches = m_index->queryExactMatches(name);
-            if (matches.empty())
-                return std::end(m_attributes);
-
-            assert(matches.size() == 1);
-            return matches.front();
-        }
-
-        std::list<EntityAttribute>::iterator EntityAttributes::findAttribute(const AttributeName& name) {
-            const AttributeIndex::QueryResult matches = m_index->queryExactMatches(name);
-            if (matches.empty())
-                return std::end(m_attributes);
-
-            assert(matches.size() == 1);
-            return matches.front();
-        }
-
-        void EntityAttributes::rebuildIndex() {
-            m_index->clear();
-
-            for (auto it = std::begin(m_attributes), end = std::end(m_attributes); it != end; ++it) {
-                const EntityAttribute& attribute = *it;
-                m_index->insert(attribute.name(), it);
+        std::vector<EntityAttribute> EntityAttributes::attributesWithPrefix(const AttributeName& prefix) const {
+            std::vector<EntityAttribute> result;
+            for (const auto& attribute : m_attributes) {
+                if (attribute.hasPrefix(prefix)) {
+                    result.push_back(attribute);
+                }
             }
+            return result;
+        }
+
+        std::vector<EntityAttribute> EntityAttributes::numberedAttributes(const std::string& prefix) const {
+            std::vector<EntityAttribute> result;
+            for (const auto& attribute : m_attributes) {
+                if (attribute.hasNumberedPrefix(prefix)) {
+                    result.push_back(attribute);
+                }
+            }
+            return result;
+        }
+
+        std::vector<EntityAttribute>::const_iterator EntityAttributes::findAttribute(const AttributeName& name) const {
+            for (auto it = std::begin(m_attributes), end = std::end(m_attributes); it != end; ++it) {
+                if (it->hasName(name)) {
+                    return it;
+                }
+            }
+            return std::end(m_attributes);
+        }
+
+        std::vector<EntityAttribute>::iterator EntityAttributes::findAttribute(const AttributeName& name) {
+            for (auto it = std::begin(m_attributes), end = std::end(m_attributes); it != end; ++it) {
+                if (it->hasName(name)) {
+                    return it;
+                }
+            }
+            return std::end(m_attributes);
         }
     }
 }

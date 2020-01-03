@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_PlanePointFinder_h
 #define TrenchBroom_PlanePointFinder_h
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/BrushFace.h"
 
 #include <vecmath/forward.h>

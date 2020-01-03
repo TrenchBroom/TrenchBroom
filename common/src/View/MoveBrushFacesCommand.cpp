@@ -20,7 +20,7 @@
 
 #include "MoveBrushFacesCommand.h"
 
-#include "Constants.h"
+#include "FloatType.h"
 #include "Model/Brush.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"

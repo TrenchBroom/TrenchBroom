@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityDefinitionClassInfo
 #define TrenchBroom_EntityDefinitionClassInfo
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Color.h"
 #include "Assets/Asset_Forward.h"
 #include "Assets/ModelDefinition.h"

@@ -20,9 +20,8 @@
 #ifndef TrenchBroom_BrushBuilder
 #define TrenchBroom_BrushBuilder
 
-#include "TrenchBroom.h"
-#include "Polyhedron3.h"
-
+#include "FloatType.h"
+#include "Model/Polyhedron3.h"
 #include "Model/Model_Forward.h"
 
 #include <vecmath/bbox.h>

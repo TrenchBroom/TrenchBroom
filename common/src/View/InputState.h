@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_InputState
 #define TrenchBroom_InputState
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/PickResult.h"
 #include "Renderer/Renderer_Forward.h"
 #include "View/PickRequest.h"

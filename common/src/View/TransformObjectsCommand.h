@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_TransformObjectsCommand
 #define TrenchBroom_TransformObjectsCommand
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
 #include "Model/Model_Forward.h"
 #include "View/SnapshotCommand.h"
 #include "View/View_Forward.h"

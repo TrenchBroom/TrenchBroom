@@ -136,6 +136,29 @@ namespace kdl {
             ASSERT_FALSE(str_matches_glob("ASDF", "?S?f"));
 
             ASSERT_FALSE(str_matches_glob("classname", "*_color"));
+
+            ASSERT_FALSE(str_matches_glob("", "%"));
+            ASSERT_TRUE(str_matches_glob("", "%*"));
+            ASSERT_TRUE(str_matches_glob("0", "%"));
+            ASSERT_TRUE(str_matches_glob("1", "%"));
+            ASSERT_TRUE(str_matches_glob("2", "%"));
+            ASSERT_TRUE(str_matches_glob("9", "%"));
+            ASSERT_FALSE(str_matches_glob("99", "%"));
+            ASSERT_FALSE(str_matches_glob("a", "%"));
+            ASSERT_FALSE(str_matches_glob("Z", "%"));
+            ASSERT_FALSE(str_matches_glob("3Z", "%*"));
+            ASSERT_FALSE(str_matches_glob("Zasdf", "*%"));
+            ASSERT_TRUE(str_matches_glob("Zasdf3", "*%"));
+            ASSERT_TRUE(str_matches_glob("Zasdf33", "*%"));
+            ASSERT_TRUE(str_matches_glob("Zasdf33", "Z*%%"));
+            ASSERT_TRUE(str_matches_glob("Zasdf3376", "Z*%*"));
+            ASSERT_TRUE(str_matches_glob("Zasdf3376bdc", "Z*%*"));
+            ASSERT_FALSE(str_matches_glob("Zasdf3376bdc", "Zasdf%*"));
+            ASSERT_TRUE(str_matches_glob("Zasdf3376bdc", "Z*%*bdc"));
+            ASSERT_TRUE(str_matches_glob("Zasdf3376bdc", "Z*%**"));
+            ASSERT_TRUE(str_matches_glob("78777Zasdf3376bdc", "%*Z*%**"));
+
+            ASSERT_TRUE(str_matches_glob("34dkadj%773", "*\\%%*"));
         }
 
         template <typename C>

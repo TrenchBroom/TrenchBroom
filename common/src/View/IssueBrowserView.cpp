@@ -19,13 +19,14 @@
 
 #include "IssueBrowserView.h"
 
-#include "SharedPointer.h"
+#include "Ensure.h"
 #include "Model/CollectMatchingIssuesVisitor.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <vector>
@@ -113,7 +114,7 @@ namespace TrenchBroom {
          * Updates the MapDocument selection to match the table view
          */
         void IssueBrowserView::updateSelection() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             std::vector<Model::Node*> nodes;
             for (Model::Issue* issue : collectIssues(getSelection())) {
@@ -128,7 +129,7 @@ namespace TrenchBroom {
         }
 
         void IssueBrowserView::updateIssues() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Model::World* world = document->world();
             if (world != nullptr) {
                 const std::vector<Model::IssueGenerator*>& issueGenerators = world->registeredIssueGenerators();
@@ -144,7 +145,7 @@ namespace TrenchBroom {
         void IssueBrowserView::applyQuickFix(const Model::IssueQuickFix* quickFix) {
             ensure(quickFix != nullptr, "quickFix is null");
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const std::vector<Model::Issue*> issues = collectIssues(getSelection());
 
             const Transaction transaction(document, "Apply Quick Fix (" + quickFix->description() + ")");
@@ -177,7 +178,7 @@ namespace TrenchBroom {
                 issueTypes &= issue->type();
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Model::World* world = document->world();
             return world->quickFixes(issueTypes);
         }
@@ -191,7 +192,7 @@ namespace TrenchBroom {
         }
 
         void IssueBrowserView::setIssueVisibility(const bool show) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             for (Model::Issue* issue : collectIssues(getSelection())) {
                 document->setIssueHidden(issue, !show);
             }

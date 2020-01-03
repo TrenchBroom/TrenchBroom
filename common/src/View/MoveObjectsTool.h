@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_MoveObjectsTool
 #define TrenchBroom_MoveObjectsTool
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/Model_Forward.h"
 #include "View/Tool.h"
 #include "View/View_Forward.h"

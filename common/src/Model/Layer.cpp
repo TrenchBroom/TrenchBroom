@@ -99,7 +99,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        void Layer::doPick(const vm::ray3& /* ray */, PickResult&) const {}
+        void Layer::doPick(const vm::ray3& /* ray */, PickResult&) {}
 
         void Layer::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) {
             for (Node* child : Node::children())

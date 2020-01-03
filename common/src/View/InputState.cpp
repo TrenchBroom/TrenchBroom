@@ -19,7 +19,7 @@
 
 #include "InputState.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Macros.h"
 #include "Model/CompareHits.h"
 #include "Renderer/Camera.h"
