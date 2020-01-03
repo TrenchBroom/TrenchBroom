@@ -22,6 +22,7 @@
 
 #include "Notifier.h"
 #include "Preference.h"
+#include "IO/IO_Forward.h"
 #include "View/KeyboardShortcut.h"
 
 #include <QApplication>
@@ -39,10 +40,6 @@ class QFileSystemWatcher;
 class Color;
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     /**
      * Used by wxWidgets versions of TB
      */
@@ -79,7 +76,7 @@ namespace TrenchBroom {
     private:
         using UnsavedPreferences = std::set<PreferenceBase*>;
         using DynamicPreferences = std::map<IO::Path, std::unique_ptr<PreferenceBase>>;
-        
+
         QString m_preferencesFilePath;
         bool m_saveInstantly;
         UnsavedPreferences m_unsavedPreferences;
@@ -91,13 +88,13 @@ namespace TrenchBroom {
          */
         std::map<IO::Path, QString> m_cache;
         QFileSystemWatcher* m_fileSystemWatcher;
-        
+
         void markAsUnsaved(PreferenceBase* preference);
     public:
         static PreferenceManager& instance();
 
         Notifier<const IO::Path&> preferenceDidChangeNotifier;
-    
+
         bool saveInstantly() const;
         void saveChanges();
         void discardChanges();
@@ -153,7 +150,7 @@ namespace TrenchBroom {
             preference.setValue(value);
             preference.setValid(true);
             markAsUnsaved(&preference);
-            
+
             if (saveInstantly()) {
                 saveChanges();
                 preferenceDidChangeNotifier(preference.path());
@@ -176,7 +173,7 @@ namespace TrenchBroom {
         PreferenceManager& prefs = PreferenceManager::instance();
         return prefs.get(preference);
     }
-    
+
     // V1 settings
     std::map<IO::Path, QString> parseINI(QTextStream* iniStream);
     std::map<IO::Path, QString> getINISettingsV1(const QString& path);
@@ -192,7 +189,7 @@ namespace TrenchBroom {
 
     std::map<IO::Path, QString> parseV2SettingsFromJSON(const QByteArray& jsonData);
     QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QString>& v2Prefs);
-    
+
     // Migration
     void migrateSettingsFromV1IfPathDoesNotExist(const QString& destinationPath);
 }

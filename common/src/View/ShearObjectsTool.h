@@ -23,29 +23,26 @@
 
 #include "TrenchBroom.h"
 #include "Model/Hit.h"
+#include "Model/HitType.h"
+#include "Model/Model_Forward.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
-#include "View/ScaleObjectsTool.h"
+#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/bbox.h>
 
+#include <memory>
+
 namespace TrenchBroom {
-    namespace Model {
-        class PickResult;
-    }
-
-    namespace Renderer {
-        class Camera;
-    }
-
     namespace View {
         class ShearObjectsTool : public Tool {
         public:
-            static const Model::Hit::HitType ShearToolSideHit;
+            static const Model::HitType::Type ShearToolSideHit;
 
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             bool m_resizing;
             bool m_constrainVertical;
             vm::bbox3 m_bboxAtDragStart;
@@ -53,7 +50,7 @@ namespace TrenchBroom {
             vm::vec3 m_dragCumulativeDelta;
 
         public:
-            explicit ShearObjectsTool(MapDocumentWPtr document);
+            explicit ShearObjectsTool(std::weak_ptr<MapDocument> document);
             ~ShearObjectsTool() override;
 
             bool applies() const;

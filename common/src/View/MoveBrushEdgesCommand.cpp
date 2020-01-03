@@ -21,9 +21,12 @@
 
 #include "Constants.h"
 #include "Model/Brush.h"
-#include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "View/VertexHandleManager.h"
+
+#include <vecmath/segment.h> // do not remove
+#include <vecmath/polygon.h> // do not remove
 
 #include <vector>
 
@@ -31,13 +34,13 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveBrushEdgesCommand::Type = Command::freeType();
 
-        MoveBrushEdgesCommand::Ptr MoveBrushEdgesCommand::move(const EdgeToBrushesMap& edges, const vm::vec3& delta) {
+        std::unique_ptr<MoveBrushEdgesCommand> MoveBrushEdgesCommand::move(const EdgeToBrushesMap& edges, const vm::vec3& delta) {
             std::vector<Model::Brush*> brushes;
             BrushEdgesMap brushEdges;
             std::vector<vm::segment3> edgePositions;
             extractEdgeMap(edges, brushes, brushEdges, edgePositions);
 
-            return Ptr(new MoveBrushEdgesCommand(brushes, brushEdges, edgePositions, delta));
+            return std::make_unique<MoveBrushEdgesCommand>(brushes, brushEdges, edgePositions, delta);
         }
 
         MoveBrushEdgesCommand::MoveBrushEdgesCommand(const std::vector<Model::Brush*>& brushes, const BrushEdgesMap& edges, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) :
@@ -47,6 +50,8 @@ namespace TrenchBroom {
         m_delta(delta) {
             assert(!vm::is_zero(m_delta, vm::C::almost_zero()));
         }
+
+        MoveBrushEdgesCommand::~MoveBrushEdgesCommand() = default;
 
         bool MoveBrushEdgesCommand::doCanDoVertexOperation(const MapDocument* document) const {
             const vm::bbox3& worldBounds = document->worldBounds();
@@ -64,14 +69,14 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MoveBrushEdgesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            MoveBrushEdgesCommand* other = static_cast<MoveBrushEdgesCommand*>(command.get());
+        bool MoveBrushEdgesCommand::doCollateWith(UndoableCommand* command) {
+            MoveBrushEdgesCommand* other = static_cast<MoveBrushEdgesCommand*>(command);
 
             if (!canCollateWith(*other)) {
                 return false;
             }
 
-            if (!VectorUtils::equals(m_newEdgePositions, other->m_oldEdgePositions)) {
+            if (m_newEdgePositions != other->m_oldEdgePositions) {
                 return false;
             }
 

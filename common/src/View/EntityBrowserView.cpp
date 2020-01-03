@@ -19,19 +19,20 @@
 
 #include "EntityBrowserView.h"
 
+#include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Logger.h"
 #include "StepIterator.h"
-#include "StringUtils.h"
+#include "Renderer/ActiveShader.h"
 #include "Assets/EntityDefinition.h"
+#include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModel.h"
 #include "Assets/EntityModelManager.h"
-#include "Assets/ModelDefinition.h"
 #include "Renderer/GL.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontManager.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/TextureFont.h"
@@ -42,14 +43,18 @@
 #include "View/MapFrame.h"
 #include "View/QtUtils.h"
 
+#include <kdl/string_compare.h>
+#include <kdl/vector_utils.h>
+
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 #include <vecmath/quat.h>
-#include <vecmath/bbox.h>
 
 #include <map>
+#include <string>
+#include <vector>
 
 // allow storing std::shared_ptr in QVariant
 Q_DECLARE_METATYPE(std::shared_ptr<TrenchBroom::View::EntityCellData>)
@@ -73,7 +78,7 @@ namespace TrenchBroom {
         m_logger(logger),
         m_group(false),
         m_hideUnused(false),
-        m_sortOrder(Assets::EntityDefinition::Name) {
+        m_sortOrder(Assets::EntityDefinitionSortOrder::Name) {
             const vm::quatf hRotation = vm::quatf(vm::vec3f::pos_z(), vm::to_radians(-30.0f));
             const vm::quatf vRotation = vm::quatf(vm::vec3f::pos_y(), vm::to_radians(20.0f));
             m_rotation = vRotation * hRotation;
@@ -85,7 +90,7 @@ namespace TrenchBroom {
             clear();
         }
 
-        void EntityBrowserView::setSortOrder(const Assets::EntityDefinition::SortOrder sortOrder) {
+        void EntityBrowserView::setSortOrder(const Assets::EntityDefinitionSortOrder sortOrder) {
             if (sortOrder == m_sortOrder) {
                 return;
             }
@@ -112,7 +117,7 @@ namespace TrenchBroom {
             update();
         }
 
-        void EntityBrowserView::setFilterText(const String& filterText) {
+        void EntityBrowserView::setFilterText(const std::string& filterText) {
             if (filterText == m_filterText) {
                 return;
             }
@@ -145,11 +150,11 @@ namespace TrenchBroom {
 
             if (m_group) {
                 for (const auto& group : m_entityDefinitionManager.groups()) {
-                    const auto& definitions = group.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
+                    const auto& definitions = group.definitions(Assets::EntityDefinitionType::PointEntity, m_sortOrder);
 
                     if (!definitions.empty()) {
                         const auto displayName = group.displayName();
-                        layout.addGroup(displayName, fontSize + 2.0f);
+                        layout.addGroup(displayName, static_cast<float>(fontSize)+ 2.0f);
 
                         for (const auto* definition : definitions) {
                             const auto* pointEntityDefinition = static_cast<const Assets::PointEntityDefinition*>(definition);
@@ -158,7 +163,7 @@ namespace TrenchBroom {
                     }
                 }
             } else {
-                const auto& definitions = m_entityDefinitionManager.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
+                const auto& definitions = m_entityDefinitionManager.definitions(Assets::EntityDefinitionType::PointEntity, m_sortOrder);
                 for (const auto* definition : definitions) {
                     const auto* pointEntityDefinition = static_cast<const Assets::PointEntityDefinition*>(definition);
                     addEntityToLayout(layout, pointEntityDefinition, font);
@@ -178,7 +183,7 @@ namespace TrenchBroom {
 
         void EntityBrowserView::addEntityToLayout(Layout& layout, const Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font) {
             if ((!m_hideUnused || definition->usageCount() > 0) &&
-                (m_filterText.empty() || StringUtils::containsCaseInsensitive(definition->name(), m_filterText))) {
+                (m_filterText.empty() || kdl::ci::str_contains(definition->name(), m_filterText))) {
 
                 const auto maxCellWidth = layout.maxCellWidth();
                 const auto actualFont = fontManager().selectFontSize(font, definition->name(), maxCellWidth, 5);
@@ -207,7 +212,7 @@ namespace TrenchBroom {
                                boundsSize.y(),
                                boundsSize.z(),
                                actualSize.x(),
-                               font.size() + 2.0f);
+                               static_cast<float>(font.size()) + 2.0f);
             }
         }
 
@@ -236,9 +241,9 @@ namespace TrenchBroom {
         struct CollectBoundsVertices {
             const vm::mat4x4f& transformation;
             const Color& color;
-            typename Vertex::List& vertices;
+            std::vector<Vertex>& vertices;
 
-            CollectBoundsVertices(const vm::mat4x4f& i_transformation, const Color& i_color, typename Vertex::List& i_vertices) :
+            CollectBoundsVertices(const vm::mat4x4f& i_transformation, const Color& i_color, std::vector<Vertex>& i_vertices) :
             transformation(i_transformation),
             color(i_color),
             vertices(i_vertices) {}
@@ -251,7 +256,7 @@ namespace TrenchBroom {
 
         void EntityBrowserView::renderBounds(Layout& layout, const float y, const float height) {
             using BoundsVertex = Renderer::GLVertexTypes::P3C4::Vertex;
-            BoundsVertex::List vertices;
+            std::vector<BoundsVertex> vertices;
 
             for (size_t i = 0; i < layout.size(); ++i) {
                 const auto& group = layout[i];
@@ -279,9 +284,8 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPCShader);
             Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
 
-            Renderer::ActivateVbo activate(vertexVbo());
-            vertexArray.prepare(vertexVbo());
-            vertexArray.render(GL_LINES);
+            vertexArray.prepare(vboManager());
+            vertexArray.render(Renderer::PrimType::Lines);
         }
 
         void EntityBrowserView::renderModels(Layout& layout, const float y, const float height, Renderer::Transformation& transformation) {
@@ -292,8 +296,7 @@ namespace TrenchBroom {
 
             glAssert(glFrontFace(GL_CW));
 
-            Renderer::ActivateVbo activate(vertexVbo());
-            m_entityModelManager.prepare(vertexVbo());
+            m_entityModelManager.prepare(vboManager());
 
             for (size_t i = 0; i < layout.size(); ++i) {
                 const auto& group = layout[i];
@@ -320,8 +323,6 @@ namespace TrenchBroom {
         void EntityBrowserView::renderNames(Layout& layout, const float y, const float height, const vm::mat4x4f& projection) {
             Renderer::Transformation transformation(projection, vm::view_matrix(vm::vec3f::neg_z(), vm::vec3f::pos_y()) *vm::translation_matrix(vm::vec3f(0.0f, 0.0f, -1.0f)));
 
-            Renderer::ActivateVbo activate(vertexVbo());
-
             glAssert(glDisable(GL_DEPTH_TEST));
             glAssert(glFrontFace(GL_CCW));
             renderGroupTitleBackgrounds(layout, y, height);
@@ -331,7 +332,7 @@ namespace TrenchBroom {
 
         void EntityBrowserView::renderGroupTitleBackgrounds(Layout& layout, const float y, const float height) {
             using Vertex = Renderer::GLVertexTypes::P2::Vertex;
-            Vertex::List vertices;
+            std::vector<Vertex> vertices;
 
             for (size_t i = 0; i < layout.size(); ++i) {
                 const auto& group = layout[i];
@@ -348,9 +349,8 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
             shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
 
-            Renderer::ActivateVbo activate(vertexVbo());
-            vertexArray.prepare(vertexVbo());
-            vertexArray.render(GL_QUADS);
+            vertexArray.prepare(vboManager());
+            vertexArray.render(Renderer::PrimType::Quads);
         }
 
         void EntityBrowserView::renderStrings(Layout& layout, const float y, const float height) {
@@ -358,14 +358,12 @@ namespace TrenchBroom {
             StringRendererMap stringRenderers;
 
             { // create and upload all vertex arrays
-                Renderer::ActivateVbo activate(vertexVbo());
-
                 const auto stringVertices = collectStringVertices(layout, y, height);
                 for (const auto& entry : stringVertices) {
                     const auto& fontDescriptor = entry.first;
                     const auto& vertices = entry.second;
                     stringRenderers[fontDescriptor] = Renderer::VertexArray::ref(vertices);
-                    stringRenderers[fontDescriptor].prepare(vertexVbo());
+                    stringRenderers[fontDescriptor].prepare(vboManager());
                 }
             }
 
@@ -378,7 +376,7 @@ namespace TrenchBroom {
 
                 auto& font = fontManager().font(fontDescriptor);
                 font.activate();
-                vertexArray.render(GL_QUADS);
+                vertexArray.render(Renderer::PrimType::Quads);
                 font.deactivate();
             }
         }
@@ -405,7 +403,7 @@ namespace TrenchBroom {
                             stepIterator(std::begin(quads), std::end(quads), 0, 2),
                             stepIterator(std::begin(quads), std::end(quads), 1, 2),
                             stepIterator(std::begin(textColor), std::end(textColor), 0, 0));
-                        VectorUtils::append(stringVertices[defaultDescriptor], titleVertices);
+                        kdl::vec_append(stringVertices[defaultDescriptor], titleVertices);
                     }
 
                     for (size_t j = 0; j < group.size(); ++j) {
@@ -423,7 +421,7 @@ namespace TrenchBroom {
                                     stepIterator(std::begin(quads), std::end(quads), 0, 2),
                                     stepIterator(std::begin(quads), std::end(quads), 1, 2),
                                     stepIterator(std::begin(textColor), std::end(textColor), 0, 0));
-                                VectorUtils::append(stringVertices[cellData(cell).fontDescriptor], titleVertices);
+                                kdl::vec_append(stringVertices[cellData(cell).fontDescriptor], titleVertices);
                             }
                         }
                     }

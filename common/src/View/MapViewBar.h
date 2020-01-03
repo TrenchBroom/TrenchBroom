@@ -21,27 +21,27 @@
 #define TrenchBroom_MapViewBar
 
 #include "View/ContainerBar.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
+
+#include <memory>
 
 class QStackedLayout;
 class QLabel;
 
 namespace TrenchBroom {
     namespace View {
-        class ViewPopupEditor;
-
         class MapViewBar : public ContainerBar {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             QStackedLayout* m_toolBook;
             ViewPopupEditor* m_viewEditor;
         public:
-            explicit MapViewBar(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit MapViewBar(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
             QStackedLayout* toolBook();
         private:
-            void createGui(MapDocumentWPtr document);
+            void createGui(std::weak_ptr<MapDocument> document);
         };
     }
 }

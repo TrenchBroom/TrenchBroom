@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -117,7 +118,7 @@ namespace TrenchBroom {
             }
         };
 
-        MapRenderer::MapRenderer(View::MapDocumentWPtr document) :
+        MapRenderer::MapRenderer(std::weak_ptr<View::MapDocument> document) :
         m_document(document),
         m_defaultRenderer(createDefaultRenderer(m_document)),
         m_selectionRenderer(createSelectionRenderer(m_document)),
@@ -132,21 +133,21 @@ namespace TrenchBroom {
             clear();
         }
 
-        std::unique_ptr<ObjectRenderer> MapRenderer::createDefaultRenderer(View::MapDocumentWPtr document) {
+        std::unique_ptr<ObjectRenderer> MapRenderer::createDefaultRenderer(std::weak_ptr<View::MapDocument> document) {
             return std::make_unique<ObjectRenderer>(
                 lock(document)->entityModelManager(),
                 lock(document)->editorContext(),
                 UnselectedBrushRendererFilter(lock(document)->editorContext()));
         }
 
-        std::unique_ptr<ObjectRenderer> MapRenderer::createSelectionRenderer(View::MapDocumentWPtr document) {
+        std::unique_ptr<ObjectRenderer> MapRenderer::createSelectionRenderer(std::weak_ptr<View::MapDocument> document) {
             return std::make_unique<ObjectRenderer>(
                 lock(document)->entityModelManager(),
                 lock(document)->editorContext(),
                 SelectedBrushRendererFilter(lock(document)->editorContext()));
         }
 
-        std::unique_ptr<ObjectRenderer> MapRenderer::createLockRenderer(View::MapDocumentWPtr document) {
+        std::unique_ptr<ObjectRenderer> MapRenderer::createLockRenderer(std::weak_ptr<View::MapDocument> document) {
             return std::make_unique<ObjectRenderer>(
                 lock(document)->entityModelManager(),
                 lock(document)->editorContext(),
@@ -190,7 +191,7 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::commitPendingChanges() {
-            View::MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->commitPendingAssets();
         }
 
@@ -368,7 +369,7 @@ namespace TrenchBroom {
         };
 
         void MapRenderer::updateRenderers(const Renderer renderers) {
-            View::MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Model::World* world = document->world();
 
             CollectRenderableNodes collect(renderers);
@@ -425,7 +426,7 @@ namespace TrenchBroom {
 
         void MapRenderer::bindObservers() {
             assert(!expired(m_document));
-            View::MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->documentWasClearedNotifier.addObserver(this, &MapRenderer::documentWasCleared);
             document->documentWasNewedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
@@ -450,7 +451,7 @@ namespace TrenchBroom {
 
         void MapRenderer::unbindObservers() {
             if (!expired(m_document)) {
-                View::MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->documentWasClearedNotifier.removeObserver(this, &MapRenderer::documentWasCleared);
                 document->documentWasNewedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
@@ -541,14 +542,6 @@ namespace TrenchBroom {
             }
         }
 
-        std::set<Model::Brush*> MapRenderer::collectBrushes(const std::vector<Model::BrushFace*>& faces) {
-            std::set<Model::Brush*> result;
-            for (const Model::BrushFace* face : faces) {
-                result.insert(face->brush());
-            }
-            return result;
-        }
-
         void MapRenderer::textureCollectionsWillChange() {
             invalidateRenderers(Renderer_All);
         }
@@ -578,7 +571,7 @@ namespace TrenchBroom {
         void MapRenderer::preferenceDidChange(const IO::Path& path) {
             setupRenderers();
 
-            View::MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (document->isGamePathPreference(path)) {
                 reloadEntityModels();
                 invalidateRenderers(Renderer_All);

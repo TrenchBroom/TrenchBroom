@@ -20,21 +20,20 @@
 #ifndef Types_h
 #define Types_h
 
-#include "StringType.h"
+#include "EL/EL_Forward.h"
 
 #include <map>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace EL {
-        class Value;
-
         using BooleanType = bool;
-        using StringType = String;
+        using StringType = std::string;
         using NumberType = double;
         using IntegerType = long;
         using ArrayType = std::vector<Value>;
-        using MapType = std::map<String, Value>;
+        using MapType = std::map<std::string, Value>;
         using RangeType = std::vector<long>;
 
         enum class ValueType {
@@ -48,8 +47,8 @@ namespace TrenchBroom {
             Undefined
         };
 
-        String typeName(ValueType type);
-        ValueType typeForName(const String& type);
+        std::string typeName(ValueType type);
+        ValueType typeForName(const std::string& type);
     }
 }
 

@@ -20,18 +20,23 @@
 #include "LegacyModelDefinitionParser.h"
 
 #include "Assets/ModelDefinition.h"
-#include "CollectionUtils.h"
-#include "StringUtils.h"
+#include "EL/Value.h"
+#include "IO/ParserStatus.h"
+
+#include <kdl/string_compare.h>
+
+#include <algorithm>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
         LegacyModelDefinitionTokenizer::LegacyModelDefinitionTokenizer(const char* begin, const char* end) :
         Tokenizer(begin, end, "", 0) {}
 
-        LegacyModelDefinitionTokenizer::LegacyModelDefinitionTokenizer(const String& str) :
+        LegacyModelDefinitionTokenizer::LegacyModelDefinitionTokenizer(const std::string& str) :
         Tokenizer(str, "", 0) {}
 
-        const String LegacyModelDefinitionTokenizer::WordDelims = " \t\n\r()[]{};,=";
+        const std::string LegacyModelDefinitionTokenizer::WordDelims = " \t\n\r()[]{};,=";
 
         LegacyModelDefinitionTokenizer::Token LegacyModelDefinitionTokenizer::emitToken() {
             while (!eof()) {
@@ -64,7 +69,7 @@ namespace TrenchBroom {
                             return Token(MdlToken::Integer, c, e, offset(c), startLine, startColumn);
                         e = readUntil(WordDelims);
                         if (e == nullptr)
-                            throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                            throw ParserException(startLine, startColumn, "Unexpected character: " + std::string(c, 1));
                         return Token(MdlToken::Word, c, e, offset(c), startLine, startColumn);
                     }
                 }
@@ -75,7 +80,7 @@ namespace TrenchBroom {
         LegacyModelDefinitionParser::LegacyModelDefinitionParser(const char* begin, const char* end) :
         m_tokenizer(begin, end) {}
 
-        LegacyModelDefinitionParser::LegacyModelDefinitionParser(const String& str) :
+        LegacyModelDefinitionParser::LegacyModelDefinitionParser(const std::string& str) :
         m_tokenizer(str) {}
 
         EL::Expression LegacyModelDefinitionParser::parse(ParserStatus& status) {
@@ -92,25 +97,20 @@ namespace TrenchBroom {
                 return EL::Expression(EL::LiteralExpression::create(EL::Value::Undefined, token.line(), token.column()));
 
             EL::ExpressionBase::List modelExpressions;
-            try {
-                do {
-                    expect(status, MdlToken::String | MdlToken::Word, token = m_tokenizer.peekToken());
-                    if (token.hasType(MdlToken::String))
-                        modelExpressions.push_back(parseStaticModelDefinition(status));
-                    else
-                        modelExpressions.push_back(parseDynamicModelDefinition(status));
-                    expect(status, MdlToken::Comma | MdlToken::CParenthesis, token = m_tokenizer.peekToken());
-                    if (token.hasType(MdlToken::Comma))
-                        m_tokenizer.nextToken();
-                } while (token.hasType(MdlToken::Comma));
+            do {
+                expect(status, MdlToken::String | MdlToken::Word, token = m_tokenizer.peekToken());
+                if (token.hasType(MdlToken::String))
+                    modelExpressions.emplace_back(parseStaticModelDefinition(status));
+                else
+                    modelExpressions.emplace_back(parseDynamicModelDefinition(status));
+                expect(status, MdlToken::Comma | MdlToken::CParenthesis, token = m_tokenizer.peekToken());
+                if (token.hasType(MdlToken::Comma))
+                    m_tokenizer.nextToken();
+            } while (token.hasType(MdlToken::Comma));
 
-                // The legacy model expressions are evaluated back to front.
-                modelExpressions.reverse();
-                return EL::Expression(EL::SwitchOperator::create(modelExpressions, startLine, startColumn));
-            } catch (...) {
-                ListUtils::clearAndDelete(modelExpressions);
-                throw;
-            }
+            // The legacy model expressions are evaluated back to front.
+            std::reverse(std::begin(modelExpressions), std::end(modelExpressions));
+            return EL::Expression(EL::SwitchOperator::create(std::move(modelExpressions), startLine, startColumn));
         }
 
         EL::ExpressionBase* LegacyModelDefinitionParser::parseStaticModelDefinition(ParserStatus& status) {
@@ -147,7 +147,7 @@ namespace TrenchBroom {
             if (token.hasType(MdlToken::Word)) {
                 token = m_tokenizer.nextToken();
 
-                const String attributeKey = token.data();
+                const std::string attributeKey = token.data();
                 const size_t line = token.line();
                 const size_t column = token.column();
                 EL::ExpressionBase* keyExpression = EL::VariableExpression::create(attributeKey, line, column);
@@ -156,7 +156,7 @@ namespace TrenchBroom {
 
                 expect(status, MdlToken::String | MdlToken::Integer, token = m_tokenizer.nextToken());
                 if (token.hasType(MdlToken::String)) {
-                    const String attributeValue = token.data();
+                    const std::string attributeValue = token.data();
                     EL::ExpressionBase* valueExpression = EL::LiteralExpression::create(EL::Value(attributeValue), token.line(), token.column());
                     EL::ExpressionBase* premiseExpression = EL::ComparisonOperator::createEqual(keyExpression, valueExpression, line, column);
 
@@ -179,35 +179,34 @@ namespace TrenchBroom {
             const size_t column = token.column();
 
             EL::ExpressionBase::Map map;
-            map["path"] = parseNamedValue(status, "pathKey");
+            map["path"] = std::unique_ptr<EL::ExpressionBase>(parseNamedValue(status, "pathKey"));
 
             expect(status, MdlToken::Word | MdlToken::CParenthesis, token = m_tokenizer.peekToken());
 
             if (!token.hasType(MdlToken::CParenthesis)) {
                 do {
-                    if (StringUtils::caseInsensitiveEqual("skinKey", token.data())) {
-                        map["skin"] = parseNamedValue(status, "skinKey");
-                    } else if (StringUtils::caseInsensitiveEqual("frameKey", token.data())) {
-                        map["frame"] = parseNamedValue(status, "frameKey");
+                    if (kdl::ci::str_is_equal("skinKey", token.data())) {
+                        map["skin"] = std::unique_ptr<EL::ExpressionBase>(parseNamedValue(status, "skinKey"));
+                    } else if (kdl::ci::str_is_equal("frameKey", token.data())) {
+                        map["frame"] = std::unique_ptr<EL::ExpressionBase>(parseNamedValue(status, "frameKey"));
                     } else {
-                        const String msg = "Expected 'skinKey' or 'frameKey', but found '" + token.data() + "'";
+                        const std::string msg = "Expected 'skinKey' or 'frameKey', but found '" + token.data() + "'";
                         status.error(token.line(), token.column(), msg);
-                        MapUtils::clearAndDelete(map);
                         throw ParserException(token.line(), token.column(), msg);
                     }
                 } while (expect(status, MdlToken::Word | MdlToken::CParenthesis, token = m_tokenizer.peekToken()).hasType(MdlToken::Word));
             }
 
-            return EL::MapExpression::create(map, line, column);
+            return EL::MapExpression::create(std::move(map), line, column);
         }
 
-        EL::ExpressionBase* LegacyModelDefinitionParser::parseNamedValue(ParserStatus& status, const String& name) {
+        EL::ExpressionBase* LegacyModelDefinitionParser::parseNamedValue(ParserStatus& status, const std::string& name) {
             Token token;
             expect(status, MdlToken::Word, token = m_tokenizer.nextToken());
 
             const size_t line = token.line();
             const size_t column = token.column();
-            if (!StringUtils::caseInsensitiveEqual(name, token.data()))
+            if (!kdl::ci::str_is_equal(name, token.data()))
                 throw ParserException(line, column, "Expected '" + name + "', but got '" + token.data() + "'");
 
             expect(status, MdlToken::Equality, token = m_tokenizer.nextToken());

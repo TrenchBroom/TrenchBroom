@@ -22,16 +22,16 @@
 
 #include <gtest/gtest.h>
 
+#include "Assets/Asset_Forward.h"
 #include "Model/MapFormat.h"
+#include "Model/Model_Forward.h"
 #include "View/MapDocument.h"
 
+#include <memory>
+#include <string>
+
 namespace TrenchBroom {
-    namespace Assets {
-        class PointEntityDefinition;
-        class BrushEntityDefinition;
-    }
     namespace Model {
-        class Brush;
         class TestGame;
     }
 
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             Model::MapFormat m_mapFormat;
         protected:
             std::shared_ptr<Model::TestGame> game;
-            MapDocumentSPtr document;
+            std::shared_ptr<MapDocument> document;
             Assets::PointEntityDefinition* m_pointEntityDef;
             Assets::BrushEntityDefinition* m_brushEntityDef;
         protected:
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             void SetUp() override;
             void TearDown() override;
 
-            Model::Brush* createBrush(const String& textureName = "texture");
+            Model::Brush* createBrush(const std::string& textureName = "texture");
         };
 
         class ValveMapDocumentTest : public MapDocumentTest {

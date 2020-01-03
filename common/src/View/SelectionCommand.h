@@ -20,11 +20,13 @@
 #ifndef TrenchBroom_SelectionCommand
 #define TrenchBroom_SelectionCommand
 
-#include "StringType.h"
+#include "Macros.h"
 #include "Model/Model_Forward.h"
-#include "Model/BrushFaceReference.h"
 #include "View/UndoableCommand.h"
+#include "View/View_Forward.h"
 
+#include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -32,48 +34,51 @@ namespace TrenchBroom {
         class SelectionCommand : public UndoableCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<SelectionCommand>;
         private:
-            typedef enum {
-                Action_SelectNodes,
-                Action_SelectFaces,
-                Action_SelectAllNodes,
-                Action_SelectAllFaces,
-                Action_ConvertToFaces,
-                Action_DeselectNodes,
-                Action_DeselectFaces,
-                Action_DeselectAll
-            } Action;
+            enum class Action {
+                SelectNodes,
+                SelectFaces,
+                SelectAllNodes,
+                SelectAllFaces,
+                ConvertToFaces,
+                DeselectNodes,
+                DeselectFaces,
+                DeselectAll
+            };
 
             Action m_action;
 
             std::vector<Model::Node*> m_nodes;
-            Model::BrushFaceReference::List m_faceRefs;
+            std::vector<Model::BrushFaceReference> m_faceRefs;
 
             std::vector<Model::Node*> m_previouslySelectedNodes;
-            Model::BrushFaceReference::List m_previouslySelectedFaceRefs;
+            std::vector<Model::BrushFaceReference> m_previouslySelectedFaceRefs;
         public:
-            static Ptr select(const std::vector<Model::Node*>& nodes);
-            static Ptr select(const std::vector<Model::BrushFace*>& faces);
+            static std::unique_ptr<SelectionCommand> select(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SelectionCommand> select(const std::vector<Model::BrushFace*>& faces);
 
-            static Ptr convertToFaces();
-            static Ptr selectAllNodes();
-            static Ptr selectAllFaces();
+            static std::unique_ptr<SelectionCommand> convertToFaces();
+            static std::unique_ptr<SelectionCommand> selectAllNodes();
+            static std::unique_ptr<SelectionCommand> selectAllFaces();
 
-            static Ptr deselect(const std::vector<Model::Node*>& nodes);
-            static Ptr deselect(const std::vector<Model::BrushFace*>& faces);
-            static Ptr deselectAll();
-        private:
+            static std::unique_ptr<SelectionCommand> deselect(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SelectionCommand> deselect(const std::vector<Model::BrushFace*>& faces);
+            static std::unique_ptr<SelectionCommand> deselectAll();
+
             SelectionCommand(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces);
-            static String makeName(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces);
+            ~SelectionCommand() override;
         private:
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            static std::string makeName(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces);
+
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatDelimiter() const override;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(SelectionCommand)
         };
     }
 }

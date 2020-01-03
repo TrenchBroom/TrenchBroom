@@ -19,24 +19,27 @@
 
 #include "IssueGenerator.h"
 
-#include "CollectionUtils.h"
+#include "Ensure.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/Entity.h"
 #include "Model/World.h"
 
+#include <kdl/vector_utils.h>
+
 #include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
         IssueGenerator::~IssueGenerator() {
-            VectorUtils::clearAndDelete(m_quickFixes);
+            kdl::vec_clear_and_delete(m_quickFixes);
         }
 
         IssueType IssueGenerator::type() const {
             return m_type;
         }
 
-        const String& IssueGenerator::description() const {
+        const std::string& IssueGenerator::description() const {
             return m_description;
         }
 
@@ -64,13 +67,13 @@ namespace TrenchBroom {
             doGenerate(brush, issues);
         }
 
-        IssueGenerator::IssueGenerator(const IssueType type, const String& description) :
+        IssueGenerator::IssueGenerator(const IssueType type, const std::string& description) :
         m_type(type),
         m_description(description) {}
 
         void IssueGenerator::addQuickFix(IssueQuickFix* quickFix) {
             ensure(quickFix != nullptr, "quickFix is null");
-            assert(!VectorUtils::contains(m_quickFixes, quickFix));
+            assert(!kdl::vec_contains(m_quickFixes, quickFix));
             m_quickFixes.push_back(quickFix);
         }
 

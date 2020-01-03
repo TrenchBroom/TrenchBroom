@@ -21,17 +21,16 @@
 #define ImageFileSystem_h
 
 #include "IO/FileSystem.h"
+#include "IO/IO_Forward.h"
 #include "IO/Path.h"
-#include "StringUtils.h"
+
+#include <kdl/string_compare.h>
 
 #include <map>
 #include <memory>
 
 namespace TrenchBroom {
     namespace IO {
-        class File;
-        class CFile;
-
         class ImageFileSystemBase : public FileSystem {
         protected:
             class FileEntry {
@@ -66,8 +65,8 @@ namespace TrenchBroom {
 
             class Directory {
             private:
-                using DirMap = std::map<Path, std::unique_ptr<Directory>, Path::Less<StringUtils::CaseInsensitiveStringLess>>;
-                using FileMap = std::map<Path, std::unique_ptr<FileEntry>,      Path::Less<StringUtils::CaseInsensitiveStringLess>>;
+                using DirMap  = std::map<Path, std::unique_ptr<Directory>, Path::Less<kdl::ci::string_less>>;
+                using FileMap = std::map<Path, std::unique_ptr<FileEntry>, Path::Less<kdl::ci::string_less>>;
 
                 Path m_path;
                 DirMap m_directories;
@@ -83,7 +82,7 @@ namespace TrenchBroom {
 
                 const Directory& findDirectory(const Path& path) const;
                 const FileEntry& findFile(const Path& path) const;
-                Path::List contents() const;
+                std::vector<Path> contents() const;
             private:
                 Directory& findOrCreateDirectory(const Path& path);
             };
@@ -105,7 +104,7 @@ namespace TrenchBroom {
             bool doDirectoryExists(const Path& path) const override;
             bool doFileExists(const Path& path) const override;
 
-            Path::List doGetDirectoryContents(const Path& path) const override;
+            std::vector<Path> doGetDirectoryContents(const Path& path) const override;
             std::shared_ptr<File> doOpenFile(const Path& path) const override;
         private:
             virtual void doReadDirectory() = 0;

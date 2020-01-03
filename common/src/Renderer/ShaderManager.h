@@ -20,50 +20,30 @@
 #ifndef TrenchBroom_ShaderManager
 #define TrenchBroom_ShaderManager
 
-#include "StringType.h"
+#include "IO/IO_Forward.h"
 #include "Renderer/GL.h"
-#include "Renderer/ShaderProgram.h"
+#include "Renderer/Renderer_Forward.h"
 
 #include <map>
+#include <memory>
+#include <string>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace Renderer {
-        class Shader;
-        class ShaderConfig;
-
         class ShaderManager {
         private:
-            using ShaderCache = std::map<String, Shader*>;
-            using ShaderCacheEntry = std::pair<String, Shader*>;
-            using ShaderProgramCache = std::map<const ShaderConfig*, ShaderProgram*>;
-            using ShaderProgramCacheEntry = std::pair<const ShaderConfig*, ShaderProgram*>;
+            using ShaderCache = std::map<std::string, std::unique_ptr<Shader>>;
+            using ShaderProgramCache = std::map<const ShaderConfig*, std::unique_ptr<ShaderProgram>>;
 
             ShaderCache m_shaders;
             ShaderProgramCache m_programs;
         public:
             ~ShaderManager();
-
+        public:
             ShaderProgram& program(const ShaderConfig& config);
         private:
-            ShaderProgram* createProgram(const ShaderConfig& config);
-            Shader& loadShader(const String& name, const GLenum type);
-        };
-
-        class ActiveShader {
-        private:
-            ShaderProgram& m_program;
-        public:
-            ActiveShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig);
-            ~ActiveShader();
-
-            template <class T>
-            void set(const String& name, const T& value) {
-                m_program.set(name, value);
-            }
+            std::unique_ptr<ShaderProgram> createProgram(const ShaderConfig& config);
+            Shader& loadShader(const std::string& name, const GLenum type);
         };
     }
 }

@@ -18,7 +18,6 @@
  */
 
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
 #include <memory>
 
@@ -31,9 +30,11 @@
 #include <vecmath/vec.h>
 #include <vecmath/mat_ext.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
-        static const String TestClassname = "something";
+        static const std::string TestClassname = "something";
 
         class EntityTest : public ::testing::Test {
         protected:

@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_Polyhedron_Misc_h
 #define TrenchBroom_Polyhedron_Misc_h
 
-#include "CollectionUtils.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/ray.h>

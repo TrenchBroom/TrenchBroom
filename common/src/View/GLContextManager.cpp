@@ -23,20 +23,22 @@
 #include "Renderer/FontManager.h"
 #include "Renderer/GL.h"
 #include "Renderer/ShaderManager.h"
+#include "Renderer/Shader.h"
+#include "Renderer/ShaderProgram.h"
 #include "Renderer/Vbo.h"
 
 #include <sstream>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
-        String GLContextManager::GLVendor = "unknown";
-        String GLContextManager::GLRenderer = "unknown";
-        String GLContextManager::GLVersion = "unknown";
+        std::string GLContextManager::GLVendor = "unknown";
+        std::string GLContextManager::GLRenderer = "unknown";
+        std::string GLContextManager::GLVersion = "unknown";
 
         GLContextManager::GLContextManager() :
         m_initialized(false),
-        m_vertexVbo(std::make_unique<Renderer::Vbo>(0xFFFFFF)),
-        m_indexVbo(std::make_unique<Renderer::Vbo>(0xFFFFF, GL_ELEMENT_ARRAY_BUFFER)),
+        m_vboManager(std::make_unique<Renderer::VboManager>()),
         m_fontManager(std::make_unique<Renderer::FontManager>()),
         m_shaderManager(std::make_unique<Renderer::ShaderManager>()) {}
 
@@ -70,12 +72,8 @@ namespace TrenchBroom {
             return false;
         }
 
-        Renderer::Vbo& GLContextManager::vertexVbo() {
-            return *m_vertexVbo;
-        }
-
-        Renderer::Vbo& GLContextManager::indexVbo() {
-            return *m_indexVbo;
+        Renderer::VboManager& GLContextManager::vboManager() {
+            return *m_vboManager;
         }
 
         Renderer::FontManager& GLContextManager::fontManager() {

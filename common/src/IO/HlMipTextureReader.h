@@ -20,14 +20,11 @@
 #ifndef HlMipTextureReader_h
 #define HlMipTextureReader_h
 
-#include "Assets/Palette.h"
+#include "IO/IO_Forward.h"
 #include "IO/MipTextureReader.h"
 
 namespace TrenchBroom {
     namespace IO {
-        class Path;
-        class Reader;
-
         class HlMipTextureReader : public MipTextureReader {
         private:
         public:

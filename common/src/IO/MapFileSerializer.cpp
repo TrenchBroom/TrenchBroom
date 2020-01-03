@@ -19,26 +19,29 @@
 
 #include "MapFileSerializer.h"
 
+#include "Ensure.h"
 #include "Exceptions.h"
 #include "Macros.h"
-#include "IO/DiskFileSystem.h"
+#include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "StringStream.h"
+
+#include <memory>
+#include <sstream>
 
 namespace TrenchBroom {
     namespace IO {
         class QuakeFileSerializer : public MapFileSerializer {
         private:
-            String FacePointFormat;
-            String TextureInfoFormat;
+            std::string FacePointFormat;
+            std::string TextureInfoFormat;
         public:
             QuakeFileSerializer(FILE* stream) :
             MapFileSerializer(stream),
             FacePointFormat(getFacePointFormat()),
             TextureInfoFormat(" %s %.6g %.6g %.6g %.6g %.6g") {}
         private:
-            static String getFacePointFormat() {
-                StringStream str;
+            static std::string getFacePointFormat() {
+                std::stringstream str;
                 str <<
                 "( %." << FloatPrecision << "g " <<
                 "%." << FloatPrecision << "g " <<
@@ -75,7 +78,7 @@ namespace TrenchBroom {
             }
 
             void writeTextureInfo(FILE* stream, Model::BrushFace* face) {
-                const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+                const std::string& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 std::fprintf(stream, TextureInfoFormat.c_str(),
                              textureName.c_str(),
                              static_cast<double>(face->xOffset()),
@@ -88,7 +91,7 @@ namespace TrenchBroom {
 
         class Quake2FileSerializer : public QuakeFileSerializer {
         private:
-            String SurfaceAttributesFormat;
+            std::string SurfaceAttributesFormat;
         public:
             Quake2FileSerializer(FILE* stream) :
             QuakeFileSerializer(stream),
@@ -98,9 +101,9 @@ namespace TrenchBroom {
                 writeFacePoints(stream, face);
                 writeTextureInfo(stream, face);
 
-                if (face->hasSurfaceAttributes()) {
-                    writeSurfaceAttributes(stream, face);
-                }
+                // Neverball's "mapc" doesn't like it if surface attributes aren't present.
+                // This suggests the Radiants always output these, so it's probably a compatibility danger.
+                writeSurfaceAttributes(stream, face);
 
                 std::fprintf(stream, "\n");
                 return 1;
@@ -117,7 +120,7 @@ namespace TrenchBroom {
 
         class DaikatanaFileSerializer : public Quake2FileSerializer {
         private:
-            String SurfaceColorFormat;
+            std::string SurfaceColorFormat;
         public:
             DaikatanaFileSerializer(FILE* stream) :
             Quake2FileSerializer(stream),
@@ -161,7 +164,7 @@ namespace TrenchBroom {
 
         class ValveFileSerializer : public QuakeFileSerializer {
         private:
-            String ValveTextureInfoFormat;
+            std::string ValveTextureInfoFormat;
         public:
             ValveFileSerializer(FILE* stream) :
             QuakeFileSerializer(stream),
@@ -175,7 +178,7 @@ namespace TrenchBroom {
             }
         private:
             void writeValveTextureInfo(FILE* stream, Model::BrushFace* face) {
-                const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+                const std::string& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 const vm::vec3 xAxis = face->textureXAxis();
                 const vm::vec3 yAxis = face->textureYAxis();
 
@@ -198,21 +201,21 @@ namespace TrenchBroom {
             }
         };
 
-        NodeSerializer::Ptr MapFileSerializer::create(const Model::MapFormat format, FILE* stream) {
+        std::unique_ptr<NodeSerializer> MapFileSerializer::create(const Model::MapFormat format, FILE* stream) {
             switch (format) {
                 case Model::MapFormat::Standard:
-                    return NodeSerializer::Ptr(new QuakeFileSerializer(stream));
+                    return std::make_unique<QuakeFileSerializer>(stream);
                 case Model::MapFormat::Quake2:
                     // TODO 2427: Implement Quake3 serializers and use them
                 case Model::MapFormat::Quake3:
                 case Model::MapFormat::Quake3_Legacy:
-                    return NodeSerializer::Ptr(new Quake2FileSerializer(stream));
+                    return std::make_unique<Quake2FileSerializer>(stream);
                 case Model::MapFormat::Daikatana:
-                    return NodeSerializer::Ptr(new DaikatanaFileSerializer(stream));
+                    return std::make_unique<DaikatanaFileSerializer>(stream);
                 case Model::MapFormat::Valve:
-                    return NodeSerializer::Ptr(new ValveFileSerializer(stream));
+                    return std::make_unique<ValveFileSerializer>(stream);
                 case Model::MapFormat::Hexen2:
-                    return NodeSerializer::Ptr(new Hexen2FileSerializer(stream));
+                    return std::make_unique<Hexen2FileSerializer>(stream);
                 case Model::MapFormat::Unknown:
                     throw FileFormatException("Unknown map file format");
                 switchDefault()

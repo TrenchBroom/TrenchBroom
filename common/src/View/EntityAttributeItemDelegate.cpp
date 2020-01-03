@@ -22,6 +22,9 @@
 #include "View/EntityAttributeModel.h"
 #include "View/EntityAttributeTable.h"
 
+#include <string>
+#include <vector>
+
 #include <QCompleter>
 #include <QDebug>
 #include <QEvent>

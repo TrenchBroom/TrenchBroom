@@ -20,14 +20,10 @@
 #ifndef GameEngineProfileListBox_h
 #define GameEngineProfileListBox_h
 
+#include "Model/Model_Forward.h"
 #include "View/ControlListBox.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class GameEngineConfig;
-        class GameEngineProfile;
-    }
-
     namespace View {
         class ElidedLabel;
 

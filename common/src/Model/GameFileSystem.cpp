@@ -19,16 +19,19 @@
 
 #include "GameFileSystem.h"
 
-#include "CollectionUtils.h"
 #include "Exceptions.h"
 #include "Logger.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/DkPakFileSystem.h"
 #include "IO/IdPakFileSystem.h"
 #include "IO/FileMatcher.h"
 #include "IO/Quake3ShaderFileSystem.h"
 #include "IO/ZipFileSystem.h"
 #include "Model/GameConfig.h"
+
+#include <kdl/string_compare.h>
+#include <kdl/vector_utils.h>
 
 #include <memory>
 
@@ -98,17 +101,17 @@ namespace TrenchBroom {
             if (IO::Disk::directoryExists(searchPath)) {
                 const IO::DiskFileSystem diskFS(searchPath);
                 auto packages = diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtensions));
-                VectorUtils::sort(packages, IO::Path::Less<StringUtils::CaseInsensitiveStringLess>());
+                kdl::vec_sort(packages, IO::Path::Less<kdl::ci::string_less>());
 
                 for (const auto& packagePath : packages) {
                     try {
-                        if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak")) {
+                        if (kdl::ci::str_is_equal(packageFormat, "idpak")) {
                             logger.info() << "Adding file system package " << packagePath;
                             m_next = std::make_shared<IO::IdPakFileSystem>(m_next, diskFS.makeAbsolute(packagePath));
-                        } else if (StringUtils::caseInsensitiveEqual(packageFormat, "dkpak")) {
+                        } else if (kdl::ci::str_is_equal(packageFormat, "dkpak")) {
                             logger.info() << "Adding file system package " << packagePath;
                             m_next = std::make_shared<IO::DkPakFileSystem>(m_next, diskFS.makeAbsolute(packagePath));
-                        } else if (StringUtils::caseInsensitiveEqual(packageFormat, "zip")) {
+                        } else if (kdl::ci::str_is_equal(packageFormat, "zip")) {
                             logger.info() << "Adding file system package " << packagePath;
                             m_next = std::make_shared<IO::ZipFileSystem>(m_next, diskFS.makeAbsolute(packagePath));
                         }
@@ -124,10 +127,10 @@ namespace TrenchBroom {
             // and makes them available as virtual files.
             const auto& textureConfig = config.textureConfig();
             const auto& textureFormat = textureConfig.format.format;
-            if (StringUtils::caseInsensitiveEqual(textureFormat, "q3shader")) {
+            if (kdl::ci::str_is_equal(textureFormat, "q3shader")) {
                 logger.info() << "Adding shader file system";
                 auto shaderSearchPath = textureConfig.shaderSearchPath;
-                auto textureSearchPaths = IO::Path::List {
+                auto textureSearchPaths = std::vector<IO::Path> {
                     textureConfig.package.rootDirectory,
                     IO::Path("models")
                 };
@@ -145,8 +148,8 @@ namespace TrenchBroom {
             return false;
         }
 
-        IO::Path::List GameFileSystem::doGetDirectoryContents(const IO::Path& /* path */) const {
-            return TrenchBroom::IO::Path::List();
+        std::vector<IO::Path> GameFileSystem::doGetDirectoryContents(const IO::Path& /* path */) const {
+            return std::vector<IO::Path>();
         }
 
         std::shared_ptr<IO::File> GameFileSystem::doOpenFile(const IO::Path& path) const {

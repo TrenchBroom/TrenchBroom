@@ -22,12 +22,10 @@
 
 #include "Assets/Palette.h"
 #include "IO/MipTextureReader.h"
+#include "IO/IO_Forward.h"
 
 namespace TrenchBroom {
     namespace IO {
-        class Path;
-        class Reader;
-
         class IdMipTextureReader : public MipTextureReader {
         protected:
             const Assets::Palette m_palette;

@@ -20,10 +20,10 @@
 #include <gtest/gtest.h>
 
 #include "Logger.h"
-#include "StringUtils.h"
 #include "Assets/EntityModel.h"
 #include "IO/AseParser.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/Quake3ShaderFileSystem.h"
 #include "IO/Reader.h"
@@ -34,7 +34,7 @@ namespace TrenchBroom {
         TEST(AseParserTest, loadWithoutException) {
             NullLogger logger;
             const auto shaderSearchPath = Path("scripts");
-            const auto textureSearchPaths = Path::List { Path("models") };
+            const auto textureSearchPaths = std::vector<Path> { Path("models") };
             std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Ase/wedge_with_shader"));
             fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
 
@@ -53,7 +53,7 @@ namespace TrenchBroom {
         TEST(AseParserTest, parseFailure_2657) {
             NullLogger logger;
             const auto shaderSearchPath = Path("scripts");
-            const auto textureSearchPaths = Path::List { Path("models") };
+            const auto textureSearchPaths = std::vector<Path> { Path("models") };
             std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Ase/steelstorm_player"));
             fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
 
@@ -72,7 +72,7 @@ namespace TrenchBroom {
         TEST(AseParserTest, parseFailure_2679) {
             NullLogger logger;
             const auto shaderSearchPath = Path("scripts");
-            const auto textureSearchPaths = Path::List { Path("models") };
+            const auto textureSearchPaths = std::vector<Path> { Path("models") };
             std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Ase/no_scene_directive"));
             fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
 

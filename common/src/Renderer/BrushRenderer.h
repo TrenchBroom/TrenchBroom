@@ -21,27 +21,21 @@
 #define TrenchBroom_BrushRenderer
 
 #include "Color.h"
+#include "Model/BrushGeometry.h"
 #include "Model/Model_Forward.h"
+#include "Renderer/AllocationTracker.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/FaceRenderer.h"
-#include "Model/Brush.h"
-#include "Renderer/AllocationTracker.h"
+#include "Renderer/Renderer_Forward.h"
 
 #include <memory>
 #include <tuple>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class EditorContext;
-    }
-
     namespace Renderer {
-        class RenderBatch;
-        class RenderContext;
-        class Vbo;
-
         class BrushRenderer {
         public:
             class Filter {
@@ -67,7 +61,7 @@ namespace TrenchBroom {
                 Filter& operator=(const Filter& other);
 
                 /**
-                 * Classifies whether the brush will be rendered, and which faces/edges and the render opacity.
+                 * Classifies whether the brush will be rendered, and which faces/edges.
                  *
                  * If both FaceRenderPolicy::RenderNone and EdgeRenderPolicy::RenderNone are returned, the brush is
                  * skipped (not added to the vertex array or index arrays at all).
@@ -135,12 +129,16 @@ namespace TrenchBroom {
             /**
              * If a brush is in the VBO, it's always valid.
              * If a brush is valid, it might not be in the VBO if it was hidden by the Filter.
+             *
+             * Do not attempt to use vector_set here, it turns out to be slower.
              */
-            std::set<const Model::Brush*> m_allBrushes;
-            std::set<const Model::Brush*> m_invalidBrushes;
+            std::unordered_set<const Model::Brush*> m_allBrushes;
+            std::unordered_set<const Model::Brush*> m_invalidBrushes;
 
-            BrushVertexArrayPtr m_vertexArray;
-            BrushIndexArrayPtr m_edgeIndices;
+            std::shared_ptr<BrushVertexArray> m_vertexArray;
+            std::shared_ptr<BrushIndexArray> m_edgeIndices;
+
+            using TextureToBrushIndicesMap = std::unordered_map<const Assets::Texture*, std::shared_ptr<BrushIndexArray>>;
             std::shared_ptr<TextureToBrushIndicesMap> m_transparentFaces;
             std::shared_ptr<TextureToBrushIndicesMap> m_opaqueFaces;
 
@@ -156,7 +154,7 @@ namespace TrenchBroom {
             Color m_tintColor;
             bool m_showOccludedEdges;
             Color m_occludedEdgeColor;
-            bool m_transparent;
+            bool m_forceTransparent;
             float m_transparencyAlpha;
 
             bool m_showHiddenBrushes;
@@ -168,7 +166,7 @@ namespace TrenchBroom {
             m_grayscale(false),
             m_tint(false),
             m_showOccludedEdges(false),
-            m_transparent(false),
+            m_forceTransparent(false),
             m_transparencyAlpha(1.0f),
             m_showHiddenBrushes(false) {
                 clear();
@@ -246,12 +244,17 @@ namespace TrenchBroom {
              * Specifies whether or not faces should be rendered transparent. Overrides any transparency settings from
              * the face itself or its material.
              *
+             * Note: setTransparencyAlpha must be set to something less than 1.0 for this to have any effect.
+             *
              * @see setTransparencyAlpha
              */
             void setForceTransparent(bool transparent);
 
             /**
              * The alpha value to render transparent faces with.
+             *
+             * Note: this defaults to 1.0, which means requests for transparency from the brush, face,
+             * or setForceTransparent() are ignored by default.
              */
             void setTransparencyAlpha(float transparencyAlpha);
 
@@ -274,6 +277,7 @@ namespace TrenchBroom {
              */
             void validate();
         private:
+            bool shouldDrawFaceInTransparentPass(const Model::Brush* brush, const Model::BrushFace* face) const;
             void validateBrush(const Model::Brush* brush);
             void addBrush(const Model::Brush* brush);
             void removeBrush(const Model::Brush* brush);

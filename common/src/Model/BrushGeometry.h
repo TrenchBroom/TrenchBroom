@@ -21,15 +21,14 @@
 #define TrenchBroom_BrushGeometry_h
 
 #include "TrenchBroom.h"
+#include "Model/Model_Forward.h"
+
 #include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"
 #include "Polyhedron_Forward.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
-        class BrushFace;
-
         using BrushGeometry = Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
 
         using BrushVertex = Polyhedron_Vertex<FloatType, BrushFacePayload, BrushVertexPayload>;

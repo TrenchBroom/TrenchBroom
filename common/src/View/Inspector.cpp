@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        Inspector::Inspector(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
+        Inspector::Inspector(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent) :
         QWidget(parent),
         m_tabBook(nullptr),
         m_mapInspector(nullptr),
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         }
 
         void Inspector::switchToPage(const InspectorPage page) {
-            m_tabBook->switchToPage(page);
+            m_tabBook->switchToPage(static_cast<int>(page));
         }
 
         bool Inspector::cancelMouseDrag() {

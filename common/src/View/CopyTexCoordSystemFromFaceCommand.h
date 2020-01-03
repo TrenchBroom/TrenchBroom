@@ -20,49 +20,44 @@
 #ifndef TrenchBroom_CopyTexCoordSystemFromFaceCommand
 #define TrenchBroom_CopyTexCoordSystemFromFaceCommand
 
+#include "Macros.h"
 #include "TrenchBroom.h"
 #include "View/DocumentCommand.h"
-#include "Model/TexCoordSystem.h"
+#include "Model/Model_Forward.h"
 #include "Model/BrushFaceAttributes.h"
+#include "View/View_Forward.h"
 
 #include <vecmath/plane.h>
 
 #include <memory>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Snapshot;
-    }
-
     namespace View {
         class CopyTexCoordSystemFromFaceCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<CopyTexCoordSystemFromFaceCommand>;
         private:
 
-            Model::Snapshot* m_snapshot;
-            std::unique_ptr<Model::TexCoordSystemSnapshot> m_coordSystemSanpshot;
+            std::unique_ptr<Model::Snapshot> m_snapshot;
+            std::unique_ptr<Model::TexCoordSystemSnapshot> m_coordSystemSnapshot;
             const vm::plane3 m_sourceFacePlane;
             const Model::WrapStyle m_wrapStyle;
             const Model::BrushFaceAttributes m_attribs;
         public:
-            static Ptr command(const Model::TexCoordSystemSnapshot& coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
-        private:
+            static std::unique_ptr<CopyTexCoordSystemFromFaceCommand> command(const Model::TexCoordSystemSnapshot& coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
+
             CopyTexCoordSystemFromFaceCommand(const Model::TexCoordSystemSnapshot& coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
-        public:
             ~CopyTexCoordSystemFromFaceCommand() override;
         private:
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;
+            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
-        private:
-            CopyTexCoordSystemFromFaceCommand(const CopyTexCoordSystemFromFaceCommand& other);
-            CopyTexCoordSystemFromFaceCommand& operator=(const CopyTexCoordSystemFromFaceCommand& other);
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(CopyTexCoordSystemFromFaceCommand)
         };
     }
 }

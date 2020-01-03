@@ -19,13 +19,15 @@
 
 #include "AttributeValueWithDoubleQuotationMarksIssueGenerator.h"
 
-#include "StringUtils.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Issue.h"
 #include "Model/RemoveEntityAttributesQuickFix.h"
 #include "Model/TransformEntityAttributesQuickFix.h"
 
+#include <kdl/string_utils.h>
+
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -48,7 +50,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            const std::string doGetDescription() const override {
                 return "The value of entity property '" + m_attributeName + "' contains double quotation marks. This may cause errors during compilation or in the game.";
             }
         };
@@ -61,14 +63,14 @@ namespace TrenchBroom {
             addQuickFix(new TransformEntityAttributesQuickFix(AttributeValueWithDoubleQuotationMarksIssue::Type,
                                                               "Replace \" with '",
                                                               [] (const AttributeName& name)   { return name; },
-                                                              [] (const AttributeValue& value) { return StringUtils::replaceAll(value, "\"", "'"); }));
+                                                              [] (const AttributeValue& value) { return kdl::str_replace_every(value, "\"", "'"); }));
         }
 
         void AttributeValueWithDoubleQuotationMarksIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
             for (const EntityAttribute& attribute : node->attributes()) {
                 const AttributeName& attributeName = attribute.name();
                 const AttributeValue& attributeValue = attribute.value();
-                if (attributeValue.find('"') != String::npos)
+                if (attributeValue.find('"') != std::string::npos)
                     issues.push_back(new AttributeValueWithDoubleQuotationMarksIssue(node, attributeName));
             }
         }

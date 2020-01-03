@@ -20,19 +20,15 @@
 #ifndef LegacyModelDefinitionParser_h
 #define LegacyModelDefinitionParser_h
 
-#include "IO/Parser.h"
-#include "IO/Token.h"
+#include "EL/EL_Forward.h"
 #include "IO/Tokenizer.h"
+#include "IO/Parser.h"
+#include "IO/IO_Forward.h"
+
+#include <string>
 
 namespace TrenchBroom {
-    namespace EL {
-        class Expression;
-        class ExpressionBase;
-    }
-
     namespace IO {
-        class ParserStatus;
-
         namespace MdlToken {
             using Type = size_t;
             static const Type Integer       = 1 << 0;
@@ -47,13 +43,13 @@ namespace TrenchBroom {
         class LegacyModelDefinitionTokenizer : public Tokenizer<MdlToken::Type> {
         public:
             LegacyModelDefinitionTokenizer(const char* begin, const char* end);
-            LegacyModelDefinitionTokenizer(const String& str);
+            LegacyModelDefinitionTokenizer(const std::string& str);
 
             template <typename OtherToken>
             LegacyModelDefinitionTokenizer(Tokenizer<OtherToken>& nestedTokenizer) :
             Tokenizer(nestedTokenizer) {}
         private:
-            static const String WordDelims;
+            static const std::string WordDelims;
             Token emitToken() override;
         };
 
@@ -63,7 +59,7 @@ namespace TrenchBroom {
             LegacyModelDefinitionTokenizer m_tokenizer;
         public:
             LegacyModelDefinitionParser(const char* begin, const char* end);
-            LegacyModelDefinitionParser(const String& str);
+            LegacyModelDefinitionParser(const std::string& str);
 
             template <typename OtherToken>
             LegacyModelDefinitionParser(Tokenizer<OtherToken>& nestedTokenizer) :
@@ -74,7 +70,7 @@ namespace TrenchBroom {
             EL::Expression parseModelDefinition(ParserStatus& status);
             EL::ExpressionBase* parseStaticModelDefinition(ParserStatus& status);
             EL::ExpressionBase* parseDynamicModelDefinition(ParserStatus& status);
-            EL::ExpressionBase* parseNamedValue(ParserStatus& status, const String& name);
+            EL::ExpressionBase* parseNamedValue(ParserStatus& status, const std::string& name);
         private:
             TokenNameMap tokenNames() const override;
         };

@@ -20,12 +20,13 @@
 #include "ScaleObjectsToolPage.h"
 
 #include "SharedPointer.h"
-#include "StringUtils.h"
 #include "TrenchBroom.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsTool.h"
 #include "View/ViewConstants.h"
+
+#include <kdl/string_utils.h>
 
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
@@ -40,7 +41,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        ScaleObjectsToolPage::ScaleObjectsToolPage(MapDocumentWPtr document, QWidget* parent) :
+        ScaleObjectsToolPage::ScaleObjectsToolPage(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)),
         m_book(nullptr),
@@ -73,12 +74,12 @@ namespace TrenchBroom {
             const auto document = lock(m_document);
             const auto suggestedSize = document->hasSelectedNodes() ? document->selectionBounds().size() : vm::vec3::zero();
 
-            m_sizeTextBox->setText(QString::fromStdString(StringUtils::toString(suggestedSize)));
+            m_sizeTextBox->setText(QString::fromStdString(kdl::str_to_string(suggestedSize)));
             m_factorsTextBox->setText("1.0 1.0 1.0");
         }
 
         void ScaleObjectsToolPage::createGui() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             auto* text = new QLabel(tr("Scale objects"));
 
@@ -115,7 +116,7 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsToolPage::updateGui() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             m_button->setEnabled(canScale());
         }
 

@@ -19,22 +19,26 @@
 
 #include "UVView.h"
 
-#include "TrenchBroom.h"
 #include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
+#include "TrenchBroom.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
+#include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/FaceRenderer.h" // for gridColorForTexture()
+#include "Renderer/GLVertexType.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 #include "Renderer/VertexArray.h"
-#include "Renderer/GLVertexType.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/UVCameraTool.h"
@@ -49,9 +53,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType UVView::FaceHit = Model::Hit::freeHitType();
+        const Model::HitType::Type UVView::FaceHit = Model::HitType::freeType();
 
-        UVView::UVView(MapDocumentWPtr document, GLContextManager& contextManager) :
+        UVView::UVView(std::weak_ptr<MapDocument> document, GLContextManager& contextManager) :
         RenderView(contextManager),
         m_document(document),
         m_helper(m_camera) {
@@ -80,7 +84,7 @@ namespace TrenchBroom {
         }
 
         void UVView::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->documentWasClearedNotifier.addObserver(this, &UVView::documentWasCleared);
             document->nodesDidChangeNotifier.addObserver(this, &UVView::nodesDidChange);
             document->brushFacesDidChangeNotifier.addObserver(this, &UVView::brushFacesDidChange);
@@ -95,7 +99,7 @@ namespace TrenchBroom {
 
         void UVView::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->documentWasClearedNotifier.removeObserver(this, &UVView::documentWasCleared);
                 document->nodesDidChangeNotifier.removeObserver(this, &UVView::nodesDidChange);
                 document->brushFacesDidChangeNotifier.removeObserver(this, &UVView::brushFacesDidChange);
@@ -110,7 +114,7 @@ namespace TrenchBroom {
         }
 
         void UVView::selectionDidChange(const Selection&) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const std::vector<Model::BrushFace*>& faces = document->selectedBrushFaces();
             if (faces.size() != 1) {
                 m_helper.setFace(nullptr);
@@ -161,11 +165,11 @@ namespace TrenchBroom {
 
         void UVView::doRender() {
             if (m_helper.valid()) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->commitPendingAssets();
 
-                Renderer::RenderContext renderContext(Renderer::RenderContext::RenderMode_2D, m_camera, fontManager(), shaderManager());
-                Renderer::RenderBatch renderBatch(vertexVbo(), indexVbo());
+                Renderer::RenderContext renderContext(Renderer::RenderMode::Render2D, m_camera, fontManager(), shaderManager());
+                Renderer::RenderBatch renderBatch(vboManager());
 
                 setupGL(renderContext);
                 renderTexture(renderContext, renderBatch);
@@ -183,7 +187,13 @@ namespace TrenchBroom {
 
         void UVView::setupGL(Renderer::RenderContext& renderContext) {
             const Renderer::Camera::Viewport& viewport = renderContext.camera().viewport();
-            glAssert(glViewport(viewport.x, viewport.y, viewport.width, viewport.height))
+            const qreal r = devicePixelRatioF();
+            const int x = static_cast<int>(viewport.x * r);
+            const int y = static_cast<int>(viewport.y * r);
+            const int width = static_cast<int>(viewport.width * r);
+            const int height = static_cast<int>(viewport.height * r);
+
+            glAssert(glViewport(x, y, width, height))
 
             glAssert(glEnable(GL_MULTISAMPLE))
             glAssert(glEnable(GL_BLEND))
@@ -203,7 +213,7 @@ namespace TrenchBroom {
             m_helper(helper),
             m_vertexArray(Renderer::VertexArray::move(getVertices())) {}
         private:
-            Vertex::List getVertices() const {
+            std::vector<Vertex> getVertices() const {
                 const auto* face = m_helper.face();
                 const auto normal = vm::vec3f(face->boundary().normal);
 
@@ -221,16 +231,16 @@ namespace TrenchBroom {
                 const auto pos3 = +w2 * r -h2 * u + p;
                 const auto pos4 = -w2 * r -h2 * u + p;
 
-                return Vertex::List({
+                return {
                     Vertex(pos1, normal, face->textureCoords(vm::vec3(pos1))),
                     Vertex(pos2, normal, face->textureCoords(vm::vec3(pos2))),
                     Vertex(pos3, normal, face->textureCoords(vm::vec3(pos3))),
                     Vertex(pos4, normal, face->textureCoords(vm::vec3(pos4)))
-                });
+                };
             }
         private:
-            void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
-                m_vertexArray.prepare(vertexVbo);
+            void doPrepareVertices(Renderer::VboManager& vboManager) override {
+                m_vertexArray.prepare(vboManager);
             }
 
             void doRender(Renderer::RenderContext& renderContext) override {
@@ -250,14 +260,14 @@ namespace TrenchBroom {
                 shader.set("Brightness", pref(Preferences::Brightness));
                 shader.set("RenderGrid", true);
                 shader.set("GridSizes", vm::vec2f(texture->width(), texture->height()));
-                shader.set("GridColor", Color(0.6f, 0.6f, 0.6f, 1.0f)); // TODO: make this a preference
+                shader.set("GridColor", vm::vec4f(Renderer::FaceRenderer::gridColorForTexture(texture), 0.6f)); // TODO: make this a preference
                 shader.set("GridScales", scale);
                 shader.set("GridMatrix", vm::mat4x4f(toTex));
                 shader.set("GridDivider", vm::vec2f(m_helper.subDivisions()));
                 shader.set("CameraZoom", m_helper.cameraZoom());
                 shader.set("Texture", 0);
 
-                m_vertexArray.render(GL_QUADS);
+                m_vertexArray.render(Renderer::PrimType::Quads);
 
                 texture->deactivate();
             }
@@ -279,7 +289,7 @@ namespace TrenchBroom {
             const auto faceVertices = face->vertices();
 
             using Vertex = Renderer::GLVertexTypes::P3::Vertex;
-            Vertex::List edgeVertices;
+            std::vector<Vertex> edgeVertices;
             edgeVertices.reserve(faceVertices.size());
 
             for (const auto* vertex : faceVertices) {
@@ -288,7 +298,7 @@ namespace TrenchBroom {
 
             const Color edgeColor(1.0f, 1.0f, 1.0f, 1.0f); // TODO: make this a preference
 
-            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(std::move(edgeVertices)), GL_LINE_LOOP);
+            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(std::move(edgeVertices)), Renderer::PrimType::LineLoop);
             edgeRenderer.renderOnTop(renderBatch, edgeColor, 2.5f);
         }
 
@@ -305,12 +315,12 @@ namespace TrenchBroom {
             const auto length = 32.0f / m_helper.cameraZoom();
 
             using Vertex = Renderer::GLVertexTypes::P3C4::Vertex;
-            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(Vertex::List({
+            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(std::vector<Vertex>({
                 Vertex(center, pref(Preferences::XAxisColor)),
                 Vertex(center + length * xAxis, pref(Preferences::XAxisColor)),
                 Vertex(center, pref(Preferences::YAxisColor)),
                 Vertex(center + length * yAxis, pref(Preferences::YAxisColor)),
-            })), GL_LINES);
+            })), Renderer::PrimType::Lines);
             edgeRenderer.renderOnTop(renderBatch, 2.0f);
         }
 

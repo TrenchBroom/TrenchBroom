@@ -21,28 +21,26 @@
 #define EdgeTool_h
 
 #include "TrenchBroom.h"
-#include "View/VertexHandleManager.h"
+#include "Model/Model_Forward.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/VertexToolBase.h"
+#include "View/View_Forward.h"
 
-#include <set>
+#include <vecmath/segment.h>
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class PickResult;
-    }
-
-    namespace Renderer {
-        class Camera;
-    }
-
     namespace View {
         class EdgeTool : public VertexToolBase<vm::segment3> {
         private:
-            EdgeHandleManager m_edgeHandles;
+            std::unique_ptr<EdgeHandleManager> m_edgeHandles;
         public:
-            EdgeTool(MapDocumentWPtr document);
+            EdgeTool(std::weak_ptr<MapDocument> document);
         public:
-            std::set<Model::Brush*> findIncidentBrushes(const vm::segment3& handle) const;
+            std::vector<Model::Brush*> findIncidentBrushes(const vm::segment3& handle) const;
         private:
             using VertexToolBase::findIncidentBrushes;
         public:
@@ -53,7 +51,7 @@ namespace TrenchBroom {
         public:
             MoveResult move(const vm::vec3& delta) override;
 
-            String actionName() const override;
+            std::string actionName() const override;
 
             void removeSelection();
         };

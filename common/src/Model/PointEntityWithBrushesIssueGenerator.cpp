@@ -25,7 +25,8 @@
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
-#include "VectorUtilsMinimal.h"
+
+#include <kdl/vector_utils.h>
 
 #include <map>
 #include <vector>
@@ -43,7 +44,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            const std::string doGetDescription() const override {
                 const Entity* entity = static_cast<Entity*>(node());
                 return entity->classname() + " contains brushes";
             }
@@ -65,7 +66,7 @@ namespace TrenchBroom {
                     nodesToReparent[node->parent()] = node->children();
 
                     affectedNodes.push_back(node);
-                    VectorUtils::append(affectedNodes, node->children());
+                    kdl::vec_append(affectedNodes, node->children());
                 }
 
                 facade->deselectAll();
@@ -82,7 +83,7 @@ namespace TrenchBroom {
         void PointEntityWithBrushesIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
             ensure(entity != nullptr, "entity is null");
             const Assets::EntityDefinition* definition = entity->definition();
-            if (definition != nullptr && definition->type() == Assets::EntityDefinition::Type_PointEntity && entity->hasChildren())
+            if (definition != nullptr && definition->type() == Assets::EntityDefinitionType::PointEntity && entity->hasChildren())
                 issues.push_back(new PointEntityWithBrushesIssue(entity));
         }
     }

@@ -20,11 +20,12 @@
 #ifndef TrenchBroom_EntityColor
 #define TrenchBroom_EntityColor
 
-#include "Color.h"
-#include "StringType.h"
 #include "Model/Model_Forward.h"
 
+#include <string>
 #include <vector>
+
+class Color;
 
 namespace TrenchBroom {
     namespace Assets {
@@ -36,9 +37,9 @@ namespace TrenchBroom {
     namespace Model {
         Assets::ColorRange::Type detectColorRange(const AttributeName& name, const std::vector<AttributableNode*>& attributables);
 
-        const String convertEntityColor(const String& str, Assets::ColorRange::Type colorRange);
-        Color parseEntityColor(const String& str);
-        String entityColorAsString(const Color& color, Assets::ColorRange::Type colorRange);
+        const std::string convertEntityColor(const std::string& str, Assets::ColorRange::Type colorRange);
+        Color parseEntityColor(const std::string& str);
+        std::string entityColorAsString(const Color& color, Assets::ColorRange::Type colorRange);
     }
 }
 

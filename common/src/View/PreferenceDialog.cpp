@@ -40,7 +40,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        PreferenceDialog::PreferenceDialog(MapDocumentSPtr document, QWidget* parent) :
+        PreferenceDialog::PreferenceDialog(std::shared_ptr<MapDocument> document, QWidget* parent) :
         QDialog(parent),
         m_document(std::move(document)),
         m_toolBar(nullptr),
@@ -119,7 +119,7 @@ namespace TrenchBroom {
 
             layout->setMenuBar(m_toolBar);
 #if !defined __APPLE__
-            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
 #endif
             layout->addWidget(m_stackedWidget, 1);
             layout->addLayout(wrapDialogButtonBox(m_buttonBox));

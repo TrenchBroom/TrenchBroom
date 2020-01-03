@@ -19,12 +19,15 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
+#include "TestUtils.h"
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 
+#include <kdl/vector_utils.h>
+
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -54,12 +57,12 @@ namespace TrenchBroom {
 
             std::vector<AttributableNode*> attributables = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(2u, attributables.size());
-            ASSERT_TRUE(VectorUtils::contains(attributables, entity1));
-            ASSERT_TRUE(VectorUtils::contains(attributables, entity2));
+            ASSERT_TRUE(kdl::vec_contains(attributables, entity1));
+            ASSERT_TRUE(kdl::vec_contains(attributables, entity2));
 
             attributables = findExactExact(index, "other", "someothervalue");
             ASSERT_EQ(1u, attributables.size());
-            ASSERT_TRUE(VectorUtils::contains(attributables, entity2));
+            ASSERT_TRUE(kdl::vec_contains(attributables, entity2));
 
             delete entity1;
             delete entity2;
@@ -107,12 +110,12 @@ namespace TrenchBroom {
 
             std::vector<AttributableNode*> attributables = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(2u, attributables.size());
-            ASSERT_TRUE(VectorUtils::contains(attributables, entity1));
-            ASSERT_TRUE(VectorUtils::contains(attributables, entity2));
+            ASSERT_TRUE(kdl::vec_contains(attributables, entity1));
+            ASSERT_TRUE(kdl::vec_contains(attributables, entity2));
 
             attributables = findExactExact(index, "other", "someothervalue");
             ASSERT_EQ(1u, attributables.size());
-            ASSERT_TRUE(VectorUtils::contains(attributables, entity2));
+            ASSERT_TRUE(kdl::vec_contains(attributables, entity2));
 
             delete entity1;
             delete entity2;
@@ -135,8 +138,8 @@ namespace TrenchBroom {
 
             const std::vector<AttributableNode*>& attributables = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(2u, attributables.size());
-            ASSERT_TRUE(VectorUtils::contains(attributables, entity1));
-            ASSERT_TRUE(VectorUtils::contains(attributables, entity2));
+            ASSERT_TRUE(kdl::vec_contains(attributables, entity1));
+            ASSERT_TRUE(kdl::vec_contains(attributables, entity2));
 
             ASSERT_TRUE(findExactExact(index, "other", "someothervalue").empty());
 
@@ -157,7 +160,7 @@ namespace TrenchBroom {
 
             std::vector<AttributableNode*> attributables = findNumberedExact(index, "test", "somevalue");
             ASSERT_EQ(1u, attributables.size());
-            ASSERT_TRUE(VectorUtils::contains(attributables, entity1));
+            ASSERT_TRUE(kdl::vec_contains(attributables, entity1));
 
             delete entity1;
         }
@@ -173,7 +176,7 @@ namespace TrenchBroom {
 
             std::vector<AttributableNode*> attributables = findExactExact(index, "delay", "3.5");
             ASSERT_EQ(1u, attributables.size());
-            ASSERT_TRUE(VectorUtils::contains(attributables, entity1));
+            ASSERT_TRUE(kdl::vec_contains(attributables, entity1));
 
             index.removeAttribute(entity1, "delay", "3.5");
 
@@ -193,7 +196,7 @@ namespace TrenchBroom {
             index.addAttributableNode(entity1);
             index.addAttributableNode(entity2);
 
-            ASSERT_EQ((StringSet{"test", "other"}), SetUtils::makeSet(index.allNames()));
+            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<std::string>{ "test", "other" }, index.allNames());
         }
 
         TEST(EntityAttributeIndexTest, allValuesForNames) {
@@ -209,7 +212,7 @@ namespace TrenchBroom {
             index.addAttributableNode(entity1);
             index.addAttributableNode(entity2);
 
-            ASSERT_EQ((StringSet{"somevalue", "somevalue2"}), SetUtils::makeSet(index.allValuesForNames(AttributableNodeIndexQuery::exact("test"))));
+            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<std::string>{ "somevalue", "somevalue2" }, index.allValuesForNames(AttributableNodeIndexQuery::exact("test")));
         }
     }
 }

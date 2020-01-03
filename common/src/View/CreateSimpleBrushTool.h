@@ -22,13 +22,15 @@
 
 #include "TrenchBroom.h"
 #include "View/CreateBrushToolBase.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {
         class CreateSimpleBrushTool : public CreateBrushToolBase {
         public:
-            CreateSimpleBrushTool(MapDocumentWPtr document);
+            CreateSimpleBrushTool(std::weak_ptr<MapDocument> document);
             void update(const vm::bbox3& bounds);
         };
     }

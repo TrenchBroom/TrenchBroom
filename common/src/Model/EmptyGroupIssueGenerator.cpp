@@ -40,7 +40,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            const std::string doGetDescription() const override {
                 const Group* group = static_cast<Group*>(node());
                 return "Group '" + group->name() + "' does not contain any objects";
             }

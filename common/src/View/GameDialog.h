@@ -20,8 +20,11 @@
 #ifndef TrenchBroom_GameDialog
 #define TrenchBroom_GameDialog
 
-#include "StringType.h"
+#include "IO/IO_Forward.h"
 #include "Model/MapFormat.h"
+#include "View/View_Forward.h"
+
+#include <string>
 
 #include <QDialog>
 
@@ -30,14 +33,7 @@ class QPushButton;
 class QWidget;
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace View {
-        class GameListBox;
-        class GameSelectionCommand;
-
         class GameDialog : public QDialog {
             Q_OBJECT
         protected:
@@ -48,10 +44,11 @@ namespace TrenchBroom {
         public:
             ~GameDialog() override;
 
-            static bool showNewDocumentDialog(QWidget* parent, String& gameName, Model::MapFormat& mapFormat);
-            static bool showOpenDocumentDialog(QWidget* parent, String& gameName, Model::MapFormat& mapFormat);
+            // FIXME: return a tuple instead of taking in/out parameters
+            static bool showNewDocumentDialog(QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat);
+            static bool showOpenDocumentDialog(QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat);
 
-            String currentGameName() const;
+            std::string currentGameName() const;
             Model::MapFormat currentMapFormat() const;
         private slots:
             void currentGameChanged(const QString& gameName);
@@ -64,7 +61,7 @@ namespace TrenchBroom {
             QWidget* createInfoPanel(QWidget* parent, const QString& title, const QString& infoText);
             QWidget* createSelectionPanel(QWidget* parent);
         private:
-            void updateMapFormats(const String& gameName);
+            void updateMapFormats(const std::string& gameName);
 
             void bindObservers();
             void unbindObservers();

@@ -34,7 +34,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        LayerListBoxWidget::LayerListBoxWidget(MapDocumentWPtr document, Model::Layer* layer, QWidget* parent) :
+        LayerListBoxWidget::LayerListBoxWidget(std::weak_ptr<MapDocument> document, Model::Layer* layer, QWidget* parent) :
         ControlListBoxItemRenderer(parent),
         m_document(std::move(document)),
         m_layer(layer) {
@@ -99,7 +99,7 @@ namespace TrenchBroom {
                 makeUnemphasized(m_nameText);
             }
 
-            const auto info = tr("%1 %2").arg(m_layer->childCount()).arg(QString::fromStdString(StringUtils::safePlural(m_layer->childCount(), "object", "objects")));
+            const auto info = tr("%1 %2").arg(m_layer->childCount()).arg(m_layer->childCount() == 1 ? "object" : "objects");
             m_infoText->setText(info);
 
             // Update buttons
@@ -134,7 +134,7 @@ namespace TrenchBroom {
 
         // LayerListBox
 
-        LayerListBox::LayerListBox(MapDocumentWPtr document, QWidget* parent) :
+        LayerListBox::LayerListBox(std::weak_ptr<MapDocument> document, QWidget* parent) :
         ControlListBox("", true, parent),
         m_document(std::move(document)) {
             bindObservers();

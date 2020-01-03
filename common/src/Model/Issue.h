@@ -22,12 +22,11 @@
 
 #include "Model/Model_Forward.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class EditorContext;
-
         class Issue {
         private:
             size_t m_seqId;
@@ -38,7 +37,7 @@ namespace TrenchBroom {
 
             size_t seqId() const;
             size_t lineNumber() const;
-            const String description() const;
+            const std::string description() const;
 
             IssueType type() const;
             Node* node() const;
@@ -56,7 +55,7 @@ namespace TrenchBroom {
         private: // subclassing interface
             virtual size_t doGetLineNumber() const;
             virtual IssueType doGetType() const = 0;
-            virtual const String doGetDescription() const = 0;
+            virtual const std::string doGetDescription() const = 0;
         };
 
         class BrushFaceIssue : public Issue {

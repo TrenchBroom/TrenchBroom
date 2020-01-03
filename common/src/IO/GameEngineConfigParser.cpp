@@ -20,17 +20,22 @@
 #include "GameEngineConfigParser.h"
 
 #include "Macros.h"
-#include "CollectionUtils.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
 #include "EL/Value.h"
+#include "Model/GameEngineConfig.h"
+#include "Model/GameEngineProfile.h"
+
+#include <kdl/vector_utils.h>
+
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
         GameEngineConfigParser::GameEngineConfigParser(const char* begin, const char* end, const Path& path) :
         ConfigParserBase(begin, end, path) {}
 
-        GameEngineConfigParser::GameEngineConfigParser(const String& str, const Path& path) :
+        GameEngineConfigParser::GameEngineConfigParser(const std::string& str, const Path& path) :
         ConfigParserBase(str, path) {}
 
         Model::GameEngineConfig GameEngineConfigParser::parse() {
@@ -43,13 +48,12 @@ namespace TrenchBroom {
             unused(version);
             assert(version == 1.0);
 
-            const Model::GameEngineProfile::List profiles = parseProfiles(root["profiles"]);
-
+            const auto profiles = parseProfiles(root["profiles"]);
             return Model::GameEngineConfig(profiles);
         }
 
-        Model::GameEngineProfile::List GameEngineConfigParser::parseProfiles(const EL::Value& value) const {
-            Model::GameEngineProfile::List result;
+        std::vector<Model::GameEngineProfile*> GameEngineConfigParser::parseProfiles(const EL::Value& value) const {
+            std::vector<Model::GameEngineProfile*> result;
 
             try {
                 for (size_t i = 0; i < value.length(); ++i) {
@@ -57,7 +61,7 @@ namespace TrenchBroom {
                 }
                 return result;
             } catch (...) {
-                VectorUtils::clearAndDelete(result);
+                kdl::vec_clear_and_delete(result);
                 throw;
             }
         }
@@ -65,9 +69,9 @@ namespace TrenchBroom {
         Model::GameEngineProfile* GameEngineConfigParser::parseProfile(const EL::Value& value) const {
             expectStructure(value, "[ {'name': 'String', 'path': 'String'}, { 'parameters': 'String' } ]");
 
-            const String& name = value["name"].stringValue();
+            const std::string& name = value["name"].stringValue();
             const Path path = Path(value["path"].stringValue());
-            const String& parameterSpec = value["parameters"].stringValue();
+            const std::string& parameterSpec = value["parameters"].stringValue();
 
             return new Model::GameEngineProfile(name, path, parameterSpec);
         }

@@ -20,10 +20,14 @@
 #ifndef TrenchBroom_SetLockStateCommand
 #define TrenchBroom_SetLockStateCommand
 
+#include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "View/UndoableCommand.h"
+#include "View/View_Forward.h"
 
 #include <map>
+#include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -31,24 +35,26 @@ namespace TrenchBroom {
         class SetLockStateCommand : public UndoableCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<SetLockStateCommand>;
         private:
             std::vector<Model::Node*> m_nodes;
             Model::LockState m_lockState;
             std::map<Model::Node*, Model::LockState> m_oldLockState;
         public:
-            static Ptr lock(const std::vector<Model::Node*>& nodes);
-            static Ptr unlock(const std::vector<Model::Node*>& nodes);
-            static Ptr reset(const std::vector<Model::Node*>& nodes);
-        private:
-            SetLockStateCommand(const std::vector<Model::Node*>& nodes, Model::LockState lockState);
-            static String makeName(Model::LockState lockState);
-        private:
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            static std::unique_ptr<SetLockStateCommand> lock(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SetLockStateCommand> unlock(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SetLockStateCommand> reset(const std::vector<Model::Node*>& nodes);
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            SetLockStateCommand(const std::vector<Model::Node*>& nodes, Model::LockState lockState);
+        private:
+            static std::string makeName(Model::LockState lockState);
+
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+
+            bool doCollateWith(UndoableCommand* command) override;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
+
+            deleteCopyAndMove(SetLockStateCommand)
         };
     }
 }

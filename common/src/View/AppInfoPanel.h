@@ -21,6 +21,7 @@
 #define TrenchBroom_AppInfoPanel
 
 #include <QLabel>
+#include <QWidget>
 
 namespace TrenchBroom {
     namespace View {

@@ -20,14 +20,12 @@
 #ifndef TrenchBroom_SmartSpawnflagsEditor
 #define TrenchBroom_SmartSpawnflagsEditor
 
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 #include "View/SmartAttributeEditor.h"
-#include "View/ViewTypes.h"
 
+#include <memory>
 #include <vector>
-
-#include <QPoint>
 
 class QString;
 class QWidget;
@@ -36,7 +34,7 @@ class QScrollArea;
 namespace TrenchBroom {
     namespace View {
         class FlagsEditor;
-        class FlagChangedCommand;
+        class MapDocument;
 
         class SmartSpawnflagsEditor : public SmartAttributeEditor {
             Q_OBJECT
@@ -47,11 +45,10 @@ namespace TrenchBroom {
             class UpdateSpawnflag;
 
             QScrollArea* m_scrolledWindow;
-            QPoint m_lastScrollPos;
             FlagsEditor* m_flagsEditor;
             bool m_ignoreUpdates;
         public:
-            explicit SmartSpawnflagsEditor(View::MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit SmartSpawnflagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
             void createGui();
             void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) override;

@@ -22,6 +22,8 @@
 
 #include "View/BorderPanel.h"
 
+#include <QObject>
+
 namespace TrenchBroom {
     namespace View {
         class ContainerBar : public BorderPanel {

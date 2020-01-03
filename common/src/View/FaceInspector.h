@@ -20,46 +20,35 @@
 #ifndef TrenchBroom_FaceInspector
 #define TrenchBroom_FaceInspector
 
+#include "Assets/Asset_Forward.h"
+#include "Model/Model_Forward.h"
 #include "View/TabBook.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
+
+#include <memory>
 
 class QSplitter;
 class QWidget;
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
-    namespace Model {
-        class BrushFace;
-        class Object;
-        class SelectionResult;
-    }
-
     namespace View {
-        class FaceAttribsEditor;
-        class GLContextManager;
-        class TextureBrowser;
-        class FileTextureCollectionEditor;
-
         class FaceInspector : public TabBookPage {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             QSplitter* m_splitter;
             FaceAttribsEditor* m_faceAttribsEditor;
             TextureBrowser* m_textureBrowser;
         public:
-            FaceInspector(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            FaceInspector(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~FaceInspector() override;
 
             bool cancelMouseDrag();
         private:
-            void createGui(MapDocumentWPtr document, GLContextManager& contextManager);
-            QWidget* createFaceAttribsEditor(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-            QWidget* createTextureBrowser(QWidget* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-            QWidget* createTextureCollectionEditor(QWidget* parent, MapDocumentWPtr document);
+            void createGui(std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
+            QWidget* createFaceAttribsEditor(QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
+            QWidget* createTextureBrowser(QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
+            QWidget* createTextureCollectionEditor(QWidget* parent, std::weak_ptr<MapDocument> document);
 
             void textureSelected(Assets::Texture* texture);
         };

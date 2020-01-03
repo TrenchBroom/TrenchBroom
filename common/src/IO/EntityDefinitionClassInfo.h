@@ -21,32 +21,31 @@
 #define TrenchBroom_EntityDefinitionClassInfo
 
 #include "TrenchBroom.h"
-#include "StringType.h"
 #include "Color.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Assets/ModelDefinition.h"
 
 #include <vecmath/bbox.h>
 
 #include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        class EntityDefinitionClassInfo;
-        using EntityDefinitionClassInfoMap = std::map<String, EntityDefinitionClassInfo>;
-
         class EntityDefinitionClassInfo {
         private:
             size_t m_line;
             size_t m_column;
-            String m_name;
-            String m_description;
+            std::string m_name;
+            std::string m_description;
             bool m_hasDescription;
             Color m_color;
             bool m_hasColor;
             vm::bbox3 m_size;
             bool m_hasSize;
-            Assets::AttributeDefinitionMap m_attributes;
+            std::map<std::string, std::shared_ptr<Assets::AttributeDefinition>> m_attributes;
             Assets::ModelDefinition m_modelDefinition;
             bool m_hasModelDefinition;
         public:
@@ -55,27 +54,27 @@ namespace TrenchBroom {
 
             size_t line() const;
             size_t column() const;
-            const String& name() const;
-            const String& description() const;
+            const std::string& name() const;
+            const std::string& description() const;
             bool hasDescription() const;
             const Color& color() const;
             bool hasColor() const;
             const vm::bbox3& size() const;
             bool hasSize() const;
-            Assets::AttributeDefinitionList attributeList() const;
-            const Assets::AttributeDefinitionMap& attributeMap() const;
+            std::vector<std::shared_ptr<Assets::AttributeDefinition>> attributeList() const;
+            const std::map<std::string, std::shared_ptr<Assets::AttributeDefinition>>& attributeMap() const;
             const Assets::ModelDefinition& modelDefinition() const;
             bool hasModelDefinition() const;
 
-            void setName(const String& name);
-            void setDescription(const String& description);
+            void setName(const std::string& name);
+            void setDescription(const std::string& description);
             void setColor(const Color& color);
             void setSize(const vm::bbox3& size);
-            void addAttributeDefinition(Assets::AttributeDefinitionPtr attributeDefinition);
-            void addAttributeDefinitions(const Assets::AttributeDefinitionMap& attributeDefinitions);
+            void addAttributeDefinition(std::shared_ptr<Assets::AttributeDefinition> attributeDefinition);
+            void addAttributeDefinitions(const std::map<std::string, std::shared_ptr<Assets::AttributeDefinition>>& attributeDefinitions);
             void setModelDefinition(const Assets::ModelDefinition& modelDefinition);
 
-            void resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const StringList& classnames);
+            void resolveBaseClasses(const std::map<std::string, EntityDefinitionClassInfo>& baseClasses, const std::vector<std::string>& classnames);
         private:
             static void mergeProperties(Assets::AttributeDefinition* classAttribute, const Assets::AttributeDefinition* baseclassAttribute);
         };

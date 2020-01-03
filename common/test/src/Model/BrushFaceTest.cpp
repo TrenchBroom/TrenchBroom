@@ -32,11 +32,12 @@
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/MapFormat.h"
-#include "Model/Model_Forward.h"
 #include "Model/NodeSnapshot.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/World.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -128,12 +129,10 @@ namespace TrenchBroom {
         static void getFaceVertsAndTexCoords(const BrushFace *face,
                                              std::vector<vm::vec3> *vertPositions,
                                              std::vector<vm::vec2f> *vertTexCoords) {
-            BrushFace::VertexList::const_iterator it;
-            BrushFace::VertexList verts = face->vertices();
-            for (it = std::begin(verts); it != std::end(verts); ++it) {
-                vertPositions->push_back(it->position());
+            for (const auto* vertex : face->vertices()) {
+                vertPositions->push_back(vertex->position());
                 if (vertTexCoords != nullptr) {
-                    vertTexCoords->push_back(face->textureCoords(vm::vec3(it->position())));
+                    vertTexCoords->push_back(face->textureCoords(vm::vec3(vertex->position())));
                 }
             }
         }
@@ -516,7 +515,7 @@ namespace TrenchBroom {
 
         // https://github.com/kduske/TrenchBroom/issues/2001
         TEST(BrushFaceTest, testValveRotation) {
-            const String data("{\n"
+            const std::string data("{\n"
                                       "\"classname\" \"worldspawn\"\n"
                                       "{\n"
                                       "( 24 8 48 ) ( 32 16 -16 ) ( 24 -8 48 ) tlight11 [ 0 1 0 0 ] [ 0 0 -1 56 ] -0 1 1\n"
@@ -567,12 +566,12 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(newXAxis, negXFace->textureXAxis());
             ASSERT_VEC_EQ(newYAxis, negXFace->textureYAxis());
 
-            VectorUtils::clearAndDelete(nodes);
+            kdl::vec_clear_and_delete(nodes);
         }
 
         // https://github.com/kduske/TrenchBroom/issues/1995
         TEST(BrushFaceTest, testCopyTexCoordSystem) {
-            const String data("{\n"
+            const std::string data("{\n"
                                       "    \"classname\" \"worldspawn\"\n"
                                       "    {\n"
                                       "        ( 24 8 48 ) ( 32 16 -16 ) ( 24 -8 48 ) tlight11 [ 0 1 0 0 ] [ 0 0 -1 56 ] -0 1 1\n"
@@ -624,12 +623,12 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(vm::vec3::neg_y(), posXFace->textureXAxis());
             ASSERT_VEC_EQ(vm::vec3::neg_z(), posXFace->textureYAxis());
 
-            VectorUtils::clearAndDelete(nodes);
+            kdl::vec_clear_and_delete(nodes);
         }
 
         // https://github.com/kduske/TrenchBroom/issues/2315
         TEST(BrushFaceTest, move45DegreeFace) {
-            const String data(R"(
+            const std::string data(R"(
 // entity 0
 {
 "classname" "worldspawn"
@@ -660,7 +659,7 @@ namespace TrenchBroom {
 
             brush->moveBoundary(worldBounds, angledFace, vm::vec3(-7.9999999999999973, 7.9999999999999973, 0), true);
 
-            VectorUtils::clearAndDelete(nodes);
+            kdl::vec_clear_and_delete(nodes);
         }
     }
 }

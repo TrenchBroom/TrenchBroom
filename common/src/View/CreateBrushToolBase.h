@@ -21,27 +21,22 @@
 #define TrenchBroom_CreateBrushToolBase
 
 #include "Model/Model_Forward.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
+
+#include <memory>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class BrushRenderer;
-        class RenderBatch;
-        class RenderContext;
-    }
-
     namespace View {
-        class Grid;
-
         class CreateBrushToolBase : public Tool {
         protected:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
         private:
             Model::Brush* m_brush;
             Renderer::BrushRenderer* m_brushRenderer;
         public:
-            CreateBrushToolBase(bool initiallyActive, MapDocumentWPtr document);
+            CreateBrushToolBase(bool initiallyActive, std::weak_ptr<MapDocument> document);
             ~CreateBrushToolBase() override;
         public:
             const Grid& grid() const;

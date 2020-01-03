@@ -23,41 +23,47 @@
 
 #include "Assets/EntityDefinition.h"
 #include "EL/EvaluationContext.h"
+#include "EL/Value.h"
 #include "EL/Types.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/TestParserStatus.h"
-#include "VectorUtilsMinimal.h"
+#include "Model/EntityAttributes.h"
+
+#include <kdl/vector_utils.h>
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
-        void assertModelDefinition(const ModelSpecification& expected, IO::EntityDefinitionParser& parser, const String& entityPropertiesStr) {
+        void assertModelDefinition(const ModelSpecification& expected, IO::EntityDefinitionParser& parser, const std::string& entityPropertiesStr) {
             IO::TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            std::vector<EntityDefinition*> definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
-            Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
+            EntityDefinition* definition = definitions[0];
+            ASSERT_EQ(EntityDefinitionType::PointEntity, definition->type());
 
             assertModelDefinition(expected, definition, entityPropertiesStr);
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
-        void assertModelDefinition(const ModelSpecification& expected, const EntityDefinition* definition, const String& entityPropertiesStr) {
-            assert(definition->type() == EntityDefinition::Type_PointEntity);
+        void assertModelDefinition(const ModelSpecification& expected, const EntityDefinition* definition, const std::string& entityPropertiesStr) {
+            assert(definition->type() == EntityDefinitionType::PointEntity);
 
             const PointEntityDefinition* pointDefinition = static_cast<const PointEntityDefinition*>(definition);
             const ModelDefinition& modelDefinition = pointDefinition->modelDefinition();
             assertModelDefinition(expected, modelDefinition, entityPropertiesStr);
         }
 
-        void assertModelDefinition(const ModelSpecification& expected, const ModelDefinition& actual, const String& entityPropertiesStr) {
+        void assertModelDefinition(const ModelSpecification& expected, const ModelDefinition& actual, const std::string& entityPropertiesStr) {
             const EL::MapType entityPropertiesMap = IO::ELParser::parseStrict(entityPropertiesStr).evaluate(EL::EvaluationContext()).mapValue();
 
             Model::EntityAttributes attributes;
             for (const auto& entry : entityPropertiesMap) {
-                const String& key = entry.first;
+                const std::string& key = entry.first;
                 const EL::Value& value = entry.second;
                 attributes.addOrUpdateAttribute(key, value.convertTo(EL::ValueType::String).stringValue(), nullptr);
             }

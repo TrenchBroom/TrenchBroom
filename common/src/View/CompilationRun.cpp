@@ -29,6 +29,9 @@
 #include "View/MapDocument.h"
 #include "View/TextOutputAdapter.h"
 
+#include <memory>
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
         CompilationRun::CompilationRun() :
@@ -44,11 +47,11 @@ namespace TrenchBroom {
             return doIsRunning();
         }
 
-        void CompilationRun::run(const Model::CompilationProfile* profile, MapDocumentSPtr document, QTextEdit* currentOutput) {
+        void CompilationRun::run(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document, QTextEdit* currentOutput) {
             run(profile, std::move(document), currentOutput, false);
         }
 
-        void CompilationRun::test(const Model::CompilationProfile* profile, MapDocumentSPtr document, QTextEdit* currentOutput) {
+        void CompilationRun::test(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document, QTextEdit* currentOutput) {
             run(profile, std::move(document), currentOutput, true);
         }
 
@@ -62,7 +65,7 @@ namespace TrenchBroom {
             return m_currentRun != nullptr && m_currentRun->running();
         }
 
-        void CompilationRun::run(const Model::CompilationProfile* profile, MapDocumentSPtr document, QTextEdit* currentOutput, const bool test) {
+        void CompilationRun::run(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document, QTextEdit* currentOutput, const bool test) {
             ensure(profile != nullptr, "profile is null");
             ensure(profile->taskCount() > 0, "profile has no tasks");
             ensure(document != nullptr, "document is null");
@@ -80,7 +83,7 @@ namespace TrenchBroom {
             m_currentRun->execute();
         }
 
-        String CompilationRun::buildWorkDir(const Model::CompilationProfile* profile, MapDocumentSPtr document) {
+        std::string CompilationRun::buildWorkDir(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document) {
             return EL::interpolate(profile->workDirSpec(), EL::EvaluationContext(CompilationWorkDirVariables(document)));
         }
 

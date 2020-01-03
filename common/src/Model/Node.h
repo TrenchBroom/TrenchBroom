@@ -26,13 +26,11 @@
 
 #include <vecmath/forward.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class IssueGeneratorRegistry;
-        class PickResult;
-
         class Node : public Taggable {
         private:
             Node* m_parent;
@@ -60,7 +58,7 @@ namespace TrenchBroom {
         public:
             virtual ~Node();
         public: // getters
-            const String& name() const;
+            const std::string& name() const;
             /**
              * Returns a box that encloses the "logical" part of this node and its children; these are the bounds that are
              * used in game (for entities, the bounds specified in the entity definition file), and used
@@ -417,7 +415,7 @@ namespace TrenchBroom {
             void addToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
             void removeFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
         private: // subclassing interface
-            virtual const String& doGetName() const = 0;
+            virtual const std::string& doGetName() const = 0;
             virtual const vm::bbox3& doGetLogicalBounds() const = 0;
             virtual const vm::bbox3& doGetPhysicalBounds() const = 0;
 

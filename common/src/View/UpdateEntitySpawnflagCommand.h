@@ -20,33 +20,38 @@
 #ifndef TrenchBroom_UpdateEntitySpawnflagCommand
 #define TrenchBroom_UpdateEntitySpawnflagCommand
 
+#include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
+#include "View/View_Forward.h"
+
+#include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
-        class MapDocumentCommandFacade;
-
         class UpdateEntitySpawnflagCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<UpdateEntitySpawnflagCommand>;
         private:
             bool m_setFlag;
             Model::AttributeName m_attributeName;
             size_t m_flagIndex;
         public:
-            static Ptr update(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
-        private:
-            UpdateEntitySpawnflagCommand(const Model::AttributeName& attributeName, const size_t flagIndex, const bool setFlag);
-            static String makeName(const bool setFlag);
+            static std::unique_ptr<UpdateEntitySpawnflagCommand> update(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
 
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            UpdateEntitySpawnflagCommand(const Model::AttributeName& attributeName, const size_t flagIndex, const bool setFlag);
+        private:
+            static std::string makeName(const bool setFlag);
+
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(UpdateEntitySpawnflagCommand)
         };
     }
 }

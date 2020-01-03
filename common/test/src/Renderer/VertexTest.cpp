@@ -53,7 +53,7 @@ namespace TrenchBroom {
             using Vertex = GLVertexTypes::P3T2C4::Vertex;
 
             auto expected = std::vector<TestVertex>();
-            auto actual   = Vertex::List();
+            auto actual   = std::vector<Vertex>();
 
             for (size_t i = 0; i < 3; ++i) {
                 const auto f     = static_cast<float>(i);

@@ -21,37 +21,29 @@
 #define TrenchBroom_ResizeBrushesTool
 
 #include "TrenchBroom.h"
-#include "Model/Hit.h"
+#include "Model/HitType.h"
 #include "Model/Model_Forward.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
 
+#include <vecmath/forward.h>
 #include <vecmath/vec.h>
-#include <vecmath/polygon.h>
 
+#include <memory>
 #include <tuple>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class PickResult;
-    }
-
-    namespace Renderer {
-        class Camera;
-    }
-
     namespace View {
-        class Selection;
-
         class ResizeBrushesTool : public Tool {
         private:
-            static const Model::Hit::HitType ResizeHit3D;
-            static const Model::Hit::HitType ResizeHit2D;
+            static const Model::HitType::Type ResizeHit3D;
+            static const Model::HitType::Type ResizeHit2D;
 
             using FaceHandle = std::tuple<Model::Brush*, vm::vec3>;
 
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             std::vector<FaceHandle> m_dragHandles;
             vm::vec3 m_dragOrigin;
             vm::vec3 m_lastPoint;
@@ -59,7 +51,7 @@ namespace TrenchBroom {
             vm::vec3 m_totalDelta;
             bool m_dragging;
         public:
-            explicit ResizeBrushesTool(MapDocumentWPtr document);
+            explicit ResizeBrushesTool(std::weak_ptr<MapDocument> document);
             ~ResizeBrushesTool() override;
 
             bool applies() const;
@@ -68,7 +60,7 @@ namespace TrenchBroom {
             Model::Hit pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
         private:
             class PickProximateFace;
-            Model::Hit pickProximateFace(Model::Hit::HitType hitType, const vm::ray3& pickRay) const;
+            Model::Hit pickProximateFace(Model::HitType::Type hitType, const vm::ray3& pickRay) const;
         public:
             bool hasDragFaces() const;
             std::vector<Model::BrushFace*> dragFaces() const;

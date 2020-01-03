@@ -19,12 +19,9 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
 #include "Exceptions.h"
-#include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
-#include "Assets/EntityDefinitionTestUtils.h"
 #include "IO/DiskIO.h"
 #include "IO/EntParser.h"
 #include "IO/FileMatcher.h"
@@ -33,15 +30,18 @@
 #include "IO/TestParserStatus.h"
 #include "Model/Model_Forward.h"
 
+#include <kdl/vector_utils.h>
+
 #include <algorithm>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
-        void assertAttributeDefinition(const String& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition);
+        void assertAttributeDefinition(const std::string& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition);
 
         TEST(EntParserTest, parseIncludedEntFiles) {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
-            const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("ent"));
+            const std::vector<Path> cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("ent"));
 
             for (const Path& path : cfgFiles) {
                 auto file = Disk::openFile(path);
@@ -52,35 +52,35 @@ namespace TrenchBroom {
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing ENT file " << path.asString() << " failed";
-                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error))
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Error))
                                     << "Parsing ENT file " << path.asString() << " produced errors";
             }
         }
 
         TEST(EntParserTest, parseEmptyFile) {
-            const String file = "";
+            const std::string file = "";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             EntParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(EntParserTest, parseWhitespaceFile) {
-            const String file = "     \n  \t \n  ";
+            const std::string file = "     \n  \t \n  ";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             EntParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(EntParserTest, parseMalformedXML) {
-            const String file =
+            const std::string file =
 R"(<?xml version="1.0"?>
 <classes>
     <point name="_skybox" color="0.77 0.88 1.0" box="-4 -4 -4 4 4 4">
@@ -93,7 +93,7 @@ R"(<?xml version="1.0"?>
         }
 
         TEST(EntParserTest, parseSimplePointEntityDefinition) {
-            const String file = R"(
+            const std::string file = R"(
 <?xml version="1.0"?>
 <!--
 Quake3 Arena entity definition file for Q3Radiant
@@ -176,11 +176,11 @@ Updated: 2011-03-02
             ASSERT_EQ(64.0f, scaleDefinition->defaultValue()) << "Expected correct default value for '_scale' attribute definition";
             ASSERT_EQ("Scaling factor (default 64), good values are between 50 and 300, depending on the map.", scaleDefinition->longDescription()) << "Expected attribute definition's long description to match element text";
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(EntParserTest, parseSimpleGroupEntityDefinition) {
-            const String file = R"(
+            const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
 <group name="func_bobbing" color="0 .4 1">
@@ -235,11 +235,11 @@ Target this entity with a misc_model to have the model attached to the entity (s
             assertAttributeDefinition("_celshader", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
             assertAttributeDefinition("spawnflags", Assets::AttributeDefinition::Type_FlagsAttribute, brushDefinition);
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(EntParserTest, parseListAttributeDefinition) {
-            const String file = R"(
+            const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
 <list name="colorIndex">
@@ -302,11 +302,11 @@ Target this entity with a misc_model to have the model attached to the entity (s
             ASSERT_EQ("2", options[2].value());
             ASSERT_EQ("green", options[2].description());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(EntParserTest, parseInvalidRealAttributeDefinition) {
-            const String file = R"(
+            const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
     <point name="_skybox" color="0.77 0.88 1.0" box="-4 -4 -4 4 4 4">
@@ -333,11 +333,11 @@ Target this entity with a misc_model to have the model attached to the entity (s
 
             ASSERT_EQ("asdf", scaleDefinition->defaultValue()) << "Expected correct default value for '_scale' attribute definition";
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(EntParserTest, parseLegacyModelDefinition) {
-            const String file = R"(
+            const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
 <point name="ammo_bfg" color=".3 .3 1" box="-16 -16 -16 16 16 16" model="models/powerups/ammo/bfgam.md3" />
@@ -357,11 +357,11 @@ Target this entity with a misc_model to have the model attached to the entity (s
             const auto& modelDefinition = pointDefinition->modelDefinition();
             ASSERT_EQ(Path("models/powerups/ammo/bfgam.md3"), modelDefinition.defaultModelSpecification().path);
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(EntParserTest, parseELStaticModelDefinition) {
-            const String file = R"(
+            const std::string file = R"(
             <?xml version="1.0"?>
             <classes>
             <point name="ammo_bfg" color=".3 .3 1" box="-16 -16 -16 16 16 16" model="{{ spawnflags == 1 -> 'models/powerups/ammo/bfgam.md3', 'models/powerups/ammo/bfgam2.md3' }}" />
@@ -381,10 +381,10 @@ Target this entity with a misc_model to have the model attached to the entity (s
             const auto& modelDefinition = pointDefinition->modelDefinition();
             ASSERT_EQ(Path("models/powerups/ammo/bfgam2.md3"), modelDefinition.defaultModelSpecification().path);
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
-        void assertAttributeDefinition(const String& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition) {
+        void assertAttributeDefinition(const std::string& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition) {
             const auto* attrDefinition = entityDefinition->attributeDefinition(name);
             ASSERT_NE(nullptr, attrDefinition) << "Missing attribute definition for '" + name + "' key";
             ASSERT_EQ(expectedType, attrDefinition->type()) << "Expected '" + name + "' attribute definition to be of expected type";

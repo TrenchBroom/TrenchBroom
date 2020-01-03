@@ -20,19 +20,27 @@
 #ifndef TrenchBroom_EntityDefinitionParser_h
 #define TrenchBroom_EntityDefinitionParser_h
 
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
+#include "IO/IO_Forward.h"
+
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        class ParserStatus;
-        class Path;
-
         class EntityDefinitionParser {
+        protected:
+            using EntityDefinitionList = std::vector<Assets::EntityDefinition*>;
+            using AttributeDefinitionPtr = std::shared_ptr<Assets::AttributeDefinition>;
+            using AttributeDefinitionList = std::vector<AttributeDefinitionPtr>;
+            using AttributeDefinitionMap = std::map<std::string, AttributeDefinitionPtr>;
         public:
             virtual ~EntityDefinitionParser();
-            Assets::EntityDefinitionList parseDefinitions(ParserStatus& status);
+            EntityDefinitionList parseDefinitions(ParserStatus& status);
         private:
-            virtual Assets::EntityDefinitionList doParseDefinitions(ParserStatus& status) = 0;
+            virtual EntityDefinitionList doParseDefinitions(ParserStatus& status) = 0;
         };
     }
 }

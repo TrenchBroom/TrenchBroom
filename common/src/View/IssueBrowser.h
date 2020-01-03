@@ -21,9 +21,10 @@
 #define TrenchBroom_IssueBrowser
 
 #include "Model/Model_Forward.h"
-#include "View/ViewTypes.h"
 #include "View/TabBook.h"
+#include "View/View_Forward.h"
 
+#include <memory>
 #include <vector>
 
 class QCheckBox;
@@ -31,15 +32,7 @@ class QStackedLayout;
 class QWidget;
 
 namespace TrenchBroom {
-    namespace Model {
-        class Issue;
-    }
-
     namespace View {
-        class FlagChangedCommand;
-        class FlagsPopupEditor;
-        class IssueBrowserView;
-
         class IssueBrowser : public TabBookPage {
             Q_OBJECT
         private:
@@ -48,12 +41,12 @@ namespace TrenchBroom {
             static const int HideIssuesCommandId = 3;
             static const int FixObjectsBaseId = 4;
 
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             IssueBrowserView* m_view;
             QCheckBox* m_showHiddenIssuesCheckBox;
             FlagsPopupEditor* m_filterEditor;
         public:
-            explicit IssueBrowser(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit IssueBrowser(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~IssueBrowser() override;
 
             QWidget* createTabBarPage(QWidget* parent) override;

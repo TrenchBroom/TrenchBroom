@@ -21,15 +21,15 @@
 
 #include "Constants.h"
 #include "TrenchBroom.h"
+#include "Model/HitQuery.h"
+#include "Model/HitType.h"
 #include "View/Grid.h"
 #include "View/Tool.h"
 
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>
 #include <vecmath/line.h>
-#include <vecmath/plane.h>
 #include <vecmath/vec.h>
-
 
 namespace TrenchBroom {
     namespace View {
@@ -119,8 +119,8 @@ namespace TrenchBroom {
         m_minDistanceSet(false),
         m_pickable(false),
         m_selected(false),
-        m_hitTypeValue(Model::Hit::NoType),
-        m_occludedTypeValue(Model::Hit::NoType),
+        m_hitTypeValue(Model::HitType::NoType),
+        m_occludedTypeValue(Model::HitType::NoType),
         m_minDistanceValue(FloatType(0)) {}
 
         SurfaceDragHelper::~SurfaceDragHelper() = default;
@@ -133,12 +133,12 @@ namespace TrenchBroom {
             m_selected = selected;
         }
 
-        void SurfaceDragHelper::setType(const Model::Hit::HitType type) {
+        void SurfaceDragHelper::setType(const Model::HitType::Type type) {
             m_hitTypeSet = true;
             m_hitTypeValue = type;
         }
 
-        void SurfaceDragHelper::setOccluded(const Model::Hit::HitType type) {
+        void SurfaceDragHelper::setOccluded(const Model::HitType::Type type) {
             m_occludedTypeSet = true;
             m_occludedTypeValue = type;
         }
@@ -462,7 +462,7 @@ namespace TrenchBroom {
 
         NoDropPolicy::~NoDropPolicy() = default;
 
-        bool NoDropPolicy::doDragEnter(const InputState&, const String& /* payload */) { return false; }
+        bool NoDropPolicy::doDragEnter(const InputState&, const std::string& /* payload */) { return false; }
         bool NoDropPolicy::doDragMove(const InputState&) { return false; }
         void NoDropPolicy::doDragLeave(const InputState&) {}
         bool NoDropPolicy::doDragDrop(const InputState&) { return false; }
@@ -557,7 +557,7 @@ namespace TrenchBroom {
             m_chain.render(inputState, renderContext, renderBatch);
         }
 
-        bool ToolControllerGroup::doDragEnter(const InputState& inputState, const String& payload) {
+        bool ToolControllerGroup::doDragEnter(const InputState& inputState, const std::string& payload) {
             assert(m_dropReceiver == nullptr);
             if (!doShouldHandleDrop(inputState, payload))
                 return false;
@@ -596,7 +596,7 @@ namespace TrenchBroom {
         void ToolControllerGroup::doMouseDragEnded(const InputState&) {}
         void ToolControllerGroup::doMouseDragCancelled() {}
 
-        bool ToolControllerGroup::doShouldHandleDrop(const InputState&, const String& /* payload */) const {
+        bool ToolControllerGroup::doShouldHandleDrop(const InputState&, const std::string& /* payload */) const {
             return true;
         }
     }

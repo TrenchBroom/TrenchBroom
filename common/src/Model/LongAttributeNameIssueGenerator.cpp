@@ -19,13 +19,13 @@
 
 #include "LongAttributeNameIssueGenerator.h"
 
-#include "StringUtils.h"
 #include "Model/Brush.h"
 #include "Model/RemoveEntityAttributesQuickFix.h"
 #include "Model/Entity.h"
 #include "Model/Issue.h"
 #include "Model/MapFacade.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -48,7 +48,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            const std::string doGetDescription() const override {
                 return "Entity property key '" + m_attributeName.substr(0, 8) + "...' is too long.";
             }
         };

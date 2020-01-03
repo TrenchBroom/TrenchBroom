@@ -22,11 +22,13 @@
 
 #include "IO/Path.h"
 
+#include <string_view>
+
 #include <QString>
 
 namespace TrenchBroom {
     namespace IO {
-        QString pathAsQString(const IO::Path& path, char sep = Path::separator());
+        QString pathAsQString(const IO::Path& path, std::string_view sep = Path::separator());
         Path pathFromQString(const QString& path);
     }
 }

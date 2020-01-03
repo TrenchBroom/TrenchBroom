@@ -24,13 +24,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
-        class Entity;
-        class Group;
-        class Layer;
-        class Node;
-        class World;
-
         class MatchNodesByVisibility {
         private:
             VisibilityState m_visibility;

@@ -26,12 +26,16 @@
 #include "View/MapDocumentCommandFacade.h"
 #include "View/VertexTool.h"
 
+#include <kdl/vector_utils.h>
+
+#include <vecmath/polygon.h>
+
 #include <iterator>
 #include <set>
 
 namespace TrenchBroom {
     namespace View {
-        VertexCommand::VertexCommand(const CommandType type, const String& name, const std::vector<Model::Brush*>& brushes) :
+        VertexCommand::VertexCommand(const CommandType type, const std::string& name, const std::vector<Model::Brush*>& brushes) :
         DocumentCommand(type, name),
         m_brushes(brushes) {}
 
@@ -86,7 +90,7 @@ namespace TrenchBroom {
                 }
             }
 
-            VectorUtils::sort(facePositions);
+            kdl::vec_sort(facePositions);
 
             assert(!brushes.empty());
             assert(brushes.size() == brushFaces.size());
@@ -101,7 +105,7 @@ namespace TrenchBroom {
                 std::vector<vm::vec3> vertices;
                 vertices.reserve(2 * edgeList.size());
                 vm::segment3::get_vertices(std::begin(edgeList), std::end(edgeList), std::back_inserter(vertices));
-                VectorUtils::sortAndRemoveDuplicates(vertices);
+                kdl::vec_sort_and_remove_duplicates(vertices);
                 result.insert(std::make_pair(brush, vertices));
             }
             return result;
@@ -115,29 +119,30 @@ namespace TrenchBroom {
 
                 std::vector<vm::vec3> vertices;
                 vm::polygon3::get_vertices(std::begin(faceList), std::end(faceList), std::back_inserter(vertices));
-                VectorUtils::sortAndRemoveDuplicates(vertices);
+                kdl::vec_sort_and_remove_duplicates(vertices);
                 result.insert(std::make_pair(brush, vertices));
             }
             return result;
         }
 
-        bool VertexCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> VertexCommand::doPerformDo(MapDocumentCommandFacade* document) {
             if (m_snapshot != nullptr) {
                 restoreAndTakeNewSnapshot(document);
-                return true;
+                return doCreateCommandResult(true);
             } else {
                 if (!doCanDoVertexOperation(document)) {
-                    return false;
+                    return doCreateCommandResult(false);
                 }
 
                 takeSnapshot();
-                return doVertexOperation(document);
+                const auto success = doVertexOperation(document);
+                return doCreateCommandResult(success);
             }
         }
 
-        bool VertexCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> VertexCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             restoreAndTakeNewSnapshot(document);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         void VertexCommand::restoreAndTakeNewSnapshot(MapDocumentCommandFacade* document) {
@@ -163,7 +168,11 @@ namespace TrenchBroom {
         }
 
         bool VertexCommand::canCollateWith(const VertexCommand& other) const {
-            return VectorUtils::equals(m_brushes, other.m_brushes);
+            return m_brushes == other.m_brushes;
+        }
+
+        std::unique_ptr<CommandResult> VertexCommand::doCreateCommandResult(const bool success) {
+            return std::make_unique<CommandResult>(success);
         }
 
         void VertexCommand::removeHandles(VertexHandleManagerBase& manager) {

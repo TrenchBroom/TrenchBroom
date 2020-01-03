@@ -20,22 +20,19 @@
 #ifndef TrenchBroom_SelectionTool
 #define TrenchBroom_SelectionTool
 
-#include "Model/Hit.h"
+#include "Model/HitType.h"
 #include "Model/Model_Forward.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
 
+#include <list>
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class RenderContext;
-    }
-
     namespace View {
-        class InputState;
-
         /**
          * Implements the Group picking logic: if `node` is inside a (possibly nested chain of)
          * closed group(s), the outermost closed group is returned. Otherwise, `node` itself is returned.
@@ -49,13 +46,13 @@ namespace TrenchBroom {
          * The order of the hits is preserved, but if multiple hits map to the same group, that group
          * will only be listed once in the output.
          */
-        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const Model::Hit::List& hits);
+        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::list<Model::Hit>& hits);
 
         class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
         public:
-            SelectionTool(MapDocumentWPtr document);
+            SelectionTool(std::weak_ptr<MapDocument> document);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
@@ -67,7 +64,7 @@ namespace TrenchBroom {
             bool isFaceClick(const InputState& inputState) const;
             bool isMultiClick(const InputState& inputState) const;
 
-            const Model::Hit& firstHit(const InputState& inputState, Model::Hit::HitType type) const;
+            const Model::Hit& firstHit(const InputState& inputState, Model::HitType::Type type) const;
 
             std::vector<Model::Node*> collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) const;
 

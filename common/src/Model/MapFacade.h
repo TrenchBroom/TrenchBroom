@@ -21,29 +21,20 @@
 #define TrenchBroom_MapFacade
 
 #include "TrenchBroom.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Model/EntityColor.h"
 #include "Model/Model_Forward.h"
-#include "StringList.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/util.h>
 
 #include <map>
 #include <memory>
-#include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityDefinitionManager;
-        class TextureManager;
-    }
     namespace Model {
-        class BrushFaceAttributes;
-        class ChangeBrushFaceAttributesRequest;
-        class NodeCollection;
-
         class MapFacade {
         public:
             virtual ~MapFacade();
@@ -61,6 +52,7 @@ namespace TrenchBroom {
             virtual bool hasSelection() const = 0;
             virtual bool hasSelectedNodes() const = 0;
             virtual bool hasSelectedBrushFaces() const = 0;
+            virtual bool hasAnySelectedBrushFaces() const = 0;
 
             virtual const std::vector<AttributableNode*> allSelectedAttributableNodes() const = 0;
             virtual const NodeCollection& selectedNodes() const = 0;
@@ -70,7 +62,7 @@ namespace TrenchBroom {
             virtual const vm::bbox3& referenceBounds() const = 0;
             virtual const vm::bbox3& lastSelectionBounds() const = 0;
             virtual const vm::bbox3& selectionBounds() const = 0;
-            virtual const String& currentTextureName() const = 0;
+            virtual const std::string& currentTextureName() const = 0;
 
             virtual void selectAllNodes() = 0;
             virtual void selectSiblings() = 0;
@@ -144,12 +136,12 @@ namespace TrenchBroom {
                 MoveVerticesResult(bool i_success, bool i_hasRemainingVertices);
             };
 
-            virtual MoveVerticesResult moveVertices(const std::map<vm::vec3, std::set<Brush*>>& vertices, const vm::vec3& delta) = 0;
-            virtual bool moveEdges(const std::map<vm::segment3, std::set<Brush*>>& edges, const vm::vec3& delta) = 0;
-            virtual bool moveFaces(const std::map<vm::polygon3, std::set<Brush*>>& faces, const vm::vec3& delta) = 0;
+            virtual MoveVerticesResult moveVertices(const std::map<vm::vec3, std::vector<Brush*>>& vertices, const vm::vec3& delta) = 0;
+            virtual bool moveEdges(const std::map<vm::segment3, std::vector<Brush*>>& edges, const vm::vec3& delta) = 0;
+            virtual bool moveFaces(const std::map<vm::polygon3, std::vector<Brush*>>& faces, const vm::vec3& delta) = 0;
         public: // search paths and mods
-            virtual StringList mods() const = 0;
-            virtual void setMods(const StringList& mods) = 0;
+            virtual std::vector<std::string> mods() const = 0;
+            virtual void setMods(const std::vector<std::string>& mods) = 0;
         };
     }
 }

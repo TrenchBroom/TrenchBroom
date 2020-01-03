@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        OnePaneMapView::OnePaneMapView(Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, QWidget* parent) :
+        OnePaneMapView::OnePaneMapView(Logger* logger, std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, QWidget* parent) :
         MultiMapView(parent),
         m_logger(logger),
         m_document(document),

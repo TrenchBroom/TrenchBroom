@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_UVEditor
 #define TrenchBroom_UVEditor
 
-#include "View/ViewTypes.h"
+#include <memory>
 
 #include <QWidget>
 
@@ -32,12 +32,13 @@ namespace TrenchBroom {
     namespace View {
         class Selection;
         class GLContextManager;
+        class MapDocument;
         class UVView;
 
         class UVEditor : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             UVView* m_uvView;
             QSpinBox* m_xSubDivisionEditor;
@@ -49,7 +50,7 @@ namespace TrenchBroom {
             QAbstractButton* m_rotateTextureCCWButton;
             QAbstractButton* m_rotateTextureCWButton;
         public:
-            explicit UVEditor(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            explicit UVEditor(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~UVEditor() override;
 
             bool cancelMouseDrag();

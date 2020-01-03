@@ -20,17 +20,18 @@
 #ifndef TrenchBroom_MapFrame
 #define TrenchBroom_MapFrame
 
+#include "IO/IO_Forward.h"
 #include "Model/MapFormat.h"
 #include "Model/Model_Forward.h"
-#include "View/Inspector.h"
 #include "View/Selection.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
 
 #include <QMainWindow>
 #include <QPointer>
 
 #include <map>
 #include <memory>
+#include <string>
 
 class QAction;
 class QComboBox;
@@ -45,29 +46,14 @@ class QToolBar;
 namespace TrenchBroom {
     class Logger;
 
-    namespace IO {
-        class Path;
-    }
-
     namespace View {
-        class Action;
-        class Autosaver;
-        class Console;
-        class InfoPanel;
-        class FrameManager;
-        class GLContextManager;
-        class Inspector;
-        class SwitchableMapViewContainer;
-        class Tool;
-        class MapViewBase;
-
         class MapFrame : public QMainWindow {
             Q_OBJECT
         private:
             FrameManager* m_frameManager;
-            MapDocumentSPtr m_document;
+            std::shared_ptr<MapDocument> m_document;
 
-            Autosaver* m_autosaver;
+            std::unique_ptr<Autosaver> m_autosaver;
             QTimer* m_autosaveTimer;
 
             QToolBar* m_toolBar;
@@ -75,7 +61,7 @@ namespace TrenchBroom {
             QSplitter* m_hSplitter;
             QSplitter* m_vSplitter;
 
-            GLContextManager* m_contextManager;
+            std::unique_ptr<GLContextManager> m_contextManager;
             SwitchableMapViewContainer* m_mapView;
             /**
              * Last focused MapViewBase. It's a QPointer to handle changing from e.g. a 2-pane map view to 1-pane.
@@ -99,11 +85,11 @@ namespace TrenchBroom {
             QAction* m_pasteAction;
             QAction* m_pasteAtOriginalPositionAction;
         public:
-            MapFrame(FrameManager* frameManager, MapDocumentSPtr document);
+            MapFrame(FrameManager* frameManager, std::shared_ptr<MapDocument> document);
             ~MapFrame() override;
 
             void positionOnScreen(QWidget* reference);
-            MapDocumentSPtr document() const;
+            std::shared_ptr<MapDocument> document() const;
         public: // getters and such
             Logger& logger() const;
         private: // title bar contents
@@ -135,8 +121,8 @@ namespace TrenchBroom {
             void documentDidChange(View::MapDocument* document);
             void documentModificationStateDidChange();
 
-            void transactionDone(const String&);
-            void transactionUndone(const String&);
+            void transactionDone(const std::string&);
+            void transactionUndone(const std::string&);
 
             void preferenceDidChange(const IO::Path& path);
             void gridDidChange();
@@ -309,7 +295,7 @@ namespace TrenchBroom {
 
             void showAll();
 
-            void switchToInspectorPage(Inspector::InspectorPage page);
+            void switchToInspectorPage(InspectorPage page);
 
             void toggleToolbar();
             bool toolbarVisible() const;

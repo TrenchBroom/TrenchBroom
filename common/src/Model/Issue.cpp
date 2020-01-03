@@ -19,11 +19,14 @@
 
 #include "Model/Issue.h"
 
-#include "CollectionUtils.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Node.h"
+
+#include <kdl/vector_utils.h>
+
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,7 +40,7 @@ namespace TrenchBroom {
             return doGetLineNumber();
         }
 
-        const String Issue::description() const {
+        const std::string Issue::description() const {
             return doGetDescription();
         }
 
@@ -67,7 +70,7 @@ namespace TrenchBroom {
 
             CollectSelectableIssueNodesVisitor collect;
             m_node->acceptAndRecurse(collect);
-            VectorUtils::append(nodes, collect.nodes());
+            kdl::vec_append(nodes, collect.nodes());
 
             return true;
         }

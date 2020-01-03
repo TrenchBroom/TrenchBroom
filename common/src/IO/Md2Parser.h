@@ -20,26 +20,19 @@
 #ifndef TrenchBroom_Md2Parser
 #define TrenchBroom_Md2Parser
 
-#include "StringType.h"
-#include "Assets/AssetTypes.h"
-#include "Assets/EntityModel.h"
-#include "Assets/TextureCollection.h"
+#include "Assets/Asset_Forward.h"
+#include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
+#include "IO/IO_Forward.h"
 
+#include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Palette;
-    }
-
     namespace IO {
-        class Reader;
-        class FileSystem;
-        class Path;
-
         namespace Md2Layout {
             static const int Ident = (('2'<<24) + ('P'<<16) + ('D'<<8) + 'I');
             static const int Version = 8;
@@ -52,7 +45,7 @@ namespace TrenchBroom {
         private:
             static const vm::vec3f Normals[162];
 
-            using Md2SkinList = StringList;
+            using Md2SkinList = std::vector<std::string>;
 
             struct Md2Vertex {
                 unsigned char x, y, z;
@@ -63,7 +56,7 @@ namespace TrenchBroom {
             struct Md2Frame {
                 vm::vec3f scale;
                 vm::vec3f offset;
-                String name;
+                std::string name;
                 Md2VertexList vertices;
 
                 explicit Md2Frame(size_t vertexCount);
@@ -92,13 +85,13 @@ namespace TrenchBroom {
             using Md2MeshList =  std::vector<Md2Mesh>;
 
 
-            String m_name;
+            std::string m_name;
             const char* m_begin;
             const char* m_end;
             const Assets::Palette& m_palette;
             const FileSystem& m_fs;
         public:
-            Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs);
+            Md2Parser(const std::string& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs);
         private:
             std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
             void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
@@ -107,10 +100,10 @@ namespace TrenchBroom {
             Md2Frame parseFrame(Reader reader, size_t frameIndex, size_t vertexCount);
             Md2MeshList parseMeshes(Reader reader, size_t commandCount);
 
-            void loadSkins(Assets::EntityModel::Surface& surface, const Md2SkinList& skins);
+            void loadSkins(Assets::EntityModelSurface& surface, const Md2SkinList& skins);
 
-            void buildFrame(Assets::EntityModel& model, Assets::EntityModel::Surface& surface, size_t frameIndex, const Md2Frame& frame, const Md2MeshList& meshes);
-            Assets::EntityModel::VertexList getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const;
+            void buildFrame(Assets::EntityModel& model, Assets::EntityModelSurface& surface, size_t frameIndex, const Md2Frame& frame, const Md2MeshList& meshes);
+            std::vector<Assets::EntityModelVertex> getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const;
         };
     }
 }

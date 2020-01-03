@@ -20,16 +20,14 @@
 #include "DiskFileSystem.h"
 
 #include "Exceptions.h"
-#include "StringUtils.h"
 
 #include "IO/DiskIO.h"
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
-        class File;
-
         DiskFileSystem::DiskFileSystem(const Path& root, const bool ensureExists) :
         DiskFileSystem(nullptr, root, ensureExists) {}
 
@@ -62,7 +60,7 @@ namespace TrenchBroom {
             return Disk::fileExists(doMakeAbsolute(path));
         }
 
-        Path::List DiskFileSystem::doGetDirectoryContents(const Path& path) const {
+        std::vector<Path> DiskFileSystem::doGetDirectoryContents(const Path& path) const {
             return Disk::getDirectoryContents(doMakeAbsolute(path));
         }
 
@@ -81,7 +79,7 @@ namespace TrenchBroom {
             }
         }
 
-        void WritableDiskFileSystem::doCreateFile(const Path& path, const String& contents) {
+        void WritableDiskFileSystem::doCreateFile(const Path& path, const std::string& contents) {
             Disk::createFile(doMakeAbsolute(path), contents);
         }
 

@@ -19,11 +19,10 @@
 
 #include "BrushSnapshot.h"
 
-#include "CollectionUtils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 
-#include <vector>
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -33,7 +32,7 @@ namespace TrenchBroom {
         }
 
         BrushSnapshot::~BrushSnapshot() {
-            VectorUtils::clearAndDelete(m_faces);
+            kdl::vec_clear_and_delete(m_faces);
         }
 
         void BrushSnapshot::takeSnapshot(Brush* brush) {

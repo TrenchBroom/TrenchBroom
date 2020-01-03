@@ -20,9 +20,8 @@
 #include "FaceAttribsEditor.h"
 
 #include "Color.h"
-#include "Assets/AssetTypes.h"
+#include "SharedPointer.h"
 #include "Assets/Texture.h"
-#include "IO/ResourceUtils.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Game.h"
@@ -39,10 +38,14 @@
 #include "View/ViewUtils.h"
 #include "View/QtUtils.h"
 
+#include <kdl/string_format.h>
+#include <kdl/string_utils.h>
+
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
 #include <memory>
+#include <string>
 
 #include <QtGlobal>
 #include <QLabel>
@@ -51,7 +54,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        FaceAttribsEditor::FaceAttribsEditor(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
+        FaceAttribsEditor::FaceAttribsEditor(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)),
         m_uvEditor(nullptr),
@@ -84,8 +87,8 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::xOffsetChanged(const double value) {
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            auto document = lock(m_document);
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
@@ -97,8 +100,8 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::yOffsetChanged(const double value) {
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            auto document = lock(m_document);
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
@@ -110,8 +113,8 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::rotationChanged(const double value) {
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            auto document = lock(m_document);
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
@@ -123,8 +126,8 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::xScaleChanged(const double value) {
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            auto document = lock(m_document);
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
@@ -136,8 +139,8 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::yScaleChanged(const double value) {
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            auto document = lock(m_document);
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
@@ -149,8 +152,8 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::surfaceFlagChanged(const size_t index, const int setFlag, const int /* mixedFlag */) {
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            auto document = lock(m_document);
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
@@ -166,8 +169,8 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::contentFlagChanged(const size_t index, const int setFlag, const int /* mixedFlag */) {
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            auto document = lock(m_document);
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
@@ -183,8 +186,8 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::surfaceValueChanged(const double value) {
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            auto document = lock(m_document);
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
@@ -196,13 +199,13 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::colorValueChanged(const QString& /* text */) {
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->hasSelectedBrushFaces()) {
+            auto document = lock(m_document);
+            if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
-            const String str = m_colorEditor->text().toStdString();
-            if (!StringUtils::isBlank(str)) {
+            const std::string str = m_colorEditor->text().toStdString();
+            if (!kdl::str_is_blank(str)) {
                 if (Color::canParse(str)) {
                     Model::ChangeBrushFaceAttributesRequest request;
                     request.setColor(Color::parse(str));
@@ -220,7 +223,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::gridDidChange() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Grid& grid = document->grid();
 
             m_xOffsetEditor->setIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
@@ -376,7 +379,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &FaceAttribsEditor::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &FaceAttribsEditor::documentWasLoaded);
             document->brushFacesDidChangeNotifier.addObserver(this, &FaceAttribsEditor::brushFacesDidChange);
@@ -387,7 +390,7 @@ namespace TrenchBroom {
 
         void FaceAttribsEditor::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasLoaded);
                 document->brushFacesDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::brushFacesDidChange);
@@ -408,13 +411,13 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::brushFacesDidChange(const std::vector<Model::BrushFace*>&) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             m_faces = document->allSelectedBrushFaces();
             updateControls();
         }
 
         void FaceAttribsEditor::selectionDidChange(const Selection&) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             m_faces = document->allSelectedBrushFaces();
             updateControls();
         }
@@ -478,7 +481,7 @@ namespace TrenchBroom {
                 bool surfaceValueMulti = false;
                 bool colorValueMulti = false;
 
-                Assets::Texture* texture = m_faces[0]->texture();
+                const std::string& textureName = m_faces[0]->textureName();
                 const float xOffset = m_faces[0]->xOffset();
                 const float yOffset = m_faces[0]->yOffset();
                 const float rotation = m_faces[0]->rotation();
@@ -495,7 +498,7 @@ namespace TrenchBroom {
 
                 for (size_t i = 1; i < m_faces.size(); i++) {
                     Model::BrushFace* face = m_faces[i];
-                    textureMulti            |= (texture         != face->texture());
+                    textureMulti            |= (textureName     != face->textureName());
                     xOffsetMulti            |= (xOffset         != face->xOffset());
                     yOffsetMulti            |= (yOffset         != face->yOffset());
                     rotationMulti           |= (rotation        != face->rotation());
@@ -525,13 +528,13 @@ namespace TrenchBroom {
                     m_textureSize->setText("multi");
                     m_textureSize->setEnabled(false);
                 } else {
-                    const String& textureName = m_faces[0]->textureName();
                     if (textureName == Model::BrushFace::NoTextureName) {
                         m_textureName->setText("none");
                         m_textureName->setEnabled(false);
                         m_textureSize->setText("");
                         m_textureSize->setEnabled(false);
                     } else {
+                        const Assets::Texture* texture = m_faces[0]->texture();
                         if (texture != nullptr) {
                             m_textureName->setText(QString::fromStdString(textureName));
                             m_textureSize->setText(QStringLiteral("%1 * %2").arg(texture->width()).arg(texture->height()));
@@ -556,7 +559,7 @@ namespace TrenchBroom {
                         m_colorEditor->setText("");
                     } else {
                         m_colorEditor->setPlaceholderText("");
-                        m_colorEditor->setText(QString::fromStdString(StringUtils::toString(colorValue)));
+                        m_colorEditor->setText(QString::fromStdString(kdl::str_to_string(colorValue)));
                     }
                 } else {
                     m_colorEditor->setPlaceholderText("");
@@ -583,10 +586,10 @@ namespace TrenchBroom {
 
 
         bool FaceAttribsEditor::hasSurfaceAttribs() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const auto game = document->game();
-            const Model::GameConfig::FlagsConfig& surfaceFlags = game->surfaceFlags();
-            const Model::GameConfig::FlagsConfig& contentFlags = game->contentFlags();
+            const Model::FlagsConfig& surfaceFlags = game->surfaceFlags();
+            const Model::FlagsConfig& contentFlags = game->contentFlags();
 
             return !surfaceFlags.flags.empty() && !contentFlags.flags.empty();
         }
@@ -610,7 +613,7 @@ namespace TrenchBroom {
         }
 
         bool FaceAttribsEditor::hasColorAttribs() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             return document->world()->format() == Model::MapFormat::Daikatana;
         }
 
@@ -624,8 +627,8 @@ namespace TrenchBroom {
             m_colorEditor->hide();
         }
 
-        void getFlags(const Model::GameConfig::FlagConfigList& flags, QStringList& names, QStringList& descriptions);
-        void getFlags(const Model::GameConfig::FlagConfigList& flags, QStringList& names, QStringList& descriptions) {
+        void getFlags(const std::vector<Model::FlagConfig>& flags, QStringList& names, QStringList& descriptions);
+        void getFlags(const std::vector<Model::FlagConfig>& flags, QStringList& names, QStringList& descriptions) {
             for (const auto& flag : flags) {
                 names.push_back(QString::fromStdString(flag.name));
                 descriptions.push_back(QString::fromStdString(flag.description));
@@ -633,16 +636,16 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::getSurfaceFlags(QStringList& names, QStringList& descriptions) const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const auto game = document->game();
-            const Model::GameConfig::FlagsConfig& surfaceFlags = game->surfaceFlags();
+            const Model::FlagsConfig& surfaceFlags = game->surfaceFlags();
             getFlags(surfaceFlags.flags, names, descriptions);
         }
 
         void FaceAttribsEditor::getContentFlags(QStringList& names, QStringList& descriptions) const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const auto game = document->game();
-            const Model::GameConfig::FlagsConfig& contentFlags = game->contentFlags();
+            const Model::FlagsConfig& contentFlags = game->contentFlags();
             getFlags(contentFlags.flags, names, descriptions);
         }
     }

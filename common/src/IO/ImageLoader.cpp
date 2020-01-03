@@ -19,7 +19,6 @@
 
 #include "ImageLoader.h"
 
-#include "Exceptions.h"
 #include "IO/Path.h"
 #include "IO/ImageLoaderImpl.h"
 
@@ -31,10 +30,7 @@ namespace TrenchBroom {
         ImageLoader::ImageLoader(const Format format, const char* begin, const char* end) :
         m_impl(new ImageLoaderImpl(format, begin, end)) {}
 
-        ImageLoader::~ImageLoader() {
-            delete m_impl;
-            m_impl = nullptr;
-        }
+        ImageLoader::~ImageLoader() = default;
 
         size_t ImageLoader::paletteSize() const {
             return m_impl->paletteSize();
@@ -72,16 +68,16 @@ namespace TrenchBroom {
             return m_impl->hasPixels();
         }
 
-        const Buffer<unsigned char>& ImageLoader::palette() const {
-            return m_impl->palette();
+        std::vector<unsigned char> ImageLoader::loadPalette() const {
+            return m_impl->loadPalette();
         }
 
-        const Buffer<unsigned char>& ImageLoader::indices() const {
-            return m_impl->indices();
+        std::vector<unsigned char> ImageLoader::loadIndices() const {
+            return m_impl->loadIndices();
         }
 
-        const Buffer<unsigned char>& ImageLoader::pixels(const PixelFormat format) const {
-            return m_impl->pixels(format);
+        std::vector<unsigned char> ImageLoader::loadPixels(const PixelFormat format) const {
+            return m_impl->loadPixels(format);
         }
     }
 }

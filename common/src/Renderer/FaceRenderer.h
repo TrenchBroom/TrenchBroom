@@ -21,31 +21,26 @@
 #define TrenchBroom_FaceRenderer
 
 #include "Color.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Renderer/Renderable.h"
+#include "Renderer/Renderer_Forward.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 #include <memory>
 #include <unordered_map>
 
 namespace TrenchBroom {
     namespace Renderer {
-        class ActiveShader;
-        class BrushIndexArray;
-        class BrushVertexArray;
-        class RenderBatch;
-        class RenderContext;
-        class Vbo;
-
-        using BrushVertexArrayPtr = std::shared_ptr<BrushVertexArray>;
-        using TextureToBrushIndicesMap = std::unordered_map<const Assets::Texture*, std::shared_ptr<BrushIndexArray>>;
-        using TextureToBrushIndicesMapPtr = std::shared_ptr<const TextureToBrushIndicesMap>;
-
         class FaceRenderer : public IndexedRenderable {
         private:
             struct RenderFunc;
 
-            BrushVertexArrayPtr m_vertexArray;
-            TextureToBrushIndicesMapPtr m_indexArrayMap;
+            using TextureToBrushIndicesMap = const std::unordered_map<const Assets::Texture*, std::shared_ptr<BrushIndexArray>>;
+
+            std::shared_ptr<BrushVertexArray> m_vertexArray;
+            std::shared_ptr<TextureToBrushIndicesMap> m_indexArrayMap;
             Color m_faceColor;
             bool m_grayscale;
             bool m_tint;
@@ -53,7 +48,7 @@ namespace TrenchBroom {
             float m_alpha;
         public:
             FaceRenderer();
-            FaceRenderer(BrushVertexArrayPtr vertexArray, TextureToBrushIndicesMapPtr indexArrayMap, const Color& faceColor);
+            FaceRenderer(std::shared_ptr<BrushVertexArray> vertexArray, std::shared_ptr<TextureToBrushIndicesMap> indexArrayMap, const Color& faceColor);
 
             FaceRenderer(const FaceRenderer& other);
             FaceRenderer& operator=(FaceRenderer other);
@@ -65,8 +60,9 @@ namespace TrenchBroom {
             void setAlpha(float alpha);
 
             void render(RenderBatch& renderBatch);
+            static vm::vec3f gridColorForTexture(const Assets::Texture* texture);
         private:
-            void prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) override;
+            void prepareVerticesAndIndices(VboManager& vboManager) override;
             void doRender(RenderContext& context) override;
         };
 

@@ -20,16 +20,14 @@
 #ifndef TRENCHBROOM_Q3SHADERPARSER_H
 #define TRENCHBROOM_Q3SHADERPARSER_H
 
+#include "Assets/Asset_Forward.h"
+#include "IO/IO_Forward.h"
 #include "IO/Parser.h"
-#include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
-namespace TrenchBroom {
-    namespace Assets {
-        class Quake3Shader;
-        class Quake3ShaderStage;
-    }
+#include <string>
 
+namespace TrenchBroom {
     namespace IO {
         namespace Quake3ShaderToken {
             using Type = unsigned int;
@@ -43,12 +41,10 @@ namespace TrenchBroom {
             static const Type Eof           = 1 << 8; // end of file
         }
 
-        class ParserStatus;
-
         class Quake3ShaderTokenizer : public Tokenizer<Quake3ShaderToken::Type> {
         public:
             Quake3ShaderTokenizer(const char* begin, const char* end);
-            explicit Quake3ShaderTokenizer(const String& str);
+            explicit Quake3ShaderTokenizer(const std::string& str);
         private:
             Token emitToken() override;
         };
@@ -58,7 +54,7 @@ namespace TrenchBroom {
             Quake3ShaderTokenizer m_tokenizer;
         public:
             Quake3ShaderParser(const char* begin, const char* end);
-            explicit Quake3ShaderParser(const String& str);
+            explicit Quake3ShaderParser(const std::string& str);
 
             /**
              * Parses a Quake 3 shader and returns the value of the qer_editorimage entry.

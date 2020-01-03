@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "SharedPointer.h"
+#include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "View/EntityBrowserView.h"
 #include "View/ViewConstants.h"
@@ -35,9 +36,12 @@
 #include <QScrollBar>
 #include <QHBoxLayout>
 
+// for use in QVariant
+Q_DECLARE_METATYPE(TrenchBroom::Assets::EntityDefinitionSortOrder)
+
 namespace TrenchBroom {
     namespace View {
-        EntityBrowser::EntityBrowser(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
+        EntityBrowser::EntityBrowser(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)),
         m_sortOrderChoice(nullptr),
@@ -83,12 +87,12 @@ namespace TrenchBroom {
             browserPanel->setLayout(browserPanelSizer);
 
             m_sortOrderChoice = new QComboBox();
-            m_sortOrderChoice->addItem(tr("Name"), QVariant(Assets::EntityDefinition::Name));
-            m_sortOrderChoice->addItem(tr("Usage"), QVariant(Assets::EntityDefinition::Usage));
+            m_sortOrderChoice->addItem(tr("Name"), QVariant::fromValue(Assets::EntityDefinitionSortOrder::Name));
+            m_sortOrderChoice->addItem(tr("Usage"), QVariant::fromValue(Assets::EntityDefinitionSortOrder::Usage));
             m_sortOrderChoice->setCurrentIndex(0);
             m_sortOrderChoice->setToolTip(tr("Select ordering criterion"));
             connect(m_sortOrderChoice, QOverload<int>::of(&QComboBox::activated), this, [=](int index){
-                auto sortOrder = static_cast<Assets::EntityDefinition::SortOrder>(m_sortOrderChoice->itemData(index).toInt());
+                auto sortOrder = static_cast<Assets::EntityDefinitionSortOrder>(m_sortOrderChoice->itemData(index).toInt());
                 m_view->setSortOrder(sortOrder);
             });
 

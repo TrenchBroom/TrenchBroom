@@ -25,6 +25,7 @@
 #include "IO/ReaderException.h"
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -84,7 +85,7 @@ namespace TrenchBroom {
             EXPECT_FALSE(r.canRead(10U));
 
             // read remainder
-            EXPECT_EQ(String("bcdefghij"), r.readString(9));
+            EXPECT_EQ(std::string("bcdefghij"), r.readString(9));
             EXPECT_EQ(10U, r.position());
             EXPECT_FALSE(r.canRead(1U));
             EXPECT_TRUE(r.canRead(0U));

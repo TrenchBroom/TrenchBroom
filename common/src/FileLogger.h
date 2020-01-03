@@ -22,14 +22,12 @@
 
 #include "Macros.h"
 #include "Logger.h"
+#include "IO/IO_Forward.h"
 
 #include <cstdio>
+#include <string>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     class FileLogger : public Logger {
     private:
         FILE* m_file;
@@ -39,7 +37,7 @@ namespace TrenchBroom {
 
         static FileLogger& instance();
     private:
-        void doLog(LogLevel level, const String& message) override;
+        void doLog(LogLevel level, const std::string& message) override;
         void doLog(LogLevel level, const QString& message) override;
 
         deleteCopyAndMove(FileLogger)

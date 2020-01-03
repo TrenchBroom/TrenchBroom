@@ -20,11 +20,10 @@
 #include "CreateSimpleBrushToolController3D.h"
 
 #include "TrenchBroom.h"
-
 #include "PreferenceManager.h"
+#include "SharedPointer.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
@@ -42,7 +41,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        CreateSimpleBrushToolController3D::CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, MapDocumentWPtr document) :
+        CreateSimpleBrushToolController3D::CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, std::weak_ptr<MapDocument> document) :
         m_tool(tool),
         m_document(document) {
             ensure(tool != nullptr, "tool is null");
@@ -74,7 +73,7 @@ namespace TrenchBroom {
                 return DragInfo();
             }
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (document->hasSelection()) {
                 return DragInfo();
             }

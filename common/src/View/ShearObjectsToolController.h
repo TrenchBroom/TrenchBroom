@@ -21,32 +21,22 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TrenchBroom_ShearObjectsToolController
 #define TrenchBroom_ShearObjectsToolController
 
-#include "Renderer/EdgeRenderer.h"
+#include "Model/Model_Forward.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
+
+#include <memory>
 
 namespace TrenchBroom {
-    namespace Model {
-        class PickResult;
-    }
-
-    namespace Renderer {
-        class RenderBatch;
-        class RenderContext;
-    }
-
     namespace View {
-        class InputState;
-        class ShearObjectsTool;
-
         class ShearObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:
             ShearObjectsTool* m_tool;
         private:
-            MapDocumentWPtr m_document;
-
+            std::weak_ptr<MapDocument> m_document;
         public:
-            explicit ShearObjectsToolController(ShearObjectsTool* tool, MapDocumentWPtr document);
+            explicit ShearObjectsToolController(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document);
             ~ShearObjectsToolController() override;
         private:
             Tool* doGetTool() override;
@@ -73,14 +63,14 @@ namespace TrenchBroom {
 
         class ShearObjectsToolController2D : public ShearObjectsToolController {
         public:
-            explicit ShearObjectsToolController2D(ShearObjectsTool* tool, MapDocumentWPtr document);
+            explicit ShearObjectsToolController2D(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document);
         private:
             void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) override;
         };
 
         class ShearObjectsToolController3D : public ShearObjectsToolController {
         public:
-            explicit ShearObjectsToolController3D(ShearObjectsTool* tool, MapDocumentWPtr document);
+            explicit ShearObjectsToolController3D(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document);
         private:
             void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) override;
         };

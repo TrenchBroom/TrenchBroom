@@ -21,18 +21,21 @@
 #define GameEngineConfig_h
 
 #include "Notifier.h"
-#include "Model/GameEngineProfile.h"
+#include "Model/Model_Forward.h"
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class GameEngineConfig {
         private:
-            GameEngineProfile::List m_profiles;
+            std::vector<GameEngineProfile*> m_profiles;
         public:
             mutable Notifier<> profilesDidChange;
         public:
             GameEngineConfig();
-            GameEngineConfig(const GameEngineProfile::List& profiles);
+            GameEngineConfig(const std::vector<GameEngineProfile*>& profiles);
             GameEngineConfig(const GameEngineConfig& other);
             ~GameEngineConfig();
 
@@ -40,7 +43,7 @@ namespace TrenchBroom {
             friend void swap(GameEngineConfig& lhs, GameEngineConfig& rhs);
 
             size_t profileCount() const;
-            bool hasProfile(const String& name) const;
+            bool hasProfile(const std::string& name) const;
             GameEngineProfile* profile(size_t index) const;
 
             void addProfile(GameEngineProfile* profile);

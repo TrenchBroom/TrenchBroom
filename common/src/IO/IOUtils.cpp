@@ -21,7 +21,6 @@
 
 #include "Ensure.h"
 #include "Exceptions.h"
-#include "IO/DiskIO.h"
 #include "IO/Path.h"
 
 #include <vecmath/forward.h>
@@ -29,6 +28,7 @@
 
 #include <cstring>
 #include <streambuf>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -89,24 +89,24 @@ namespace TrenchBroom {
             return static_cast<size_t>(size);
         }
 
-        String readGameComment(std::istream& stream) {
+        std::string readGameComment(std::istream& stream) {
             return readInfoComment(stream, "Game");
         }
 
-        String readFormatComment(std::istream& stream) {
+        std::string readFormatComment(std::istream& stream) {
             return readInfoComment(stream, "Format");
         }
 
-        String readInfoComment(std::istream& stream, const String& name) {
+        std::string readInfoComment(std::istream& stream, const std::string& name) {
             static const size_t MaxChars = 64;
-            const String expectedHeader = "// " + name + ": ";
+            const std::string expectedHeader = "// " + name + ": ";
             char buf[MaxChars];
 
             stream.getline(buf, MaxChars);
             if (stream.fail())
                 return "";
 
-            String line(buf);
+            std::string line(buf);
             if (line.size() < expectedHeader.size())
                 return "";
 
@@ -116,43 +116,9 @@ namespace TrenchBroom {
             return line.substr(expectedHeader.size());
         }
 
-        void writeGameComment(FILE* stream, const String& gameName, const String& mapFormat) {
+        void writeGameComment(FILE* stream, const std::string& gameName, const std::string& mapFormat) {
             std::fprintf(stream, "// Game: %s\n", gameName.c_str());
             std::fprintf(stream, "// Format: %s\n", mapFormat.c_str());
-        }
-
-        vm::vec3f readVec3f(const char*& cursor) {
-            vm::vec3f value;
-            for (size_t i = 0; i < 3; i++) {
-                value[i] = readFloat<float>(cursor);
-            }
-            return value;
-        }
-
-        vm::vec3f readVec3f(const char* const& cursor) {
-            vm::vec3f value;
-            for (size_t i = 0; i < 3; i++) {
-                value[i] = readFloat<float>(cursor);
-            }
-            return value;
-        }
-
-        void readBytes(const char*& cursor, char* buffer, size_t n) {
-            std::memcpy(buffer, cursor, n);
-            cursor += n;
-        }
-
-        void readBytes(const char* const& cursor, char* buffer, size_t n) {
-            std::memcpy(buffer, cursor, n);
-        }
-
-        void readBytes(const char*& cursor, unsigned char* buffer, size_t n) {
-            std::memcpy(buffer, cursor, n);
-            cursor += n;
-        }
-
-        void readBytes(const char* const& cursor, unsigned char* buffer, size_t n) {
-            std::memcpy(buffer, cursor, n);
         }
     }
 }

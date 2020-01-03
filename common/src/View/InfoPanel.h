@@ -20,7 +20,9 @@
 #ifndef TrenchBroom_InfoPanel
 #define TrenchBroom_InfoPanel
 
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
+
+#include <memory>
 
 #include <QWidget>
 
@@ -28,11 +30,6 @@ namespace TrenchBroom {
     class Logger;
 
     namespace View {
-        class ContainerBar;
-        class Console;
-        class IssueBrowser;
-        class TabBook;
-
         class InfoPanel : public QWidget {
             Q_OBJECT
         private:
@@ -40,7 +37,7 @@ namespace TrenchBroom {
             Console* m_console;
             IssueBrowser* m_issueBrowser;
         public:
-            explicit InfoPanel(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit InfoPanel(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             Console* console() const;
         };
     }

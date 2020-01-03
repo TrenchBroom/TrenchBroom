@@ -33,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MoveObjectsTool::MoveObjectsTool(MapDocumentWPtr document) :
+        MoveObjectsTool::MoveObjectsTool(std::weak_ptr<MapDocument> document) :
         Tool(true),
         m_document(document),
         m_duplicateObjects(false) {}
@@ -44,7 +44,7 @@ namespace TrenchBroom {
 
         bool MoveObjectsTool::startMove(const InputState& inputState) {
             auto document = lock(m_document);
-            document->beginTransaction(duplicateObjects(inputState) ? "Duplicate Objects" : "Move Objects");
+            document->startTransaction(duplicateObjects(inputState) ? "Duplicate Objects" : "Move Objects");
             m_duplicateObjects = duplicateObjects(inputState);
             return true;
         }

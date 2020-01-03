@@ -27,8 +27,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class MapFacade;
-
         class PushSelection {
         private:
             MapFacade* m_facade;

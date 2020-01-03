@@ -21,7 +21,7 @@
 #define TrenchBroom_RecentDocuments
 
 #include "Notifier.h"
-#include "IO/Path.h"
+#include "IO/IO_Forward.h"
 
 #include <vector>
 
@@ -38,13 +38,11 @@ namespace TrenchBroom {
             MenuList m_menus;
 
             size_t m_maxSize;
-            IO::Path::List m_recentDocuments;
+            std::vector<IO::Path> m_recentDocuments;
         public:
-            Notifier<> didChangeNotifier;
-        public:
-            explicit RecentDocuments(size_t maxSize);
+            explicit RecentDocuments(size_t maxSize, QObject* parent = nullptr);
 
-            const IO::Path::List& recentDocuments() const;
+            const std::vector<IO::Path>& recentDocuments() const;
 
             void addMenu(QMenu* menu);
             void removeMenu(QMenu* menu);
@@ -62,6 +60,7 @@ namespace TrenchBroom {
             void createMenuItems(QMenu* menu);
         signals:
             void loadDocument(const IO::Path& path) const;
+            void didChange();
         };
     }
 }

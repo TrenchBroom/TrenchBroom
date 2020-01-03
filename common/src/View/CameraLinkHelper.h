@@ -20,18 +20,15 @@
 #ifndef TrenchBroom_CameraLinkHelper
 #define TrenchBroom_CameraLinkHelper
 
+#include "Renderer/Renderer_Forward.h"
+
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class Camera;
-    }
-
     namespace View {
         class CameraLinkHelper {
         private:
-            using CameraList = std::vector<Renderer::Camera*>;
-            CameraList m_cameras;
+            std::vector<Renderer::Camera*> m_cameras;
             bool m_ignoreNotifications;
         public:
             CameraLinkHelper();

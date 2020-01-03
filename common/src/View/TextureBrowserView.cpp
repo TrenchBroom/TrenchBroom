@@ -19,16 +19,17 @@
 
 #include "TextureBrowserView.h"
 
-#include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "SharedPointer.h"
 #include "StepIterator.h"
-#include "StringUtils.h"
+#include "Renderer/ActiveShader.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
+#include "Assets/TextureManager.h"
 #include "Renderer/GL.h"
 #include "Renderer/FontManager.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/TextureFont.h"
@@ -36,9 +37,15 @@
 #include "Renderer/VertexArray.h"
 #include "View/MapDocument.h"
 
+#include <kdl/string_compare.h>
+#include <kdl/vector_utils.h>
+
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
+
+#include <string>
+#include <vector>
 
 #include <QTextStream>
 #include <QMenu>
@@ -50,12 +57,12 @@ namespace TrenchBroom {
     namespace View {
         TextureBrowserView::TextureBrowserView(QScrollBar* scrollBar,
                                                GLContextManager& contextManager,
-                                               MapDocumentWPtr document) :
+                                               std::weak_ptr<MapDocument> document) :
         CellView(contextManager, scrollBar),
         m_document(document),
         m_group(false),
         m_hideUnused(false),
-        m_sortOrder(SO_Name),
+        m_sortOrder(TextureSortOrder::Name),
         m_selectedTexture(nullptr) {
             auto doc = lock(m_document);
             doc->textureManager().usageCountDidChange.addObserver(this, &TextureBrowserView::usageCountDidChange);
@@ -69,7 +76,7 @@ namespace TrenchBroom {
             clear();
         }
 
-        void TextureBrowserView::setSortOrder(const SortOrder sortOrder) {
+        void TextureBrowserView::setSortOrder(const TextureSortOrder sortOrder) {
             if (sortOrder == m_sortOrder) {
                 return;
             }
@@ -96,7 +103,7 @@ namespace TrenchBroom {
             update();
         }
 
-        void TextureBrowserView::setFilterText(const String& filterText) {
+        void TextureBrowserView::setFilterText(const std::string& filterText) {
             if (filterText == m_filterText) {
                 return;
             }
@@ -143,7 +150,7 @@ namespace TrenchBroom {
 
             if (m_group) {
                 for (const Assets::TextureCollection* collection : getCollections()) {
-                    layout.addGroup(collection->name(), fontSize + 2.0f);
+                    layout.addGroup(collection->name(), static_cast<float>(fontSize) + 2.0f);
                     for (Assets::Texture* texture : getTextures(collection))
                         addTextureToLayout(layout, texture, font);
                 }
@@ -190,7 +197,7 @@ namespace TrenchBroom {
         }
 
         struct TextureBrowserView::CompareByUsageCount {
-            StringUtils::CaseInsensitiveStringLess m_less;
+            kdl::ci::string_less m_less;
 
             template <typename T>
             bool operator()(const T* lhs, const T* rhs) const {
@@ -204,7 +211,7 @@ namespace TrenchBroom {
         };
 
         struct TextureBrowserView::CompareByName {
-            StringUtils::CaseInsensitiveStringLess m_less;
+            kdl::ci::string_less m_less;
 
             template <typename T>
             bool operator()(const T* lhs, const T* rhs) const {
@@ -220,54 +227,56 @@ namespace TrenchBroom {
         };
 
         struct TextureBrowserView::MatchName {
-            String pattern;
+            std::string pattern;
 
-            explicit MatchName(const String& i_pattern) : pattern(i_pattern) {}
+            explicit MatchName(const std::string& i_pattern) : pattern(i_pattern) {}
 
             bool operator()(const Assets::Texture* texture) const {
-                return !StringUtils::containsCaseInsensitive(texture->name(), pattern);
+                return !kdl::ci::str_contains(texture->name(), pattern);
             }
         };
 
-        Assets::TextureCollectionList TextureBrowserView::getCollections() const {
+        std::vector<Assets::TextureCollection*> TextureBrowserView::getCollections() const {
             auto doc = lock(m_document);
-            Assets::TextureCollectionList collections = doc->textureManager().collections();
-            if (m_hideUnused)
-                VectorUtils::eraseIf(collections, MatchUsageCount());
-            if (m_sortOrder == SO_Usage)
-                VectorUtils::sort(collections, CompareByUsageCount());
+            std::vector<Assets::TextureCollection*> collections = doc->textureManager().collections();
+            if (m_hideUnused) {
+                kdl::vec_erase_if(collections, MatchUsageCount());
+            }
+            if (m_sortOrder == TextureSortOrder::Usage) {
+                kdl::vec_sort(collections, CompareByUsageCount());
+            }
             return collections;
         }
 
-        Assets::TextureList TextureBrowserView::getTextures(const Assets::TextureCollection* collection) const {
-            Assets::TextureList textures = collection->textures();
+        std::vector<Assets::Texture*> TextureBrowserView::getTextures(const Assets::TextureCollection* collection) const {
+            std::vector<Assets::Texture*> textures = collection->textures();
             filterTextures(textures);
             sortTextures(textures);
             return textures;
         }
 
-        Assets::TextureList TextureBrowserView::getTextures() const {
+        std::vector<Assets::Texture*> TextureBrowserView::getTextures() const {
             auto doc = lock(m_document);
-            Assets::TextureList textures = doc->textureManager().textures();
+            std::vector<Assets::Texture*> textures = doc->textureManager().textures();
             filterTextures(textures);
             sortTextures(textures);
             return textures;
         }
 
-        void TextureBrowserView::filterTextures(Assets::TextureList& textures) const {
+        void TextureBrowserView::filterTextures(std::vector<Assets::Texture*>& textures) const {
             if (m_hideUnused)
-                VectorUtils::eraseIf(textures, MatchUsageCount());
+                kdl::vec_erase_if(textures, MatchUsageCount());
             if (!m_filterText.empty())
-                VectorUtils::eraseIf(textures, MatchName(m_filterText));
+                kdl::vec_erase_if(textures, MatchName(m_filterText));
         }
 
-        void TextureBrowserView::sortTextures(Assets::TextureList& textures) const {
+        void TextureBrowserView::sortTextures(std::vector<Assets::Texture*>& textures) const {
             switch (m_sortOrder) {
-                case SO_Name:
-                    VectorUtils::sort(textures, CompareByName());
+                case TextureSortOrder::Name:
+                    kdl::vec_sort(textures, CompareByName());
                     break;
-                case SO_Usage:
-                    VectorUtils::sort(textures, CompareByUsageCount());
+                case TextureSortOrder::Usage:
+                    kdl::vec_sort(textures, CompareByUsageCount());
                     break;
             }
         }
@@ -287,8 +296,6 @@ namespace TrenchBroom {
             const vm::mat4x4f view = vm::view_matrix(vm::vec3f::neg_z(), vm::vec3f::pos_y()) *vm::translation_matrix(vm::vec3f(0.0f, 0.0f, 0.1f));
             const Renderer::Transformation transformation(projection, view);
 
-            Renderer::ActivateVbo activate(vertexVbo());
-
             glAssert(glDisable(GL_DEPTH_TEST));
             glAssert(glFrontFace(GL_CCW));
 
@@ -303,7 +310,7 @@ namespace TrenchBroom {
 
         void TextureBrowserView::renderBounds(Layout& layout, const float y, const float height) {
             using BoundsVertex = Renderer::GLVertexTypes::P2C4::Vertex;
-            BoundsVertex::List vertices;
+            std::vector<BoundsVertex> vertices;
 
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Group& group = layout[i];
@@ -329,9 +336,8 @@ namespace TrenchBroom {
             Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::TextureBrowserBorderShader);
 
-            Renderer::ActivateVbo activate(vertexVbo());
-            vertexArray.prepare(vertexVbo());
-            vertexArray.render(GL_QUADS);
+            vertexArray.prepare(vboManager());
+            vertexArray.render(Renderer::PrimType::Quads);
         }
 
         const Color& TextureBrowserView::textureColor(const Assets::Texture& texture) const {
@@ -352,8 +358,6 @@ namespace TrenchBroom {
 
             size_t num = 0;
 
-            Renderer::ActivateVbo activate(vertexVbo());
-
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
@@ -365,7 +369,7 @@ namespace TrenchBroom {
                                 const LayoutBounds& bounds = cell.itemBounds();
                                 const Assets::Texture* texture = cellData(cell).texture;
 
-                                Renderer::VertexArray vertexArray = Renderer::VertexArray::move(TextureVertex::List({
+                                Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::vector<TextureVertex>({
                                     TextureVertex(vm::vec2f(bounds.left(),  height - (bounds.top() - y)),    vm::vec2f(0.0f, 0.0f)),
                                     TextureVertex(vm::vec2f(bounds.left(),  height - (bounds.bottom() - y)), vm::vec2f(0.0f, 1.0f)),
                                     TextureVertex(vm::vec2f(bounds.right(), height - (bounds.bottom() - y)), vm::vec2f(1.0f, 1.0f)),
@@ -375,8 +379,8 @@ namespace TrenchBroom {
                                 shader.set("GrayScale", texture->overridden());
                                 texture->activate();
 
-                                vertexArray.prepare(vertexVbo());
-                                vertexArray.render(GL_QUADS);
+                                vertexArray.prepare(vboManager());
+                                vertexArray.render(Renderer::PrimType::Quads);
 
                                 texture->deactivate();
 
@@ -395,7 +399,7 @@ namespace TrenchBroom {
 
         void TextureBrowserView::renderGroupTitleBackgrounds(Layout& layout, const float y, const float height) {
             using Vertex = Renderer::GLVertexTypes::P2::Vertex;
-            Vertex::List vertices;
+            std::vector<Vertex> vertices;
 
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Group& group = layout[i];
@@ -413,22 +417,19 @@ namespace TrenchBroom {
 
             Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
 
-            Renderer::ActivateVbo activate(vertexVbo());
-            vertexArray.prepare(vertexVbo());
-            vertexArray.render(GL_QUADS);
+            vertexArray.prepare(vboManager());
+            vertexArray.render(Renderer::PrimType::Quads);
         }
 
         void TextureBrowserView::renderStrings(Layout& layout, const float y, const float height) {
             using StringRendererMap = std::map<Renderer::FontDescriptor, Renderer::VertexArray>;
             StringRendererMap stringRenderers;
 
-            Renderer::ActivateVbo activate(vertexVbo());
-
             for (const auto& entry : collectStringVertices(layout, y, height)) {
                 const auto& descriptor = entry.first;
                 const auto& vertices = entry.second;
                 stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
-                stringRenderers[descriptor].prepare(vertexVbo());
+                stringRenderers[descriptor].prepare(vboManager());
             }
 
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::ColoredTextShader);
@@ -440,7 +441,7 @@ namespace TrenchBroom {
 
                 auto& font = fontManager().font(descriptor);
                 font.activate();
-                vertexArray.render(GL_QUADS);
+                vertexArray.render(Renderer::PrimType::Quads);
                 font.deactivate();
             }
         }
@@ -505,8 +506,8 @@ namespace TrenchBroom {
                                     stepIterator(std::begin(groupNameQuads), std::end(groupNameQuads), 1, 2),
                                     stepIterator(std::begin(subTextColor), std::end(subTextColor), 0, 0));
 
-                                VectorUtils::append(stringVertices[cellData(cell).mainTitleFont], textureNameVertices);
-                                VectorUtils::append(stringVertices[cellData(cell).subTitleFont], groupNameVertices);
+                                kdl::vec_append(stringVertices[cellData(cell).mainTitleFont], textureNameVertices);
+                                kdl::vec_append(stringVertices[cellData(cell).subTitleFont], groupNameVertices);
                             }
                         }
                     }

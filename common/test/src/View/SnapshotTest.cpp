@@ -38,7 +38,7 @@ namespace TrenchBroom {
         class SnapshotTest : public MapDocumentTest {};
 
         TEST_F(SnapshotTest, setTexturesAfterRestore) {
-            document->setEnabledTextureCollections(IO::Path::List{ IO::Path("fixture/test/IO/Wad/cr8_czg.wad") });
+            document->setEnabledTextureCollections(std::vector<IO::Path>{ IO::Path("fixture/test/IO/Wad/cr8_czg.wad") });
 
             Model::Brush* brush = createBrush("coffin1");
             document->addNode(brush, document->currentParent());
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             document->translateObjects(vm::vec3(1, 1, 1));
             ASSERT_EQ(6u, texture->usageCount());
 
-            document->undoLastCommand();
+            document->undoCommand();
             ASSERT_EQ(6u, texture->usageCount());
 
             for (Model::BrushFace* face : brush->faces())

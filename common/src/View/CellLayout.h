@@ -23,11 +23,14 @@
 #include "Ensure.h"
 #include "Macros.h"
 
-#include <QVariant>
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 #include <algorithm>
 #include <cassert>
 #include <vector>
+
+#include <QVariant>
 
 namespace TrenchBroom {
     namespace View {
@@ -698,10 +701,10 @@ namespace TrenchBroom {
                 int newIndex = static_cast<int>(rowIndex) + offset;
                 if (newIndex < 0) {
                     while (newIndex < 0 && groupIndex > 0)
-                        newIndex += m_groups[--groupIndex].size();
+                        newIndex += static_cast<int>(m_groups[--groupIndex].size());
                 } else if (newIndex >= static_cast<int>(m_groups[groupIndex].size())) {
                     while (newIndex >= static_cast<int>(m_groups[groupIndex].size()) && groupIndex < m_groups.size() - 1)
-                        newIndex -= m_groups[groupIndex++].size();
+                        newIndex -= static_cast<int>(m_groups[groupIndex++].size());
                 }
 
                 if (groupIndex < m_groups.size()) {

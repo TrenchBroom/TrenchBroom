@@ -41,12 +41,24 @@
 #include "View/MapViewBase.h"
 #include "View/QtUtils.h"
 #include "View/RecentDocuments.h"
-#include "StringUtils.h"
 #ifdef __APPLE__
 #include "View/MainMenuBuilder.h"
 #endif
 
+#include <kdl/string_utils.h>
+
+#include <clocale>
+#include <csignal>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <vector>
+
 #include <QCommandLineParser>
+#include <QDebug>
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QMenuBar>
@@ -55,13 +67,6 @@
 #include <QStandardPaths>
 #include <QSysInfo>
 #include <QUrl>
-
-#include <clocale>
-#include <csignal>
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <memory>
 
 namespace TrenchBroom {
     namespace View {
@@ -83,13 +88,6 @@ namespace TrenchBroom {
         m_welcomeWindow(nullptr) {
             // When this flag is enabled, font and palette changes propagate as though the user had manually called the corresponding QWidget methods.
             setAttribute(Qt::AA_UseStyleSheetPropagationInWidgetStyles);
-
-#if defined __APPLE__
-            // fix default palette higlight text color
-            QPalette palette;
-            palette.setColor(QPalette::HighlightedText, Qt::white);
-            setPalette(palette);
-#endif
 
 #if defined(_WIN32) && defined(_MSC_VER)
             // with MSVC, set our own handler for segfaults so we can access the context
@@ -119,7 +117,7 @@ namespace TrenchBroom {
 
             m_recentDocuments = std::make_unique<RecentDocuments>(10);
             connect(m_recentDocuments.get(), &RecentDocuments::loadDocument, this, [this](const IO::Path& path) { openDocument(path); });
-
+            connect(m_recentDocuments.get(), &RecentDocuments::didChange, this, &TrenchBroomApp::recentDocumentsDidChange);
 #ifdef __APPLE__
             setQuitOnLastWindowClosed(false);
 
@@ -147,7 +145,9 @@ namespace TrenchBroom {
 
 #endif
 
-            m_recentDocuments->didChangeNotifier.addObserver(recentDocumentsDidChangeNotifier);
+            connect(this, &QCoreApplication::aboutToQuit, this, []() {
+                Model::GameFactory::instance().saveAllConfigs();
+            });
         }
 
         // must be implemented in cpp file in order to use std::unique_ptr with forward declared type as members
@@ -167,7 +167,7 @@ namespace TrenchBroom {
             return m_frameManager.get();
         }
 
-         const IO::Path::List& TrenchBroomApp::recentDocuments() const {
+         const std::vector<IO::Path>& TrenchBroomApp::recentDocuments() const {
             return m_recentDocuments->recentDocuments();
         }
 
@@ -239,7 +239,7 @@ namespace TrenchBroom {
             static bool recovering = false;
 
             if (!recovering) {
-                StringStream message;
+                std::stringstream message;
                 message << e.what() << "\n\n" << e.query();
 
                 const auto result = QMessageBox::question(nullptr, QString("TrenchBroom"), QString::fromStdString(message.str()), QMessageBox::Yes | QMessageBox::No);
@@ -257,14 +257,14 @@ namespace TrenchBroom {
         }
 
         // returns the topmost MapDocument as a shared pointer, or the empty shared pointer
-        static MapDocumentSPtr topDocument() {
+        static std::shared_ptr<MapDocument> topDocument() {
             FrameManager *fm = TrenchBroomApp::instance().frameManager();
             if (fm == nullptr)
-                return MapDocumentSPtr();
+                return {};
 
             MapFrame *frame = fm->topFrame();
             if (frame == nullptr)
-                return MapDocumentSPtr();
+                return {};
 
             return frame->document();
         }
@@ -285,15 +285,15 @@ namespace TrenchBroom {
             } catch (const std::exception& e) {
                 qCritical() << e.what();
                 return false;
-            } catch (const StringList& errors) {
-                StringStream str;
+            } catch (const std::vector<std::string>& errors) {
+                std::stringstream str;
                 if (errors.size() == 1) {
                     str << "An error occurred while loading the game configuration files:\n\n";
-                    str << StringUtils::join(errors, "\n\n");
+                    str << kdl::str_join(errors, "\n\n");
                     str << "\n\nThis file has been ignored.";
                 } else {
                     str << "Multiple errors occurred while loading the game configuration files:\n\n";
-                    str << StringUtils::join(errors, "\n\n");
+                    str << kdl::str_join(errors, "\n\n");
                     str << "\n\nThese files have been ignored.";
                 }
 
@@ -302,8 +302,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        static String makeCrashReport(const String &stacktrace, const String &reason) {
-            StringStream ss;
+        static std::string makeCrashReport(const std::string &stacktrace, const std::string &reason) {
+            std::stringstream ss;
             ss << "OS:\t" << QSysInfo::prettyProductName().toStdString() << std::endl;
             ss << "Qt:\t" << qVersion() << std::endl;
             ss << "GL_VENDOR:\t" << GLContextManager::GLVendor << std::endl;
@@ -319,7 +319,7 @@ namespace TrenchBroom {
 
         // returns the empty path for unsaved maps, or if we can't determine the current map
         static IO::Path savedMapPath() {
-            MapDocumentSPtr doc = topDocument();
+            auto doc = topDocument();
             if (doc.get() == nullptr)
                 return IO::Path();
 
@@ -338,7 +338,7 @@ namespace TrenchBroom {
                 const IO::Path docsDir(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation).toStdString());
                 crashLogPath = docsDir + IO::Path("trenchbroom-crash.txt");
             } else {
-                const String crashFileName = mapPath.lastComponent().deleteExtension().asString() + "-crash.txt";
+                const std::string crashFileName = mapPath.lastComponent().deleteExtension().asString() + "-crash.txt";
                 crashLogPath = mapPath.deleteLastComponent() + IO::Path(crashFileName);
             }
 
@@ -348,7 +348,7 @@ namespace TrenchBroom {
             while (IO::Disk::fileExists(testCrashLogPath)) {
                 index++;
 
-                StringStream testCrashLogName;
+                std::stringstream testCrashLogName;
                 testCrashLogName << crashLogPath.lastComponent().deleteExtension().asString() << "-" << index << ".txt";
 
                 testCrashLogPath = crashLogPath.deleteLastComponent() + IO::Path(testCrashLogName.str());
@@ -363,7 +363,7 @@ namespace TrenchBroom {
             crashReportGuiEnabled = guiEnabled;
         }
 
-        void reportCrashAndExit(const String &stacktrace, const String &reason) {
+        void reportCrashAndExit(const std::string &stacktrace, const std::string &reason) {
             // just abort if we reenter reportCrashAndExit (i.e. if it crashes)
             if (inReportCrashAndExit)
                 std::abort();
@@ -371,7 +371,7 @@ namespace TrenchBroom {
             inReportCrashAndExit = true;
 
             // get the crash report as a string
-            const String report = makeCrashReport(stacktrace, reason);
+            const std::string report = makeCrashReport(stacktrace, reason);
 
             // write it to the crash log file
             const IO::Path basePath = crashReportBasePath();
@@ -392,7 +392,7 @@ namespace TrenchBroom {
             std::cerr << "wrote crash log to " << reportPath.asString() << std::endl;
 
             // save the map
-            MapDocumentSPtr doc = topDocument();
+            auto doc = topDocument();
             if (doc.get() != nullptr) {
                 doc->saveDocumentTo(mapPath);
                 std::cerr << "wrote map to " << mapPath.asString() << std::endl;
@@ -435,7 +435,7 @@ namespace TrenchBroom {
         bool TrenchBroomApp::newDocument() {
             MapFrame* frame = nullptr;
             try {
-                String gameName;
+                std::string gameName;
                 Model::MapFormat mapFormat = Model::MapFormat::Unknown;
                 if (!GameDialog::showNewDocumentDialog(nullptr, gameName, mapFormat)) {
                     return false;
@@ -477,7 +477,7 @@ namespace TrenchBroom {
 
         void TrenchBroomApp::showManual() {
             const IO::Path manualPath = IO::SystemPaths::findResourceFile(IO::Path("manual/index.html"));
-            const String manualPathString = manualPath.asString();
+            const std::string manualPathString = manualPath.asString();
             const QUrl manualPathUrl = QUrl::fromLocalFile(QString::fromStdString(manualPathString));
             QDesktopServices::openUrl(manualPathUrl);
         }

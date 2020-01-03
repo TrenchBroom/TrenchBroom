@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_ActionContext_h
 #define TrenchBroom_ActionContext_h
 
-#include "StringType.h"
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -45,7 +45,7 @@ namespace TrenchBroom {
         bool actionContextMatches(ActionContext::Type lhs, ActionContext::Type rhs);
         bool actionContextMatches(ActionContext::Type lhs, ActionContext::Type rhs, ActionContext::Type mask);
 
-        String actionContextName(ActionContext::Type actionContext);
+        std::string actionContextName(ActionContext::Type actionContext);
 
         typedef enum {
             ActionView_Map2D = 0,

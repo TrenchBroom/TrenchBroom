@@ -19,31 +19,36 @@
 
 #include "MoveBrushVerticesCommand.h"
 
-#include "CollectionUtils.h"
 #include "Constants.h"
-#include "Model/Snapshot.h"
+#include "Model/Brush.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "View/VertexHandleManager.h"
+
+#include <vecmath/polygon.h>
 
 #include <map>
-#include <set>
 #include <vector>
 
 namespace TrenchBroom {
     namespace View {
+        MoveBrushVerticesCommandResult::MoveBrushVerticesCommandResult(const bool success, const bool hasRemainingVertices) :
+        CommandResult(success),
+        m_hasRemainingVertices(hasRemainingVertices) {}
+
+        bool MoveBrushVerticesCommandResult::hasRemainingVertices() const {
+            return m_hasRemainingVertices;
+        }
+
         const Command::CommandType MoveBrushVerticesCommand::Type = Command::freeType();
 
-        MoveBrushVerticesCommand::Ptr MoveBrushVerticesCommand::move(const VertexToBrushesMap& vertices, const vm::vec3& delta) {
+        std::unique_ptr<MoveBrushVerticesCommand> MoveBrushVerticesCommand::move(const VertexToBrushesMap& vertices, const vm::vec3& delta) {
             std::vector<Model::Brush*> brushes;
             BrushVerticesMap brushVertices;
             std::vector<vm::vec3> vertexPositions;
             extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
 
-            return Ptr(new MoveBrushVerticesCommand(brushes, brushVertices, vertexPositions, delta));
-        }
-
-        bool MoveBrushVerticesCommand::hasRemainingVertices() const {
-            return !m_newVertexPositions.empty();
+            return std::make_unique<MoveBrushVerticesCommand>(brushes, brushVertices, vertexPositions, delta);
         }
 
         MoveBrushVerticesCommand::MoveBrushVerticesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta) :
@@ -70,14 +75,18 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MoveBrushVerticesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            MoveBrushVerticesCommand* other = static_cast<MoveBrushVerticesCommand*>(command.get());
+        std::unique_ptr<CommandResult> MoveBrushVerticesCommand::doCreateCommandResult(const bool success) {
+            return std::make_unique<MoveBrushVerticesCommandResult>(success, !m_newVertexPositions.empty());
+        }
+
+        bool MoveBrushVerticesCommand::doCollateWith(UndoableCommand* command) {
+            MoveBrushVerticesCommand* other = static_cast<MoveBrushVerticesCommand*>(command);
 
             if (!canCollateWith(*other)) {
                 return false;
             }
 
-            if (!VectorUtils::equals(m_newVertexPositions, other->m_oldVertexPositions)) {
+            if (m_newVertexPositions != other->m_oldVertexPositions) {
                 return false;
             }
 

@@ -21,19 +21,18 @@
 #define TrenchBroom_FileSystem
 
 #include "Exceptions.h"
-#include "CollectionUtils.h"
 #include "Macros.h"
-#include "StringType.h"
-#include "IO/DiskIO.h"
+#include "IO/IO_Forward.h"
 #include "IO/Path.h"
 
+#include <kdl/vector_utils.h>
+
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        class File;
-        class Path;
-
         class FileSystem {
             deleteCopyAndMove(FileSystem)
         protected:
@@ -68,7 +67,7 @@ namespace TrenchBroom {
              * @param extensions a list of extensions to match
              * @return a list of paths
              */
-            Path::List findItemsWithBaseName(const Path& path, const StringList& extensions) const;
+            std::vector<Path> findItemsWithBaseName(const Path& path, const std::vector<std::string>& extensions) const;
 
             /**
              * Find all items in the given directory that match the given matcher.
@@ -79,7 +78,7 @@ namespace TrenchBroom {
              * @return the paths to the items that matched the query
              */
             template <class Matcher>
-            Path::List findItems(const Path& directoryPath, const Matcher& matcher) const {
+            std::vector<Path> findItems(const Path& directoryPath, const Matcher& matcher) const {
                 return findItems(directoryPath, matcher, false);
             }
 
@@ -89,7 +88,7 @@ namespace TrenchBroom {
              * @param directoryPath the path to a directory to search
              * @return the paths to the items in the given directory
              */
-            Path::List findItems(const Path& directoryPath) const;
+            std::vector<Path> findItems(const Path& directoryPath) const;
 
             /**
              * Find all items in the given directory and any sub directories that match the given matcher.
@@ -100,7 +99,7 @@ namespace TrenchBroom {
              * @return the paths to the items that matched the query
              */
             template <class Matcher>
-            Path::List findItemsRecursively(const Path& directoryPath, const Matcher& matcher) const {
+            std::vector<Path> findItemsRecursively(const Path& directoryPath, const Matcher& matcher) const {
                 return findItems(directoryPath, matcher, true);
             }
 
@@ -110,16 +109,16 @@ namespace TrenchBroom {
              * @param directoryPath the path to a directory to search
              * @return the paths to the items that matched the query
              */
-            Path::List findItemsRecursively(const Path& directoryPath) const;
+            std::vector<Path> findItemsRecursively(const Path& directoryPath) const;
 
-            Path::List getDirectoryContents(const Path& directoryPath) const;
+            std::vector<Path> getDirectoryContents(const Path& directoryPath) const;
             std::shared_ptr<File> openFile(const Path& path) const;
         private: // private API to be used for chaining, avoids multiple checks of parameters
             bool _canMakeAbsolute(const Path& path) const;
             Path _makeAbsolute(const Path& path) const;
             bool _directoryExists(const Path& path) const;
             bool _fileExists(const Path& path) const;
-            Path::List _getDirectoryContents(const Path& directoryPath) const;
+            std::vector<Path> _getDirectoryContents(const Path& directoryPath) const;
             std::shared_ptr<File> _openFile(const Path& path) const;
 
             /**
@@ -135,7 +134,7 @@ namespace TrenchBroom {
              * @return the matching paths
              */
             template <class M>
-            Path::List findItems(const Path& searchPath, const M& matcher, const bool recurse) const {
+            std::vector<Path> findItems(const Path& searchPath, const M& matcher, const bool recurse) const {
                 try {
                     if (searchPath.isAbsolute()) {
                         throw FileSystemException("Path is absolute: '" + searchPath.asString() + "'");
@@ -145,9 +144,9 @@ namespace TrenchBroom {
                         throw FileSystemException("Directory not found: '" + searchPath.asString() + "'");
                     }
 
-                    Path::List result;
+                    std::vector<Path> result;
                     _findItems(searchPath, matcher, recurse, result);
-                    VectorUtils::sortAndRemoveDuplicates(result);
+                    kdl::vec_sort_and_remove_duplicates(result);
                     return result;
                 } catch (const PathException& e) {
                     throw FileSystemException("Invalid path: '" + searchPath.asString() + "'", e);
@@ -167,7 +166,7 @@ namespace TrenchBroom {
              * @param result collects the matching paths
              */
             template <class M>
-            void _findItems(const Path& searchPath, const M& matcher, const bool recurse, Path::List& result) const {
+            void _findItems(const Path& searchPath, const M& matcher, const bool recurse, std::vector<Path>& result) const {
                 doFindItems(searchPath, matcher, recurse, result);
                 if (m_next) {
                     m_next->_findItems(searchPath, matcher, recurse, result);
@@ -185,7 +184,7 @@ namespace TrenchBroom {
              * @param result collects the matching paths
              */
             template <class M>
-            void doFindItems(const Path& searchPath, const M& matcher, const bool recurse, Path::List& result) const {
+            void doFindItems(const Path& searchPath, const M& matcher, const bool recurse, std::vector<Path>& result) const {
                 if (doDirectoryExists(searchPath)) {
                     for (const auto& itemPath : doGetDirectoryContents(searchPath)) {
                         const auto directory = doDirectoryExists(searchPath + itemPath);
@@ -205,7 +204,7 @@ namespace TrenchBroom {
             virtual bool doDirectoryExists(const Path& path) const = 0;
             virtual bool doFileExists(const Path& path) const = 0;
 
-            virtual Path::List doGetDirectoryContents(const Path& path) const = 0;
+            virtual std::vector<Path> doGetDirectoryContents(const Path& path) const = 0;
 
             virtual std::shared_ptr<File> doOpenFile(const Path& path) const = 0;
         };
@@ -216,13 +215,13 @@ namespace TrenchBroom {
             WritableFileSystem();
             virtual ~WritableFileSystem();
 
-            void createFile(const Path& path, const String& contents);
+            void createFile(const Path& path, const std::string& contents);
             void createDirectory(const Path& path);
             void deleteFile(const Path& path);
             void copyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
             void moveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
         private:
-            virtual void doCreateFile(const Path& path, const String& contents) = 0;
+            virtual void doCreateFile(const Path& path, const std::string& contents) = 0;
             virtual void doCreateDirectory(const Path& path) = 0;
             virtual void doDeleteFile(const Path& path) = 0;
             virtual void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite) = 0;

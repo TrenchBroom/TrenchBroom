@@ -20,7 +20,9 @@
 #ifndef TrenchBroom_HitFilter
 #define TrenchBroom_HitFilter
 
-#include "Hit.h"
+#include "TrenchBroom.h"
+#include "Model/HitType.h"
+#include "Model/Model_Forward.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -56,9 +58,9 @@ namespace TrenchBroom {
 
         class TypedHitFilter : public HitFilter {
         private:
-            Hit::HitType m_typeMask;
+            HitType::Type m_typeMask;
         public:
-            TypedHitFilter(Hit::HitType typeMask);
+            TypedHitFilter(HitType::Type typeMask);
         private:
             HitFilter* doClone() const override;
             bool doMatches(const Hit& hit) const override;
@@ -85,8 +87,6 @@ namespace TrenchBroom {
             HitFilter* doClone() const override;
             bool doMatches(const Hit& hit) const override;
         };
-
-        class EditorContext;
 
         class ContextHitFilter : public HitFilter {
         private:

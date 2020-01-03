@@ -19,47 +19,48 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
-#include "IO/CompilationConfigParser.h"
-#include "IO/Path.h"
-#include "Model/CompilationConfig.h"
-
 #include "Exceptions.h"
+#include "IO/CompilationConfigParser.h"
+#include "Model/CompilationConfig.h"
+#include "Model/CompilationProfile.h"
+#include "Model/CompilationTask.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
         TEST(CompilationConfigParserTest, parseBlankConfig) {
-            const String config("   ");
+            const std::string config("   ");
             CompilationConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
         }
 
         TEST(CompilationConfigParserTest, parseEmptyConfig) {
-            const String config("  {  } ");
+            const std::string config("  {  } ");
             CompilationConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
         }
 
         TEST(CompilationConfigParserTest, parseEmptyConfigWithTrailingGarbage) {
-            const String config("  {  } asdf");
+            const std::string config("  {  } asdf");
             CompilationConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
         }
 
         TEST(CompilationConfigParserTest, parseMissingProfiles) {
-            const String config("  { 'version' : 1 } ");
+            const std::string config("  { 'version' : 1 } ");
             CompilationConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
         }
 
         TEST(CompilationConfigParserTest, parseMissingVersion) {
-            const String config("  { 'profiles': {} } ");
+            const std::string config("  { 'profiles': {} } ");
             CompilationConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
         }
 
         TEST(CompilationConfigParserTest, parseEmptyProfiles) {
-            const String config("  { 'version': 1, 'profiles': [] } ");
+            const std::string config("  { 'version': 1, 'profiles': [] } ");
             CompilationConfigParser parser(config);
 
             Model::CompilationConfig result = parser.parse();
@@ -67,7 +68,7 @@ namespace TrenchBroom {
         }
 
         TEST(CompilationConfigParserTest, parseOneProfileWithMissingNameAndMissingTasks) {
-            const String config("{"
+            const std::string config("{"
                                 "    'version': 1,"
                                 "    'profiles': ["
                                 "        {}"
@@ -78,7 +79,7 @@ namespace TrenchBroom {
         }
 
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndMissingTasks) {
-            const String config("{"
+            const std::string config("{"
                                 "    'version': 1,"
                                 "    'profiles': ["
                                 "        {"
@@ -91,7 +92,7 @@ namespace TrenchBroom {
         }
 
         TEST(CompilationConfigParserTest, parseOneProfileWithMissingNameAndEmptyTasks) {
-            const String config("{"
+            const std::string config("{"
                                 "    'version': 1,"
                                 "    'profiles': ["
                                 "        {"
@@ -104,7 +105,7 @@ namespace TrenchBroom {
         }
 
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndEmptyTasks) {
-            const String config("{\n"
+            const std::string config("{\n"
                                 "    'version': 1,\n"
                                 "    'profiles': [\n"
                                 "        {\n"
@@ -120,12 +121,12 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, result.profileCount());
 
             const Model::CompilationProfile* profile = result.profile(0);
-            ASSERT_EQ(String("A profile"), profile->name());
+            ASSERT_EQ(std::string("A profile"), profile->name());
             ASSERT_EQ(0u, profile->taskCount());
         }
 
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneInvalidTask) {
-            const String config("{\n"
+            const std::string config("{\n"
                                 "    'version': 1,\n"
                                 "    'profiles': [\n"
                                 "        {\n"
@@ -144,7 +145,7 @@ namespace TrenchBroom {
         }
 
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneTaskWithUnknownType) {
-            const String config("{\n"
+            const std::string config("{\n"
                                 "    'version': 1,\n"
                                 "    'profiles': [\n"
                                 "        {\n"
@@ -163,7 +164,7 @@ namespace TrenchBroom {
         }
 
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneCopyTaskWithMissingSource) {
-            const String config("{\n"
+            const std::string config("{\n"
                                 "    'version': 1,\n"
                                 "    'profiles': [\n"
                                 "        {\n"
@@ -183,7 +184,7 @@ namespace TrenchBroom {
         }
 
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneCopyTaskWithMissingTarget) {
-            const String config("{\n"
+            const std::string config("{\n"
                                 "    'version': 1,\n"
                                 "    'profiles': [\n"
                                 "        {\n"
@@ -204,10 +205,10 @@ namespace TrenchBroom {
 
         class AssertCompilationCopyFilesVisitor : public Model::ConstCompilationTaskConstVisitor {
         private:
-            const String& m_sourceSpec;
-            const String& m_targetSpec;
+            const std::string& m_sourceSpec;
+            const std::string& m_targetSpec;
         public:
-            AssertCompilationCopyFilesVisitor(const String& sourceSpec, const String& targetSpec) :
+            AssertCompilationCopyFilesVisitor(const std::string& sourceSpec, const std::string& targetSpec) :
             m_sourceSpec(sourceSpec),
             m_targetSpec(targetSpec) {}
 
@@ -227,10 +228,10 @@ namespace TrenchBroom {
 
         class AssertCompilationRunToolVisitor : public Model::ConstCompilationTaskConstVisitor {
         private:
-            const String& m_toolSpec;
-            const String& m_parameterSpec;
+            const std::string& m_toolSpec;
+            const std::string& m_parameterSpec;
         public:
-            AssertCompilationRunToolVisitor(const String& toolSpec, const String& parameterSpec) :
+            AssertCompilationRunToolVisitor(const std::string& toolSpec, const std::string& parameterSpec) :
             m_toolSpec(toolSpec),
             m_parameterSpec(parameterSpec) {}
 
@@ -249,7 +250,7 @@ namespace TrenchBroom {
         };
 
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneCopyTask) {
-            const String config("{\n"
+            const std::string config("{\n"
                                 "    'version': 1,\n"
                                 "    'profiles': [\n"
                                 "        {\n"
@@ -271,14 +272,14 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, result.profileCount());
 
             const Model::CompilationProfile* profile = result.profile(0);
-            ASSERT_EQ(String("A profile"), profile->name());
+            ASSERT_EQ(std::string("A profile"), profile->name());
             ASSERT_EQ(1u, profile->taskCount());
 
             profile->task(0)->accept(AssertCompilationCopyFilesVisitor("the source", "the target"));
         }
 
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneToolTaskWithMissingTool) {
-            const String config("{\n"
+            const std::string config("{\n"
                                 "    'version': 1,\n"
                                 "    'profiles': [\n"
                                 "        {\n"
@@ -298,7 +299,7 @@ namespace TrenchBroom {
         }
 
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneToolTaskWithMissingParameters) {
-            const String config("{\n"
+            const std::string config("{\n"
                                 "    'version': 1,\n"
                                 "    'profiles': [\n"
                                 "        {\n"
@@ -318,7 +319,7 @@ namespace TrenchBroom {
         }
 
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndOneToolTask) {
-            const String config("{\n"
+            const std::string config("{\n"
                                 "    'version': 1,\n"
                                 "    'profiles': [\n"
                                 "        {\n"
@@ -340,14 +341,14 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, result.profileCount());
 
             const Model::CompilationProfile* profile = result.profile(0);
-            ASSERT_EQ(String("A profile"), profile->name());
+            ASSERT_EQ(std::string("A profile"), profile->name());
             ASSERT_EQ(1u, profile->taskCount());
 
             profile->task(0)->accept(AssertCompilationRunToolVisitor("tyrbsp.exe", "this and that"));
         }
 
         TEST(CompilationConfigParserTest, parseOneProfileWithNameAndTwoTasks) {
-            const String config("{\n"
+            const std::string config("{\n"
                                 "    'version': 1,\n"
                                 "    'profiles': [\n"
                                 "        {\n"
@@ -374,7 +375,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, result.profileCount());
 
             const Model::CompilationProfile* profile = result.profile(0);
-            ASSERT_EQ(String("A profile"), profile->name());
+            ASSERT_EQ(std::string("A profile"), profile->name());
             ASSERT_EQ(2u, profile->taskCount());
 
             profile->task(0)->accept(AssertCompilationRunToolVisitor("tyrbsp.exe", "this and that"));
@@ -382,7 +383,7 @@ namespace TrenchBroom {
         }
 
         TEST(CompilationConfigParserTest, parseError_1437_unescaped_backslashes) {
-            const String config("{\n"
+            const std::string config("{\n"
                                 "	\"profiles\": [\n"
                                 "		{\n"
                                 "			\"name\": \"Full Compile\",\n"
@@ -404,7 +405,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, result.profileCount());
 
             const Model::CompilationProfile* profile = result.profile(0);
-            ASSERT_EQ(String("Full Compile"), profile->name());
+            ASSERT_EQ(std::string("Full Compile"), profile->name());
             ASSERT_EQ(1u, profile->taskCount());
 
             profile->task(0)->accept(AssertCompilationCopyFilesVisitor("${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp", "C:\\quake2\\chaos\\maps\\"));

@@ -22,9 +22,12 @@
 #include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
+#include "Renderer/ActiveShader.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/Circle.h"
 #include "Renderer/Renderable.h"
@@ -33,7 +36,7 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 #include "View/MapDocument.h"
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
@@ -46,12 +49,12 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType UVRotateTool::AngleHandleHit = Model::Hit::freeHitType();
+        const Model::HitType::Type UVRotateTool::AngleHandleHit = Model::HitType::freeType();
         const double UVRotateTool::CenterHandleRadius =  2.5;
         const double UVRotateTool::RotateHandleRadius = 32.0;
         const double UVRotateTool::RotateHandleWidth  =  5.0;
 
-        UVRotateTool::UVRotateTool(MapDocumentWPtr document, UVViewHelper& helper) :
+        UVRotateTool::UVRotateTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper) :
         ToolControllerBase(),
         Tool(true),
         m_document(document),
@@ -95,17 +98,16 @@ namespace TrenchBroom {
         bool UVRotateTool::doStartMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
 
-            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
+            // If Ctrl is pressed, allow starting the drag anywhere, not just on the handle
+            const bool ctrlPressed = inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd);
+
+            if (!(inputState.modifierKeysPressed(ModifierKeys::MKNone) || ctrlPressed) ||
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return false;
             }
 
             const auto& pickResult = inputState.pickResult();
             const auto& angleHandleHit = pickResult.query().type(AngleHandleHit).occluded().first();
-
-            if (!angleHandleHit.isMatch()) {
-                return false;
-            }
 
             const auto* face = m_helper.face();
             if (!face->attribs().valid()) {
@@ -114,11 +116,26 @@ namespace TrenchBroom {
 
             const auto toFace = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
-            const auto hitPointInFaceCoords(toFace * angleHandleHit.hitPoint());
-            m_initalAngle = measureAngle(vm::vec2f(hitPointInFaceCoords)) - face->rotation();
+            vm::vec2f hitPointInFaceCoords;
+            if (angleHandleHit.isMatch()) {
+                hitPointInFaceCoords = vm::vec2f(toFace * angleHandleHit.hitPoint());
+            } else if (ctrlPressed) {
+                const auto& boundary = face->boundary();
+                const auto& pickRay = inputState.pickRay();
+                const auto distanceToFace = vm::intersect_ray_plane(pickRay, boundary);
+                if (vm::is_nan(distanceToFace)) {
+                    return false;
+                }
+                const auto hitPoint = vm::point_at_distance(pickRay, distanceToFace);
+                hitPointInFaceCoords = vm::vec2f(toFace * hitPoint);
+            } else {
+                return false;
+            }
+
+            m_initalAngle = measureAngle(hitPointInFaceCoords) - face->rotation();
 
             auto document = lock(m_document);
-            document->beginTransaction("Rotate Texture");
+            document->startTransaction("Rotate Texture");
 
             return true;
         }
@@ -228,9 +245,9 @@ namespace TrenchBroom {
                 return Renderer::Circle(radius / zoom, segments, fill);
             }
         private:
-            void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
-                m_center.prepare(vertexVbo);
-                m_outer.prepare(vertexVbo);
+            void doPrepareVertices(Renderer::VboManager& vboManager) override {
+                m_center.prepare(vboManager);
+                m_outer.prepare(vboManager);
             }
 
             void doRender(Renderer::RenderContext& renderContext) override {

@@ -19,17 +19,20 @@
 
 #include "Node.h"
 
-#include "CollectionUtils.h"
+#include "Ensure.h"
 #include "Macros.h"
 #include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
 #include "Model/LockState.h"
 #include "Model/VisibilityState.h"
 
+#include <kdl/vector_utils.h>
+
 #include <vecmath/bbox.h>
 
 #include <cassert>
 #include <iterator>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -52,7 +55,7 @@ namespace TrenchBroom {
             clearIssues();
         }
 
-        const String& Node::name() const {
+        const std::string& Node::name() const {
             return doGetName();
         }
 
@@ -195,7 +198,7 @@ namespace TrenchBroom {
 
         void Node::doAddChild(Node* child) {
             ensure(child != nullptr, "child is null");
-            assert(!VectorUtils::contains(m_children, child));
+            assert(!kdl::vec_contains(m_children, child));
             assert(child->parent() == nullptr);
             assert(canAddChild(child));
 
@@ -215,13 +218,13 @@ namespace TrenchBroom {
             childWillBeRemoved(child);
             // nodeWillChange();
             child->setParent(nullptr);
-            VectorUtils::erase(m_children, child);
+            kdl::vec_erase(m_children, child);
             childWasRemoved(child);
             // nodeDidChange();
         }
 
         void Node::clearChildren() {
-            VectorUtils::clearAndDelete(m_children);
+            kdl::vec_clear_and_delete(m_children);
         }
 
         void Node::childWillBeAdded(Node* node) {
@@ -620,7 +623,7 @@ namespace TrenchBroom {
         }
 
         void Node::clearIssues() const {
-            VectorUtils::clearAndDelete(m_issues);
+            kdl::vec_clear_and_delete(m_issues);
         }
 
         void Node::findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<AttributableNode*>& result) const {

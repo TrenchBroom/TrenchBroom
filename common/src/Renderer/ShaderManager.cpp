@@ -19,67 +19,58 @@
 
 #include "ShaderManager.h"
 
-#include "CollectionUtils.h"
 #include "IO/Path.h"
 #include "IO/SystemPaths.h"
 #include "Renderer/Shader.h"
+#include "Renderer/ShaderProgram.h"
 #include "Renderer/ShaderConfig.h"
+
+#include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace Renderer {
-        ShaderManager::~ShaderManager() {
-            MapUtils::clearAndDelete(m_programs);
-            MapUtils::clearAndDelete(m_shaders);
-        }
+        ShaderManager::~ShaderManager() = default;
 
         ShaderProgram& ShaderManager::program(const ShaderConfig& config) {
-            ShaderProgramCache::iterator it = m_programs.find(&config);
-            if (it != std::end(m_programs))
+            auto it = m_programs.find(&config);
+            if (it != std::end(m_programs)) {
                 return *it->second;
+            }
 
-            ShaderProgram* program = createProgram(config);
-            m_programs.insert(ShaderProgramCacheEntry(&config, program));
-            return *program;
+            auto result = m_programs.emplace(&config, createProgram(config));
+            assert(result.second);
+
+            return *(result.first->second);
         }
 
-        ShaderProgram* ShaderManager::createProgram(const ShaderConfig& config) {
-            ShaderProgram* program = new ShaderProgram(config.name());
-            try {
-                for (const String& path : config.vertexShaders()) {
-                    Shader& shader = loadShader(path, GL_VERTEX_SHADER);
-                    program->attach(shader);
-                }
+        std::unique_ptr<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& config) {
+            auto program = std::make_unique<ShaderProgram>(config.name());
 
-                for (const String& path : config.fragmentShaders()) {
-                    Shader& shader = loadShader(path, GL_FRAGMENT_SHADER);
-                    program->attach(shader);
-                }
-            } catch (...) {
-                delete program;
-                throw;
+            for (const auto& path : config.vertexShaders()) {
+                Shader& shader = loadShader(path, GL_VERTEX_SHADER);
+                program->attach(shader);
             }
+
+            for (const auto& path : config.fragmentShaders()) {
+                Shader& shader = loadShader(path, GL_FRAGMENT_SHADER);
+                program->attach(shader);
+            }
+
             return program;
         }
 
-        Shader& ShaderManager::loadShader(const String& name, const GLenum type) {
-            ShaderCache::iterator it = m_shaders.find(name);
-            if (it != std::end(m_shaders))
+        Shader& ShaderManager::loadShader(const std::string& name, const GLenum type) {
+            auto it = m_shaders.find(name);
+            if (it != std::end(m_shaders)) {
                 return *it->second;
+            }
 
-            const IO::Path shaderPath = IO::SystemPaths::findResourceFile(IO::Path("shader") + IO::Path(name));
+            const auto shaderPath = IO::SystemPaths::findResourceFile(IO::Path("shader") + IO::Path(name));
+            auto result = m_shaders.emplace(name, std::make_unique<Shader>(shaderPath, type));
+            assert(result.second);
 
-            Shader* shader = new Shader(shaderPath, type);
-            m_shaders.insert(ShaderCacheEntry(name, shader));
-            return *shader;
-        }
-
-        ActiveShader::ActiveShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig) :
-        m_program(shaderManager.program(shaderConfig)) {
-            m_program.activate();
-        }
-
-        ActiveShader::~ActiveShader() {
-            m_program.deactivate();
+            return *(result.first->second);
         }
     }
 }

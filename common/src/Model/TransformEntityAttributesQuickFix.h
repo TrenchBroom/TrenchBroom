@@ -21,14 +21,13 @@
 #define TransformEntityAttributesQuickFix_h
 
 #include "Model/IssueQuickFix.h"
-#include "Model/MapFacade.h"
+#include "Model/Model_Forward.h"
 
 #include <functional>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
-        class MapFacade;
-
         class TransformEntityAttributesQuickFix : public IssueQuickFix {
         public:
             using NameTransform = std::function<AttributeName(const AttributeName&)>;
@@ -37,7 +36,7 @@ namespace TrenchBroom {
             NameTransform m_nameTransform;
             ValueTransform m_valueTransform;
         public:
-            TransformEntityAttributesQuickFix(const IssueType issueType, const String& description, const NameTransform& nameTransform, const ValueTransform& valueTransform);
+            TransformEntityAttributesQuickFix(const IssueType issueType, const std::string& description, const NameTransform& nameTransform, const ValueTransform& valueTransform);
         private:
             void doApply(MapFacade* facade, const Issue* issue) const override;
         };

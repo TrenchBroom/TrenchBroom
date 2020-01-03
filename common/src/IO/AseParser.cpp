@@ -19,12 +19,14 @@
 
 #include "AseParser.h"
 
+#include "Logger.h"
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
 #include "IO/Quake3ShaderTextureReader.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
@@ -38,10 +40,10 @@ namespace TrenchBroom {
         AseTokenizer::AseTokenizer(const char* begin, const char* end) :
         Tokenizer(begin, end, "", 0){ }
 
-        AseTokenizer::AseTokenizer(const String& str) :
+        AseTokenizer::AseTokenizer(const std::string& str) :
         Tokenizer(str, "", 0) {}
 
-        const String AseTokenizer::WordDelims = " \t\n\r:";
+        const std::string AseTokenizer::WordDelims = " \t\n\r:";
 
         Tokenizer<unsigned int>::Token AseTokenizer::emitToken() {
             while (!eof()) {
@@ -100,14 +102,14 @@ namespace TrenchBroom {
                                 return Token(AseToken::Keyword, c, e, offset(c), startLine, startColumn);
                             }
                         }
-                        throw ParserException(startLine, startColumn, "Unexpected character: '" + String(c, 1) + "'");
+                        throw ParserException(startLine, startColumn, "Unexpected character: '" + std::string(c, 1) + "'");
                     }
                 }
             }
             return Token(AseToken::Eof, nullptr, nullptr, length(), line(), column());
         }
 
-        AseParser::AseParser(const String& name, const char* begin, const char* end, const FileSystem& fs) :
+        AseParser::AseParser(const std::string& name, const char* begin, const char* end, const FileSystem& fs) :
         m_name(name),
         m_tokenizer(begin, end),
         m_fs(fs) {}
@@ -138,7 +140,7 @@ namespace TrenchBroom {
             skipDirective("SCENE");
         }
 
-        void AseParser::parseMaterialList(Logger& logger, Path::List& paths) {
+        void AseParser::parseMaterialList(Logger& logger, std::vector<Path>& paths) {
             expectDirective("MATERIAL_LIST");
 
             parseBlock({
@@ -147,12 +149,12 @@ namespace TrenchBroom {
             });
         }
 
-        void AseParser::parseMaterialListMaterialCount(Logger& /* logger */, Path::List& paths) {
+        void AseParser::parseMaterialListMaterialCount(Logger& /* logger */, std::vector<Path>& paths) {
             expectDirective("MATERIAL_COUNT");
             paths.resize(parseSizeArgument());
         }
 
-        void AseParser::parseMaterialListMaterial(Logger& logger, Path::List& paths) {
+        void AseParser::parseMaterialListMaterial(Logger& logger, std::vector<Path>& paths) {
             expectDirective("MATERIAL");
             const auto index = parseSizeArgument();
             if (index < paths.size()) {
@@ -181,7 +183,7 @@ namespace TrenchBroom {
             path = Path(token.data());
         }
 
-        void AseParser::parseGeomObject(Logger& logger, GeomObject& geomObject, const Path::List& materialPaths) {
+        void AseParser::parseGeomObject(Logger& logger, GeomObject& geomObject, const std::vector<Path>& materialPaths) {
             expectDirective("GEOMOBJECT");
 
             parseBlock({
@@ -352,12 +354,12 @@ namespace TrenchBroom {
             expect(AseToken::CBrace, m_tokenizer.nextToken());
         }
 
-        void AseParser::expectDirective(const String& name) {
+        void AseParser::expectDirective(const std::string& name) {
             auto token = expect(AseToken::Directive, m_tokenizer.nextToken());
             expect(name, token);
         }
 
-        void AseParser::skipDirective(const String& name) {
+        void AseParser::skipDirective(const std::string& name) {
             auto token = expect(AseToken::Directive, m_tokenizer.peekToken());
             if (token.data() == name) {
                 m_tokenizer.nextToken();
@@ -396,7 +398,7 @@ namespace TrenchBroom {
             }
         }
 
-        void AseParser::expectArgumentName(const String& expected) {
+        void AseParser::expectArgumentName(const std::string& expected) {
             const auto token = expect(AseToken::ArgumentName, m_tokenizer.nextToken());
             const auto& actual = token.data();
             if (actual != expected) {
@@ -446,13 +448,13 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<Assets::EntityModel> AseParser::buildModel(Logger& logger, const Scene& scene) const {
-            using Vertex = Assets::EntityModel::Vertex;
+            using Vertex = Assets::EntityModelVertex;
 
             auto model = std::make_unique<Assets::EntityModel>(m_name);
             model->addFrames(1);
             auto& surface = model->addSurface(m_name);
 
-            Assets::TextureList textures;
+            std::vector<Assets::Texture*> textures;
             textures.resize(scene.materialPaths.size());
 
             // Load the textures
@@ -483,7 +485,7 @@ namespace TrenchBroom {
                 }
 
                 const auto vertexCount = mesh.faces.size() * 3;
-                size.inc(texture, GL_TRIANGLES, vertexCount);
+                size.inc(texture, Renderer::PrimType::Triangles, vertexCount);
                 totalVertexCount += vertexCount;
             }
 

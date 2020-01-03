@@ -21,18 +21,14 @@
 #define TrenchBroom_MoveObjectsTool
 
 #include "TrenchBroom.h"
+#include "Model/Model_Forward.h"
 #include "View/Tool.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
+
+#include <memory>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Hit;
-    }
-
     namespace View {
-        class Grid;
-        class InputState;
-
         class MoveObjectsTool : public Tool {
         public:
             typedef enum {
@@ -41,10 +37,10 @@ namespace TrenchBroom {
                 MR_Cancel
             } MoveResult;
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             bool m_duplicateObjects;
         public:
-            MoveObjectsTool(MapDocumentWPtr document);
+            MoveObjectsTool(std::weak_ptr<MapDocument> document);
         public:
             const Grid& grid() const;
 

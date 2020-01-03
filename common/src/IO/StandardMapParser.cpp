@@ -20,15 +20,22 @@
 #include "StandardMapParser.h"
 
 #include "TemporarilySetAny.h"
+#include "IO/ParserStatus.h"
 #include "Model/BrushFace.h"
+#include "Model/EntityAttributes.h"
+
+#include <kdl/vector_set.h>
 
 #include <vecmath/plane.h>
 #include <vecmath/vec.h>
 
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
     namespace IO {
-        const String& QuakeMapTokenizer::NumberDelim() {
-            static const String numberDelim(Whitespace() + ")");
+        const std::string& QuakeMapTokenizer::NumberDelim() {
+            static const std::string numberDelim(Whitespace() + ")");
             return numberDelim;
         }
 
@@ -36,7 +43,7 @@ namespace TrenchBroom {
         Tokenizer(begin, end, "\"", '\\'),
         m_skipEol(true) {}
 
-        QuakeMapTokenizer::QuakeMapTokenizer(const String& str) :
+        QuakeMapTokenizer::QuakeMapTokenizer(const std::string& str) :
         Tokenizer(str, "\"", '\\'),
         m_skipEol(true) {}
 
@@ -115,7 +122,7 @@ namespace TrenchBroom {
 
                         e = readUntil(Whitespace());
                         if (e == nullptr) {
-                            throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                            throw ParserException(startLine, startColumn, "Unexpected character: " + std::string(c, 1));
                         }
 
                         return Token(QuakeMapToken::String, c, e, offset(c), startLine, startColumn);
@@ -125,14 +132,14 @@ namespace TrenchBroom {
             return Token(QuakeMapToken::Eof, nullptr, nullptr, length(), line(), column());
         }
 
-        const String StandardMapParser::BrushPrimitiveId = "brushDef";
-        const String StandardMapParser::PatchId = "patchDef2";
+        const std::string StandardMapParser::BrushPrimitiveId = "brushDef";
+        const std::string StandardMapParser::PatchId = "patchDef2";
 
         StandardMapParser::StandardMapParser(const char* begin, const char* end) :
         m_tokenizer(QuakeMapTokenizer(begin, end)),
         m_format(Model::MapFormat::Unknown) {}
 
-        StandardMapParser::StandardMapParser(const String& str) :
+        StandardMapParser::StandardMapParser(const std::string& str) :
         m_tokenizer(QuakeMapTokenizer(str)),
         m_format(Model::MapFormat::Unknown) {}
 
@@ -167,11 +174,11 @@ namespace TrenchBroom {
             }
 
             if (format == Model::MapFormat::Unknown) {
-                expect(QuakeMapToken::Number, token = m_tokenizer.nextToken()); // y offset
-                expect(QuakeMapToken::Number, token = m_tokenizer.nextToken()); // rotation
-                expect(QuakeMapToken::Number, token = m_tokenizer.nextToken()); // x scale
-                expect(QuakeMapToken::Number, token = m_tokenizer.nextToken()); // y scale
-                expect(QuakeMapToken::Number | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token = m_tokenizer.nextToken());
+                expect(QuakeMapToken::Number, m_tokenizer.nextToken()); // y offset
+                expect(QuakeMapToken::Number, m_tokenizer.nextToken()); // rotation
+                expect(QuakeMapToken::Number, m_tokenizer.nextToken()); // x scale
+                expect(QuakeMapToken::Number, m_tokenizer.nextToken()); // y scale
+                token = expect(QuakeMapToken::Number | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, m_tokenizer.nextToken());
 
                 if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace) {
                     format = Model::MapFormat::Standard;
@@ -179,7 +186,7 @@ namespace TrenchBroom {
             }
 
             if (format == Model::MapFormat::Unknown) {
-                expect(QuakeMapToken::Number | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token = m_tokenizer.nextToken()); // unknown Hexen 2 flag or Quake 2 surface contents
+                token = expect(QuakeMapToken::Number | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, m_tokenizer.nextToken()); // unknown Hexen 2 flag or Quake 2 surface contents
                 if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace) {
                     format = Model::MapFormat::Hexen2;
                 } else {
@@ -245,7 +252,7 @@ namespace TrenchBroom {
 
             auto beginEntityCalled = false;
 
-            auto attributes = Model::EntityAttribute::List();
+            auto attributes = std::list<Model::EntityAttribute>();
             auto attributeNames = AttributeNames();
 
             auto extraAttributes = ExtraAttributes();
@@ -283,7 +290,7 @@ namespace TrenchBroom {
             }
         }
 
-        void StandardMapParser::parseEntityAttribute(Model::EntityAttribute::List& attributes, AttributeNames& names, ParserStatus& status) {
+        void StandardMapParser::parseEntityAttribute(std::list<Model::EntityAttribute>& attributes, AttributeNames& names, ParserStatus& status) {
             auto token = m_tokenizer.nextToken();
             assert(token.type() == QuakeMapToken::String);
             const auto name = token.data();
@@ -317,7 +324,7 @@ namespace TrenchBroom {
                 // We expect either a brush primitive, a patch or a regular brush.
                 expect(QuakeMapToken::String | QuakeMapToken::OParenthesis, token);
                 if (token.hasType(QuakeMapToken::String)) {
-                    expect(StringList { BrushPrimitiveId, PatchId }, token);
+                    expect(std::vector<std::string>({ BrushPrimitiveId, PatchId }), token);
                     if (token.data() == BrushPrimitiveId) {
                         parseBrushPrimitive(status, startLine);
                     } else {
@@ -630,7 +637,7 @@ namespace TrenchBroom {
             return std::make_tuple(p1, p2, p3);
         }
 
-        String StandardMapParser::parseTextureName(ParserStatus& /* status */) {
+        std::string StandardMapParser::parseTextureName(ParserStatus& /* status */) {
             auto textureName = m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace());
             if (textureName == Model::BrushFace::NoTextureName) {
                 textureName = "";

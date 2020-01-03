@@ -21,9 +21,11 @@
 #define TrenchBroom_TrenchBroomApp
 
 #include "Notifier.h"
-#include "StringType.h"
+
+#include "IO/IO_Forward.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <QApplication>
@@ -34,10 +36,6 @@ class QSettings;
 namespace TrenchBroom {
     class Logger;
     class RecoverableException;
-
-    namespace IO {
-        class Path;
-    }
 
     namespace View {
         class ExecutableEvent;
@@ -50,9 +48,7 @@ namespace TrenchBroom {
         private:
             std::unique_ptr<FrameManager> m_frameManager;
             std::unique_ptr<RecentDocuments> m_recentDocuments;
-            std::unique_ptr<WelcomeWindow> m_welcomeWindow; // must be destroyed before recent documents!
-        public:
-            Notifier<> recentDocumentsDidChangeNotifier;
+            std::unique_ptr<WelcomeWindow> m_welcomeWindow;
         public:
             static TrenchBroomApp& instance();
 
@@ -94,10 +90,12 @@ namespace TrenchBroom {
             void closeWelcomeWindow();
         private:
             static bool useSDI();
+        signals:
+            void recentDocumentsDidChange();
         };
 
         void setCrashReportGUIEnbled(bool guiEnabled);
-        [[noreturn]] void reportCrashAndExit(const String &stacktrace, const String &reason);
+        [[noreturn]] void reportCrashAndExit(const std::string& stacktrace, const std::string& reason);
         bool isReportingCrash();
     }
 }

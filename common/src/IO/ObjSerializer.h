@@ -20,23 +20,22 @@
 #ifndef ObjSerializer_h
 #define ObjSerializer_h
 
-#include "CollectionUtils.h"
 #include "TrenchBroom.h"
 #include "IO/NodeSerializer.h"
-#include "IO/Path.h"
+#include "IO/IO_Forward.h"
 #include "IO/IOUtils.h"
+#include "IO/Path.h"
 #include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 
 #include <cstdio>
 #include <map>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        class OpenFile;
-
         class ObjFileSerializer : public NodeSerializer {
         private:
             template <typename V>
@@ -53,10 +52,11 @@ namespace TrenchBroom {
                 }
 
                 size_t index(const V& v) {
-                    typename Map::iterator indexIt = MapUtils::findOrInsert(m_map, v, m_list.size());
-                    const size_t index = indexIt->second;
-                    if (index == m_list.size())
+                    const auto it = m_map.insert({ v, m_list.size() }).first;
+                    const size_t index = it->second;
+                    if (index == m_list.size()) {
                         m_list.push_back(v);
+                    }
                     return index;
                 }
 
@@ -81,9 +81,9 @@ namespace TrenchBroom {
 
             struct Face {
                 IndexedVertexList verts;
-                String texture;
+                std::string texture;
 
-                Face(IndexedVertexList i_verts, String i_texture);
+                Face(IndexedVertexList i_verts, std::string i_texture);
             };
 
             using FaceList = std::vector<Face>;

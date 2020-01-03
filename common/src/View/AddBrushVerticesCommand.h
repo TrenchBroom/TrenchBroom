@@ -20,9 +20,13 @@
 #ifndef AddBrushVerticesCommand_h
 #define AddBrushVerticesCommand_h
 
+#include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "View/VertexCommand.h"
+#include "View/View_Forward.h"
 
+#include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -32,18 +36,19 @@ namespace TrenchBroom {
         class AddBrushVerticesCommand : public VertexCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<AddBrushVerticesCommand>;
         private:
             VertexToBrushesMap m_vertices;
         public:
-            static Ptr add(const VertexToBrushesMap& vertices);
-        protected:
-            AddBrushVerticesCommand(CommandType type, const String& name, const std::vector<Model::Brush*>& brushes, const VertexToBrushesMap& vertices);
+            static std::unique_ptr<AddBrushVerticesCommand> add(const VertexToBrushesMap& vertices);
+
+            AddBrushVerticesCommand(CommandType type, const std::string& name, const std::vector<Model::Brush*>& brushes, const VertexToBrushesMap& vertices);
         private:
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(AddBrushVerticesCommand)
         };
     }
 }

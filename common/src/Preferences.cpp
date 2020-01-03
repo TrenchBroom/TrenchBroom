@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace Preferences {
-        Preference<int> MapViewLayout(IO::Path("Views/Map view layout"), View::MapViewLayout_1Pane);
+        Preference<int> MapViewLayout(IO::Path("Views/Map view layout"), static_cast<int>(View::MapViewLayout::OnePane));
 
         Preference<bool>  ShowAxes(IO::Path("Renderer/Show axes"), true);
         Preference<Color> BackgroundColor(IO::Path("Renderer/Colors/Background"), Color(38, 38, 38));
@@ -286,7 +286,7 @@ namespace TrenchBroom {
 
         const std::map<IO::Path, PreferenceBase*>& staticPreferencesMap() {
             static std::map<IO::Path, PreferenceBase*> map;
-            
+
             if (map.empty()) {
                 for (PreferenceBase* pref : staticPreferences()) {
                     map[pref->path()] = pref;

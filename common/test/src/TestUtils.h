@@ -22,12 +22,15 @@
 
 #include <gtest/gtest.h>
 
-#include "StringType.h"
 #include "Model/Model_Forward.h"
+
+#include <kdl/vector_set.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
+
+#include <string>
 
 namespace TrenchBroom {
     bool texCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
@@ -36,13 +39,22 @@ namespace TrenchBroom {
                       const std::vector<vm::vec2f>& transformedVertUVs);
 
     namespace Model {
-        void assertTexture(const String& expected, const Brush* brush, const vm::vec3d& faceNormal);
-
-        void assertTexture(const String& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3);
-        void assertTexture(const String& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3, const vm::vec3d& v4);
-        void assertTexture(const String& expected, const Brush* brush, const std::vector<vm::vec3d>& vertices);
-        void assertTexture(const String& expected, const Brush* brush, const vm::polygon3d& vertices);
+        void assertTexture(const std::string& expected, const Brush* brush, const vm::vec3d& faceNormal);
+        void assertTexture(const std::string& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3);
+        void assertTexture(const std::string& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3, const vm::vec3d& v4);
+        void assertTexture(const std::string& expected, const Brush* brush, const std::vector<vm::vec3d>& vertices);
+        void assertTexture(const std::string& expected, const Brush* brush, const vm::polygon3d& vertices);
     }
+}
+
+template <typename L, typename R>
+void ASSERT_COLLECTIONS_EQUIVALENT(const L& lhs, const R& rhs) {
+    ASSERT_EQ(kdl::vector_set(std::begin(lhs), std::end(lhs)), kdl::vector_set(std::begin(rhs), std::end(rhs)));
+}
+
+template <typename L, typename R>
+void EXPECT_COLLECTIONS_EQUIVALENT(const L& lhs, const R& rhs) {
+    EXPECT_EQ(kdl::vector_set(std::begin(lhs), std::end(lhs)), kdl::vector_set(std::begin(rhs), std::end(rhs)));
 }
 
 template <typename T, size_t S>

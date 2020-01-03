@@ -26,6 +26,7 @@
 #include "Model/MapFacade.h"
 #include "Model/PushSelection.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -44,7 +45,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            const std::string doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
                 return "Attribute '" + m_attributeName + "' of " + attributableNode->classname() + " has an empty value.";
             }

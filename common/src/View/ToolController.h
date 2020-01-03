@@ -22,13 +22,17 @@
 
 #include "TrenchBroom.h"
 #include "ToolChain.h"
-#include "Model/Hit.h"
-#include "Model/HitQuery.h"
+#include "Model/HitType.h"
+#include "Model/Model_Forward.h"
 #include "View/InputState.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/line.h>
 #include <vecmath/plane.h>
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -150,8 +154,8 @@ namespace TrenchBroom {
 
             bool m_pickable;
             bool m_selected;
-            Model::Hit::HitType m_hitTypeValue;
-            Model::Hit::HitType m_occludedTypeValue;
+            Model::HitType::Type m_hitTypeValue;
+            Model::HitType::Type m_occludedTypeValue;
             FloatType m_minDistanceValue;
         public:
             SurfaceDragHelper();
@@ -159,8 +163,8 @@ namespace TrenchBroom {
 
             void setPickable(bool pickable);
             void setSelected(bool selected);
-            void setType(Model::Hit::HitType type);
-            void setOccluded(Model::Hit::HitType type);
+            void setType(Model::HitType::Type type);
+            void setOccluded(Model::HitType::Type type);
             void setMinDistance(FloatType minDistance);
         protected:
             Model::HitQuery query(const InputState& inputState) const;
@@ -182,7 +186,7 @@ namespace TrenchBroom {
 
         class MultiDragSnapper : public DragSnapper {
         private:
-            using List = std::list<std::unique_ptr<DragSnapper>>;
+            using List = std::vector<std::unique_ptr<DragSnapper>>;
             List m_delegates;
         public:
             template <typename... T>
@@ -344,7 +348,7 @@ namespace TrenchBroom {
         public:
             virtual ~DropPolicy();
         public:
-            virtual bool doDragEnter(const InputState& inputState, const String& payload) = 0;
+            virtual bool doDragEnter(const InputState& inputState, const std::string& payload) = 0;
             virtual bool doDragMove(const InputState& inputState) = 0;
             virtual void doDragLeave(const InputState& inputState) = 0;
             virtual bool doDragDrop(const InputState& inputState) = 0;
@@ -354,7 +358,7 @@ namespace TrenchBroom {
         public:
             ~NoDropPolicy() override;
         public:
-            bool doDragEnter(const InputState& inputState, const String& payload) override;
+            bool doDragEnter(const InputState& inputState, const std::string& payload) override;
             bool doDragMove(const InputState& inputState) override;
             void doDragLeave(const InputState& inputState) override;
             bool doDragDrop(const InputState& inputState) override;
@@ -389,7 +393,7 @@ namespace TrenchBroom {
             virtual void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
             virtual void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
 
-            virtual bool dragEnter(const InputState& inputState, const String& payload) = 0;
+            virtual bool dragEnter(const InputState& inputState, const std::string& payload) = 0;
             virtual bool dragMove(const InputState& inputState) = 0;
             virtual void dragLeave(const InputState& inputState) = 0;
             virtual bool dragDrop(const InputState& inputState) = 0;
@@ -494,7 +498,7 @@ namespace TrenchBroom {
                     static_cast<RenderPolicyType*>(this)->doRender(inputState, renderContext, renderBatch);
             }
 
-            bool dragEnter(const InputState& inputState, const String& payload) override {
+            bool dragEnter(const InputState& inputState, const std::string& payload) override {
                 if (toolActive())
                     return static_cast<DropPolicyType*>(this)->doDragEnter(inputState, payload);
                 return false;
@@ -554,7 +558,7 @@ namespace TrenchBroom {
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
-            bool doDragEnter(const InputState& inputState, const String& payload) override;
+            bool doDragEnter(const InputState& inputState, const std::string& payload) override;
             bool doDragMove(const InputState& inputState) override;
             void doDragLeave(const InputState& inputState) override;
             bool doDragDrop(const InputState& inputState) override;
@@ -567,7 +571,7 @@ namespace TrenchBroom {
             virtual void doMouseDragEnded(const InputState& inputState);
             virtual void doMouseDragCancelled();
 
-            virtual bool doShouldHandleDrop(const InputState& inputState, const String& payload) const;
+            virtual bool doShouldHandleDrop(const InputState& inputState, const std::string& payload) const;
         };
     }
 }

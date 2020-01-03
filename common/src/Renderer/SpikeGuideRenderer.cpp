@@ -20,13 +20,18 @@
 #include "SpikeGuideRenderer.h"
 
 #include "Model/Hit.h"
+#include "Model/HitQuery.h"
 #include "Model/Brush.h"
 #include "Model/PickResult.h"
+#include "Renderer/ActiveShader.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 #include "View/MapDocument.h"
+
+#include <memory>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -42,7 +47,7 @@ namespace TrenchBroom {
             m_valid = false;
         }
 
-        void SpikeGuideRenderer::add(const vm::ray3& ray, const FloatType length, View::MapDocumentSPtr document) {
+        void SpikeGuideRenderer::add(const vm::ray3& ray, const FloatType length, std::shared_ptr<View::MapDocument> document) {
             Model::PickResult pickResult = Model::PickResult::byDistance(document->editorContext());
             document->pick(ray, pickResult);
 
@@ -65,19 +70,19 @@ namespace TrenchBroom {
             m_valid = true;
         }
 
-        void SpikeGuideRenderer::doPrepareVertices(Vbo& vertexVbo) {
+        void SpikeGuideRenderer::doPrepareVertices(VboManager& vboManager) {
             if (!m_valid)
                 validate();
-            m_pointArray.prepare(vertexVbo);
-            m_spikeArray.prepare(vertexVbo);
+            m_pointArray.prepare(vboManager);
+            m_spikeArray.prepare(vboManager);
         }
 
         void SpikeGuideRenderer::doRender(RenderContext& renderContext) {
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
-            m_spikeArray.render(GL_LINES);
+            m_spikeArray.render(PrimType::Lines);
 
             glAssert(glPointSize(3.0f));
-            m_pointArray.render(GL_POINTS);
+            m_pointArray.render(PrimType::Points);
             glAssert(glPointSize(1.0f));
         }
 

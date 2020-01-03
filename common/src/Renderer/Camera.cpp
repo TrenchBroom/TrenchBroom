@@ -194,9 +194,9 @@ namespace TrenchBroom {
                 validateMatrices();
 
             vm::vec3f win = m_matrix * point;
-            win[0] = m_viewport.x + m_viewport.width *(win.x() + 1.0f)/2.0f;
-            win[1] = m_viewport.y + m_viewport.height*(win.y() + 1.0f)/2.0f;
-            win[2] = (win.z() + 1.0f)/2.0f;
+            win[0] = static_cast<float>(m_viewport.x + m_viewport.width)  * (win.x() + 1.0f) / 2.0f;
+            win[1] = static_cast<float>(m_viewport.y + m_viewport.height) * (win.y() + 1.0f) / 2.0f;
+            win[2] = (win.z() + 1.0f) / 2.0f;
             return win;
         }
 
@@ -209,9 +209,9 @@ namespace TrenchBroom {
                 validateMatrices();
 
             vm::vec3f normalized;
-            normalized[0] = 2.0f*(x - m_viewport.x)/m_viewport.width - 1.0f;
-            normalized[1] = 2.0f*(m_viewport.height - y - m_viewport.y)/m_viewport.height - 1.0f;
-            normalized[2] = 2.0f*depth - 1.0f;
+            normalized[0] = 2.0f * (x - static_cast<float>(m_viewport.x)) / static_cast<float>(m_viewport.width) - 1.0f;
+            normalized[1] = 2.0f * (static_cast<float>(m_viewport.height - m_viewport.y) - y) / static_cast<float>(m_viewport.height) - 1.0f;
+            normalized[2] = 2.0f * depth - 1.0f;
 
             return m_inverseMatrix * normalized;
         }
@@ -345,8 +345,8 @@ namespace TrenchBroom {
             }
         }
 
-        void Camera::renderFrustum(RenderContext& renderContext, Vbo& vbo, const float size, const Color& color) const {
-            doRenderFrustum(renderContext, vbo, size, color);
+        void Camera::renderFrustum(RenderContext& renderContext, VboManager& vboManager, const float size, const Color& color) const {
+            doRenderFrustum(renderContext, vboManager, size, color);
         }
 
         float Camera::pickFrustum(const float size, const vm::ray3f& ray) const {

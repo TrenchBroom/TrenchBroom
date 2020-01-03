@@ -20,8 +20,8 @@
 #include "TextureReader.h"
 
 #include "Assets/Texture.h"
+#include "Assets/TextureBuffer.h"
 #include "IO/FileSystem.h"
-#include "IO/Reader.h"
 
 #include <algorithm>
 
@@ -35,7 +35,7 @@ namespace TrenchBroom {
             return doClone();
         }
 
-        String TextureReader::NameStrategy::textureName(const String& textureName, const Path& path) const {
+        std::string TextureReader::NameStrategy::textureName(const std::string& textureName, const Path& path) const {
             return doGetTextureName(textureName, path);
         }
 
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             return new TextureNameStrategy();
         }
 
-        String TextureReader::TextureNameStrategy::doGetTextureName(const String& textureName, const Path& /* path */) const {
+        std::string TextureReader::TextureNameStrategy::doGetTextureName(const std::string& textureName, const Path& /* path */) const {
             return textureName;
         }
 
@@ -57,21 +57,21 @@ namespace TrenchBroom {
             return new PathSuffixNameStrategy(m_suffixLength, m_deleteExtension);
         }
 
-        String TextureReader::PathSuffixNameStrategy::doGetTextureName(const String& /* textureName */, const Path& path) const {
+        std::string TextureReader::PathSuffixNameStrategy::doGetTextureName(const std::string& /* textureName */, const Path& path) const {
             Path result = path.suffix(std::min(m_suffixLength, path.length()));
             if (m_deleteExtension)
                 result = result.deleteExtension();
-            return result.asString('/');
+            return result.asString("/");
         }
 
-        TextureReader::StaticNameStrategy::StaticNameStrategy(const String& name) :
+        TextureReader::StaticNameStrategy::StaticNameStrategy(const std::string& name) :
         m_name(name) {}
 
         TextureReader::NameStrategy* TextureReader::StaticNameStrategy::doClone() const {
             return new StaticNameStrategy(m_name);
         }
 
-        String TextureReader::StaticNameStrategy::doGetTextureName(const String& /* textureName */, const Path& /* path */) const {
+        std::string TextureReader::StaticNameStrategy::doGetTextureName(const std::string& /* textureName */, const Path& /* path */) const {
             return m_name;
         }
 
@@ -86,11 +86,11 @@ namespace TrenchBroom {
             return doReadTexture(file);
         }
 
-        String TextureReader::textureName(const String& textureName, const Path& path) const {
+        std::string TextureReader::textureName(const std::string& textureName, const Path& path) const {
             return m_nameStrategy->textureName(textureName, path);
         }
 
-        String TextureReader::textureName(const Path& path) const {
+        std::string TextureReader::textureName(const Path& path) const {
             return m_nameStrategy->textureName(path.lastComponent().asString(), path);
         }
 

@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        CompilationProfileManager::CompilationProfileManager(MapDocumentWPtr document, Model::CompilationConfig& config, QWidget* parent) :
+        CompilationProfileManager::CompilationProfileManager(std::weak_ptr<MapDocument> document, Model::CompilationConfig& config, QWidget* parent) :
         QWidget(parent),
         m_config(config),
         m_profileList(nullptr),
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             listLayout->setContentsMargins(0, 0, 0, 0);
             listLayout->setSpacing(0);
             listLayout->addWidget(m_profileList, 1);
-            listLayout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            listLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
             listLayout->addLayout(buttonLayout);
             listPanel->getPanel()->setLayout(listLayout);
 
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             outerLayout->setContentsMargins(0, 0, 0, 0);
             outerLayout->setSpacing(0);
             outerLayout->addWidget(listPanel);
-            outerLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical));
+            outerLayout->addWidget(new BorderLine(BorderLine::Direction::Vertical));
             outerLayout->addWidget(editorPanel, 1);
             setLayout(outerLayout);
 

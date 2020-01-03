@@ -21,8 +21,8 @@
 #define TrenchBroom_SmartAttributeEditorManager
 
 #include "Model/Model_Forward.h"
-#include "View/ViewTypes.h"
 
+#include <memory>
 #include <vector>
 
 #include <QWidget>
@@ -31,6 +31,7 @@ class QStackedLayout;
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
         class Selection;
         class SmartAttributeEditor;
         class SmartAttributeEditorMatcher;
@@ -42,13 +43,13 @@ namespace TrenchBroom {
             using MatcherEditorPair = std::pair<MatcherPtr, EditorPtr>;
             using EditorList = std::vector<MatcherEditorPair>;
 
-            View::MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             EditorList m_editors;
             Model::AttributeName m_name;
             QStackedLayout* m_stackedLayout;
         public:
-            explicit SmartAttributeEditorManager(View::MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit SmartAttributeEditorManager(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~SmartAttributeEditorManager();
 
             void switchEditor(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables);

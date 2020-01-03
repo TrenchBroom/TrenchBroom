@@ -43,13 +43,6 @@ namespace TrenchBroom {
             centerOnScreen(this);
         }
 
-        void WelcomeWindow::closeEvent(QCloseEvent* event) {
-            event->ignore();
-
-            auto& app = TrenchBroomApp::instance();
-            app.hideWelcomeWindow();
-        }
-
         void WelcomeWindow::createGui() {
             setWindowIconTB(this);
             setWindowTitle("Welcome to TrenchBroom");
@@ -68,7 +61,7 @@ namespace TrenchBroom {
             auto* appPanel = createAppPanel();
 
             innerLayout->addWidget(appPanel, 0, Qt::AlignTop);
-            innerLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical), 0);
+            innerLayout->addWidget(new BorderLine(BorderLine::Direction::Vertical), 0);
             innerLayout->addWidget(m_recentDocumentListBox, 1);
 
             auto* container = new QWidget();

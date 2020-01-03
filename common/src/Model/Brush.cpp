@@ -19,8 +19,8 @@
 
 #include "Brush.h"
 
-#include "CollectionUtils.h"
 #include "Constants.h"
+#include "Exceptions.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
 #include "Model/BrushFace.h"
@@ -35,15 +35,17 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
+#include "Model/TexCoordSystem.h"
 #include "Model/World.h"
 #include "Renderer/BrushRendererBrushCache.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vecmath/intersection.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_ext.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
-#include <vecmath/ray.h>
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
 #include <vecmath/util.h>
@@ -51,19 +53,12 @@
 #include <algorithm> // for std::remove
 #include <iterator>
 #include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        const Hit::HitType Brush::BrushHit = Hit::freeHitType();
-
-        Brush::ProjectToVertex::Type Brush::ProjectToVertex::project(const BrushVertex* vertex) {
-            return vertex;
-        }
-
-        Brush::ProjectToEdge::Type Brush::ProjectToEdge::project(const BrushEdge* edge) {
-            return edge;
-        }
+        const HitType::Type Brush::BrushHit = HitType::freeType();
 
         class Brush::AddFaceToGeometryCallback : public BrushGeometry::Callback {
         private:
@@ -183,7 +178,7 @@ namespace TrenchBroom {
             }
 
             ~MoveVerticesCallback() override {
-                VectorUtils::clearAndDelete(m_removedFaces);
+                kdl::vec_clear_and_delete(m_removedFaces);
             }
         private:
             void buildIncidences(const BrushGeometry* geometry, const std::set<vm::vec3>& verticesToBeMoved, const vm::vec3& delta) {
@@ -317,7 +312,7 @@ namespace TrenchBroom {
 
         void Brush::cleanup() {
             deleteGeometry();
-            VectorUtils::clearAndDelete(m_faces);
+            kdl::vec_clear_and_delete(m_faces);
         }
 
         Brush* Brush::clone(const vm::bbox3& worldBounds) const {
@@ -351,7 +346,7 @@ namespace TrenchBroom {
             }
         }
 
-        BrushFace* Brush::findFace(const String& textureName) const {
+        BrushFace* Brush::findFace(const std::string& textureName) const {
             for (BrushFace* face : m_faces) {
                 if (face->textureName() == textureName) {
                     return face;
@@ -412,7 +407,7 @@ namespace TrenchBroom {
             deleteGeometry();
 
             detachFaces(m_faces);
-            VectorUtils::clearAndDelete(m_faces);
+            kdl::vec_clear_and_delete(m_faces);
             addFaces(faces);
 
             buildGeometry(worldBounds);
@@ -446,7 +441,7 @@ namespace TrenchBroom {
         void Brush::addFace(BrushFace* face) {
             ensure(face != nullptr, "face is null");
             ensure(face->brush() == nullptr, "face brush is null");
-            assert(!VectorUtils::contains(m_faces, face));
+            assert(!kdl::vec_contains(m_faces, face));
 
             m_faces.push_back(face);
             face->setBrush(this);
@@ -603,9 +598,9 @@ namespace TrenchBroom {
             return m_geometry->vertexCount();
         }
 
-        Brush::VertexList Brush::vertices() const {
+        const Brush::VertexList& Brush::vertices() const {
             ensure(m_geometry != nullptr, "geometry is null");
-            return VertexList(m_geometry->vertices());
+            return m_geometry->vertices();
         }
 
         const std::vector<vm::vec3> Brush::vertexPositions() const {
@@ -664,15 +659,15 @@ namespace TrenchBroom {
         }
 
         bool Brush::hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const FloatType epsilon) const {
-            return hasFace(vm::polygon3(VectorUtils::create<vm::vec3>(p1, p2, p3)), epsilon);
+            return hasFace(vm::polygon3({ p1, p2, p3 }), epsilon);
         }
 
         bool Brush::hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, const FloatType epsilon) const {
-            return hasFace(vm::polygon3(VectorUtils::create<vm::vec3>(p1, p2, p3, p4)), epsilon);
+            return hasFace(vm::polygon3({ p1, p2, p3, p4 }), epsilon);
         }
 
         bool Brush::hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, const vm::vec3& p5, const FloatType epsilon) const {
-            return hasFace(vm::polygon3(VectorUtils::create<vm::vec3>(p1, p2, p3, p4, p5)), epsilon);
+            return hasFace(vm::polygon3({ p1, p2, p3, p4, p5 }), epsilon);
         }
 
 
@@ -681,9 +676,9 @@ namespace TrenchBroom {
             return m_geometry->edgeCount();
         }
 
-        Brush::EdgeList Brush::edges() const {
+        const Brush::EdgeList& Brush::edges() const {
             ensure(m_geometry != nullptr, "geometry is null");
-            return EdgeList(m_geometry->edges());
+            return m_geometry->edges();
         }
 
         bool Brush::containsPoint(const vm::vec3& point) const {
@@ -1098,7 +1093,7 @@ namespace TrenchBroom {
             // TODO: When there are multiple choices of moving verts (unmovedVerts.size() + movedVerts.size() > 3)
             // we should sort them somehow. This can be seen if you select and move 3/5 verts of a pentagon;
             // which of the 3 moving verts currently gets UV lock is arbitrary.
-            VectorUtils::append(referenceVerts, movedVerts);
+            kdl::vec_append(referenceVerts, movedVerts);
 
             if (referenceVerts.size() < 3) {
                 // Can't create a transform as there are not enough verts
@@ -1163,12 +1158,12 @@ namespace TrenchBroom {
             });
 
             const NotifyNodeChange nodeChange(this);
-            VectorUtils::clearAndDelete(m_faces);
+            kdl::vec_clear_and_delete(m_faces);
             updateFacesFromGeometry(worldBounds, newGeometry);
             rebuildGeometry(worldBounds);
         }
 
-        std::vector<Brush*> Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const std::vector<Brush*>& subtrahends) const {
+        std::vector<Brush*> Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<Brush*>& subtrahends) const {
             auto result = std::vector<BrushGeometry>{*m_geometry};
 
             for (auto* subtrahend : subtrahends) {
@@ -1199,7 +1194,7 @@ namespace TrenchBroom {
             return brushes;
         }
 
-        std::vector<Brush*> Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, Brush* subtrahend) const {
+        std::vector<Brush*> Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, Brush* subtrahend) const {
             return subtract(factory, worldBounds, defaultTextureName, std::vector<Brush*>{subtrahend});
         }
 
@@ -1225,7 +1220,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        Brush* Brush::createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const std::vector<Brush*>& subtrahends) const {
+        Brush* Brush::createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<Brush*>& subtrahends) const {
             std::vector<BrushFace*> faces(0);
             faces.reserve(geometry.faceCount());
 
@@ -1327,7 +1322,7 @@ namespace TrenchBroom {
                 if (geometry->payload() == nullptr) {
                     return false;
                 }
-                if (!VectorUtils::contains(m_faces, geometry->payload())) {
+                if (!kdl::vec_contains(m_faces, geometry->payload())) {
                     return false;
                 }
             }
@@ -1344,8 +1339,8 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds);
         }
 
-        const String& Brush::doGetName() const {
-            static const String name("brush");
+        const std::string& Brush::doGetName() const {
+            static const std::string name("brush");
             return name;
         }
 
@@ -1554,10 +1549,10 @@ namespace TrenchBroom {
             Taggable::clearTags();
         }
 
-        bool Brush::allFacesHaveAnyTagInMask(Tag::TagType tagMask) const {
+        bool Brush::allFacesHaveAnyTagInMask(TagType::Type tagMask) const {
             // Possible optimization: Store the shared face tag mask in the brush and updated it when a face changes.
 
-            Tag::TagType sharedFaceTags = ~Tag::TagType(0); // set all bits to 1
+            TagType::Type sharedFaceTags = TagType::AnyType; // set all bits to 1
             for (const auto* face : m_faces) {
                 sharedFaceTags &= face->tagMask();
             }
@@ -1573,7 +1568,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool Brush::anyFacesHaveAnyTagInMask(Tag::TagType tagMask) const {
+        bool Brush::anyFacesHaveAnyTagInMask(TagType::Type tagMask) const {
             // Possible optimization: Store the shared face tag mask in the brush and updated it when a face changes.
 
             for (const auto* face : m_faces) {

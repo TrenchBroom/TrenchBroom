@@ -20,15 +20,12 @@
 #ifndef TrenchBroom_FlashSelectionAnimation
 #define TrenchBroom_FlashSelectionAnimation
 
+#include "Renderer/Renderer_Forward.h"
 #include "View/Animation.h"
 
 class QWidget;
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class MapRenderer;
-    }
-
     namespace View {
         class FlashSelectionAnimation : public Animation {
         private:

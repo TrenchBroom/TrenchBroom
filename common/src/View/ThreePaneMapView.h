@@ -22,7 +22,8 @@
 
 #include "View/CameraLinkHelper.h"
 #include "View/MultiMapView.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 class QSplitter;
 
@@ -31,12 +32,13 @@ namespace TrenchBroom {
 
     namespace Renderer {
         class MapRenderer;
-        class Vbo;
+        class VboManager;
     }
 
     namespace View {
         class CyclingMapView;
         class GLContextManager;
+        class MapDocument;
         class MapViewBase;
         class MapView2D;
         class MapView3D;
@@ -46,7 +48,7 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             Logger* m_logger;
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             CameraLinkHelper m_linkHelper;
             QSplitter* m_hSplitter;
@@ -55,7 +57,7 @@ namespace TrenchBroom {
             MapView2D* m_mapViewXY;
             CyclingMapView* m_mapViewZZ;
         public:
-            ThreePaneMapView(MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer,
+            ThreePaneMapView(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer,
                              GLContextManager& contextManager, Logger* logger, QWidget* parent = nullptr);
             ~ThreePaneMapView() override;
         private:

@@ -23,35 +23,37 @@
 #include "TrenchBroom.h"
 #include "Color.h"
 #include "Notifier.h"
-#include "StringType.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Assets/ModelDefinition.h"
+#include "Model/Model_Forward.h"
 
 #include <vecmath/bbox.h>
 
+#include <memory>
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Assets {
-        class AttributeDefinition;
-        class FlagsAttributeDefinition;
-        class FlagsAttributeOption;
-        class ModelDefinition;
+        enum class EntityDefinitionType {
+            PointEntity,
+            BrushEntity
+        };
+
+        enum class EntityDefinitionSortOrder {
+            Name,
+            Usage
+        };
 
         class EntityDefinition {
-        public:
-            enum SortOrder {
-                Name,
-                Usage
-            };
-
-            typedef enum {
-                Type_PointEntity,
-                Type_BrushEntity
-            } Type;
+        protected:
+            using AttributeDefinitionPtr = std::shared_ptr<AttributeDefinition>;
+            using AttributeDefinitionList = std::vector<AttributeDefinitionPtr>;
         private:
             size_t m_index;
-            String m_name;
+            std::string m_name;
             Color m_color;
-            String m_description;
+            std::string m_description;
             size_t m_usageCount;
             AttributeDefinitionList m_attributeDefinitions;
         public:
@@ -62,12 +64,12 @@ namespace TrenchBroom {
             size_t index() const;
             void setIndex(size_t index);
 
-            virtual Type type() const = 0;
-            const String& name() const;
-            String shortName() const;
-            String groupName() const;
+            virtual EntityDefinitionType type() const = 0;
+            const std::string& name() const;
+            std::string shortName() const;
+            std::string groupName() const;
             const Color& color() const;
-            const String& description() const;
+            const std::string& description() const;
             size_t usageCount() const;
             void incUsageCount();
             void decUsageCount();
@@ -80,9 +82,9 @@ namespace TrenchBroom {
             static const FlagsAttributeDefinition* safeGetSpawnflagsAttributeDefinition(const EntityDefinition* entityDefinition);
             static const FlagsAttributeOption* safeGetSpawnflagsAttributeOption(const EntityDefinition* entityDefinition, size_t flagIndex);
 
-            static EntityDefinitionList filterAndSort(const EntityDefinitionList& definitions, EntityDefinition::Type type, SortOrder prder = Name);
+            static std::vector<EntityDefinition*> filterAndSort(const std::vector<EntityDefinition*>& definitions, EntityDefinitionType type, EntityDefinitionSortOrder prder = EntityDefinitionSortOrder::Name);
         protected:
-            EntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions);
+            EntityDefinition(const std::string& name, const Color& color, const std::string& description, const AttributeDefinitionList& attributeDefinitions);
         };
 
         class PointEntityDefinition : public EntityDefinition {
@@ -90,9 +92,9 @@ namespace TrenchBroom {
             vm::bbox3 m_bounds;
             ModelDefinition m_modelDefinition;
         public:
-            PointEntityDefinition(const String& name, const Color& color, const vm::bbox3& bounds, const String& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition);
+            PointEntityDefinition(const std::string& name, const Color& color, const vm::bbox3& bounds, const std::string& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition);
 
-            Type type() const override;
+            EntityDefinitionType type() const override;
             const vm::bbox3& bounds() const;
             ModelSpecification model(const Model::EntityAttributes& attributes) const;
             ModelSpecification defaultModel() const;
@@ -101,8 +103,8 @@ namespace TrenchBroom {
 
         class BrushEntityDefinition : public EntityDefinition {
         public:
-            BrushEntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions);
-            Type type() const override;
+            BrushEntityDefinition(const std::string& name, const Color& color, const std::string& description, const AttributeDefinitionList& attributeDefinitions);
+            EntityDefinitionType type() const override;
         };
     }
 }

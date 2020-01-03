@@ -19,6 +19,7 @@
 
 #include "Entity.h"
 
+#include "Assets/EntityDefinition.h"
 #include "Assets/EntityModel.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
@@ -32,7 +33,8 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
-#include "StringUtils.h"
+
+#include <kdl/string_utils.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
@@ -47,7 +49,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const Hit::HitType Entity::EntityHit = Hit::freeHitType();
+        const HitType::Type Entity::EntityHit = HitType::freeType();
         const vm::bbox3 Entity::DefaultBounds(8.0);
 
         Entity::Entity() :
@@ -71,11 +73,11 @@ namespace TrenchBroom {
         }
 
         bool Entity::hasBrushEntityDefinition() const {
-            return hasEntityDefinition() && definition()->type() == Assets::EntityDefinition::Type_BrushEntity;
+            return hasEntityDefinition() && definition()->type() == Assets::EntityDefinitionType::BrushEntity;
         }
 
         bool Entity::hasPointEntityDefinition() const {
-            return hasEntityDefinition() && definition()->type() == Assets::EntityDefinition::Type_PointEntity;
+            return hasEntityDefinition() && definition()->type() == Assets::EntityDefinitionType::PointEntity;
         }
 
         bool Entity::hasPointEntityModel() const {
@@ -124,7 +126,7 @@ namespace TrenchBroom {
         }
 
         void Entity::setOrigin(const vm::vec3& origin) {
-            addOrUpdateAttribute(AttributeNames::Origin, StringUtils::toString(vm::round(origin)));
+            addOrUpdateAttribute(AttributeNames::Origin, kdl::str_to_string(vm::round(origin)));
         }
 
         void Entity::applyRotation(const vm::mat4x4& transformation) {

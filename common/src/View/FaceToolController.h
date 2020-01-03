@@ -21,12 +21,10 @@
 #define FaceToolController_h
 
 #include "View/VertexToolControllerBase.h"
+#include "View/View_Forward.h"
 
 namespace TrenchBroom {
     namespace View {
-        class Tool;
-        class FaceTool;
-
         class FaceToolController : public VertexToolControllerBase<FaceTool> {
         private:
             class SelectFacePart;

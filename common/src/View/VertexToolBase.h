@@ -20,12 +20,13 @@
 #ifndef VertexToolBase_h
 #define VertexToolBase_h
 
-#include "TrenchBroom.h"
 #include "Disjunction.h"
 #include "Polyhedron.h"
 #include "Polyhedron3.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
+#include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Hit.h"
@@ -47,15 +48,20 @@
 #include "View/Tool.h"
 #include "View/VertexCommand.h"
 #include "View/VertexHandleManager.h"
-#include "View/ViewTypes.h"
+
+#include <kdl/string_utils.h>
+#include <kdl/vector_set.h>
+#include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
 #include <cassert>
+#include <list>
 #include <map>
-#include <set>
+#include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -70,6 +76,7 @@ namespace TrenchBroom {
     namespace View {
         class Grid;
         class Lasso;
+        class MapDocument;
 
         template <typename H>
         class VertexToolBase : public Tool {
@@ -80,7 +87,7 @@ namespace TrenchBroom {
                 MR_Cancel
             } MoveResult;
         protected:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
         private:
             size_t m_changeCount;
         protected:
@@ -89,7 +96,7 @@ namespace TrenchBroom {
             H m_dragHandlePosition;
             bool m_dragging;
         protected:
-            VertexToolBase(MapDocumentWPtr document) :
+            VertexToolBase(std::weak_ptr<MapDocument> document) :
             Tool(false),
             m_document(document),
             m_changeCount(0),
@@ -102,14 +109,14 @@ namespace TrenchBroom {
             }
 
             const std::vector<Model::Brush*>& selectedBrushes() const {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 return document->selectedNodes().brushes();
             }
         public:
             template <typename M, typename I>
-            std::map<typename M::Handle, std::set<Model::Brush*>> buildBrushMap(const M& manager, I cur, I end) const {
+            std::map<typename M::Handle, std::vector<Model::Brush*>> buildBrushMap(const M& manager, I cur, I end) const {
                 using H2 = typename M::Handle;
-                std::map<H2, std::set<Model::Brush*>> result;
+                std::map<H2, std::vector<Model::Brush*>> result;
                 while (cur != end) {
                     const H2& handle = *cur++;
                     result[handle] = findIncidentBrushes(manager, handle);
@@ -117,16 +124,18 @@ namespace TrenchBroom {
                 return result;
             }
 
+            // FIXME: use vector_set
             template <typename M, typename H2>
-            std::set<Model::Brush*> findIncidentBrushes(const M& manager, const H2& handle) const {
+            std::vector<Model::Brush*> findIncidentBrushes(const M& manager, const H2& handle) const {
                 const std::vector<Model::Brush*>& brushes = selectedBrushes();
                 return manager.findIncidentBrushes(handle, std::begin(brushes), std::end(brushes));
             }
 
+            // FIXME: use vector_set
             template <typename M, typename I>
-            std::set<Model::Brush*> findIncidentBrushes(const M& manager, I cur, I end) const {
+            std::vector<Model::Brush*> findIncidentBrushes(const M& manager, I cur, I end) const {
                 const std::vector<Model::Brush*>& brushes = selectedBrushes();
-                std::set<Model::Brush*> result;
+                kdl::vector_set<Model::Brush*> result;
                 auto out = std::inserter(result, std::end(result));
 
                 while (cur != end) {
@@ -135,12 +144,12 @@ namespace TrenchBroom {
                     ++cur;
                 }
 
-                return result;
+                return result.release_data();
             }
 
             virtual void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const = 0;
         public: // Handle selection
-            bool select(const Model::Hit::List& hits, const bool addToSelection) {
+            bool select(const std::list<Model::Hit>& hits, const bool addToSelection) {
                 assert(!hits.empty());
                 const Model::Hit& firstHit = hits.front();
                 if (firstHit.type() == handleManager().hitType()) {
@@ -202,7 +211,7 @@ namespace TrenchBroom {
             virtual HandleManager& handleManager() = 0;
             virtual const HandleManager& handleManager() const = 0;
         public: // performing moves
-            virtual bool startMove(const Model::Hit::List& hits) {
+            virtual bool startMove(const std::list<Model::Hit>& hits) {
                 assert(!hits.empty());
 
                 // Delesect all handles if any of the hit handles is not already selected.
@@ -223,8 +232,8 @@ namespace TrenchBroom {
                 }
                 refreshViews();
 
-                MapDocumentSPtr document = lock(m_document);
-                document->beginTransaction(actionName());
+                auto document = lock(m_document);
+                document->startTransaction(actionName());
 
                 m_dragHandlePosition = getHandlePosition(hits.front());
                 m_dragging = true;
@@ -235,14 +244,14 @@ namespace TrenchBroom {
             virtual MoveResult move(const vm::vec3& delta) = 0;
 
             virtual void endMove() {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->commitTransaction();
                 m_dragging = false;
                 m_ignoreChangeNotifications.popLiteral();
             }
 
             virtual void cancelMove() {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->cancelTransaction();
                 m_dragging = false;
                 m_ignoreChangeNotifications.popLiteral();
@@ -263,7 +272,7 @@ namespace TrenchBroom {
                     return;
                 }
 
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 const Model::BrushBuilder builder(document->world(), document->worldBounds());
                 auto* brush = builder.createBrush(polyhedron, document->currentTextureName());
                 brush->cloneFaceAttributesFrom(document->selectedNodes().brushes());
@@ -279,7 +288,7 @@ namespace TrenchBroom {
                 return hit.target<H>();
             }
 
-            virtual String actionName() const = 0;
+            virtual std::string actionName() const = 0;
         public:
             void moveSelection(const vm::vec3& delta) {
                 const Disjunction::TemporarilySetLiteral ignoreChangeNotifications(m_ignoreChangeNotifications);
@@ -322,7 +331,7 @@ namespace TrenchBroom {
             template <typename HH>
             void renderHandles(const std::vector<HH>& handles, Renderer::RenderService& renderService, const Color& color) const {
                 renderService.setForegroundColor(color);
-                renderService.renderHandles(VectorUtils::cast<typename HH::float_type>(handles));
+                renderService.renderHandles(kdl::vec_element_cast<typename HH::float_type>(handles));
             }
 
             template <typename HH>
@@ -346,7 +355,7 @@ namespace TrenchBroom {
 
                 renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
                 renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-                renderService.renderString(StringUtils::toString(handle), vm::vec3f(handle));
+                renderService.renderString(kdl::str_to_string(handle), vm::vec3f(handle));
             }
 
             template <typename HH>
@@ -372,7 +381,7 @@ namespace TrenchBroom {
             }
         private: // Observers and state management
             void bindObservers() {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->selectionDidChangeNotifier.addObserver(this,  &VertexToolBase::selectionDidChange);
                 document->nodesWillChangeNotifier.addObserver(this,  &VertexToolBase::nodesWillChange);
                 document->nodesDidChangeNotifier.addObserver(this,  &VertexToolBase::nodesDidChange);
@@ -386,7 +395,7 @@ namespace TrenchBroom {
 
             void unbindObservers() {
                 if (!expired(m_document)) {
-                    MapDocumentSPtr document = lock(m_document);
+                    auto document = lock(m_document);
                     document->selectionDidChangeNotifier.removeObserver(this,  &VertexToolBase::selectionDidChange);
                     document->nodesWillChangeNotifier.removeObserver(this,  &VertexToolBase::nodesWillChange);
                     document->nodesDidChangeNotifier.removeObserver(this,  &VertexToolBase::nodesDidChange);
@@ -399,58 +408,58 @@ namespace TrenchBroom {
                 }
             }
 
-            void commandDo(Command::Ptr command) {
+            void commandDo(Command* command) {
                 commandDoOrUndo(command);
             }
 
-            void commandDone(Command::Ptr command) {
+            void commandDone(Command* command) {
                 commandDoneOrUndoFailed(command);
             }
 
-            void commandDoFailed(Command::Ptr command) {
+            void commandDoFailed(Command* command) {
                 commandDoFailedOrUndone(command);
             }
 
-            void commandUndo(UndoableCommand::Ptr command) {
+            void commandUndo(UndoableCommand* command) {
                 commandDoOrUndo(command);
             }
 
-            void commandUndone(UndoableCommand::Ptr command) {
+            void commandUndone(UndoableCommand* command) {
                 commandDoFailedOrUndone(command);
             }
 
-            void commandUndoFailed(UndoableCommand::Ptr command) {
+            void commandUndoFailed(UndoableCommand* command) {
                 commandDoneOrUndoFailed(command);
             }
 
-            void commandDoOrUndo(Command::Ptr command) {
+            void commandDoOrUndo(Command* command) {
                 if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command.get());
+                    auto* vertexCommand = static_cast<VertexCommand*>(command);
                     deselectHandles();
                     removeHandles(vertexCommand);
                     m_ignoreChangeNotifications.pushLiteral();
                 }
             }
 
-            void commandDoneOrUndoFailed(Command::Ptr command) {
+            void commandDoneOrUndoFailed(Command* command) {
                 if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command.get());
+                    auto* vertexCommand = static_cast<VertexCommand*>(command);
                     addHandles(vertexCommand);
                     selectNewHandlePositions(vertexCommand);
                     m_ignoreChangeNotifications.popLiteral();
                 }
             }
 
-            void commandDoFailedOrUndone(Command::Ptr command) {
+            void commandDoFailedOrUndone(Command* command) {
                 if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command.get());
+                    auto* vertexCommand = static_cast<VertexCommand*>(command);
                     addHandles(vertexCommand);
                     selectOldHandlePositions(vertexCommand);
                     m_ignoreChangeNotifications.popLiteral();
                 }
             }
 
-            bool isVertexCommand(const Command::Ptr& command) const {
+            bool isVertexCommand(const Command* command) const {
                 return command->isType(
                         AddBrushVerticesCommand::Type,
                         RemoveBrushVerticesCommand::Type,

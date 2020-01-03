@@ -19,9 +19,9 @@
 
 #include <gtest/gtest.h>
 
-#include "Assets/AssetTypes.h"
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
+#include "IO/DiskIO.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
 #include "IO/WalTextureReader.h"
@@ -33,7 +33,7 @@ namespace TrenchBroom {
             Assets::Texture* texture = reader.readTexture(fs.openFile(filePath));
             ASSERT_TRUE(texture != nullptr);
 
-            const String& name = path.suffix(2).deleteExtension().asString('/');
+            const auto& name = path.suffix(2).deleteExtension().asString("/");
             ASSERT_EQ(name, texture->name());
             ASSERT_EQ(width, texture->width());
             ASSERT_EQ(height, texture->height());

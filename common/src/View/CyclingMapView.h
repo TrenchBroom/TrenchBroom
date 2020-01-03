@@ -21,10 +21,12 @@
 #define TrenchBroom_CyclingMapView
 
 #include "TrenchBroom.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/CameraLinkHelper.h"
 #include "View/MapViewContainer.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
 
+#include <memory>
 #include <vector>
 
 class QStackedLayout;
@@ -32,15 +34,7 @@ class QStackedLayout;
 namespace TrenchBroom {
     class Logger;
 
-    namespace Renderer {
-        class MapRenderer;
-    }
-
     namespace View {
-        class GLContextManager;
-        class MapViewBase;
-        class MapViewToolBox;
-
         class CyclingMapView : public MapViewContainer, public CameraLinkableView {
             Q_OBJECT
         public:
@@ -55,7 +49,7 @@ namespace TrenchBroom {
             } View;
         private:
             Logger* m_logger;
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             using MapViewList = std::vector<MapViewBase*>;
             MapViewList m_mapViews;
@@ -63,7 +57,7 @@ namespace TrenchBroom {
 
             QStackedLayout* m_layout;
         public:
-            CyclingMapView(MapDocumentWPtr document, MapViewToolBox& toolBox,
+            CyclingMapView(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox,
                            Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager,
                            View views, Logger* logger, QWidget* parent = nullptr);
         private:

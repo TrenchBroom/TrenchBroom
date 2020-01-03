@@ -20,9 +20,8 @@
 #ifndef TrenchBroom_ViewConstants_h
 #define TrenchBroom_ViewConstants_h
 
-#include <QColor>
-#include <QFont>
-
+class QColor;
+class QFont;
 class QWidget;
 
 namespace TrenchBroom {

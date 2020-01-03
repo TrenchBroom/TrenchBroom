@@ -22,28 +22,27 @@
 
 #include "IO/Path.h"
 
+// FIXME: there must not be dependencies from Assets or Model or Renderer to Qt
 #include <QMetaType>
 
-#include <vector>
+#include <string>
 
 namespace TrenchBroom {
     namespace Assets {
         class EntityDefinitionFileSpec {
-        public:
-            using List = std::vector<EntityDefinitionFileSpec>;
         private:
-            typedef enum {
-                Type_Builtin,
-                Type_External,
-                Type_Unset
-            } Type;
+            enum class Type {
+                Builtin,
+                External,
+                Unset
+            };
 
             Type m_type;
             IO::Path m_path;
         public:
             EntityDefinitionFileSpec();
 
-            static EntityDefinitionFileSpec parse(const String& str);
+            static EntityDefinitionFileSpec parse(const std::string& str);
             static EntityDefinitionFileSpec builtin(const IO::Path& path);
             static EntityDefinitionFileSpec external(const IO::Path& path);
             static EntityDefinitionFileSpec unset();
@@ -57,7 +56,7 @@ namespace TrenchBroom {
 
             const IO::Path& path() const;
 
-            String asString() const;
+            std::string asString() const;
         private:
             EntityDefinitionFileSpec(Type type, const IO::Path& path);
         };

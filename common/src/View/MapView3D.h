@@ -20,12 +20,14 @@
 #ifndef TrenchBroom_MapView3D
 #define TrenchBroom_MapView3D
 
-#include <vecmath/scalar.h>
 #include "Model/Model_Forward.h"
-#include "Renderer/PerspectiveCamera.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/MapViewBase.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
 
+#include <vecmath/forward.h>
+
+#include <memory>
 #include <vector>
 
 class QKeyEvent;
@@ -33,25 +35,15 @@ class QKeyEvent;
 namespace TrenchBroom {
     class Logger;
 
-    namespace Model {
-        class PickResult;
-    }
-
-    namespace Renderer {
-        class MapRenderer;
-        class RenderBatch;
-        class RenderContext;
-    }
-
     namespace View {
         class MapView3D : public MapViewBase {
             Q_OBJECT
         private:
-            Renderer::PerspectiveCamera m_camera;
-            FlyModeHelper* m_flyModeHelper;
+            std::unique_ptr<Renderer::PerspectiveCamera> m_camera;
+            std::unique_ptr<FlyModeHelper> m_flyModeHelper;
             bool m_ignoreCameraChangeEvents;
         public:
-            MapView3D(MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
+            MapView3D(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
                       GLContextManager& contextManager, Logger* logger);
             ~MapView3D() override;
         private:
@@ -103,7 +95,7 @@ namespace TrenchBroom {
             ActionView doGetActionView() const override;
             bool doCancel() override;
 
-            Renderer::RenderContext::RenderMode doGetRenderMode() override;
+            Renderer::RenderMode doGetRenderMode() override;
             Renderer::Camera& doGetCamera() override;
             void doPreRender() override;
             void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;

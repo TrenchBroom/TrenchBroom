@@ -20,26 +20,27 @@
 #ifndef CompilationConfigParser_h
 #define CompilationConfigParser_h
 
-#include "StringType.h"
+#include "Macros.h"
 #include "IO/ConfigParserBase.h"
-#include "IO/Path.h"
-#include "Model/CompilationConfig.h"
-#include "Model/CompilationProfile.h"
-#include "Model/CompilationTask.h"
+#include "IO/IO_Forward.h"
+#include "Model/Model_Forward.h"
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
         class CompilationConfigParser : public ConfigParserBase {
         public:
             CompilationConfigParser(const char* begin, const char* end, const Path& path);
-            CompilationConfigParser(const String& str, const Path& path = Path(""));
+            CompilationConfigParser(const std::string& str, const Path& path = Path(""));
 
             Model::CompilationConfig parse();
         private:
-            Model::CompilationProfile::List parseProfiles(const EL::Value& value) const;
+            std::vector<Model::CompilationProfile*> parseProfiles(const EL::Value& value) const;
             Model::CompilationProfile* parseProfile(const EL::Value& value) const;
 
-            Model::CompilationTask::List parseTasks(const EL::Value& value) const;
+            std::vector<Model::CompilationTask*> parseTasks(const EL::Value& value) const;
             Model::CompilationTask* parseTask(const EL::Value& value) const;
             Model::CompilationTask* parseExportTask(const EL::Value& value) const;
             Model::CompilationTask* parseCopyTask(const EL::Value& value) const;

@@ -20,10 +20,14 @@
 #ifndef TrenchBroom_SetVisibilityCommand
 #define TrenchBroom_SetVisibilityCommand
 
+#include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "View/UndoableCommand.h"
+#include "View/View_Forward.h"
 
 #include <map>
+#include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -31,32 +35,34 @@ namespace TrenchBroom {
         class SetVisibilityCommand : public UndoableCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<SetVisibilityCommand>;
         private:
-            typedef enum {
-                Action_Reset,
-                Action_Hide,
-                Action_Show,
-                Action_Ensure
-            } Action;
+            enum class Action {
+                Reset,
+                Hide,
+                Show,
+                Ensure
+            };
 
             std::vector<Model::Node*> m_nodes;
-            CommandType m_action;
+            Action m_action;
             std::map<Model::Node*, Model::VisibilityState> m_oldState;
         public:
-            static Ptr show(const std::vector<Model::Node*>& nodes);
-            static Ptr hide(const std::vector<Model::Node*>& nodes);
-            static Ptr ensureVisible(const std::vector<Model::Node*>& nodes);
-            static Ptr reset(const std::vector<Model::Node*>& nodes);
-        private:
-            SetVisibilityCommand(const std::vector<Model::Node*>& nodes, Action action);
-            static String makeName(Action action);
-        private:
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            static std::unique_ptr<SetVisibilityCommand> show(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SetVisibilityCommand> hide(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SetVisibilityCommand> ensureVisible(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SetVisibilityCommand> reset(const std::vector<Model::Node*>& nodes);
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            SetVisibilityCommand(const std::vector<Model::Node*>& nodes, Action action);
+        private:
+            static std::string makeName(Action action);
+
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+
+            bool doCollateWith(UndoableCommand* command) override;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
+
+            deleteCopyAndMove(SetVisibilityCommand)
         };
     }
 }

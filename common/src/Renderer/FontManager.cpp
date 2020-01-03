@@ -18,9 +18,11 @@
  */
 
 #include "FontManager.h"
-#include "CollectionUtils.h"
+#include "Renderer/FontDescriptor.h"
 #include "Renderer/FreeTypeFontFactory.h"
 #include "Renderer/TextureFont.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -42,7 +44,7 @@ namespace TrenchBroom {
             return *it->second;
         }
 
-        FontDescriptor FontManager::selectFontSize(const FontDescriptor& fontDescriptor, const String& string, const float maxWidth, const size_t minFontSize) {
+        FontDescriptor FontManager::selectFontSize(const FontDescriptor& fontDescriptor, const std::string& string, const float maxWidth, const size_t minFontSize) {
             FontDescriptor actualDescriptor = fontDescriptor;
             vm::vec2f actualBounds = font(actualDescriptor).measure(string);
             while (actualBounds.x() > maxWidth && actualDescriptor.size() > minFontSize) {

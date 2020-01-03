@@ -22,46 +22,33 @@
 
 #include "TrenchBroom.h"
 #include "Macros.h"
-#include "Hit.h"
-#include "ProjectingSequence.h"
 #include "Model/BrushGeometry.h"
+#include "Model/HitType.h"
+#include "Model/Model_Forward.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
+#include "Model/TagType.h"
+#include "Renderer/Renderer_Forward.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/vec.h>
-#include <vecmath/polygon.h>
 
 #include <memory>
+#include <string>
 #include <vector>
 
 template <typename P>
 class PolyhedronMatcher;
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class BrushRendererBrushCache;
-    }
-
     namespace Model {
         struct BrushAlgorithmResult;
-        class ModelFactory;
-        class PickResult;
 
         class Brush : public Node, public Object {
         private:
             friend class SetTempFaceLinks;
         public:
-            static const Hit::HitType BrushHit;
+            static const HitType::Type BrushHit;
         private:
-            struct ProjectToVertex : public ProjectingSequenceProjector<const BrushVertex*, const BrushVertex*> {
-                static Type project(const BrushVertex* vertex);
-            };
-
-            struct ProjectToEdge : public ProjectingSequenceProjector<const BrushEdge*, const BrushEdge*> {
-                static Type project(const BrushEdge* edge);
-            };
-
             class AddFaceToGeometryCallback;
             class HealEdgesCallback;
             class AddFacesToGeometry;
@@ -69,9 +56,8 @@ namespace TrenchBroom {
             using RemoveVertexCallback = MoveVerticesCallback;
             class QueryCallback;
         public:
-            using VertexList = ProjectingSequence<BrushVertexList, ProjectToVertex>;
-            using EdgeList = ProjectingSequence<BrushEdgeList, ProjectToEdge>;
-
+            using VertexList = BrushVertexList;
+            using EdgeList = BrushEdgeList;
         private:
             std::vector<BrushFace*> m_faces;
             BrushGeometry* m_geometry;
@@ -88,7 +74,7 @@ namespace TrenchBroom {
 
             AttributableNode* entity() const;
         public: // face management:
-            BrushFace* findFace(const String& textureName) const;
+            BrushFace* findFace(const std::string& textureName) const;
             BrushFace* findFace(const vm::vec3& normal) const;
             BrushFace* findFace(const vm::plane3& boundary) const;
             BrushFace* findFace(const vm::polygon3& vertices, FloatType epsilon = static_cast<FloatType>(0.0)) const;
@@ -149,7 +135,7 @@ namespace TrenchBroom {
         public:
             // geometry access
             size_t vertexCount() const;
-            VertexList vertices() const;
+            const VertexList& vertices() const;
             const std::vector<vm::vec3> vertexPositions() const;
             vm::vec3 findClosestVertexPosition(const vm::vec3& position) const;
 
@@ -165,7 +151,7 @@ namespace TrenchBroom {
             bool hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, const vm::vec3& p5, FloatType epsilon = static_cast<FloatType>(0.0)) const;
 
             size_t edgeCount() const;
-            EdgeList edges() const;
+            const EdgeList& edges() const;
             bool containsPoint(const vm::vec3& point) const;
 
             std::vector<BrushFace*> incidentFaces(const BrushVertex* vertex) const;
@@ -241,8 +227,8 @@ namespace TrenchBroom {
              * @param subtrahends brushes to subtract from `this`. The passed-in brushes are not modified.
              * @return the subtraction result
              */
-            std::vector<Brush*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const std::vector<Brush*>& subtrahends) const;
-            std::vector<Brush*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, Brush* subtrahend) const;
+            std::vector<Brush*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<Brush*>& subtrahends) const;
+            std::vector<Brush*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, Brush* subtrahend) const;
             void intersect(const vm::bbox3& worldBounds, const Brush* brush);
 
             // transformation
@@ -260,7 +246,7 @@ namespace TrenchBroom {
              * @param subtrahends used as a source of texture alignment only
              * @return the newly created brush
              */
-            Brush* createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const std::vector<Brush*>& subtrahends) const;
+            Brush* createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<Brush*>& subtrahends) const;
         private:
             void updateFacesFromGeometry(const vm::bbox3& worldBounds, const BrushGeometry& geometry);
             void updatePointsFromVertices(const vm::bbox3& worldBounds);
@@ -273,7 +259,7 @@ namespace TrenchBroom {
         public:
             void findIntegerPlanePoints(const vm::bbox3& worldBounds);
         private: // implement Node interface
-            const String& doGetName() const override;
+            const std::string& doGetName() const override;
             const vm::bbox3& doGetLogicalBounds() const override;
             const vm::bbox3& doGetPhysicalBounds() const override;
 
@@ -332,7 +318,7 @@ namespace TrenchBroom {
              * @param tagMask the tags to check
              * @return true whether all faces of this brush have any of the given tags
              */
-            bool allFacesHaveAnyTagInMask(Tag::TagType tagMask) const;
+            bool allFacesHaveAnyTagInMask(TagType::Type tagMask) const;
 
             /**
              * Indicates whether any of the faces of this brush have any tags.
@@ -347,7 +333,7 @@ namespace TrenchBroom {
              * @param tagMask the tags to check
              * @return true whether any faces of this brush have any of the given tags
              */
-            bool anyFacesHaveAnyTagInMask(Tag::TagType tagMask) const;
+            bool anyFacesHaveAnyTagInMask(TagType::Type tagMask) const;
         private:
             void doAcceptTagVisitor(TagVisitor& visitor) override;
             void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;

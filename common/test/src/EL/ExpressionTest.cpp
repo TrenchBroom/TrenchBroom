@@ -21,7 +21,6 @@
 
 #include <cmath>
 
-#include "CollectionUtils.h"
 #include "EL/ELExceptions.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
@@ -29,19 +28,21 @@
 #include "EL/VariableStore.h"
 #include "IO/ELParser.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace EL {
         using V = Value;
 
-        void evaluateAndAssert(const String& expression, const Value& result, const EvaluationContext& context = EvaluationContext());
+        void evaluateAndAssert(const std::string& expression, const Value& result, const EvaluationContext& context = EvaluationContext());
 
         template <typename T>
-        void evaluateAndAssert(const String& expression, const T& result, const EvaluationContext& context = EvaluationContext()) {
+        void evaluateAndAssert(const std::string& expression, const T& result, const EvaluationContext& context = EvaluationContext()) {
             evaluateAndAssert(expression, Value(result), context);
         }
 
         template <typename T, typename S>
-        void evaluateAndAssert(const String& expression, const T& result, const String& n1, const S& v1) {
+        void evaluateAndAssert(const std::string& expression, const T& result, const std::string& n1, const S& v1) {
             VariableTable table;
             table.declare(n1, Value::Undefined);
             table.assign(n1, Value(v1));
@@ -49,35 +50,35 @@ namespace TrenchBroom {
         }
 
         template <typename E>
-        void evaluateAndThrow(const String& expression, const EvaluationContext& context = EvaluationContext()) {
+        void evaluateAndThrow(const std::string& expression, const EvaluationContext& context = EvaluationContext()) {
             ASSERT_THROW(IO::ELParser::parseStrict(expression).evaluate(context), E);
         }
 
         template <typename T1>
         ArrayType array(const T1& v1) {
-            return VectorUtils::create<V>(V(v1));
+            return { V(v1) };
         }
 
         template <typename T1, typename T2>
         ArrayType array(const T1& v1, const T2& v2) {
-            return VectorUtils::create<V>(V(v1), V(v2));
+            return { V(v1), V(v2) };
         }
 
         template <typename T1, typename T2, typename T3>
         ArrayType array(const T1& v1, const T2& v2, const T3& v3) {
-            return VectorUtils::create<V>(V(v1), V(v2), V(v3));
+            return { V(v1), V(v2), V(v3) };
         }
 
         template <typename T1>
-        MapType map(const String& k1, const T1& v1) {
+        MapType map(const std::string& k1, const T1& v1) {
             MapType m;
             m[k1] = V(v1);
             return m;
         }
 
         template <typename T1, typename T2>
-        MapType map(const String& k1, const T1& v1,
-                    const String& k2, const T2& v2) {
+        MapType map(const std::string& k1, const T1& v1,
+                    const std::string& k2, const T2& v2) {
             MapType m;
             m[k1] = V(v1);
             m[k2] = V(v2);
@@ -85,9 +86,9 @@ namespace TrenchBroom {
         }
 
         template <typename T1, typename T2, typename T3>
-        MapType map(const String& k1, const T1& v1,
-                    const String& k2, const T2& v2,
-                    const String& k3, const T3& v3) {
+        MapType map(const std::string& k1, const T1& v1,
+                    const std::string& k2, const T2& v2,
+                    const std::string& k3, const T3& v3) {
             MapType m;
             m[k1] = V(v1);
             m[k2] = V(v2);
@@ -95,8 +96,8 @@ namespace TrenchBroom {
             return m;
         }
 
-        void assertOptimizable(const String& expression);
-        void assertNotOptimizable(const String& expression);
+        void assertOptimizable(const std::string& expression);
+        void assertNotOptimizable(const std::string& expression);
 
         TEST(ExpressionTest, testValueLiterals) {
             evaluateAndAssert("true", true);
@@ -198,7 +199,7 @@ namespace TrenchBroom {
             assertOptimizable("true || false");
         }
 
-        void evalutateComparisonAndAssert(const String& op, bool result);
+        void evalutateComparisonAndAssert(const std::string& op, bool result);
 
         TEST(ExpressionTest, testComparisonOperators) {
             evalutateComparisonAndAssert("<",   true);
@@ -323,21 +324,21 @@ namespace TrenchBroom {
             evaluateAndAssert("2 + 3 < 2 + 4 -> 6 % 5", 1);
         }
 
-        void evalutateComparisonAndAssert(const String& op, bool result) {
-            const String expression = "4 " + op + " 5";
+        void evalutateComparisonAndAssert(const std::string& op, bool result) {
+            const std::string expression = "4 " + op + " 5";
             evaluateAndAssert(expression, result);
             assertOptimizable(expression);
         }
 
-        void evaluateAndAssert(const String& expression, const Value& result, const EvaluationContext& context) {
+        void evaluateAndAssert(const std::string& expression, const Value& result, const EvaluationContext& context) {
             ASSERT_EQ(result, IO::ELParser::parseStrict(expression).evaluate(context));
         }
 
-        void assertOptimizable(const String& expression) {
+        void assertOptimizable(const std::string& expression) {
             ASSERT_TRUE(IO::ELParser::parseStrict(expression).optimize());
         }
 
-        void assertNotOptimizable(const String& expression) {
+        void assertNotOptimizable(const std::string& expression) {
             ASSERT_FALSE(IO::ELParser::parseStrict(expression).optimize());
         }
     }

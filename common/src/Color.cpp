@@ -51,13 +51,13 @@ Color::Color(const Color& color, const float a) :
 vec<float, 4>(color.r(), color.g(), color.b(), a) {}
 
 Color::Color(const unsigned char r, const unsigned char g, const unsigned char b, const unsigned char a) :
-vec<float, 4>(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f) {}
+vec<float, 4>(static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f, static_cast<float>(a) / 255.0f) {}
 
 Color::Color(const int r, const int g, const int b, const int a) :
-vec<float, 4>(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f) {}
+vec<float, 4>(static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f, static_cast<float>(a) / 255.0f) {}
 
 Color::Color(const int r, const int g, const int b, const float a) :
-vec<float, 4>(r / 255.0f, g / 255.0f, b / 255.0f, a) {}
+vec<float, 4>(static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f, a) {}
 
 float Color::r() const {
     return x();

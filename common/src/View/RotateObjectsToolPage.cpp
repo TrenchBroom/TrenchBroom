@@ -20,7 +20,6 @@
 #include "RotateObjectsToolPage.h"
 
 #include "SharedPointer.h"
-#include "StringUtils.h"
 #include "TrenchBroom.h"
 #include "View/BorderLine.h"
 #include "View/Grid.h"
@@ -28,6 +27,8 @@
 #include "View/RotateObjectsTool.h"
 #include "View/SpinControl.h"
 #include "View/ViewConstants.h"
+
+#include <kdl/string_utils.h>
 
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
@@ -42,7 +43,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        RotateObjectsToolPage::RotateObjectsToolPage(MapDocumentWPtr document, RotateObjectsTool* tool, QWidget* parent) :
+        RotateObjectsToolPage::RotateObjectsToolPage(std::weak_ptr<MapDocument> document, RotateObjectsTool* tool, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)),
         m_tool(tool),
@@ -81,7 +82,7 @@ namespace TrenchBroom {
 
             for (auto it = centers.rbegin(), end = centers.rend(); it != end; ++it) {
                 const auto& center = *it;
-                m_recentlyUsedCentersList->addItem(QString::fromStdString(StringUtils::toString(center)));
+                m_recentlyUsedCentersList->addItem(QString::fromStdString(kdl::str_to_string(center)));
             }
 
             if (m_recentlyUsedCentersList->count() > 0)
@@ -89,7 +90,7 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsToolPage::setCurrentCenter(const vm::vec3& center) {
-            m_recentlyUsedCentersList->setCurrentText(QString::fromStdString(StringUtils::toString(center)));
+            m_recentlyUsedCentersList->setCurrentText(QString::fromStdString(kdl::str_to_string(center)));
         }
 
         void RotateObjectsToolPage::createGui() {
@@ -133,7 +134,7 @@ namespace TrenchBroom {
             layout->addSpacing(LayoutConstants::NarrowHMargin);
             layout->addWidget(m_resetCenterButton, 0, Qt::AlignVCenter);
             layout->addSpacing(LayoutConstants::WideHMargin);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Vertical), 0);
+            layout->addWidget(new BorderLine(BorderLine::Direction::Vertical), 0);
             layout->addSpacing(LayoutConstants::WideHMargin);
             layout->addWidget(text1, 0, Qt::AlignVCenter);
             layout->addSpacing(LayoutConstants::NarrowHMargin);

@@ -20,32 +20,24 @@
 #ifndef TrenchBroom_FourPaneMapView
 #define TrenchBroom_FourPaneMapView
 
+#include "Renderer/Renderer_Forward.h"
 #include "View/CameraLinkHelper.h"
 #include "View/MultiMapView.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
+
+#include <memory>
 
 class QSplitter;
 
 namespace TrenchBroom {
     class Logger;
 
-    namespace Renderer {
-        class MapRenderer;
-    }
-
     namespace View {
-        class GLContextManager;
-        class MapViewBase;
-        class MapView2D;
-        class MapView3D;
-        class MapViewToolBox;
-        class SplitterWindow4;
-
         class FourPaneMapView : public MultiMapView {
             Q_OBJECT
         private:
             Logger* m_logger;
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             CameraLinkHelper m_linkHelper;
             QSplitter* m_hSplitter;
@@ -57,7 +49,7 @@ namespace TrenchBroom {
             MapView2D* m_mapViewXZ;
             MapView2D* m_mapViewYZ;
         public:
-            FourPaneMapView(MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer,
+            FourPaneMapView(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer,
                             GLContextManager& contextManager, Logger* logger, QWidget* parent = nullptr);
             ~FourPaneMapView() override;
         private:

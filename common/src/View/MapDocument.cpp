@@ -23,11 +23,15 @@
 #include "Preferences.h"
 #include "Polyhedron.h"
 #include "Polyhedron3.h"
+#include "SharedPointer.h"
+#include "Assets/EntityDefinition.h"
+#include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModelManager.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
 #include "Model/AttributeNameWithDoubleQuotationMarksIssueGenerator.h"
@@ -94,6 +98,7 @@
 #include "View/MoveBrushFacesCommand.h"
 #include "View/MoveBrushVerticesCommand.h"
 #include "View/MoveTexturesCommand.h"
+#include "View/PasteType.h"
 #include "View/RemoveBrushEdgesCommand.h"
 #include "View/RemoveBrushFacesCommand.h"
 #include "View/RemoveBrushVerticesCommand.h"
@@ -112,19 +117,25 @@
 #include "View/TransformObjectsCommand.h"
 #include "View/ViewEffectsService.h"
 
+#include <kdl/collection_utils.h>
+#include <kdl/map_utils.h>
+#include <kdl/vector_utils.h>
+
 #include <vecmath/util.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
 #include <cassert>
 #include <map>
+#include <sstream>
+#include <string>
 #include <type_traits>
 #include <vector>
 
 namespace TrenchBroom {
     namespace View {
         const vm::bbox3 MapDocument::DefaultWorldBounds(-16384.0, 16384.0);
-        const String MapDocument::DefaultDocumentName("unnamed.map");
+        const std::string MapDocument::DefaultDocumentName("unnamed.map");
 
         MapDocument::MapDocument() :
         m_worldBounds(DefaultWorldBounds),
@@ -246,14 +257,6 @@ namespace TrenchBroom {
             m_viewEffectsService = viewEffectsService;
         }
 
-        void MapDocument::visitTagActions(const ActionVisitor& visitor) const {
-            visitActions(visitor, m_tagActions);
-        }
-
-        void MapDocument::visitEntityDefinitionActions(const ActionVisitor& visitor) const {
-            visitActions(visitor, m_entityDefinitionActions);
-        }
-
         void MapDocument::createTagActions() {
             const auto& actionManager = ActionManager::instance();
             m_tagActions = actionManager.createTagActions(m_tagManager->smartTags());
@@ -262,12 +265,6 @@ namespace TrenchBroom {
         void MapDocument::createEntityDefinitionActions() {
             const auto& actionManager = ActionManager::instance();
             m_entityDefinitionActions = actionManager.createEntityDefinitionActions(m_entityDefinitionManager->definitions());
-        }
-
-        void MapDocument::visitActions(const ActionVisitor& visitor, const ActionList& actions) const {
-            for (const std::unique_ptr<Action>& action : actions) {
-                visitor(*action);
-            }
         }
 
         void MapDocument::newDocument(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game) {
@@ -339,33 +336,34 @@ namespace TrenchBroom {
             }
         }
 
-        String MapDocument::serializeSelectedNodes() {
-            StringStream stream;
+        std::string MapDocument::serializeSelectedNodes() {
+            std::stringstream stream;
             m_game->writeNodesToStream(*m_world, m_selectedNodes.nodes(), stream);
             return stream.str();
         }
 
-        String MapDocument::serializeSelectedBrushFaces() {
-            StringStream stream;
+        std::string MapDocument::serializeSelectedBrushFaces() {
+            std::stringstream stream;
             m_game->writeBrushFacesToStream(*m_world, m_selectedBrushFaces, stream);
             return stream.str();
         }
 
-        PasteType MapDocument::paste(const String& str) {
+        PasteType MapDocument::paste(const std::string& str) {
             try {
                 const std::vector<Model::Node*> nodes = m_game->parseNodes(str, *m_world, m_worldBounds, logger());
                 if (!nodes.empty() && pasteNodes(nodes))
-                    return PT_Node;
+                    return PasteType::Node;
             } catch (const ParserException& e) {
                 try {
                     const std::vector<Model::BrushFace*> faces = m_game->parseBrushFaces(str, *m_world, m_worldBounds, logger());
-                    if (!faces.empty() && pasteBrushFaces(faces))
-                        return PT_BrushFace;
+                    if (!faces.empty() && pasteBrushFaces(faces)) {
+                        return PasteType::BrushFace;
+                    }
                 } catch (const ParserException&) {
-                    error("Could not parse clipboard contents: %s", e.what());
+                    error() << "Could not parse clipboard contents: " << e.what();
                 }
             }
-            return PT_Failed;
+            return PasteType::Failed;
         }
 
         bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes) {
@@ -390,7 +388,7 @@ namespace TrenchBroom {
             const Model::BrushFace* face = faces.back();
 
             const bool result = setFaceAttributes(face->attribs());
-            VectorUtils::deleteAll(faces);
+            kdl::col_delete_all(faces);
 
             return result;
         }
@@ -495,6 +493,10 @@ namespace TrenchBroom {
             return !m_selectedBrushFaces.empty();
         }
 
+        bool MapDocument::hasAnySelectedBrushFaces() const {
+            return hasSelectedBrushFaces() || selectedNodes().hasBrushes();
+        }
+
         const std::vector<Model::AttributableNode*> MapDocument::allSelectedAttributableNodes() const {
             if (!hasSelection())
                 return std::vector<Model::AttributableNode*>({ m_world.get() });
@@ -536,11 +538,11 @@ namespace TrenchBroom {
             return m_selectionBounds;
         }
 
-        const String& MapDocument::currentTextureName() const {
+        const std::string& MapDocument::currentTextureName() const {
             return m_currentTextureName;
         }
 
-        void MapDocument::setCurrentTextureName(const String& currentTextureName) {
+        void MapDocument::setCurrentTextureName(const std::string& currentTextureName) {
             if (m_currentTextureName == currentTextureName)
                 return;
             m_currentTextureName = currentTextureName;
@@ -548,7 +550,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::selectAllNodes() {
-            submitAndStore(SelectionCommand::selectAllNodes());
+            executeAndStore(SelectionCommand::selectAllNodes());
         }
 
         void MapDocument::selectSiblings() {
@@ -609,24 +611,24 @@ namespace TrenchBroom {
         }
 
         void MapDocument::select(const std::vector<Model::Node*>& nodes) {
-            submitAndStore(SelectionCommand::select(nodes));
+            executeAndStore(SelectionCommand::select(nodes));
         }
 
         void MapDocument::select(Model::Node* node) {
-            submitAndStore(SelectionCommand::select(std::vector<Model::Node*>(1, node)));
+            executeAndStore(SelectionCommand::select(std::vector<Model::Node*>(1, node)));
         }
 
         void MapDocument::select(const std::vector<Model::BrushFace*>& faces) {
-            submitAndStore(SelectionCommand::select(faces));
+            executeAndStore(SelectionCommand::select(faces));
         }
 
         void MapDocument::select(Model::BrushFace* face) {
-            submitAndStore(SelectionCommand::select(std::vector<Model::BrushFace*>(1, face)));
+            executeAndStore(SelectionCommand::select(std::vector<Model::BrushFace*>(1, face)));
             setCurrentTextureName(face->textureName());
         }
 
         void MapDocument::convertToFaceSelection() {
-            submitAndStore(SelectionCommand::convertToFaces());
+            executeAndStore(SelectionCommand::convertToFaces());
         }
 
         void MapDocument::selectFacesWithTexture(const Assets::Texture* texture) {
@@ -646,7 +648,7 @@ namespace TrenchBroom {
 
         void MapDocument::deselectAll() {
             if (hasSelection())
-                submitAndStore(SelectionCommand::deselectAll());
+                executeAndStore(SelectionCommand::deselectAll());
         }
 
         void MapDocument::deselect(Model::Node* node) {
@@ -654,11 +656,11 @@ namespace TrenchBroom {
         }
 
         void MapDocument::deselect(const std::vector<Model::Node*>& nodes) {
-            submitAndStore(SelectionCommand::deselect(nodes));
+            executeAndStore(SelectionCommand::deselect(nodes));
         }
 
         void MapDocument::deselect(Model::BrushFace* face) {
-            submitAndStore(SelectionCommand::deselect(std::vector<Model::BrushFace*>(1, face)));
+            executeAndStore(SelectionCommand::deselect(std::vector<Model::BrushFace*>(1, face)));
         }
 
         void MapDocument::updateLastSelectionBounds() {
@@ -698,8 +700,8 @@ namespace TrenchBroom {
 
         std::vector<Model::Node*> MapDocument::addNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
             Transaction transaction(this, "Add Objects");
-            AddRemoveNodesCommand::Ptr command = AddRemoveNodesCommand::add(nodes);
-            if (!submitAndStore(command)) {
+            const auto result = executeAndStore(AddRemoveNodesCommand::add(nodes));
+            if (!result->success()) {
                 return {};
             }
 
@@ -709,8 +711,8 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::Node*> MapDocument::addNodes(const std::vector<Model::Node*>& nodes, Model::Node* parent) {
-            AddRemoveNodesCommand::Ptr command = AddRemoveNodesCommand::add(parent, nodes);
-            if (!submitAndStore(command)) {
+            const auto result = executeAndStore(AddRemoveNodesCommand::add(parent, nodes));
+            if (!result->success()) {
                 return {};
             }
 
@@ -724,7 +726,7 @@ namespace TrenchBroom {
             Transaction transaction(this);
             while (!removableNodes.empty()) {
                 closeRemovedGroups(removableNodes);
-                submitAndStore(AddRemoveNodesCommand::remove(removableNodes));
+                executeAndStore(AddRemoveNodesCommand::remove(removableNodes));
 
                 removableNodes = collectRemovableParents(removableNodes);
             }
@@ -753,7 +755,7 @@ namespace TrenchBroom {
             if (nodes.empty())
                 return nodes;
 
-            VectorUtils::sort(nodes, CompareByAncestry());
+            kdl::vec_sort(nodes, CompareByAncestry());
 
             std::vector<Model::Node*> result;
             result.reserve(nodes.size());
@@ -794,16 +796,16 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove;
             for (const auto& entry : nodesToAdd) {
                 const std::vector<Model::Node*>& children = entry.second;
-                MapUtils::merge(nodesToRemove, Model::parentChildrenMap(children));
+                nodesToRemove = kdl::map_merge(nodesToRemove, Model::parentChildrenMap(children));
             }
 
             Transaction transaction(this, "Reparent Objects");
-            submitAndStore(ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove));
+            executeAndStore(ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove));
 
             std::map<Model::Node*, std::vector<Model::Node*>> removableNodes = collectRemovableParents(nodesToRemove);
             while (!removableNodes.empty()) {
                 closeRemovedGroups(removableNodes);
-                submitAndStore(AddRemoveNodesCommand::remove(removableNodes));
+                executeAndStore(AddRemoveNodesCommand::remove(removableNodes));
 
                 removableNodes = collectRemovableParents(removableNodes);
             }
@@ -830,7 +832,8 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::duplicateObjects() {
-            if (submitAndStore(DuplicateNodesCommand::duplicate())) {
+            const auto result = executeAndStore(DuplicateNodesCommand::duplicate());
+            if (result->success()) {
                 m_viewEffectsService->flashSelection();
                 return true;
             }
@@ -843,7 +846,7 @@ namespace TrenchBroom {
             auto* entity = m_world->createEntity();
             entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
 
-            StringStream name;
+            std::stringstream name;
             name << "Create " << definition->name();
 
             const Transaction transaction(this, name.str());
@@ -880,7 +883,7 @@ namespace TrenchBroom {
 
             entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
 
-            StringStream name;
+            std::stringstream name;
             name << "Create " << definition->name();
 
             const std::vector<Model::Node*> nodes(std::begin(brushes), std::end(brushes));
@@ -894,7 +897,7 @@ namespace TrenchBroom {
             return entity;
         }
 
-        Model::Group* MapDocument::groupSelection(const String& name) {
+        Model::Group* MapDocument::groupSelection(const std::string& name) {
             if (!hasSelectedNodes())
                 return nullptr;
 
@@ -966,14 +969,14 @@ namespace TrenchBroom {
                 Model::Node* parent = group->parent();
                 const std::vector<Model::Node*> children = group->children();
                 reparentNodes(parent, children);
-                VectorUtils::append(allChildren, children);
+                kdl::vec_append(allChildren, children);
             }
 
             select(allChildren);
         }
 
-        void MapDocument::renameGroups(const String& name) {
-            submitAndStore(RenameGroupsCommand::rename(name));
+        void MapDocument::renameGroups(const std::string& name) {
+            executeAndStore(RenameGroupsCommand::rename(name));
         }
 
         void MapDocument::openGroup(Model::Group* group) {
@@ -986,7 +989,7 @@ namespace TrenchBroom {
             else
                 resetLock(std::vector<Model::Node*>(1, previousGroup));
             unlock(std::vector<Model::Node*>(1, group));
-            submitAndStore(CurrentGroupCommand::push(group));
+            executeAndStore(CurrentGroupCommand::push(group));
         }
 
         void MapDocument::closeGroup() {
@@ -995,7 +998,7 @@ namespace TrenchBroom {
             deselectAll();
             Model::Group* previousGroup = m_editorContext->currentGroup();
             resetLock(std::vector<Model::Node*>(1, previousGroup));
-            submitAndStore(CurrentGroupCommand::pop());
+            executeAndStore(CurrentGroupCommand::pop());
 
             Model::Group* currentGroup = m_editorContext->currentGroup();
             if (currentGroup != nullptr) {
@@ -1015,8 +1018,8 @@ namespace TrenchBroom {
             Model::Node::recurse(std::begin(layers), std::end(layers), collectSelected);
 
             Transaction transaction(this, "Isolate Objects");
-            submitAndStore(SetVisibilityCommand::hide(collectUnselected.nodes()));
-            submitAndStore(SetVisibilityCommand::show(collectSelected.nodes()));
+            executeAndStore(SetVisibilityCommand::hide(collectUnselected.nodes()));
+            executeAndStore(SetVisibilityCommand::show(collectSelected.nodes()));
         }
 
         void MapDocument::hide(const std::vector<Model::Node*> nodes) {
@@ -1025,7 +1028,7 @@ namespace TrenchBroom {
 
             const Transaction transaction(this, "Hide Objects");
             deselect(collect.nodes());
-            submitAndStore(SetVisibilityCommand::hide(nodes));
+            executeAndStore(SetVisibilityCommand::hide(nodes));
         }
 
         void MapDocument::hideSelection() {
@@ -1033,7 +1036,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::show(const std::vector<Model::Node*>& nodes) {
-            submitAndStore(SetVisibilityCommand::show(nodes));
+            executeAndStore(SetVisibilityCommand::show(nodes));
         }
 
         void MapDocument::showAll() {
@@ -1044,11 +1047,11 @@ namespace TrenchBroom {
         }
 
         void MapDocument::ensureVisible(const std::vector<Model::Node*>& nodes) {
-            submitAndStore(SetVisibilityCommand::ensureVisible(nodes));
+            executeAndStore(SetVisibilityCommand::ensureVisible(nodes));
         }
 
         void MapDocument::resetVisibility(const std::vector<Model::Node*>& nodes) {
-            submitAndStore(SetVisibilityCommand::reset(nodes));
+            executeAndStore(SetVisibilityCommand::reset(nodes));
         }
 
         void MapDocument::lock(const std::vector<Model::Node*>& nodes) {
@@ -1056,40 +1059,46 @@ namespace TrenchBroom {
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), collect);
 
             const Transaction transaction(this, "Lock Objects");
-            submitAndStore(SetLockStateCommand::lock(nodes));
+            executeAndStore(SetLockStateCommand::lock(nodes));
             deselect(collect.nodes());
         }
 
         void MapDocument::unlock(const std::vector<Model::Node*>& nodes) {
-            submitAndStore(SetLockStateCommand::unlock(nodes));
+            executeAndStore(SetLockStateCommand::unlock(nodes));
         }
 
         void MapDocument::resetLock(const std::vector<Model::Node*>& nodes) {
-            submitAndStore(SetLockStateCommand::reset(nodes));
+            executeAndStore(SetLockStateCommand::reset(nodes));
         }
 
         bool MapDocument::translateObjects(const vm::vec3& delta) {
-            return submitAndStore(TransformObjectsCommand::translate(delta, pref(Preferences::TextureLock)));
+            const auto result = executeAndStore(TransformObjectsCommand::translate(delta, pref(Preferences::TextureLock)));
+            return result->success();
         }
 
         bool MapDocument::rotateObjects(const vm::vec3& center, const vm::vec3& axis, const FloatType angle) {
-            return submitAndStore(TransformObjectsCommand::rotate(center, axis, angle, pref(Preferences::TextureLock)));
+            const auto result = executeAndStore(TransformObjectsCommand::rotate(center, axis, angle, pref(Preferences::TextureLock)));
+            return result->success();
         }
 
         bool MapDocument::scaleObjects(const vm::bbox3& oldBBox, const vm::bbox3& newBBox) {
-            return submitAndStore(TransformObjectsCommand::scale(oldBBox, newBBox, pref(Preferences::TextureLock)));
+            const auto result = executeAndStore(TransformObjectsCommand::scale(oldBBox, newBBox, pref(Preferences::TextureLock)));
+            return result->success();
         }
 
         bool MapDocument::scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors) {
-            return submitAndStore(TransformObjectsCommand::scale(center, scaleFactors, pref(Preferences::TextureLock)));
+            const auto result = executeAndStore(TransformObjectsCommand::scale(center, scaleFactors, pref(Preferences::TextureLock)));
+            return result->success();
         }
 
         bool MapDocument::shearObjects(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) {
-            return submitAndStore(TransformObjectsCommand::shearBBox(box, sideToShear, delta,  pref(Preferences::TextureLock)));
+            const auto result = executeAndStore(TransformObjectsCommand::shearBBox(box, sideToShear, delta,  pref(Preferences::TextureLock)));
+            return result->success();
         }
 
         bool MapDocument::flipObjects(const vm::vec3& center, const vm::axis::type axis) {
-            return submitAndStore(TransformObjectsCommand::flip(center, axis, pref(Preferences::TextureLock)));
+            const auto result = executeAndStore(TransformObjectsCommand::flip(center, axis, pref(Preferences::TextureLock)));
+            return result->success();
         }
 
         bool MapDocument::createBrush(const std::vector<vm::vec3>& points) {
@@ -1180,7 +1189,7 @@ namespace TrenchBroom {
                 const std::vector<Model::Brush*> result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahends);
 
                 if (!result.empty()) {
-                    VectorUtils::append(toAdd[minuend->parent()], result);
+                    kdl::vec_append(toAdd[minuend->parent()], result);
                 }
                 toRemove.push_back(minuend);
             }
@@ -1244,7 +1253,7 @@ namespace TrenchBroom {
                     // shrinking gave us a valid brush, so subtract it from `brush`
                     const std::vector<Model::Brush*> fragments = brush->subtract(*m_world, m_worldBounds, currentTextureName(), shrunken);
 
-                    VectorUtils::append(toAdd[brush->parent()], fragments);
+                    kdl::vec_append(toAdd[brush->parent()], fragments);
                     toRemove.push_back(brush);
                 }
 
@@ -1283,27 +1292,33 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) {
-            return submitAndStore(ChangeEntityAttributesCommand::set(name, value));
+            const auto result = executeAndStore(ChangeEntityAttributesCommand::set(name, value));
+            return result->success();
         }
 
         bool MapDocument::renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
-            return submitAndStore(ChangeEntityAttributesCommand::rename(oldName, newName));
+            const auto result = executeAndStore(ChangeEntityAttributesCommand::rename(oldName, newName));
+            return result->success();
         }
 
         bool MapDocument::removeAttribute(const Model::AttributeName& name) {
-            return submitAndStore(ChangeEntityAttributesCommand::remove(name));
+            const auto result = executeAndStore(ChangeEntityAttributesCommand::remove(name));
+            return result->success();
         }
 
         bool MapDocument::convertEntityColorRange(const Model::AttributeName& name, Assets::ColorRange::Type range) {
-            return submitAndStore(ConvertEntityColorCommand::convert(name, range));
+            const auto result = executeAndStore(ConvertEntityColorCommand::convert(name, range));
+            return result->success();
         }
 
         bool MapDocument::updateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) {
-            return submitAndStore(UpdateEntitySpawnflagCommand::update(name, flagIndex, setFlag));
+            const auto result = executeAndStore(UpdateEntitySpawnflagCommand::update(name, flagIndex, setFlag));
+            return result->success();
         }
 
         bool MapDocument::resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
-            return submitAndStore(ResizeBrushesCommand::resize(faces, delta));
+            const auto result = executeAndStore(ResizeBrushesCommand::resize(faces, delta));
+            return result->success();
         }
 
         void MapDocument::setTexture(Assets::Texture* texture) {
@@ -1331,7 +1346,7 @@ namespace TrenchBroom {
                     request.unsetTexture();
                 else
                     request.setTexture(texture);
-                submitAndStore(ChangeBrushFaceAttributesCommand::command(request));
+                executeAndStore(ChangeBrushFaceAttributesCommand::command(request));
             }
         }
 
@@ -1358,23 +1373,28 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
-            return submitAndStore(ChangeBrushFaceAttributesCommand::command(request));
+            const auto result = executeAndStore(ChangeBrushFaceAttributesCommand::command(request));
+            return result->success();
         }
 
         bool MapDocument::copyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot& coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle) {
-            return submitAndStore(CopyTexCoordSystemFromFaceCommand::command(coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle));
+            const auto result = executeAndStore(CopyTexCoordSystemFromFaceCommand::command(coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle));
+            return result->success();
         }
 
         bool MapDocument::moveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) {
-            return submitAndStore(MoveTexturesCommand::move(cameraUp, cameraRight, delta));
+            const auto result = executeAndStore(MoveTexturesCommand::move(cameraUp, cameraRight, delta));
+            return result->success();
         }
 
         bool MapDocument::rotateTextures(const float angle) {
-            return submitAndStore(RotateTexturesCommand::rotate(angle));
+            const auto result = executeAndStore(RotateTexturesCommand::rotate(angle));
+            return result->success();
         }
 
         bool MapDocument::shearTextures(const vm::vec2f& factors) {
-            return submitAndStore(ShearTexturesCommand::shear(factors));
+            const auto result = executeAndStore(ShearTexturesCommand::shear(factors));
+            return result->success();
         }
 
         void MapDocument::rebuildBrushGeometry(const std::vector<Model::Brush*>& brushes) {
@@ -1383,48 +1403,57 @@ namespace TrenchBroom {
 
         bool MapDocument::snapVertices(const FloatType snapTo) {
             assert(m_selectedNodes.hasOnlyBrushes());
-            return submitAndStore(SnapBrushVerticesCommand::snap(snapTo));
+            const auto result = executeAndStore(SnapBrushVerticesCommand::snap(snapTo));
+            return result->success();
         }
 
         bool MapDocument::findPlanePoints() {
-            return submitAndStore(FindPlanePointsCommand::findPlanePoints());
+            const auto result = executeAndStore(FindPlanePointsCommand::findPlanePoints());
+            return result->success();
         }
 
-        MapDocument::MoveVerticesResult MapDocument::moveVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices, const vm::vec3& delta) {
-            MoveBrushVerticesCommand::Ptr command = MoveBrushVerticesCommand::move(vertices, delta);
-            const bool success = submitAndStore(command);
-            const bool hasRemainingVertices = command->hasRemainingVertices();
-            return MoveVerticesResult(success, hasRemainingVertices);
+        MapDocument::MoveVerticesResult MapDocument::moveVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices, const vm::vec3& delta) {
+            const auto result = executeAndStore(MoveBrushVerticesCommand::move(vertices, delta));
+            const auto* moveVerticesResult = dynamic_cast<MoveBrushVerticesCommandResult*>(result.get());
+            ensure(moveVerticesResult != nullptr, "command processor returned unexpected command result type");
+
+            return MoveVerticesResult(moveVerticesResult->success(), moveVerticesResult->hasRemainingVertices());
         }
 
-        bool MapDocument::moveEdges(const std::map<vm::segment3, std::set<Model::Brush*>>& edges, const vm::vec3& delta) {
-            return submitAndStore(MoveBrushEdgesCommand::move(edges, delta));
+        bool MapDocument::moveEdges(const std::map<vm::segment3, std::vector<Model::Brush*>>& edges, const vm::vec3& delta) {
+            const auto result = executeAndStore(MoveBrushEdgesCommand::move(edges, delta));
+            return result->success();
         }
 
-        bool MapDocument::moveFaces(const std::map<vm::polygon3, std::set<Model::Brush*>>& faces, const vm::vec3& delta) {
-            return submitAndStore(MoveBrushFacesCommand::move(faces, delta));
+        bool MapDocument::moveFaces(const std::map<vm::polygon3, std::vector<Model::Brush*>>& faces, const vm::vec3& delta) {
+            const auto result = executeAndStore(MoveBrushFacesCommand::move(faces, delta));
+            return result->success();
         }
 
-        bool MapDocument::addVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices) {
-            return submitAndStore(AddBrushVerticesCommand::add(vertices));
+        bool MapDocument::addVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices) {
+            const auto result = executeAndStore(AddBrushVerticesCommand::add(vertices));
+            return result->success();
         }
 
-        bool MapDocument::removeVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices) {
-            return submitAndStore(RemoveBrushVerticesCommand::remove(vertices));
+        bool MapDocument::removeVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices) {
+            const auto result = executeAndStore(RemoveBrushVerticesCommand::remove(vertices));
+            return result->success();
         }
 
-        bool MapDocument::removeEdges(const std::map<vm::segment3, std::set<Model::Brush*>>& edges) {
-            return submitAndStore(RemoveBrushEdgesCommand::remove(edges));
+        bool MapDocument::removeEdges(const std::map<vm::segment3, std::vector<Model::Brush*>>& edges) {
+            const auto result = executeAndStore(RemoveBrushEdgesCommand::remove(edges));
+            return result->success();
         }
 
-        bool MapDocument::removeFaces(const std::map<vm::polygon3, std::set<Model::Brush*>>& faces) {
-            return submitAndStore(RemoveBrushFacesCommand::remove(faces));
+        bool MapDocument::removeFaces(const std::map<vm::polygon3, std::vector<Model::Brush*>>& faces) {
+            const auto result = executeAndStore(RemoveBrushFacesCommand::remove(faces));
+            return result->success();
         }
 
         void MapDocument::printVertices() {
             if (hasSelectedBrushFaces()) {
                 for (const Model::BrushFace* face : m_selectedBrushFaces) {
-                    StringStream str;
+                    std::stringstream str;
                     str.precision(17);
                     for (const Model::BrushVertex* vertex : face->vertices()) {
                         str << "(" << vertex->position() << ") ";
@@ -1433,7 +1462,7 @@ namespace TrenchBroom {
                 }
             } else if (selectedNodes().hasBrushes()) {
                 for (const Model::Brush* brush : selectedNodes().brushes()) {
-                    StringStream str;
+                    std::stringstream str;
                     str.precision(17);
                     for (const Model::BrushVertex* vertex : brush->vertices()) {
                         str << vertex->position() << " ";
@@ -1451,19 +1480,19 @@ namespace TrenchBroom {
             ThrowExceptionCommand() : DocumentCommand(Type, "Throw Exception") {}
 
         private:
-            bool doPerformDo(MapDocumentCommandFacade*) override {
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade*) override {
                 throw GeometryException();
             }
 
-            bool doPerformUndo(MapDocumentCommandFacade*) override {
-                return true;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade*) override {
+                return std::make_unique<CommandResult>(true);
             }
 
             bool doIsRepeatable(MapDocumentCommandFacade*) const override {
                 return false;
             }
 
-            bool doCollateWith(UndoableCommand::Ptr) override {
+            bool doCollateWith(UndoableCommand*) override {
                 return false;
             }
         };
@@ -1471,48 +1500,49 @@ namespace TrenchBroom {
         const ThrowExceptionCommand::CommandType ThrowExceptionCommand::Type = Command::freeType();
 
         bool MapDocument::throwExceptionDuringCommand() {
-            return submitAndStore(ThrowExceptionCommand::Ptr(new ThrowExceptionCommand()));
+            const auto result = executeAndStore(std::make_unique<ThrowExceptionCommand>());
+            return result->success();
         }
 
-        bool MapDocument::canUndoLastCommand() const {
-            return doCanUndoLastCommand();
+        bool MapDocument::canUndoCommand() const {
+            return doCanUndoCommand();
         }
 
-        bool MapDocument::canRedoNextCommand() const {
-            return doCanRedoNextCommand();
+        bool MapDocument::canRedoCommand() const {
+            return doCanRedoCommand();
         }
 
-        const String& MapDocument::lastCommandName() const {
-            return doGetLastCommandName();
+        const std::string& MapDocument::undoCommandName() const {
+            return doGetUndoCommandName();
         }
 
-        const String& MapDocument::nextCommandName() const {
-            return doGetNextCommandName();
+        const std::string& MapDocument::redoCommandName() const {
+            return doGetRedoCommandName();
         }
 
-        void MapDocument::undoLastCommand() {
-            doUndoLastCommand();
+        void MapDocument::undoCommand() {
+            doUndoCommand();
         }
 
-        void MapDocument::redoNextCommand() {
-            doRedoNextCommand();
+        void MapDocument::redoCommand() {
+            doRedoCommand();
         }
 
-        bool MapDocument::hasRepeatableCommands() const {
-            return doHasRepeatableCommands();
+        bool MapDocument::canRepeatCommands() const {
+            return doCanRepeatCommands();
         }
 
-        bool MapDocument::repeatLastCommands() {
-            return doRepeatLastCommands();
+        std::unique_ptr<CommandResult> MapDocument::repeatCommands() {
+            return doRepeatCommands();
         }
 
         void MapDocument::clearRepeatableCommands() {
             doClearRepeatableCommands();
         }
 
-        void MapDocument::beginTransaction(const String& name) {
+        void MapDocument::startTransaction(const std::string& name) {
             debug("Starting transaction '" + name + "'");
-            doBeginTransaction(name);
+            doStartTransaction(name);
         }
 
         void MapDocument::rollbackTransaction() {
@@ -1522,21 +1552,21 @@ namespace TrenchBroom {
 
         void MapDocument::commitTransaction() {
             debug("Committing transaction");
-            doEndTransaction();
+            doCommitTransaction();
         }
 
         void MapDocument::cancelTransaction() {
             debug("Cancelling transaction");
             doRollbackTransaction();
-            doEndTransaction();
+            doCommitTransaction();
         }
 
-        bool MapDocument::submit(Command::Ptr command) {
-            return doSubmit(command);
+        std::unique_ptr<CommandResult> MapDocument::execute(std::unique_ptr<Command>&& command) {
+            return doExecute(std::move(command));
         }
 
-        bool MapDocument::submitAndStore(UndoableCommand::Ptr command) {
-            return doSubmitAndStore(command);
+        std::unique_ptr<CommandResult> MapDocument::executeAndStore(std::unique_ptr<UndoableCommand>&& command) {
+            return doExecuteAndStore(std::move(command));
         }
 
         void MapDocument::commitPendingAssets() {
@@ -1589,28 +1619,28 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityDefinitionFileSpec::List MapDocument::allEntityDefinitionFiles() const {
+        std::vector<Assets::EntityDefinitionFileSpec> MapDocument::allEntityDefinitionFiles() const {
             return m_game->allEntityDefinitionFiles();
         }
 
         void MapDocument::setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec) {
-            submitAndStore(EntityDefinitionFileCommand::set(spec));
+            executeAndStore(EntityDefinitionFileCommand::set(spec));
         }
 
-        void MapDocument::setEntityDefinitions(const Assets::EntityDefinitionList& definitions) {
+        void MapDocument::setEntityDefinitions(const std::vector<Assets::EntityDefinition*>& definitions) {
             m_entityDefinitionManager->setDefinitions(definitions);
         }
 
-        IO::Path::List MapDocument::enabledTextureCollections() const {
+        std::vector<IO::Path> MapDocument::enabledTextureCollections() const {
             return m_game->extractTextureCollections(*m_world);
         }
 
-        IO::Path::List MapDocument::availableTextureCollections() const {
+        std::vector<IO::Path> MapDocument::availableTextureCollections() const {
             return m_game->findTextureCollections();
         }
 
-        void MapDocument::setEnabledTextureCollections(const IO::Path::List& paths) {
-            submitAndStore(SetTextureCollectionsCommand::set(paths));
+        void MapDocument::setEnabledTextureCollections(const std::vector<IO::Path>& paths) {
+            executeAndStore(SetTextureCollectionsCommand::set(paths));
         }
 
         void MapDocument::reloadTextureCollections() {
@@ -1654,9 +1684,9 @@ namespace TrenchBroom {
                 createEntityDefinitionActions();
             } catch (const Exception& e) {
                 if (spec.builtin()) {
-                    error("Could not load builtin entity definition file '%s': %s", spec.path().asString().c_str(), e.what());
+                    error() << "Could not load builtin entity definition file '" << spec.path() << "': " << e.what();
                 } else {
-                    error("Could not load external entity definition file '%s': %s", spec.path().asString().c_str(), e.what());
+                    error() << "Could not load external entity definition file '" << spec.path() << "': " << e.what();
                 }
             }
         }
@@ -1860,8 +1890,8 @@ namespace TrenchBroom {
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
         }
 
-        IO::Path::List MapDocument::externalSearchPaths() const {
-            IO::Path::List searchPaths;
+        std::vector<IO::Path> MapDocument::externalSearchPaths() const {
+            std::vector<IO::Path> searchPaths;
             if (!m_path.isEmpty() && m_path.isAbsolute()) {
                 searchPaths.push_back(m_path.deleteLastComponent());
             }
@@ -1876,19 +1906,19 @@ namespace TrenchBroom {
         }
 
         void MapDocument::updateGameSearchPaths() {
-            const IO::Path::List additionalSearchPaths = IO::Path::asPaths(mods());
+            const std::vector<IO::Path> additionalSearchPaths = IO::Path::asPaths(mods());
             m_game->setAdditionalSearchPaths(additionalSearchPaths, logger());
         }
 
-        StringList MapDocument::mods() const {
+        std::vector<std::string> MapDocument::mods() const {
             return m_game->extractEnabledMods(*m_world);
         }
 
-        void MapDocument::setMods(const StringList& mods) {
-            submitAndStore(SetModsCommand::set(mods));
+        void MapDocument::setMods(const std::vector<std::string>& mods) {
+            executeAndStore(SetModsCommand::set(mods));
         }
 
-        String MapDocument::defaultMod() const {
+        std::string MapDocument::defaultMod() const {
             return m_game->defaultMod();
         }
 
@@ -1925,21 +1955,18 @@ namespace TrenchBroom {
             ensure(m_game.get() != nullptr, "game is null");
 
             m_tagManager->clearSmartTags();
-            for (const auto& tag : m_game->smartTags()) {
-                // we copy every tag into the tag manager intentionally
-                m_tagManager->registerSmartTag(tag);
-            }
+            m_tagManager->registerSmartTags(m_game->smartTags());
         }
 
-        const std::list<Model::SmartTag>& MapDocument::smartTags() const {
+        const std::vector<Model::SmartTag>& MapDocument::smartTags() const {
             return m_tagManager->smartTags();
         }
 
-        bool MapDocument::isRegisteredSmartTag(const String& name) const {
+        bool MapDocument::isRegisteredSmartTag(const std::string& name) const {
             return m_tagManager->isRegisteredSmartTag(name);
         }
 
-        const Model::SmartTag& MapDocument::smartTag(const String& name) const {
+        const Model::SmartTag& MapDocument::smartTag(const std::string& name) const {
             return m_tagManager->smartTag(name);
         }
 
@@ -2034,9 +2061,10 @@ namespace TrenchBroom {
             return m_path.isAbsolute() && IO::Disk::fileExists(IO::Disk::fixPath(m_path));
         }
 
-        String MapDocument::filename() const {
-            if (m_path.isEmpty())
-                return EmptyString;
+        std::string MapDocument::filename() const {
+            if (m_path.isEmpty()) {
+                return "";
+            }
             return  m_path.lastComponent().asString();
         }
 
@@ -2122,27 +2150,27 @@ namespace TrenchBroom {
             }
         }
 
-        void MapDocument::commandDone(Command::Ptr command) {
-            debug("Command '%s' executed", command->name().c_str());
+        void MapDocument::commandDone(Command* command) {
+            debug() << "Command " << command->name() << "' executed";
         }
 
-        void MapDocument::commandUndone(UndoableCommand::Ptr command) {
-            debug("Command '%s' undone", command->name().c_str());
+        void MapDocument::commandUndone(UndoableCommand* command) {
+            debug() << "Command " << command->name() << " undone";
         }
 
-        Transaction::Transaction(MapDocumentWPtr document, const String& name) :
+        Transaction::Transaction(std::weak_ptr<MapDocument> document, const std::string& name) :
         m_document(lock(document).get()),
         m_cancelled(false) {
             begin(name);
         }
 
-        Transaction::Transaction(MapDocumentSPtr document, const String& name) :
+        Transaction::Transaction(std::shared_ptr<MapDocument> document, const std::string& name) :
         m_document(document.get()),
         m_cancelled(false) {
             begin(name);
         }
 
-        Transaction::Transaction(MapDocument* document, const String& name) :
+        Transaction::Transaction(MapDocument* document, const std::string& name) :
         m_document(document),
         m_cancelled(false) {
             begin(name);
@@ -2162,8 +2190,8 @@ namespace TrenchBroom {
             m_cancelled = true;
         }
 
-        void Transaction::begin(const String& name) {
-            m_document->beginTransaction(name);
+        void Transaction::begin(const std::string& name) {
+            m_document->startTransaction(name);
         }
 
         void Transaction::commit() {

@@ -20,16 +20,17 @@
 #include "ClipTool.h"
 
 #include "TrenchBroom.h"
-#include "CollectionUtils.h"
 #include "Constants.h"
 #include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
 #include "Macros.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
+#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Model/World.h"
 #include "Renderer/BrushRenderer.h"
@@ -37,6 +38,10 @@
 #include "Renderer/RenderService.h"
 #include "View/MapDocument.h"
 #include "View/Selection.h"
+
+#include <kdl/map_utils.h>
+#include <kdl/string_utils.h>
+#include <kdl/vector_utils.h>
 
 #include <vecmath/ray.h>
 #include <vecmath/vec.h>
@@ -48,7 +53,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType ClipTool::PointHit = Model::Hit::freeHitType();
+        const Model::HitType::Type ClipTool::PointHit = Model::HitType::freeType();
 
         ClipTool::ClipStrategy::~ClipStrategy() {}
 
@@ -214,7 +219,7 @@ namespace TrenchBroom {
                 std::vector<vm::vec3> result;
                 for (size_t i = 0; i < m_numPoints; ++i) {
                     const std::vector<vm::vec3>& helpVectors = m_points[i].helpVectors;
-                    VectorUtils::append(result, helpVectors);
+                    kdl::vec_append(result, helpVectors);
                 }
 
                 return result;
@@ -392,11 +397,7 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < m_numPoints; ++i) {
                     const auto& point = m_points[i].point;
                     renderService.renderHandle(vm::vec3f(point));
-
-                    StringStream str;
-                    str << (i+1) << ": " << point;
-
-                    renderService.renderString(str.str(), vm::vec3f(point));
+                    renderService.renderString(kdl::str_to_string(i+1, ": ", point), vm::vec3f(point));
                 }
             }
 
@@ -492,22 +493,19 @@ namespace TrenchBroom {
             }
         };
 
-        ClipTool::ClipTool(MapDocumentWPtr document) :
+        ClipTool::ClipTool(std::weak_ptr<MapDocument> document) :
         Tool(false),
         m_document(document),
         m_clipSide(ClipSide_Front),
         m_strategy(nullptr),
-        m_remainingBrushRenderer(new Renderer::BrushRenderer()),
-        m_clippedBrushRenderer(new Renderer::BrushRenderer()),
+        m_remainingBrushRenderer(std::make_unique<Renderer::BrushRenderer>()),
+        m_clippedBrushRenderer(std::make_unique<Renderer::BrushRenderer>()),
         m_ignoreNotifications(false),
         m_dragging(false) {}
 
         ClipTool::~ClipTool() {
-            delete m_strategy;
-            delete m_remainingBrushRenderer;
-            delete m_clippedBrushRenderer;
-            MapUtils::clearAndDelete(m_frontBrushes);
-            MapUtils::clearAndDelete(m_backBrushes);
+            kdl::map_clear_and_delete(m_frontBrushes);
+            kdl::map_clear_and_delete(m_backBrushes);
         }
 
         const Grid& ClipTool::grid() const {
@@ -607,19 +605,19 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> result;
             if (!m_frontBrushes.empty()) {
                 if (keepFrontBrushes()) {
-                    MapUtils::merge(result, m_frontBrushes);
+                    result = kdl::map_merge(result, m_frontBrushes);
                     m_frontBrushes.clear();
                 } else {
-                    MapUtils::clearAndDelete(m_frontBrushes);
+                    kdl::map_clear_and_delete(m_frontBrushes);
                 }
             }
 
             if (!m_backBrushes.empty()) {
                 if (keepBackBrushes()) {
-                    MapUtils::merge(result, m_backBrushes);
+                    result = kdl::map_merge(result, m_backBrushes);
                     m_backBrushes.clear();
                 } else {
-                    MapUtils::clearAndDelete(m_backBrushes);
+                    kdl::map_clear_and_delete(m_backBrushes);
                 }
             }
 
@@ -643,7 +641,7 @@ namespace TrenchBroom {
         void ClipTool::addPoint(const vm::vec3& point, const std::vector<vm::vec3>& helpVectors) {
             assert(canAddPoint(point));
             if (m_strategy == nullptr) {
-                m_strategy = new PointClipStrategy();
+                m_strategy = std::make_unique<PointClipStrategy>();
             }
 
             m_strategy->addPoint(point, helpVectors);
@@ -711,8 +709,7 @@ namespace TrenchBroom {
         }
 
         void ClipTool::setFace(const Model::BrushFace* face) {
-            delete m_strategy;
-            m_strategy = new FaceClipStrategy();
+            m_strategy = std::make_unique<FaceClipStrategy>();
             m_strategy->setFace(face);
             update();
         }
@@ -727,8 +724,7 @@ namespace TrenchBroom {
         }
 
         void ClipTool::resetStrategy() {
-            delete m_strategy;
-            m_strategy = nullptr;
+            m_strategy.reset();
             update();
         }
 
@@ -743,12 +739,12 @@ namespace TrenchBroom {
         }
 
         void ClipTool::clearBrushes() {
-            MapUtils::clearAndDelete(m_frontBrushes);
-            MapUtils::clearAndDelete(m_backBrushes);
+            kdl::map_clear_and_delete(m_frontBrushes);
+            kdl::map_clear_and_delete(m_backBrushes);
         }
 
         void ClipTool::updateBrushes() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const auto& brushes = document->selectedNodes().brushes();
             const auto& worldBounds = document->worldBounds();
 
@@ -829,23 +825,23 @@ namespace TrenchBroom {
         void ClipTool::updateRenderers() {
             if (canClip()) {
                 if (keepFrontBrushes()) {
-                    addBrushesToRenderer(m_frontBrushes, m_remainingBrushRenderer);
+                    addBrushesToRenderer(m_frontBrushes, *m_remainingBrushRenderer);
                 } else {
-                    addBrushesToRenderer(m_frontBrushes, m_clippedBrushRenderer);
+                    addBrushesToRenderer(m_frontBrushes, *m_clippedBrushRenderer);
                 }
 
                 if (keepBackBrushes()) {
-                    addBrushesToRenderer(m_backBrushes, m_remainingBrushRenderer);
+                    addBrushesToRenderer(m_backBrushes, *m_remainingBrushRenderer);
                 } else {
-                    addBrushesToRenderer(m_backBrushes, m_clippedBrushRenderer);
+                    addBrushesToRenderer(m_backBrushes, *m_clippedBrushRenderer);
                 }
             } else {
-                addBrushesToRenderer(m_frontBrushes, m_remainingBrushRenderer);
-                addBrushesToRenderer(m_backBrushes, m_remainingBrushRenderer);
+                addBrushesToRenderer(m_frontBrushes, *m_remainingBrushRenderer);
+                addBrushesToRenderer(m_backBrushes, *m_remainingBrushRenderer);
             }
         }
 
-        void ClipTool::addBrushesToRenderer(const std::map<Model::Node*, std::vector<Model::Node*>>& map, Renderer::BrushRenderer* renderer) {
+        void ClipTool::addBrushesToRenderer(const std::map<Model::Node*, std::vector<Model::Node*>>& map, Renderer::BrushRenderer& renderer) {
             Model::CollectBrushesVisitor collect;
 
             for (const auto& entry : map) {
@@ -853,7 +849,7 @@ namespace TrenchBroom {
                 Model::Node::accept(std::begin(brushes), std::end(brushes), collect);
             }
 
-            renderer->addBrushes(collect.brushes());
+            renderer.addBrushes(collect.brushes());
         }
 
         bool ClipTool::keepFrontBrushes() const {
@@ -878,8 +874,7 @@ namespace TrenchBroom {
         bool ClipTool::doDeactivate() {
             unbindObservers();
 
-            delete m_strategy;
-            m_strategy = nullptr;
+            m_strategy.reset();
             clearRenderers();
             clearBrushes();
 
@@ -891,7 +886,7 @@ namespace TrenchBroom {
         }
 
         void ClipTool::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &ClipTool::selectionDidChange);
             document->nodesWillChangeNotifier.addObserver(this, &ClipTool::nodesWillChange);
             document->nodesDidChangeNotifier.addObserver(this, &ClipTool::nodesDidChange);
@@ -900,7 +895,7 @@ namespace TrenchBroom {
 
         void ClipTool::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->selectionDidChangeNotifier.removeObserver(this, &ClipTool::selectionDidChange);
                 document->nodesWillChangeNotifier.removeObserver(this, &ClipTool::nodesWillChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &ClipTool::nodesDidChange);

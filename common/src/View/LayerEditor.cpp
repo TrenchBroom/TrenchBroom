@@ -33,19 +33,22 @@
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 
+#include <kdl/string_compare.h>
+#include <kdl/string_format.h>
+
 #include <set>
+#include <string>
 #include <vector>
 
+#include <QAbstractButton>
 #include <QInputDialog>
 #include <QMenu>
-#include <QVBoxLayout>
 #include <QMessageBox>
-
-#include <QAbstractButton>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
-        LayerEditor::LayerEditor(MapDocumentWPtr document, QWidget *parent) :
+        LayerEditor::LayerEditor(std::weak_ptr<MapDocument> document, QWidget *parent) :
         QWidget(parent),
         m_document(document),
         m_layerList(nullptr) {
@@ -256,7 +259,7 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::onAddLayer() {
-            const String name = queryLayerName();
+            const std::string name = queryLayerName();
             if (!name.empty()) {
                 auto document = lock(m_document);
                 auto* world = document->world();
@@ -269,20 +272,20 @@ namespace TrenchBroom {
             }
         }
 
-        String LayerEditor::queryLayerName() {
+        std::string LayerEditor::queryLayerName() {
             while (true) {
                 bool ok = false;
-                const String name = QInputDialog::getText(this, "Enter a name", "Layer Name", QLineEdit::Normal, "Unnamed", &ok).toStdString();
+                const std::string name = QInputDialog::getText(this, "Enter a name", "Layer Name", QLineEdit::Normal, "Unnamed", &ok).toStdString();
 
                 if (!ok) {
                     return "";
                 }
 
-                if (StringUtils::isBlank(name)) {
+                if (kdl::str_is_blank(name)) {
                     if (QMessageBox::warning(this, "Error", "Layer names cannot be blank.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok) {
                         return "";
                     }
-                } else if (StringUtils::containsCaseInsensitive(name, "\"")) {
+                } else if (kdl::ci::str_contains(name, "\"")) {
                     if (QMessageBox::warning(this, "Error", "Layer names cannot contain double quotes.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok) {
                         return "";
                     }
@@ -346,7 +349,7 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        void LayerEditor::moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer) {
+        void LayerEditor::moveSelectedNodesToLayer(std::shared_ptr<MapDocument> document, Model::Layer* layer) {
             const auto& selectedNodes = document->selectedNodes().nodes();
 
             CollectMoveableNodes visitor(document->world());
@@ -388,7 +391,7 @@ namespace TrenchBroom {
             sizer->setContentsMargins(0, 0, 0, 0);
             sizer->setSpacing(0);
             sizer->addWidget(m_layerList, 1);
-            sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
+            sizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
             sizer->addLayout(buttonSizer, 0);
             setLayout(sizer);
         }

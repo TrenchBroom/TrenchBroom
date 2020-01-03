@@ -20,21 +20,19 @@
 #ifndef CompilationProfileManager_h
 #define CompilationProfileManager_h
 
-#include "View/ViewTypes.h"
+#include "Model/Model_Forward.h"
+
+#include <memory>
 
 #include <QWidget>
 
 class QAbstractButton;
 
 namespace TrenchBroom {
-    namespace Model {
-        class CompilationConfig;
-        class CompilationProfile;
-    }
-
     namespace View {
         class CompilationProfileListBox;
         class CompilationProfileEditor;
+        class MapDocument;
 
         class CompilationProfileManager : public QWidget {
             Q_OBJECT
@@ -44,7 +42,7 @@ namespace TrenchBroom {
             CompilationProfileEditor* m_profileEditor;
             QAbstractButton* m_removeProfileButton;
         public:
-            CompilationProfileManager(MapDocumentWPtr document, Model::CompilationConfig& config, QWidget* parent = nullptr);
+            CompilationProfileManager(std::weak_ptr<MapDocument> document, Model::CompilationConfig& config, QWidget* parent = nullptr);
 
             const Model::CompilationProfile* selectedProfile() const;
         private slots:

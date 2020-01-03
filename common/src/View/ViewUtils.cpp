@@ -19,14 +19,16 @@
 
 #include "ViewUtils.h"
 
-#include "Logger.h"
 #include "SharedPointer.h"
-#include "StringUtils.h"
+#include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
+
+#include <kdl/string_compare.h>
+#include <kdl/string_format.h>
 
 #include <memory>
 
@@ -49,11 +51,11 @@ namespace TrenchBroom {
             }
         }
 
-        bool loadTextureCollection(MapDocumentWPtr document, QWidget* parent, const QString& path) {
+        bool loadTextureCollection(std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path) {
             return loadTextureCollections(document, parent, QStringList { path }) == 1;
         }
 
-        size_t loadTextureCollections(MapDocumentWPtr i_document, QWidget* parent, const QStringList& pathStrs) {
+        size_t loadTextureCollections(std::weak_ptr<MapDocument> i_document, QWidget* parent, const QStringList& pathStrs) {
             if (pathStrs.empty()) {
                 return 0;
             }
@@ -61,7 +63,7 @@ namespace TrenchBroom {
             size_t count = 0;
 
             auto document = lock(i_document);
-            IO::Path::List collections = document->enabledTextureCollections();
+            std::vector<IO::Path> collections = document->enabledTextureCollections();
 
             auto game = document->game();
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
@@ -88,11 +90,11 @@ namespace TrenchBroom {
             return count;
         }
 
-        bool loadEntityDefinitionFile(MapDocumentWPtr document, QWidget* parent, const QString& path) {
+        bool loadEntityDefinitionFile(std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path) {
             return loadEntityDefinitionFile(document, parent, QStringList { path }) == 0;
         }
 
-        size_t loadEntityDefinitionFile(MapDocumentWPtr i_document, QWidget* parent, const QStringList& pathStrs) {
+        size_t loadEntityDefinitionFile(std::weak_ptr<MapDocument> i_document, QWidget* parent, const QStringList& pathStrs) {
             if (pathStrs.empty()) {
                 return 0;
             }
@@ -123,7 +125,7 @@ namespace TrenchBroom {
             return static_cast<size_t>(pathStrs.size());
         }
 
-        String queryGroupName(QWidget* parent) {
+        std::string queryGroupName(QWidget* parent) {
             while (true) {
                 bool ok;
                 QString text = QInputDialog::getText(parent, "Enter a name", "Group Name", QLineEdit::Normal, "Unnamed", &ok);
@@ -133,10 +135,10 @@ namespace TrenchBroom {
                 }
 
                 const auto name = text.toStdString();
-                if (StringUtils::isBlank(name)) {
+                if (kdl::str_is_blank(name)) {
                     if (QMessageBox::warning(parent, "Error", "Group names cannot be blank.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok)
                         return "";
-                } else if (StringUtils::containsCaseInsensitive(name, "\"")) {
+                } else if (kdl::ci::str_contains(name, "\"")) {
                     if (QMessageBox::warning(parent, "Error", "Group names cannot contain double quotes.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok)
                         return "";
                 } else {

@@ -20,20 +20,18 @@
 #ifndef TrenchBroom_BrushFaceAttributes
 #define TrenchBroom_BrushFaceAttributes
 
-#include "StringType.h"
 #include "Color.h"
+#include "Assets/Asset_Forward.h"
 
 #include <vecmath/forward.h>
 
-namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
+#include <string>
 
+namespace TrenchBroom {
     namespace Model {
         class BrushFaceAttributes {
         private:
-            String m_textureName;
+            std::string m_textureName;
             Assets::Texture* m_texture;
 
             vm::vec2f m_offset;
@@ -46,7 +44,7 @@ namespace TrenchBroom {
 
             Color m_color;
         public:
-            BrushFaceAttributes(const String& textureName);
+            BrushFaceAttributes(const std::string& textureName);
             BrushFaceAttributes(const BrushFaceAttributes& other);
             ~BrushFaceAttributes();
             BrushFaceAttributes& operator=(BrushFaceAttributes other);
@@ -54,7 +52,7 @@ namespace TrenchBroom {
 
             BrushFaceAttributes takeSnapshot() const;
 
-            const String& textureName() const;
+            const std::string& textureName() const;
             Assets::Texture* texture() const;
             vm::vec2f textureSize() const;
 

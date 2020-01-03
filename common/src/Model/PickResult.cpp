@@ -21,6 +21,8 @@
 
 #include "Ensure.h"
 #include "Model/CompareHits.h"
+#include "Model/Hit.h"
+#include "Model/HitQuery.h"
 
 #include <vecmath/util.h>
 
@@ -36,18 +38,24 @@ namespace TrenchBroom {
             bool operator()(const Hit& lhs, const Hit& rhs) const { return m_compare->compare(lhs, rhs) < 0; }
         };
 
+        PickResult::PickResult(const EditorContext& editorContext, std::shared_ptr<CompareHits> compare) :
+        m_editorContext(&editorContext),
+        m_compare(std::move(compare)) {}
+
         PickResult::PickResult() :
         m_editorContext(nullptr),
-        m_compare(new CompareHitsByDistance()) {}
+        m_compare(std::make_shared<CompareHitsByDistance>()) {}
+
+        PickResult::~PickResult() = default;
 
         PickResult PickResult::byDistance(const EditorContext& editorContext) {
-            CompareHits* compare = new CombineCompareHits(new CompareHitsByDistance(),
-                                                          new CompareHitsByType());
-            return PickResult(editorContext, compare);
+            return PickResult(editorContext, std::make_shared<CombineCompareHits>(
+                std::make_unique<CompareHitsByDistance>(),
+                std::make_unique<CompareHitsByType>()));
         }
 
         PickResult PickResult::bySize(const EditorContext& editorContext, const vm::axis::type axis) {
-            return PickResult(editorContext, new CompareHitsBySize(axis));
+            return PickResult(editorContext, std::make_shared<CompareHitsBySize>(axis));
         }
 
         bool PickResult::empty() const {
@@ -60,11 +68,11 @@ namespace TrenchBroom {
 
         void PickResult::addHit(const Hit& hit) {
             ensure(m_compare.get() != nullptr, "compare is null");
-            Hit::List::iterator pos = std::upper_bound(std::begin(m_hits), std::end(m_hits), hit, CompareWrapper(m_compare.get()));
+            auto pos = std::upper_bound(std::begin(m_hits), std::end(m_hits), hit, CompareWrapper(m_compare.get()));
             m_hits.insert(pos, hit);
         }
 
-        const Hit::List& PickResult::all() const {
+        const std::list<Hit>& PickResult::all() const {
             return m_hits;
         }
 

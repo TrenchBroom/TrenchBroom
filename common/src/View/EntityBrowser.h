@@ -20,8 +20,10 @@
 #ifndef TrenchBroom_EntityBrowser
 #define TrenchBroom_EntityBrowser
 
-#include "StringType.h"
-#include "View/ViewTypes.h"
+#include "IO/IO_Forward.h"
+#include "View/View_Forward.h"
+
+#include <memory>
 
 #include <QWidget>
 
@@ -31,18 +33,11 @@ class QLineEdit;
 class QScrollBar;
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace View {
-        class EntityBrowserView;
-        class GLContextManager;
-
         class EntityBrowser : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             QComboBox* m_sortOrderChoice;
             QPushButton* m_groupButton;
             QPushButton* m_usedButton;
@@ -50,7 +45,7 @@ namespace TrenchBroom {
             QScrollBar* m_scrollBar;
             EntityBrowserView* m_view;
         public:
-            EntityBrowser(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            EntityBrowser(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~EntityBrowser() override;
 
             void reload();

@@ -21,22 +21,19 @@
 #define TrenchBroom_MapReader
 
 #include "TrenchBroom.h"
+#include "IO/IO_Forward.h"
 #include "IO/StandardMapParser.h"
 #include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
 
+#include <list>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class ModelFactory;
-    }
-
     namespace IO {
-        class ParserStatus;
-
         class MapReader : public StandardMapParser {
         protected:
             class ParentInfo {
@@ -85,7 +82,7 @@ namespace TrenchBroom {
             NodeParentList m_unresolvedNodes;
         protected:
             MapReader(const char* begin, const char* end);
-            explicit MapReader(const String& str);
+            explicit MapReader(const std::string& str);
 
             void readEntities(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
             void readBrushes(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
@@ -94,31 +91,31 @@ namespace TrenchBroom {
             ~MapReader() override;
         private: // implement MapParser interface
             void onFormatSet(Model::MapFormat format) override;
-            void onBeginEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
+            void onBeginEntity(size_t line, const std::list<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
             void onEndEntity(size_t startLine, size_t lineCount, ParserStatus& status) override;
             void onBeginBrush(size_t line, ParserStatus& status) override;
             void onEndBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
             void onBrushFace(size_t line, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) override;
         private: // helper methods
-            void createLayer(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
-            void createGroup(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
-            void createEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
+            void createLayer(size_t line, const std::list<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
+            void createGroup(size_t line, const std::list<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
+            void createEntity(size_t line, const std::list<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
             void createBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status);
 
-            ParentInfo::Type storeNode(Model::Node* node, const Model::EntityAttribute::List& attributes, ParserStatus& status);
+            ParentInfo::Type storeNode(Model::Node* node, const std::list<Model::EntityAttribute>& attributes, ParserStatus& status);
             void stripParentAttributes(Model::AttributableNode* attributable, ParentInfo::Type parentType);
 
             void resolveNodes(ParserStatus& status);
             Model::Node* resolveParent(const ParentInfo& parentInfo) const;
 
-            EntityType entityType(const Model::EntityAttribute::List& attributes) const;
+            EntityType entityType(const std::list<Model::EntityAttribute>& attributes) const;
 
             void setFilePosition(Model::Node* node, size_t startLine, size_t lineCount);
         protected:
             void setExtraAttributes(Model::Node* node, const ExtraAttributes& extraAttributes);
         private: // subclassing interface
             virtual Model::ModelFactory& initialize(Model::MapFormat format) = 0;
-            virtual Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) = 0;
+            virtual Model::Node* onWorldspawn(const std::list<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) = 0;
             virtual void onWorldspawnFilePosition(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
             virtual void onLayer(Model::Layer* layer, ParserStatus& status) = 0;
             virtual void onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) = 0;

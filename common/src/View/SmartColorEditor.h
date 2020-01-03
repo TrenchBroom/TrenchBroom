@@ -20,24 +20,22 @@
 #ifndef TrenchBroom_SmartColorEditor
 #define TrenchBroom_SmartColorEditor
 
-#include "SharedPointer.h"
 #include "Model/Model_Forward.h"
 #include "View/SmartAttributeEditor.h"
-#include "View/ViewTypes.h"
-#include "View/ColorButton.h"
 
+#include <memory>
 #include <vector>
 
-#include <QColor>
-
+class QColor;
 class QWidget;
 class QPushButton;
 class QRadioButton;
 
 namespace TrenchBroom {
     namespace View {
+        class ColorButton;
         class ColorTable;
-        class ColorTableSelectedCommand;
+        class MapDocument;
 
         class SmartColorEditor : public SmartAttributeEditor {
             Q_OBJECT
@@ -50,7 +48,7 @@ namespace TrenchBroom {
             ColorButton* m_colorPicker;
             ColorTable* m_colorHistory;
         public:
-            explicit SmartColorEditor(View::MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit SmartColorEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
             void createGui();
             void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) override;

@@ -20,25 +20,18 @@
 #ifndef TRENCHBROOM_TAGMATCHER_H
 #define TRENCHBROOM_TAGMATCHER_H
 
+#include "Model/Model_Forward.h"
 #include "Model/Tag.h"
 #include "Model/TagVisitor.h"
 
 #include <functional>
 #include <memory>
+#include <string>
+#include <string_view>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushFace;
-        class ChangeBrushFaceAttributesRequest;
-        class Game;
-        class Node;
-        class World;
-        class Layer;
-        class Group;
-        class Entity;
-        class Brush;
-
         class MatchVisitor : public ConstTagVisitor {
         private:
             bool m_matches;
@@ -72,23 +65,23 @@ namespace TrenchBroom {
 
         class TextureNameTagMatcher : public TagMatcher {
         private:
-            String m_pattern;
+            std::string m_pattern;
         public:
-            explicit TextureNameTagMatcher(String pattern);
+            explicit TextureNameTagMatcher(const std::string& pattern);
             std::unique_ptr<TagMatcher> clone() const override;
         public:
             bool matches(const Taggable& taggable) const override;
             void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
             bool canEnable() const override;
         private:
-            bool matchesTextureName(const String& textureName) const;
+            bool matchesTextureName(std::string_view textureName) const;
         };
 
         class SurfaceParmTagMatcher : public TagMatcher {
         private:
-            String m_parameter;
+            std::string m_parameter;
         public:
-            explicit SurfaceParmTagMatcher(String parameter);
+            explicit SurfaceParmTagMatcher(const std::string& parameter);
             std::unique_ptr<TagMatcher> clone() const override;
         private:
             bool matches(const Taggable& taggable) const override;
@@ -98,7 +91,7 @@ namespace TrenchBroom {
         protected:
             using GetFlags = std::function<int(const BrushFace&)>;
             using SetFlags = std::function<void(ChangeBrushFaceAttributesRequest&, int)>;
-            using GetFlagNames = std::function<StringList(const Game& game, int)>;
+            using GetFlagNames = std::function<std::vector<std::string>(const Game& game, int)>;
         protected:
             int m_flags;
             GetFlags m_getFlags;
@@ -129,13 +122,13 @@ namespace TrenchBroom {
 
         class EntityClassNameTagMatcher : public TagMatcher {
         private:
-            String m_pattern;
+            std::string m_pattern;
             /**
              * The texture to set when this tag is enabled.
              */
-            String m_texture;
+            std::string m_texture;
         public:
-            EntityClassNameTagMatcher(String pattern, String texture);
+            EntityClassNameTagMatcher(const std::string& pattern, const std::string& texture);
             std::unique_ptr<TagMatcher> clone() const override;
         private:
             bool matches(const Taggable& taggable) const override;
@@ -145,7 +138,7 @@ namespace TrenchBroom {
             bool canEnable() const override;
             bool canDisable() const override;
         private:
-            bool matchesClassname(const String& classname) const;
+            bool matchesClassname(const std::string& classname) const;
         };
     }
 }

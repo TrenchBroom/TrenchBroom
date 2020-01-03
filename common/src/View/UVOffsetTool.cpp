@@ -20,6 +20,7 @@
 #include "UVOffsetTool.h"
 
 #include "Polyhedron.h"
+#include "SharedPointer.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
@@ -36,7 +37,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        UVOffsetTool::UVOffsetTool(MapDocumentWPtr document, const UVViewHelper& helper) :
+        UVOffsetTool::UVOffsetTool(std::weak_ptr<MapDocument> document, const UVViewHelper& helper) :
         ToolControllerBase(),
         Tool(true),
         m_document(document),
@@ -61,7 +62,7 @@ namespace TrenchBroom {
             m_lastPoint = computeHitPoint(inputState.pickRay());
 
             auto document = lock(m_document);
-            document->beginTransaction("Move Texture");
+            document->startTransaction("Move Texture");
             return true;
         }
 

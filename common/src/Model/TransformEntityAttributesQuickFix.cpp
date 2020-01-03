@@ -19,12 +19,15 @@
 
 #include "TransformEntityAttributesQuickFix.h"
 
-#include "Model/PushSelection.h"
 #include "Model/Issue.h"
+#include "Model/MapFacade.h"
+#include "Model/PushSelection.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
-        TransformEntityAttributesQuickFix::TransformEntityAttributesQuickFix(const IssueType issueType, const String& description, const NameTransform& nameTransform, const ValueTransform& valueTransform) :
+        TransformEntityAttributesQuickFix::TransformEntityAttributesQuickFix(const IssueType issueType, const std::string& description, const NameTransform& nameTransform, const ValueTransform& valueTransform) :
         IssueQuickFix(issueType, description),
         m_nameTransform(nameTransform),
         m_valueTransform(valueTransform) {}

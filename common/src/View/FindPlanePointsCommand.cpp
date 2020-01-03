@@ -25,23 +25,23 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType FindPlanePointsCommand::Type = Command::freeType();
 
-        FindPlanePointsCommand::Ptr FindPlanePointsCommand::findPlanePoints() {
-            return Ptr(new FindPlanePointsCommand());
+        std::unique_ptr<FindPlanePointsCommand> FindPlanePointsCommand::findPlanePoints() {
+            return std::make_unique<FindPlanePointsCommand>();
         }
 
         FindPlanePointsCommand::FindPlanePointsCommand() :
         SnapshotCommand(Type, "Find Plane Points") {}
 
-        bool FindPlanePointsCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            document->performFindPlanePoints();
-            return true;
+        std::unique_ptr<CommandResult> FindPlanePointsCommand::doPerformDo(MapDocumentCommandFacade* document) {
+            const auto success = document->performFindPlanePoints();
+            return std::make_unique<CommandResult>(success);
         }
 
         bool FindPlanePointsCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool FindPlanePointsCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool FindPlanePointsCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

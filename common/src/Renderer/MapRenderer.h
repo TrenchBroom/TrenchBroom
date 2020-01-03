@@ -20,32 +20,25 @@
 #ifndef TrenchBroom_MapRenderer
 #define TrenchBroom_MapRenderer
 
-#include "Color.h"
 #include "Macros.h"
+#include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
-#include "View/ViewTypes.h"
+#include "Renderer/Renderer_Forward.h"
 
 #include <map>
 #include <memory>
-#include <set>
 #include <vector>
 
-namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
+class Color;
 
+namespace TrenchBroom {
     namespace View {
+        // FIXME: Renderer should not depend on View
+        class MapDocument;
         class Selection;
     }
 
     namespace Renderer {
-        class EntityLinkRenderer;
-        class FontManager;
-        class ObjectRenderer;
-        class RenderBatch;
-        class RenderContext;
-
         class MapRenderer {
         private:
             class SelectedBrushRendererFilter;
@@ -54,21 +47,21 @@ namespace TrenchBroom {
 
             using RendererMap = std::map<Model::Layer*, ObjectRenderer*>;
 
-            View::MapDocumentWPtr m_document;
+            std::weak_ptr<View::MapDocument> m_document;
 
             std::unique_ptr<ObjectRenderer> m_defaultRenderer;
             std::unique_ptr<ObjectRenderer> m_selectionRenderer;
             std::unique_ptr<ObjectRenderer> m_lockedRenderer;
             std::unique_ptr<EntityLinkRenderer> m_entityLinkRenderer;
         public:
-            explicit MapRenderer(View::MapDocumentWPtr document);
+            explicit MapRenderer(std::weak_ptr<View::MapDocument> document);
             ~MapRenderer();
 
             deleteCopyAndMove(MapRenderer)
         private:
-            static std::unique_ptr<ObjectRenderer> createDefaultRenderer(View::MapDocumentWPtr document);
-            static std::unique_ptr<ObjectRenderer> createSelectionRenderer(View::MapDocumentWPtr document);
-            static std::unique_ptr<ObjectRenderer> createLockRenderer(View::MapDocumentWPtr document);
+            static std::unique_ptr<ObjectRenderer> createDefaultRenderer(std::weak_ptr<View::MapDocument> document);
+            static std::unique_ptr<ObjectRenderer> createSelectionRenderer(std::weak_ptr<View::MapDocument> document);
+            static std::unique_ptr<ObjectRenderer> createLockRenderer(std::weak_ptr<View::MapDocument> document);
             void clear();
         public: // color config
             void overrideSelectionColors(const Color& color, float mix);
@@ -134,7 +127,6 @@ namespace TrenchBroom {
             void brushFacesDidChange(const std::vector<Model::BrushFace*>& faces);
 
             void selectionDidChange(const View::Selection& selection);
-            std::set<Model::Brush*> collectBrushes(const std::vector<Model::BrushFace*>& faces);
 
             void textureCollectionsWillChange();
             void entityDefinitionsDidChange();

@@ -24,6 +24,7 @@
 #include "Model/Issue.h"
 
 #include <cassert>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -41,7 +42,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            const std::string doGetDescription() const override {
                 return "Brush has mixed content flags";
             }
         };

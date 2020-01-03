@@ -18,18 +18,18 @@
  */
 
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
 #include "MapDocumentTest.h"
 
-#include "Renderer/PerspectiveCamera.h"
-#include "View/Grid.h"
-#include "View/ClipToolController.h"
-#include "View/ClipTool.h"
-#include "View/Tool.h"
-#include "Model/World.h"
-#include "Model/Layer.h"
 #include "Model/Brush.h"
+#include "Model/Layer.h"
+#include "Model/World.h"
+#include "Renderer/PerspectiveCamera.h"
+#include "View/ClipTool.h"
+#include "View/ClipToolController.h"
+#include "View/Grid.h"
+#include "View/PasteType.h"
+#include "View/Tool.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             document.pick(pickRequest.pickRay(), pickResult);
 
             inputState.setPickRequest(pickRequest);
-            inputState.setPickResult(pickResult);
+            inputState.setPickResult(std::move(pickResult));
         }
 
         // https://github.com/kduske/TrenchBroom/issues/2602
@@ -66,7 +66,7 @@ namespace TrenchBroom {
 }
 }
             )";
-            ASSERT_EQ(PT_Node, document->paste(data));
+            ASSERT_EQ(PasteType::Node, document->paste(data));
 
             ClipTool tool(document);
             ClipToolController3D controller(&tool);

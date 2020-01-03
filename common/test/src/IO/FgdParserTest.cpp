@@ -19,7 +19,6 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
 #include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
@@ -33,13 +32,16 @@
 #include "IO/TestParserStatus.h"
 #include "Model/Model_Forward.h"
 
+#include <kdl/vector_utils.h>
+
 #include <algorithm>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
         TEST(FgdParserTest, parseIncludedFgdFiles) {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
-            const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("fgd"));
+            const std::vector<Path> cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("fgd"));
 
             for (const Path& path : cfgFiles) {
                 auto file = Disk::openFile(path);
@@ -50,46 +52,46 @@ namespace TrenchBroom {
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing FGD file " << path.asString() << " failed";
-                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Warn)) << "Parsing FGD file " << path.asString() << " produced warnings";
-                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error)) << "Parsing FGD file " << path.asString() << " produced errors";
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Warn)) << "Parsing FGD file " << path.asString() << " produced warnings";
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Error)) << "Parsing FGD file " << path.asString() << " produced errors";
             }
         }
 
         TEST(FgdParserTest, parseEmptyFile) {
-            const String file = "";
+            const std::string file = "";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseWhitespaceFile) {
-            const String file = "     \n  \t \n  ";
+            const std::string file = "     \n  \t \n  ";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseCommentsFile) {
-            const String file = "// asdfasdfasdf\n//kj3k4jkdjfkjdf\n";
+            const std::string file = "// asdfasdfasdf\n//kj3k4jkdjfkjdf\n";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseEmptyFlagDescription) {
-            const String file =
+            const std::string file =
             "@PointClass color(0 255 0) size(-2 -2 -12, 2 2 12) = light_mine1 : \"Dusty fluorescent light fixture\"\n"
             "[\n"
             "    spawnflags(Flags) =\n"
@@ -102,13 +104,13 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseSolidClass) {
-            const String file =
+            const std::string file =
             "@SolidClass = worldspawn : \"World entity\"\n"
             "[\n"
             "   message(string) : \"Text on entering the world\"\n"
@@ -128,23 +130,23 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_BrushEntity, definition->type());
-            ASSERT_EQ(String("worldspawn"), definition->name());
+            ASSERT_EQ(Assets::EntityDefinitionType::BrushEntity, definition->type());
+            ASSERT_EQ(std::string("worldspawn"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
-            ASSERT_EQ(String("World entity"), definition->description());
+            ASSERT_EQ(std::string("World entity"), definition->description());
 
-            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->attributeDefinitions();
             ASSERT_EQ(6u, attributes.size());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parsePointClass) {
-            const String file =
+            const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
             "	use(string) : \"self.use\"\n"
@@ -158,23 +160,23 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
-            ASSERT_EQ(String("info_notnull"), definition->name());
+            ASSERT_EQ(Assets::EntityDefinitionType::PointEntity, definition->type());
+            ASSERT_EQ(std::string("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
-            ASSERT_EQ(String("Wildcard entity"), definition->description());
+            ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
-            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->attributeDefinitions();
             ASSERT_EQ(5u, attributes.size());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseBaseClass) {
-            const String file =
+            const std::string file =
             "@baseclass = Appearflags [\n"
             "	spawnflags(Flags) =\n"
             "	[\n"
@@ -189,13 +191,13 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parsePointClassWithBaseClasses) {
-            const String file =
+            const std::string file =
             "@baseclass = Appearflags [\n"
             "	spawnflags(Flags) =\n"
             "	[\n"
@@ -223,23 +225,23 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
-            ASSERT_EQ(String("info_notnull"), definition->name());
+            ASSERT_EQ(Assets::EntityDefinitionType::PointEntity, definition->type());
+            ASSERT_EQ(std::string("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
-            ASSERT_EQ(String("Wildcard entity"), definition->description());
+            ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
-            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->attributeDefinitions();
             ASSERT_EQ(9u, attributes.size());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseType_TargetSourceAttribute) {
-            const String file =
+            const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
             "	targetname(target_source) : \"Source\" : : \"A long description\" \n"
@@ -249,29 +251,29 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
-            ASSERT_EQ(String("info_notnull"), definition->name());
+            ASSERT_EQ(Assets::EntityDefinitionType::PointEntity, definition->type());
+            ASSERT_EQ(std::string("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
-            ASSERT_EQ(String("Wildcard entity"), definition->description());
+            ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
-            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->attributeDefinitions();
             ASSERT_EQ(1u, attributes.size());
 
-            Assets::AttributeDefinitionPtr attribute = attributes[0];
+            auto attribute = attributes[0];
             ASSERT_EQ(Assets::AttributeDefinition::Type_TargetSourceAttribute, attribute->type());
-            ASSERT_EQ(String("targetname"), attribute->name());
-            ASSERT_EQ(String("Source"), attribute->shortDescription());
-            ASSERT_EQ(String("A long description"), attribute->longDescription());
+            ASSERT_EQ(std::string("targetname"), attribute->name());
+            ASSERT_EQ(std::string("Source"), attribute->shortDescription());
+            ASSERT_EQ(std::string("A long description"), attribute->longDescription());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseType_TargetDestinationAttribute) {
-            const String file =
+            const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
             "	target(target_destination) : \"Target\" \n"
@@ -281,29 +283,29 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
-            ASSERT_EQ(String("info_notnull"), definition->name());
+            ASSERT_EQ(Assets::EntityDefinitionType::PointEntity, definition->type());
+            ASSERT_EQ(std::string("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
-            ASSERT_EQ(String("Wildcard entity"), definition->description());
+            ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
-            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->attributeDefinitions();
             ASSERT_EQ(1u, attributes.size());
 
-            Assets::AttributeDefinitionPtr attribute = attributes[0];
+            auto attribute = attributes[0];
             ASSERT_EQ(Assets::AttributeDefinition::Type_TargetDestinationAttribute, attribute->type());
-            ASSERT_EQ(String("target"), attribute->name());
-            ASSERT_EQ(String("Target"), attribute->shortDescription());
-            ASSERT_EQ(String(""), attribute->longDescription());
+            ASSERT_EQ(std::string("target"), attribute->name());
+            ASSERT_EQ(std::string("Target"), attribute->shortDescription());
+            ASSERT_EQ(std::string(""), attribute->longDescription());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseStringAttribute) {
-            const String file =
+            const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
             "   message(string) : \"Text on entering the world\" : : \"Long description 1\"\n"
@@ -314,14 +316,14 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
-            ASSERT_EQ(String("info_notnull"), definition->name());
+            ASSERT_EQ(Assets::EntityDefinitionType::PointEntity, definition->type());
+            ASSERT_EQ(std::string("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
-            ASSERT_EQ(String("Wildcard entity"), definition->description());
+            ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
             ASSERT_EQ(2u, definition->attributeDefinitions().size());
 
@@ -330,9 +332,9 @@ namespace TrenchBroom {
             ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, attribute1->type());
 
             const Assets::StringAttributeDefinition* stringAttribute1 = static_cast<const Assets::StringAttributeDefinition*>(attribute1);
-            ASSERT_EQ(String("message"), stringAttribute1->name());
-            ASSERT_EQ(String("Text on entering the world"), stringAttribute1->shortDescription());
-            ASSERT_EQ(String("Long description 1"), stringAttribute1->longDescription());
+            ASSERT_EQ(std::string("message"), stringAttribute1->name());
+            ASSERT_EQ(std::string("Text on entering the world"), stringAttribute1->shortDescription());
+            ASSERT_EQ(std::string("Long description 1"), stringAttribute1->longDescription());
             ASSERT_FALSE(stringAttribute1->hasDefaultValue());
 
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("message2");
@@ -340,17 +342,68 @@ namespace TrenchBroom {
             ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, attribute2->type());
 
             const Assets::StringAttributeDefinition* stringAttribute2 = static_cast<const Assets::StringAttributeDefinition*>(attribute2);
-            ASSERT_EQ(String("message2"), stringAttribute2->name());
-            ASSERT_EQ(String("With a default value"), stringAttribute2->shortDescription());
-            ASSERT_EQ(String("Long description 2"), stringAttribute2->longDescription());
+            ASSERT_EQ(std::string("message2"), stringAttribute2->name());
+            ASSERT_EQ(std::string("With a default value"), stringAttribute2->shortDescription());
+            ASSERT_EQ(std::string("Long description 2"), stringAttribute2->longDescription());
             ASSERT_TRUE(stringAttribute2->hasDefaultValue());
-            ASSERT_EQ(String("DefaultValue"), stringAttribute2->defaultValue());
+            ASSERT_EQ(std::string("DefaultValue"), stringAttribute2->defaultValue());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
+        }
+
+        /**
+         * Support having an integer (or decimal) as a default for a string attribute. Technically
+         * a type mismatch, but appears in the wild; see: https://github.com/kduske/TrenchBroom/issues/2833
+         */
+        TEST(FgdParserTest, parseStringAttribute_IntDefault) {
+            const std::string file = R"(@PointClass = info_notnull : "Wildcard entity"
+[
+    name(string) : "Description" : 3
+    other(string) : "" : 1.5
+])";
+
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            FgdParser parser(file, defaultColor);
+
+            TestParserStatus status;
+            auto definitions = parser.parseDefinitions(status);
+            ASSERT_EQ(1u, definitions.size());
+
+            Assets::EntityDefinition* definition = definitions[0];
+            ASSERT_EQ(Assets::EntityDefinitionType::PointEntity, definition->type());
+            ASSERT_EQ(std::string("info_notnull"), definition->name());
+            ASSERT_VEC_EQ(defaultColor, definition->color());
+            ASSERT_EQ(std::string("Wildcard entity"), definition->description());
+
+            ASSERT_EQ(2u, definition->attributeDefinitions().size());
+
+            const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("name");
+            ASSERT_TRUE(attribute1 != nullptr);
+            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, attribute1->type());
+
+            const Assets::StringAttributeDefinition* stringAttribute1 = static_cast<const Assets::StringAttributeDefinition*>(attribute1);
+            ASSERT_EQ(std::string("name"), stringAttribute1->name());
+            ASSERT_EQ(std::string("Description"), stringAttribute1->shortDescription());
+            ASSERT_EQ(std::string(), stringAttribute1->longDescription());
+            ASSERT_TRUE(stringAttribute1->hasDefaultValue());
+            ASSERT_EQ(std::string("3"), stringAttribute1->defaultValue());
+
+            const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("other");
+            ASSERT_TRUE(attribute2 != nullptr);
+            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, attribute2->type());
+
+            const Assets::StringAttributeDefinition* stringAttribute2 = static_cast<const Assets::StringAttributeDefinition*>(attribute2);
+            ASSERT_EQ(std::string("other"), stringAttribute2->name());
+            ASSERT_EQ(std::string(), stringAttribute2->shortDescription());
+            ASSERT_EQ(std::string(), stringAttribute2->longDescription());
+            ASSERT_TRUE(stringAttribute2->hasDefaultValue());
+            ASSERT_EQ(std::string("1.5"), stringAttribute2->defaultValue());
+
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseIntegerAttribute) {
-            const String file =
+            const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
             "   sounds(integer) : \"CD track to play\" : : \"Longer description\"\n"
@@ -361,14 +414,14 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
-            ASSERT_EQ(String("info_notnull"), definition->name());
+            ASSERT_EQ(Assets::EntityDefinitionType::PointEntity, definition->type());
+            ASSERT_EQ(std::string("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
-            ASSERT_EQ(String("Wildcard entity"), definition->description());
+            ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
             ASSERT_EQ(2u, definition->attributeDefinitions().size());
 
@@ -377,9 +430,9 @@ namespace TrenchBroom {
             ASSERT_EQ(Assets::AttributeDefinition::Type_IntegerAttribute, attribute1->type());
 
             const Assets::IntegerAttributeDefinition* intAttribute1 = static_cast<const Assets::IntegerAttributeDefinition*>(attribute1);
-            ASSERT_EQ(String("sounds"), intAttribute1->name());
-            ASSERT_EQ(String("CD track to play"), intAttribute1->shortDescription());
-            ASSERT_EQ(String("Longer description"), intAttribute1->longDescription());
+            ASSERT_EQ(std::string("sounds"), intAttribute1->name());
+            ASSERT_EQ(std::string("CD track to play"), intAttribute1->shortDescription());
+            ASSERT_EQ(std::string("Longer description"), intAttribute1->longDescription());
             ASSERT_FALSE(intAttribute1->hasDefaultValue());
 
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("sounds2");
@@ -387,17 +440,17 @@ namespace TrenchBroom {
             ASSERT_EQ(Assets::AttributeDefinition::Type_IntegerAttribute, attribute2->type());
 
             const Assets::IntegerAttributeDefinition* intAttribute2 = static_cast<const Assets::IntegerAttributeDefinition*>(attribute2);
-            ASSERT_EQ(String("sounds2"), intAttribute2->name());
-            ASSERT_EQ(String("CD track to play with default"), intAttribute2->shortDescription());
-            ASSERT_EQ(String("Longer description"), intAttribute2->longDescription());
+            ASSERT_EQ(std::string("sounds2"), intAttribute2->name());
+            ASSERT_EQ(std::string("CD track to play with default"), intAttribute2->shortDescription());
+            ASSERT_EQ(std::string("Longer description"), intAttribute2->longDescription());
             ASSERT_TRUE(intAttribute2->hasDefaultValue());
             ASSERT_EQ(2, intAttribute2->defaultValue());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseReadOnlyAttribute) {
-            const String file =
+            const std::string file =
                 "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
                 "[\n"
                 "   sounds(integer) readonly : \"CD track to play\" : : \"Longer description\"\n"
@@ -408,7 +461,7 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
@@ -420,11 +473,11 @@ namespace TrenchBroom {
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("sounds2");
             ASSERT_FALSE(attribute2->readOnly());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseFloatAttribute) {
-            const String file =
+            const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
             "   test(float) : \"Some test attribute\" : : \"Longer description 1\"\n"
@@ -435,14 +488,14 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
-            ASSERT_EQ(String("info_notnull"), definition->name());
+            ASSERT_EQ(Assets::EntityDefinitionType::PointEntity, definition->type());
+            ASSERT_EQ(std::string("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
-            ASSERT_EQ(String("Wildcard entity"), definition->description());
+            ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
             ASSERT_EQ(2u, definition->attributeDefinitions().size());
 
@@ -451,9 +504,9 @@ namespace TrenchBroom {
             ASSERT_EQ(Assets::AttributeDefinition::Type_FloatAttribute, attribute1->type());
 
             const Assets::FloatAttributeDefinition* floatAttribute1 = static_cast<const Assets::FloatAttributeDefinition*>(attribute1);
-            ASSERT_EQ(String("test"), floatAttribute1->name());
-            ASSERT_EQ(String("Some test attribute"), floatAttribute1->shortDescription());
-            ASSERT_EQ(String("Longer description 1"), floatAttribute1->longDescription());
+            ASSERT_EQ(std::string("test"), floatAttribute1->name());
+            ASSERT_EQ(std::string("Some test attribute"), floatAttribute1->shortDescription());
+            ASSERT_EQ(std::string("Longer description 1"), floatAttribute1->longDescription());
             ASSERT_FALSE(floatAttribute1->hasDefaultValue());
 
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("test2");
@@ -461,17 +514,17 @@ namespace TrenchBroom {
             ASSERT_EQ(Assets::AttributeDefinition::Type_FloatAttribute, attribute2->type());
 
             const Assets::FloatAttributeDefinition* floatAttribute2 = static_cast<const Assets::FloatAttributeDefinition*>(attribute2);
-            ASSERT_EQ(String("test2"), floatAttribute2->name());
-            ASSERT_EQ(String("Some test attribute with default"), floatAttribute2->shortDescription());
-            ASSERT_EQ(String("Longer description 2"), floatAttribute2->longDescription());
+            ASSERT_EQ(std::string("test2"), floatAttribute2->name());
+            ASSERT_EQ(std::string("Some test attribute with default"), floatAttribute2->shortDescription());
+            ASSERT_EQ(std::string("Longer description 2"), floatAttribute2->longDescription());
             ASSERT_TRUE(floatAttribute2->hasDefaultValue());
             ASSERT_FLOAT_EQ(2.7f, floatAttribute2->defaultValue());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseChoiceAttribute) {
-            const String file = R"%(
+            const std::string file = R"%(
             @PointClass = info_notnull : "Wildcard entity" // I love you\n
 [
     worldtype(choices) : "Ambience" : : "Long description 1" =
@@ -510,14 +563,14 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
-            ASSERT_EQ(String("info_notnull"), definition->name());
+            ASSERT_EQ(Assets::EntityDefinitionType::PointEntity, definition->type());
+            ASSERT_EQ(std::string("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
-            ASSERT_EQ(String("Wildcard entity"), definition->description());
+            ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
             ASSERT_EQ(5u, definition->attributeDefinitions().size());
 
@@ -526,94 +579,94 @@ namespace TrenchBroom {
             ASSERT_EQ(Assets::AttributeDefinition::Type_ChoiceAttribute, attribute1->type());
 
             const Assets::ChoiceAttributeDefinition* choiceAttribute1 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute1);
-            ASSERT_EQ(String("worldtype"), choiceAttribute1->name());
-            ASSERT_EQ(String("Ambience"), choiceAttribute1->shortDescription());
-            ASSERT_EQ(String("Long description 1"), choiceAttribute1->longDescription());
+            ASSERT_EQ(std::string("worldtype"), choiceAttribute1->name());
+            ASSERT_EQ(std::string("Ambience"), choiceAttribute1->shortDescription());
+            ASSERT_EQ(std::string("Long description 1"), choiceAttribute1->longDescription());
             ASSERT_FALSE(choiceAttribute1->hasDefaultValue());
 
             const Assets::ChoiceAttributeOption::List& options1 = choiceAttribute1->options();
             ASSERT_EQ(3u, options1.size());
-            ASSERT_EQ(String("0"), options1[0].value());
-            ASSERT_EQ(String("Medieval"), options1[0].description());
-            ASSERT_EQ(String("1"), options1[1].value());
-            ASSERT_EQ(String("Metal (runic)"), options1[1].description());
-            ASSERT_EQ(String("2"), options1[2].value());
-            ASSERT_EQ(String("Base"), options1[2].description());
+            ASSERT_EQ(std::string("0"), options1[0].value());
+            ASSERT_EQ(std::string("Medieval"), options1[0].description());
+            ASSERT_EQ(std::string("1"), options1[1].value());
+            ASSERT_EQ(std::string("Metal (runic)"), options1[1].description());
+            ASSERT_EQ(std::string("2"), options1[2].value());
+            ASSERT_EQ(std::string("Base"), options1[2].description());
 
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("worldtype2");
             ASSERT_TRUE(attribute2 != nullptr);
             ASSERT_EQ(Assets::AttributeDefinition::Type_ChoiceAttribute, attribute2->type());
 
             const Assets::ChoiceAttributeDefinition* choiceAttribute2 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute2);
-            ASSERT_EQ(String("worldtype2"), choiceAttribute2->name());
-            ASSERT_EQ(String("Ambience with default"), choiceAttribute2->shortDescription());
-            ASSERT_EQ(String("Long description 2"), choiceAttribute2->longDescription());
+            ASSERT_EQ(std::string("worldtype2"), choiceAttribute2->name());
+            ASSERT_EQ(std::string("Ambience with default"), choiceAttribute2->shortDescription());
+            ASSERT_EQ(std::string("Long description 2"), choiceAttribute2->longDescription());
             ASSERT_TRUE(choiceAttribute2->hasDefaultValue());
             ASSERT_EQ("1", choiceAttribute2->defaultValue());
 
             const Assets::ChoiceAttributeOption::List& options2 = choiceAttribute2->options();
             ASSERT_EQ(2u, options2.size());
-            ASSERT_EQ(String("0"), options2[0].value());
-            ASSERT_EQ(String("Medieval"), options2[0].description());
-            ASSERT_EQ(String("1"), options2[1].value());
-            ASSERT_EQ(String("Metal (runic)"), options2[1].description());
+            ASSERT_EQ(std::string("0"), options2[0].value());
+            ASSERT_EQ(std::string("Medieval"), options2[0].description());
+            ASSERT_EQ(std::string("1"), options2[1].value());
+            ASSERT_EQ(std::string("Metal (runic)"), options2[1].description());
 
             const Assets::AttributeDefinition* attribute3 = definition->attributeDefinition("puzzle_id");
             const Assets::ChoiceAttributeDefinition* choiceAttribute3 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute3);
-            ASSERT_EQ(String("puzzle_id"), choiceAttribute3->name());
-            ASSERT_EQ(String("Puzzle id"), choiceAttribute3->shortDescription());
-            ASSERT_EQ(String(""), choiceAttribute3->longDescription());
+            ASSERT_EQ(std::string("puzzle_id"), choiceAttribute3->name());
+            ASSERT_EQ(std::string("Puzzle id"), choiceAttribute3->shortDescription());
+            ASSERT_EQ(std::string(""), choiceAttribute3->longDescription());
             ASSERT_TRUE(choiceAttribute3->hasDefaultValue());
             ASSERT_EQ("cskey", choiceAttribute3->defaultValue());
 
             const Assets::ChoiceAttributeOption::List& options3 = choiceAttribute3->options();
             ASSERT_EQ(3u, options3.size());
-            ASSERT_EQ(String("keep3"), options3[0].value());
-            ASSERT_EQ(String("Mill key"), options3[0].description());
-            ASSERT_EQ(String("cskey"), options3[1].value());
-            ASSERT_EQ(String("Castle key"), options3[1].description());
-            ASSERT_EQ(String("scrol"), options3[2].value());
-            ASSERT_EQ(String("Disrupt Magic Scroll"), options3[2].description());
+            ASSERT_EQ(std::string("keep3"), options3[0].value());
+            ASSERT_EQ(std::string("Mill key"), options3[0].description());
+            ASSERT_EQ(std::string("cskey"), options3[1].value());
+            ASSERT_EQ(std::string("Castle key"), options3[1].description());
+            ASSERT_EQ(std::string("scrol"), options3[2].value());
+            ASSERT_EQ(std::string("Disrupt Magic Scroll"), options3[2].description());
 
             const Assets::AttributeDefinition* attribute4 = definition->attributeDefinition("floaty");
             const Assets::ChoiceAttributeDefinition* choiceAttribute4 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute4);
-            ASSERT_EQ(String("floaty"), choiceAttribute4->name());
-            ASSERT_EQ(String("Floaty"), choiceAttribute4->shortDescription());
-            ASSERT_EQ(String(""), choiceAttribute4->longDescription());
+            ASSERT_EQ(std::string("floaty"), choiceAttribute4->name());
+            ASSERT_EQ(std::string("Floaty"), choiceAttribute4->shortDescription());
+            ASSERT_EQ(std::string(""), choiceAttribute4->longDescription());
             ASSERT_TRUE(choiceAttribute4->hasDefaultValue());
             ASSERT_EQ("2.3", choiceAttribute4->defaultValue());
 
             const Assets::ChoiceAttributeOption::List& options4 = choiceAttribute4->options();
             ASSERT_EQ(3u, options4.size());
-            ASSERT_EQ(String("1.0"), options4[0].value());
-            ASSERT_EQ(String("Something"), options4[0].description());
-            ASSERT_EQ(String("2.3"), options4[1].value());
-            ASSERT_EQ(String("Something else"), options4[1].description());
-            ASSERT_EQ(String("0.1"), options4[2].value());
-            ASSERT_EQ(String("Yet more"), options4[2].description());
+            ASSERT_EQ(std::string("1.0"), options4[0].value());
+            ASSERT_EQ(std::string("Something"), options4[0].description());
+            ASSERT_EQ(std::string("2.3"), options4[1].value());
+            ASSERT_EQ(std::string("Something else"), options4[1].description());
+            ASSERT_EQ(std::string("0.1"), options4[2].value());
+            ASSERT_EQ(std::string("Yet more"), options4[2].description());
 
             const Assets::AttributeDefinition* attribute5 = definition->attributeDefinition("negative");
             const Assets::ChoiceAttributeDefinition* choiceAttribute5 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute5);
-            ASSERT_EQ(String("negative"), choiceAttribute5->name());
-            ASSERT_EQ(String("Negative values"), choiceAttribute5->shortDescription());
-            ASSERT_EQ(String(""), choiceAttribute5->longDescription());
+            ASSERT_EQ(std::string("negative"), choiceAttribute5->name());
+            ASSERT_EQ(std::string("Negative values"), choiceAttribute5->shortDescription());
+            ASSERT_EQ(std::string(""), choiceAttribute5->longDescription());
             ASSERT_TRUE(choiceAttribute5->hasDefaultValue());
             ASSERT_EQ("-1", choiceAttribute5->defaultValue());
 
             const Assets::ChoiceAttributeOption::List& options5 = choiceAttribute5->options();
             ASSERT_EQ(3u, options5.size());
-            ASSERT_EQ(String("-2"), options5[0].value());
-            ASSERT_EQ(String("Something"), options5[0].description());
-            ASSERT_EQ(String("-1"), options5[1].value());
-            ASSERT_EQ(String("Something else"), options5[1].description());
-            ASSERT_EQ(String("1"), options5[2].value());
-            ASSERT_EQ(String("Yet more"), options5[2].description());
+            ASSERT_EQ(std::string("-2"), options5[0].value());
+            ASSERT_EQ(std::string("Something"), options5[0].description());
+            ASSERT_EQ(std::string("-1"), options5[1].value());
+            ASSERT_EQ(std::string("Something else"), options5[1].description());
+            ASSERT_EQ(std::string("1"), options5[2].value());
+            ASSERT_EQ(std::string("Yet more"), options5[2].description());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseFlagsAttribute) {
-            const String file =
+            const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
             "	spawnflags(Flags) =\n"
@@ -629,14 +682,14 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
-            ASSERT_EQ(String("info_notnull"), definition->name());
+            ASSERT_EQ(Assets::EntityDefinitionType::PointEntity, definition->type());
+            ASSERT_EQ(std::string("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
-            ASSERT_EQ(String("Wildcard entity"), definition->description());
+            ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
             ASSERT_EQ(1u, definition->attributeDefinitions().size());
 
@@ -645,90 +698,90 @@ namespace TrenchBroom {
             ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, attribute->type());
 
             const Assets::FlagsAttributeDefinition* flagsAttribute = static_cast<const Assets::FlagsAttributeDefinition*>(attribute);
-            ASSERT_EQ(String("spawnflags"), flagsAttribute->name());
-            ASSERT_EQ(String(""), flagsAttribute->shortDescription());
+            ASSERT_EQ(std::string("spawnflags"), flagsAttribute->name());
+            ASSERT_EQ(std::string(""), flagsAttribute->shortDescription());
             ASSERT_EQ(2560, flagsAttribute->defaultValue());
 
             const Assets::FlagsAttributeOption::List& options = flagsAttribute->options();
             ASSERT_EQ(4u, options.size());
             ASSERT_EQ(256, options[0].value());
-            ASSERT_EQ(String("Not on Easy"), options[0].shortDescription());
+            ASSERT_EQ(std::string("Not on Easy"), options[0].shortDescription());
             ASSERT_FALSE(options[0].isDefault());
             ASSERT_EQ(512, options[1].value());
-            ASSERT_EQ(String("Not on Normal"), options[1].shortDescription());
+            ASSERT_EQ(std::string("Not on Normal"), options[1].shortDescription());
             ASSERT_TRUE(options[1].isDefault());
             ASSERT_EQ(1024, options[2].value());
-            ASSERT_EQ(String("Not on Hard"), options[2].shortDescription());
+            ASSERT_EQ(std::string("Not on Hard"), options[2].shortDescription());
             ASSERT_FALSE(options[2].isDefault());
             ASSERT_EQ(2048, options[3].value());
-            ASSERT_EQ(String("Not in Deathmatch"), options[3].shortDescription());
+            ASSERT_EQ(std::string("Not in Deathmatch"), options[3].shortDescription());
             ASSERT_TRUE(options[3].isDefault());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
-        static const String ModelDefinitionTemplate =
+        static const std::string FgdModelDefinitionTemplate =
         "@PointClass\n"
         "    model(${MODEL}) = item_shells : \"Shells\" []\n";
 
         using Assets::assertModelDefinition;
 
         TEST(FgdParserTest, parseLegacyStaticModelDefinition) {
-            static const String ModelDefinition = "\":maps/b_shell0.bsp\", \":maps/b_shell1.bsp\" spawnflags = 1";
+            static const std::string ModelDefinition = "\":maps/b_shell0.bsp\", \":maps/b_shell1.bsp\" spawnflags = 1";
 
             assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
                                              ModelDefinition,
-                                             ModelDefinitionTemplate);
+                                             FgdModelDefinitionTemplate);
             assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
                                              ModelDefinition,
-                                             ModelDefinitionTemplate,
+                                             FgdModelDefinitionTemplate,
                                              "{ 'spawnflags': 1 }");
         }
 
         TEST(FgdParserTest, parseLegacyDynamicModelDefinition) {
-            static const String ModelDefinition = "pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\"";
+            static const std::string ModelDefinition = "pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\"";
 
             assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
                                              ModelDefinition,
-                                             ModelDefinitionTemplate,
+                                             FgdModelDefinitionTemplate,
                                              "{ 'model': 'maps/b_shell1.bsp' }");
             assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 1, 2),
                                              ModelDefinition,
-                                             ModelDefinitionTemplate,
+                                             FgdModelDefinitionTemplate,
                                              "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
         }
 
         TEST(FgdParserTest, parseELStaticModelDefinition) {
-            static const String ModelDefinition = "{{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }}";
+            static const std::string ModelDefinition = "{{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }}";
 
             assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
                                              ModelDefinition,
-                                             ModelDefinitionTemplate);
+                                             FgdModelDefinitionTemplate);
             assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
                                              ModelDefinition,
-                                             ModelDefinitionTemplate,
+                                             FgdModelDefinitionTemplate,
                                              "{ 'spawnflags': 1 }");
             assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
                                              ModelDefinition,
-                                             ModelDefinitionTemplate,
+                                             FgdModelDefinitionTemplate,
                                              "{ 'spawnflags': 2 }");
         }
 
         TEST(FgdParserTest, parseELDynamicModelDefinition) {
-            static const String ModelDefinition = "{ 'path': model, 'skin': skin, 'frame': frame }";
+            static const std::string ModelDefinition = "{ 'path': model, 'skin': skin, 'frame': frame }";
 
             assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
                                              ModelDefinition,
-                                             ModelDefinitionTemplate,
+                                             FgdModelDefinitionTemplate,
                                              "{ 'model': 'maps/b_shell1.bsp' }");
             assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 1, 2),
                                              ModelDefinition,
-                                             ModelDefinitionTemplate,
+                                             FgdModelDefinitionTemplate,
                                              "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
         }
 
         TEST(FgdParserTest, parseLegacyModelWithParseError) {
-            const String file =
+            const std::string file =
             "@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(\":progs/polyp.mdl\" 0 153, \":progs/polyp.mdl\" startonground = \"1\") = monster_polyp: \"Polyp\""
             "["
             "startonground(choices) : \"Starting pose\" : 0 ="
@@ -742,14 +795,14 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseInvalidBounds) {
-            const String file = R"(
+            const std::string file = R"(
 @PointClass size(32 32 0, -32 -32 256) model({"path" : ":progs/goddess-statue.mdl" }) =
 decor_goddess_statue : "Goddess Statue" [])";
 
@@ -757,13 +810,13 @@ decor_goddess_statue : "Goddess Statue" [])";
             FgdParser parser(file, defaultColor);
 
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            auto definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             const auto definition = static_cast<Assets::PointEntityDefinition*>(definitions[0]);
             ASSERT_EQ(vm::bbox3d(vm::vec3d(-32.0, -32.0, 0.0), vm::vec3d(32.0, 32.0, 256.0)), definition->bounds());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
 
         TEST(FgdParserTest, parseInclude) {
@@ -780,7 +833,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "worldspawn"; }));
             ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "info_player_start"; }));
 
-            VectorUtils::clearAndDelete(defs);
+            kdl::vec_clear_and_delete(defs);
         }
 
         TEST(FgdParserTest, parseNestedInclude) {
@@ -798,7 +851,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "info_player_start"; }));
             ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "info_player_coop"; }));
 
-            VectorUtils::clearAndDelete(defs);
+            kdl::vec_clear_and_delete(defs);
         }
 
         TEST(FgdParserTest, parseRecursiveInclude) {
@@ -814,11 +867,11 @@ decor_goddess_statue : "Goddess Statue" [])";
             ASSERT_EQ(1u, defs.size());
             ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "worldspawn"; }));
 
-            VectorUtils::clearAndDelete(defs);
+            kdl::vec_clear_and_delete(defs);
         }
 
         TEST(FgdParserTest, parseStringContinuations) {
-            const String file =
+            const std::string file =
                 "@PointClass = cont_description :\n"
                 "\n"
                 "        \"This is an example description for\"+\n"
@@ -837,7 +890,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             const auto* definition = definitions.front();
             ASSERT_EQ("This is an example description for this example entity. It will appear in the help dialog for this entity", definition->description());
 
-            VectorUtils::clearAndDelete(definitions);
+            kdl::vec_clear_and_delete(definitions);
         }
     }
 }

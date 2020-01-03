@@ -21,13 +21,14 @@
 #define TrenchBroom_GameImpl
 
 #include "TrenchBroom.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
+#include "IO/Path.h"
 #include "Model/Game.h"
-#include "Model/GameConfig.h"
 #include "Model/GameFileSystem.h"
 #include "Model/Model_Forward.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -39,17 +40,17 @@ namespace TrenchBroom {
             GameConfig& m_config;
             GameFileSystem m_fs;
             IO::Path m_gamePath;
-            IO::Path::List m_additionalSearchPaths;
+            std::vector<IO::Path> m_additionalSearchPaths;
         public:
             GameImpl(GameConfig& config, const IO::Path& gamePath, Logger& logger);
         private:
             void initializeFileSystem(Logger& logger);
         private:
-            const String& doGameName() const override;
+            const std::string& doGameName() const override;
             IO::Path doGamePath() const override;
             void doSetGamePath(const IO::Path& gamePath, Logger& logger) override;
-            void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger) override;
-            PathErrors doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const override;
+            void doSetAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths, Logger& logger) override;
+            PathErrors doCheckAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths) const override;
 
             CompilationConfig& doCompilationConfig() override;
 
@@ -62,43 +63,43 @@ namespace TrenchBroom {
             void doWriteMap(World& world, const IO::Path& path) const override;
             void doExportMap(World& world, Model::ExportFormat format, const IO::Path& path) const override;
 
-            std::vector<Node*> doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
-            std::vector<BrushFace*> doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
+            std::vector<Node*> doParseNodes(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
+            std::vector<BrushFace*> doParseBrushFaces(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
 
             void doWriteNodesToStream(World& world, const std::vector<Node*>& nodes, std::ostream& stream) const override;
             void doWriteBrushFacesToStream(World& world, const std::vector<BrushFace*>& faces, std::ostream& stream) const override;
 
             TexturePackageType doTexturePackageType() const override;
             void doLoadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const override;
-            IO::Path::List textureCollectionSearchPaths(const IO::Path& documentPath) const;
+            std::vector<IO::Path> textureCollectionSearchPaths(const IO::Path& documentPath) const;
 
             bool doIsTextureCollection(const IO::Path& path) const override;
-            IO::Path::List doFindTextureCollections() const override;
-            IO::Path::List doExtractTextureCollections(const AttributableNode& node) const override;
-            void doUpdateTextureCollections(AttributableNode& node, const IO::Path::List& paths) const override;
+            std::vector<IO::Path> doFindTextureCollections() const override;
+            std::vector<IO::Path> doExtractTextureCollections(const AttributableNode& node) const override;
+            void doUpdateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const override;
             void doReloadShaders() override;
 
             bool doIsEntityDefinitionFile(const IO::Path& path) const override;
-            Assets::EntityDefinitionList doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const override;
-            Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const override;
+            std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const override;
+            std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles() const override;
             Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const override;
             Assets::EntityDefinitionFileSpec defaultEntityDefinitionFile() const;
-            IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const override;
+            IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const override;
 
             std::unique_ptr<Assets::EntityModel> doInitializeModel(const IO::Path& path, Logger& logger) const override;
             void doLoadFrame(const IO::Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const override;
 
             Assets::Palette loadTexturePalette() const;
 
-            StringList doAvailableMods() const override;
-            StringList doExtractEnabledMods(const AttributableNode& node) const override;
-            String doDefaultMod() const override;
+            std::vector<std::string> doAvailableMods() const override;
+            std::vector<std::string> doExtractEnabledMods(const AttributableNode& node) const override;
+            std::string doDefaultMod() const override;
 
-            const GameConfig::FlagsConfig& doSurfaceFlags() const override;
-            const GameConfig::FlagsConfig& doContentFlags() const override;
+            const FlagsConfig& doSurfaceFlags() const override;
+            const FlagsConfig& doContentFlags() const override;
         private:
             void writeLongAttribute(AttributableNode& node, const AttributeName& baseName, const AttributeValue& value, size_t maxLength) const;
-            String readLongAttribute(const AttributableNode& node, const AttributeName& baseName) const;
+            std::string readLongAttribute(const AttributableNode& node, const AttributeName& baseName) const;
         };
     }
 }

@@ -25,6 +25,7 @@
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -42,7 +43,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            const std::string doGetDescription() const override {
                 return "Brush has non-integer plane points";
             }
         };

@@ -21,7 +21,8 @@
 #define TrenchBroom_UVView
 
 #include "TrenchBroom.h"
-#include "Model/Hit.h"
+#include "IO/IO_Forward.h"
+#include "Model/HitType.h"
 #include "Model/PickResult.h"
 #include "Model/Model_Forward.h"
 #include "Renderer/OrthographicCamera.h"
@@ -29,17 +30,13 @@
 #include "View/ToolBox.h"
 #include "View/ToolBoxConnector.h"
 #include "View/UVViewHelper.h"
-#include "View/ViewTypes.h"
 
+#include <memory>
 #include <vector>
 
 class QWidget;
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace Renderer {
         class ActiveShader;
         class RenderBatch;
@@ -47,6 +44,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
         class Selection;
         class UVRotateTool;
         class UVOriginTool;
@@ -63,16 +61,16 @@ namespace TrenchBroom {
         class UVView : public RenderView, public ToolBoxConnector {
             Q_OBJECT
         public:
-            static const Model::Hit::HitType FaceHit;
+            static const Model::HitType::Type FaceHit;
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             Renderer::OrthographicCamera m_camera;
             UVViewHelper m_helper;
 
             ToolBox m_toolBox;
         public:
-            UVView(MapDocumentWPtr document, GLContextManager& contextManager);
+            UVView(std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
             ~UVView() override;
 
             void setSubDivisions(const vm::vec2i& subDivisions);

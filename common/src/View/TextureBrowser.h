@@ -20,11 +20,12 @@
 #ifndef TrenchBroom_TextureBrowser
 #define TrenchBroom_TextureBrowser
 
-#include "StringType.h"
-#include "Assets/TextureManager.h"
-#include "View/TextureBrowserView.h"
-#include "View/ViewTypes.h"
+#include "Assets/Asset_Forward.h"
+#include "IO/IO_Forward.h"
+#include "Model/Model_Forward.h"
 
+#include <memory>
+#include <string>
 #include <vector>
 
 #include <QWidget>
@@ -35,22 +36,16 @@ class QLineEdit;
 class QScrollBar;
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
-    namespace IO {
-        class Path;
-    }
-
     namespace View {
         class GLContextManager;
+        class MapDocument;
         class TextureBrowserView;
+        enum class TextureSortOrder;
 
         class TextureBrowser : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             QComboBox* m_sortOrderChoice;
             QPushButton* m_groupButton;
             QPushButton* m_usedButton;
@@ -58,16 +53,16 @@ namespace TrenchBroom {
             QScrollBar* m_scrollBar;
             TextureBrowserView* m_view;
         public:
-            TextureBrowser(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            TextureBrowser(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~TextureBrowser() override;
 
             Assets::Texture* selectedTexture() const;
             void setSelectedTexture(Assets::Texture* selectedTexture);
 
-            void setSortOrder(TextureBrowserView::SortOrder sortOrder);
+            void setSortOrder(TextureSortOrder sortOrder);
             void setGroup(bool group);
             void setHideUnused(bool hideUnused);
-            void setFilterText(const String& filterText);
+            void setFilterText(const std::string& filterText);
         signals:
             void textureSelected(Assets::Texture* texture);
         private:
@@ -84,7 +79,7 @@ namespace TrenchBroom {
             void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void brushFacesDidChange(const std::vector<Model::BrushFace*>& faces);
             void textureCollectionsDidChange();
-            void currentTextureNameDidChange(const String& textureName);
+            void currentTextureNameDidChange(const std::string& textureName);
             void preferenceDidChange(const IO::Path& path);
 
             void reload();

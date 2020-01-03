@@ -20,9 +20,13 @@
 #ifndef TrenchBroom_ModEditor
 #define TrenchBroom_ModEditor
 
-#include "StringType.h"
-#include "StringList.h"
-#include "View/ViewTypes.h"
+#include "IO/IO_Forward.h"
+#include "Model/Model_Forward.h"
+#include "View/View_Forward.h"
+
+#include <memory>
+#include <string>
+#include <vector>
 
 #include <QWidget>
 
@@ -32,19 +36,11 @@ class QWidget;
 class QAbstractButton;
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
-    namespace Model {
-        class Object;
-    }
-
     namespace View {
         class ModEditor : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             QListWidget* m_availableModList;
             QListWidget* m_enabledModList;
@@ -54,9 +50,9 @@ namespace TrenchBroom {
             QAbstractButton* m_moveModUpButton;
             QAbstractButton* m_moveModDownButton;
 
-            StringList m_availableMods;
+            std::vector<std::string> m_availableMods;
         public:
-            explicit ModEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit ModEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~ModEditor() override;
         private:
             void createGui();

@@ -20,16 +20,12 @@
 #ifndef TrenchBroom_RecentDocumentListBox
 #define TrenchBroom_RecentDocumentListBox
 
+#include "IO/IO_Forward.h"
 #include "View/ImageListBox.h"
-#include "IO/Path.h"
 
 #include <QPixmap>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace View {
         class RecentDocumentListBox : public ImageListBox {
             Q_OBJECT
@@ -37,10 +33,9 @@ namespace TrenchBroom {
             QPixmap m_documentIcon;
         public:
             explicit RecentDocumentListBox(QWidget* parent = nullptr);
-            ~RecentDocumentListBox() override;
-        private:
+        private slots:
             void recentDocumentsDidChange();
-
+        private:
             size_t itemCount() const override;
             QPixmap image(size_t index) const override;
             QString title(size_t index) const override;

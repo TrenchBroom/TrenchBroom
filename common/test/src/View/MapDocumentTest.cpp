@@ -19,17 +19,17 @@
 
 #include "MapDocumentTest.h"
 
+#include "Exceptions.h"
 #include "Polyhedron.h"
 #include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
-#include "Assets/ModelDefinition.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
+#include "Model/HitQuery.h"
 #include "Model/Layer.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushBuilder.h"
-#include "Model/Hit.h"
 #include "Model/MapFormat.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/PickResult.h"
@@ -37,6 +37,7 @@
 #include "Model/World.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "View/PasteType.h"
 #include "View/SelectionTool.h"
 
 #include <vecmath/bbox.h>
@@ -61,10 +62,10 @@ namespace TrenchBroom {
             document->newDocument(m_mapFormat, vm::bbox3(8192.0), game);
 
             // create two entity definitions
-            m_pointEntityDef = new Assets::PointEntityDefinition("point_entity", Color(), vm::bbox3(16.0), "this is a point entity", Assets::AttributeDefinitionList(), Assets::ModelDefinition());
-            m_brushEntityDef = new Assets::BrushEntityDefinition("brush_entity", Color(), "this is a brush entity", Assets::AttributeDefinitionList());
+            m_pointEntityDef = new Assets::PointEntityDefinition("point_entity", Color(), vm::bbox3(16.0), "this is a point entity", {}, {});
+            m_brushEntityDef = new Assets::BrushEntityDefinition("brush_entity", Color(), "this is a brush entity", {});
 
-            document->setEntityDefinitions(Assets::EntityDefinitionList { m_pointEntityDef, m_brushEntityDef });
+            document->setEntityDefinitions(std::vector<Assets::EntityDefinition*>{ m_pointEntityDef, m_brushEntityDef });
         }
 
         void MapDocumentTest::TearDown() {
@@ -72,7 +73,7 @@ namespace TrenchBroom {
             m_brushEntityDef = nullptr;
         }
 
-        Model::Brush* MapDocumentTest::createBrush(const String& textureName) {
+        Model::Brush* MapDocumentTest::createBrush(const std::string& textureName) {
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             return builder.createCube(32.0, textureName);
         }
@@ -172,7 +173,7 @@ namespace TrenchBroom {
             document->addNode(brush1, document->currentParent());
             document->select(std::vector<Model::Node*>{brush1});
 
-            const std::set<vm::vec3> initialPositions{
+            const std::vector<vm::vec3> initialPositions{
                 // bottom face
                 {100,100,100},
                 {200,100,100},
@@ -184,12 +185,12 @@ namespace TrenchBroom {
                 {200,200,200},
                 {100,200,200},
             };
-            ASSERT_EQ(initialPositions, SetUtils::makeSet(brush1->vertexPositions()));
+            ASSERT_COLLECTIONS_EQUIVALENT(initialPositions, brush1->vertexPositions());
 
             // Shear the -Y face by (50, 0, 0). That means the verts with Y=100 will get sheared.
             ASSERT_TRUE(document->shearObjects(initialBBox, vm::vec3::neg_y(), vm::vec3(50,0,0)));
 
-            const std::set<vm::vec3> shearedPositions{
+            const std::vector<vm::vec3> shearedPositions{
                 // bottom face
                 {150,100,100},
                 {250,100,100},
@@ -201,7 +202,7 @@ namespace TrenchBroom {
                 {200,200,200},
                 {100,200,200},
             };
-            ASSERT_EQ(shearedPositions, SetUtils::makeSet(brush1->vertexPositions()));
+            ASSERT_COLLECTIONS_EQUIVALENT(shearedPositions, brush1->vertexPositions());
         }
 
         TEST_F(MapDocumentTest, shearPillar) {
@@ -213,7 +214,7 @@ namespace TrenchBroom {
             document->addNode(brush1, document->currentParent());
             document->select(std::vector<Model::Node*>{brush1});
 
-            const std::set<vm::vec3> initialPositions{
+            const std::vector<vm::vec3> initialPositions{
                 // bottom face
                 {0,  0,  0},
                 {100,0,  0},
@@ -225,12 +226,12 @@ namespace TrenchBroom {
                 {100,100,400},
                 {0,  100,400},
             };
-            ASSERT_EQ(initialPositions, SetUtils::makeSet(brush1->vertexPositions()));
+            ASSERT_COLLECTIONS_EQUIVALENT(initialPositions, brush1->vertexPositions());
 
             // Shear the +Z face by (50, 0, 0). That means the verts with Z=400 will get sheared.
             ASSERT_TRUE(document->shearObjects(initialBBox, vm::vec3::pos_z(), vm::vec3(50,0,0)));
 
-            const std::set<vm::vec3> shearedPositions{
+            const std::vector<vm::vec3> shearedPositions{
                 // bottom face
                 {0,  0,  0},
                 {100,0,  0},
@@ -242,7 +243,7 @@ namespace TrenchBroom {
                 {150,100,400},
                 {50, 100,400},
             };
-            ASSERT_EQ(shearedPositions, SetUtils::makeSet(brush1->vertexPositions()));
+            ASSERT_COLLECTIONS_EQUIVALENT(shearedPositions, brush1->vertexPositions());
         }
 
         TEST_F(MapDocumentTest, scaleObjects) {
@@ -480,7 +481,7 @@ namespace TrenchBroom {
             EXPECT_TRUE(document->selectedNodes().empty());
 
             // check that the selection is restored after undo
-            document->undoLastCommand();
+            document->undoCommand();
 
             EXPECT_TRUE(document->selectedNodes().hasOnlyBrushes());
             EXPECT_EQ(std::vector<Model::Brush*>({ subtrahend1 }), document->selectedNodes().brushes());
@@ -596,7 +597,7 @@ namespace TrenchBroom {
             document->select(std::vector<Model::Node*> {ent2});
             Model::Group* group2 = document->groupSelection("group2");
 
-            ASSERT_EQ((std::set<Model::Node*> {group1, group2}), SetUtils::makeSet(document->currentLayer()->children()));
+            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<Model::Node*>({ group1, group2 }), document->currentLayer()->children());
 
             document->select(std::vector<Model::Node*> {group1, group2});
             document->mergeSelectedGroupsWithGroup(group2);
@@ -604,8 +605,8 @@ namespace TrenchBroom {
             ASSERT_EQ((std::vector<Model::Node*> {group2}), document->selectedNodes().nodes());
             ASSERT_EQ((std::vector<Model::Node*> {group2}), document->currentLayer()->children());
 
-            ASSERT_EQ((std::set<Model::Node*> {}), SetUtils::makeSet(group1->children()));
-            ASSERT_EQ((std::set<Model::Node*> {ent1, ent2}), SetUtils::makeSet(group2->children()));
+            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<Model::Node*>({}), group1->children());
+            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<Model::Node*>({ ent1, ent2 }), group2->children());
         }
 
         TEST_F(MapDocumentTest, pickSingleBrush) {
@@ -934,16 +935,16 @@ namespace TrenchBroom {
             document->addNode(brush1, document->currentParent());
             document->select(brush1);
 
-            const auto groupName = String("testGroup");
+            const auto groupName = std::string("testGroup");
 
             auto* group = document->groupSelection(groupName);
             ASSERT_NE(nullptr, group);
             document->select(group);
 
-            const String copied = document->serializeSelectedNodes();
+            const std::string copied = document->serializeSelectedNodes();
 
             const auto delta = vm::vec3(16, 16, 16);
-            ASSERT_EQ(PT_Node, document->paste(copied));
+            ASSERT_EQ(PasteType::Node, document->paste(copied));
             ASSERT_EQ(1u, document->selectedNodes().groupCount());
             ASSERT_EQ(groupName, document->selectedNodes().groups().at(0)->name());
             ASSERT_TRUE(document->translateObjects(delta));

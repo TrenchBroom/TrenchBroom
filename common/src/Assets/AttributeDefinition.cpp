@@ -19,14 +19,15 @@
 
 #include "AttributeDefinition.h"
 
-#include "StringStream.h"
-#include "StringUtils.h"
-#include "CollectionUtils.h"
 #include "Macros.h"
+
+#include <memory>
+#include <sstream>
+#include <string>
 
 namespace TrenchBroom {
     namespace Assets {
-        AttributeDefinition::AttributeDefinition(const String& name, const Type type, const String& shortDescription, const String& longDescription, const bool readOnly) :
+        AttributeDefinition::AttributeDefinition(const std::string& name, const Type type, const std::string& shortDescription, const std::string& longDescription, const bool readOnly) :
         m_name(name),
         m_type(type),
         m_shortDescription(shortDescription),
@@ -35,7 +36,7 @@ namespace TrenchBroom {
 
         AttributeDefinition::~AttributeDefinition() = default;
 
-        const String& AttributeDefinition::name() const {
+        const std::string& AttributeDefinition::name() const {
             return m_name;
         }
 
@@ -43,11 +44,11 @@ namespace TrenchBroom {
             return m_type;
         }
 
-        const String& AttributeDefinition::shortDescription() const {
+        const std::string& AttributeDefinition::shortDescription() const {
             return m_shortDescription;
         }
 
-        const String& AttributeDefinition::longDescription() const {
+        const std::string& AttributeDefinition::longDescription() const {
             return m_longDescription;
         }
 
@@ -68,7 +69,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        String AttributeDefinition::defaultValue(const AttributeDefinition& definition) {
+        std::string AttributeDefinition::defaultValue(const AttributeDefinition& definition) {
             switch (definition.type()) {
                 case Type_StringAttribute: {
                     const auto& stringDef = static_cast<const StringAttributeDefinition&>(definition);
@@ -80,7 +81,7 @@ namespace TrenchBroom {
                     const auto& boolDef = static_cast<const BooleanAttributeDefinition&>(definition);
                     if (!boolDef.hasDefaultValue())
                         return "";
-                    StringStream str;
+                    std::stringstream str;
                     str << boolDef.defaultValue();
                     return str.str();
                 }
@@ -88,7 +89,7 @@ namespace TrenchBroom {
                     const auto& intDef = static_cast<const IntegerAttributeDefinition&>(definition);
                     if (!intDef.hasDefaultValue())
                         return "";
-                    StringStream str;
+                    std::stringstream str;
                     str << intDef.defaultValue();
                     return str.str();
                 }
@@ -96,7 +97,7 @@ namespace TrenchBroom {
                     const auto& floatDef = static_cast<const FloatAttributeDefinition&>(definition);
                     if (!floatDef.hasDefaultValue())
                         return "";
-                    StringStream str;
+                    std::stringstream str;
                     str << floatDef.defaultValue();
                     return str.str();
                 }
@@ -104,13 +105,13 @@ namespace TrenchBroom {
                     const auto& choiceDef = static_cast<const ChoiceAttributeDefinition&>(definition);
                     if (!choiceDef.hasDefaultValue())
                         return "";
-                    StringStream str;
+                    std::stringstream str;
                     str << choiceDef.defaultValue();
                     return str.str();
                 }
                 case Type_FlagsAttribute: {
                     const auto& flagsDef = static_cast<const FlagsAttributeDefinition&>(definition);
-                    StringStream str;
+                    std::stringstream str;
                     str << flagsDef.defaultValue();
                     return str.str();
                 }
@@ -121,43 +122,43 @@ namespace TrenchBroom {
             }
         }
 
-        AttributeDefinition* AttributeDefinition::clone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const {
+        AttributeDefinition* AttributeDefinition::clone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
             return doClone(name, shortDescription, longDescription, readOnly);
         }
 
-        AttributeDefinition* AttributeDefinition::doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const {
+        AttributeDefinition* AttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
             return new AttributeDefinition(name, type(), shortDescription, longDescription, readOnly);
         }
 
-        StringAttributeDefinition::StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly, nonstd::optional<String> defaultValue) :
+        StringAttributeDefinition::StringAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, nonstd::optional<std::string> defaultValue) :
         AttributeDefinitionWithDefaultValue(name, Type_StringAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
-        AttributeDefinition* StringAttributeDefinition::doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const {
+        AttributeDefinition* StringAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
             return new StringAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
-        BooleanAttributeDefinition::BooleanAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly, nonstd::optional<bool> defaultValue) :
+        BooleanAttributeDefinition::BooleanAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, nonstd::optional<bool> defaultValue) :
         AttributeDefinitionWithDefaultValue(name, Type_BooleanAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
-        AttributeDefinition* BooleanAttributeDefinition::doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const {
+        AttributeDefinition* BooleanAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
             return new BooleanAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
-        IntegerAttributeDefinition::IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly, nonstd::optional<int> defaultValue) :
+        IntegerAttributeDefinition::IntegerAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, nonstd::optional<int> defaultValue) :
         AttributeDefinitionWithDefaultValue(name, Type_IntegerAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
-        AttributeDefinition* IntegerAttributeDefinition::doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const {
+        AttributeDefinition* IntegerAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
             return new IntegerAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
-        FloatAttributeDefinition::FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly, nonstd::optional<float> defaultValue) :
+        FloatAttributeDefinition::FloatAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, nonstd::optional<float> defaultValue) :
         AttributeDefinitionWithDefaultValue(name, Type_FloatAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
-        AttributeDefinition* FloatAttributeDefinition::doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const {
+        AttributeDefinition* FloatAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
             return new FloatAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
-        ChoiceAttributeOption::ChoiceAttributeOption(const String& value, const String& description) :
+        ChoiceAttributeOption::ChoiceAttributeOption(const std::string& value, const std::string& description) :
         m_value(value),
         m_description(description) {}
 
@@ -165,15 +166,15 @@ namespace TrenchBroom {
             return m_value == other.m_value && m_description == other.m_description;
         }
 
-        const String& ChoiceAttributeOption::value() const {
+        const std::string& ChoiceAttributeOption::value() const {
             return m_value;
         }
 
-        const String& ChoiceAttributeOption::description() const {
+        const std::string& ChoiceAttributeOption::description() const {
             return m_description;
         }
 
-        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, const bool readOnly, nonstd::optional<String> defaultValue) :
+        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const ChoiceAttributeOption::List& options, const bool readOnly, nonstd::optional<std::string> defaultValue) :
         AttributeDefinitionWithDefaultValue(name, Type_ChoiceAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)),
         m_options(options) {}
 
@@ -185,11 +186,11 @@ namespace TrenchBroom {
             return options() == static_cast<const ChoiceAttributeDefinition*>(other)->options();
         }
 
-        AttributeDefinition* ChoiceAttributeDefinition::doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const {
+        AttributeDefinition* ChoiceAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
             return new ChoiceAttributeDefinition(name, shortDescription, longDescription, options(), readOnly, m_defaultValue);
         }
 
-        FlagsAttributeOption::FlagsAttributeOption(const int value, const String& shortDescription, const String& longDescription, const bool isDefault) :
+        FlagsAttributeOption::FlagsAttributeOption(const int value, const std::string& shortDescription, const std::string& longDescription, const bool isDefault) :
         m_value(value),
         m_shortDescription(shortDescription),
         m_longDescription(longDescription),
@@ -206,11 +207,11 @@ namespace TrenchBroom {
             return m_value;
         }
 
-        const String& FlagsAttributeOption::shortDescription() const {
+        const std::string& FlagsAttributeOption::shortDescription() const {
             return m_shortDescription;
         }
 
-        const String& FlagsAttributeOption::longDescription() const {
+        const std::string& FlagsAttributeOption::longDescription() const {
             return m_longDescription;
         }
 
@@ -218,8 +219,8 @@ namespace TrenchBroom {
             return m_isDefault;
         }
 
-        FlagsAttributeDefinition::FlagsAttributeDefinition(const String& name) :
-        AttributeDefinition(name, Type_FlagsAttribute, EmptyString, EmptyString, false) {}
+        FlagsAttributeDefinition::FlagsAttributeDefinition(const std::string& name) :
+        AttributeDefinition(name, Type_FlagsAttribute, "", "", false) {}
 
         int FlagsAttributeDefinition::defaultValue() const {
             int value = 0;
@@ -234,19 +235,16 @@ namespace TrenchBroom {
             return m_options;
         }
 
-        struct FindFlagByValue {
-            int value;
-            explicit FindFlagByValue(const int i_value) : value(i_value) {}
-            bool operator()(const FlagsAttributeOption& option) const {
-                return option.value() == value;
-            }
-        };
-
         const FlagsAttributeOption* FlagsAttributeDefinition::option(const int value) const {
-            return VectorUtils::findIf(m_options, FindFlagByValue(value));
+            for (const auto& option : m_options) {
+                if (option.value() == value) {
+                    return &option;
+                }
+            }
+            return nullptr;
         }
 
-        void FlagsAttributeDefinition::addOption(const int value, const String& shortDescription, const String& longDescription, const bool isDefault) {
+        void FlagsAttributeDefinition::addOption(const int value, const std::string& shortDescription, const std::string& longDescription, const bool isDefault) {
             m_options.push_back(FlagsAttributeOption(value, shortDescription, longDescription, isDefault));
         }
 
@@ -254,7 +252,7 @@ namespace TrenchBroom {
             return options() == static_cast<const FlagsAttributeDefinition*>(other)->options();
         }
 
-        AttributeDefinition* FlagsAttributeDefinition::doClone(const String& name, const String& /* shortDescription */, const String& /* longDescription */, bool /* readOnly */) const {
+        AttributeDefinition* FlagsAttributeDefinition::doClone(const std::string& name, const std::string& /* shortDescription */, const std::string& /* longDescription */, bool /* readOnly */) const {
             auto result = std::make_unique<FlagsAttributeDefinition>(name);
             for (const auto& option : options()) {
                 result->addOption(option.value(), option.shortDescription(), option.longDescription(), option.isDefault());
@@ -262,11 +260,11 @@ namespace TrenchBroom {
             return result.release();
         }
 
-        UnknownAttributeDefinition::UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const bool readOnly, nonstd::optional<String> defaultValue) :
+        UnknownAttributeDefinition::UnknownAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, nonstd::optional<std::string> defaultValue) :
         StringAttributeDefinition(name, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
 
-        AttributeDefinition* UnknownAttributeDefinition::doClone(const String& name, const String& shortDescription, const String& longDescription, bool readOnly) const {
+        AttributeDefinition* UnknownAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
             return new UnknownAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
     }

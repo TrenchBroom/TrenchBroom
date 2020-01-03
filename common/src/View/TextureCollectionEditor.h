@@ -20,18 +20,20 @@
 #ifndef TextureCollectionEditor_h
 #define TextureCollectionEditor_h
 
-#include "View/ViewTypes.h"
+#include <memory>
 
 #include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+
         class TextureCollectionEditor : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
         public:
-            explicit TextureCollectionEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit TextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~TextureCollectionEditor() override ;
         private:
             void documentWasNewedOrLoaded(MapDocument* document);

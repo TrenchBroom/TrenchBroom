@@ -24,9 +24,11 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
-        RemoveBrushElementsCommand::RemoveBrushElementsCommand(const CommandType type, const String& name, const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices) :
+        RemoveBrushElementsCommand::RemoveBrushElementsCommand(const CommandType type, const std::string& name, const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices) :
         VertexCommand(type, name, brushes),
         m_vertices(vertices) {}
 
@@ -46,7 +48,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool RemoveBrushElementsCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool RemoveBrushElementsCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

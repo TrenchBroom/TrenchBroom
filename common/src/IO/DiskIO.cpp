@@ -20,21 +20,23 @@
 #include "DiskIO.h"
 
 #include "Exceptions.h"
-#include "StringUtils.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/PathQt.h"
 
-#include <QDir>
-#include <QFileInfo>
+#include <kdl/string_compare.h>
 
 #include <fstream>
+#include <string>
+
+#include <QDir>
+#include <QFileInfo>
 
 namespace TrenchBroom {
     namespace IO {
         namespace Disk {
             bool doCheckCaseSensitive();
-            Path findCaseSensitivePath(const Path::List& list, const Path& path);
+            Path findCaseSensitivePath(const std::vector<Path>& list, const Path& path);
             Path fixCase(const Path& path);
 
             bool doCheckCaseSensitive() {
@@ -51,9 +53,9 @@ namespace TrenchBroom {
                 return caseSensitive;
             }
 
-            Path findCaseSensitivePath(const Path::List& list, const Path& path) {
+            Path findCaseSensitivePath(const std::vector<Path>& list, const Path& path) {
                 for (const Path& entry : list) {
-                    if (StringUtils::caseInsensitiveEqual(entry.asString(), path.asString()))
+                    if (kdl::ci::str_is_equal(entry.asString(), path.asString()))
                         return entry;
                 }
                 return Path("");
@@ -77,7 +79,7 @@ namespace TrenchBroom {
                     while (!remainder.isEmpty()) {
                         const QString nextPathStr = pathAsQString(result + remainder.firstComponent());
                         if (!QFileInfo::exists(nextPathStr)) {
-                            const Path::List content = getDirectoryContents(result);
+                            const std::vector<Path> content = getDirectoryContents(result);
                             const Path part = findCaseSensitivePath(content, remainder.firstComponent());
                             if (part.isEmpty())
                                 return path;
@@ -114,7 +116,7 @@ namespace TrenchBroom {
                 return fileInfo.exists() && fileInfo.isFile();
             }
 
-            Path::List getDirectoryContents(const Path& path) {
+            std::vector<Path> getDirectoryContents(const Path& path) {
                 const Path fixedPath = fixPath(path);
                 QDir dir(pathAsQString(fixedPath));
                 if (!dir.exists()) {
@@ -123,7 +125,7 @@ namespace TrenchBroom {
 
                 dir.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
 
-                Path::List result;
+                std::vector<Path> result;
                 for (QString& entry : dir.entryList()) {
                     result.push_back(pathFromQString(entry));
                 }
@@ -143,15 +145,15 @@ namespace TrenchBroom {
                 return pathFromQString(QDir::currentPath());
             }
 
-            Path::List findItems(const Path& path) {
+            std::vector<Path> findItems(const Path& path) {
                 return findItems(path, FileTypeMatcher());
             }
 
-            Path::List findItemsRecursively(const Path& path) {
+            std::vector<Path> findItemsRecursively(const Path& path) {
                 return findItemsRecursively(path, FileTypeMatcher());
             }
 
-            void createFile(const Path& path, const String& contents) {
+            void createFile(const Path& path, const std::string& contents) {
                 const Path fixedPath = fixPath(path);
                 if (fileExists(fixedPath)) {
                     deleteFile(fixedPath);
@@ -161,7 +163,7 @@ namespace TrenchBroom {
                         createDirectory(directory);
                 }
 
-                const String fixedPathStr = fixedPath.asString();
+                const std::string fixedPathStr = fixedPath.asString();
                 std::ofstream stream(fixedPathStr.c_str());
                 stream  << contents;
             }
@@ -239,7 +241,7 @@ namespace TrenchBroom {
                     throw FileSystemException("Could not move file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "'");
             }
 
-            IO::Path resolvePath(const Path::List& searchPaths, const Path& path) {
+            IO::Path resolvePath(const std::vector<Path>& searchPaths, const Path& path) {
                 if (path.isAbsolute()) {
                     if (fileExists(path) || directoryExists(path))
                         return path;

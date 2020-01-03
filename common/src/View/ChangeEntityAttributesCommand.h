@@ -20,9 +20,15 @@
 #ifndef TrenchBroom_ChangeEntityAttributesCommand
 #define TrenchBroom_ChangeEntityAttributesCommand
 
-#include "Model/EntityAttributeSnapshot.h"
+#include "Macros.h"
 #include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
+#include "View/View_Forward.h"
+
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -31,38 +37,41 @@ namespace TrenchBroom {
         class ChangeEntityAttributesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<ChangeEntityAttributesCommand>;
         private:
-            typedef enum {
-                Action_Set,
-                Action_Remove,
-                Action_Rename
-            } Action;
+            enum class Action {
+                Set,
+                Remove,
+                Rename
+            };
 
             Action m_action;
             Model::AttributeName m_oldName;
             Model::AttributeName m_newName;
             Model::AttributeValue m_newValue;
 
-            Model::EntityAttributeSnapshot::Map m_snapshots;
+            std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>> m_snapshots;
         public:
-            static Ptr set(const Model::AttributeName& name, const Model::AttributeValue& value);
-            static Ptr remove(const Model::AttributeName& name);
-            static Ptr rename(const Model::AttributeName& oldName, const Model::AttributeName& newName);
-        protected:
+            static std::unique_ptr<ChangeEntityAttributesCommand> set(const Model::AttributeName& name, const Model::AttributeValue& value);
+            static std::unique_ptr<ChangeEntityAttributesCommand> remove(const Model::AttributeName& name);
+            static std::unique_ptr<ChangeEntityAttributesCommand> rename(const Model::AttributeName& oldName, const Model::AttributeName& newName);
+        public:
+            ChangeEntityAttributesCommand(Action action);
+            ~ChangeEntityAttributesCommand() override;
+        private:
+            static std::string makeName(Action action);
+
             void setName(const Model::AttributeName& name);
             void setNewName(const Model::AttributeName& newName);
             void setNewValue(const Model::AttributeValue& newValue);
-        private:
-            ChangeEntityAttributesCommand(Action action);
-            static String makeName(Action action);
 
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(ChangeEntityAttributesCommand)
         };
     }
 }

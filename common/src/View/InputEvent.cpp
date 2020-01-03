@@ -175,18 +175,32 @@ namespace TrenchBroom {
             }
         }
 
-        void InputEventRecorder::recordEvent(const QWheelEvent* wxEvent) {
-            const int posX = wxEvent->x();
-            const int posY = wxEvent->y();
+        void InputEventRecorder::recordEvent(const QWheelEvent* qtEvent) {
+            // These are the mouse X and Y position, not the wheel delta
+            const int posX = qtEvent->x();
+            const int posY = qtEvent->y();
 
             QPointF scrollDistance;
-            if (!wxEvent->pixelDelta().isNull()) {
+            if (!qtEvent->pixelDelta().isNull()) {
                 // pixelDelta() is not available everywhere and returns (0, 0) if not available.
                 // This 8.0f factor was just picked to roughly match wxWidgets TrenchBroom
-                scrollDistance = QPointF(wxEvent->pixelDelta()) / 8.0;
+                scrollDistance = QPointF(qtEvent->pixelDelta()) / 8.0;
             } else {
                 // This gives scrollDistance in degrees, see: http://doc.qt.io/qt-5/qwheelevent.html#angleDelta
-                scrollDistance = QPointF(wxEvent->angleDelta()) / 8.0;
+                scrollDistance = QPointF(qtEvent->angleDelta()) / 8.0;
+            }
+
+            // Qt switches scroll axis when alt is pressed, but unfortunately, not consistently on all OS'es
+            // and doesn't give any way of knowing.
+            // see: https://bugreports.qt.io/browse/QTBUG-30948
+            const bool swapXY =
+#ifdef __APPLE__
+                false;
+#else
+                qtEvent->modifiers().testFlag(Qt::AltModifier);
+#endif
+            if (swapXY) {
+                scrollDistance = QPointF(scrollDistance.y(), scrollDistance.x());
             }
 
             m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, posX, posY, static_cast<float>(scrollDistance.x())));

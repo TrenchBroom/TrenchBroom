@@ -38,7 +38,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityAttributeEditor::EntityAttributeEditor(MapDocumentWPtr document, QWidget* parent) :
+        EntityAttributeEditor::EntityAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_splitter(nullptr),
@@ -60,14 +60,14 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeEditor::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &EntityAttributeEditor::selectionDidChange);
             document->nodesDidChangeNotifier.addObserver(this, &EntityAttributeEditor::nodesDidChange);
         }
 
         void EntityAttributeEditor::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->selectionDidChangeNotifier.removeObserver(this, &EntityAttributeEditor::selectionDidChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &EntityAttributeEditor::nodesDidChange);
             }
@@ -82,7 +82,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeEditor::updateIfSelectedEntityDefinitionChanged() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(document->allSelectedAttributableNodes());
 
             if (entityDefinition != m_currentDefinition) {
@@ -93,8 +93,8 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeEditor::updateDocumentationAndSmartEditor() {
-            MapDocumentSPtr document = lock(m_document);
-            const String& attributeName = m_attributeGrid->selectedRowName();
+            auto document = lock(m_document);
+            const auto& attributeName = m_attributeGrid->selectedRowName();
 
             m_smartEditorManager->switchEditor(attributeName, document->allSelectedAttributableNodes());
 
@@ -158,8 +158,8 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityAttributeEditor::updateDocumentation(const String &attributeName) {
-            MapDocumentSPtr document = lock(m_document);
+        void EntityAttributeEditor::updateDocumentation(const std::string& attributeName) {
+            auto document = lock(m_document);
             const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(document->allSelectedAttributableNodes());
 
             m_documentationText->clear();
@@ -231,7 +231,7 @@ namespace TrenchBroom {
             m_documentationText->moveCursor(QTextCursor::MoveOperation::Start);
         }
 
-        void EntityAttributeEditor::createGui(MapDocumentWPtr document) {
+        void EntityAttributeEditor::createGui(std::weak_ptr<MapDocument> document) {
             m_splitter = new Splitter(Qt::Vertical);
             m_splitter->setObjectName("EntityAttributeEditor_Splitter");
 
@@ -244,17 +244,24 @@ namespace TrenchBroom {
             m_splitter->addWidget(m_smartEditorManager);
             m_splitter->addWidget(m_documentationText);
 
+            // give most space to the attribute grid
+            m_splitter->setSizes(QList<int>{1'000'000, 1, 1});
+
+            // NOTE: this should be done before setChildrenCollapsible() and setMinimumSize()
+            // otherwise it can override them.
+            restoreWindowState(m_splitter);
+
             m_attributeGrid->setMinimumSize(100, 50);
             m_smartEditorManager->setMinimumSize(100, 50);
             m_documentationText->setMinimumSize(100, 50);
+
+            // don't allow the user to collapse the panels, it's hard to see them
+            m_splitter->setChildrenCollapsible(false);
 
             // resize only the attribute grid when the container resizes
             m_splitter->setStretchFactor(0, 1);
             m_splitter->setStretchFactor(1, 0);
             m_splitter->setStretchFactor(2, 0);
-
-            // give most space to the attribute grid
-            m_splitter->setSizes(QList<int>{1'000'000, 1, 1});
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
@@ -262,8 +269,6 @@ namespace TrenchBroom {
             setLayout(layout);
 
             connect(m_attributeGrid, &EntityAttributeGrid::selectedRow, this, &EntityAttributeEditor::OnCurrentRowChanged);
-
-            restoreWindowState(m_splitter);
         }
     }
 }

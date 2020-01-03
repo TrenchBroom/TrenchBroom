@@ -24,9 +24,12 @@
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
+#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
+#include "Renderer/ActiveShader.h"
 #include "Renderer/Circle.h"
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
@@ -45,8 +48,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType UVOriginTool::XHandleHit = Model::Hit::freeHitType();
-        const Model::Hit::HitType UVOriginTool::YHandleHit = Model::Hit::freeHitType();
+        const Model::HitType::Type UVOriginTool::XHandleHit = Model::HitType::freeType();
+        const Model::HitType::Type UVOriginTool::YHandleHit = Model::HitType::freeType();
         const FloatType UVOriginTool::MaxPickDistance = 5.0;
         const float UVOriginTool::OriginHandleRadius =  5.0f;
 
@@ -229,11 +232,11 @@ namespace TrenchBroom {
         }
 
         void UVOriginTool::renderLineHandles(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
-            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(getHandleVertices(inputState)), GL_LINES);
+            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(getHandleVertices(inputState)), Renderer::PrimType::Lines);
             edgeRenderer.renderOnTop(renderBatch, 0.25f);
         }
 
-        UVOriginTool::EdgeVertex::List UVOriginTool::getHandleVertices(const InputState& inputState) const {
+        std::vector<UVOriginTool::EdgeVertex> UVOriginTool::getHandleVertices(const InputState& inputState) const {
             const Model::PickResult& pickResult = inputState.pickResult();
             const Model::Hit& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
             const Model::Hit& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
@@ -247,12 +250,12 @@ namespace TrenchBroom {
             vm::vec3 x1, x2, y1, y2;
             m_helper.computeOriginHandleVertices(x1, x2, y1, y2);
 
-            return EdgeVertex::List({
+            return {
                 EdgeVertex(vm::vec3f(x1), xColor),
                 EdgeVertex(vm::vec3f(x2), xColor),
                 EdgeVertex(vm::vec3f(y1), yColor),
                 EdgeVertex(vm::vec3f(y2), yColor)
-            });
+            };
         }
 
         class UVOriginTool::RenderOrigin : public Renderer::DirectRenderable {
@@ -271,8 +274,8 @@ namespace TrenchBroom {
                 return Renderer::Circle(radius / zoom, segments, fill);
             }
         private:
-            void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
-                m_originHandle.prepare(vertexVbo);
+            void doPrepareVertices(Renderer::VboManager& vboManager) override {
+                m_originHandle.prepare(vboManager);
             }
 
             void doRender(Renderer::RenderContext& renderContext) override {

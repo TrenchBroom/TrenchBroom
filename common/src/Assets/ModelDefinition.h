@@ -22,7 +22,7 @@
 
 #include "EL/Expression.h"
 #include "IO/Path.h"
-#include "Model/EntityAttributes.h"
+#include "Model/Model_Forward.h"
 
 #include <iosfwd>
 

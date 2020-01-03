@@ -23,11 +23,15 @@
 #include "TrenchBroom.h"
 #include "Model/BrushFace.h"
 
+#include <vecmath/forward.h>
+
 namespace TrenchBroom {
     namespace Model {
         class PlanePointFinder {
+        private:
+            using FacePoints = vm::vec3[3];
         public:
-            static void findPoints(const vm::plane3& plane, BrushFace::Points& points, size_t numPoints);
+            static void findPoints(const vm::plane3& plane, FacePoints& points, size_t numPoints);
         };
     }
 }

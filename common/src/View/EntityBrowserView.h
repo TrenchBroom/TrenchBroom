@@ -20,33 +20,24 @@
 #ifndef TrenchBroom_EntityBrowserView
 #define TrenchBroom_EntityBrowserView
 
-#include "Assets/EntityDefinitionManager.h"
+#include "Assets/Asset_Forward.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/GLVertexType.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/CellView.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/quat.h>
 #include <vecmath/bbox.h>
 
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
     class Logger;
 
-    namespace Assets {
-        class EntityModelManager;
-        class PointEntityDefinition;
-    }
-
-    namespace Renderer {
-        class FontDescriptor;
-        class TexturedRenderer;
-        class Transformation;
-    }
-
     namespace View {
-        class GLContextManager;
-
-        using EntityGroupData = String;
+        using EntityGroupData = std::string;
 
         class EntityCellData {
         private:
@@ -66,7 +57,7 @@ namespace TrenchBroom {
             using EntityRenderer = Renderer::TexturedRenderer;
 
             using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
-            using StringMap = std::map<Renderer::FontDescriptor, TextVertex::List>;
+            using StringMap = std::map<Renderer::FontDescriptor, std::vector<TextVertex>>;
 
             Assets::EntityDefinitionManager& m_entityDefinitionManager;
             Assets::EntityModelManager& m_entityModelManager;
@@ -75,8 +66,8 @@ namespace TrenchBroom {
 
             bool m_group;
             bool m_hideUnused;
-            Assets::EntityDefinition::SortOrder m_sortOrder;
-            String m_filterText;
+            Assets::EntityDefinitionSortOrder m_sortOrder;
+            std::string m_filterText;
         public:
             EntityBrowserView(QScrollBar* scrollBar,
                               GLContextManager& contextManager,
@@ -85,10 +76,10 @@ namespace TrenchBroom {
                               Logger& logger);
             ~EntityBrowserView() override;
         public:
-            void setSortOrder(Assets::EntityDefinition::SortOrder sortOrder);
+            void setSortOrder(Assets::EntityDefinitionSortOrder sortOrder);
             void setGroup(bool group);
             void setHideUnused(bool hideUnused);
-            void setFilterText(const String& filterText);
+            void setFilterText(const std::string& filterText);
         private:
             void usageCountDidChange();
 

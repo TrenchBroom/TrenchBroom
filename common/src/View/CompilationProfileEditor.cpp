@@ -19,8 +19,9 @@
 
 #include "CompilationProfileEditor.h"
 
-#include "Model/CompilationProfile.h"
 #include "SharedPointer.h"
+#include "Model/CompilationProfile.h"
+#include "Model/CompilationTask.h"
 #include "View/BorderLine.h"
 #include "View/CompilationTaskListBox.h"
 #include "View/CompilationVariables.h"
@@ -38,7 +39,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        CompilationProfileEditor::CompilationProfileEditor(MapDocumentWPtr document, QWidget* parent) :
+        CompilationProfileEditor::CompilationProfileEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_profile(nullptr),
@@ -108,9 +109,9 @@ namespace TrenchBroom {
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
             layout->addWidget(upperPanel);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
             layout->addWidget(m_taskList, 1);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
             layout->addLayout(buttonLayout);
 
             containerPanel->setLayout(layout);

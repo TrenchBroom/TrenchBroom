@@ -17,8 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TrenchBroom.h"
 #include "ParallelTexCoordSystem.h"
+
+#include "Ensure.h"
+#include "TrenchBroom.h"
 #include "Assets/Texture.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/BrushFace.h"

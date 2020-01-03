@@ -20,30 +20,22 @@
 #ifndef TRENCHBROOM_ACTIONS_H
 #define TRENCHBROOM_ACTIONS_H
 
+#include "Macros.h"
 #include "Ensure.h"
-#include "Preference.h"
-#include "StringType.h"
+#include "Assets/Asset_Forward.h"
+#include "IO/Path.h"
+#include "Model/Model_Forward.h"
 #include "View/ActionContext.h"
 
+#include <functional>
+#include <map>
 #include <memory>
 #include <vector>
-#include <map>
+#include <string>
 
 #include <QKeySequence>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityDefinition;
-    }
-
-    namespace IO {
-        class Path;
-    }
-
-    namespace Model {
-        class SmartTag;
-    }
-
     namespace View {
         class MapDocument;
         class MapFrame;
@@ -198,14 +190,14 @@ namespace TrenchBroom {
 
         class Menu : public MenuEntry {
         private:
-            String m_name;
+            std::string m_name;
             std::vector<std::unique_ptr<MenuEntry>> m_entries;
         public:
-            Menu(const String& name, MenuEntryType entryType);
+            Menu(const std::string& name, MenuEntryType entryType);
 
-            const String& name() const;
+            const std::string& name() const;
 
-            Menu& addMenu(const String& name, MenuEntryType entryType = MenuEntryType::Menu_None);
+            Menu& addMenu(const std::string& name, MenuEntryType entryType = MenuEntryType::Menu_None);
             void addSeparator();
             MenuActionItem& addItem(const Action* action, MenuEntryType entryType = MenuEntryType::Menu_None);
 
@@ -246,7 +238,7 @@ namespace TrenchBroom {
             /**
              * Note, unlike createAction(), these are not registered / owned by the ActionManager.
              */
-            std::vector<std::unique_ptr<Action>> createTagActions(const std::list<Model::SmartTag>& tags) const;
+            std::vector<std::unique_ptr<Action>> createTagActions(const std::vector<Model::SmartTag>& tags) const;
             /**
              * Note, unlike createAction(), these are not registered / owned by the ActionManager.
              */
@@ -274,7 +266,7 @@ namespace TrenchBroom {
             void createDebugMenu();
             void createHelpMenu();
 
-            Menu& createMainMenu(const String& name);
+            Menu& createMainMenu(const std::string& name);
 
             void createToolbar();
             const Action* existingAction(const IO::Path& preferencePath) const;

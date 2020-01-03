@@ -20,26 +20,20 @@
 #ifndef TrenchBroom_Bsp29Parser
 #define TrenchBroom_Bsp29Parser
 
-#include "StringType.h"
-#include "Assets/AssetTypes.h"
+#include "Assets/Asset_Forward.h"
 #include "Assets/TextureCollection.h"
 #include "IO/EntityModelParser.h"
+#include "IO/IO_Forward.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityModel;
-        class Palette;
-    }
-
     namespace IO {
-        class Reader;
-
         class Bsp29Parser : public EntityModelParser {
         private:
             struct TextureInfo {
@@ -65,17 +59,17 @@ namespace TrenchBroom {
 
             using FaceEdgeIndexList = std::vector<int>;
 
-            String m_name;
+            std::string m_name;
             const char* m_begin;
             const char* m_end;
             const Assets::Palette& m_palette;
         public:
-            Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette);
+            Bsp29Parser(const std::string& name, const char* begin, const char* end, const Assets::Palette& palette);
         private:
             std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
             void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 
-            Assets::TextureList parseTextures(Reader reader);
+            std::vector<Assets::Texture*> parseTextures(Reader reader);
             TextureInfoList parseTextureInfos(Reader reader, size_t textureInfoCount);
             std::vector<vm::vec3f> parseVertices(Reader reader, size_t vertexCount);
             EdgeInfoList parseEdgeInfos(Reader reader, size_t edgeInfoCount);

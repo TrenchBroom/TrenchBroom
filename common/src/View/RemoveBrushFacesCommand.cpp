@@ -22,6 +22,9 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "View/VertexHandleManager.h"
+
+#include <vecmath/polygon.h>
 
 #include <vector>
 
@@ -29,7 +32,7 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType RemoveBrushFacesCommand::Type = Command::freeType();
 
-        RemoveBrushFacesCommand::Ptr RemoveBrushFacesCommand::remove(const FaceToBrushesMap& faces) {
+        std::unique_ptr<RemoveBrushFacesCommand> RemoveBrushFacesCommand::remove(const FaceToBrushesMap& faces) {
             std::vector<Model::Brush*> brushes;
             BrushFacesMap brushFaces;
             std::vector<vm::polygon3> facePositions;
@@ -37,7 +40,7 @@ namespace TrenchBroom {
             extractFaceMap(faces, brushes, brushFaces, facePositions);
             const BrushVerticesMap brushVertices = brushVertexMap(brushFaces);
 
-            return Ptr(new RemoveBrushFacesCommand(brushes, brushVertices, facePositions));
+            return std::make_unique<RemoveBrushFacesCommand>(brushes, brushVertices, facePositions);
         }
 
         RemoveBrushFacesCommand::RemoveBrushFacesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::polygon3>& facePositions) :

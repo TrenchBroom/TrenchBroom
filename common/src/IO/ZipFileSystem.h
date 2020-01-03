@@ -21,7 +21,7 @@
 #define TRENCHBROOM_ZIPFILESYSTEM_H
 
 #include "IO/ImageFileSystem.h"
-#include "IO/Path.h"
+#include "IO/IO_Forward.h"
 
 #include <memory>
 

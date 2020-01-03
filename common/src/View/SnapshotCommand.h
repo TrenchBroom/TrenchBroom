@@ -20,29 +20,32 @@
 #ifndef TRENCHBROOM_SNAPSHOTCOMMAND_H
 #define TRENCHBROOM_SNAPSHOTCOMMAND_H
 
+#include "Macros.h"
+#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
 
-namespace TrenchBroom {
-    namespace Model {
-        class Snapshot;
-    }
+#include <memory>
+#include <string>
 
+namespace TrenchBroom {
     namespace View {
         class SnapshotCommand : public DocumentCommand {
         private:
-            Model::Snapshot* m_snapshot;
+            std::unique_ptr<Model::Snapshot> m_snapshot;
         protected:
-            SnapshotCommand(CommandType type, const String& name);
-            virtual ~SnapshotCommand() override;
+            SnapshotCommand(CommandType type, const std::string& name);
+            ~SnapshotCommand();
         public:
-            bool performDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
         private:
             void takeSnapshot(MapDocumentCommandFacade* document);
-            bool restoreSnapshot(MapDocumentCommandFacade* document);
+            std::unique_ptr<CommandResult> restoreSnapshot(MapDocumentCommandFacade* document);
             void deleteSnapshot();
         private:
-            virtual Model::Snapshot* doTakeSnapshot(MapDocumentCommandFacade* document) const;
+            virtual std::unique_ptr<Model::Snapshot> doTakeSnapshot(MapDocumentCommandFacade* document) const;
+
+            deleteCopyAndMove(SnapshotCommand)
         };
     }
 }

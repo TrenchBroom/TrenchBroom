@@ -21,11 +21,12 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "CollectionUtils.h"
 #include "Assets/EntityModel.h"
 #include "Assets/EntityModelManager.h"
+#include "Assets/ModelDefinition.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
+#include "Renderer/ActiveShader.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
@@ -106,8 +107,8 @@ namespace TrenchBroom {
             renderBatch.add(this);
         }
 
-        void EntityModelRenderer::doPrepareVertices(Vbo& vertexVbo) {
-            m_entityModelManager.prepare(vertexVbo);
+        void EntityModelRenderer::doPrepareVertices(VboManager& vboManager) {
+            m_entityModelManager.prepare(vboManager);
         }
 
         void EntityModelRenderer::doRender(RenderContext& renderContext) {

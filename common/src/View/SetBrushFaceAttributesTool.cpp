@@ -19,9 +19,12 @@
 
 #include "SetBrushFaceAttributesTool.h"
 
+#include "SharedPointer.h"
 #include "Model/BrushFace.h"
 #include "Model/Brush.h"
 #include "Model/HitAdapter.h"
+#include "Model/HitQuery.h"
+#include "Model/TexCoordSystem.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
@@ -29,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        SetBrushFaceAttributesTool::SetBrushFaceAttributesTool(MapDocumentWPtr document) :
+        SetBrushFaceAttributesTool::SetBrushFaceAttributesTool(std::weak_ptr<MapDocument> document) :
         ToolControllerBase(),
         Tool(true),
         m_document(document) {}
@@ -54,7 +57,7 @@ namespace TrenchBroom {
             if (!applies(inputState))
                 return false;
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             const std::vector<Model::BrushFace*>& selectedFaces = document->selectedBrushFaces();
             if (selectedFaces.size() != 1)
@@ -67,7 +70,7 @@ namespace TrenchBroom {
             Model::BrushFace* source = selectedFaces.front();
             Model::BrushFace* targetFace = Model::hitToFace(hit);
             Model::Brush* targetBrush = targetFace->brush();
-            const std::vector<Model::BrushFace*> targetList = applyToBrush ? targetBrush->faces() : std::vector<Model::BrushFace*>{};
+            const std::vector<Model::BrushFace*> targetList = applyToBrush ? targetBrush->faces() : std::vector<Model::BrushFace*>({ targetFace });
 
             const Model::WrapStyle wrapStyle = inputState.modifierKeysDown(ModifierKeys::MKShift) ? Model::WrapStyle::Rotation : Model::WrapStyle::Projection;
 

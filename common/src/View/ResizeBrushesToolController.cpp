@@ -25,9 +25,10 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/PickResult.h"
+#include "Renderer/GLVertexType.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/VertexArray.h"
-#include "Renderer/GLVertexType.h"
 #include "View/InputState.h"
 #include "View/ResizeBrushesTool.h"
 
@@ -125,7 +126,7 @@ namespace TrenchBroom {
 
         Renderer::DirectEdgeRenderer ResizeBrushesToolController::buildEdgeRenderer() {
             using Vertex = Renderer::GLVertexTypes::P3::Vertex;
-            Vertex::List vertices;
+            std::vector<Vertex> vertices;
 
             for (const auto* face : m_tool->dragFaces()) {
                 for (const auto* edge : face->edges()) {
@@ -134,7 +135,7 @@ namespace TrenchBroom {
                 }
             }
 
-            return Renderer::DirectEdgeRenderer(Renderer::VertexArray::move(std::move(vertices)), GL_LINES);
+            return Renderer::DirectEdgeRenderer(Renderer::VertexArray::move(std::move(vertices)), Renderer::PrimType::Lines);
         }
 
         bool ResizeBrushesToolController::doCancel() {

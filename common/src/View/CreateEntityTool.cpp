@@ -22,13 +22,13 @@
 #include "Constants.h"
 #include "TrenchBroom.h"
 #include "PreferenceManager.h"
+#include "SharedPointer.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
-#include "Model/Hit.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Model/World.h"
@@ -38,21 +38,23 @@
 
 #include <vecmath/bbox.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
-        CreateEntityTool::CreateEntityTool(MapDocumentWPtr document) :
+        CreateEntityTool::CreateEntityTool(std::weak_ptr<MapDocument> document) :
         Tool(true),
         m_document(document),
         m_entity(nullptr) {}
 
-        bool CreateEntityTool::createEntity(const String& classname) {
-            MapDocumentSPtr document = lock(m_document);
+        bool CreateEntityTool::createEntity(const std::string& classname) {
+            auto document = lock(m_document);
             const Assets::EntityDefinitionManager& definitionManager = document->entityDefinitionManager();
             Assets::EntityDefinition* definition = definitionManager.definition(classname);
             if (definition == nullptr)
                 return false;
 
-            if (definition->type() != Assets::EntityDefinition::Type_PointEntity)
+            if (definition->type() != Assets::EntityDefinitionType::PointEntity)
                 return false;
 
             const Model::World* world = document->world();
@@ -61,7 +63,7 @@ namespace TrenchBroom {
 
             m_referenceBounds = document->referenceBounds();
 
-            document->beginTransaction("Create '" + definition->name() + "'");
+            document->startTransaction("Create '" + definition->name() + "'");
             document->deselectAll();
             document->addNode(m_entity, document->currentParent());
             document->select(m_entity);
@@ -71,14 +73,14 @@ namespace TrenchBroom {
 
         void CreateEntityTool::removeEntity() {
             ensure(m_entity != nullptr, "entity is null");
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->cancelTransaction();
             m_entity = nullptr;
         }
 
         void CreateEntityTool::commitEntity() {
             ensure(m_entity != nullptr, "entity is null");
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->commitTransaction();
             m_entity = nullptr;
         }

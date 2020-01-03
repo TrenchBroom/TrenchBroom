@@ -20,23 +20,25 @@
 #include <gtest/gtest.h>
 
 #include "Exceptions.h"
-#include "StringUtils.h"
 #include "IO/Path.h"
+#include "IO/PathQt.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
 #ifdef _WIN32
         TEST(PathTest, constructWithString) {
-            ASSERT_EQ(String(""), Path("").asString());
-            ASSERT_EQ(String(""), Path(" ").asString());
-            ASSERT_EQ(String("c:"), Path("c:\\").asString());
-            ASSERT_EQ(String("c:\\asdf"), Path("c:\\asdf").asString());
-            ASSERT_EQ(String("c:\\asdf"), Path("c:\\asdf\\").asString());
-            ASSERT_EQ(String("c:\\asdf\\df"), Path("c:\\asdf\\df").asString());
-            ASSERT_EQ(String("hey"), Path("hey").asString());
-            ASSERT_EQ(String("hey"), Path("hey\\").asString());
-            ASSERT_EQ(String("hey\\asdf"), Path("hey\\asdf").asString());
-            ASSERT_EQ(String(".\\asdf"), Path(".\\asdf").asString());
+            ASSERT_EQ(std::string(""), Path("").asString());
+            ASSERT_EQ(std::string(""), Path(" ").asString());
+            ASSERT_EQ(std::string("c:"), Path("c:\\").asString());
+            ASSERT_EQ(std::string("c:\\asdf"), Path("c:\\asdf").asString());
+            ASSERT_EQ(std::string("c:\\asdf"), Path("c:\\asdf\\").asString());
+            ASSERT_EQ(std::string("c:\\asdf\\df"), Path("c:\\asdf\\df").asString());
+            ASSERT_EQ(std::string("hey"), Path("hey").asString());
+            ASSERT_EQ(std::string("hey"), Path("hey\\").asString());
+            ASSERT_EQ(std::string("hey\\asdf"), Path("hey\\asdf").asString());
+            ASSERT_EQ(std::string(".\\asdf"), Path(".\\asdf").asString());
         }
 
         TEST(PathTest, concatenate) {
@@ -105,11 +107,11 @@ namespace TrenchBroom {
 
         TEST(PathTest, getExtension) {
             ASSERT_THROW(Path("").extension(), PathException);
-            ASSERT_EQ(String(""), Path("asdf").extension());
-            ASSERT_EQ(String("map"), Path("asdf.map").extension());
-            ASSERT_EQ(String("map"), Path("c:\\this\\is\\a\\path.map").extension());
-            ASSERT_EQ(String("textfile"), Path("c:\\this\\is\\a\\path.map.textfile").extension());
-            ASSERT_EQ(String(""), Path("c:\\").extension());
+            ASSERT_EQ(std::string(""), Path("asdf").extension());
+            ASSERT_EQ(std::string("map"), Path("asdf.map").extension());
+            ASSERT_EQ(std::string("map"), Path("c:\\this\\is\\a\\path.map").extension());
+            ASSERT_EQ(std::string("textfile"), Path("c:\\this\\is\\a\\path.map.textfile").extension());
+            ASSERT_EQ(std::string(""), Path("c:\\").extension());
         }
 
         TEST(PathTest, addExtension) {
@@ -167,18 +169,28 @@ namespace TrenchBroom {
             ASSERT_TRUE(Path("c:\\asdf\\test\\..").canMakeRelative(Path("c:\\asdf\\.\\hello")));
             ASSERT_TRUE(Path("c:\\asdf\\test\\..\\").canMakeRelative(Path("c:\\asdf\\hurr\\..\\hello")));
         }
+
+        TEST(PathTest, pathAsQString) {
+            ASSERT_EQ(QString::fromLatin1("c:\\asdf\\test"), pathAsQString(Path("c:\\asdf\\test")));
+            ASSERT_EQ(QString::fromLatin1("asdf\\test"), pathAsQString(Path("asdf\\test")));
+        }
+
+        TEST(PathTest, pathFromQString) {
+            ASSERT_EQ(Path("c:\\asdf\\test"), pathFromQString(QString::fromLatin1("c:\\asdf\\test")));
+            ASSERT_EQ(Path("asdf\\test"), pathFromQString(QString::fromLatin1("asdf\\test")));
+        }
 #else
         TEST(PathTest, constructWithString) {
-            ASSERT_EQ(String(""), Path("").asString());
-            ASSERT_EQ(String(""), Path(" ").asString());
-            ASSERT_EQ(String("/"), Path("/").asString());
-            ASSERT_EQ(String("/asdf"), Path("/asdf").asString());
-            ASSERT_EQ(String("/asdf"), Path("/asdf/").asString());
-            ASSERT_EQ(String("/asdf/df"), Path("/asdf/df").asString());
-            ASSERT_EQ(String("hey"), Path("hey").asString());
-            ASSERT_EQ(String("hey"), Path("hey/").asString());
-            ASSERT_EQ(String("hey/asdf"), Path("hey/asdf").asString());
-            ASSERT_EQ(String("./asdf"), Path("./asdf").asString());
+            ASSERT_EQ(std::string(""), Path("").asString());
+            ASSERT_EQ(std::string(""), Path(" ").asString());
+            ASSERT_EQ(std::string("/"), Path("/").asString());
+            ASSERT_EQ(std::string("/asdf"), Path("/asdf").asString());
+            ASSERT_EQ(std::string("/asdf"), Path("/asdf/").asString());
+            ASSERT_EQ(std::string("/asdf/df"), Path("/asdf/df").asString());
+            ASSERT_EQ(std::string("hey"), Path("hey").asString());
+            ASSERT_EQ(std::string("hey"), Path("hey/").asString());
+            ASSERT_EQ(std::string("hey/asdf"), Path("hey/asdf").asString());
+            ASSERT_EQ(std::string("./asdf"), Path("./asdf").asString());
         }
 
         TEST(PathTest, concatenate) {
@@ -245,11 +257,11 @@ namespace TrenchBroom {
 
         TEST(PathTest, getExtension) {
             ASSERT_THROW(Path("").extension(), PathException);
-            ASSERT_EQ(String(""), Path("asdf").extension());
-            ASSERT_EQ(String("map"), Path("asdf.map").extension());
-            ASSERT_EQ(String("map"), Path("/this/is/a/path.map").extension());
-            ASSERT_EQ(String("textfile"), Path("/this/is/a/path.map.textfile").extension());
-            ASSERT_EQ(String(""), Path("/").extension());
+            ASSERT_EQ(std::string(""), Path("asdf").extension());
+            ASSERT_EQ(std::string("map"), Path("asdf.map").extension());
+            ASSERT_EQ(std::string("map"), Path("/this/is/a/path.map").extension());
+            ASSERT_EQ(std::string("textfile"), Path("/this/is/a/path.map.textfile").extension());
+            ASSERT_EQ(std::string(""), Path("/").extension());
         }
 
         TEST(PathTest, addExtension) {
@@ -298,6 +310,16 @@ namespace TrenchBroom {
             ASSERT_TRUE(Path("dir/dir") < Path("dir/dir2"));
             ASSERT_FALSE(Path("dir/dir2") < Path("dir/dir2"));
             ASSERT_FALSE(Path("dir/dir2/dir3") < Path("dir/dir2"));
+        }
+
+        TEST(PathTest, pathAsQString) {
+            ASSERT_EQ(QString::fromLatin1("/asdf/test"), pathAsQString(Path("/asdf/test")));
+            ASSERT_EQ(QString::fromLatin1("asdf/test"), pathAsQString(Path("asdf/test")));
+        }
+
+        TEST(PathTest, pathFromQString) {
+            ASSERT_EQ(Path("/asdf/test"), pathFromQString(QString::fromLatin1("/asdf/test")));
+            ASSERT_EQ(Path("asdf/test"), pathFromQString(QString::fromLatin1("asdf/test")));
         }
 #endif
     }

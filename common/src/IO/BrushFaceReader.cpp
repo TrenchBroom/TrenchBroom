@@ -26,9 +26,13 @@
 #include "Model/ModelFactory.h"
 #include "Model/World.h"
 
+#include <kdl/vector_utils.h>
+
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
-        BrushFaceReader::BrushFaceReader(const String& str, Model::ModelFactory& factory) :
+        BrushFaceReader::BrushFaceReader(const std::string& str, Model::ModelFactory& factory) :
         MapReader(str),
         m_factory(factory) {}
 
@@ -37,7 +41,7 @@ namespace TrenchBroom {
                 readBrushFaces(m_factory.format(), worldBounds, status);
                 return m_brushFaces;
             } catch (const ParserException&) {
-                VectorUtils::clearAndDelete(m_brushFaces);
+                kdl::vec_clear_and_delete(m_brushFaces);
                 throw;
             }
         }
@@ -47,7 +51,7 @@ namespace TrenchBroom {
             return m_factory;
         }
 
-        Model::Node* BrushFaceReader::onWorldspawn(const Model::EntityAttribute::List& /* attributes */, const ExtraAttributes& /* extraAttributes */, ParserStatus& /* status */) { return nullptr; }
+        Model::Node* BrushFaceReader::onWorldspawn(const std::list<Model::EntityAttribute>& /* attributes */, const ExtraAttributes& /* extraAttributes */, ParserStatus& /* status */) { return nullptr; }
         void BrushFaceReader::onWorldspawnFilePosition(const size_t /* lineNumber */, const size_t /* lineCount */, ParserStatus& /* status */) {}
         void BrushFaceReader::onLayer(Model::Layer* /* layer */, ParserStatus& /* status */) {}
         void BrushFaceReader::onNode(Model::Node* /* parent */, Model::Node* /* node */, ParserStatus& /* status */) {}

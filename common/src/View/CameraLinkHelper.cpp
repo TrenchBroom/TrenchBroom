@@ -19,12 +19,13 @@
 
 #include "CameraLinkHelper.h"
 
-#include "CollectionUtils.h"
 #include "Macros.h"
-#include "TemporarilySetAny.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "TemporarilySetAny.h"
 #include "Renderer/Camera.h"
+
+#include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -35,20 +36,21 @@ namespace TrenchBroom {
         m_ignoreNotifications(false) {}
 
         CameraLinkHelper::~CameraLinkHelper() {
-            for (Renderer::Camera* camera : m_cameras)
+            for (Renderer::Camera* camera : m_cameras) {
                 camera->cameraDidChangeNotifier.removeObserver(this, &CameraLinkHelper::cameraDidChange);
+            }
         }
 
         void CameraLinkHelper::addCamera(Renderer::Camera* camera) {
             ensure(camera != nullptr, "camera is null");
-            assert(!VectorUtils::contains(m_cameras, camera));
+            assert(!kdl::vec_contains(m_cameras, camera));
             m_cameras.push_back(camera);
             camera->cameraDidChangeNotifier.addObserver(this, &CameraLinkHelper::cameraDidChange);
         }
 
         void CameraLinkHelper::removeCamera(Renderer::Camera* camera) {
             ensure(camera != nullptr, "camera is null");
-            assertResult(VectorUtils::erase(m_cameras, camera));
+            kdl::vec_erase(m_cameras, camera);
             camera->cameraDidChangeNotifier.removeObserver(this, &CameraLinkHelper::cameraDidChange);
         }
 

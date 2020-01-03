@@ -21,8 +21,7 @@
 #define WadFileSystem_h
 
 #include "IO/ImageFileSystem.h"
-
-#include "IO/Path.h"
+#include "IO/IO_Forward.h"
 
 namespace TrenchBroom {
     class Logger;

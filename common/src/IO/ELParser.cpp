@@ -19,31 +19,36 @@
 
 #include "ELParser.h"
 
-#include "CollectionUtils.h"
 #include "EL/Expression.h"
+#include "EL/Value.h"
+
+#include <kdl/string_format.h>
+
+#include <sstream>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
-        const String& ELTokenizer::NumberDelim() const {
-            static const String Delim = Whitespace() + "(){}[],:+-*/%";
+        const std::string& ELTokenizer::NumberDelim() const {
+            static const std::string Delim = Whitespace() + "(){}[],:+-*/%";
             return Delim;
         }
 
-        const String& ELTokenizer::IntegerDelim() const {
-            static const String Delim = NumberDelim() + ".";
+        const std::string& ELTokenizer::IntegerDelim() const {
+            static const std::string Delim = NumberDelim() + ".";
             return Delim;
         }
 
         ELTokenizer::ELTokenizer(const char* begin, const char* end) :
         Tokenizer(begin, end, "\"", '\\') {}
 
-        ELTokenizer::ELTokenizer(const String& str) :
+        ELTokenizer::ELTokenizer(const std::string& str) :
         Tokenizer(str, "\"", '\\') {}
 
-        void ELTokenizer::appendUntil(const String& pattern, StringStream& str) {
+        void ELTokenizer::appendUntil(const std::string& pattern, std::stringstream& str) {
             const char* begin = curPos();
             const char* end = discardUntilPattern(pattern);
-            str << String(begin, end);
+            str << std::string(begin, end);
             if (!eof())
                 discard("${");
         }
@@ -191,7 +196,7 @@ namespace TrenchBroom {
                         const char* e;
                         if ((e = readDecimal(NumberDelim())) != nullptr) {
                             if (!eof() && curChar() == '.' && lookAhead() != '.')
-                                throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                                throw ParserException(startLine, startColumn, "Unexpected character: " + std::string(c, 1));
                             return Token(ELToken::Number, c, e, offset(c), startLine, startColumn);
                         }
 
@@ -215,7 +220,7 @@ namespace TrenchBroom {
                             return Token(ELToken::Name, c, e, offset(c), startLine, startColumn);
                         }
 
-                        throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                        throw ParserException(startLine, startColumn, "Unexpected character: " + std::string(c, 1));
                     }
                 }
             }
@@ -226,15 +231,15 @@ namespace TrenchBroom {
         m_mode(mode),
         m_tokenizer(begin, end) {}
 
-        ELParser::ELParser(const ELParser::Mode mode, const String& str) :
+        ELParser::ELParser(const ELParser::Mode mode, const std::string& str) :
         m_mode(mode),
         m_tokenizer(str) {}
 
-        EL::Expression ELParser::parseStrict(const String& str) {
+        EL::Expression ELParser::parseStrict(const std::string& str) {
             return ELParser(Mode::Strict, str).parse();
         }
 
-        EL::Expression ELParser::parseLenient(const String& str) {
+        EL::Expression ELParser::parseLenient(const std::string& str) {
             return ELParser(Mode::Lenient, str).parse();
         }
 
@@ -313,15 +318,15 @@ namespace TrenchBroom {
             EL::ExpressionBase::List elements;
             if (!m_tokenizer.peekToken().hasType(ELToken::CBracket)) {
                 do {
-                    elements.push_back(parseExpressionOrAnyRange());
+                    elements.emplace_back(parseExpressionOrAnyRange());
                 } while (expect(ELToken::Comma | ELToken::CBracket, m_tokenizer.nextToken()).hasType(ELToken::Comma));
             } else {
                 m_tokenizer.nextToken();
             }
 
             if (elements.size() == 1)
-                return EL::SubscriptOperator::create(lhs, elements.front(), startLine, startColumn);
-            return EL::SubscriptOperator::create(lhs, EL::ArrayExpression::create(elements, startLine, startColumn), startLine, startColumn);
+                return EL::SubscriptOperator::create(lhs, elements.front().release(), startLine, startColumn);
+            return EL::SubscriptOperator::create(lhs, EL::ArrayExpression::create(std::move(elements), startLine, startColumn), startLine, startColumn);
         }
 
         EL::ExpressionBase* ELParser::parseVariable() {
@@ -337,7 +342,7 @@ namespace TrenchBroom {
             if (token.hasType(ELToken::String)) {
                 m_tokenizer.nextToken();
                 // Escaping happens in EL::Value::appendToStream
-                const String value = StringUtils::unescape(token.data(), "\\\"");
+                const std::string value = kdl::str_unescape(token.data(), "\\\"");
                 return EL::LiteralExpression::create(EL::Value(value), token.line(), token.column());
             }
             if (token.hasType(ELToken::Number)) {
@@ -367,13 +372,13 @@ namespace TrenchBroom {
             EL::ExpressionBase::List elements;
             if (!m_tokenizer.peekToken().hasType(ELToken::CBracket)) {
                 do {
-                    elements.push_back(parseExpressionOrRange());
+                    elements.emplace_back(parseExpressionOrRange());
                 } while (expect(ELToken::Comma | ELToken::CBracket, m_tokenizer.nextToken()).hasType(ELToken::Comma));
             } else {
                 m_tokenizer.nextToken();
             }
 
-            return EL::ArrayExpression::create(elements, startLine, startColumn);
+            return EL::ArrayExpression::create(std::move(elements), startLine, startColumn);
         }
 
         EL::ExpressionBase* ELParser::parseExpressionOrRange() {
@@ -417,18 +422,16 @@ namespace TrenchBroom {
                 do {
                     token = m_tokenizer.nextToken();
                     expect(ELToken::String | ELToken::Name, token);
-                    const String key = token.data();
+                    const std::string key = token.data();
 
                     expect(ELToken::Colon, m_tokenizer.nextToken());
-                    EL::ExpressionBase* value = parseExpression();
-
-                    MapUtils::insertOrReplaceAndDelete(elements, key, value);
+                    elements[key] = std::unique_ptr<EL::ExpressionBase>(parseExpression());
                 } while (expect(ELToken::Comma | ELToken::CBrace, m_tokenizer.nextToken()).hasType(ELToken::Comma));
             } else {
                 m_tokenizer.nextToken();
             }
 
-            return EL::MapExpression::create(elements, startLine, startColumn);
+            return EL::MapExpression::create(std::move(elements), startLine, startColumn);
         }
 
         EL::ExpressionBase* ELParser::parseUnaryOperator() {
@@ -460,13 +463,13 @@ namespace TrenchBroom {
 
             if (token.hasType(ELToken::SimpleTerm)) {
                 do {
-                    subExpressions.push_back(parseExpression());
+                    subExpressions.emplace_back(parseExpression());
                 } while (expect(ELToken::Comma | ELToken::DoubleCBrace, m_tokenizer.nextToken()).hasType(ELToken::Comma));
             } else if (token.hasType(ELToken::DoubleCBrace)) {
                 m_tokenizer.nextToken();
             }
 
-            return EL::SwitchOperator::create(subExpressions, startLine, startColumn);
+            return EL::SwitchOperator::create(std::move(subExpressions), startLine, startColumn);
         }
 
         EL::ExpressionBase* ELParser::parseCompoundTerm(EL::ExpressionBase* lhs) {

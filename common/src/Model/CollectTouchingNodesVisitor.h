@@ -22,14 +22,11 @@
 
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/MatchSelectableNodes.h"
+#include "Model/Model_Forward.h"
 #include "Model/NodePredicates.h"
-
-#include <algorithm>
 
 namespace TrenchBroom {
     namespace Model {
-        class EditorContext;
-
         template <typename I>
         class MatchTouchingNodes {
         private:
@@ -42,10 +39,20 @@ namespace TrenchBroom {
 
             bool operator()(const Node* node) const {
                 // if `node` is one of the search query nodes, don't count it as touching
-                if (std::any_of(m_begin, m_end, [node](const auto* cur) { return node == cur; })) {
-                    return false;
+                for (auto it = m_begin; it != m_end; ++it) {
+                    if (node == *it) {
+                        return false;
+                    }
                 }
-                return std::any_of(m_begin, m_end, [node](const auto* cur) { return cur->intersects(node); });
+
+                for (auto it = m_begin; it != m_end; ++it) {
+                    const auto* cur = *it;
+                    if (cur->intersects(node)) {
+                        return true;
+                    }
+                }
+
+                return true;
             }
         };
 

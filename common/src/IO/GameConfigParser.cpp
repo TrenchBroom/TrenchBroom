@@ -22,18 +22,21 @@
 #include "Exceptions.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
+#include "EL/Value.h"
+#include "Model/GameConfig.h"
 #include "Model/Tag.h"
 #include "Model/TagAttribute.h"
 #include "Model/TagMatcher.h"
 
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
         GameConfigParser::GameConfigParser(const char* begin, const char* end, const Path& path) :
         ConfigParserBase(begin, end, path) {}
 
-        GameConfigParser::GameConfigParser(const String& str, const Path& path) :
+        GameConfigParser::GameConfigParser(const std::string& str, const Path& path) :
         ConfigParserBase(str, path) {}
 
         Model::GameConfig GameConfigParser::parse() {
@@ -78,12 +81,10 @@ namespace TrenchBroom {
                 std::move(tags));
         }
 
-        Model::GameConfig::MapFormatConfig::List GameConfigParser::parseMapFormatConfigs(const EL::Value& value) const {
-            using Model::GameConfig;
-
+        std::vector<Model::MapFormatConfig> GameConfigParser::parseMapFormatConfigs(const EL::Value& value) const {
             expectType(value, EL::typeForName("Array"));
 
-            GameConfig::MapFormatConfig::List result;
+            std::vector<Model::MapFormatConfig> result;
             for (size_t i = 0; i < value.length(); ++i) {
                 expectStructure(
                     value[i],
@@ -92,8 +93,8 @@ namespace TrenchBroom {
                     "{'initialmap': 'String'}"
                     "]");
 
-                const String& format = value[i]["format"].stringValue();
-                const String& initialMap = value[i]["initialmap"].stringValue();
+                const std::string& format = value[i]["format"].stringValue();
+                const std::string& initialMap = value[i]["initialmap"].stringValue();
 
                 result.emplace_back(format, IO::Path(initialMap));
             }
@@ -101,9 +102,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        Model::GameConfig::FileSystemConfig GameConfigParser::parseFileSystemConfig(const EL::Value& value) const {
-            using Model::GameConfig;
-
+        Model::FileSystemConfig GameConfigParser::parseFileSystemConfig(const EL::Value& value) const {
             expectStructure(value,
                             "["
                             "{'searchpath': 'String', 'packageformat': 'Map'},"
@@ -111,15 +110,13 @@ namespace TrenchBroom {
                             "]");
 
 
-            const String& searchPath = value["searchpath"].stringValue();
-            const GameConfig::PackageFormatConfig packageFormatConfig = parsePackageFormatConfig(value["packageformat"]);
+            const std::string& searchPath = value["searchpath"].stringValue();
+            const Model::PackageFormatConfig packageFormatConfig = parsePackageFormatConfig(value["packageformat"]);
 
-            return GameConfig::FileSystemConfig(Path(searchPath), packageFormatConfig);
+            return Model::FileSystemConfig(Path(searchPath), packageFormatConfig);
         }
 
-        Model::GameConfig::PackageFormatConfig GameConfigParser::parsePackageFormatConfig(const EL::Value& value) const {
-            using Model::GameConfig;
-
+        Model::PackageFormatConfig GameConfigParser::parsePackageFormatConfig(const EL::Value& value) const {
             expectMapEntry(value, "format", EL::typeForName("String"));
             const auto formatValue = value["format"];
             expectType(formatValue, EL::typeForName("String"));
@@ -130,80 +127,72 @@ namespace TrenchBroom {
                 const auto& extension = value["extension"].stringValue();
                 const auto& format = formatValue.stringValue();
 
-                return GameConfig::PackageFormatConfig(extension, format);
+                return Model::PackageFormatConfig(extension, format);
             } else if (value["extensions"] != EL::Value::Null) {
                 const auto extensionsValue = value["extensions"];
                 expectType(extensionsValue, EL::typeForName("Array"));
                 const auto extensions = extensionsValue.asStringList();
                 const auto& format = formatValue.stringValue();
 
-                return GameConfig::PackageFormatConfig(extensions, format);
+                return Model::PackageFormatConfig(extensions, format);
             }
             throw ParserException(value.line(), value.column(), "Expected map entry 'extension' of type 'String' or 'extensions' of type 'Array'");
         }
 
-        Model::GameConfig::TextureConfig GameConfigParser::parseTextureConfig(const EL::Value& value) const {
-            using Model::GameConfig;
-
+        Model::TextureConfig GameConfigParser::parseTextureConfig(const EL::Value& value) const {
             expectStructure(value,
                             "["
                             "{'package': 'Map', 'format': 'Map'},"
                             "{'attribute': 'String', 'palette': 'String', 'shaderSearchPath': 'String'}"
                             "]");
 
-            const GameConfig::TexturePackageConfig packageConfig = parseTexturePackageConfig(value["package"]);
-            const GameConfig::PackageFormatConfig formatConfig = parsePackageFormatConfig(value["format"]);
+            const Model::TexturePackageConfig packageConfig = parseTexturePackageConfig(value["package"]);
+            const Model::PackageFormatConfig formatConfig = parsePackageFormatConfig(value["format"]);
             const Path palette(value["palette"].stringValue());
-            const String& attribute = value["attribute"].stringValue();
+            const std::string& attribute = value["attribute"].stringValue();
             const Path shaderSearchPath(value["shaderSearchPath"].stringValue());
 
-            return GameConfig::TextureConfig(packageConfig, formatConfig, palette, attribute, shaderSearchPath);
+            return Model::TextureConfig(packageConfig, formatConfig, palette, attribute, shaderSearchPath);
         }
 
-        Model::GameConfig::TexturePackageConfig GameConfigParser::parseTexturePackageConfig(const EL::Value& value) const {
-            using Model::GameConfig;
-
+        Model::TexturePackageConfig GameConfigParser::parseTexturePackageConfig(const EL::Value& value) const {
             expectStructure(value,
                             "["
                             "{'type': 'String'},"
                             "{'root': 'String', 'format': 'Map'}"
                             "]");
 
-            const String& typeStr = value["type"].stringValue();
+            const std::string& typeStr = value["type"].stringValue();
             if (typeStr == "file") {
                 expectMapEntry(value, "format", EL::ValueType::Map);
-                const GameConfig::PackageFormatConfig formatConfig = parsePackageFormatConfig(value["format"]);
-                return GameConfig::TexturePackageConfig(formatConfig);
+                const Model::PackageFormatConfig formatConfig = parsePackageFormatConfig(value["format"]);
+                return Model::TexturePackageConfig(formatConfig);
             } else if (typeStr == "directory") {
                 expectMapEntry(value, "root", EL::ValueType::String);
                 const Path root(value["root"].stringValue());
-                return GameConfig::TexturePackageConfig(root);
+                return Model::TexturePackageConfig(root);
             } else {
                 throw ParserException(value.line(), value.column(), "Unexpected texture package type '" + typeStr + "'");
             }
         }
 
-        Model::GameConfig::EntityConfig GameConfigParser::parseEntityConfig(const EL::Value& value) const {
-            using Model::GameConfig;
-
+        Model::EntityConfig GameConfigParser::parseEntityConfig(const EL::Value& value) const {
             expectStructure(value,
                             "["
                             "{'definitions': 'Array', 'modelformats': 'Array', 'defaultcolor': 'String'},"
                             "{}"
                             "]");
 
-            const Path::List defFilePaths = Path::asPaths(value["definitions"].asStringList());
-            const StringSet modelFormats = value["modelformats"].asStringSet();
+            const std::vector<Path> defFilePaths = Path::asPaths(value["definitions"].asStringList());
+            const std::vector<std::string> modelFormats = value["modelformats"].asStringSet();
             const Color defaultColor = Color::parse(value["defaultcolor"].stringValue());
 
-            return GameConfig::EntityConfig(defFilePaths, modelFormats, defaultColor);
+            return Model::EntityConfig(defFilePaths, modelFormats, defaultColor);
         }
 
-        Model::GameConfig::FaceAttribsConfig GameConfigParser::parseFaceAttribsConfig(const EL::Value& value) const {
-            using Model::GameConfig;
-
+        Model::FaceAttribsConfig GameConfigParser::parseFaceAttribsConfig(const EL::Value& value) const {
             if (value.null())
-                return Model::GameConfig::FaceAttribsConfig();
+                return Model::FaceAttribsConfig();
 
             expectStructure(value,
                             "["
@@ -211,34 +200,35 @@ namespace TrenchBroom {
                             "{}"
                             "]");
 
-            const GameConfig::FlagConfigList surfaceFlags = parseFlagConfig(value["surfaceflags"]);
-            const GameConfig::FlagConfigList contentFlags = parseFlagConfig(value["contentflags"]);
+            const std::vector<Model::FlagConfig> surfaceFlags = parseFlagConfig(value["surfaceflags"]);
+            const std::vector<Model::FlagConfig> contentFlags = parseFlagConfig(value["contentflags"]);
 
-            return GameConfig::FaceAttribsConfig(surfaceFlags, contentFlags);
+            return Model::FaceAttribsConfig(surfaceFlags, contentFlags);
         }
 
-        Model::GameConfig::FlagConfigList GameConfigParser::parseFlagConfig(const EL::Value& value) const {
+        std::vector<Model::FlagConfig> GameConfigParser::parseFlagConfig(const EL::Value& value) const {
             using Model::GameConfig;
 
-            if (value.null())
-                return GameConfig::FlagConfigList(0);
+            if (value.null()) {
+                return {};
+            }
 
-            GameConfig::FlagConfigList flags;
+            std::vector<Model::FlagConfig> flags;
             for (size_t i = 0; i < value.length(); ++i) {
                 const EL::Value& entry = value[i];
 
                 expectStructure(entry, "[ {'name': 'String'}, {'description': 'String'} ]");
 
-                const String& name = entry["name"].stringValue();
-                const String& description = entry["description"].stringValue();
+                const std::string& name = entry["name"].stringValue();
+                const std::string& description = entry["description"].stringValue();
 
-                flags.push_back(GameConfig::FlagConfig(name, description));
+                flags.push_back(Model::FlagConfig(name, description));
             }
 
             return flags;
         }
 
-        std::vector<Model::SmartTag> GameConfigParser::parseTags(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const {
+        std::vector<Model::SmartTag> GameConfigParser::parseTags(const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfig) const {
             std::vector<Model::SmartTag> result{};
             if (value.null()) {
                 return result;
@@ -279,7 +269,7 @@ namespace TrenchBroom {
             }
         }
 
-        void GameConfigParser::parseFaceTags(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig, std::vector<Model::SmartTag>& result) const {
+        void GameConfigParser::parseFaceTags(const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfig, std::vector<Model::SmartTag>& result) const {
             if (value.null()) {
                 return;
             }
@@ -321,10 +311,10 @@ namespace TrenchBroom {
             }
         }
 
-        int GameConfigParser::parseFlagValue(const EL::Value& value, const Model::GameConfig::FlagsConfig& flags) const {
+        int GameConfigParser::parseFlagValue(const EL::Value& value, const Model::FlagsConfig& flags) const {
             const auto flagSet = value.asStringSet();
             int flagValue = 0;
-            for (const String &currentName : flagSet) {
+            for (const std::string &currentName : flagSet) {
                 const auto currentValue = flags.flagValue(currentName);
                 flagValue |= currentValue;
             }

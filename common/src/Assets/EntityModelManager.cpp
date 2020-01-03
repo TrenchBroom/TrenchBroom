@@ -23,6 +23,7 @@
 #include "Logger.h"
 #include "Macros.h"
 #include "Assets/EntityModel.h"
+#include "Assets/ModelDefinition.h"
 #include "IO/EntityModelLoader.h"
 #include "Model/Entity.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
@@ -170,10 +171,10 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityModelManager::prepare(Renderer::Vbo& vbo) {
+        void EntityModelManager::prepare(Renderer::VboManager& vboManager) {
             resetTextureMode();
             prepareModels();
-            prepareRenderers(vbo);
+            prepareRenderers(vboManager);
         }
 
         void EntityModelManager::resetTextureMode() {
@@ -193,9 +194,9 @@ namespace TrenchBroom {
             m_unpreparedModels.clear();
         }
 
-        void EntityModelManager::prepareRenderers(Renderer::Vbo& vbo) {
+        void EntityModelManager::prepareRenderers(Renderer::VboManager& vboManager) {
             for (auto* renderer : m_unpreparedRenderers) {
-                renderer->prepare(vbo);
+                renderer->prepare(vboManager);
             }
             m_unpreparedRenderers.clear();
         }

@@ -26,6 +26,8 @@
 #include <QLabel>
 #include <QSlider>
 
+#include <cmath> // for std::log10
+
 namespace TrenchBroom {
     namespace View {
         SliderWithLabel::SliderWithLabel(const int minimum, const int maximum, QWidget* parent) :

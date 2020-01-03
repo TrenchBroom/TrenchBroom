@@ -21,12 +21,10 @@
 #define TrenchBroom_CreateComplexBrushToolController3D
 
 #include "View/ToolController.h"
+#include "View/View_Forward.h"
 
 namespace TrenchBroom {
     namespace View {
-        class CreateComplexBrushTool;
-        class Grid;
-
         class CreateComplexBrushToolController3D : public ToolControllerGroup {
         private:
             class Part;

@@ -19,6 +19,8 @@
 
 #include "EdgeRenderer.h"
 
+#include "Renderer/ActiveShader.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
@@ -117,8 +119,8 @@ namespace TrenchBroom {
         m_vertexArray(vertexArray),
         m_indexRanges(indexRanges) {}
 
-        void DirectEdgeRenderer::Render::doPrepareVertices(Vbo& vertexVbo) {
-            m_vertexArray.prepare(vertexVbo);
+        void DirectEdgeRenderer::Render::doPrepareVertices(VboManager& vboManager) {
+            m_vertexArray.prepare(vboManager);
         }
 
         void DirectEdgeRenderer::Render::doRender(RenderContext& renderContext) {
@@ -163,14 +165,14 @@ namespace TrenchBroom {
 
         // IndexedEdgeRenderer::Render
 
-        IndexedEdgeRenderer::Render::Render(const EdgeRenderer::Params& params, BrushVertexArrayPtr vertexArray, BrushIndexArrayPtr indexArray) :
+        IndexedEdgeRenderer::Render::Render(const EdgeRenderer::Params& params, std::shared_ptr<BrushVertexArray> vertexArray, std::shared_ptr<BrushIndexArray> indexArray) :
         RenderBase(params),
-        m_vertexArray(vertexArray),
-        m_indexArray(indexArray) {}
+        m_vertexArray(std::move(vertexArray)),
+        m_indexArray(std::move(indexArray)) {}
 
-        void IndexedEdgeRenderer::Render::prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) {
-            m_vertexArray->prepare(vertexVbo);
-            m_indexArray->prepare(indexVbo);
+        void IndexedEdgeRenderer::Render::prepareVerticesAndIndices(VboManager& vboManager) {
+            m_vertexArray->prepare(vboManager);
+            m_indexArray->prepare(vboManager);
         }
 
         void IndexedEdgeRenderer::Render::doRender(RenderContext& renderContext) {
@@ -182,17 +184,19 @@ namespace TrenchBroom {
 
         void IndexedEdgeRenderer::Render::doRenderVertices(RenderContext&) {
             m_vertexArray->setupVertices();
-            m_indexArray->render(GL_LINES);
+            m_indexArray->setupIndices();
+            m_indexArray->render(PrimType::Lines);
             m_vertexArray->cleanupVertices();
+            m_indexArray->cleanupIndices();
         }
 
         // IndexedEdgeRenderer
 
         IndexedEdgeRenderer::IndexedEdgeRenderer() {}
 
-        IndexedEdgeRenderer::IndexedEdgeRenderer(BrushVertexArrayPtr vertexArray, BrushIndexArrayPtr indexArray) :
-        m_vertexArray(vertexArray),
-        m_indexArray(indexArray) {}
+        IndexedEdgeRenderer::IndexedEdgeRenderer(std::shared_ptr<BrushVertexArray> vertexArray, std::shared_ptr<BrushIndexArray> indexArray) :
+        m_vertexArray(std::move(vertexArray)),
+        m_indexArray(std::move(indexArray)) {}
 
         IndexedEdgeRenderer::IndexedEdgeRenderer(const IndexedEdgeRenderer& other) :
         m_vertexArray(other.m_vertexArray),

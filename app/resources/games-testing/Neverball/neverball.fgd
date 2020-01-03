@@ -1,0 +1,190 @@
+// Unofficial Neverball FGD for use in TrenchBroom
+// Details were taken from https://github.com/Neverball/neverball-docs/blob/8e4b71c0eea12f5cab8d925964682fb2eaee625e/Entities.md and co.
+// After those turned out to be insufficient, mapc.c was consulted for reference.
+// Yet, this may still be inaccurate in the fine details.
+
+@BaseClass = NeverballBody : "internal class; 'bodies' are described in the manual, but incompletely"
+[
+    // These all being properties of 'body' is a weird undocumented quirk of mapc - that is actually used in Neverball to some extent.
+    target(target_destination) : "An optional path for the body to move along. This also specifies the origin of the body relative to the path."
+    target2(target_destination) : "An optional secondary path to specifically control the body's rotation."
+    material(string) : "Optional fallback material override filename. Must appear in the MAP file before 'model' to work. For standard map materials, prefix 'textures/'."
+    model(string) : "An optional filename of an OBJ file. The geometry in this is added, without collision, to this entity."
+]
+
+@SolidClass base(NeverballBody) = worldspawn : "Defines level attributes and static geometry."
+[
+    // Ig imp
+    version(string) : "The level version number. It is split into a major and minor version; major version updates must occur if an update would break replays (i.e. the physics of the level changes in any way), while minor version updates are used for purely cosmetic changes (addition of decals, for example). This is written as follows: '0.0'." : "0.0"
+    goal(integer) : "Neverball: The amount of coins required to be able to use a goal."
+    time(integer) : "Neverball: The time limit (as hundredths-of-seconds, or centiseconds; 6000 would be one minute)."
+    idle(integer) : "Neverputt: In hundredths-of-seconds (similar to Neverball 'time'), the amount of time to wait after the ball stops. It is stated in the manual that this is useful when there are moving objects that could push the ball. It is not stated in the manual, but it is reasonable to conclude that as such, one should set this based on the longest cycle period of any moving object a stopped ball could encounter."
+    par(integer) : "Neverputt: The 'par' amount of turns any individual player is expected to take on a course."
+    
+    // Menu
+    author(string) : "The name(s) of the level designer(s)."
+    shot(string) : "The filename of the 'level screenshot' for the menu."
+    time_hs(string) : "The initial values in the high-scores table for Best Time, in the order: Hard, Medium, Easy. (On at least one occasion, the last entry has been missing, so take this under advisement should a map's value here seem odd.) Example: '1000 2000 3000'. The numbers are in the same form as the time limit, and this defaults to said time limit."
+    goal_hs(string) : "See 'time_hs' ; however, this is for the Fast Unlock category. This is still time-based."
+    coin_hs(string) : "Similar in format to 'time_hs' and 'goal_hs', but instead of time values, represents the amount of coins collected, for Most Coins. As such, the default is the minimum amount of coins required to complete the level (see 'goal')."
+    bonus(choices) : "By being set to 1, makes this level a bonus level. Omit otherwise." : 1 =
+    [
+        1 : "Bonus Level"
+    ]
+    // Ig unimp
+    message(string) : "The message shown on level start. A backslash (\\) starts a new line - wrapping is not automatic."
+    back(choices) : "The compiled background level file." : "map-back/alien.sol" =
+    [
+        ""                     : "<none>"
+        "map-back/alien.sol"   : "Alien"
+        "map-back/blank.sol"   : "Blank"
+        "map-back/city.sol"    : "City"
+        "map-back/clouds.sol"  : "Clouds"
+        "map-back/jupiter.sol" : "Jupiter"
+        "map-back/ocean.sol"   : "Ocean"
+        "map-back/volcano.sol" : "Volcano"
+    ]
+    grad(choices) : "A background gradient. Should usually be chosen to fit the background level file. There are other gradients not in the list, for brevity." : "back/land.png" =
+    [
+        "back/alien.png" : "Alien (Alien)"
+        "back/city.png"  : "City (City)"
+        "back/land.png"  : "Land (Clouds)"
+        "back/space.png"  : "Space (Jupiter)"
+        "back/ocean.png"  : "Ocean (Ocean)"
+        "back/volcano.png"  : "Volcano (Volcano)"
+    ]
+    song(choices) : "The background music file." : "bgm/title.ogg" =
+    [
+        ""               : "<none>"
+        "bgm/title.ogg"  : "Neverball: Title"
+        "bgm/inter.ogg"  : "Neverball: Intermission / Browsing"
+        "bgm/track1.ogg" : "Neverball: Track 1"
+        "bgm/track2.ogg" : "Neverball: Track 2"
+        "bgm/track3.ogg" : "Neverball: Track 3"
+        "bgm/track4.ogg" : "Neverball: Track 4"
+        "bgm/track5.ogg" : "Neverball: Track 5"
+        "bgm/track6.ogg" : "Neverball: Track 6"
+    ]
+]
+
+// Of course, as you may have surmised, this is reliant on OBJ support...
+@PointClass size(-16 -16 -24, 16 16 8) model("__tb_info_player_start.obj") = info_player_start : "The player start. In Neverball, there should only be one; in Neverputt, one must be defined per player slot. Beware! Rotating this entity will not work; the angle must always be 0. Usually accompanied by a mtrl/arrow* detail-brush decal."
+[
+    angle(integer) : "The starting angle - completely ignored, mind! - is always 90, or towards +Y." : 90
+    radius(float) : "The radius, in 'meters' (1 meter = 64 units). Defaults to 0.25, but if in Neverputt, this should be set to 0.0625." : "0.25"
+]
+
+@PointClass size(32 32 48) model("__tb_info_player_deathmatch.obj") = info_player_deathmatch : "The goal (or one thereof). For Neverball, usually accompanied by a mtrl/goal detail-brush decal. For Neverputt, usually in a hole."
+[
+    radius(float) : "The radius, in 'meters' (1 meter = 64 units). Defaults to 0.75 (though be aware that the collision rules make this effectively 0.5). In Neverputt, usually 0.1375." : "0.75"
+]
+
+// Items need to have their boxes be sized 32x32x32 for accurate placement on coin pads.
+// Then they need custom models because the actual real models have three issues:
+// 1. They don't match any other Neverball units
+//    (& we can't just change the definition of the units, since it'd break misc_model, which we can't work around)
+// 2. They're manually coloured
+// 3. A WYSIWYG approach for grow/shrink items is rather unhelpful
+// So I'm adding more models.
+@PointClass
+    size(32 32 32)
+    model({{
+        light >= 10 ->   "__tb_light_10.obj",
+        light >= 5 ->   "__tb_light_5.obj",
+        "__tb_light_1.obj"
+    }}) =
+    light : "Neverball: A coin. Usually accompanied by a 'coin pad' (mtrl/coin-*)."
+[
+    light(choices) : "The amount of coins this individual coin counts as." : 1 =
+    [
+        1  : "1 coin (light, yellow)"
+        5  : "5 coins (medium, red)"
+        10 : "10 coins (dark, blue)"
+    ]
+]
+
+// For shrink & grow objects, the boxes in practice need to be sized to whatever the "recommended" item height is.
+@PointClass size(32 32 32) model("__tb_item_health_small.obj") = item_health_small : "A 'shrink' item. Shrinks the ball to 50% of it's original size. If it was grown previously, it instead reverts. If already shrunk, it does nothing." []
+@PointClass size(32 32 32) model("__tb_item_health_large.obj") = item_health_large : "A 'grow' item. Grows the ball to 150% of it's original size. If it was shrunk previously, it instead reverts. If already grown, it does nothing." []
+
+// These extend a unit upwards from their origins so that they aren't embedded in the brush below.
+
+@PointClass size(-32 -32 0, 32 32 1) model("__tb_generic_ring_05.obj") = target_teleporter : "A teleporter. Usually accompanied by a mtrl/teleporter detail-brush decal."
+[
+    radius(float) : "The radius, in 'meters' (1 meter = 64 units). Defaults to 0.5." : "0.5"
+    target(target_destination) : "A target_position entity that is the destination of the teleporter. Two-way teleporters have target_position entities at each other's exits."
+]
+
+@PointClass size(-32 -32 0, 32 32 1) model("__tb_generic_ring_05.obj") = info_camp : "A switch. Usually accompanied by a mtrl/switch detail-brush decal."
+[
+    radius(float) : "The radius, in 'meters' (1 meter = 64 units). Defaults to 0.5." : "0.5"
+    target(target_destination) : "The path_corner that is turned on/off by this switch."
+    state(choices) : "The initial state of the switch. Should always match the initial state of the path_corner." : 0 =
+    [
+        0 : "Disabled"
+        1 : "Enabled"
+    ]
+    timer(float) : "The amount of time, in seconds, that the switch remains active for. Defaults to 0, which is infinite." : "0"
+    invisible(choices) : "Allows making the switch invisible." : 0 =
+    [
+        0 : "Visible"
+        1 : "Invisible"
+    ]
+]
+
+// -- Ok, over to the utility & vis objects --
+
+@PointClass size(32 32 32) = info_player_intermission : "The camera position for level begin. Neverputt uses two (begin, then main menu, based on .map file order); Neverball meanwhile isn't *documented* as using two, but map-medium/title.map does use two (presumably for the animated title title)."
+[
+    target(target_destination) : "A target_position entity that the camera tries to look at."
+]
+
+@PointClass size(32 32 32) model("__tb_fancy_path_corner.obj") = path_corner : "Represents a point on a path, and describes the journey to the next point on the path."
+[
+    targetname(target_source) : "The name of this point."
+    target(target_destination) : "The name of the next point."
+    speed(float) : "The amount of time it takes to get to the next point, in seconds. Defaults to 1.0." : "1.0"
+    state(choices) : "Controls whether objects may move along this path by default. Defaults to enabled." : 1 =
+    [
+        0 : "Disabled"
+        1 : "Enabled"
+    ]
+    smooth(choices) : "Controls whether the objects accelerate/decelerate, or simply move at constant speed. Defaults to acceleration/deceleration." : 1 =
+    [
+        0 : "Linear"
+        1 : "Smooth"
+    ]
+    angles(string) : "Euler angles in the form of degrees 'pitch yaw roll', such as '0 90 0', when the object is at this point."
+    angle(integer) : "A single angle, equivalent to only adjusting Yaw of the angles value."
+]
+
+@SolidClass base(NeverballBody) = func_train : "A moving object." []
+
+// Yes, misc_model MAY be used as a brush entity; yes, geometry in a misc_model works properly.
+@SolidClass base(NeverballBody) model(model) = misc_model : "A dummy body entity." []
+@PointClass base(NeverballBody) model(model) = misc_model : "A dummy body entity." []
+
+@PointClass = target_position : "An abstract point referred to by other entities."
+[
+    targetname(target_source) : "The name of this point."
+]
+
+// Finally... the background thing?
+
+@PointClass = info_null : "A billboard."
+[
+    dist(float) : "The distance from the centre of the world to the billboard." : "250"
+    flag(Flags) =
+    [
+        1: "Position relative to bottom edge" : 0
+        2: "Billboard is flat/horizontal" : 0
+    ]
+    image(string) : "The billboard's image."
+    xrot(string) : "3 X positioning angles (one after the other, separated by spaces); static, dynamic, quadratic (play with these and see what happens)"
+    yrot(string) : "3 Y positioning angles (one after the other, separated by spaces); static, dynamic, quadratic (play with these and see what happens)"
+    zrot(string) : "3 Z positioning angles (one after the other, separated by spaces); static, dynamic, quadratic (play with these and see what happens)"
+    width(string) : "The width"
+    height(string) : "The height"
+    time(float) : "The length of the animation."
+]
+

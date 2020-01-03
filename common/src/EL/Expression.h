@@ -21,17 +21,16 @@
 #define Expression_h
 
 #include "Macros.h"
-#include "EL/Value.h"
+#include "EL/EL_Forward.h"
 
-#include <list>
-#include <memory>
 #include <iosfwd>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace EL {
-        class EvaluationContext;
-        class ExpressionBase;
-
         class Expression {
         private:
             using ExpressionPtr = std::shared_ptr<ExpressionBase>;
@@ -45,7 +44,7 @@ namespace TrenchBroom {
 
             size_t line() const;
             size_t column() const;
-            String asString() const;
+            std::string asString() const;
             friend std::ostream& operator<<(std::ostream& stream, const Expression& expression);
         };
 
@@ -54,15 +53,15 @@ namespace TrenchBroom {
         class ExpressionBase {
         public:
             using Ptr = std::unique_ptr<ExpressionBase>;
-            using List = std::list<ExpressionBase*>;
-            using Map = std::map<String, ExpressionBase*>;
+            using List = std::vector<Ptr>;
+            using Map = std::map<std::string, Ptr>;
 
             friend class Expression;
         protected:
             size_t m_line;
             size_t m_column;
         protected:
-            static void replaceExpression(ExpressionBase*& oldExpression, ExpressionBase* newExpression);
+            static bool replaceExpression(Ptr& oldExpression, ExpressionBase* newExpression);
         public:
             ExpressionBase(size_t line, size_t column);
             virtual ~ExpressionBase();
@@ -74,7 +73,7 @@ namespace TrenchBroom {
             ExpressionBase* optimize();
             Value evaluate(const EvaluationContext& context) const;
 
-            String asString() const;
+            std::string asString() const;
             void appendToStream(std::ostream& str) const;
             friend std::ostream& operator<<(std::ostream& stream, const ExpressionBase& expression);
         private:
@@ -90,7 +89,7 @@ namespace TrenchBroom {
 
         class LiteralExpression : public ExpressionBase {
         private:
-            Value m_value;
+            std::unique_ptr<Value> m_value;
         private:
             LiteralExpression(const Value& value, size_t line, size_t column);
         public:
@@ -106,11 +105,11 @@ namespace TrenchBroom {
 
         class VariableExpression : public ExpressionBase {
         private:
-            String m_variableName;
+            std::string m_variableName;
         private:
-            VariableExpression(const String& variableName, size_t line, size_t column);
+            VariableExpression(const std::string& variableName, size_t line, size_t column);
         public:
-            static ExpressionBase* create(const String& variableName, size_t line, size_t column);
+            static ExpressionBase* create(const std::string& variableName, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const override;
             ExpressionBase* doOptimize() override;
@@ -124,9 +123,9 @@ namespace TrenchBroom {
         private:
             ExpressionBase::List m_elements;
         private:
-            ArrayExpression(const ExpressionBase::List& elements, size_t line, size_t column);
+            ArrayExpression(ExpressionBase::List&& elements, size_t line, size_t column);
         public:
-            static ExpressionBase* create(const ExpressionBase::List& elements, size_t line, size_t column);
+            static ExpressionBase* create(ExpressionBase::List&& elements, size_t line, size_t column);
             ~ArrayExpression() override;
         private:
             ExpressionBase* doClone() const override;
@@ -141,9 +140,9 @@ namespace TrenchBroom {
         private:
             ExpressionBase::Map m_elements;
         private:
-            MapExpression(const ExpressionBase::Map& elements, size_t line, size_t column);
+            MapExpression(ExpressionBase::Map&& elements, size_t line, size_t column);
         public:
-            static ExpressionBase* create(const ExpressionBase::Map& elements, size_t line, size_t column);
+            static ExpressionBase* create(ExpressionBase::Map&& elements, size_t line, size_t column);
             ~MapExpression() override;
         private:
             ExpressionBase* doClone() const override;
@@ -156,7 +155,7 @@ namespace TrenchBroom {
 
         class UnaryOperator : public ExpressionBase {
         protected:
-            ExpressionBase* m_operand;
+            ExpressionBase::Ptr m_operand;
         protected:
             UnaryOperator(ExpressionBase* operand, size_t line, size_t column);
         public:
@@ -233,8 +232,8 @@ namespace TrenchBroom {
 
         class SubscriptOperator : public ExpressionBase {
         private:
-            ExpressionBase* m_indexableOperand;
-            ExpressionBase* m_indexOperand;
+            ExpressionBase::Ptr m_indexableOperand;
+            ExpressionBase::Ptr m_indexOperand;
         private:
             SubscriptOperator(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, size_t line, size_t column);
         public:
@@ -252,8 +251,8 @@ namespace TrenchBroom {
 
         class BinaryOperator : public ExpressionBase {
         protected:
-            ExpressionBase* m_leftOperand;
-            ExpressionBase* m_rightOperand;
+            ExpressionBase::Ptr m_leftOperand;
+            ExpressionBase::Ptr m_rightOperand;
         protected:
             BinaryOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         public:
@@ -478,7 +477,7 @@ namespace TrenchBroom {
 
         class RangeOperator : public BinaryOperator {
         public:
-            static const String& AutoRangeParameterName();
+            static const std::string& AutoRangeParameterName();
         private:
             RangeOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         public:
@@ -512,11 +511,11 @@ namespace TrenchBroom {
         private:
             ExpressionBase::List m_cases;
         private:
-            SwitchOperator(const ExpressionBase::List& cases, size_t line, size_t column);
+            SwitchOperator(ExpressionBase::List&& cases, size_t line, size_t column);
         public:
             ~SwitchOperator() override;
         public:
-            static ExpressionBase* create(const ExpressionBase::List& cases, size_t line, size_t column);
+            static ExpressionBase* create(ExpressionBase::List&& cases, size_t line, size_t column);
         private:
             ExpressionBase* doClone() const override;
             ExpressionBase* doOptimize() override;

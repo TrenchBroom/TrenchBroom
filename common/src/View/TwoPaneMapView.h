@@ -20,24 +20,21 @@
 #ifndef TrenchBroom_TwoPaneMapView
 #define TrenchBroom_TwoPaneMapView
 
+#include "Renderer/Renderer_Forward.h"
 #include "View/CameraLinkHelper.h"
 #include "View/MultiMapView.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 class QSplitter;
 
 namespace TrenchBroom {
     class Logger;
 
-    namespace Renderer {
-        class MapRenderer;
-        class Vbo;
-    }
-
     namespace View {
         class CyclingMapView;
         class GLContextManager;
-        class MapViewBase;
+        class MapDocument;
         class MapView3D;
         class MapViewToolBox;
 
@@ -45,14 +42,14 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             Logger* m_logger;
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             CameraLinkHelper m_linkHelper;
             QSplitter* m_splitter;
             MapView3D* m_mapView3D;
             CyclingMapView* m_mapView2D;
         public:
-            TwoPaneMapView(MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer,
+            TwoPaneMapView(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer,
                            GLContextManager& contextManager, Logger* logger, QWidget* parent = nullptr);
             ~TwoPaneMapView() override;
         private:

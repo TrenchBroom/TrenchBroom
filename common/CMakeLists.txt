@@ -9,11 +9,11 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionManager.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityModel.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.cpp
-        ${COMMON_SOURCE_DIR}/Assets/ImageUtils.cpp
         ${COMMON_SOURCE_DIR}/Assets/ModelDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/Palette.cpp
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.cpp
         ${COMMON_SOURCE_DIR}/Assets/Texture.cpp
+        ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.cpp
         ${COMMON_SOURCE_DIR}/Assets/TextureCollection.cpp
         ${COMMON_SOURCE_DIR}/Assets/TextureManager.cpp
         ${COMMON_SOURCE_DIR}/EL/ELExceptions.cpp
@@ -68,6 +68,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/NodeReader.cpp
         ${COMMON_SOURCE_DIR}/IO/NodeSerializer.cpp
         ${COMMON_SOURCE_DIR}/IO/NodeWriter.cpp
+        ${COMMON_SOURCE_DIR}/IO/ObjParser.cpp
         ${COMMON_SOURCE_DIR}/IO/ObjSerializer.cpp
         ${COMMON_SOURCE_DIR}/IO/ParserStatus.cpp
         ${COMMON_SOURCE_DIR}/IO/Path.cpp
@@ -145,6 +146,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/HitAdapter.cpp
         ${COMMON_SOURCE_DIR}/Model/HitFilter.cpp
         ${COMMON_SOURCE_DIR}/Model/HitQuery.cpp
+        ${COMMON_SOURCE_DIR}/Model/HitType.cpp
         ${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/Issue.cpp
         ${COMMON_SOURCE_DIR}/Model/IssueGenerator.cpp
@@ -197,6 +199,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/World.cpp
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/RecoverableExceptions.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/ActiveShader.cpp
         ${COMMON_SOURCE_DIR}/Renderer/AllocationTracker.cpp
         ${COMMON_SOURCE_DIR}/Renderer/BoundsGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/BrushRenderer.cpp
@@ -222,9 +225,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/GL.cpp
         ${COMMON_SOURCE_DIR}/Renderer/GridRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/GroupRenderer.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/IndexArray.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/IndexArrayMap.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/IndexArrayMapBuilder.cpp
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeMap.cpp
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/MapRenderer.cpp
@@ -233,6 +233,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/PerspectiveCamera.cpp
         ${COMMON_SOURCE_DIR}/Renderer/PointGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/PointHandleRenderer.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/PrimType.cpp
         ${COMMON_SOURCE_DIR}/Renderer/PrimitiveRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/Renderable.cpp
         ${COMMON_SOURCE_DIR}/Renderer/RenderBatch.cpp
@@ -249,16 +250,13 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/SpikeGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextAnchor.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextRenderer.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMap.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMapBuilder.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMap.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextureFont.cpp
         ${COMMON_SOURCE_DIR}/Renderer/Transformation.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TriangleRenderer.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/VboManager.cpp
         ${COMMON_SOURCE_DIR}/Renderer/Vbo.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/VboBlock.cpp
         ${COMMON_SOURCE_DIR}/Renderer/VertexArray.cpp
         ${COMMON_SOURCE_DIR}/View/AboutDialog.cpp
         ${COMMON_SOURCE_DIR}/View/ActionContext.cpp
@@ -266,7 +264,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/AddBrushVerticesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/Animation.cpp
-        ${COMMON_SOURCE_DIR}/View/AnimationCurve.cpp
         ${COMMON_SOURCE_DIR}/View/AppInfoPanel.cpp
         ${COMMON_SOURCE_DIR}/View/Autosaver.cpp
         ${COMMON_SOURCE_DIR}/View/BorderLine.cpp
@@ -499,7 +496,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Preference.cpp
         ${COMMON_SOURCE_DIR}/Preferences.cpp
         ${COMMON_SOURCE_DIR}/Reference.cpp
-        ${COMMON_SOURCE_DIR}/StringUtils.cpp
         ${COMMON_SOURCE_DIR}/TemporarilySetAny.cpp
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.cpp
         ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.cpp
@@ -507,7 +503,7 @@ set(COMMON_SOURCE
 
 set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/AABBTree.h
-        ${COMMON_SOURCE_DIR}/Assets/AssetTypes.h
+        ${COMMON_SOURCE_DIR}/Assets/Asset_Forward.h
         ${COMMON_SOURCE_DIR}/Assets/AttributeDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/ColorRange.h
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinition.h
@@ -515,14 +511,16 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionGroup.h
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionManager.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModel.h
+        ${COMMON_SOURCE_DIR}/Assets/EntityModel_Forward.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.h
-        ${COMMON_SOURCE_DIR}/Assets/ImageUtils.h
         ${COMMON_SOURCE_DIR}/Assets/ModelDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/Palette.h
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.h
         ${COMMON_SOURCE_DIR}/Assets/Texture.h
+        ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.h
         ${COMMON_SOURCE_DIR}/Assets/TextureCollection.h
         ${COMMON_SOURCE_DIR}/Assets/TextureManager.h
+        ${COMMON_SOURCE_DIR}/EL/EL_Forward.h
         ${COMMON_SOURCE_DIR}/EL/ELExceptions.h
         ${COMMON_SOURCE_DIR}/EL/EvaluationContext.h
         ${COMMON_SOURCE_DIR}/EL/Expression.h
@@ -562,6 +560,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/ImageFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/ImageLoader.h
         ${COMMON_SOURCE_DIR}/IO/ImageLoaderImpl.h
+        ${COMMON_SOURCE_DIR}/IO/IO_Forward.h
         ${COMMON_SOURCE_DIR}/IO/IOUtils.h
         ${COMMON_SOURCE_DIR}/IO/LegacyModelDefinitionParser.h
         ${COMMON_SOURCE_DIR}/IO/MapFileSerializer.h
@@ -575,6 +574,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/NodeReader.h
         ${COMMON_SOURCE_DIR}/IO/NodeSerializer.h
         ${COMMON_SOURCE_DIR}/IO/NodeWriter.h
+        ${COMMON_SOURCE_DIR}/IO/ObjParser.h
         ${COMMON_SOURCE_DIR}/IO/ObjSerializer.h
         ${COMMON_SOURCE_DIR}/IO/Parser.h
         ${COMMON_SOURCE_DIR}/IO/ParserStatus.h
@@ -667,6 +667,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/HitAdapter.h
         ${COMMON_SOURCE_DIR}/Model/HitFilter.h
         ${COMMON_SOURCE_DIR}/Model/HitQuery.h
+        ${COMMON_SOURCE_DIR}/Model/HitType.h
         ${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Issue.h
         ${COMMON_SOURCE_DIR}/Model/IssueGenerator.h
@@ -702,7 +703,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/Object.h
         ${COMMON_SOURCE_DIR}/Model/ParallelTexCoordSystem.h
         ${COMMON_SOURCE_DIR}/Model/ParaxialTexCoordSystem.h
-        ${COMMON_SOURCE_DIR}/Model/Pickable.h
         ${COMMON_SOURCE_DIR}/Model/PickResult.h
         ${COMMON_SOURCE_DIR}/Model/PlanePointFinder.h
         ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesIssueGenerator.h
@@ -715,6 +715,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/TagAttribute.h
         ${COMMON_SOURCE_DIR}/Model/TagManager.h
         ${COMMON_SOURCE_DIR}/Model/TagMatcher.h
+        ${COMMON_SOURCE_DIR}/Model/TagType.h
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.h
         ${COMMON_SOURCE_DIR}/Model/TakeSnapshotVisitor.h
         ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.h
@@ -723,6 +724,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/VisibilityState.h
         ${COMMON_SOURCE_DIR}/Model/World.h
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Renderer/ActiveShader.h
         ${COMMON_SOURCE_DIR}/Renderer/AllocationTracker.h
         ${COMMON_SOURCE_DIR}/Renderer/BoundsGuideRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/BrushRenderer.h
@@ -751,9 +753,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/GLVertexType.h
         ${COMMON_SOURCE_DIR}/Renderer/GridRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/GroupRenderer.h
-        ${COMMON_SOURCE_DIR}/Renderer/IndexArray.h
-        ${COMMON_SOURCE_DIR}/Renderer/IndexArrayMap.h
-        ${COMMON_SOURCE_DIR}/Renderer/IndexArrayMapBuilder.h
         ${COMMON_SOURCE_DIR}/Renderer/IndexedVertexList.h
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeMap.h
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeMapBuilder.h
@@ -765,9 +764,11 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/PointGuideRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/PointHandleRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/PrimitiveRenderer.h
+        ${COMMON_SOURCE_DIR}/Renderer/PrimType.h
         ${COMMON_SOURCE_DIR}/Renderer/Renderable.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderBatch.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderContext.h
+        ${COMMON_SOURCE_DIR}/Renderer/Renderer_Forward.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderService.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderUtils.h
         ${COMMON_SOURCE_DIR}/Renderer/SelectionBoundsRenderer.h
@@ -780,17 +781,14 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/SpikeGuideRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/TextAnchor.h
         ${COMMON_SOURCE_DIR}/Renderer/TextRenderer.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMap.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMapBuilder.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMap.h
         ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMapBuilder.h
         ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/TextureFont.h
         ${COMMON_SOURCE_DIR}/Renderer/Transformation.h
         ${COMMON_SOURCE_DIR}/Renderer/TriangleRenderer.h
+        ${COMMON_SOURCE_DIR}/Renderer/VboManager.h
         ${COMMON_SOURCE_DIR}/Renderer/Vbo.h
-        ${COMMON_SOURCE_DIR}/Renderer/VboBlock.h
         ${COMMON_SOURCE_DIR}/Renderer/VertexArray.h
         ${COMMON_SOURCE_DIR}/Renderer/VertexListBuilder.h
         ${COMMON_SOURCE_DIR}/View/AboutDialog.h
@@ -799,7 +797,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/AddBrushVerticesCommand.h
         ${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.h
         ${COMMON_SOURCE_DIR}/View/Animation.h
-        ${COMMON_SOURCE_DIR}/View/AnimationCurve.h
         ${COMMON_SOURCE_DIR}/View/AppInfoPanel.h
         ${COMMON_SOURCE_DIR}/View/Autosaver.h
         ${COMMON_SOURCE_DIR}/View/BorderLine.h
@@ -932,6 +929,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/MultiCompletionLineEdit.h
         ${COMMON_SOURCE_DIR}/View/MultiMapView.h
         ${COMMON_SOURCE_DIR}/View/OnePaneMapView.h
+        ${COMMON_SOURCE_DIR}/View/PasteType.h
         ${COMMON_SOURCE_DIR}/View/PickRequest.h
         ${COMMON_SOURCE_DIR}/View/PopupButton.h
         ${COMMON_SOURCE_DIR}/View/PopupWindow.h
@@ -1017,19 +1015,17 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/VertexToolBase.h
         ${COMMON_SOURCE_DIR}/View/VertexToolController.h
         ${COMMON_SOURCE_DIR}/View/VertexToolControllerBase.h
+        ${COMMON_SOURCE_DIR}/View/View_Forward.h
         ${COMMON_SOURCE_DIR}/View/ViewConstants.h
         ${COMMON_SOURCE_DIR}/View/ViewEditor.h
         ${COMMON_SOURCE_DIR}/View/ViewEffectsService.h
         ${COMMON_SOURCE_DIR}/View/ViewPreferencePane.h
-        ${COMMON_SOURCE_DIR}/View/ViewTypes.h
         ${COMMON_SOURCE_DIR}/View/ViewUtils.h
         ${COMMON_SOURCE_DIR}/View/WelcomeWindow.h
         ${COMMON_SOURCE_DIR}/View/QtUtils.h
         ${COMMON_SOURCE_DIR}/Allocator.h
         ${COMMON_SOURCE_DIR}/AttrString.h
         ${COMMON_SOURCE_DIR}/Bitset.h
-        ${COMMON_SOURCE_DIR}/ByteBuffer.h
-        ${COMMON_SOURCE_DIR}/CollectionUtils.h
         ${COMMON_SOURCE_DIR}/Color.h
         ${COMMON_SOURCE_DIR}/Constants.h
         ${COMMON_SOURCE_DIR}/Disjunction.h
@@ -1068,24 +1064,17 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Relation.h
         ${COMMON_SOURCE_DIR}/SharedPointer.h
         ${COMMON_SOURCE_DIR}/StepIterator.h
-        ${COMMON_SOURCE_DIR}/StringList.h
-        ${COMMON_SOURCE_DIR}/StringMap.h
-        ${COMMON_SOURCE_DIR}/StringSet.h
-        ${COMMON_SOURCE_DIR}/StringStream.h
-        ${COMMON_SOURCE_DIR}/StringType.h
-        ${COMMON_SOURCE_DIR}/StringUtils.h
         ${COMMON_SOURCE_DIR}/TemporarilySetAny.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
         ${COMMON_SOURCE_DIR}/TrenchBroom.h
         ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.h
-        ${COMMON_SOURCE_DIR}/VectorUtilsMinimal.h
 )
 
 add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_compile_features(common PRIVATE cxx_std_17)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
-target_link_libraries(common PUBLIC tinyxml2 vecmath optlite glew miniz freeimage freetype OpenGL::GL Qt5::Widgets)
+target_link_libraries(common PUBLIC tinyxml2 kdl vecmath optlite glew miniz freeimage freetype OpenGL::GL Qt5::Widgets)
 
 # use precompiled headers on CMake 3.16 or later
 if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")

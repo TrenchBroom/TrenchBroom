@@ -33,12 +33,13 @@
 #include "View/MapDocument.h"
 
 #include <vecmath/segment.h>
+#include <vecmath/polygon.h>
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        ScaleObjectsToolController::ScaleObjectsToolController(ScaleObjectsTool* tool, MapDocumentWPtr document) :
+        ScaleObjectsToolController::ScaleObjectsToolController(ScaleObjectsTool* tool, std::weak_ptr<MapDocument> document) :
         m_tool(tool),
         m_document(document) {
             ensure(m_tool != nullptr, "tool is null");
@@ -321,7 +322,7 @@ namespace TrenchBroom {
 
         // ScaleObjectsToolController2D
 
-        ScaleObjectsToolController2D::ScaleObjectsToolController2D(ScaleObjectsTool* tool, MapDocumentWPtr document) :
+        ScaleObjectsToolController2D::ScaleObjectsToolController2D(ScaleObjectsTool* tool, std::weak_ptr<MapDocument> document) :
         ScaleObjectsToolController(tool, document) {}
 
         void ScaleObjectsToolController2D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
@@ -331,7 +332,7 @@ namespace TrenchBroom {
 
         // ScaleObjectsToolController3D
 
-        ScaleObjectsToolController3D::ScaleObjectsToolController3D(ScaleObjectsTool* tool, MapDocumentWPtr document) :
+        ScaleObjectsToolController3D::ScaleObjectsToolController3D(ScaleObjectsTool* tool, std::weak_ptr<MapDocument> document) :
         ScaleObjectsToolController(tool, document) {}
 
         void ScaleObjectsToolController3D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,

@@ -20,25 +20,17 @@
 #ifndef TrenchBroom_MapView2D
 #define TrenchBroom_MapView2D
 
-#include <vecmath/scalar.h>
 #include "Model/Model_Forward.h"
-#include "Renderer/OrthographicCamera.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/MapViewBase.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
+
+#include <vecmath/forward.h>
+
+#include <memory>
 
 namespace TrenchBroom {
     class Logger;
-
-    namespace Model {
-        class PickResult;
-    }
-
-    namespace Renderer {
-        class Compass;
-        class MapRenderer;
-        class RenderBatch;
-        class RenderContext;
-    }
 
     namespace View {
         class MapView2D : public MapViewBase {
@@ -50,9 +42,9 @@ namespace TrenchBroom {
                 ViewPlane_YZ
             } ViewPlane;
         private:
-            Renderer::OrthographicCamera m_camera;
+            std::unique_ptr<Renderer::OrthographicCamera> m_camera;
         public:
-            MapView2D(MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
+            MapView2D(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
                       GLContextManager& contextManager, ViewPlane viewPlane, Logger* logger);
             ~MapView2D() override;
         private:
@@ -87,7 +79,7 @@ namespace TrenchBroom {
             ActionView doGetActionView() const override;
             bool doCancel() override;
 
-            Renderer::RenderContext::RenderMode doGetRenderMode() override;
+            Renderer::RenderMode doGetRenderMode() override;
             Renderer::Camera& doGetCamera() override;
             void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
             void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;

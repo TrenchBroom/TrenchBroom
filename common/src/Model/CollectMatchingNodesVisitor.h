@@ -27,7 +27,8 @@
 #include "Model/Layer.h"
 #include "Model/World.h"
 
-#include <set>
+#include <kdl/vector_set.h>
+
 #include <vector>
 
 namespace TrenchBroom {
@@ -51,7 +52,7 @@ namespace TrenchBroom {
 
         class UniqueNodeCollectionStrategy : public NodeCollectionStrategy {
         private:
-            std::set<Node*> m_addedNodes;
+            kdl::vector_set<Node*> m_addedNodes;
         public:
             virtual ~UniqueNodeCollectionStrategy() override;
         public:
@@ -101,14 +102,16 @@ namespace TrenchBroom {
 
         template <typename V, typename I>
         std::vector<Node*> collectMatchingNodes(I cur, I end, Node* root) {
-            std::vector<Node*> result;
+            kdl::vector_set<Node*> result;
             while (cur != end) {
                 V visitor(*cur);
                 root->acceptAndRecurse(visitor);
-                result = VectorUtils::setUnion(result, visitor.nodes());
+
+                const auto& nodes = visitor.nodes();
+                result.insert(std::begin(nodes), std::end(nodes));
                 ++cur;
             }
-            return result;
+            return result.release_data();
         }
 
     }

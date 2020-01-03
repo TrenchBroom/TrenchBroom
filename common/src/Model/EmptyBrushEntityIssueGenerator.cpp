@@ -19,7 +19,6 @@
 
 #include "EmptyBrushEntityIssueGenerator.h"
 
-#include "StringUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
@@ -27,7 +26,7 @@
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 
-#include <vector>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -42,7 +41,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            const std::string doGetDescription() const override {
                 const Entity* entity = static_cast<Entity*>(node());
                 return "Entity '" + entity->classname() + "' does not contain any brushes";
             }
@@ -68,7 +67,7 @@ namespace TrenchBroom {
         void EmptyBrushEntityIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
             ensure(entity != nullptr, "entity is null");
             const Assets::EntityDefinition* definition = entity->definition();
-            if (definition != nullptr && definition->type() == Assets::EntityDefinition::Type_BrushEntity && !entity->hasChildren())
+            if (definition != nullptr && definition->type() == Assets::EntityDefinitionType::BrushEntity && !entity->hasChildren())
                 issues.push_back(new EmptyBrushEntityIssue(entity));
         }
     }

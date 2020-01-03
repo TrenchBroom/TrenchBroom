@@ -26,6 +26,8 @@
 #include "Model/World.h"
 #include "View/MapDocument.h"
 
+#include <kdl/vector_utils.h>
+
 #include <vector>
 
 #include <QHBoxLayout>
@@ -36,7 +38,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        IssueBrowserView::IssueBrowserView(MapDocumentWPtr document, QWidget* parent) :
+        IssueBrowserView::IssueBrowserView(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_hiddenGenerators(0),
@@ -134,7 +136,7 @@ namespace TrenchBroom {
                 world->acceptAndRecurse(visitor);
 
                 std::vector<Model::Issue*> issues = visitor.issues();
-                VectorUtils::sort(issues, IssueCmp());
+                kdl::vec_sort(issues, IssueCmp());
                 m_tableModel->setIssues(std::move(issues));
             }
         }

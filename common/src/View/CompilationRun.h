@@ -20,23 +20,21 @@
 #ifndef CompilationRun_h
 #define CompilationRun_h
 
-#include "StringType.h"
-#include "View/ViewTypes.h"
+#include "Model/Model_Forward.h"
 
 #include <QObject>
-#include <QTextEdit>
 
 #include <memory>
+#include <string>
+
+class QTextEdit;
 
 namespace TrenchBroom {
     class VariableTable;
 
-    namespace Model {
-        class CompilationProfile;
-    }
-
     namespace View {
         class CompilationRunner;
+        class MapDocument;
 
         class CompilationRun : public QObject {
             Q_OBJECT
@@ -47,14 +45,14 @@ namespace TrenchBroom {
             ~CompilationRun() override;
 
             bool running() const;
-            void run(const Model::CompilationProfile* profile, MapDocumentSPtr document, QTextEdit* currentOutput);
-            void test(const Model::CompilationProfile* profile, MapDocumentSPtr document, QTextEdit* currentOutput);
+            void run(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document, QTextEdit* currentOutput);
+            void test(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document, QTextEdit* currentOutput);
             void terminate();
         private:
             bool doIsRunning() const;
-            void run(const Model::CompilationProfile* profile, MapDocumentSPtr document, QTextEdit* currentOutput, bool test);
+            void run(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document, QTextEdit* currentOutput, bool test);
         private:
-            String buildWorkDir(const Model::CompilationProfile* profile, MapDocumentSPtr document);
+            std::string buildWorkDir(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document);
             void cleanup();
         private slots:
             void _compilationEnded();

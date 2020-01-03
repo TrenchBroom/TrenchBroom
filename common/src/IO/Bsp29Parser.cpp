@@ -20,7 +20,6 @@
 #include "Bsp29Parser.h"
 
 #include "Exceptions.h"
-#include "StringStream.h"
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
@@ -28,10 +27,13 @@
 #include "IO/Reader.h"
 #include "IO/MipTextureReader.h"
 #include "IO/IdMipTextureReader.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
 #include <string>
+#include <sstream>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -67,7 +69,7 @@ namespace TrenchBroom {
             // static const size_t ModelFaceCount        = 0x3c;
         }
 
-        Bsp29Parser::Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette) :
+        Bsp29Parser::Bsp29Parser(const std::string& name, const char* begin, const char* end, const Assets::Palette& palette) :
         m_name(name),
         m_begin(begin),
         m_end(end),
@@ -149,12 +151,12 @@ namespace TrenchBroom {
             parseFrame(reader.subReaderFromBegin(modelsOffset + frameIndex * BspLayout::ModelSize, BspLayout::ModelSize), frameIndex, model, textureInfos, vertices, edgeInfos, faceInfos, faceEdges);
         }
 
-        Assets::TextureList Bsp29Parser::parseTextures(Reader reader) {
+        std::vector<Assets::Texture*> Bsp29Parser::parseTextures(Reader reader) {
             const TextureReader::TextureNameStrategy nameStrategy;
             IdMipTextureReader textureReader(nameStrategy, m_palette);
 
             const auto textureCount = reader.readSize<int32_t>();
-            Assets::TextureList result(textureCount);
+            std::vector<Assets::Texture*> result(textureCount);
 
             for (size_t i = 0; i < textureCount; ++i) {
                 const auto textureOffset = reader.readInt<int32_t>();
@@ -232,8 +234,8 @@ namespace TrenchBroom {
         }
 
         void Bsp29Parser::parseFrame(Reader reader, const size_t frameIndex, Assets::EntityModel& model, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
-            using Vertex = Assets::EntityModel::Vertex;
-            using VertexList = Vertex::List;
+            using Vertex = Assets::EntityModelVertex;
+            using VertexList = std::vector<Vertex>;
 
             auto& surface = model.surface(0);
 
@@ -249,7 +251,7 @@ namespace TrenchBroom {
                 auto* skin = surface.skin(textureInfo.textureIndex);
                 if (skin != nullptr) {
                     const auto faceVertexCount = faceInfo.edgeCount;
-                    size.inc(skin, GL_POLYGON, faceVertexCount);
+                    size.inc(skin, Renderer::PrimType::Polygon, faceVertexCount);
                     totalVertexCount += faceVertexCount;
                 }
             }
@@ -287,7 +289,7 @@ namespace TrenchBroom {
                 }
             }
 
-            StringStream frameName;
+            std::stringstream frameName;
             frameName << m_name << "_" << frameIndex;
 
             auto& frame = model.loadFrame(frameIndex, frameName.str(), bounds.bounds());
@@ -299,8 +301,8 @@ namespace TrenchBroom {
             if (texture == nullptr) {
                 return vm::vec2f::zero();
             } else {
-                return vm::vec2f((dot(vertex, textureInfo.sAxis) + textureInfo.sOffset) / texture->width(),
-                                 (dot(vertex, textureInfo.tAxis) + textureInfo.tOffset) / texture->height());
+                return vm::vec2f((vm::dot(vertex, textureInfo.sAxis) + textureInfo.sOffset) / static_cast<float>(texture->width()),
+                                 (vm::dot(vertex, textureInfo.tAxis) + textureInfo.tOffset) / static_cast<float>(texture->height()));
             }
         }
     }

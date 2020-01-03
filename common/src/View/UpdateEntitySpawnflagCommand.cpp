@@ -19,15 +19,17 @@
 
 #include "UpdateEntitySpawnflagCommand.h"
 
-#include "View/MapDocument.h"
+#include "Model/EntityAttributeSnapshot.h"
 #include "View/MapDocumentCommandFacade.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType UpdateEntitySpawnflagCommand::Type = Command::freeType();
 
-        UpdateEntitySpawnflagCommand::Ptr UpdateEntitySpawnflagCommand::update(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) {
-            return Ptr(new UpdateEntitySpawnflagCommand(name, flagIndex, setFlag));
+        std::unique_ptr<UpdateEntitySpawnflagCommand> UpdateEntitySpawnflagCommand::update(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) {
+            return std::make_unique<UpdateEntitySpawnflagCommand>(name, flagIndex, setFlag);
         }
 
         UpdateEntitySpawnflagCommand::UpdateEntitySpawnflagCommand(const Model::AttributeName& attributeName, const size_t flagIndex, const bool setFlag) :
@@ -36,25 +38,25 @@ namespace TrenchBroom {
         m_attributeName(attributeName),
         m_flagIndex(flagIndex) {}
 
-        String UpdateEntitySpawnflagCommand::makeName(const bool setFlag) {
+        std::string UpdateEntitySpawnflagCommand::makeName(const bool setFlag) {
             return setFlag ? "Set Spawnflag" : "Unset Spawnflag";
         }
 
-        bool UpdateEntitySpawnflagCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> UpdateEntitySpawnflagCommand::doPerformDo(MapDocumentCommandFacade* document) {
             document->performUpdateSpawnflag(m_attributeName, m_flagIndex, m_setFlag);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool UpdateEntitySpawnflagCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> UpdateEntitySpawnflagCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performUpdateSpawnflag(m_attributeName, m_flagIndex, !m_setFlag);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool UpdateEntitySpawnflagCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool UpdateEntitySpawnflagCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool UpdateEntitySpawnflagCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

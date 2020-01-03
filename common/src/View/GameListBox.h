@@ -20,12 +20,12 @@
 #ifndef TrenchBroom_GameListBox
 #define TrenchBroom_GameListBox
 
-#include "StringType.h"
 #include "View/ImageListBox.h"
 
-class QPixmap;
-
+#include <string>
 #include <vector>
+
+class QPixmap;
 
 namespace TrenchBroom {
     namespace View {
@@ -33,7 +33,7 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             struct Info {
-                String name;
+                std::string name;
                 QPixmap image;
                 QString title;
                 QString subtitle;
@@ -44,12 +44,12 @@ namespace TrenchBroom {
             InfoList m_gameInfos;
         public:
             explicit GameListBox(QWidget* parent = nullptr);
-            String selectedGameName() const;
+            std::string selectedGameName() const;
             void selectGame(size_t index);
             void reloadGameInfos();
             void updateGameInfos();
         private:
-            Info makeGameInfo(const String& gameName) const;
+            Info makeGameInfo(const std::string& gameName) const;
         private:
             size_t itemCount() const override;
             QPixmap image(size_t index) const override;

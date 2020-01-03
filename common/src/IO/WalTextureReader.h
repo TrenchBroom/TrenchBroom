@@ -20,16 +20,16 @@
 #ifndef WalTextureReader_h
 #define WalTextureReader_h
 
-#include "Color.h"
-#include "IO/TextureReader.h"
+#include "Assets/Asset_Forward.h"
 #include "Assets/Palette.h"
-#include "Assets/Texture.h"
+#include "Assets/TextureBuffer.h"
+#include "IO/IO_Forward.h"
+#include "IO/TextureReader.h"
+
+class Color;
 
 namespace TrenchBroom {
     namespace IO {
-        class Reader;
-        class Path;
-
         class WalTextureReader : public TextureReader {
         private:
             mutable Assets::Palette m_palette;
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             Assets::Texture* readQ2Wal(Reader& reader, const Path& path) const;
             Assets::Texture* readDkWal(Reader& reader, const Path& path) const;
             size_t readMipOffsets(size_t maxMipLevels, size_t offsets[], size_t width, size_t height, Reader& reader) const;
-            static bool readMips(const Assets::Palette& palette, size_t mipLevels, const size_t offsets[], size_t width, size_t height, Reader& reader, Assets::TextureBuffer::List& buffers, Color& averageColor, Assets::PaletteTransparency transparency);
+            static bool readMips(const Assets::Palette& palette, size_t mipLevels, const size_t offsets[], size_t width, size_t height, Reader& reader, Assets::TextureBufferList& buffers, Color& averageColor, Assets::PaletteTransparency transparency);
         };
     }
 }

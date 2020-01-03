@@ -20,25 +20,17 @@
 #ifndef TextureCollectionLoader_h
 #define TextureCollectionLoader_h
 
-#include "IO/Path.h"
+#include "Assets/Asset_Forward.h"
+#include "IO/IO_Forward.h"
 
 #include <memory>
 #include <vector>
+#include <string>
 
 namespace TrenchBroom {
     class Logger;
 
-    namespace Assets {
-        class TextureCollection;
-        class TextureReader;
-        class TextureManager;
-
-    }
     namespace IO {
-        class File;
-        class FileSystem;
-        class TextureReader;
-
         class TextureCollectionLoader {
         protected:
             using FileList = std::vector<std::shared_ptr<File>>;
@@ -49,18 +41,18 @@ namespace TrenchBroom {
         public:
             virtual ~TextureCollectionLoader();
         public:
-            std::unique_ptr<Assets::TextureCollection> loadTextureCollection(const Path& path, const StringList& textureExtensions, const TextureReader& textureReader);
+            std::unique_ptr<Assets::TextureCollection> loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader);
         private:
-            virtual FileList doFindTextures(const Path& path, const StringList& extensions) = 0;
+            virtual FileList doFindTextures(const Path& path, const std::vector<std::string>& extensions) = 0;
         };
 
         class FileTextureCollectionLoader : public TextureCollectionLoader {
         private:
-            const Path::List m_searchPaths;
+            const std::vector<Path> m_searchPaths;
         public:
-            FileTextureCollectionLoader(Logger& logger, const Path::List& searchPaths);
+            FileTextureCollectionLoader(Logger& logger, const std::vector<Path>& searchPaths);
         private:
-            FileList doFindTextures(const Path& path, const StringList& extensions) override;
+            FileList doFindTextures(const Path& path, const std::vector<std::string>& extensions) override;
         };
 
         class DirectoryTextureCollectionLoader : public TextureCollectionLoader {
@@ -69,7 +61,7 @@ namespace TrenchBroom {
         public:
             DirectoryTextureCollectionLoader(Logger& logger, const FileSystem& gameFS);
         private:
-            FileList doFindTextures(const Path& path, const StringList& extensions) override;
+            FileList doFindTextures(const Path& path, const std::vector<std::string>& extensions) override;
         };
     }
 }

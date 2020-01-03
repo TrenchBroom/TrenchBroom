@@ -26,6 +26,9 @@
 #include "IO/FreeImageTextureReader.h"
 #include "Renderer/GL.h"
 
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
     namespace IO {
         Quake3ShaderTextureReader::Quake3ShaderTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs) :
@@ -103,7 +106,7 @@ namespace TrenchBroom {
 
         Path Quake3ShaderTextureReader::findTexture(const Path& texturePath) const {
             if (!texturePath.isEmpty() && (texturePath.extension().empty() || !m_fs.fileExists(texturePath))) {
-                const auto candidates = m_fs.findItemsWithBaseName(texturePath, StringList { "tga", "png", "jpg", "jpeg"});
+                const auto candidates = m_fs.findItemsWithBaseName(texturePath, std::vector<std::string> { "tga", "png", "jpg", "jpeg"});
                 if (!candidates.empty()) {
                     return candidates.front();
                 } else {

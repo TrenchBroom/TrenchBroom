@@ -22,23 +22,22 @@
 
 #include "TrenchBroom.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
 
 #include <vecmath/vec.h>
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace View {
-        class CreateSimpleBrushTool;
-        class Grid;
-
         class CreateSimpleBrushToolController3D : public ToolControllerBase<NoPickingPolicy, KeyPolicy, NoMousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
             CreateSimpleBrushTool* m_tool;
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             vm::vec3 m_initialPoint;
         public:
-            CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, MapDocumentWPtr document);
+            CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, std::weak_ptr<MapDocument> document);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;

@@ -21,7 +21,7 @@
 #define DkPakFileSystem_h
 
 #include "IO/ImageFileSystem.h"
-#include "IO/Path.h"
+#include "IO/IO_Forward.h"
 
 #include <memory>
 

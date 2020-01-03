@@ -19,7 +19,6 @@
 
 #include "DirectoryTextureCollectionEditor.h"
 
-#include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "SharedPointer.h"
 #include "IO/PathQt.h"
@@ -29,6 +28,8 @@
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
+#include <kdl/vector_utils.h>
+
 #include <QListWidget>
 #include <QVBoxLayout>
 #include <QAbstractButton>
@@ -37,7 +38,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        DirectoryTextureCollectionEditor::DirectoryTextureCollectionEditor(MapDocumentWPtr document, QWidget* parent) :
+        DirectoryTextureCollectionEditor::DirectoryTextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)),
         m_availableCollectionsList(nullptr),
@@ -64,9 +65,9 @@ namespace TrenchBroom {
                 enabledCollections.push_back(availableCollections[index]);
             }
 
-            VectorUtils::sortAndRemoveDuplicates(enabledCollections);
+            kdl::vec_sort_and_remove_duplicates(enabledCollections);
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->setEnabledTextureCollections(enabledCollections);
         }
 
@@ -81,7 +82,7 @@ namespace TrenchBroom {
             // erase back to front
             for (auto sIt = std::rbegin(selections), sEnd = std::rend(selections); sIt != sEnd; ++sIt) {
                 const auto index = static_cast<size_t>(*sIt);
-                VectorUtils::erase(enabledCollections, index);
+                kdl::vec_erase_at(enabledCollections, index);
             }
 
             auto document = lock(m_document);
@@ -155,9 +156,9 @@ namespace TrenchBroom {
             layout->setSpacing(0);
 
             layout->addWidget(availableCollectionsContainer,                    0, 0);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Vertical),   0, 1, 3, 1);
+            layout->addWidget(new BorderLine(BorderLine::Direction::Vertical),   0, 1, 3, 1);
             layout->addWidget(enabledCollectionsContainer,                      0, 2);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 1, 0, 1, 3);
+            layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 1, 0, 1, 3);
             layout->addLayout(toolBar,                                     2, 2);
 
             setLayout(layout);
@@ -235,7 +236,7 @@ namespace TrenchBroom {
             updateListBox(m_enabledCollectionsList, enabledTextureCollections());
         }
 
-        void DirectoryTextureCollectionEditor::updateListBox(QListWidget* box, const IO::Path::List& paths) {
+        void DirectoryTextureCollectionEditor::updateListBox(QListWidget* box, const std::vector<IO::Path>& paths) {
             // We need to block QListWidget::itemSelectionChanged from firing while clearing and rebuilding the list
             // because it will cause debugUIConsistency() to fail, as the number of list items in the UI won't match
             // the document's texture collections lists.
@@ -247,14 +248,14 @@ namespace TrenchBroom {
             }
         }
 
-        IO::Path::List DirectoryTextureCollectionEditor::availableTextureCollections() const {
+        std::vector<IO::Path> DirectoryTextureCollectionEditor::availableTextureCollections() const {
             auto document = lock(m_document);
             auto availableCollections = document->availableTextureCollections();
-            VectorUtils::eraseAll(availableCollections, document->enabledTextureCollections());
+            kdl::vec_erase_all(availableCollections, document->enabledTextureCollections());
             return availableCollections;
         }
 
-        IO::Path::List DirectoryTextureCollectionEditor::enabledTextureCollections() const {
+        std::vector<IO::Path> DirectoryTextureCollectionEditor::enabledTextureCollections() const {
             auto document = lock(m_document);
             return document->enabledTextureCollections();
         }

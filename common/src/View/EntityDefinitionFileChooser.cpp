@@ -19,11 +19,8 @@
 
 #include "EntityDefinitionFileChooser.h"
 
-#include "CollectionUtils.h"
-#include "Notifier.h"
 #include "SharedPointer.h"
 #include "Assets/EntityDefinitionFileSpec.h"
-#include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "View/BorderLine.h"
@@ -32,6 +29,8 @@
 #include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
 #include "View/QtUtils.h"
+
+#include <kdl/vector_utils.h>
 
 #include <QPushButton>
 #include <QListWidget>
@@ -69,7 +68,7 @@ namespace TrenchBroom {
 
         // EntityDefinitionFileChooser
 
-        EntityDefinitionFileChooser::EntityDefinitionFileChooser(MapDocumentWPtr document, QWidget* parent) :
+        EntityDefinitionFileChooser::EntityDefinitionFileChooser(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(document) {
             createGui();
@@ -115,7 +114,7 @@ namespace TrenchBroom {
             sizer->setContentsMargins(0, 0, 0, 0);
             sizer->setSpacing(0);
             sizer->addWidget(builtinContainer, 1);
-            sizer->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
+            sizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
             sizer->addWidget(externalContainer, 0);
             m_builtin->setMinimumSize(100, 70);
 
@@ -132,7 +131,7 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &EntityDefinitionFileChooser::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &EntityDefinitionFileChooser::documentWasLoaded);
             document->entityDefinitionsDidChangeNotifier.addObserver(this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
@@ -140,7 +139,7 @@ namespace TrenchBroom {
 
         void EntityDefinitionFileChooser::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &EntityDefinitionFileChooser::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &EntityDefinitionFileChooser::documentWasLoaded);
                 document->entityDefinitionsDidChangeNotifier.removeObserver(this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
@@ -166,7 +165,7 @@ namespace TrenchBroom {
 
             auto document = lock(m_document);
             auto specs = document->allEntityDefinitionFiles();
-            VectorUtils::sort(specs);
+            kdl::vec_sort(specs);
 
             for (const auto& spec : specs) {
                 const auto& path = spec.path();
@@ -180,7 +179,7 @@ namespace TrenchBroom {
 
             const Assets::EntityDefinitionFileSpec spec = document->entityDefinitionFile();
             if (spec.builtin()) {
-                const auto index = VectorUtils::indexOf(specs, spec);
+                const auto index = kdl::vec_index_of(specs, spec);
                 if (index < specs.size()) {
                     // the chosen builtin entity definition file might not be in the game config anymore if the config
                     // has changed after the definition file was chosen
@@ -218,7 +217,7 @@ namespace TrenchBroom {
             QListWidgetItem* item = m_builtin->selectedItems().first();
             auto spec = item->data(Qt::UserRole).value<Assets::EntityDefinitionFileSpec>();
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (document->entityDefinitionFile() == spec) {
                 return;
             }
@@ -243,7 +242,7 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::reloadExternalClicked() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const Assets::EntityDefinitionFileSpec& spec = document->entityDefinitionFile();
             document->setEntityDefinitionFile(spec);
         }

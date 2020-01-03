@@ -20,8 +20,10 @@
 #ifndef TrenchBroom_ViewUtils
 #define TrenchBroom_ViewUtils
 
-#include "View/ViewTypes.h"
-#include "StringType.h"
+#include "Assets/Asset_Forward.h"
+
+#include <memory>
+#include <string>
 
 class QWidget;
 class QString;
@@ -30,22 +32,18 @@ class QStringList;
 namespace TrenchBroom {
     class Logger;
 
-    namespace Assets {
-        class EntityModel;
-        class EntityModelManager;
-        struct ModelSpecification;
-    }
-
     namespace View {
+        class MapDocument;
+
         void combineFlags(size_t numFlags, int newFlagValue, int& setFlags, int& mixedFlags);
 
-        bool loadTextureCollection(MapDocumentWPtr document, QWidget* parent, const QString& path);
-        size_t loadTextureCollections(MapDocumentWPtr document, QWidget* parent, const QStringList& pathStrs);
+        bool loadTextureCollection(std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path);
+        size_t loadTextureCollections(std::weak_ptr<MapDocument> document, QWidget* parent, const QStringList& pathStrs);
 
-        bool loadEntityDefinitionFile(MapDocumentWPtr document, QWidget* parent, const QString& path);
-        size_t loadEntityDefinitionFile(MapDocumentWPtr document, QWidget* parent, const QStringList& pathStrs);
+        bool loadEntityDefinitionFile(std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path);
+        size_t loadEntityDefinitionFile(std::weak_ptr<MapDocument> document, QWidget* parent, const QStringList& pathStrs);
 
-        String queryGroupName(QWidget* parent);
+        std::string queryGroupName(QWidget* parent);
     }
 }
 

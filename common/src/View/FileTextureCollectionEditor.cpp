@@ -19,7 +19,6 @@
 
 #include "FileTextureCollectionEditor.h"
 
-#include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "SharedPointer.h"
 #include "Assets/TextureManager.h"
@@ -30,6 +29,8 @@
 #include "View/ViewUtils.h"
 #include "View/QtUtils.h"
 
+#include <kdl/vector_utils.h>
+
 #include <QListWidget>
 #include <QVBoxLayout>
 #include <QAbstractButton>
@@ -38,7 +39,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        FileTextureCollectionEditor::FileTextureCollectionEditor(MapDocumentWPtr document, QWidget* parent) :
+        FileTextureCollectionEditor::FileTextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)),
         m_collections(nullptr),
@@ -158,7 +159,7 @@ namespace TrenchBroom {
                 toRemove.push_back(collections[index]);
             }
 
-            VectorUtils::eraseAll(collections, toRemove);
+            kdl::vec_erase_all(collections, toRemove);
             document->setEnabledTextureCollections(collections);
         }
 
@@ -174,10 +175,12 @@ namespace TrenchBroom {
             auto collections = document->enabledTextureCollections();
 
             const auto index = static_cast<size_t>(m_collections->currentRow());
-            VectorUtils::swapPred(collections, index);
+            if (index > 0) {
+                using std::swap; swap(collections[index], collections[index-1]);
 
-            document->setEnabledTextureCollections(collections);
-            m_collections->setCurrentRow(static_cast<int>(index - 1));
+                document->setEnabledTextureCollections(collections);
+                m_collections->setCurrentRow(static_cast<int>(index - 1));
+            }
         }
 
         void FileTextureCollectionEditor::moveSelectedTextureCollectionsDown() {
@@ -192,10 +195,12 @@ namespace TrenchBroom {
             auto collections = document->enabledTextureCollections();
 
             const auto index = static_cast<size_t>(m_collections->currentRow());
-            VectorUtils::swapSucc(collections, index);
+            if (index < collections.size() - 1u) {
+                using std::swap; swap(collections[index], collections[index+1]);
 
-            document->setEnabledTextureCollections(collections);
-            m_collections->setCurrentRow(static_cast<int>(index + 1));
+                document->setEnabledTextureCollections(collections);
+                m_collections->setCurrentRow(static_cast<int>(index + 1));
+            }
         }
 
         void FileTextureCollectionEditor::reloadTextureCollections() {
@@ -227,7 +232,7 @@ namespace TrenchBroom {
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
             layout->addWidget(m_collections, 1);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal), 0);
+            layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
             layout->addLayout(toolBar, 0);
 
             setLayout(layout);

@@ -19,13 +19,18 @@
 
 #include "GameEngineConfig.h"
 
-#include "CollectionUtils.h"
+#include "Model/GameEngineProfile.h"
+
+#include <kdl/vector_utils.h>
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         GameEngineConfig::GameEngineConfig() {}
 
-        GameEngineConfig::GameEngineConfig(const GameEngineProfile::List& profiles) :
+        GameEngineConfig::GameEngineConfig(const std::vector<GameEngineProfile*>& profiles) :
         m_profiles(profiles) {}
 
         GameEngineConfig::GameEngineConfig(const GameEngineConfig& other) {
@@ -36,7 +41,7 @@ namespace TrenchBroom {
         }
 
         GameEngineConfig::~GameEngineConfig() {
-            VectorUtils::clearAndDelete(m_profiles);
+            kdl::vec_clear_and_delete(m_profiles);
         }
 
         GameEngineConfig& GameEngineConfig::operator=(GameEngineConfig other) {
@@ -55,7 +60,7 @@ namespace TrenchBroom {
             return m_profiles.size();
         }
 
-        bool GameEngineConfig::hasProfile(const String& name) const {
+        bool GameEngineConfig::hasProfile(const std::string& name) const {
             for (size_t i = 0; i < m_profiles.size(); ++i)
                 if (m_profiles[i]->name() == name)
                     return true;
@@ -77,7 +82,7 @@ namespace TrenchBroom {
             assert(index < profileCount());
             m_profiles[index]->profileWillBeRemoved();
             delete m_profiles[index];
-            VectorUtils::erase(m_profiles, index);
+            kdl::vec_erase_at(m_profiles, index);
             profilesDidChange();
         }
     }

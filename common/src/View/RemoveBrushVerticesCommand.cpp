@@ -23,19 +23,21 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <vecmath/polygon.h>
+
 #include <vector>
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType RemoveBrushVerticesCommand::Type = Command::freeType();
 
-        RemoveBrushVerticesCommand::Ptr RemoveBrushVerticesCommand::remove(const VertexToBrushesMap& vertices) {
+        std::unique_ptr<RemoveBrushVerticesCommand> RemoveBrushVerticesCommand::remove(const VertexToBrushesMap& vertices) {
             std::vector<Model::Brush*> brushes;
             BrushVerticesMap brushVertices;
             std::vector<vm::vec3> vertexPositions;
             extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
 
-            return Ptr(new RemoveBrushVerticesCommand(brushes, brushVertices, vertexPositions));
+            return std::make_unique<RemoveBrushVerticesCommand>(brushes, brushVertices, vertexPositions);
         }
 
         RemoveBrushVerticesCommand::RemoveBrushVerticesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions) :

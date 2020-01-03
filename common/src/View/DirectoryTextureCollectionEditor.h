@@ -20,8 +20,11 @@
 #ifndef DirectoryTextureCollectionEditor_h
 #define DirectoryTextureCollectionEditor_h
 
-#include "IO/Path.h"
-#include "View/ViewTypes.h"
+#include "IO/IO_Forward.h"
+#include "View/View_Forward.h"
+
+#include <memory>
+#include <vector>
 
 #include <QWidget>
 
@@ -33,7 +36,7 @@ namespace TrenchBroom {
         class DirectoryTextureCollectionEditor : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             QListWidget* m_availableCollectionsList;
             QListWidget* m_enabledCollectionsList;
@@ -42,7 +45,7 @@ namespace TrenchBroom {
             QAbstractButton* m_removeCollectionsButton;
             QAbstractButton* m_reloadCollectionsButton;
         public:
-            explicit DirectoryTextureCollectionEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit DirectoryTextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~DirectoryTextureCollectionEditor() override;
         private:
             void addSelectedTextureCollections();
@@ -68,10 +71,10 @@ namespace TrenchBroom {
             void updateAllTextureCollections();
             void updateAvailableTextureCollections();
             void updateEnabledTextureCollections();
-            void updateListBox(QListWidget* box, const IO::Path::List& paths);
+            void updateListBox(QListWidget* box, const std::vector<IO::Path>& paths);
 
-            IO::Path::List availableTextureCollections() const;
-            IO::Path::List enabledTextureCollections() const;
+            std::vector<IO::Path> availableTextureCollections() const;
+            std::vector<IO::Path> enabledTextureCollections() const;
         };
     }
 }

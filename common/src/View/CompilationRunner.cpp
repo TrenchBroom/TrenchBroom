@@ -19,7 +19,6 @@
 
 #include "CompilationRunner.h"
 
-#include "CollectionUtils.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/FileMatcher.h"
@@ -30,7 +29,10 @@
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
 
+#include <string>
+
 #include <QtGlobal>
+#include <QProcess>
 
 namespace TrenchBroom {
     namespace View {
@@ -47,7 +49,7 @@ namespace TrenchBroom {
             doTerminate();
         }
 
-        String CompilationTaskRunner::interpolate(const String& spec) {
+        std::string CompilationTaskRunner::interpolate(const std::string& spec) {
             try {
                 return m_context.interpolate(spec);
             } catch (const Exception& e) {
@@ -59,6 +61,8 @@ namespace TrenchBroom {
         CompilationExportMapTaskRunner::CompilationExportMapTaskRunner(CompilationContext& context, const Model::CompilationExportMap& task) :
         CompilationTaskRunner(context),
         m_task(task.clone()) {}
+
+        CompilationExportMapTaskRunner::~CompilationExportMapTaskRunner() = default;
 
         void CompilationExportMapTaskRunner::doExecute() {
             emit start();
@@ -74,7 +78,7 @@ namespace TrenchBroom {
                             IO::Disk::createDirectory(directoryPath);
                         }
 
-                        const MapDocumentSPtr document = m_context.document();
+                        const auto document = m_context.document();
                         document->saveDocumentTo(targetPath);
                     }
                     emit end();
@@ -94,6 +98,8 @@ namespace TrenchBroom {
         CompilationTaskRunner(context),
         m_task(task.clone()) {}
 
+        CompilationCopyFilesTaskRunner::~CompilationCopyFilesTaskRunner() = default;
+
         void CompilationCopyFilesTaskRunner::doExecute() {
             emit start();
 
@@ -102,7 +108,7 @@ namespace TrenchBroom {
                 const IO::Path targetPath(interpolate(m_task->targetSpec()));
 
                 const IO::Path sourceDirPath = sourcePath.deleteLastComponent();
-                const String sourcePattern = sourcePath.lastComponent().asString();
+                const std::string sourcePattern = sourcePath.lastComponent().asString();
 
                 try {
                     m_context << "#### Copying '" << sourcePath.asString() << "' to '" << targetPath.asString() << "'\n";
@@ -125,6 +131,8 @@ namespace TrenchBroom {
         CompilationTaskRunner(context),
         m_task(task.clone()),
         m_terminated(false) {}
+
+        CompilationRunToolTaskRunner::~CompilationRunToolTaskRunner() = default;
 
         void CompilationRunToolTaskRunner::doExecute() {
             startProcess();
@@ -207,6 +215,8 @@ namespace TrenchBroom {
         m_context(std::move(context)),
         m_taskRunners(createTaskRunners(*m_context, profile)),
         m_currentTask(std::end(m_taskRunners)) {}
+
+        CompilationRunner::~CompilationRunner() = default;
 
         class CompilationRunner::CreateTaskRunnerVisitor : public Model::ConstCompilationTaskVisitor {
         private:

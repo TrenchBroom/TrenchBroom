@@ -21,7 +21,6 @@
 
 #include "Ensure.h"
 #include "Macros.h"
-#include "StringUtils.h"
 
 namespace TrenchBroom {
     namespace Ensure {

@@ -19,6 +19,7 @@
 
 #include "TagMatcher.h"
 
+#include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
@@ -26,10 +27,16 @@
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Game.h"
+#include "Model/GameConfig.h"
 #include "Model/Group.h"
 #include "Model/MapFacade.h"
 #include "Model/NodeCollection.h"
 #include "Model/World.h"
+
+#include <kdl/string_compare.h>
+#include <kdl/vector_utils.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -56,8 +63,8 @@ namespace TrenchBroom {
             }
         }
 
-        TextureNameTagMatcher::TextureNameTagMatcher(String pattern) :
-        m_pattern(std::move(pattern)) {}
+        TextureNameTagMatcher::TextureNameTagMatcher(const std::string& pattern) :
+        m_pattern(pattern) {}
 
         std::unique_ptr<TagMatcher> TextureNameTagMatcher::clone() const {
             return std::make_unique<TextureNameTagMatcher>(m_pattern);
@@ -75,14 +82,14 @@ namespace TrenchBroom {
         void TextureNameTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {
             const auto& textureManager = facade.textureManager();
             const auto& allTextures = textureManager.textures();
-            auto matchingTextures = Assets::TextureList{};
+            auto matchingTextures = std::vector<Assets::Texture*>{};
 
             std::copy_if(std::begin(allTextures), std::end(allTextures), std::back_inserter(matchingTextures), [this](auto* texture) {
                 return matchesTextureName(texture->name());
             });
 
             std::sort(std::begin(matchingTextures), std::end(matchingTextures), [](const auto* lhs, const auto* rhs) {
-                return StringUtils::caseInsensitiveCompare(lhs->name(), rhs->name()) < 0;
+                return kdl::ci::str_compare(lhs->name(), rhs->name()) < 0;
             });
 
             Assets::Texture* texture = nullptr;
@@ -91,7 +98,8 @@ namespace TrenchBroom {
             } else if (matchingTextures.size() == 1) {
                 texture = matchingTextures.front();
             } else {
-                const auto options = VectorUtils::map(matchingTextures, [](const auto* current) { return current->name(); });
+                const auto options = kdl::vec_transform(matchingTextures,
+                    [](const auto* current) { return current->name(); });
                 const auto index = callback.selectOption(options);
                 if (index >= matchingTextures.size()) {
                     return;
@@ -110,23 +118,17 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool TextureNameTagMatcher::matchesTextureName(const String& textureName) const {
-            auto begin = std::begin(textureName);
-
+        bool TextureNameTagMatcher::matchesTextureName(std::string_view textureName) const {
             const auto pos = textureName.find_last_of('/');
-            if (pos != String::npos) {
-                std::advance(begin, long(pos)+1);
+            if (pos != std::string::npos) {
+                textureName = textureName.substr(pos + 1);
             }
 
-            return StringUtils::matchesPattern(
-                begin, std::end(textureName),
-                std::begin(m_pattern),
-                std::end(m_pattern),
-                StringUtils::CharEqual<StringUtils::CaseInsensitiveCharCompare>());
+            return kdl::ci::str_matches_glob(textureName, m_pattern);
         }
 
-        SurfaceParmTagMatcher::SurfaceParmTagMatcher(String parameter) :
-        m_parameter(std::move(parameter)) {}
+        SurfaceParmTagMatcher::SurfaceParmTagMatcher(const std::string& parameter) :
+        m_parameter(parameter) {}
 
         std::unique_ptr<TagMatcher> SurfaceParmTagMatcher::clone() const {
             return std::make_unique<SurfaceParmTagMatcher>(m_parameter);
@@ -244,9 +246,9 @@ namespace TrenchBroom {
             return std::make_unique<SurfaceFlagsTagMatcher>(m_flags);
         }
 
-        EntityClassNameTagMatcher::EntityClassNameTagMatcher(String pattern, String texture) :
-        m_pattern(std::move(pattern)),
-        m_texture(std::move(texture)) {}
+        EntityClassNameTagMatcher::EntityClassNameTagMatcher(const std::string& pattern, const std::string& texture) :
+        m_pattern(pattern),
+        m_texture(texture) {}
 
 
         std::unique_ptr<TagMatcher> EntityClassNameTagMatcher::clone() const {
@@ -274,14 +276,14 @@ namespace TrenchBroom {
 
             const auto& definitionManager = facade.entityDefinitionManager();
             const auto& allDefinitions = definitionManager.definitions();
-            auto matchingDefinitions = Assets::EntityDefinitionList{};
+            auto matchingDefinitions = std::vector<Assets::EntityDefinition*>{};
 
             std::copy_if(std::begin(allDefinitions), std::end(allDefinitions), std::back_inserter(matchingDefinitions), [this](const auto* definition) {
-                return definition->type() == Assets::EntityDefinition::Type_BrushEntity && matchesClassname(definition->name());
+                return definition->type() == Assets::EntityDefinitionType::BrushEntity && matchesClassname(definition->name());
             });
 
             std::sort(std::begin(matchingDefinitions), std::end(matchingDefinitions), [](const auto* lhs, const auto* rhs) {
-                return StringUtils::caseInsensitiveCompare(lhs->name(), rhs->name()) < 0;
+                return kdl::ci::str_compare(lhs->name(), rhs->name()) < 0;
             });
 
             const Assets::EntityDefinition* definition = nullptr;
@@ -290,7 +292,8 @@ namespace TrenchBroom {
             } else if (matchingDefinitions.size() == 1) {
                 definition = matchingDefinitions.front();
             } else {
-                const auto options = VectorUtils::map(matchingDefinitions, [](const auto* current) { return current->name(); });
+                const auto options = kdl::vec_transform(matchingDefinitions,
+                    [](const auto* current) { return current->name(); });
                 const auto index = callback.selectOption(options);
                 if (index >= matchingDefinitions.size()) {
                     return;
@@ -337,8 +340,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool EntityClassNameTagMatcher::matchesClassname(const String& classname) const {
-            return StringUtils::caseInsensitiveMatchesPattern(classname, m_pattern);
+        bool EntityClassNameTagMatcher::matchesClassname(const std::string& classname) const {
+            return kdl::ci::str_matches_glob(classname, m_pattern);
         }
     }
 }

@@ -19,12 +19,12 @@
 
 #include "ResizeBrushesTool.h"
 
-#include "TrenchBroom.h"
 #include "Constants.h"
-#include "CollectionUtils.h"
 #include "Polyhedron.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
+#include "SharedPointer.h"
+#include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -37,6 +37,9 @@
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+
+#include <kdl/collection_utils.h>
+#include <kdl/vector_utils.h>
 
 #include <vecmath/vec.h>
 #include <vecmath/line.h>
@@ -52,10 +55,10 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType ResizeBrushesTool::ResizeHit2D = Model::Hit::freeHitType();
-        const Model::Hit::HitType ResizeBrushesTool::ResizeHit3D = Model::Hit::freeHitType();
+        const Model::HitType::Type ResizeBrushesTool::ResizeHit2D = Model::HitType::freeType();
+        const Model::HitType::Type ResizeBrushesTool::ResizeHit3D = Model::HitType::freeType();
 
-        ResizeBrushesTool::ResizeBrushesTool(MapDocumentWPtr document) :
+        ResizeBrushesTool::ResizeBrushesTool(std::weak_ptr<MapDocument> document) :
         Tool(true),
         m_document(document),
         m_splitBrushes(false),
@@ -94,11 +97,11 @@ namespace TrenchBroom {
 
         class ResizeBrushesTool::PickProximateFace : public Model::ConstNodeVisitor, public Model::NodeQuery<Model::Hit> {
         private:
-            const Model::Hit::HitType m_hitType;
+            const Model::HitType::Type m_hitType;
             const vm::ray3& m_pickRay;
             FloatType m_closest;
         public:
-            PickProximateFace(const Model::Hit::HitType hitType, const vm::ray3& pickRay) :
+            PickProximateFace(const Model::HitType::Type hitType, const vm::ray3& pickRay) :
             NodeQuery(Model::Hit::NoHit),
             m_hitType(hitType),
             m_pickRay(pickRay),
@@ -148,7 +151,7 @@ namespace TrenchBroom {
             }
         };
 
-        Model::Hit ResizeBrushesTool::pickProximateFace(const Model::Hit::HitType hitType, const vm::ray3& pickRay) const {
+        Model::Hit ResizeBrushesTool::pickProximateFace(const Model::HitType::Type hitType, const vm::ray3& pickRay) const {
             PickProximateFace visitor(hitType, pickRay);
 
             auto document = lock(m_document);
@@ -220,15 +223,14 @@ namespace TrenchBroom {
             if (hit.type() == ResizeHit2D) {
                 const std::vector<Model::BrushFace*>& faces = hit.target<std::vector<Model::BrushFace*>>();
                 assert(!faces.empty());
-                VectorUtils::append(result, faces);
-                VectorUtils::append(result, collectDragFaces(faces[0]));
+                kdl::vec_append(result, faces, collectDragFaces(faces[0]));
                 if (faces.size() > 1) {
-                    VectorUtils::append(result, collectDragFaces(faces[1]));
+                    kdl::vec_append(result, collectDragFaces(faces[1]));
                 }
             } else {
                 Model::BrushFace* face = hit.target<Model::BrushFace*>();
                 result.push_back(face);
-                VectorUtils::append(result, collectDragFaces(face));
+                kdl::vec_append(result, collectDragFaces(face));
             }
 
             return getDragHandles(result);
@@ -237,7 +239,7 @@ namespace TrenchBroom {
         std::vector<Model::BrushFace*> ResizeBrushesTool::collectDragFaces(Model::BrushFace* face) const {
             Model::CollectMatchingBrushFacesVisitor<MatchFaceBoundary> visitor((MatchFaceBoundary(face)));
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const auto& nodes = document->selectedNodes().nodes();
             Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
             return visitor.faces();
@@ -262,7 +264,7 @@ namespace TrenchBroom {
             m_splitBrushes = split;
 
             auto document = lock(m_document);
-            document->beginTransaction("Resize Brushes");
+            document->startTransaction("Resize Brushes");
             m_dragging = true;
             return true;
         }
@@ -326,7 +328,7 @@ namespace TrenchBroom {
             m_splitBrushes = false;
 
             auto document = lock(m_document);
-            document->beginTransaction("Move Faces");
+            document->startTransaction("Move Faces");
             m_dragging = true;
             return true;
         }
@@ -347,9 +349,9 @@ namespace TrenchBroom {
                 return true;
             }
 
-            std::map<vm::polygon3, std::set<Model::Brush*>> brushMap;
+            std::map<vm::polygon3, std::vector<Model::Brush*>> brushMap;
             for (const auto* face : dragFaces()) {
-                brushMap[face->polygon()].insert(face->brush());
+                brushMap[face->polygon()] = { face->brush() };
             }
 
             if (document->moveFaces(brushMap, delta)) {
@@ -407,7 +409,7 @@ namespace TrenchBroom {
 
                 if (!newBrush->canMoveBoundary(worldBounds, newDragFace, delta)) {
                     // There is a brush for which the move is not applicable. Abort.
-                    VectorUtils::deleteAll(newBrushes);
+                    kdl::col_delete_all(newBrushes);
                     return false;
                 } else {
                     auto* clipFace = newDragFace->clone();
@@ -418,7 +420,7 @@ namespace TrenchBroom {
                     // This should never happen, but let's be on the safe side.
                     if (!newBrush->clip(worldBounds, clipFace)) {
                         delete clipFace;
-                        VectorUtils::deleteAll(newBrushes);
+                        kdl::col_delete_all(newBrushes);
                         return false;
                     }
 

@@ -20,8 +20,11 @@
 #include "ToolBoxConnector.h"
 
 #include "Macros.h"
+#include "View/PickRequest.h"
 #include "View/ToolBox.h"
 #include "View/ToolChain.h"
+
+#include <string>
 
 #include <QGuiApplication>
 
@@ -52,7 +55,7 @@ namespace TrenchBroom {
             m_inputState.setPickRequest(doGetPickRequest(m_inputState.mouseX(),  m_inputState.mouseY()));
             Model::PickResult pickResult = doPick(m_inputState.pickRay());
             m_toolBox->pick(m_toolChain, m_inputState, pickResult);
-            m_inputState.setPickResult(pickResult);
+            m_inputState.setPickResult(std::move(pickResult));
         }
 
         void ToolBoxConnector::setToolBox(ToolBox& toolBox) {
@@ -64,7 +67,7 @@ namespace TrenchBroom {
             m_toolChain->append(tool);
         }
 
-        bool ToolBoxConnector::dragEnter(const int x, const int y, const String& text) {
+        bool ToolBoxConnector::dragEnter(const int x, const int y, const std::string& text) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
             mouseMoved(x, y);
@@ -73,7 +76,7 @@ namespace TrenchBroom {
             return m_toolBox->dragEnter(m_toolChain, m_inputState, text);
         }
 
-        bool ToolBoxConnector::dragMove(const int x, const int y, const String& text) {
+        bool ToolBoxConnector::dragMove(const int x, const int y, const std::string& text) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
             mouseMoved(x, y);
@@ -88,7 +91,7 @@ namespace TrenchBroom {
             m_toolBox->dragLeave(m_toolChain, m_inputState);
         }
 
-        bool ToolBoxConnector::dragDrop(const int /* x */, const int /* y */, const String& text) {
+        bool ToolBoxConnector::dragDrop(const int /* x */, const int /* y */, const std::string& text) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
             updatePickResult();
@@ -266,7 +269,14 @@ namespace TrenchBroom {
             updatePickResult();
         }
 
-        void ToolBoxConnector::processDragStart(const MouseEvent&) {
+        void ToolBoxConnector::processDragStart(const MouseEvent& event) {
+            // Move the mouse back to where it was when the user clicked (see InputEventRecorder::recordEvent)
+            // and re-pick, since we're currently 2px off from there, and the user will expects to drag exactly
+            // what was under the pixel they clicked.
+            // See: https://github.com/kduske/TrenchBroom/issues/2808
+            mouseMoved(event.posX, event.posY);
+            updatePickResult();
+
             if (m_toolBox->startMouseDrag(m_toolChain, m_inputState)) {
                 m_inputState.setAnyToolDragging(true);
             }

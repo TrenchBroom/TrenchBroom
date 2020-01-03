@@ -56,7 +56,7 @@ namespace TrenchBroom {
             listLayout->setSpacing(0);
             listPanel->getPanel()->setLayout(listLayout);
             listLayout->addWidget(m_profileList, 1);
-            listLayout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            listLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
             listLayout->addLayout(buttonLayout);
 
             auto* editorLayout = new QHBoxLayout();
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             outerLayout->setSpacing(0);
             setLayout(outerLayout);
             outerLayout->addWidget(listPanel, 1);
-            outerLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical));
+            outerLayout->addWidget(new BorderLine(BorderLine::Direction::Vertical));
             outerLayout->addWidget(editorPanel, 1);
 
             listPanel->setMaximumWidth(250);

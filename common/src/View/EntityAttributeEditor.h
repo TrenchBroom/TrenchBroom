@@ -20,10 +20,12 @@
 #ifndef TrenchBroom_EntityAttributeEditor
 #define TrenchBroom_EntityAttributeEditor
 
-#include "StringType.h"
+#include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
 
+#include <memory>
+#include <string>
 #include <vector>
 
 #include <QWidget>
@@ -32,16 +34,7 @@ class QTextEdit;
 class QSplitter;
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityDefinition;
-        class AttributeDefinition;
-    }
-
     namespace View {
-        class Selection;
-        class EntityAttributeGrid;
-        class SmartAttributeEditorManager;
-
         /**
          * Panel containing the EntityAttributeGrid (the key/value editor table),
          * smart editor, and documentation text view.
@@ -49,14 +42,14 @@ namespace TrenchBroom {
         class EntityAttributeEditor : public QWidget {
             Q_OBJECT
         private:
-            View::MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             QSplitter* m_splitter;
             EntityAttributeGrid* m_attributeGrid;
             SmartAttributeEditorManager* m_smartEditorManager;
             QTextEdit* m_documentationText;
             const Assets::EntityDefinition* m_currentDefinition;
         public:
-            explicit EntityAttributeEditor(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit EntityAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~EntityAttributeEditor() override;
         private:
             void OnCurrentRowChanged();
@@ -76,8 +69,8 @@ namespace TrenchBroom {
              */
             static QString optionDescriptions(const Assets::AttributeDefinition& definition);
 
-            void updateDocumentation(const String &attributeName);
-            void createGui(MapDocumentWPtr document);
+            void updateDocumentation(const std::string& attributeName);
+            void createGui(std::weak_ptr<MapDocument> document);
         };
     }
 }

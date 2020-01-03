@@ -20,10 +20,10 @@
 #ifndef TrenchBroom_ToolBoxConnector
 #define TrenchBroom_ToolBoxConnector
 
-#include "StringType.h"
 #include "View/InputEvent.h"
 #include "View/InputState.h"
-#include "View/PickRequest.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,6 +37,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class PickRequest;
         class ToolController;
         class ToolBox;
         class ToolChain;
@@ -64,10 +65,10 @@ namespace TrenchBroom {
             void setToolBox(ToolBox& toolBox);
             void addTool(ToolController* tool);
         public: // drag and drop
-            bool dragEnter(int x, int y, const String& text);
-            bool dragMove(int x, int y, const String& text);
+            bool dragEnter(int x, int y, const std::string& text);
+            bool dragMove(int x, int y, const std::string& text);
             void dragLeave();
-            bool dragDrop(int x, int y, const String& text);
+            bool dragDrop(int x, int y, const std::string& text);
         public: // cancel
             bool cancel();
         protected: // rendering

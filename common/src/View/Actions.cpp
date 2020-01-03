@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
+#include "Assets/EntityDefinition.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Tag.h"
 #include "View/Grid.h"
@@ -37,6 +38,7 @@
 
 #include <cassert>
 #include <set>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -174,15 +176,15 @@ namespace TrenchBroom {
 
         // Menu
 
-        Menu::Menu(const String& name, const MenuEntryType entryType) :
+        Menu::Menu(const std::string& name, const MenuEntryType entryType) :
         MenuEntry(entryType),
         m_name(name) {}
 
-        const String& Menu::name() const {
+        const std::string& Menu::name() const {
             return m_name;
         }
 
-        Menu& Menu::addMenu(const String& name, const MenuEntryType entryType) {
+        Menu& Menu::addMenu(const std::string& name, const MenuEntryType entryType) {
             m_entries.emplace_back(std::make_unique<Menu>(name, entryType));
             return *static_cast<Menu*>(m_entries.back().get());
         }
@@ -217,15 +219,14 @@ namespace TrenchBroom {
             return instance;
         }
 
-        std::vector<std::unique_ptr<Action>> ActionManager::createTagActions(const std::list<Model::SmartTag>& tags) const {
+        std::vector<std::unique_ptr<Action>> ActionManager::createTagActions(const std::vector<Model::SmartTag>& tags) const {
             std::vector<std::unique_ptr<Action>> result;
 
-            const auto actionContext = ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool;
             for (const auto& tag : tags) {
                 result.push_back(makeAction(
                     IO::Path("Tags/Toggle/" + tag.name()),
                     QObject::tr("Toggle Tag %1").arg(QString::fromStdString(tag.name())),
-                    actionContext,
+                    ActionContext::Any,
                     [&tag](ActionExecutionContext& context) {
                         context.view()->toggleTagVisible(tag);
                     },
@@ -235,7 +236,7 @@ namespace TrenchBroom {
                     result.push_back(makeAction(
                         IO::Path("Tags/Enable/" + tag.name()),
                         QObject::tr("Enable Tag %1").arg(QString::fromStdString(tag.name())),
-                        actionContext,
+                        ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool,
                         [&tag](ActionExecutionContext& context) {
                             context.view()->enableTag(tag);
                         },
@@ -246,7 +247,7 @@ namespace TrenchBroom {
                     result.push_back(makeAction(
                         IO::Path("Tags/Disable/" + tag.name()),
                         QObject::tr("Disable Tag %1").arg(QString::fromStdString(tag.name())),
-                        actionContext,
+                        ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool,
                         [&tag](ActionExecutionContext& context) {
                             context.view()->disableTag(tag);
                         },
@@ -261,12 +262,11 @@ namespace TrenchBroom {
         std::vector<std::unique_ptr<Action>> ActionManager::createEntityDefinitionActions(const std::vector<Assets::EntityDefinition*>& entityDefinitions) const {
             std::vector<std::unique_ptr<Action>> result;
 
-            const auto actionContext = ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool;
             for (const auto* definition : entityDefinitions) {
                 result.push_back(makeAction(
                     IO::Path("Entity Definitions/Toggle/" + definition->name()),
                     QObject::tr("Toggle Entity %1").arg(QString::fromStdString(definition->name())),
-                    actionContext,
+                    ActionContext::Any,
                     [definition](ActionExecutionContext& context) {
                         context.view()->toggleEntityDefinitionVisible(definition);
                     },
@@ -276,7 +276,7 @@ namespace TrenchBroom {
                     result.push_back(makeAction(
                         IO::Path("Entity Definitions/Create/" + definition->name()),
                         QObject::tr("Create Entity %1").arg(QString::fromStdString(definition->name())),
-                        actionContext,
+                        ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool,
                         [definition](ActionExecutionContext& context) {
                             context.view()->createEntity(definition);
                         },
@@ -773,14 +773,12 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
                 }));
-            editMenu.addItem(createMenuAction(IO::Path("Menu/Edit/Clear Repeatable Commands"), QObject::tr("Clear Repeatable Commands"), Qt::CTRL + Qt::SHIFT + Qt::Key_R,
-                [](ActionExecutionContext& context) {
+            editMenu.addItem(createMenuAction(IO::Path("Menu/Edit/Clear Repeatable Commands"), QObject::tr("Clear Repeatable Commands"), Qt::CTRL + Qt::SHIFT + Qt::Key_R,[](ActionExecutionContext& context) {
                     context.frame()->clearRepeatableCommands();
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->hasRepeatableCommands();
-                }));
-            editMenu.addSeparator();
+                }));            editMenu.addSeparator();
             editMenu.addItem(createMenuAction(IO::Path("Menu/Edit/Cut"), QObject::tr("Cut"), QKeySequence::Cut,
                 [](ActionExecutionContext& context) {
                     context.frame()->cutSelection();
@@ -1276,21 +1274,21 @@ namespace TrenchBroom {
             viewMenu.addSeparator();
             viewMenu.addItem(createMenuAction(IO::Path("Menu/View/Switch to Map Inspector"), QObject::tr("Show Map Inspector"), Qt::CTRL + Qt::Key_1,
                 [](ActionExecutionContext& context) {
-                    context.frame()->switchToInspectorPage(Inspector::InspectorPage_Map);
+                    context.frame()->switchToInspectorPage(InspectorPage::Map);
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
                 }));
             viewMenu.addItem(createMenuAction(IO::Path("Menu/View/Switch to Entity Inspector"), QObject::tr("Show Entity Inspector"), Qt::CTRL + Qt::Key_2,
                 [](ActionExecutionContext& context) {
-                    context.frame()->switchToInspectorPage(Inspector::InspectorPage_Entity);
+                    context.frame()->switchToInspectorPage(InspectorPage::Entity);
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
                 }));
             viewMenu.addItem(createMenuAction(IO::Path("Menu/View/Switch to Face Inspector"), QObject::tr("Show Face Inspector"), Qt::CTRL + Qt::Key_3,
                 [](ActionExecutionContext& context) {
-                    context.frame()->switchToInspectorPage(Inspector::InspectorPage_Face);
+                    context.frame()->switchToInspectorPage(InspectorPage::Face);
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
@@ -1455,7 +1453,7 @@ namespace TrenchBroom {
                 }));
         }
 
-        Menu& ActionManager::createMainMenu(const String& name) {
+        Menu& ActionManager::createMainMenu(const std::string& name) {
             auto menu = std::make_unique<Menu>(name, MenuEntryType::Menu_None);
             auto* result = menu.get();
             m_mainMenu.emplace_back(std::move(menu));

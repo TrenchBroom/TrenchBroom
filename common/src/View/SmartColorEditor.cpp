@@ -19,29 +19,31 @@
 
 #include "SmartColorEditor.h"
 
+#include "Color.h"
 #include "Assets/ColorRange.h"
-#include "CollectionUtils.h"
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityColor.h"
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
 #include "View/BorderLine.h"
+#include "View/ColorButton.h"
 #include "View/ColorTable.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
+#include <kdl/vector_set.h>
+
+#include <QColor>
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QRadioButton>
 #include <QScrollArea>
 
-#include <iomanip>
-
 namespace TrenchBroom {
     namespace View {
-        SmartColorEditor::SmartColorEditor(View::MapDocumentWPtr document, QWidget* parent) :
+        SmartColorEditor::SmartColorEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         SmartAttributeEditor(document, parent),
         m_floatRadio(nullptr),
         m_byteRadio(nullptr),
@@ -83,7 +85,7 @@ namespace TrenchBroom {
             outerLayout->setSpacing(0);
             outerLayout->addLayout(leftLayout);
             outerLayout->addSpacing(LayoutConstants::WideHMargin);
-            outerLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical));
+            outerLayout->addWidget(new BorderLine(BorderLine::Direction::Vertical));
             outerLayout->addWidget(colorHistoryScroller, 1);
             setLayout(outerLayout);
 
@@ -119,12 +121,12 @@ namespace TrenchBroom {
 
         struct ColorCmp {
             bool operator()(const QColor& lhs, const QColor& rhs) const {
-                const auto lr = lhs.red() / 255.0f;
-                const auto lg = lhs.green() / 255.0f;
-                const auto lb = lhs.blue() / 255.0f;
-                const auto rr = rhs.red() / 255.0f;
-                const auto rg = rhs.green() / 255.0f;
-                const auto rb = rhs.blue() / 255.0f;
+                const auto lr = static_cast<float>(lhs.red()) / 255.0f;
+                const auto lg = static_cast<float>(lhs.green()) / 255.0f;
+                const auto lb = static_cast<float>(lhs.blue()) / 255.0f;
+                const auto rr = static_cast<float>(rhs.red()) / 255.0f;
+                const auto rg = static_cast<float>(rhs.green()) / 255.0f;
+                const auto rb = static_cast<float>(rhs.blue()) / 255.0f;
 
                 float lh, ls, lbr, rh, rs, rbr;
                 Color::rgbToHSB(lr, lg, lb, lh, ls, lbr);
@@ -149,12 +151,12 @@ namespace TrenchBroom {
         class SmartColorEditor::CollectColorsVisitor : public Model::ConstNodeVisitor {
         private:
             const Model::AttributeName& m_name;
-            std::vector<QColor> m_colors;
+            kdl::vector_set<QColor, ColorCmp> m_colors;
         public:
             explicit CollectColorsVisitor(const Model::AttributeName& name) :
             m_name(name) {}
 
-            const std::vector<QColor>& colors() const { return m_colors; }
+            const std::vector<QColor>& colors() const { return m_colors.get_data(); }
         private:
             void doVisit(const Model::World* world) override   { visitAttributableNode(world); }
             void doVisit(const Model::Layer*) override         {}
@@ -170,7 +172,7 @@ namespace TrenchBroom {
             }
 
             void addColor(const Color& color) {
-                VectorUtils::setInsert(m_colors, toQColor(color), ColorCmp());
+                m_colors.insert(toQColor(color));
             }
         };
 

@@ -19,8 +19,10 @@
 
 #include "ActionContext.h"
 
-#include "StringList.h"
-#include "StringUtils.h"
+#include <kdl/string_utils.h>
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -34,11 +36,12 @@ namespace TrenchBroom {
             return (lhs & rhs & mask) != 0;
         }
 
-        String actionContextName(const ActionContext::Type actionContext) {
-            if (actionContext == ActionContext::Any)
+        std::string actionContextName(const ActionContext::Type actionContext) {
+            if (actionContext == ActionContext::Any) {
                 return "Any";
+            }
 
-            StringList actionContexts;
+            std::vector<std::string> actionContexts;
             if (actionContext & ActionContext::NodeSelection) {
                 actionContexts.push_back("Objects");
             }
@@ -71,7 +74,7 @@ namespace TrenchBroom {
                 actionContexts.push_back("2D View");
             }
 
-            return StringUtils::join(actionContexts, ", ");
+            return kdl::str_join(actionContexts, ", ");
         }
     }
 }

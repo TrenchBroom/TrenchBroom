@@ -20,25 +20,21 @@
 #ifndef TRENCHBROOM_ASEPARSER_H
 #define TRENCHBROOM_ASEPARSER_H
 
+#include "Assets/Asset_Forward.h"
 #include "IO/EntityModelParser.h"
+#include "IO/IO_Forward.h"
 #include "IO/Parser.h"
-#include "IO/Path.h"
-#include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
 #include <vecmath/forward.h>
 
 #include <array>
 #include <functional>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
     class Logger;
-
-    namespace Assets {
-        class EntityModel;
-        class Texture;
-    }
 
     namespace IO {
         namespace AseToken {
@@ -55,14 +51,12 @@ namespace TrenchBroom {
             static const Type Eof               = 1 << 12; // end of file
         }
 
-        class FileSystem;
-
         class AseTokenizer : public Tokenizer<AseToken::Type> {
         private:
-            static const String WordDelims;
+            static const std::string WordDelims;
         public:
             AseTokenizer(const char* begin, const char* end);
-            explicit AseTokenizer(const String& str);
+            explicit AseTokenizer(const std::string& str);
         private:
             Token emitToken() override;
         };
@@ -85,7 +79,7 @@ namespace TrenchBroom {
             };
 
             struct GeomObject {
-                String name;
+                std::string name;
                 Mesh mesh;
                 size_t materialIndex;
             };
@@ -95,7 +89,7 @@ namespace TrenchBroom {
                 std::vector<GeomObject> geomObjects;
             };
 
-            String m_name;
+            std::string m_name;
             AseTokenizer m_tokenizer;
             const FileSystem& m_fs;
         public:
@@ -107,7 +101,7 @@ namespace TrenchBroom {
              * @param end the end of the text to parse
              * @param fs the file system used to load texture files
              */
-            AseParser(const String& name, const char* begin, const char* end, const FileSystem& fs);
+            AseParser(const std::string& name, const char* begin, const char* end, const FileSystem& fs);
         private:
             std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
         private: // parsing
@@ -117,13 +111,13 @@ namespace TrenchBroom {
             void parseScene(Logger& logger);
 
             // MATERIALS
-            void parseMaterialList(Logger& logger, Path::List& paths);
-            void parseMaterialListMaterialCount(Logger& logger, Path::List& paths);
-            void parseMaterialListMaterial(Logger& logger, Path::List& paths);
+            void parseMaterialList(Logger& logger, std::vector<Path>& paths);
+            void parseMaterialListMaterialCount(Logger& logger, std::vector<Path>& paths);
+            void parseMaterialListMaterial(Logger& logger, std::vector<Path>& paths);
             void parseMaterialListMaterialMapDiffuse(Logger& logger, Path& path);
             void parseMaterialListMaterialMapDiffuseBitmap(Logger& logger, Path& path);
 
-            void parseGeomObject(Logger& logger, GeomObject& geomObject, const Path::List& materialPaths);
+            void parseGeomObject(Logger& logger, GeomObject& geomObject, const std::vector<Path>& materialPaths);
             void parseGeomObjectNodeName(Logger& logger, GeomObject& geomObject);
             void parseGeomObjectMaterialRef(Logger& logger, GeomObject& geomObject, size_t materialCount);
             void parseGeomObjectMesh(Logger& logger, Mesh& mesh);
@@ -141,11 +135,11 @@ namespace TrenchBroom {
 
             void parseBlock(const std::map<std::string, std::function<void(void)>>& handlers);
 
-            void expectDirective(const String& name);
-            void skipDirective(const String& name);
+            void expectDirective(const std::string& name);
+            void skipDirective(const std::string& name);
             void skipDirective();
 
-            void expectArgumentName(const String& expected);
+            void expectArgumentName(const std::string& expected);
 
             void expectSizeArgument(size_t expected);
             size_t parseSizeArgument();

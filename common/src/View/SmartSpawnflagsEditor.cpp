@@ -30,6 +30,7 @@
 #include "View/ViewUtils.h"
 
 #include <cassert>
+#include <memory>
 #include <vector>
 
 #include <QScrollArea>
@@ -37,14 +38,16 @@
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+
         class SmartSpawnflagsEditor::UpdateSpawnflag : public Model::NodeVisitor {
         private:
-            MapDocumentSPtr m_document;
+            std::shared_ptr<MapDocument> m_document;
             const Model::AttributeName& m_name;
             size_t m_flagIndex;
             bool m_setFlag;
         public:
-            UpdateSpawnflag(MapDocumentSPtr document, const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) :
+            UpdateSpawnflag(std::shared_ptr<MapDocument> document, const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) :
             m_document(document),
             m_name(name),
             m_flagIndex(flagIndex),
@@ -57,7 +60,7 @@ namespace TrenchBroom {
             void doVisit(Model::Brush*) override  {}
         };
 
-        SmartSpawnflagsEditor::SmartSpawnflagsEditor(View::MapDocumentWPtr document, QWidget* parent) :
+        SmartSpawnflagsEditor::SmartSpawnflagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         SmartAttributeEditor(document, parent),
         m_scrolledWindow(nullptr),
         m_flagsEditor(nullptr),
@@ -69,14 +72,14 @@ namespace TrenchBroom {
             assert(m_scrolledWindow == nullptr);
 
             m_scrolledWindow = new QScrollArea();
-            //m_scrolledWindow->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 
-            m_flagsEditor = new FlagsEditor(NumCols, nullptr);
+            m_flagsEditor = new FlagsEditor(NumCols);
             connect(m_flagsEditor, &FlagsEditor::flagChanged, this, &SmartSpawnflagsEditor::flagChanged);
 
             m_scrolledWindow->setWidget(m_flagsEditor);
 
             auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
             layout->addWidget(m_scrolledWindow, 1);
             setLayout(layout);
         }
@@ -94,19 +97,6 @@ namespace TrenchBroom {
             int set, mixed;
             getFlagValues(attributables, set, mixed);
             m_flagsEditor->setFlagValue(set, mixed);
-
-//            m_scrolledWindow->SetScrollRate(1, m_flagsEditor->lineHeight());
-//            m_scrolledWindow->Layout();
-//            m_scrolledWindow->FitInside();
-//            m_scrolledWindow->Refresh();
-            resetScrollPos();
-        }
-
-        void SmartSpawnflagsEditor::resetScrollPos() {
-            // TODO: the y position is not properly set (at least on OS X)
-//            int xRate, yRate;
-//            m_scrolledWindow->GetScrollPixelsPerUnit(&xRate, &yRate);
-//            m_scrolledWindow->Scroll(m_lastScrollPos.x * xRate, m_lastScrollPos.y * yRate);
         }
 
         void SmartSpawnflagsEditor::getFlags(const std::vector<Model::AttributableNode*>& attributables, QStringList& labels, QStringList& tooltips) const {

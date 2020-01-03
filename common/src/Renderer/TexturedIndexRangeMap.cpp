@@ -19,8 +19,9 @@
 
 #include "TexturedIndexRangeMap.h"
 
-#include "CollectionUtils.h"
 #include "Renderer/RenderUtils.h"
+
+#include <cassert>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -43,7 +44,8 @@ namespace TrenchBroom {
 
         IndexRangeMap::Size& TexturedIndexRangeMap::Size::findCurrent(const Texture* texture) {
             if (!isCurrent(texture)) {
-                m_current = MapUtils::findOrInsert(m_sizes, texture, IndexRangeMap::Size());
+                const auto result = m_sizes.try_emplace(texture);
+                m_current = result.first;
             }
             return m_current->second;
         }

@@ -20,31 +20,23 @@
 #ifndef TrenchBroom_Inspector
 #define TrenchBroom_Inspector
 
-#include "View/ViewTypes.h"
+#include "Renderer/Renderer_Forward.h"
+#include "View/View_Forward.h"
+
+#include <memory>
 
 #include <QWidget>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class Camera;
-    }
-
     namespace View {
-        class EntityInspector;
-        class FaceInspector;
-        class GLContextManager;
-        class MapInspector;
-        class TabBook;
+        enum class InspectorPage {
+            Map = 0,
+            Entity = 1,
+            Face = 2
+        };
 
         class Inspector : public QWidget {
             Q_OBJECT
-        public:
-            typedef enum {
-                InspectorPage_Map = 0,
-                InspectorPage_Entity = 1,
-                InspectorPage_Face = 2
-            } InspectorPage;
-
         private:
             TabBook* m_tabBook;
             MapInspector* m_mapInspector;
@@ -53,7 +45,7 @@ namespace TrenchBroom {
 
             QWidget* m_topWidgetMaster;
         public:
-            Inspector(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            Inspector(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
             void connectTopWidgets(QWidget* master);
             void switchToPage(InspectorPage page);
             bool cancelMouseDrag();

@@ -20,6 +20,7 @@
 #include "MapFrame.h"
 
 #include "Console.h"
+#include "Exceptions.h"
 #include "FileLogger.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
@@ -35,8 +36,6 @@
 #include "Model/Group.h"
 #include "Model/Layer.h"
 #include "Model/Node.h"
-#include "Model/NodeCollection.h"
-#include "Model/World.h"
 #include "View/Actions.h"
 #include "View/Autosaver.h"
 #if !defined __APPLE__
@@ -55,6 +54,7 @@
 #include "View/LaunchGameEngineDialog.h"
 #include "View/MainMenuBuilder.h"
 #include "View/MapDocument.h"
+#include "View/PasteType.h"
 #include "View/RenderView.h"
 #include "View/ReplaceTextureDialog.h"
 #include "View/Splitter.h"
@@ -64,11 +64,15 @@
 #include "View/QtUtils.h"
 #include "View/MapViewToolBox.h"
 
+#include <kdl/string_format.h>
+#include <kdl/string_utils.h>
+
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
 #include <cassert>
 #include <iterator>
+#include <string>
 #include <vector>
 
 #include <QtGlobal>
@@ -87,16 +91,16 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
+        MapFrame::MapFrame(FrameManager* frameManager, std::shared_ptr<MapDocument> document) :
         QMainWindow(),
         m_frameManager(frameManager),
         m_document(std::move(document)),
-        m_autosaver(nullptr),
+        m_autosaver(std::make_unique<Autosaver>(m_document)),
         m_autosaveTimer(nullptr),
         m_toolBar(nullptr),
         m_hSplitter(nullptr),
         m_vSplitter(nullptr),
-        m_contextManager(nullptr),
+        m_contextManager(std::make_unique<GLContextManager>()),
         m_mapView(nullptr),
         m_currentMapView(nullptr),
         m_infoPanel(nullptr),
@@ -115,9 +119,6 @@ namespace TrenchBroom {
 
             setAttribute(Qt::WA_DeleteOnClose);
             setObjectName("MapFrame");
-
-            m_autosaver = new Autosaver(m_document);
-            m_contextManager = new GLContextManager();
 
             createGui();
             createMenus();
@@ -160,9 +161,6 @@ namespace TrenchBroom {
             unbindObservers();
             removeRecentDocumentsMenu();
 
-            delete m_autosaver;
-            m_autosaver = nullptr;
-
             // The order of deletion here is important because both the document and the children
             // need the context manager (and its embedded VBO) to clean up their resources.
 
@@ -171,11 +169,14 @@ namespace TrenchBroom {
             const auto children = this->children();
             qDeleteAll(std::rbegin(children), std::rend(children));
 
+            // let's trigger a final autosave before releasing the document
+            NullLogger logger;
+            m_autosaver->triggerAutosave(logger);
+
             m_document->setViewEffectsService(nullptr);
             m_document.reset();
 
-            delete m_contextManager;
-            m_contextManager = nullptr;
+            // FIXME: m_contextManager is deleted via smart pointer; it may release openGL resources in its destructor
         }
 
         void MapFrame::positionOnScreen(QWidget* reference) {
@@ -187,7 +188,7 @@ namespace TrenchBroom {
             }
         }
 
-        MapDocumentSPtr MapFrame::document() const {
+        std::shared_ptr<MapDocument> MapFrame::document() const {
             return m_document;
         }
 
@@ -243,8 +244,8 @@ namespace TrenchBroom {
         void MapFrame::updateUndoRedoActions() {
             const auto document = lock(m_document);
             if (m_undoAction != nullptr) {
-                if (document->canUndoLastCommand()) {
-                    const auto text = "Undo " + document->lastCommandName();
+                if (document->canUndoCommand()) {
+                    const auto text = "Undo " + document->undoCommandName();
                     m_undoAction->setText(QString::fromStdString(text));
                     m_undoAction->setEnabled(true);
                 } else {
@@ -253,8 +254,8 @@ namespace TrenchBroom {
                 }
             }
             if (m_redoAction != nullptr) {
-                if (document->canRedoNextCommand()) {
-                    const auto text = "Redo " + document->nextCommandName();
+                if (document->canRedoCommand()) {
+                    const auto text = "Redo " + document->redoCommandName();
                     m_redoAction->setText(QString::fromStdString(text));
                     m_redoAction->setEnabled(true);
                 } else {
@@ -434,11 +435,11 @@ namespace TrenchBroom {
             }
         }
 
-        static String commonClassnameForEntityList(const std::vector<Model::Entity*>& list) {
+        static std::string commonClassnameForEntityList(const std::vector<Model::Entity*>& list) {
             if (list.empty())
                 return "";
 
-            const String firstClassname = list.front()->classname();
+            const std::string firstClassname = list.front()->classname();
             bool multipleClassnames = false;
 
             for (const Model::Entity* entity : list) {
@@ -454,8 +455,8 @@ namespace TrenchBroom {
             }
         }
 
-        static String numberWithSuffix(size_t count, const String &singular, const String &plural) {
-            return std::to_string(count) + " " + StringUtils::safePlural(count, singular, plural);
+        static std::string numberWithSuffix(size_t count, const std::string& singular, const std::string& plural) {
+            return std::to_string(count) + " " + kdl::str_plural(count, singular, plural);
         }
 
         static QString describeSelection(const MapDocument* document) {
@@ -477,7 +478,7 @@ namespace TrenchBroom {
             }
 
             // build a vector of strings describing the things that are selected
-            StringList tokens;
+            std::vector<std::string> tokens;
 
             const auto &selectedNodes = document->selectedNodes();
 
@@ -486,7 +487,7 @@ namespace TrenchBroom {
                 Model::AttributableNode *commonEntity = commonEntityForBrushList(selectedNodes.brushes());
 
                 // if all selected brushes are from the same entity, print the entity name
-                String token = numberWithSuffix(selectedNodes.brushes().size(), "brush", "brushes");
+                std::string token = numberWithSuffix(selectedNodes.brushes().size(), "brush", "brushes");
                 if (commonEntity) {
                     token += " (" + commonEntity->classname() + ")";
                 } else {
@@ -503,9 +504,9 @@ namespace TrenchBroom {
 
             // entities
             if (!selectedNodes.entities().empty()) {
-                String commonClassname = commonClassnameForEntityList(selectedNodes.entities());
+                std::string commonClassname = commonClassnameForEntityList(selectedNodes.entities());
 
-                String token = numberWithSuffix(selectedNodes.entities().size(), "entity", "entities");
+                std::string token = numberWithSuffix(selectedNodes.entities().size(), "entity", "entities");
                 if (commonClassname != "") {
                     token += " (" + commonClassname + ")";
                 } else {
@@ -529,7 +530,7 @@ namespace TrenchBroom {
             }
 
             // now, turn `tokens` into a comma-separated string
-            result += QString::fromStdString(StringUtils::join(tokens, ", ", ", and ", " and ")) + " selected";
+            result += QString::fromStdString(kdl::str_join(tokens, ", ", ", and ", " and ")) + " selected";
 
             return result;
         }
@@ -599,7 +600,7 @@ namespace TrenchBroom {
             updateTitle();
         }
 
-        void MapFrame::transactionDone(const String& /* name */) {
+        void MapFrame::transactionDone(const std::string& /* name */) {
             QTimer::singleShot(0, this, [this]() {
                 // FIXME: Delaying this with QTimer::singleShot is a hack to work around the lack of
                 // a notification that's called _after_ the CommandProcessor undo/redo stacks are modified.
@@ -611,7 +612,7 @@ namespace TrenchBroom {
             });
         }
 
-        void MapFrame::transactionUndone(const String& /* name */) {
+        void MapFrame::transactionUndone(const std::string& /* name */) {
             QTimer::singleShot(0, this, [this]() {
                 // FIXME: see MapFrame::transactionDone
                 updateUndoRedoActions();
@@ -856,27 +857,27 @@ namespace TrenchBroom {
         void MapFrame::undo() {
             if (canUndo()) {
                 if (!m_mapView->cancelMouseDrag() && !m_inspector->cancelMouseDrag()) {
-                    m_document->undoLastCommand();
+                    m_document->undoCommand();
                 }
             }
         }
 
         void MapFrame::redo() {
             if (canRedo()) {
-                m_document->redoNextCommand();
+                m_document->redoCommand();
             }
         }
 
         bool MapFrame::canUndo() const {
-            return m_document->canUndoLastCommand();
+            return m_document->canUndoCommand();
         }
 
         bool MapFrame::canRedo() const {
-            return m_document->canRedoNextCommand();
+            return m_document->canRedoCommand();
         }
 
         void MapFrame::repeatLastCommands() {
-            m_document->repeatLastCommands();
+            m_document->repeatCommands();
         }
 
         void MapFrame::clearRepeatableCommands() {
@@ -886,7 +887,7 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::hasRepeatableCommands() const {
-            return m_document->hasRepeatableCommands();
+            return m_document->canRepeatCommands();
         }
 
         void MapFrame::cutSelection() {
@@ -906,7 +907,7 @@ namespace TrenchBroom {
         void MapFrame::copyToClipboard() {
             QClipboard *clipboard = QApplication::clipboard();
 
-            String str;
+            std::string str;
             if (m_document->hasSelectedNodes()) {
                 str = m_document->serializeSelectedNodes();
             } else if (m_document->hasSelectedBrushFaces()) {
@@ -928,7 +929,7 @@ namespace TrenchBroom {
             if (canPaste()) {
                 const vm::bbox3 referenceBounds = m_document->referenceBounds();
                 Transaction transaction(m_document);
-                if (paste() == PT_Node && m_document->hasSelectedNodes()) {
+                if (paste() == PasteType::Node && m_document->hasSelectedNodes()) {
                     const vm::bbox3 bounds = m_document->selectionBounds();
 
                     // The pasted objects must be hidden to prevent the picking done in pasteObjectsDelta
@@ -955,7 +956,7 @@ namespace TrenchBroom {
 
             if (qtext.isEmpty()) {
                 logger().error("Clipboard is empty");
-                return PT_Failed;
+                return PasteType::Failed;
             }
 
             return m_document->paste(qtext.toStdString());
@@ -1093,7 +1094,7 @@ namespace TrenchBroom {
 
         void MapFrame::groupSelectedObjects() {
             if (canGroupSelectedObjects()) {
-                const String name = queryGroupName(this);
+                const std::string name = queryGroupName(this);
                 if (!name.empty()) {
                     m_document->groupSelection(name);
                 }
@@ -1116,9 +1117,9 @@ namespace TrenchBroom {
 
         void MapFrame::renameSelectedGroups() {
             if (canRenameSelectedGroups()) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 assert(document->selectedNodes().hasOnlyGroups());
-                const String name = queryGroupName(this);
+                const std::string name = queryGroupName(this);
                 if (!name.empty()) {
                     document->renameGroups(name);
                 }
@@ -1126,7 +1127,7 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canRenameSelectedGroups() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             return document->selectedNodes().hasOnlyGroups();
         }
 
@@ -1424,7 +1425,7 @@ namespace TrenchBroom {
             m_document->showAll();
         }
 
-        void MapFrame::switchToInspectorPage(const Inspector::InspectorPage page) {
+        void MapFrame::switchToInspectorPage(const InspectorPage page) {
             m_inspector->show();
             m_inspector->switchToPage(page);
         }

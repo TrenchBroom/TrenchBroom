@@ -21,22 +21,23 @@
 #define GameEngineConfigParser_h
 
 #include "Macros.h"
-#include "StringType.h"
 #include "IO/ConfigParserBase.h"
-#include "IO/Path.h"
-#include "Model/GameEngineConfig.h"
-#include "Model/GameEngineProfile.h"
+#include "IO/IO_Forward.h"
+#include "Model/Model_Forward.h"
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
         class GameEngineConfigParser : public ConfigParserBase {
         public:
             GameEngineConfigParser(const char* begin, const char* end, const Path& path);
-            GameEngineConfigParser(const String& str, const Path& path = Path(""));
+            GameEngineConfigParser(const std::string& str, const Path& path);
 
             Model::GameEngineConfig parse();
         private:
-            Model::GameEngineProfile::List parseProfiles(const EL::Value& value) const;
+            std::vector<Model::GameEngineProfile*> parseProfiles(const EL::Value& value) const;
             Model::GameEngineProfile* parseProfile(const EL::Value& value) const;
 
             deleteCopyAndMove(GameEngineConfigParser)

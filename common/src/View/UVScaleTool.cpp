@@ -19,14 +19,17 @@
 
 #include "UVScaleTool.h"
 
-#include "TrenchBroom.h"
 #include "Polyhedron.h"
+#include "TrenchBroom.h"
+#include "SharedPointer.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "View/MapDocument.h"
@@ -42,10 +45,10 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType UVScaleTool::XHandleHit = Model::Hit::freeHitType();
-        const Model::Hit::HitType UVScaleTool::YHandleHit = Model::Hit::freeHitType();
+        const Model::HitType::Type UVScaleTool::XHandleHit = Model::HitType::freeType();
+        const Model::HitType::Type UVScaleTool::YHandleHit = Model::HitType::freeType();
 
-        UVScaleTool::UVScaleTool(MapDocumentWPtr document, UVViewHelper& helper) :
+        UVScaleTool::UVScaleTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper) :
         ToolControllerBase(),
         Tool(true),
         m_document(document),
@@ -60,7 +63,7 @@ namespace TrenchBroom {
         }
 
         void UVScaleTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
-            static const Model::Hit::HitType HitTypes[] = { XHandleHit, YHandleHit };
+            static const Model::HitType::Type HitTypes[] = { XHandleHit, YHandleHit };
             if (m_helper.valid()) {
                 m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, pickResult);
             }
@@ -108,7 +111,7 @@ namespace TrenchBroom {
             m_lastHitPoint = getHitPoint(inputState.pickRay());
 
             auto document = lock(m_document);
-            document->beginTransaction("Scale Texture");
+            document->startTransaction("Scale Texture");
             return true;
         }
 
@@ -212,12 +215,12 @@ namespace TrenchBroom {
             if (!pickResult.query().type(UVOriginTool::XHandleHit | UVOriginTool::YHandleHit).occluded().first().isMatch()) {
                 const Color color(1.0f, 0.0f, 0.0f, 1.0f);
 
-                Renderer::DirectEdgeRenderer handleRenderer(Renderer::VertexArray::move(getHandleVertices(pickResult)), GL_LINES);
+                Renderer::DirectEdgeRenderer handleRenderer(Renderer::VertexArray::move(getHandleVertices(pickResult)), Renderer::PrimType::Lines);
                 handleRenderer.render(renderBatch, color, 0.5f);
             }
         }
 
-        UVScaleTool::EdgeVertex::List UVScaleTool::getHandleVertices(const Model::PickResult& pickResult) const {
+        std::vector<UVScaleTool::EdgeVertex> UVScaleTool::getHandleVertices(const Model::PickResult& pickResult) const {
             const auto& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
             const auto& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
             const auto stripeSize = m_helper.stripeSize();
@@ -229,7 +232,7 @@ namespace TrenchBroom {
             vm::vec3 h1, h2, v1, v2;
             m_helper.computeScaleHandleVertices(pos, v1, v2, h1, h2);
 
-            EdgeVertex::List vertices;
+            std::vector<EdgeVertex> vertices;
             vertices.reserve(4);
 
             if (xHandleHit.isMatch()) {

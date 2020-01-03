@@ -20,15 +20,16 @@
 #ifndef TrenchBroom_World
 #define TrenchBroom_World
 
+#include "Macros.h"
 #include "TrenchBroom.h"
 #include "Model/AttributableNode.h"
-#include "Model/AttributableNodeIndex.h"
-#include "Model/IssueGeneratorRegistry.h"
 #include "Model/MapFormat.h"
+#include "Model/Model_Forward.h"
 #include "Model/ModelFactory.h"
-#include "Model/ModelFactoryImpl.h"
 #include "Model/Node.h"
 
+#include <memory>
+#include <string>
 #include <vector>
 
 template <typename T, size_t S, typename U>
@@ -40,10 +41,10 @@ namespace TrenchBroom {
 
         class World : public AttributableNode, public ModelFactory {
         private:
-            ModelFactoryImpl m_factory;
+            std::unique_ptr<ModelFactory> m_factory;
             Layer* m_defaultLayer;
-            AttributableNodeIndex m_attributableIndex;
-            IssueGeneratorRegistry m_issueGeneratorRegistry;
+            std::unique_ptr<AttributableNodeIndex> m_attributableIndex;
+            std::unique_ptr<IssueGeneratorRegistry> m_issueGeneratorRegistry;
 
             using NodeTree = AABBTree<FloatType, 3, Node*>;
             std::unique_ptr<NodeTree> m_nodeTree;
@@ -110,8 +111,8 @@ namespace TrenchBroom {
         private: // implement ModelFactory interface
             MapFormat doGetFormat() const override;
             World* doCreateWorld() const override;
-            Layer* doCreateLayer(const String& name) const override;
-            Group* doCreateGroup(const String& name) const override;
+            Layer* doCreateLayer(const std::string& name) const override;
+            Group* doCreateGroup(const std::string& name) const override;
             Entity* doCreateEntity() const override;
             Brush* doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const override;
             BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;

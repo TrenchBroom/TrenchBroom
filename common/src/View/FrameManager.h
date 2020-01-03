@@ -20,27 +20,21 @@
 #ifndef TrenchBroom_FrameManager
 #define TrenchBroom_FrameManager
 
-#include "View/ViewTypes.h"
+#include "IO/IO_Forward.h"
+#include "View/View_Forward.h"
 
 #include <QObject>
 
-#include <list>
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace View {
-        class MapFrame;
-
-        using FrameList = std::list<MapFrame*>;
-
         class FrameManager : public QObject {
             Q_OBJECT
         private:
             bool m_singleFrame;
-            FrameList m_frames;
+            std::vector<MapFrame*> m_frames;
         public:
             explicit FrameManager(bool singleFrame);
             ~FrameManager() override;
@@ -48,14 +42,14 @@ namespace TrenchBroom {
             MapFrame* newFrame();
             bool closeAllFrames();
 
-            FrameList frames() const;
+            std::vector<MapFrame*> frames() const;
             MapFrame* topFrame() const;
             bool allFramesClosed() const;
 
         private:
             void onFocusChange(QWidget* old, QWidget* now);
             MapFrame* createOrReuseFrame();
-            MapFrame* createFrame(MapDocumentSPtr document);
+            MapFrame* createFrame(std::shared_ptr<MapDocument> document);
             void removeFrame(MapFrame* frame);
 
             friend class MapFrame;

@@ -20,33 +20,28 @@
 #ifndef TrenchBroom_RenderContext
 #define TrenchBroom_RenderContext
 
-#include "Renderer/Transformation.h"
 #include "TrenchBroom.h"
+#include "Renderer/Renderer_Forward.h"
+#include "Renderer/Transformation.h"
+#include "View/View_Forward.h"
 
 namespace TrenchBroom {
-    namespace View {
-        class MapViewConfig;
-    }
-
     namespace Renderer {
-        class Camera;
-        class FontManager;
-        class Renderable;
-        class ShaderManager;
+
+        enum class RenderMode {
+            Render3D,
+            Render2D
+        };
+
 
         class RenderContext {
-        public:
-            typedef enum {
-                RenderMode_3D,
-                RenderMode_2D
-            } RenderMode;
         private:
-            typedef enum {
-                ShowSelectionGuide_Show,
-                ShowSelectionGuide_Hide,
-                ShowSelectionGuide_ForceShow,
-                ShowSelectionGuide_ForceHide
-            } ShowSelectionGuide;
+            enum class ShowSelectionGuide {
+                Show,
+                Hide,
+                ForceShow,
+                ForceHide
+            };
 
             // general context for any rendering view
             RenderMode m_renderMode;

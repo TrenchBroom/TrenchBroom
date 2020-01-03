@@ -35,6 +35,8 @@ else()
         --verbose
         --error-exitcode=1
         ${COMMON_SOURCE_DIR}
+        -i${COMMON_SOURCE_DIR}/Model/AttributableNode.cpp # FIXME: remove once https://github.com/kduske/TrenchBroom/issues/2887 is resolved upstream
+        -i${COMMON_SOURCE_DIR}/Model/EntityAttributes.cpp
         2> ./cppcheck-errors.txt
     )
 

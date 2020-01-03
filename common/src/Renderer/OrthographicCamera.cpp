@@ -82,7 +82,7 @@ namespace TrenchBroom {
             leftPlane   = vm::plane3f(center - w2 * right(), -right());
         }
 
-        void OrthographicCamera::doRenderFrustum(RenderContext&, Vbo& /* vbo */, const float /* size */, const Color& /* color */) const {}
+        void OrthographicCamera::doRenderFrustum(RenderContext&, VboManager& /* vboManager */, const float /* size */, const Color& /* color */) const {}
 
         float OrthographicCamera::doPickFrustum(const float /* size */, const vm::ray3f& /* ray */) const {
             return vm::nan<float>();
@@ -95,8 +95,8 @@ namespace TrenchBroom {
         void OrthographicCamera::doUpdateZoom() {
             const auto& unzoomedViewport = viewport();
             m_zoomedViewport = Viewport(unzoomedViewport.x, unzoomedViewport.y,
-                                        static_cast<int>(vm::round(unzoomedViewport.width / zoom())),
-                                        static_cast<int>(vm::round(unzoomedViewport.height / zoom())));
+                                        static_cast<int>(vm::round(static_cast<float>(unzoomedViewport.width)  / zoom())),
+                                        static_cast<int>(vm::round(static_cast<float>(unzoomedViewport.height) / zoom())));
         }
     }
 }

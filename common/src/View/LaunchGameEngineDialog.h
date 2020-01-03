@@ -20,32 +20,27 @@
 #ifndef LaunchGameEngineDialog_h
 #define LaunchGameEngineDialog_h
 
-#include "IO/Path.h"
+#include "Model/Model_Forward.h"
 #include "View/CompilationVariables.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
+
+#include <memory>
 
 #include <QDialog>
 
 class QPushButton;
 
 namespace TrenchBroom {
-    namespace Model {
-        class GameEngineProfile;
-    }
-
     namespace View {
-        class MultiCompletionLineEdit;
-        class GameEngineProfileListBox;
-
         class LaunchGameEngineDialog : public QDialog {
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             GameEngineProfileListBox* m_gameEngineList;
             MultiCompletionLineEdit* m_parameterText;
             QPushButton* m_launchButton;
             Model::GameEngineProfile* m_lastProfile;
         public:
-            explicit LaunchGameEngineDialog(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit LaunchGameEngineDialog(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
             void createGui();
             LaunchGameEngineVariables variables() const;

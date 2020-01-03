@@ -23,27 +23,21 @@
 
 #include "TrenchBroom.h"
 #include "Model/Hit.h"
+#include "Model/HitType.h"
+#include "Model/Model_Forward.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/bbox.h>
 
 #include <bitset>
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class PickResult;
-    }
-
-    namespace Renderer {
-        class Camera;
-    }
-
     namespace View {
-        class ScaleObjectsToolPage;
-
         /**
          * Identifies the side of a bbox using a normal. The normal will be one of +/- 1.0 along X, Y, or Z.
          */
@@ -204,12 +198,12 @@ namespace TrenchBroom {
 
         class ScaleObjectsTool : public Tool {
         public:
-            static const Model::Hit::HitType ScaleToolSideHit;
-            static const Model::Hit::HitType ScaleToolEdgeHit;
-            static const Model::Hit::HitType ScaleToolCornerHit;
+            static const Model::HitType::Type ScaleToolSideHit;
+            static const Model::HitType::Type ScaleToolEdgeHit;
+            static const Model::HitType::Type ScaleToolCornerHit;
 
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             ScaleObjectsToolPage* m_toolPage;
             bool m_resizing;
             AnchorPos m_anchorPos;
@@ -219,7 +213,7 @@ namespace TrenchBroom {
             ProportionalAxes m_proportionalAxes;
 
         public:
-            explicit ScaleObjectsTool(MapDocumentWPtr document);
+            explicit ScaleObjectsTool(std::weak_ptr<MapDocument> document);
             ~ScaleObjectsTool() override;
 
             bool doActivate() override;

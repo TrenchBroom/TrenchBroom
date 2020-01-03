@@ -22,9 +22,11 @@
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Assets/Texture.h"
-#include "Renderer/Camera.h"
-#include "Renderer/RenderBatch.h"
+#include "Renderer/ActiveShader.h"
 #include "Renderer/BrushRendererArrays.h"
+#include "Renderer/Camera.h"
+#include "Renderer/PrimType.h"
+#include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
@@ -65,7 +67,7 @@ namespace TrenchBroom {
         m_tint(false),
         m_alpha(1.0f) {}
 
-        FaceRenderer::FaceRenderer(BrushVertexArrayPtr vertexArray, TextureToBrushIndicesMapPtr indexArrayMap, const Color& faceColor) :
+        FaceRenderer::FaceRenderer(std::shared_ptr<BrushVertexArray> vertexArray, std::shared_ptr<TextureToBrushIndicesMap> indexArrayMap, const Color& faceColor) :
         m_vertexArray(std::move(vertexArray)),
         m_indexArrayMap(std::move(indexArrayMap)),
         m_faceColor(faceColor),
@@ -120,12 +122,27 @@ namespace TrenchBroom {
             renderBatch.add(this);
         }
 
-        void FaceRenderer::prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) {
-            m_vertexArray->prepare(vertexVbo);
+        void FaceRenderer::prepareVerticesAndIndices(VboManager& vboManager) {
+            m_vertexArray->prepare(vboManager);
 
             for (const auto& pair : *m_indexArrayMap) {
                 const auto& brushIndexHolderPtr = pair.second;
-                brushIndexHolderPtr->prepare(indexVbo);
+                brushIndexHolderPtr->prepare(vboManager);
+            }
+        }
+
+        vm::vec3f FaceRenderer::gridColorForTexture(const Assets::Texture* texture) {
+            if (texture == nullptr) {
+                return vm::vec3f::fill(1.0f);
+            }
+            if ((texture->averageColor().r() +
+                 texture->averageColor().g() +
+                 texture->averageColor().b()) / 3.0f > 0.50f) {
+                // bright texture grid color
+                return vm::vec3f::fill(0.0f);
+            } else {
+                // dark texture grid color
+                return vm::vec3f::fill(1.0f);
             }
         }
 
@@ -167,8 +184,14 @@ namespace TrenchBroom {
                     if (!brushIndexHolderPtr->hasValidIndices()) {
                         continue;
                     }
+
+                    // set any per-texture uniforms
+                    shader.set("GridColor", gridColorForTexture(texture));
+
                     func.before(texture);
-                    brushIndexHolderPtr->render(GL_TRIANGLES);
+                    brushIndexHolderPtr->setupIndices();
+                    brushIndexHolderPtr->render(PrimType::Triangles);
+                    brushIndexHolderPtr->cleanupIndices();
                     func.after(texture);
                 }
                 if (m_alpha < 1.0f) {

@@ -20,7 +20,6 @@
 #include "Grid.h"
 
 #include "Constants.h"
-#include "CollectionUtils.h"
 #include "Polyhedron.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -102,7 +101,7 @@ namespace TrenchBroom {
             vm::vec3 planeAnchor;
 
             for (size_t i = 0; i < 3; ++i) {
-                planeAnchor[i] = ray.direction[i] > 0.0 ? snapUp(ray.origin[i], true) + skip * actualSize() : snapDown(ray.origin[i], true) - skip * actualSize();
+                planeAnchor[i] = ray.direction[i] > 0.0 ? snapUp(ray.origin[i], true) + static_cast<FloatType>(skip) * actualSize() : snapDown(ray.origin[i], true) - static_cast<FloatType>(skip) * actualSize();
             }
 
             const auto distX = vm::intersect_ray_plane(ray, vm::plane3(planeAnchor, vm::vec3::pos_x()));
@@ -220,7 +219,7 @@ namespace TrenchBroom {
             }
 
             const auto* brush = face->brush();
-            const auto brushEdges = brush->edges();
+            const auto& brushEdges = brush->edges();
             const auto faceVertices = face->vertices();
 
             // the edge rays indicate the direction into which each vertex of the given face moves if the face is dragged

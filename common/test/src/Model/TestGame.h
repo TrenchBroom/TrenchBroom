@@ -20,21 +20,18 @@
 #ifndef TestGame_h
 #define TestGame_h
 
+#include "IO/IO_Forward.h"
 #include "Model/Game.h"
+#include "Model/Model_Forward.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
     class Logger;
 
-    namespace IO {
-        class ParserStatus;
-    }
-
     namespace Model {
-        class SmartTag;
-
         class TestGame : public Game {
         private:
             std::vector<SmartTag> m_smartTags;
@@ -43,11 +40,11 @@ namespace TrenchBroom {
         public:
             void setSmartTags(std::vector<SmartTag> smartTags);
         private:
-            const String& doGameName() const override;
+            const std::string& doGameName() const override;
             IO::Path doGamePath() const override;
             void doSetGamePath(const IO::Path& gamePath, Logger& logger) override;
-            void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger) override;
-            PathErrors doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const override;
+            void doSetAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths, Logger& logger) override;
+            PathErrors doCheckAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths) const override;
 
             CompilationConfig& doCompilationConfig() override;
             size_t doMaxPropertyLength() const override;
@@ -59,32 +56,32 @@ namespace TrenchBroom {
             void doWriteMap(World& world, const IO::Path& path) const override;
             void doExportMap(World& world, Model::ExportFormat format, const IO::Path& path) const override;
 
-            std::vector<Node*> doParseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
-            std::vector<BrushFace*> doParseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
+            std::vector<Node*> doParseNodes(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
+            std::vector<BrushFace*> doParseBrushFaces(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const override;
             void doWriteNodesToStream(World& world, const std::vector<Node*>& nodes, std::ostream& stream) const override;
             void doWriteBrushFacesToStream(World& world, const std::vector<BrushFace*>& faces, std::ostream& stream) const override;
 
             TexturePackageType doTexturePackageType() const override;
             void doLoadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const override;
             bool doIsTextureCollection(const IO::Path& path) const override;
-            IO::Path::List doFindTextureCollections() const override;
-            IO::Path::List doExtractTextureCollections(const AttributableNode& node) const override;
-            void doUpdateTextureCollections(AttributableNode& node, const IO::Path::List& paths) const override;
+            std::vector<IO::Path> doFindTextureCollections() const override;
+            std::vector<IO::Path> doExtractTextureCollections(const AttributableNode& node) const override;
+            void doUpdateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const override;
             void doReloadShaders() override;
 
             bool doIsEntityDefinitionFile(const IO::Path& path) const override;
-            Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const override;
+            std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles() const override;
             Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const override;
-            IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const override;
+            IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const override;
 
-            StringList doAvailableMods() const override;
-            StringList doExtractEnabledMods(const AttributableNode& node) const override;
-            String doDefaultMod() const override;
+            std::vector<std::string> doAvailableMods() const override;
+            std::vector<std::string> doExtractEnabledMods(const AttributableNode& node) const override;
+            std::string doDefaultMod() const override;
 
-            const GameConfig::FlagsConfig& doSurfaceFlags() const override;
-            const GameConfig::FlagsConfig& doContentFlags() const override;
+            const FlagsConfig& doSurfaceFlags() const override;
+            const FlagsConfig& doContentFlags() const override;
 
-            Assets::EntityDefinitionList doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const override;
+            std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const override;
             std::unique_ptr<Assets::EntityModel> doInitializeModel(const IO::Path& path, Logger& logger) const override;
             void doLoadFrame(const IO::Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const override;
         };

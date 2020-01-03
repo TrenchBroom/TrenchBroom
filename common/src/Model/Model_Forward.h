@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Model_Forward_h
 #define TrenchBroom_Model_Forward_h
 
-#include "StringType.h"
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -36,27 +36,95 @@ namespace TrenchBroom {
         class Entity;
         class Brush;
         class BrushFace;
+        class BrushFaceAttributes;
+
+        class BrushFaceReference;
+
+        class TexCoordSystem;
+        class ParallelTexCoordSystem;
+        class ParaxialTexCoordSystem;
+        enum class WrapStyle;
+
+        class ChangeBrushFaceAttributesRequest;
 
         enum class VisibilityState;
         enum class LockState;
 
+        class NodeCollection;
+
         class NodeVisitor;
         class ConstNodeVisitor;
 
-        using AttributeName = String;
-        using AttributeValue = String;
+        class AttributableNodeIndex;
+        class EntityAttribute;
+        class EntityAttributes;
+        using AttributeName = std::string;
+        using AttributeValue = std::string;
+
+        class Tag;
+        class SmartTag;
+        class TagAttribute;
+        class TagManager;
+        class TagVisitor;
+        class ConstTagVisitor;
 
         class Game;
 
+        class Snapshot;
         class NodeSnapshot;
         class BrushFaceSnapshot;
+        class TexCoordSystemSnapshot;
+        class EntityAttributeSnapshot;
 
         using IssueType = int;
         class Issue;
         class IssueQuickFix;
         class IssueGenerator;
+        class IssueGeneratorRegistry;
+        class MapFacade;
 
         enum class ExportFormat;
+
+        class EditorContext;
+
+        class ModelFactory;
+
+        class Hit;
+        class HitFilter;
+        class HitQuery;
+        class CompareHits;
+
+        class PickResult;
+
+        class CompilationConfig;
+        class CompilationProfile;
+        class CompilationTask;
+        class CompilationExportMap;
+        class CompilationCopyFiles;
+        class CompilationRunTool;
+        class CompilationTaskVisitor;
+        class CompilationTaskConstVisitor;
+        class ConstCompilationTaskVisitor;
+        class ConstCompilationTaskConstVisitor;
+
+        enum class MapFormat;
+
+        class GameEngineConfig;
+        class GameEngineProfile;
+
+        struct EntityConfig;
+        struct FaceAttribsConfig;
+        struct FileSystemConfig;
+        struct FlagConfig;
+        struct FlagsConfig;
+        class GameConfig;
+        struct MapFormatConfig;
+        struct PackageFormatConfig;
+        struct TextureConfig;
+        struct TexturePackageConfig;
+
+        class PointFile;
+        class PortalFile;
     }
 }
 

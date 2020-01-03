@@ -19,7 +19,8 @@
 
 #include "SmartAttributeEditorManager.h"
 
-#include "CollectionUtils.h"
+#include "Macros.h"
+#include "SharedPointer.h"
 #include "View/MapDocument.h"
 #include "View/SmartChoiceEditor.h"
 #include "View/SmartChoiceEditorMatcher.h"
@@ -30,12 +31,11 @@
 #include "View/SmartSpawnflagsEditor.h"
 
 #include <QWidget>
-#include <QVBoxLayout>
 #include <QStackedLayout>
 
 namespace TrenchBroom {
     namespace View {
-        SmartAttributeEditorManager::SmartAttributeEditorManager(View::MapDocumentWPtr document, QWidget* parent) :
+        SmartAttributeEditorManager::SmartAttributeEditorManager(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_name(""),
@@ -84,26 +84,26 @@ namespace TrenchBroom {
         }
 
         void SmartAttributeEditorManager::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &SmartAttributeEditorManager::selectionDidChange);
             document->nodesDidChangeNotifier.addObserver(this, &SmartAttributeEditorManager::nodesDidChange);
         }
 
         void SmartAttributeEditorManager::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->selectionDidChangeNotifier.removeObserver(this, &SmartAttributeEditorManager::selectionDidChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &SmartAttributeEditorManager::nodesDidChange);
             }
         }
 
         void SmartAttributeEditorManager::selectionDidChange(const Selection&) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             switchEditor(m_name, document->allSelectedAttributableNodes());
         }
 
         void SmartAttributeEditorManager::nodesDidChange(const std::vector<Model::Node*>&) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             switchEditor(m_name, document->allSelectedAttributableNodes());
         }
 
@@ -144,7 +144,7 @@ namespace TrenchBroom {
 
         void SmartAttributeEditorManager::updateEditor() {
             if (activeEditor() != nullptr) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 activeEditor()->update(document->allSelectedAttributableNodes());
             }
         }

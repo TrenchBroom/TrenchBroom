@@ -20,27 +20,27 @@
 #ifndef TrenchBroom_CameraTool3D
 #define TrenchBroom_CameraTool3D
 
+#include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
-namespace TrenchBroom {
-    namespace Renderer {
-        class PerspectiveCamera;
-    }
+#include <memory>
 
+namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+
         class CameraTool3D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             Renderer::PerspectiveCamera& m_camera;
             bool m_orbit;
             vm::vec3f m_orbitCenter;
         public:
-            CameraTool3D(MapDocumentWPtr document, Renderer::PerspectiveCamera& camera);
+            CameraTool3D(std::weak_ptr<MapDocument> document, Renderer::PerspectiveCamera& camera);
             void fly(int dx, int dy, bool forward, bool backward, bool left, bool right, unsigned int time);
         private:
             Tool* doGetTool() override;

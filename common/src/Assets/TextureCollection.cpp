@@ -19,8 +19,12 @@
 
 #include "TextureCollection.h"
 
-#include "CollectionUtils.h"
 #include "Assets/Texture.h"
+
+#include <kdl/vector_utils.h>
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -28,7 +32,7 @@ namespace TrenchBroom {
         m_loaded(false),
         m_usageCount(0) {}
 
-        TextureCollection::TextureCollection(const TextureList& textures) :
+        TextureCollection::TextureCollection(const std::vector<Texture*>& textures) :
         m_loaded(false),
         m_usageCount(0) {
             addTextures(textures);
@@ -39,7 +43,7 @@ namespace TrenchBroom {
         m_path(path),
         m_usageCount(0) {}
 
-        TextureCollection::TextureCollection(const IO::Path& path, const TextureList& textures) :
+        TextureCollection::TextureCollection(const IO::Path& path, const std::vector<Texture*>& textures) :
         m_loaded(true),
         m_path(path),
         m_usageCount(0) {
@@ -47,7 +51,7 @@ namespace TrenchBroom {
         }
 
         TextureCollection::~TextureCollection() {
-            VectorUtils::clearAndDelete(m_textures);
+            kdl::vec_clear_and_delete(m_textures);
             if (!m_textureIds.empty()) {
                 glAssert(glDeleteTextures(static_cast<GLsizei>(m_textureIds.size()),
                                           static_cast<GLuint*>(&m_textureIds.front())));
@@ -55,7 +59,7 @@ namespace TrenchBroom {
             }
         }
 
-        void TextureCollection::addTextures(const TextureList& textures) {
+        void TextureCollection::addTextures(const std::vector<Texture*>& textures) {
             for (Texture* texture : textures)
                 addTexture(texture);
         }
@@ -75,7 +79,7 @@ namespace TrenchBroom {
             return m_path;
         }
 
-        String TextureCollection::name() const {
+        std::string TextureCollection::name() const {
             if (m_path.isEmpty())
                 return "";
             return m_path.lastComponent().asString();
@@ -85,7 +89,7 @@ namespace TrenchBroom {
             return m_textures.size();
         }
 
-        const TextureList& TextureCollection::textures() const {
+        const std::vector<Texture*>& TextureCollection::textures() const {
             return m_textures;
         }
 
@@ -97,7 +101,7 @@ namespace TrenchBroom {
             }
         }
 
-        Texture* TextureCollection::textureByName(const String& name) const {
+        Texture* TextureCollection::textureByName(const std::string& name) const {
             for (auto* texture : m_textures) {
                 if (texture->name() == name) {
                     return texture;

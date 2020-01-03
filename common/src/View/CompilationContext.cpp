@@ -19,20 +19,20 @@
 
 #include "CompilationContext.h"
 
+#include "SharedPointer.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
-#include "EL/Value.h"
 #include "EL/Types.h"
 
 namespace TrenchBroom {
     namespace View {
-        CompilationContext::CompilationContext(MapDocumentWPtr document, const EL::VariableTable& variables, const TextOutputAdapter& output, bool test) :
+        CompilationContext::CompilationContext(std::weak_ptr<MapDocument> document, const EL::VariableTable& variables, const TextOutputAdapter& output, bool test) :
         m_document(document),
         m_variables(variables),
         m_output(output),
         m_test(test) {}
 
-        MapDocumentSPtr CompilationContext::document() const {
+        std::shared_ptr<MapDocument> CompilationContext::document() const {
             return lock(m_document);
         }
 
@@ -40,11 +40,11 @@ namespace TrenchBroom {
             return m_test;
         }
 
-        String CompilationContext::interpolate(const String& input) const {
+        std::string CompilationContext::interpolate(const std::string& input) const {
             return EL::interpolate(input, EL::EvaluationContext(m_variables));
         }
 
-        String CompilationContext::variableValue(const String& variableName) const {
+        std::string CompilationContext::variableValue(const std::string& variableName) const {
             return m_variables.value(variableName).convertTo(EL::ValueType::String).stringValue();
         }
     }

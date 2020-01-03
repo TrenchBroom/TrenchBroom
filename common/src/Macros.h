@@ -37,7 +37,7 @@
 // Annotate an intended switch fallthrough
 #define switchFallthrough() [[fallthrough]]
 
-#define assertResult(funexp) { const bool result = (funexp); unused(result); assert(result); }
+#define assertResult(funexp) { const bool result_ = (funexp); unused(result_); assert(result_); }
 
 #define defineCopy(classname) public: classname(const classname& other) = default; classname& operator=(const classname& other) = default;
 #define defineMove(classname) public: classname(classname&& other) noexcept = default; classname& operator=(classname&& other) = default;

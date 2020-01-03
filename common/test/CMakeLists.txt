@@ -20,6 +20,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/Md3ParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/MdlParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/NodeWriterTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/ObjParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/PathTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/Quake3ShaderFileSystemTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/Quake3ShaderParserTest.cpp"
@@ -54,6 +55,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/View/AutosaverTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/ChangeBrushFaceAttributesTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/ClipToolControllerTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/View/CommandProcessorTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/GridTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/GroupNodesTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/KeyboardShortcutTest.cpp"
@@ -70,7 +72,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/View/TagManagementTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/AABBTreeStressTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/AABBTreeTest.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/CollectionUtilsTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EnsureTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/intrusive_circular_list_test.cpp"
         "${COMMON_TEST_SOURCE_DIR}/MockObserver.h"
@@ -83,7 +84,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/StackWalkerTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/StepIteratorTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/StringMapTest.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/StringUtilsTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/TestUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/TestUtils.h"
 )
@@ -96,7 +96,7 @@ set_compiler_config(common-test)
 
 # avoid spurious warnings when passing 0 to google test assertions
 if(COMPILER_IS_CLANG)
-    target_compile_options(common-test PRIVATE  -Wno-zero-as-null-pointer-constant)
+    target_compile_options(common-test PRIVATE -Wno-zero-as-null-pointer-constant)
 endif()
 
 # By default VS launches with a CWD one level up from the .exe (which is in a "Debug" subdirectory)

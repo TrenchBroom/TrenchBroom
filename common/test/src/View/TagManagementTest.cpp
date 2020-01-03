@@ -33,8 +33,9 @@
 #include "Model/Tag.h"
 #include "Model/TagMatcher.h"
 #include "Model/TestGame.h"
-#include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -52,14 +53,14 @@ namespace TrenchBroom {
 
                 matchingTexture->setSurfaceParms({"some_parm"});
 
-                auto textureCollection = std::make_unique<Assets::TextureCollection>(Assets::TextureList{
+                auto textureCollection = std::make_unique<Assets::TextureCollection>(std::vector<Assets::Texture*>({
                     matchingTexture.get(),
                     nonMatchingTexture.get()
-                });
+                }));
 
-                document->textureManager().setTextureCollections(Assets::TextureCollectionList{
+                document->textureManager().setTextureCollections(std::vector<Assets::TextureCollection*>({
                     textureCollection.get()
-                });
+                }));
 
                 m_matchingTexture = matchingTexture.release();
                 m_nonMatchingTexture = nonMatchingTexture.release();
@@ -83,7 +84,7 @@ namespace TrenchBroom {
             explicit TestCallback(const size_t option) :
             m_option(option) {}
 
-            size_t selectOption(const StringList& /* options */) {
+            size_t selectOption(const std::vector<std::string>& /* options */) {
                 return m_option;
             }
         };

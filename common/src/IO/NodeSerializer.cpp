@@ -21,9 +21,15 @@
 
 #include "Model/Brush.h"
 #include "Model/Group.h"
+#include "Model/EntityAttributes.h"
 #include "Model/Layer.h"
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
+
+#include <kdl/string_format.h>
+#include <kdl/string_utils.h>
+
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -39,6 +45,23 @@ namespace TrenchBroom {
             void doVisit(Model::Entity* /* entity */) override {}
             void doVisit(Model::Brush* brush) override   { m_serializer.brush(brush); }
         };
+
+        const std::string& NodeSerializer::IdManager::getId(const Model::Node* t) const {
+            auto it = m_ids.find(t);
+            if (it == std::end(m_ids)) {
+                it = m_ids.insert(std::make_pair(t, idToString(makeId()))).first;
+            }
+            return it->second;
+        }
+
+        Model::IdType NodeSerializer::IdManager::makeId() const {
+            static Model::IdType currentId = 1;
+            return currentId++;
+        }
+
+        std::string NodeSerializer::IdManager::idToString(const Model::IdType nodeId) const {
+            return kdl::str_to_string(nodeId);
+        }
 
         NodeSerializer::NodeSerializer() :
         m_entityNo(0),
@@ -65,18 +88,18 @@ namespace TrenchBroom {
         }
 
         void NodeSerializer::defaultLayer(Model::World& world) {
-            entity(&world, world.attributes(), Model::EntityAttribute::EmptyList, world.defaultLayer());
+            entity(&world, world.attributes(), {}, world.defaultLayer());
         }
 
         void NodeSerializer::customLayer(Model::Layer* layer) {
-            entity(layer, layerAttributes(layer), Model::EntityAttribute::EmptyList, layer);
+            entity(layer, layerAttributes(layer), {}, layer);
         }
 
-        void NodeSerializer::group(Model::Group* group, const Model::EntityAttribute::List& parentAttributes) {
+        void NodeSerializer::group(Model::Group* group, const std::list<Model::EntityAttribute>& parentAttributes) {
             entity(group, groupAttributes(group), parentAttributes, group);
         }
 
-        void NodeSerializer::entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, Model::Node* brushParent) {
+        void NodeSerializer::entity(Model::Node* node, const std::list<Model::EntityAttribute>& attributes, const std::list<Model::EntityAttribute>& parentAttributes, Model::Node* brushParent) {
             beginEntity(node, attributes, parentAttributes);
 
             BrushSerializer brushSerializer(*this);
@@ -85,13 +108,13 @@ namespace TrenchBroom {
             endEntity(node);
         }
 
-        void NodeSerializer::entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, const std::vector<Model::Brush*>& entityBrushes) {
+        void NodeSerializer::entity(Model::Node* node, const std::list<Model::EntityAttribute>& attributes, const std::list<Model::EntityAttribute>& parentAttributes, const std::vector<Model::Brush*>& entityBrushes) {
             beginEntity(node, attributes, parentAttributes);
             brushes(entityBrushes);
             endEntity(node);
         }
 
-        void NodeSerializer::beginEntity(const Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& extraAttributes) {
+        void NodeSerializer::beginEntity(const Model::Node* node, const std::list<Model::EntityAttribute>& attributes, const std::list<Model::EntityAttribute>& extraAttributes) {
             beginEntity(node);
             entityAttributes(attributes);
             entityAttributes(extraAttributes);
@@ -107,7 +130,7 @@ namespace TrenchBroom {
             ++m_entityNo;
         }
 
-        void NodeSerializer::entityAttributes(const Model::EntityAttribute::List& attributes) {
+        void NodeSerializer::entityAttributes(const std::list<Model::EntityAttribute>& attributes) {
             for (const auto& attribute : attributes) {
                 entityAttribute(attribute);
             }
@@ -150,15 +173,15 @@ namespace TrenchBroom {
 
         class NodeSerializer::GetParentAttributes : public Model::ConstNodeVisitor {
         private:
-            const LayerIds& m_layerIds;
-            const GroupIds& m_groupIds;
-            Model::EntityAttribute::List m_attributes;
+            const IdManager& m_layerIds;
+            const IdManager& m_groupIds;
+            std::list<Model::EntityAttribute> m_attributes;
         public:
-            GetParentAttributes(const LayerIds& layerIds, const GroupIds& groupIds) :
+            GetParentAttributes(const IdManager& layerIds, const IdManager& groupIds) :
             m_layerIds(layerIds),
             m_groupIds(groupIds) {}
 
-            const Model::EntityAttribute::List& attributes() const {
+            const std::list<Model::EntityAttribute>& attributes() const {
                 return m_attributes;
             }
         private:
@@ -169,9 +192,9 @@ namespace TrenchBroom {
             void doVisit(const Model::Brush* /* brush */) override   {}
         };
 
-        Model::EntityAttribute::List NodeSerializer::parentAttributes(const Model::Node* node) {
+        std::list<Model::EntityAttribute> NodeSerializer::parentAttributes(const Model::Node* node) {
             if (node == nullptr) {
-                return Model::EntityAttribute::List(0);
+                return std::list<Model::EntityAttribute>(0);
             }
 
             GetParentAttributes visitor(m_layerIds, m_groupIds);
@@ -179,8 +202,8 @@ namespace TrenchBroom {
             return visitor.attributes();
         }
 
-        Model::EntityAttribute::List NodeSerializer::layerAttributes(const Model::Layer* layer) {
-            Model::EntityAttribute::List attrs;
+        std::list<Model::EntityAttribute> NodeSerializer::layerAttributes(const Model::Layer* layer) {
+            std::list<Model::EntityAttribute> attrs;
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::LayerClassname));
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeLayer));
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::LayerName, layer->name()));
@@ -188,8 +211,8 @@ namespace TrenchBroom {
             return attrs;
         }
 
-        Model::EntityAttribute::List NodeSerializer::groupAttributes(const Model::Group* group) {
-            Model::EntityAttribute::List attrs;
+        std::list<Model::EntityAttribute> NodeSerializer::groupAttributes(const Model::Group* group) {
+            std::list<Model::EntityAttribute> attrs;
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::GroupClassname));
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeGroup));
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupName, group->name()));
@@ -197,17 +220,17 @@ namespace TrenchBroom {
             return attrs;
         }
 
-        String NodeSerializer::escapeEntityAttribute(const String& str) const {
+        std::string NodeSerializer::escapeEntityAttribute(const std::string& str) const {
             // Remove a trailing unescaped backslash, as this will choke the parser.
             const auto l = str.size();
             if (l > 0 && str[l-1] == '\\') {
                 const auto p = str.find_last_not_of('\\');
                 if ((l - p) % 2 == 0) {
                     // Only remove a trailing backslash if there is an uneven number of trailing backslashes.
-                    return StringUtils::escapeIfNecessary(str.substr(0, l-1), "\"");
+                    return kdl::str_escape_if_necessary(str.substr(0, l-1), "\"");
                 }
             }
-            return StringUtils::escapeIfNecessary(str, "\"");
+            return kdl::str_escape_if_necessary(str, "\"");
         }
     }
 }

@@ -19,7 +19,6 @@
 
 #include <gtest/gtest.h>
 
-#include "CollectionUtils.h"
 #include "EL/ELExceptions.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
@@ -27,19 +26,20 @@
 #include "IO/ELParser.h"
 
 #include <limits>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
 #define ASSERT_EL_THROW(str, exception) ASSERT_THROW(ELParser::parseStrict(str).evaluate(EL::EvaluationContext()), exception)
 
         template <typename Exp>
-        void ASSERT_EL_EQ(const Exp& expected, const String& str, const EL::EvaluationContext& context = EL::EvaluationContext()) {
+        void ASSERT_EL_EQ(const Exp& expected, const std::string& str, const EL::EvaluationContext& context = EL::EvaluationContext()) {
             const EL::Expression expression = ELParser::parseStrict(str);
             ASSERT_EQ(EL::Value(expected), expression.evaluate(context));
         }
 
-        void ASSERT_ELS_EQ(const String& lhs, const String& rhs, const EL::EvaluationContext& context = EL::EvaluationContext());
-        void ASSERT_ELS_EQ(const String& lhs, const String& rhs, const EL::EvaluationContext& context) {
+        void ASSERT_ELS_EQ(const std::string& lhs, const std::string& rhs, const EL::EvaluationContext& context = EL::EvaluationContext());
+        void ASSERT_ELS_EQ(const std::string& lhs, const std::string& rhs, const EL::EvaluationContext& context) {
             const EL::Expression expression1 = ELParser::parseStrict(lhs);
             const EL::Expression expression2 = ELParser::parseStrict(rhs);
             ASSERT_EQ(expression1.evaluate(context), expression2.evaluate(context));
@@ -85,11 +85,11 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(EL::ArrayType(), "[]");
             ASSERT_EL_EQ(array, "[ 1.0 , \"test\",[ true] ]");
 
-            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(1.0), EL::Value(2.0), EL::Value(3.0)), "[1..3]");
-            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(3.0), EL::Value(2.0), EL::Value(1.0)), "[3..1]");
-            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(1.0)), "[1..1]");
-            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(1.0), EL::Value(0.0)), "[1..0]");
-            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(-2.0), EL::Value(-1.0), EL::Value(0.0), EL::Value(1.0)), "[-2..1]");
+            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(1.0), EL::Value(2.0), EL::Value(3.0) }), "[1..3]");
+            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(3.0), EL::Value(2.0), EL::Value(1.0) }), "[3..1]");
+            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(1.0) }), "[1..1]");
+            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(1.0), EL::Value(0.0) }), "[1..0]");
+            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(-2.0), EL::Value(-1.0), EL::Value(0.0), EL::Value(1.0) }), "[-2..1]");
         }
 
         TEST(ELParserTest, parseMapLiteral) {
@@ -250,12 +250,12 @@ namespace TrenchBroom {
 
             ASSERT_EL_EQ(2.0, "{ \"key1\":1, \"key2\":2, \"key3\":[ 1, 2]}[\"key3\"][1]");
 
-            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(1.0), EL::Value(2.0), EL::Value("test")), "[ 1.0, 2.0, \"test\" ][0,1,2]");
-            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(1.0), EL::Value(2.0), EL::Value("test")), "[ 1.0, 2.0, \"test\" ][0..2]");
-            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value("test"), EL::Value(2.0), EL::Value(1.0)), "[ 1.0, 2.0, \"test\" ][2..0]");
-            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(1.0), EL::Value(2.0), EL::Value("test")), "[ 1.0, 2.0, \"test\" ][0,1..2]");
-            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value(2.0), EL::Value("test")), "[ 1.0, 2.0, \"test\" ][1..]");
-            ASSERT_EL_EQ(VectorUtils::create<EL::Value>(EL::Value("test"), EL::Value(2.0)), "[ 1.0, 2.0, \"test\" ][..1]");
+            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(1.0), EL::Value(2.0), EL::Value("test") }), "[ 1.0, 2.0, \"test\" ][0,1,2]");
+            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(1.0), EL::Value(2.0), EL::Value("test") }), "[ 1.0, 2.0, \"test\" ][0..2]");
+            ASSERT_EL_EQ(EL::ArrayType({ EL::Value("test"), EL::Value(2.0), EL::Value(1.0) }), "[ 1.0, 2.0, \"test\" ][2..0]");
+            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(1.0), EL::Value(2.0), EL::Value("test") }), "[ 1.0, 2.0, \"test\" ][0,1..2]");
+            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(2.0), EL::Value("test") }), "[ 1.0, 2.0, \"test\" ][1..]");
+            ASSERT_EL_EQ(EL::ArrayType({ EL::Value("test"), EL::Value(2.0) }), "[ 1.0, 2.0, \"test\" ][..1]");
 
             ASSERT_EL_EQ("tset", "\"test\"[3,2,1,0]");
             ASSERT_EL_EQ("set", "\"test\"[2,1,0]");

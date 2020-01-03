@@ -21,34 +21,28 @@
 #define TrenchBroom_MapDocumentCommandFacade
 
 #include "TrenchBroom.h"
-#include "Model/EntityAttributeSnapshot.h"
-#include "Model/EntityColor.h"
-#include "Model/Node.h"
-#include "Model/TexCoordSystem.h"
-#include "View/CommandProcessor.h"
+#include "Model/Model_Forward.h"
 #include "View/MapDocument.h"
-#include "View/UndoableCommand.h"
+#include "View/View_Forward.h"
 
-#include <vecmath/segment.h>
+#include <vecmath/forward.h>
 
 #include <map>
-#include <set>
+#include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class ChangeBrushFaceAttributesRequest;
-        class Snapshot;
-    }
-
     namespace View {
         class MapDocumentCommandFacade : public MapDocument {
         private:
-            CommandProcessor m_commandProcessor;
+            std::unique_ptr<CommandProcessor> m_commandProcessor;
         public:
-            static MapDocumentSPtr newMapDocument();
+            static std::shared_ptr<MapDocument> newMapDocument();
         private:
             MapDocumentCommandFacade();
+        public:
+            ~MapDocumentCommandFacade() override;
         public: // selection modification
             void performSelect(const std::vector<Model::Node*>& nodes);
             void performSelect(const std::vector<Model::BrushFace*>& faces);
@@ -75,8 +69,8 @@ namespace TrenchBroom {
             class RenameGroupsVisitor;
             class UndoRenameGroupsVisitor;
         public:
-            std::map<Model::Group*, String> performRenameGroups(const String& newName);
-            void performUndoRenameGroups(const std::map<Model::Group*, String>& newNames);
+            std::map<Model::Group*, std::string> performRenameGroups(const std::string& newName);
+            void performUndoRenameGroups(const std::map<Model::Group*, std::string>& newNames);
 
             void performPushGroup(Model::Group* group);
             void performPopGroup();
@@ -87,12 +81,13 @@ namespace TrenchBroom {
              */
             bool performTransform(const vm::mat4x4& transform, bool lockTextures);
         public: // entity attributes
-            Model::EntityAttributeSnapshot::Map performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
-            Model::EntityAttributeSnapshot::Map performRemoveAttribute(const Model::AttributeName& name);
-            Model::EntityAttributeSnapshot::Map performUpdateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
-            Model::EntityAttributeSnapshot::Map performConvertColorRange(const Model::AttributeName& name, Assets::ColorRange::Type colorRange);
-            Model::EntityAttributeSnapshot::Map performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
-            void restoreAttributes(const Model::EntityAttributeSnapshot::Map& attributes);
+            using EntityAttributeSnapshotMap = std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>>;
+            EntityAttributeSnapshotMap performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
+            EntityAttributeSnapshotMap performRemoveAttribute(const Model::AttributeName& name);
+            EntityAttributeSnapshotMap performUpdateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
+            EntityAttributeSnapshotMap performConvertColorRange(const Model::AttributeName& name, Assets::ColorRange::Type colorRange);
+            EntityAttributeSnapshotMap performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
+            void restoreAttributes(const EntityAttributeSnapshotMap& attributes);
         public: // brush resizing
             std::vector<vm::polygon3> performResizeBrushes(const std::vector<vm::polygon3>& polygons, const vm::vec3& delta);
         public: // brush face attributes
@@ -107,7 +102,7 @@ namespace TrenchBroom {
             std::vector<vm::vec3> performMoveVertices(const std::map<Model::Brush*, std::vector<vm::vec3>>& vertices, const vm::vec3& delta);
             std::vector<vm::segment3> performMoveEdges(const std::map<Model::Brush*, std::vector<vm::segment3>>& edges, const vm::vec3& delta);
             std::vector<vm::polygon3> performMoveFaces(const std::map<Model::Brush*, std::vector<vm::polygon3>>& faces, const vm::vec3& delta);
-            void performAddVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices);
+            void performAddVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices);
             void performRemoveVertices(const std::map<Model::Brush*, std::vector<vm::vec3>>& vertices);
         private: // implement MapDocument operations
             void performRebuildBrushGeometry(const std::vector<Model::Brush*>& brushes) override;
@@ -116,9 +111,9 @@ namespace TrenchBroom {
         public: // entity definition file management
             void performSetEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
         public: // texture collection management
-            void performSetTextureCollections(const IO::Path::List& paths);
+            void performSetTextureCollections(const std::vector<IO::Path>& paths);
         public: // mods management
-            void performSetMods(const StringList& mods);
+            void performSetMods(const std::vector<std::string>& mods);
         private:
             void doSetIssueHidden(Model::Issue* issue, bool hidden) override;
         public: // modification count
@@ -129,22 +124,22 @@ namespace TrenchBroom {
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
         private: // implement MapDocument interface
-            bool doCanUndoLastCommand() const override;
-            bool doCanRedoNextCommand() const override;
-            const String& doGetLastCommandName() const override;
-            const String& doGetNextCommandName() const override;
-            void doUndoLastCommand() override;
-            void doRedoNextCommand() override;
-            bool doHasRepeatableCommands() const override;
-            bool doRepeatLastCommands() override;
+            bool doCanUndoCommand() const override;
+            bool doCanRedoCommand() const override;
+            const std::string& doGetUndoCommandName() const override;
+            const std::string& doGetRedoCommandName() const override;
+            void doUndoCommand() override;
+            void doRedoCommand() override;
+            bool doCanRepeatCommands() const override;
+            std::unique_ptr<CommandResult> doRepeatCommands() override;
             void doClearRepeatableCommands() override;
 
-            void doBeginTransaction(const String& name) override;
-            void doEndTransaction() override;
+            void doStartTransaction(const std::string& name) override;
+            void doCommitTransaction() override;
             void doRollbackTransaction() override;
 
-            bool doSubmit(Command::Ptr command) override;
-            bool doSubmitAndStore(UndoableCommand::Ptr command) override;
+            std::unique_ptr<CommandResult> doExecute(std::unique_ptr<Command>&& command) override;
+            std::unique_ptr<CommandResult> doExecuteAndStore(std::unique_ptr<UndoableCommand>&& command) override;
         };
     }
 }

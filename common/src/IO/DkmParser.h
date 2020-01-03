@@ -20,26 +20,19 @@
 #ifndef TrenchBroom_DkmParser
 #define TrenchBroom_DkmParser
 
-#include "StringType.h"
-#include "Assets/EntityModel.h"
+#include "Assets/Asset_Forward.h"
+#include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
-
-#include <vector>
+#include "IO/IO_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityModel;
-        class Palette;
-    }
-
     namespace IO {
-        class Reader;
-        class FileSystem;
-        class Path;
-
         namespace DkmLayout {
             static const int Ident = (('D'<<24) + ('M'<<16) + ('K'<<8) + 'D');
             static const int Version1 = 1;
@@ -53,7 +46,7 @@ namespace TrenchBroom {
         private:
             static const vm::vec3f Normals[162];
 
-            using DkmSkinList = StringList;
+            using DkmSkinList = std::vector<std::string>;
 
             struct DkmVertex {
                 unsigned int x, y, z;
@@ -65,7 +58,7 @@ namespace TrenchBroom {
             struct DkmFrame {
                 vm::vec3f scale;
                 vm::vec3f offset;
-                String name;
+                std::string name;
                 DkmVertexList vertices;
 
                 explicit DkmFrame(size_t vertexCount);
@@ -94,12 +87,12 @@ namespace TrenchBroom {
             using DkmMeshList = std::vector<DkmMesh>;
 
 
-            String m_name;
+            std::string m_name;
             const char* m_begin;
             const char* m_end;
             const FileSystem& m_fs;
         public:
-            DkmParser(const String& name, const char* begin, const char* end, const FileSystem& fs);
+            DkmParser(const std::string& name, const char* begin, const char* end, const FileSystem& fs);
         private:
             std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
             void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
@@ -108,11 +101,11 @@ namespace TrenchBroom {
             DkmFrame parseFrame(Reader reader, size_t frameIndex, size_t vertexCount, int version);
             DkmMeshList parseMeshes(Reader reader, size_t commandCount);
 
-            void loadSkins(Assets::EntityModel::Surface& surface, const DkmSkinList& skins);
-            const IO::Path findSkin(const String& skin) const;
+            void loadSkins(Assets::EntityModelSurface& surface, const DkmSkinList& skins);
+            const IO::Path findSkin(const std::string& skin) const;
 
-            void buildFrame(Assets::EntityModel& model, Assets::EntityModel::Surface& surface, size_t frameIndex, const DkmFrame& frame, const DkmMeshList& meshes);
-            Assets::EntityModel::VertexList getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const;
+            void buildFrame(Assets::EntityModel& model, Assets::EntityModelSurface& surface, size_t frameIndex, const DkmFrame& frame, const DkmMeshList& meshes);
+            std::vector<Assets::EntityModelVertex> getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const;
         };
     }
 }

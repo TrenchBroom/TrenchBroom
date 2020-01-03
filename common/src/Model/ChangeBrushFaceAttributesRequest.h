@@ -21,21 +21,16 @@
 #define TrenchBroom_ChangeBrushFaceAttributesRequest
 
 #include "Color.h"
-#include "StringType.h"
+#include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
     namespace Model {
-        class BrushFaceAttributes;
-
         class ChangeBrushFaceAttributesRequest {
         public:
             // TODO: replace with class based enum
@@ -96,7 +91,7 @@ namespace TrenchBroom {
 
             void clear();
 
-            const String name() const;
+            const std::string name() const;
             bool evaluate(const std::vector<BrushFace*>& faces) const;
 
             void resetAll();

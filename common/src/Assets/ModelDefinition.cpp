@@ -19,14 +19,17 @@
 
 #include "ModelDefinition.h"
 
-#include "StringUtils.h"
 #include "EL/ELExceptions.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Types.h"
 #include "EL/Value.h"
 #include "Model/EntityAttributesVariableStore.h"
 
+#include <kdl/string_compare.h>
+
 #include <vecmath/scalar.h>
+
+#include <ostream>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -91,12 +94,12 @@ namespace TrenchBroom {
 
         void ModelDefinition::append(const ModelDefinition& other) {
             EL::ExpressionBase::List cases;
-            cases.push_back(m_expression.clone());
-            cases.push_back(other.m_expression.clone());
+            cases.emplace_back(m_expression.clone());
+            cases.emplace_back(other.m_expression.clone());
 
             const size_t line = m_expression.line();
             const size_t column = m_expression.column();
-            m_expression = EL::SwitchOperator::create(cases, line, column);
+            m_expression = EL::SwitchOperator::create(std::move(cases), line, column);
         }
 
         ModelSpecification ModelDefinition::modelSpecification(const Model::EntityAttributes& attributes) const {
@@ -139,8 +142,8 @@ namespace TrenchBroom {
         IO::Path ModelDefinition::path(const EL::Value& value) const {
             if (value.type() != EL::ValueType::String)
                 return IO::Path();
-            const String& path = value.stringValue();
-            return IO::Path(StringUtils::isPrefix(path, ":") ? path.substr(1) : path);
+            const std::string& path = value.stringValue();
+            return IO::Path(kdl::cs::str_is_prefix(path, ":") ? path.substr(1) : path);
         }
 
         size_t ModelDefinition::index(const EL::Value& value) const {

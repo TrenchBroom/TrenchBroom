@@ -20,10 +20,13 @@
 #include "MapViewBase.h"
 
 #include "Constants.h"
-#include "TrenchBroom.h"
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SharedPointer.h"
+#include "TrenchBroom.h"
+#include "Assets/EntityDefinition.h"
+#include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -36,6 +39,7 @@
 #include "Model/Group.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
+#include "Model/HitQuery.h"
 #include "Model/Layer.h"
 #include "Model/PointFile.h"
 #include "Model/PortalFile.h"
@@ -45,7 +49,9 @@
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/MapRenderer.h"
+#include "Renderer/PrimitiveRenderer.h"
 #include "Renderer/RenderBatch.h"
+#include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
 #include "View/Actions.h"
 #include "View/Animation.h"
@@ -61,8 +67,12 @@
 #include "View/SelectionTool.h"
 #include "View/QtUtils.h"
 
+#include <kdl/string_compare.h>
+#include <kdl/string_format.h>
+
 #include <vecmath/util.h>
 
+#include <sstream>
 #include <vector>
 
 #include <QtGlobal>
@@ -75,7 +85,7 @@ namespace TrenchBroom {
     namespace View {
         const int MapViewBase::DefaultCameraAnimationDuration = 250;
 
-        MapViewBase::MapViewBase(Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
+        MapViewBase::MapViewBase(Logger* logger, std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
         RenderView(contextManager),
         m_logger(logger),
         m_document(std::move(document)),
@@ -108,7 +118,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->nodesWereAddedNotifier.addObserver(this, &MapViewBase::nodesDidChange);
             document->nodesWereRemovedNotifier.addObserver(this, &MapViewBase::nodesDidChange);
             document->nodesDidChangeNotifier.addObserver(this, &MapViewBase::nodesDidChange);
@@ -142,7 +152,7 @@ namespace TrenchBroom {
 
         void MapViewBase::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->nodesWereAddedNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
                 document->nodesWereRemovedNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
@@ -186,13 +196,13 @@ namespace TrenchBroom {
             update();
         }
 
-        void MapViewBase::commandDone(Command::Ptr) {
+        void MapViewBase::commandDone(Command*) {
             updateActionStates();
             updatePickResult();
             update();
         }
 
-        void MapViewBase::commandUndone(UndoableCommand::Ptr) {
+        void MapViewBase::commandUndone(UndoableCommand*) {
             updateActionStates();
             updatePickResult();
             update();
@@ -317,7 +327,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::moveRotationCenter(const vm::direction direction) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const Grid& grid = document->grid();
             const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
             m_toolBox.moveRotationCenter(delta);
@@ -325,14 +335,14 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::moveVertices(const vm::direction direction) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const Grid& grid = document->grid();
             const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
             m_toolBox.moveVertices(delta);
         }
 
         void MapViewBase::moveObjects(const vm::direction direction) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const Grid& grid = document->grid();
             const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
             document->translateObjects(delta);
@@ -356,7 +366,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::rotateObjects(const vm::rotation_axis axisSpec, const bool clockwise) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (!document->hasSelectedNodes())
                 return;
 
@@ -408,7 +418,7 @@ namespace TrenchBroom {
         }
 
         bool MapViewBase::canFlipObjects() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             return !m_toolBox.anyToolActive() && document->hasSelectedNodes();
         }
 
@@ -506,7 +516,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (document->hasSelection()) {
                 document->deselectAll();
             } else if (document->currentGroup() != nullptr) {
@@ -520,28 +530,28 @@ namespace TrenchBroom {
 
         void MapViewBase::createPointEntity() {
             auto* action = qobject_cast<const QAction*>(sender());
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const size_t index = action->data().toUInt();
-            const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_PointEntity, index);
+            const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinitionType::PointEntity, index);
             ensure(definition != nullptr, "definition is null");
-            assert(definition->type() == Assets::EntityDefinition::Type_PointEntity);
+            assert(definition->type() == Assets::EntityDefinitionType::PointEntity);
             createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
         }
 
         void MapViewBase::createBrushEntity() {
             auto* action = qobject_cast<const QAction*>(sender());
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const size_t index = action->data().toUInt();
-            const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_BrushEntity, index);
+            const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinitionType::BrushEntity, index);
             ensure(definition != nullptr, "definition is null");
-            assert(definition->type() == Assets::EntityDefinition::Type_BrushEntity);
+            assert(definition->type() == Assets::EntityDefinitionType::BrushEntity);
             createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
         }
 
-        Assets::EntityDefinition* MapViewBase::findEntityDefinition(const Assets::EntityDefinition::Type type, const size_t index) const {
+        Assets::EntityDefinition* MapViewBase::findEntityDefinition(const Assets::EntityDefinitionType type, const size_t index) const {
             size_t count = 0;
             for (const Assets::EntityDefinitionGroup& group : lock(m_document)->entityDefinitionManager().groups()) {
-                const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
+                const std::vector<Assets::EntityDefinition*> definitions = group.definitions(type, Assets::EntityDefinitionSortOrder::Name);
                 if (index < count + definitions.size())
                     return definitions[index - count];
                 count += definitions.size();
@@ -575,7 +585,7 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             auto& editorContext = document->editorContext();
             auto hiddenTags = editorContext.hiddenTags();
-            hiddenTags ^= 1UL << tagIndex;
+            hiddenTags ^= Model::TagType::Type(1) << tagIndex;
             editorContext.setHiddenTags(hiddenTags);
         }
 
@@ -640,7 +650,7 @@ namespace TrenchBroom {
 
         void MapViewBase::createEntity(const Assets::EntityDefinition* definition) {
             auto document = lock(m_document);
-            if (definition->type() == Assets::EntityDefinition::Type_PointEntity) {
+            if (definition->type() == Assets::EntityDefinitionType::PointEntity) {
                 createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
             } else if (canCreateBrushEntity()) {
                 createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
@@ -648,103 +658,103 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::toggleShowEntityClassnames() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowEntityClassnames(!config.showEntityClassnames());
         }
 
         void MapViewBase::toggleShowGroupBounds() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowGroupBounds(!config.showGroupBounds());
         }
 
         void MapViewBase::toggleShowBrushEntityBounds() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowBrushEntityBounds(!config.showBrushEntityBounds());
         }
 
         void MapViewBase::toggleShowPointEntityBounds() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowPointEntityBounds(!config.showPointEntityBounds());
         }
 
         void MapViewBase::toggleShowPointEntities() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setShowPointEntities(!editorContext.showPointEntities());
         }
 
         void MapViewBase::toggleShowPointEntityModels() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowPointEntityModels(!config.showPointEntityModels());
         }
 
         void MapViewBase::toggleShowBrushes() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setShowBrushes(!editorContext.showBrushes());
         }
 
         void MapViewBase::showTextures() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Textured);
         }
 
         void MapViewBase::hideTextures() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Flat);
         }
 
         void MapViewBase::hideFaces() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Skip);
         }
 
         void MapViewBase::toggleShadeFaces() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShadeFaces(!config.shadeFaces());
         }
 
         void MapViewBase::toggleShowFog() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowFog(!config.showFog());
         }
 
         void MapViewBase::toggleShowEdges() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowEdges(!config.showEdges());
         }
 
         void MapViewBase::showAllEntityLinks() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_All);
         }
 
         void MapViewBase::showTransitivelySelectedEntityLinks() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Transitive);
         }
 
         void MapViewBase::showDirectlySelectedEntityLinks() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Direct);
         }
 
         void MapViewBase::hideAllEntityLinks() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_None);
         }
@@ -817,7 +827,7 @@ namespace TrenchBroom {
             if (doInitializeGL()) {
                 m_logger->info() << "Renderer info: " << GLContextManager::GLRenderer << " version " << GLContextManager::GLVersion << " from " << GLContextManager::GLVendor;
                 m_logger->info() << "Depth buffer bits: " << depthBits();
-                m_logger->info() << "Multisampling " << StringUtils::choose(multisample(), "enabled", "disabled");
+                m_logger->info() << "Multisampling " << kdl::str_select(multisample(), "enabled", "disabled");
             }
         }
 
@@ -832,7 +842,7 @@ namespace TrenchBroom {
             const size_t fontSize = static_cast<size_t>(pref(Preferences::RendererFontSize));
             const Renderer::FontDescriptor fontDescriptor(fontPath, fontSize);
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const MapViewConfig& mapViewConfig = document->mapViewConfig();
             const Grid& grid = document->grid();
 
@@ -854,7 +864,7 @@ namespace TrenchBroom {
             setupGL(renderContext);
             setRenderOptions(renderContext);
 
-            Renderer::RenderBatch renderBatch(vertexVbo(), indexVbo());
+            Renderer::RenderBatch renderBatch(vboManager());
 
             doRenderGrid(renderContext, renderBatch);
             doRenderMap(m_renderer, renderContext, renderBatch);
@@ -887,7 +897,7 @@ namespace TrenchBroom {
 
         void MapViewBase::renderCoordinateSystem(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (pref(Preferences::ShowAxes)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 const vm::bbox3& worldBounds = document->worldBounds();
 
                 Renderer::RenderService renderService(renderContext, renderBatch);
@@ -896,7 +906,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::renderPointFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Model::PointFile* pointFile = document->pointFile();
             if (pointFile != nullptr) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
@@ -921,19 +931,19 @@ namespace TrenchBroom {
             assert(m_portalFileRenderer == nullptr);
             m_portalFileRenderer = std::make_unique<Renderer::PrimitiveRenderer>();
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Model::PortalFile* portalFile = document->portalFile();
             if (portalFile != nullptr) {
                 for (const auto& poly : portalFile->portals()) {
                     m_portalFileRenderer->renderFilledPolygon(pref(Preferences::PortalFileFillColor),
-                                                              Renderer::PrimitiveRenderer::OP_Hide,
-                                                              Renderer::PrimitiveRenderer::CP_ShowBackfaces,
+                                                              Renderer::PrimitiveRendererOcclusionPolicy::Hide,
+                                                              Renderer::PrimitiveRendererCullingPolicy::ShowBackfaces,
                                                               poly.vertices());
 
                     const auto lineWidth = 4.0f;
                     m_portalFileRenderer->renderPolygon(pref(Preferences::PortalFileBorderColor),
                                                         lineWidth,
-                                                        Renderer::PrimitiveRenderer::OP_Hide,
+                                                        Renderer::PrimitiveRendererOcclusionPolicy::Hide,
                                                         poly.vertices());
                 }
             }
@@ -989,7 +999,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const std::vector<Model::Node*>& nodes = document->selectedNodes().nodes();
             Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);
             Model::Node* currentGroup = document->editorContext().currentGroup();
@@ -1039,8 +1049,8 @@ namespace TrenchBroom {
 
             menu.addSeparator();
 
-            menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_PointEntity));
-            menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_BrushEntity));
+            menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinitionType::PointEntity));
+            menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinitionType::BrushEntity));
 
             menu.exec(QCursor::pos());
 
@@ -1076,14 +1086,14 @@ namespace TrenchBroom {
             dropEvent->acceptProposedAction();
         }
 
-        QMenu* MapViewBase::makeEntityGroupsMenu(const Assets::EntityDefinition::Type type) {
+        QMenu* MapViewBase::makeEntityGroupsMenu(const Assets::EntityDefinitionType type) {
             auto* menu = new QMenu();
 
             switch (type) {
-                case Assets::EntityDefinition::Type_PointEntity:
+                case Assets::EntityDefinitionType::PointEntity:
                     menu->setTitle(tr("Create Point Entity"));
                     break;
-                case Assets::EntityDefinition::Type_BrushEntity:
+                case Assets::EntityDefinitionType::BrushEntity:
                     menu->setTitle(tr("Create Brush Entity"));
                     break;
             }
@@ -1091,13 +1101,13 @@ namespace TrenchBroom {
             const bool enableMakeBrushEntity = canCreateBrushEntity();
             size_t id = 0;
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             for (const Assets::EntityDefinitionGroup& group : document->entityDefinitionManager().groups()) {
-                const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
+                const std::vector<Assets::EntityDefinition*> definitions = group.definitions(type, Assets::EntityDefinitionSortOrder::Name);
 
-                Assets::EntityDefinitionList filteredDefinitions;
+                std::vector<Assets::EntityDefinition*> filteredDefinitions;
                 for (auto* definition : definitions) {
-                    if (!StringUtils::caseSensitiveEqual(definition->name(), Model::AttributeValues::WorldspawnClassname)) {
+                    if (!kdl::cs::str_is_equal(definition->name(), Model::AttributeValues::WorldspawnClassname)) {
                         filteredDefinitions.push_back(definition);
                     }
                 }
@@ -1111,11 +1121,11 @@ namespace TrenchBroom {
                         QAction *action = nullptr;
 
                         switch (type) {
-                            case Assets::EntityDefinition::Type_PointEntity: {
+                            case Assets::EntityDefinitionType::PointEntity: {
                                 action = groupMenu->addAction(label, this, qOverload<>(&MapViewBase::createPointEntity));
                                 break;
                             }
-                            case Assets::EntityDefinition::Type_BrushEntity: {
+                            case Assets::EntityDefinitionType::BrushEntity: {
                                 action = groupMenu->addAction(label, this, qOverload<>(&MapViewBase::createBrushEntity));
                                 action->setEnabled(enableMakeBrushEntity);
                                 break;
@@ -1134,7 +1144,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::addSelectedObjectsToGroup() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const std::vector<Model::Node*> nodes = document->selectedNodes().nodes();
             Model::Node* newGroup = findNewGroupForObjects(nodes);
             ensure(newGroup != nullptr, "newGroup is null");
@@ -1146,7 +1156,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::removeSelectedObjectsFromGroup() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const std::vector<Model::Node*> nodes = document->selectedNodes().nodes();
             Model::Node* currentGroup = document->editorContext().currentGroup();
             ensure(currentGroup != nullptr, "currentGroup is null");
@@ -1163,7 +1173,7 @@ namespace TrenchBroom {
         Model::Node* MapViewBase::findNewGroupForObjects(const std::vector<Model::Node*>& nodes) const {
             Model::Node* newGroup = nullptr;
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().first();
             if (hit.isMatch())
                 newGroup = findOutermostClosedGroup(Model::hitToNode(hit));
@@ -1218,12 +1228,12 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::moveSelectedBrushesToEntity() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const std::vector<Model::Node*> nodes = document->selectedNodes().nodes();
             Model::Node* newParent = findNewParentEntityForBrushes(nodes);
             ensure(newParent != nullptr, "newParent is null");
 
-            const Transaction transaction(document, "Move " + StringUtils::safePlural(nodes.size(), "Brush", "Brushes"));
+            const Transaction transaction(document, "Move " + kdl::str_plural(nodes.size(), "Brush", "Brushes"));
             reparentNodes(nodes, newParent, false);
 
             document->deselectAll();
@@ -1233,7 +1243,7 @@ namespace TrenchBroom {
         Model::Node* MapViewBase::findNewParentEntityForBrushes(const std::vector<Model::Node*>& nodes) const {
             Model::Node* newParent = nullptr;
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (hit.isMatch()) {
                 const Model::Brush* brush = Model::hitToBrush(hit);
@@ -1294,7 +1304,7 @@ namespace TrenchBroom {
         void MapViewBase::reparentNodes(const std::vector<Model::Node*>& nodes, Model::Node* newParent, const bool preserveEntities) {
             ensure(newParent != nullptr, "newParent is null");
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             std::vector<Model::Node*> inputNodes;
             if (preserveEntities) {
                 inputNodes = collectEntitiesForBrushes(nodes, document->world());
@@ -1305,7 +1315,7 @@ namespace TrenchBroom {
             const std::vector<Model::Node*> reparentableNodes = collectReparentableNodes(inputNodes, newParent);
             assert(!reparentableNodes.empty());
 
-            StringStream name;
+            std::stringstream name;
             name << "Move " << (reparentableNodes.size() == 1 ? "Object" : "Objects") << " to " << newParent->name();
 
             const Transaction transaction(document, name.str());
@@ -1325,13 +1335,13 @@ namespace TrenchBroom {
         }
 
         bool MapViewBase::canMergeGroups() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Model::Node* mergeGroup = findGroupToMergeGroupsInto(document->selectedNodes());
             return mergeGroup != nullptr;
         }
 
         bool MapViewBase::canMakeStructural() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (document->selectedNodes().hasOnlyBrushes()) {
                 const std::vector<Model::Brush*>& brushes = document->selectedNodes().brushes();
                 for (const auto* brush : brushes) {

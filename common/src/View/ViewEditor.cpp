@@ -26,6 +26,7 @@
 #include "Model/EditorContext.h"
 #include "Model/Game.h"
 #include "Model/Tag.h"
+#include "Model/TagType.h"
 #include "View/BorderPanel.h"
 #include "View/MapDocument.h"
 #include "View/MapViewConfig.h"
@@ -34,9 +35,10 @@
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
+#include <vector>
+
 #include <QCheckBox>
 #include <QGridLayout>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QScrollArea>
 #include <QButtonGroup>
@@ -57,10 +59,10 @@ namespace TrenchBroom {
 
         void EntityDefinitionCheckBoxList::refresh() {
             size_t defIndex = 0;
-            const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
+            const std::vector<Assets::EntityDefinitionGroup>& groups = m_entityDefinitionManager.groups();
             for (size_t i = 0; i < groups.size(); ++i) {
                 const Assets::EntityDefinitionGroup& group = groups[i];
-                const Assets::EntityDefinitionList& definitions = group.definitions();
+                const std::vector<Assets::EntityDefinition*>& definitions = group.definitions();
 
                 if (!definitions.empty()) {
                     const bool firstHidden = m_editorContext.entityDefinitionHidden(definitions[0]);
@@ -84,11 +86,11 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionCheckBoxList::groupCheckBoxChanged(size_t groupIndex, bool checked) {
-            const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
+            const std::vector<Assets::EntityDefinitionGroup>& groups = m_entityDefinitionManager.groups();
             ensure(groupIndex < m_entityDefinitionManager.groups().size(), "index out of range");
             const Assets::EntityDefinitionGroup& group = groups[groupIndex];
 
-            const Assets::EntityDefinitionList& definitions = group.definitions();
+            const std::vector<Assets::EntityDefinition*>& definitions = group.definitions();
             for (size_t i = 0; i < definitions.size(); ++i) {
                 const Assets::EntityDefinition* definition = definitions[i];
                 m_editorContext.setEntityDefinitionHidden(definition, !checked);
@@ -111,10 +113,10 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionCheckBoxList::hideAll(const bool hidden) {
-            const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
+            const std::vector<Assets::EntityDefinitionGroup>& groups = m_entityDefinitionManager.groups();
             for (size_t i = 0; i < groups.size(); ++i) {
                 const Assets::EntityDefinitionGroup& group = groups[i];
-                const Assets::EntityDefinitionList& definitions = group.definitions();
+                const std::vector<Assets::EntityDefinition*>& definitions = group.definitions();
                 for (size_t j = 0; j < definitions.size(); ++j) {
                     const Assets::EntityDefinition* definition = definitions[j];
                     m_editorContext.setEntityDefinitionHidden(definition, hidden);
@@ -128,11 +130,11 @@ namespace TrenchBroom {
             scrollWidgetLayout->setSpacing(0);
             scrollWidgetLayout->addSpacing(1);
 
-            const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
+            const std::vector<Assets::EntityDefinitionGroup>& groups = m_entityDefinitionManager.groups();
             for (size_t i = 0; i < groups.size(); ++i) {
                 const Assets::EntityDefinitionGroup& group = groups[i];
-                const Assets::EntityDefinitionList& definitions = group.definitions();
-                const String& groupName = group.displayName();
+                const std::vector<Assets::EntityDefinition*>& definitions = group.definitions();
+                const std::string& groupName = group.displayName();
 
                 // Checkbox for the prefix, e.g. "func"
                 auto* groupCB = new QCheckBox(QString::fromStdString(groupName));
@@ -144,10 +146,9 @@ namespace TrenchBroom {
 
                 scrollWidgetLayout->addWidget(groupCB);
 
-                Assets::EntityDefinitionList::const_iterator defIt, defEnd;
-                for (defIt = std::begin(definitions), defEnd = std::end(definitions); defIt != defEnd; ++defIt) {
+                for (auto defIt = std::begin(definitions), defEnd = std::end(definitions); defIt != defEnd; ++defIt) {
                     Assets::EntityDefinition* definition = *defIt;
-                    const String defName = definition->name();
+                    const std::string defName = definition->name();
 
                     auto* defCB = new QCheckBox(QString::fromStdString(defName));
                     defCB->setStyleSheet("margin-left: 11px");
@@ -195,7 +196,7 @@ namespace TrenchBroom {
 
         // ViewEditor
 
-        ViewEditor::ViewEditor(MapDocumentWPtr document, QWidget* parent) :
+        ViewEditor::ViewEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)),
         m_showEntityClassnamesCheckBox(nullptr),
@@ -369,7 +370,7 @@ namespace TrenchBroom {
             parent->setLayout(layout);
         }
 
-        void ViewEditor::createTagFilter(QWidget* parent, const std::list<Model::SmartTag>& tags) {
+        void ViewEditor::createTagFilter(QWidget* parent, const std::vector<Model::SmartTag>& tags) {
             assert(!tags.empty());
 
             auto* layout = new QVBoxLayout();
@@ -473,7 +474,7 @@ namespace TrenchBroom {
             m_showBrushesCheckBox->setChecked(config.showBrushes());
 
             Model::EditorContext& editorContext = document->editorContext();
-            const Model::Tag::TagType hiddenTags = editorContext.hiddenTags();
+            const Model::TagType::Type hiddenTags = editorContext.hiddenTags();
 
             const auto& tags = document->smartTags();
             auto tagIt = std::begin(tags);
@@ -543,7 +544,7 @@ namespace TrenchBroom {
         void ViewEditor::showTagChanged(const bool /* checked */) {
             auto document = lock(m_document);
 
-            Model::Tag::TagType hiddenTags = 0;
+            Model::TagType::Type hiddenTags = Model::TagType::NoType;
             const auto& tags = document->smartTags();
 
             auto tagIt = std::begin(tags);
@@ -616,7 +617,7 @@ namespace TrenchBroom {
             }
         }
 
-        ViewPopupEditor::ViewPopupEditor(MapDocumentWPtr document, QWidget* parent) :
+        ViewPopupEditor::ViewPopupEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_button(nullptr),
         m_editor(nullptr) {

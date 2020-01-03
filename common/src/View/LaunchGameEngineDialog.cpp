@@ -19,11 +19,14 @@
 
 #include "LaunchGameEngineDialog.h"
 
+#include "SharedPointer.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
+#include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
+#include "Model/GameEngineProfile.h"
 #include "View/BorderLine.h"
 #include "View/CompilationVariables.h"
 #include "View/CurrentGameIndicator.h"
@@ -35,6 +38,10 @@
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
+#include <kdl/string_utils.h>
+
+#include <string>
+
 #include <QCompleter>
 #include <QDialogButtonBox>
 #include <QLabel>
@@ -44,7 +51,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        LaunchGameEngineDialog::LaunchGameEngineDialog(MapDocumentWPtr document, QWidget* parent) :
+        LaunchGameEngineDialog::LaunchGameEngineDialog(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QDialog(parent),
         m_document(std::move(document)),
         m_gameEngineList(nullptr),
@@ -107,7 +114,7 @@ namespace TrenchBroom {
             midLayout->addSpacing(20);
             midLayout->addLayout(midLeftLayout, 1);
             midLayout->addSpacing(20);
-            midLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical));
+            midLayout->addWidget(new BorderLine(BorderLine::Direction::Vertical));
             midLayout->addWidget(m_gameEngineList);
             midPanel->setLayout(midLayout);
 
@@ -119,7 +126,7 @@ namespace TrenchBroom {
             outerLayout->setContentsMargins(0, 0, 0, 0);
             outerLayout->setSpacing(0);
             outerLayout->addWidget(gameIndicator);
-            outerLayout->addWidget(new BorderLine(BorderLine::Direction_Horizontal));
+            outerLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
             outerLayout->addWidget(midPanel, 1);
             outerLayout->addLayout(wrapDialogButtonBox(buttonBox));
             setLayout(outerLayout);
@@ -190,8 +197,8 @@ namespace TrenchBroom {
 
                 const auto& executablePath = profile->path();
 
-                const String& parameterSpec = profile->parameterSpec();
-                const String parameters = EL::interpolate(parameterSpec, EL::EvaluationContext(variables()));
+                const std::string& parameterSpec = profile->parameterSpec();
+                const std::string parameters = EL::interpolate(parameterSpec, EL::EvaluationContext(variables()));
 
                 QString program;
                 QStringList arguments;
@@ -213,9 +220,8 @@ namespace TrenchBroom {
                 }
                 accept();
             } catch (const Exception& e) {
-                StringStream message;
-                message << "Could not launch game engine: " << e.what();
-                QMessageBox::critical(this, "TrenchBroom", QString::fromStdString(message.str()), QMessageBox::Ok);
+                const auto message = kdl::str_to_string("Could not launch game engine: ", e.what());
+                QMessageBox::critical(this, "TrenchBroom", QString::fromStdString(message), QMessageBox::Ok);
             }
         }
     }

@@ -21,41 +21,35 @@
 #define TrenchBroom_GameConfigParser
 
 #include "Macros.h"
-#include "StringType.h"
 #include "IO/ConfigParserBase.h"
-#include "Model/GameConfig.h"
+#include "IO/IO_Forward.h"
+#include "Model/Model_Forward.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class SmartTag;
-        class TagAttribute;
-    }
-
     namespace IO {
-        class ParserStatus;
-
         class GameConfigParser : public ConfigParserBase {
         public:
             GameConfigParser(const char* begin, const char* end, const Path& path);
-            explicit GameConfigParser(const String& str, const Path& path = Path(""));
+            explicit GameConfigParser(const std::string& str, const Path& path = Path(""));
 
             Model::GameConfig parse();
         private:
-            Model::GameConfig::MapFormatConfig::List parseMapFormatConfigs(const EL::Value& values) const;
-            Model::GameConfig::FileSystemConfig parseFileSystemConfig(const EL::Value& values) const;
-            Model::GameConfig::PackageFormatConfig parsePackageFormatConfig(const EL::Value& values) const;
-            Model::GameConfig::TextureConfig parseTextureConfig(const EL::Value& values) const;
-            Model::GameConfig::TexturePackageConfig parseTexturePackageConfig(const EL::Value& values) const;
-            Model::GameConfig::EntityConfig parseEntityConfig(const EL::Value& values) const;
-            Model::GameConfig::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& values) const;
-            Model::GameConfig::FlagConfigList parseFlagConfig(const EL::Value& values) const;
-            std::vector<Model::SmartTag> parseTags(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfigs) const;
+            std::vector<Model::MapFormatConfig> parseMapFormatConfigs(const EL::Value& values) const;
+            Model::FileSystemConfig parseFileSystemConfig(const EL::Value& values) const;
+            Model::PackageFormatConfig parsePackageFormatConfig(const EL::Value& values) const;
+            Model::TextureConfig parseTextureConfig(const EL::Value& values) const;
+            Model::TexturePackageConfig parseTexturePackageConfig(const EL::Value& values) const;
+            Model::EntityConfig parseEntityConfig(const EL::Value& values) const;
+            Model::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& values) const;
+            std::vector<Model::FlagConfig> parseFlagConfig(const EL::Value& values) const;
+            std::vector<Model::SmartTag> parseTags(const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfigs) const;
 
             void parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& results) const;
-            void parseFaceTags(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig, std::vector<Model::SmartTag>& results) const;
-            int parseFlagValue(const EL::Value& value, const Model::GameConfig::FlagsConfig& flags) const;
+            void parseFaceTags(const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfig, std::vector<Model::SmartTag>& results) const;
+            int parseFlagValue(const EL::Value& value, const Model::FlagsConfig& flags) const;
             std::vector<Model::TagAttribute> parseTagAttributes(const EL::Value& values) const;
 
             deleteCopyAndMove(GameConfigParser)

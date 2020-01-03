@@ -23,9 +23,12 @@
 #include "Ensure.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
+#include "Assets/TextureBuffer.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -46,7 +49,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        String MipTextureReader::getTextureName(const BufferedReader& reader) {
+        std::string MipTextureReader::getTextureName(const BufferedReader& reader) {
             try {
                 auto nameReader = reader.buffer();
                 return nameReader.readString(MipLayout::TextureNameLength);
@@ -59,7 +62,7 @@ namespace TrenchBroom {
             static const size_t MipLevels = 4;
 
             Color averageColor;
-            Assets::TextureBuffer::List buffers(MipLevels);
+            Assets::TextureBufferList buffers(MipLevels);
             size_t offset[MipLevels];
 
             ensure(!file->path().isEmpty(), "MipTextureReader::doReadTexture requires a path");
@@ -110,7 +113,7 @@ namespace TrenchBroom {
                 const auto type = (transparent == Assets::PaletteTransparency::Index255Transparent)
                                   ? Assets::TextureType::Masked
                                   : Assets::TextureType::Opaque;
-                return new Assets::Texture(name, width, height, averageColor, buffers, GL_RGBA, type);
+                return new Assets::Texture(name, width, height, averageColor, std::move(buffers), GL_RGBA, type);
             } catch (const ReaderException&) {
                 return new Assets::Texture(name, 16, 16);
             }

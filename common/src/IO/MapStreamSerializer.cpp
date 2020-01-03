@@ -21,10 +21,12 @@
 
 #include "Exceptions.h"
 #include "Macros.h"
-#include "StringUtils.h"
 #include "Model/BrushFace.h"
 
+#include <memory>
 #include <ostream>
+#include <sstream>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -45,25 +47,25 @@ namespace TrenchBroom {
 
                 stream.precision(FloatPrecision);
                 stream << "( " <<
-                StringUtils::ftos(points[0].x(), FloatPrecision) << " " <<
-                StringUtils::ftos(points[0].y(), FloatPrecision) << " " <<
-                StringUtils::ftos(points[0].z(), FloatPrecision) <<" ) ( " <<
-                StringUtils::ftos(points[1].x(), FloatPrecision) << " " <<
-                StringUtils::ftos(points[1].y(), FloatPrecision) << " " <<
-                StringUtils::ftos(points[1].z(), FloatPrecision) << " ) ( " <<
-                StringUtils::ftos(points[2].x(), FloatPrecision) << " " <<
-                StringUtils::ftos(points[2].y(), FloatPrecision) << " " <<
-                StringUtils::ftos(points[2].z(), FloatPrecision) << " )";
+                ftos(points[0].x(), FloatPrecision) << " " <<
+                ftos(points[0].y(), FloatPrecision) << " " <<
+                ftos(points[0].z(), FloatPrecision) <<" ) ( " <<
+                ftos(points[1].x(), FloatPrecision) << " " <<
+                ftos(points[1].y(), FloatPrecision) << " " <<
+                ftos(points[1].z(), FloatPrecision) << " ) ( " <<
+                ftos(points[2].x(), FloatPrecision) << " " <<
+                ftos(points[2].y(), FloatPrecision) << " " <<
+                ftos(points[2].z(), FloatPrecision) << " )";
             }
 
             void writeTextureInfo(std::ostream& stream, Model::BrushFace* face) {
-                const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+                const std::string& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 stream << textureName << " " <<
-                StringUtils::ftos(face->xOffset(), FloatPrecision)  << " " <<
-                StringUtils::ftos(face->yOffset(), FloatPrecision)  << " " <<
-                StringUtils::ftos(face->rotation(), FloatPrecision) << " " <<
-                StringUtils::ftos(face->xScale(), FloatPrecision)   << " " <<
-                StringUtils::ftos(face->yScale(), FloatPrecision);
+                ftos(face->xOffset(), FloatPrecision)  << " " <<
+                ftos(face->yOffset(), FloatPrecision)  << " " <<
+                ftos(face->rotation(), FloatPrecision) << " " <<
+                ftos(face->xScale(), FloatPrecision)   << " " <<
+                ftos(face->yScale(), FloatPrecision);
             }
         };
 
@@ -76,11 +78,9 @@ namespace TrenchBroom {
                 writeFacePoints(stream, face);
                 stream << " ";
                 writeTextureInfo(stream, face);
-                if (face->hasSurfaceAttributes()) {
-                    stream << " ";
-                    writeSurfaceAttributes(stream, face);
-
-                }
+                // While it is possible to omit surface attributes, see MapFileSerializer for a description of why it's best to keep them.
+                stream << " ";
+                writeSurfaceAttributes(stream, face);
                 stream << "\n";
             }
         protected:
@@ -88,7 +88,7 @@ namespace TrenchBroom {
                 stream <<
                 face->surfaceContents()  << " " <<
                 face->surfaceFlags()     << " " <<
-                StringUtils::ftos(face->surfaceValue(), FloatPrecision);
+                ftos(face->surfaceValue(), FloatPrecision);
             }
         };
 
@@ -135,7 +135,7 @@ namespace TrenchBroom {
             }
         private:
             void writeValveTextureInfo(std::ostream& stream, Model::BrushFace* face) {
-                const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+                const std::string& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 const vm::vec3& xAxis = face->textureXAxis();
                 const vm::vec3& yAxis = face->textureYAxis();
 
@@ -172,21 +172,21 @@ namespace TrenchBroom {
             }
         };
 
-        NodeSerializer::Ptr MapStreamSerializer::create(const Model::MapFormat format, std::ostream& stream) {
+        std::unique_ptr<NodeSerializer> MapStreamSerializer::create(const Model::MapFormat format, std::ostream& stream) {
             switch (format) {
                 case Model::MapFormat::Standard:
-                    return NodeSerializer::Ptr(new QuakeStreamSerializer(stream));
+                    return std::make_unique<QuakeStreamSerializer>(stream);
                 case Model::MapFormat::Quake2:
                     // TODO 2427: Implement Quake3 serializers and use them
                 case Model::MapFormat::Quake3:
                 case Model::MapFormat::Quake3_Legacy:
-                    return NodeSerializer::Ptr(new Quake2StreamSerializer(stream));
+                    return std::make_unique<Quake2StreamSerializer>(stream);
                 case Model::MapFormat::Daikatana:
-                    return NodeSerializer::Ptr(new DaikatanaStreamSerializer(stream));
+                    return std::make_unique<DaikatanaStreamSerializer>(stream);
                 case Model::MapFormat::Valve:
-                    return NodeSerializer::Ptr(new ValveStreamSerializer(stream));
+                    return std::make_unique<ValveStreamSerializer>(stream);
                 case Model::MapFormat::Hexen2:
-                    return NodeSerializer::Ptr(new Hexen2StreamSerializer(stream));
+                    return std::make_unique<Hexen2StreamSerializer>(stream);
                 case Model::MapFormat::Unknown:
                     throw FileFormatException("Unknown map file format");
                 switchDefault()
@@ -196,7 +196,29 @@ namespace TrenchBroom {
         MapStreamSerializer::MapStreamSerializer(std::ostream& stream) :
         m_stream(stream) {}
 
-        MapStreamSerializer::~MapStreamSerializer() {}
+        MapStreamSerializer::~MapStreamSerializer() = default;
+
+        template <typename T, typename P>
+        std::string ftos_helper(const T v, const P precision) {
+            std::ostringstream strout;
+            strout.precision(static_cast<std::streamsize>(precision));
+            strout << std::fixed  << v;
+
+            std::string str = strout.str() ;
+            size_t end = str.find_last_not_of('0');
+            if (str[end] == '.') {
+                --end;
+            }
+            return str.erase(end + 1);
+        }
+
+        std::string MapStreamSerializer::ftos(const float v, const int precision) {
+            return ftos_helper(v, precision);
+        }
+
+        std::string MapStreamSerializer::ftos(const double v, const int precision) {
+            return ftos_helper(v, precision);
+        }
 
         void MapStreamSerializer::doBeginFile() {}
         void MapStreamSerializer::doEndFile() {}

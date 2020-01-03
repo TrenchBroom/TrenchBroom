@@ -29,6 +29,7 @@
 #include "Model/MapFormat.h"
 #include "Model/World.h"
 
+#include <vecmath/polygon.h>
 #include <vecmath/segment.h>
 
 #include <cmath>

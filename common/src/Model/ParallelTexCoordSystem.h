@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "Macros.h"
+#include "Model/Model_Forward.h"
 #include "Model/TexCoordSystem.h"
 
 #include <vecmath/forward.h>
@@ -31,9 +32,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushFaceAttributes;
-        class ParallelTexCoordSystem;
-
         class ParallelTexCoordSystemSnapshot : public TexCoordSystemSnapshot {
         private:
             vm::vec3 m_xAxis;

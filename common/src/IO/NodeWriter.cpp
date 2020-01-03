@@ -29,6 +29,7 @@
 #include "Model/Node.h"
 #include "Model/World.h"
 
+#include <list>
 #include <vector>
 
 namespace TrenchBroom {
@@ -76,7 +77,7 @@ namespace TrenchBroom {
         class NodeWriter::WriteNode : public Model::NodeVisitor {
         private:
             NodeSerializer& m_serializer;
-            const Model::EntityAttribute::List m_parentAttributes;
+            const std::list<Model::EntityAttribute> m_parentAttributes;
         public:
             WriteNode(NodeSerializer& serializer, const Model::Node* parent = nullptr) :
             m_serializer(serializer),
@@ -165,12 +166,12 @@ namespace TrenchBroom {
 
         void NodeWriter::writeWorldBrushes(const std::vector<Model::Brush*>& brushes) {
             if (!brushes.empty()) {
-                m_serializer->entity(&m_world, m_world.attributes(), Model::EntityAttribute::EmptyList, brushes);
+                m_serializer->entity(&m_world, m_world.attributes(), {}, brushes);
             }
         }
 
         void NodeWriter::writeEntityBrushes(const EntityBrushesMap& entityBrushes) {
-            for (const auto [entity, brushes] : entityBrushes) {
+            for (const auto& [entity, brushes] : entityBrushes) {
                 m_serializer->entity(entity, entity->attributes(), {}, brushes);
             }
         }

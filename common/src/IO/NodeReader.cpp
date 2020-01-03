@@ -19,21 +19,27 @@
 
 #include "NodeReader.h"
 
+#include "IO/ParserStatus.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
+#include "Model/EntityAttributes.h"
 #include "Model/Layer.h"
 #include "Model/ModelFactory.h"
 #include "Model/World.h"
 
+#include <kdl/vector_utils.h>
+
+#include <sstream>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        NodeReader::NodeReader(const String& str, Model::ModelFactory& factory) :
+        NodeReader::NodeReader(const std::string& str, Model::ModelFactory& factory) :
         MapReader(str),
         m_factory(factory) {}
 
-        std::vector<Model::Node*> NodeReader::read(const String& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status) {
+        std::vector<Model::Node*> NodeReader::read(const std::string& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status) {
             NodeReader reader(str, factory);
             return reader.read(worldBounds, status);
         }
@@ -42,13 +48,13 @@ namespace TrenchBroom {
             try {
                 readEntities(m_factory.format(), worldBounds, status);
             } catch (const ParserException&) {
-                VectorUtils::clearAndDelete(m_nodes);
+                kdl::vec_clear_and_delete(m_nodes);
 
                 try {
                     reset();
                     readBrushes(m_factory.format(), worldBounds, status);
                 } catch (const ParserException&) {
-                    VectorUtils::clearAndDelete(m_nodes);
+                    kdl::vec_clear_and_delete(m_nodes);
                     throw;
                 }
             }
@@ -60,7 +66,7 @@ namespace TrenchBroom {
             return m_factory;
         }
 
-        Model::Node* NodeReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
+        Model::Node* NodeReader::onWorldspawn(const std::list<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
             Model::Entity* worldspawn = m_factory.createEntity();
             worldspawn->setAttributes(attributes);
             setExtraAttributes(worldspawn, extraAttributes);
@@ -88,11 +94,11 @@ namespace TrenchBroom {
 
         void NodeReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {
             if (parentInfo.layer()) {
-                StringStream msg;
+                std::stringstream msg;
                 msg << "Could not resolve parent layer '" << parentInfo.id() << "', adding to default layer";
                 status.warn(node->lineNumber(), msg.str());
             } else {
-                StringStream msg;
+                std::stringstream msg;
                 msg << "Could not resolve parent group '" << parentInfo.id() << "', adding to default layer";
                 status.warn(node->lineNumber(), msg.str());
             }

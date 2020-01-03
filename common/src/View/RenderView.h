@@ -21,8 +21,12 @@
 #define TrenchBroom_RenderView
 
 #include "Color.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/GL.h" // must be included here, before QOpenGLWidget, because it includes glew
+#include "Renderer/Renderer_Forward.h"
 #include "View/InputEvent.h"
+#include "View/View_Forward.h"
+
+#include <string>
 
 #include <QOpenGLWidget>
 #include <QElapsedTimer>
@@ -32,15 +36,7 @@
 #undef CursorShape
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class FontManager;
-        class RenderContext;
-        class ShaderManager;
-    }
-
     namespace View {
-        class GLContextManager;
-
         class RenderView : public QOpenGLWidget, public InputEventProcessor {
             Q_OBJECT
         private:
@@ -55,7 +51,7 @@ namespace TrenchBroom {
             int64_t m_lastFPSCounterUpdate;
             QElapsedTimer m_timeSinceLastFrame;
         protected:
-            String m_currentFPS;
+            std::string m_currentFPS;
         protected:
             explicit RenderView(GLContextManager& contextManager, QWidget* parent = nullptr);
         public:
@@ -69,8 +65,7 @@ namespace TrenchBroom {
             void mouseReleaseEvent(QMouseEvent* event) override;
             void wheelEvent(QWheelEvent* event) override;
         protected:
-            Renderer::Vbo& vertexVbo();
-            Renderer::Vbo& indexVbo();
+            Renderer::VboManager& vboManager();
             Renderer::FontManager& fontManager();
             Renderer::ShaderManager& shaderManager();
 

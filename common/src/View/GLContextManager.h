@@ -21,32 +21,26 @@
 #define TrenchBroom_GLContextManager
 
 #include "Macros.h"
-#include "StringUtils.h"
+#include "Renderer/Renderer_Forward.h"
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class FontManager;
-        class ShaderManager;
-        class Vbo;
-    }
-
     namespace View {
         class GLContextManager {
         public:
-            static String GLVendor;
-            static String GLRenderer;
-            static String GLVersion;
+            static std::string GLVendor;
+            static std::string GLRenderer;
+            static std::string GLVersion;
         private:
             bool m_initialized;
 
-            String m_glVendor;
-            String m_glRenderer;
-            String m_glVersion;
+            std::string m_glVendor;
+            std::string m_glRenderer;
+            std::string m_glVersion;
 
-            std::unique_ptr<Renderer::Vbo> m_vertexVbo;
-            std::unique_ptr<Renderer::Vbo> m_indexVbo;
+            std::unique_ptr<Renderer::VboManager> m_vboManager;
             std::unique_ptr<Renderer::FontManager> m_fontManager;
             std::unique_ptr<Renderer::ShaderManager> m_shaderManager;
         public:
@@ -56,8 +50,7 @@ namespace TrenchBroom {
             bool initialized() const;
             bool initialize();
 
-            Renderer::Vbo& vertexVbo();
-            Renderer::Vbo& indexVbo();
+            Renderer::VboManager& vboManager();
             Renderer::FontManager& fontManager();
             Renderer::ShaderManager& shaderManager();
 

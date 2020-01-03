@@ -19,6 +19,7 @@
 
 #include "ReplaceTextureDialog.h"
 
+#include "SharedPointer.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectMatchingBrushFacesVisitor.h"
@@ -33,11 +34,12 @@
 #include <QMessageBox>
 #include <QPushButton>
 
+#include <sstream>
 #include <vector>
 
 namespace TrenchBroom {
     namespace View {
-        ReplaceTextureDialog::ReplaceTextureDialog(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent) :
+        ReplaceTextureDialog::ReplaceTextureDialog(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent) :
         QDialog(parent),
         m_document(document),
         m_subjectBrowser(nullptr),
@@ -53,7 +55,7 @@ namespace TrenchBroom {
             Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
             ensure(replacement != nullptr, "replacement is null");
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             const std::vector<Model::BrushFace*> faces = getApplicableFaces();
 
             if (faces.empty()) {
@@ -65,14 +67,14 @@ namespace TrenchBroom {
             document->select(faces);
             document->setTexture(replacement);
 
-            StringStream msg;
+            std::stringstream msg;
             msg << "Replaced texture '" << subject->name() << "' with '" << replacement->name() << "' on " << faces.size() << " faces.";
 
             QMessageBox::information(this, tr("Replace Succeeded"), QString::fromStdString(msg.str()));
         }
 
         std::vector<Model::BrushFace*> ReplaceTextureDialog::getApplicableFaces() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             std::vector<Model::BrushFace*> faces = document->allSelectedBrushFaces();
             if (faces.empty()) {
                 Model::CollectBrushFacesVisitor collect;
@@ -122,7 +124,7 @@ namespace TrenchBroom {
             upperLayout->setContentsMargins(QMargins());
             upperLayout->setSpacing(0);
             upperLayout->addWidget(subjectPanel, 1);
-            upperLayout->addWidget(new BorderLine(BorderLine::Direction_Vertical), 0);
+            upperLayout->addWidget(new BorderLine(BorderLine::Direction::Vertical), 0);
             upperLayout->addWidget(replacementPanel, 1);
 
             auto* buttonBox = new QDialogButtonBox(this);

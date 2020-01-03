@@ -23,42 +23,22 @@
 #include <QWidget>
 
 #include "TrenchBroom.h"
+#include "IO/IO_Forward.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/MapView.h"
-#include "View/MapViewActivationTracker.h"
-#include "View/MapViewLayout.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
 
 #include <memory>
 
 namespace TrenchBroom {
     class Logger;
 
-    namespace Renderer {
-        class MapRenderer;
-    }
-
-    namespace IO {
-        class Path;
-    }
-
     namespace View {
-        class ClipTool;
-        class GLContextManager;
-        class Inspector;
-        class MapViewContainer;
-        class MapViewBar;
-        class MapViewBase;
-        class MapViewToolBox;
-        class Tool;
-        class VertexTool;
-        class EdgeTool;
-        class FaceTool;
-
         class SwitchableMapViewContainer : public QWidget, public MapView {
             Q_OBJECT
         private:
             Logger* m_logger;
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             GLContextManager& m_contextManager;
 
             MapViewBar* m_mapViewBar;
@@ -67,9 +47,9 @@ namespace TrenchBroom {
             std::unique_ptr<Renderer::MapRenderer> m_mapRenderer;
 
             MapViewContainer* m_mapView;
-            MapViewActivationTracker m_activationTracker;
+            std::unique_ptr<MapViewActivationTracker> m_activationTracker;
         public:
-            SwitchableMapViewContainer(Logger* logger, MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            SwitchableMapViewContainer(Logger* logger, std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
             ~SwitchableMapViewContainer() override;
 
             void connectTopWidgets(Inspector* inspector);

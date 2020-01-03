@@ -19,14 +19,13 @@
 
 #include "ObjSerializer.h"
 
-#include "CollectionUtils.h"
+#include "Ensure.h"
 #include "Polyhedron.h"
 #include "IO/Path.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 
-#include <cassert>
 #include <set>
 
 namespace TrenchBroom {
@@ -36,7 +35,7 @@ namespace TrenchBroom {
         texCoords(i_texCoords),
         normal(i_normal) {}
 
-        ObjFileSerializer::Face::Face(IndexedVertexList i_verts, String i_texture) :
+        ObjFileSerializer::Face::Face(IndexedVertexList i_verts, std::string i_texture) :
         verts(std::move(i_verts)),
         texture(std::move(i_texture)) {}
 
@@ -68,7 +67,7 @@ namespace TrenchBroom {
         }
 
         void ObjFileSerializer::writeMtlFile() {
-            std::set<String> textureNames;
+            std::set<std::string> textureNames;
 
             for (const Object& object : m_objects) {
                 for (const Face& face : object.faces) {
@@ -76,7 +75,7 @@ namespace TrenchBroom {
                 }
             }
 
-            for (const String& texture : textureNames) {
+            for (const std::string& texture : textureNames) {
                 std::fprintf(m_mtlStream, "newmtl %s\n", texture.c_str());
             }
         }
@@ -90,7 +89,9 @@ namespace TrenchBroom {
         void ObjFileSerializer::writeTexCoords() {
             std::fprintf(m_stream, "# texture coordinates\n");
             for (const vm::vec2f& elem : m_texCoords.list()) {
-                std::fprintf(m_stream, "vt %.17g %.17g\n", static_cast<double>(elem.x()), static_cast<double>(elem.y()));
+                // multiplying Y by -1 needed to get the UV's to appear correct in Blender and UE4
+                // (see: https://github.com/kduske/TrenchBroom/issues/2851 )
+                std::fprintf(m_stream, "vt %.17g %.17g\n", static_cast<double>(elem.x()), static_cast<double>(-elem.y()));
             }
         }
 
@@ -147,11 +148,10 @@ namespace TrenchBroom {
             const vm::vec3& normal = face->boundary().normal;
             const size_t normalIndex = m_normals.index(normal);
 
-            const Model::BrushFace::VertexList vertices = face->vertices();
             IndexedVertexList indexedVertices;
-            indexedVertices.reserve(vertices.size());
+            indexedVertices.reserve(face->vertexCount());
 
-            for (const Model::BrushVertex* vertex : vertices) {
+            for (const Model::BrushVertex* vertex : face->vertices()) {
                 const vm::vec3& position = vertex->position();
                 const vm::vec2f texCoords = face->textureCoords(position);
 

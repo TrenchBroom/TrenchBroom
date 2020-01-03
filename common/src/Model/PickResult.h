@@ -20,32 +20,30 @@
 #ifndef TrenchBroom_PickResult
 #define TrenchBroom_PickResult
 
-#include "Model/CompareHits.h"
+#include "Macros.h"
 #include "Model/Hit.h"
-#include "Model/HitQuery.h"
+#include "Model/Model_Forward.h"
 
 #include <vecmath/util.h>
 
+#include <list>
+#include <memory>
+
 namespace TrenchBroom {
     namespace Model {
-        class CompareHits;
-        class HitFilter;
-        class EditorContext;
-
         class PickResult {
-        public:
-            using ComparePtr = std::shared_ptr<CompareHits>;
         private:
             const EditorContext* m_editorContext;
-            Hit::List m_hits;
-            ComparePtr m_compare;
+            std::list<Hit> m_hits;
+            std::shared_ptr<CompareHits> m_compare;
             class CompareWrapper;
         public:
-            PickResult(const EditorContext& editorContext, CompareHits* compare) :
-            m_editorContext(&editorContext),
-            m_compare(compare) {}
-
+            PickResult(const EditorContext& editorContext, std::shared_ptr<CompareHits> compare);
             PickResult();
+
+            defineCopyAndMove(PickResult)
+
+            ~PickResult();
 
             static PickResult byDistance(const EditorContext& editorContext);
             static PickResult bySize(const EditorContext& editorContext, vm::axis::type axis);
@@ -55,7 +53,7 @@ namespace TrenchBroom {
 
             void addHit(const Hit& hit);
 
-            const Hit::List& all() const;
+            const std::list<Hit>& all() const;
             HitQuery query() const;
 
             void clear();

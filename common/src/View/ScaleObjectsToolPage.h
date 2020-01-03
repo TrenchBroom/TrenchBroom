@@ -21,7 +21,11 @@
 #define TrenchBroom_ScaleObjectsToolPage
 
 #include "TrenchBroom.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
+
+#include <vecmath/forward.h>
+
+#include <memory>
 
 #include <QWidget>
 
@@ -33,13 +37,10 @@ class QAbstractButton;
 
 namespace TrenchBroom {
     namespace View {
-        class Selection;
-        class ScaleObjectsTool;
-
         class ScaleObjectsToolPage : public QWidget {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             QStackedLayout* m_book;
 
@@ -49,7 +50,7 @@ namespace TrenchBroom {
             QComboBox* m_scaleFactorsOrSize;
             QAbstractButton* m_button;
         public:
-            explicit ScaleObjectsToolPage(MapDocumentWPtr document, QWidget* parent = nullptr);
+            explicit ScaleObjectsToolPage(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~ScaleObjectsToolPage() override;
             void activate();
         private:

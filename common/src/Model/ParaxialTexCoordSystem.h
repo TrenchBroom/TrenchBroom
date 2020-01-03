@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "Macros.h"
+#include "Model/Model_Forward.h"
 #include "Model/TexCoordSystem.h"
 
 #include <vecmath/vec.h>
@@ -30,8 +31,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushFaceAttributes;
-
         class ParaxialTexCoordSystem : public TexCoordSystem {
         private:
             static const vm::vec3 BaseAxes[];

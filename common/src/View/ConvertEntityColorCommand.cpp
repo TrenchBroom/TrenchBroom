@@ -19,14 +19,15 @@
 
 #include "ConvertEntityColorCommand.h"
 
+#include "Model/EntityAttributeSnapshot.h"
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType ConvertEntityColorCommand::Type = Command::freeType();
 
-        ConvertEntityColorCommand::Ptr ConvertEntityColorCommand::convert(const Model::AttributeName& attributeName, const Assets::ColorRange::Type colorRange) {
-            return Ptr(new ConvertEntityColorCommand(attributeName, colorRange));
+        std::unique_ptr<ConvertEntityColorCommand> ConvertEntityColorCommand::convert(const Model::AttributeName& attributeName, const Assets::ColorRange::Type colorRange) {
+            return std::make_unique<ConvertEntityColorCommand>(attributeName, colorRange);
         }
 
         ConvertEntityColorCommand::ConvertEntityColorCommand(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange) :
@@ -34,21 +35,23 @@ namespace TrenchBroom {
         m_attributeName(attributeName),
         m_colorRange(colorRange) {}
 
-        bool ConvertEntityColorCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        ConvertEntityColorCommand::~ConvertEntityColorCommand() = default;
+
+        std::unique_ptr<CommandResult> ConvertEntityColorCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_snapshots = document->performConvertColorRange(m_attributeName, m_colorRange);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool ConvertEntityColorCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ConvertEntityColorCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->restoreAttributes(m_snapshots);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool ConvertEntityColorCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool ConvertEntityColorCommand::doCollateWith(UndoableCommand::Ptr) {
+        bool ConvertEntityColorCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

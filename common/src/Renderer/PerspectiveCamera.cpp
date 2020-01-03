@@ -20,10 +20,12 @@
 #include "PerspectiveCamera.h"
 
 #include "Color.h"
+#include "Renderer/ActiveShader.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/GLVertexType.h"
 
@@ -31,11 +33,10 @@
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
-#include <vecmath/ray.h>
-#include <vecmath/plane.h>
 #include <vecmath/intersection.h>
 
 #include <limits>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -117,10 +118,10 @@ namespace TrenchBroom {
             leftPlane = vm::plane3f(position(), normalize(cross(up(), d)));
         }
 
-        void PerspectiveCamera::doRenderFrustum(RenderContext& renderContext, Vbo& vbo, const float size, const Color& color) const {
+        void PerspectiveCamera::doRenderFrustum(RenderContext& renderContext, VboManager& vboManager, const float size, const Color& color) const {
             using Vertex = GLVertexTypes::P3C4::Vertex;
-            Vertex::List triangleVertices;
-            Vertex::List lineVertices;
+            std::vector<Vertex> triangleVertices;
+            std::vector<Vertex> lineVertices;
             triangleVertices.reserve(6);
             lineVertices.reserve(8 * 2);
 
@@ -146,13 +147,12 @@ namespace TrenchBroom {
             auto triangleArray = VertexArray::ref(triangleVertices);
             auto lineArray = VertexArray::ref(lineVertices);
 
-            ActivateVbo activate(vbo);
-            triangleArray.prepare(vbo);
-            lineArray.prepare(vbo);
+            triangleArray.prepare(vboManager);
+            lineArray.prepare(vboManager);
 
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
-            triangleArray.render(GL_TRIANGLE_FAN);
-            lineArray.render(GL_LINES);
+            triangleArray.render(PrimType::TriangleFan);
+            lineArray.render(PrimType::Lines);
         }
 
         float PerspectiveCamera::doPickFrustum(const float size, const vm::ray3f& ray) const {

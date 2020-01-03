@@ -35,7 +35,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapViewToolBox::MapViewToolBox(MapDocumentWPtr document, QStackedLayout* bookCtrl) :
+        MapViewToolBox::MapViewToolBox(std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl) :
         m_document(document) {
             createTools(document, bookCtrl);
             bindObservers();
@@ -206,7 +206,7 @@ namespace TrenchBroom {
                 faceTool()->moveSelection(delta);
         }
 
-        void MapViewToolBox::createTools(MapDocumentWPtr document, QStackedLayout* bookCtrl) {
+        void MapViewToolBox::createTools(std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl) {
             m_clipTool = std::make_unique<ClipTool>(document);
             m_createComplexBrushTool = std::make_unique<CreateComplexBrushTool>(document);
             m_createEntityTool = std::make_unique<CreateEntityTool>(document);
@@ -268,7 +268,7 @@ namespace TrenchBroom {
             toolActivatedNotifier.addObserver(this, &MapViewToolBox::toolActivated);
             toolDeactivatedNotifier.addObserver(this, &MapViewToolBox::toolDeactivated);
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
         }
@@ -278,7 +278,7 @@ namespace TrenchBroom {
             toolDeactivatedNotifier.removeObserver(this, &MapViewToolBox::toolDeactivated);
 
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->documentWasNewedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
             }
@@ -295,7 +295,7 @@ namespace TrenchBroom {
         }
 
         void MapViewToolBox::updateEditorContext() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setBlockSelection(createComplexBrushToolActive());
         }

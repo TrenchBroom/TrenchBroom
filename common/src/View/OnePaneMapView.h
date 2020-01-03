@@ -20,34 +20,26 @@
 #ifndef TrenchBroom_OnePaneMapView
 #define TrenchBroom_OnePaneMapView
 
+#include "Renderer/Renderer_Forward.h"
 #include "View/CameraLinkHelper.h"
 #include "View/MultiMapView.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     class Logger;
 
-    namespace Renderer {
-        class MapRenderer;
-        class Vbo;
-    }
-
     namespace View {
-        class CyclingMapView;
-        class GLContextManager;
-        class MapViewBase;
-        class MapView3D;
-        class MapViewToolBox;
-
         class OnePaneMapView : public MultiMapView {
         private:
             Logger* m_logger;
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             CameraLinkHelper m_linkHelper;
             CyclingMapView* m_mapView;
         public:
-            explicit OnePaneMapView(Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, QWidget* parent = nullptr);
+            explicit OnePaneMapView(Logger* logger, std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, QWidget* parent = nullptr);
         private:
             void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
         };

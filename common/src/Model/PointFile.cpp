@@ -26,6 +26,7 @@
 
 #include <cassert>
 #include <fstream>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -89,9 +90,9 @@ namespace TrenchBroom {
             assert(stream.is_open());
 
             std::vector<vm::vec3f> points;
-            String line;
 
             if (!stream.eof()) {
+                std::string line;
                 std::getline(stream, line);
                 points.push_back(vm::parse<float, 3>(line));
                 vm::vec3f lastPoint = points.back();

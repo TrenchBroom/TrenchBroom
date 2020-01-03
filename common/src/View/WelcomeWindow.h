@@ -20,16 +20,13 @@
 #ifndef TrenchBroom_WelcomeFrame
 #define TrenchBroom_WelcomeFrame
 
-#include "IO/Path.h"
+#include "IO/IO_Forward.h"
 
 #include <QMainWindow>
 
 class QPushButton;
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
     namespace View {
         class RecentDocumentListBox;
 
@@ -41,10 +38,6 @@ namespace TrenchBroom {
             QPushButton* m_openOtherDocumentButton;
         public:
             WelcomeWindow();
-
-        protected:
-            void closeEvent(QCloseEvent* event) override;
-
         private:
             void createGui();
             QWidget* createAppPanel();

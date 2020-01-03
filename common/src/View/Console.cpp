@@ -22,12 +22,12 @@
 #include "FileLogger.h"
 #include "View/ViewConstants.h"
 
-#include <QDebug>
-#include <QVBoxLayout>
-#include <QTextEdit>
-#include <QScrollBar>
+#include <string>
 
-#include <iostream>
+#include <QDebug>
+#include <QScrollBar>
+#include <QTextEdit>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             setLayout(sizer);
         }
 
-        void Console::doLog(const LogLevel level, const String& message) {
+        void Console::doLog(const LogLevel level, const std::string& message) {
             doLog(level, QString::fromStdString(message));
         }
 
@@ -62,15 +62,15 @@ namespace TrenchBroom {
         void Console::logToConsole(const LogLevel level, const QString& message) {
             QTextCharFormat format;
             switch (level) {
-                case LogLevel_Debug:
+                case LogLevel::Debug:
                     format.setForeground(QBrush(Colors::disabledText()));
                     break;
-                case LogLevel_Info:
+                case LogLevel::Info:
                     break;
-                case LogLevel_Warn:
+                case LogLevel::Warn:
                     format.setForeground(QBrush(Colors::defaultText()));
                     break;
-                case LogLevel_Error:
+                case LogLevel::Error:
                     format.setForeground(QBrush(QColor(250, 30, 60)));
                     break;
             }

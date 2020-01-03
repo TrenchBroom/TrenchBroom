@@ -19,6 +19,7 @@
 
 #include "CollectAttributableNodesVisitor.h"
 
+#include "Ensure.h"
 #include "Model/AttributableNode.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"

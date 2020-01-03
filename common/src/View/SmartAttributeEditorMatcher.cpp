@@ -19,9 +19,9 @@
 
 #include "SmartAttributeEditorMatcher.h"
 
-#include "StringUtils.h"
+#include <kdl/string_compare.h>
+#include <kdl/vector_utils.h>
 
-#include <set>
 #include <vector>
 
 namespace TrenchBroom {
@@ -32,19 +32,23 @@ namespace TrenchBroom {
             return doMatches(name, attributables);
         }
 
-        SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const String& pattern) :
+        SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const std::string& pattern) :
         SmartAttributeEditorKeyMatcher({ pattern }) {}
 
-        SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const std::initializer_list<String> patterns) :
-        m_patterns(patterns) {}
+        SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const std::initializer_list<std::string> patterns) :
+        m_patterns(patterns) {
+            kdl::vec_sort_and_remove_duplicates(m_patterns);
+        }
 
         bool SmartAttributeEditorKeyMatcher::doMatches(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const {
-            if (attributables.empty())
+            if (attributables.empty()) {
                 return false;
+            }
 
-            for (const String& pattern : m_patterns) {
-                if (StringUtils::caseSensitiveMatchesPattern(name, pattern))
+            for (const std::string& pattern : m_patterns) {
+                if (kdl::cs::str_matches_glob(name, pattern)) {
                     return true;
+                }
             }
 
             return false;

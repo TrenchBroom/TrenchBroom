@@ -22,6 +22,9 @@
 
 #include "Model/Tag.h"
 
+#include <string>
+#include <vector>
+
 #include <QObject>
 
 namespace TrenchBroom {
@@ -33,7 +36,7 @@ namespace TrenchBroom {
         public:
             explicit EnableDisableTagCallback();
 
-            size_t selectOption(const StringList& options) override;
+            size_t selectOption(const std::vector<std::string>& options) override;
         };
     }
 }

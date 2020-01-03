@@ -22,29 +22,25 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
-        SnapshotCommand::SnapshotCommand(Command::CommandType type, const String &name) :
-        DocumentCommand(type, name),
-        m_snapshot(nullptr) {}
+        SnapshotCommand::SnapshotCommand(Command::CommandType type, const std::string &name) :
+        DocumentCommand(type, name) {}
 
-        SnapshotCommand::~SnapshotCommand() {
-            if (m_snapshot != nullptr) {
-                deleteSnapshot();
-            }
-        }
+        SnapshotCommand::~SnapshotCommand() = default;
 
-        bool SnapshotCommand::performDo(MapDocumentCommandFacade *document) {
+        std::unique_ptr<CommandResult> SnapshotCommand::performDo(MapDocumentCommandFacade *document) {
             takeSnapshot(document);
-            if (DocumentCommand::performDo(document)) {
-                return true;
-            } else {
+            auto result = DocumentCommand::performDo(document);
+            if (!result->success()) {
                 deleteSnapshot();
-                return false;
             }
+            return result;
         }
 
-        bool SnapshotCommand::doPerformUndo(MapDocumentCommandFacade *document) {
+        std::unique_ptr<CommandResult> SnapshotCommand::doPerformUndo(MapDocumentCommandFacade *document) {
             return restoreSnapshot(document);
         }
 
@@ -53,22 +49,21 @@ namespace TrenchBroom {
             m_snapshot = doTakeSnapshot(document);
         }
 
-        bool SnapshotCommand::restoreSnapshot(MapDocumentCommandFacade *document) {
+        std::unique_ptr<CommandResult> SnapshotCommand::restoreSnapshot(MapDocumentCommandFacade *document) {
             ensure(m_snapshot != nullptr, "snapshot is null");
-            document->restoreSnapshot(m_snapshot);
+            document->restoreSnapshot(m_snapshot.get());
             deleteSnapshot();
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         void SnapshotCommand::deleteSnapshot() {
             assert(m_snapshot != nullptr);
-            delete m_snapshot;
-            m_snapshot = nullptr;
+            m_snapshot.reset();
         }
 
-        Model::Snapshot *SnapshotCommand::doTakeSnapshot(MapDocumentCommandFacade *document) const {
+        std::unique_ptr<Model::Snapshot> SnapshotCommand::doTakeSnapshot(MapDocumentCommandFacade *document) const {
             const auto& nodes = document->selectedNodes().nodes();
-            return new Model::Snapshot(std::begin(nodes), std::end(nodes));
+            return std::make_unique<Model::Snapshot>(std::begin(nodes), std::end(nodes));
         }
     }
 }

@@ -41,7 +41,7 @@ namespace TrenchBroom {
             document->removeNode(layer);
             ASSERT_TRUE(layer->parent() == nullptr);
 
-            document->undoLastCommand();
+            document->undoCommand();
             ASSERT_EQ(document->world(), layer->parent());
         }
 
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->parent() == nullptr);
             ASSERT_TRUE(entity->parent() == nullptr);
 
-            document->undoLastCommand();
+            document->undoCommand();
             ASSERT_EQ(entity, brush->parent());
             ASSERT_EQ(layer, entity->parent());
         }
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->parent() == nullptr);
             ASSERT_TRUE(group->parent() == nullptr);
 
-            document->undoLastCommand();
+            document->undoCommand();
             ASSERT_EQ(group, document->currentGroup());
             ASSERT_EQ(group, brush->parent());
             ASSERT_EQ(document->world()->defaultLayer(), group->parent());
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(inner->parent() == nullptr);
             ASSERT_TRUE(outer->parent() == nullptr);
 
-            document->undoLastCommand();
+            document->undoCommand();
             ASSERT_EQ(inner, document->currentGroup());
             ASSERT_EQ(inner, brush->parent());
             ASSERT_EQ(outer, inner->parent());

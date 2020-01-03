@@ -24,16 +24,17 @@
 #include "IO/FileMatcher.h"
 #include "IO/GameConfigParser.h"
 #include "IO/Reader.h"
+#include "Model/GameConfig.h"
 #include "Model/Tag.h"
 #include "Model/TagMatcher.h"
 
-#include <vector>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
         TEST(GameConfigParserTest, parseIncludedGameConfigs) {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
-            const Path::List cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("cfg"));
+            const std::vector<Path> cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("cfg"));
 
             for (const Path& path : cfgFiles) {
                 auto file = Disk::openFile(path);
@@ -49,19 +50,19 @@ namespace TrenchBroom {
         }
 
         TEST(GameConfigParserTest, parseBlankConfig) {
-            const String config("   ");
+            const std::string config("   ");
             GameConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
         }
 
         TEST(GameConfigParserTest, parseEmptyConfig) {
-            const String config("  {  } ");
+            const std::string config("  {  } ");
             GameConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
         }
 
         TEST(GameConfigParserTest, parseQuakeConfig) {
-            const String config(R"(
+            const std::string config(R"(
 {
     "version": 3,
     "name": "Quake",
@@ -129,32 +130,32 @@ namespace TrenchBroom {
             const GameConfig actual = parser.parse();
 
             const GameConfig expected("Quake",
-            Path(),
-            Path("Icon.png"),
-            false,
-            { // map formats
-                GameConfig::MapFormatConfig("Standard", Path()),
-                GameConfig::MapFormatConfig("Valve", Path())
-            },
-            GameConfig::FileSystemConfig(Path("id1"), GameConfig::PackageFormatConfig("pak", "idpak")),
-            GameConfig::TextureConfig(
-                GameConfig::TexturePackageConfig(GameConfig::PackageFormatConfig("wad", "wad2")),
-                GameConfig::PackageFormatConfig("D", "idmip"),
-                Path("gfx/palette.lmp"),
-                "wad",
-                Path()),
-            GameConfig::EntityConfig(
-                { Path("Quake.fgd"), Path("Quoth2.fgd"), Path("Rubicon2.def"), Path("Teamfortress.fgd") },
-                { "mdl", "bsp" },
-                Color(0.6f, 0.6f, 0.6f, 1.0f)),
-            GameConfig::FaceAttribsConfig(),
-            {
-              Model::SmartTag("Trigger", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*", "")),
-              Model::SmartTag("Clip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("clip")),
-              Model::SmartTag("Skip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("skip")),
-              Model::SmartTag("Hint", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("hint*")),
-              Model::SmartTag("Liquid", {}, std::make_unique<Model::TextureNameTagMatcher>("\\**")),
-            } // smart tags
+                Path(),
+                Path("Icon.png"),
+                false,
+                { // map formats
+                    Model::MapFormatConfig("Standard", Path()),
+                    Model::MapFormatConfig("Valve", Path())
+                },
+                Model::FileSystemConfig(Path("id1"), Model::PackageFormatConfig("pak", "idpak")),
+                Model::TextureConfig(
+                    Model::TexturePackageConfig(Model::PackageFormatConfig("wad", "wad2")),
+                    Model::PackageFormatConfig("D", "idmip"),
+                    Path("gfx/palette.lmp"),
+                    "wad",
+                    Path()),
+                Model::EntityConfig(
+                    { Path("Quake.fgd"), Path("Quoth2.fgd"), Path("Rubicon2.def"), Path("Teamfortress.fgd") },
+                    { "bsp", "mdl" },
+                    Color(0.6f, 0.6f, 0.6f, 1.0f)),
+                Model::FaceAttribsConfig(),
+                {
+                  Model::SmartTag("Trigger", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*", "")),
+                  Model::SmartTag("Clip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("clip")),
+                  Model::SmartTag("Skip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("skip")),
+                  Model::SmartTag("Hint", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("hint*")),
+                  Model::SmartTag("Liquid", {}, std::make_unique<Model::TextureNameTagMatcher>("\\**")),
+                } // smart tags
             );
 
             ASSERT_EQ(expected.name(), actual.name());
@@ -170,7 +171,7 @@ namespace TrenchBroom {
         }
 
         TEST(GameConfigParserTest, parseQuake2Config) {
-            const String config(R"%(
+            const std::string config(R"%(
 {
     "version": 3,
     "name": "Quake 2",
@@ -390,21 +391,21 @@ namespace TrenchBroom {
                 Path(),
                 Path("Icon.png"),
                 false,
-                GameConfig::MapFormatConfig::List({
-                    GameConfig::MapFormatConfig("Quake2", Path())
+                std::vector<Model::MapFormatConfig>({
+                    Model::MapFormatConfig("Quake2", Path())
                 }),
-                GameConfig::FileSystemConfig(Path("baseq2"), GameConfig::PackageFormatConfig("pak", "idpak")),
-                GameConfig::TextureConfig(
-                    GameConfig::TexturePackageConfig(Path("textures")),
-                    GameConfig::PackageFormatConfig("wal", "wal"),
+                Model::FileSystemConfig(Path("baseq2"), Model::PackageFormatConfig("pak", "idpak")),
+                Model::TextureConfig(
+                    Model::TexturePackageConfig(Path("textures")),
+                    Model::PackageFormatConfig("wal", "wal"),
                     Path("pics/colormap.pcx"),
                     "_tb_textures",
                     Path()),
-                GameConfig::EntityConfig(
+                Model::EntityConfig(
                     { Path("Quake2.fgd") },
                     { "md2" },
                     Color(0.6f, 0.6f, 0.6f, 1.0f)),
-                GameConfig::FaceAttribsConfig(
+                Model::FaceAttribsConfig(
                     {
                         { "light", "Emit light from the surface, brightness is specified in the 'value' field" },
                         { "slick", "The surface is slippery" },

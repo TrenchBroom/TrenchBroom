@@ -24,7 +24,9 @@
 #include "View/VertexToolBase.h"
 #include "View/VertexHandleManager.h"
 
-#include <set>
+#include <list> // FIXME: get rid of this
+#include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -55,17 +57,17 @@ namespace TrenchBroom {
 
             Mode m_mode;
 
-            VertexHandleManager m_vertexHandles;
-            EdgeHandleManager m_edgeHandles;
-            FaceHandleManager m_faceHandles;
+            std::unique_ptr<VertexHandleManager> m_vertexHandles;
+            std::unique_ptr<EdgeHandleManager> m_edgeHandles;
+            std::unique_ptr<FaceHandleManager> m_faceHandles;
 
             mutable Renderer::PointGuideRenderer m_guideRenderer;
         public:
-            VertexTool(MapDocumentWPtr document);
+            VertexTool(std::weak_ptr<MapDocument> document);
         public:
-            std::set<Model::Brush*> findIncidentBrushes(const vm::vec3& handle) const;
-            std::set<Model::Brush*> findIncidentBrushes(const vm::segment3& handle) const;
-            std::set<Model::Brush*> findIncidentBrushes(const vm::polygon3& handle) const;
+            std::vector<Model::Brush*> findIncidentBrushes(const vm::vec3& handle) const;
+            std::vector<Model::Brush*> findIncidentBrushes(const vm::segment3& handle) const;
+            std::vector<Model::Brush*> findIncidentBrushes(const vm::polygon3& handle) const;
         private:
             using VertexToolBase::findIncidentBrushes;
         public:
@@ -76,13 +78,13 @@ namespace TrenchBroom {
             VertexHandleManager& handleManager() override;
             const VertexHandleManager& handleManager() const override;
         public: // Vertex moving
-            bool startMove(const Model::Hit::List& hits) override;
+            bool startMove(const std::list<Model::Hit>& hits) override;
             MoveResult move(const vm::vec3& delta) override;
             void endMove() override;
             void cancelMove() override;
 
             const vm::vec3& getHandlePosition(const Model::Hit& hit) const override;
-            String actionName() const override;
+            std::string actionName() const override;
 
             void removeSelection();
         public: // Rendering

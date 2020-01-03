@@ -21,13 +21,10 @@
 #define TrenchBroom_NodeSnapshot
 
 #include "TrenchBroom.h"
+#include "Model/Model_Forward.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
-        class Entity;
-        class Group;
-
         class NodeSnapshot {
         public:
             virtual ~NodeSnapshot();

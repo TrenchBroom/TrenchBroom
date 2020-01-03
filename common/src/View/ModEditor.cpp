@@ -19,32 +19,33 @@
 
 #include "ModEditor.h"
 
-#include "CollectionUtils.h"
 #include "Notifier.h"
-#include "Preferences.h"
 #include "PreferenceManager.h"
 #include "SharedPointer.h"
 #include "Model/Entity.h"
 #include "Model/Game.h"
-#include "StringUtils.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
+#include <kdl/collection_utils.h>
+#include <kdl/string_compare.h>
+#include <kdl/vector_utils.h>
+
 #include <QLineEdit>
 #include <QListWidget>
 #include <QWidget>
 #include <QAbstractButton>
 #include <QVBoxLayout>
-#include <QGridLayout>
 
 #include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
-        ModEditor::ModEditor(MapDocumentWPtr document, QWidget* parent) :
+        ModEditor::ModEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_availableModList(nullptr),
@@ -105,9 +106,9 @@ namespace TrenchBroom {
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
             layout->addWidget(availableModContainer,                                   0, 0);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Vertical),    0, 1, 3, 1);
+            layout->addWidget(new BorderLine(BorderLine::Direction::Vertical),    0, 1, 3, 1);
             layout->addWidget(enabledModContainer,                                     0, 2);
-            layout->addWidget(new BorderLine(BorderLine::Direction_Horizontal),  1, 0, 1, 3);
+            layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal),  1, 0, 1, 3);
             layout->addLayout(filterBoxSizer,                                          2, 0);
             layout->addLayout(toolBar,                                             2, 2);
 
@@ -180,8 +181,8 @@ namespace TrenchBroom {
 
         void ModEditor::updateAvailableMods() {
             auto document = lock(m_document);
-            StringList availableMods = document->game()->availableMods();
-            StringUtils::sortCaseInsensitive(availableMods);
+            std::vector<std::string> availableMods = document->game()->availableMods();
+            kdl::sort(availableMods, kdl::ci::string_less());
 
             m_availableMods.clear();
             m_availableMods.reserve(availableMods.size());
@@ -202,15 +203,14 @@ namespace TrenchBroom {
             QStringList availableModItems;
             for (size_t i = 0; i < m_availableMods.size(); ++i) {
                 const auto& mod = m_availableMods[i];
-                if (StringUtils::containsCaseInsensitive(mod, pattern) &&
-                    !VectorUtils::contains(enabledMods, mod)) {
+                if (kdl::ci::str_contains(mod, pattern) && !kdl::vec_contains(enabledMods, mod)) {
                     m_availableModList->addItem(QString::fromStdString(mod));
                 }
             }
 
             QStringList enabledModItems;
             for (size_t i = 0; i < enabledMods.size(); ++i) {
-                if (StringUtils::containsCaseInsensitive(enabledMods[i], pattern)) {
+                if (kdl::ci::str_contains(enabledMods[i], pattern)) {
                     m_enabledModList->addItem(QString::fromStdString(enabledMods[i]));
                 }
             }
@@ -224,7 +224,7 @@ namespace TrenchBroom {
 
             auto document = lock(m_document);
 
-            StringList mods = document->mods();
+            std::vector<std::string> mods = document->mods();
             for (QListWidgetItem* item : selections) {
                 mods.push_back(item->text().toStdString());
             }
@@ -239,10 +239,10 @@ namespace TrenchBroom {
 
             auto document = lock(m_document);
 
-            StringList mods = document->mods();
+            std::vector<std::string> mods = document->mods();
             for (QListWidgetItem* item : selections) {
                 const std::string mod = item->text().toStdString();
-                VectorUtils::erase(mods, mod);
+                kdl::vec_erase(mods, mod);
             }
             document->setMods(mods);
         }

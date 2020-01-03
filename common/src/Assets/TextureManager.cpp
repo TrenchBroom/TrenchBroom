@@ -20,15 +20,19 @@
 #include "TextureManager.h"
 
 #include "Exceptions.h"
-#include "CollectionUtils.h"
 #include "Logger.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "IO/TextureLoader.h"
-#include "StringUtils.h"
+
+#include <kdl/map_utils.h>
+#include <kdl/string_format.h>
+#include <kdl/vector_utils.h>
 
 #include <algorithm>
 #include <iterator>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -61,7 +65,7 @@ namespace TrenchBroom {
             clear();
         }
 
-        void TextureManager::setTextureCollections(const IO::Path::List& paths, IO::TextureLoader& loader) {
+        void TextureManager::setTextureCollections(const std::vector<IO::Path>& paths, IO::TextureLoader& loader) {
             auto collections = collectionMap();
             m_collections.clear();
             clear();
@@ -89,10 +93,10 @@ namespace TrenchBroom {
             }
 
             updateTextures();
-            VectorUtils::append(m_toRemove, collections);
+            kdl::vec_append(m_toRemove, kdl::map_values(collections));
         }
 
-        void TextureManager::setTextureCollections(const TextureCollectionList& collections) {
+        void TextureManager::setTextureCollections(const std::vector<TextureCollection*>& collections) {
             clear();
             for (auto* collection : collections) {
                 collection->usageCountDidChange.addObserver(usageCountDidChange);
@@ -119,8 +123,8 @@ namespace TrenchBroom {
         }
 
         void TextureManager::clear() {
-            VectorUtils::clearAndDelete(m_collections);
-            VectorUtils::clearAndDelete(m_toRemove);
+            kdl::vec_clear_and_delete(m_collections);
+            kdl::vec_clear_and_delete(m_toRemove);
 
             m_toPrepare.clear();
             m_texturesByName.clear();
@@ -138,11 +142,11 @@ namespace TrenchBroom {
         void TextureManager::commitChanges() {
             resetTextureMode();
             prepare();
-            VectorUtils::clearAndDelete(m_toRemove);
+            kdl::vec_clear_and_delete(m_toRemove);
         }
 
-        Texture* TextureManager::texture(const String& name) const {
-            auto it = m_texturesByName.find(StringUtils::toLower(name));
+        Texture* TextureManager::texture(const std::string& name) const {
+            auto it = m_texturesByName.find(kdl::str_to_lower(name));
             if (it == std::end(m_texturesByName)) {
                 return nullptr;
             } else {
@@ -150,16 +154,16 @@ namespace TrenchBroom {
             }
         }
 
-        const TextureList& TextureManager::textures() const {
+        const std::vector<Texture*>& TextureManager::textures() const {
             return m_textures;
         }
 
-        const TextureCollectionList& TextureManager::collections() const {
+        const std::vector<TextureCollection*>& TextureManager::collections() const {
             return m_collections;
         }
 
-        const StringList TextureManager::collectionNames() const {
-            StringList result;
+        const std::vector<std::string> TextureManager::collectionNames() const {
+            std::vector<std::string> result;
             result.reserve(m_collections.size());
             std::transform(std::begin(m_collections), std::end(m_collections), std::back_inserter(result),
                            [](auto collection) { return collection->name(); });
@@ -186,7 +190,7 @@ namespace TrenchBroom {
 
             for (auto* collection : m_collections) {
                 for (auto* texture : collection->textures()) {
-                    const auto key = StringUtils::toLower(texture->name());
+                    const auto key = kdl::str_to_lower(texture->name());
                     texture->setOverridden(false);
 
                     auto mIt = m_texturesByName.find(key);
@@ -199,7 +203,7 @@ namespace TrenchBroom {
                 }
             }
 
-            m_textures = MapUtils::valueList(m_texturesByName);
+            m_textures = kdl::map_values(m_texturesByName);
         }
     }
 }

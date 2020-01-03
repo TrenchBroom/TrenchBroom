@@ -20,16 +20,13 @@
 #ifndef TRENCHBROOM_QUAKE3SHADERFILESYSTEM_H
 #define TRENCHBROOM_QUAKE3SHADERFILESYSTEM_H
 
+#include "Assets/Asset_Forward.h"
 #include "IO/ImageFileSystem.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     class Logger;
-
-    namespace Assets {
-        class Quake3Shader;
-    }
 
     namespace IO {
         /**
@@ -42,7 +39,7 @@ namespace TrenchBroom {
         class Quake3ShaderFileSystem : public ImageFileSystemBase {
         private:
             Path m_shaderSearchPath;
-            Path::List m_textureSearchPaths;
+            std::vector<Path> m_textureSearchPaths;
             Logger& m_logger;
         public:
             /**
@@ -56,13 +53,13 @@ namespace TrenchBroom {
              * @param textureSearchPaths the paths at which to search for texture images
              * @param logger the logger to use
              */
-            Quake3ShaderFileSystem(std::shared_ptr<FileSystem> fs, Path shaderSearchPath, Path::List textureSearchPaths, Logger& logger);
+            Quake3ShaderFileSystem(std::shared_ptr<FileSystem> fs, Path shaderSearchPath, std::vector<Path> textureSearchPaths, Logger& logger);
         private:
             void doReadDirectory() override;
 
             std::vector<Assets::Quake3Shader> loadShaders() const;
             void linkShaders(std::vector<Assets::Quake3Shader>& shaders);
-            void linkTextures(const Path::List& textures, std::vector<Assets::Quake3Shader>& shaders);
+            void linkTextures(const std::vector<Path>& textures, std::vector<Assets::Quake3Shader>& shaders);
             void linkStandaloneShaders(std::vector<Assets::Quake3Shader>& shaders);
         };
     }

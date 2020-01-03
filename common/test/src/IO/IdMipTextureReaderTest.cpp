@@ -24,14 +24,17 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/IdMipTextureReader.h"
 #include "IO/Path.h"
 #include "IO/TextureReader.h"
 #include "IO/WadFileSystem.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
-        static void assertTexture(const String& name, const size_t width, const size_t height, const FileSystem& fs, const TextureReader& loader) {
+        static void assertTexture(const std::string& name, const size_t width, const size_t height, const FileSystem& fs, const TextureReader& loader) {
 
             const Assets::Texture* texture = loader.readTexture(fs.openFile(Path(name + ".D")));
             ASSERT_TRUE(texture != nullptr);

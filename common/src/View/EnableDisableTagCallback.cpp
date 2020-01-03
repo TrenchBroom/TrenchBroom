@@ -26,7 +26,7 @@ namespace TrenchBroom {
         EnableDisableTagCallback::EnableDisableTagCallback() :
         m_selectedOption(0) {}
 
-        size_t EnableDisableTagCallback::selectOption(const StringList& options) {
+        size_t EnableDisableTagCallback::selectOption(const std::vector<std::string>& options) {
             QMenu menu;
             for (size_t i = 0; i < options.size(); ++i) {
                 const auto& option = options[i];

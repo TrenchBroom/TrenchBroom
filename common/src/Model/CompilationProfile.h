@@ -20,36 +20,35 @@
 #ifndef CompilationProfile_h
 #define CompilationProfile_h
 
+#include "Macros.h"
 #include "Notifier.h"
-#include "StringType.h"
-#include "Model/CompilationTask.h"
+#include "Model/Model_Forward.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class CompilationProfile {
         public:
-            using List = std::vector<CompilationProfile*>;
-
             Notifier<> profileWillBeRemoved;
             Notifier<> profileDidChange;
         private:
-            String m_name;
-            String m_workDirSpec;
-            CompilationTask::List m_tasks;
+            std::string m_name;
+            std::string m_workDirSpec;
+            std::vector<CompilationTask*> m_tasks;
         public:
-            CompilationProfile(const String& name, const String& workDirSpec);
-            CompilationProfile(const String& name, const String& workDirSpec, const CompilationTask::List& tasks);
+            CompilationProfile(const std::string& name, const std::string& workDirSpec);
+            CompilationProfile(const std::string& name, const std::string& workDirSpec, const std::vector<CompilationTask*>& tasks);
             ~CompilationProfile();
 
             CompilationProfile* clone() const;
 
-            const String& name() const;
-            void setName(const String& name);
+            const std::string& name() const;
+            void setName(const std::string& name);
 
-            const String& workDirSpec() const;
-            void setWorkDirSpec(const String& workDirSpec);
+            const std::string& workDirSpec() const;
+            void setWorkDirSpec(const std::string& workDirSpec);
 
             size_t taskCount() const;
             CompilationTask* task(size_t index) const;

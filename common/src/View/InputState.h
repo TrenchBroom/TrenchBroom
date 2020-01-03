@@ -22,13 +22,10 @@
 
 #include "TrenchBroom.h"
 #include "Model/PickResult.h"
+#include "Renderer/Renderer_Forward.h"
 #include "View/PickRequest.h"
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class Camera;
-    }
-
     namespace View {
         using ModifierKeyState = unsigned int;
         namespace ModifierKeys {
@@ -52,8 +49,6 @@ namespace TrenchBroom {
             static const MouseButtonState MBRight     = 1 << 1;
             static const MouseButtonState MBMiddle    = 1 << 2;
         }
-
-        class Grid;
 
         class InputState {
         private:
@@ -110,7 +105,7 @@ namespace TrenchBroom {
             void setPickRequest(const PickRequest& pickRequest);
 
             const Model::PickResult& pickResult() const;
-            void setPickResult(Model::PickResult& pickResult);
+            void setPickResult(Model::PickResult&& pickResult);
         };
     }
 }

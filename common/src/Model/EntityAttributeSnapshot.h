@@ -22,15 +22,9 @@
 
 #include "Model/Model_Forward.h"
 
-#include <map>
-#include <list>
-
 namespace TrenchBroom {
     namespace Model {
         class EntityAttributeSnapshot {
-        public:
-            using List = std::list<EntityAttributeSnapshot>;
-            using Map = std::map<AttributableNode*, List>;
         private:
             AttributeName m_name;
             AttributeValue m_value;

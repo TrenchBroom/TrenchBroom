@@ -20,17 +20,13 @@
 #ifndef ConfigParserBase_h
 #define ConfigParserBase_h
 
-#include "StringType.h"
+#include "EL/EL_Forward.h"
 #include "IO/ELParser.h"
 #include "IO/Path.h"
 
-namespace TrenchBroom {
-    namespace EL {
-        class Expression;
-        class Value;
-        enum class ValueType;
-    }
+#include <string>
 
+namespace TrenchBroom {
     namespace IO {
         class ConfigParserBase {
         private:
@@ -39,15 +35,15 @@ namespace TrenchBroom {
             Path m_path;
         protected:
             ConfigParserBase(const char* begin, const char* end, const Path& path);
-            ConfigParserBase(const String& str, const Path& path = Path(""));
+            ConfigParserBase(const std::string& str, const Path& path = Path(""));
         public:
             virtual ~ConfigParserBase();
         protected:
             EL::Expression parseConfigFile();
 
             void expectType(const EL::Value& value, EL::ValueType type) const;
-            void expectStructure(const EL::Value& value, const String& structure) const;
-            void expectMapEntry(const EL::Value& value, const String& key, EL::ValueType type) const;
+            void expectStructure(const EL::Value& value, const std::string& structure) const;
+            void expectMapEntry(const EL::Value& value, const std::string& key, EL::ValueType type) const;
         };
     }
 }

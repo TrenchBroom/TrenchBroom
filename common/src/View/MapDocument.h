@@ -22,64 +22,32 @@
 
 #include "Notifier.h"
 #include "TrenchBroom.h"
-#include "Assets/AssetTypes.h"
-#include "Assets/EntityDefinitionFileSpec.h"
+#include "Assets/Asset_Forward.h"
 #include "IO/Path.h"
-#include "Model/EntityColor.h"
 #include "Model/MapFacade.h"
-#include "Model/MapFormat.h"
 #include "Model/Model_Forward.h"
 #include "Model/NodeCollection.h"
-#include "Model/TexCoordSystem.h"
 #include "View/CachingLogger.h"
-#include "View/UndoableCommand.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
 #include <vecmath/util.h>
 
-// FIXME: try to get rid of functional and list
-#include <functional>
-#include <list>
+// FIXME: try to get rid of functional
 #include <map>
 #include <memory>
-#include <set>
+#include <string>
 #include <vector>
 
 class Color;
+
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityDefinitionManager;
-        class EntityModelManager;
-        class TextureManager;
-    }
-
-    namespace Model {
-        class BrushFaceAttributes;
-        class ChangeBrushFaceAttributesRequest;
-        class EditorContext;
-        class Group;
-        class PickResult;
-        class PointFile;
-        class PortalFile;
-        class TagManager;
-        class SmartTag;
-    }
-
     namespace View {
-        class Action;
-        class Command;
-        class Grid;
-        class MapViewConfig;
-        class Selection;
-        class UndoableCommand;
-        class ViewEffectsService;
-
         class MapDocument : public Model::MapFacade, public CachingLogger {
         public:
             static const vm::bbox3 DefaultWorldBounds;
-            static const String DefaultDocumentName;
+            static const std::string DefaultDocumentName;
         protected:
             vm::bbox3 m_worldBounds;
             std::shared_ptr<Model::Game> m_game;
@@ -112,21 +80,21 @@ namespace TrenchBroom {
             std::vector<Model::BrushFace*> m_selectedBrushFaces;
 
             Model::Layer* m_currentLayer;
-            String m_currentTextureName;
+            std::string m_currentTextureName;
             vm::bbox3 m_lastSelectionBounds;
             mutable vm::bbox3 m_selectionBounds;
             mutable bool m_selectionBoundsValid;
 
             ViewEffectsService* m_viewEffectsService;
         public: // notification
-            Notifier<Command::Ptr> commandDoNotifier;
-            Notifier<Command::Ptr> commandDoneNotifier;
-            Notifier<Command::Ptr> commandDoFailedNotifier;
-            Notifier<UndoableCommand::Ptr> commandUndoNotifier;
-            Notifier<UndoableCommand::Ptr> commandUndoneNotifier;
-            Notifier<UndoableCommand::Ptr> commandUndoFailedNotifier;
-            Notifier<const String&> transactionDoneNotifier;
-            Notifier<const String&> transactionUndoneNotifier;
+            Notifier<Command*> commandDoNotifier;
+            Notifier<Command*> commandDoneNotifier;
+            Notifier<Command*> commandDoFailedNotifier;
+            Notifier<UndoableCommand*> commandUndoNotifier;
+            Notifier<UndoableCommand*> commandUndoneNotifier;
+            Notifier<UndoableCommand*> commandUndoFailedNotifier;
+            Notifier<const std::string&> transactionDoneNotifier;
+            Notifier<const std::string&> transactionUndoneNotifier;
 
             Notifier<MapDocument*> documentWillBeClearedNotifier;
             Notifier<MapDocument*> documentWasClearedNotifier;
@@ -138,7 +106,7 @@ namespace TrenchBroom {
             Notifier<> editorContextDidChangeNotifier;
             Notifier<> mapViewConfigDidChangeNotifier;
             Notifier<const Model::Layer*> currentLayerDidChangeNotifier;
-            Notifier<const String&> currentTextureNameDidChangeNotifier;
+            Notifier<const std::string&> currentTextureNameDidChangeNotifier;
 
             Notifier<> selectionWillChangeNotifier;
             Notifier<const Selection&> selectionDidChangeNotifier;
@@ -201,13 +169,25 @@ namespace TrenchBroom {
 
             void setViewEffectsService(ViewEffectsService* viewEffectsService);
         public: // tag and entity definition actions
-            using ActionVisitor = std::function<void(const Action&)>;
-            void visitTagActions(const ActionVisitor& visitor) const;
-            void visitEntityDefinitionActions(const ActionVisitor& visitor) const;
+            template <typename ActionVisitor>
+            void visitTagActions(const ActionVisitor& visitor) const {
+                visitActions(visitor, m_tagActions);
+            }
+
+            template <typename ActionVisitor>
+            void visitEntityDefinitionActions(const ActionVisitor& visitor) const {
+                visitActions(visitor, m_entityDefinitionActions);
+            }
         private: // tag and entity definition actions
+            template <typename ActionVisitor>
+            void visitActions(const ActionVisitor& visitor, const ActionList& actions) const {
+                for (const std::unique_ptr<Action>& action : actions) {
+                    visitor(*action);
+                }
+            }
+
             void createTagActions();
             void createEntityDefinitionActions();
-            void visitActions(const ActionVisitor& visitor, const ActionList& actions) const;
         public: // new, load, save document
             void newDocument(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game);
             void loadDocument(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game, const IO::Path& path);
@@ -219,10 +199,10 @@ namespace TrenchBroom {
             void doSaveDocument(const IO::Path& path);
             void clearDocument();
         public: // copy and paste
-            String serializeSelectedNodes();
-            String serializeSelectedBrushFaces();
+            std::string serializeSelectedNodes();
+            std::string serializeSelectedBrushFaces();
 
-            PasteType paste(const String& str);
+            PasteType paste(const std::string& str);
         private:
             bool pasteNodes(const std::vector<Model::Node*>& nodes);
             bool pasteBrushFaces(const std::vector<Model::BrushFace*>& faces);
@@ -244,6 +224,7 @@ namespace TrenchBroom {
             bool hasSelection() const override;
             bool hasSelectedNodes() const override;
             bool hasSelectedBrushFaces() const override;
+            bool hasAnySelectedBrushFaces() const override;
 
             const std::vector<Model::AttributableNode*> allSelectedAttributableNodes() const override;
             const Model::NodeCollection& selectedNodes() const override;
@@ -253,8 +234,8 @@ namespace TrenchBroom {
             const vm::bbox3& referenceBounds() const override;
             const vm::bbox3& lastSelectionBounds() const override;
             const vm::bbox3& selectionBounds() const override;
-            const String& currentTextureName() const override;
-            void setCurrentTextureName(const String& currentTextureName);
+            const std::string& currentTextureName() const override;
+            void setCurrentTextureName(const std::string& currentTextureName);
 
             void selectAllNodes() override;
             void selectSiblings() override;
@@ -305,14 +286,14 @@ namespace TrenchBroom {
             Model::Entity* createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta) override;
             Model::Entity* createBrushEntity(const Assets::BrushEntityDefinition* definition) override;
         public: // group management
-            Model::Group* groupSelection(const String& name);
+            Model::Group* groupSelection(const std::string& name);
             void mergeSelectedGroupsWithGroup(Model::Group* group);
         private:
             class MatchGroupableNodes;
             std::vector<Model::Node*> collectGroupableNodes(const std::vector<Model::Node*>& selectedNodes) const;
         public:
             void ungroupSelection();
-            void renameGroups(const String& name);
+            void renameGroups(const std::string& name);
 
             void openGroup(Model::Group* group);
             void closeGroup();
@@ -369,54 +350,54 @@ namespace TrenchBroom {
             bool snapVertices(FloatType snapTo) override;
             bool findPlanePoints() override;
 
-            MoveVerticesResult moveVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices, const vm::vec3& delta) override;
-            bool moveEdges(const std::map<vm::segment3, std::set<Model::Brush*>>& edges, const vm::vec3& delta) override;
-            bool moveFaces(const std::map<vm::polygon3, std::set<Model::Brush*>>& faces, const vm::vec3& delta) override;
+            MoveVerticesResult moveVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices, const vm::vec3& delta) override;
+            bool moveEdges(const std::map<vm::segment3, std::vector<Model::Brush*>>& edges, const vm::vec3& delta) override;
+            bool moveFaces(const std::map<vm::polygon3, std::vector<Model::Brush*>>& faces, const vm::vec3& delta) override;
 
-            bool addVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices);
-            bool removeVertices(const std::map<vm::vec3, std::set<Model::Brush*>>& vertices);
-            bool removeEdges(const std::map<vm::segment3, std::set<Model::Brush*>>& edges);
-            bool removeFaces(const std::map<vm::polygon3, std::set<Model::Brush*>>& faces);
+            bool addVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices);
+            bool removeVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices);
+            bool removeEdges(const std::map<vm::segment3, std::vector<Model::Brush*>>& edges);
+            bool removeFaces(const std::map<vm::polygon3, std::vector<Model::Brush*>>& faces);
         private: // subclassing interface for certain operations which are available from this class, but can only be implemented in a subclass
             virtual void performRebuildBrushGeometry(const std::vector<Model::Brush*>& brushes) = 0;
         public: // debug commands
             void printVertices();
             bool throwExceptionDuringCommand();
         public: // command processing
-            bool canUndoLastCommand() const;
-            bool canRedoNextCommand() const;
-            const String& lastCommandName() const;
-            const String& nextCommandName() const;
-            void undoLastCommand();
-            void redoNextCommand();
-            bool hasRepeatableCommands() const;
-            bool repeatLastCommands();
+            bool canUndoCommand() const;
+            bool canRedoCommand() const;
+            const std::string& undoCommandName() const;
+            const std::string& redoCommandName() const;
+            void undoCommand();
+            void redoCommand();
+            bool canRepeatCommands() const;
+            std::unique_ptr<CommandResult> repeatCommands();
             void clearRepeatableCommands();
         public: // transactions
-            void beginTransaction(const String& name = "");
+            void startTransaction(const std::string& name = "");
             void rollbackTransaction();
             void commitTransaction();
             void cancelTransaction();
         private:
-            bool submit(Command::Ptr command);
-            bool submitAndStore(UndoableCommand::Ptr command);
+            std::unique_ptr<CommandResult> execute(std::unique_ptr<Command>&& command);
+            std::unique_ptr<CommandResult> executeAndStore(std::unique_ptr<UndoableCommand>&& command);
         private: // subclassing interface for command processing
-            virtual bool doCanUndoLastCommand() const = 0;
-            virtual bool doCanRedoNextCommand() const = 0;
-            virtual const String& doGetLastCommandName() const = 0;
-            virtual const String& doGetNextCommandName() const = 0;
-            virtual void doUndoLastCommand() = 0;
-            virtual void doRedoNextCommand() = 0;
-            virtual bool doHasRepeatableCommands() const = 0;
-            virtual bool doRepeatLastCommands() = 0;
+            virtual bool doCanUndoCommand() const = 0;
+            virtual bool doCanRedoCommand() const = 0;
+            virtual const std::string& doGetUndoCommandName() const = 0;
+            virtual const std::string& doGetRedoCommandName() const = 0;
+            virtual void doUndoCommand() = 0;
+            virtual void doRedoCommand() = 0;
+            virtual bool doCanRepeatCommands() const = 0;
+            virtual std::unique_ptr<CommandResult> doRepeatCommands() = 0;
             virtual void doClearRepeatableCommands() = 0;
 
-            virtual void doBeginTransaction(const String& name) = 0;
-            virtual void doEndTransaction() = 0;
+            virtual void doStartTransaction(const std::string& name) = 0;
+            virtual void doCommitTransaction() = 0;
             virtual void doRollbackTransaction() = 0;
 
-            virtual bool doSubmit(Command::Ptr command) = 0;
-            virtual bool doSubmitAndStore(UndoableCommand::Ptr command) = 0;
+            virtual std::unique_ptr<CommandResult> doExecute(std::unique_ptr<Command>&& command) = 0;
+            virtual std::unique_ptr<CommandResult> doExecuteAndStore(std::unique_ptr<UndoableCommand>&& command) = 0;
         public: // asset state management
             void commitPendingAssets();
         public: // picking
@@ -428,15 +409,15 @@ namespace TrenchBroom {
             void clearWorld();
         public: // asset management
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
-            Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
+            std::vector<Assets::EntityDefinitionFileSpec> allEntityDefinitionFiles() const;
             void setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
 
             // For testing
-            void setEntityDefinitions(const Assets::EntityDefinitionList& definitions);
+            void setEntityDefinitions(const std::vector<Assets::EntityDefinition*>& definitions);
 
-            IO::Path::List enabledTextureCollections() const;
-            IO::Path::List availableTextureCollections() const;
-            void setEnabledTextureCollections(const IO::Path::List& paths);
+            std::vector<IO::Path> enabledTextureCollections() const;
+            std::vector<IO::Path> availableTextureCollections() const;
+            void setEnabledTextureCollections(const std::vector<IO::Path>& paths);
             void reloadTextureCollections();
 
             void reloadEntityDefinitions();
@@ -479,12 +460,12 @@ namespace TrenchBroom {
             void unsetEntityModels();
             void unsetEntityModels(const std::vector<Model::Node*>& nodes);
         protected: // search paths and mods
-            IO::Path::List externalSearchPaths() const;
+            std::vector<IO::Path> externalSearchPaths() const;
             void updateGameSearchPaths();
         public:
-            StringList mods() const override;
-            void setMods(const StringList& mods) override;
-            String defaultMod() const;
+            std::vector<std::string> mods() const override;
+            void setMods(const std::vector<std::string>& mods) override;
+            std::string defaultMod() const;
         private: // issue management
             void registerIssueGenerators();
         public:
@@ -493,9 +474,9 @@ namespace TrenchBroom {
             virtual void doSetIssueHidden(Model::Issue* issue, bool hidden) = 0;
         public: // tag management
             void registerSmartTags(); // public for testing
-            const std::list<Model::SmartTag>& smartTags() const;
-            bool isRegisteredSmartTag(const String& name) const;
-            const Model::SmartTag& smartTag(const String& name) const;
+            const std::vector<Model::SmartTag>& smartTags() const;
+            bool isRegisteredSmartTag(const std::string& name) const;
+            const Model::SmartTag& smartTag(const std::string& name) const;
             bool isRegisteredSmartTag(size_t index) const;
             const Model::SmartTag& smartTag(size_t index) const;
         private:
@@ -511,7 +492,7 @@ namespace TrenchBroom {
             void updateAllFaceTags();
         public: // document path
             bool persistent() const;
-            String filename() const;
+            std::string filename() const;
             const IO::Path& path() const;
         private:
             void setPath(const IO::Path& path);
@@ -525,8 +506,8 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             void preferenceDidChange(const IO::Path& path);
-            void commandDone(Command::Ptr command);
-            void commandUndone(UndoableCommand::Ptr command);
+            void commandDone(Command* command);
+            void commandUndone(UndoableCommand* command);
         };
 
         class Transaction {
@@ -534,15 +515,15 @@ namespace TrenchBroom {
             MapDocument* m_document;
             bool m_cancelled;
         public:
-            explicit Transaction(MapDocumentWPtr document, const String& name = "");
-            explicit Transaction(MapDocumentSPtr document, const String& name = "");
-            explicit Transaction(MapDocument* document, const String& name = "");
+            explicit Transaction(std::weak_ptr<MapDocument> document, const std::string& name = "");
+            explicit Transaction(std::shared_ptr<MapDocument> document, const std::string& name = "");
+            explicit Transaction(MapDocument* document, const std::string& name = "");
             ~Transaction();
 
             void rollback();
             void cancel();
         private:
-            void begin(const String& name);
+            void begin(const std::string& name);
             void commit();
         };
     }

@@ -39,7 +39,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        CameraTool3D::CameraTool3D(MapDocumentWPtr document, Renderer::PerspectiveCamera& camera) :
+        CameraTool3D::CameraTool3D(std::weak_ptr<MapDocument> document, Renderer::PerspectiveCamera& camera) :
         ToolControllerBase(),
         Tool(true),
         m_document(document),
@@ -48,7 +48,7 @@ namespace TrenchBroom {
 
         void CameraTool3D::fly(int dx, int dy, const bool forward, const bool backward, const bool left, const bool right, const unsigned int time) {
             static const auto speed = 256.0f / 1000.0f; // 64 units per second
-            const auto dist  = speed * time;
+            const auto dist  = speed * static_cast<float>(time);
 
             vm::vec3f delta;
             if (forward) {
@@ -81,18 +81,7 @@ namespace TrenchBroom {
         void CameraTool3D::doMouseScroll(const InputState& inputState) {
             const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
             const auto zoom = inputState.modifierKeysPressed(ModifierKeys::MKShift);
-
-            // Qt switches scroll axis when alt is pressed, but unfortunately, not consistently on all OS'es
-            // and doesn't give any way of knowing.
-            // see: https://bugreports.qt.io/browse/QTBUG-30948
-            const bool swapXY =
-#ifdef __APPLE__
-                false;
-#else
-                inputState.modifierKeysPressed(ModifierKeys::MKAlt);
-#endif
-            const auto scrollDist =
-                swapXY ? inputState.scrollX() : inputState.scrollY();
+            const float scrollDist = inputState.scrollY();
 
             if (m_orbit) {
                 const auto orbitPlane = vm::plane3f(m_orbitCenter, m_camera.direction());
@@ -131,24 +120,24 @@ namespace TrenchBroom {
 
         bool CameraTool3D::doMouseDrag(const InputState& inputState) {
             if (m_orbit) {
-                const auto hAngle = inputState.mouseDX() * lookSpeedH();
-                const auto vAngle = inputState.mouseDY() * lookSpeedV();
+                const auto hAngle = static_cast<float>(inputState.mouseDX()) * lookSpeedH();
+                const auto vAngle = static_cast<float>(inputState.mouseDY()) * lookSpeedV();
                 m_camera.orbit(m_orbitCenter, hAngle, vAngle);
                 return true;
             } else if (look(inputState)) {
-                const auto hAngle = inputState.mouseDX() * lookSpeedH();
-                const auto vAngle = inputState.mouseDY() * lookSpeedV();
+                const auto hAngle = static_cast<float>(inputState.mouseDX()) * lookSpeedH();
+                const auto vAngle = static_cast<float>(inputState.mouseDY()) * lookSpeedV();
                 m_camera.rotate(hAngle, vAngle);
                 return true;
             } else if (pan(inputState)) {
                 const auto altMove = pref(Preferences::CameraEnableAltMove);
                 vm::vec3f delta;
                 if (altMove && inputState.modifierKeysPressed(ModifierKeys::MKAlt)) {
-                    delta = delta + inputState.mouseDX() * panSpeedH() * m_camera.right();
-                    delta = delta + inputState.mouseDY() * -moveSpeed(altMove) * m_camera.direction();
+                    delta = delta + static_cast<float>(inputState.mouseDX()) * panSpeedH() * m_camera.right();
+                    delta = delta + static_cast<float>(inputState.mouseDY()) * -moveSpeed(altMove) * m_camera.direction();
                 } else {
-                    delta = delta + inputState.mouseDX() * panSpeedH() * m_camera.right();
-                    delta = delta + inputState.mouseDY() * panSpeedV() * m_camera.up();
+                    delta = delta + static_cast<float>(inputState.mouseDX()) * panSpeedH() * m_camera.right();
+                    delta = delta + static_cast<float>(inputState.mouseDY()) * panSpeedV() * m_camera.up();
                 }
                 m_camera.moveBy(delta);
                 return true;

@@ -20,9 +20,11 @@
 #ifndef TrenchBroom_ReplaceTextureDialog
 #define TrenchBroom_ReplaceTextureDialog
 
+#include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
-#include "View/ViewTypes.h"
+#include "View/View_Forward.h"
 
+#include <memory>
 #include <vector>
 
 #include <QDialog>
@@ -30,24 +32,17 @@
 class QPushButton;
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
     namespace View {
-        class GLContextManager;
-        class TextureBrowser;
-
         class ReplaceTextureDialog : public QDialog {
             Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             TextureBrowser* m_subjectBrowser;
             TextureBrowser* m_replacementBrowser;
             QPushButton* m_replaceButton;
         public:
-            ReplaceTextureDialog(MapDocumentWPtr document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            ReplaceTextureDialog(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
         private:
             virtual void accept() override;
             std::vector<Model::BrushFace*> getApplicableFaces() const;

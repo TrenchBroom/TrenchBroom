@@ -25,11 +25,13 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/GLVertexType.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Renderer {
         class OrthographicCamera;
         class RenderContext;
-        class Vbo;
+        class VboManager;
 
         class GridRenderer : public DirectRenderable {
         private:
@@ -38,9 +40,9 @@ namespace TrenchBroom {
         public:
             GridRenderer(const OrthographicCamera& camera, const vm::bbox3& worldBounds);
         private:
-            static Vertex::List vertices(const OrthographicCamera& camera, const vm::bbox3& worldBounds);
+            static std::vector<Vertex> vertices(const OrthographicCamera& camera, const vm::bbox3& worldBounds);
 
-            void doPrepareVertices(Vbo& vertexVbo) override;
+            void doPrepareVertices(VboManager& vboManager) override;
             void doRender(RenderContext& renderContext) override;
         };
     }

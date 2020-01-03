@@ -20,12 +20,12 @@
 #ifndef TrenchBroom_EntityAttributeIndex
 #define TrenchBroom_EntityAttributeIndex
 
-#include "StringType.h"
-#include "Model/Model_Forward.h"
-#include "Model/EntityAttributes.h"
 #include "StringMap.h"
+#include "Model/Model_Forward.h"
 
+#include <list>
 #include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -43,18 +43,18 @@ namespace TrenchBroom {
             } Type;
         private:
             Type m_type;
-            String m_pattern;
+            std::string m_pattern;
         public:
-            static AttributableNodeIndexQuery exact(const String& pattern);
-            static AttributableNodeIndexQuery prefix(const String& pattern);
-            static AttributableNodeIndexQuery numbered(const String& pattern);
+            static AttributableNodeIndexQuery exact(const std::string& pattern);
+            static AttributableNodeIndexQuery prefix(const std::string& pattern);
+            static AttributableNodeIndexQuery numbered(const std::string& pattern);
             static AttributableNodeIndexQuery any();
 
             std::set<AttributableNode*> execute(const AttributableNodeStringIndex& index) const;
-            bool execute(const AttributableNode* node, const String& value) const;
-            Model::EntityAttribute::List execute(const AttributableNode* node) const;
+            bool execute(const AttributableNode* node, const std::string& value) const;
+            std::list<Model::EntityAttribute> execute(const AttributableNode* node) const;
         private:
-            AttributableNodeIndexQuery(Type type, const String& pattern = "");
+            AttributableNodeIndexQuery(Type type, const std::string& pattern = "");
         };
 
         class AttributableNodeIndex {
@@ -69,8 +69,8 @@ namespace TrenchBroom {
             void removeAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
 
             std::vector<AttributableNode*> findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const AttributeValue& value) const;
-            StringList allNames() const;
-            StringList allValuesForNames(const AttributableNodeIndexQuery& keyQuery) const;
+            std::vector<std::string> allNames() const;
+            std::vector<std::string> allValuesForNames(const AttributableNodeIndexQuery& keyQuery) const;
         };
     }
 }
