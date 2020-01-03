@@ -79,13 +79,12 @@ namespace TrenchBroom {
 
             void onMoveLayerUpFromMenu();
             void onMoveLayerUpFromList(Model::Layer* layer);
-            bool canMoveLayerUp() const;
 
             void onMoveLayerDownFromMenu();
             void onMoveLayerDownFromList(Model::Layer* layer);
-            bool canMoveLayerDown() const;
 
-            void moveLayer(Model::Layer* layer, int delta);
+            bool canMoveLayer(int direction) const;
+            void moveLayer(Model::Layer* layer, int direction);
         private:
             Model::Layer* findVisibleAndUnlockedLayer(const Model::Layer* except) const;
             void moveSelectedNodesToLayer(std::shared_ptr<MapDocument> document, Model::Layer* layer);

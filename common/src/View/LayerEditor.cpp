@@ -35,6 +35,7 @@
 #include <kdl/memory_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
+#include <kdl/vector_utils.h>
 
 #include <set>
 #include <string>
@@ -86,8 +87,8 @@ namespace TrenchBroom {
             moveSelectionToLayerAction->setEnabled(canMoveSelectionToLayer());
             toggleLayerVisibleAction->setEnabled(canToggleLayerVisible());
             toggleLayerLockedAction->setEnabled(canToggleLayerLocked());
-            moveLayerUpAction->setEnabled(canMoveLayerUp());
-            moveLayerDownAction->setEnabled(canMoveLayerDown());
+            moveLayerUpAction->setEnabled(canMoveLayer(-1));
+            moveLayerDownAction->setEnabled(canMoveLayer(1));
             removeLayerAction->setEnabled(canRemoveLayer());
 
             popupMenu.exec(QCursor::pos());
@@ -340,17 +341,6 @@ namespace TrenchBroom {
             moveLayer(layer, -1);
         }
 
-        bool LayerEditor::canMoveLayerUp() const {
-            const auto* layer = m_layerList->selectedLayer();
-            if (layer == nullptr) {
-                return false;
-            }
-
-            auto document = lock(m_document);
-            const auto layers = document->world()->allLayers();
-            return (layer != layers.front());
-        }
-
         void LayerEditor::onMoveLayerDownFromMenu() {
             moveLayer(m_layerList->selectedLayer(), 1);
         }
@@ -359,24 +349,48 @@ namespace TrenchBroom {
             moveLayer(layer, 1);
         }
 
-        bool LayerEditor::canMoveLayerDown() const {
+        bool LayerEditor::canMoveLayer(int direction) const {
+            if (direction == 0) {
+                return false;
+            }
+
             const auto* layer = m_layerList->selectedLayer();
             if (layer == nullptr) {
                 return false;
             }
 
             auto document = lock(m_document);
-            const auto layers = document->world()->allLayers();
-            return (layer != layers.back());
+            auto world = document->world();
+
+            if (layer == world->defaultLayer()) {
+                return false;
+            }
+
+            if (direction > 0) {
+                return layer != world->customLayers().back();
+            }
+            else if (direction < 0) {
+                return layer != world->customLayers().front();
+            }
+
+            return false;
         }
 
-        void LayerEditor::moveLayer(Model::Layer* layer, int delta) {
-            if (delta == 0) {
+        void LayerEditor::moveLayer(Model::Layer* layer, int direction) {
+            if (direction == 0) {
                 return;
             }
 
             ensure(layer != nullptr, "layer is null");
-            qDebug() << "Move layer, delta: " << delta;
+
+            auto document = lock(m_document);
+            const auto world = document->world();
+            const auto customLayers = world->customLayers();
+
+            auto toLayer = customLayers[kdl::vec_index_of(customLayers, layer) + (direction > 0 ? 1 : -1)];
+
+            Transaction transaction(document, "Swap " + layer->name() + " and " + toLayer->name() + " layers");
+            document->swapNodes(layer, toLayer);
         }
 
         void LayerEditor::onShowAllLayers() {
@@ -458,8 +472,8 @@ namespace TrenchBroom {
 
         void LayerEditor::updateButtons() {
             m_removeLayerButton->setEnabled(canRemoveLayer());
-            m_moveLayerUpButton->setEnabled(canMoveLayerUp());
-            m_moveLayerDownButton->setEnabled(canMoveLayerDown());
+            m_moveLayerUpButton->setEnabled(canMoveLayer(-1));
+            m_moveLayerDownButton->setEnabled(canMoveLayer(1));
         }
     }
 }
