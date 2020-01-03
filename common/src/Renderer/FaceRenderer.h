@@ -21,7 +21,6 @@
 #define TrenchBroom_FaceRenderer
 
 #include "Color.h"
-#include "Assets/Asset_Forward.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/Renderer_Forward.h"
 
@@ -32,6 +31,10 @@
 #include <unordered_map>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+
     namespace Renderer {
         class FaceRenderer : public IndexedRenderable {
         private:

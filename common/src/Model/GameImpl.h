@@ -21,7 +21,6 @@
 #define TrenchBroom_GameImpl
 
 #include "FloatType.h"
-#include "Assets/Asset_Forward.h"
 #include "IO/Path.h"
 #include "Model/Game.h"
 #include "Model/GameFileSystem.h"
@@ -33,6 +32,10 @@
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace Assets {
+        class Palette;
+    }
 
     namespace Model {
         class GameImpl : public Game {

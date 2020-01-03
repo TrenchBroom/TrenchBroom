@@ -21,13 +21,16 @@
 #define TrenchBroom_TextureReader_h
 
 #include "Macros.h"
-#include "Assets/Asset_Forward.h"
 #include "IO/IO_Forward.h"
 
 #include <memory>
 #include <string>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+
     namespace IO {
         class TextureReader {
         public:

@@ -22,7 +22,6 @@
 
 #include <gtest/gtest.h>
 
-#include "Assets/Asset_Forward.h"
 #include "Model/MapFormat.h"
 #include "Model/Model_Forward.h"
 #include "View/MapDocument.h"
@@ -31,6 +30,11 @@
 #include <string>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class BrushEntityDefinition;
+        class PointEntityDefinition;
+    }
+
     namespace Model {
         class TestGame;
     }

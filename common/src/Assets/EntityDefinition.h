@@ -23,7 +23,6 @@
 #include "Color.h"
 #include "FloatType.h"
 #include "Notifier.h"
-#include "Assets/Asset_Forward.h"
 #include "Assets/ModelDefinition.h"
 #include "Model/Model_Forward.h"
 
@@ -35,6 +34,10 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        class AttributeDefinition;
+        class FlagsAttributeDefinition;
+        class FlagsAttributeOption;
+
         enum class EntityDefinitionType {
             PointEntity,
             BrushEntity

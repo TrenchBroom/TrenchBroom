@@ -21,7 +21,6 @@
 #define TrenchBroom_MapFacade
 
 #include "FloatType.h"
-#include "Assets/Asset_Forward.h"
 #include "Model/EntityColor.h"
 #include "Model/Model_Forward.h"
 
@@ -34,6 +33,15 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class BrushEntityDefinition;
+        class EntityDefinitionManager;
+        class EntityModelManager;
+        class PointEntityDefinition;
+        class Texture;
+        class TextureManager;
+    }
+
     namespace Model {
         class MapFacade {
         public:

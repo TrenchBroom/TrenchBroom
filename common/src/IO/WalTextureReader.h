@@ -20,7 +20,6 @@
 #ifndef WalTextureReader_h
 #define WalTextureReader_h
 
-#include "Assets/Asset_Forward.h"
 #include "Assets/Palette.h"
 #include "Assets/TextureBuffer.h"
 #include "IO/IO_Forward.h"

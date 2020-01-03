@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "Color.h"
-#include "Assets/Asset_Forward.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/IO_Forward.h"
@@ -35,6 +34,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class ModelDefinition;
+    }
+
     namespace IO {
         namespace FgdToken {
             using Type = unsigned int;

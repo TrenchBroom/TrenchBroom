@@ -20,7 +20,6 @@
 #ifndef TRENCHBROOM_MD3PARSER_H
 #define TRENCHBROOM_MD3PARSER_H
 
-#include "Assets/Asset_Forward.h"
 #include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
 #include "IO/IO_Forward.h"

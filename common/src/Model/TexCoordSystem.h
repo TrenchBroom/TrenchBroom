@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <vecmath/vec.h>

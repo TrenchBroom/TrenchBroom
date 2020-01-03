@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Assets/Asset_Forward.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Model_Forward.h"
@@ -39,6 +38,11 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+        class TextureManager;
+    }
+
     namespace Model {
         class BrushFace : public Taggable {
         public:

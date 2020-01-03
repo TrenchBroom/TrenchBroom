@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Assets/Asset_Forward.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityRotationPolicy.h"
 #include "Model/HitType.h"
@@ -36,6 +35,11 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityModelFrame;
+        struct ModelSpecification;
+    }
+
     namespace Model {
         class Entity : public AttributableNode, public Object, private EntityRotationPolicy {
         public:

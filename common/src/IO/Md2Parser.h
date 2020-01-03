@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_Md2Parser
 #define TrenchBroom_Md2Parser
 
-#include "Assets/Asset_Forward.h"
 #include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
 #include "IO/IO_Forward.h"
@@ -32,6 +31,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Palette;
+    }
+
     namespace IO {
         namespace Md2Layout {
             static const int Ident = (('2'<<24) + ('P'<<16) + ('D'<<8) + 'I');

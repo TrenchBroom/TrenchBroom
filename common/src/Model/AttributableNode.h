@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_AttributableNode
 #define TrenchBroom_AttributableNode
 
-#include "Assets/Asset_Forward.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Model_Forward.h"
 #include "Model/Node.h"
@@ -32,6 +31,11 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class AttributeDefinition;
+        class EntityDefinition;
+    }
+
     namespace Model {
         class AttributableNode : public Node {
         public: // some helper methods

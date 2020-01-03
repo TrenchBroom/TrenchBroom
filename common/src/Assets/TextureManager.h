@@ -21,7 +21,6 @@
 #define TrenchBroom_TextureManager
 
 #include "Notifier.h"
-#include "Assets/Asset_Forward.h"
 #include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 
@@ -33,6 +32,9 @@ namespace TrenchBroom {
     class Logger;
 
     namespace Assets {
+        class Texture;
+        class TextureCollection;
+
         class TextureManager {
         private:
             using TextureCollectionMap = std::map<IO::Path, TextureCollection*>;

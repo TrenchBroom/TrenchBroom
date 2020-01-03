@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "Notifier.h"
-#include "Assets/Asset_Forward.h"
 #include "IO/Path.h"
 #include "Model/MapFacade.h"
 #include "Model/Model_Forward.h"
@@ -34,7 +33,6 @@
 #include <vecmath/bbox.h>
 #include <vecmath/util.h>
 
-// FIXME: try to get rid of functional
 #include <map>
 #include <memory>
 #include <string>
@@ -42,6 +40,15 @@
 
 namespace TrenchBroom {
     class Color;
+
+    namespace Assets {
+        class EntityDefinition;
+        class EntityDefinitionFileSpec;
+        class EntityDefinitionManager;
+        class EntityModelManager;
+        class Texture;
+        class TextureManager;
+    }
 
     namespace View {
         class MapDocument : public Model::MapFacade, public CachingLogger {

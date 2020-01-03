@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_MapViewBase
 #define TrenchBroom_MapViewBase
 
-#include "Assets/Asset_Forward.h"
 #include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 #include "Renderer/Renderer_Forward.h"
@@ -42,6 +41,13 @@ class QAction;
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace Assets {
+        class BrushEntityDefinition;
+        class EntityDefinition;
+        enum class EntityDefinitionType;
+        class PointEntityDefinition;
+    }
 
     namespace View {
         class MapViewBase : public RenderView, public MapView, public ToolBoxConnector, public CameraLinkableView {

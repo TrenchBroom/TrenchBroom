@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_EntityDefinitionParser_h
 #define TrenchBroom_EntityDefinitionParser_h
 
-#include "Assets/Asset_Forward.h"
 #include "IO/IO_Forward.h"
 
 #include <map>
@@ -29,6 +28,11 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class AttributeDefinition;
+        class EntityDefinition;
+    }
+
     namespace IO {
         class EntityDefinitionParser {
         protected:

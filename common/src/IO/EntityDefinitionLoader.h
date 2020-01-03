@@ -20,12 +20,15 @@
 #ifndef TrenchBroom_EntityDefinitionLoader
 #define TrenchBroom_EntityDefinitionLoader
 
-#include "Assets/Asset_Forward.h"
 #include "IO/IO_Forward.h"
 
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityDefinition;
+    }
+
     namespace IO {
         class EntityDefinitionLoader {
         public:

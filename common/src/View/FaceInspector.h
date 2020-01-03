@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_FaceInspector
 #define TrenchBroom_FaceInspector
 
-#include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 #include "View/TabBook.h"
 #include "View/View_Forward.h"
@@ -31,6 +30,10 @@ class QSplitter;
 class QWidget;
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+
     namespace View {
         class FaceInspector : public TabBookPage {
             Q_OBJECT

@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_ReplaceTextureDialog
 #define TrenchBroom_ReplaceTextureDialog
 
-#include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 #include "View/View_Forward.h"
 
@@ -32,6 +31,10 @@
 class QPushButton;
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+
     namespace View {
         class ReplaceTextureDialog : public QDialog {
             Q_OBJECT

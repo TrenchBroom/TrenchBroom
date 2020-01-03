@@ -21,13 +21,16 @@
 #define TrenchBroom_EditorContext
 
 #include "Notifier.h"
-#include "Assets/Asset_Forward.h"
 #include "Model/TagType.h"
 #include "Model/Model_Forward.h"
 
 #include <kdl/bitset.h>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityDefinition;
+    }
+
     namespace Model {
         class EditorContext {
         public:

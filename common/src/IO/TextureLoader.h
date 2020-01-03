@@ -21,7 +21,6 @@
 #define TextureLoader_h
 
 #include "Macros.h"
-#include "Assets/Asset_Forward.h"
 #include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 
@@ -31,6 +30,12 @@
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace Assets {
+        class Palette;
+        class TextureCollection;
+        class TextureManager;
+    }
 
     namespace IO {
         class TextureLoader {

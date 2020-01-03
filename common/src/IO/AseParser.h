@@ -20,7 +20,6 @@
 #ifndef TRENCHBROOM_ASEPARSER_H
 #define TRENCHBROOM_ASEPARSER_H
 
-#include "Assets/Asset_Forward.h"
 #include "IO/EntityModelParser.h"
 #include "IO/IO_Forward.h"
 #include "IO/Parser.h"
@@ -35,6 +34,11 @@
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace Assets {
+        class EntityModel;
+        class Texture;
+    }
 
     namespace IO {
         namespace AseToken {

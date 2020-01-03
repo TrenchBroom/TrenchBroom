@@ -20,13 +20,16 @@
 #ifndef TrenchBroom_EntityModelLoader
 #define TrenchBroom_EntityModelLoader
 
-#include "Assets/Asset_Forward.h"
 #include "IO/IO_Forward.h"
 
 #include <memory>
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace Assets {
+        class EntityModel;
+    }
 
     namespace IO {
         class EntityModelLoader {

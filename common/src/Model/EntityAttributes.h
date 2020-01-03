@@ -20,13 +20,17 @@
 #ifndef TrenchBroom_EntityProperties
 #define TrenchBroom_EntityProperties
 
-#include "Assets/Asset_Forward.h"
 #include "Model/Model_Forward.h"
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class AttributeDefinition;
+        class EntityDefinition;
+    }
+
     namespace Model {
         namespace AttributeNames {
             extern const AttributeName Classname;

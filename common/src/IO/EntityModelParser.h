@@ -20,12 +20,14 @@
 #ifndef TrenchBroom_EntityModelParser
 #define TrenchBroom_EntityModelParser
 
-#include "Assets/Asset_Forward.h"
-
 #include <memory>
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace Assets {
+        class EntityModel;
+    }
 
     namespace IO {
         class EntityModelParser {

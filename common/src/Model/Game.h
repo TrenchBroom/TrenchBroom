@@ -21,7 +21,6 @@
 #define TrenchBroom_Game
 
 #include "FloatType.h"
-#include "Assets/Asset_Forward.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/EntityModelLoader.h"
 #include "Model/MapFormat.h"
@@ -34,6 +33,11 @@
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace Assets {
+        class EntityDefinitionFileSpec;
+        class TextureManager;
+    }
 
     namespace Model {
         class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader {

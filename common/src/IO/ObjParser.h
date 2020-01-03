@@ -20,7 +20,6 @@
 #ifndef TRENCHBROOM_OBJPARSER_H
 #define TRENCHBROOM_OBJPARSER_H
 
-#include "Assets/Asset_Forward.h"
 #include "IO/EntityModelParser.h"
 #include "IO/IO_Forward.h"
 
@@ -31,6 +30,10 @@
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace Assets {
+        class Texture;
+    }
 
     namespace IO {
         class ObjParser : public EntityModelParser {

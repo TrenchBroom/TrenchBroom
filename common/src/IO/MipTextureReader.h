@@ -26,6 +26,10 @@
 #include <string>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Palette;
+    }
+
     namespace IO {
         class MipTextureReader : public TextureReader {
         protected:

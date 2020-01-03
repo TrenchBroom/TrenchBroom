@@ -21,7 +21,6 @@
 #define TrenchBroom_EntityDefinitionManager
 
 #include "Notifier.h"
-#include "Assets/Asset_Forward.h"
 #include "IO/IO_Forward.h"
 #include "Model/Model_Forward.h"
 
@@ -31,6 +30,11 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        class EntityDefinition;
+        class EntityDefinitionGroup;
+        enum class EntityDefinitionSortOrder;
+        enum class EntityDefinitionType;
+
         class EntityDefinitionManager {
         private:
             using Cache = std::map<std::string, EntityDefinition*>;

@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_DkmParser
 #define TrenchBroom_DkmParser
 
-#include "Assets/Asset_Forward.h"
 #include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
 #include "IO/IO_Forward.h"
