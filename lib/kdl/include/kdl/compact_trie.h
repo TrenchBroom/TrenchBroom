@@ -618,9 +618,11 @@ namespace kdl {
          * Two nodes are compared by their keys.
          * A node is compared to a string by comparing its key to the string.
          *
-         * If two nodes share a non-empty prefix, they are considered equivalent. Therefore, the keys "ab" and "abc" are
-         * equivalent. Conversely, the keys "ab" and "bc" are not equivalent because they do not share a prefix, more
-         * specifically, "ab" is considered less than "bc".
+         * Two strings are compared by their first character only, soif two nodes share a non-empty prefix, they are
+         * considered equivalent. Therefore, the keys "ab" and "abc" are equivalent. Conversely, the keys "ab" and "bc"
+         * are not equivalent because they do not share a prefix, more specifically, "ab" is considered less than "bc".
+         *
+         * Precondition: the strings to copmare are not empty.
          */
         struct node_cmp {
             using is_transparent = void;
@@ -638,13 +640,8 @@ namespace kdl {
             }
 
             bool compare(const std::string_view& lhs, const std::string_view& rhs) const {
-                const std::size_t mismatch = kdl::cs::str_mismatch(lhs, rhs);
-                if (mismatch == 0u) {
-                    return lhs[0] < rhs[0];
-                } else {
-                    // both keys share a common prefix and are considered equivalent
-                    return false;
-                }
+                assert(!lhs.empty() && !rhs.empty());
+                return lhs[0] < rhs[0];
             }
         };
     private:

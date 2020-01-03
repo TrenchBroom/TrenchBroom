@@ -65,6 +65,7 @@ namespace TrenchBroom {
         }
 
         bool isNumberedAttribute(const std::string_view& prefix, const std::string_view& name) {
+            // %* matches 0 or more digits
             return kdl::cs::str_matches_glob(name, std::string(prefix) + "%*");
         }
 

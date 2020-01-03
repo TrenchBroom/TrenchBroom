@@ -673,9 +673,8 @@ namespace TrenchBroom {
 
         void StandardMapParser::parseExtraAttributes(ExtraAttributes& attributes, ParserStatus& /* status */) {
             // do not skip EOLs for the duration of this function call
-            const kdl::invoke_now_and_later parseEof(
-                [this]() { m_tokenizer.setSkipEol(false); },
-                [this]() { m_tokenizer.setSkipEol(true); });
+            m_tokenizer.setSkipEol(false);
+            const kdl::invoke_later parseEof([this]() { m_tokenizer.setSkipEol(true); });
 
             auto token = m_tokenizer.nextToken();
             expect(QuakeMapToken::String | QuakeMapToken::Eol | QuakeMapToken::Eof, token);

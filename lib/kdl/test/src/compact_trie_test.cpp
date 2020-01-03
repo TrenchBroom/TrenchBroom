@@ -180,38 +180,6 @@ namespace kdl {
         ASSERT_MATCHES(std::vector<std::string>({}), index, "k%*")
     }
 
-    TEST(compact_trie_test, split_merge_with_numbers) {
-        test_index index;
-        index.insert("3.67", "value3");
-        index.insert("3.6", "value2");
-        index.insert("3.5", "value1");
-
-        /*
-         The insertion of the given values in the given order results in a tree with the following structure. Note that
-         splitting nodes can introduce new numbered values at the new child nodes because a non-number string can have
-         a numbered prefix or suffix. This must be considered when nodes are split.
-
-          3.67 no numbered values
-
-          3.6  no numbered values
-           |
-           7   no numbered values (error)
-
-           3.  no numbered values
-          / \
-         5   6 no numbered values (error)
-             |
-             7 no numbered values (error)
-
-
-         */
-
-        // This statement will attempt to remove "value2" from node '6'. Because '6' is a number, it will consider "value"
-        // as numbered at node '6', but the value was not added to the numbered values when the node was split. Thus, an
-        // exception will be thrown.
-        ASSERT_TRUE(index.remove("3.6", "value2"));
-    }
-
     TEST(compact_trie_test, get_keys) {
         test_index index;
         index.insert("key", "value");

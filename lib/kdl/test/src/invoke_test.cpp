@@ -20,12 +20,6 @@
 #include "kdl/invoke.h"
 
 namespace kdl {
-    TEST(invoke_test, invoke_now) {
-        bool invoked = false;
-        invoke_now i([&invoked]() { invoked = true; });
-        ASSERT_TRUE(invoked);
-    }
-
     TEST(invoke_test, invoke_later_lvalue) {
         bool invoked = false;
         auto lambda = [&invoked]() { invoked = true; };
@@ -45,37 +39,5 @@ namespace kdl {
             ASSERT_FALSE(invoked);
         }
         ASSERT_TRUE(invoked);
-    }
-
-    TEST(invoke_test, invoke_now_and_later_lvalue) {
-        bool invoked_now = false;
-        bool invoked_later = false;
-
-        auto lambda_later = [&invoked_later]() { invoked_later = true; };
-
-        {
-            invoke_now_and_later i(
-                [&invoked_now](){ invoked_now = true; },
-                lambda_later);
-
-            ASSERT_TRUE(invoked_now);
-            ASSERT_FALSE(invoked_later);
-        }
-        ASSERT_TRUE(invoked_later);
-    }
-
-    TEST(invoke_test, invoke_now_and_later_rvalue) {
-        bool invoked_now = false;
-        bool invoked_later = false;
-
-        {
-            invoke_now_and_later i(
-                [&invoked_now](){ invoked_now = true; },
-                [&invoked_later]() { invoked_later = true; });
-
-            ASSERT_TRUE(invoked_now);
-            ASSERT_FALSE(invoked_later);
-        }
-        ASSERT_TRUE(invoked_later);
     }
 }

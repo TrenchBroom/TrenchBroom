@@ -23,6 +23,8 @@ namespace kdl {
      * Creates a type that inherits from all of its type parameters and `operator()` from each supertype. Can be used
      * with std::visit to create on-the-fly visitors from lambdas. So usually, the supertypes are lambdas.
      *
+     * @see https://dev.to/tmr232/that-overloaded-trick-overloading-lambdas-in-c17
+     *
      * @tparam Ts the lambdas to inherit from
      */
     template<typename... Ts>

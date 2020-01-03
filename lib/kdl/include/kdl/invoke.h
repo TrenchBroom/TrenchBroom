@@ -20,24 +20,6 @@
 
 namespace kdl {
     /**
-     * Immediately invokes a lambda.
-     *
-     * @tparam L the type of the lambda to invoke
-     */
-    template <typename L>
-    class invoke_now {
-    public:
-        /**
-         * Invokes the given lambda.
-         *
-         * @param lambda the lambda to invoke
-         */
-        explicit invoke_now(const L& lambda) {
-            lambda();
-        }
-    };
-
-    /**
      * Invokes a lambda when going out of scope.
      *
      * @tparam L the type of the lambda to invoke
@@ -48,20 +30,13 @@ namespace kdl {
         L m_lambda;
     public:
         /**
-         * Creates an instance that invokes the given lambda when going out of scope. The given lambda is copied.
+         * Creates an instance that invokes the given lambda when going out of scope.
          *
          * @param lambda the lambda to invoke
          */
-        explicit invoke_later(const L& lambda) :
-        m_lambda(lambda) {}
-
-        /**
-         * Creates an instance that invokes the given lambda when going out of scope. The given lambda is moved.
-         *
-         * @param lambda the lambda to invoke
-         */
-        explicit invoke_later(L&& lambda) :
-        m_lambda(std::move(lambda)) {}
+        template <typename LL>
+        explicit invoke_later(LL&& lambda) :
+        m_lambda(std::forward<LL>(lambda)) {}
 
         /**
          * Invokes the lambda.
@@ -72,31 +47,10 @@ namespace kdl {
     };
 
     /**
-     * Invokes a lambda immediately and another lambda when going out of scope.
-     *
-     * @tparam L_N the type of the lambda to invoke immediately
-     * @tparam L_L the type of the lambda to invoke later
+     * Deduction guide.
      */
-    template <typename L_N, typename L_L>
-    class invoke_now_and_later : private invoke_now<L_N>, private invoke_later<L_L> {
-    public:
-        /**
-         * Creates an instance that immediately invokes the first lambda, and invokes the second lambda when going out
-         * of scope. The second lambda is a forwarding reference and is copied or moved depending on the actual type of
-         * the reference given.
-         *
-         * @tparam LL_L the type of the lambda to invoke later
-         * @param lambda_now the lambda to invoke immediately
-         * @param lambda_later the lambda to invoke later
-         */
-        template <typename LL_L>
-        invoke_now_and_later(const L_N& lambda_now, LL_L&& lambda_later) :
-        invoke_now<L_N>(lambda_now),
-        invoke_later<L_L>(std::forward<LL_L>(lambda_later)) {}
-    };
-
-    template <typename L_N, typename LL_L>
-    invoke_now_and_later(const L_N& lambda_now, LL_L&& lambda_later) -> invoke_now_and_later<L_N, typename std::remove_reference<LL_L>::type>;
+    template <typename LL>
+    invoke_later(const LL& lambda_now) -> invoke_later<LL>;
 }
 
 #endif //KDL_INVOKE_H
