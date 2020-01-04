@@ -29,7 +29,7 @@ namespace TrenchBroom {
     namespace Model {
         Node* hitToNode(const Hit& hit) {
             if (hit.type() == Entity::EntityHit) {
-                return hit.target<Node*>();
+                return hit.target<Entity*>();
             } else if (hit.type() == Brush::BrushHit) {
                 BrushFace* face = hit.target<BrushFace*>();
                 return face->brush();
@@ -40,7 +40,7 @@ namespace TrenchBroom {
 
         Object* hitToObject(const Hit& hit) {
             if (hit.type() == Entity::EntityHit) {
-                return hit.target<Object*>();
+                return hit.target<Entity*>();
             } else if (hit.type() == Brush::BrushHit) {
                 BrushFace* face = hit.target<BrushFace*>();
                 return face->brush();
