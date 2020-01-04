@@ -113,7 +113,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            const bool styleSheetsLoaded = loadStyleSheets();
+            loadStyleSheets();
 
             // these must be initialized here and not earlier
             m_frameManager = std::make_unique<FrameManager>(useSDI());
@@ -151,10 +151,6 @@ namespace TrenchBroom {
             connect(this, &QCoreApplication::aboutToQuit, this, []() {
                 Model::GameFactory::instance().saveAllConfigs();
             });
-
-            if (!styleSheetsLoaded) {
-                QMessageBox::critical(nullptr, "TrenchBroom", "Could not load Qt stylesheets", QMessageBox::Ok);
-            }
         }
 
         // must be implemented in cpp file in order to use std::unique_ptr with forward declared type as members

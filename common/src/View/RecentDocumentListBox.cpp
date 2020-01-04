@@ -24,7 +24,6 @@
 #include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "IO/ResourceUtils.h"
-#include "Model/GameFactory.h"
 
 #include <cassert>
 
@@ -33,7 +32,6 @@ namespace TrenchBroom {
         RecentDocumentListBox::RecentDocumentListBox(QWidget* parent) :
         ImageListBox("No Recent Documents", true, parent),
         m_documentIcon(IO::loadPixmapResource("DocIcon.png")) {
-            assert(!m_documentIcon.isNull());
             TrenchBroomApp& app = View::TrenchBroomApp::instance();
             connect(&app, &TrenchBroomApp::recentDocumentsDidChange, this, &RecentDocumentListBox::recentDocumentsDidChange);
             reload();
