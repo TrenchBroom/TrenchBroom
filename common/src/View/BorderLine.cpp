@@ -27,7 +27,7 @@ namespace TrenchBroom {
         QFrame(parent) {
             setContentsMargins(0, 0, 0, 0);
             setFrameShadow(QFrame::Plain);
-            setStyleSheet(" BorderLine { color: " + Colors::borderColor().name() + "; }");
+            setStyleSheet("BorderLine { color: " + Colors::borderColor().name() + "; }");
             setLineWidth(thickness - 1);
             if (direction == Direction::Horizontal) {
                 setFrameShape(QFrame::HLine);

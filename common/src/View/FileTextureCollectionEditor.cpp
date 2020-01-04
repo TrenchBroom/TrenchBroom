@@ -210,7 +210,6 @@ namespace TrenchBroom {
 
         void FileTextureCollectionEditor::createGui() {
             m_collections = new QListWidget();
-            m_collections->setStyleSheet("QListWidget { border: none; }");
             m_collections->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
             m_addTextureCollectionsButton = createBitmapButton("Add.png", "Add texture collections from the file system");

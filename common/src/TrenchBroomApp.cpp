@@ -113,6 +113,8 @@ namespace TrenchBroom {
                 return;
             }
 
+            loadStyleSheets();
+
             // these must be initialized here and not earlier
             m_frameManager = std::make_unique<FrameManager>(useSDI());
 
@@ -168,7 +170,16 @@ namespace TrenchBroom {
             return m_frameManager.get();
         }
 
-         const std::vector<IO::Path>& TrenchBroomApp::recentDocuments() const {
+        void TrenchBroomApp::loadStyleSheets() {
+            QFile baseStyle = QFile(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("stylesheets/base.qss")));
+            assert(baseStyle.exists());
+            
+            baseStyle.open(QFile::ReadOnly | QFile::Text);
+            qApp->setStyleSheet(QTextStream(&baseStyle).readAll());
+            baseStyle.close();
+        }
+
+        const std::vector<IO::Path>& TrenchBroomApp::recentDocuments() const {
             return m_recentDocuments->recentDocuments();
         }
 
