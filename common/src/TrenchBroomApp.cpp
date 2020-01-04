@@ -113,7 +113,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            loadStyleSheets();
+            const bool styleSheetsLoaded = loadStyleSheets();
 
             // these must be initialized here and not earlier
             m_frameManager = std::make_unique<FrameManager>(useSDI());
@@ -151,6 +151,10 @@ namespace TrenchBroom {
             connect(this, &QCoreApplication::aboutToQuit, this, []() {
                 Model::GameFactory::instance().saveAllConfigs();
             });
+
+            if (!styleSheetsLoaded) {
+                QMessageBox::critical(nullptr, "TrenchBroom", "Could not load Qt stylesheets", QMessageBox::Ok);
+            }
         }
 
         // must be implemented in cpp file in order to use std::unique_ptr with forward declared type as members
@@ -170,13 +174,20 @@ namespace TrenchBroom {
             return m_frameManager.get();
         }
 
-        void TrenchBroomApp::loadStyleSheets() {
-            QFile baseStyle = QFile(IO::pathAsQString(IO::SystemPaths::appDirectory() + IO::Path("stylesheets/base.qss")));
-            assert(baseStyle.exists());
-            
-            baseStyle.open(QFile::ReadOnly | QFile::Text);
-            qApp->setStyleSheet(QTextStream(&baseStyle).readAll());
-            baseStyle.close();
+        bool TrenchBroomApp::loadStyleSheets() {
+            const auto path = IO::SystemPaths::findResourceFile(IO::Path("stylesheets/base.qss"));
+            auto file = QFile(IO::pathAsQString(path));
+            if (file.exists()) {
+                // closed automatically by destructor
+                file.open(QFile::ReadOnly | QFile::Text);
+
+                const auto text = QTextStream(&file).readAll();
+                qApp->setStyleSheet(text);
+
+                return true;
+            } else {
+                return false;
+            }
         }
 
         const std::vector<IO::Path>& TrenchBroomApp::recentDocuments() const {

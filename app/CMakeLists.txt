@@ -57,6 +57,12 @@ if(APPLE)
     set_source_files_properties(${MACOSX_SHADER_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/shader)
     set(APP_SOURCE ${APP_SOURCE} ${MACOSX_SHADER_FILES})
 
+    # Configure Qt stylesheets
+    file (GLOB_RECURSE MACOSX_STYLESHEET_FILES
+            "${APP_RESOURCE_DIR}/stylesheets/*.qss")
+    set_source_files_properties(${MACOSX_STYLESHEET_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/stylesheets)
+    set(APP_SOURCE ${APP_SOURCE} ${MACOSX_STYLESHEET_FILES})
+
     # Configure manual files
     set_source_files_properties(${INDEX_OUTPUT_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/manual)
     set_source_files_properties(${DOC_MANUAL_TARGET_FILES_ABSOLUTE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/manual)
@@ -174,7 +180,7 @@ macro(configure_app_target APP_TARGET_NAME)
         add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/shader" "${APP_RESOURCE_DEST_DIR}/shader")
 
-        # Copy stylesheet files to resources directory
+        # Copy Qt stylesheet files to resources directory
         add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/stylesheets/"
                 COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/stylesheets" "${APP_RESOURCE_DEST_DIR}/stylesheets")
@@ -278,6 +284,7 @@ if(WIN32)
             "${APP_DIR}/resources/fonts"
             "${APP_DIR}/resources/games"
             "${APP_DIR}/resources/shader"
+            "${APP_DIR}/resources/stylesheets"
             DESTINATION . COMPONENT TrenchBroom)
     set(CPACK_GENERATOR "7Z")
     set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY FALSE)
@@ -314,6 +321,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/manual"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/images"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/shader"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/stylesheets"     DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
     install(DIRECTORY "${APP_DIR}/resources/linux/icons"            DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom FILES_MATCHING PATTERN "*.png")
     install(FILES "${CMAKE_SOURCE_DIR}/LICENSE.txt"                 DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
     install(FILES "${APP_DIR}/resources/linux/copyright"            DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)

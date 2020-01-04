@@ -62,7 +62,7 @@ namespace TrenchBroom {
 
             FrameManager* frameManager();
 
-            void loadStyleSheets();
+            bool loadStyleSheets();
 
             const std::vector<IO::Path>& recentDocuments() const;
             void addRecentDocumentMenu(QMenu* menu);
