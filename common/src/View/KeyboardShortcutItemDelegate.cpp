@@ -22,6 +22,8 @@
 #include "View/KeyboardShortcutModel.h"
 #include "View/KeySequenceEdit.h"
 
+#include <QDebug>
+#include <QEvent>
 #include <QItemEditorFactory>
 
 namespace TrenchBroom {
@@ -30,6 +32,18 @@ namespace TrenchBroom {
             auto* itemEditorFactory = new QItemEditorFactory();
             itemEditorFactory->registerEditor(QVariant::KeySequence, new QStandardItemEditorCreator<KeySequenceEdit>());
             setItemEditorFactory(itemEditorFactory);
+        }
+
+        bool KeyboardShortcutItemDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
+                                                       const QStyleOptionViewItem& option, const QModelIndex& index) {
+            qDebug() << event->type();
+            return QStyledItemDelegate::editorEvent(event, model, option, index);
+        }
+
+        void KeyboardShortcutItemDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const {
+            qDebug() << "set data for " << index;
+            QStyledItemDelegate::setEditorData(editor, index);
+            editor->setFocus();
         }
     }
 }

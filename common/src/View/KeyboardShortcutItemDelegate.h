@@ -28,6 +28,11 @@ namespace TrenchBroom {
             Q_OBJECT
         public:
             KeyboardShortcutItemDelegate();
+        protected:
+            bool editorEvent(QEvent* event, QAbstractItemModel* model, const QStyleOptionViewItem& option, const QModelIndex& index) override;
+
+        public:
+            void setEditorData(QWidget* editor, const QModelIndex& index) const override;
         };
     }
 }
