@@ -141,6 +141,17 @@ namespace TrenchBroom {
                 return std::make_shared<CFile>(fixedPath);
             }
 
+            std::string readFile(const Path& path) {
+                const Path fixedPath = fixPath(path);
+
+                std::fstream stream(fixedPath.asString().c_str(), std::ios::in);
+                if (!stream.is_open()) {
+                    throw FileSystemException("Cannot open file: " + fixedPath.asString());
+                }
+
+                return std::string((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+            }
+
             Path getCurrentWorkingDir() {
                 return pathFromQString(QDir::currentPath());
             }

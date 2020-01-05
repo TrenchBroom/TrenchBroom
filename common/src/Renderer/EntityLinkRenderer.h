@@ -21,10 +21,8 @@
 #define TrenchBroom_EntityLinkRenderer
 
 #include "Color.h"
-#include "Model/Model_Forward.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/Renderer_Forward.h"
 #include "Renderer/VertexArray.h"
 
 #include <vecmath/forward.h>
@@ -38,6 +36,9 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
+        class RenderBatch;
+        class RenderContext;
+
         class EntityLinkRenderer : public DirectRenderable {
         private:
             using Vertex = GLVertexTypes::P3C4::Vertex;

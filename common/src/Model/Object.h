@@ -20,11 +20,14 @@
 #ifndef TrenchBroom_Object
 #define TrenchBroom_Object
 
-#include "TrenchBroom.h"
-#include "Model/Model_Forward.h"
+#include "FloatType.h"
 
 namespace TrenchBroom {
     namespace Model {
+        class Group;
+        class Layer;
+        class Node;
+
         class Object {
         protected:
             Object();

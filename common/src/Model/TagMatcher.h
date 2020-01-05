@@ -20,7 +20,6 @@
 #ifndef TRENCHBROOM_TAGMATCHER_H
 #define TRENCHBROOM_TAGMATCHER_H
 
-#include "Model/Model_Forward.h"
 #include "Model/Tag.h"
 #include "Model/TagVisitor.h"
 
@@ -32,6 +31,12 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class Brush;
+        class BrushFace;
+        class ChangeBrushFaceAttributesRequest;
+        class Game;
+        class MapFacade;
+
         class MatchVisitor : public ConstTagVisitor {
         private:
             bool m_matches;

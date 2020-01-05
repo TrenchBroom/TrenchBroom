@@ -21,7 +21,6 @@
 #define TRENCHBROOM_KEYBOARDSHORTCUTMODEL_H
 
 #include "IO/Path.h"
-#include "View/View_Forward.h"
 
 #include <QAbstractTableModel>
 
@@ -31,6 +30,9 @@ class QObject;
 
 namespace TrenchBroom {
     namespace View {
+        class Action;
+        class MapDocument;
+
         class KeyboardShortcutModel : public QAbstractTableModel {
             Q_OBJECT
         private:

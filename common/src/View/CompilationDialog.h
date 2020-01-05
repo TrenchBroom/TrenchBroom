@@ -21,7 +21,6 @@
 #define CompilationDialog_h
 
 #include "View/CompilationRun.h"
-#include "View/View_Forward.h"
 
 #include <QDialog>
 
@@ -31,6 +30,9 @@ class QTextEdit;
 
 namespace TrenchBroom {
     namespace View {
+        class CompilationProfileManager;
+        class MapFrame;
+
         class CompilationDialog : public QDialog {
             Q_OBJECT
         private:

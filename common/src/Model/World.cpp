@@ -293,8 +293,8 @@ namespace TrenchBroom {
             return false;
         }
 
-        void World::doPick(const vm::ray3& ray, PickResult& pickResult) const {
-            for (const auto* node : m_nodeTree->findIntersectors(ray)) {
+        void World::doPick(const vm::ray3& ray, PickResult& pickResult) {
+            for (auto* node : m_nodeTree->findIntersectors(ray)) {
                 node->pick(ray, pickResult);
             }
         }
@@ -317,27 +317,27 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
 
-        void World::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<Model::AttributableNode*>& result) const {
+        void World::doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<Model::AttributableNode*>& result) const {
             kdl::vec_append(result,
                 m_attributableIndex->findAttributableNodes(AttributableNodeIndexQuery::exact(name), value));
         }
 
-        void World::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, std::vector<Model::AttributableNode*>& result) const {
+        void World::doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<Model::AttributableNode*>& result) const {
             kdl::vec_append(result,
                 m_attributableIndex->findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix), value));
         }
 
-        void World::doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
+        void World::doAddToIndex(AttributableNode* attributable, const std::string& name, const std::string& value) {
             m_attributableIndex->addAttribute(attributable, name, value);
         }
 
-        void World::doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
+        void World::doRemoveFromIndex(AttributableNode* attributable, const std::string& name, const std::string& value) {
             m_attributableIndex->removeAttribute(attributable, name, value);
         }
 
         void World::doAttributesDidChange(const vm::bbox3& /* oldBounds */) {}
 
-        bool World::doIsAttributeNameMutable(const AttributeName& name) const {
+        bool World::doIsAttributeNameMutable(const std::string& name) const {
             if (name == AttributeNames::Classname)
                 return false;
             if (name == AttributeNames::Mods)
@@ -351,7 +351,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool World::doIsAttributeValueMutable(const AttributeName& name) const {
+        bool World::doIsAttributeValueMutable(const std::string& name) const {
             if (name == AttributeNames::Mods)
                 return false;
             if (name == AttributeNames::EntityDefinitions)

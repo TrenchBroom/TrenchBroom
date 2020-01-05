@@ -20,13 +20,18 @@
 #ifndef TrenchBroom_AssortNodesVisitor
 #define TrenchBroom_AssortNodesVisitor
 
-#include "Model/Model_Forward.h"
 #include "Model/NodeVisitor.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class Brush;
+        class Entity;
+        class Group;
+        class Layer;
+        class World;
+
         class CollectLayersStrategy {
         private:
             std::vector<Layer*> m_layers;

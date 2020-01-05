@@ -42,7 +42,7 @@ namespace kdl {
      * @param negative the string to return if the predicate is false
      * @return the string
      */
-    inline std::string str_select(const bool predicate, const std::string_view& positive, const std::string_view& negative) {
+    inline std::string str_select(const bool predicate, const std::string_view positive, const std::string_view negative) {
         return std::string(predicate ? positive : negative);
     }
 
@@ -56,7 +56,7 @@ namespace kdl {
      * @return one of the given strings depending on the given count
      */
     template <typename C>
-    inline std::string str_plural(const C count, const std::string_view& singular, const std::string_view& plural) {
+    inline std::string str_plural(const C count, const std::string_view singular, const std::string_view plural) {
         return str_select(count == static_cast<C>(1), singular, plural);
     }
 
@@ -73,7 +73,7 @@ namespace kdl {
      * @return one of the given strings depending on the given count, with the given prefix and suffix
      */
     template <typename C>
-    std::string str_plural(const std::string_view& prefix, const C count, const std::string_view& singular, const std::string_view& plural, const std::string_view& suffix = "") {
+    std::string str_plural(const std::string_view prefix, const C count, const std::string_view singular, const std::string_view plural, const std::string_view suffix = "") {
         std::stringstream result;
         result << prefix << str_plural(count, singular, plural) << suffix;
         return result.str();
@@ -86,7 +86,7 @@ namespace kdl {
      * @param chars the characters that should be trimmed from the start and from the end of the given string
      * @return the trimmed string
      */
-    inline std::string str_trim(const std::string_view& s, const std::string_view& chars = Whitespace) {
+    inline std::string str_trim(const std::string_view s, const std::string_view chars = Whitespace) {
         if (s.empty() || chars.empty()) {
             return std::string(s);
         }
@@ -138,7 +138,7 @@ namespace kdl {
      * @param str the string to convert
      * @return the converted string
      */
-    inline std::string str_to_lower(const std::string_view& str) {
+    inline std::string str_to_lower(const std::string_view str) {
         auto result = std::string();
         result.reserve(str.size());
 
@@ -155,7 +155,7 @@ namespace kdl {
      * @param str the string to convert
      * @return the converted string
      */
-    inline std::string str_to_upper(const std::string_view& str) {
+    inline std::string str_to_upper(const std::string_view str) {
         auto result = std::string();
         result.reserve(str.size());
 
@@ -176,7 +176,7 @@ namespace kdl {
      * @param delims the delimiters, defaults to whitespace
      * @return the capitalized string
      */
-    inline std::string str_capitalize(const std::string_view& str, const std::string_view& delims = Whitespace) {
+    inline std::string str_capitalize(const std::string_view str, const std::string_view delims = Whitespace) {
         auto result = std::string();
         result.reserve(str.size());
 
@@ -206,7 +206,7 @@ namespace kdl {
      * @param esc the escape character
      * @return the escaped string
      */
-    inline std::string str_escape(const std::string_view& str, const std::string_view& chars, char esc = EscapeChar) {
+    inline std::string str_escape(const std::string_view str, const std::string_view chars, char esc = EscapeChar) {
         if (str.empty()) {
             return "";
         }
@@ -233,7 +233,7 @@ namespace kdl {
      * @param esc the escape character
      * @return the escaped string
      */
-    inline std::string str_escape_if_necessary(const std::string_view& str, const std::string_view& chars, char esc = EscapeChar) {
+    inline std::string str_escape_if_necessary(const std::string_view str, const std::string_view chars, char esc = EscapeChar) {
         assert(chars.find(esc) == std::string::npos);
 
         if (str.empty()) {
@@ -270,7 +270,7 @@ namespace kdl {
      * @param esc the escape character
      * @return the unescaped string
      */
-    inline std::string str_unescape(const std::string_view& str, const std::string_view& chars, char esc = EscapeChar) {
+    inline std::string str_unescape(const std::string_view str, const std::string_view chars, char esc = EscapeChar) {
         if (str.empty()) {
             return "";
         }
@@ -306,7 +306,7 @@ namespace kdl {
      * @param whitespace a string of characters which should be considered whitespace
      * @return true if the given string consists of only whitespace characters and false otherwise
      */
-    inline bool str_is_blank(const std::string_view& str, const std::string_view& whitespace = Whitespace) {
+    inline bool str_is_blank(const std::string_view str, const std::string_view whitespace = Whitespace) {
         return str.find_first_not_of(whitespace) == std::string::npos;
     }
 
@@ -317,7 +317,7 @@ namespace kdl {
      * @param str the string to check
      * @return true if the given string consists of only numeric characters, and false otherwise.
      */
-    inline bool str_is_numeric(const std::string_view& str) {
+    inline bool str_is_numeric(const std::string_view str) {
         for (const auto c : str) {
             if (c < '0' || c > '9') {
                 return false;

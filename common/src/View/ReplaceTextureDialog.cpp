@@ -19,7 +19,6 @@
 
 #include "ReplaceTextureDialog.h"
 
-#include "SharedPointer.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectMatchingBrushFacesVisitor.h"
@@ -29,6 +28,8 @@
 #include "View/TextureBrowser.h"
 #include "View/TitledPanel.h"
 #include "View/QtUtils.h"
+
+#include <kdl/memory_utils.h>
 
 #include <QDialogButtonBox>
 #include <QMessageBox>
@@ -55,7 +56,7 @@ namespace TrenchBroom {
             Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
             ensure(replacement != nullptr, "replacement is null");
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const std::vector<Model::BrushFace*> faces = getApplicableFaces();
 
             if (faces.empty()) {
@@ -74,7 +75,7 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::BrushFace*> ReplaceTextureDialog::getApplicableFaces() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             std::vector<Model::BrushFace*> faces = document->allSelectedBrushFaces();
             if (faces.empty()) {
                 Model::CollectBrushFacesVisitor collect;

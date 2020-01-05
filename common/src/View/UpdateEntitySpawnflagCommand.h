@@ -21,9 +21,7 @@
 #define TrenchBroom_UpdateEntitySpawnflagCommand
 
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 #include <string>
@@ -35,12 +33,12 @@ namespace TrenchBroom {
             static const CommandType Type;
         private:
             bool m_setFlag;
-            Model::AttributeName m_attributeName;
+            std::string m_attributeName;
             size_t m_flagIndex;
         public:
-            static std::unique_ptr<UpdateEntitySpawnflagCommand> update(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
+            static std::unique_ptr<UpdateEntitySpawnflagCommand> update(const std::string& attributeName, const size_t flagIndex, const bool setFlag);
 
-            UpdateEntitySpawnflagCommand(const Model::AttributeName& attributeName, const size_t flagIndex, const bool setFlag);
+            UpdateEntitySpawnflagCommand(const std::string& attributeName, const size_t flagIndex, const bool setFlag);
         private:
             static std::string makeName(const bool setFlag);
 

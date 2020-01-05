@@ -41,6 +41,7 @@
 #include <kdl/string_compare.h>
 #include <kdl/string_utils.h>
 
+#include <fstream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -137,9 +138,14 @@ namespace TrenchBroom {
         }
 
         std::pair<std::string, MapFormat> GameFactory::detectGame(const IO::Path& path) const {
-            IO::OpenStream open(path, false);
-            const std::string gameName = IO::readGameComment(open.stream);
-            const std::string formatName = IO::readFormatComment(open.stream);
+            std::fstream stream(path.asString().c_str(), std::ios::in);
+            if (!stream.is_open()) {
+                throw FileSystemException("Cannot open file: " + path.asString());
+            }
+
+            const std::string gameName = IO::readGameComment(stream);
+            const std::string formatName = IO::readFormatComment(stream);
+
             const MapFormat format = mapFormat(formatName);
             if (gameName.empty() || format == MapFormat::Unknown) {
                 return std::make_pair("", MapFormat::Unknown);

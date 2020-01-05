@@ -19,7 +19,6 @@
 
 #include "SetBrushFaceAttributesTool.h"
 
-#include "SharedPointer.h"
 #include "Model/BrushFace.h"
 #include "Model/Brush.h"
 #include "Model/HitAdapter.h"
@@ -27,6 +26,8 @@
 #include "Model/TexCoordSystem.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vector>
 
@@ -57,7 +58,7 @@ namespace TrenchBroom {
             if (!applies(inputState))
                 return false;
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             const std::vector<Model::BrushFace*>& selectedFaces = document->selectedBrushFaces();
             if (selectedFaces.size() != 1)

@@ -19,7 +19,8 @@
 
 #include "BoundsGuideRenderer.h"
 
-#include "SharedPointer.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vecmath/bbox.h>
 #include <vecmath/ray.h>
@@ -46,7 +47,7 @@ namespace TrenchBroom {
             m_bounds = bounds;
             m_spikeRenderer.clear();
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             m_spikeRenderer.add(vm::ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::min, vm::bbox3::Corner::min), vm::vec3::neg_x()), SpikeLength, document);
             m_spikeRenderer.add(vm::ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::min, vm::bbox3::Corner::min), vm::vec3::neg_y()), SpikeLength, document);
             m_spikeRenderer.add(vm::ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::min, vm::bbox3::Corner::min), vm::vec3::neg_z()), SpikeLength, document);

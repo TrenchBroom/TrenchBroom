@@ -20,7 +20,7 @@
 #include "EntityRenderer.h"
 
 #include "AttrString.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Assets/EntityDefinition.h"
@@ -401,7 +401,7 @@ namespace TrenchBroom {
         }
 
         AttrString EntityRenderer::entityString(const Model::Entity* entity) const {
-            const Model::AttributeValue& classname = entity->classname();
+            const auto& classname = entity->classname();
             // const Model::AttributeValue& targetname = entity->attribute(Model::AttributeNames::Targetname);
 
             AttrString str;

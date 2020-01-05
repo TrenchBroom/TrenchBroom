@@ -21,15 +21,20 @@
 #define TrenchBroom_BrushFaceAttributes
 
 #include "Color.h"
-#include "Assets/Asset_Forward.h"
 
 #include <vecmath/forward.h>
 
 #include <string>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+
     namespace Model {
         class BrushFaceAttributes {
+        public:
+            static const std::string NoTextureName;
         private:
             std::string m_textureName;
             Assets::Texture* m_texture;
@@ -46,8 +51,10 @@ namespace TrenchBroom {
         public:
             BrushFaceAttributes(const std::string& textureName);
             BrushFaceAttributes(const BrushFaceAttributes& other);
+            BrushFaceAttributes(const std::string& textureName, const BrushFaceAttributes& other);
             ~BrushFaceAttributes();
             BrushFaceAttributes& operator=(BrushFaceAttributes other);
+            bool operator==(const BrushFaceAttributes& other) const;
             friend void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs);
 
             BrushFaceAttributes takeSnapshot() const;

@@ -21,7 +21,6 @@
 #define TrenchBroom_MixedBrushContentsIssueGenerator
 
 #include "Model/IssueGenerator.h"
-#include "Model/Model_Forward.h"
 
 #include <vector>
 

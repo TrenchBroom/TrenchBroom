@@ -20,16 +20,20 @@
 #ifndef TrenchBroom_SmartChoiceEditorMatcher
 #define TrenchBroom_SmartChoiceEditorMatcher
 
-#include "Model/Model_Forward.h"
 #include "View/SmartAttributeEditorMatcher.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class AttributableNode;
+    }
+
     namespace View {
         class SmartChoiceEditorMatcher : public SmartAttributeEditorMatcher {
         private:
-            bool doMatches(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const override;
+            bool doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const override;
         };
     }
 }

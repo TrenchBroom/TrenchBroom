@@ -19,12 +19,13 @@
 
 #include "LayerListBox.h"
 
-#include "SharedPointer.h"
 #include "Model/Layer.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
+
+#include <kdl/memory_utils.h>
 
 #include <QLabel>
 #include <QHBoxLayout>
@@ -48,7 +49,7 @@ namespace TrenchBroom {
             m_hiddenButton = createBitmapToggleButton("Hidden.png", "");
             m_lockButton = createBitmapToggleButton("Lock.png", "");
 
-            auto documentS = lock(m_document);
+            auto documentS = kdl::mem_lock(m_document);
             connect(m_hiddenButton, &QAbstractButton::clicked, this, [this](){
                 emit layerVisibilityToggled(m_layer);
             });
@@ -93,7 +94,7 @@ namespace TrenchBroom {
         void LayerListBoxWidget::updateLayerItem() {
             // Update labels
             m_nameText->setText(QString::fromStdString(m_layer->name()));
-            if (lock(m_document)->currentLayer() == m_layer) {
+            if (kdl::mem_lock(m_document)->currentLayer() == m_layer) {
                 makeEmphasized(m_nameText);
             } else {
                 makeUnemphasized(m_nameText);
@@ -106,7 +107,7 @@ namespace TrenchBroom {
             m_lockButton->setChecked(m_layer->locked());
             m_hiddenButton->setChecked(m_layer->hidden());
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             m_lockButton->setEnabled(m_layer->locked() || m_layer != document->currentLayer());
             m_hiddenButton->setEnabled(m_layer->hidden() || m_layer != document->currentLayer());
         }
@@ -159,7 +160,7 @@ namespace TrenchBroom {
         }
 
         void LayerListBox::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &LayerListBox::documentDidChange);
             document->documentWasLoadedNotifier.addObserver(this, &LayerListBox::documentDidChange);
             document->documentWasClearedNotifier.addObserver(this, &LayerListBox::documentDidChange);
@@ -171,8 +172,8 @@ namespace TrenchBroom {
         }
 
         void LayerListBox::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
                 document->documentWasLoadedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
                 document->documentWasClearedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
@@ -208,7 +209,7 @@ namespace TrenchBroom {
         }
 
         size_t LayerListBox::itemCount() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto* world = document->world();
             if (world == nullptr) {
                 return 0;
@@ -217,7 +218,7 @@ namespace TrenchBroom {
         }
 
         ControlListBoxItemRenderer* LayerListBox::createItemRenderer(QWidget* parent, const size_t index) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto* world = document->world();
             const auto layers = world->allLayers();
             auto* renderer = new LayerListBoxWidget(document, layers[index], parent);

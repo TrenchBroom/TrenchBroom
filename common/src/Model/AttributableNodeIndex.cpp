@@ -23,6 +23,7 @@
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
 
+#include <kdl/compact_trie.h>
 #include <kdl/vector_utils.h>
 
 #include <list>
@@ -48,17 +49,22 @@ namespace TrenchBroom {
         }
 
         std::set<AttributableNode*> AttributableNodeIndexQuery::execute(const AttributableNodeStringIndex& index) const {
+            std::set<AttributableNode*> result;
             switch (m_type) {
                 case Type_Exact:
-                    return index.queryExactMatches(m_pattern);
+                    index.find_matches(m_pattern, std::inserter(result, std::end(result)));
+                    break;
                 case Type_Prefix:
-                    return index.queryPrefixMatches(m_pattern);
+                    index.find_matches(m_pattern + "*", std::inserter(result, std::end(result)));
+                    break;
                 case Type_Numbered:
-                    return index.queryNumberedMatches(m_pattern);
+                    index.find_matches(m_pattern + "%*", std::inserter(result, std::end(result)));
+                    break;
                 case Type_Any:
-                    return {};
+                    break;
                 switchDefault()
             }
+            return result;
         }
 
         bool AttributableNodeIndexQuery::execute(const AttributableNode* node, const std::string& value) const {
@@ -75,7 +81,7 @@ namespace TrenchBroom {
             }
         }
 
-        std::list<Model::EntityAttribute> AttributableNodeIndexQuery::execute(const AttributableNode* node) const {
+        std::vector<Model::EntityAttribute> AttributableNodeIndexQuery::execute(const AttributableNode* node) const {
             switch (m_type) {
                 case Type_Exact:
                     return node->attributeWithName(m_pattern);
@@ -93,6 +99,12 @@ namespace TrenchBroom {
         m_type(type),
         m_pattern(pattern) {}
 
+        AttributableNodeIndex::AttributableNodeIndex() :
+        m_nameIndex(std::make_unique<AttributableNodeStringIndex>()),
+        m_valueIndex(std::make_unique<AttributableNodeStringIndex>()) {}
+
+        AttributableNodeIndex::~AttributableNodeIndex() = default;
+
         void AttributableNodeIndex::addAttributableNode(AttributableNode* attributable) {
             for (const EntityAttribute& attribute : attributable->attributes())
                 addAttribute(attributable, attribute.name(), attribute.value());
@@ -103,22 +115,24 @@ namespace TrenchBroom {
                 removeAttribute(attributable, attribute.name(), attribute.value());
         }
 
-        void AttributableNodeIndex::addAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
-            m_nameIndex.insert(name, attributable);
-            m_valueIndex.insert(value, attributable);
+        void AttributableNodeIndex::addAttribute(AttributableNode* attributable, const std::string& name, const std::string& value) {
+            m_nameIndex->insert(name, attributable);
+            m_valueIndex->insert(value, attributable);
         }
 
-        void AttributableNodeIndex::removeAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
-            m_nameIndex.remove(name, attributable);
-            m_valueIndex.remove(value, attributable);
+        void AttributableNodeIndex::removeAttribute(AttributableNode* attributable, const std::string& name, const std::string& value) {
+            m_nameIndex->remove(name, attributable);
+            m_valueIndex->remove(value, attributable);
         }
 
-        std::vector<AttributableNode*> AttributableNodeIndex::findAttributableNodes(const AttributableNodeIndexQuery& nameQuery, const AttributeValue& value) const {
-            const std::set<AttributableNode*> nameResult = nameQuery.execute(m_nameIndex);
-            const std::set<AttributableNode*> valueResult = m_valueIndex.queryExactMatches(value);
+        std::vector<AttributableNode*> AttributableNodeIndex::findAttributableNodes(const AttributableNodeIndexQuery& nameQuery, const std::string& value) const {
+            const std::set<AttributableNode*> nameResult = nameQuery.execute(*m_nameIndex);
 
-            if (nameResult.empty() || valueResult.empty())
+            std::set<AttributableNode*> valueResult;
+            m_valueIndex->find_matches(value, std::inserter(valueResult, std::end(valueResult)));
+            if (nameResult.empty() || valueResult.empty()) {
                 return {};
+            }
 
             std::vector<AttributableNode*> result = kdl::set_intersection(nameResult, valueResult);
 
@@ -135,13 +149,15 @@ namespace TrenchBroom {
         }
 
         std::vector<std::string> AttributableNodeIndex::allNames() const {
-            return m_nameIndex.getKeys();
+            std::vector<std::string> result;
+            m_nameIndex->get_keys(std::back_inserter(result));
+            return result;
         }
 
         std::vector<std::string> AttributableNodeIndex::allValuesForNames(const AttributableNodeIndexQuery& keyQuery) const {
             std::vector<std::string> result;
 
-            const std::set<AttributableNode*> nameResult = keyQuery.execute(m_nameIndex);
+            const std::set<AttributableNode*> nameResult = keyQuery.execute(*m_nameIndex);
             for (const auto node : nameResult) {
                 const auto matchingAttributes = keyQuery.execute(node);
                 for (const auto& attribute : matchingAttributes) {

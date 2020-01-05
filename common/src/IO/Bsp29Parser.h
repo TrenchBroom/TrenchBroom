@@ -20,10 +20,8 @@
 #ifndef TrenchBroom_Bsp29Parser
 #define TrenchBroom_Bsp29Parser
 
-#include "Assets/Asset_Forward.h"
 #include "Assets/TextureCollection.h"
 #include "IO/EntityModelParser.h"
-#include "IO/IO_Forward.h"
 
 #include <memory>
 #include <string>
@@ -33,7 +31,14 @@
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Palette;
+        class Texture;
+    }
+
     namespace IO {
+        class Reader;
+
         class Bsp29Parser : public EntityModelParser {
         private:
             struct TextureInfo {

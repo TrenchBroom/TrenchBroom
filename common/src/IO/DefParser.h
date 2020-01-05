@@ -20,9 +20,8 @@
 #ifndef TrenchBroom_DefParser
 #define TrenchBroom_DefParser
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Color.h"
-#include "Assets/Asset_Forward.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/Parser.h"

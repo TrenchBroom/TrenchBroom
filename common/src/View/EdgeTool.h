@@ -20,11 +20,8 @@
 #ifndef EdgeTool_h
 #define EdgeTool_h
 
-#include "TrenchBroom.h"
-#include "Model/Model_Forward.h"
-#include "Renderer/Renderer_Forward.h"
+#include "FloatType.h"
 #include "View/VertexToolBase.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/segment.h>
 
@@ -33,6 +30,15 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+        class PickResult;
+    }
+
+    namespace Renderer {
+        class Camera;
+    }
+
     namespace View {
         class EdgeTool : public VertexToolBase<vm::segment3> {
         private:

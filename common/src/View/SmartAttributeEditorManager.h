@@ -20,9 +20,8 @@
 #ifndef TrenchBroom_SmartAttributeEditorManager
 #define TrenchBroom_SmartAttributeEditorManager
 
-#include "Model/Model_Forward.h"
-
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <QWidget>
@@ -30,6 +29,11 @@
 class QStackedLayout;
 
 namespace TrenchBroom {
+    namespace Model {
+        class AttributableNode;
+        class Node;
+    }
+
     namespace View {
         class MapDocument;
         class Selection;
@@ -46,13 +50,13 @@ namespace TrenchBroom {
             std::weak_ptr<MapDocument> m_document;
 
             EditorList m_editors;
-            Model::AttributeName m_name;
+            std::string m_name;
             QStackedLayout* m_stackedLayout;
         public:
             explicit SmartAttributeEditorManager(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~SmartAttributeEditorManager();
 
-            void switchEditor(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables);
+            void switchEditor(const std::string& name, const std::vector<Model::AttributableNode*>& attributables);
             bool isDefaultEditorActive() const;
         private:
             SmartAttributeEditor* activeEditor() const;
@@ -64,10 +68,10 @@ namespace TrenchBroom {
             void selectionDidChange(const Selection& selection);
             void nodesDidChange(const std::vector<Model::Node*>& nodes);
 
-            EditorPtr selectEditor(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const;
+            EditorPtr selectEditor(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const;
             EditorPtr defaultEditor() const;
 
-            void activateEditor(EditorPtr editor, const Model::AttributeName& name);
+            void activateEditor(EditorPtr editor, const std::string& name);
             void deactivateEditor();
             void updateEditor();
         };

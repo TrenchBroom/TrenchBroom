@@ -21,15 +21,19 @@
 #define TrenchBroom_SelectionCommand
 
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "View/UndoableCommand.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class BrushFace;
+        class BrushFaceReference;
+        class Node;
+    }
+
     namespace View {
         class SelectionCommand : public UndoableCommand {
         public:

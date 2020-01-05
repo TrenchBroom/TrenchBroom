@@ -19,15 +19,14 @@
 
 #include "UVScaleTool.h"
 
-#include "Polyhedron.h"
-#include "TrenchBroom.h"
-#include "SharedPointer.h"
+#include "FloatType.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderBatch.h"
@@ -36,6 +35,8 @@
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
 #include "View/UVOriginTool.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vecmath/vec.h>
 #include <vecmath/ray.h>
@@ -51,7 +52,7 @@ namespace TrenchBroom {
         UVScaleTool::UVScaleTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper) :
         ToolControllerBase(),
         Tool(true),
-        m_document(document),
+        m_document(std::move(document)),
         m_helper(helper) {}
 
         Tool* UVScaleTool::doGetTool() {
@@ -110,7 +111,7 @@ namespace TrenchBroom {
             m_selector = vm::vec2b(xHit.isMatch(), yHit.isMatch());
             m_lastHitPoint = getHitPoint(inputState.pickRay());
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->startTransaction("Scale Texture");
             return true;
         }
@@ -144,7 +145,7 @@ namespace TrenchBroom {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setScale(newScale);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->setFaceAttributes(request);
 
             const auto newOriginInTexCoords = correct(m_helper.originInTexCoords(), 4, 0.0f);
@@ -159,12 +160,12 @@ namespace TrenchBroom {
         }
 
         void UVScaleTool::doEndMouseDrag(const InputState&) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->commitTransaction();
         }
 
         void UVScaleTool::doCancelMouseDrag() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
         }
 
@@ -225,8 +226,8 @@ namespace TrenchBroom {
             const auto& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
             const auto stripeSize = m_helper.stripeSize();
 
-            const auto xIndex = xHandleHit.target<int>();
-            const auto yIndex = yHandleHit.target<int>();
+            const auto xIndex = xHandleHit.isMatch() ? xHandleHit.target<int>() : 0;
+            const auto yIndex = yHandleHit.isMatch() ? yHandleHit.target<int>() : 0;
             const auto pos = stripeSize * vm::vec2(xIndex, yIndex);
 
             vm::vec3 h1, h2, v1, v2;

@@ -20,14 +20,17 @@
 #ifndef TrenchBroom_MapView
 #define TrenchBroom_MapView
 
-#include "TrenchBroom.h"
-#include "View/View_Forward.h"
+#include "FloatType.h"
 #include "View/ViewEffectsService.h"
 
 #include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace View {
+        class MapViewActivationTracker;
+        class MapViewBase;
+        class MapViewContainer;
+
         class MapView : public ViewEffectsService {
         private:
             MapViewContainer* m_container;

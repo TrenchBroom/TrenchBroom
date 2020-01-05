@@ -19,13 +19,14 @@
 
 #include "IssueBrowser.h"
 
-#include "SharedPointer.h"
 #include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
 #include "Model/World.h"
 #include "View/FlagsPopupEditor.h"
 #include "View/IssueBrowserView.h"
 #include "View/MapDocument.h"
+
+#include <kdl/memory_utils.h>
 
 #include <QList>
 #include <QStringList>
@@ -72,7 +73,7 @@ namespace TrenchBroom {
         }
 
         void IssueBrowser::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->documentWasSavedNotifier.addObserver(this, &IssueBrowser::documentWasSaved);
             document->documentWasNewedNotifier.addObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
@@ -83,8 +84,8 @@ namespace TrenchBroom {
         }
 
         void IssueBrowser::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->documentWasSavedNotifier.removeObserver(this, &IssueBrowser::documentWasSaved);
                 document->documentWasNewedNotifier.removeObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.removeObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
@@ -125,7 +126,7 @@ namespace TrenchBroom {
         }
 
         void IssueBrowser::updateFilterFlags() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Model::World* world = document->world();
             const std::vector<Model::IssueGenerator*>& generators = world->registeredIssueGenerators();
 

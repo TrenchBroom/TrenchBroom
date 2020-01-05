@@ -19,17 +19,17 @@
 
 #include "CreateSimpleBrushToolController2D.h"
 
-#include "SharedPointer.h"
+#include "Ensure.h"
 #include "Renderer/Camera.h"
 #include "View/CreateSimpleBrushTool.h"
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
+#include <kdl/memory_utils.h>
+
 #include <vecmath/intersection.h>
 #include <vecmath/scalar.h>
-
-#include <cassert>
 
 namespace TrenchBroom {
     namespace View {
@@ -55,7 +55,7 @@ namespace TrenchBroom {
                 return DragInfo();
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (document->hasSelection()) {
                 return DragInfo();
             }
@@ -109,7 +109,7 @@ namespace TrenchBroom {
             bounds = merge(bounds, currentPoint);
             snapBounds(inputState, bounds);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             bounds = vm::intersect(bounds, document->worldBounds());
 
             if (bounds.is_empty() || bounds == m_bounds)
@@ -123,7 +123,7 @@ namespace TrenchBroom {
         }
 
         void CreateSimpleBrushToolController2D::snapBounds(const InputState& inputState, vm::bbox3& bounds) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& grid = document->grid();
             auto min = grid.snapDown(bounds.min);
             auto max = grid.snapUp(bounds.max);

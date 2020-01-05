@@ -20,13 +20,21 @@
 #ifndef MipTextureReader_h
 #define MipTextureReader_h
 
-#include "IO/IO_Forward.h"
 #include "IO/TextureReader.h"
 
+#include <memory>
 #include <string>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Palette;
+    }
+
     namespace IO {
+        class BufferedReader;
+        class File;
+        class Reader;
+
         class MipTextureReader : public TextureReader {
         protected:
             explicit MipTextureReader(const NameStrategy& nameStrategy);

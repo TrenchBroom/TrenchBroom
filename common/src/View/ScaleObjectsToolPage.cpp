@@ -19,13 +19,13 @@
 
 #include "ScaleObjectsToolPage.h"
 
-#include "SharedPointer.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsTool.h"
 #include "View/ViewConstants.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/string_utils.h>
 
 #include <vecmath/vec.h>
@@ -59,19 +59,19 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsToolPage::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &ScaleObjectsToolPage::selectionDidChange);
         }
 
         void ScaleObjectsToolPage::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->selectionDidChangeNotifier.removeObserver(this, &ScaleObjectsToolPage::selectionDidChange);
             }
         }
 
         void ScaleObjectsToolPage::activate() {
-            const auto document = lock(m_document);
+            const auto document = kdl::mem_lock(m_document);
             const auto suggestedSize = document->hasSelectedNodes() ? document->selectionBounds().size() : vm::vec3::zero();
 
             m_sizeTextBox->setText(QString::fromStdString(kdl::str_to_string(suggestedSize)));
@@ -79,7 +79,7 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsToolPage::createGui() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             auto* text = new QLabel(tr("Scale objects"));
 
@@ -116,18 +116,18 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsToolPage::updateGui() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             m_button->setEnabled(canScale());
         }
 
         bool ScaleObjectsToolPage::canScale() const {
-            return lock(m_document)->hasSelectedNodes();
+            return kdl::mem_lock(m_document)->hasSelectedNodes();
         }
 
         vm::vec3 ScaleObjectsToolPage::getScaleFactors() const {
             switch (m_scaleFactorsOrSize->currentIndex()) {
                 case 0: {
-                    auto document = lock(m_document);
+                    auto document = kdl::mem_lock(m_document);
                     const auto desiredSize = vm::parse<FloatType, 3>(m_sizeTextBox->text().toStdString());
 
                     return desiredSize / document->selectionBounds().size();
@@ -146,7 +146,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto box = document->selectionBounds();
             const auto scaleFactors = getScaleFactors();
 

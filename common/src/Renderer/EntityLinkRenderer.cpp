@@ -20,7 +20,6 @@
 #include "EntityLinkRenderer.h"
 
 #include "Macros.h"
-#include "SharedPointer.h"
 #include "Model/AttributableNode.h"
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EditorContext.h"
@@ -35,6 +34,8 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "View/MapDocument.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vecmath/vec.h>
 
@@ -303,7 +304,7 @@ namespace TrenchBroom {
         };
 
         void EntityLinkRenderer::getLinks(std::vector<Vertex>& links) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
             switch (editorContext.entityLinkMode()) {
                 case Model::EditorContext::EntityLinkMode_All:
@@ -322,7 +323,7 @@ namespace TrenchBroom {
         }
 
         void EntityLinkRenderer::getAllLinks(std::vector<Vertex>& links) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
 
             CollectAllLinksVisitor collectLinks(editorContext, m_defaultColor, m_selectedColor, links);
@@ -333,7 +334,7 @@ namespace TrenchBroom {
         }
 
         void EntityLinkRenderer::getTransitiveSelectedLinks(std::vector<Vertex>& links) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
 
             CollectTransitiveSelectedLinksVisitor visitor(editorContext, m_defaultColor, m_selectedColor, links);
@@ -341,7 +342,7 @@ namespace TrenchBroom {
         }
 
         void EntityLinkRenderer::getDirectSelectedLinks(std::vector<Vertex>& links) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
 
             CollectDirectSelectedLinksVisitor visitor(editorContext, m_defaultColor, m_selectedColor, links);
@@ -349,7 +350,7 @@ namespace TrenchBroom {
         }
 
         void EntityLinkRenderer::collectSelectedLinks(CollectLinksVisitor& collectLinks) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             const auto& selectedNodes = document->selectedNodes().nodes();
             CollectEntitiesVisitor collectEntities;

@@ -20,9 +20,8 @@
 #ifndef TrenchBroom_EntityDefinitionClassInfo
 #define TrenchBroom_EntityDefinitionClassInfo
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Color.h"
-#include "Assets/Asset_Forward.h"
 #include "Assets/ModelDefinition.h"
 
 #include <vecmath/bbox.h>
@@ -33,6 +32,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class AttributeDefinition;
+    }
+
     namespace IO {
         class EntityDefinitionClassInfo {
         private:

@@ -19,9 +19,9 @@
 
 #include "EdgeTool.h"
 
-#include "SharedPointer.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/string_format.h>
 
 #include <vecmath/polygon.h>
@@ -49,7 +49,7 @@ namespace TrenchBroom {
         }
 
         EdgeTool::MoveResult EdgeTool::move(const vm::vec3& delta) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             const auto handles = m_edgeHandles->selectedHandles();
             const auto brushMap = buildBrushMap(*m_edgeHandles, std::begin(handles), std::end(handles));
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             const auto brushMap = buildBrushMap(*m_edgeHandles, std::begin(handles), std::end(handles));
 
             Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Remove Edge", "Remove Edges"));
-            lock(m_document)->removeEdges(brushMap);
+            kdl::mem_lock(m_document)->removeEdges(brushMap);
         }
     }
 }

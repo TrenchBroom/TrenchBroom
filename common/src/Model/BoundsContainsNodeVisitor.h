@@ -20,8 +20,7 @@
 #ifndef TrenchBroom_BoundsContainsNodeVisitor
 #define TrenchBroom_BoundsContainsNodeVisitor
 
-#include "TrenchBroom.h"
-#include "Model/Model_Forward.h"
+#include "FloatType.h"
 #include "Model/NodeVisitor.h"
 
 #include <vecmath/bbox.h>

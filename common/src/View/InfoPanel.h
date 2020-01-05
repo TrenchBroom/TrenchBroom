@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_InfoPanel
 #define TrenchBroom_InfoPanel
 
-#include "View/View_Forward.h"
-
 #include <memory>
 
 #include <QWidget>
@@ -30,6 +28,11 @@ namespace TrenchBroom {
     class Logger;
 
     namespace View {
+        class Console;
+        class IssueBrowser;
+        class MapDocument;
+        class TabBook;
+
         class InfoPanel : public QWidget {
             Q_OBJECT
         private:

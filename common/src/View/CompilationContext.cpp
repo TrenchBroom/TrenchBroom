@@ -19,10 +19,11 @@
 
 #include "CompilationContext.h"
 
-#include "SharedPointer.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
 #include "EL/Types.h"
+
+#include <kdl/memory_utils.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -33,7 +34,7 @@ namespace TrenchBroom {
         m_test(test) {}
 
         std::shared_ptr<MapDocument> CompilationContext::document() const {
-            return lock(m_document);
+            return kdl::mem_lock(m_document);
         }
 
         bool CompilationContext::test() const {

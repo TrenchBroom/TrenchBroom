@@ -21,13 +21,14 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SharedPointer.h"
 #include "Assets/TextureManager.h"
 #include "Assets/Texture.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/TextureBrowserView.h"
+
+#include <kdl/memory_utils.h>
 
 #include <QtGlobal>
 #include <QPushButton>
@@ -104,7 +105,7 @@ namespace TrenchBroom {
             auto* browserPanel = new QWidget();
             m_scrollBar = new QScrollBar(Qt::Vertical);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             m_view = new TextureBrowserView(m_scrollBar, contextManager, document);
 
             auto* browserPanelSizer = new QHBoxLayout();
@@ -168,7 +169,7 @@ namespace TrenchBroom {
         }
 
         void TextureBrowser::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &TextureBrowser::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &TextureBrowser::documentWasLoaded);
             document->nodesWereAddedNotifier.addObserver(this, &TextureBrowser::nodesWereAdded);
@@ -183,8 +184,8 @@ namespace TrenchBroom {
         }
 
         void TextureBrowser::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &TextureBrowser::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &TextureBrowser::documentWasLoaded);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &TextureBrowser::textureCollectionsDidChange);
@@ -232,7 +233,7 @@ namespace TrenchBroom {
         }
 
         void TextureBrowser::preferenceDidChange(const IO::Path& path) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (path == Preferences::TextureBrowserIconSize.path() ||
                 document->isGamePathPreference(path)) {
                 reload();
@@ -250,7 +251,7 @@ namespace TrenchBroom {
         }
 
         void TextureBrowser::updateSelectedTexture() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const std::string& textureName = document->currentTextureName();
             Assets::Texture* texture = document->textureManager().texture(textureName);
             m_view->setSelectedTexture(texture);

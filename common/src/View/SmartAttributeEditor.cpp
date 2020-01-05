@@ -20,9 +20,10 @@
 #include "SmartAttributeEditor.h"
 
 #include "Notifier.h"
-#include "SharedPointer.h"
 #include "Model/Object.h"
 #include "View/MapDocument.h"
+
+#include <kdl/memory_utils.h>
 
 #include <memory>
 #include <vector>
@@ -36,7 +37,7 @@ namespace TrenchBroom {
 
         SmartAttributeEditor::~SmartAttributeEditor() {}
 
-        void SmartAttributeEditor::activate(const Model::AttributeName& name) {
+        void SmartAttributeEditor::activate(const std::string& name) {
             assert(!m_active);
             m_name = name;
             m_active = true;
@@ -52,15 +53,15 @@ namespace TrenchBroom {
             m_name = "";
         }
 
-        bool SmartAttributeEditor::usesName(const Model::AttributeName& name) const {
+        bool SmartAttributeEditor::usesName(const std::string& name) const {
             return m_name == name;
         }
 
         std::shared_ptr<MapDocument> SmartAttributeEditor::document() const {
-            return lock(m_document);
+            return kdl::mem_lock(m_document);
         }
 
-        const Model::AttributeName& SmartAttributeEditor::name() const {
+        const std::string& SmartAttributeEditor::name() const {
             return m_name;
         }
 
@@ -68,7 +69,7 @@ namespace TrenchBroom {
             return m_attributables;
         }
 
-        void SmartAttributeEditor::addOrUpdateAttribute(const Model::AttributeValue& value) {
+        void SmartAttributeEditor::addOrUpdateAttribute(const std::string& value) {
             assert(m_active);
             document()->setAttribute(m_name, value);
         }

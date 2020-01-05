@@ -20,10 +20,7 @@
 #ifndef TrenchBroom_MapView3D
 #define TrenchBroom_MapView3D
 
-#include "Model/Model_Forward.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/MapViewBase.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -35,7 +32,13 @@ class QKeyEvent;
 namespace TrenchBroom {
     class Logger;
 
+    namespace Renderer {
+        class PerspectiveCamera;
+    }
+
     namespace View {
+        class FlyModeHelper;
+
         class MapView3D : public MapViewBase {
             Q_OBJECT
         private:

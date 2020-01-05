@@ -20,9 +20,6 @@
 #ifndef TrenchBroom_EntityAttributeGridTable
 #define TrenchBroom_EntityAttributeGridTable
 
-#include "Assets/Asset_Forward.h"
-#include "Model/Model_Forward.h"
-
 #include <QAbstractTableModel>
 
 #include <map>
@@ -32,6 +29,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class AttributableNode;
+    }
+
     namespace View {
         class MapDocument;
 
@@ -127,7 +128,7 @@ namespace TrenchBroom {
         public: // for autocompletion
             QStringList getCompletions(const QModelIndex& index) const;
         private: // autocompletion helpers
-            std::vector<Model::AttributeName> attributeNames(int row, int count) const;
+            std::vector<std::string> attributeNames(int row, int count) const;
             std::vector<std::string> getAllAttributeNames() const;
             std::vector<std::string> getAllValuesForAttributeNames(const std::vector<std::string>& names) const;
             std::vector<std::string> getAllClassnames() const;
@@ -145,13 +146,13 @@ namespace TrenchBroom {
         private: // helpers
             bool InsertRow(const size_t pos);
             bool AppendRow();
-            int rowForName(const Model::AttributeName& name) const;
-            bool hasRowWithAttributeName(const Model::AttributeName& name) const;
+            int rowForName(const std::string& name) const;
+            bool hasRowWithAttributeName(const std::string& name) const;
             bool renameAttribute(const size_t rowIndex, const std::string& newName, const std::vector<Model::AttributableNode*>& attributables);
             bool updateAttribute(const size_t rowIndex, const std::string& newValue, const std::vector<Model::AttributableNode*>& attributables);
 
         public: // EntityAttributeGrid helpers
-            Model::AttributeName attributeName(int row) const;
+            std::string attributeName(int row) const;
             bool canRemove(int rowIndexInt);
             /**
              * Return the desired sort order for these two rows.

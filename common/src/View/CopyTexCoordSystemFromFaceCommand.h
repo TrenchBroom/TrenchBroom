@@ -20,18 +20,22 @@
 #ifndef TrenchBroom_CopyTexCoordSystemFromFaceCommand
 #define TrenchBroom_CopyTexCoordSystemFromFaceCommand
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
 #include "View/DocumentCommand.h"
-#include "Model/Model_Forward.h"
 #include "Model/BrushFaceAttributes.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/plane.h>
 
 #include <memory>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Snapshot;
+        class TexCoordSystemSnapshot;
+        enum class WrapStyle;
+    }
+
     namespace View {
         class CopyTexCoordSystemFromFaceCommand : public DocumentCommand {
         public:

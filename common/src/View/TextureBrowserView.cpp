@@ -21,8 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SharedPointer.h"
-#include "StepIterator.h"
 #include "Renderer/ActiveShader.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
@@ -37,6 +35,8 @@
 #include "Renderer/VertexArray.h"
 #include "View/MapDocument.h"
 
+#include <kdl/memory_utils.h>
+#include <kdl/skip_iterator.h>
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
@@ -64,13 +64,13 @@ namespace TrenchBroom {
         m_hideUnused(false),
         m_sortOrder(TextureSortOrder::Name),
         m_selectedTexture(nullptr) {
-            auto doc = lock(m_document);
+            auto doc = kdl::mem_lock(m_document);
             doc->textureManager().usageCountDidChange.addObserver(this, &TextureBrowserView::usageCountDidChange);
         }
 
         TextureBrowserView::~TextureBrowserView() {
-            if (!expired(m_document)) {
-                auto doc = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto doc = kdl::mem_lock(m_document);
                 doc->textureManager().usageCountDidChange.removeObserver(this, &TextureBrowserView::usageCountDidChange);
             }
             clear();
@@ -237,7 +237,7 @@ namespace TrenchBroom {
         };
 
         std::vector<Assets::TextureCollection*> TextureBrowserView::getCollections() const {
-            auto doc = lock(m_document);
+            auto doc = kdl::mem_lock(m_document);
             std::vector<Assets::TextureCollection*> collections = doc->textureManager().collections();
             if (m_hideUnused) {
                 kdl::vec_erase_if(collections, MatchUsageCount());
@@ -256,7 +256,7 @@ namespace TrenchBroom {
         }
 
         std::vector<Assets::Texture*> TextureBrowserView::getTextures() const {
-            auto doc = lock(m_document);
+            auto doc = kdl::mem_lock(m_document);
             std::vector<Assets::Texture*> textures = doc->textureManager().textures();
             filterTextures(textures);
             sortTextures(textures);
@@ -284,7 +284,7 @@ namespace TrenchBroom {
         void TextureBrowserView::doClear() {}
 
         void TextureBrowserView::doRender(Layout& layout, const float y, const float height) {
-            auto doc = lock(m_document);
+            auto doc = kdl::mem_lock(m_document);
             doc->textureManager().commitChanges();
 
             const float viewLeft      = static_cast<float>(0);
@@ -466,9 +466,9 @@ namespace TrenchBroom {
                         const auto quads = font.quads(title, false, offset);
                         const auto titleVertices = TextVertex::toList(
                             quads.size() / 2,
-                            stepIterator(std::begin(quads), std::end(quads), 0, 2),
-                            stepIterator(std::begin(quads), std::end(quads), 1, 2),
-                            stepIterator(std::begin(textColor), std::end(textColor), 0, 0));
+                            kdl::skip_iterator(std::begin(quads), std::end(quads), 0, 2),
+                            kdl::skip_iterator(std::begin(quads), std::end(quads), 1, 2),
+                            kdl::skip_iterator(std::begin(textColor), std::end(textColor), 0, 0));
                         auto& vertices = stringVertices[defaultDescriptor];
                         vertices.insert(std::end(vertices), std::begin(titleVertices), std::end(titleVertices));
                     }
@@ -496,15 +496,15 @@ namespace TrenchBroom {
 
                                 const auto textureNameVertices = TextVertex::toList(
                                     textureNameQuads.size() / 2,
-                                    stepIterator(std::begin(textureNameQuads), std::end(textureNameQuads), 0, 2),
-                                    stepIterator(std::begin(textureNameQuads), std::end(textureNameQuads), 1, 2),
-                                    stepIterator(std::begin(textColor), std::end(textColor), 0, 0));
+                                    kdl::skip_iterator(std::begin(textureNameQuads), std::end(textureNameQuads), 0, 2),
+                                    kdl::skip_iterator(std::begin(textureNameQuads), std::end(textureNameQuads), 1, 2),
+                                    kdl::skip_iterator(std::begin(textColor), std::end(textColor), 0, 0));
 
                                 const auto groupNameVertices = TextVertex::toList(
                                     groupNameQuads.size() / 2,
-                                    stepIterator(std::begin(groupNameQuads), std::end(groupNameQuads), 0, 2),
-                                    stepIterator(std::begin(groupNameQuads), std::end(groupNameQuads), 1, 2),
-                                    stepIterator(std::begin(subTextColor), std::end(subTextColor), 0, 0));
+                                    kdl::skip_iterator(std::begin(groupNameQuads), std::end(groupNameQuads), 0, 2),
+                                    kdl::skip_iterator(std::begin(groupNameQuads), std::end(groupNameQuads), 1, 2),
+                                    kdl::skip_iterator(std::begin(subTextColor), std::end(subTextColor), 0, 0));
 
                                 kdl::vec_append(stringVertices[cellData(cell).mainTitleFont], textureNameVertices);
                                 kdl::vec_append(stringVertices[cellData(cell).subTitleFont], groupNameVertices);
@@ -550,7 +550,7 @@ namespace TrenchBroom {
 
                     QMenu menu(this);
                     menu.addAction(tr("Select Faces"), this, [=]() {
-                        auto doc = lock(m_document);
+                        auto doc = kdl::mem_lock(m_document);
                         doc->selectFacesWithTexture(texture);
                     });
                     menu.exec(event->globalPos());

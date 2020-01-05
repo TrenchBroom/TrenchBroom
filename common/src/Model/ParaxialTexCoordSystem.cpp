@@ -19,9 +19,8 @@
 
 #include "ParaxialTexCoordSystem.h"
 
-#include "Constants.h"
 #include "Ensure.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 
@@ -83,7 +82,7 @@ namespace TrenchBroom {
             return std::make_unique<ParaxialTexCoordSystem>(m_index, m_xAxis, m_yAxis);
         }
 
-        std::unique_ptr<TexCoordSystemSnapshot> ParaxialTexCoordSystem::doTakeSnapshot() {
+        std::unique_ptr<TexCoordSystemSnapshot> ParaxialTexCoordSystem::doTakeSnapshot() const {
             return std::unique_ptr<TexCoordSystemSnapshot>();
         }
 

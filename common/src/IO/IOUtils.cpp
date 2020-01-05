@@ -27,6 +27,7 @@
 #include <vecmath/vec.h>
 
 #include <cstring>
+#include <iostream>
 #include <streambuf>
 #include <string>
 
@@ -46,24 +47,6 @@ namespace TrenchBroom {
             if (file != nullptr) {
                 fclose(file);
             }
-        }
-
-        OpenStream::OpenStream(const Path& path, const bool write) {
-            stream.open(path.asString().c_str(), std::ios::in | (write ? std::ios::out : std::ios::in));
-            if (!stream.is_open()) {
-                throw FileSystemException("Cannot open file: " + path.asString());
-            }
-        }
-
-        OpenStream::~OpenStream() {
-            if (stream.is_open()) {
-                stream.close();
-            }
-        }
-
-        std::string OpenStream::readAll() {
-            return std::string((std::istreambuf_iterator<char>(stream)),
-                                std::istreambuf_iterator<char>());
         }
 
         size_t fileSize(std::FILE* file) {

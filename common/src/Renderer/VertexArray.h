@@ -24,7 +24,6 @@
 #include "Renderer/GL.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
-#include "Renderer/Renderer_Forward.h"
 #include "Renderer/VboManager.h"
 #include "Renderer/Vbo.h"
 
@@ -35,6 +34,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        enum class PrimType;
+
         /**
          * Represents an array of vertices. Optionally, multiple instances of this class can share the same data.
          * Vertex arrays can be copied around without incurring the cost of copying the actual data.

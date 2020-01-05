@@ -22,11 +22,14 @@
 
 #include "EL/Expression.h"
 #include "IO/Path.h"
-#include "Model/Model_Forward.h"
 
 #include <iosfwd>
 
 namespace TrenchBroom {
+    namespace Model {
+        class EntityAttributes;
+    }
+
     namespace Assets {
         struct ModelSpecification {
             IO::Path path;

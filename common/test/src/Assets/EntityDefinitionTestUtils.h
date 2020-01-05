@@ -21,7 +21,6 @@
 #define EntityDefinitionTestUtils_h
 
 #include "Color.h"
-#include "Assets/Asset_Forward.h"
 #include "IO/Path.h"
 
 #include <kdl/string_utils.h>
@@ -34,6 +33,10 @@ namespace TrenchBroom {
     }
 
     namespace Assets {
+        class EntityDefinition;
+        class ModelDefinition;
+        struct ModelSpecification;
+
         void assertModelDefinition(const ModelSpecification& expected, IO::EntityDefinitionParser& parser, const std::string& entityPropertiesStr = "{}");
         void assertModelDefinition(const ModelSpecification& expected, const EntityDefinition* definition, const std::string& entityPropertiesStr = "{}");
         void assertModelDefinition(const ModelSpecification& expected, const ModelDefinition& actual, const std::string& entityPropertiesStr = "{}");

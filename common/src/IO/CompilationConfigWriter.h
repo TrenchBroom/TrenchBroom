@@ -22,12 +22,16 @@
 
 #include "Macros.h"
 #include "EL/EL_Forward.h"
-#include "Model/Model_Forward.h"
 
 #include <iosfwd>
 #include <string>
 
 namespace TrenchBroom {
+    namespace Model {
+        class CompilationConfig;
+        class CompilationProfile;
+    }
+
     namespace IO {
         class CompilationConfigWriter {
         private:

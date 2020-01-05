@@ -21,12 +21,14 @@
 #define TrenchBroom_CollectSelectableBrushFacesVisitor
 
 #include "Model/CollectMatchingBrushFacesVisitor.h"
-#include "Model/Model_Forward.h"
 
 #include <functional>
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFace;
+        class EditorContext;
+
         using FacePredicate = std::function<bool(const BrushFace*)>;
 
         class MatchSelectableBrushFaces {

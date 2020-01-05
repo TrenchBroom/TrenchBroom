@@ -22,7 +22,7 @@
 
 #include <QString>
 
-#include <optional-lite/optional.hpp>
+#include <nonstd/optional.hpp>
 
 class QKeySequence;
 

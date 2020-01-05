@@ -20,16 +20,15 @@
 #ifndef TrenchBroom_NodeReader
 #define TrenchBroom_NodeReader
 
-#include "IO/IO_Forward.h"
 #include "IO/MapReader.h"
-#include "Model/Model_Forward.h"
 
-#include <list>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace IO {
+        class ParserStatus;
+
         class NodeReader : public MapReader {
         private:
             Model::ModelFactory& m_factory;
@@ -41,7 +40,7 @@ namespace TrenchBroom {
             const std::vector<Model::Node*>& read(const vm::bbox3& worldBounds, ParserStatus& status);
         private: // implement MapReader interface
             Model::ModelFactory& initialize(Model::MapFormat format) override;
-            Model::Node* onWorldspawn(const std::list<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
+            Model::Node* onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
             void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount, ParserStatus& status) override;
             void onLayer(Model::Layer* layer, ParserStatus& status) override;
             void onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) override;

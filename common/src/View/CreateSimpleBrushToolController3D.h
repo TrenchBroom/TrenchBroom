@@ -20,9 +20,8 @@
 #ifndef TrenchBroom_CreateBrushToolController3D
 #define TrenchBroom_CreateBrushToolController3D
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/ToolController.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/vec.h>
 
@@ -30,6 +29,9 @@
 
 namespace TrenchBroom {
     namespace View {
+        class CreateSimpleBrushTool;
+        class MapDocument;
+
         class CreateSimpleBrushToolController3D : public ToolControllerBase<NoPickingPolicy, KeyPolicy, NoMousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
             CreateSimpleBrushTool* m_tool;

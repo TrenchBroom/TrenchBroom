@@ -20,12 +20,14 @@
 #ifndef TrenchBroom_EntitySnapshot
 #define TrenchBroom_EntitySnapshot
 
+#include "FloatType.h"
 #include "Model/EntityAttributes.h"
-#include "Model/Model_Forward.h"
 #include "Model/NodeSnapshot.h"
 
 namespace TrenchBroom {
     namespace Model {
+        class Entity;
+
         class EntitySnapshot : public NodeSnapshot {
         private:
             Entity* m_entity;

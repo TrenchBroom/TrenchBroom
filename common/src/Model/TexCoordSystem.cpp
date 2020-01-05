@@ -44,7 +44,7 @@ namespace TrenchBroom {
             return doClone();
         }
 
-        std::unique_ptr<TexCoordSystemSnapshot> TexCoordSystem::takeSnapshot() {
+        std::unique_ptr<TexCoordSystemSnapshot> TexCoordSystem::takeSnapshot() const {
             return doTakeSnapshot();
         }
 

@@ -20,13 +20,15 @@
 #ifndef TrenchBroom_BrushSnapshot
 #define TrenchBroom_BrushSnapshot
 
-#include "Model/Model_Forward.h"
 #include "Model/NodeSnapshot.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class Brush;
+        class BrushFace;
+
         class BrushSnapshot : public NodeSnapshot {
         private:
             Brush* m_brush;

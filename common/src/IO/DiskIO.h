@@ -20,7 +20,6 @@
 #ifndef DiskIO_h
 #define DiskIO_h
 
-#include "IO/IO_Forward.h"
 #include "IO/Path.h"
 
 #include <memory>
@@ -28,6 +27,8 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class File;
+
         namespace Disk {
             bool isCaseSensitive();
 
@@ -38,6 +39,7 @@ namespace TrenchBroom {
 
             std::vector<Path> getDirectoryContents(const Path& path);
             std::shared_ptr<File> openFile(const Path& path);
+            std::string readFile(const Path& path);
             Path getCurrentWorkingDir();
 
             template <class M>

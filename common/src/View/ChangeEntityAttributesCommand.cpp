@@ -28,36 +28,36 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ChangeEntityAttributesCommand::Type = Command::freeType();
 
-        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::set(const Model::AttributeName& name, const Model::AttributeValue& value) {
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::set(const std::string& name, const std::string& value) {
             auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Set);
             command->setName(name);
             command->setNewValue(value);
             return command;
         }
 
-        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::remove(const Model::AttributeName& name) {
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::remove(const std::string& name) {
             auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Remove);
             command->setName(name);
             return command;
         }
 
-        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::rename(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::rename(const std::string& oldName, const std::string& newName) {
             auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Rename);
             command->setName(oldName);
             command->setNewName(newName);
             return command;
         }
 
-        void ChangeEntityAttributesCommand::setName(const Model::AttributeName& name) {
+        void ChangeEntityAttributesCommand::setName(const std::string& name) {
             m_oldName = name;
         }
 
-        void ChangeEntityAttributesCommand::setNewName(const Model::AttributeName& newName) {
+        void ChangeEntityAttributesCommand::setNewName(const std::string& newName) {
             assert(m_action == Action::Rename);
             m_newName = newName;
         }
 
-        void ChangeEntityAttributesCommand::setNewValue(const Model::AttributeValue& newValue) {
+        void ChangeEntityAttributesCommand::setNewValue(const std::string& newValue) {
             assert(m_action == Action::Set);
             m_newValue = newValue;
         }

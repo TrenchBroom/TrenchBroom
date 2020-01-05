@@ -20,13 +20,14 @@
 #include "DirectoryTextureCollectionEditor.h"
 
 #include "PreferenceManager.h"
-#include "SharedPointer.h"
 #include "IO/PathQt.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
+
+#include <kdl/memory_utils.h>
 
 #include <kdl/vector_utils.h>
 
@@ -67,7 +68,7 @@ namespace TrenchBroom {
 
             kdl::vec_sort_and_remove_duplicates(enabledCollections);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->setEnabledTextureCollections(enabledCollections);
         }
 
@@ -85,12 +86,12 @@ namespace TrenchBroom {
                 kdl::vec_erase_at(enabledCollections, index);
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->setEnabledTextureCollections(enabledCollections);
         }
 
         void DirectoryTextureCollectionEditor::reloadTextureCollections() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->reloadTextureCollections();
         }
 
@@ -121,7 +122,6 @@ namespace TrenchBroom {
             auto* availableCollectionsContainer = new TitledPanel("Available", false, false);
 
             m_availableCollectionsList = new QListWidget();
-            m_availableCollectionsList->setStyleSheet("QListWidget { border: none; }");
             m_availableCollectionsList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
             auto* availableCollectionsContainerLayout = new QVBoxLayout();
@@ -132,7 +132,6 @@ namespace TrenchBroom {
 
             auto* enabledCollectionsContainer = new TitledPanel("Enabled", false, false);
             m_enabledCollectionsList = new QListWidget();
-            m_enabledCollectionsList->setStyleSheet("QListWidget { border: none; }");
             m_enabledCollectionsList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
             auto* enabledCollectionsContainerLayout = new QVBoxLayout();
@@ -186,7 +185,7 @@ namespace TrenchBroom {
         }
 
         void DirectoryTextureCollectionEditor::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &DirectoryTextureCollectionEditor::textureCollectionsDidChange);
             document->modsDidChangeNotifier.addObserver(this, &DirectoryTextureCollectionEditor::modsDidChange);
 
@@ -195,8 +194,8 @@ namespace TrenchBroom {
         }
 
         void DirectoryTextureCollectionEditor::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &DirectoryTextureCollectionEditor::textureCollectionsDidChange);
                 document->modsDidChangeNotifier.removeObserver(this, &DirectoryTextureCollectionEditor::modsDidChange);
             }
@@ -216,7 +215,7 @@ namespace TrenchBroom {
         }
 
         void DirectoryTextureCollectionEditor::preferenceDidChange(const IO::Path& path) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (document->isGamePathPreference(path)) {
                 updateAllTextureCollections();
                 updateButtons();
@@ -249,14 +248,14 @@ namespace TrenchBroom {
         }
 
         std::vector<IO::Path> DirectoryTextureCollectionEditor::availableTextureCollections() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             auto availableCollections = document->availableTextureCollections();
             kdl::vec_erase_all(availableCollections, document->enabledTextureCollections());
             return availableCollections;
         }
 
         std::vector<IO::Path> DirectoryTextureCollectionEditor::enabledTextureCollections() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return document->enabledTextureCollections();
         }
     }

@@ -21,9 +21,7 @@
 #define TrenchBroom_FaceRenderer
 
 #include "Color.h"
-#include "Assets/Asset_Forward.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/Renderer_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -32,7 +30,15 @@
 #include <unordered_map>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+
     namespace Renderer {
+        class BrushIndexArray;
+        class BrushVertexArray;
+        class RenderBatch;
+
         class FaceRenderer : public IndexedRenderable {
         private:
             struct RenderFunc;

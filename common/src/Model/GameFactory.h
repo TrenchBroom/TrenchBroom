@@ -20,10 +20,7 @@
 #ifndef TrenchBroom_GameFactory
 #define TrenchBroom_GameFactory
 
-#include "IO/IO_Forward.h"
-#include "IO/Path.h"
 #include "Model/MapFormat.h"
-#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <map>
@@ -35,7 +32,13 @@ namespace TrenchBroom {
 
     template <typename T> class Preference;
 
+    namespace IO {
+        class Path;
+        class WritableDiskFileSystem;
+    }
+
     namespace Model {
+        class Game;
         class GameConfig;
 
         class GameFactory {

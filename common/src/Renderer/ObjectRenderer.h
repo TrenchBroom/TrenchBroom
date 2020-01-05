@@ -20,17 +20,26 @@
 #ifndef TrenchBroom_ObjectRenderer
 #define TrenchBroom_ObjectRenderer
 
-#include "Assets/Asset_Forward.h"
-#include "Model/Model_Forward.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/GroupRenderer.h"
 
 #include <vector>
 
-class Color;
-
 namespace TrenchBroom {
+    class Color;
+
+    namespace Assets {
+        class EntityModelManager;
+    }
+
+    namespace Model {
+        class Brush;
+        class EditorContext;
+        class Entity;
+        class Group;
+    }
+
     namespace Renderer {
         class FontManager;
         class RenderBatch;

@@ -19,6 +19,7 @@
 
 #include "Model/Issue.h"
 
+#include "Ensure.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
@@ -40,7 +41,7 @@ namespace TrenchBroom {
             return doGetLineNumber();
         }
 
-        const std::string Issue::description() const {
+        std::string Issue::description() const {
             return doGetDescription();
         }
 
@@ -121,7 +122,7 @@ namespace TrenchBroom {
 
         AttributeIssue::~AttributeIssue() = default;
 
-        const AttributeValue& AttributeIssue::attributeValue() const {
+        const std::string& AttributeIssue::attributeValue() const {
             const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
             return attributableNode->attribute(attributeName());
         }

@@ -19,6 +19,7 @@
 
 #include "GameImpl.h"
 
+#include "Ensure.h"
 #include "Exceptions.h"
 #include "Macros.h"
 #include "Assets/Palette.h"
@@ -49,7 +50,6 @@
 #include "IO/TextureLoader.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
-#include "Model/BrushFace.h"
 #include "Model/EntityAttributes.h"
 #include "Model/ExportFormat.h"
 #include "Model/GameConfig.h"
@@ -61,7 +61,6 @@
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -129,8 +128,8 @@ namespace TrenchBroom {
             } else {
                 auto world = std::make_unique<World>(format);
 
-                const Model::BrushBuilder builder(world.get(), worldBounds);
-                auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
+                const Model::BrushBuilder builder(world.get(), worldBounds, defaultFaceAttribs());
+                auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName);
                 world->defaultLayer()->addChild(brush);
 
                 if (format == MapFormat::Valve) {
@@ -402,7 +401,7 @@ namespace TrenchBroom {
                 } else if (extension == "obj" && kdl::vec_contains(supported, "obj_neverball")) {
                     auto reader = file->reader().buffer();
                     // has to be the whole path for implicit textures!
-                    IO::NvObjParser parser(path.asString(), std::begin(reader), std::end(reader), m_fs);
+                    IO::NvObjParser parser(path, std::begin(reader), std::end(reader), m_fs);
                     return parser.initializeModel(logger);
                 } else {
                     throw GameException("Unsupported model format '" + path.asString() + "'");
@@ -458,7 +457,7 @@ namespace TrenchBroom {
                 } else if (extension == "obj" && kdl::vec_contains(supported, "obj_neverball")) {
                     auto reader = file->reader().buffer();
                     // has to be the whole path for implicit textures!
-                    IO::NvObjParser parser(path.asString(), std::begin(reader), std::end(reader), m_fs);
+                    IO::NvObjParser parser(path, std::begin(reader), std::end(reader), m_fs);
                     parser.loadFrame(frameIndex, model, logger);
                 } else {
                     throw GameException("Unsupported model format '" + path.asString() + "'");
@@ -515,7 +514,11 @@ namespace TrenchBroom {
             return m_config.faceAttribsConfig().contentFlags;
         }
 
-        void GameImpl::writeLongAttribute(AttributableNode& node, const AttributeName& baseName, const AttributeValue& value, const size_t maxLength) const {
+        const BrushFaceAttributes& GameImpl::doDefaultFaceAttribs() const {
+            return m_config.faceAttribsConfig().defaults;
+        }
+
+        void GameImpl::writeLongAttribute(AttributableNode& node, const std::string& baseName, const std::string& value, const size_t maxLength) const {
             node.removeNumberedAttribute(baseName);
 
             std::stringstream nameStr;
@@ -526,7 +529,7 @@ namespace TrenchBroom {
             }
         }
 
-        std::string GameImpl::readLongAttribute(const AttributableNode& node, const AttributeName& baseName) const {
+        std::string GameImpl::readLongAttribute(const AttributableNode& node, const std::string& baseName) const {
             size_t index = 1;
             std::stringstream nameStr;
             std::stringstream valueStr;

@@ -20,7 +20,6 @@
 #include "MapDocumentTest.h"
 
 #include "Exceptions.h"
-#include "Polyhedron.h"
 #include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/Brush.h"
@@ -33,6 +32,7 @@
 #include "Model/MapFormat.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
 #include "Model/TestGame.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"
@@ -47,8 +47,7 @@
 namespace TrenchBroom {
     namespace View {
         MapDocumentTest::MapDocumentTest() :
-        ::testing::Test(),
-        m_mapFormat(Model::MapFormat::Standard) {}
+        MapDocumentTest(Model::MapFormat::Standard) {}
 
         MapDocumentTest::MapDocumentTest(const Model::MapFormat mapFormat) :
         ::testing::Test(),
@@ -74,7 +73,7 @@ namespace TrenchBroom {
         }
 
         Model::Brush* MapDocumentTest::createBrush(const std::string& textureName) {
-            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::BrushBuilder builder(document->world(), document->worldBounds(), document->game()->defaultFaceAttribs());
             return builder.createCube(32.0, textureName);
         }
 
@@ -363,7 +362,7 @@ namespace TrenchBroom {
 
         TEST_F(MapDocumentTest, setTextureNull) {
             Model::BrushBuilder builder(document->world(), document->worldBounds());
-            Model::Brush *brush1 = builder.createCube(64.0, Model::BrushFace::NoTextureName);
+            Model::Brush *brush1 = builder.createCube(64.0, Model::BrushFaceAttributes::NoTextureName);
 
             document->addNode(brush1, document->currentParent());
             document->select(brush1);

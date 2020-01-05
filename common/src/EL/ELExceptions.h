@@ -29,9 +29,9 @@ namespace TrenchBroom {
         class Value;
         enum class ValueType;
 
-        class Exception : public ::Exception {
+        class Exception : public TrenchBroom::Exception {
         public:
-            using ::Exception::Exception;
+            using TrenchBroom::Exception::Exception;
         };
 
         class ConversionError : public Exception {

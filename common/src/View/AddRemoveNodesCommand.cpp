@@ -19,6 +19,7 @@
 
 #include "AddRemoveNodesCommand.h"
 
+#include "Ensure.h"
 #include "Macros.h"
 #include "Model/Node.h"
 #include "View/MapDocumentCommandFacade.h"

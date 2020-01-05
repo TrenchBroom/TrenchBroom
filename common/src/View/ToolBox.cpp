@@ -18,16 +18,18 @@
  */
 
 #include "ToolBox.h"
+
+#include "Ensure.h"
 #include "View/InputState.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
 #include "View/ToolChain.h"
 
-#include <QDateTime>
-#include <QDebug>
-
 #include <cassert>
 #include <string>
+
+#include <QDateTime>
+#include <QDebug>
 
 namespace TrenchBroom {
     namespace View {

@@ -20,39 +20,43 @@
 #ifndef TrenchBroom_HitFilter
 #define TrenchBroom_HitFilter
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/HitType.h"
-#include "Model/Model_Forward.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace Model {
+        class EditorContext;
+        class Hit;
+
         class HitFilter {
         private:
             class Always;
             class Never;
         public:
-            static HitFilter* always();
-            static HitFilter* never();
+            static std::unique_ptr<HitFilter> always();
+            static std::unique_ptr<HitFilter> never();
 
             virtual ~HitFilter();
 
-            HitFilter* clone() const;
+            std::unique_ptr<HitFilter> clone() const;
 
             bool matches(const Hit& hit) const;
         private:
-            virtual HitFilter* doClone() const = 0;
+            virtual std::unique_ptr<HitFilter> doClone() const = 0;
             virtual bool doMatches(const Hit& hit) const = 0;
         };
 
         class HitFilterChain : public HitFilter {
         private:
-            const HitFilter* m_filter;
-            const HitFilter* m_next;
+            const std::unique_ptr<const HitFilter> m_filter;
+            const std::unique_ptr<const HitFilter> m_next;
         public:
-            HitFilterChain(const HitFilter* filter, const HitFilter* next);
+            HitFilterChain(std::unique_ptr<const HitFilter> filter, std::unique_ptr<const HitFilter> next);
             ~HitFilterChain() override;
         private:
-            HitFilter* doClone() const override;
+            std::unique_ptr<HitFilter> doClone() const override;
             bool doMatches(const Hit& hit) const override;
         };
 
@@ -62,19 +66,19 @@ namespace TrenchBroom {
         public:
             TypedHitFilter(HitType::Type typeMask);
         private:
-            HitFilter* doClone() const override;
+            std::unique_ptr<HitFilter> doClone() const override;
             bool doMatches(const Hit& hit) const override;
         };
 
         class SelectionHitFilter : public HitFilter {
         private:
-            HitFilter* doClone() const override;
+            std::unique_ptr<HitFilter> doClone() const override;
             bool doMatches(const Hit& hit) const override;
         };
 
         class TransitivelySelectedHitFilter : public HitFilter {
         private:
-            HitFilter* doClone() const override;
+            std::unique_ptr<HitFilter> doClone() const override;
             bool doMatches(const Hit& hit) const override;
         };
 
@@ -84,7 +88,7 @@ namespace TrenchBroom {
         public:
             MinDistanceHitFilter(FloatType minDistance);
         private:
-            HitFilter* doClone() const override;
+            std::unique_ptr<HitFilter> doClone() const override;
             bool doMatches(const Hit& hit) const override;
         };
 
@@ -94,7 +98,7 @@ namespace TrenchBroom {
         public:
             ContextHitFilter(const EditorContext& context);
         private:
-            HitFilter* doClone() const override;
+            std::unique_ptr<HitFilter> doClone() const override;
             bool doMatches(const Hit& hit) const override;
         };
     }

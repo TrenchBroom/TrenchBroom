@@ -21,7 +21,6 @@
 
 #include "Notifier.h"
 #include "PreferenceManager.h"
-#include "SharedPointer.h"
 #include "Model/Entity.h"
 #include "Model/Game.h"
 #include "View/BorderLine.h"
@@ -31,6 +30,7 @@
 #include "View/QtUtils.h"
 
 #include <kdl/collection_utils.h>
+#include <kdl/memory_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
@@ -62,7 +62,6 @@ namespace TrenchBroom {
         void ModEditor::createGui() {
             auto* availableModContainer = new TitledPanel("Available", false, false);
             m_availableModList = new QListWidget();
-            m_availableModList->setStyleSheet("QListWidget { border: none; }");
             m_availableModList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
             auto* availableModContainerSizer = new QVBoxLayout();
@@ -81,7 +80,6 @@ namespace TrenchBroom {
 
             auto* enabledModContainer = new TitledPanel("Enabled", false, false);
             m_enabledModList = new QListWidget();
-            m_enabledModList->setStyleSheet("QListWidget { border: none; }");
             m_enabledModList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
             auto* enabledModContainerSizer = new QVBoxLayout();
@@ -136,7 +134,7 @@ namespace TrenchBroom {
         }
 
         void ModEditor::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &ModEditor::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &ModEditor::documentWasLoaded);
             document->modsDidChangeNotifier.addObserver(this, &ModEditor::modsDidChange);
@@ -146,8 +144,8 @@ namespace TrenchBroom {
         }
 
         void ModEditor::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &ModEditor::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &ModEditor::documentWasLoaded);
                 document->modsDidChangeNotifier.removeObserver(this, &ModEditor::modsDidChange);
@@ -172,7 +170,7 @@ namespace TrenchBroom {
         }
 
         void ModEditor::preferenceDidChange(const IO::Path& path) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (document->isGamePathPreference(path)) {
                 updateAvailableMods();
                 updateMods();
@@ -180,7 +178,7 @@ namespace TrenchBroom {
         }
 
         void ModEditor::updateAvailableMods() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             std::vector<std::string> availableMods = document->game()->availableMods();
             kdl::sort(availableMods, kdl::ci::string_less());
 
@@ -197,7 +195,7 @@ namespace TrenchBroom {
 
             const auto pattern = m_filterBox->text().toStdString();
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             auto enabledMods = document->mods();
 
             QStringList availableModItems;
@@ -222,7 +220,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             std::vector<std::string> mods = document->mods();
             for (QListWidgetItem* item : selections) {
@@ -237,7 +235,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             std::vector<std::string> mods = document->mods();
             for (QListWidgetItem* item : selections) {
@@ -251,7 +249,7 @@ namespace TrenchBroom {
             const QList<QListWidgetItem*> selections = m_enabledModList->selectedItems();
             assert(selections.size() == 1);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             auto mods = document->mods();
 
             const size_t index = static_cast<size_t>(m_enabledModList->row(selections.first()));
@@ -269,7 +267,7 @@ namespace TrenchBroom {
             const QList<QListWidgetItem*> selections = m_enabledModList->selectedItems();
             assert(selections.size() == 1);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             auto mods = document->mods();
 
             const auto index = static_cast<size_t>(m_enabledModList->row(selections.first()));

@@ -20,8 +20,6 @@
 #ifndef TRENCHBROOM_MAPVIEWACTIVATIONTRACKER_H
 #define TRENCHBROOM_MAPVIEWACTIVATIONTRACKER_H
 
-#include "View/View_Forward.h"
-
 #include <QObject>
 
 #include <vector>
@@ -32,6 +30,8 @@ class QWindow;
 
 namespace TrenchBroom {
     namespace View {
+        class MapViewBase;
+
         /**
          * Tracks the activation state of the group of map views in the map window. The group of map views consists of multiple
          * map views (3D or 2D), and the group has a shared activation state. If the group is active, then it will receive

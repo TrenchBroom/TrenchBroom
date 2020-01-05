@@ -392,7 +392,7 @@ namespace TrenchBroom {
          * not exist, and the correct skin file name will be "x/y.wal" instead. That's why we try to find
          * a matching file name by disregarding the extension.
          */
-        const IO::Path DkmParser::findSkin(const std::string& skin) const {
+        Path DkmParser::findSkin(const std::string& skin) const {
             const Path skinPath(skin);
             if (m_fs.fileExists(skinPath)) {
                 return skinPath;

@@ -22,8 +22,6 @@
 
 #include <gtest/gtest.h>
 
-#include "Model/Model_Forward.h"
-
 #include <kdl/vector_set.h>
 
 #include <vecmath/forward.h>
@@ -39,6 +37,8 @@ namespace TrenchBroom {
                       const std::vector<vm::vec2f>& transformedVertUVs);
 
     namespace Model {
+        class Brush;
+
         void assertTexture(const std::string& expected, const Brush* brush, const vm::vec3d& faceNormal);
         void assertTexture(const std::string& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3);
         void assertTexture(const std::string& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3, const vm::vec3d& v4);

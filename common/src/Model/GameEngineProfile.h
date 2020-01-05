@@ -24,6 +24,7 @@
 #include "Notifier.h"
 #include "IO/Path.h"
 
+#include <memory>
 #include <string>
 
 namespace TrenchBroom {
@@ -39,7 +40,7 @@ namespace TrenchBroom {
         public:
             GameEngineProfile(const std::string& name, const IO::Path& path, const std::string& parameterSpec);
 
-            GameEngineProfile* clone() const;
+            std::unique_ptr<GameEngineProfile> clone() const;
 
             const std::string& name() const;
             const IO::Path& path() const;

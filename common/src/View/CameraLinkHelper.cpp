@@ -22,9 +22,9 @@
 #include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "TemporarilySetAny.h"
 #include "Renderer/Camera.h"
 
+#include <kdl/set_temp.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>
@@ -56,7 +56,7 @@ namespace TrenchBroom {
 
         void CameraLinkHelper::cameraDidChange(const Renderer::Camera* camera) {
             if (!m_ignoreNotifications && pref(Preferences::Link2DCameras)) {
-                const TemporarilySetBool ignoreNotifications(m_ignoreNotifications);
+                const kdl::set_temp ignoreNotifications(m_ignoreNotifications);
 
                 for (Renderer::Camera* other : m_cameras) {
                     if (camera != other) {
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             }
         }
 
-        CameraLinkableView::~CameraLinkableView() {}
+        CameraLinkableView::~CameraLinkableView() = default;
 
         void CameraLinkableView::linkCamera(CameraLinkHelper& linkHelper) {
             doLinkCamera(linkHelper);

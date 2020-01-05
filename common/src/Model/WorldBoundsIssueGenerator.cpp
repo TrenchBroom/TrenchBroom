@@ -35,14 +35,14 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            WorldBoundsIssue(Node* node) :
+            explicit WorldBoundsIssue(Node* node) :
             Issue(node) {}
 
             IssueType doGetType() const override {
                 return Type;
             }
 
-            const std::string doGetDescription() const override {
+            std::string doGetDescription() const override {
                 return "Object is out of world bounds";
             }
         };

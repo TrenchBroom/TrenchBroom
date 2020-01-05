@@ -20,9 +20,8 @@
 #ifndef TrenchBroom_Layer
 #define TrenchBroom_Layer
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
-#include "Model/Model_Forward.h"
 #include "Model/Node.h"
 
 #include <vecmath/bbox.h>
@@ -56,7 +55,7 @@ namespace TrenchBroom {
             void doNodePhysicalBoundsDidChange() override;
             bool doSelectable() const override;
 
-            void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
+            void doPick(const vm::ray3& ray, PickResult& pickResult) override;
             void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
 
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;

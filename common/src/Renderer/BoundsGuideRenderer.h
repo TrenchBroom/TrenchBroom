@@ -20,8 +20,8 @@
 #ifndef BoundsGuideRenderer_h
 #define BoundsGuideRenderer_h
 
-#include "TrenchBroom.h"
 #include "Color.h"
+#include "FloatType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/SpikeGuideRenderer.h"
 

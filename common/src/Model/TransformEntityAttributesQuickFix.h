@@ -21,7 +21,6 @@
 #define TransformEntityAttributesQuickFix_h
 
 #include "Model/IssueQuickFix.h"
-#include "Model/Model_Forward.h"
 
 #include <functional>
 #include <string>
@@ -30,8 +29,8 @@ namespace TrenchBroom {
     namespace Model {
         class TransformEntityAttributesQuickFix : public IssueQuickFix {
         public:
-            using NameTransform = std::function<AttributeName(const AttributeName&)>;
-            using ValueTransform = std::function<AttributeValue(const AttributeValue&)>;
+            using NameTransform = std::function<std::string(const std::string&)>;
+            using ValueTransform = std::function<std::string(const std::string&)>;
         private:
             NameTransform m_nameTransform;
             ValueTransform m_valueTransform;

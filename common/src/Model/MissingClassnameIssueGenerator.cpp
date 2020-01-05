@@ -34,14 +34,14 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            MissingClassnameIssue(AttributableNode* node) :
+            explicit MissingClassnameIssue(AttributableNode* node) :
             Issue(node) {}
         private:
             IssueType doGetType() const override {
                 return Type;
             }
 
-            const std::string doGetDescription() const override {
+            std::string doGetDescription() const override {
                 return "Entity has no classname property";
             }
         };

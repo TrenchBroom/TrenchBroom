@@ -21,13 +21,14 @@
 #ifndef FREEIMAGETEXTUREREADER_H
 #define FREEIMAGETEXTUREREADER_H
 
-#include "IO/IO_Forward.h"
 #include "IO/TextureReader.h"
 
 #include <memory>
 
 namespace TrenchBroom {
     namespace IO {
+        class File;
+
         class FreeImageTextureReader : public TextureReader {
         public:
             FreeImageTextureReader(const NameStrategy& nameStrategy);

@@ -18,11 +18,12 @@
  */
 
 #include "SmartChoiceEditor.h"
-#include "TemporarilySetAny.h"
 #include "Assets/AttributeDefinition.h"
 #include "Model/AttributableNode.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
+
+#include <kdl/set_temp.h>
 
 #include <QtGlobal>
 #include <QLabel>
@@ -42,7 +43,7 @@ namespace TrenchBroom {
         }
 
         void SmartChoiceEditor::comboBoxActivated(const int /* index */) {
-            TemporarilySetBool ignoreTextChanged(m_ignoreEditTextChanged);
+            const kdl::set_temp ignoreTextChanged(m_ignoreEditTextChanged);
 
             const auto valueDescStr = m_comboBox->currentText().toStdString();
             const auto valueStr = valueDescStr.substr(0, valueDescStr.find_first_of(':') - 1);
@@ -82,7 +83,7 @@ namespace TrenchBroom {
         void SmartChoiceEditor::doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) {
             ensure(m_comboBox != nullptr, "comboBox is null");
 
-            TemporarilySetBool ignoreTextChanged(m_ignoreEditTextChanged);
+            const kdl::set_temp ignoreTextChanged(m_ignoreEditTextChanged);
             m_comboBox->clear();
 
             const auto* attrDef = Model::AttributableNode::selectAttributeDefinition(name(), attributables);

@@ -21,10 +21,11 @@
 #define TrenchBroom_MoveObjectsToolController
 
 #include "View/MoveToolController.h"
-#include "View/View_Forward.h"
 
 namespace TrenchBroom {
     namespace View {
+        class MoveObjectsTool;
+
         class MoveObjectsToolController : public MoveToolController<NoPickingPolicy, NoMousePolicy> {
         private:
             MoveObjectsTool* m_tool;

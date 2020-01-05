@@ -20,9 +20,8 @@
 #ifndef TRENCHBROOM_OBJPARSER_H
 #define TRENCHBROOM_OBJPARSER_H
 
-#include "Assets/Asset_Forward.h"
 #include "IO/EntityModelParser.h"
-#include "IO/IO_Forward.h"
+#include "IO/Path.h"
 
 #include <vecmath/forward.h>
 
@@ -32,7 +31,13 @@
 namespace TrenchBroom {
     class Logger;
 
+    namespace Assets {
+        class Texture;
+    }
+
     namespace IO {
+        class FileSystem;
+
         class ObjParser : public EntityModelParser {
         private:
             std::string m_name;
@@ -76,7 +81,7 @@ namespace TrenchBroom {
          */
         class NvObjParser : public ObjParser {
         private:
-            std::string m_path;
+            Path m_path;
             const FileSystem& m_fs;
         public:
             /**
@@ -86,7 +91,7 @@ namespace TrenchBroom {
              * @param end the end of the text
              * @param fs the filesystem used to lookup textures
              */
-            NvObjParser(const std::string& path, const char* begin, const char* end, const FileSystem& fs) : ObjParser(path, begin, end), m_path(path), m_fs(fs) {}
+            NvObjParser(const Path& path, const char* begin, const char* end, const FileSystem& fs);
 
             bool transformObjCoordinateSet(std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) override;
             std::unique_ptr<Assets::Texture> loadMaterial(const std::string& name) override;

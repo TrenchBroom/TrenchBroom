@@ -20,13 +20,18 @@
 #ifndef TrenchBroom_Lasso
 #define TrenchBroom_Lasso
 
-#include "TrenchBroom.h"
-#include "Renderer/Renderer_Forward.h"
+#include "FloatType.h"
 
 #include <vecmath/plane.h>
 #include <vecmath/bbox.h>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class Camera;
+        class RenderBatch;
+        class RenderContext;
+    }
+
     namespace View {
         class Lasso {
         private:

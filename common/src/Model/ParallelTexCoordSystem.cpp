@@ -20,7 +20,7 @@
 #include "ParallelTexCoordSystem.h"
 
 #include "Ensure.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Assets/Texture.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/BrushFace.h"
@@ -38,7 +38,7 @@ namespace TrenchBroom {
         m_xAxis(xAxis),
         m_yAxis(yAxis) {}
 
-        ParallelTexCoordSystemSnapshot::ParallelTexCoordSystemSnapshot(ParallelTexCoordSystem* coordSystem) :
+        ParallelTexCoordSystemSnapshot::ParallelTexCoordSystemSnapshot(const ParallelTexCoordSystem* coordSystem) :
         m_xAxis(coordSystem->xAxis()),
         m_yAxis(coordSystem->yAxis()) {}
 
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             return std::make_unique<ParallelTexCoordSystem>(m_xAxis, m_yAxis);
         }
 
-        std::unique_ptr<TexCoordSystemSnapshot> ParallelTexCoordSystem::doTakeSnapshot() {
+        std::unique_ptr<TexCoordSystemSnapshot> ParallelTexCoordSystem::doTakeSnapshot() const {
             return std::make_unique<ParallelTexCoordSystemSnapshot>(this);
         }
 

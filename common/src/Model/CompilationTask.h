@@ -22,12 +22,16 @@
 
 #include "Macros.h"
 #include "Notifier.h"
-#include "Model/Model_Forward.h"
 
 #include <string>
 
 namespace TrenchBroom {
     namespace Model {
+        class CompilationTaskConstVisitor;
+        class CompilationTaskVisitor;
+        class ConstCompilationTaskConstVisitor;
+        class ConstCompilationTaskVisitor;
+
         class CompilationTask {
         public:
             Notifier<> taskWillBeRemoved;

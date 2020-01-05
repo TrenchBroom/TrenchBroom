@@ -20,11 +20,9 @@
 
 #include "ScaleObjectsTool.h"
 
-#include "Constants.h"
-#include "TrenchBroom.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
-#include "SharedPointer.h"
+#include "FloatType.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
@@ -32,6 +30,7 @@
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsToolPage.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/string_utils.h>
 
 #include <vecmath/vec.h>
@@ -41,7 +40,6 @@
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>
 
-#include <iterator>
 #include <set>
 
 namespace TrenchBroom {
@@ -471,7 +469,7 @@ namespace TrenchBroom {
 
         ScaleObjectsTool::ScaleObjectsTool(std::weak_ptr<MapDocument> document) :
         Tool(false),
-        m_document(document),
+        m_document(std::move(document)),
         m_toolPage(nullptr),
         m_resizing(false),
         m_anchorPos(AnchorPos::Opposite),
@@ -492,7 +490,7 @@ namespace TrenchBroom {
         }
 
         bool ScaleObjectsTool::applies() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return !document->selectedNodes().empty();
         }
 
@@ -637,7 +635,7 @@ namespace TrenchBroom {
 
 
         vm::bbox3 ScaleObjectsTool::bounds() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return document->selectionBounds();
         }
 
@@ -889,7 +887,7 @@ namespace TrenchBroom {
             m_dragStartHit = hit;
             m_dragCumulativeDelta = vm::vec3::zero();
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->startTransaction("Scale Objects");
             m_resizing = true;
         }
@@ -899,7 +897,7 @@ namespace TrenchBroom {
 
             m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             const auto newBox = moveBBoxForHit(m_bboxAtDragStart, m_dragStartHit, m_dragCumulativeDelta,
                                                m_proportionalAxes, m_anchorPos);
@@ -910,7 +908,7 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsTool::commitScale() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (vm::is_zero(m_dragCumulativeDelta, vm::C::almost_zero())) {
                 document->cancelTransaction();
             } else {
@@ -920,7 +918,7 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsTool::cancelScale() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
             m_resizing = false;
         }

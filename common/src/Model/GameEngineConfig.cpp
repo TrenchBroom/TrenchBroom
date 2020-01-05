@@ -19,6 +19,7 @@
 
 #include "GameEngineConfig.h"
 
+#include "Ensure.h"
 #include "Model/GameEngineProfile.h"
 
 #include <kdl/vector_utils.h>
@@ -30,19 +31,18 @@ namespace TrenchBroom {
     namespace Model {
         GameEngineConfig::GameEngineConfig() {}
 
-        GameEngineConfig::GameEngineConfig(const std::vector<GameEngineProfile*>& profiles) :
-        m_profiles(profiles) {}
+        GameEngineConfig::GameEngineConfig(std::vector<std::unique_ptr<GameEngineProfile>> profiles) :
+        m_profiles(std::move(profiles)) {}
 
         GameEngineConfig::GameEngineConfig(const GameEngineConfig& other) {
             m_profiles.reserve(other.m_profiles.size());
 
-            for (const GameEngineProfile* original : other.m_profiles)
+            for (const auto& original : other.m_profiles) {
                 m_profiles.push_back(original->clone());
+            }
         }
 
-        GameEngineConfig::~GameEngineConfig() {
-            kdl::vec_clear_and_delete(m_profiles);
-        }
+        GameEngineConfig::~GameEngineConfig() = default;
 
         GameEngineConfig& GameEngineConfig::operator=(GameEngineConfig other) {
             using std::swap;
@@ -61,27 +61,28 @@ namespace TrenchBroom {
         }
 
         bool GameEngineConfig::hasProfile(const std::string& name) const {
-            for (size_t i = 0; i < m_profiles.size(); ++i)
-                if (m_profiles[i]->name() == name)
+            for (size_t i = 0; i < m_profiles.size(); ++i) {
+                if (m_profiles[i]->name() == name) {
                     return true;
+                }
+            }
             return false;
         }
 
         GameEngineProfile* GameEngineConfig::profile(const size_t index) const {
             assert(index < profileCount());
-            return m_profiles[index];
+            return m_profiles[index].get();
         }
 
-        void GameEngineConfig::addProfile(GameEngineProfile* profile) {
+        void GameEngineConfig::addProfile(std::unique_ptr<GameEngineProfile> profile) {
             ensure(profile != nullptr, "profile is null");
-            m_profiles.push_back(profile);
+            m_profiles.push_back(std::move(profile));
             profilesDidChange();
         }
 
         void GameEngineConfig::removeProfile(const size_t index) {
             assert(index < profileCount());
             m_profiles[index]->profileWillBeRemoved();
-            delete m_profiles[index];
             kdl::vec_erase_at(m_profiles, index);
             profilesDidChange();
         }

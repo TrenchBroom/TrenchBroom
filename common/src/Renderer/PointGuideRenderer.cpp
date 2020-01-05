@@ -19,8 +19,9 @@
 
 #include "PointGuideRenderer.h"
 
-#include "TrenchBroom.h"
-#include "SharedPointer.h"
+#include "FloatType.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vecmath/vec.h>
 #include <vecmath/ray.h>
@@ -46,7 +47,7 @@ namespace TrenchBroom {
 
             m_spikeRenderer.clear();
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             m_spikeRenderer.add(vm::ray3(position, vm::vec3::pos_x()), SpikeLength, document);
             m_spikeRenderer.add(vm::ray3(position, vm::vec3::neg_x()), SpikeLength, document);
             m_spikeRenderer.add(vm::ray3(position, vm::vec3::pos_y()), SpikeLength, document);

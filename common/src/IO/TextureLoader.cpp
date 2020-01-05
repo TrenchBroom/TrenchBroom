@@ -19,6 +19,7 @@
 
 #include "TextureLoader.h"
 
+#include "Ensure.h"
 #include "Logger.h"
 #include "Assets/Palette.h"
 #include "Assets/TextureCollection.h"

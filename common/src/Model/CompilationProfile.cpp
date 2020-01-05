@@ -19,6 +19,7 @@
 
 #include "CompilationProfile.h"
 
+#include "Ensure.h"
 #include "Model/CompilationTask.h"
 
 #include <kdl/vector_utils.h>
@@ -31,23 +32,22 @@ namespace TrenchBroom {
         m_name(name),
         m_workDirSpec(workDirSpec) {}
 
-        CompilationProfile::CompilationProfile(const std::string& name, const std::string& workDirSpec, const std::vector<CompilationTask*>& tasks) :
+        CompilationProfile::CompilationProfile(const std::string& name, const std::string& workDirSpec, std::vector<std::unique_ptr<CompilationTask>> tasks) :
         m_name(name),
         m_workDirSpec(workDirSpec),
-        m_tasks(tasks) {}
+        m_tasks(std::move(tasks)) {}
 
-        CompilationProfile::~CompilationProfile() {
-            kdl::vec_clear_and_delete(m_tasks);
-        }
+        CompilationProfile::~CompilationProfile() = default;
 
-        CompilationProfile* CompilationProfile::clone() const {
-            std::vector<CompilationTask*> clones;
+        std::unique_ptr<CompilationProfile> CompilationProfile::clone() const {
+            std::vector<std::unique_ptr<CompilationTask>> clones;
             clones.reserve(m_tasks.size());
 
-            for (const CompilationTask* original : m_tasks)
-                clones.push_back(original->clone());
+            for (const auto& original : m_tasks) {
+                clones.push_back(std::unique_ptr<CompilationTask>(original->clone()));
+            }
 
-            return new CompilationProfile(m_name, m_workDirSpec, clones);
+            return std::make_unique<CompilationProfile>(m_name, m_workDirSpec, std::move(clones));
         }
 
         const std::string& CompilationProfile::name() const  {
@@ -75,23 +75,23 @@ namespace TrenchBroom {
 
         CompilationTask* CompilationProfile::task(const size_t index) const {
             assert(index < taskCount());
-            return m_tasks[index];
+            return m_tasks[index].get();
         }
 
-        void CompilationProfile::addTask(CompilationTask* task) {
-            insertTask(m_tasks.size(), task);
+        void CompilationProfile::addTask(std::unique_ptr<CompilationTask> task) {
+            insertTask(m_tasks.size(), std::move(task));
         }
 
-        void CompilationProfile::insertTask(const size_t index, CompilationTask* task) {
+        void CompilationProfile::insertTask(const size_t index, std::unique_ptr<CompilationTask> task) {
             assert(index <= m_tasks.size());
             ensure(task != nullptr, "task is null");
 
             if (index == m_tasks.size()) {
-                m_tasks.push_back(task);
+                m_tasks.push_back(std::move(task));
             } else {
                 auto it = std::begin(m_tasks);
                 std::advance(it, static_cast<int>(index));
-                m_tasks.insert(it, task);
+                m_tasks.insert(it, std::move(task));
 
             }
             profileDidChange();
@@ -100,7 +100,6 @@ namespace TrenchBroom {
         void CompilationProfile::removeTask(const size_t index) {
             assert(index < taskCount());
             m_tasks[index]->taskWillBeRemoved();
-            delete m_tasks[index];
             kdl::vec_erase_at(m_tasks, index);
             profileDidChange();
         }
@@ -133,23 +132,27 @@ namespace TrenchBroom {
         }
 
         void CompilationProfile::accept(CompilationTaskVisitor& visitor) {
-            for (CompilationTask* task : m_tasks)
+            for (auto& task : m_tasks) {
                 task->accept(visitor);
+            }
         }
 
         void CompilationProfile::accept(ConstCompilationTaskVisitor& visitor) const {
-            for (CompilationTask* task : m_tasks)
+            for (auto& task : m_tasks) {
                 task->accept(visitor);
+            }
         }
 
         void CompilationProfile::accept(const CompilationTaskConstVisitor& visitor) {
-            for (CompilationTask* task : m_tasks)
+            for (auto& task : m_tasks) {
                 task->accept(visitor);
+            }
         }
 
         void CompilationProfile::accept(const ConstCompilationTaskConstVisitor& visitor) const {
-            for (CompilationTask* task : m_tasks)
+            for (auto& task : m_tasks) {
                 task->accept(visitor);
+            }
         }
     }
 }

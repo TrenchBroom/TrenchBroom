@@ -21,16 +21,28 @@
 #define TrenchBroom_EntityDefinitionManager
 
 #include "Notifier.h"
-#include "Assets/Asset_Forward.h"
-#include "IO/IO_Forward.h"
-#include "Model/Model_Forward.h"
 
 #include <map>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace IO {
+        class EntityDefinitionLoader;
+        class ParserStatus;
+        class Path;
+    }
+
+    namespace Model {
+        class AttributableNode;
+    }
+
     namespace Assets {
+        class EntityDefinition;
+        class EntityDefinitionGroup;
+        enum class EntityDefinitionSortOrder;
+        enum class EntityDefinitionType;
+
         class EntityDefinitionManager {
         private:
             using Cache = std::map<std::string, EntityDefinition*>;
@@ -47,7 +59,7 @@ namespace TrenchBroom {
             void clear();
 
             EntityDefinition* definition(const Model::AttributableNode* attributable) const;
-            EntityDefinition* definition(const Model::AttributeValue& classname) const;
+            EntityDefinition* definition(const std::string& classname) const;
             std::vector<EntityDefinition*> definitions(EntityDefinitionType type, EntityDefinitionSortOrder order) const;
             const std::vector<EntityDefinition*>& definitions() const;
 

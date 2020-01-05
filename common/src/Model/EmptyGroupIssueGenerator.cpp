@@ -19,6 +19,7 @@
 
 #include "EmptyGroupIssueGenerator.h"
 
+#include "Ensure.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/Group.h"
 #include "Model/Issue.h"
@@ -33,14 +34,14 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            EmptyGroupIssue(Group* group) :
+            explicit EmptyGroupIssue(Group* group) :
             Issue(group) {}
         private:
             IssueType doGetType() const override {
                 return Type;
             }
 
-            const std::string doGetDescription() const override {
+            std::string doGetDescription() const override {
                 const Group* group = static_cast<Group*>(node());
                 return "Group '" + group->name() + "' does not contain any objects";
             }

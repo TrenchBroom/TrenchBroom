@@ -20,14 +20,16 @@
 #ifndef GameEngineProfileEditor_h
 #define GameEngineProfileEditor_h
 
-#include "Model/Model_Forward.h"
-
 #include <QWidget>
 
 class QLineEdit;
 class QStackedWidget;
 
 namespace TrenchBroom {
+    namespace Model {
+        class GameEngineProfile;
+    }
+
     namespace View {
         class GameEngineProfileEditor : public QWidget {
         private:

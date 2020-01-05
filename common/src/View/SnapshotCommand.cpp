@@ -19,6 +19,7 @@
 
 #include "SnapshotCommand.h"
 
+#include "Ensure.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocumentCommandFacade.h"
 

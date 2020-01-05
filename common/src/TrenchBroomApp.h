@@ -22,8 +22,6 @@
 
 #include "Notifier.h"
 
-#include "IO/IO_Forward.h"
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -36,6 +34,10 @@ class QSettings;
 namespace TrenchBroom {
     class Logger;
     class RecoverableException;
+
+    namespace IO {
+        class Path;
+    }
 
     namespace View {
         class ExecutableEvent;
@@ -59,6 +61,8 @@ namespace TrenchBroom {
             QSettings& settings();
 
             FrameManager* frameManager();
+
+            bool loadStyleSheets();
 
             const std::vector<IO::Path>& recentDocuments() const;
             void addRecentDocumentMenu(QMenu* menu);

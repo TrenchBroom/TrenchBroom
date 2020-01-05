@@ -36,21 +36,21 @@
 
 namespace TrenchBroom {
     namespace IO {
-        static QString imagePathToString(const IO::Path& imagePath) {
-            const IO::Path fullPath = imagePath.isAbsolute() ? imagePath : IO::SystemPaths::findResourceFile(IO::Path("images") + imagePath);
-            return IO::pathAsQString(fullPath);
+        static QString imagePathToString(const Path& imagePath) {
+            const Path fullPath = imagePath.isAbsolute() ? imagePath : SystemPaths::findResourceFile(Path("images") + imagePath);
+            return pathAsQString(fullPath);
         }
 
         QPixmap loadPixmapResource(const std::string& name) {
-            return loadPixmapResource(IO::Path(name));
+            return loadPixmapResource(Path(name));
         }
 
-        QPixmap loadPixmapResource(const IO::Path& imagePath) {
+        QPixmap loadPixmapResource(const Path& imagePath) {
             const QString imagePathString = imagePathToString(imagePath);
             return QPixmap(imagePathString);
         }
 
-        QIcon loadIconResourceQt(const IO::Path& imagePath) {
+        QIcon loadIconResourceQt(const Path& imagePath) {
             // Simple caching layer.
             // Without it, the .png files would be read from disk and decoded each time this is called, which is slow.
             // We never evict from the cache which is assumed to be OK because this is just used for icons
@@ -58,7 +58,7 @@ namespace TrenchBroom {
 
             ensure(qApp->thread() == QThread::currentThread(), "loadIconResourceQt can only be used on the main thread");
 
-            static std::map<IO::Path, QIcon> cache;
+            static std::map<Path, QIcon> cache;
             {
                 auto it = cache.find(imagePath);
                 if (it != cache.end()) {
@@ -79,7 +79,7 @@ namespace TrenchBroom {
                     const auto imagePathString = imagePathToString(imagePath);
 
                     if (imagePathString.isEmpty()) {
-                        qWarning() << "Couldn't find image for path: " << IO::pathAsQString(imagePath);
+                        qWarning() << "Couldn't find image for path: " << pathAsQString(imagePath);
                     }
 
                     result.addFile(imagePathString, QSize(), QIcon::Normal);

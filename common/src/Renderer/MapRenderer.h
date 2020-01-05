@@ -21,24 +21,38 @@
 #define TrenchBroom_MapRenderer
 
 #include "Macros.h"
-#include "IO/IO_Forward.h"
-#include "Model/Model_Forward.h"
-#include "Renderer/Renderer_Forward.h"
 
 #include <map>
 #include <memory>
 #include <vector>
 
-class Color;
-
 namespace TrenchBroom {
+    class Color;
+
+    namespace IO {
+        class Path;
+    }
+
     namespace View {
         // FIXME: Renderer should not depend on View
         class MapDocument;
         class Selection;
     }
 
+    namespace Model {
+        class Brush;
+        class BrushFace;
+        class Group;
+        class Layer;
+        class Node;
+    }
+
     namespace Renderer {
+        class EntityLinkRenderer;
+        class ObjectRenderer;
+        class RenderBatch;
+        class RenderContext;
+
         class MapRenderer {
         private:
             class SelectedBrushRendererFilter;

@@ -21,7 +21,6 @@
 #define TrenchBroom_RecentDocuments
 
 #include "Notifier.h"
-#include "IO/IO_Forward.h"
 
 #include <vector>
 
@@ -30,6 +29,10 @@
 class QMenu;
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
     namespace View {
         class RecentDocuments : public QObject {
             Q_OBJECT

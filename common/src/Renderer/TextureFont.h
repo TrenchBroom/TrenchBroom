@@ -21,7 +21,6 @@
 #define TrenchBroom_Font
 
 #include "Macros.h"
-#include "Renderer/Renderer_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -30,9 +29,11 @@
 #include <vector>
 
 namespace TrenchBroom {
-    class AttrString;
-
     namespace Renderer {
+        class AttrString;
+        class FontGlyph;
+        class FontTexture;
+
         class TextureFont {
         private:
             std::unique_ptr<FontTexture> m_texture;

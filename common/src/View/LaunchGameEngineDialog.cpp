@@ -19,7 +19,6 @@
 
 #include "LaunchGameEngineDialog.h"
 
-#include "SharedPointer.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
 #include "IO/PathQt.h"
@@ -38,6 +37,7 @@
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/string_utils.h>
 
 #include <string>
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             setWindowIconTB(this);
             setWindowTitle("Launch Engine");
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& gameName = document->game()->gameName();
             auto* gameIndicator = new CurrentGameIndicator(gameName);
 
@@ -153,7 +153,7 @@ namespace TrenchBroom {
         }
 
         LaunchGameEngineVariables LaunchGameEngineDialog::variables() const {
-            return LaunchGameEngineVariables(lock(m_document));
+            return LaunchGameEngineVariables(kdl::mem_lock(m_document));
         }
 
         void LaunchGameEngineDialog::gameEngineProfileChanged() {
@@ -182,7 +182,7 @@ namespace TrenchBroom {
         void LaunchGameEngineDialog::editGameEngines() {
             const bool wasEmpty = m_gameEngineList->count() == 0;
 
-            GameEngineDialog dialog(lock(m_document)->game()->gameName(), this);
+            GameEngineDialog dialog(kdl::mem_lock(m_document)->game()->gameName(), this);
             dialog.exec();
 
             if (wasEmpty && m_gameEngineList->count() > 0) {
