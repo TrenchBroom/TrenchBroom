@@ -226,8 +226,8 @@ namespace TrenchBroom {
             const auto& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
             const auto stripeSize = m_helper.stripeSize();
 
-            const auto xIndex = xHandleHit.target<int>();
-            const auto yIndex = yHandleHit.target<int>();
+            const auto xIndex = xHandleHit.isMatch() ? xHandleHit.target<int>() : 0;
+            const auto yIndex = yHandleHit.isMatch() ? yHandleHit.target<int>() : 0;
             const auto pos = stripeSize * vm::vec2(xIndex, yIndex);
 
             vm::vec3 h1, h2, v1, v2;
