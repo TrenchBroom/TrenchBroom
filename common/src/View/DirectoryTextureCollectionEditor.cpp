@@ -122,7 +122,6 @@ namespace TrenchBroom {
             auto* availableCollectionsContainer = new TitledPanel("Available", false, false);
 
             m_availableCollectionsList = new QListWidget();
-            m_availableCollectionsList->setStyleSheet("QListWidget { border: none; }");
             m_availableCollectionsList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
             auto* availableCollectionsContainerLayout = new QVBoxLayout();
@@ -133,7 +132,6 @@ namespace TrenchBroom {
 
             auto* enabledCollectionsContainer = new TitledPanel("Enabled", false, false);
             m_enabledCollectionsList = new QListWidget();
-            m_enabledCollectionsList->setStyleSheet("QListWidget { border: none; }");
             m_enabledCollectionsList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
             auto* enabledCollectionsContainerLayout = new QVBoxLayout();

@@ -152,7 +152,7 @@ namespace TrenchBroom {
                     const std::string defName = definition->name();
 
                     auto* defCB = new QCheckBox(QString::fromStdString(defName));
-                    defCB->setStyleSheet("margin-left: 11px");
+                    defCB->setObjectName("entityDefinition_checkboxWidget");
 
                     connect(defCB, &QAbstractButton::clicked, this, [this, definition](bool checked){
                         this->defCheckBoxChanged(definition, checked);
