@@ -81,6 +81,8 @@ namespace TrenchBroom {
 
             void updateDocumentation(const std::string& attributeName);
             void createGui(std::weak_ptr<MapDocument> document);
+
+            void updateMinimumSize();
         };
     }
 }
