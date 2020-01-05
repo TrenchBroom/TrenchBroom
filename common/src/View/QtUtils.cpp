@@ -29,8 +29,6 @@
 #include "View/MapFrame.h"
 #include "View/ViewConstants.h"
 
-#include <string>
-
 #include <QtGlobal>
 #include <QAbstractButton>
 #include <QBoxLayout>
@@ -73,6 +71,31 @@ namespace TrenchBroom {
             m_widget->setUpdatesEnabled(true);
         }
 
+        /**
+         * Helper function to find an existing settings file, or build the path to such a file if it doesn't exist yet.
+         */
+        QString getSettingsFilePath();
+        QString getSettingsFilePath() {
+            auto path = QStandardPaths::locate(QStandardPaths::ConfigLocation, QString::fromLocal8Bit("TrenchBroom Preferences"));
+            if (path.isEmpty()) {
+                // if the file does not exist, it cannot be located
+                path = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/Trenchbroom Preferences";
+            }
+            return path;
+        }
+
+        QSettings& getSettings() {
+            static auto settings =
+#if defined __linux__ || defined __FreeBSD__
+                QSettings(QDir::homePath() % QString::fromLocal8Bit("/.TrenchBroom/.preferences"), QSettings::Format::IniFormat);
+#elif defined __APPLE__
+                QSettings(getSettingsFilePath(), QSettings::Format::IniFormat);
+#else
+            QSettings();
+#endif
+            return settings;
+        }
+
         static QString fileDialogDirToString(const FileDialogDir dir) {
             switch (dir) {
                 case FileDialogDir::Map: return "Map";
@@ -93,7 +116,7 @@ namespace TrenchBroom {
         QString fileDialogDefaultDirectory(const FileDialogDir dir) {
             const QString key = fileDialogDefaultDirectorySettingsPath(dir);
 
-            const QSettings settings;
+            const QSettings& settings = getSettings();
             const QString defaultDir = settings.value(key).toString();
             return defaultDir;
         }
@@ -107,7 +130,7 @@ namespace TrenchBroom {
         void updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir type, const QString& newDefaultDirectory) {
             const QString key = fileDialogDefaultDirectorySettingsPath(type);
 
-            QSettings settings;
+            QSettings& settings = getSettings();
             settings.setValue(key, newDefaultDirectory);
         }
 
@@ -122,7 +145,7 @@ namespace TrenchBroom {
             ensure(window != nullptr, "window must not be null");
 
             const auto path = windowSettingsPath(window, "Geometry");
-            QSettings settings;
+            QSettings& settings = getSettings();
             settings.setValue(path, window->saveGeometry());
         }
 
@@ -130,7 +153,7 @@ namespace TrenchBroom {
             ensure(window != nullptr, "window must not be null");
 
             const auto path = windowSettingsPath(window, "Geometry");
-            QSettings settings;
+            const QSettings& settings = getSettings();
             window->restoreGeometry(settings.value(path).toByteArray());
         }
 
@@ -225,20 +248,6 @@ namespace TrenchBroom {
             palette.setColor(QPalette::Normal, QPalette::Text, defaultPalette.color(QPalette::Normal, QPalette::Text));
             widget->setPalette(palette);
             return widget;
-        }
-
-        QSettings& getSettings() {
-            static auto settings =
-#if defined __linux__ || defined __FreeBSD__
-                QSettings(QDir::homePath() % QString::fromLocal8Bit("/.TrenchBroom/.preferences"), QSettings::Format::IniFormat);
-#elif defined __APPLE__
-                QSettings(QStandardPaths::locate(QStandardPaths::ConfigLocation,
-                                                 QString::fromLocal8Bit("TrenchBroom Preferences"),
-                                                 QStandardPaths::LocateOption::LocateFile), QSettings::Format::IniFormat);
-#else
-                QSettings();
-#endif
-            return settings;
         }
 
         Color fromQColor(const QColor& color) {

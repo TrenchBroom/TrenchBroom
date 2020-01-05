@@ -162,10 +162,6 @@ namespace TrenchBroom {
             openFilesOrWelcomeFrame(parser.positionalArguments());
         }
 
-        QSettings& TrenchBroom::View::TrenchBroomApp::settings() {
-            return getSettings();
-        }
-
         FrameManager* TrenchBroomApp::frameManager() {
             return m_frameManager.get();
         }
