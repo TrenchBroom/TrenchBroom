@@ -24,7 +24,6 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
-#include "Model/BrushFace.h"
 #include "Model/CollectContainedNodesVisitor.h"
 #include "Model/HitAdapter.h"
 #include "Model/PickResult.h"
@@ -214,7 +213,7 @@ namespace TrenchBroom {
                     tallVertices.push_back(maxPlane.project_point(vertex->position()));
                 }
 
-                Model::Brush* tallBrush = brushBuilder.createBrush(tallVertices, Model::BrushFace::NoTextureName);
+                Model::Brush* tallBrush = brushBuilder.createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName);
                 tallBrushes.push_back(tallBrush);
             }
 

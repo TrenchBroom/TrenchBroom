@@ -29,6 +29,7 @@
 #include "IO/NodeWriter.h"
 #include "IO/TestParserStatus.h"
 #include "IO/TextureLoader.h"
+#include "Model/BrushFace.h"
 #include "Model/GameConfig.h"
 #include "Model/World.h"
 
@@ -196,6 +197,11 @@ namespace TrenchBroom {
         const Model::FlagsConfig& TestGame::doContentFlags() const {
             static const Model::FlagsConfig config;
             return config;
+        }
+
+        const Model::BrushFaceAttributes& TestGame::doDefaultFaceAttribs() const {
+            static const Model::BrushFaceAttributes defaults(Model::BrushFaceAttributes::NoTextureName);
+            return defaults;
         }
 
         std::vector<Assets::EntityDefinition*> TestGame::doLoadEntityDefinitions(IO::ParserStatus& /* status */, const IO::Path& /* path */) const {

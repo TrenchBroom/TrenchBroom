@@ -1095,7 +1095,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
+            Brush* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName);
 
             std::vector<vm::vec3> vertexPositions(4);
             vertexPositions[0] = vm::vec3(-64.0, -64.0, -16.0);
@@ -1252,7 +1252,7 @@ namespace TrenchBroom {
                 baseQuadVertexPositions);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
 
             assertCanMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -127.0));
             assertCanNotMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -128.0)); // Onto the base quad plane
@@ -1310,7 +1310,7 @@ namespace TrenchBroom {
             };
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
 
             assertMovingVertexDeletes(brush, peakPosition, vm::vec3(0.0, 0.0, -65.0)); // Move inside the remaining cuboid
             assertCanMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -63.0)); // Slightly above the top of the cuboid is OK
@@ -1329,7 +1329,7 @@ namespace TrenchBroom {
             const vm::segment3 edge(vm::vec3(-128, 0, -128), vm::vec3(-128, 0, +128));
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
+            Brush* brush = builder.createCube(128, Model::BrushFaceAttributes::NoTextureName);
             ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge.start()));
             ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge.end()));
 
@@ -1357,7 +1357,7 @@ namespace TrenchBroom {
             const std::vector<vm::segment3> movingEdges{edge1, edge2};
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
+            Brush* brush = builder.createCube(128, Model::BrushFaceAttributes::NoTextureName);
             ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge1.start()));
             ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge1.end()));
             ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge2.start()));
@@ -1392,7 +1392,7 @@ namespace TrenchBroom {
             };
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
 
             assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 
@@ -1414,7 +1414,7 @@ namespace TrenchBroom {
             };
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
 
             assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 
@@ -1426,7 +1426,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(128.0, Model::BrushFace::NoTextureName);
+            Brush* brush = builder.createCube(128.0, Model::BrushFaceAttributes::NoTextureName);
 
             assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 
@@ -1450,7 +1450,7 @@ namespace TrenchBroom {
                     vm::vec3(-64.0, +64.0, +64.0)};
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
             ASSERT_EQ(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), brush->logicalBounds());
 
             assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
@@ -1485,7 +1485,7 @@ namespace TrenchBroom {
             const vm::vec3 topFaceNormal(sqrt(2.0) / 2.0, 0.0, sqrt(2.0) / 2.0);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
 
             BrushFace* topFace = brush->findFace(topFaceNormal);
             ASSERT_NE(nullptr, topFace);
@@ -1532,7 +1532,7 @@ namespace TrenchBroom {
                 cubeBottomFace);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
 
             // Try to move the top face down along the Z axis
             assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
@@ -1590,7 +1590,7 @@ namespace TrenchBroom {
                 bottomRightPolygon);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
+            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
 
             EXPECT_TRUE(brush->hasFace(vm::polygon3(leftPolygon)));
             EXPECT_TRUE(brush->hasFace(vm::polygon3(bottomPolygon)));
@@ -1612,7 +1612,7 @@ namespace TrenchBroom {
             const vm::segment3 edge(vm::vec3(-128, 0, -256), vm::vec3(-128, 0, 0));
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
+            Brush* brush = builder.createCube(128, Model::BrushFaceAttributes::NoTextureName);
             ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge.start()));
             ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge.end()));
 
@@ -3413,7 +3413,7 @@ namespace TrenchBroom {
 
             // Check all textures are cleared
             for (BrushFace* face : cube->faces()) {
-                EXPECT_EQ(BrushFace::NoTextureName, face->textureName());
+                EXPECT_EQ(BrushFaceAttributes::NoTextureName, face->textureName());
             }
 
             snapshot->restore(worldBounds);

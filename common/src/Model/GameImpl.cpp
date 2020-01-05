@@ -50,7 +50,6 @@
 #include "IO/TextureLoader.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
-#include "Model/BrushFace.h"
 #include "Model/EntityAttributes.h"
 #include "Model/ExportFormat.h"
 #include "Model/GameConfig.h"
@@ -129,8 +128,8 @@ namespace TrenchBroom {
             } else {
                 auto world = std::make_unique<World>(format);
 
-                const Model::BrushBuilder builder(world.get(), worldBounds);
-                auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
+                const Model::BrushBuilder builder(world.get(), worldBounds, defaultFaceAttribs());
+                auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName);
                 world->defaultLayer()->addChild(brush);
 
                 if (format == MapFormat::Valve) {
@@ -513,6 +512,10 @@ namespace TrenchBroom {
 
         const FlagsConfig& GameImpl::doContentFlags() const {
             return m_config.faceAttribsConfig().contentFlags;
+        }
+
+        const BrushFaceAttributes& GameImpl::doDefaultFaceAttribs() const {
+            return m_config.faceAttribsConfig().defaults;
         }
 
         void GameImpl::writeLongAttribute(AttributableNode& node, const std::string& baseName, const std::string& value, const size_t maxLength) const {

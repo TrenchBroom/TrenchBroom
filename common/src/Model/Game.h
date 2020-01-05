@@ -41,6 +41,7 @@ namespace TrenchBroom {
     namespace Model {
         class AttributableNode;
         class BrushFace;
+        class BrushFaceAttributes;
         class CompilationConfig;
         enum class ExportFormat;
         struct FlagsConfig;
@@ -98,9 +99,10 @@ namespace TrenchBroom {
             std::vector<std::string> availableMods() const;
             std::vector<std::string> extractEnabledMods(const AttributableNode& node) const;
             std::string defaultMod() const;
-        public: // flag configs for faces
+        public: // configs for faces
             const FlagsConfig& surfaceFlags() const;
             const FlagsConfig& contentFlags() const;
+            const BrushFaceAttributes& defaultFaceAttribs() const;
         private: // subclassing interface
             virtual const std::string& doGameName() const = 0;
             virtual IO::Path doGamePath() const = 0;
@@ -142,6 +144,7 @@ namespace TrenchBroom {
 
             virtual const FlagsConfig& doSurfaceFlags() const = 0;
             virtual const FlagsConfig& doContentFlags() const = 0;
+            virtual const BrushFaceAttributes& doDefaultFaceAttribs() const = 0;
         };
     }
 }

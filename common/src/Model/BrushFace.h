@@ -62,8 +62,6 @@ namespace TrenchBroom {
              * 0-----------2
              */
             using Points = vm::vec3[3];
-        public:
-            static const std::string NoTextureName;
         private:
             /**
              * For use in VertexList transformation below.

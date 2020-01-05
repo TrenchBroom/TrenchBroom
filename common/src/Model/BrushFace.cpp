@@ -49,8 +49,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const std::string BrushFace::NoTextureName = "__TB_empty";
-
         const BrushVertex* BrushFace::TransformHalfEdgeToVertex::operator()(const BrushHalfEdge* halfEdge) const {
             return halfEdge->origin();
         }
