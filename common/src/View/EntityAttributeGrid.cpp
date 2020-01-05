@@ -203,6 +203,7 @@ namespace TrenchBroom {
 
             connect(m_table->selectionModel(), &QItemSelectionModel::currentChanged, this, [=](const QModelIndex& current, const QModelIndex& previous){
                 qDebug() << "current changed form " << previous << " to " << current;
+                updateControlsEnabled();
                 emit selectedRow();
             });
 
@@ -270,8 +271,10 @@ namespace TrenchBroom {
             // state. Everything is fine except you lose the selected row in the table, unless it's a key
             // name that exists in worldspawn. To avoid that problem, make a delayed call to update the table.
             QMetaObject::invokeMethod(m_model, "updateFromMapDocument", Qt::QueuedConnection);
+            updateControlsEnabled();
+        }
 
-            // Update buttons/checkboxes
+        void EntityAttributeGrid::updateControlsEnabled() {
             auto document = kdl::mem_lock(m_document);
             const auto nodes = document->allSelectedAttributableNodes();
             m_table->setEnabled(!nodes.empty());

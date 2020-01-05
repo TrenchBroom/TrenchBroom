@@ -81,6 +81,7 @@ namespace TrenchBroom {
             void entityDefinitionsOrModsDidChange();
         private:
             void updateControls();
+            void updateControlsEnabled();
         public:
             std::string selectedRowName() const;
         signals:
