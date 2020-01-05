@@ -204,6 +204,7 @@ namespace TrenchBroom {
             connect(m_table->selectionModel(), &QItemSelectionModel::currentChanged, this, [=](const QModelIndex& current, const QModelIndex& previous){
                 qDebug() << "current changed form " << previous << " to " << current;
                 updateControlsEnabled();
+                ensureSelectionVisible();
                 emit selectedRow();
             });
 
@@ -272,6 +273,11 @@ namespace TrenchBroom {
             // name that exists in worldspawn. To avoid that problem, make a delayed call to update the table.
             QMetaObject::invokeMethod(m_model, "updateFromMapDocument", Qt::QueuedConnection);
             updateControlsEnabled();
+            ensureSelectionVisible();
+        }
+
+        void EntityAttributeGrid::ensureSelectionVisible() {
+            m_table->scrollTo(m_table->currentIndex());
         }
 
         void EntityAttributeGrid::updateControlsEnabled() {
