@@ -212,8 +212,14 @@ namespace TrenchBroom {
         QWidget* makeSelected(QWidget* widget) {
             const auto defaultPalette = QPalette();
             auto palette = widget->palette();
+#if defined __APPLE__
+            // on macOS, QPalette::HighlightedText gives a black color which looks very out of place
+            palette.setColor(QPalette::Normal, QPalette::WindowText, Qt::white);
+            palette.setColor(QPalette::Normal, QPalette::Text, Qt::white);
+#else
             palette.setColor(QPalette::Normal, QPalette::WindowText, defaultPalette.color(QPalette::Normal, QPalette::HighlightedText));
             palette.setColor(QPalette::Normal, QPalette::Text, defaultPalette.color(QPalette::Normal, QPalette::HighlightedText));
+#endif
             widget->setPalette(palette);
             return widget;
         }
