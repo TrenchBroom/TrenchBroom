@@ -167,7 +167,7 @@ namespace TrenchBroom {
         }
 
         FaceAttribsConfig::FaceAttribsConfig() :
-        defaults(BrushFace::NoTextureName) {}
+        defaults(BrushFaceAttributes::NoTextureName) {}
 
         FaceAttribsConfig::FaceAttribsConfig(const std::vector<FlagConfig>& i_surfaceFlags, const std::vector<FlagConfig>& i_contentFlags, const BrushFaceAttributes& i_defaults) :
         surfaceFlags(i_surfaceFlags),

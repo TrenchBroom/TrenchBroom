@@ -21,8 +21,6 @@
 
 #include "Ensure.h"
 #include "Polyhedron.h"
-#include "Model/Brush.h"
-#include "Model/BrushFace.h"
 #include "Model/ModelFactory.h"
 
 #include <cassert>
@@ -33,7 +31,7 @@ namespace TrenchBroom {
         BrushBuilder::BrushBuilder(ModelFactory* factory, const vm::bbox3& worldBounds) :
         m_factory(factory),
         m_worldBounds(worldBounds),
-        m_defaultAttribs(BrushFace::NoTextureName) {
+        m_defaultAttribs(BrushFaceAttributes::NoTextureName) {
             ensure(m_factory != nullptr, "factory is null");
         }
 

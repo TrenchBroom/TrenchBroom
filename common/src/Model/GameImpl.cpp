@@ -50,7 +50,6 @@
 #include "IO/TextureLoader.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
-#include "Model/BrushFace.h"
 #include "Model/EntityAttributes.h"
 #include "Model/ExportFormat.h"
 #include "Model/GameConfig.h"
@@ -130,7 +129,7 @@ namespace TrenchBroom {
                 auto world = std::make_unique<World>(format);
 
                 const Model::BrushBuilder builder(world.get(), worldBounds, defaultFaceAttribs());
-                auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
+                auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName);
                 world->defaultLayer()->addChild(brush);
 
                 if (format == MapFormat::Valve) {

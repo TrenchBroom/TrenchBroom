@@ -23,7 +23,6 @@
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
 #include "EL/Value.h"
-#include "Model/BrushFace.h"
 #include "Model/GameConfig.h"
 #include "Model/Tag.h"
 #include "Model/TagAttribute.h"
@@ -231,7 +230,7 @@ namespace TrenchBroom {
         }
 
         Model::BrushFaceAttributes GameConfigParser::parseFaceAttribsDefaults(const EL::Value& value, const Model::FlagsConfig& surfaceFlags, const Model::FlagsConfig& contentFlags) const {
-            Model::BrushFaceAttributes defaults(Model::BrushFace::NoTextureName);
+            Model::BrushFaceAttributes defaults(Model::BrushFaceAttributes::NoTextureName);
             if (value.null()) {
                 return defaults;
             }

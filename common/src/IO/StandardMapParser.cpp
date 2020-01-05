@@ -639,7 +639,7 @@ namespace TrenchBroom {
 
         std::string StandardMapParser::parseTextureName(ParserStatus& /* status */) {
             auto textureName = m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace());
-            if (textureName == Model::BrushFace::NoTextureName) {
+            if (textureName == Model::BrushFaceAttributes::NoTextureName) {
                 textureName = "";
             }
             return textureName;

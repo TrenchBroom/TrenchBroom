@@ -19,7 +19,6 @@
 
 #include "BrushFaceAttributes.h"
 #include "Assets/Texture.h"
-#include "Model/BrushFace.h"
 
 #include <vecmath/vec.h>
 
@@ -27,6 +26,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        const std::string BrushFaceAttributes::NoTextureName = "__TB_empty";
+
         BrushFaceAttributes::BrushFaceAttributes(const std::string& textureName) :
         m_textureName(textureName),
         m_texture(nullptr),
@@ -189,7 +190,7 @@ namespace TrenchBroom {
                 m_texture->decUsageCount();
             }
             m_texture = nullptr;
-            m_textureName = BrushFace::NoTextureName;
+            m_textureName = BrushFaceAttributes::NoTextureName;
         }
 
         bool BrushFaceAttributes::valid() const {

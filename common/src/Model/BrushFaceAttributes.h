@@ -33,6 +33,8 @@ namespace TrenchBroom {
 
     namespace Model {
         class BrushFaceAttributes {
+        public:
+            static const std::string NoTextureName;
         private:
             std::string m_textureName;
             Assets::Texture* m_texture;

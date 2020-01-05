@@ -528,7 +528,7 @@ namespace TrenchBroom {
                     m_textureSize->setText("multi");
                     m_textureSize->setEnabled(false);
                 } else {
-                    if (textureName == Model::BrushFace::NoTextureName) {
+                    if (textureName == Model::BrushFaceAttributes::NoTextureName) {
                         m_textureName->setText("none");
                         m_textureName->setEnabled(false);
                         m_textureSize->setText("");

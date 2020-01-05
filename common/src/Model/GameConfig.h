@@ -22,7 +22,7 @@
 
 #include "Color.h"
 #include "IO/Path.h"
-#include "Model/Brushface.h"
+#include "Model/BrushFaceAttributes.h"
 #include "Model/CompilationConfig.h"
 #include "Model/GameEngineConfig.h"
 #include "Model/Tag.h"

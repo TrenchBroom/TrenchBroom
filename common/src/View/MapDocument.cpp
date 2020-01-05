@@ -35,7 +35,6 @@
 #include "Model/AttributeValueWithDoubleQuotationMarksIssueGenerator.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
-#include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectAttributableNodesVisitor.h"
@@ -159,7 +158,7 @@ namespace TrenchBroom {
         m_lastSaveModificationCount(0),
         m_modificationCount(0),
         m_currentLayer(nullptr),
-        m_currentTextureName(Model::BrushFace::NoTextureName),
+        m_currentTextureName(Model::BrushFaceAttributes::NoTextureName),
         m_lastSelectionBounds(0.0, 32.0),
         m_selectionBoundsValid(true),
         m_viewEffectsService(nullptr) {
@@ -1328,13 +1327,13 @@ namespace TrenchBroom {
             if (texture != nullptr) {
                 if (faces.empty()) {
                     if (currentTextureName() == texture->name())
-                        setCurrentTextureName(Model::BrushFace::NoTextureName);
+                        setCurrentTextureName(Model::BrushFaceAttributes::NoTextureName);
                     else
                         setCurrentTextureName(texture->name());
                 } else {
                     if (hasTexture(faces, texture)) {
                         texture = nullptr;
-                        setCurrentTextureName(Model::BrushFace::NoTextureName);
+                        setCurrentTextureName(Model::BrushFaceAttributes::NoTextureName);
                     } else {
                         setCurrentTextureName(texture->name());
                     }

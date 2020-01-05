@@ -200,7 +200,7 @@ namespace TrenchBroom {
         }
 
         const Model::BrushFaceAttributes& TestGame::doDefaultFaceAttribs() const {
-            static const Model::BrushFaceAttributes defaults(Model::BrushFace::NoTextureName);
+            static const Model::BrushFaceAttributes defaults(Model::BrushFaceAttributes::NoTextureName);
             return defaults;
         }
 
