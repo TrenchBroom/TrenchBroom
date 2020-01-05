@@ -167,13 +167,28 @@ namespace TrenchBroom {
 
                 // texture names can contain braces etc, so we just read everything until the next opening bracket or number
                 m_tokenizer.readRemainder(QuakeMapToken::OBracket | QuakeMapToken::Number);
-                expect(QuakeMapToken::Number | QuakeMapToken::OBracket, token = m_tokenizer.nextToken());
+                expect(QuakeMapToken::Number | QuakeMapToken::OBracket, token = m_tokenizer.peekToken());
+
                 if (token.type() == QuakeMapToken::OBracket) {
-                    format = Model::MapFormat::Valve;
+                    // Could be a Valve or Nightfire map file.
+                    // The easiest way to determine this is to check for the presence
+                    // of a bracket after the two texture axis definitions. Nightfire has a third
+                    // 2D definition at the end of the line, whereas the Valve format does not.
+
+                    // First of all, skip past the texture axes.
+                    parseFloatVector<4>(QuakeMapToken::OBracket, QuakeMapToken::CBracket);
+                    parseFloatVector<4>(QuakeMapToken::OBracket, QuakeMapToken::CBracket);
+
+                    // Then attempt to find a bracket on the same line.
+                    m_tokenizer.readRemainder(QuakeMapToken::OBracket | QuakeMapToken::Eol);
+                    expect(QuakeMapToken::OBracket | QuakeMapToken::Eol, token = m_tokenizer.peekToken());
+
+                    format = token.type() == QuakeMapToken::OBracket ? Model::MapFormat::Nightfire : Model::MapFormat::Valve;
                 }
             }
 
             if (format == Model::MapFormat::Unknown) {
+                expect(QuakeMapToken::Number, m_tokenizer.nextToken()); // x offset
                 expect(QuakeMapToken::Number, m_tokenizer.nextToken()); // y offset
                 expect(QuakeMapToken::Number, m_tokenizer.nextToken()); // rotation
                 expect(QuakeMapToken::Number, m_tokenizer.nextToken()); // x scale
@@ -342,6 +357,9 @@ namespace TrenchBroom {
                 } else {
                     parseBrush(status, startLine, false);
                 }
+            } else if (m_format == Model::MapFormat::Nightfire) {
+                expect(QuakeMapToken::OParenthesis | QuakeMapToken::String, token);
+                parseBrush(status, startLine, false);
             } else {
                 expect(QuakeMapToken::OParenthesis, token);
                 parseBrush(status, startLine, false);
@@ -389,8 +407,16 @@ namespace TrenchBroom {
                             status.warn(startLine, "Skipping brush primitive: currently not supported");
                         }
                         return;
+                    case QuakeMapToken::String:
+                        // Only allow in Nightfire maps, and only before brush faces.
+                        if (m_format != Model::MapFormat::Nightfire || primitive || beginBrushCalled) {
+                            expect(QuakeMapToken::OParenthesis | QuakeMapToken::CParenthesis, token);
+                        } else {
+                            parseBrushExtraAttribute(extraAttributes, status);
+                        }
+                        break;
                     default: {
-                        expect(QuakeMapToken::OParenthesis | QuakeMapToken::CParenthesis, token);
+                        expect(QuakeMapToken::OParenthesis | QuakeMapToken::CParenthesis | QuakeMapToken::String, token);
                     }
                 }
 
@@ -422,6 +448,9 @@ namespace TrenchBroom {
                     } else {
                         parseQuake2Face(status);
                     }
+                    break;
+                case Model::MapFormat::Nightfire:
+                    parseNightfireFace(status);
                     break;
                 case Model::MapFormat::Unknown:
                     // cannot happen
@@ -541,6 +570,36 @@ namespace TrenchBroom {
             attribs.setRotation(parseFloat());
             attribs.setXScale(parseFloat());
             attribs.setYScale(parseFloat());
+
+            if (checkFacePoints(status, p1, p2, p3, line)) {
+                brushFace(line, p1, p2, p3, attribs, texX, texY, status);
+            }
+        }
+
+        void StandardMapParser::parseNightfireFace(ParserStatus& status) {
+            const auto line = m_tokenizer.line();
+
+            const auto[p1, p2, p3] = parseFacePoints(status);
+            const auto textureName = parseTextureName(status);
+
+            const auto[texX, xOffset, texY, yOffset] = parseValveTextureAxes(status);
+
+            auto attribs = Model::BrushFaceAttributes(textureName);
+            attribs.setXOffset(xOffset);
+            attribs.setYOffset(yOffset);
+            attribs.setRotation(parseFloat());
+            attribs.setXScale(parseFloat());
+            attribs.setYScale(parseFloat());
+
+            // For now, ignore the rest of the attributes on this face.
+            // We need to work out exactly what they are and whether we
+            // need to implement extra features to use them.
+            // Once we do that, come back here and change this.
+
+            // The format is "flags materialName [ lightmapScale lightmapRot ]".
+            parseFloat();
+            m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace());
+            parseFloatVector<2>(QuakeMapToken::OBracket, QuakeMapToken::CBracket);
 
             if (checkFacePoints(status, p1, p2, p3, line)) {
                 brushFace(line, p1, p2, p3, attribs, texX, texY, status);
@@ -686,6 +745,20 @@ namespace TrenchBroom {
                 attributes.insert(std::make_pair(name, ExtraAttribute(type, name, value, token.line(), token.column())));
                 expect(QuakeMapToken::String | QuakeMapToken::Eol | QuakeMapToken::Eof, token = m_tokenizer.nextToken());
             }
+        }
+
+        void StandardMapParser::parseBrushExtraAttribute(ExtraAttributes& attributes, ParserStatus&) {
+            auto token = m_tokenizer.nextToken();
+            assert(token.type() == QuakeMapToken::String);
+            const std::string name = token.data();
+
+            const size_t line = token.line();
+            const size_t column = token.column();
+
+            expect(QuakeMapToken::String, token = m_tokenizer.nextToken());
+            const std::string value = token.data();
+
+            attributes.insert(std::make_pair(name, ExtraAttribute(ExtraAttribute::Type_String, name, value, line, column)));
         }
 
         StandardMapParser::TokenNameMap StandardMapParser::tokenNames() const {

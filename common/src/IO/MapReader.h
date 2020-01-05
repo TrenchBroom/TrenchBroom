@@ -124,7 +124,7 @@ namespace TrenchBroom {
 
             void setFilePosition(Model::Node* node, size_t startLine, size_t lineCount);
         protected:
-            void setExtraAttributes(Model::Node* node, const ExtraAttributes& extraAttributes);
+            virtual void setExtraAttributes(Model::Node* node, const ExtraAttributes& extraAttributes);
         private: // subclassing interface
             virtual Model::ModelFactory& initialize(Model::MapFormat format) = 0;
             virtual Model::Node* onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) = 0;

@@ -159,6 +159,53 @@ namespace TrenchBroom {
             }
         };
 
+        class NightfireStreamSerializer : public QuakeStreamSerializer {
+        public:
+            NightfireStreamSerializer(std::ostream& stream) :
+            QuakeStreamSerializer(stream) {}
+        private:
+            void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {
+
+                writeFacePoints(stream, face);
+                stream << " ";
+                writeNightfireTextureInfo(stream, face);
+                stream << "\n";
+            }
+        private:
+            void writeNightfireTextureInfo(std::ostream& stream, Model::BrushFace* face) {
+                const std::string& textureName = face->textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face->textureName();
+                const vm::vec3& xAxis = face->textureXAxis();
+                const vm::vec3& yAxis = face->textureYAxis();
+
+                stream.precision(6);
+                stream <<
+                textureName     << " " <<
+                "[ " <<
+                xAxis.x() << " " <<
+                xAxis.y() << " " <<
+                xAxis.z() << " " <<
+                face->xOffset()   <<
+                " ] [ " <<
+                yAxis.x() << " " <<
+                yAxis.y() << " " <<
+                yAxis.z() << " " <<
+                face->yOffset()   <<
+                " ] " <<
+                face->rotation() << " " <<
+                face->xScale()   << " " <<
+                face->yScale()   << " " <<
+
+                // Slight hack for now: if the texture is a special texture,
+                // set flag for no lightmaps on the face. This is quite
+                // crude, and should be fixed in a principled way later.
+                (textureName.rfind("special/", 0) == 0 ? 32 : 0)
+
+                // For now, we just fill in the extra Nightfire data with sensible defaults.
+                // If/when we actually implement things like lightmap scales and materials, we can change this.
+                << " wld_lightmap [ 16 0 ]";
+            }
+        };
+
         class Hexen2StreamSerializer : public QuakeStreamSerializer {
         public:
             Hexen2StreamSerializer(std::ostream& stream) :
@@ -185,6 +232,8 @@ namespace TrenchBroom {
                     return std::make_unique<DaikatanaStreamSerializer>(stream);
                 case Model::MapFormat::Valve:
                     return std::make_unique<ValveStreamSerializer>(stream);
+                case Model::MapFormat::Nightfire:
+                    return std::make_unique<NightfireStreamSerializer>(stream);
                 case Model::MapFormat::Hexen2:
                     return std::make_unique<Hexen2StreamSerializer>(stream);
                 case Model::MapFormat::Unknown:

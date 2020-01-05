@@ -107,6 +107,7 @@ namespace TrenchBroom {
             void parseHexen2Face(ParserStatus& status);
             void parseDaikatanaFace(ParserStatus& status);
             void parseValveFace(ParserStatus& status);
+            void parseNightfireFace(ParserStatus& status);
             void parsePrimitiveFace(ParserStatus& status);
             bool checkFacePoints(ParserStatus& status, const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, size_t line) const;
 
@@ -132,6 +133,7 @@ namespace TrenchBroom {
             int parseInteger();
 
             void parseExtraAttributes(ExtraAttributes& extraAttributes, ParserStatus& status);
+            void parseBrushExtraAttribute(ExtraAttributes& attributes, ParserStatus& status);
         private: // implement Parser interface
             TokenNameMap tokenNames() const override;
         };

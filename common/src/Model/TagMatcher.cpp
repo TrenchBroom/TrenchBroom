@@ -63,11 +63,12 @@ namespace TrenchBroom {
             }
         }
 
-        TextureNameTagMatcher::TextureNameTagMatcher(const std::string& pattern) :
-        m_pattern(pattern) {}
+        TextureNameTagMatcher::TextureNameTagMatcher(const std::string& pattern, bool fullPath) :
+        m_pattern(pattern),
+        m_matchFullPathOnly(fullPath) {}
 
         std::unique_ptr<TagMatcher> TextureNameTagMatcher::clone() const {
-            return std::make_unique<TextureNameTagMatcher>(m_pattern);
+            return std::make_unique<TextureNameTagMatcher>(m_pattern, m_matchFullPathOnly);
         }
 
         bool TextureNameTagMatcher::matches(const Taggable& taggable) const {
@@ -119,9 +120,11 @@ namespace TrenchBroom {
         }
 
         bool TextureNameTagMatcher::matchesTextureName(std::string_view textureName) const {
-            const auto pos = textureName.find_last_of('/');
-            if (pos != std::string::npos) {
-                textureName = textureName.substr(pos + 1);
+            if (!m_matchFullPathOnly) {
+                const auto pos = textureName.find_last_of('/');
+                if (pos != std::string::npos) {
+                    textureName = textureName.substr(pos + 1);
+                }
             }
 
             return kdl::ci::str_matches_glob(textureName, m_pattern);
