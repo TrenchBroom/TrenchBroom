@@ -225,7 +225,7 @@ namespace TrenchBroom {
             for (const auto& tag : tags) {
                 result.push_back(makeAction(
                     IO::Path("Tags/Toggle/" + tag.name()),
-                    QObject::tr("Toggle Tag %1").arg(QString::fromStdString(tag.name())),
+                    QObject::tr("Toggle %1 visible").arg(QString::fromStdString(tag.name())),
                     ActionContext::Any,
                     [&tag](ActionExecutionContext& context) {
                         context.view()->toggleTagVisible(tag);
@@ -235,7 +235,7 @@ namespace TrenchBroom {
                 if (tag.canEnable()) {
                     result.push_back(makeAction(
                         IO::Path("Tags/Enable/" + tag.name()),
-                        QObject::tr("Enable Tag %1").arg(QString::fromStdString(tag.name())),
+                        QObject::tr("Turn Selection into %1").arg(QString::fromStdString(tag.name())),
                         ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool,
                         [&tag](ActionExecutionContext& context) {
                             context.view()->enableTag(tag);
@@ -246,7 +246,7 @@ namespace TrenchBroom {
                 if (tag.canDisable()) {
                     result.push_back(makeAction(
                         IO::Path("Tags/Disable/" + tag.name()),
-                        QObject::tr("Disable Tag %1").arg(QString::fromStdString(tag.name())),
+                        QObject::tr("Turn Selection into non-%1").arg(QString::fromStdString(tag.name())),
                         ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool,
                         [&tag](ActionExecutionContext& context) {
                             context.view()->disableTag(tag);
@@ -265,7 +265,7 @@ namespace TrenchBroom {
             for (const auto* definition : entityDefinitions) {
                 result.push_back(makeAction(
                     IO::Path("Entity Definitions/Toggle/" + definition->name()),
-                    QObject::tr("Toggle Entity %1").arg(QString::fromStdString(definition->name())),
+                    QObject::tr("Toggle %1 visible").arg(QString::fromStdString(definition->name())),
                     ActionContext::Any,
                     [definition](ActionExecutionContext& context) {
                         context.view()->toggleEntityDefinitionVisible(definition);
@@ -275,7 +275,7 @@ namespace TrenchBroom {
                 if (definition->name() != Model::AttributeValues::WorldspawnClassname) {
                     result.push_back(makeAction(
                         IO::Path("Entity Definitions/Create/" + definition->name()),
-                        QObject::tr("Create Entity %1").arg(QString::fromStdString(definition->name())),
+                        QObject::tr("Create %1").arg(QString::fromStdString(definition->name())),
                         ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool,
                         [definition](ActionExecutionContext& context) {
                             context.view()->createEntity(definition);
