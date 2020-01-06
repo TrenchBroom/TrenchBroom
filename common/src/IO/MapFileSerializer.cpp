@@ -240,7 +240,7 @@ namespace TrenchBroom {
                              // Slight hack for now: if the texture is a special texture,
                              // set flag for no lightmaps on the face. This is quite
                              // crude, and should be fixed in a principled way later.
-                             textureName.rfind("special/", 0) == 0 ? 32 : 0);
+                             textureName.rfind("special/", 0) == 0 ? 32U : 0U);
             }
         };
 
