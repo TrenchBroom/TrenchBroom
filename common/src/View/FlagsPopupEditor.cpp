@@ -39,7 +39,7 @@ namespace TrenchBroom {
                 m_flagsTxt = new ElidedLabel(Qt::ElideRight);
 
                 flagsFrame = new QFrame();
-                flagsFrame->setFrameShape(QFrame::Panel);
+                flagsFrame->setFrameShape(QFrame::QFrame::StyledPanel);
 
                 auto* layout = new QHBoxLayout();
                 layout->setContentsMargins(LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             layout->setSpacing(LayoutConstants::MediumHMargin);
 
             if (flagsFrame != nullptr) {
-                layout->addWidget(flagsFrame, 1, Qt::AlignVCenter);
+                layout->addWidget(flagsFrame, 1);
             }
 
             layout->addWidget(m_button, 0, Qt::AlignVCenter);
