@@ -143,7 +143,8 @@ namespace TrenchBroom {
                     Model::PackageFormatConfig("D", "idmip"),
                     Path("gfx/palette.lmp"),
                     "wad",
-                    Path()),
+                    Path(),
+                    {}),
                 Model::EntityConfig(
                     { Path("Quake.fgd"), Path("Quoth2.fgd"), Path("Rubicon2.def"), Path("Teamfortress.fgd") },
                     { "bsp", "mdl" },
@@ -400,7 +401,8 @@ namespace TrenchBroom {
                     Model::PackageFormatConfig("wal", "wal"),
                     Path("pics/colormap.pcx"),
                     "_tb_textures",
-                    Path()),
+                    Path(),
+                    {}),
                 Model::EntityConfig(
                     { Path("Quake2.fgd") },
                     { "md2" },

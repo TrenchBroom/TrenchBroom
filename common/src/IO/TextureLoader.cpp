@@ -93,9 +93,9 @@ namespace TrenchBroom {
             using Model::GameConfig;
             switch (textureConfig.package.type) {
                 case Model::TexturePackageConfig::PT_File:
-                    return std::make_unique<FileTextureCollectionLoader>(logger, fileSearchPaths);
+                    return std::make_unique<FileTextureCollectionLoader>(logger, fileSearchPaths, textureConfig.excludes);
                 case Model::TexturePackageConfig::PT_Directory:
-                    return std::make_unique<DirectoryTextureCollectionLoader>(logger, gameFS);
+                    return std::make_unique<DirectoryTextureCollectionLoader>(logger, gameFS, textureConfig.excludes);
                 case Model::TexturePackageConfig::PT_Unset:
                     throw GameException("Texture package format is not set");
                 switchDefault()

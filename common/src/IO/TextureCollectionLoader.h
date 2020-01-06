@@ -43,13 +43,15 @@ namespace TrenchBroom {
             using FileList = std::vector<std::shared_ptr<File>>;
         protected:
             Logger& m_logger;
+            const std::vector<std::string> m_textureExclusions;
         protected:
-            explicit TextureCollectionLoader(Logger& logger);
+            explicit TextureCollectionLoader(Logger& logger, const std::vector<std::string>& exclusions);
         public:
             virtual ~TextureCollectionLoader();
         public:
             std::unique_ptr<Assets::TextureCollection> loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader);
         private:
+            bool shouldExclude(const std::string& textureName);
             virtual FileList doFindTextures(const Path& path, const std::vector<std::string>& extensions) = 0;
         };
 
@@ -57,7 +59,7 @@ namespace TrenchBroom {
         private:
             const std::vector<Path> m_searchPaths;
         public:
-            FileTextureCollectionLoader(Logger& logger, const std::vector<Path>& searchPaths);
+            FileTextureCollectionLoader(Logger& logger, const std::vector<Path>& searchPaths, const std::vector<std::string>& exclusions);
         private:
             FileList doFindTextures(const Path& path, const std::vector<std::string>& extensions) override;
         };
@@ -66,7 +68,7 @@ namespace TrenchBroom {
         private:
             const FileSystem& m_gameFS;
         public:
-            DirectoryTextureCollectionLoader(Logger& logger, const FileSystem& gameFS);
+            DirectoryTextureCollectionLoader(Logger& logger, const FileSystem& gameFS, const std::vector<std::string>& exclusions);
         private:
             FileList doFindTextures(const Path& path, const std::vector<std::string>& extensions) override;
         };
