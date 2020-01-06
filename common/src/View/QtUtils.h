@@ -60,8 +60,6 @@ namespace TrenchBroom {
             ~DisableWindowUpdates();
         };
 
-        QSettings& getSettings();
-
         enum class FileDialogDir {
             Map,
             TextureCollection,
@@ -89,7 +87,7 @@ namespace TrenchBroom {
             ensure(window != nullptr, "window must not be null");
 
             const auto path = windowSettingsPath(window, "State");
-            QSettings& settings = getSettings();
+            QSettings settings;
             settings.setValue(path, window->saveState());
         }
 
@@ -98,7 +96,7 @@ namespace TrenchBroom {
             ensure(window != nullptr, "window must not be null");
 
             const auto path = windowSettingsPath(window, "State");
-            QSettings& settings = getSettings();
+            const QSettings settings;
             window->restoreState(settings.value(path).toByteArray());
         }
 

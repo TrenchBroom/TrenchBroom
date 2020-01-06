@@ -71,31 +71,6 @@ namespace TrenchBroom {
             m_widget->setUpdatesEnabled(true);
         }
 
-        /**
-         * Helper function to find an existing settings file, or build the path to such a file if it doesn't exist yet.
-         */
-        QString getSettingsFilePath();
-        QString getSettingsFilePath() {
-            auto path = QStandardPaths::locate(QStandardPaths::ConfigLocation, QString::fromLocal8Bit("TrenchBroom Preferences"));
-            if (path.isEmpty()) {
-                // if the file does not exist, it cannot be located
-                path = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/Trenchbroom Preferences";
-            }
-            return path;
-        }
-
-        QSettings& getSettings() {
-            static auto settings =
-#if defined __linux__ || defined __FreeBSD__
-                QSettings(QDir::homePath() % QString::fromLocal8Bit("/.TrenchBroom/.preferences"), QSettings::Format::IniFormat);
-#elif defined __APPLE__
-                QSettings(getSettingsFilePath(), QSettings::Format::IniFormat);
-#else
-            QSettings();
-#endif
-            return settings;
-        }
-
         static QString fileDialogDirToString(const FileDialogDir dir) {
             switch (dir) {
                 case FileDialogDir::Map: return "Map";
@@ -116,7 +91,7 @@ namespace TrenchBroom {
         QString fileDialogDefaultDirectory(const FileDialogDir dir) {
             const QString key = fileDialogDefaultDirectorySettingsPath(dir);
 
-            const QSettings& settings = getSettings();
+            const QSettings settings;
             const QString defaultDir = settings.value(key).toString();
             return defaultDir;
         }
@@ -130,7 +105,7 @@ namespace TrenchBroom {
         void updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir type, const QString& newDefaultDirectory) {
             const QString key = fileDialogDefaultDirectorySettingsPath(type);
 
-            QSettings& settings = getSettings();
+            QSettings settings;
             settings.setValue(key, newDefaultDirectory);
         }
 
@@ -145,7 +120,7 @@ namespace TrenchBroom {
             ensure(window != nullptr, "window must not be null");
 
             const auto path = windowSettingsPath(window, "Geometry");
-            QSettings& settings = getSettings();
+            QSettings settings;
             settings.setValue(path, window->saveGeometry());
         }
 
@@ -153,7 +128,7 @@ namespace TrenchBroom {
             ensure(window != nullptr, "window must not be null");
 
             const auto path = windowSettingsPath(window, "Geometry");
-            const QSettings& settings = getSettings();
+            const QSettings settings;
             window->restoreGeometry(settings.value(path).toByteArray());
         }
 
