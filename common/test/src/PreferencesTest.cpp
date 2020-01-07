@@ -23,11 +23,19 @@
 #include <QString>
 
 #include <nonstd/optional.hpp>
+#include <kdl/vector_utils.h>
+#include <vecmath/bbox.h>
 
+#include "Color.h"
 #include "PreferenceManager.h"
 #include "QtPrettyPrinters.h"
 #include "Preferences.h"
+#include "Assets/EntityDefinition.h"
+#include "Model/Tag.h"
+#include "Model/TagMatcher.h"
 #include "View/Actions.h"
+
+#include <string>
 
 namespace TrenchBroom {
     static QString getValue(const std::map<IO::Path, QString>& map, const IO::Path& key) {
@@ -449,6 +457,53 @@ namespace TrenchBroom {
         for (const std::string& preferenceKey : preferenceKeys) {
             const auto preferencePath = IO::Path(preferenceKey);
             const bool found = (actionsMap.find(preferencePath) != actionsMap.end());
+            EXPECT_TRUE(found);
+
+            if (!found) {
+                std::cerr << "Couldn't find key: '" << preferenceKey << "'\n";
+            }
+        }
+    }
+
+    TEST(PreferencesTest, testWxEntityShortcuts) {
+        auto hellKnight = Assets::PointEntityDefinition("monster_hell_knight", Color(0,0,0), vm::bbox3(), "", {}, Assets::ModelDefinition());
+        const auto defs = std::vector<Assets::EntityDefinition*>{&hellKnight};
+
+        const std::vector<std::unique_ptr<View::Action>> actions = View::ActionManager::instance().createEntityDefinitionActions(defs);
+        const std::vector<IO::Path> actualPrefPaths = kdl::vec_transform(actions, [](const auto& action) { return IO::Path(action->preferencePath()); });
+
+        // example keys from 2019.6 for "monster_hell_knight" entity
+        const std::vector<std::string> preferenceKeys {
+            "Entities/monster_hell_knight/Create",
+            "Entities/monster_hell_knight/Toggle" // new in 2020.1
+        };
+
+        for (const std::string& preferenceKey : preferenceKeys) {
+            const bool found = kdl::vec_contains(actualPrefPaths, IO::Path(preferenceKey));
+            EXPECT_TRUE(found);
+
+            if (!found) {
+                std::cerr << "Couldn't find key: '" << preferenceKey << "'\n";
+            }
+        }
+    }
+
+    TEST(PreferencesTest, testWxTagShortcuts) {
+        const auto tags = std::vector<Model::SmartTag>{
+            Model::SmartTag("Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27))
+        };
+        const std::vector<std::unique_ptr<View::Action>> actions = View::ActionManager::instance().createTagActions(tags);
+        const std::vector<IO::Path> actualPrefPaths = kdl::vec_transform(actions, [](const auto& action) { return IO::Path(action->preferencePath()); });
+
+        // example keys from 2019.6 for "Detail" tag
+        const std::vector<std::string> preferenceKeys {
+            "Filters/Tags/Detail/Toggle Visible",
+            "Tags/Detail/Disable",
+            "Tags/Detail/Enable",
+        };
+
+        for (const std::string& preferenceKey : preferenceKeys) {
+            const bool found = kdl::vec_contains(actualPrefPaths, IO::Path(preferenceKey));
             EXPECT_TRUE(found);
 
             if (!found) {
