@@ -29,6 +29,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/TestEnvironment.h"
         "${COMMON_TEST_SOURCE_DIR}/IO/TestParserStatus.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/TestParserStatus.h"
+        "${COMMON_TEST_SOURCE_DIR}/IO/TextureLoaderTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/TokenizerTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/WadFileSystemTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/WalTextureReaderTest.cpp"
