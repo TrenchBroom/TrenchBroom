@@ -29,8 +29,6 @@
 #include "View/MapFrame.h"
 #include "View/ViewConstants.h"
 
-#include <string>
-
 #include <QtGlobal>
 #include <QAbstractButton>
 #include <QBoxLayout>
@@ -130,7 +128,7 @@ namespace TrenchBroom {
             ensure(window != nullptr, "window must not be null");
 
             const auto path = windowSettingsPath(window, "Geometry");
-            QSettings settings;
+            const QSettings settings;
             window->restoreGeometry(settings.value(path).toByteArray());
         }
 
@@ -223,20 +221,6 @@ namespace TrenchBroom {
             palette.setColor(QPalette::Normal, QPalette::Text, defaultPalette.color(QPalette::Normal, QPalette::Text));
             widget->setPalette(palette);
             return widget;
-        }
-
-        QSettings& getSettings() {
-            static auto settings =
-#if defined __linux__ || defined __FreeBSD__
-                QSettings(QDir::homePath() % QString::fromLocal8Bit("/.TrenchBroom/.preferences"), QSettings::Format::IniFormat);
-#elif defined __APPLE__
-                QSettings(QStandardPaths::locate(QStandardPaths::ConfigLocation,
-                                                 QString::fromLocal8Bit("TrenchBroom Preferences"),
-                                                 QStandardPaths::LocateOption::LocateFile), QSettings::Format::IniFormat);
-#else
-                QSettings();
-#endif
-            return settings;
         }
 
         Color fromQColor(const QColor& color) {

@@ -22,6 +22,7 @@
 
 #include "FloatType.h"
 #include "Model/Polyhedron3.h"
+#include "BrushFaceAttributes.h"
 
 #include <vecmath/bbox.h>
 
@@ -37,8 +38,10 @@ namespace TrenchBroom {
         private:
             ModelFactory* m_factory;
             const vm::bbox3 m_worldBounds;
+            const BrushFaceAttributes m_defaultAttribs;
         public:
             BrushBuilder(ModelFactory* factory, const vm::bbox3& worldBounds);
+            BrushBuilder(ModelFactory* factory, const vm::bbox3& worldBounds, const BrushFaceAttributes& defaultAttribs);
 
             Brush* createCube(FloatType size, const std::string& textureName) const;
             Brush* createCube(FloatType size, const std::string& leftTexture, const std::string& rightTexture, const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture, const std::string& bottomTexture) const;

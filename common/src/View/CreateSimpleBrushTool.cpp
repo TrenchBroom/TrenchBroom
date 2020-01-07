@@ -22,6 +22,7 @@
 #include "FloatType.h"
 #include "Model/BrushBuilder.h"
 #include "Model/World.h"
+#include "Model/Game.h"
 #include "View/MapDocument.h"
 
 #include <kdl/memory_utils.h>
@@ -33,7 +34,8 @@ namespace TrenchBroom {
 
         void CreateSimpleBrushTool::update(const vm::bbox3& bounds) {
             auto document = kdl::mem_lock(m_document);
-            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+            const auto game = document->game();
+            const Model::BrushBuilder builder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
             updateBrush(builder.createCuboid(bounds, document->currentTextureName()));
         }
 

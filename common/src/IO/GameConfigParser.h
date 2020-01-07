@@ -29,6 +29,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFaceAttributes;
         struct EntityConfig;
         struct FaceAttribsConfig;
         struct FileSystemConfig;
@@ -60,6 +61,7 @@ namespace TrenchBroom {
             Model::EntityConfig parseEntityConfig(const EL::Value& values) const;
             Model::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& values) const;
             std::vector<Model::FlagConfig> parseFlagConfig(const EL::Value& values) const;
+            Model::BrushFaceAttributes parseFaceAttribsDefaults(const EL::Value& value, const Model::FlagsConfig& surfaceFlags, const Model::FlagsConfig& contentFlags) const;
             std::vector<Model::SmartTag> parseTags(const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfigs) const;
 
             void parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& results) const;

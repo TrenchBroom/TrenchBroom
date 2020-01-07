@@ -449,7 +449,8 @@ namespace TrenchBroom {
                         { "detail", "Detail brush" },
                         { "translucent", "Use for opaque water that does not block vis" },
                         { "ladder", "Brushes with this flag allow a player to move up and down a vertical surface" }
-                    }),
+                    },
+                    Model::BrushFaceAttributes(Model::BrushFaceAttributes::NoTextureName)),
                 {
                     Model::SmartTag("Trigger", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*", "trigger")),
                     Model::SmartTag("Clip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("clip")),

@@ -80,6 +80,7 @@ namespace TrenchBroom {
             void selectionDidChange(const Selection& selection);
             void entityDefinitionsOrModsDidChange();
         private:
+            void ensureSelectionVisible();
             void updateControls();
             void updateControlsEnabled();
         public:

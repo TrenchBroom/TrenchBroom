@@ -58,7 +58,6 @@ namespace TrenchBroom {
             ~TrenchBroomApp();
         public:
             void parseCommandLineAndShowFrame();
-            QSettings& settings();
 
             FrameManager* frameManager();
 

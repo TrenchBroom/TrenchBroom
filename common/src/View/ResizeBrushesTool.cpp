@@ -226,7 +226,7 @@ namespace TrenchBroom {
                     kdl::vec_append(result, collectDragFaces(faces[1]));
                 }
             } else {
-                Model::BrushFace* face = Model::hitToFace(hit);
+                Model::BrushFace* face = hit.target<Model::BrushFace*>();
                 result.push_back(face);
                 kdl::vec_append(result, collectDragFaces(face));
             }

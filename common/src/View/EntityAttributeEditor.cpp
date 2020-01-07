@@ -26,10 +26,11 @@
 #include "View/MapDocument.h"
 #include "View/SmartAttributeEditorManager.h"
 #include "View/Splitter.h"
-#include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
 #include <kdl/memory_utils.h>
+
+#include <algorithm>
 
 #include <QVBoxLayout>
 #include <QChar>
@@ -88,7 +89,6 @@ namespace TrenchBroom {
 
             if (entityDefinition != m_currentDefinition) {
                 m_currentDefinition = entityDefinition;
-
                 updateDocumentationAndSmartEditor();
             }
         }
@@ -104,6 +104,8 @@ namespace TrenchBroom {
             // collapse the splitter if needed
             m_documentationText->setHidden(m_documentationText->document()->isEmpty());
             m_smartEditorManager->setHidden(m_smartEditorManager->isDefaultEditorActive());
+
+            updateMinimumSize();
         }
 
         QString EntityAttributeEditor::optionDescriptions(const Assets::AttributeDefinition& definition) {
@@ -252,9 +254,9 @@ namespace TrenchBroom {
             // otherwise it can override them.
             restoreWindowState(m_splitter);
 
-            m_attributeGrid->setMinimumSize(100, 50);
-            m_smartEditorManager->setMinimumSize(100, 50);
+            m_attributeGrid->setMinimumSize(100, 100); // should have enough vertical space for at least one row
             m_documentationText->setMinimumSize(100, 50);
+            updateMinimumSize();
 
             // don't allow the user to collapse the panels, it's hard to see them
             m_splitter->setChildrenCollapsible(false);
@@ -270,6 +272,21 @@ namespace TrenchBroom {
             setLayout(layout);
 
             connect(m_attributeGrid, &EntityAttributeGrid::selectedRow, this, &EntityAttributeEditor::OnCurrentRowChanged);
+        }
+
+        void EntityAttributeEditor::updateMinimumSize() {
+            QSize size;
+            size.setWidth(m_attributeGrid->minimumWidth());
+            size.setHeight(m_attributeGrid->minimumHeight());
+
+            size.setWidth(std::max(size.width(), m_smartEditorManager->minimumSizeHint().width()));
+            size.setHeight(size.height() + m_smartEditorManager->minimumSizeHint().height());
+
+            size.setWidth(std::max(size.width(), m_documentationText->minimumSizeHint().width()));
+            size.setHeight(size.height() + m_documentationText->minimumSizeHint().height());
+
+            setMinimumSize(size);
+            updateGeometry();
         }
     }
 }

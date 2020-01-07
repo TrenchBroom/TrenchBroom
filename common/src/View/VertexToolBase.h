@@ -25,6 +25,7 @@
 #include "Preferences.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
+#include "Model/Game.h"
 #include "Model/Hit.h"
 #include "Model/NodeVisitor.h"
 #include "Model/Polyhedron.h"
@@ -269,7 +270,8 @@ namespace TrenchBroom {
                 }
 
                 auto document = kdl::mem_lock(m_document);
-                const Model::BrushBuilder builder(document->world(), document->worldBounds());
+                auto game = document->game();
+                const Model::BrushBuilder builder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
                 auto* brush = builder.createBrush(polyhedron, document->currentTextureName());
                 brush->cloneFaceAttributesFrom(document->selectedNodes().brushes());
 

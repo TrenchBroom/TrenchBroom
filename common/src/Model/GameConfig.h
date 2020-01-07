@@ -22,6 +22,7 @@
 
 #include "Color.h"
 #include "IO/Path.h"
+#include "Model/BrushFaceAttributes.h"
 #include "Model/CompilationConfig.h"
 #include "Model/GameEngineConfig.h"
 #include "Model/Tag.h"
@@ -120,7 +121,7 @@ namespace TrenchBroom {
             std::vector<FlagConfig> flags;
 
             FlagsConfig();
-            explicit FlagsConfig(const std::vector<FlagConfig>& i_flags);
+            FlagsConfig(const std::vector<FlagConfig>& i_flags);
 
             int flagValue(const std::string& flagName) const;
             std::string flagName(size_t index) const;
@@ -132,9 +133,11 @@ namespace TrenchBroom {
         struct FaceAttribsConfig {
             FlagsConfig surfaceFlags;
             FlagsConfig contentFlags;
+            BrushFaceAttributes defaults;
 
             FaceAttribsConfig();
-            FaceAttribsConfig(const std::vector<FlagConfig>& i_surfaceFlags, const std::vector<FlagConfig>& i_contentFlags);
+            FaceAttribsConfig(const std::vector<FlagConfig>& i_surfaceFlags, const std::vector<FlagConfig>& i_contentFlags, const BrushFaceAttributes& i_defaults);
+            FaceAttribsConfig(const FlagsConfig& i_surfaceFlags, const FlagsConfig& i_contentFlags, const BrushFaceAttributes& i_defaults);
 
             bool operator==(const FaceAttribsConfig& other) const;
         };
