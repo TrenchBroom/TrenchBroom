@@ -31,7 +31,9 @@ namespace TrenchBroom {
         m_shiftIncrement(2.0),
         m_ctrlIncrement(4.0),
         m_minDigits(0),
-        m_maxDigits(6) {}
+        m_maxDigits(6) {
+            setKeyboardTracking(false);
+        }
 
         void SpinControl::stepBy(int steps) {
             if (QGuiApplication::keyboardModifiers() & Qt::ShiftModifier) {
