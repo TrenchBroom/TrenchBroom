@@ -152,8 +152,8 @@ namespace TrenchBroom {
         QWidget* makeHeader(QWidget* widget);
         QWidget* makeError(QWidget* widget);
 
-        QWidget* makeSelected(QWidget* widget);
-        QWidget* makeUnselected(QWidget* widget);
+        QWidget* makeSelected(QWidget* widget, const QPalette& defaultPalette);
+        QWidget* makeUnselected(QWidget* widget, const QPalette& defaultPalette);
 
         QSettings& getSettings();
         Color fromQColor(const QColor& color);

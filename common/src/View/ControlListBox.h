@@ -41,7 +41,7 @@ namespace TrenchBroom {
             void mouseDoubleClickEvent(QMouseEvent* event) override;
         public:
             virtual void updateItem();
-            virtual void setSelected(bool selected);
+            virtual void setSelected(bool selected, const QListWidget* listWidget);
         signals:
             void doubleClicked(size_t index);
         };
