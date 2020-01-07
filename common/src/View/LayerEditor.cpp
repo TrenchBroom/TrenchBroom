@@ -382,15 +382,6 @@ namespace TrenchBroom {
             }
 
             ensure(layer != nullptr, "layer is null");
-
-            auto document = lock(m_document);
-            const auto world = document->world();
-            const auto customLayers = world->customLayers();
-
-            auto toLayer = customLayers[kdl::vec_index_of(customLayers, layer) + (direction > 0 ? 1 : -1)];
-
-            Transaction transaction(document, "Swap " + layer->name() + " and " + toLayer->name() + " layers");
-            document->swapNodes(layer, toLayer);
         }
 
         void LayerEditor::onShowAllLayers() {
