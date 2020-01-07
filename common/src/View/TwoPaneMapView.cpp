@@ -27,7 +27,6 @@
 #include "View/QtUtils.h"
 
 #include <QHBoxLayout>
-#include <QSettings>
 
 namespace TrenchBroom {
     namespace View {

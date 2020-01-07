@@ -68,6 +68,7 @@ namespace TrenchBroom {
             EntityDefinition,
             GamePath
         };
+
         /**
          * Gets the default directory from QSettings to use for the given type of file chooser.
          */
@@ -95,7 +96,7 @@ namespace TrenchBroom {
             ensure(window != nullptr, "window must not be null");
 
             const auto path = windowSettingsPath(window, "State");
-            QSettings settings;
+            const QSettings settings;
             window->restoreState(settings.value(path).toByteArray());
         }
 
@@ -155,7 +156,6 @@ namespace TrenchBroom {
         QWidget* makeSelected(QWidget* widget);
         QWidget* makeUnselected(QWidget* widget);
 
-        QSettings& getSettings();
         Color fromQColor(const QColor& color);
         QColor toQColor(const Color& color);
         void setWindowIconTB(QWidget* window);
