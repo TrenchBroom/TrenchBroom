@@ -359,7 +359,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             auto world = document->world();
 
             if (layer == world->defaultLayer()) {
