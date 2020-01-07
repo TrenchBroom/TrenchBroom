@@ -2184,7 +2184,16 @@ The `image` format can be used to load a wide array of image formats such as tga
 
 Optionally, you can specify a palette. The value of the `palette` key specifies a path, relative to the file system, where TrenchBroom will look for a palette file that comes with the game's assets.
 
-Finally, the `attribute` key specifies the name of a worldspawn property where TrenchBroom will store the list of selected texture collections in the map file.
+The `attribute` key specifies the name of a worldspawn property where TrenchBroom will store the list of selected texture collections in the map file.
+
+The optional `excludes` key specifies a list of patterns matched against texture names which will be ignored and not displayed in the [texture browser](#texture_browser). Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
+
+	"textures": {
+        "package": { "type": "directory", "root": "textures" },
+        "format": { "extensions": [ "" ], "format": "image" },
+        "attribute": "_tb_textures",
+        "excludes": [ "*_norm", "*_gloss" ]
+    },
 
 #### Entity Configuration
 
@@ -2331,4 +2340,4 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 [Tutorials by dumptruck_ds]: https://www.youtube.com/watch?v=gONePWocbqA
 [Quake Level Design Starter Kit]: https://github.com/jonathanlinat/quake-leveldesign-starterkit
 [Quake Mapping Discord]: https://discordapp.com/invite/f5Y99aM
-[FreeIamge Library]: http://freeimage.sourceforge.net/
+[FreeImage Library]: http://freeimage.sourceforge.net/
