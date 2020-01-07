@@ -21,17 +21,23 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TrenchBroom_ScaleObjectsToolController
 #define TrenchBroom_ScaleObjectsToolController
 
-#include "Model/Model_Forward.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/ToolController.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 
 #include <memory>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class Camera;
+        class RenderBatch;
+        class RenderContext;
+    }
+
     namespace View {
+        class MapDocument;
+        class ScaleObjectsTool;
+
         class ScaleObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:
             ScaleObjectsTool* m_tool;

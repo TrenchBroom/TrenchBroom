@@ -21,7 +21,6 @@
 #define TrenchBroom_Texture
 
 #include "Color.h"
-#include "Assets/Asset_Forward.h"
 #include "Renderer/GL.h"
 
 #include <vecmath/forward.h>
@@ -32,6 +31,8 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        class TextureCollection;
+
         enum class TextureType {
             Opaque,
             /**

@@ -19,9 +19,8 @@
 
 #include <gtest/gtest.h>
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Exceptions.h"
-#include "Polyhedron.h"
 #include "TestUtils.h"
 #include "Assets/Texture.h"
 #include "IO/NodeReader.h"
@@ -35,6 +34,7 @@
 #include "Model/NodeSnapshot.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"
+#include "Model/Polyhedron.h"
 #include "Model/World.h"
 
 #include <kdl/vector_utils.h>

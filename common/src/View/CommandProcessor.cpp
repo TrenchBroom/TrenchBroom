@@ -21,10 +21,10 @@
 
 #include "Exceptions.h"
 #include "Notifier.h"
-#include "TemporarilySetAny.h"
 #include "View/Command.h"
 #include "View/UndoableCommand.h"
 
+#include <kdl/set_temp.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             std::string name;
             std::vector<std::unique_ptr<UndoableCommand>> commands;
 
-            TransactionState(const std::string& i_name) :
+            explicit TransactionState(const std::string& i_name) :
             name(i_name) {}
         };
 
@@ -240,7 +240,7 @@ namespace TrenchBroom {
                 auto command = popFromRedoStack();
                 auto result = executeCommand(command.get());
                 if (result->success()) {
-                    assertResult(pushToUndoStack(std::move(command), false, true));
+                    assertResult(pushToUndoStack(std::move(command), false, true))
                 }
                 return result;
             }
@@ -374,7 +374,7 @@ namespace TrenchBroom {
             assert(m_transactionStack.empty());
 
             const auto timestamp = std::chrono::system_clock::now();
-            const SetLate<std::chrono::system_clock::time_point> setLastCommandTimestamp(m_lastCommandTimestamp, timestamp);
+            const kdl::set_later setLastCommandTimestamp(m_lastCommandTimestamp, timestamp);
 
             if (collatable(collate, timestamp)) {
                 auto& lastCommand = m_undoStack.back();

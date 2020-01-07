@@ -50,13 +50,13 @@ namespace TrenchBroom {
                 throw ParserException(m_line, m_column, "Invalid extra property type");
         }
 
-        MapParser::~MapParser() {}
+        MapParser::~MapParser() = default;
 
         void MapParser::formatSet(const Model::MapFormat format) {
             onFormatSet(format);
         }
 
-        void MapParser::beginEntity(const size_t line, const std::list<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+        void MapParser::beginEntity(const size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             onBeginEntity(line, attributes, extraAttributes, status);
         }
 

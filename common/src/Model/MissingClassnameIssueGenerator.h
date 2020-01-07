@@ -21,7 +21,6 @@
 #define TrenchBroom_MissingClassnameIssueGenerator
 
 #include "Model/IssueGenerator.h"
-#include "Model/Model_Forward.h"
 
 #include <vector>
 

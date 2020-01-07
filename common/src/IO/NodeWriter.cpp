@@ -29,7 +29,6 @@
 #include "Model/Node.h"
 #include "Model/World.h"
 
-#include <list>
 #include <vector>
 
 namespace TrenchBroom {
@@ -77,9 +76,9 @@ namespace TrenchBroom {
         class NodeWriter::WriteNode : public Model::NodeVisitor {
         private:
             NodeSerializer& m_serializer;
-            const std::list<Model::EntityAttribute> m_parentAttributes;
+            const std::vector<Model::EntityAttribute> m_parentAttributes;
         public:
-            WriteNode(NodeSerializer& serializer, const Model::Node* parent = nullptr) :
+            explicit WriteNode(NodeSerializer& serializer, const Model::Node* parent = nullptr) :
             m_serializer(serializer),
             m_parentAttributes(m_serializer.parentAttributes(parent)) {}
 

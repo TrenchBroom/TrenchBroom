@@ -20,11 +20,9 @@
 #ifndef TrenchBroom_RotateObjectsTool
 #define TrenchBroom_RotateObjectsTool
 
-#include "TrenchBroom.h"
-#include "Renderer/Renderer_Forward.h"
+#include "FloatType.h"
 #include "View/Tool.h"
 #include "View/RotateObjectsHandle.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 
@@ -32,7 +30,17 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class Camera;
+        class RenderBatch;
+        class RenderContext;
+    }
+
     namespace View {
+        class Grid;
+        class MapDocument;
+        class RotateObjectsToolPage;
+
         class RotateObjectsTool : public Tool {
         private:
             std::weak_ptr<MapDocument> m_document;

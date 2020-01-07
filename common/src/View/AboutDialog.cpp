@@ -54,26 +54,29 @@ namespace TrenchBroom {
         }
 
         void AboutDialog::createGui() {
-            setWindowIconTB(this);
             const QString creditsString = tr("github.com/kduske/TrenchBroom\n\n"
                                              "<b>Developers</b>\n"
                                              "Kristian Duske\n"
                                              "Eric Wasylishen\n\n"
                                              "<b>Contributors</b>\n"
-                                             "Corey Jones (Documentation)\n"
-                                             "Philipp Nahratow (Bug fixes, Linux builds)\n"
-                                             "rebb (Shaders, bug fixes)\n"
-                                             "chronicol (Documentation)\n"
-                                             "bazhenovc (FreeImage texture loading)\n"
-                                             "Scampie (Documentation)\n"
-                                             "mittorn (Partial Half-Life support)\n"
-                                             "Matthew Borkowski (CSG merging enhancements)\n"
-                                             "Rohit Nirmal (Bug fixes)\n"
-                                             "negke (FGD files)\n"
-                                             "Jonathan Linat (Manual)\n"
-                                             "Yuki Raven (Font size preference)\n"
-                                             "mankeli (Bug fixes)\n"
-                                             "Jonas Lund (Bug fixes)\n\n"
+                                             "20kdc, "
+                                             "aapokaapo, "
+                                             "Ari Vuollet, "
+                                             "bazhenovc, "
+                                             "chronicol, "
+                                             "Corey Jones, "
+                                             "Jonas Lund, "
+                                             "Jonathan Linat, "
+                                             "Josh Palmer, "
+                                             "mankeli, "
+                                             "Matthew Borkowski, "
+                                             "mittorn, "
+                                             "negke, "
+                                             "Philipp Nahratow, "
+                                             "rebb, "
+                                             "Rohit Nirmal, "
+                                             "Scampie, "
+                                             "Yuki Raven\n\n"
                                              "<b>3rd Party Libraries, Tools and Assets</b>\n"
                                              "Qt (Cross platform GUI library)\n"
                                              "FreeType (Font rendering library)\n"
@@ -81,6 +84,7 @@ namespace TrenchBroom {
                                              "GLEW (OpenGL extension library)\n"
                                              "tinyxml2 (XML parsing library)\n"
                                              "miniz (Archive library)\n"
+                                             "any-lite (C++ library)\n"
                                              "optional-lite (C++ library)\n"
                                              "Google Test (C++ testing framework)\n"
                                              "Google Mock (C++ mocking framework)\n"
@@ -88,9 +92,12 @@ namespace TrenchBroom {
                                              "CMake (Cross platform build manager)\n"
                                              "Pandoc (Universal document converter)\n"
                                              "Source Sans Pro (Font)\n").replace("\n", "<br/>");
+            setWindowIconTB(this);
 
             auto* infoPanel = new AppInfoPanel();
             auto* creditsText = new QLabel(creditsString);
+            creditsText->setWordWrap(true);
+            creditsText->setMaximumWidth(300);
 
             auto* layout = new QHBoxLayout();
             layout->setSizeConstraint(QLayout::SetFixedSize);
@@ -101,6 +108,7 @@ namespace TrenchBroom {
             layout->addWidget(creditsText);
             layout->addSpacing(50);
             setLayout(layout);
+
         }
     }
 }

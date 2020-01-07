@@ -21,9 +21,7 @@
 #define TrenchBroom_MoveBrushVerticesCommand
 
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "View/VertexCommand.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 #include <vector>

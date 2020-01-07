@@ -21,8 +21,6 @@
 
 #include "Ensure.h"
 #include "Polyhedron.h"
-#include "Model/Brush.h"
-#include "Model/BrushFace.h"
 #include "Model/ModelFactory.h"
 
 #include <cassert>
@@ -32,7 +30,15 @@ namespace TrenchBroom {
     namespace Model {
         BrushBuilder::BrushBuilder(ModelFactory* factory, const vm::bbox3& worldBounds) :
         m_factory(factory),
-        m_worldBounds(worldBounds) {
+        m_worldBounds(worldBounds),
+        m_defaultAttribs(BrushFaceAttributes::NoTextureName) {
+            ensure(m_factory != nullptr, "factory is null");
+        }
+
+        BrushBuilder::BrushBuilder(ModelFactory* factory, const vm::bbox3& worldBounds, const BrushFaceAttributes& defaultAttribs) :
+        m_factory(factory),
+        m_worldBounds(worldBounds),
+        m_defaultAttribs(defaultAttribs) {
             ensure(m_factory != nullptr, "factory is null");
         }
 
@@ -58,36 +64,37 @@ namespace TrenchBroom {
 
         Brush* BrushBuilder::createCuboid(const vm::bbox3& bounds, const std::string& leftTexture, const std::string& rightTexture, const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture, const std::string& bottomTexture) const {
             std::vector<BrushFace*> faces(6);
+
             // left face
             faces[0] = m_factory->createFace(bounds.min + vm::vec3::zero(),
                                              bounds.min + vm::vec3::pos_y(),
                                              bounds.min + vm::vec3::pos_z(),
-                                             leftTexture);
+                                             BrushFaceAttributes(leftTexture, m_defaultAttribs));
             // right face
             faces[1] = m_factory->createFace(bounds.max + vm::vec3::zero(),
                                              bounds.max + vm::vec3::pos_z(),
                                              bounds.max + vm::vec3::pos_y(),
-                                             rightTexture);
+                                             BrushFaceAttributes(rightTexture, m_defaultAttribs));
             // front face
             faces[2] = m_factory->createFace(bounds.min + vm::vec3::zero(),
                                              bounds.min + vm::vec3::pos_z(),
                                              bounds.min + vm::vec3::pos_x(),
-                                             frontTexture);
+                                             BrushFaceAttributes(frontTexture, m_defaultAttribs));
             // back face
             faces[3] = m_factory->createFace(bounds.max + vm::vec3::zero(),
                                              bounds.max + vm::vec3::pos_x(),
                                              bounds.max + vm::vec3::pos_z(),
-                                             backTexture);
+                                             BrushFaceAttributes(backTexture, m_defaultAttribs));
             // top face
             faces[4] = m_factory->createFace(bounds.max + vm::vec3::zero(),
                                              bounds.max + vm::vec3::pos_y(),
                                              bounds.max + vm::vec3::pos_x(),
-                                             topTexture);
+                                             BrushFaceAttributes(topTexture, m_defaultAttribs));
             // bottom face
             faces[5] = m_factory->createFace(bounds.min + vm::vec3::zero(),
                                              bounds.min + vm::vec3::pos_x(),
                                              bounds.min + vm::vec3::pos_y(),
-                                             bottomTexture);
+                                             BrushFaceAttributes(bottomTexture, m_defaultAttribs));
 
             return m_factory->createBrush(m_worldBounds, faces);
         }

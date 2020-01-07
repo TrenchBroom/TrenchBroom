@@ -20,14 +20,20 @@
 #ifndef Quake3ShaderTextureReader_h
 #define Quake3ShaderTextureReader_h
 
-#include "Assets/Asset_Forward.h"
-#include "IO/IO_Forward.h"
 #include "IO/TextureReader.h"
 
 #include <memory>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Quake3Shader;
+    }
+
     namespace IO {
+        class File;
+        class FileSystem;
+        class Path;
+
         /**
          * Loads a texture that represents a Quake 3 shader from the file system. Uses a given file system
          * to locate the actual editor image for the shader. The shader is expected to be readily parsed and

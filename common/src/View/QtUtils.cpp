@@ -29,8 +29,6 @@
 #include "View/MapFrame.h"
 #include "View/ViewConstants.h"
 
-#include <string>
-
 #include <QtGlobal>
 #include <QAbstractButton>
 #include <QBoxLayout>
@@ -130,7 +128,7 @@ namespace TrenchBroom {
             ensure(window != nullptr, "window must not be null");
 
             const auto path = windowSettingsPath(window, "Geometry");
-            QSettings settings;
+            const QSettings settings;
             window->restoreGeometry(settings.value(path).toByteArray());
         }
 
@@ -181,15 +179,18 @@ namespace TrenchBroom {
         QWidget* makeInfo(QWidget* widget) {
             makeDefault(widget);
 
-            auto font = widget->font();
-            font.setPointSize(font.pointSize() - 2);
-            widget->setFont(font);
+            widget = makeSmall(widget);
 
             const auto defaultPalette = QPalette();
             auto palette = widget->palette();
             palette.setColor(QPalette::Normal, QPalette::WindowText, defaultPalette.color(QPalette::Disabled, QPalette::WindowText));
             palette.setColor(QPalette::Normal, QPalette::Text, defaultPalette.color(QPalette::Disabled, QPalette::WindowText));
             widget->setPalette(palette);
+            return widget;
+        }
+
+        QWidget* makeSmall(QWidget* widget) {
+            widget->setAttribute(Qt::WA_MacSmallSize);
             return widget;
         }
 
@@ -229,20 +230,6 @@ namespace TrenchBroom {
             return widget;
         }
 
-        QSettings& getSettings() {
-            static auto settings =
-#if defined __linux__ || defined __FreeBSD__
-                QSettings(QDir::homePath() % QString::fromLocal8Bit("/.TrenchBroom/.preferences"), QSettings::Format::IniFormat);
-#elif defined __APPLE__
-                QSettings(QStandardPaths::locate(QStandardPaths::ConfigLocation,
-                                                 QString::fromLocal8Bit("TrenchBroom Preferences"),
-                                                 QStandardPaths::LocateOption::LocateFile), QSettings::Format::IniFormat);
-#else
-                QSettings();
-#endif
-            return settings;
-        }
-
         Color fromQColor(const QColor& color) {
             return Color(static_cast<float>(color.redF()),
                          static_cast<float>(color.greenF()),
@@ -269,7 +256,7 @@ namespace TrenchBroom {
             button->setToolTip(tooltip);
             button->setIcon(icon);
             // button->setFlat(true);
-            button->setStyleSheet("QToolButton { border: none; }");
+            button->setObjectName("toolButton_borderless");
 
             return button;
         }

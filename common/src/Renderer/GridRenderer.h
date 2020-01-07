@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_GridRenderer
 #define TrenchBroom_GridRenderer
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/GLVertexType.h"

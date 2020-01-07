@@ -19,14 +19,16 @@
 
 #include "UVOffsetTool.h"
 
-#include "Polyhedron.h"
-#include "SharedPointer.h"
+#include "Ensure.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/Polyhedron.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/UVView.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -40,7 +42,7 @@ namespace TrenchBroom {
         UVOffsetTool::UVOffsetTool(std::weak_ptr<MapDocument> document, const UVViewHelper& helper) :
         ToolControllerBase(),
         Tool(true),
-        m_document(document),
+        m_document(std::move(document)),
         m_helper(helper) {}
 
         Tool* UVOffsetTool::doGetTool() {
@@ -61,7 +63,7 @@ namespace TrenchBroom {
 
             m_lastPoint = computeHitPoint(inputState.pickRay());
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->startTransaction("Move Texture");
             return true;
         }
@@ -83,7 +85,7 @@ namespace TrenchBroom {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setOffset(corrected);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->setFaceAttributes(request);
 
             m_lastPoint = m_lastPoint + snapped;
@@ -91,12 +93,12 @@ namespace TrenchBroom {
         }
 
         void UVOffsetTool::doEndMouseDrag(const InputState&) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->commitTransaction();
         }
 
         void UVOffsetTool::doCancelMouseDrag() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
         }
 

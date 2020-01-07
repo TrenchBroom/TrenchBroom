@@ -20,6 +20,7 @@
 
 #include <algorithm> // for std::mismatch, std::sort, std::search, std::equal
 #include <string_view>
+#include <vector> // used in str_matches_glob
 
 #include "collection_utils.h"
 
@@ -37,7 +38,7 @@ namespace kdl {
      * @return the first position at which the given strings differ
      */
     template <typename CharEqual>
-    std::size_t str_mismatch(const std::string_view& s1, const std::string_view& s2, const CharEqual& char_equal) {
+    std::size_t str_mismatch(const std::string_view s1, const std::string_view s2, const CharEqual& char_equal) {
         const auto mis = std::mismatch(std::begin(s1), std::end(s1), std::begin(s2), std::end(s2), char_equal);
         return static_cast<std::size_t>(std::distance(std::begin(s1), mis.first));
     }
@@ -53,7 +54,7 @@ namespace kdl {
      * @return true if the first string contains the second string and false otherwise
      */
     template <typename CharEqual>
-    bool str_contains(const std::string_view& haystack, const std::string_view& needle, const CharEqual& char_equal) {
+    bool str_contains(const std::string_view haystack, const std::string_view needle, const CharEqual& char_equal) {
         return std::search(std::begin(haystack), std::end(haystack), std::begin(needle), std::end(needle), char_equal) != std::end(haystack);
     }
 
@@ -68,7 +69,7 @@ namespace kdl {
      * @return true if needle is a prefix of haystack
      */
     template <typename CharEqual>
-    bool str_is_prefix(const std::string_view& haystack, const std::string_view& needle, const CharEqual& char_equal) {
+    bool str_is_prefix(const std::string_view haystack, const std::string_view needle, const CharEqual& char_equal) {
         return std::mismatch(std::begin(haystack), std::end(haystack), std::begin(needle), std::end(needle), char_equal).second == std::end(needle);
     }
 
@@ -83,7 +84,7 @@ namespace kdl {
      * @return true if needle is a suffix of haystack
      */
     template <typename CharEqual>
-    bool str_is_suffix(const std::string_view& haystack, const std::string_view& needle, const CharEqual& char_equal) {
+    bool str_is_suffix(const std::string_view haystack, const std::string_view needle, const CharEqual& char_equal) {
         return std::mismatch(std::rbegin(haystack), std::rend(haystack), std::rbegin(needle), std::rend(needle), char_equal).second == std::rend(needle);
     }
 
@@ -98,7 +99,7 @@ namespace kdl {
      * @return an int indicating the result of the comparison
      */
     template <typename CharCompare>
-    int str_compare(const std::string_view& s1, const std::string_view& s2, const CharCompare& char_compare) {
+    int str_compare(const std::string_view s1, const std::string_view s2, const CharCompare& char_compare) {
         return kdl::col_lexicographical_compare(s1, s2, char_compare);
     }
 
@@ -113,7 +114,7 @@ namespace kdl {
      * @return true if the given strings are equal and false otherwise
      */
     template <typename CharEqual>
-    bool str_is_equal(const std::string_view& s1, const std::string_view& s2, const CharEqual& char_equal) {
+    bool str_is_equal(const std::string_view s1, const std::string_view s2, const CharEqual& char_equal) {
         return std::equal(std::begin(s1), std::end(s1), std::begin(s2), std::end(s2), char_equal);
     }
 
@@ -124,84 +125,107 @@ namespace kdl {
      * A glob pattern is a string that has the following special characters:
      * - ? matches any character one time
      * - * matches any character any number of times, including 0
+     * - % matches any digit one time
+     * - %* matches any digit any number of times, including 0
      * - \? matches a literal '?' character
      * - \* matches a literal '*' character
+     * - \% matches a literal '%' character
      * - \\ matches a literal '\' character
      *
      * Consider the following examples:
      * - ?o? matches 'god' and 'dog', but not 'dug'
      * - he*o matches 'hello' and 'hero', but not 'hera' nor 'hiro'
      * - wh*\? matches 'what?' and 'why?'
+     * - wh%% matches 'wh34'
+     * - wh%* matches 'wh343433'
+     * - wh%* matches 'wh'
      *
      * @tparam CharEqual the type of the binary predicate used to test characters for equality
-     * @param s the string to match the pattern against
-     * @param p the pattern
+     * @param str the string to match the pattern against
+     * @param pattern the pattern
      * @param char_equal the binary predicate
      * @return true if the given pattern matches the given string
      */
     template <typename CharEqual>
-    bool str_matches_glob(const std::string_view& s, const std::string_view& p, const CharEqual& char_equal) {
-        // If both the string and the pattern are exhausted, we have a successful match.
-        if (s.empty() && p.empty()) {
-            return true;
-        }
+    bool str_matches_glob(const std::string_view str, const std::string_view pattern, const CharEqual& char_equal) {
+        using match_task = std::pair<std::size_t, std::size_t>;
+        std::vector<match_task> match_tasks({{ 0u, 0u }});
 
-        // If the pattern is exhausted but the string is not, there cannot be a match.
-        if (p.empty()) {
-            return false;
-        }
+        while (!match_tasks.empty()) {
+            const auto [s_i, p_i] = match_tasks.back();
+            match_tasks.pop_back();
 
-        // Handle escaped characters in pattern.
-        if (p[0] == '\\' && p.size() > 1u) {
-            // If the string is exhausted, there cannot be a match.
-            if (s.empty()) {
-                return false;
+            if (s_i == str.length() && p_i == pattern.length()) {
+                // both the string and the pattern are consumed, so we have a match
+                return true;
             }
 
-            // Look ahead at the next character.
-            const auto& n = p[1u];
-            if (n == '*' || n == '?' || n == '\\') {
-                if (s[0] != n) {
-                    return false;
+            if (p_i == pattern.length()) {
+                // the pattern is consumed but the string is not, so we cannot have a match
+                continue;
+            }
+
+            if (pattern[p_i] == '\\' && p_i < pattern.length() - 1u) {
+                // handle escaped characters in the pattern
+                if (s_i < str.length()) {
+                    // check the next character in the pattern against the next character in the string
+                    const auto& n = pattern[p_i + 1u];
+                    if (n == '*' || n == '?' || n == '%' || n == '\\') {
+                        if (str[s_i] == n) {
+                            // the string matches the escaped character, continue to match
+                            match_tasks.emplace_back(s_i + 1u, p_i + 2u);
+                        }
+                    } else {
+                        // invalid escape sequence in pattern
+                        return false;
+                    }
+                }
+            } else if (pattern[p_i] == '*') {
+                // handle '*' in the pattern
+                if (p_i == pattern.length() - 1u) {
+                    // the pattern is consumed after the '*', it doesn't matter what the rest of the string looks like
+                    return true;
                 }
 
-                return str_matches_glob(s.substr(1u), p.substr(2u), char_equal);
-            } else {
-                return false; // Invalid escape sequence.
+                if (s_i == str.length()) {
+                    // the string is consumed, continue matching at the next char in the pattern
+                    match_tasks.emplace_back(s_i, p_i + 1u);
+                } else {
+                    // '*' matches any character
+                    // consume the '*' and continue matching at the current character of the string
+                    match_tasks.emplace_back(s_i, p_i + 1u);
+                    // consume the current character of the string and continue matching at '*'
+                    match_tasks.emplace_back(s_i + 1u, p_i);
+                }
+            } else if (pattern[p_i] == '?') {
+                // handle '?' in the pattern
+                if (s_i < str.length()) {
+                    // '?' matches any character, continue at the next chars in both the pattern and the string
+                    match_tasks.emplace_back(s_i + 1u, p_i + 1u);
+                }
+            } else if (pattern[p_i] == '%') {
+                // handle '%' in the pattern
+                if (p_i < pattern.length() - 1u && pattern[p_i + 1u] == '*') {
+                    // handle "%*" in the pattern
+                    // try to continue matching after "%*"
+                    match_tasks.emplace_back(s_i, p_i + 2u);
+                    if (s_i < str.length() && str[s_i] >= '0' && str[s_i] <= '9') {
+                        // try to match more digits
+                        match_tasks.emplace_back(s_i + 1u, p_i);
+                    }
+                } else if (s_i < str.length()) {
+                    // handle '%' in the pattern (not followed by '*')
+                    if (str[s_i] >= '0' && str[s_i] <= '9') {
+                        // continue matching after the digit
+                        match_tasks.emplace_back(s_i + 1u, p_i + 1u);
+                    }
+                }
+            } else if (s_i < str.length() && char_equal(pattern[p_i], str[s_i])) {
+                // handle a regular character in the pattern
+                match_tasks.emplace_back(s_i + 1u, p_i + 1u);
             }
         }
 
-        // If the pattern is a star and the string is consumed, continue matching at the next char in the pattern.
-        if (p[0] == '*' && s.empty()) {
-            return str_matches_glob(s, p.substr(1u), char_equal);
-        }
-
-        // If the pattern is a '?' and the string is consumed, there cannot be a match.
-        if (p[0] == '?' && s.empty()) {
-            return false;
-        }
-
-        // If the pattern is not consumed, and the current char is not a wildcard, and the pattern is not consumed,
-        // there cannot be a match.
-        if (s.empty()) {
-            return false;
-        }
-
-        // If the pattern contains '?', or current characters of both strings match, advance both the string and the
-        // pattern and continue to match.
-        if (p[0] == '?' || char_equal(p[0], s[0])) {
-            return str_matches_glob(s.substr(1u), p.substr(1u), char_equal);
-        }
-
-        // If there is * in the pattern, then there are two possibilities
-        // a) We consider the current character of the string.
-        // b) We ignore the current character of the string.
-        if (p[0] == '*') {
-            return str_matches_glob(s, p.substr(1u), char_equal) ||
-                   str_matches_glob(s.substr(1u), p, char_equal);
-        }
-
-        // All other possibilities are exhausted, the current characters of the string and the pattern do not match.
         return false;
     }
 }

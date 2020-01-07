@@ -24,7 +24,6 @@
 #include "View/VertexToolBase.h"
 #include "View/VertexHandleManager.h"
 
-#include <list> // FIXME: get rid of this
 #include <memory>
 #include <string>
 #include <vector>
@@ -63,7 +62,7 @@ namespace TrenchBroom {
 
             mutable Renderer::PointGuideRenderer m_guideRenderer;
         public:
-            VertexTool(std::weak_ptr<MapDocument> document);
+            explicit VertexTool(const std::weak_ptr<MapDocument>& document);
         public:
             std::vector<Model::Brush*> findIncidentBrushes(const vm::vec3& handle) const;
             std::vector<Model::Brush*> findIncidentBrushes(const vm::segment3& handle) const;
@@ -78,12 +77,12 @@ namespace TrenchBroom {
             VertexHandleManager& handleManager() override;
             const VertexHandleManager& handleManager() const override;
         public: // Vertex moving
-            bool startMove(const std::list<Model::Hit>& hits) override;
+            bool startMove(const std::vector<Model::Hit>& hits) override;
             MoveResult move(const vm::vec3& delta) override;
             void endMove() override;
             void cancelMove() override;
 
-            const vm::vec3& getHandlePosition(const Model::Hit& hit) const override;
+            vm::vec3 getHandlePosition(const Model::Hit& hit) const override;
             std::string actionName() const override;
 
             void removeSelection();

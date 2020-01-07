@@ -22,12 +22,11 @@
 
 #include "View/ToolController.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderService.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>

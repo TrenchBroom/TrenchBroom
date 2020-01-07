@@ -20,10 +20,9 @@
 #ifndef TrenchBroom_SnapBrushVerticesCommand
 #define TrenchBroom_SnapBrushVerticesCommand
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
 #include "View/SnapshotCommand.h"
-#include "View/View_Forward.h"
 
 namespace TrenchBroom {
     namespace View {

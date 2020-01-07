@@ -19,10 +19,10 @@
 
 #include "BrushRendererBrushCache.h"
 
-#include "Polyhedron.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
+#include "Model/Polyhedron.h"
 
 #include <algorithm>
 

@@ -20,11 +20,9 @@
 #ifndef TrenchBroom_UVView
 #define TrenchBroom_UVView
 
-#include "TrenchBroom.h"
-#include "IO/IO_Forward.h"
+#include "FloatType.h"
 #include "Model/HitType.h"
 #include "Model/PickResult.h"
-#include "Model/Model_Forward.h"
 #include "Renderer/OrthographicCamera.h"
 #include "View/RenderView.h"
 #include "View/ToolBox.h"
@@ -37,6 +35,14 @@
 class QWidget;
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
+    namespace Model {
+        class Node;
+    }
+
     namespace Renderer {
         class ActiveShader;
         class RenderBatch;

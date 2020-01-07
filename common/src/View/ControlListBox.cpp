@@ -126,8 +126,6 @@ namespace TrenchBroom {
             auto* emptyTextLayout = new QVBoxLayout();
             m_emptyTextContainer->setLayout(emptyTextLayout);
             emptyTextLayout->addWidget(m_emptyTextLabel);
-
-            setStyleSheet("QListWidget#controlListBox_listWidget { border: none; }");
         }
 
         ControlListBox::ControlListBox(const QString& emptyText, const bool showSeparator, QWidget* parent) :

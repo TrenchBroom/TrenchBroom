@@ -20,11 +20,11 @@
 #include "ObjSerializer.h"
 
 #include "Ensure.h"
-#include "Polyhedron.h"
 #include "IO/Path.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
+#include "Model/Polyhedron.h"
 
 #include <set>
 

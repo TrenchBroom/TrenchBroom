@@ -20,7 +20,6 @@
 #include "GroupSnapshot.h"
 
 #include "Model/Group.h"
-#include "Model/Model_Forward.h"
 #include "Model/Node.h"
 #include "Model/TakeSnapshotVisitor.h"
 

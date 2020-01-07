@@ -20,10 +20,8 @@
 #ifndef TrenchBroom_EntityBrowserView
 #define TrenchBroom_EntityBrowserView
 
-#include "Assets/Asset_Forward.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/GLVertexType.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/CellView.h"
 
 #include <vecmath/forward.h>
@@ -35,6 +33,19 @@
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace Assets {
+        class EntityDefinitionManager;
+        enum class EntityDefinitionSortOrder;
+        class EntityModelManager;
+        class PointEntityDefinition;
+    }
+
+    namespace Renderer {
+        class FontDescriptor;
+        class TexturedRenderer;
+        class Transformation;
+    }
 
     namespace View {
         using EntityGroupData = std::string;

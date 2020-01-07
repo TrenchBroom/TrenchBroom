@@ -20,19 +20,32 @@
 #ifndef TrenchBroom_ClipTool
 #define TrenchBroom_ClipTool
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/HitType.h"
-#include "Model/Model_Forward.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
-#include "View/View_Forward.h"
 
 #include <map>
 #include <memory>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class BrushFace;
+        class Node;
+        class PickResult;
+    }
+
+    namespace Renderer {
+        class BrushRenderer;
+        class Camera;
+        class RenderBatch;
+        class RenderContext;
+    }
+
     namespace View {
+        class Grid;
+        class MapDocument;
+        class Selection;
 
         class ClipTool : public Tool {
         public:

@@ -21,15 +21,17 @@
 #define TrenchBroom_RenameGroupsCommand
 
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
-#include "View/View_Forward.h"
 
 #include <map>
 #include <memory>
 #include <string>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Group;
+    }
+
     namespace View {
         class MapDocumentCommandFacade;
 

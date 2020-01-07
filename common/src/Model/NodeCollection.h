@@ -20,12 +20,16 @@
 #ifndef TrenchBroom_NodeCollection
 #define TrenchBroom_NodeCollection
 
-#include "Model/Model_Forward.h"
-
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class Brush;
+        class Entity;
+        class Group;
+        class Layer;
+        class Node;
+
         class NodeCollection {
         private:
             class AddNode;

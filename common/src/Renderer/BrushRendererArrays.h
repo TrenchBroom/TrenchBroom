@@ -21,7 +21,6 @@
 #define BrushRendererArray_h
 
 #include "Ensure.h"
-#include "Model/Model_Forward.h"
 #include "Renderer/AllocationTracker.h"
 #include "Renderer/GL.h"
 #include "Renderer/GLVertexType.h"
@@ -206,7 +205,7 @@ namespace TrenchBroom {
             void bindBlock() {
                 m_vbo->bind();
             }
-            
+
             void unbindBlock() {
                 m_vbo->unbind();
             }

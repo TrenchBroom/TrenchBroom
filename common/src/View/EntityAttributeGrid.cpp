@@ -19,7 +19,6 @@
 
 #include "EntityAttributeGrid.h"
 
-#include "SharedPointer.h"
 #include "Model/EntityAttributes.h"
 #include "View/BorderLine.h"
 #include "View/EntityAttributeItemDelegate.h"
@@ -29,6 +28,7 @@
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/string_format.h>
 #include <kdl/vector_set.h>
 
@@ -59,7 +59,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeGrid::addAttribute() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const std::string newAttributeName = AttributeRow::newAttributeNameForAttributableNodes(document->allSelectedAttributableNodes());
 
             document->setAttribute(newAttributeName, "");
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             }
 
             const size_t numRows = attributes.size();
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             {
                 Transaction transaction(document, kdl::str_plural(numRows, "Remove Attribute", "Remove Attributes"));
@@ -172,7 +172,6 @@ namespace TrenchBroom {
 
             autoResizeRows(m_table);
 
-            m_table->setStyleSheet("QTableView { border: none; }");
             m_table->verticalHeader()->setVisible(false);
             m_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
             m_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
@@ -204,6 +203,8 @@ namespace TrenchBroom {
 
             connect(m_table->selectionModel(), &QItemSelectionModel::currentChanged, this, [=](const QModelIndex& current, const QModelIndex& previous){
                 qDebug() << "current changed form " << previous << " to " << current;
+                updateControlsEnabled();
+                ensureSelectionVisible();
                 emit selectedRow();
             });
 
@@ -227,7 +228,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeGrid::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &EntityAttributeGrid::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &EntityAttributeGrid::documentWasLoaded);
             document->nodesDidChangeNotifier.addObserver(this, &EntityAttributeGrid::nodesDidChange);
@@ -236,8 +237,8 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeGrid::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &EntityAttributeGrid::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &EntityAttributeGrid::documentWasLoaded);
                 document->nodesDidChangeNotifier.removeObserver(this, &EntityAttributeGrid::nodesDidChange);
@@ -271,9 +272,16 @@ namespace TrenchBroom {
             // state. Everything is fine except you lose the selected row in the table, unless it's a key
             // name that exists in worldspawn. To avoid that problem, make a delayed call to update the table.
             QMetaObject::invokeMethod(m_model, "updateFromMapDocument", Qt::QueuedConnection);
+            updateControlsEnabled();
+            ensureSelectionVisible();
+        }
 
-            // Update buttons/checkboxes
-            auto document = lock(m_document);
+        void EntityAttributeGrid::ensureSelectionVisible() {
+            m_table->scrollTo(m_table->currentIndex());
+        }
+
+        void EntityAttributeGrid::updateControlsEnabled() {
+            auto document = kdl::mem_lock(m_document);
             const auto nodes = document->allSelectedAttributableNodes();
             m_table->setEnabled(!nodes.empty());
             m_addAttributeButton->setEnabled(!nodes.empty());
@@ -281,7 +289,7 @@ namespace TrenchBroom {
             m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
         }
 
-        Model::AttributeName EntityAttributeGrid::selectedRowName() const {
+        std::string EntityAttributeGrid::selectedRowName() const {
             QModelIndex current = m_proxyModel->mapToSource(m_table->currentIndex());
             const AttributeRow* rowModel = m_model->dataForModelIndex(current);
             if (rowModel == nullptr) {

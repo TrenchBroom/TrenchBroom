@@ -19,6 +19,7 @@
 
 #include "CreateEntityToolController.h"
 
+#include "Ensure.h"
 #include "View/CreateEntityTool.h"
 #include "View/InputState.h"
 
@@ -34,7 +35,7 @@ namespace TrenchBroom {
             ensure(m_tool != nullptr, "tool is null");
         }
 
-        CreateEntityToolController::~CreateEntityToolController() {}
+        CreateEntityToolController::~CreateEntityToolController() = default;
 
         Tool* CreateEntityToolController::doGetTool() {
             return m_tool;

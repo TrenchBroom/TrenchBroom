@@ -22,9 +22,12 @@
 
 #include "View/ControlListBox.h"
 
-#include "Model/Model_Forward.h"
-
 namespace TrenchBroom {
+    namespace Model {
+        class CompilationConfig;
+        class CompilationProfile;
+    }
+
     namespace View {
         class ElidedLabel;
 

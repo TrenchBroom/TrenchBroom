@@ -27,13 +27,16 @@
 
 #include <QDebug>
 #include <QDir>
-#include <QStandardPaths>
-#include <QStringBuilder>
+#include <QFileSystemWatcher>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QSaveFile>
-#include <QFileSystemWatcher>
+#if defined(Q_OS_WIN)
+#include <QSettings>
+#endif
+#include <QStandardPaths>
+#include <QStringBuilder>
 
 #include <string>
 #include <vector>
@@ -205,10 +208,10 @@ namespace TrenchBroom {
         invalidatePreferences();
     }
 
-    static std::set<IO::Path>
+    static std::vector<IO::Path>
     changedKeysForMapDiff(const std::map<IO::Path, QString>& before,
                           const std::map<IO::Path, QString>& after) {
-        std::set<IO::Path> result;
+        kdl::vector_set<IO::Path> result;
 
         // removes
         for (auto& [k, v] : before) {
@@ -233,7 +236,7 @@ namespace TrenchBroom {
             }
         }
 
-        return result;
+        return result.release_data();
     }
 
     /**
@@ -249,7 +252,7 @@ namespace TrenchBroom {
         invalidatePreferences();
 
         // Emit preferenceDidChangeNotifier for any changed preferences
-        const std::set<IO::Path> changedKeys = changedKeysForMapDiff(oldPrefs, m_cache);
+        const std::vector<IO::Path> changedKeys = changedKeysForMapDiff(oldPrefs, m_cache);
         for (const auto& changedPath : changedKeys) {
             preferenceDidChangeNotifier(changedPath);
         }

@@ -20,22 +20,26 @@
 #ifndef TrenchBroom_Entity
 #define TrenchBroom_Entity
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
-#include "Assets/Asset_Forward.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityRotationPolicy.h"
 #include "Model/HitType.h"
-#include "Model/Model_Forward.h"
 #include "Model/Object.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
 #include <vecmath/util.h>
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityModelFrame;
+        struct ModelSpecification;
+    }
+
     namespace Model {
         class Entity : public AttributableNode, public Object, private EntityRotationPolicy {
         public:
@@ -97,7 +101,7 @@ namespace TrenchBroom {
 
             bool doSelectable() const override;
 
-            void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
+            void doPick(const vm::ray3& ray, PickResult& pickResult) override;
             void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
 
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
@@ -107,8 +111,8 @@ namespace TrenchBroom {
             std::vector<Node*> nodesRequiredForViewSelection() override;
         private: // implement AttributableNode interface
             void doAttributesDidChange(const vm::bbox3& oldBounds) override;
-            bool doIsAttributeNameMutable(const AttributeName& name) const override;
-            bool doIsAttributeValueMutable(const AttributeName& name) const override;
+            bool doIsAttributeNameMutable(const std::string& name) const override;
+            bool doIsAttributeValueMutable(const std::string& name) const override;
             vm::vec3 doGetLinkSourceAnchor() const override;
             vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement Object interface

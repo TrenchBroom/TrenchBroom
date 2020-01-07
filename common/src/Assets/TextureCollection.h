@@ -21,7 +21,6 @@
 #define TrenchBroom_TextureCollection
 
 #include "Notifier.h"
-#include "Assets/Asset_Forward.h"
 #include "IO/Path.h"
 #include "Renderer/GL.h"
 
@@ -30,6 +29,8 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        class Texture;
+
         class TextureCollection {
         private:
             using TextureIdList = std::vector<GLuint>;

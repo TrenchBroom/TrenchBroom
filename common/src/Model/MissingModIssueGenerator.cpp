@@ -19,7 +19,6 @@
 
 #include "MissingModIssueGenerator.h"
 
-#include "SharedPointer.h"
 #include "IO/Path.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
@@ -29,6 +28,7 @@
 #include "Model/MapFacade.h"
 #include "Model/PushSelection.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <cassert>
@@ -54,7 +54,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const std::string doGetDescription() const override {
+            std::string doGetDescription() const override {
                 return "Mod '" + m_mod + "' could not be used: " + m_message;
             }
         public:
@@ -85,7 +85,7 @@ namespace TrenchBroom {
                 for (const Issue* issue : issues) {
                     if (issue->type() == MissingModIssue::Type) {
                         const MissingModIssue* modIssue = static_cast<const MissingModIssue*>(issue);
-                        const std::string missingMod = modIssue->mod();
+                        const std::string& missingMod = modIssue->mod();
                         kdl::vec_erase(mods, missingMod);
                     }
                 }
@@ -95,7 +95,7 @@ namespace TrenchBroom {
 
         MissingModIssueGenerator::MissingModIssueGenerator(std::weak_ptr<Game> game) :
         IssueGenerator(MissingModIssue::Type, "Missing mod directory"),
-        m_game(game) {
+        m_game(std::move(game)) {
             addQuickFix(new MissingModIssueQuickFix());
         }
 
@@ -106,11 +106,11 @@ namespace TrenchBroom {
                 return;
             }
 
-            if (expired(m_game)) {
+            if (kdl::mem_expired(m_game)) {
                 return;
             }
 
-            auto game = lock(m_game);
+            auto game = kdl::mem_lock(m_game);
             const std::vector<std::string> mods = game->extractEnabledMods(*node);
 
             if (mods == m_lastMods) {

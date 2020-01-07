@@ -67,7 +67,7 @@ namespace TrenchBroom {
         m_entityNo(0),
         m_brushNo(0) {}
 
-        NodeSerializer::~NodeSerializer() {}
+        NodeSerializer::~NodeSerializer() = default;
 
         NodeSerializer::ObjectNo NodeSerializer::entityNo() const {
             return m_entityNo;
@@ -95,11 +95,11 @@ namespace TrenchBroom {
             entity(layer, layerAttributes(layer), {}, layer);
         }
 
-        void NodeSerializer::group(Model::Group* group, const std::list<Model::EntityAttribute>& parentAttributes) {
+        void NodeSerializer::group(Model::Group* group, const std::vector<Model::EntityAttribute>& parentAttributes) {
             entity(group, groupAttributes(group), parentAttributes, group);
         }
 
-        void NodeSerializer::entity(Model::Node* node, const std::list<Model::EntityAttribute>& attributes, const std::list<Model::EntityAttribute>& parentAttributes, Model::Node* brushParent) {
+        void NodeSerializer::entity(Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, Model::Node* brushParent) {
             beginEntity(node, attributes, parentAttributes);
 
             BrushSerializer brushSerializer(*this);
@@ -108,13 +108,13 @@ namespace TrenchBroom {
             endEntity(node);
         }
 
-        void NodeSerializer::entity(Model::Node* node, const std::list<Model::EntityAttribute>& attributes, const std::list<Model::EntityAttribute>& parentAttributes, const std::vector<Model::Brush*>& entityBrushes) {
+        void NodeSerializer::entity(Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, const std::vector<Model::Brush*>& entityBrushes) {
             beginEntity(node, attributes, parentAttributes);
             brushes(entityBrushes);
             endEntity(node);
         }
 
-        void NodeSerializer::beginEntity(const Model::Node* node, const std::list<Model::EntityAttribute>& attributes, const std::list<Model::EntityAttribute>& extraAttributes) {
+        void NodeSerializer::beginEntity(const Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& extraAttributes) {
             beginEntity(node);
             entityAttributes(attributes);
             entityAttributes(extraAttributes);
@@ -130,7 +130,7 @@ namespace TrenchBroom {
             ++m_entityNo;
         }
 
-        void NodeSerializer::entityAttributes(const std::list<Model::EntityAttribute>& attributes) {
+        void NodeSerializer::entityAttributes(const std::vector<Model::EntityAttribute>& attributes) {
             for (const auto& attribute : attributes) {
                 entityAttribute(attribute);
             }
@@ -175,13 +175,13 @@ namespace TrenchBroom {
         private:
             const IdManager& m_layerIds;
             const IdManager& m_groupIds;
-            std::list<Model::EntityAttribute> m_attributes;
+            std::vector<Model::EntityAttribute> m_attributes;
         public:
             GetParentAttributes(const IdManager& layerIds, const IdManager& groupIds) :
             m_layerIds(layerIds),
             m_groupIds(groupIds) {}
 
-            const std::list<Model::EntityAttribute>& attributes() const {
+            const std::vector<Model::EntityAttribute>& attributes() const {
                 return m_attributes;
             }
         private:
@@ -192,9 +192,9 @@ namespace TrenchBroom {
             void doVisit(const Model::Brush* /* brush */) override   {}
         };
 
-        std::list<Model::EntityAttribute> NodeSerializer::parentAttributes(const Model::Node* node) {
+        std::vector<Model::EntityAttribute> NodeSerializer::parentAttributes(const Model::Node* node) {
             if (node == nullptr) {
-                return std::list<Model::EntityAttribute>(0);
+                return std::vector<Model::EntityAttribute>(0);
             }
 
             GetParentAttributes visitor(m_layerIds, m_groupIds);
@@ -202,22 +202,22 @@ namespace TrenchBroom {
             return visitor.attributes();
         }
 
-        std::list<Model::EntityAttribute> NodeSerializer::layerAttributes(const Model::Layer* layer) {
-            std::list<Model::EntityAttribute> attrs;
-            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::LayerClassname));
-            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeLayer));
-            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::LayerName, layer->name()));
-            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::LayerId, m_layerIds.getId(layer)));
-            return attrs;
+        std::vector<Model::EntityAttribute> NodeSerializer::layerAttributes(const Model::Layer* layer) {
+            return {
+                Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::LayerClassname),
+                Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeLayer),
+                Model::EntityAttribute(Model::AttributeNames::LayerName, layer->name()),
+                Model::EntityAttribute(Model::AttributeNames::LayerId, m_layerIds.getId(layer)),
+            };
         }
 
-        std::list<Model::EntityAttribute> NodeSerializer::groupAttributes(const Model::Group* group) {
-            std::list<Model::EntityAttribute> attrs;
-            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::GroupClassname));
-            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeGroup));
-            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupName, group->name()));
-            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupId, m_groupIds.getId(group)));
-            return attrs;
+        std::vector<Model::EntityAttribute> NodeSerializer::groupAttributes(const Model::Group* group) {
+            return {
+                Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::GroupClassname),
+                Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeGroup),
+                Model::EntityAttribute(Model::AttributeNames::GroupName, group->name()),
+                Model::EntityAttribute(Model::AttributeNames::GroupId, m_groupIds.getId(group)),
+            };
         }
 
         std::string NodeSerializer::escapeEntityAttribute(const std::string& str) const {

@@ -20,35 +20,37 @@
 #ifndef TrenchBroom_SmartAttributeEditorMatcher
 #define TrenchBroom_SmartAttributeEditorMatcher
 
-#include "Model/Model_Forward.h"
-
 #include <initializer_list>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class AttributableNode;
+    }
+
     namespace View {
         class SmartAttributeEditorMatcher {
         public:
             virtual ~SmartAttributeEditorMatcher();
-            bool matches(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const;
+            bool matches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const;
         private:
-            virtual bool doMatches(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const = 0;
+            virtual bool doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const = 0;
         };
 
         class SmartAttributeEditorKeyMatcher : public SmartAttributeEditorMatcher {
         private:
-            std::vector<Model::AttributeName> m_patterns;
+            std::vector<std::string> m_patterns;
         public:
             SmartAttributeEditorKeyMatcher(const std::string& pattern);
             SmartAttributeEditorKeyMatcher(std::initializer_list<std::string> patterns);
         private:
-            bool doMatches(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const override;
+            bool doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const override;
         };
 
         class SmartAttributeEditorDefaultMatcher : public SmartAttributeEditorMatcher {
         private:
-            bool doMatches(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const override;
+            bool doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const override;
         };
     }
 }

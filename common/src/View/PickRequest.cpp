@@ -20,9 +20,7 @@
 #include "PickRequest.h"
 
 #include "Ensure.h"
-#include "TrenchBroom.h"
-
-#include <vecmath/ray.h>
+#include "FloatType.h"
 
 namespace TrenchBroom {
     namespace View {

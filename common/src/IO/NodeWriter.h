@@ -20,9 +20,7 @@
 #ifndef TrenchBroom_NodeWriter
 #define TrenchBroom_NodeWriter
 
-#include "IO/IO_Forward.h"
 #include "IO/NodeSerializer.h"
-#include "Model/Model_Forward.h"
 
 #include <cstdio> // FILE*
 #include <map>
@@ -30,6 +28,15 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+        class BrushFace;
+        class Entity;
+        class Layer;
+        class Node;
+        class World;
+    }
+
     namespace IO {
         class NodeWriter {
         private:

@@ -20,10 +20,15 @@
 #ifndef TrenchBroom_HitAdapter
 #define TrenchBroom_HitAdapter
 
-#include "Model/Model_Forward.h"
-
 namespace TrenchBroom {
     namespace Model {
+        class Brush;
+        class BrushFace;
+        class Entity;
+        class Hit;
+        class Node;
+        class Object;
+
         Node* hitToNode(const Hit& hit);
         Object* hitToObject(const Hit& hit);
         Entity* hitToEntity(const Hit& hit);

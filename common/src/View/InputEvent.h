@@ -20,8 +20,6 @@
 #ifndef InputEvent_h
 #define InputEvent_h
 
-#include "View/View_Forward.h"
-
 #include <QKeyEvent>
 
 #include <chrono>
@@ -33,6 +31,11 @@
 
 namespace TrenchBroom {
     namespace View {
+        class CancelEvent;
+        class InputEventProcessor;
+        class KeyEvent;
+        class MouseEvent;
+
         /**
          * Superclass for all input events. Provides protocols for event collation and processing.
          */

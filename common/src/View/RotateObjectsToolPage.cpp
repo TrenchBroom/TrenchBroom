@@ -19,8 +19,7 @@
 
 #include "RotateObjectsToolPage.h"
 
-#include "SharedPointer.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/BorderLine.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -28,6 +27,7 @@
 #include "View/SpinControl.h"
 #include "View/ViewConstants.h"
 
+#include <kdl/memory_utils.h>
 #include <kdl/string_utils.h>
 
 #include <vecmath/vec.h>
@@ -62,13 +62,13 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsToolPage::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &RotateObjectsToolPage::selectionDidChange);
         }
 
         void RotateObjectsToolPage::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->selectionDidChangeNotifier.removeObserver(this, &RotateObjectsToolPage::selectionDidChange);
             }
         }
@@ -155,10 +155,10 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsToolPage::updateGui() {
-            const auto& grid = lock(m_document)->grid();
+            const auto& grid = kdl::mem_lock(m_document)->grid();
             m_angle->setIncrements(vm::to_degrees(grid.angle()), 90.0, 1.0);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             m_rotateButton->setEnabled(document->hasSelectedNodes());
         }
 
@@ -186,7 +186,7 @@ namespace TrenchBroom {
             const auto axis = getAxis();
             const auto angle = vm::to_radians(m_angle->value());
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->rotateObjects(center, axis, angle);
         }
 

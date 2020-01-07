@@ -22,7 +22,6 @@
 
 #include "Macros.h"
 #include "Color.h"
-#include "Renderer/Renderer_Forward.h"
 
 #include <vecmath/constants.h>
 #include <vecmath/forward.h>
@@ -32,9 +31,17 @@
 #include <vector>
 
 namespace TrenchBroom {
-    class AttrString;
-
     namespace Renderer {
+        class AttrString;
+        class PointHandleRenderer;
+        class PrimitiveRenderer;
+        enum class PrimitiveRendererCullingPolicy;
+        enum class PrimitiveRendererOcclusionPolicy;
+        class RenderBatch;
+        class RenderContext;
+        class TextAnchor;
+        class TextRenderer;
+
         class RenderService {
         private:
             using OcclusionPolicy = PrimitiveRendererOcclusionPolicy;

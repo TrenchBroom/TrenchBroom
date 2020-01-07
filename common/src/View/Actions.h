@@ -22,9 +22,7 @@
 
 #include "Macros.h"
 #include "Ensure.h"
-#include "Assets/Asset_Forward.h"
 #include "IO/Path.h"
-#include "Model/Model_Forward.h"
 #include "View/ActionContext.h"
 
 #include <functional>
@@ -36,6 +34,14 @@
 #include <QKeySequence>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityDefinition;
+    }
+
+    namespace Model {
+        class SmartTag;
+    }
+
     namespace View {
         class MapDocument;
         class MapFrame;

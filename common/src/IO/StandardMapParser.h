@@ -20,8 +20,7 @@
 #ifndef TrenchBroom_StandardMapParser
 #define TrenchBroom_StandardMapParser
 
-#include "TrenchBroom.h"
-#include "IO/IO_Forward.h"
+#include "FloatType.h"
 #include "IO/MapParser.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
@@ -31,12 +30,14 @@
 
 #include <vecmath/forward.h>
 
-#include <list>
 #include <string>
 #include <tuple>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
+        class ParserStatus;
+
         namespace QuakeMapToken {
             using Type = unsigned int;
             static const Type Integer       = 1 <<  0; // integer number
@@ -60,7 +61,7 @@ namespace TrenchBroom {
             bool m_skipEol;
         public:
             QuakeMapTokenizer(const char* begin, const char* end);
-            QuakeMapTokenizer(const std::string& str);
+            explicit QuakeMapTokenizer(const std::string& str);
 
             void setSkipEol(bool skipEol);
         private:
@@ -70,7 +71,7 @@ namespace TrenchBroom {
         class StandardMapParser : public MapParser, public Parser<QuakeMapToken::Type> {
         private:
             using Token = QuakeMapTokenizer::Token;
-            using AttributeNames = kdl::vector_set<Model::AttributeName>;
+            using AttributeNames = kdl::vector_set<std::string>;
 
             static const std::string BrushPrimitiveId;
             static const std::string PatchId;
@@ -79,9 +80,9 @@ namespace TrenchBroom {
             Model::MapFormat m_format;
         public:
             StandardMapParser(const char* begin, const char* end);
-            StandardMapParser(const std::string& str);
+            explicit StandardMapParser(const std::string& str);
 
-            virtual ~StandardMapParser() override;
+            ~StandardMapParser() override;
         protected:
             Model::MapFormat detectFormat();
 
@@ -94,7 +95,7 @@ namespace TrenchBroom {
             void setFormat(Model::MapFormat format);
 
             void parseEntity(ParserStatus& status);
-            void parseEntityAttribute(std::list<Model::EntityAttribute>& attributes, AttributeNames& names, ParserStatus& status);
+            void parseEntityAttribute(std::vector<Model::EntityAttribute>& attributes, AttributeNames& names, ParserStatus& status);
 
             void parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status);
             void parseBrushPrimitive(ParserStatus& status, size_t startLine);

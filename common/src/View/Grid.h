@@ -20,10 +20,10 @@
 #ifndef TrenchBroom_Grid
 #define TrenchBroom_Grid
 
+#include "Ensure.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Notifier.h"
-#include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -35,6 +35,10 @@
 
 // FIXME: should this be moved to Model?
 namespace TrenchBroom {
+    namespace Model {
+        class BrushFace;
+    }
+
     namespace View {
         class Grid {
         public:
@@ -323,7 +327,7 @@ namespace TrenchBroom {
                 return ps;
             }
         public:
-            FloatType intersectWithRay(const vm::ray3& ray, const size_t skip) const;
+            FloatType intersectWithRay(const vm::ray3& ray, size_t skip) const;
 
             /**
              * Returns a copy of `delta` that snaps the result to grid, if the grid snapping moves the result in the same direction as delta (tested on each axis).

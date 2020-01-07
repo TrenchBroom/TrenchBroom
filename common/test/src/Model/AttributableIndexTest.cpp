@@ -23,7 +23,6 @@
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"
 #include "Model/Entity.h"
-#include "Model/EntityAttributes.h"
 
 #include <kdl/vector_utils.h>
 
@@ -32,11 +31,11 @@
 
 namespace TrenchBroom {
     namespace Model {
-        static std::vector<AttributableNode*> findExactExact(const AttributableNodeIndex& index, const AttributeName& name, const AttributeValue& value) {
+        static std::vector<AttributableNode*> findExactExact(const AttributableNodeIndex& index, const std::string& name, const std::string& value) {
             return index.findAttributableNodes(AttributableNodeIndexQuery::exact(name), value);
         }
 
-        static std::vector<AttributableNode*> findNumberedExact(const AttributableNodeIndex& index, const AttributeName& name, const AttributeValue& value) {
+        static std::vector<AttributableNode*> findNumberedExact(const AttributableNodeIndex& index, const std::string& name, const std::string& value) {
             return index.findAttributableNodes(AttributableNodeIndexQuery::numbered(name), value);
         }
 

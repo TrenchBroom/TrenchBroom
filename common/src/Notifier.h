@@ -20,11 +20,11 @@
 #ifndef TrenchBroom_Notifier_h
 #define TrenchBroom_Notifier_h
 
-#include "TemporarilySetAny.h"
+#include <kdl/set_temp.h>
 
 #include <cassert>
-#include <list>
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     /**
@@ -35,9 +35,9 @@ namespace TrenchBroom {
     template <typename O>
     class NotifierState {
     private:
-        std::list<std::unique_ptr<O>> m_observers;
-        std::list<std::unique_ptr<O>> m_toAdd;
-        std::list<std::unique_ptr<O>> m_toRemove;
+        std::vector<std::unique_ptr<O>> m_observers;
+        std::vector<std::unique_ptr<O>> m_toAdd;
+        std::vector<std::unique_ptr<O>> m_toRemove;
 
         bool m_notifying;
     public:
@@ -101,11 +101,12 @@ namespace TrenchBroom {
          */
         template <typename... A>
         void notify(A... a) {
-            const TemporarilySetBool notifying(m_notifying);
-
-            for (auto& observer : m_observers) {
-                if (!observer->skip()) {
-                    (*observer)(a...);
+            {
+                const kdl::set_temp notifying(m_notifying);
+                for (auto& observer : m_observers) {
+                    if (!observer->skip()) {
+                        (*observer)(a...);
+                    }
                 }
             }
 
@@ -114,16 +115,24 @@ namespace TrenchBroom {
         }
     private:
         void addPending() {
-            m_observers.splice(std::end(m_observers), m_toAdd);
+            assert(!m_notifying);
+
+            for (auto it = std::begin(m_toAdd), end = std::end(m_toAdd); it != end; ++it) {
+                m_observers.push_back(std::move(*it));
+            }
+            m_toAdd.clear();
         }
 
         void removePending() {
-            while (!m_toRemove.empty()) {
-                auto observer = std::move(m_toRemove.front()); m_toRemove.pop_front();
+            assert(!m_notifying);
+
+            for (const auto& observer : m_toRemove) {
                 auto it = findObserver(observer);
                 assert(it != std::end(m_observers));
                 m_observers.erase(it);
             }
+
+            m_toRemove.clear();
         }
 
         auto findObserver(const std::unique_ptr<O>& observer) const {
@@ -242,7 +251,7 @@ namespace TrenchBroom {
             private:
                 T m_func;
             public:
-                Holder(T&& func) : m_func(std::move(func)) {}
+                explicit Holder(T&& func) : m_func(std::move(func)) {}
 
                 void apply() override {
                     m_func();

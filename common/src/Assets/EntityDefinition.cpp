@@ -97,7 +97,7 @@ namespace TrenchBroom {
             return m_attributeDefinitions;
         }
 
-        const AttributeDefinition* EntityDefinition::attributeDefinition(const Model::AttributeName& attributeKey) const {
+        const AttributeDefinition* EntityDefinition::attributeDefinition(const std::string& attributeKey) const {
             for (const auto& attributeDefinition : m_attributeDefinitions) {
                 if (attributeDefinition->name() == attributeKey) {
                     return attributeDefinition.get();
@@ -106,7 +106,7 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        const AttributeDefinition* EntityDefinition::safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const Model::AttributeName& attributeName) {
+        const AttributeDefinition* EntityDefinition::safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName) {
             if (entityDefinition == nullptr)
                 return nullptr;
             return entityDefinition->attributeDefinition(attributeName);

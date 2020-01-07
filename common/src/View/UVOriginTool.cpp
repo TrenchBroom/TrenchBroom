@@ -18,7 +18,6 @@
  */
 
 #include "UVOriginTool.h"
-#include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/Texture.h"
@@ -26,6 +25,7 @@
 #include "Model/BrushGeometry.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Circle.h"
 #include "Renderer/EdgeRenderer.h"

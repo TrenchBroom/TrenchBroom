@@ -186,7 +186,7 @@ namespace TrenchBroom {
         NodeSnapshot* Entity::doTakeSnapshot() {
             const EntityAttribute origin(AttributeNames::Origin, attribute(AttributeNames::Origin), nullptr);
 
-            const AttributeName rotationName = EntityRotationPolicy::getAttribute(this);
+            const auto rotationName = EntityRotationPolicy::getAttribute(this);
             const EntityAttribute rotation(rotationName, attribute(rotationName), nullptr);
 
             return new EntitySnapshot(this, origin, rotation);
@@ -243,7 +243,7 @@ namespace TrenchBroom {
             return !hasChildren();
         }
 
-        void Entity::doPick(const vm::ray3& ray, PickResult& pickResult) const {
+        void Entity::doPick(const vm::ray3& ray, PickResult& pickResult) {
             if (!hasChildren()) {
                 const vm::bbox3& myBounds = definitionBounds();
                 if (!myBounds.contains(ray.origin)) {
@@ -317,11 +317,11 @@ namespace TrenchBroom {
             cacheAttributes();
         }
 
-        bool Entity::doIsAttributeNameMutable(const AttributeName& /* name */) const {
+        bool Entity::doIsAttributeNameMutable(const std::string& /* name */) const {
             return true;
         }
 
-        bool Entity::doIsAttributeValueMutable(const AttributeName& /* name */) const {
+        bool Entity::doIsAttributeValueMutable(const std::string& /* name */) const {
             return true;
         }
 

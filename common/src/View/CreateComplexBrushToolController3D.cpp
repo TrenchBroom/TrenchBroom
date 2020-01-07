@@ -19,9 +19,7 @@
 
 #include "CreateComplexBrushToolController3D.h"
 
-#include "TrenchBroom.h"
-#include "Polyhedron.h"
-#include "Polyhedron3.h"
+#include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
@@ -30,6 +28,8 @@
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
+#include "Model/Polyhedron3.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderService.h"
 #include "View/CreateComplexBrushTool.h"
@@ -40,7 +40,6 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_ext.h>
 #include <vecmath/line.h>
-#include <vecmath/plane.h>
 
 #include <cassert>
 #include <algorithm>
@@ -50,7 +49,7 @@ namespace TrenchBroom {
         class CreateComplexBrushToolController3D::Part {
         protected:
             CreateComplexBrushTool* m_tool;
-            Polyhedron3 m_oldPolyhedron;
+            Model::Polyhedron3 m_oldPolyhedron;
         protected:
             explicit Part(CreateComplexBrushTool* tool) :
             m_tool(tool),
@@ -129,7 +128,7 @@ namespace TrenchBroom {
                 const auto  bottomLeft3 = unswizzle(vm::vec3(bottomLeft2,  swizzledPlane.zAt(bottomLeft2)),  axis);
                 const auto bottomRight3 = unswizzle(vm::vec3(bottomRight2, swizzledPlane.zAt(bottomRight2)), axis);
 
-                Polyhedron3 polyhedron = m_oldPolyhedron;
+                Model::Polyhedron3 polyhedron = m_oldPolyhedron;
                 polyhedron.addPoint(topLeft3);
                 polyhedron.addPoint(bottomLeft3);
                 polyhedron.addPoint(bottomRight3);
@@ -157,7 +156,7 @@ namespace TrenchBroom {
 
                 m_oldPolyhedron = m_tool->polyhedron();
 
-                const Polyhedron3::FaceHit hit = m_oldPolyhedron.pickFace(inputState.pickRay());
+                const Model::Polyhedron3::FaceHit hit = m_oldPolyhedron.pickFace(inputState.pickRay());
                 if (!hit.isMatch())
                     return DragInfo();
 
@@ -233,7 +232,7 @@ namespace TrenchBroom {
             const Model::BrushFace* face = Model::hitToFace(hit);
             const vm::vec3 snapped = grid.snap(hit.hitPoint(), face->boundary());
 
-            Polyhedron3 polyhedron = m_tool->polyhedron();
+            Model::Polyhedron3 polyhedron = m_tool->polyhedron();
             polyhedron.addPoint(snapped);
             m_tool->update(polyhedron);
 
@@ -251,7 +250,7 @@ namespace TrenchBroom {
             if (!hit.isMatch())
                 return false;
 
-            Polyhedron3 polyhedron = m_tool->polyhedron();
+            Model::Polyhedron3 polyhedron = m_tool->polyhedron();
             const Model::BrushFace* face = Model::hitToFace(hit);
 
             for (const Model::BrushVertex* vertex : face->vertices())
@@ -274,7 +273,7 @@ namespace TrenchBroom {
         void CreateComplexBrushToolController3D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_tool->render(renderContext, renderBatch);
 
-            const Polyhedron3& polyhedron = m_tool->polyhedron();
+            const Model::Polyhedron3& polyhedron = m_tool->polyhedron();
             if (!polyhedron.empty()) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::HandleColor));
@@ -309,11 +308,11 @@ namespace TrenchBroom {
         }
 
         bool CreateComplexBrushToolController3D::doCancel() {
-            const Polyhedron3& polyhedron = m_tool->polyhedron();
+            const Model::Polyhedron3& polyhedron = m_tool->polyhedron();
             if (polyhedron.empty()) {
                 return false;
             } else {
-                m_tool->update(Polyhedron3());
+                m_tool->update(Model::Polyhedron3());
                 return true;
             }
         }

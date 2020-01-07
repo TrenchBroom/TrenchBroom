@@ -81,18 +81,7 @@ namespace TrenchBroom {
         void CameraTool3D::doMouseScroll(const InputState& inputState) {
             const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
             const auto zoom = inputState.modifierKeysPressed(ModifierKeys::MKShift);
-
-            // Qt switches scroll axis when alt is pressed, but unfortunately, not consistently on all OS'es
-            // and doesn't give any way of knowing.
-            // see: https://bugreports.qt.io/browse/QTBUG-30948
-            const bool swapXY =
-#ifdef __APPLE__
-                false;
-#else
-                inputState.modifierKeysPressed(ModifierKeys::MKAlt);
-#endif
-            const auto scrollDist =
-                swapXY ? inputState.scrollX() : inputState.scrollY();
+            const float scrollDist = inputState.scrollY();
 
             if (m_orbit) {
                 const auto orbitPlane = vm::plane3f(m_orbitCenter, m_camera.direction());

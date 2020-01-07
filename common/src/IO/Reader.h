@@ -20,8 +20,6 @@
 #ifndef Reader_h
 #define Reader_h
 
-#include "IO/IO_Forward.h"
-
 #include <vecmath/vec.h>
 
 #include <cstdio>
@@ -30,6 +28,8 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class BufferedReader;
+
         /**
          * Accesses information from a stream of binary data. The underlying stream is represented by a source, which
          * can either be a file or a memory region. Allows reading and converting data of various types for easier use.

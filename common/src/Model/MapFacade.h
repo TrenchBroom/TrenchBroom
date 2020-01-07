@@ -20,10 +20,8 @@
 #ifndef TrenchBroom_MapFacade
 #define TrenchBroom_MapFacade
 
-#include "TrenchBroom.h"
-#include "Assets/Asset_Forward.h"
+#include "FloatType.h"
 #include "Model/EntityColor.h"
-#include "Model/Model_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/util.h>
@@ -34,7 +32,27 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class BrushEntityDefinition;
+        class EntityDefinitionManager;
+        class EntityModelManager;
+        class PointEntityDefinition;
+        class Texture;
+        class TextureManager;
+    }
+
     namespace Model {
+        class Brush;
+        class BrushFace;
+        class BrushFaceAttributes;
+        class ChangeBrushFaceAttributesRequest;
+        class Entity;
+        class Game;
+        class Group;
+        class Layer;
+        class Node;
+        class NodeCollection;
+
         class MapFacade {
         public:
             virtual ~MapFacade();
@@ -54,9 +72,9 @@ namespace TrenchBroom {
             virtual bool hasSelectedBrushFaces() const = 0;
             virtual bool hasAnySelectedBrushFaces() const = 0;
 
-            virtual const std::vector<AttributableNode*> allSelectedAttributableNodes() const = 0;
+            virtual std::vector<AttributableNode*> allSelectedAttributableNodes() const = 0;
             virtual const NodeCollection& selectedNodes() const = 0;
-            virtual const std::vector<BrushFace*> allSelectedBrushFaces() const = 0;
+            virtual std::vector<BrushFace*> allSelectedBrushFaces() const = 0;
             virtual const std::vector<BrushFace*>& selectedBrushFaces() const = 0;
 
             virtual const vm::bbox3& referenceBounds() const = 0;
@@ -110,12 +128,12 @@ namespace TrenchBroom {
             virtual bool shearObjects(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) = 0;
             virtual bool flipObjects(const vm::vec3& center, vm::axis::type axis) = 0;
         public: // modifying entity attributes
-            virtual bool setAttribute(const AttributeName& name, const AttributeValue& value) = 0;
-            virtual bool renameAttribute(const AttributeName& oldName, const AttributeName& newName) = 0;
-            virtual bool removeAttribute(const AttributeName& name) = 0;
+            virtual bool setAttribute(const std::string& name, const std::string& value) = 0;
+            virtual bool renameAttribute(const std::string& oldName, const std::string& newName) = 0;
+            virtual bool removeAttribute(const std::string& name) = 0;
 
-            virtual bool convertEntityColorRange(const AttributeName& name, Assets::ColorRange::Type range) = 0;
-            virtual bool updateSpawnflag(const AttributeName& name, size_t flagIndex, bool setFlag) = 0;
+            virtual bool convertEntityColorRange(const std::string& name, Assets::ColorRange::Type range) = 0;
+            virtual bool updateSpawnflag(const std::string& name, size_t flagIndex, bool setFlag) = 0;
         public: // brush resizing
             virtual bool resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) = 0;
         public: // modifying face attributes

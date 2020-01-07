@@ -21,16 +21,14 @@
 #define TRENCHBROOM_ENTPARSER_H
 
 #include "Color.h"
-#include "TrenchBroom.h"
-#include "Assets/Asset_Forward.h"
+#include "FloatType.h"
 #include "IO/EntityDefinitionParser.h"
-#include "IO/IO_Forward.h"
 
 #include <vecmath/forward.h>
 
 #include <functional>
 #include <memory>
-#include <optional-lite/optional.hpp>
+#include <nonstd/optional.hpp>
 #include <string>
 #include <vector>
 
@@ -40,7 +38,13 @@ namespace tinyxml2 {
 }
 
 namespace TrenchBroom {
+    namespace Assets {
+        class ModelDefinition;
+    }
+
     namespace IO {
+        class ParserStatus;
+
         class EntParser : public EntityDefinitionParser {
         private:
             using AttributeFactory = std::function<std::shared_ptr<Assets::AttributeDefinition>(const std::string&, const std::string&, const std::string&)>;

@@ -45,6 +45,7 @@
 #include "View/MainMenuBuilder.h"
 #endif
 
+#include <kdl/set_temp.h>
 #include <kdl/string_utils.h>
 
 #include <clocale>
@@ -112,6 +113,8 @@ namespace TrenchBroom {
                 return;
             }
 
+            loadStyleSheets();
+
             // these must be initialized here and not earlier
             m_frameManager = std::make_unique<FrameManager>(useSDI());
 
@@ -159,15 +162,27 @@ namespace TrenchBroom {
             openFilesOrWelcomeFrame(parser.positionalArguments());
         }
 
-        QSettings& TrenchBroom::View::TrenchBroomApp::settings() {
-            return getSettings();
-        }
-
         FrameManager* TrenchBroomApp::frameManager() {
             return m_frameManager.get();
         }
 
-         const std::vector<IO::Path>& TrenchBroomApp::recentDocuments() const {
+        bool TrenchBroomApp::loadStyleSheets() {
+            const auto path = IO::SystemPaths::findResourceFile(IO::Path("stylesheets/base.qss"));
+            auto file = QFile(IO::pathAsQString(path));
+            if (file.exists()) {
+                // closed automatically by destructor
+                file.open(QFile::ReadOnly | QFile::Text);
+
+                const auto text = QTextStream(&file).readAll();
+                qApp->setStyleSheet(text);
+
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        const std::vector<IO::Path>& TrenchBroomApp::recentDocuments() const {
             return m_recentDocuments->recentDocuments();
         }
 
@@ -244,7 +259,7 @@ namespace TrenchBroom {
 
                 const auto result = QMessageBox::question(nullptr, QString("TrenchBroom"), QString::fromStdString(message.str()), QMessageBox::Yes | QMessageBox::No);
                 if (result == QMessageBox::Yes) {
-                    TemporarilySetBool setRecovering(recovering);
+                    const kdl::set_temp setRecovering(recovering);
                     e.recover();
                     return retry(); // Recursive call here.
                 } else {

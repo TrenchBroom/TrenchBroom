@@ -20,30 +20,62 @@
 #ifndef TrenchBroom_MapDocument
 #define TrenchBroom_MapDocument
 
+#include "FloatType.h"
 #include "Notifier.h"
-#include "TrenchBroom.h"
-#include "Assets/Asset_Forward.h"
 #include "IO/Path.h"
 #include "Model/MapFacade.h"
-#include "Model/Model_Forward.h"
 #include "Model/NodeCollection.h"
 #include "View/CachingLogger.h"
-#include "View/View_Forward.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
 #include <vecmath/util.h>
 
-// FIXME: try to get rid of functional
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-class Color;
-
 namespace TrenchBroom {
+    class Color;
+
+    namespace Assets {
+        class EntityDefinition;
+        class EntityDefinitionFileSpec;
+        class EntityDefinitionManager;
+        class EntityModelManager;
+        class Texture;
+        class TextureManager;
+    }
+
+    namespace Model {
+        class BrushFaceAttributes;
+        class EditorContext;
+        enum class ExportFormat;
+        class Game;
+        class Issue;
+        enum class MapFormat;
+        class PickResult;
+        class PointFile;
+        class PortalFile;
+        class SmartTag;
+        class TagManager;
+        class TexCoordSystemSnapshot;
+        class World;
+        enum class WrapStyle;
+    }
+
     namespace View {
+        class Action;
+        class Command;
+        class CommandResult;
+        class Grid;
+        class MapViewConfig;
+        enum class PasteType;
+        class Selection;
+        class UndoableCommand;
+        class ViewEffectsService;
+
         class MapDocument : public Model::MapFacade, public CachingLogger {
         public:
             static const vm::bbox3 DefaultWorldBounds;
@@ -226,9 +258,9 @@ namespace TrenchBroom {
             bool hasSelectedBrushFaces() const override;
             bool hasAnySelectedBrushFaces() const override;
 
-            const std::vector<Model::AttributableNode*> allSelectedAttributableNodes() const override;
+            std::vector<Model::AttributableNode*> allSelectedAttributableNodes() const override;
             const Model::NodeCollection& selectedNodes() const override;
-            const std::vector<Model::BrushFace*> allSelectedBrushFaces() const override;
+            std::vector<Model::BrushFace*> allSelectedBrushFaces() const override;
             const std::vector<Model::BrushFace*>& selectedBrushFaces() const override;
 
             const vm::bbox3& referenceBounds() const override;
@@ -325,12 +357,12 @@ namespace TrenchBroom {
         public: // Clipping operations, declared in MapFacade interface
             bool clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3);
         public: // modifying entity attributes, declared in MapFacade interface
-            bool setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) override;
-            bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName) override;
-            bool removeAttribute(const Model::AttributeName& name) override;
+            bool setAttribute(const std::string& name, const std::string& value) override;
+            bool renameAttribute(const std::string& oldName, const std::string& newName) override;
+            bool removeAttribute(const std::string& name) override;
 
-            bool convertEntityColorRange(const Model::AttributeName& name, Assets::ColorRange::Type range) override;
-            bool updateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) override;
+            bool convertEntityColorRange(const std::string& name, Assets::ColorRange::Type range) override;
+            bool updateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag) override;
         public: // brush resizing, declared in MapFacade interface
             bool resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) override;
         public: // modifying face attributes, declared in MapFacade interface

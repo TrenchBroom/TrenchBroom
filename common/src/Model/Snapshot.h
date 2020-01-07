@@ -20,13 +20,17 @@
 #ifndef TrenchBroom_Snapshot
 #define TrenchBroom_Snapshot
 
-#include "TrenchBroom.h"
-#include "Model/Model_Forward.h"
+#include "FloatType.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFace;
+        class BrushFaceSnapshot;
+        class Node;
+        class NodeSnapshot;
+
         class Snapshot {
         private:
             std::vector<NodeSnapshot*> m_nodeSnapshots;

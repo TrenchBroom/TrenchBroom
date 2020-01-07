@@ -242,7 +242,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::updateUndoRedoActions() {
-            const auto document = lock(m_document);
+            const auto document = kdl::mem_lock(m_document);
             if (m_undoAction != nullptr) {
                 if (document->canUndoCommand()) {
                     const auto text = "Undo " + document->undoCommandName();
@@ -1117,7 +1117,7 @@ namespace TrenchBroom {
 
         void MapFrame::renameSelectedGroups() {
             if (canRenameSelectedGroups()) {
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 assert(document->selectedNodes().hasOnlyGroups());
                 const std::string name = queryGroupName(this);
                 if (!name.empty()) {
@@ -1127,7 +1127,7 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canRenameSelectedGroups() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return document->selectedNodes().hasOnlyGroups();
         }
 

@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_UVScaleTool
 #define TrenchBroom_UVScaleTool
 
-#include "Assets/Asset_Forward.h"
 #include "Model/HitType.h"
 #include "Renderer/GLVertexType.h"
 #include "View/Tool.h"

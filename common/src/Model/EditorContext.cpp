@@ -19,6 +19,7 @@
 
 #include "EditorContext.h"
 
+#include "Ensure.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -143,7 +144,7 @@ namespace TrenchBroom {
         private:
             const EditorContext& m_this;
         public:
-            NodeVisible(const EditorContext& i_this) : m_this(i_this) {}
+            explicit NodeVisible(const EditorContext& i_this) : m_this(i_this) {}
         private:
             void doVisit(const Model::World* world) override   { setResult(m_this.visible(world)); }
             void doVisit(const Model::Layer* layer) override   { setResult(m_this.visible(layer)); }

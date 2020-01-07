@@ -21,18 +21,24 @@
 #define TrenchBroom_SelectionTool
 
 #include "Model/HitType.h"
-#include "Model/Model_Forward.h"
-#include "Renderer/Renderer_Forward.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
-#include "View/View_Forward.h"
 
-#include <list>
 #include <memory>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Node;
+    }
+
+    namespace Renderer {
+        class RenderContext;
+    }
+
     namespace View {
+        class MapDocument;
+
         /**
          * Implements the Group picking logic: if `node` is inside a (possibly nested chain of)
          * closed group(s), the outermost closed group is returned. Otherwise, `node` itself is returned.
@@ -46,7 +52,7 @@ namespace TrenchBroom {
          * The order of the hits is preserved, but if multiple hits map to the same group, that group
          * will only be listed once in the output.
          */
-        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::list<Model::Hit>& hits);
+        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::vector<Model::Hit>& hits);
 
         class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:

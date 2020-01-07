@@ -23,7 +23,6 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
-#include "Model/Model_Forward.h"
 
 namespace TrenchBroom {
     namespace Model {

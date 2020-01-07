@@ -21,8 +21,8 @@
 #define TrenchBroom_LinkTargetIssueGenerator
 
 #include "Model/IssueGenerator.h"
-#include "Model/Model_Forward.h"
 
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -35,7 +35,7 @@ namespace TrenchBroom {
             LinkTargetIssueGenerator();
         private:
             void doGenerate(AttributableNode* node, IssueList& issues) const override;
-            void processKeys(AttributableNode* node, const std::vector<Model::AttributeName>& names, IssueList& issues) const;
+            void processKeys(AttributableNode* node, const std::vector<std::string>& names, IssueList& issues) const;
         };
     }
 }

@@ -19,13 +19,12 @@
 
 #include "UVView.h"
 
-#include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SharedPointer.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
+#include "Model/Polyhedron.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"
@@ -47,6 +46,8 @@
 #include "View/UVScaleTool.h"
 #include "View/UVShearTool.h"
 #include "View/UVOriginTool.h"
+
+#include <kdl/memory_utils.h>
 
 #include <cassert>
 #include <vector>
@@ -84,7 +85,7 @@ namespace TrenchBroom {
         }
 
         void UVView::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->documentWasClearedNotifier.addObserver(this, &UVView::documentWasCleared);
             document->nodesDidChangeNotifier.addObserver(this, &UVView::nodesDidChange);
             document->brushFacesDidChangeNotifier.addObserver(this, &UVView::brushFacesDidChange);
@@ -98,8 +99,8 @@ namespace TrenchBroom {
         }
 
         void UVView::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->documentWasClearedNotifier.removeObserver(this, &UVView::documentWasCleared);
                 document->nodesDidChangeNotifier.removeObserver(this, &UVView::nodesDidChange);
                 document->brushFacesDidChangeNotifier.removeObserver(this, &UVView::brushFacesDidChange);
@@ -114,7 +115,7 @@ namespace TrenchBroom {
         }
 
         void UVView::selectionDidChange(const Selection&) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const std::vector<Model::BrushFace*>& faces = document->selectedBrushFaces();
             if (faces.size() != 1) {
                 m_helper.setFace(nullptr);
@@ -165,7 +166,7 @@ namespace TrenchBroom {
 
         void UVView::doRender() {
             if (m_helper.valid()) {
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 document->commitPendingAssets();
 
                 Renderer::RenderContext renderContext(Renderer::RenderMode::Render2D, m_camera, fontManager(), shaderManager());
@@ -345,7 +346,7 @@ namespace TrenchBroom {
         }
 
         Model::PickResult UVView::doPick(const vm::ray3& pickRay) const {
-            Model::PickResult pickResult = Model::PickResult::byDistance(lock(m_document)->editorContext());
+            Model::PickResult pickResult = Model::PickResult::byDistance(kdl::mem_lock(m_document)->editorContext());
             if (!m_helper.valid())
                 return pickResult;
 

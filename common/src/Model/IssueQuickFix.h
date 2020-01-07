@@ -20,13 +20,16 @@
 #ifndef TrenchBroom_IssueQuickFix
 #define TrenchBroom_IssueQuickFix
 
-#include "Model/Model_Forward.h"
+#include "Model/IssueType.h"
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class Issue;
+        class MapFacade;
+
         class IssueQuickFix {
         private:
             IssueType m_issueType;

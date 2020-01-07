@@ -19,7 +19,6 @@
 
 #include "ViewEditor.h"
 
-#include "SharedPointer.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -34,6 +33,8 @@
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vector>
 
@@ -151,7 +152,7 @@ namespace TrenchBroom {
                     const std::string defName = definition->name();
 
                     auto* defCB = new QCheckBox(QString::fromStdString(defName));
-                    defCB->setStyleSheet("margin-left: 11px");
+                    defCB->setObjectName("entityDefinition_checkboxWidget");
 
                     connect(defCB, &QAbstractButton::clicked, this, [this, definition](bool checked){
                         this->defCheckBoxChanged(definition, checked);
@@ -220,7 +221,7 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &ViewEditor::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &ViewEditor::documentWasNewedOrLoaded);
             document->editorContextDidChangeNotifier.addObserver(this, &ViewEditor::editorContextDidChange);
@@ -229,8 +230,8 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &ViewEditor::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.removeObserver(this, &ViewEditor::documentWasNewedOrLoaded);
                 document->editorContextDidChangeNotifier.removeObserver(this, &ViewEditor::editorContextDidChange);
@@ -279,7 +280,7 @@ namespace TrenchBroom {
         QWidget* ViewEditor::createEntityDefinitionsPanel(QWidget* parent) {
             TitledPanel* panel = new TitledPanel("Entity Definitions", parent);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Assets::EntityDefinitionManager& entityDefinitionManager = document->entityDefinitionManager();
 
             Model::EditorContext& editorContext = document->editorContext();
@@ -349,7 +350,7 @@ namespace TrenchBroom {
         void ViewEditor::createTagFilter(QWidget* parent) {
             m_tagCheckBoxes.clear();
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& tags = document->smartTags();
             if (tags.empty()) {
                 createEmptyTagFilter(parent);
@@ -456,7 +457,7 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::refreshEntitiesPanel() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const MapViewConfig& config = document->mapViewConfig();
 
             m_showEntityClassnamesCheckBox->setChecked(config.showEntityClassnames());
@@ -468,7 +469,7 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::refreshBrushesPanel() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             const MapViewConfig& config = document->mapViewConfig();
             m_showBrushesCheckBox->setChecked(config.showBrushes());
@@ -488,7 +489,7 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::refreshRendererPanel() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const MapViewConfig& config = document->mapViewConfig();
             Model::EditorContext& editorContext = document->editorContext();
 
@@ -500,49 +501,49 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::showEntityClassnamesChanged(const bool checked) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowEntityClassnames(checked);
         }
 
         void ViewEditor::showGroupBoundsChanged(const bool checked) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowGroupBounds(checked);
         }
 
         void ViewEditor::showBrushEntityBoundsChanged(const bool checked) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowBrushEntityBounds(checked);
         }
 
         void ViewEditor::showPointEntityBoundsChanged(const bool checked) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowPointEntityBounds(checked);
         }
 
         void ViewEditor::showPointEntitiesChanged(const bool checked) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setShowPointEntities(checked);
         }
 
         void ViewEditor::showPointEntityModelsChanged(const bool checked) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowPointEntityModels(checked);
         }
 
         void ViewEditor::showBrushesChanged(const bool checked) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setShowBrushes(checked);
         }
 
         void ViewEditor::showTagChanged(const bool /* checked */) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             Model::TagType::Type hiddenTags = Model::TagType::NoType;
             const auto& tags = document->smartTags();
@@ -563,7 +564,7 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::faceRenderModeChanged(const int id) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
 
             switch (id) {
@@ -580,25 +581,25 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::shadeFacesChanged(const bool checked) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShadeFaces(checked);
         }
 
         void ViewEditor::showFogChanged(const bool checked) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowFog(checked);
         }
 
         void ViewEditor::showEdgesChanged(const bool checked) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowEdges(checked);
         }
 
         void ViewEditor::entityLinkModeChanged(const int id) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
 
             switch (id) {

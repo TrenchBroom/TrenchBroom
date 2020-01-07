@@ -37,7 +37,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-
         struct ObjVertexRef {
             /**
              * Parses a vertex reference.
@@ -196,6 +195,11 @@ namespace TrenchBroom {
 
         // -- Neverball --
 
+        NvObjParser::NvObjParser(const Path& path, const char* begin, const char* end, const FileSystem& fs) :
+        ObjParser(path.lastComponent().asString(), begin, end),
+        m_path(path),
+        m_fs(fs) {}
+
         bool NvObjParser::transformObjCoordinateSet(std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) {
             for (vm::vec3f& pos : positions) {
                 // The transform we want to perform is OBJ-To-MAP.
@@ -217,41 +221,41 @@ namespace TrenchBroom {
             // NOTE: A reasonable solution here would be to use the same material handling as the brushes unless otherwise required.
             // Then Neverball just gets an additional texture search directory.
             // But there's raw pointers all over the Texture system, so without further details on how memory is managed there, that's a bad idea.
+
+            std::vector<Path> texturePaths = {
+                Path("textures") + Path(text).addExtension("png"),
+                Path("textures") + Path(text).addExtension("jpg"),
+                Path(text).addExtension("png"),
+                Path(text).addExtension("jpg"),
+            };
+
             IO::FreeImageTextureReader imageReader(IO::TextureReader::StaticNameStrategy(""));
-            try {
-                return std::unique_ptr<Assets::Texture>(imageReader.readTexture(m_fs.openFile(IO::Path("textures/" + text + ".png"))));
-            } catch (const Exception& /*ex1*/) {
+            for (const auto& texturePath : texturePaths) {
                 try {
-                    return std::unique_ptr<Assets::Texture>(imageReader.readTexture(m_fs.openFile(IO::Path("textures/" + text + ".jpg"))));
-                } catch (const Exception& /*ex2*/) {
-                    try {
-                        return std::unique_ptr<Assets::Texture>(imageReader.readTexture(m_fs.openFile(IO::Path(text + ".png"))));
-                    } catch (const Exception& /*ex3*/) {
-                        try {
-                            return std::unique_ptr<Assets::Texture>(imageReader.readTexture(m_fs.openFile(IO::Path(text + ".jpg"))));
-                        } catch (const Exception& /*ex4*/) {
-                            return NULL;
-                        }
-                    }
+                    auto file = m_fs.openFile(texturePath);
+                    return std::unique_ptr<Assets::Texture>(imageReader.readTexture(file));
+                } catch (const Exception& /*ex1*/) {
+                    // ignore and try the next texture path
                 }
             }
+
+            return nullptr;
         }
 
         std::unique_ptr<Assets::Texture> NvObjParser::loadFallbackMaterial() {
             // Try to remove the '.obj' extension and grab that as a texture.
             // This isn't really how it works, but the Neverball-side truth involves MAP files acting as a replacement for something like JSON.
             // This is a less Neverball-specific set of logic which should be useful for any game.
-            std::string basic_skin_name = m_path;
-            if (basic_skin_name.size() > 4) {
-                basic_skin_name = basic_skin_name.substr(0, basic_skin_name.size() - 4);
-            }
+            const auto basic_skin_name = m_path.lastComponent().deleteExtension().asString();
             std::unique_ptr<Assets::Texture> default_material = loadMaterial(basic_skin_name);
             if (!default_material) {
                 default_material = loadMaterial("__TB_empty");
+
+                if (!default_material) {
+                    throw ParserException("Unable to load object-wide texture, and unable to load fallback texture __TB_empty");
+                }
             }
-            if (!default_material) {
-                throw ParserException("Unable to load object-wide texture, and unable to load fallback texture __TB_empty");
-            }
+
             return default_material;
         }
     }

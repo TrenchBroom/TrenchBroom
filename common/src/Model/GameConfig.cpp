@@ -19,6 +19,7 @@
 
 #include "GameConfig.h"
 
+#include "Ensure.h"
 #include "IO/DiskFileSystem.h"
 
 #include <kdl/string_utils.h>
@@ -165,15 +166,23 @@ namespace TrenchBroom {
             return flags == other.flags;
         }
 
-        FaceAttribsConfig::FaceAttribsConfig() = default;
+        FaceAttribsConfig::FaceAttribsConfig() :
+        defaults(BrushFaceAttributes::NoTextureName) {}
 
-        FaceAttribsConfig::FaceAttribsConfig(const std::vector<FlagConfig>& i_surfaceFlags, const std::vector<FlagConfig>& i_contentFlags) :
+        FaceAttribsConfig::FaceAttribsConfig(const std::vector<FlagConfig>& i_surfaceFlags, const std::vector<FlagConfig>& i_contentFlags, const BrushFaceAttributes& i_defaults) :
         surfaceFlags(i_surfaceFlags),
-        contentFlags(i_contentFlags) {}
+        contentFlags(i_contentFlags),
+        defaults(i_defaults) {}
+
+        FaceAttribsConfig::FaceAttribsConfig(const FlagsConfig& i_surfaceFlags, const FlagsConfig& i_contentFlags, const BrushFaceAttributes& i_defaults) :
+        surfaceFlags(i_surfaceFlags),
+        contentFlags(i_contentFlags),
+        defaults(i_defaults) {}
 
         bool FaceAttribsConfig::operator==(const FaceAttribsConfig& other) const {
             return (surfaceFlags == other.surfaceFlags &&
-                    contentFlags == other.contentFlags);
+                    contentFlags == other.contentFlags &&
+                    defaults == other.defaults);
         }
 
         GameConfig::GameConfig() :

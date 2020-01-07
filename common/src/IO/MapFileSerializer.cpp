@@ -24,6 +24,7 @@
 #include "Macros.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/EntityAttributes.h"
 
 #include <memory>
 #include <sstream>
@@ -78,7 +79,7 @@ namespace TrenchBroom {
             }
 
             void writeTextureInfo(FILE* stream, Model::BrushFace* face) {
-                const std::string& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+                const std::string& textureName = face->textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face->textureName();
                 std::fprintf(stream, TextureInfoFormat.c_str(),
                              textureName.c_str(),
                              static_cast<double>(face->xOffset()),
@@ -178,7 +179,7 @@ namespace TrenchBroom {
             }
         private:
             void writeValveTextureInfo(FILE* stream, Model::BrushFace* face) {
-                const std::string& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+                const std::string& textureName = face->textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face->textureName();
                 const vm::vec3 xAxis = face->textureXAxis();
                 const vm::vec3 yAxis = face->textureYAxis();
 

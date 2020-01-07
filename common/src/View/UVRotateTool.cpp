@@ -19,16 +19,15 @@
 
 #include "UVRotateTool.h"
 
-#include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SharedPointer.h"
 #include "Renderer/ActiveShader.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
 #include "Renderer/Circle.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/RenderBatch.h"
@@ -40,6 +39,8 @@
 #include "View/MapDocument.h"
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -134,7 +135,7 @@ namespace TrenchBroom {
 
             m_initalAngle = measureAngle(hitPointInFaceCoords) - face->rotation();
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->startTransaction("Rotate Texture");
 
             return true;
@@ -164,7 +165,7 @@ namespace TrenchBroom {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setRotation(snappedAngle);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->setFaceAttributes(request);
 
             // Correct the offsets.
@@ -218,12 +219,12 @@ namespace TrenchBroom {
         }
 
         void UVRotateTool::doEndMouseDrag(const InputState&) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->commitTransaction();
         }
 
         void UVRotateTool::doCancelMouseDrag() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
         }
 

@@ -19,7 +19,7 @@
 
 #include "HitQuery.h"
 
-#include "Constants.h"
+#include "FloatType.h"
 #include "Model/EditorContext.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
@@ -29,13 +29,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        HitQuery::HitQuery(const std::list<Hit>& hits, const EditorContext& editorContext) :
+        HitQuery::HitQuery(const std::vector<Hit>& hits, const EditorContext& editorContext) :
         m_hits(&hits),
         m_editorContext(&editorContext),
         m_include(HitFilter::always()),
         m_exclude(HitFilter::never()) {}
 
-        HitQuery::HitQuery(const std::list<Hit>& hits) :
+        HitQuery::HitQuery(const std::vector<Hit>& hits) :
         m_hits(&hits),
         m_editorContext(nullptr),
         m_include(HitFilter::always()),
@@ -47,10 +47,7 @@ namespace TrenchBroom {
         m_include(other.m_include->clone()),
         m_exclude(other.m_exclude->clone()) {}
 
-        HitQuery::~HitQuery() {
-            delete m_include;
-            delete m_exclude;
-        }
+        HitQuery::~HitQuery() = default;
 
         HitQuery& HitQuery::operator=(HitQuery other) {
             using std::swap;
@@ -68,34 +65,33 @@ namespace TrenchBroom {
 
         HitQuery& HitQuery::pickable() {
             if (m_editorContext != nullptr) {
-                m_include = new HitFilterChain(new ContextHitFilter(*m_editorContext), m_include);
+                m_include = std::make_unique<HitFilterChain>(std::make_unique<ContextHitFilter>(*m_editorContext), std::move(m_include));
             }
             return *this;
         }
 
         HitQuery& HitQuery::type(const HitType::Type type) {
-            m_include = new HitFilterChain(new TypedHitFilter(type), m_include);
+            m_include = std::make_unique<HitFilterChain>(std::make_unique<TypedHitFilter>(type), std::move(m_include));
             return *this;
         }
 
         HitQuery& HitQuery::occluded(const HitType::Type type) {
-            delete m_exclude;
-            m_exclude = new TypedHitFilter(type);
+            m_exclude = std::make_unique<TypedHitFilter>(type);
             return *this;
         }
 
         HitQuery& HitQuery::selected() {
-            m_include = new HitFilterChain(new Model::SelectionHitFilter(), m_include);
+            m_include = std::make_unique<HitFilterChain>(std::make_unique<SelectionHitFilter>(), std::move(m_include));
             return *this;
         }
 
         HitQuery& HitQuery::transitivelySelected() {
-            m_include = new HitFilterChain(new Model::TransitivelySelectedHitFilter(), m_include);
+            m_include = std::make_unique<HitFilterChain>(std::make_unique<TransitivelySelectedHitFilter>(), std::move(m_include));
             return *this;
         }
 
         HitQuery& HitQuery::minDistance(const FloatType minDistance) {
-            m_include = new HitFilterChain(new Model::MinDistanceHitFilter(minDistance), m_include);
+            m_include = std::make_unique<HitFilterChain>(std::make_unique<MinDistanceHitFilter>(minDistance), std::move(m_include));
             return *this;
         }
 
@@ -105,9 +101,10 @@ namespace TrenchBroom {
 
         const Hit& HitQuery::first() const {
             if (!m_hits->empty()) {
-                std::list<Hit>::const_iterator it = m_hits->begin();
-                const std::list<Hit>::const_iterator end = m_hits->end();
-                std::list<Hit>::const_iterator bestMatch = end;
+                auto it = m_hits->begin();
+                auto end = m_hits->end();
+                auto bestMatch = end;
+
                 FloatType bestMatchError = std::numeric_limits<FloatType>::max();
                 FloatType bestOccluderError = std::numeric_limits<FloatType>::max();
 
@@ -134,27 +131,33 @@ namespace TrenchBroom {
                     } while (it != end && vm::is_equal(it->distance(), distance, vm::C::almost_zero()));
                 }
 
-                if (bestMatch != end && bestMatchError <= bestOccluderError)
+                if (bestMatch != end && bestMatchError <= bestOccluderError) {
                     return *bestMatch;
+                }
             }
             return Hit::NoHit;
         }
 
-        std::list<Hit> HitQuery::all() const {
-            std::list<Hit> result;
+        std::vector<Hit> HitQuery::all() const {
+            std::vector<Hit> result;
             for (const Hit& hit : *m_hits) {
-                if (m_include->matches(hit))
+                if (m_include->matches(hit)) {
                     result.push_back(hit);
+                }
             }
             return result;
         }
 
         bool HitQuery::visible(const Hit& hit) const {
-            if (m_editorContext == nullptr)
+            if (m_editorContext == nullptr) {
                 return true;
+            }
+
             Node* node = hitToNode(hit);
-            if (node == nullptr)
+            if (node == nullptr) {
                 return true;
+            }
+
             return m_editorContext->visible(hitToNode(hit));
         }
     }

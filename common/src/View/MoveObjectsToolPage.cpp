@@ -19,10 +19,10 @@
 
 #include "MoveObjectsToolPage.h"
 
-#include "SharedPointer.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
+#include <kdl/memory_utils.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
@@ -48,13 +48,13 @@ namespace TrenchBroom {
         }
 
         void MoveObjectsToolPage::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &MoveObjectsToolPage::selectionDidChange);
         }
 
         void MoveObjectsToolPage::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->selectionDidChangeNotifier.removeObserver(this, &MoveObjectsToolPage::selectionDidChange);
             }
         }
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         }
 
         void MoveObjectsToolPage::updateGui() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             m_button->setEnabled(document->hasSelectedNodes());
         }
 
@@ -91,7 +91,7 @@ namespace TrenchBroom {
         void MoveObjectsToolPage::applyMove() {
             const vm::vec3 delta = vm::parse<FloatType, 3>(m_offset->text().toStdString());
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->translateObjects(delta);
         }
     }

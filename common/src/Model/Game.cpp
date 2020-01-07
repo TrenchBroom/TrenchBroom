@@ -160,5 +160,9 @@ namespace TrenchBroom {
         const FlagsConfig& Game::contentFlags() const {
             return doContentFlags();
         }
+
+        const BrushFaceAttributes& Game::defaultFaceAttribs() const {
+            return doDefaultFaceAttribs();
+        }
     }
 }

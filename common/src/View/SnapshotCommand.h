@@ -21,13 +21,16 @@
 #define TRENCHBROOM_SNAPSHOTCOMMAND_H
 
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
 
 #include <memory>
 #include <string>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Snapshot;
+    }
+
     namespace View {
         class SnapshotCommand : public DocumentCommand {
         private:

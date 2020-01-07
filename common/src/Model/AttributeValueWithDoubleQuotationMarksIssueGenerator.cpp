@@ -36,13 +36,13 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         private:
-            const AttributeName m_attributeName;
+            const std::string m_attributeName;
         public:
-            AttributeValueWithDoubleQuotationMarksIssue(AttributableNode* node, const AttributeName& attributeName) :
+            AttributeValueWithDoubleQuotationMarksIssue(AttributableNode* node, const std::string& attributeName) :
             AttributeIssue(node),
             m_attributeName(attributeName) {}
 
-            const AttributeName& attributeName() const override {
+            const std::string& attributeName() const override {
                 return m_attributeName;
             }
         private:
@@ -50,7 +50,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const std::string doGetDescription() const override {
+            std::string doGetDescription() const override {
                 return "The value of entity property '" + m_attributeName + "' contains double quotation marks. This may cause errors during compilation or in the game.";
             }
         };
@@ -62,16 +62,17 @@ namespace TrenchBroom {
             addQuickFix(new RemoveEntityAttributesQuickFix(AttributeValueWithDoubleQuotationMarksIssue::Type));
             addQuickFix(new TransformEntityAttributesQuickFix(AttributeValueWithDoubleQuotationMarksIssue::Type,
                                                               "Replace \" with '",
-                                                              [] (const AttributeName& name)   { return name; },
-                                                              [] (const AttributeValue& value) { return kdl::str_replace_every(value, "\"", "'"); }));
+                                                              [] (const std::string& name)   { return name; },
+                                                              [] (const std::string& value) { return kdl::str_replace_every(value, "\"", "'"); }));
         }
 
         void AttributeValueWithDoubleQuotationMarksIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
             for (const EntityAttribute& attribute : node->attributes()) {
-                const AttributeName& attributeName = attribute.name();
-                const AttributeValue& attributeValue = attribute.value();
-                if (attributeValue.find('"') != std::string::npos)
+                const std::string& attributeName = attribute.name();
+                const std::string& attributeValue = attribute.value();
+                if (attributeValue.find('"') != std::string::npos) {
                     issues.push_back(new AttributeValueWithDoubleQuotationMarksIssue(node, attributeName));
+                }
             }
         }
     }

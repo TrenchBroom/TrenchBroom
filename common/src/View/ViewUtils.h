@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_ViewUtils
 #define TrenchBroom_ViewUtils
 
-#include "Assets/Asset_Forward.h"
-
 #include <memory>
 #include <string>
 

@@ -19,11 +19,10 @@
 
 #include "MapView3D.h"
 
-#include "Constants.h"
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "TemporarilySetAny.h"
+#include "FloatType.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
@@ -64,13 +63,15 @@
 #include "View/VertexToolController.h"
 #include "View/QtUtils.h"
 
+#include <kdl/set_temp.h>
+
 #include <vecmath/util.h>
 
 namespace TrenchBroom {
     namespace View {
         MapView3D::MapView3D(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
                              GLContextManager& contextManager, Logger* logger) :
-        MapViewBase(logger, document, toolBox, renderer, contextManager),
+        MapViewBase(logger, std::move(document), toolBox, renderer, contextManager),
         m_camera(std::make_unique<Renderer::PerspectiveCamera>()),
         m_flyModeHelper(std::make_unique<FlyModeHelper>(*m_camera)),
         m_ignoreCameraChangeEvents(false) {
@@ -186,7 +187,7 @@ namespace TrenchBroom {
         }
 
         Model::PickResult MapView3D::doPick(const vm::ray3& pickRay) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
             Model::PickResult pickResult = Model::PickResult::byDistance(editorContext);
 
@@ -199,7 +200,7 @@ namespace TrenchBroom {
         }
 
         vm::vec3 MapView3D::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& /* referenceBounds */) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& grid = document->grid();
 
             const QPoint pos = QCursor::pos();
@@ -239,7 +240,7 @@ namespace TrenchBroom {
         void MapView3D::doSelectTall() {}
 
         void MapView3D::doFocusCameraOnSelection(const bool animate) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& nodes = document->selectedNodes().nodes();
             if (!nodes.empty()) {
                 const auto newPosition = focusCameraOnObjectsPosition(nodes);
@@ -377,7 +378,7 @@ namespace TrenchBroom {
         }
 
         void MapView3D::doMoveCameraToCurrentTracePoint() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             assert(document->isPointFileLoaded());
             Model::PointFile* pointFile = document->pointFile();
@@ -423,7 +424,7 @@ namespace TrenchBroom {
         }
 
         vm::vec3 MapView3D::doComputePointEntityPosition(const vm::bbox3& bounds) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             auto& grid = document->grid();
             const auto& worldBounds = document->worldBounds();
@@ -460,7 +461,7 @@ namespace TrenchBroom {
         }
 
         void MapView3D::doPreRender() {
-            const TemporarilySetBool ignoreCameraUpdates(m_ignoreCameraChangeEvents);
+            const kdl::set_temp ignoreCameraUpdates(m_ignoreCameraChangeEvents);
             m_flyModeHelper->pollAndUpdate();
         }
 
@@ -469,7 +470,7 @@ namespace TrenchBroom {
         void MapView3D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderer.render(renderContext, renderBatch);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (renderContext.showSelectionGuide() && document->hasSelectedNodes()) {
                 const vm::bbox3& bounds = document->selectionBounds();
                 Renderer::SelectionBoundsRenderer boundsRenderer(bounds);

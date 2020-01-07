@@ -20,131 +20,114 @@
 #ifndef TrenchBroom_EntityProperties
 #define TrenchBroom_EntityProperties
 
-#include "Assets/Asset_Forward.h"
-#include "Model/Model_Forward.h"
-
-#include <list>
-#include <memory>
-#include <set>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
-    template <typename V>
-    class StringMapValueContainer;
-
-    template <typename V, typename P>
-    class StringMap;
+    namespace Assets {
+        class AttributeDefinition;
+        class EntityDefinition;
+    }
 
     namespace Model {
-        extern const std::string AttributeEscapeChars;
-
         namespace AttributeNames {
-            extern const AttributeName Classname;
-            extern const AttributeName Origin;
-            extern const AttributeName Wad;
-            extern const AttributeName Textures;
-            extern const AttributeName Mods;
-            extern const AttributeName GameEngineParameterSpecs;
-            extern const AttributeName Spawnflags;
-            extern const AttributeName EntityDefinitions;
-            extern const AttributeName Angle;
-            extern const AttributeName Angles;
-            extern const AttributeName Mangle;
-            extern const AttributeName Target;
-            extern const AttributeName Targetname;
-            extern const AttributeName Killtarget;
-            extern const AttributeName GroupType;
-            extern const AttributeName LayerId;
-            extern const AttributeName LayerName;
-            extern const AttributeName Layer;
-            extern const AttributeName GroupId;
-            extern const AttributeName GroupName;
-            extern const AttributeName Group;
-            extern const AttributeName Message;
-            extern const AttributeName ValveVersion;
+            extern const std::string Classname;
+            extern const std::string Origin;
+            extern const std::string Wad;
+            extern const std::string Textures;
+            extern const std::string Mods;
+            extern const std::string Spawnflags;
+            extern const std::string EntityDefinitions;
+            extern const std::string Angle;
+            extern const std::string Angles;
+            extern const std::string Mangle;
+            extern const std::string Target;
+            extern const std::string Targetname;
+            extern const std::string Killtarget;
+            extern const std::string GroupType;
+            extern const std::string LayerId;
+            extern const std::string LayerName;
+            extern const std::string Layer;
+            extern const std::string GroupId;
+            extern const std::string GroupName;
+            extern const std::string Group;
+            extern const std::string Message;
+            extern const std::string ValveVersion;
         }
 
         namespace AttributeValues {
-            extern const AttributeValue WorldspawnClassname;
-            extern const AttributeValue NoClassname;
-            extern const AttributeValue LayerClassname;
-            extern const AttributeValue GroupClassname;
-            extern const AttributeValue GroupTypeLayer;
-            extern const AttributeValue GroupTypeGroup;
+            extern const std::string WorldspawnClassname;
+            extern const std::string NoClassname;
+            extern const std::string LayerClassname;
+            extern const std::string GroupClassname;
+            extern const std::string GroupTypeLayer;
+            extern const std::string GroupTypeGroup;
         }
 
-        std::string numberedAttributePrefix(const std::string& name);
-        bool isNumberedAttribute(const std::string& prefix, const AttributeName& name);
+        bool isNumberedAttribute(std::string_view prefix, std::string_view name);
 
         class EntityAttributeSnapshot;
 
         class EntityAttribute {
         private:
-            AttributeName m_name;
-            AttributeValue m_value;
+            std::string m_name;
+            std::string m_value;
             const Assets::AttributeDefinition* m_definition;
         public:
             EntityAttribute();
-            EntityAttribute(const AttributeName& name, const AttributeValue& value, const Assets::AttributeDefinition* definition = nullptr);
+            EntityAttribute(const std::string& name, const std::string& value, const Assets::AttributeDefinition* definition = nullptr);
             bool operator<(const EntityAttribute& rhs) const;
             int compare(const EntityAttribute& rhs) const;
 
-            const AttributeName& name() const;
-            const AttributeValue& value() const;
+            const std::string& name() const;
+            const std::string& value() const;
             const Assets::AttributeDefinition* definition() const;
 
-            void setName(const AttributeName& name, const Assets::AttributeDefinition* definition);
-            void setValue(const AttributeValue& value);
+            bool hasName(std::string_view name) const;
+            bool hasValue(std::string_view value) const;
+            bool hasNameAndValue(std::string_view name, std::string_view value) const;
+            bool hasPrefix(std::string_view prefix) const;
+            bool hasPrefixAndValue(std::string_view prefix, std::string_view value) const;
+            bool hasNumberedPrefix(std::string_view prefix) const;
+            bool hasNumberedPrefixAndValue(std::string_view prefix, std::string_view value) const;
+
+            void setName(const std::string& name, const Assets::AttributeDefinition* definition);
+            void setValue(const std::string& value);
         };
 
-        bool isLayer(const std::string& classname, const std::list<EntityAttribute>& attributes);
-        bool isGroup(const std::string& classname, const std::list<EntityAttribute>& attributes);
-        bool isWorldspawn(const std::string& classname, const std::list<EntityAttribute>& attributes);
-        const AttributeValue& findAttribute(const std::list<EntityAttribute>& attributes, const AttributeName& name, const AttributeValue& defaultValue = "");
+        bool isLayer(const std::string& classname, const std::vector<EntityAttribute>& attributes);
+        bool isGroup(const std::string& classname, const std::vector<EntityAttribute>& attributes);
+        bool isWorldspawn(const std::string& classname, const std::vector<EntityAttribute>& attributes);
+        const std::string& findAttribute(const std::vector<EntityAttribute>& attributes, const std::string& name, const std::string& defaultValue = "");
 
         class EntityAttributes {
         private:
-            std::list<EntityAttribute> m_attributes;
-
-            using IndexValue = std::list<EntityAttribute>::iterator;
-            using IndexValueContainer = StringMapValueContainer<IndexValue>;
-            using AttributeIndex = StringMap<IndexValue, IndexValueContainer>;
-            std::unique_ptr<AttributeIndex> m_index;
+            std::vector<EntityAttribute> m_attributes;
         public:
-            explicit EntityAttributes();
-            ~EntityAttributes();
+            const std::vector<EntityAttribute>& attributes() const;
+            void setAttributes(const std::vector<EntityAttribute>& attributes);
 
-            const std::list<EntityAttribute>& attributes() const;
-            void setAttributes(const std::list<EntityAttribute>& attributes);
-
-            const EntityAttribute& addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value, const Assets::AttributeDefinition* definition);
-            void renameAttribute(const AttributeName& name, const AttributeName& newName, const Assets::AttributeDefinition* newDefinition);
-            void removeAttribute(const AttributeName& name);
+            const EntityAttribute& addOrUpdateAttribute(const std::string& name, const std::string& value, const Assets::AttributeDefinition* definition);
+            void renameAttribute(const std::string& name, const std::string& newName, const Assets::AttributeDefinition* newDefinition);
+            void removeAttribute(const std::string& name);
             void updateDefinitions(const Assets::EntityDefinition* entityDefinition);
 
-            bool hasAttribute(const AttributeName& name) const;
-            bool hasAttribute(const AttributeName& name, const AttributeValue& value) const;
-            bool hasAttributeWithPrefix(const AttributeName& prefix, const AttributeValue& value) const;
-            bool hasNumberedAttribute(const AttributeName& prefix, const AttributeValue& value) const;
+            bool hasAttribute(const std::string& name) const;
+            bool hasAttribute(const std::string& name, const std::string& value) const;
+            bool hasAttributeWithPrefix(const std::string& prefix, const std::string& value) const;
+            bool hasNumberedAttribute(const std::string& prefix, const std::string& value) const;
 
-            EntityAttributeSnapshot snapshot(const AttributeName& name) const;
-        private:
-            bool containsValue(const std::vector<IndexValue>& matches, const AttributeValue& value) const;
-            std::list<EntityAttribute> listFromQueryResult(const std::vector<IndexValue>& matches) const;
+            EntityAttributeSnapshot snapshot(const std::string& name) const;
         public:
-            const std::vector<AttributeName> names() const;
-            const AttributeValue* attribute(const AttributeName& name) const;
-            const AttributeValue& safeAttribute(const AttributeName& name, const AttributeValue& defaultValue) const;
+            std::vector<std::string> names() const;
+            const std::string* attribute(const std::string& name) const;
 
-            std::list<EntityAttribute> attributeWithName(const AttributeName& name) const;
-            std::list<EntityAttribute> attributesWithPrefix(const AttributeName& prefix) const;
-            std::list<EntityAttribute> numberedAttributes(const std::string& prefix) const;
+            std::vector<EntityAttribute> attributeWithName(const std::string& name) const;
+            std::vector<EntityAttribute> attributesWithPrefix(const std::string& prefix) const;
+            std::vector<EntityAttribute> numberedAttributes(const std::string& prefix) const;
         private:
-            std::list<EntityAttribute>::const_iterator findAttribute(const AttributeName& name) const;
-            std::list<EntityAttribute>::iterator findAttribute(const AttributeName& name);
-
-            void rebuildIndex();
+            std::vector<EntityAttribute>::const_iterator findAttribute(const std::string& name) const;
+            std::vector<EntityAttribute>::iterator findAttribute(const std::string& name);
         };
     }
 }

@@ -20,12 +20,10 @@
 #ifndef TrenchBroom_Face
 #define TrenchBroom_Face
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
-#include "Assets/Asset_Forward.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
-#include "Model/Model_Forward.h"
 #include "Model/Tag.h" // BrushFace inherits from Taggable
 
 #include <kdl/transform_range.h>
@@ -39,7 +37,18 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+        class TextureManager;
+    }
+
     namespace Model {
+        class Brush;
+        class BrushFaceSnapshot;
+        class TexCoordSystem;
+        class TexCoordSystemSnapshot;
+        enum class WrapStyle;
+
         class BrushFace : public Taggable {
         public:
             /*
@@ -53,8 +62,6 @@ namespace TrenchBroom {
              * 0-----------2
              */
             using Points = vm::vec3[3];
-        public:
-            static const std::string NoTextureName;
         private:
             /**
              * For use in VertexList transformation below.

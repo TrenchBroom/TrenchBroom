@@ -22,11 +22,11 @@
 #include "Exceptions.h"
 #include "Macros.h"
 #include "Model/BrushFace.h"
+#include "Model/EntityAttributes.h"
 
 #include <memory>
 #include <ostream>
 #include <sstream>
-#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             }
 
             void writeTextureInfo(std::ostream& stream, Model::BrushFace* face) {
-                const std::string& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+                const std::string& textureName = face->textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face->textureName();
                 stream << textureName << " " <<
                 ftos(face->xOffset(), FloatPrecision)  << " " <<
                 ftos(face->yOffset(), FloatPrecision)  << " " <<
@@ -135,7 +135,7 @@ namespace TrenchBroom {
             }
         private:
             void writeValveTextureInfo(std::ostream& stream, Model::BrushFace* face) {
-                const std::string& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+                const std::string& textureName = face->textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face->textureName();
                 const vm::vec3& xAxis = face->textureXAxis();
                 const vm::vec3& yAxis = face->textureYAxis();
 

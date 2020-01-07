@@ -21,7 +21,6 @@
 #define TrenchBroom_ModelUtils
 
 #include "Model/CollectUniqueNodesVisitor.h"
-#include "Model/Model_Forward.h"
 #include "Model/Node.h"
 
 #include <map>
@@ -29,6 +28,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class Node;
+
         std::vector<Node*> collectParents(const std::vector<Node*>& nodes);
         std::vector<Node*> collectParents(const std::map<Node*, std::vector<Node*>>& nodes);
 

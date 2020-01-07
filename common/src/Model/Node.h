@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_Node
 #define TrenchBroom_Node
 
-#include "TrenchBroom.h"
-#include "Model/Model_Forward.h"
+#include "FloatType.h"
+#include "Model/IssueType.h"
 #include "Model/Tag.h"
 
 #include <vecmath/forward.h>
@@ -31,6 +31,16 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class AttributableNode;
+        class ConstNodeVisitor;
+        class Issue;
+        class IssueGenerator;
+        enum class LockState;
+        class NodeSnapshot;
+        class NodeVisitor;
+        class PickResult;
+        enum class VisibilityState;
+
         class Node : public Taggable {
         private:
             Node* m_parent;
@@ -56,7 +66,7 @@ namespace TrenchBroom {
             Node(const Node&);
             Node& operator=(const Node&);
         public:
-            virtual ~Node();
+            ~Node() override;
         public: // getters
             const std::string& name() const;
             /**
@@ -87,7 +97,7 @@ namespace TrenchBroom {
             static void clone(const vm::bbox3& worldBounds, I cur, I end, O result) {
                 while (cur != end) {
                     const Node* node = *cur;
-                    result = node->clone(worldBounds);
+                    result++ = node->clone(worldBounds);
                     ++cur;
                 }
             }
@@ -96,7 +106,7 @@ namespace TrenchBroom {
             static void cloneRecursively(const vm::bbox3& worldBounds, I cur, I end, O result) {
                 while (cur != end) {
                     const Node* node = *cur;
-                    result = node->cloneRecursively(worldBounds);
+                    result++ = node->cloneRecursively(worldBounds);
                     ++cur;
                 }
             }
@@ -262,7 +272,7 @@ namespace TrenchBroom {
             LockState lockState() const;
             bool setLockState(LockState lockState);
         public: // picking
-            void pick(const vm::ray3& ray, PickResult& result) const;
+            void pick(const vm::ray3& ray, PickResult& result);
             void findNodesContaining(const vm::vec3& point, std::vector<Node*>& result);
         public: // file position
             size_t lineNumber() const;
@@ -409,11 +419,11 @@ namespace TrenchBroom {
                 }
             }
         protected: // index management
-            void findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<AttributableNode*>& result) const;
-            void findAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, std::vector<AttributableNode*>& result) const;
+            void findAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<AttributableNode*>& result) const;
+            void findAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<AttributableNode*>& result) const;
 
-            void addToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
-            void removeFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
+            void addToIndex(AttributableNode* attributable, const std::string& name, const std::string& value);
+            void removeFromIndex(AttributableNode* attributable, const std::string& name, const std::string& value);
         private: // subclassing interface
             virtual const std::string& doGetName() const = 0;
             virtual const vm::bbox3& doGetLogicalBounds() const = 0;
@@ -456,7 +466,7 @@ namespace TrenchBroom {
 
             virtual bool doSelectable() const = 0;
 
-            virtual void doPick(const vm::ray3& ray, PickResult& pickResult) const = 0;
+            virtual void doPick(const vm::ray3& ray, PickResult& pickResult) = 0;
             virtual void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) = 0;
 
             virtual void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) = 0;
@@ -464,11 +474,11 @@ namespace TrenchBroom {
             virtual void doAccept(NodeVisitor& visitor) = 0;
             virtual void doAccept(ConstNodeVisitor& visitor) const = 0;
 
-            virtual void doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, std::vector<AttributableNode*>& result) const;
-            virtual void doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, std::vector<AttributableNode*>& result) const;
+            virtual void doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<AttributableNode*>& result) const;
+            virtual void doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<AttributableNode*>& result) const;
 
-            virtual void doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
-            virtual void doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
+            virtual void doAddToIndex(AttributableNode* attributable, const std::string& name, const std::string& value);
+            virtual void doRemoveFromIndex(AttributableNode* attributable, const std::string& name, const std::string& value);
         };
     }
 }

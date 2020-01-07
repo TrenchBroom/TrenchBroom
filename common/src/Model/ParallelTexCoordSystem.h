@@ -20,9 +20,8 @@
 #ifndef TrenchBroom_ParallelTexCoordSystem
 #define TrenchBroom_ParallelTexCoordSystem
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Macros.h"
-#include "Model/Model_Forward.h"
 #include "Model/TexCoordSystem.h"
 
 #include <vecmath/forward.h>
@@ -38,7 +37,7 @@ namespace TrenchBroom {
             vm::vec3 m_yAxis;
         public:
             ParallelTexCoordSystemSnapshot(const vm::vec3& xAxis, const vm::vec3& yAxis);
-            ParallelTexCoordSystemSnapshot(ParallelTexCoordSystem* coordSystem);
+            ParallelTexCoordSystemSnapshot(const ParallelTexCoordSystem* coordSystem);
         private:
             std::unique_ptr<TexCoordSystemSnapshot> doClone() const override;
             void doRestore(ParallelTexCoordSystem& coordSystem) const override;
@@ -56,7 +55,7 @@ namespace TrenchBroom {
             ParallelTexCoordSystem(const vm::vec3& xAxis, const vm::vec3& yAxis);
         private:
             std::unique_ptr<TexCoordSystem> doClone() const override;
-            std::unique_ptr<TexCoordSystemSnapshot> doTakeSnapshot() override;
+            std::unique_ptr<TexCoordSystemSnapshot> doTakeSnapshot() const override;
             void doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) override;
 
             vm::vec3 getXAxis() const override;

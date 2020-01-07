@@ -20,12 +20,15 @@
 #ifndef TrenchBroom_IssueGeneratorRegistry
 #define TrenchBroom_IssueGeneratorRegistry
 
-#include "Model/Model_Forward.h"
+#include "Model/IssueType.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class IssueGenerator;
+        class IssueQuickFix;
+
         class IssueGeneratorRegistry {
         private:
             std::vector<IssueGenerator*> m_generators;

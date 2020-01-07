@@ -20,11 +20,13 @@
 #ifndef TrenchBroom_CameraLinkHelper
 #define TrenchBroom_CameraLinkHelper
 
-#include "Renderer/Renderer_Forward.h"
-
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class Camera;
+    }
+
     namespace View {
         class CameraLinkHelper {
         private:

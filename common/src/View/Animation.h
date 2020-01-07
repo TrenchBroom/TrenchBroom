@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_Animation
 #define TrenchBroom_Animation
 
-#include "View_Forward.h"
-
 #include <map>
 #include <memory>
 #include <vector>

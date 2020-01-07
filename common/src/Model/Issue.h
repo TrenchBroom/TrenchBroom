@@ -20,13 +20,17 @@
 #ifndef TrenchBroom_Issue
 #define TrenchBroom_Issue
 
-#include "Model/Model_Forward.h"
+#include "Model/IssueType.h"
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFace;
+        class EditorContext;
+        class Node;
+
         class Issue {
         private:
             size_t m_seqId;
@@ -37,7 +41,7 @@ namespace TrenchBroom {
 
             size_t seqId() const;
             size_t lineNumber() const;
-            const std::string description() const;
+            std::string description() const;
 
             IssueType type() const;
             Node* node() const;
@@ -49,20 +53,20 @@ namespace TrenchBroom {
             bool hidden() const;
             void setHidden(bool hidden);
         protected:
-            Issue(Node* node);
+            explicit Issue(Node* node);
             static size_t nextSeqId();
             static IssueType freeType();
         private: // subclassing interface
             virtual size_t doGetLineNumber() const;
             virtual IssueType doGetType() const = 0;
-            virtual const std::string doGetDescription() const = 0;
+            virtual std::string doGetDescription() const = 0;
         };
 
         class BrushFaceIssue : public Issue {
         private:
             BrushFace* const m_face;
         protected:
-            BrushFaceIssue(BrushFace* face);
+            explicit BrushFaceIssue(BrushFace* face);
         public:
             ~BrushFaceIssue() override;
             BrushFace* face() const;
@@ -75,8 +79,8 @@ namespace TrenchBroom {
             using Issue::Issue;
 
             ~AttributeIssue() override;
-            virtual const AttributeName& attributeName() const = 0;
-            const AttributeValue& attributeValue() const;
+            virtual const std::string& attributeName() const = 0;
+            const std::string& attributeValue() const;
         };
     }
 }

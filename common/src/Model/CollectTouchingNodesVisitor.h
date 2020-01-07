@@ -22,7 +22,6 @@
 
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/MatchSelectableNodes.h"
-#include "Model/Model_Forward.h"
 #include "Model/NodePredicates.h"
 
 namespace TrenchBroom {

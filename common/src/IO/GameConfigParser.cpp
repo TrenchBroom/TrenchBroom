@@ -197,13 +197,14 @@ namespace TrenchBroom {
             expectStructure(value,
                             "["
                             "{'surfaceflags': 'Array', 'contentflags': 'Array'},"
-                            "{}"
+                            "{'defaults': 'Map'}"
                             "]");
 
-            const std::vector<Model::FlagConfig> surfaceFlags = parseFlagConfig(value["surfaceflags"]);
-            const std::vector<Model::FlagConfig> contentFlags = parseFlagConfig(value["contentflags"]);
+            const Model::FlagsConfig surfaceFlags = parseFlagConfig(value["surfaceflags"]);
+            const Model::FlagsConfig contentFlags = parseFlagConfig(value["contentflags"]);
+            const Model::BrushFaceAttributes defaults = parseFaceAttribsDefaults(value["defaults"], surfaceFlags, contentFlags);
 
-            return Model::FaceAttribsConfig(surfaceFlags, contentFlags);
+            return Model::FaceAttribsConfig(surfaceFlags, contentFlags, defaults);
         }
 
         std::vector<Model::FlagConfig> GameConfigParser::parseFlagConfig(const EL::Value& value) const {
@@ -226,6 +227,58 @@ namespace TrenchBroom {
             }
 
             return flags;
+        }
+
+        Model::BrushFaceAttributes GameConfigParser::parseFaceAttribsDefaults(const EL::Value& value, const Model::FlagsConfig& surfaceFlags, const Model::FlagsConfig& contentFlags) const {
+            Model::BrushFaceAttributes defaults(Model::BrushFaceAttributes::NoTextureName);
+            if (value.null()) {
+                return defaults;
+            }
+            
+            expectStructure(value,
+                            "["
+                            "{},"
+                            "{'textureName': 'String', 'offset': 'Array', 'scale': 'Array', 'rotation': 'Number', 'surfaceContents': 'Array', 'surfaceFlags': 'Array', 'surfaceValue': 'Number', 'color': 'String'}"
+                            "]");
+
+            if (!value["textureName"].null()) {
+                defaults = Model::BrushFaceAttributes(value["textureName"].stringValue());
+            }
+            if (!value["offset"].null() && value["offset"].length() == 2) {
+                auto offset = value["offset"];
+                defaults.setOffset(vm::vec2f(offset[0].numberValue(), offset[1].numberValue()));
+            }
+            if (!value["scale"].null() && value["scale"].length() == 2) {
+                auto scale = value["scale"];
+                defaults.setScale(vm::vec2f(scale[0].numberValue(), scale[1].numberValue()));
+            }
+            if (!value["rotation"].null()) {
+                defaults.setRotation(static_cast<float>(value["rotation"].numberValue()));
+            }
+            if (!value["surfaceContents"].null()) {
+                int defaultSurfaceContents = 0;
+                for (size_t i = 0; i < value["surfaceContents"].length(); ++i) {
+                    auto name = value["surfaceContents"][i].stringValue();
+                    defaultSurfaceContents |= contentFlags.flagValue(name);
+                }
+                defaults.setSurfaceContents(defaultSurfaceContents);
+            }
+            if (!value["surfaceFlags"].null()) {
+                int defaultSurfaceFlags = 0;
+                for (size_t i = 0; i < value["surfaceFlags"].length(); ++i) {
+                    auto name = value["surfaceFlags"][i].stringValue();
+                    defaultSurfaceFlags |= surfaceFlags.flagValue(name);
+                }
+                defaults.setSurfaceFlags(defaultSurfaceFlags);
+            }
+            if (!value["surfaceValue"].null()) {
+                defaults.setSurfaceValue(static_cast<float>(value["surfaceValue"].numberValue()));
+            }
+            if (!value["color"].null()) {
+                defaults.setColor(Color::parse(value["color"].stringValue()));
+            }
+
+            return defaults;
         }
 
         std::vector<Model::SmartTag> GameConfigParser::parseTags(const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfig) const {

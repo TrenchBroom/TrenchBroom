@@ -22,12 +22,20 @@
 #include <QTextStream>
 #include <QString>
 
-#include <optional-lite/optional.hpp>
+#include <nonstd/optional.hpp>
+#include <kdl/vector_utils.h>
+#include <vecmath/bbox.h>
 
+#include "Color.h"
 #include "PreferenceManager.h"
 #include "QtPrettyPrinters.h"
 #include "Preferences.h"
+#include "Assets/EntityDefinition.h"
+#include "Model/Tag.h"
+#include "Model/TagMatcher.h"
 #include "View/Actions.h"
+
+#include <string>
 
 namespace TrenchBroom {
     static QString getValue(const std::map<IO::Path, QString>& map, const IO::Path& key) {
@@ -104,6 +112,10 @@ namespace TrenchBroom {
         EXPECT_EQ("-10000", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/EntityDocumentationSplitter/SplitRatio")));
         EXPECT_EQ("3656", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/FaceInspectorSplitter/SplitRatio")));
         EXPECT_EQ("/home/ericwa/unnamed.map", getValue(parsed, IO::Path("RecentDocuments/0")));
+        EXPECT_EQ("68:307:0:0", getValue(parsed, IO::Path("Filters/Tags/Detail/Toggle Visible")));
+        EXPECT_EQ("68:0:0:0", getValue(parsed, IO::Path("Tags/Detail/Enable")));
+        EXPECT_EQ("68:307:306:0", getValue(parsed, IO::Path("Tags/Detail/Disable")));
+        EXPECT_EQ("72:0:0:0", getValue(parsed, IO::Path("Entities/monster_hell_knight/Create")));
     }
 
     static void testV2Prefs(const std::map<IO::Path, QString>& v2) {
@@ -141,6 +153,10 @@ namespace TrenchBroom {
         EXPECT_EQ("/home/ericwa/Quake 3 Arena", getValue(v2, IO::Path("Games/Quake 3/Path")));
         EXPECT_EQ("Ctrl+Alt+W", getValue(v2, IO::Path("Menu/File/Export/Wavefront OBJ...")));
         EXPECT_EQ("Ctrl+Alt+2", getValue(v2, IO::Path("Menu/View/Grid/Set Grid Size 0.125")));
+        EXPECT_EQ("Alt+D", getValue(v2, IO::Path("Filters/Tags/Detail/Toggle Visible")));
+        EXPECT_EQ("D", getValue(v2, IO::Path("Tags/Detail/Enable")));
+        EXPECT_EQ("Alt+Shift+D", getValue(v2, IO::Path("Tags/Detail/Disable")));
+        EXPECT_EQ("H", getValue(v2, IO::Path("Entities/monster_hell_knight/Create")));
 
         // We don't bother migrating these ones
         EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/x")));
@@ -441,6 +457,53 @@ namespace TrenchBroom {
         for (const std::string& preferenceKey : preferenceKeys) {
             const auto preferencePath = IO::Path(preferenceKey);
             const bool found = (actionsMap.find(preferencePath) != actionsMap.end());
+            EXPECT_TRUE(found);
+
+            if (!found) {
+                std::cerr << "Couldn't find key: '" << preferenceKey << "'\n";
+            }
+        }
+    }
+
+    TEST(PreferencesTest, testWxEntityShortcuts) {
+        auto hellKnight = Assets::PointEntityDefinition("monster_hell_knight", Color(0,0,0), vm::bbox3(), "", {}, Assets::ModelDefinition());
+        const auto defs = std::vector<Assets::EntityDefinition*>{&hellKnight};
+
+        const std::vector<std::unique_ptr<View::Action>> actions = View::ActionManager::instance().createEntityDefinitionActions(defs);
+        const std::vector<IO::Path> actualPrefPaths = kdl::vec_transform(actions, [](const auto& action) { return IO::Path(action->preferencePath()); });
+
+        // example keys from 2019.6 for "monster_hell_knight" entity
+        const std::vector<std::string> preferenceKeys {
+            "Entities/monster_hell_knight/Create",
+            "Entities/monster_hell_knight/Toggle" // new in 2020.1
+        };
+
+        for (const std::string& preferenceKey : preferenceKeys) {
+            const bool found = kdl::vec_contains(actualPrefPaths, IO::Path(preferenceKey));
+            EXPECT_TRUE(found);
+
+            if (!found) {
+                std::cerr << "Couldn't find key: '" << preferenceKey << "'\n";
+            }
+        }
+    }
+
+    TEST(PreferencesTest, testWxTagShortcuts) {
+        const auto tags = std::vector<Model::SmartTag>{
+            Model::SmartTag("Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27))
+        };
+        const std::vector<std::unique_ptr<View::Action>> actions = View::ActionManager::instance().createTagActions(tags);
+        const std::vector<IO::Path> actualPrefPaths = kdl::vec_transform(actions, [](const auto& action) { return IO::Path(action->preferencePath()); });
+
+        // example keys from 2019.6 for "Detail" tag
+        const std::vector<std::string> preferenceKeys {
+            "Filters/Tags/Detail/Toggle Visible",
+            "Tags/Detail/Disable",
+            "Tags/Detail/Enable",
+        };
+
+        for (const std::string& preferenceKey : preferenceKeys) {
+            const bool found = kdl::vec_contains(actualPrefPaths, IO::Path(preferenceKey));
             EXPECT_TRUE(found);
 
             if (!found) {

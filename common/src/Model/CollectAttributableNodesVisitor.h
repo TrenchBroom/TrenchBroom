@@ -21,13 +21,14 @@
 #define TrenchBroom_CollectAttributableNodesVisitor
 
 #include "Model/NodeVisitor.h"
-#include "Model/Model_Forward.h"
 
 #include <set>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class AttributableNode;
+
         class CollectAttributableNodesVisitor : public NodeVisitor {
         private:
             std::set<Node*> m_addedNodes;

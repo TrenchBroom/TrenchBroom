@@ -22,13 +22,15 @@
 
 #include "Macros.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Snapshot;
+    }
+
     namespace View {
         class ChangeBrushFaceAttributesCommand : public DocumentCommand {
         public:

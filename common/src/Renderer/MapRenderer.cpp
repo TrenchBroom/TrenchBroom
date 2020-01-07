@@ -21,7 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SharedPointer.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -40,6 +39,8 @@
 #include "Renderer/RenderUtils.h"
 #include "View/Selection.h"
 #include "View/MapDocument.h"
+
+#include <kdl/memory_utils.h>
 
 #include <set>
 #include <vector>
@@ -135,23 +136,23 @@ namespace TrenchBroom {
 
         std::unique_ptr<ObjectRenderer> MapRenderer::createDefaultRenderer(std::weak_ptr<View::MapDocument> document) {
             return std::make_unique<ObjectRenderer>(
-                lock(document)->entityModelManager(),
-                lock(document)->editorContext(),
-                UnselectedBrushRendererFilter(lock(document)->editorContext()));
+                kdl::mem_lock(document)->entityModelManager(),
+                kdl::mem_lock(document)->editorContext(),
+                UnselectedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
         }
 
         std::unique_ptr<ObjectRenderer> MapRenderer::createSelectionRenderer(std::weak_ptr<View::MapDocument> document) {
             return std::make_unique<ObjectRenderer>(
-                lock(document)->entityModelManager(),
-                lock(document)->editorContext(),
-                SelectedBrushRendererFilter(lock(document)->editorContext()));
+                kdl::mem_lock(document)->entityModelManager(),
+                kdl::mem_lock(document)->editorContext(),
+                SelectedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
         }
 
         std::unique_ptr<ObjectRenderer> MapRenderer::createLockRenderer(std::weak_ptr<View::MapDocument> document) {
             return std::make_unique<ObjectRenderer>(
-                lock(document)->entityModelManager(),
-                lock(document)->editorContext(),
-                LockedBrushRendererFilter(lock(document)->editorContext()));
+                kdl::mem_lock(document)->entityModelManager(),
+                kdl::mem_lock(document)->editorContext(),
+                LockedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
         }
 
         void MapRenderer::clear() {
@@ -191,7 +192,7 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::commitPendingChanges() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->commitPendingAssets();
         }
 
@@ -369,7 +370,7 @@ namespace TrenchBroom {
         };
 
         void MapRenderer::updateRenderers(const Renderer renderers) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Model::World* world = document->world();
 
             CollectRenderableNodes collect(renderers);
@@ -425,8 +426,8 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::bindObservers() {
-            assert(!expired(m_document));
-            auto document = lock(m_document);
+            assert(!kdl::mem_expired(m_document));
+            auto document = kdl::mem_lock(m_document);
             document->documentWasClearedNotifier.addObserver(this, &MapRenderer::documentWasCleared);
             document->documentWasNewedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
@@ -450,8 +451,8 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->documentWasClearedNotifier.removeObserver(this, &MapRenderer::documentWasCleared);
                 document->documentWasNewedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
@@ -571,7 +572,7 @@ namespace TrenchBroom {
         void MapRenderer::preferenceDidChange(const IO::Path& path) {
             setupRenderers();
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (document->isGamePathPreference(path)) {
                 reloadEntityModels();
                 invalidateRenderers(Renderer_All);

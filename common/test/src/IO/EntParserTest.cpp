@@ -28,7 +28,6 @@
 #include "IO/File.h"
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
-#include "Model/Model_Forward.h"
 
 #include <kdl/vector_utils.h>
 

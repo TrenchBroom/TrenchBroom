@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_SmartChoiceEditor
 #define TrenchBroom_SmartChoiceEditor
 
-#include "Model/Model_Forward.h"
 #include "View/SmartAttributeEditor.h"
 
 #include <memory>

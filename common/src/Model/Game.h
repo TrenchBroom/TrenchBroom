@@ -20,12 +20,10 @@
 #ifndef TrenchBroom_Game
 #define TrenchBroom_Game
 
-#include "TrenchBroom.h"
-#include "Assets/Asset_Forward.h"
+#include "FloatType.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/EntityModelLoader.h"
 #include "Model/MapFormat.h"
-#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <map>
@@ -35,7 +33,22 @@
 namespace TrenchBroom {
     class Logger;
 
+    namespace Assets {
+        class EntityDefinitionFileSpec;
+        class TextureManager;
+    }
+
     namespace Model {
+        class AttributableNode;
+        class BrushFace;
+        class BrushFaceAttributes;
+        class CompilationConfig;
+        enum class ExportFormat;
+        struct FlagsConfig;
+        class Node;
+        class SmartTag;
+        class World;
+
         class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader {
         public:
             enum class TexturePackageType {
@@ -86,9 +99,10 @@ namespace TrenchBroom {
             std::vector<std::string> availableMods() const;
             std::vector<std::string> extractEnabledMods(const AttributableNode& node) const;
             std::string defaultMod() const;
-        public: // flag configs for faces
+        public: // configs for faces
             const FlagsConfig& surfaceFlags() const;
             const FlagsConfig& contentFlags() const;
+            const BrushFaceAttributes& defaultFaceAttribs() const;
         private: // subclassing interface
             virtual const std::string& doGameName() const = 0;
             virtual IO::Path doGamePath() const = 0;
@@ -130,6 +144,7 @@ namespace TrenchBroom {
 
             virtual const FlagsConfig& doSurfaceFlags() const = 0;
             virtual const FlagsConfig& doContentFlags() const = 0;
+            virtual const BrushFaceAttributes& doDefaultFaceAttribs() const = 0;
         };
     }
 }

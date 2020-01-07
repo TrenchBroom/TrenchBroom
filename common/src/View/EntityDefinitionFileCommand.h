@@ -20,10 +20,8 @@
 #ifndef TrenchBroom_EntityDefinitionFileCommand
 #define TrenchBroom_EntityDefinitionFileCommand
 
-#include "View/View_Forward.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "View/DocumentCommand.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 #include <string>

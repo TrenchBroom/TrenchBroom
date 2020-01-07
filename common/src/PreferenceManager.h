@@ -20,26 +20,27 @@
 #ifndef TrenchBroom_PreferenceManager
 #define TrenchBroom_PreferenceManager
 
+#include "Ensure.h"
 #include "Notifier.h"
 #include "Preference.h"
-#include "IO/IO_Forward.h"
-#include "View/KeyboardShortcut.h"
 
-#include <QApplication>
-#include <QThread>
-#include <QString>
-#include <QByteArray>
+#include <kdl/vector_set.h>
 
 #include <map>
 #include <memory>
-#include <set>
+#include <vector>
+
+#include <QApplication>
+#include <QByteArray>
+#include <QString>
+#include <QThread>
 
 class QTextStream;
 class QFileSystemWatcher;
 
-class Color;
-
 namespace TrenchBroom {
+    class Color;
+
     /**
      * Used by wxWidgets versions of TB
      */
@@ -74,7 +75,7 @@ namespace TrenchBroom {
     class PreferenceManager : public QObject {
         Q_OBJECT
     private:
-        using UnsavedPreferences = std::set<PreferenceBase*>;
+        using UnsavedPreferences = kdl::vector_set<PreferenceBase*>;
         using DynamicPreferences = std::map<IO::Path, std::unique_ptr<PreferenceBase>>;
 
         QString m_preferencesFilePath;

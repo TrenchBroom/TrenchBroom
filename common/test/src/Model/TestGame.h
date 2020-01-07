@@ -20,9 +20,7 @@
 #ifndef TestGame_h
 #define TestGame_h
 
-#include "IO/IO_Forward.h"
 #include "Model/Game.h"
-#include "Model/Model_Forward.h"
 
 #include <memory>
 #include <string>
@@ -30,6 +28,10 @@
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace IO {
+        class Path;
+    }
 
     namespace Model {
         class TestGame : public Game {
@@ -80,6 +82,7 @@ namespace TrenchBroom {
 
             const FlagsConfig& doSurfaceFlags() const override;
             const FlagsConfig& doContentFlags() const override;
+            const BrushFaceAttributes& doDefaultFaceAttribs() const override;
 
             std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const override;
             std::unique_ptr<Assets::EntityModel> doInitializeModel(const IO::Path& path, Logger& logger) const override;

@@ -19,12 +19,12 @@
 
 #include "UVViewHelper.h"
 
-#include "TrenchBroom.h"
-#include "Polyhedron.h"
+#include "FloatType.h"
 #include "Preferences.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
 #include "Renderer/OrthographicCamera.h"
 #include "View/UVView.h"
 

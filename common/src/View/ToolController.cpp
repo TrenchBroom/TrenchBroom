@@ -19,8 +19,8 @@
 
 #include "ToolController.h"
 
-#include "Constants.h"
-#include "TrenchBroom.h"
+#include "Ensure.h"
+#include "FloatType.h"
 #include "Model/HitQuery.h"
 #include "Model/HitType.h"
 #include "View/Grid.h"

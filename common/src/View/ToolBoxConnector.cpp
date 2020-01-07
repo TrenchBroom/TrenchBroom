@@ -19,6 +19,7 @@
 
 #include "ToolBoxConnector.h"
 
+#include "Ensure.h"
 #include "Macros.h"
 #include "View/PickRequest.h"
 #include "View/ToolBox.h"

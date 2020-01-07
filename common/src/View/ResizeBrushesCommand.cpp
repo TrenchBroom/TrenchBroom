@@ -19,7 +19,7 @@
 
 #include "ResizeBrushesCommand.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <vecmath/vec.h>

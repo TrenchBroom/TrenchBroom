@@ -20,13 +20,15 @@
 #ifndef TrenchBroom_WelcomeFrame
 #define TrenchBroom_WelcomeFrame
 
-#include "IO/IO_Forward.h"
-
 #include <QMainWindow>
 
 class QPushButton;
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
     namespace View {
         class RecentDocumentListBox;
 

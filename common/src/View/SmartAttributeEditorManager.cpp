@@ -20,7 +20,6 @@
 #include "SmartAttributeEditorManager.h"
 
 #include "Macros.h"
-#include "SharedPointer.h"
 #include "View/MapDocument.h"
 #include "View/SmartChoiceEditor.h"
 #include "View/SmartChoiceEditorMatcher.h"
@@ -29,6 +28,8 @@
 #include "View/SmartAttributeEditor.h"
 #include "View/SmartAttributeEditorMatcher.h"
 #include "View/SmartSpawnflagsEditor.h"
+
+#include <kdl/memory_utils.h>
 
 #include <QWidget>
 #include <QStackedLayout>
@@ -49,7 +50,7 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        void SmartAttributeEditorManager::switchEditor(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) {
+        void SmartAttributeEditorManager::switchEditor(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) {
             EditorPtr editor = selectEditor(name, attributables);
             activateEditor(editor, name);
             updateEditor();
@@ -84,30 +85,30 @@ namespace TrenchBroom {
         }
 
         void SmartAttributeEditorManager::bindObservers() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &SmartAttributeEditorManager::selectionDidChange);
             document->nodesDidChangeNotifier.addObserver(this, &SmartAttributeEditorManager::nodesDidChange);
         }
 
         void SmartAttributeEditorManager::unbindObservers() {
-            if (!expired(m_document)) {
-                auto document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->selectionDidChangeNotifier.removeObserver(this, &SmartAttributeEditorManager::selectionDidChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &SmartAttributeEditorManager::nodesDidChange);
             }
         }
 
         void SmartAttributeEditorManager::selectionDidChange(const Selection&) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             switchEditor(m_name, document->allSelectedAttributableNodes());
         }
 
         void SmartAttributeEditorManager::nodesDidChange(const std::vector<Model::Node*>&) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             switchEditor(m_name, document->allSelectedAttributableNodes());
         }
 
-        SmartAttributeEditorManager::EditorPtr SmartAttributeEditorManager::selectEditor(const Model::AttributeName& name, const std::vector<Model::AttributableNode*>& attributables) const {
+        SmartAttributeEditorManager::EditorPtr SmartAttributeEditorManager::selectEditor(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const {
             for (const auto& entry : m_editors) {
                 const MatcherPtr matcher = entry.first;
                 if (matcher->matches(name, attributables))
@@ -124,7 +125,7 @@ namespace TrenchBroom {
             return m_editors.back().second;
         }
 
-        void SmartAttributeEditorManager::activateEditor(EditorPtr editor, const Model::AttributeName& name) {
+        void SmartAttributeEditorManager::activateEditor(EditorPtr editor, const std::string& name) {
             if (m_stackedLayout->currentWidget() != editor || !activeEditor()->usesName(name)) {
                 deactivateEditor();
 
@@ -144,7 +145,7 @@ namespace TrenchBroom {
 
         void SmartAttributeEditorManager::updateEditor() {
             if (activeEditor() != nullptr) {
-                auto document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 activeEditor()->update(document->allSelectedAttributableNodes());
             }
         }

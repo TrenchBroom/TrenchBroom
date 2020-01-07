@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_PointGuideRenderer
 #define TrenchBroom_PointGuideRenderer
 
-#include "TrenchBroom.h"
 #include "Color.h"
+#include "FloatType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/SpikeGuideRenderer.h"
 

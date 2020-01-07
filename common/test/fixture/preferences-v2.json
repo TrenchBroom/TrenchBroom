@@ -32,5 +32,9 @@
     "Renderer/Texture mode mag filter": "9729",
     "Renderer/Texture mode min filter": "9987",
     "Texture Browser/Icon size": "1.5",
-    "Views/Map view layout": "2"
+    "Views/Map view layout": "2",
+    "Filters/Tags/Detail/Toggle Visible": "Alt+D",
+    "Tags/Detail/Enable": "D",
+    "Tags/Detail/Disable": "Alt+Shift+D",
+    "Entities/monster_hell_knight/Create": "H"
 }

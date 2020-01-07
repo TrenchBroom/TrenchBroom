@@ -20,12 +20,15 @@
 #ifndef TrenchBroom_PickRequest
 #define TrenchBroom_PickRequest
 
-#include "TrenchBroom.h"
-#include "Renderer/Renderer_Forward.h"
+#include "FloatType.h"
 
 #include <vecmath/ray.h>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class Camera;
+    }
+
     namespace View {
         class PickRequest {
         private:

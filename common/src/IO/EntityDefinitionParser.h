@@ -20,16 +20,20 @@
 #ifndef TrenchBroom_EntityDefinitionParser_h
 #define TrenchBroom_EntityDefinitionParser_h
 
-#include "Assets/Asset_Forward.h"
-#include "IO/IO_Forward.h"
-
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class AttributeDefinition;
+        class EntityDefinition;
+    }
+
     namespace IO {
+        class ParserStatus;
+
         class EntityDefinitionParser {
         protected:
             using EntityDefinitionList = std::vector<Assets::EntityDefinition*>;

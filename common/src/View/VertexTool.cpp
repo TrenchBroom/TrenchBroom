@@ -38,7 +38,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        VertexTool::VertexTool(std::weak_ptr<MapDocument> document) :
+        VertexTool::VertexTool(const std::weak_ptr<MapDocument>& document) :
         VertexToolBase(document),
         m_mode(Mode_Move),
         m_vertexHandles(std::make_unique<VertexHandleManager>()),
@@ -59,7 +59,7 @@ namespace TrenchBroom {
         }
 
         void VertexTool::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const Grid& grid = document->grid();
 
             m_vertexHandles->pick(pickRay, camera, pickResult);
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             return *m_vertexHandles;
         }
 
-        bool VertexTool::startMove(const std::list<Model::Hit>& hits) {
+        bool VertexTool::startMove(const std::vector<Model::Hit>& hits) {
             const auto& hit = hits.front();
             if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
                 m_vertexHandles->deselectAll();
@@ -110,7 +110,7 @@ namespace TrenchBroom {
         }
 
         VertexTool::MoveResult VertexTool::move(const vm::vec3& delta) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             if (m_mode == Mode_Move) {
                 const auto handles = m_vertexHandles->selectedHandles();
@@ -172,7 +172,7 @@ namespace TrenchBroom {
             m_mode = Mode_Move;
         }
 
-        const vm::vec3& VertexTool::getHandlePosition(const Model::Hit& hit) const {
+        vm::vec3 VertexTool::getHandlePosition(const Model::Hit& hit) const {
             assert(hit.isMatch());
             assert(hit.hasType(VertexHandleManager::HandleHit | EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit));
 
@@ -204,7 +204,7 @@ namespace TrenchBroom {
             const auto brushMap = buildBrushMap(*m_vertexHandles, std::begin(handles), std::end(handles));
 
             Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Remove Vertex", "Remove Vertices"));
-            lock(m_document)->removeVertices(brushMap);
+            kdl::mem_lock(m_document)->removeVertices(brushMap);
         }
 
         void VertexTool::renderGuide(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch, const vm::vec3& position) const {

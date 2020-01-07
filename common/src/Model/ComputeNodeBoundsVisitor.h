@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_ComputeNodeBoundsVisitor
 #define TrenchBroom_ComputeNodeBoundsVisitor
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/NodeVisitor.h"
 #include "Model/Node.h"
 

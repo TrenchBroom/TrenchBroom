@@ -23,7 +23,6 @@
 #include "Color.h"
 #include "Preference.h"
 #include "IO/Path.h"
-#include "View/KeyboardShortcut.h"
 
 #include <vector>
 

@@ -22,7 +22,7 @@
 
 #include "View/VertexToolControllerBase.h"
 
-#include <list>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -32,7 +32,7 @@ namespace TrenchBroom {
         class VertexToolController : public VertexToolControllerBase<VertexTool> {
         protected:
             static Model::Hit findHandleHit(const InputState& inputState, const VertexToolController::PartBase& base);
-            static std::list<Model::Hit> findHandleHits(const InputState& inputState, const VertexToolController::PartBase& base);
+            static std::vector<Model::Hit> findHandleHits(const InputState& inputState, const VertexToolController::PartBase& base);
         private:
             class SelectVertexPart;
             class MoveVertexPart;

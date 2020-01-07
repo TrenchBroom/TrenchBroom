@@ -23,12 +23,12 @@
 
 namespace TrenchBroom {
     namespace Model {
-        EntityAttributeSnapshot::EntityAttributeSnapshot(const AttributeName& name, const AttributeValue& value) :
+        EntityAttributeSnapshot::EntityAttributeSnapshot(const std::string& name, const std::string& value) :
         m_name(name),
         m_value(value),
         m_present(true) {}
 
-        EntityAttributeSnapshot::EntityAttributeSnapshot(const AttributeName& name) :
+        EntityAttributeSnapshot::EntityAttributeSnapshot(const std::string& name) :
         m_name(name),
         m_value(""),
         m_present(false) {}

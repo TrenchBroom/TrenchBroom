@@ -22,7 +22,6 @@
 
 #include "Macros.h"
 #include "View/SnapshotCommand.h"
-#include "View/View_Forward.h"
 
 #include <memory>
 

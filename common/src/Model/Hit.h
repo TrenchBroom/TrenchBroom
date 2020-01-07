@@ -20,12 +20,13 @@
 #ifndef TrenchBroom_Hit
 #define TrenchBroom_Hit
 
-#include "TrenchBroom.h"
-#include "Reference.h"
+#include "FloatType.h"
 #include "Macros.h"
 #include "Model/HitType.h"
 
 #include <vecmath/vec.h>
+
+#include <nonstd/any.hpp>
 
 namespace TrenchBroom {
     namespace Model {
@@ -36,7 +37,7 @@ namespace TrenchBroom {
             HitType::Type m_type;
             FloatType m_distance;
             vm::vec3 m_hitPoint;
-            UntypedReference m_target;
+            nonstd::any m_target;
             FloatType m_error;
         public:
             template <typename T>
@@ -44,7 +45,7 @@ namespace TrenchBroom {
             m_type(type),
             m_distance(distance),
             m_hitPoint(hitPoint),
-            m_target(Reference::copy(target)),
+            m_target(target),
             m_error(error) {}
 
             // TODO: rename to create
@@ -62,15 +63,8 @@ namespace TrenchBroom {
             FloatType error() const;
 
             template <typename T>
-            const T& target() const {
-                TypedReference<T> target(m_target);
-                return target.get();
-            }
-
-            template <typename T>
-            T& target() {
-                TypedReference<T> target(m_target);
-                return target.get();
+            T target() const {
+                return nonstd::any_cast<T>(m_target);
             }
         };
 

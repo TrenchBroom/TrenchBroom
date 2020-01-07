@@ -23,7 +23,6 @@
 #include "Model/Entity.h"
 #include "Model/Layer.h"
 #include "Model/MapFormat.h"
-#include "Model/Model_Forward.h"
 #include "Model/World.h"
 
 #include <kdl/vector_utils.h>

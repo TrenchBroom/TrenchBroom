@@ -19,7 +19,6 @@
 
 #include "UVShearTool.h"
 
-#include "SharedPointer.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/HitQuery.h"
@@ -27,6 +26,8 @@
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/UVViewHelper.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vecmath/vec.h>
 #include <vecmath/intersection.h>
@@ -87,7 +88,7 @@ namespace TrenchBroom {
                 vm::is_zero(m_initialHit.y(), 6.0f))
                 return false;
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->startTransaction("Shear Texture");
             return true;
         }
@@ -100,7 +101,7 @@ namespace TrenchBroom {
             const auto origin = m_helper.origin();
             const auto oldCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->scale(), true) * origin);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (m_selector[0]) {
                 const vm::vec2f factors = vm::vec2f(-delta.y() / m_initialHit.x(), 0.0f);
                 if (!vm::is_zero(factors, vm::Cf::almost_zero())) {
@@ -125,12 +126,12 @@ namespace TrenchBroom {
         }
 
         void UVShearTool::doEndMouseDrag(const InputState&) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->commitTransaction();
         }
 
         void UVShearTool::doCancelMouseDrag() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
         }
 

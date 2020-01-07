@@ -20,8 +20,7 @@
 #ifndef TrenchBroom_NodeSnapshot
 #define TrenchBroom_NodeSnapshot
 
-#include "TrenchBroom.h"
-#include "Model/Model_Forward.h"
+#include "FloatType.h"
 
 namespace TrenchBroom {
     namespace Model {

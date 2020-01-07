@@ -19,6 +19,7 @@
 
 #include "GameListBox.h"
 
+#include "Ensure.h"
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "Model/GameConfig.h"

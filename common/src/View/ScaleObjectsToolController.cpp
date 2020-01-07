@@ -22,7 +22,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SharedPointer.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
@@ -31,6 +30,8 @@
 #include "View/InputState.h"
 #include "View/ScaleObjectsTool.h"
 #include "View/MapDocument.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
@@ -162,7 +163,7 @@ namespace TrenchBroom {
                 return DragInfo();
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             const Model::PickResult& pickResult = inputState.pickResult();
 

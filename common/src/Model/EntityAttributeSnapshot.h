@@ -20,18 +20,20 @@
 #ifndef TrenchBroom_EntityAttributeSnapshot
 #define TrenchBroom_EntityAttributeSnapshot
 
-#include "Model/Model_Forward.h"
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
+        class AttributableNode;
+
         class EntityAttributeSnapshot {
         private:
-            AttributeName m_name;
-            AttributeValue m_value;
+            std::string m_name;
+            std::string m_value;
             bool m_present;
         public:
-            EntityAttributeSnapshot(const AttributeName& name, const AttributeValue& value);
-            EntityAttributeSnapshot(const AttributeName& name);
+            EntityAttributeSnapshot(const std::string& name, const std::string& value);
+            EntityAttributeSnapshot(const std::string& name);
 
             void restore(AttributableNode* node) const;
         };

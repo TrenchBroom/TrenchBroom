@@ -20,24 +20,31 @@
 #ifndef TextureCollectionLoader_h
 #define TextureCollectionLoader_h
 
-#include "Assets/Asset_Forward.h"
-#include "IO/IO_Forward.h"
-
 #include <memory>
+#include <string>
 #include <vector>
 #include <string>
 
 namespace TrenchBroom {
     class Logger;
 
+    namespace Assets {
+        class TextureCollection;
+    }
+
     namespace IO {
+        class File;
+        class FileSystem;
+        class Path;
+        class TextureReader;
+
         class TextureCollectionLoader {
         protected:
             using FileList = std::vector<std::shared_ptr<File>>;
         protected:
             Logger& m_logger;
         protected:
-            TextureCollectionLoader(Logger& logger);
+            explicit TextureCollectionLoader(Logger& logger);
         public:
             virtual ~TextureCollectionLoader();
         public:

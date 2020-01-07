@@ -20,13 +20,20 @@
 #ifndef TrenchBroom_BrushRendererBrushCache
 #define TrenchBroom_BrushRendererBrushCache
 
-#include "Assets/Asset_Forward.h"
-#include "Model/Model_Forward.h"
 #include "Renderer/GLVertexType.h"
 
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+
+    namespace Model {
+        class Brush;
+        class BrushFace;
+    }
+
     namespace Renderer {
         class BrushRendererBrushCache {
         public:

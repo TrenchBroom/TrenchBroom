@@ -22,28 +22,31 @@
 
 #include "Macros.h"
 #include "Model/EntityColor.h"
-#include "Model/Model_Forward.h"
 #include "View/DocumentCommand.h"
-#include "View/View_Forward.h"
 
 #include <map>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class EntityAttributeSnapshot;
+    }
+
     namespace View {
         class ConvertEntityColorCommand : public DocumentCommand {
         public:
             static const CommandType Type;
         private:
-            Model::AttributeName m_attributeName;
+            std::string m_attributeName;
             Assets::ColorRange::Type m_colorRange;
 
             std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>> m_snapshots;
         public:
-            static std::unique_ptr<ConvertEntityColorCommand> convert(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
+            static std::unique_ptr<ConvertEntityColorCommand> convert(const std::string& attributeName, Assets::ColorRange::Type colorRange);
 
-            ConvertEntityColorCommand(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
+            ConvertEntityColorCommand(const std::string& attributeName, Assets::ColorRange::Type colorRange);
             ~ConvertEntityColorCommand() override;
         private:
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
