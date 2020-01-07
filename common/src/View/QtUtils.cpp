@@ -212,8 +212,7 @@ namespace TrenchBroom {
             return widget;
         }
 
-        QWidget* makeSelected(QWidget* widget) {
-            const auto defaultPalette = QPalette();
+        QWidget* makeSelected(QWidget* widget, const QPalette& defaultPalette) {
             auto palette = widget->palette();
             palette.setColor(QPalette::Normal, QPalette::WindowText, defaultPalette.color(QPalette::Normal, QPalette::HighlightedText));
             palette.setColor(QPalette::Normal, QPalette::Text, defaultPalette.color(QPalette::Normal, QPalette::HighlightedText));
@@ -221,8 +220,7 @@ namespace TrenchBroom {
             return widget;
         }
 
-        QWidget* makeUnselected(QWidget* widget) {
-            const auto defaultPalette = QPalette();
+        QWidget* makeUnselected(QWidget* widget, const QPalette& defaultPalette) {
             auto palette = widget->palette();
             palette.setColor(QPalette::Normal, QPalette::WindowText, defaultPalette.color(QPalette::Normal, QPalette::WindowText));
             palette.setColor(QPalette::Normal, QPalette::Text, defaultPalette.color(QPalette::Normal, QPalette::Text));

@@ -54,7 +54,7 @@ namespace TrenchBroom {
 
         void ControlListBoxItemRenderer::updateItem() {}
 
-        void ControlListBoxItemRenderer::setSelected(const bool selected) {
+        void ControlListBoxItemRenderer::setSelected(const bool selected, const QListWidget* listWidget) {
             // by default, we just change the appearance of all labels
             auto children = findChildren<QLabel*>();
             for (auto* child : children) {
@@ -63,9 +63,9 @@ namespace TrenchBroom {
                     continue;
                 }
                 if (selected) {
-                    makeSelected(child);
+                    makeSelected(child, listWidget->palette());
                 } else {
-                    makeUnselected(child);
+                    makeUnselected(child, listWidget->palette());
                 }
             }
         }
@@ -239,7 +239,7 @@ namespace TrenchBroom {
             m_listWidget->setItemWidget(widgetItem, wrapper);
             widgetItem->setSizeHint(renderer->minimumSizeHint());
             renderer->updateItem();
-            renderer->setSelected(m_listWidget->currentItem() == widgetItem);
+            renderer->setSelected(m_listWidget->currentItem() == widgetItem, m_listWidget);
         }
 
         void ControlListBox::selectedRowChanged(const int /* index */) {}
@@ -250,7 +250,7 @@ namespace TrenchBroom {
             for (int row = 0; row < count(); ++row) {
                 auto* listItem = m_listWidget->item(row);
                 auto* renderer = this->renderer(row);
-                renderer->setSelected(listItem->isSelected());
+                renderer->setSelected(listItem->isSelected(), m_listWidget);
                 if (listItem->isSelected()) {
                     selectedRowChanged(row);
                 }
