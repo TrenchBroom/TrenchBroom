@@ -119,9 +119,9 @@ namespace TrenchBroom {
                 return Qt::ItemIsEnabled;
             }
             if (index.column() == 0) {
-                return Qt::ItemIsEnabled | Qt::ItemIsEditable;
+                return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
             } else {
-                return Qt::ItemIsEnabled;
+                return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
             }
         }
 

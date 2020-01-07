@@ -150,6 +150,7 @@ namespace TrenchBroom {
         QWidget* makeEmphasized(QWidget* widget);
         QWidget* makeUnemphasized(QWidget* widget);
         QWidget* makeInfo(QWidget* widget);
+        QWidget* makeSmall(QWidget* widget);
         QWidget* makeHeader(QWidget* widget);
         QWidget* makeError(QWidget* widget);
 
