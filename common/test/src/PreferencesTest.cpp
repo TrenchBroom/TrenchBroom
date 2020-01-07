@@ -104,6 +104,10 @@ namespace TrenchBroom {
         EXPECT_EQ("-10000", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/EntityDocumentationSplitter/SplitRatio")));
         EXPECT_EQ("3656", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/FaceInspectorSplitter/SplitRatio")));
         EXPECT_EQ("/home/ericwa/unnamed.map", getValue(parsed, IO::Path("RecentDocuments/0")));
+        EXPECT_EQ("68:307:0:0", getValue(parsed, IO::Path("Filters/Tags/Detail/Toggle Visible")));
+        EXPECT_EQ("68:0:0:0", getValue(parsed, IO::Path("Tags/Detail/Enable")));
+        EXPECT_EQ("68:307:306:0", getValue(parsed, IO::Path("Tags/Detail/Disable")));
+        EXPECT_EQ("72:0:0:0", getValue(parsed, IO::Path("Entities/monster_hell_knight/Create")));
     }
 
     static void testV2Prefs(const std::map<IO::Path, QString>& v2) {
@@ -141,6 +145,10 @@ namespace TrenchBroom {
         EXPECT_EQ("/home/ericwa/Quake 3 Arena", getValue(v2, IO::Path("Games/Quake 3/Path")));
         EXPECT_EQ("Ctrl+Alt+W", getValue(v2, IO::Path("Menu/File/Export/Wavefront OBJ...")));
         EXPECT_EQ("Ctrl+Alt+2", getValue(v2, IO::Path("Menu/View/Grid/Set Grid Size 0.125")));
+        EXPECT_EQ("Alt+D", getValue(v2, IO::Path("Filters/Tags/Detail/Toggle Visible")));
+        EXPECT_EQ("D", getValue(v2, IO::Path("Tags/Detail/Enable")));
+        EXPECT_EQ("Alt+Shift+D", getValue(v2, IO::Path("Tags/Detail/Disable")));
+        EXPECT_EQ("H", getValue(v2, IO::Path("Entities/monster_hell_knight/Create")));
 
         // We don't bother migrating these ones
         EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/x")));
