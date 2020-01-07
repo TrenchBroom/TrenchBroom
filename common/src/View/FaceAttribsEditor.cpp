@@ -158,7 +158,7 @@ namespace TrenchBroom {
             }
 
             Model::ChangeBrushFaceAttributesRequest request;
-            if (setFlag) {
+            if (setFlag & (1 << index)) {
                 request.setSurfaceFlag(index);
             } else {
                 request.unsetSurfaceFlag(index);
@@ -175,7 +175,7 @@ namespace TrenchBroom {
             }
 
             Model::ChangeBrushFaceAttributesRequest request;
-            if (setFlag) {
+            if (setFlag & (1 << index)) {
                 request.setContentFlag(index);
             } else {
                 request.unsetContentFlag(index);
@@ -302,11 +302,11 @@ namespace TrenchBroom {
             auto* faceAttribsLayout = new QGridLayout();
             faceAttribsLayout->setContentsMargins(
                 LayoutConstants::NarrowHMargin,
-                LayoutConstants::NarrowVMargin,
+                LayoutConstants::MediumVMargin,
                 LayoutConstants::NarrowHMargin,
-                LayoutConstants::NarrowVMargin);
-            faceAttribsLayout->setHorizontalSpacing(LayoutConstants::NarrowHMargin);
-            faceAttribsLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+                LayoutConstants::MediumVMargin);
+            faceAttribsLayout->setHorizontalSpacing(LayoutConstants::MediumHMargin);
+            faceAttribsLayout->setVerticalSpacing(LayoutConstants::MediumVMargin);
 
             int r = 0;
             int c = 0;
