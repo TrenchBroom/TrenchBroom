@@ -1,0 +1,806 @@
+// Paintball2 Entities - http://www.digitalpaint.org/
+// Ported from pb2ents_b41.c by sort 3/18/2019
+// Merged with original pball2.fgd and added spawnflags. 3/23/2019
+// TB addon changes 20190403 - xaGe
+
+@baseclass = AppearFlags [
+	spawnflags(Flags) =
+	[
+		256 : "Not in Easy" : 0
+		512 : "Not in Normal" : 0
+		1024 : "Not in Hard" : 0
+		2048 : "Not in Deathmatch" : 0
+	]
+]
+
+@BaseClass = Target
+[
+    target(string) : "sets the target to a func_areaportal or target_speaker with the same targetname"
+]
+@BaseClass = TargetName
+[
+    targetname(string) : "sets the target from a func_button, func_timer, etc. with the same target"
+]
+@BaseClass = TeamNumber
+[
+    teamnumber(integer) : "sets the team for the base."
+]
+@BaseClass = Angle
+[
+    angle(string) : "sets the direction the entity faces when spawning.  0 = right (East), 90 = up (North), 180 = left (West), 270 = down (South)."
+]
+@BaseClass base(AppearFlags) = Group
+[
+    group(string) : "sets a group where randomly spawned guns will be the same"
+]
+
+@SolidClass = worldspawn : "World entity"
+[
+	gamemode(Flags) =
+	[
+		1 : "Deathmatch" : 0
+		2 : "Single flag CTF" : 0
+		4 : "CTF" : 0
+		8 : "Siege" : 0
+		16 : "KOTH" : 0
+		64 : "Pong" : 0
+	]
+	maxteams(choices) : "sets the max number of teams supported in the map" =
+	[
+        2 : "for two teams"
+        3 : "for three teams"
+        4 : "for four teams"
+	]
+	team1(choices) : "sets the color for team 1." =
+	[
+        "red" : "red"
+        "blue" : "blue"
+        "yellow" : "yellow"
+        "purple" : "purple"
+	]
+	team2(choices) : "sets the color for team 2." =
+	[
+        "red" : "red"
+        "blue" : "blue"
+        "yellow" : "yellow"
+        "purple" : "purple"
+	]
+	team3(choices) : "sets the color for team 3." =
+	[
+        "red" : "red"
+        "blue" : "blue"
+        "yellow" : "yellow"
+        "purple" : "purple"
+	]
+	team4(choices) : "sets the color for team 4." =
+	[
+        "red" : "red"
+        "blue" : "blue"
+        "yellow" : "yellow"
+        "purple" : "purple"
+	]
+		message(string) : "sets a string while the map is loading."
+		sky(string) : "sets a sky to your sky brushes - <skyname> can be one of the following: unit1_, pbsky1, pbsky2, pbsky3, pbsky4, riverscape1, arctic1"
+    _sun_light(integer) : "arghrad - example: 250"
+    _sun_surface(integer) : "arghrad - brightness - A single brightness level. The color of the light is derived from the colors of all active suns, or the texture color if no suns are enabled. A value of 1 is special: it makes ArghRad use the surface`s own light value."
+    //_sun_surface(color255) : "arghrad - red green blue - Three separate brightness values for red, green, and blue lighting (normally not a standard RGB color). If all three values are 1 or less it has special meaning: it is treated like an RGB color:and the surface`s own light value is used."
+		_sun_color(string)	:	"arghrad - Sets the color of the sunlight to the specified rgb color value. If _sun_color is not specified, the color of the sky surface textures will be used instead."
+		_sun_diffuse(integer)	:	"arghrad - Sets the brightness of the diffused sunlight. This simulates the diffusion of light by atmospheric haze, creating a soft glow around the edges of sunlight shadows."
+		_sun_diffade(integer)	:	"arghrad - Scales how quickly the diffuse sunlight fades out over distance. The default distance is about 64 units. Values less than 1 fade slower, increasing the distance. Values greater than 1 fade faster, decreasing the distance. For example: a value of .5 fades half as fast, covering twice the distance, or about 128 units."
+
+// Worldspawn Sun Aiming
+// Like spotlights, there are several different methods available for setting the direction of suns in the Worldspawn. Choose any one of the methods that you prefer. Remember these point in the direction the sunlight is cast, not towards the sun. All suns points straight down by default.
+    _sun_angle(string) : "arghrad - Sets the sunlight direction by yaw and pitch angles. Yaw goes from 0-360 degrees around the z-axis, like the angle key. Pitch goes from -90 straight down, through 0 horizontal, to 90 straight up. def=0 -90"
+		_sun_target(string)	: "arghrad - targetname: targetname of spotlight`s info_null. Sets the sunlight direction with separate light & info_null entities. Create and aim a spotlight using the traditional qrad3 info_null method. Then set the _sun_target value to the same targetname as the info_null. The sun will now point in the same direction as that spotlight."
+		_sun_vector(string)	:	"arghrad - Sets the sunlight direction by direction vector. This is the direction defined by a ray pointing from the origin (0 0 0) to the specified x y z value."
+
+		requiredfiles(string) : "sets paths for additional files required by the map (such as scripts) that do not download by default - <path> is the path to your file. Always use the forward slash. Keep filenames lowercase. Separate different pathes with a space.Example: 'requiredfiles' 'scripts/maps/mymap1.txt scripts/maps/mymap2.txt' for two of your own files"
+    forcejail(choices) : "forces eliminated players into jail spawns (no observer/ghosts)." =
+    [
+        0 : "no force jail"
+        1 : "force jail"
+    ]
+    minclientbuild(integer) : "sets the minimum version a client must have to play the map (useful if you use advanced features)"
+    _ambient(integer) : "sets a general map ambient."
+
+]
+
+@SolidClass base(AppearFlags) = trigger_multiple : "Variable sized repeatable trigger.  Must be targeted at one or more entities."
+[
+	spawnflags(Flags) =
+	[
+		1 : "Monster" : 0
+		2 : "Not Player" : 0
+		4 : "Triggered" : 0
+	]
+    target(target_destination) : "sets the target to any other entities with the same targetname"
+    message(string) : "sets a string to be displayed when triggered"
+    delay(integer) : "sets a delay before first firing when turned on (0 default)."
+    wait(integer) : "sets the seconds between triggerings (2 default)."
+    sounds(choices) : "sets a sound to be played when triggered" =
+    [
+        1 : "secret"
+        2 : "beep beep"
+        3 : "large switch"
+    ]
+]
+
+@SolidClass base(AppearFlags, TeamNumber) = base : "Base trigger.  A player must touch this while holding the flag to get points."
+[
+    count(integer) : "sets a multiplier for the points scored when capturing. Default is 5, so if you want a flag captured at this base to only be worth 1 point, you can set 'count' '.2'"
+]
+
+@SolidClass base(AppearFlags) = hill : "Hill for gamemode KOTH.  When a player touches the hill, their team gets points. A flag with no teamnumber is also suggested, so that it's easy to tell if somebody is on the hill (players can also get points by touching the flag itself)."
+[
+    gamemode(integer) : "sets the gamemode (KOTH only, should always be 16)."
+]
+
+@SolidClass base(AppearFlags, TeamNumber) = func_teamwall : "Wall that exists only when the team has no players." []
+
+@SolidClass base(AppearFlags) = func_dsm : "Dynamically Sizing Map entity.  Apply this to brushes to seal off/open areas depending on the number of players present."
+[
+	spawnflags(Flags) =
+	[
+		1 : "invert_behavior" : 0 : "closes off areas instead of open up when more players are present."
+	]
+    open_pcount_all(integer) : "if # or more players are in the game, the entity will disappear, opening a new path."
+    close_pcount_all(integer) : "if # or fewer players are present, the entity will reappear and close off the path."
+]
+
+@baseclass base(Appearflags, Targetname) size(-16 -16 -24, 16 16 32) color(0 255 0) = PlayerClass []
+
+@PointClass base(PlayerClass) = info_player_start : "Player 1 start" []
+@PointClass base(PlayerClass) = info_player_deathmatch : "Player deathmatch start"
+[
+    teamnumber(integer) : "sets which team's players will spawn at this point.  Setting to 0 means any team can spawn here."
+    givegun(choices) : "sets the type of the weapon the player starts with instead of the pgp" =
+    [
+        "trracer" : "for spawning a Trracer"
+        "stingray" : "for spawning a Stingray"
+        "vm68" : "for spawning a VM-68"
+        "carbine" : "for spawning a 68 Carbine"
+        "spyder" : "for spawning a Spyder SE"
+        "autococker" : "for spawning an Autococker"
+        "automag" : "for spawning an Automag"
+        "low" : "for randomly spawning a Trracer or Stingray"
+        "medium" : "for randomly spawning a VM-68, 68 Carbine or Spyder SE"
+        "high" : "for randomly spawning an Autococker or Automag"
+    ]
+    givehopper(choices) : "sets the type of the hopper the player starts with" =
+    [
+        100 : "for spawning a hopper of 100"
+        200 : "for spawning a hopper of 200"
+    ]
+    giveammo(choices) : "sets the type of the ammo pack the player starts with" =
+    [
+        "25" : "for spawning an ammo pack of 25"
+        "50" : "for spawning an ammo pack of 50"
+        "100" : "for spawning an ammo pack of 100"
+        "150" : "for spawning an ammo pack of 150"
+        "200" : "for spawning an ammo pack of 200"
+        "small" : "for randomly spawning an ammo pack of 25, 50 or 100"
+        "medium" : "for randomly spawning an ammo pack of 50, 100 or 150"
+        "large" : "for randomly spawning an ammo pack of 100, 150 or 200"
+    ]
+    givebarrel(choices) : "sets the type of the barrel the player starts with" =
+    [
+        "brass" : "for a brass barrel"
+        "chrome" : "for a chrome barrel"
+        "steel" : "for a steel barrel"
+    ]
+    giveco2(choices) : "sets the type of the co2 tank the player starts with" =
+    [
+        "12g" : "for spawning a co2 tank of 12g"
+        "7oz" : "for spawning a co2 tank of 7oz"
+        "12oz" : "for spawning a co2 tank of 12oz"
+        "20oz" : "for spawning a co2 tank of 20oz"
+        "small" : "for randomly spawning a co2 tank of 12g or 7oz"
+        "medium" : "for randomly spawning a co2 tank of 7oz or 12oz"
+        "large" : "for randomly spawning a co2 tank of 12oz or 20oz"
+    ]
+    loadedco2(choices) : "sets the type of the loaded co2 the player starts with" =
+    [
+        "12g" : "for spawning a co2 tank of 12g"
+        "7oz" : "for spawning a co2 tank of 7oz"
+        "12oz" : "for spawning a co2 tank of 12oz"
+        "20oz" : "for spawning a co2 tank of 20oz"
+        "small" : "for randomly spawning a co2 tank of 12g or 7oz"
+        "medium" : "for randomly spawning a co2 tank of 7oz or 12oz"
+        "large" : "for randomly spawning a co2 tank of 12oz or 20oz"
+    ]
+    jail(integer) : "set to 1 to make it a jail spawn for eliminated players."
+]
+@PointClass base(AppearFlags, Angle) size(-8 -8 -8, 8 8 8) studio({ "path" : model, "skin" : skin, "frame" : frame}) = func_model : "Places a model in the map.  Not affected by gravity.Example: 'model' 'models/items/ammo/tris.md2' for the plant model seen in several maps (Pay attention of additional files required by the model.)  Add 'requiredfiles' '<path>' to the worldspawn if necessary."
+[
+    model(string) : "sets what model to use - <modelpath> `models/items/ammo/tris.md2` can be the path of available or your added models"
+    //skin(string) : "sets what skin # to use - example `3` skin selection defaults to `0` of available or your added models"
+    //frame(string) : "sets what frame # to use - example `2` can be the frame of available or your added models"
+]
+
+@PointClass base(Group) size(-8 -8 6, 8 8 26) studio({{
+type == "paint" -> 	{"path":"models/items/grenades/paint/ground.md2", "skin": 0},
+type == "smoke" -> 	{"path":"models/items/grenades/smoke/ground.md2", "skin": 0},
+                        "models/items/grenades/paint/ground.md2"
+}}) = item_pballgrenade : "Spawning spot for grenades. If no type is specified, the grenade will be random."
+[
+    type(choices) : "set the type of the grenade" =
+    [
+        "paint" : "for a paint grenade"
+        "smoke" : "for a smoke grenade"
+    ]
+    angle(string) : "-1 sets that the grenade will spawn exactly where you placed the entity and not somewhere in the area."
+    count(integer) : "1 sets that grenades always spawn there in addition to the number of grenades set by the server."
+]
+
+// xaGe
+@PointClass base(Group) color(80 80 255) size(-32 -32 -4, 32 32 28) studio({{
+type == "autococker" -> 	{"path":"models/weapons/g_autoc/tris.md2"},
+type == "automag" -> 	{"path":"models/weapons/g_autom/tris.md2"},
+type == "carbine" -> 	{"path":"models/weapons/g_68carbine/tris.md2"},
+type == "high" -> 	{"path":"models/weapons/g_autoc/tris.md2"},
+type == "low" -> 	{"path":"models/weapons/g_trrac/tris.md2"},
+type == "medium" -> 	{"path":"models/weapons/g_vm68/tris.md2"},
+type == "spyder" -> 	{"path":"models/weapons/g_spyder/tris.md2"},
+type == "stingray" -> 	{"path":"models/weapons/g_sting/tris.md2"},
+type == "trracer" -> 	{"path":"models/weapons/g_trrac/tris.md2"},
+type == "vm68" -> 	{"path":"models/weapons/g_vm68/tris.md2"},
+                    "models/weapons/g_vm68/tris.md2"
+}}) = weapon_pballgun :
+
+	"Spawning spot for guns. If no type is specified, the gun will be random.
+
+    autococker : Spawns an Autococker
+    automag : Spawns an Automag
+    carbine : Spawns a 68 Carbine
+    high : Randomly spawns either an Autococker or Automag
+    low : Randomly spawns a Trracer or Stingray
+    medium : Randomly spawns a VM-68, 68 Carbine or Spyder SE
+    spyder : Spawns a Spyder SE
+    stingray : Spawns a Stingray
+    trracer : Spawns a Trracer
+    vm68 : Spawns a VM-68"
+    [
+    type(choices) : "sets the type of the weapon"  =
+    [
+    "autococker" : "for spawning an Autococker"
+    "automag" : "for spawning an Automag"
+    "carbine" : "for spawning a 68 Carbine"
+    "high" : "for randomly spawning an Autococker or Automag"
+    "low" : "for randomly spawning a Trracer or Stingray"
+    "medium" : "for randomly spawning a VM-68, 68 Carbine or Spyder SE"
+    "spyder" : "for spawning a Spyder SE"
+    "stingray" : "for spawning a Stingray"
+    "trracer" : "for spawning a Trracer"
+    "vm68" : "for spawning a VM-68"
+    ]
+]
+
+@PointClass base(Group) color(200 0 200) size(-8 -8 16, 8 8 32) studio({{
+type == 100 -> 	{"path":"models/items/hopper/tris.md2", "skin": 0},
+type == 200 -> 	{"path":"models/items/hopper/tris.md2", "skin": 1},
+                        "models/items/hopper/tris.md2"
+}}) = item_pballhopper :
+
+    "Spawning spot for hoppers. If no type is specified, the hopper will be random."
+    [
+    type(choices) : "sets the type of the hopper" =
+    [
+        100 : "for spawning a hopper of 100"
+        200 : "for spawning a hopper of 200"
+    ]
+]
+
+@PointClass base(AppearFlags) color(200 128 25) size(-12 -12 0, 12 12 8) studio({{
+type == "25" -> 	{"path":"models/items/ammo/tris.md2", "skin": 0,  "frame": 0},
+type == "50" -> 	{"path":"models/items/ammo/tris.md2", "skin": 1,  "frame": 1},
+type == "100" -> 	{"path":"models/items/ammo/tris.md2", "skin": 2,  "frame": 2},
+type == "150" -> 	{"path":"models/items/ammo/tris.md2", "skin": 3,  "frame": 3},
+type == "200" -> 	{"path":"models/items/ammo/tris.md2", "skin": 4,  "frame": 4},
+type == "small" -> 	{"path":"models/items/ammo/tris.md2", "skin": 0,  "frame": 0},
+type == "medium" -> {"path":"models/items/ammo/tris.md2", "skin": 2,  "frame": 2},
+type == "large" -> 	{"path":"models/items/ammo/tris.md2", "skin": 3,  "frame": 3},
+                        "models/items/ammo/tris.md2"
+}}) = item_pballammo : "Spawning spot for ammo. If no type is specified, the ammo will be random."
+[
+    type(choices) : "sets the type of the ammo pack" =
+    [
+        "25" : "for spawning an ammo pack of 25"
+        "50" : "for spawning an ammo pack of 50"
+        "100" : "for spawning an ammo pack of 100"
+        "150" : "for spawning an ammo pack of 150"
+        "200" : "for spawning an ammo pack of 200"
+        "small" : "for randomly spawning an ammo pack of 25, 50 or 100"
+        "medium" : "for randomly spawning an ammo pack of 50, 100 or 150"
+        "large" : "for randomly spawning an ammo pack of 100, 150 or 200"
+    ]
+]
+
+@PointClass base(Group) color(200 0 0) size(-4 -4 12, 4 4 32) studio({{
+type == "12g" -> 	{"path":"models/items/co2/12g/tris.md2", "skin": 0},
+type == "7oz" -> 	{"path":"models/items/co2/7oz/tris.md2", "skin": 0},
+type == "12oz" -> 	{"path":"models/items/co2/12oz/tris.md2", "skin": 0},
+type == "20oz" -> 	{"path":"models/items/co2/20oz/tris.md2", "skin": 0},
+type == "small" -> 	{"path":"models/items/co2/12g/tris.md2", "skin": 0},
+type == "medium" -> {"path":"models/items/co2/7oz/tris.md2", "skin": 0},
+type == "large" -> 	{"path":"models/items/co2/12oz/tris.md2", "skin": 0},
+                        "models/items/co2/7oz/tris.md2"
+}}) = item_pballco2 : "Spawning spot for co2. If no type is specified, the co2 will be random."
+[
+    type(choices) : "sets the type of the co2 tank" =
+    [
+        "12g" : "for spawning a co2 tank of 12g"
+        "7oz" : "for spawning a co2 tank of 7oz"
+        "12oz" : "for spawning a co2 tank of 12oz"
+        "20oz" : "for spawning a co2 tank of 20oz"
+        "small" : "for randomly spawning a co2 tank of 12g or 7oz"
+        "medium" : "for randomly spawning a co2 tank of 7oz or 12oz"
+        "large" : "for randomly spawning a co2 tank of 12oz or 20oz"
+    ]
+]
+
+@PointClass base(Group) color(200 200 0) size(-12 -12 24, 12 12 40) studio({{
+type == "brass" -> 	{"path":"models/items/barrel/tris.md2", "skin": 2},
+type == "chrome" -> 	{"path":"models/items/barrel/tris.md2", "skin": 1},
+type == "steel" -> 	{"path":"models/items/barrel/tris.md2", "skin": 0},
+                            "models/items/barrel/tris.md2"
+}}) = item_pballbarrel : "Spawning spot for barrels. If no type is specified, the barrel will be random."
+[
+    type(choices) : "sets the type of the barrel" =
+    [
+        "brass" : "for a brass barrel"
+        "chrome" : "for a chrome barrel"
+        "steel" : "for a steel barrel"
+    ]
+]
+
+
+
+@PointClass base(AppearFlags, TeamNumber) color(0 255 255) size(-8 -16 -16, 8 16 48) studio({"path": "models/items/flag/tris.md2"}) = flag : ""
+[
+    count(integer) : "
+    0.2 - for a flag with one point
+    0.4 - for a flag with two points
+    0.6 - for a flag with three points
+    0.8 - for a flag with four points
+    1.0 - for a flag with five points
+    1.2 - for a flag with six points
+    1.4 - for a flag with seven points
+    1.6 - for a flag with eight points
+    1.8 - for a flag with nine points
+    2.0 - for a flag with ten points"
+]
+
+
+
+@SolidClass = func_group : "Used to group brushes together just for editor convenience." []
+
+@SolidClass = func_areaportal : "This is a non-visible object that divides the world into areas that are seperated when this portal is not activated.  Usually enclosed in the middle of a door.  This can help performance by not rendering areas that are behind closed doors.Must be targeted." []
+
+@PointClass base(AppearFlags) color(128 80 0) size(-8 -8 -8, 8 8 8) = path_corner : "Set the direction of func_trains etc. Target it to the next path corner."
+[
+    targetname(string) : "sets the target from the previous path_corner entity with the same target"
+    target(string) : "sets the target to the next path_corner entity with the same targetname"
+]
+
+@PointClass base(AppearFlags) color(0 128 0) size(-4 -4 -4, 4 4 4) = info_null : "Used as a positional target for spotlights, etc."
+[
+    targetname(string) : "sets the target from the light source with the same target"
+]
+
+@PointClass base(AppearFlags) color(0 128 0) size(-4 -4 -4, 4 4 4) = info_notnull : "Used as a positional target jump pads, etc."
+[
+    targetname(string) : "sets the target from the trigger_push with the same target"
+]
+
+@PointClass base(AppearFlags) color(0 255 0) size(-8 -8 -8, 8 8 8) = light : "Point light with no visible source.  Only applies lighting to the world."
+[
+    light(integer) : "sets the light power (300 default)."
+    style(integer) : "sets the light style (0 default)."
+    _color(color255) : "sets the light color (0 default). Example 255 255 255"
+    target(string) : "sets the target for spotlights to the info_null entity with the same targetname."
+    _cone(integer) : "sets the size of light for spotlights (10 default)"
+//Light Attenuation
+		_angfade(integer)	: "arghrad - Scales how quickly the light fades as the angle-of-incidence decreases (from perpendicular to parallel). Values less than 1 fade slower, so the angle has less affect. Values greater than 1 fade faster, so the angle has more pronounced affect. def = 1 - This AKA _angwait"
+		_bounce(integer)	:	"arghrad - 0 (no bounce) or 1 (bounce)	default: 1. A value of 0 allows this light entity to be completely excluded from the bounced light calculations."
+		_cap(integer)	:	"arghrad - Caps the lighting cast from this light to the specified brightness level. The lighting is calculated normally, then any brighter points are capped off."
+		_distance(integer)	:	"arghrad - Sets the maximum distance that light shines from this entity. Behavior varies depending on the light`s _falloff setting:
+
+-Linear falloff - Smoothly fades out from the light to the specified distance. This overrides the _fade setting.
+
+-Inverse & inverse-square falloff - Sets a cutoff distance where the light abruptly stops shining."
+		_fade(integer)	:	"arghrad - Scales how quickly the light fades over distance. Values less than 1 fade slower, increasing the distance. Values greater than 1 fade faster, decreasing the distance. For example, a value of .5 fades half as fast, shining twice as far. PLEASE Note: This setting only works on lights with linear falloff."
+		_falloff(string)	:	"arghrad - Sets the falloff formula for this light entity. A value of 0 sets linear falloff, the default. A value of 2 sets inverse-square falloff, like surface lights.
+
+A value of 1 sets inverse falloff: lighting = brightness / distance. At 2 units away the light would be 1/2 as bright, at 3 units it's 1/3, etc. This can work very well for visible-sourced point-lights (mine-lights, torches, etc). It's more realistic than linear falloff, but not as `severe` as inverse-square.
+
+Note: Inverse and inverse-square falloff require much higher brightness values than linear."
+]
+
+@SolidClass base(AppearFlags) color(0 128 200) = func_wall : "This is just a solid wall if not inhibited."
+[
+	spawnflags(Flags) =
+	[
+		1 : "trigger_spawn" : 0 : "the wall will not be present until triggered, it will then blink in to existance; it will kill anything that was in it's way."
+		2 : "toggle" : 0 : "only valid for TRIGGER_SPAWN walls, this allows the wall to be turned on and off."
+		4 : "start_on" : 0 : "only valid for TRIGGER_SPAWN walls, the wall will initially be present."
+		8 : "animated" : 0
+		16 : "animated_fast" : 0
+	]
+]
+
+@SolidClass base(AppearFlags) = func_object : "This is solid bmodel that will fall if it's support is removed."
+[
+	spawnflags(Flags) =
+	[
+		1 : "trigger_spawn" : 0 : "the wall will not be present until triggered, it will then blink in to existance; it will kill anything that was in it's way."
+		2 : "animated" : 0
+		4 : "animated_fast" : 0
+	]
+]
+
+@SolidClass base(AppearFlags) color(0 0 255) = target_character : "Used with target_string (must be on same 'team')"
+[
+    count(integer) : "sets the position in the string (starts at 1)"
+]
+
+@PointClass base(AppearFlags) color(0 0 255) size(-8 -8 -8, 8 8 8) = target_string : "" []
+
+@PointClass base(AppearFlags) color(0 0 255) size(-8 -8 -8, 8 8 8) = func_clock : "Target a target_string with this. The default is to be a time of day clock.TIMER_UP and TIMER_DOWN run for 'count' '#' seconds and the fire 'pathtarget' '<targetto>'If START_OFF, this entity must be used before it starts."
+[
+	spawnflags(Flags) =
+	[
+		1 : "timer_up" : 0 : "run for 'count' '#' seconds and the fire 'pathtarget' '<targetto>' - <targetto> can be your own value."
+		2 : "timer_down" : 0 : "run for 'count' '#' seconds and the fire 'pathtarget' '<targetto>' - <targetto> can be your own value."
+		4 : "start_off" : 0 : "If START_OFF, this entity must be used before it starts."
+		8 : "multi_use" : 0
+	]
+    style(choices) : "clock style" =
+    [
+        0 : "for a style like xx"
+        1 : "for a style like xx:xx"
+        2 : "for a style like xx:xx:xx"
+    ]
+    pathtarget(string) : "see timer_up and timer_down spawnflags."
+]
+
+@PointClass base(AppearFlags) color(255 0 0) size(-32 -32 -24, 32 32 -16) = misc_teleporter : "Touching this will teleport players to the targeted misc_teleporter_dest object."
+[
+    target(string) : "sets the target to the misc_teleporter_dest entity with the same targetname"
+]
+
+@PointClass base(AppearFlags, Angle) color(255 0 0) size(-32 -32 -24, 32 32 -16) = misc_teleporter_dest : "Players who touched the 'misc_teleporter' will appear here."
+[
+    targetname(string) : "sets the target from the misc_teleporter entity with the same target"
+]
+
+@PointClass base(AppearFlags) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_temp_entity : "Fire an origin based temp entity event to the clients."
+[
+    targetname(string) : "sets the target from a func_button, func_timer, etc. with the same target."
+    style(integer) : "5 - for a yellow explosion\r21 - for a blue explosion\r45 - for a smoke puff\r48 - for a cyllindrical explosion\r51 - for a large and fast spherical explosion\r52 - for a slow and smaller spherical explosion\rOther values may also work, but can also crash the game, so be careful what you use."
+]
+
+@PointClass base(AppearFlags) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_speaker : "Normal sounds play each time the target is used."
+[
+    targetname(string) : "sets the target from a func_button, func_timer, etc. with the same target"
+    noise(string) : "sets the .wav file to play - <soundpath> is the path to your file. Example: 'noise' 'world/cricket.wav'"
+    volume(float) : "sets the volume power - # options can be 0.0 to 1.0."
+    attenuation(choices) : "volume falloffLooped sounds are allways atten 3 / vol 1, and the use function toggles it on/off.The reliable flag can be set for very important sounds like crucial voiceovers." =
+    [
+        -1 : "for no falloff, send to whole level"
+        1 : "for normal fighting sounds"
+        2 : "for idle sound level"
+        3 : "for ambient sound level (very rapid falloff)"
+    ]
+]
+
+@PointClass base(AppearFlags) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_changelevel : "Changes level when fired."
+[
+    map(string) : "sets the level to change to."
+]
+
+@PointClass base(AppearFlags) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_splash : "Creates a particle splash effect when used."
+[
+    dmg(integer) : "sets a radius damage to inflict at this location when it splashes (useful for lava/sparks)"
+    count(integer) : "sets how many pixels are in the splash."
+    sounds(choices) : "sets a style (not a sound)" =
+    [
+        1 : "for sparks"
+        2 : "for blue water"
+        3 : "for brown water"
+        4 : "for slime"
+        5 : "for lava"
+        6 : "for blood"
+    ]
+]
+
+@PointClass base(AppearFlags) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_spawner : "Set target to the type of entity you want spawned.Useful for spawning monsters and gibs in the factory levels.For monsters:Set direction to the facing you want it to have.For gibs:Set direction if you want it moving and speed how fast it should be moving otherwise it will just be dropped." []
+
+@PointClass base(AppearFlags) color(0 128 200) size(-8 -8 -8, 8 8 8) = target_laser : "When triggered, fires a laser. You can either set a target or a direction."
+[
+	spawnflags(Flags) =
+	[
+		1 : "start_on" : 0
+		2 : "red" : 0
+		4 : "green" : 0
+		8 : "blue" : 0
+		16 : "yellow" : 0
+		32 : "orange" : 0
+		64 : "fat" : 0
+	]
+]
+
+@PointClass base(AppearFlags) color(0 128 200) size(-8 -8 -8, 8 8 8) = target_lightramp : "Makes a light fade in or fade out."
+[
+	spawnflags(Flags) =
+	[
+		1 : "toggle" : 0
+    ]
+    targetname(string) : "sets the target from a func_button, func_timer, etc. with the same target."
+    target(string) : "sets the target to the light source with the same targetname."
+    speed(integer) : "sets how many seconds the ramping will take."
+    message(choices) : "sets the starting lightlevel and the ending lightlevel in two letters" =
+    [
+        "az" : "for a light that fades in from dark to light"
+        "za" : "for a light that fades in from light to dark"
+    ]
+]
+
+@SolidClass base(AppearFlags) = trigger_once : "Triggers once, then removes itself. Target it with any entity."
+[
+	spawnflags(Flags) =
+	[
+		1 : "triggered" : 0 : "sets that this trigger must be triggered before it is live."
+    ]
+    target(string) : "sets the target to any other entities with the same targetname."
+    message(string) : "sets a string to be displayed when triggered."
+    delay(integer) : "sets a delay before first firing when turned on (0 default)."
+    sounds(choices) : "sets a sound to be played when triggered" =
+    [
+        1 : "secret"
+        2 : "beep beep"
+        3 : "large switch"
+    ]
+]
+
+@PointClass base(AppearFlags) color(128 128 128) size(-8 -8 -8, 8 8 8) = trigger_relay : "This fixed size trigger cannot be touched, it can only be fired by other events." []
+
+@SolidClass base(AppearFlags) = trigger_counter : "Acts as an intermediary for an action that takes multiple inputs.If nomessage is not set, it will print '1 more.. ' etc when triggered and 'sequence complete' when finished.After the counter has been triggered 'count' '#' times (default 2), it will fire all of it's targets and remove itself."
+[
+	spawnflags(Flags) =
+	[
+		1 : "nomessage" : 0 : "If nomessage is not set, it will print '1 more.. ' etc when triggered and 'sequence complete' when finished. After the counter has been triggered 'count' '#' times (default 2), it will fire all of it's targets and remove itself."
+    ]
+]
+
+@PointClass base(AppearFlags) color(128 128 128) size(-8 -8 -8, 8 8 8) = trigger_always : "This trigger will always fire.  It is activated by the world."
+[
+    target(string) : "sets the target to any other entities with the same targetname"
+]
+
+@SolidClass base(AppearFlags) = trigger_push : "Pushes players and grenades so they will hit the targeted info_notnull."
+[
+	spawnflags(Flags) =
+	[
+		1 : "push_once" : 0 : "affects all entities (paint, guns, etc)."
+		2 : "push_all" : 0 : "causes the trigger_push to be removed after the first touch."
+    ]
+    target(string) : "sets the target to the info_notnull entity with the same targetname"
+]
+
+@SolidClass base(AppearFlags) = trigger_hurt : "Any entity that touches this will be hurt."
+[
+	spawnflags(Flags) =
+	[
+		1 : "start_off" : 0 : "when the trigger_hurt must be triggered by a func_button, func_timer, etc."
+		2 : "toggle" : 0 : "toggles this trigger between enabled and disabled states."
+		4 : "silent" : 0 : "supresses playing the sound."
+		8 : "no_protection" : 0 : "makes that nothing can stop the damage."
+		16 : "slow" : 0 : "changes the damage rate to once per second."
+    ]
+    message(string) : "sets a string to be displayed when touched"
+    dmg(integer) : "sets a damage to inflict when touches (5 default)"
+]
+
+@SolidClass base(AppearFlags) = trigger_gravity : "Changes the touching entities gravity. Unfortunately, this does not work for players."
+[
+    gravity(integer) : "sets the gravity value (1 default)."
+]
+
+@SolidClass base(AppearFlags) = func_getoutofjail : "Turns an eleminated player into a living player when touched."
+[
+    noise(string) : "sets the .wav file to play"
+]
+
+@PointClass base(AppearFlags, Angle) color(255 0 0) size(-16 -16 -24, 16 16 40) = info_player_start : "Starting point for single player, which isn't really applicable here. Players will spawn here if there are no info_player_deathmatches." []
+
+
+@PointClass base(AppearFlags) color(255 0 255) size(-16 -16 -24, 16 16 40) = info_player_intermission : "This is where the camera will be placed at the end of the match when the scoreboard is shown."
+[
+    angles(string) : "# # # sets the direction (pitch-yaw-roll)"
+]
+
+@BaseClass base(AppearFlags) = Door
+[
+	spawnflags(Flags) =
+	[
+        1 : "start_open" : 0 : "the door to moves to its destination when spawned and operate in reverse. It is used to temporarily or permanently close off an area when triggered (not useful for touch or takedamage doors)."
+        2 : "x" : 0 : ""
+        4 : "crusher" : 0 : "door will not move back if blocked."
+        8 : "nomonster" : 0 : ""
+        16 : "animated" : 0 : ""
+        32 : "toggle" : 0 : "wait in both the start and end states for a trigger event."
+        64 : "animated_fast" : 0 : ""
+	]
+    targetname(string) : "sets the target from a func_button, func_timer, etc. with the same target."
+    target(string) : "sets the target to a func_areaportal or target_speaker with the same targetname."
+    message(string) : "sets a string to be displayed when triggered"
+    team(string) : "<teamtext> sets that all doors with the same team value will open if any door of them gets activated."
+    health(integer) : "1 sets that the door must be shoot open instead of touching it."
+    angle(string) : "sets the opening direction of the door (0 default; -1 = upwards; -2 = downwards)."
+    speed(integer) : "sets the movement speed (100 default)."
+    wait(integer) : "sets the seconds before returning (3 default, -1 = never return)."
+    lip(integer) : "sets the lip remaining at end of move (8 default)."
+    dmg(integer) : "sets a damage to inflict when blocked (2 default)."
+    _minlight(float) : "sets that the door glows - # options can be 0.0 to 1.0."
+    sounds(choices) : "sound type" =
+    [
+        1 : "for a silent sound"
+        2 : "for a light sound"
+        3 : "for a medium sound"
+        4 : "for a heavy sound"
+    ]
+]
+
+@SolidClass base(AppearFlags, Door) = func_door : "Used for a simple door."
+[
+]
+
+@SolidClass base(AppearFlags, Door) = func_door_rotating : "Used for a simple door."
+[
+	spawnflags(Flags) =
+	[
+	    2 : "reverse" : 0 : "will cause the door to rotate in the opposite direction."
+	    64 : "x_axis" : 0 : "rotate on the x axis."
+	    128 : "y_axis" : 0 : "rotate on the y axis."
+	]
+    distance(integer) : "sets the degrees the door will be rotated."
+]
+
+@SolidClass base(AppearFlags) = func_plat : "Plats are always drawn in the extended position, so they will light correctly.If the plat is the target of another trigger or button, it will start out disabled inthe extended position until it is trigger, when it will lower and become a normal plat."
+[
+	spawnflags(Flags) =
+	[
+	    1 : "plat_low_trigger" : 0 : ""
+    ]
+    height(integer) : "sets the height the platform will move up (positive value) or moves down (negative value)."
+    speed(integer) : "sets movement speed (150 default)."
+    accel(integer) : "sets the acceleration when the plat starts to move."
+    decel(integer) : "sets the deceleration when the plat ends to move."
+    dmg(integer) : "sets a damage to inflict when blocked (2 default)."
+    _minlight(float) : "sets that the plat glows - # options can be 0.0 to 1.0."
+    sounds(choices) : "sound type" =
+    [
+        1 : "for a base fast sound"
+        2 : "for a chain slow sound"
+    ]
+]
+
+@SolidClass base(AppearFlags) = func_rotating : "You need to have an origin brush as part of this entity. The center of that brush will be the point around which it is rotated. It will rotate around the Z axis by default."
+[
+	spawnflags(Flags) =
+	[
+        1 : "start_on" : 0 : "will activate the rotation by the world."
+        2 : "reverse" : 0 : "will cause the entity to rotate in the opposite direction."
+        4 : "x_axis" : 0 : "rotate on the x axis."
+        8 : "y_axis" : 0 : "rotate on the y axis."
+        16 : "touch_pain" : 0 : ""
+        32 : "stop" : 0 : "stop moving instead of pushing entities."
+        64 : "animated" : 0 : ""
+        128 : "animated_fast" : 0 : ""
+	]
+    speed(integer) : "sets movement speed (100 default)."
+    dmg(integer) : "sets a damage to inflict when blocked (2 default)."
+    _minlight(float) : "sets that the rotating brush glows - # options can be 0.0 to 1.0."
+]
+
+@SolidClass base(AppearFlags) = func_water : "Func_water is a moveable water brush. It must be targeted to operate. Use a non-water texture at your own risk."
+[
+	spawnflags(Flags) =
+	[
+        1 : "start_open" : 0 : "causes the water to move to its destination when spawned and operate in reverse."
+    ]
+    speed(integer) : "sets the movement speed (25 default)."
+    wait(integer) : "sets the seconds before returning (-1 default, -1 = TOGGLE)."
+    lip(integer) : "sets the lip remaining at end of move (0 default)."
+    angle(string) : "sets the opening direction of the water (0 default; -1 = upwards; -2 = downwards)."
+    sounds(choices) : "sound type" =
+    [
+        0 : "no sound"
+        1 : "for a water sound"
+        2 : "for a lava sound"
+    ]
+]
+
+@SolidClass base(AppearFlags) = func_train : "Trains are moving platforms that players can ride (if toggle is set).The targets origin specifies the min point of the train at each corner (path_corner).The train spawns at the first target it is pointing at.If the train is the target of a button or trigger, it will not begin moving until activated."
+[
+	spawnflags(Flags) =
+	[
+        1 : "start_on" : 0 : "will activate the rotation by the world."
+        2 : "toggle" : 0 : "will move the standing people with the train."
+        4 : "block_stops" : 0 : "will stop the train while blocking (only if no dmg is set)."
+    ]
+    target(string) : "sets the target to a path corner with the same targetname."
+    targetname(string) : "sets the target from a func_button, func_timer, etc. with the same target."
+    speed(integer) : "sets movement speed (100 default)."
+    dmg(integer) : "sets a damage to inflict when blocked (2 default)."
+    _minlight(float) : "sets that the platform glows - # options can be 0.0 to 1.0."
+]
+
+@PointClass base(AppearFlags) color(80 25 160) size(-8 -8 -8, 8 8 8) = trigger_elevator : "Entity to make a func_train behave like an elevator. Place path_corner's at each floor and set the func_button at that floor to target the trigger_elevator and pathtarget the path_corner."
+[
+    target(string) : "sets the target to the func_train elevator with the same targetname."
+    targetname(string) : "sets the target from a func_button, func_timer, etc. with the same target."
+]
+
+@PointClass base(AppearFlags) color(80 25 160) size(-8 -8 -8, 8 8 8) = func_timer : "Timer for trigger lots of stuff. Target it with any entity."
+[
+	spawnflags(Flags) =
+	[
+        1 : "start_on" : 0 : "will activate the timer by the world."
+    ]
+    target(string) : "sets the target to any other entities with the same targetname."
+    wait(integer) : "sets the base time between triggering all targets (1 default)."
+    random(integer) : "sets the wait variance, so the basic time between firing is a random time (0 default)."
+    delay(integer) : "sets a delay before first firing when turned on (0 default)."
+    pausetime(integer) : "sets an additional delay used only the very first time and only if spawned with START_ON."
+]
+
+@SolidClass base(AppearFlags) = func_conveyor : "Conveyors are stationary brushes that move what's on them.The brush should be have a surface with at least one current content enabled."
+[
+	spawnflags(Flags) =
+	[
+        1 : "start_on" : 0 : ""
+        2 : "toggle" : 0 : ""
+    ]
+    speed(integer) : "sets the movement speed (100 default)."
+]
+
+// TODO - should this have sounds/lip/etc from base(Door)?
+@SolidClass base(AppearFlags) = func_door_secret : "A secret door. Slide back and then to the side."
+[
+	spawnflags(Flags) =
+	[
+        1 : "always_shoot" : 0 : "the door is shootable even if targeted."
+        2 : "1st_left" : 0 : "the 1st move is left of arrow."
+        4 : "1st_down" : 0 : "the 1st move is down from arrow."
+    ]
+    targetname(string) : "sets the target from a func_button, func_timer, etc. with the same target."
+    target(string) : "sets the target to a func_areaportal or target_speaker with the same targetname."
+    message(string) : "sets a string to be displayed when triggered - <messagetext> can be your own value."
+    health(integer) : "1 sets that the door must be shoot open instead of touching it."
+    angle(string) : "sets the opening direction of the door (0 default; -1 = upwards; -2 = downwards)."
+    speed(integer) : "sets the movement speed (100 default)."
+    wait(integer) : "sets the seconds before returning (5 default, -1 = never return)."
+    dmg(integer) : "sets a damage to inflict when blocked (2 default)."
+    _minlight(float) : "sets that the door glows - # options can be 0.0 to 1.0."
+]
+
+@SolidClass base(AppearFlags) = func_button : "When a button is touched, it moves some distance in the direction of it's angle, triggers all of it's targets, waits some time, then returns to it's original position where it can be triggered again."
+[
+    target(string) : "sets the target to any other entities with the same targetname."
+    health(integer) : "sets that the button must be killed instead of touched."
+    angle(string) : "sets the moving direction."
+    speed(integer) : "sets the movement speed (40 default)."
+    wait(integer) : "sets the seconds before returning (1 default, -1 = never return)."
+    lip(integer) : "sets the lip remaining at end of move (4 default)."
+    delay(integer) : "sets a delay before first firing when turned on (0 default)."
+    _minlight(float) : "sets that the door glows - # options can be 0.0 to 1.0."
+    sounds(choices) : "sound type" =
+    [
+        1 : "for a silent sound"
+        2 : "for a steam metal sound"
+        3 : "for a wooden clunk sound"
+        4 : "for a metallic click sound"
+        5 : "for an in-out sound"
+    ]
+]
