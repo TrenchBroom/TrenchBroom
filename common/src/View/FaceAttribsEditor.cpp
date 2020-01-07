@@ -158,7 +158,7 @@ namespace TrenchBroom {
             }
 
             Model::ChangeBrushFaceAttributesRequest request;
-            if (setFlag & 1 << index) {
+            if (setFlag & (1 << index)) {
                 request.setSurfaceFlag(index);
             } else {
                 request.unsetSurfaceFlag(index);
@@ -175,7 +175,7 @@ namespace TrenchBroom {
             }
 
             Model::ChangeBrushFaceAttributesRequest request;
-            if (setFlag & 1 << index) {
+            if (setFlag & (1 << index)) {
                 request.setContentFlag(index);
             } else {
                 request.unsetContentFlag(index);
