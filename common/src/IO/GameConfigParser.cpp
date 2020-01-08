@@ -143,7 +143,7 @@ namespace TrenchBroom {
             expectStructure(value,
                             "["
                             "{'package': 'Map', 'format': 'Map'},"
-                            "{'attribute': 'String', 'palette': 'String', 'shaderSearchPath': 'String'}"
+                            "{'attribute': 'String', 'palette': 'String', 'shaderSearchPath': 'String', 'excludes': 'Array'}"
                             "]");
 
             const Model::TexturePackageConfig packageConfig = parseTexturePackageConfig(value["package"]);
@@ -151,8 +151,9 @@ namespace TrenchBroom {
             const Path palette(value["palette"].stringValue());
             const std::string& attribute = value["attribute"].stringValue();
             const Path shaderSearchPath(value["shaderSearchPath"].stringValue());
+            const std::vector<std::string> excludes = std::vector<std::string>(value["excludes"].asStringList());
 
-            return Model::TextureConfig(packageConfig, formatConfig, palette, attribute, shaderSearchPath);
+            return Model::TextureConfig(packageConfig, formatConfig, palette, attribute, shaderSearchPath, excludes);
         }
 
         Model::TexturePackageConfig GameConfigParser::parseTexturePackageConfig(const EL::Value& value) const {

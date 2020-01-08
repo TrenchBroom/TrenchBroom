@@ -131,7 +131,8 @@ namespace TrenchBroom {
                     Model::PackageFormatConfig("D", "idmip"),
                     IO::Path("data/palette.lmp"),
                     "wad",
-                    IO::Path());
+                    IO::Path(),
+                    {});
 
             IO::TextureLoader textureLoader(fileSystem, fileSearchPaths, textureConfig, logger);
             textureLoader.loadTextures(paths, textureManager);

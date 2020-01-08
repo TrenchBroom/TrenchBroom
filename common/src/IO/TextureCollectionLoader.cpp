@@ -22,6 +22,7 @@
 #include "Logger.h"
 #include "Assets/TextureCollection.h"
 #include "IO/DiskIO.h"
+#include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
 #include "IO/TextureReader.h"
@@ -32,15 +33,20 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TextureCollectionLoader::TextureCollectionLoader(Logger& logger) :
-        m_logger(logger) {}
+        TextureCollectionLoader::TextureCollectionLoader(Logger& logger, const std::vector<std::string>& exclusions) :
+        m_logger(logger),
+        m_textureExclusions(exclusions) {}
 
         TextureCollectionLoader::~TextureCollectionLoader() = default;
 
         std::unique_ptr<Assets::TextureCollection> TextureCollectionLoader::loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader) {
             auto collection = std::make_unique<Assets::TextureCollection>(path);
 
-            for (auto file : doFindTextures(path, textureExtensions)) {
+            for (const auto& file : doFindTextures(path, textureExtensions)) {
+                const auto name = file->path().lastComponent().deleteExtension().asString();
+                if (shouldExclude(name)) {
+                    continue;
+                }
                 auto* texture = textureReader.readTexture(file);
                 collection->addTexture(texture);
             }
@@ -48,8 +54,17 @@ namespace TrenchBroom {
             return collection;
         }
 
-        FileTextureCollectionLoader::FileTextureCollectionLoader(Logger& logger, const std::vector<IO::Path>& searchPaths) :
-        TextureCollectionLoader(logger),
+        bool TextureCollectionLoader::shouldExclude(const std::string& textureName) {
+            for (const auto& pattern : m_textureExclusions) {
+                if (kdl::ci::str_matches_glob(textureName, pattern)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        FileTextureCollectionLoader::FileTextureCollectionLoader(Logger& logger, const std::vector<IO::Path>& searchPaths, const std::vector<std::string>& exclusions) :
+        TextureCollectionLoader(logger, exclusions),
         m_searchPaths(searchPaths) {}
 
         TextureCollectionLoader::FileList FileTextureCollectionLoader::doFindTextures(const Path& path, const std::vector<std::string>& extensions) {
@@ -71,8 +86,8 @@ namespace TrenchBroom {
             return result;
         }
 
-        DirectoryTextureCollectionLoader::DirectoryTextureCollectionLoader(Logger& logger, const FileSystem& gameFS) :
-        TextureCollectionLoader(logger),
+        DirectoryTextureCollectionLoader::DirectoryTextureCollectionLoader(Logger& logger, const FileSystem& gameFS, const std::vector<std::string>& exclusions) :
+        TextureCollectionLoader(logger, exclusions),
         m_gameFS(gameFS) {}
 
         TextureCollectionLoader::FileList DirectoryTextureCollectionLoader::doFindTextures(const Path& path, const std::vector<std::string>& extensions) {
