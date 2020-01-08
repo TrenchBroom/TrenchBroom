@@ -127,7 +127,7 @@ namespace TrenchBroom {
             bool m_ignoreNotifications;
             bool m_dragging;
         public:
-            ClipTool(std::weak_ptr<MapDocument> document);
+            explicit ClipTool(std::weak_ptr<MapDocument> document);
             ~ClipTool() override;
 
             const Grid& grid() const;

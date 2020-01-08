@@ -685,7 +685,7 @@ namespace TrenchBroom {
         private:
             const BrushFace& m_face;
         public:
-            MatchFace(const BrushFace& face) :
+            explicit MatchFace(const BrushFace& face) :
                     m_face(face) {}
 
             bool operator()(const BrushFace* candidate) const {

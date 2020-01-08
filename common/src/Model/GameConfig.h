@@ -121,7 +121,7 @@ namespace TrenchBroom {
             std::vector<FlagConfig> flags;
 
             FlagsConfig();
-            FlagsConfig(const std::vector<FlagConfig>& i_flags);
+            explicit FlagsConfig(const std::vector<FlagConfig>& i_flags);
 
             int flagValue(const std::string& flagName) const;
             std::string flagName(size_t index) const;

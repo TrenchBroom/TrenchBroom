@@ -44,7 +44,7 @@ namespace TrenchBroom {
         public:
             static std::unique_ptr<RenameGroupsCommand> rename(const std::string& newName);
 
-            RenameGroupsCommand(const std::string& newName);
+            explicit RenameGroupsCommand(const std::string& newName);
         private:
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
             std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;

@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class MapInspector : public TabBookPage {
             Q_OBJECT
         public:
-            MapInspector(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            explicit MapInspector(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
             void createGui(std::weak_ptr<MapDocument> document);
             QWidget* createLayerEditor(QWidget* parent, std::weak_ptr<MapDocument> document);

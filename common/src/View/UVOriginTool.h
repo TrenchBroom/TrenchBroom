@@ -55,7 +55,7 @@ namespace TrenchBroom {
             vm::vec2f m_lastPoint;
             vm::vec2f m_selector;
         public:
-            UVOriginTool(UVViewHelper& helper);
+            explicit UVOriginTool(UVViewHelper& helper);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;

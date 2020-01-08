@@ -38,7 +38,7 @@ namespace TrenchBroom {
             private:
                 P m_p;
             public:
-                Not(const P& p) :
+                explicit Not(const P& p) :
                 m_p(p) {}
 
                 bool operator()(const BrushFace* face) const { return !m_p(face);  }

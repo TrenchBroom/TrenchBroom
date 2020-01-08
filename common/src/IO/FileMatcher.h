@@ -32,7 +32,7 @@ namespace TrenchBroom {
             bool m_files;
             bool m_directories;
         public:
-            FileTypeMatcher(bool files = true, bool directories = true);
+            explicit FileTypeMatcher(bool files = true, bool directories = true);
             bool operator()(const Path& path, bool directory) const;
         };
 
@@ -40,8 +40,8 @@ namespace TrenchBroom {
         private:
             std::vector<std::string> m_extensions;
         public:
-            FileExtensionMatcher(const std::string& extension);
-            FileExtensionMatcher(const std::vector<std::string>& extensions);
+            explicit FileExtensionMatcher(const std::string& extension);
+            explicit FileExtensionMatcher(const std::vector<std::string>& extensions);
             bool operator()(const Path& path, bool directory) const;
         };
 
@@ -58,7 +58,7 @@ namespace TrenchBroom {
         private:
             std::string m_pattern;
         public:
-            FileNameMatcher(const std::string& pattern);
+            explicit FileNameMatcher(const std::string& pattern);
             bool operator()(const Path& path, bool directory) const;
         };
 

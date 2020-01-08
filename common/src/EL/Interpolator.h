@@ -29,7 +29,7 @@ namespace TrenchBroom {
     namespace EL {
         class Interpolator : private IO::ELParser {
         public:
-            Interpolator(const std::string& str);
+            explicit Interpolator(const std::string& str);
 
             std::string interpolate(const EvaluationContext& context);
         };

@@ -28,7 +28,7 @@ namespace TrenchBroom {
 
         class HlMipTextureReader : public MipTextureReader {
         public:
-            HlMipTextureReader(const NameStrategy& nameStrategy);
+            explicit HlMipTextureReader(const NameStrategy& nameStrategy);
         protected:
             Assets::Palette doGetPalette(Reader& reader, const size_t offset[], size_t width, size_t height) const override;
         };

@@ -60,14 +60,14 @@ namespace TrenchBroom {
                 MoveInfo() :
                 move(false) {}
 
-                MoveInfo(const vm::vec3& i_initialPoint) :
+                explicit MoveInfo(const vm::vec3& i_initialPoint) :
                 move(true),
                 initialPoint(i_initialPoint) {}
             };
         protected:
             const Grid& m_grid;
         public:
-            MoveToolController(const Grid& grid) : m_grid(grid) {}
+            explicit MoveToolController(const Grid& grid) : m_grid(grid) {}
             virtual ~MoveToolController() override {}
         protected:
             virtual void doModifierKeyChange(const InputState& inputState) override {

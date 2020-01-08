@@ -45,7 +45,7 @@ namespace TrenchBroom {
             vm::bbox3 m_bounds;
             SpikeGuideRenderer m_spikeRenderer;
         public:
-            BoundsGuideRenderer(std::weak_ptr<View::MapDocument> document);
+            explicit BoundsGuideRenderer(std::weak_ptr<View::MapDocument> document);
 
             void setColor(const Color& color);
             void setBounds(const vm::bbox3& bounds);

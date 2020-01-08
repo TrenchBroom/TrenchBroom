@@ -57,7 +57,7 @@ namespace TrenchBroom {
              */
             vm::vec3 m_origin;
         public:
-            UVViewHelper(Renderer::OrthographicCamera& camera);
+            explicit UVViewHelper(Renderer::OrthographicCamera& camera);
 
             bool valid() const;
             Model::BrushFace* face() const;

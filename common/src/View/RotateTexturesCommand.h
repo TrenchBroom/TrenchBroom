@@ -35,7 +35,7 @@ namespace TrenchBroom {
         public:
             static std::unique_ptr<RotateTexturesCommand> rotate(float angle);
 
-            RotateTexturesCommand(float angle);
+            explicit RotateTexturesCommand(float angle);
         private:
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
             std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;

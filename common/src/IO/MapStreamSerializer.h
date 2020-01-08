@@ -35,7 +35,7 @@ namespace TrenchBroom {
         public:
             static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, std::ostream& stream);
         protected:
-            MapStreamSerializer(std::ostream& stream);
+            explicit MapStreamSerializer(std::ostream& stream);
         public:
             virtual ~MapStreamSerializer() override;
         protected:

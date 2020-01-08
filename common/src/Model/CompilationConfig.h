@@ -36,7 +36,7 @@ namespace TrenchBroom {
             mutable Notifier<> profilesDidChange;
         public:
             CompilationConfig();
-            CompilationConfig(std::vector<std::unique_ptr<CompilationProfile>> profiles);
+            explicit CompilationConfig(std::vector<std::unique_ptr<CompilationProfile>> profiles);
             CompilationConfig(const CompilationConfig& other);
             ~CompilationConfig();
 

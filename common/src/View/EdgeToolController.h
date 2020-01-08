@@ -31,7 +31,7 @@ namespace TrenchBroom {
             class SelectEdgePart;
             class MoveEdgePart;
         public:
-            EdgeToolController(EdgeTool* tool);
+            explicit EdgeToolController(EdgeTool* tool);
         };
     }
 }

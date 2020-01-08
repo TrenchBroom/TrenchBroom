@@ -40,7 +40,7 @@ namespace TrenchBroom {
             static std::unique_ptr<CurrentGroupCommand> push(Model::Group* group);
             static std::unique_ptr<CurrentGroupCommand> pop();
 
-            CurrentGroupCommand(Model::Group* group);
+            explicit CurrentGroupCommand(Model::Group* group);
         private:
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
             std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;

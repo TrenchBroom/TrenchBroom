@@ -43,7 +43,7 @@ namespace TrenchBroom {
             AABB& m_tree;
             vm::bbox3 m_bounds;
         public:
-            TreeBuilder(AABB& tree) : m_tree(tree) {}
+            explicit TreeBuilder(AABB& tree) : m_tree(tree) {}
         private:
             void doVisit(World* /* world */) override {}
             void doVisit(Layer* /* layer */) override {}

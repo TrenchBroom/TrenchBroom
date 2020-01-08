@@ -36,7 +36,7 @@ namespace TrenchBroom {
         private:
             const vm::bbox3 m_bounds;
         public:
-            WorldBoundsIssueGenerator(const vm::bbox3& bounds);
+            explicit WorldBoundsIssueGenerator(const vm::bbox3& bounds);
         private:
             void doGenerate(Entity* brush, IssueList& issues) const override;
             void doGenerate(Brush* brush, IssueList& issues) const override;

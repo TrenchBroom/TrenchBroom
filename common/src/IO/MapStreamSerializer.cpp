@@ -32,7 +32,7 @@ namespace TrenchBroom {
     namespace IO {
         class QuakeStreamSerializer : public MapStreamSerializer {
         public:
-            QuakeStreamSerializer(std::ostream& stream) :
+            explicit QuakeStreamSerializer(std::ostream& stream) :
             MapStreamSerializer(stream) {}
         private:
             virtual void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {
@@ -71,7 +71,7 @@ namespace TrenchBroom {
 
         class Quake2StreamSerializer : public QuakeStreamSerializer {
         public:
-            Quake2StreamSerializer(std::ostream& stream) :
+            explicit Quake2StreamSerializer(std::ostream& stream) :
             QuakeStreamSerializer(stream) {}
         private:
             virtual void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {
@@ -94,7 +94,7 @@ namespace TrenchBroom {
 
         class DaikatanaStreamSerializer : public Quake2StreamSerializer {
         public:
-            DaikatanaStreamSerializer(std::ostream& stream) :
+            explicit DaikatanaStreamSerializer(std::ostream& stream) :
             Quake2StreamSerializer(stream) {}
         private:
             virtual void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {
@@ -123,7 +123,7 @@ namespace TrenchBroom {
 
         class ValveStreamSerializer : public QuakeStreamSerializer {
         public:
-            ValveStreamSerializer(std::ostream& stream) :
+            explicit ValveStreamSerializer(std::ostream& stream) :
             QuakeStreamSerializer(stream) {}
         private:
             void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {
@@ -161,7 +161,7 @@ namespace TrenchBroom {
 
         class Hexen2StreamSerializer : public QuakeStreamSerializer {
         public:
-            Hexen2StreamSerializer(std::ostream& stream) :
+            explicit Hexen2StreamSerializer(std::ostream& stream) :
             QuakeStreamSerializer(stream) {}
         private:
             virtual void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {

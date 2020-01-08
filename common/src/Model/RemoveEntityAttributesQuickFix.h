@@ -26,7 +26,7 @@ namespace TrenchBroom {
     namespace Model {
         class RemoveEntityAttributesQuickFix : public IssueQuickFix {
         public:
-            RemoveEntityAttributesQuickFix(IssueType issueType);
+            explicit RemoveEntityAttributesQuickFix(IssueType issueType);
         private:
             void doApply(MapFacade* facade, const Issue* issue) const override;
         };

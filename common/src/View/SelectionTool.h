@@ -58,7 +58,7 @@ namespace TrenchBroom {
         private:
             std::weak_ptr<MapDocument> m_document;
         public:
-            SelectionTool(std::weak_ptr<MapDocument> document);
+            explicit SelectionTool(std::weak_ptr<MapDocument> document);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;

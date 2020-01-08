@@ -44,7 +44,7 @@ namespace TrenchBroom {
     template <typename A1>
     class MockObserver1 {
     public:
-        MockObserver1(Notifier<A1>& notifier) {
+        explicit MockObserver1(Notifier<A1>& notifier) {
             notifier.addObserver(this, &MockObserver1<A1>::notify);
         }
 

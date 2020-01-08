@@ -147,7 +147,7 @@ namespace TrenchBroom {
 
         class EntitySortFilterProxyModel : public QSortFilterProxyModel {
         public:
-            EntitySortFilterProxyModel(QObject* parent = nullptr) : QSortFilterProxyModel(parent) {}
+            explicit EntitySortFilterProxyModel(QObject* parent = nullptr) : QSortFilterProxyModel(parent) {}
 
         protected:
             bool lessThan(const QModelIndex& left, const QModelIndex& right) const {

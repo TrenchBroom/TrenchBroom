@@ -158,7 +158,7 @@ namespace TrenchBroom {
             std::set<Model::Node*> m_selectNodes;
             std::set<Model::Node*> m_moveNodes;
         public:
-            CollectMoveableNodes(Model::World* world) : m_world(world) {}
+            explicit CollectMoveableNodes(Model::World* world) : m_world(world) {}
 
             const std::vector<Model::Node*> selectNodes() const {
                 return std::vector<Model::Node*>(std::begin(m_selectNodes), std::end(m_selectNodes));

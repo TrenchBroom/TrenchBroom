@@ -33,7 +33,7 @@ namespace TrenchBroom {
         private:
             Renderer::OrthographicCamera& m_camera;
         public:
-            UVCameraTool(Renderer::OrthographicCamera& camera);
+            explicit UVCameraTool(Renderer::OrthographicCamera& camera);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;

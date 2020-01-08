@@ -42,7 +42,7 @@ namespace TrenchBroom {
             std::weak_ptr<MapDocument> m_document;
             bool m_duplicateObjects;
         public:
-            MoveObjectsTool(std::weak_ptr<MapDocument> document);
+            explicit MoveObjectsTool(std::weak_ptr<MapDocument> document);
         public:
             const Grid& grid() const;
 

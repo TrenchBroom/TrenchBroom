@@ -31,7 +31,7 @@ namespace TrenchBroom {
 
         class FreeImageTextureReader : public TextureReader {
         public:
-            FreeImageTextureReader(const NameStrategy& nameStrategy);
+            explicit FreeImageTextureReader(const NameStrategy& nameStrategy);
         private:
             Assets::Texture* doReadTexture(std::shared_ptr<File> file) const override;
         };

@@ -402,7 +402,7 @@ namespace TrenchBroom {
             const std::string& m_newName;
             std::map<Model::Group*, std::string> m_oldNames;
         public:
-            RenameGroupsVisitor(const std::string& newName) : m_newName(newName) {}
+            explicit RenameGroupsVisitor(const std::string& newName) : m_newName(newName) {}
             const std::map<Model::Group*, std::string>& oldNames() const { return m_oldNames; }
         private:
             void doVisit(Model::World*) override  {}
@@ -419,7 +419,7 @@ namespace TrenchBroom {
         private:
             const std::map<Model::Group*, std::string>& m_newNames;
         public:
-            UndoRenameGroupsVisitor(const std::map<Model::Group*, std::string>& newNames) : m_newNames(newNames) {}
+            explicit UndoRenameGroupsVisitor(const std::map<Model::Group*, std::string>& newNames) : m_newNames(newNames) {}
         private:
             void doVisit(Model::World*) override  {}
             void doVisit(Model::Layer*) override  {}

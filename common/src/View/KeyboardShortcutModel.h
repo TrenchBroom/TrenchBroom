@@ -50,7 +50,7 @@ namespace TrenchBroom {
             std::vector<ActionInfo> m_actions;
             std::vector<int> m_conflicts;
         public:
-            KeyboardShortcutModel(MapDocument* document, QObject* parent = nullptr);
+            explicit KeyboardShortcutModel(MapDocument* document, QObject* parent = nullptr);
 
             void reset();
 

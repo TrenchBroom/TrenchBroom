@@ -31,7 +31,7 @@ namespace TrenchBroom {
 
         class CreateSimpleBrushTool : public CreateBrushToolBase {
         public:
-            CreateSimpleBrushTool(std::weak_ptr<MapDocument> document);
+            explicit CreateSimpleBrushTool(std::weak_ptr<MapDocument> document);
             void update(const vm::bbox3& bounds);
         };
     }

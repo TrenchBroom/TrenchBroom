@@ -36,7 +36,7 @@ namespace TrenchBroom {
             std::string FacePointFormat;
             std::string TextureInfoFormat;
         public:
-            QuakeFileSerializer(FILE* stream) :
+            explicit QuakeFileSerializer(FILE* stream) :
             MapFileSerializer(stream),
             FacePointFormat(getFacePointFormat()),
             TextureInfoFormat(" %s %.6g %.6g %.6g %.6g %.6g") {}
@@ -94,7 +94,7 @@ namespace TrenchBroom {
         private:
             std::string SurfaceAttributesFormat;
         public:
-            Quake2FileSerializer(FILE* stream) :
+            explicit Quake2FileSerializer(FILE* stream) :
             QuakeFileSerializer(stream),
             SurfaceAttributesFormat(" %d %d %.6g") {}
         private:
@@ -123,7 +123,7 @@ namespace TrenchBroom {
         private:
             std::string SurfaceColorFormat;
         public:
-            DaikatanaFileSerializer(FILE* stream) :
+            explicit DaikatanaFileSerializer(FILE* stream) :
             Quake2FileSerializer(stream),
             SurfaceColorFormat(" %d %d %d") {}
         private:
@@ -152,7 +152,7 @@ namespace TrenchBroom {
 
         class Hexen2FileSerializer : public QuakeFileSerializer {
         public:
-            Hexen2FileSerializer(FILE* stream):
+            explicit Hexen2FileSerializer(FILE* stream):
             QuakeFileSerializer(stream) {}
         private:
             size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
@@ -167,7 +167,7 @@ namespace TrenchBroom {
         private:
             std::string ValveTextureInfoFormat;
         public:
-            ValveFileSerializer(FILE* stream) :
+            explicit ValveFileSerializer(FILE* stream) :
             QuakeFileSerializer(stream),
             ValveTextureInfoFormat(" %s [ %.6g %.6g %.6g %.6g ] [ %.6g %.6g %.6g %.6g ] %.6g %.6g %.6g") {}
         private:

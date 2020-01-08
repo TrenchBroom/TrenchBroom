@@ -45,7 +45,7 @@ namespace TrenchBroom {
             VertexList m_vertices;
             bool m_dynamicGrowth;
         public:
-            VertexListBuilder(const size_t capacity) :
+            explicit VertexListBuilder(const size_t capacity) :
             m_vertices(),
             m_dynamicGrowth(false) {
                 m_vertices.reserve(capacity);

@@ -87,10 +87,10 @@ namespace TrenchBroom {
             const std::string& IntegerDelim() const;
         public:
             ELTokenizer(const char* begin, const char* end);
-            ELTokenizer(const std::string& str);
+            explicit ELTokenizer(const std::string& str);
 
             template <typename OtherToken>
-            ELTokenizer(Tokenizer<OtherToken>& nestedTokenizer) :
+            explicit ELTokenizer(Tokenizer<OtherToken>& nestedTokenizer) :
             Tokenizer(nestedTokenizer) {}
         public:
             void appendUntil(const std::string& pattern, std::stringstream& str);
@@ -116,7 +116,7 @@ namespace TrenchBroom {
             static EL::Expression parseLenient(const std::string& str);
 
             template <typename OtherToken>
-            ELParser(Tokenizer<OtherToken>& nestedTokenizer) :
+            explicit ELParser(Tokenizer<OtherToken>& nestedTokenizer) :
                     m_mode(Mode::Lenient),
                     m_tokenizer(nestedTokenizer) {}
 
