@@ -33,7 +33,7 @@ namespace TrenchBroom {
             bool m_present;
         public:
             EntityAttributeSnapshot(const std::string& name, const std::string& value);
-            EntityAttributeSnapshot(const std::string& name);
+            explicit EntityAttributeSnapshot(const std::string& name);
 
             void restore(AttributableNode* node) const;
         };

@@ -201,14 +201,14 @@ namespace TrenchBroom {
                             "{'defaults': 'Map'}"
                             "]");
 
-            const Model::FlagsConfig surfaceFlags = parseFlagConfig(value["surfaceflags"]);
-            const Model::FlagsConfig contentFlags = parseFlagConfig(value["contentflags"]);
+            const Model::FlagsConfig surfaceFlags = parseFlagsConfig(value["surfaceflags"]);
+            const Model::FlagsConfig contentFlags = parseFlagsConfig(value["contentflags"]);
             const Model::BrushFaceAttributes defaults = parseFaceAttribsDefaults(value["defaults"], surfaceFlags, contentFlags);
 
             return Model::FaceAttribsConfig(surfaceFlags, contentFlags, defaults);
         }
 
-        std::vector<Model::FlagConfig> GameConfigParser::parseFlagConfig(const EL::Value& value) const {
+        Model::FlagsConfig GameConfigParser::parseFlagsConfig(const EL::Value& value) const {
             using Model::GameConfig;
 
             if (value.null()) {
@@ -227,7 +227,7 @@ namespace TrenchBroom {
                 flags.push_back(Model::FlagConfig(name, description));
             }
 
-            return flags;
+            return Model::FlagsConfig(flags);
         }
 
         Model::BrushFaceAttributes GameConfigParser::parseFaceAttribsDefaults(const EL::Value& value, const Model::FlagsConfig& surfaceFlags, const Model::FlagsConfig& contentFlags) const {
@@ -235,7 +235,7 @@ namespace TrenchBroom {
             if (value.null()) {
                 return defaults;
             }
-            
+
             expectStructure(value,
                             "["
                             "{},"

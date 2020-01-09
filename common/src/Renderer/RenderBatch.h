@@ -46,7 +46,7 @@ namespace TrenchBroom {
             RenderableList m_batch;
             RenderableList m_oneshots;
         public:
-            RenderBatch(VboManager& vboManager);
+            explicit RenderBatch(VboManager& vboManager);
             ~RenderBatch();
 
             void add(Renderable* renderable);

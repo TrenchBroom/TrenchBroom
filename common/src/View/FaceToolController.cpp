@@ -26,7 +26,7 @@ namespace TrenchBroom {
     namespace View {
         class FaceToolController::SelectFacePart : public SelectPartBase<vm::polygon3> {
         public:
-            SelectFacePart(FaceTool* tool) :
+            explicit SelectFacePart(FaceTool* tool) :
             SelectPartBase(tool, FaceHandleManager::HandleHit) {}
         private:
             bool equalHandles(const vm::polygon3& lhs, const vm::polygon3& rhs) const override {
@@ -36,7 +36,7 @@ namespace TrenchBroom {
 
         class FaceToolController::MoveFacePart : public MovePartBase {
         public:
-            MoveFacePart(FaceTool* tool) :
+            explicit MoveFacePart(FaceTool* tool) :
             MovePartBase(tool, FaceHandleManager::HandleHit) {}
         };
 

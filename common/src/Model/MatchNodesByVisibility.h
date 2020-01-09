@@ -34,7 +34,7 @@ namespace TrenchBroom {
         private:
             VisibilityState m_visibility;
         public:
-            MatchNodesByVisibility(VisibilityState visibility);
+            explicit MatchNodesByVisibility(VisibilityState visibility);
 
             bool operator()(const World* world) const;
             bool operator()(const Layer* layer) const;

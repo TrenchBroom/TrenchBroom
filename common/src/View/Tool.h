@@ -38,7 +38,7 @@ namespace TrenchBroom {
             Notifier<Tool*> toolDeactivatedNotifier;
             Notifier<Tool*> refreshViewsNotifier;
         protected:
-            Tool(bool initiallyActive);
+            explicit Tool(bool initiallyActive);
         public:
             virtual ~Tool();
 

@@ -47,7 +47,7 @@ namespace TrenchBroom {
             private:
                 P m_p;
             public:
-                Id(const P& p) :
+                explicit Id(const P& p) :
                 m_p(p) {}
 
                 bool operator()(const World* world) const   { return m_p(world);  }
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             private:
                 P m_p;
             public:
-                Not(const P& p) :
+                explicit Not(const P& p) :
                 m_p(p) {}
 
                 bool operator()(const World* world) const   { return !m_p(world);  }
@@ -130,7 +130,7 @@ namespace TrenchBroom {
             private:
                 const Node* m_node;
             public:
-                EqualsNode(const Node* node) :
+                explicit EqualsNode(const Node* node) :
                 m_node(node) {}
 
                 bool operator()(const World* world) const;
@@ -149,7 +149,7 @@ namespace TrenchBroom {
             private:
                 const Object* m_object;
             public:
-                EqualsObject(const Object* object) :
+                explicit EqualsObject(const Object* object) :
                 m_object(object) {}
 
                 bool operator()(const World* world) const;

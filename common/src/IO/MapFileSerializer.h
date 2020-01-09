@@ -45,7 +45,7 @@ namespace TrenchBroom {
         public:
             static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, FILE* stream);
         protected:
-            MapFileSerializer(FILE* file);
+            explicit MapFileSerializer(FILE* file);
         private:
             void doBeginFile() override;
             void doEndFile() override;

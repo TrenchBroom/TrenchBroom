@@ -43,7 +43,7 @@ namespace TrenchBroom {
             Model::Entity* m_entity;
             vm::bbox3 m_referenceBounds;
         public:
-            CreateEntityTool(std::weak_ptr<MapDocument> document);
+            explicit CreateEntityTool(std::weak_ptr<MapDocument> document);
 
             bool createEntity(const std::string& classname);
             void removeEntity();

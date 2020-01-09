@@ -33,9 +33,9 @@ namespace TrenchBroom {
     namespace EL {
         class Expression {
         private:
-            using ExpressionPtr = std::shared_ptr<ExpressionBase>;
-            ExpressionPtr m_expression;
+            std::shared_ptr<ExpressionBase> m_expression;
         public:
+            // intentionally allows implicit conversions
             Expression(ExpressionBase* expression);
 
             bool optimize();

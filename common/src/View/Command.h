@@ -33,7 +33,7 @@ namespace TrenchBroom {
         private:
             bool m_success;
         public:
-            CommandResult(bool success);
+            explicit CommandResult(bool success);
             virtual ~CommandResult();
 
             bool success() const;

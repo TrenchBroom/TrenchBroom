@@ -681,7 +681,7 @@ namespace TrenchBroom {
         private:
             const Vertex* m_vertex;
         public:
-            SplitByConnectivityCriterion(const Vertex* vertex) :
+            explicit SplitByConnectivityCriterion(const Vertex* vertex) :
                 m_vertex(vertex) {}
         private:
             bool doMatches(const Face* face) const override {
@@ -694,7 +694,7 @@ namespace TrenchBroom {
         private:
             vm::vec<T,3> m_point;
         public:
-            SplitByVisibilityCriterion(const vm::vec<T,3>& point) :
+            explicit SplitByVisibilityCriterion(const vm::vec<T,3>& point) :
                 m_point(point) {}
         private:
             bool doMatches(const Face* face) const override {

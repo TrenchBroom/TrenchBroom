@@ -938,7 +938,7 @@ namespace TrenchBroom {
         private:
             const Model::World* m_world;
         public:
-            MatchGroupableNodes(const Model::World* world) : m_world(world) {}
+            explicit MatchGroupableNodes(const Model::World* world) : m_world(world) {}
         public:
             bool operator()(const Model::World*) const  { return false; }
             bool operator()(const Model::Layer*) const  { return false; }
@@ -950,7 +950,7 @@ namespace TrenchBroom {
         std::vector<Model::Node*> MapDocument::collectGroupableNodes(const std::vector<Model::Node*>& selectedNodes) const {
             using CollectGroupableNodesVisitor = Model::CollectMatchingNodesVisitor<MatchGroupableNodes, Model::UniqueNodeCollectionStrategy, Model::StopRecursionIfMatched>;
 
-            CollectGroupableNodesVisitor collect(world());
+            CollectGroupableNodesVisitor collect((MatchGroupableNodes(world())));
             Model::Node::acceptAndEscalate(std::begin(selectedNodes), std::end(selectedNodes), collect);
             return collect.nodes();
         }
@@ -1731,7 +1731,7 @@ namespace TrenchBroom {
         private:
             Assets::TextureManager& m_manager;
         public:
-            SetTextures(Assets::TextureManager& manager) :
+            explicit SetTextures(Assets::TextureManager& manager) :
                 m_manager(manager) {}
         private:
             void doVisit(Model::World*) override   {}

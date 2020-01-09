@@ -59,7 +59,7 @@ namespace TrenchBroom {
         class DefTokenizer : public Tokenizer<DefToken::Type> {
         public:
             DefTokenizer(const char* begin, const char* end);
-            DefTokenizer(const std::string& str);
+            explicit DefTokenizer(const std::string& str);
         private:
             static const std::string WordDelims;
             Token emitToken() override;

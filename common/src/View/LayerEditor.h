@@ -46,7 +46,7 @@ namespace TrenchBroom {
             QAbstractButton* m_removeLayerButton;
             QAbstractButton* m_showAllLayersButton;
         public:
-            LayerEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            explicit LayerEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
             void onSetCurrentLayer(Model::Layer* layer);
             void onLayerRightClick(Model::Layer* layer);

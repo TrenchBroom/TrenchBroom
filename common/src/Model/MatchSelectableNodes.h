@@ -33,7 +33,7 @@ namespace TrenchBroom {
         private:
             const Model::EditorContext& m_editorContext;
         public:
-            MatchSelectableNodes(const Model::EditorContext& editorContext);
+            explicit MatchSelectableNodes(const Model::EditorContext& editorContext);
 
             bool operator()(const Model::World* world) const;
             bool operator()(const Model::Layer* layer) const;

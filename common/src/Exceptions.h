@@ -73,7 +73,7 @@ namespace TrenchBroom {
     class FileNotFoundException : public Exception {
     public:
         using Exception::Exception;
-        FileNotFoundException(const std::string& path);
+        explicit FileNotFoundException(const std::string& path);
         FileNotFoundException(const std::string& path, const PathException& e);
     };
 

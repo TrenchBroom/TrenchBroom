@@ -58,7 +58,7 @@ namespace TrenchBroom {
         private:
             BooleanType m_value;
         public:
-            BooleanValueHolder(const BooleanType& value);
+            explicit BooleanValueHolder(const BooleanType& value);
             ValueType type() const override;
             const BooleanType& booleanValue() const override;
             size_t length() const override;
@@ -86,7 +86,7 @@ namespace TrenchBroom {
         private:
             StringType m_value;
         public:
-            StringValueHolder(const StringType& value);
+            explicit StringValueHolder(const StringType& value);
             ValueHolder* clone() const override;
         private:
             const StringType& doGetValue() const override;
@@ -96,7 +96,7 @@ namespace TrenchBroom {
         private:
             const StringType& m_value;
         public:
-            StringReferenceHolder(const StringType& value);
+            explicit StringReferenceHolder(const StringType& value);
             ValueHolder* clone() const override;
         private:
             const StringType& doGetValue() const override;
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             static constexpr auto RoundingThreshold = 0.00001;
             NumberType m_value;
         public:
-            NumberValueHolder(const NumberType& value);
+            explicit NumberValueHolder(const NumberType& value);
             ValueType type() const override;
             const NumberType& numberValue() const override;
             size_t length() const override;
@@ -121,7 +121,7 @@ namespace TrenchBroom {
         private:
             ArrayType m_value;
         public:
-            ArrayValueHolder(const ArrayType& value);
+            explicit ArrayValueHolder(const ArrayType& value);
             ValueType type() const override;
             const ArrayType& arrayValue() const override;
             size_t length() const override;
@@ -135,7 +135,7 @@ namespace TrenchBroom {
         private:
             MapType m_value;
         public:
-            MapValueHolder(const MapType& value);
+            explicit MapValueHolder(const MapType& value);
             ValueType type() const override;
             const MapType& mapValue() const override;
             size_t length() const override;
@@ -149,7 +149,7 @@ namespace TrenchBroom {
         private:
             RangeType m_value;
         public:
-            RangeValueHolder(const RangeType& value);
+            explicit RangeValueHolder(const RangeType& value);
             ValueType type() const override;
             const RangeType& rangeValue() const override;
             size_t length() const override;

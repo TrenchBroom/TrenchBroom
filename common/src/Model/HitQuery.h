@@ -40,7 +40,7 @@ namespace TrenchBroom {
             std::unique_ptr<HitFilter> m_exclude;
         public:
             HitQuery(const std::vector<Hit>& hits, const EditorContext& editorContext);
-            HitQuery(const std::vector<Hit>& hits);
+            explicit HitQuery(const std::vector<Hit>& hits);
             HitQuery(const HitQuery& other);
             ~HitQuery();
 

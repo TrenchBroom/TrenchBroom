@@ -1285,7 +1285,7 @@ namespace TrenchBroom {
         private:
             const Model::World* m_world;
         public:
-            BrushesToEntities(const Model::World* world) : m_world(world) {}
+            explicit BrushesToEntities(const Model::World* world) : m_world(world) {}
         public:
             bool operator()(const Model::World*) const       { return false; }
             bool operator()(const Model::Layer*) const       { return false; }
@@ -1294,10 +1294,10 @@ namespace TrenchBroom {
             bool operator()(const Model::Brush* brush) const { return brush->entity() == m_world; }
         };
 
-        static std::vector<Model::Node*> collectEntitiesForBrushes(const std::vector<Model::Node*>& selectedNodes, const Model::World *world) {
+        static std::vector<Model::Node*> collectEntitiesForBrushes(const std::vector<Model::Node*>& selectedNodes, const Model::World* world) {
             using BrushesToEntitiesVisitor = Model::CollectMatchingNodesVisitor<BrushesToEntities, Model::UniqueNodeCollectionStrategy, Model::StopRecursionIfMatched>;
 
-            BrushesToEntitiesVisitor collect(world);
+            BrushesToEntitiesVisitor collect((BrushesToEntities(world)));
             Model::Node::acceptAndEscalate(std::begin(selectedNodes), std::end(selectedNodes), collect);
             return collect.nodes();
         }

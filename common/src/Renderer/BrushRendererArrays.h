@@ -101,7 +101,7 @@ namespace TrenchBroom {
             }
 
         public:
-            VboHolder(VboType type) :
+            explicit VboHolder(VboType type) :
             m_type(type),
             m_snapshot(),
             m_dirtyRange(0),

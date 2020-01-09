@@ -43,7 +43,7 @@ namespace TrenchBroom {
              *
              * @param text the text of this reference (such as "1/2/3")
              */
-            ObjVertexRef(const std::string& text) : m_texcoord(0) {
+            explicit ObjVertexRef(const std::string& text) : m_texcoord(0) {
                 const auto components = kdl::str_split(text, "/");
                 std::vector<size_t> components_num;
                 for (const std::string& com : components) {

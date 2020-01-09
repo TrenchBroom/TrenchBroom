@@ -52,7 +52,7 @@ namespace TrenchBroom {
         public:
             Notifier<> mapViewConfigDidChangeNotifier;
         public:
-            MapViewConfig(const Model::EditorContext& editorContext);
+            explicit MapViewConfig(const Model::EditorContext& editorContext);
 
             bool showEntityClassnames() const;
             void setShowEntityClassnames(bool showEntityClassnames);
