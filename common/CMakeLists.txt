@@ -64,6 +64,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/Md2Parser.cpp
         ${COMMON_SOURCE_DIR}/IO/Md3Parser.cpp
         ${COMMON_SOURCE_DIR}/IO/MdlParser.cpp
+        ${COMMON_SOURCE_DIR}/IO/MdxParser.cpp
         ${COMMON_SOURCE_DIR}/IO/MipTextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/NodeReader.cpp
         ${COMMON_SOURCE_DIR}/IO/NodeSerializer.cpp
@@ -565,6 +566,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/Md2Parser.h
         ${COMMON_SOURCE_DIR}/IO/Md3Parser.h
         ${COMMON_SOURCE_DIR}/IO/MdlParser.h
+        ${COMMON_SOURCE_DIR}/IO/MdxParser.h
         ${COMMON_SOURCE_DIR}/IO/MipTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/NodeReader.h
         ${COMMON_SOURCE_DIR}/IO/NodeSerializer.h
