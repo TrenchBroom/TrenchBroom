@@ -124,6 +124,58 @@ namespace kdl {
         ASSERT_EQ(vec({ 1, 2 }), vec_concat(vec({ 1 }), vec({ 2 })));
     }
 
+    TEST(vector_utils_test, vec_slice) {
+        using vec = std::vector<int>;
+
+        ASSERT_EQ(vec({}), vec_slice(vec({}), 0, 0));
+        ASSERT_EQ(vec({}), vec_slice(vec({}), 0, 1));
+        ASSERT_EQ(vec({}), vec_slice(vec({}), 1, 0));
+        ASSERT_EQ(vec({}), vec_slice(vec({}), 1, 1));
+        ASSERT_EQ(vec({}), vec_slice(vec({ 1, 2, 3 }), 3, 1));
+        ASSERT_EQ(vec({}), vec_slice(vec({ 1, 2, 3 }), 0, 0));
+        ASSERT_EQ(vec({}), vec_slice(vec({ 1, 2, 3 }), 1, 0));
+        ASSERT_EQ(vec({}), vec_slice(vec({ 1, 2, 3 }), 2, 0));
+        ASSERT_EQ(vec({}), vec_slice(vec({ 1, 2, 3 }), 3, 0));
+        ASSERT_EQ(vec({ 1 }), vec_slice(vec({ 1, 2, 3 }), 0, 1));
+        ASSERT_EQ(vec({ 2 }), vec_slice(vec({ 1, 2, 3 }), 1, 1));
+        ASSERT_EQ(vec({ 3 }), vec_slice(vec({ 1, 2, 3 }), 2, 1));
+        ASSERT_EQ(vec({}), vec_slice(vec({ 1, 2, 3 }), 3, 1));
+        ASSERT_EQ(vec({ 1, 2 }), vec_slice(vec({ 1, 2, 3 }), 0, 2));
+        ASSERT_EQ(vec({ 2, 3 }), vec_slice(vec({ 1, 2, 3 }), 1, 2));
+        ASSERT_EQ(vec({ 3 }), vec_slice(vec({ 1, 2, 3 }), 2, 2));
+        ASSERT_EQ(vec({ 1, 2, 3 }), vec_slice(vec({ 1, 2, 3 }), 0, 3));
+        ASSERT_EQ(vec({ 2, 3 }), vec_slice(vec({ 1, 2, 3 }), 1, 3));
+        ASSERT_EQ(vec({ 3 }), vec_slice(vec({ 1, 2, 3 }), 2, 3));
+        ASSERT_EQ(vec({}), vec_slice(vec({ 1, 2, 3 }), 3, 3));
+    }
+
+    TEST(vector_utils_test, vec_slice_prefix) {
+        using vec = std::vector<int>;
+
+        ASSERT_EQ(vec({}), vec_slice_prefix(vec({}), 0));
+        ASSERT_EQ(vec({}), vec_slice_prefix(vec({}), 1));
+        ASSERT_EQ(vec({ 1 }), vec_slice_prefix(vec({ 1 }), 1));
+        ASSERT_EQ(vec({}), vec_slice_prefix(vec({ 1 }), 0));
+        ASSERT_EQ(vec({ 1, 2, 3 }), vec_slice_prefix(vec({ 1, 2, 3 }), 3));
+        ASSERT_EQ(vec({ 1, 2 }), vec_slice_prefix(vec({ 1, 2, 3 }), 2));
+        ASSERT_EQ(vec({ 1 }), vec_slice_prefix(vec({ 1, 2, 3 }), 1));
+        ASSERT_EQ(vec({}), vec_slice_prefix(vec({ 1, 2, 3 }), 0));
+    }
+
+    TEST(vector_utils_test, vec_slice_suffix) {
+        using vec = std::vector<int>;
+
+        ASSERT_EQ(vec({}), vec_slice_suffix(vec({}), 0));
+        ASSERT_EQ(vec({}), vec_slice_suffix(vec({}), 1));
+        ASSERT_EQ(vec({}), vec_slice_suffix(vec({ 1 }), 0));
+        ASSERT_EQ(vec({ 1 }), vec_slice_suffix(vec({ 1 }), 1));
+        ASSERT_EQ(vec({}), vec_slice_suffix(vec({ 1, 2, 3 }), 0));
+        ASSERT_EQ(vec({ 3 }), vec_slice_suffix(vec({ 1, 2, 3 }), 1));
+        ASSERT_EQ(vec({ 2, 3 }), vec_slice_suffix(vec({ 1, 2, 3 }), 2));
+        ASSERT_EQ(vec({ 1, 2, 3 }), vec_slice_suffix(vec({ 1, 2, 3 }), 3));
+        ASSERT_EQ(vec({ 1, 2, 3 }), vec_slice_suffix(vec({ 1, 2, 3 }), 4));
+    }
+
     template <typename T>
     void test_erase(const std::vector<T>& exp, std::vector<T> from, const T& x) {
         vec_erase(from, x);
