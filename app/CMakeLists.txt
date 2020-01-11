@@ -224,7 +224,7 @@ set(APP_PACKAGE_FILE_NAME "TrenchBroom-${APP_PLATFORM_NAME}-${GIT_DESCRIBE}-${CM
 set(APP_PACKAGE_DIR_NAME "$ENV{DROPBOX}/TrenchBroom/")
 set(CPACK_PACKAGE_FILE_NAME ${APP_PACKAGE_FILE_NAME})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "TrenchBroom Level Editor")
-set(CPACK_PACKAGE_VENDOR "Kristian Duske")
+set(CPACK_PACKAGE_VENDOR "TrenchBroom")
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     # We want stack trace symbols even in our release builds, so don't strip
     set(CPACK_STRIP_FILES FALSE)

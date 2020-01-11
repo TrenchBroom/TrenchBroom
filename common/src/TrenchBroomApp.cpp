@@ -105,8 +105,8 @@ namespace TrenchBroom {
             setApplicationName("TrenchBroom");
             // Needs to be "" otherwise Qt adds this to the paths returned by QStandardPaths
             // which would cause preferences to move from where they were with wx
-            setOrganizationName("");
-            setOrganizationDomain("com.kristianduske");
+            setOrganizationName(""); // FIXME: this should be "TrenchBroom", regardless of the preferences moving
+            // setOrganizationDomain("com.kristianduske"); FIXME: what should this be?
 
             if (!initializeGameFactory()) {
                 QCoreApplication::exit(1);

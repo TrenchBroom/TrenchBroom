@@ -20,7 +20,7 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "CompanyName", "Kristian Duske"
+            VALUE "CompanyName", "TrenchBroom"
             VALUE "FileDescription", "TrenchBroom Level Editor"
             VALUE "FileVersion", VERSION_RC
             VALUE "InternalName", "TrenchBroom.exe"
