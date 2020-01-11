@@ -141,7 +141,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("models\\barrel\\skin.tga"), Path("C:\\models\\barrel\\skin.tga").makeRelative());
         }
 
-        TEST(PathTest, makeRelative) {
+        TEST(PathTest, makeRelativeWithAbsolutePath) {
             ASSERT_THROW(Path("c:\\asdf").makeRelative(Path("asdf\\hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("c:\\asdf\\hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("c:\\")), PathException);
