@@ -25,6 +25,7 @@
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
+#include <kdl/vector_utils.h>
 
 #include <iterator>
 #include <ostream>
@@ -407,6 +408,28 @@ namespace TrenchBroom {
             }
 
             return *this + relativePath;
+        }
+
+        Path Path::makeRelative() const {
+            if (isEmpty()) {
+                throw PathException("Cannot make relative path from an empty reference path");
+            }
+
+            if (!isAbsolute()) {
+                throw PathException("Cannot make relative path from relative reference path");
+            }
+
+#ifdef _WIN32
+            if (m_components.empty()) {
+                throw PathException("Cannot make relative path from an reference path with no drive spec");
+            }
+
+            return Path(false, kdl::vec_slice_suffix(m_components, m_components.size() - 2u));
+#else
+            return Path(false, m_components);
+#endif
+
+
         }
 
         Path Path::makeRelative(const Path& absolutePath) const {
