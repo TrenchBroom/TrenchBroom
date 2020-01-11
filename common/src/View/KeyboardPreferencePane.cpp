@@ -30,10 +30,11 @@
 #include <QBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
-#include <QMessageBox>
-#include <QTableView>
-#include <QSortFilterProxyModel>
 #include <QLineEdit>
+#include <QMessageBox>
+#include <QSortFilterProxyModel>
+#include <QTableView>
+#include <QTimer>
 
 namespace TrenchBroom {
     namespace View {
@@ -89,8 +90,11 @@ namespace TrenchBroom {
 
             setMinimumSize(900, 550);
 
-            connect(searchBox, &QLineEdit::textChanged, this, [=](const QString& newText){
+            connect(searchBox, &QLineEdit::textChanged, this, [&](const QString& newText){
                 m_proxy->setFilterFixedString(newText);
+
+                // fix a bug where the rows get oddly sized if a filter that applies to no rows is reset
+                QTimer::singleShot(1, m_table, &QTableView::resizeRowsToContents);
             });
         }
 
