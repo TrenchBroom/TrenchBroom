@@ -424,7 +424,7 @@ namespace TrenchBroom {
                 throw PathException("Cannot make relative path from an reference path with no drive spec");
             }
 
-            return Path(false, kdl::vec_slice_suffix(m_components, m_components.size() - 2u));
+            return Path(false, kdl::vec_slice_suffix(m_components, m_components.size() - 1u));
 #else
             return Path(false, m_components);
 #endif
