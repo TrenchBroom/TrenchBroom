@@ -199,6 +199,8 @@ namespace kdl {
      *
      * The elements are copied into the returned vector.
      *
+     * Precondition: offset + count does not exceed the number of elements in the given vector
+     *
      * @tparam T the element type
      * @tparam A the allocator type
      * @param v the vector to return a slice of
@@ -207,25 +209,15 @@ namespace kdl {
      * @return a vector containing the slice of the given vector
      */
     template <typename T, typename A>
-    std::vector<T, A> vec_slice(const std::vector<T, A>& v, const std::size_t offset, std::size_t count) {
-        if (offset >= v.size()) {
-            return {};
-        }
-
-        count = std::min(count, v.size() - offset);
-        if (count == 0u) {
-            return {};
-        }
+    std::vector<T, A> vec_slice(const std::vector<T, A>& v, const std::size_t offset, const std::size_t count) {
+        assert(offset + count <= v.size());
 
         std::vector<T, A> result;
         result.reserve(count);
 
-        using diff_type = typename std::vector<T, A>::difference_type;
-        const auto offset_diff = static_cast<diff_type>(offset);
-        const auto count_diff = static_cast<diff_type>(count);
-        const auto it = std::next(std::begin(v), offset_diff);
-        const auto end = std::next(std::begin(v), offset_diff + count_diff);
-        std::copy(it, end, std::back_inserter(result));
+        for (std::size_t i = 0u; i < count; ++i) {
+            result.push_back(v[i + offset]);
+        }
 
         return result;
     }
@@ -233,9 +225,9 @@ namespace kdl {
     /**
      * Returns a prefix of the given vector with count elements.
      *
-     * If the given count exceeds the number of elements in the given vector, then the vector is returned as is.
-     *
      * The elements are copied into the returned vector.
+     *
+     * Precondition: count does not exceed the number of elements in the given vector
      *
      * @tparam T the element type
      * @tparam A the allocator type
@@ -245,15 +237,16 @@ namespace kdl {
      */
     template <typename T, typename A>
     std::vector<T, A> vec_slice_prefix(const std::vector<T, A>& v, const std::size_t count) {
+        assert(count <= v.size());
         return vec_slice(v, 0u, count);
     }
 
     /**
      * Returns a suffix of the given vector with count elements.
      *
-     * If the given count exceeds the number of elements in the given vector, then the vector is returned as is.
-     *
      * The elements are copied into the returned vector.
+     *
+     * Precondition: count does not exceed the number of elements in the given vector
      *
      * @tparam T the element type
      * @tparam A the allocator type
@@ -262,8 +255,8 @@ namespace kdl {
      * @return a vector containing the prefix of the given vector
      */
     template <typename T, typename A>
-    std::vector<T, A> vec_slice_suffix(const std::vector<T, A>& v, std::size_t count) {
-        count = std::min(count, v.size());
+    std::vector<T, A> vec_slice_suffix(const std::vector<T, A>& v, const std::size_t count) {
+        assert(count <= v.size());
         return vec_slice(v, v.size() - count, count);
     }
 
