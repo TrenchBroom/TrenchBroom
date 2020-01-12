@@ -191,6 +191,77 @@ namespace kdl {
     }
 
     /**
+     * Returns a slice of the given vector starting at offset and with count elements.
+     *
+     * If the given offset is not less than the number of elements of v, then an empty vector is returned. The returned
+     * vector contains at most count elements from the given vector. If the given count is too large, i.e. it indicates
+     * to include elements beyond the end of the given vector, then count is adjusted accordingly.
+     *
+     * The elements are copied into the returned vector.
+     *
+     * Precondition: offset + count does not exceed the number of elements in the given vector
+     *
+     * @tparam T the element type
+     * @tparam A the allocator type
+     * @param v the vector to return a slice of
+     * @param offset the offset of the first element to return
+     * @param count the number of elements to return
+     * @return a vector containing the slice of the given vector
+     */
+    template <typename T, typename A>
+    std::vector<T, A> vec_slice(const std::vector<T, A>& v, const std::size_t offset, const std::size_t count) {
+        assert(offset + count <= v.size());
+
+        std::vector<T, A> result;
+        result.reserve(count);
+
+        for (std::size_t i = 0u; i < count; ++i) {
+            result.push_back(v[i + offset]);
+        }
+
+        return result;
+    }
+
+    /**
+     * Returns a prefix of the given vector with count elements.
+     *
+     * The elements are copied into the returned vector.
+     *
+     * Precondition: count does not exceed the number of elements in the given vector
+     *
+     * @tparam T the element type
+     * @tparam A the allocator type
+     * @param v the vector to return a prefix of
+     * @param count the number of elements to return
+     * @return a vector containing the prefix of the given vector
+     */
+    template <typename T, typename A>
+    std::vector<T, A> vec_slice_prefix(const std::vector<T, A>& v, const std::size_t count) {
+        assert(count <= v.size());
+        return vec_slice(v, 0u, count);
+    }
+
+    /**
+     * Returns a suffix of the given vector with count elements.
+     *
+     * The elements are copied into the returned vector.
+     *
+     * Precondition: count does not exceed the number of elements in the given vector
+     *
+     * @tparam T the element type
+     * @tparam A the allocator type
+     * @param v the vector to return a prefix of
+     * @param count the number of elements to return
+     * @return a vector containing the prefix of the given vector
+     */
+    template <typename T, typename A>
+    std::vector<T, A> vec_slice_suffix(const std::vector<T, A>& v, const std::size_t count) {
+        assert(count <= v.size());
+        return vec_slice(v, v.size() - count, count);
+    }
+
+
+    /**
      * Erases every element from the given vector which is equal to the given value using the erase-remove idiom.
      *
      * @tparam T the type of the vector elements

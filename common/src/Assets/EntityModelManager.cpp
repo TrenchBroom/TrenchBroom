@@ -167,7 +167,8 @@ namespace TrenchBroom {
                 ensure(m_loader != nullptr, "loader is null");
                 m_loader->loadFrame(spec.path, spec.frameIndex, model, m_logger);
             } catch (const Exception& e) {
-                m_logger.error() << e.what();
+                // FIXME: be specific about which exceptions to catch here
+                m_logger.error() << "Could not load entity model frame " << spec << ": " << e.what();
             }
         }
 

@@ -98,6 +98,15 @@ namespace TrenchBroom {
             bool isAbsolute() const;
             bool canMakeRelative(const Path& absolutePath) const;
             Path makeAbsolute(const Path& relativePath) const;
+
+            /**
+             * Return a relative path if this path is absolute. On Windows, this means that the returned path has no
+             * drive specification (i.e. 'C:\'), and on other systems, this means that the returned path will not have
+             * a leading forward slash anymore.
+             *
+             * @return the relative path
+             */
+            Path makeRelative() const;
             Path makeRelative(const Path& absolutePath) const;
             Path makeCanonical() const;
             Path makeLowerCase() const;

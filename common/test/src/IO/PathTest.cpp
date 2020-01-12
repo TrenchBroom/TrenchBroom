@@ -115,11 +115,11 @@ namespace TrenchBroom {
         }
 
         TEST(PathTest, addExtension) {
-			const auto test = Path("c:\\").addExtension("map").asString();
-			const auto test2 = test;
-			const auto test3 = test + test2;
+            const auto test = Path("c:\\").addExtension("map").asString();
+            const auto test2 = test;
+            const auto test3 = test + test2;
 
-			ASSERT_THROW(Path("").addExtension("map"), PathException);
+            ASSERT_THROW(Path("").addExtension("map"), PathException);
             ASSERT_EQ(Path("c:\\asdf."), Path("c:\\asdf").addExtension(""));
             ASSERT_EQ(Path("c:\\asdf.map"), Path("c:\\asdf").addExtension("map"));
             ASSERT_EQ(Path("c:\\asdf.map.test"), Path("c:\\asdf.map").addExtension("test"));
@@ -134,6 +134,14 @@ namespace TrenchBroom {
         }
 
         TEST(PathTest, makeRelative) {
+            ASSERT_THROW(Path("").makeRelative(), PathException);
+            ASSERT_THROW(Path("models\\barrel\\skin.tga").makeRelative(), PathException);
+            ASSERT_EQ(Path(""), Path("C:").makeRelative());
+            ASSERT_EQ(Path(""), Path("C:\\").makeRelative());
+            ASSERT_EQ(Path("models\\barrel\\skin.tga"), Path("C:\\models\\barrel\\skin.tga").makeRelative());
+        }
+
+        TEST(PathTest, makeRelativeWithAbsolutePath) {
             ASSERT_THROW(Path("c:\\asdf").makeRelative(Path("asdf\\hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("c:\\asdf\\hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("c:\\")), PathException);
@@ -279,6 +287,13 @@ namespace TrenchBroom {
         }
 
         TEST(PathTest, makeRelative) {
+            ASSERT_THROW(Path("").makeRelative(), PathException);
+            ASSERT_THROW(Path("models/barrel/skin.tga").makeRelative(), PathException);
+            ASSERT_EQ(Path(""), Path("/").makeRelative());
+            ASSERT_EQ(Path("models/barrel/skin.tga"), Path("/models/barrel/skin.tga").makeRelative());
+        }
+
+        TEST(PathTest, makeRelativeWithAbsolutePath) {
             ASSERT_THROW(Path("/asdf").makeRelative(Path("asdf/hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("/asdf/hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("/")), PathException);
