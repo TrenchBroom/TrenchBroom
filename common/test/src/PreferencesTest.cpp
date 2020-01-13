@@ -290,6 +290,29 @@ namespace TrenchBroom {
         testSerialize<PreferenceSerializerV1, QKeySequence>(QJsonValue("80:307:0:0"),     QKeySequence::fromString("Alt+P")); // "Alt" in Qt = Alt in macOS
     }
 
+    TEST(PreferencesTest, serializeV2Bool) {
+        EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV2, bool>(QJsonValue("")).has_value()));
+        EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV2, bool>(QJsonValue("0")).has_value()));
+
+        testSerialize<PreferenceSerializerV2, bool>(QJsonValue(false), false);
+        testSerialize<PreferenceSerializerV2, bool>(QJsonValue(true), true);
+    }
+
+    TEST(PreferencesTest, serializeV2float) {
+        EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV2, float>(QJsonValue("1.25")).has_value()));
+
+        testSerialize<PreferenceSerializerV2, float>(QJsonValue(1.25), 1.25f);
+    }
+
+    TEST(PreferencesTest, serializeV2int) {
+        EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV2, int>(QJsonValue("0")).has_value()));
+        EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV2, int>(QJsonValue("-1")).has_value()));
+
+        testSerialize<PreferenceSerializerV2, int>(QJsonValue(0), 0);
+        testSerialize<PreferenceSerializerV2, int>(QJsonValue(-1), -1);
+        testSerialize<PreferenceSerializerV2, int>(QJsonValue(1000), 1000);
+    }
+
     TEST(PreferencesTest, serializeV2KeyboardShortcut) {
         testSerialize<PreferenceSerializerV2, QKeySequence>(QJsonValue("Alt+Shift+W"),    QKeySequence::fromString("Alt+Shift+W"));
         testSerialize<PreferenceSerializerV2, QKeySequence>(QJsonValue("Meta+W"),         QKeySequence::fromString("Meta+W")); // "Meta" in Qt = Control in macOS
