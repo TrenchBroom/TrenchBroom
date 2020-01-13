@@ -46,30 +46,43 @@ namespace TrenchBroom {
      */
     class PreferenceSerializerV1 : public PrefSerializer {
     public:
-        bool readFromString(const QString& in, bool* out) const override;
-        bool readFromString(const QString& in, Color* out) const override;
-        bool readFromString(const QString& in, float* out) const override;
-        bool readFromString(const QString& in, int* out) const override;
-        bool readFromString(const QString& in, IO::Path* out) const override;
-        bool readFromString(const QString& in, QKeySequence* out) const override;
-        bool readFromString(const QString& in, QString* out) const override;
+        bool readFromJSON(const QJsonValue& in, bool* out) const override;
+        bool readFromJSON(const QJsonValue& in, Color* out) const override;
+        bool readFromJSON(const QJsonValue& in, float* out) const override;
+        bool readFromJSON(const QJsonValue& in, int* out) const override;
+        bool readFromJSON(const QJsonValue& in, IO::Path* out) const override;
+        bool readFromJSON(const QJsonValue& in, QKeySequence* out) const override;
+        bool readFromJSON(const QJsonValue& in, QString* out) const override;
 
-        void writeToString(QTextStream& stream, const bool in) const override;
-        void writeToString(QTextStream& stream, const Color& in) const override;
-        void writeToString(QTextStream& stream, const float in) const override;
-        void writeToString(QTextStream& stream, const int in) const override;
-        void writeToString(QTextStream& stream, const IO::Path& in) const override;
-        void writeToString(QTextStream& stream, const QKeySequence& in) const override;
-        void writeToString(QTextStream& stream, const QString& in) const override;
+        QJsonValue writeToJSON(bool in) const override;
+        QJsonValue writeToJSON(const Color& in) const override;
+        QJsonValue writeToJSON(float in) const override;
+        QJsonValue writeToJSON(int in) const override;
+        QJsonValue writeToJSON(const IO::Path& in) const override;
+        QJsonValue writeToJSON(const QKeySequence& in) const override;
+        QJsonValue writeToJSON(const QString& in) const override;
     };
 
     /**
      * Used by Qt version of TrenchBroom
+     *
+     * - bool serializes to JSON bool
+     * - float and int serializes to JSON double
+     * - QKeySequence serializes to JSON string, but with a different format than wxWidgets
+     * - other types are not overridden (Color, IO::Path, QString) so serialize to JSON string using
+     *   the same format as wxWidgets
      */
     class PreferenceSerializerV2 : public PreferenceSerializerV1 {
     public:
-        bool readFromString(const QString& in, QKeySequence* out) const override;
-        void writeToString(QTextStream& stream, const QKeySequence& in) const override;
+        bool readFromJSON(const QJsonValue& in, bool* out) const override;
+        bool readFromJSON(const QJsonValue& in, float* out) const override;
+        bool readFromJSON(const QJsonValue& in, int* out) const override;
+        bool readFromJSON(const QJsonValue& in, QKeySequence* out) const override;        
+
+        QJsonValue writeToJSON(bool in) const override;
+        QJsonValue writeToJSON(float in) const override;
+        QJsonValue writeToJSON(int in) const override;
+        QJsonValue writeToJSON(const QKeySequence& in) const override;
     };
 
     class PreferenceManager : public QObject {
@@ -87,7 +100,7 @@ namespace TrenchBroom {
          * Preference objects may have different values if there are unsaved changes.
          * There may also be values in here we don't know how to deserialize; we write them back to disk.
          */
-        std::map<IO::Path, QString> m_cache;
+        std::map<IO::Path, QJsonValue> m_cache;
         QFileSystemWatcher* m_fileSystemWatcher;
 
         void markAsUnsaved(PreferenceBase* preference);
@@ -176,20 +189,20 @@ namespace TrenchBroom {
     }
 
     // V1 settings
-    std::map<IO::Path, QString> parseINI(QTextStream* iniStream);
-    std::map<IO::Path, QString> getINISettingsV1(const QString& path);
-    std::map<IO::Path, QString> readV1Settings();
-    std::map<IO::Path, QString> migrateV1ToV2(const std::map<IO::Path, QString>& v1Prefs);
+    std::map<IO::Path, QJsonValue> parseINI(QTextStream* iniStream);
+    std::map<IO::Path, QJsonValue> getINISettingsV1(const QString& path);
+    std::map<IO::Path, QJsonValue> readV1Settings();
+    std::map<IO::Path, QJsonValue> migrateV1ToV2(const std::map<IO::Path, QJsonValue>& v1Prefs);
 
     // V2 settings
     QString v2SettingsPath();
-    std::map<IO::Path, QString> readV2SettingsFromPath(const QString& path);
-    std::map<IO::Path, QString> readV2Settings();
+    std::map<IO::Path, QJsonValue> readV2SettingsFromPath(const QString& path);
+    std::map<IO::Path, QJsonValue> readV2Settings();
 
-    bool writeV2SettingsToPath(const QString& path, const std::map<IO::Path, QString>& v2Prefs);
+    bool writeV2SettingsToPath(const QString& path, const std::map<IO::Path, QJsonValue>& v2Prefs);
 
-    std::map<IO::Path, QString> parseV2SettingsFromJSON(const QByteArray& jsonData);
-    QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QString>& v2Prefs);
+    std::map<IO::Path, QJsonValue> parseV2SettingsFromJSON(const QByteArray& jsonData);
+    QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QJsonValue>& v2Prefs);
 
     // Migration
     void migrateSettingsFromV1IfPathDoesNotExist(const QString& destinationPath);
