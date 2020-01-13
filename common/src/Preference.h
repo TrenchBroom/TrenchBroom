@@ -28,6 +28,7 @@
 
 #include <QString>
 #include <QTextStream>
+#include <QJsonValue>
 
 class QKeySequence;
 
@@ -38,34 +39,31 @@ namespace TrenchBroom {
     public:
         virtual ~PrefSerializer();
 
-        virtual bool readFromString(const QString& in, bool* out) const = 0;
-        virtual bool readFromString(const QString& in, Color* out) const = 0;
-        virtual bool readFromString(const QString& in, float* out) const = 0;
-        virtual bool readFromString(const QString& in, int* out) const = 0;
-        virtual bool readFromString(const QString& in, IO::Path* out) const = 0;
-        virtual bool readFromString(const QString& in, QKeySequence* out) const = 0;
-        virtual bool readFromString(const QString& in, QString* out) const = 0;
+        virtual bool readFromJSON(const QJsonValue& in, bool* out) const = 0;
+        virtual bool readFromJSON(const QJsonValue& in, Color* out) const = 0;
+        virtual bool readFromJSON(const QJsonValue& in, float* out) const = 0;
+        virtual bool readFromJSON(const QJsonValue& in, int* out) const = 0;
+        virtual bool readFromJSON(const QJsonValue& in, IO::Path* out) const = 0;
+        virtual bool readFromJSON(const QJsonValue& in, QKeySequence* out) const = 0;
+        virtual bool readFromJSON(const QJsonValue& in, QString* out) const = 0;
 
-        virtual void writeToString(QTextStream& stream, bool in) const = 0;
-        virtual void writeToString(QTextStream& stream, const Color& in) const = 0;
-        virtual void writeToString(QTextStream& stream, float in) const = 0;
-        virtual void writeToString(QTextStream& stream, int in) const = 0;
-        virtual void writeToString(QTextStream& stream, const IO::Path& in) const = 0;
-        virtual void writeToString(QTextStream& stream, const QKeySequence& in) const = 0;
-        virtual void writeToString(QTextStream& stream, const QString& in) const = 0;
+        virtual QJsonValue writeToJSON(bool in) const = 0;
+        virtual QJsonValue writeToJSON(const Color& in) const = 0;
+        virtual QJsonValue writeToJSON(float in) const = 0;
+        virtual QJsonValue writeToJSON(int in) const = 0;
+        virtual QJsonValue writeToJSON(const IO::Path& in) const = 0;
+        virtual QJsonValue writeToJSON(const QKeySequence& in) const = 0;
+        virtual QJsonValue writeToJSON(const QString& in) const = 0;
     };
 
     template <class T>
-    nonstd::optional<QString> migratePreference(const PrefSerializer& from, const PrefSerializer& to, const QString& input) {
+    nonstd::optional<QJsonValue> migratePreference(const PrefSerializer& from, const PrefSerializer& to, const QJsonValue& input) {
         T result;
-        if (!from.readFromString(input, &result)) {
+        if (!from.readFromJSON(input, &result)) {
             return {};
         }
 
-        QString string;
-        QTextStream stream(&string);
-        to.writeToString(stream, result);
-        return {string};
+        return {to.writeToJSON(result)};
     }
 
     class PreferenceBase {
@@ -87,17 +85,17 @@ namespace TrenchBroom {
         virtual void resetToDefault() = 0;
         virtual bool valid() const = 0;
         virtual void setValid(bool _valid) = 0;
-        virtual nonstd::optional<QString> migratePreferenceForThisType(const PrefSerializer& from,
-            const PrefSerializer& to, const QString& input) const = 0;
-        virtual bool loadFromString(const PrefSerializer& format, const QString& value) = 0;
-        virtual QString writeToString(const PrefSerializer& format) const = 0;
+        virtual nonstd::optional<QJsonValue> migratePreferenceForThisType(const PrefSerializer& from,
+            const PrefSerializer& to, const QJsonValue& input) const = 0;
+        virtual bool loadFromJSON(const PrefSerializer& format, const QJsonValue& value) = 0;
+        virtual QJsonValue writeToJSON(const PrefSerializer& format) const = 0;
     };
 
     class DynamicPreferencePatternBase {
     public:
         virtual ~DynamicPreferencePatternBase();
         virtual const IO::Path& pathPattern() const = 0;
-        virtual nonstd::optional<QString> migratePreferenceForThisType(const PrefSerializer& from, const PrefSerializer& to, const QString& input) const = 0;
+        virtual nonstd::optional<QJsonValue> migratePreferenceForThisType(const PrefSerializer& from, const PrefSerializer& to, const QJsonValue& input) const = 0;
     };
 
     template <typename T>
@@ -112,7 +110,7 @@ namespace TrenchBroom {
             return m_pathPattern;
         }
 
-        nonstd::optional<QString> migratePreferenceForThisType(const PrefSerializer& from, const PrefSerializer& to, const QString& input) const override {
+        nonstd::optional<QJsonValue> migratePreferenceForThisType(const PrefSerializer& from, const PrefSerializer& to, const QJsonValue& input) const override {
             return migratePreference<T>(from, to, input);
         }
     };
@@ -171,26 +169,21 @@ namespace TrenchBroom {
             return m_value;
         }
 
-        nonstd::optional<QString> migratePreferenceForThisType(const PrefSerializer& from, const PrefSerializer& to, const QString& input) const override {
+        nonstd::optional<QJsonValue> migratePreferenceForThisType(const PrefSerializer& from, const PrefSerializer& to, const QJsonValue& input) const override {
             return migratePreference<T>(from, to, input);
         }
 
-        bool loadFromString(const PrefSerializer& format, const QString& value) override {
+        bool loadFromJSON(const PrefSerializer& format, const QJsonValue& value) override {
             T res;
-            bool ok = format.readFromString(value, &res);
+            bool ok = format.readFromJSON(value, &res);
             if (ok) {
                 m_value = res;
             }
             return ok;
         }
 
-        QString writeToString(const PrefSerializer& format) const override {
-            QString result;
-            QTextStream stream(&result);
-
-            format.writeToString(stream, value());
-
-            return result;
+        QJsonValue writeToJSON(const PrefSerializer& format) const override {
+            return format.writeToJSON(value());
         }
     };
 }

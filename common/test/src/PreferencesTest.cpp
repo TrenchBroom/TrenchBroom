@@ -38,16 +38,16 @@
 #include <string>
 
 namespace TrenchBroom {
-    static QString getValue(const std::map<IO::Path, QString>& map, const IO::Path& key) {
+    static QJsonValue getValue(const std::map<IO::Path, QJsonValue>& map, const IO::Path& key) {
         auto it = map.find(key);
         if (it == map.end()) {
-            return "";
+            return QJsonValue(QJsonValue::Undefined);
         }
         return it->second;
     }
 
     TEST(PreferencesTest, migrateLocalV1Settings) {
-        const std::map<IO::Path, QString> reg = readV1Settings();
+        const std::map<IO::Path, QJsonValue> reg = readV1Settings();
 
         [[maybe_unused]]
         const auto migrated = migrateV1ToV2(reg);
@@ -57,132 +57,132 @@ namespace TrenchBroom {
     }
 
     TEST(PreferencesTest, parseV1) {
-        const std::map<IO::Path, QString> parsed = getINISettingsV1("fixture/test/preferences-v1.ini");
+        const std::map<IO::Path, QJsonValue> parsed = getINISettingsV1("fixture/test/preferences-v1.ini");
 
-        EXPECT_EQ("108.000000", getValue(parsed, IO::Path("Controls/Camera/Field of vision")));
-        EXPECT_EQ("82:0:0:0", getValue(parsed, IO::Path("Controls/Camera/Move down")));
-        EXPECT_EQ("87:0:0:0", getValue(parsed, IO::Path("Controls/Camera/Move up")));
-        EXPECT_EQ("70:0:0:0", getValue(parsed, IO::Path("Controls/Camera/Move right")));
-        EXPECT_EQ("83:0:0:0", getValue(parsed, IO::Path("Controls/Camera/Move left")));
-        EXPECT_EQ("68:0:0:0", getValue(parsed, IO::Path("Controls/Camera/Move backward")));
-        EXPECT_EQ("69:0:0:0", getValue(parsed, IO::Path("Controls/Camera/Move forward")));
-        EXPECT_EQ("0.425781", getValue(parsed, IO::Path("Controls/Camera/Fly move speed")));
-        EXPECT_EQ("1", getValue(parsed, IO::Path("Controls/Camera/Move camera in cursor dir")));
-        EXPECT_EQ("1", getValue(parsed, IO::Path("Controls/Camera/Use alt to move")));
-        EXPECT_EQ("0.350000", getValue(parsed, IO::Path("Controls/Camera/Move speed")));
-        EXPECT_EQ("1", getValue(parsed, IO::Path("Controls/Camera/Invert mouse wheel")));
-        EXPECT_EQ("1", getValue(parsed, IO::Path("Controls/Camera/Invert vertical pan")));
-        EXPECT_EQ("1", getValue(parsed, IO::Path("Controls/Camera/Invert horizontal pan")));
-        EXPECT_EQ("0.550000", getValue(parsed, IO::Path("Controls/Camera/Pan speed")));
-        EXPECT_EQ("1", getValue(parsed, IO::Path("Controls/Camera/Invert vertical look")));
-        EXPECT_EQ("1", getValue(parsed, IO::Path("Controls/Camera/Invert horizontal look")));
-        EXPECT_EQ("0.440000", getValue(parsed, IO::Path("Controls/Camera/Look speed")));
-        EXPECT_EQ("1.500000", getValue(parsed, IO::Path("Texture Browser/Icon size")));
-        EXPECT_EQ("14", getValue(parsed, IO::Path("Renderer/Font size")));
-        EXPECT_EQ("9729", getValue(parsed, IO::Path("Renderer/Texture mode mag filter")));
-        EXPECT_EQ("9987", getValue(parsed, IO::Path("Renderer/Texture mode min filter")));
-        EXPECT_EQ("0.925000", getValue(parsed, IO::Path("Renderer/Brightness")));
-        EXPECT_EQ("0", getValue(parsed, IO::Path("Renderer/Show axes")));
-        EXPECT_EQ("0.220000", getValue(parsed, IO::Path("Renderer/Grid/Alpha")));
-        EXPECT_EQ("0.921569 0.666667 0.45098 1", getValue(parsed, IO::Path("Renderer/Colors/Edges")));
-        EXPECT_EQ("0.321569 0.0470588 0.141176 1", getValue(parsed, IO::Path("Renderer/Colors/Background")));
-        EXPECT_EQ("0.290196 0.643137 0.486275 1", getValue(parsed, IO::Path("Rendere/Grid/Color2D")));
-        EXPECT_EQ("2", getValue(parsed, IO::Path("Views/Map view layout")));
-        EXPECT_EQ("/home/ericwa/Quake Dev", getValue(parsed, IO::Path("Games/Quake/Path")));
-        EXPECT_EQ("/home/ericwa/foo=bar", getValue(parsed, IO::Path("Games/Generic/Path")));
-        EXPECT_EQ("/home/ericwa/Quake 3 Arena", getValue(parsed, IO::Path("Games/Quake 3/Path")));
-        EXPECT_EQ("87:308:307:0", getValue(parsed, IO::Path("Menu/File/Export/Wavefront OBJ...")));
-        EXPECT_EQ("50:308:307:0", getValue(parsed, IO::Path("Menu/View/Grid/Set Grid Size 0.125")));
-        EXPECT_EQ("859", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/x")));
-        EXPECT_EQ("473", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/y")));
-        EXPECT_EQ("1024", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/w")));
-        EXPECT_EQ("768", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/h")));
-        EXPECT_EQ("0", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/Maximized")));
-        EXPECT_EQ("0", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/Iconized")));
-        EXPECT_EQ("0", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/decor_l")));
-        EXPECT_EQ("0", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/decor_r")));
-        EXPECT_EQ("37", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/decor_t")));
-        EXPECT_EQ("0", getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/decor_b")));
-        EXPECT_EQ("6533", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/MapFrameHSplitter/SplitRatio")));
-        EXPECT_EQ("8306", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/MapFrameVSplitter/SplitRatio")));
-        EXPECT_EQ("4857", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/3PaneMapViewHSplitter/SplitRatio")));
-        EXPECT_EQ("4850", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/3PaneMapViewVSplitter/SplitRatio")));
-        EXPECT_EQ("2742", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/EntityInspectorSplitter/SplitRatio")));
-        EXPECT_EQ("3333", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/EntityAttributeEditorSplitter/SplitRatio")));
-        EXPECT_EQ("-10000", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/EntityDocumentationSplitter/SplitRatio")));
-        EXPECT_EQ("3656", getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/FaceInspectorSplitter/SplitRatio")));
-        EXPECT_EQ("/home/ericwa/unnamed.map", getValue(parsed, IO::Path("RecentDocuments/0")));
-        EXPECT_EQ("68:307:0:0", getValue(parsed, IO::Path("Filters/Tags/Detail/Toggle Visible")));
-        EXPECT_EQ("68:0:0:0", getValue(parsed, IO::Path("Tags/Detail/Enable")));
-        EXPECT_EQ("68:307:306:0", getValue(parsed, IO::Path("Tags/Detail/Disable")));
-        EXPECT_EQ("72:0:0:0", getValue(parsed, IO::Path("Entities/monster_hell_knight/Create")));
+        EXPECT_EQ(QJsonValue("108.000000"), getValue(parsed, IO::Path("Controls/Camera/Field of vision")));
+        EXPECT_EQ(QJsonValue("82:0:0:0"), getValue(parsed, IO::Path("Controls/Camera/Move down")));
+        EXPECT_EQ(QJsonValue("87:0:0:0"), getValue(parsed, IO::Path("Controls/Camera/Move up")));
+        EXPECT_EQ(QJsonValue("70:0:0:0"), getValue(parsed, IO::Path("Controls/Camera/Move right")));
+        EXPECT_EQ(QJsonValue("83:0:0:0"), getValue(parsed, IO::Path("Controls/Camera/Move left")));
+        EXPECT_EQ(QJsonValue("68:0:0:0"), getValue(parsed, IO::Path("Controls/Camera/Move backward")));
+        EXPECT_EQ(QJsonValue("69:0:0:0"), getValue(parsed, IO::Path("Controls/Camera/Move forward")));
+        EXPECT_EQ(QJsonValue("0.425781"), getValue(parsed, IO::Path("Controls/Camera/Fly move speed")));
+        EXPECT_EQ(QJsonValue("1"), getValue(parsed, IO::Path("Controls/Camera/Move camera in cursor dir")));
+        EXPECT_EQ(QJsonValue("1"), getValue(parsed, IO::Path("Controls/Camera/Use alt to move")));
+        EXPECT_EQ(QJsonValue("0.350000"), getValue(parsed, IO::Path("Controls/Camera/Move speed")));
+        EXPECT_EQ(QJsonValue("1"), getValue(parsed, IO::Path("Controls/Camera/Invert mouse wheel")));
+        EXPECT_EQ(QJsonValue("1"), getValue(parsed, IO::Path("Controls/Camera/Invert vertical pan")));
+        EXPECT_EQ(QJsonValue("1"), getValue(parsed, IO::Path("Controls/Camera/Invert horizontal pan")));
+        EXPECT_EQ(QJsonValue("0.550000"), getValue(parsed, IO::Path("Controls/Camera/Pan speed")));
+        EXPECT_EQ(QJsonValue("1"), getValue(parsed, IO::Path("Controls/Camera/Invert vertical look")));
+        EXPECT_EQ(QJsonValue("1"), getValue(parsed, IO::Path("Controls/Camera/Invert horizontal look")));
+        EXPECT_EQ(QJsonValue("0.440000"), getValue(parsed, IO::Path("Controls/Camera/Look speed")));
+        EXPECT_EQ(QJsonValue("1.500000"), getValue(parsed, IO::Path("Texture Browser/Icon size")));
+        EXPECT_EQ(QJsonValue("14"), getValue(parsed, IO::Path("Renderer/Font size")));
+        EXPECT_EQ(QJsonValue("9729"), getValue(parsed, IO::Path("Renderer/Texture mode mag filter")));
+        EXPECT_EQ(QJsonValue("9987"), getValue(parsed, IO::Path("Renderer/Texture mode min filter")));
+        EXPECT_EQ(QJsonValue("0.925000"), getValue(parsed, IO::Path("Renderer/Brightness")));
+        EXPECT_EQ(QJsonValue("0"), getValue(parsed, IO::Path("Renderer/Show axes")));
+        EXPECT_EQ(QJsonValue("0.220000"), getValue(parsed, IO::Path("Renderer/Grid/Alpha")));
+        EXPECT_EQ(QJsonValue("0.921569 0.666667 0.45098 1"), getValue(parsed, IO::Path("Renderer/Colors/Edges")));
+        EXPECT_EQ(QJsonValue("0.321569 0.0470588 0.141176 1"), getValue(parsed, IO::Path("Renderer/Colors/Background")));
+        EXPECT_EQ(QJsonValue("0.290196 0.643137 0.486275 1"), getValue(parsed, IO::Path("Rendere/Grid/Color2D")));
+        EXPECT_EQ(QJsonValue("2"), getValue(parsed, IO::Path("Views/Map view layout")));
+        EXPECT_EQ(QJsonValue("/home/ericwa/Quake Dev"), getValue(parsed, IO::Path("Games/Quake/Path")));
+        EXPECT_EQ(QJsonValue("/home/ericwa/foo=bar"), getValue(parsed, IO::Path("Games/Generic/Path")));
+        EXPECT_EQ(QJsonValue("/home/ericwa/Quake 3 Arena"), getValue(parsed, IO::Path("Games/Quake 3/Path")));
+        EXPECT_EQ(QJsonValue("87:308:307:0"), getValue(parsed, IO::Path("Menu/File/Export/Wavefront OBJ...")));
+        EXPECT_EQ(QJsonValue("50:308:307:0"), getValue(parsed, IO::Path("Menu/View/Grid/Set Grid Size 0.125")));
+        EXPECT_EQ(QJsonValue("859"), getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/x")));
+        EXPECT_EQ(QJsonValue("473"), getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/y")));
+        EXPECT_EQ(QJsonValue("1024"), getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/w")));
+        EXPECT_EQ(QJsonValue("768"), getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/h")));
+        EXPECT_EQ(QJsonValue("0"), getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/Maximized")));
+        EXPECT_EQ(QJsonValue("0"), getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/Iconized")));
+        EXPECT_EQ(QJsonValue("0"), getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/decor_l")));
+        EXPECT_EQ(QJsonValue("0"), getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/decor_r")));
+        EXPECT_EQ(QJsonValue("37"), getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/decor_t")));
+        EXPECT_EQ(QJsonValue("0"), getValue(parsed, IO::Path("Persistent_Options/Window/MapFrame/decor_b")));
+        EXPECT_EQ(QJsonValue("6533"), getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/MapFrameHSplitter/SplitRatio")));
+        EXPECT_EQ(QJsonValue("8306"), getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/MapFrameVSplitter/SplitRatio")));
+        EXPECT_EQ(QJsonValue("4857"), getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/3PaneMapViewHSplitter/SplitRatio")));
+        EXPECT_EQ(QJsonValue("4850"), getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/3PaneMapViewVSplitter/SplitRatio")));
+        EXPECT_EQ(QJsonValue("2742"), getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/EntityInspectorSplitter/SplitRatio")));
+        EXPECT_EQ(QJsonValue("3333"), getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/EntityAttributeEditorSplitter/SplitRatio")));
+        EXPECT_EQ(QJsonValue("-10000"), getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/EntityDocumentationSplitter/SplitRatio")));
+        EXPECT_EQ(QJsonValue("3656"), getValue(parsed, IO::Path("Persistent_Options/SplitterWindow2/FaceInspectorSplitter/SplitRatio")));
+        EXPECT_EQ(QJsonValue("/home/ericwa/unnamed.map"), getValue(parsed, IO::Path("RecentDocuments/0")));
+        EXPECT_EQ(QJsonValue("68:307:0:0"), getValue(parsed, IO::Path("Filters/Tags/Detail/Toggle Visible")));
+        EXPECT_EQ(QJsonValue("68:0:0:0"), getValue(parsed, IO::Path("Tags/Detail/Enable")));
+        EXPECT_EQ(QJsonValue("68:307:306:0"), getValue(parsed, IO::Path("Tags/Detail/Disable")));
+        EXPECT_EQ(QJsonValue("72:0:0:0"), getValue(parsed, IO::Path("Entities/monster_hell_knight/Create")));
     }
 
-    static void testV2Prefs(const std::map<IO::Path, QString>& v2) {
-        EXPECT_EQ("108", getValue(v2, IO::Path("Controls/Camera/Field of vision")));
-        EXPECT_EQ("R", getValue(v2, IO::Path("Controls/Camera/Move down")));
-        EXPECT_EQ("W", getValue(v2, IO::Path("Controls/Camera/Move up")));
-        EXPECT_EQ("F", getValue(v2, IO::Path("Controls/Camera/Move right")));
-        EXPECT_EQ("S", getValue(v2, IO::Path("Controls/Camera/Move left")));
-        EXPECT_EQ("D", getValue(v2, IO::Path("Controls/Camera/Move backward")));
-        EXPECT_EQ("E", getValue(v2, IO::Path("Controls/Camera/Move forward")));
-        EXPECT_EQ("0.425781", getValue(v2, IO::Path("Controls/Camera/Fly move speed")));
-        EXPECT_EQ("1", getValue(v2, IO::Path("Controls/Camera/Move camera in cursor dir")));
-        EXPECT_EQ("1", getValue(v2, IO::Path("Controls/Camera/Use alt to move")));
-        EXPECT_EQ("0.35", getValue(v2, IO::Path("Controls/Camera/Move speed")));
-        EXPECT_EQ("1", getValue(v2, IO::Path("Controls/Camera/Invert mouse wheel")));
-        EXPECT_EQ("1", getValue(v2, IO::Path("Controls/Camera/Invert vertical pan")));
-        EXPECT_EQ("1", getValue(v2, IO::Path("Controls/Camera/Invert horizontal pan")));
-        EXPECT_EQ("0.55", getValue(v2, IO::Path("Controls/Camera/Pan speed")));
-        EXPECT_EQ("1", getValue(v2, IO::Path("Controls/Camera/Invert vertical look")));
-        EXPECT_EQ("1", getValue(v2, IO::Path("Controls/Camera/Invert horizontal look")));
-        EXPECT_EQ("0.44", getValue(v2, IO::Path("Controls/Camera/Look speed")));
-        EXPECT_EQ("1.5", getValue(v2, IO::Path("Texture Browser/Icon size")));
-        EXPECT_EQ("14", getValue(v2, IO::Path("Renderer/Font size")));
-        EXPECT_EQ("9729", getValue(v2, IO::Path("Renderer/Texture mode mag filter")));
-        EXPECT_EQ("9987", getValue(v2, IO::Path("Renderer/Texture mode min filter")));
-        EXPECT_EQ("0.925", getValue(v2, IO::Path("Renderer/Brightness")));
-        EXPECT_EQ("0", getValue(v2, IO::Path("Renderer/Show axes")));
-        EXPECT_EQ("0.22", getValue(v2, IO::Path("Renderer/Grid/Alpha")));
-        EXPECT_EQ("0.921569 0.666667 0.45098 1", getValue(v2, IO::Path("Renderer/Colors/Edges")));
-        EXPECT_EQ("0.321569 0.0470588 0.141176 1", getValue(v2, IO::Path("Renderer/Colors/Background")));
-        EXPECT_EQ("0.290196 0.643137 0.486275 1", getValue(v2, IO::Path("Rendere/Grid/Color2D")));
-        EXPECT_EQ("2", getValue(v2, IO::Path("Views/Map view layout")));
-        EXPECT_EQ("/home/ericwa/Quake Dev", getValue(v2, IO::Path("Games/Quake/Path")));
-        EXPECT_EQ("/home/ericwa/foo=bar", getValue(v2, IO::Path("Games/Generic/Path")));
-        EXPECT_EQ("/home/ericwa/Quake 3 Arena", getValue(v2, IO::Path("Games/Quake 3/Path")));
-        EXPECT_EQ("Ctrl+Alt+W", getValue(v2, IO::Path("Menu/File/Export/Wavefront OBJ...")));
-        EXPECT_EQ("Ctrl+Alt+2", getValue(v2, IO::Path("Menu/View/Grid/Set Grid Size 0.125")));
-        EXPECT_EQ("Alt+D", getValue(v2, IO::Path("Filters/Tags/Detail/Toggle Visible")));
-        EXPECT_EQ("D", getValue(v2, IO::Path("Tags/Detail/Enable")));
-        EXPECT_EQ("Alt+Shift+D", getValue(v2, IO::Path("Tags/Detail/Disable")));
-        EXPECT_EQ("H", getValue(v2, IO::Path("Entities/monster_hell_knight/Create")));
+    static void testV2Prefs(const std::map<IO::Path, QJsonValue>& v2) {
+        EXPECT_EQ(QJsonValue(108), getValue(v2, IO::Path("Controls/Camera/Field of vision")));
+        EXPECT_EQ(QJsonValue("R"), getValue(v2, IO::Path("Controls/Camera/Move down")));
+        EXPECT_EQ(QJsonValue("W"), getValue(v2, IO::Path("Controls/Camera/Move up")));
+        EXPECT_EQ(QJsonValue("F"), getValue(v2, IO::Path("Controls/Camera/Move right")));
+        EXPECT_EQ(QJsonValue("S"), getValue(v2, IO::Path("Controls/Camera/Move left")));
+        EXPECT_EQ(QJsonValue("D"), getValue(v2, IO::Path("Controls/Camera/Move backward")));
+        EXPECT_EQ(QJsonValue("E"), getValue(v2, IO::Path("Controls/Camera/Move forward")));
+        EXPECT_FLOAT_EQ(0.425781f, static_cast<float>(getValue(v2, IO::Path("Controls/Camera/Fly move speed")).toDouble()));
+        EXPECT_EQ(QJsonValue(true), getValue(v2, IO::Path("Controls/Camera/Move camera in cursor dir")));
+        EXPECT_EQ(QJsonValue(true), getValue(v2, IO::Path("Controls/Camera/Use alt to move")));
+        EXPECT_FLOAT_EQ(0.35f, static_cast<float>(getValue(v2, IO::Path("Controls/Camera/Move speed")).toDouble()));
+        EXPECT_EQ(QJsonValue(true), getValue(v2, IO::Path("Controls/Camera/Invert mouse wheel")));
+        EXPECT_EQ(QJsonValue(true), getValue(v2, IO::Path("Controls/Camera/Invert vertical pan")));
+        EXPECT_EQ(QJsonValue(true), getValue(v2, IO::Path("Controls/Camera/Invert horizontal pan")));
+        EXPECT_FLOAT_EQ(0.55f, static_cast<float>(getValue(v2, IO::Path("Controls/Camera/Pan speed")).toDouble()));
+        EXPECT_EQ(QJsonValue(true), getValue(v2, IO::Path("Controls/Camera/Invert vertical look")));
+        EXPECT_EQ(QJsonValue(true), getValue(v2, IO::Path("Controls/Camera/Invert horizontal look")));
+        EXPECT_FLOAT_EQ(0.44f, static_cast<float>(getValue(v2, IO::Path("Controls/Camera/Look speed")).toDouble()));
+        EXPECT_FLOAT_EQ(1.5f, static_cast<float>(getValue(v2, IO::Path("Texture Browser/Icon size")).toDouble()));
+        EXPECT_EQ(QJsonValue(14), getValue(v2, IO::Path("Renderer/Font size")));
+        EXPECT_EQ(QJsonValue(9729), getValue(v2, IO::Path("Renderer/Texture mode mag filter")));
+        EXPECT_EQ(QJsonValue(9987), getValue(v2, IO::Path("Renderer/Texture mode min filter")));
+        EXPECT_FLOAT_EQ(0.925f, static_cast<float>(getValue(v2, IO::Path("Renderer/Brightness")).toDouble()));
+        EXPECT_EQ(QJsonValue(false), getValue(v2, IO::Path("Renderer/Show axes")));
+        EXPECT_FLOAT_EQ(0.22f, static_cast<float>(getValue(v2, IO::Path("Renderer/Grid/Alpha")).toDouble()));
+        EXPECT_EQ(QJsonValue("0.921569 0.666667 0.45098 1"), getValue(v2, IO::Path("Renderer/Colors/Edges")));
+        EXPECT_EQ(QJsonValue("0.321569 0.0470588 0.141176 1"), getValue(v2, IO::Path("Renderer/Colors/Background")));
+        EXPECT_EQ(QJsonValue("0.290196 0.643137 0.486275 1"), getValue(v2, IO::Path("Rendere/Grid/Color2D")));
+        EXPECT_EQ(QJsonValue(2), getValue(v2, IO::Path("Views/Map view layout")));
+        EXPECT_EQ(QJsonValue("/home/ericwa/Quake Dev"), getValue(v2, IO::Path("Games/Quake/Path")));
+        EXPECT_EQ(QJsonValue("/home/ericwa/foo=bar"), getValue(v2, IO::Path("Games/Generic/Path")));
+        EXPECT_EQ(QJsonValue("/home/ericwa/Quake 3 Arena"), getValue(v2, IO::Path("Games/Quake 3/Path")));
+        EXPECT_EQ(QJsonValue("Ctrl+Alt+W"), getValue(v2, IO::Path("Menu/File/Export/Wavefront OBJ...")));
+        EXPECT_EQ(QJsonValue("Ctrl+Alt+2"), getValue(v2, IO::Path("Menu/View/Grid/Set Grid Size 0.125")));
+        EXPECT_EQ(QJsonValue("Alt+D"), getValue(v2, IO::Path("Filters/Tags/Detail/Toggle Visible")));
+        EXPECT_EQ(QJsonValue("D"), getValue(v2, IO::Path("Tags/Detail/Enable")));
+        EXPECT_EQ(QJsonValue("Alt+Shift+D"), getValue(v2, IO::Path("Tags/Detail/Disable")));
+        EXPECT_EQ(QJsonValue("H"), getValue(v2, IO::Path("Entities/monster_hell_knight/Create")));
 
         // We don't bother migrating these ones
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/x")));
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/y")));
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/w")));
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/h")));
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/Maximized")));
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/Iconized")));
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/decor_l")));
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/decor_r")));
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/decor_t")));
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/decor_b")));
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/MapFrameHSplitter/SplitRatio")));
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/MapFrameVSplitter/SplitRatio")));
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/3PaneMapViewHSplitter/SplitRatio")));
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/3PaneMapViewVSplitter/SplitRatio")));
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/EntityInspectorSplitter/SplitRatio")));
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/EntityAttributeEditorSplitter/SplitRatio")));
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/EntityDocumentationSplitter/SplitRatio")));
-        EXPECT_EQ("", getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/FaceInspectorSplitter/SplitRatio")));
-        EXPECT_EQ("", getValue(v2, IO::Path("RecentDocuments/0")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/x")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/y")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/w")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/h")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/Maximized")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/Iconized")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/decor_l")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/decor_r")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/decor_t")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/decor_b")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/MapFrameHSplitter/SplitRatio")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/MapFrameVSplitter/SplitRatio")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/3PaneMapViewHSplitter/SplitRatio")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/3PaneMapViewVSplitter/SplitRatio")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/EntityInspectorSplitter/SplitRatio")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/EntityAttributeEditorSplitter/SplitRatio")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/EntityDocumentationSplitter/SplitRatio")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("Persistent_Options/SplitterWindow2/FaceInspectorSplitter/SplitRatio")));
+        EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("RecentDocuments/0")));
     }
 
     TEST(PreferencesTest, migrateV1) {
-        const std::map<IO::Path, QString> v1 = getINISettingsV1("fixture/test/preferences-v1.ini");
-        const std::map<IO::Path, QString> v2 = migrateV1ToV2(v1);
+        const std::map<IO::Path, QJsonValue> v1 = getINISettingsV1("fixture/test/preferences-v1.ini");
+        const std::map<IO::Path, QJsonValue> v2 = migrateV1ToV2(v1);
 
         testV2Prefs(v2);
 
@@ -190,13 +190,13 @@ namespace TrenchBroom {
     }
 
     TEST(PreferencesTest, readV2) {
-        const std::map<IO::Path, QString> v2 = readV2SettingsFromPath("fixture/test/preferences-v2.json");
+        const std::map<IO::Path, QJsonValue> v2 = readV2SettingsFromPath("fixture/test/preferences-v2.json");
         testV2Prefs(v2);
     }
 
     TEST(PreferencesTest, testWriteReadV2) {
-        const std::map<IO::Path, QString> v1 = getINISettingsV1("fixture/test/preferences-v1.ini");
-        const std::map<IO::Path, QString> v2 = migrateV1ToV2(v1);
+        const std::map<IO::Path, QJsonValue> v1 = getINISettingsV1("fixture/test/preferences-v1.ini");
+        const std::map<IO::Path, QJsonValue> v2 = migrateV1ToV2(v1);
 
         const QByteArray v2Serialized = writeV2SettingsToJSON(v2);
         const auto v2Deserialized = parseV2SettingsFromJSON(v2Serialized);
@@ -208,30 +208,25 @@ namespace TrenchBroom {
      * Helper template so we don't need to use out parameters in the tests
      */
     template <class Serializer, class PrimitiveType>
-    static nonstd::optional<PrimitiveType> maybeDeserialize(const QString& string) {
+    static nonstd::optional<PrimitiveType> maybeDeserialize(const QJsonValue& string) {
         const Serializer s;
         PrimitiveType result;
-        if (s.readFromString(string, &result)) {
+        if (s.readFromJSON(string, &result)) {
             return { result };
         }
         return nonstd::nullopt;
     }
 
     template <class Serializer, class PrimitiveType>
-    static QString serialize(const PrimitiveType& value) {
+    static QJsonValue serialize(const PrimitiveType& value) {
         const Serializer s;
-        QString result;
-        QTextStream stream(&result);
-
-        s.writeToString(stream, value);
-
-        return result;
+        return s.writeToJSON(value);
     }
 
     template <class Serializer, class PrimitiveType>
-    static void testSerialize(const QString& str, const PrimitiveType& value) {
+    static void testSerialize(const QJsonValue& str, const PrimitiveType& value) {
         const auto testDeserializeOption = maybeDeserialize<Serializer, PrimitiveType>(str);
-        const QString testSerialize = serialize<Serializer, PrimitiveType>(value);
+        const QJsonValue testSerialize = serialize<Serializer, PrimitiveType>(value);
 
         ASSERT_TRUE(testDeserializeOption.has_value());
 
@@ -243,61 +238,61 @@ namespace TrenchBroom {
         EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV1, bool>("").has_value()));
         EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV1, bool>("-1").has_value()));
 
-        testSerialize<PreferenceSerializerV1, bool>("0", false);
-        testSerialize<PreferenceSerializerV1, bool>("1", true);
+        testSerialize<PreferenceSerializerV1, bool>(QJsonValue("0"), false);
+        testSerialize<PreferenceSerializerV1, bool>(QJsonValue("1"), true);
     }
 
     TEST(PreferencesTest, serializeV1Color) {
-        EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV1, Color>("0.921569 0.666667").has_value())); // must give 3 or 4 components
+        EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV1, Color>(QJsonValue("0.921569 0.666667")).has_value())); // must give 3 or 4 components
 
         testSerialize<PreferenceSerializerV1, Color>(
-            "0.921569 0.666667 0.45098 0.5",
+            QJsonValue("0.921569 0.666667 0.45098 0.5"),
             Color(0.921569f, 0.666667f, 0.45098f, 0.5f));
     }
 
     TEST(PreferencesTest, serializeV1float) {
-        testSerialize<PreferenceSerializerV1, float>("0.921569", 0.921569f);
+        testSerialize<PreferenceSerializerV1, float>(QJsonValue("0.921569"), 0.921569f);
     }
 
     TEST(PreferencesTest, serializeV1int) {
-        testSerialize<PreferenceSerializerV1, int>("0", 0);
-        testSerialize<PreferenceSerializerV1, int>("-1", -1);
-        testSerialize<PreferenceSerializerV1, int>("1000", 1000);
+        testSerialize<PreferenceSerializerV1, int>(QJsonValue("0"), 0);
+        testSerialize<PreferenceSerializerV1, int>(QJsonValue("-1"), -1);
+        testSerialize<PreferenceSerializerV1, int>(QJsonValue("1000"), 1000);
     }
 
     TEST(PreferencesTest, serializeV1Path) {
 #ifdef _WIN32
-        testSerialize<PreferenceSerializerV1, IO::Path>("c:\\foo\\bar", IO::Path("c:\\foo\\bar"));
-        testSerialize<PreferenceSerializerV1, IO::Path>("c:\\foo\\bar", IO::Path("c:/foo/bar"));
-        testSerialize<PreferenceSerializerV1, IO::Path>("\\home\\foo\\bar", IO::Path("/home/foo/bar"));
-        testSerialize<PreferenceSerializerV1, IO::Path>("\\home\\foo\\bar", IO::Path("\\home\\foo\\bar"));
+        testSerialize<PreferenceSerializerV1, IO::Path>(QJsonValue("c:\\foo\\bar"), IO::Path("c:\\foo\\bar"));
+        testSerialize<PreferenceSerializerV1, IO::Path>(QJsonValue("c:\\foo\\bar"), IO::Path("c:/foo/bar"));
+        testSerialize<PreferenceSerializerV1, IO::Path>(QJsonValue("\\home\\foo\\bar"), IO::Path("/home/foo/bar"));
+        testSerialize<PreferenceSerializerV1, IO::Path>(QJsonValue("\\home\\foo\\bar"), IO::Path("\\home\\foo\\bar"));
 #else
-        testSerialize<PreferenceSerializerV1, IO::Path>("c:/foo/bar", IO::Path("c:\\foo\\bar"));
-        testSerialize<PreferenceSerializerV1, IO::Path>("c:/foo/bar", IO::Path("c:/foo/bar"));
-        testSerialize<PreferenceSerializerV1, IO::Path>("/home/foo/bar", IO::Path("/home/foo/bar"));
-        testSerialize<PreferenceSerializerV1, IO::Path>("home/foo/bar", IO::Path("\\home\\foo\\bar"));
+        testSerialize<PreferenceSerializerV1, IO::Path>(QJsonValue("c:/foo/bar"), IO::Path("c:\\foo\\bar"));
+        testSerialize<PreferenceSerializerV1, IO::Path>(QJsonValue("c:/foo/bar"), IO::Path("c:/foo/bar"));
+        testSerialize<PreferenceSerializerV1, IO::Path>(QJsonValue("/home/foo/bar"), IO::Path("/home/foo/bar"));
+        testSerialize<PreferenceSerializerV1, IO::Path>(QJsonValue("home/foo/bar"), IO::Path("\\home\\foo\\bar"));
 #endif
-        testSerialize<PreferenceSerializerV1, IO::Path>("", IO::Path());
+        testSerialize<PreferenceSerializerV1, IO::Path>(QJsonValue(""), IO::Path());
     }
 
     TEST(PreferencesTest, serializeV1KeyboardShortcut) {
         // These come from wxWidgets TrenchBroom 2019.6, on Windows
-        testSerialize<PreferenceSerializerV1, QKeySequence>("87:307:306:0",   QKeySequence::fromString("Alt+Shift+W"));
-        testSerialize<PreferenceSerializerV1, QKeySequence>("87:307:0:0",     QKeySequence::fromString("Alt+W"));
-        testSerialize<PreferenceSerializerV1, QKeySequence>("87:308:307:0",   QKeySequence::fromString("Ctrl+Alt+W"));
-        testSerialize<PreferenceSerializerV1, QKeySequence>("87:306:0:0",     QKeySequence::fromString("Shift+W"));
-        testSerialize<PreferenceSerializerV1, QKeySequence>("77:308:0:0",     QKeySequence::fromString("Ctrl+M"));
-        testSerialize<PreferenceSerializerV1, QKeySequence>("65:308:307:306", QKeySequence::fromString("Ctrl+Alt+Shift+A"));
-        testSerialize<PreferenceSerializerV1, QKeySequence>("348:306:0:0",    QKeySequence::fromString("Shift+F9"));
+        testSerialize<PreferenceSerializerV1, QKeySequence>(QJsonValue("87:307:306:0"),   QKeySequence::fromString("Alt+Shift+W"));
+        testSerialize<PreferenceSerializerV1, QKeySequence>(QJsonValue("87:307:0:0"),     QKeySequence::fromString("Alt+W"));
+        testSerialize<PreferenceSerializerV1, QKeySequence>(QJsonValue("87:308:307:0"),   QKeySequence::fromString("Ctrl+Alt+W"));
+        testSerialize<PreferenceSerializerV1, QKeySequence>(QJsonValue("87:306:0:0"),     QKeySequence::fromString("Shift+W"));
+        testSerialize<PreferenceSerializerV1, QKeySequence>(QJsonValue("77:308:0:0"),     QKeySequence::fromString("Ctrl+M"));
+        testSerialize<PreferenceSerializerV1, QKeySequence>(QJsonValue("65:308:307:306"), QKeySequence::fromString("Ctrl+Alt+Shift+A"));
+        testSerialize<PreferenceSerializerV1, QKeySequence>(QJsonValue("348:306:0:0"),    QKeySequence::fromString("Shift+F9"));
 
         // From macOS
-        testSerialize<PreferenceSerializerV1, QKeySequence>("80:308:0:0",     QKeySequence::fromString("Ctrl+P")); // "Ctrl" in Qt = Command in macOS
-        testSerialize<PreferenceSerializerV1, QKeySequence>("80:307:0:0",     QKeySequence::fromString("Alt+P")); // "Alt" in Qt = Alt in macOS
+        testSerialize<PreferenceSerializerV1, QKeySequence>(QJsonValue("80:308:0:0"),     QKeySequence::fromString("Ctrl+P")); // "Ctrl" in Qt = Command in macOS
+        testSerialize<PreferenceSerializerV1, QKeySequence>(QJsonValue("80:307:0:0"),     QKeySequence::fromString("Alt+P")); // "Alt" in Qt = Alt in macOS
     }
 
     TEST(PreferencesTest, serializeV2KeyboardShortcut) {
-        testSerialize<PreferenceSerializerV2, QKeySequence>("Alt+Shift+W",    QKeySequence::fromString("Alt+Shift+W"));
-        testSerialize<PreferenceSerializerV2, QKeySequence>("Meta+W",         QKeySequence::fromString("Meta+W")); // "Meta" in Qt = Control in macOS
+        testSerialize<PreferenceSerializerV2, QKeySequence>(QJsonValue("Alt+Shift+W"),    QKeySequence::fromString("Alt+Shift+W"));
+        testSerialize<PreferenceSerializerV2, QKeySequence>(QJsonValue("Meta+W"),         QKeySequence::fromString("Meta+W")); // "Meta" in Qt = Control in macOS
     }
 
     TEST(PreferencesTest, testWxViewShortcutsAndMenuShortcutsRecognized) {
