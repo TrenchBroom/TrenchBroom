@@ -372,11 +372,32 @@ namespace TrenchBroom {
         }
 
         const QJsonValue jsonValue = it->second;
-        assertResult(pref->loadFromJSON(format, jsonValue))
+        if (!pref->loadFromJSON(format, jsonValue)) {
+            // FIXME: Log to TB console
+            const QVariant variantValue = jsonValue.toVariant();
+            qDebug() << "Failed to load preference " << IO::pathAsQString(pref->path(), "/")
+                     << " from JSON value: " << variantValue.toString() << " (" << variantValue.typeName() << ")";
+
+            pref->resetToDefault();
+
+            // Replace the invalid value in the cache with the default
+            savePreferenceToCache(pref);
+
+            // FIXME: trigger writing to disk
+        }
         pref->setValid(true);
     }
 
     void PreferenceManager::savePreferenceToCache(PreferenceBase* pref) {
+        if (pref->isDefault()) {
+            // Just remove the key/value from the cache if it's already at the default value
+            auto it = m_cache.find(pref->path());
+            if (it != m_cache.end()) {
+                m_cache.erase(it);
+            }
+            return;
+        }
+
         PreferenceSerializerV2 format;
         const QJsonValue jsonValue = pref->writeToJSON(format);
 
