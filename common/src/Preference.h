@@ -89,6 +89,7 @@ namespace TrenchBroom {
             const PrefSerializer& to, const QJsonValue& input) const = 0;
         virtual bool loadFromJSON(const PrefSerializer& format, const QJsonValue& value) = 0;
         virtual QJsonValue writeToJSON(const PrefSerializer& format) const = 0;
+        virtual bool isDefault() const = 0;
     };
 
     class DynamicPreferencePatternBase {
@@ -184,6 +185,10 @@ namespace TrenchBroom {
 
         QJsonValue writeToJSON(const PrefSerializer& format) const override {
             return format.writeToJSON(value());
+        }
+
+        bool isDefault() const override {
+            return m_defaultValue == m_value;
         }
     };
 }
