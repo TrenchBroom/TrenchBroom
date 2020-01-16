@@ -69,7 +69,7 @@ namespace TrenchBroom {
             QColor borderColor() {
                 static const QColor col =
 #if defined __APPLE__
-                QColor(67, 67, 67);
+                QColor(90, 90, 90);
 #else
                 QColor(Qt::black);
 #endif
