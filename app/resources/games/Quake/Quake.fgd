@@ -63,6 +63,7 @@
 @PointClass base(PlayerClass) = info_player_coop : "Player cooperative start" []
 @PointClass base(PlayerClass) = info_player_start2 : "Player episode return point" []
 @PointClass base(PlayerClass) = info_player_deathmatch : "Deathmatch start" []
+@PointClass base(PlayerClass) = testplayerstart : "Testing player start" []
 @PointClass size(-32 -32 0, 32 32 64) base(PlayerClass, Targetname) = info_teleport_destination : "Teleporter destination" []
 @PointClass color(200 150 150) = info_null : "info_null (spotlight target)"
 [
