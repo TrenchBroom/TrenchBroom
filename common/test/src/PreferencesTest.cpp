@@ -190,8 +190,18 @@ namespace TrenchBroom {
     }
 
     TEST(PreferencesTest, readV2) {
-        const std::map<IO::Path, QJsonValue> v2 = readV2SettingsFromPath("fixture/test/preferences-v2.json");
-        testV2Prefs(v2);
+        // Invalid JSON -> parse error -> parseV2SettingsFromJSON() is expected to return nullopt
+        ASSERT_EQ(PreferencesResult::Status::JsonParseError, parseV2SettingsFromJSON(QByteArray()).status);
+        ASSERT_EQ(PreferencesResult::Status::JsonParseError, parseV2SettingsFromJSON(QByteArray("abc")).status);
+        ASSERT_EQ(PreferencesResult::Status::JsonParseError, parseV2SettingsFromJSON(QByteArray(R"({"foo": "bar",})")).status);
+
+        // Valid JSON
+        ASSERT_EQ(PreferencesResult::Status::Valid, parseV2SettingsFromJSON(QByteArray(R"({"foo": "bar"})")).status);
+        ASSERT_EQ(PreferencesResult::Status::Valid, parseV2SettingsFromJSON(QByteArray("{}")).status);
+
+        const PreferencesResult v2 = readV2SettingsFromPath("fixture/test/preferences-v2.json");
+        ASSERT_EQ(PreferencesResult::Status::Valid, v2.status);
+        testV2Prefs(v2.map);
     }
 
     TEST(PreferencesTest, testWriteReadV2) {
@@ -201,7 +211,8 @@ namespace TrenchBroom {
         const QByteArray v2Serialized = writeV2SettingsToJSON(v2);
         const auto v2Deserialized = parseV2SettingsFromJSON(v2Serialized);
 
-        EXPECT_EQ(v2, v2Deserialized);
+        ASSERT_EQ(PreferencesResult::Status::Valid, v2Deserialized.status);
+        EXPECT_EQ(v2, v2Deserialized.map);
     }
 
     /**

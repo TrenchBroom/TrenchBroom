@@ -25,6 +25,7 @@
 #include "Preference.h"
 
 #include <kdl/vector_set.h>
+#include <nonstd/optional.hpp>
 
 #include <map>
 #include <memory>
@@ -34,7 +35,7 @@
 #include <QByteArray>
 #include <QString>
 #include <QThread>
-
+#include <QJsonParseError>
 class QTextStream;
 class QFileSystemWatcher;
 
@@ -188,6 +189,24 @@ namespace TrenchBroom {
         return prefs.get(preference);
     }
 
+    struct PreferencesResult {
+        enum class Status {
+            Valid,
+            NoFilePresent,
+            JsonParseError,
+            FileReadError
+        };
+
+        Status status;
+        std::map<IO::Path, QJsonValue> map;
+        QJsonParseError error;
+
+        static PreferencesResult parseError(const QJsonParseError& i_parseError);
+        static PreferencesResult valid(const std::map<IO::Path, QJsonValue>& i_map);
+        static PreferencesResult noFilePresent();
+        static PreferencesResult fileReadError();
+    };
+
     // V1 settings
     std::map<IO::Path, QJsonValue> parseINI(QTextStream* iniStream);
     std::map<IO::Path, QJsonValue> getINISettingsV1(const QString& path);
@@ -196,12 +215,11 @@ namespace TrenchBroom {
 
     // V2 settings
     QString v2SettingsPath();
-    std::map<IO::Path, QJsonValue> readV2SettingsFromPath(const QString& path);
-    std::map<IO::Path, QJsonValue> readV2Settings();
+    PreferencesResult readV2SettingsFromPath(const QString& path);
+    PreferencesResult readV2Settings();
 
     bool writeV2SettingsToPath(const QString& path, const std::map<IO::Path, QJsonValue>& v2Prefs);
-
-    std::map<IO::Path, QJsonValue> parseV2SettingsFromJSON(const QByteArray& jsonData);
+    PreferencesResult parseV2SettingsFromJSON(const QByteArray& jsonData);
     QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QJsonValue>& v2Prefs);
 
     // Migration

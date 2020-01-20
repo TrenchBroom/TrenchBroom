@@ -334,7 +334,26 @@ namespace TrenchBroom {
         const std::map<IO::Path, QJsonValue> oldPrefs = m_cache;
 
         // Reload m_cache
-        m_cache = readV2SettingsFromPath(m_preferencesFilePath);
+        const PreferencesResult result = readV2SettingsFromPath(m_preferencesFilePath);
+        switch (result.status) {
+            case PreferencesResult::Status::FileReadError:
+                // FIXME: Log error. Set a flag indicating the file has a parse error.
+                // Refuse to overwrite it.
+                m_cache = {};
+                break;
+            case PreferencesResult::Status::JsonParseError:
+                // FIXME: Log error. Set a flag indicating the file has a parse error.
+                // Refuse to overwrite it.
+                m_cache = {};
+                break;
+            case PreferencesResult::Status::NoFilePresent:
+                m_cache = {};
+                break;
+            case PreferencesResult::Status::Valid:
+                m_cache = result.map;
+                break;
+        }
+        
         invalidatePreferences();
 
         // Emit preferenceDidChangeNotifier for any changed preferences
@@ -402,6 +421,36 @@ namespace TrenchBroom {
         const QJsonValue jsonValue = pref->writeToJSON(format);
 
         m_cache[pref->path()] = jsonValue;
+    }
+
+    //
+    // Preferences
+    //
+
+    PreferencesResult PreferencesResult::parseError(const QJsonParseError& i_parseError) {
+        PreferencesResult result;
+        result.status = Status::JsonParseError;
+        result.error = i_parseError;
+        return result;
+    }
+
+    PreferencesResult PreferencesResult::valid(const std::map<IO::Path, QJsonValue>& i_map) {
+        PreferencesResult result;
+        result.status = Status::Valid;
+        result.map = i_map;
+        return result;
+    }
+
+    PreferencesResult PreferencesResult::noFilePresent() {
+        PreferencesResult result;
+        result.status = Status::NoFilePresent;
+        return result;
+    }
+
+    PreferencesResult PreferencesResult::fileReadError() {
+        PreferencesResult result;
+        result.status = Status::FileReadError;
+        return result;
     }
 
     // V1 settings
@@ -602,10 +651,13 @@ namespace TrenchBroom {
         return IO::pathAsQString(IO::SystemPaths::userDataDirectory() + IO::Path("Preferences.json"));
     }
 
-    std::map<IO::Path, QJsonValue> readV2SettingsFromPath(const QString& path) {
+    PreferencesResult readV2SettingsFromPath(const QString& path) {
         QFile file(path);
+        if (!file.exists()) {
+            return PreferencesResult::noFilePresent();
+        }
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            return {};
+            return PreferencesResult::fileReadError();
         }
 
         return parseV2SettingsFromJSON(file.readAll());
@@ -627,17 +679,17 @@ namespace TrenchBroom {
         return saveFile.commit();
     }
 
-    std::map<IO::Path, QJsonValue> readV2Settings() {
+    PreferencesResult readV2Settings() {
         const QString path = v2SettingsPath();
         return readV2SettingsFromPath(path);
     }
 
-    std::map<IO::Path, QJsonValue> parseV2SettingsFromJSON(const QByteArray& jsonData) {
-        QJsonParseError error;
+    PreferencesResult parseV2SettingsFromJSON(const QByteArray& jsonData) {
+        auto error = QJsonParseError();
         const QJsonDocument document = QJsonDocument::fromJson(jsonData, &error);
 
         if (error.error != QJsonParseError::NoError || !document.isObject()) {
-            return {};
+            return PreferencesResult::parseError(error);
         }
 
         const QJsonObject object = document.object();
@@ -648,7 +700,7 @@ namespace TrenchBroom {
 
             result[IO::pathFromQString(key)] = value;
         }
-        return result;
+        return PreferencesResult::valid(result);
     }
 
     QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QJsonValue>& v2Prefs) {
