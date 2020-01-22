@@ -46,6 +46,7 @@ namespace TrenchBroom {
 
             auto* texture = loadTextureImage(shader.shaderPath, texturePath);
             texture->setSurfaceParms(shader.surfaceParms);
+            texture->setOpaque();
 
             // Note that Quake 3 has a different understanding of front and back, so we need to invert them.
             switch (shader.culling) {
@@ -67,6 +68,8 @@ namespace TrenchBroom {
                         glGetEnum(stage.blendFunc.srcFactor),
                         glGetEnum(stage.blendFunc.destFactor)
                     );
+                } else {
+                    texture->disableBlend();
                 }
             }
 
