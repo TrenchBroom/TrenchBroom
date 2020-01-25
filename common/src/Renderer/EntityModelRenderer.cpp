@@ -19,11 +19,14 @@
 
 #include "EntityModelRenderer.h"
 
+#include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Assets/AssetUtils.h"
 #include "Assets/EntityModel.h"
 #include "Assets/EntityModelManager.h"
 #include "Assets/ModelDefinition.h"
+#include "EL/ELExceptions.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Renderer/ActiveShader.h"
@@ -38,7 +41,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        EntityModelRenderer::EntityModelRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext) :
+        EntityModelRenderer::EntityModelRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext) :
+        m_logger(logger),
         m_entityModelManager(entityModelManager),
         m_editorContext(editorContext),
         m_applyTinting(false),
@@ -49,14 +53,21 @@ namespace TrenchBroom {
         }
 
         void EntityModelRenderer::addEntity(Model::Entity* entity) {
-            const auto modelSpec = entity->modelSpecification();
+            const auto modelSpec = Assets::safeGetModelSpecification(m_logger, entity->classname(), [&]() {
+                return entity->modelSpecification();
+            });
+
             auto* renderer = m_entityModelManager.renderer(modelSpec);
-            if (renderer != nullptr)
+            if (renderer != nullptr) {
                 m_entities.insert(std::make_pair(entity, renderer));
+            }
         }
 
         void EntityModelRenderer::updateEntity(Model::Entity* entity) {
-            const auto& modelSpec = entity->modelSpecification();
+            const auto modelSpec = Assets::safeGetModelSpecification(m_logger, entity->classname(), [&]() {
+                return entity->modelSpecification();
+            });
+
             auto* renderer = m_entityModelManager.renderer(modelSpec);
             EntityMap::iterator it = m_entities.find(entity);
 

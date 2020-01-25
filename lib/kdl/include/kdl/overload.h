@@ -15,8 +15,8 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef TRENCHBROOM_OVERLOADED_H
-#define TRENCHBROOM_OVERLOADED_H
+#ifndef TRENCHBROOM_OVERLOAD_H
+#define TRENCHBROOM_OVERLOAD_H
 
 namespace kdl {
     /**
@@ -28,14 +28,14 @@ namespace kdl {
      * @tparam Ts the lambdas to inherit from
      */
     template<typename... Ts>
-    struct overloaded : Ts... {
+    struct overload : Ts... {
         using Ts::operator()...;
     };
 
     /**
      * Deduction guide.
      */
-    template<typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+    template<typename... Ts> overload(Ts...) -> overload<Ts...>;
 }
 
-#endif //TRENCHBROOM_OVERLOADED_H
+#endif //TRENCHBROOM_OVERLOAD_H

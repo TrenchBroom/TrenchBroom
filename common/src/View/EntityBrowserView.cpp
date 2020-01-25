@@ -23,6 +23,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
+#include "Assets/AssetUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -42,6 +43,7 @@
 #include "View/MapFrame.h"
 #include "View/QtUtils.h"
 
+#include <kdl/overload.h>
 #include <kdl/skip_iterator.h>
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
@@ -188,8 +190,10 @@ namespace TrenchBroom {
                 const auto maxCellWidth = layout.maxCellWidth();
                 const auto actualFont = fontManager().selectFontSize(font, definition->name(), maxCellWidth, 5);
                 const auto actualSize = fontManager().font(actualFont).measure(definition->name());
+                const auto spec = Assets::safeGetModelSpecification(m_logger, definition->name(), [&]() {
+                    return definition->defaultModel();
+                });
 
-                const auto spec = definition->defaultModel();
                 const auto* frame = m_entityModelManager.frame(spec);
                 Renderer::TexturedRenderer* modelRenderer = nullptr;
 

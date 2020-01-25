@@ -1,5 +1,6 @@
 set(COMMON_TEST_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(COMMON_TEST_SOURCE
+        "${COMMON_TEST_SOURCE_DIR}/Assets/AssetUtilsTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Assets/EntityDefinitionTestUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Assets/EntityDefinitionTestUtils.h"
         "${COMMON_TEST_SOURCE_DIR}/EL/ELTest.cpp"
@@ -81,6 +82,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/QtPrettyPrinters.h"
         "${COMMON_TEST_SOURCE_DIR}/RunAllTests.cpp"
         "${COMMON_TEST_SOURCE_DIR}/StackWalkerTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/TestLogger.cpp"
         "${COMMON_TEST_SOURCE_DIR}/TestUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/TestUtils.h"
 )

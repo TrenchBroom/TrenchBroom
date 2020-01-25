@@ -64,10 +64,10 @@ namespace TrenchBroom {
             }
         };
 
-        EntityRenderer::EntityRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext) :
+        EntityRenderer::EntityRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext) :
         m_entityModelManager(entityModelManager),
         m_editorContext(editorContext),
-        m_modelRenderer(m_entityModelManager, m_editorContext),
+        m_modelRenderer(logger, m_entityModelManager, m_editorContext),
         m_boundsValid(false),
         m_showOverlays(true),
         m_showOccludedOverlays(false),
