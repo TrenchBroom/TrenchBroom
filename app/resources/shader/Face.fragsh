@@ -21,6 +21,7 @@
 
 uniform float Brightness;
 uniform float Alpha;
+uniform bool EnableMasked;
 uniform bool ApplyTexture;
 uniform sampler2D Texture;
 uniform bool ApplyTinting;
@@ -48,7 +49,7 @@ void main() {
 
     // Assume alpha masked or opaque.
     // TODO: Make this optional if we gain support for translucent textures
-    if (gl_FragColor.a < 0.5) {
+    if (EnableMasked && gl_FragColor.a < 0.5) {
         discard;
     }
 

@@ -100,14 +100,17 @@ namespace TrenchBroom {
             size_t height() const;
             const Color& averageColor() const;
 
+            bool masked() const;
+            void setOpaque();
+            
             const std::set<std::string>& surfaceParms() const;
             void setSurfaceParms(const std::set<std::string>& surfaceParms);
 
             TextureCulling culling() const;
             void setCulling(TextureCulling culling);
 
-            const TextureBlendFunc& blendFunc() const;
             void setBlendFunc(GLenum srcFactor, GLenum destFactor);
+            void disableBlend();
 
             size_t usageCount() const;
             void incUsageCount();

@@ -76,8 +76,11 @@ namespace TrenchBroom {
                 size_t uvIndex;
             };
 
-            using MeshFace = std::array<MeshFaceVertex, 3>;
-
+            struct MeshFace {
+                std::array<MeshFaceVertex, 3> vertices;
+                size_t line;
+            };
+            
             struct Mesh {
                 std::vector<vm::vec3f> vertices;
                 std::vector<vm::vec2f> uv;
@@ -88,6 +91,7 @@ namespace TrenchBroom {
                 std::string name;
                 Mesh mesh;
                 size_t materialIndex;
+                size_t line;
             };
 
             struct Scene {
@@ -154,6 +158,7 @@ namespace TrenchBroom {
             TokenNameMap tokenNames() const override;
         private: // model construction
             std::unique_ptr<Assets::EntityModel> buildModel(Logger& logger, const Scene& scene) const;
+            bool checkIndices(Logger& logger, const MeshFace& face, const Mesh& mesh) const;
             std::unique_ptr<Assets::Texture> loadTexture(Logger& logger, const Path& path) const;
             Path fixTexturePath(Logger& logger, Path path) const;
         };

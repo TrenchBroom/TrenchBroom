@@ -175,6 +175,7 @@ namespace TrenchBroom {
                 shader.set("ShadeFaces", shadeFaces);
                 shader.set("ShowFog", showFog);
                 shader.set("Alpha", m_alpha);
+                shader.set("EnableMasked", false);
 
                 RenderFunc func(shader, applyTexture, m_faceColor);
                 if (m_alpha < 1.0f) {
@@ -185,8 +186,11 @@ namespace TrenchBroom {
                         continue;
                     }
 
+                    const bool enableMasked = texture != nullptr && texture->masked();
+                    
                     // set any per-texture uniforms
                     shader.set("GridColor", gridColorForTexture(texture));
+                    shader.set("EnableMasked", enableMasked);
 
                     func.before(texture);
                     brushIndexHolderPtr->setupIndices();

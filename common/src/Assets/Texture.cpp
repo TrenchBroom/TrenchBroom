@@ -121,6 +121,14 @@ namespace TrenchBroom {
             return m_averageColor;
         }
 
+        bool Texture::masked() const {
+            return m_type == TextureType::Masked;
+        }
+    
+        void Texture::setOpaque() {
+            m_type = TextureType::Opaque;
+        }
+    
         const std::set<std::string>& Texture::surfaceParms() const {
             return m_surfaceParms;
         }
@@ -137,14 +145,14 @@ namespace TrenchBroom {
             m_culling = culling;
         }
 
-        const TextureBlendFunc& Texture::blendFunc() const {
-            return m_blendFunc;
-        }
-
         void Texture::setBlendFunc(GLenum srcFactor, GLenum destFactor) {
             m_blendFunc.enable = true;
             m_blendFunc.srcFactor = srcFactor;
             m_blendFunc.destFactor = destFactor;
+        }
+    
+        void Texture::disableBlend() {
+            m_blendFunc.enable = false;
         }
 
         size_t Texture::usageCount() const {
@@ -260,18 +268,19 @@ namespace TrenchBroom {
                         break;
                 }
 
+
+                glAssert(glPushAttrib(GL_COLOR_BUFFER_BIT));
                 if (m_blendFunc.enable) {
-                    glAssert(glPushAttrib(GL_COLOR_BUFFER_BIT));
                     glAssert(glBlendFunc(m_blendFunc.srcFactor, m_blendFunc.destFactor));
+                } else {
+                    glAssert(glDisable(GL_BLEND));
                 }
             }
         }
 
         void Texture::deactivate() const {
             if (isPrepared()) {
-                if (m_blendFunc.enable) {
-                    glAssert(glPopAttrib());
-                }
+                glAssert(glPopAttrib());
 
                 switch (m_culling) {
                     case Assets::TextureCulling::CullNone:
