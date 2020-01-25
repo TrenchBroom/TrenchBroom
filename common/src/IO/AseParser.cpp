@@ -505,12 +505,24 @@ namespace TrenchBroom {
                     if (!checkIndices(logger, face, mesh)) {
                         continue;
                     }
+
+                    const auto& fv0 = face.vertices[0];
+                    const auto& fv1 = face.vertices[1];
+                    const auto& fv2 = face.vertices[2];
+
+                    const auto v0 = mesh.vertices[fv0.vertexIndex];
+                    const auto v1 = mesh.vertices[fv1.vertexIndex];
+                    const auto v2 = mesh.vertices[fv2.vertexIndex];
                     
+                    const auto uv0 = fv0.uvIndex == 0u && mesh.uv.empty() ? vm::vec2f::zero() : mesh.uv[fv0.uvIndex];
+                    const auto uv1 = fv1.uvIndex == 0u && mesh.uv.empty() ? vm::vec2f::zero() : mesh.uv[fv1.uvIndex];
+                    const auto uv2 = fv2.uvIndex == 0u && mesh.uv.empty() ? vm::vec2f::zero() : mesh.uv[fv2.uvIndex];
+
                     builder.addTriangle(
                         texture,
-                        Vertex(mesh.vertices[face.vertices[2].vertexIndex], mesh.uv[face.vertices[2].uvIndex]),
-                        Vertex(mesh.vertices[face.vertices[1].vertexIndex], mesh.uv[face.vertices[1].uvIndex]),
-                        Vertex(mesh.vertices[face.vertices[0].vertexIndex], mesh.uv[face.vertices[0].uvIndex]));
+                        Vertex(v2, uv2),
+                        Vertex(v1, uv1),
+                        Vertex(v0, uv0));
                 }
 
             }
@@ -525,7 +537,7 @@ namespace TrenchBroom {
                 if (faceVertex.vertexIndex >= mesh.vertices.size()) {
                     logger.warn() << "Line " << face.line << ": Vertex index " << faceVertex.vertexIndex << " is out of bounds, skipping face";
                     return false;
-                } else if (faceVertex.uvIndex >= mesh.uv.size()) {
+                } else if (!mesh.uv.empty() && faceVertex.uvIndex >= mesh.uv.size()) {
                     logger.warn() << "Line " << face.line << ": UV index " << faceVertex.uvIndex << " is out of bounds, skipping face";
                     return false;
                 }
