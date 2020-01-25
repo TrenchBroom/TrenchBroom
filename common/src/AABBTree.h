@@ -28,8 +28,6 @@
 #include <vecmath/ray.h>
 #include <vecmath/intersection.h>
 
-#include <kdl/overloaded.h>
-
 #include <cassert>
 #include <iosfwd>
 #include <unordered_map>
