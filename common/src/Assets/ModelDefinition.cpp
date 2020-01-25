@@ -19,7 +19,6 @@
 
 #include "ModelDefinition.h"
 
-#include "EL/ELExceptions.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Types.h"
 #include "EL/Value.h"
@@ -111,12 +110,7 @@ namespace TrenchBroom {
         ModelSpecification ModelDefinition::defaultModelSpecification() const {
             const EL::NullVariableStore store;
             const EL::EvaluationContext context(store);
-            try {
-                const EL::Value result = m_expression.evaluate(context);
-                return convertToModel(result);
-            } catch (const EL::EvaluationError&) {
-                return ModelSpecification();
-            }
+            return convertToModel(m_expression.evaluate(context));
         }
 
         ModelSpecification ModelDefinition::convertToModel(const EL::Value& value) const {
