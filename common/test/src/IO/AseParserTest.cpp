@@ -88,7 +88,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(model->frame(0)->loaded());
         }
     
-        TEST(AseParserTest, parseFailure_2898) {
+        TEST(AseParserTest, parseFailure_2898_vertex_index) {
             NullLogger logger;
             const auto shaderSearchPath = Path("scripts");
             const auto textureSearchPaths = std::vector<Path> { Path("models") };
@@ -96,6 +96,25 @@ namespace TrenchBroom {
             fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
 
             const auto aseFile = fs->openFile(Path("wedge_45.ase"));
+            const auto basePath = Path();
+            auto reader = aseFile->reader().buffer();
+            AseParser parser("wedge", std::begin(reader), std::end(reader), *fs);
+
+            auto model = parser.initializeModel(logger);
+            ASSERT_NE(nullptr, model);
+
+            ASSERT_NO_THROW(parser.loadFrame(0, *model, logger));
+            ASSERT_TRUE(model->frame(0)->loaded());
+        }
+        
+        TEST(AseParserTest, parseFailure_2898_no_uv) {
+            NullLogger logger;
+            const auto shaderSearchPath = Path("scripts");
+            const auto textureSearchPaths = std::vector<Path> { Path("models") };
+            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Ase/index_out_of_bounds"));
+            fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
+
+            const auto aseFile = fs->openFile(Path("wedge_45_no_uv.ase"));
             const auto basePath = Path();
             auto reader = aseFile->reader().buffer();
             AseParser parser("wedge", std::begin(reader), std::end(reader), *fs);
