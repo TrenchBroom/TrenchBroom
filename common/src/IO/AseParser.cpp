@@ -260,6 +260,8 @@ namespace TrenchBroom {
             expectDirective("MESH_FACE");
             expectSizeArgument(faces.size());
 
+            const std::size_t line = m_tokenizer.line();
+
             // the colon after the face index is sometimes missing
             m_tokenizer.skipToken(AseToken::Colon);
 
@@ -293,7 +295,7 @@ namespace TrenchBroom {
                 MeshFaceVertex{ vertexIndexA, 0 },
                 MeshFaceVertex{ vertexIndexB, 0 },
                 MeshFaceVertex{ vertexIndexC, 0 }
-            }});
+            }, line });
         }
 
         void AseParser::parseGeomObjectMeshNumTVertex(Logger& /* logger */, std::vector<vm::vec2f>& uv) {
@@ -334,7 +336,7 @@ namespace TrenchBroom {
             }
 
             for (size_t i = 0; i < 3; ++i) {
-                faces[index][i].uvIndex = parseSizeArgument();
+                faces[index].vertices[i].uvIndex = parseSizeArgument();
             }
         }
 
@@ -446,7 +448,7 @@ namespace TrenchBroom {
             result[AseToken::Eof]          = "end of file";
             return result;
         }
-
+    
         std::unique_ptr<Assets::EntityModel> AseParser::buildModel(Logger& logger, const Scene& scene) const {
             using Vertex = Assets::EntityModelVertex;
 
@@ -500,17 +502,35 @@ namespace TrenchBroom {
                 auto* texture = textureIndex < textures.size() ? textures[textureIndex] : nullptr;
 
                 for (const auto& face : mesh.faces) {
+                    if (!checkIndices(logger, face, mesh)) {
+                        continue;
+                    }
+                    
                     builder.addTriangle(
                         texture,
-                        Vertex(mesh.vertices[face[2].vertexIndex], mesh.uv[face[2].uvIndex]),
-                        Vertex(mesh.vertices[face[1].vertexIndex], mesh.uv[face[1].uvIndex]),
-                        Vertex(mesh.vertices[face[0].vertexIndex], mesh.uv[face[0].uvIndex]));
+                        Vertex(mesh.vertices[face.vertices[2].vertexIndex], mesh.uv[face.vertices[2].uvIndex]),
+                        Vertex(mesh.vertices[face.vertices[1].vertexIndex], mesh.uv[face.vertices[1].uvIndex]),
+                        Vertex(mesh.vertices[face.vertices[0].vertexIndex], mesh.uv[face.vertices[0].uvIndex]));
                 }
 
             }
             surface.addTexturedMesh(frame, builder.vertices(), builder.indices());
 
             return model;
+        }
+
+        bool AseParser::checkIndices(Logger& logger, const MeshFace& face, const Mesh& mesh) const {
+            for (std::size_t i = 0u; i < 3u; ++i) {
+                const auto& faceVertex = face.vertices[i];
+                if (faceVertex.vertexIndex >= mesh.vertices.size()) {
+                    logger.warn() << "Line " << face.line << ": Vertex index " << faceVertex.vertexIndex << " is out of bounds, skipping face";
+                    return false;
+                } else if (faceVertex.uvIndex >= mesh.uv.size()) {
+                    logger.warn() << "Line " << face.line << ": UV index " << faceVertex.uvIndex << " is out of bounds, skipping face";
+                    return false;
+                }
+            }
+            return true;
         }
 
         std::unique_ptr<Assets::Texture> AseParser::loadTexture(Logger& logger, const Path& path) const {
