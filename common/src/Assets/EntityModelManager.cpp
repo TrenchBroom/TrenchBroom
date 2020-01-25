@@ -110,14 +110,6 @@ namespace TrenchBroom {
             }
         }
 
-        bool EntityModelManager::hasModel(const Model::Entity* entity) const {
-            return hasModel(entity->modelSpecification());
-        }
-
-        bool EntityModelManager::hasModel(const Assets::ModelSpecification& spec) const {
-            return renderer(spec) != nullptr;
-        }
-
         EntityModel* EntityModelManager::model(const IO::Path& path) const {
             if (path.isEmpty()) {
                 return nullptr;
