@@ -98,6 +98,15 @@ namespace TrenchBroom {
             ASSERT_FALSE(document->isRegisteredSmartTag(""));
             ASSERT_FALSE(document->isRegisteredSmartTag("asdf"));
         }
+    
+        // https://github.com/kduske/TrenchBroom/issues/2905
+        TEST_F(TagManagementTest, duplicateTag) {
+            game->setSmartTags({
+                Model::SmartTag("texture", {}, std::make_unique<Model::TextureNameTagMatcher>("some_texture")),
+                Model::SmartTag("texture", {}, std::make_unique<Model::SurfaceParmTagMatcher>("some_other_texture")),
+            });
+            ASSERT_THROW(document->registerSmartTags(), std::logic_error);
+        }
 
         TEST_F(TagManagementTest, matchTextureNameTag) {
             auto matchingBrush = std::unique_ptr<Model::Brush>(createBrush("some_texture"));
