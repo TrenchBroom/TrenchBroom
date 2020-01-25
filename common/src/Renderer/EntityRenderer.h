@@ -31,6 +31,8 @@
 #include <vector>
 
 namespace TrenchBroom {
+    class Logger;
+
     namespace Assets {
         class EntityModelManager;
     }
@@ -72,7 +74,7 @@ namespace TrenchBroom {
             Color m_angleColor;
             bool m_showHiddenEntities;
         public:
-            EntityRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
+            EntityRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
 
             void setEntities(const std::vector<Model::Entity*>& entities);
             void invalidate();

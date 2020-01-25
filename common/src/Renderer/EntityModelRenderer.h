@@ -26,6 +26,8 @@
 #include <map>
 
 namespace TrenchBroom {
+    class Logger;
+
     namespace Assets {
         class EntityModelManager;
     }
@@ -43,6 +45,8 @@ namespace TrenchBroom {
         private:
             using EntityMap = std::map<Model::Entity*, TexturedRenderer*>;
 
+            Logger& m_logger;
+
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;
 
@@ -53,7 +57,7 @@ namespace TrenchBroom {
 
             bool m_showHiddenEntities;
         public:
-            EntityModelRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
+            EntityModelRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
             ~EntityModelRenderer() override;
 
             template <typename I>

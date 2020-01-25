@@ -21,12 +21,14 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Assets/AssetUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModelManager.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
+#include "EL/ELExceptions.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/SimpleParserStatus.h"
@@ -1846,16 +1848,21 @@ namespace TrenchBroom {
 
         class MapDocument::SetEntityModels : public Model::NodeVisitor {
         private:
+            Logger& m_logger;
             Assets::EntityModelManager& m_manager;
         public:
-            explicit SetEntityModels(Assets::EntityModelManager& manager) :
+            explicit SetEntityModels(Logger& logger, Assets::EntityModelManager& manager) :
+            m_logger(logger),
             m_manager(manager) {}
         private:
             void doVisit(Model::World*) override         {}
             void doVisit(Model::Layer*) override         {}
             void doVisit(Model::Group*) override         {}
             void doVisit(Model::Entity* entity) override {
-                const auto* frame = m_manager.frame(entity->modelSpecification());
+                const auto modelSpec = Assets::safeGetModelSpecification(m_logger, entity->classname(), [&]() {
+                    return entity->modelSpecification();
+                });
+                const auto* frame = m_manager.frame(modelSpec);
                 entity->setModelFrame(frame);
             }
             void doVisit(Model::Brush*) override         {}
@@ -1871,12 +1878,12 @@ namespace TrenchBroom {
         };
 
         void MapDocument::setEntityModels() {
-            SetEntityModels visitor(*m_entityModelManager);
+            SetEntityModels visitor(*this, *m_entityModelManager);
             m_world->acceptAndRecurse(visitor);
         }
 
         void MapDocument::setEntityModels(const std::vector<Model::Node*>& nodes) {
-            SetEntityModels visitor(*m_entityModelManager);
+            SetEntityModels visitor(*this, *m_entityModelManager);
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
         }
 

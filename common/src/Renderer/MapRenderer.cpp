@@ -136,6 +136,7 @@ namespace TrenchBroom {
 
         std::unique_ptr<ObjectRenderer> MapRenderer::createDefaultRenderer(std::weak_ptr<View::MapDocument> document) {
             return std::make_unique<ObjectRenderer>(
+                *kdl::mem_lock(document),
                 kdl::mem_lock(document)->entityModelManager(),
                 kdl::mem_lock(document)->editorContext(),
                 UnselectedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
@@ -143,6 +144,7 @@ namespace TrenchBroom {
 
         std::unique_ptr<ObjectRenderer> MapRenderer::createSelectionRenderer(std::weak_ptr<View::MapDocument> document) {
             return std::make_unique<ObjectRenderer>(
+                *kdl::mem_lock(document),
                 kdl::mem_lock(document)->entityModelManager(),
                 kdl::mem_lock(document)->editorContext(),
                 SelectedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
@@ -150,6 +152,7 @@ namespace TrenchBroom {
 
         std::unique_ptr<ObjectRenderer> MapRenderer::createLockRenderer(std::weak_ptr<View::MapDocument> document) {
             return std::make_unique<ObjectRenderer>(
+                *kdl::mem_lock(document),
                 kdl::mem_lock(document)->entityModelManager(),
                 kdl::mem_lock(document)->editorContext(),
                 LockedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
