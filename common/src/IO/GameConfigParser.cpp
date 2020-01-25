@@ -299,6 +299,17 @@ namespace TrenchBroom {
             return result;
         }
 
+        namespace {
+            void checkTagName(const EL::Value& nameValue, const std::vector<Model::SmartTag>& tags) {
+                const auto& name = nameValue.stringValue();
+                for (const auto& tag : tags) {
+                    if (tag.name() == name) {
+                        throw ParserException(nameValue.line(), nameValue.column(), "Duplicate tag '" + name + "'");
+                    }
+                }
+            }
+        }
+    
         void GameConfigParser::parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& result) const {
             if (value.null()) {
                 return;
@@ -308,6 +319,8 @@ namespace TrenchBroom {
                 const auto& entry = value[i];
 
                 expectStructure(entry, "[ {'name': 'String', 'match': 'String'}, {'attribs': 'Array', 'pattern': 'String', 'texture': 'String' } ]");
+                checkTagName(entry["name"], result);
+                
                 auto name = entry["name"].stringValue();
                 auto match = entry["match"].stringValue();
 
@@ -332,6 +345,8 @@ namespace TrenchBroom {
                 const auto& entry = value[i];
 
                 expectStructure(entry, "[ {'name': 'String', 'match': 'String'}, {'attribs': 'Array', 'pattern': 'String', 'flags': 'Array' } ]");
+                checkTagName(entry["name"], result);
+
                 auto name = entry["name"].stringValue();
                 auto match = entry["match"].stringValue();
 

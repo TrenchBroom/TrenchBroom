@@ -798,5 +798,54 @@ namespace TrenchBroom {
             ASSERT_EQ(expected.faceAttribsConfig(), actual.faceAttribsConfig());
             ASSERT_EQ(expected.smartTags(), actual.smartTags());
         }
+
+        TEST(GameConfigParserTest, parseDuplicateTags) {
+            const std::string config(R"(
+{
+    "version": 3,
+    "name": "Quake",
+    "icon": "Icon.png",
+    "fileformats": [
+        { "format": "Standard" }
+    ],
+    "filesystem": {
+        "searchpath": "id1",
+        "packageformat": { "extension": "pak", "format": "idpak" }
+    },
+    "textures": {
+        "package": { "type": "file", "format": { "extension": "wad", "format": "wad2" } },
+        "format": { "extension": "D", "format": "idmip" },
+        "palette": "gfx/palette.lmp",
+        "attribute": "wad"
+    },
+    "entities": {
+        "definitions": [ "Quake.fgd", "Quoth2.fgd", "Rubicon2.def", "Teamfortress.fgd" ],
+        "defaultcolor": "0.6 0.6 0.6 1.0",
+        "modelformats": [ "mdl", "bsp" ]
+    },
+    "tags": {
+        "brush": [
+            {
+                "name": "Trigger",
+                "attribs": [ "transparent" ],
+                "match": "classname",
+                "pattern": "trigger*"
+            }
+        ],
+        "brushface": [
+            {
+                "name": "Trigger",
+                "attribs": [ "transparent" ],
+                "match": "texture",
+                "pattern": "clip"
+            }
+        ]
+    }
+}
+)");
+
+            GameConfigParser parser(config);
+            ASSERT_THROW(parser.parse(), ParserException);
+        }
     }
 }

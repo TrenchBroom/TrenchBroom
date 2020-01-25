@@ -83,7 +83,7 @@ namespace TrenchBroom {
             m_smartTags = kdl::vector_set<SmartTag, TagCmp>(tags.size());
             for (const auto& tag : tags) {
                 if (!m_smartTags.insert(tag).second) {
-                    throw std::logic_error("Smart tag already registered");
+                    throw std::logic_error("Smart tag '" + tag.name() + "' already registered");
                 }
             }
         }
