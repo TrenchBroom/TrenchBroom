@@ -72,13 +72,13 @@ namespace TrenchBroom {
             using Token = AseTokenizer::Token;
 
             struct MeshFaceVertex {
-                size_t vertexIndex;
-                size_t uvIndex;
+                size_t vertexIndex = 0u;
+                size_t uvIndex = 0u;
             };
 
             struct MeshFace {
                 std::array<MeshFaceVertex, 3> vertices;
-                size_t line;
+                size_t line = 0u;
             };
             
             struct Mesh {
@@ -90,8 +90,8 @@ namespace TrenchBroom {
             struct GeomObject {
                 std::string name;
                 Mesh mesh;
-                size_t materialIndex;
-                size_t line;
+                size_t materialIndex = 0u;
+                size_t line = 0u;
             };
 
             struct Scene {
@@ -124,6 +124,7 @@ namespace TrenchBroom {
             void parseMaterialList(Logger& logger, std::vector<Path>& paths);
             void parseMaterialListMaterialCount(Logger& logger, std::vector<Path>& paths);
             void parseMaterialListMaterial(Logger& logger, std::vector<Path>& paths);
+            void parseMaterialListMaterialName(Logger& logger, std::string& name);
             void parseMaterialListMaterialMapDiffuse(Logger& logger, Path& path);
             void parseMaterialListMaterialMapDiffuseBitmap(Logger& logger, Path& path);
 

@@ -56,6 +56,33 @@ namespace TrenchBroom {
             ASSERT_TRUE(model->frame(0)->loaded());
         }
         
+        TEST(AseParserTest, fallbackToMaterialName) {
+            NullLogger logger;
+
+            const auto defaultAssetsPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets");
+            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(defaultAssetsPath);
+            
+            const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Ase/fallback_to_materialname");
+            fs = std::make_shared<DiskFileSystem>(fs, basePath);
+
+            const auto shaderSearchPath = Path("scripts");
+            const auto textureSearchPaths = std::vector<Path> { Path("textures") };
+            fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
+
+            const auto aseFile = fs->openFile(Path("models/wedge_45.ase"));
+            auto reader = aseFile->reader().buffer();
+            AseParser parser("wedge", std::begin(reader), std::end(reader), *fs);
+
+            auto model = parser.initializeModel(logger);
+            ASSERT_NE(nullptr, model);
+
+            ASSERT_NO_THROW(parser.loadFrame(0, *model, logger));
+            ASSERT_TRUE(model->frame(0)->loaded());
+            
+            ASSERT_EQ(1u, model->surface(0).skinCount());
+            ASSERT_EQ("textures/bigtile", model->surface(0).skin(0)->name());
+        }
+        
         TEST(AseParserTest, loadDefaultMaterial) {
             NullLogger logger;
 

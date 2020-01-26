@@ -159,15 +159,29 @@ namespace TrenchBroom {
             expectDirective("MATERIAL");
             const auto index = parseSizeArgument();
             if (index < paths.size()) {
+                std::string name;
                 auto& path = paths[index];
+                
                 parseBlock({
-                    { "MAP_DIFFUSE", std::bind(&AseParser::parseMaterialListMaterialMapDiffuse, this, std::ref(logger), std::ref(path)) }
+                    { "MAP_DIFFUSE", std::bind(&AseParser::parseMaterialListMaterialMapDiffuse, this, std::ref(logger), std::ref(path)) },
+                    { "MATERIAL_NAME", std::bind(&AseParser::parseMaterialListMaterialName, this, std::ref(logger), std::ref(name)) }
                 });
+                
+                if (path.isEmpty()) {
+                    logger.warn() << "Material " << index << " is missing a 'BITMAP' directive, falling back to material name '" << name << "'";
+                    path = Path(name);
+                }
             } else {
                 logger.warn() << "Material index " << index << " is out of bounds.";
                 parseBlock({});
             }
 
+        }
+
+        void AseParser::parseMaterialListMaterialName(Logger&, std::string& name) {
+            expectDirective("MATERIAL_NAME");
+            const auto token = expect(AseToken::String, m_tokenizer.nextToken());
+            name = token.data();
         }
 
         void AseParser::parseMaterialListMaterialMapDiffuse(Logger& logger, Path& path) {
