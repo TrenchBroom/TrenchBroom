@@ -19,9 +19,12 @@
 
 #include "TextureReader.h"
 
+#include "Logger.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
+#include "IO/File.h"
 #include "IO/FileSystem.h"
+#include "IO/ResourceUtils.h"
 
 #include <algorithm>
 
@@ -75,15 +78,22 @@ namespace TrenchBroom {
             return m_name;
         }
 
-        TextureReader::TextureReader(const NameStrategy& nameStrategy) :
-        m_nameStrategy(nameStrategy.clone()) {}
+        TextureReader::TextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger) :
+        m_nameStrategy(nameStrategy.clone()),
+        m_fs(fs),
+        m_logger(logger) {}
 
         TextureReader::~TextureReader() {
             delete m_nameStrategy;
         }
 
         Assets::Texture* TextureReader::readTexture(std::shared_ptr<File> file) const {
-            return doReadTexture(file);
+            try {
+                return doReadTexture(file);
+            } catch (const AssetException& e) {
+                m_logger.error() << "Could not read texture '" << file->path() << "': " << e.what();
+                return loadDefaultTexture(m_fs, m_logger, textureName(file->path())).release();
+            }
         }
 
         std::string TextureReader::textureName(const std::string& textureName, const Path& path) const {

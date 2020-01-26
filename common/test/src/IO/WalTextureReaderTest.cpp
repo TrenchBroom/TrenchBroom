@@ -19,6 +19,8 @@
 
 #include <gtest/gtest.h>
 
+#include "TestLogger.h"
+
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
 #include "IO/DiskIO.h"
@@ -44,7 +46,8 @@ namespace TrenchBroom {
             const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/colormap.pcx"));
 
             TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
-            WalTextureReader textureReader(nameStrategy, palette);
+            NullLogger logger;
+            WalTextureReader textureReader(nameStrategy, fs, logger, palette);
 
             assertTexture(Path("rtz/b_pv_v1a1.wal"),  128, 256, fs, textureReader);
             assertTexture(Path("rtz/b_pv_v1a2.wal"),  128, 256, fs, textureReader);

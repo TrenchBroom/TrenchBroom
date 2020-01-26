@@ -69,13 +69,14 @@ namespace TrenchBroom {
             // static const size_t ModelFaceCount        = 0x3c;
         }
 
-        Bsp29Parser::Bsp29Parser(const std::string& name, const char* begin, const char* end, const Assets::Palette& palette) :
+        Bsp29Parser::Bsp29Parser(const std::string& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs) :
         m_name(name),
         m_begin(begin),
         m_end(end),
-        m_palette(palette) {}
+        m_palette(palette),
+        m_fs(fs) {}
 
-        std::unique_ptr<Assets::EntityModel> Bsp29Parser::doInitializeModel(Logger& /* logger */) {
+        std::unique_ptr<Assets::EntityModel> Bsp29Parser::doInitializeModel(Logger& logger) {
             auto reader = Reader::from(m_begin, m_end);
             const auto version = reader.readInt<int32_t>();
             if (version != 29) {
@@ -90,7 +91,7 @@ namespace TrenchBroom {
             const auto modelsLength = reader.readSize<int32_t>();
             const auto frameCount = modelsLength / BspLayout::ModelSize;
 
-            const auto textures = parseTextures(reader.subReaderFromBegin(textureOffset));
+            const auto textures = parseTextures(reader.subReaderFromBegin(textureOffset), logger);
 
             auto model = std::make_unique<Assets::EntityModel>(m_name);
             model->addFrames(frameCount);
@@ -151,9 +152,9 @@ namespace TrenchBroom {
             parseFrame(reader.subReaderFromBegin(modelsOffset + frameIndex * BspLayout::ModelSize, BspLayout::ModelSize), frameIndex, model, textureInfos, vertices, edgeInfos, faceInfos, faceEdges);
         }
 
-        std::vector<Assets::Texture*> Bsp29Parser::parseTextures(Reader reader) {
+        std::vector<Assets::Texture*> Bsp29Parser::parseTextures(Reader reader, Logger& logger) {
             const TextureReader::TextureNameStrategy nameStrategy;
-            IdMipTextureReader textureReader(nameStrategy, m_palette);
+            IdMipTextureReader textureReader(nameStrategy, m_fs, logger, m_palette);
 
             const auto textureCount = reader.readSize<int32_t>();
             std::vector<Assets::Texture*> result(textureCount);

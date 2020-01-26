@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2016 Kristian Duske
+ Copyright (C) 2020 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,25 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HlMipTextureReader_h
-#define HlMipTextureReader_h
+#include <gtest/gtest.h>
 
-#include "IO/MipTextureReader.h"
+#include "TestLogger.h"
+
+#include "Assets/Texture.h"
+#include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
+#include "IO/ResourceUtils.h"
+
+#include <memory>
 
 namespace TrenchBroom {
-    class Logger;
-    
     namespace IO {
-        class FileSystem;
-        class Reader;
-
-        class HlMipTextureReader : public MipTextureReader {
-        public:
-            explicit HlMipTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
-        protected:
-            Assets::Palette doGetPalette(Reader& reader, const size_t offset[], size_t width, size_t height) const override;
-        };
+        TEST(ResourceUtilsTest, loadDefaultTexture) {
+            auto fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets"));
+            NullLogger logger;
+            
+            auto texture = loadDefaultTexture(*fs, logger, "some_name");
+            ASSERT_NE(nullptr, texture);
+            ASSERT_EQ("some_name", texture->name());
+        }
     }
 }
-
-#endif /* HlMipTextureReader_h */

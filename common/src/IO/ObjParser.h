@@ -63,14 +63,15 @@ namespace TrenchBroom {
             /**
              * Loads a material. On failure, return the empty unique_ptr (as the original exceptions are usually caught anyway to test each format).
              * @param name The name of the material.
+             * @param logger The logger to use.
              */
-            virtual std::unique_ptr<Assets::Texture> loadMaterial(const std::string& name) = 0;
+            virtual std::unique_ptr<Assets::Texture> loadMaterial(const std::string& name, Logger& logger) = 0;
 
             /**
              * Loads the "fallback material". This is used if no material is specified or if loadMaterial fails.
              * This function is not supposed to fail in any way. Should it still fail regardless, it should throw a ParserException.
              */
-            virtual std::unique_ptr<Assets::Texture> loadFallbackMaterial() = 0;
+            virtual std::unique_ptr<Assets::Texture> loadFallbackMaterial(Logger& logger) = 0;
 
         private:
             std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
@@ -94,8 +95,8 @@ namespace TrenchBroom {
             NvObjParser(const Path& path, const char* begin, const char* end, const FileSystem& fs);
 
             bool transformObjCoordinateSet(std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) override;
-            std::unique_ptr<Assets::Texture> loadMaterial(const std::string& name) override;
-            std::unique_ptr<Assets::Texture> loadFallbackMaterial() override;
+            std::unique_ptr<Assets::Texture> loadMaterial(const std::string& name, Logger& logger) override;
+            std::unique_ptr<Assets::Texture> loadFallbackMaterial(Logger& logger) override;
         };
     }
 }

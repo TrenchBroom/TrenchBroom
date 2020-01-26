@@ -30,6 +30,8 @@
 #include <vector>
 
 namespace TrenchBroom {
+    class Logger;
+    
     namespace IO {
         class FileSystem;
         class Reader;
@@ -100,7 +102,7 @@ namespace TrenchBroom {
             MdxFrame parseFrame(Reader reader, size_t frameIndex, size_t vertexCount);
             MdxMeshList parseMeshes(Reader reader, size_t commandCount);
 
-            void loadSkins(Assets::EntityModelSurface& surface, const MdxSkinList& skins);
+            void loadSkins(Assets::EntityModelSurface& surface, const MdxSkinList& skins, Logger& logger);
 
             void buildFrame(Assets::EntityModel& model, Assets::EntityModelSurface& surface, size_t frameIndex, const MdxFrame& frame, const MdxMeshList& meshes);
             std::vector<Assets::EntityModelVertex> getVertices(const MdxFrame& frame, const MdxMeshVertexList& meshVertices) const;

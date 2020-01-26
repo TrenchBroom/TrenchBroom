@@ -25,7 +25,8 @@
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
-#include "IO/Quake3ShaderTextureReader.h"
+#include "IO/ResourceUtils.h"
+#include "IO/SkinLoader.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
@@ -462,14 +463,9 @@ namespace TrenchBroom {
             // Load the textures
             for (size_t i = 0; i < scene.materialPaths.size(); ++i) {
                 auto path = scene.materialPaths[i];
-                try {
-                    auto texture = loadTexture(logger, path);
-                    textures[i] = texture.get();
-                    surface.addSkin(texture.release());
-                } catch (const std::exception& e) {
-                    logger.error() << "Failed to load texture '" << path << "': " << e.what();
-                    textures[i] = nullptr;
-                }
+                auto texture = loadTexture(logger, path);
+                textures[i] = texture.get();
+                surface.addSkin(texture.release());
             }
 
             // Count vertices and build bounds
@@ -483,7 +479,8 @@ namespace TrenchBroom {
                 const auto textureIndex = geomObject.materialIndex;
                 auto* texture = textureIndex < textures.size() ? textures[textureIndex] : nullptr;
                 if (texture == nullptr) {
-                    logger.warn() << "Invalid texture index " << textureIndex;
+                    logger.warn() << "Invalid material index " << textureIndex;
+                    texture = loadDefaultTexture(m_fs, logger, "").release();
                 }
 
                 const auto vertexCount = mesh.faces.size() * 3;
@@ -547,16 +544,7 @@ namespace TrenchBroom {
 
         std::unique_ptr<Assets::Texture> AseParser::loadTexture(Logger& logger, const Path& path) const {
             const auto actualPath = fixTexturePath(logger, path);
-            if (!actualPath.isEmpty()) {
-                logger.debug() << "Loading texture from '" << actualPath << "'";
-                const auto file = m_fs.fileExists(actualPath.deleteExtension()) ? m_fs.openFile(actualPath.deleteExtension()) : m_fs.openFile(actualPath);
-
-                Quake3ShaderTextureReader reader(TextureReader::PathSuffixNameStrategy(2, true), m_fs);
-                return std::unique_ptr<Assets::Texture>(reader.readTexture(file));
-            } else {
-                IO::FreeImageTextureReader imageReader(IO::TextureReader::StaticNameStrategy(""));
-                return std::unique_ptr<Assets::Texture>(imageReader.readTexture(m_fs.openFile(IO::Path("textures/__TB_empty.png"))));
-            }
+            return loadShader(actualPath, m_fs, logger);
         }
 
         Path AseParser::fixTexturePath(Logger& /* logger */, Path path) const {

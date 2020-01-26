@@ -26,6 +26,8 @@
 #include <string>
 
 namespace TrenchBroom {
+    class Logger;
+    
     namespace Assets {
         class Palette;
     }
@@ -33,11 +35,12 @@ namespace TrenchBroom {
     namespace IO {
         class BufferedReader;
         class File;
+        class FileSystem;
         class Reader;
 
         class MipTextureReader : public TextureReader {
         protected:
-            explicit MipTextureReader(const NameStrategy& nameStrategy);
+            explicit MipTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
         public:
             ~MipTextureReader() override;
         public:

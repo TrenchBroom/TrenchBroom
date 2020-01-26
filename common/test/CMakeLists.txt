@@ -26,6 +26,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/Quake3ShaderFileSystemTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/Quake3ShaderParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/ReaderTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/ResourceUtilsTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/TestEnvironment.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/TestEnvironment.h"
         "${COMMON_TEST_SOURCE_DIR}/IO/TestParserStatus.cpp"

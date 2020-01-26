@@ -22,6 +22,19 @@ if(APPLE)
     set(APP_SOURCE ${APP_SOURCE} ${MACOSX_FONT_FILES})
     set_source_files_properties(${MACOSX_FONT_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/fonts)
 
+    # Configure default resources
+    # Collect all default resources
+    file(GLOB_RECURSE MACOSX_DEFAULT_FILES RELATIVE ${APP_RESOURCE_DIR}/defaults "${APP_RESOURCE_DIR}/defaults/*")
+
+    # Set correct locations for default resources
+    foreach(DEFAULT_FILE ${MACOSX_DEFAULT_FILES})
+        get_filename_component(DEFAULT_FILE_DIR "${DEFAULT_FILE}" DIRECTORY)
+        set(DEFAULT_FILE "${APP_RESOURCE_DIR}/defaults/${DEFAULT_FILE}")
+
+        set(APP_SOURCE ${APP_SOURCE} ${DEFAULT_FILE})
+        set_source_files_properties(${DEFAULT_FILE} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/defaults/${DEFAULT_FILE_DIR})
+    endforeach()
+
     # Configure game resources
     # Collect all game resources
     file(GLOB_RECURSE MACOSX_GAME_FILES RELATIVE ${APP_RESOURCE_DIR}/games "${APP_RESOURCE_DIR}/games/*")
@@ -166,6 +179,10 @@ macro(configure_app_target APP_TARGET_NAME)
         add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/fonts" "${APP_RESOURCE_DEST_DIR}/fonts")
 
+        # Copy default resources to resources directory
+        add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/defaults/" "${APP_RESOURCE_DEST_DIR}/defaults")
+
         # Copy game files to resources directory
         add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/games/" "${APP_RESOURCE_DEST_DIR}/games")
@@ -282,6 +299,7 @@ if(WIN32)
     install(DIRECTORY
             "${APP_DIR}/resources/graphics/images"
             "${APP_DIR}/resources/fonts"
+            "${APP_DIR}/resources/defaults"
             "${APP_DIR}/resources/games"
             "${APP_DIR}/resources/shader"
             "${APP_DIR}/resources/stylesheets"
@@ -317,6 +335,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     # add files
     install(TARGETS TrenchBroom RUNTIME DESTINATION bin COMPONENT TrenchBroom)
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/fonts"           DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/defaults"        DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/games"           DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/manual"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/images"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)

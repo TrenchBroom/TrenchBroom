@@ -229,7 +229,7 @@ namespace TrenchBroom {
         m_fs(fs) {}
 
         // http://tfc.duke.free.fr/old/models/md2.htm
-        std::unique_ptr<Assets::EntityModel> MdxParser::doInitializeModel(Logger& /* logger */) {
+        std::unique_ptr<Assets::EntityModel> MdxParser::doInitializeModel(Logger& logger) {
             auto reader = Reader::from(m_begin, m_end);
             const int ident = reader.readInt<int32_t>();
             const int version = reader.readInt<int32_t>();
@@ -263,7 +263,7 @@ namespace TrenchBroom {
             model->addFrames(frameCount);
 
             auto& surface = model->addSurface(m_name);
-            loadSkins(surface, skins);
+            loadSkins(surface, skins, logger);
 
             return model;
         }
@@ -352,13 +352,13 @@ namespace TrenchBroom {
             return meshes;
         }
 
-        void MdxParser::loadSkins(Assets::EntityModelSurface& surface, const MdxSkinList& skins) {
+        void MdxParser::loadSkins(Assets::EntityModelSurface& surface, const MdxSkinList& skins, Logger& logger) {
             for (const auto& skin : skins) {
                 auto path = Path(skin);
                 if (path.isAbsolute()) {
                     path = path.makeRelative();
                 }
-                surface.addSkin(loadSkin(m_fs.openFile(path)));
+                surface.addSkin(loadSkin(path, m_fs, logger).release());
             }
         }
 
