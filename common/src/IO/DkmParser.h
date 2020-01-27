@@ -103,7 +103,7 @@ namespace TrenchBroom {
             DkmFrame parseFrame(Reader reader, size_t frameIndex, size_t vertexCount, int version);
             DkmMeshList parseMeshes(Reader reader, size_t commandCount);
 
-            void loadSkins(Assets::EntityModelSurface& surface, const DkmSkinList& skins);
+            void loadSkins(Assets::EntityModelSurface& surface, const DkmSkinList& skins, Logger& logger);
             Path findSkin(const std::string& skin) const;
 
             void buildFrame(Assets::EntityModel& model, Assets::EntityModelSurface& surface, size_t frameIndex, const DkmFrame& frame, const DkmMeshList& meshes);

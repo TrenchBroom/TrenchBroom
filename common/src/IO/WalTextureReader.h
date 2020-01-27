@@ -26,9 +26,11 @@
 
 namespace TrenchBroom {
     class Color;
+    class Logger;
 
     namespace IO {
         class File;
+        class FileSystem;
         class Path;
         class Reader;
 
@@ -36,7 +38,7 @@ namespace TrenchBroom {
         private:
             mutable Assets::Palette m_palette;
         public:
-            WalTextureReader(const NameStrategy& nameStrategy, const Assets::Palette& palette = Assets::Palette());
+            WalTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger, const Assets::Palette& palette = Assets::Palette());
         private:
             Assets::Texture* doReadTexture(std::shared_ptr<File> file) const override;
             Assets::Texture* readQ2Wal(Reader& reader, const Path& path) const;

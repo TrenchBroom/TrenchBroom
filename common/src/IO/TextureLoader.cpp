@@ -56,19 +56,19 @@ namespace TrenchBroom {
         std::unique_ptr<TextureReader> TextureLoader::createTextureReader(const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger) {
             if (textureConfig.format.format == "idmip") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(1, true);
-                return std::make_unique<IdMipTextureReader>(nameStrategy, loadPalette(gameFS, textureConfig, logger));
+                return std::make_unique<IdMipTextureReader>(nameStrategy, gameFS, logger, loadPalette(gameFS, textureConfig, logger));
             } else if (textureConfig.format.format == "hlmip") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(1, true);
-                return std::make_unique<HlMipTextureReader>(nameStrategy);
+                return std::make_unique<HlMipTextureReader>(nameStrategy, gameFS, logger);
             } else if (textureConfig.format.format == "wal") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
-                return std::make_unique<WalTextureReader>(nameStrategy, loadPalette(gameFS, textureConfig, logger));
+                return std::make_unique<WalTextureReader>(nameStrategy, gameFS, logger, loadPalette(gameFS, textureConfig, logger));
             } else if (textureConfig.format.format == "image") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
-                return std::make_unique<FreeImageTextureReader>(nameStrategy);
+                return std::make_unique<FreeImageTextureReader>(nameStrategy, gameFS, logger);
             } else if (textureConfig.format.format == "q3shader") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
-                return std::make_unique<Quake3ShaderTextureReader>(nameStrategy, gameFS);
+                return std::make_unique<Quake3ShaderTextureReader>(nameStrategy, gameFS, logger);
             } else {
                 throw GameException("Unknown texture format '" + textureConfig.format.format + "'");
             }

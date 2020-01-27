@@ -35,8 +35,8 @@ namespace TrenchBroom {
             const size_t TextureNameLength = 32;
         }
 
-        WalTextureReader::WalTextureReader(const NameStrategy& nameStrategy, const Assets::Palette& palette) :
-        TextureReader(nameStrategy),
+        WalTextureReader::WalTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger, const Assets::Palette& palette) :
+        TextureReader(nameStrategy, fs, logger),
         m_palette(palette) {}
 
         Assets::Texture* WalTextureReader::doReadTexture(std::shared_ptr<File> file) const {

@@ -26,12 +26,15 @@
 #include <memory>
 
 namespace TrenchBroom {
+    class Logger;
+    
     namespace IO {
         class File;
+        class FileSystem;
 
         class FreeImageTextureReader : public TextureReader {
         public:
-            explicit FreeImageTextureReader(const NameStrategy& nameStrategy);
+            explicit FreeImageTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
         private:
             Assets::Texture* doReadTexture(std::shared_ptr<File> file) const override;
         };

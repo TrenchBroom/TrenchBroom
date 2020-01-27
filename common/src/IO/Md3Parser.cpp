@@ -21,10 +21,11 @@
 
 #include "Logger.h"
 #include "Assets/EntityModel.h"
+#include "Assets/Texture.h"
 #include "IO/FileSystem.h"
-#include "IO/FreeImageTextureReader.h"
-#include "IO/Quake3ShaderTextureReader.h"
 #include "IO/Reader.h"
+#include "IO/ResourceUtils.h"
+#include "IO/SkinLoader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
@@ -261,23 +262,15 @@ namespace TrenchBroom {
         }
 
         void Md3Parser::loadSurfaceSkins(Assets::EntityModelSurface& surface, const std::vector<Path>& shaders, Logger& logger) {
-            Quake3ShaderTextureReader shaderReader(TextureReader::PathSuffixNameStrategy(2, true), m_fs);
-            FreeImageTextureReader imageReader(TextureReader::StaticNameStrategy(""));
-
             for (const auto& shader : shaders) {
-                if (shader.isEmpty()) {
-                    logger.warn() << "Empty shader path in surface " << surface.name();
-                } else {
-                    const auto shaderPath = shader.deleteExtension();
-                    if (m_fs.fileExists(shaderPath)) {
-                        auto file = m_fs.openFile(shader.deleteExtension());
-                        surface.addSkin(shaderReader.readTexture(file));
-                    } else {
-                        auto file = m_fs.openFile(Path("textures/__TB_empty.png"));
-                        surface.addSkin(imageReader.readTexture(file));
-                    }
-                }
+                auto skin = loadShader(logger, shader);
+                surface.addSkin(skin.release());
             }
+        }
+
+        std::unique_ptr<Assets::Texture> Md3Parser::loadShader(Logger& logger, const Path& path) const {
+            const auto shaderPath = path.deleteExtension();
+            return IO::loadShader(shaderPath, m_fs, logger);
         }
 
         void Md3Parser::buildFrameSurface(Assets::EntityModelLoadedFrame& frame, Assets::EntityModelSurface& surface, const std::vector<Md3Parser::Md3Triangle>& triangles, const std::vector<Assets::EntityModelVertex>& vertices) {

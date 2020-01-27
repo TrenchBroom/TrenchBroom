@@ -231,7 +231,7 @@ namespace TrenchBroom {
         m_fs(fs) {}
 
         // http://tfc.duke.free.fr/old/models/md2.htm
-        std::unique_ptr<Assets::EntityModel> Md2Parser::doInitializeModel(Logger& /* logger */) {
+        std::unique_ptr<Assets::EntityModel> Md2Parser::doInitializeModel(Logger& logger) {
             auto reader = Reader::from(m_begin, m_end);
             const int ident = reader.readInt<int32_t>();
             const int version = reader.readInt<int32_t>();
@@ -262,7 +262,7 @@ namespace TrenchBroom {
             model->addFrames(frameCount);
 
             auto& surface = model->addSurface(m_name);
-            loadSkins(surface, skins);
+            loadSkins(surface, skins, logger);
 
             return model;
         }
@@ -345,9 +345,9 @@ namespace TrenchBroom {
             return meshes;
         }
 
-        void Md2Parser::loadSkins(Assets::EntityModelSurface& surface, const Md2SkinList& skins) {
+        void Md2Parser::loadSkins(Assets::EntityModelSurface& surface, const Md2SkinList& skins, Logger& logger) {
             for (const auto& skin : skins) {
-                surface.addSkin(loadSkin(m_fs.openFile(Path(skin)), m_palette));
+                surface.addSkin(loadSkin(Path(skin), m_fs, logger, m_palette).release());
             }
         }
 

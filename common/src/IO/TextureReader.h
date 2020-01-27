@@ -26,12 +26,15 @@
 #include <string>
 
 namespace TrenchBroom {
+    class Logger;
+    
     namespace Assets {
         class Texture;
     }
 
     namespace IO {
         class File;
+        class FileSystem;
         class Path;
 
         class TextureReader {
@@ -89,10 +92,20 @@ namespace TrenchBroom {
         private:
             NameStrategy* m_nameStrategy;
         protected:
-            explicit TextureReader(const NameStrategy& nameStrategy);
+            const FileSystem& m_fs;
+            Logger& m_logger;
+        protected:
+            explicit TextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
         public:
             virtual ~TextureReader();
 
+            /**
+             * Loads a texture from the given file and returns it. If an error occurs while loading the texture,
+             * the default texture is returned.
+             *
+             * @param file the file containing the texture
+             * @return an Assets::Texture object allocated with new
+             */
             Assets::Texture* readTexture(std::shared_ptr<File> file) const;
         protected:
             std::string textureName(const std::string& textureName, const Path& path) const;
@@ -100,8 +113,7 @@ namespace TrenchBroom {
         private:
             /**
              * Loads a texture and returns an Assets::Texture object allocated with new. Should not throw exceptions to
-             * report errors loading textures except for unrecoverable errors (out of memory, bugs, etc.). In all other
-             * cases, an empty placeholder texture is returned.
+             * report errors loading textures except for unrecoverable errors (out of memory, bugs, etc.).
              *
              * @param file the file containing the texture
              * @return an Assets::Texture object allocated with new

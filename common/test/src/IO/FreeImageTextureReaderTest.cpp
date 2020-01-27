@@ -19,6 +19,8 @@
 
 #include <gtest/gtest.h>
 
+#include "TestLogger.h"
+
 #include "Ensure.h"
 #include "Assets/Texture.h"
 #include "IO/DiskIO.h"
@@ -32,11 +34,12 @@
 namespace TrenchBroom {
     namespace IO {
         static std::unique_ptr<const Assets::Texture> loadTexture(const std::string& name) {
-            TextureReader::TextureNameStrategy nameStrategy;
-            FreeImageTextureReader textureLoader(nameStrategy);
-
             const auto imagePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Image/");
             DiskFileSystem diskFS(imagePath);
+
+            TextureReader::TextureNameStrategy nameStrategy;
+            NullLogger logger;
+            FreeImageTextureReader textureLoader(nameStrategy, diskFS, logger);
 
             return std::unique_ptr<const Assets::Texture>{ textureLoader.readTexture(diskFS.openFile(Path(name))) };
         }
