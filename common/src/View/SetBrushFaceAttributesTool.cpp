@@ -47,26 +47,36 @@ namespace TrenchBroom {
         }
 
         bool SetBrushFaceAttributesTool::doMouseClick(const InputState& inputState) {
-            return copyAttributesFromSelection(inputState, false);
+            if (canCopyAttributesFromSelection(inputState)) {
+                copyAttributesFromSelection(inputState, false);
+                return true;
+            } else {
+                return false;
+            }
         }
 
         bool SetBrushFaceAttributesTool::doMouseDoubleClick(const InputState& inputState) {
-            return copyAttributesFromSelection(inputState, true);
+            if (canCopyAttributesFromSelection(inputState)) {
+                // A double click is always preceeded by a single click, so we already done some work which is now
+                // superseded by what is done next. To avoid inconsistencies with undo, we undo the work done by the
+                // single click now:
+                auto document = kdl::mem_lock(m_document);
+                document->undoCommand();
+
+                copyAttributesFromSelection(inputState, true);
+                return true;
+            } else {
+                return false;
+            }
         }
 
-        bool SetBrushFaceAttributesTool::copyAttributesFromSelection(const InputState& inputState, const bool applyToBrush) {
-            if (!applies(inputState))
-                return false;
-
+        void SetBrushFaceAttributesTool::copyAttributesFromSelection(const InputState& inputState, const bool applyToBrush) {
+            assert(canCopyAttributesFromSelection(inputState));
+            
             auto document = kdl::mem_lock(m_document);
 
             const std::vector<Model::BrushFace*>& selectedFaces = document->selectedBrushFaces();
-            if (selectedFaces.size() != 1)
-                return false;
-
             const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
-            if (!hit.isMatch())
-                return false;
 
             Model::BrushFace* source = selectedFaces.front();
             Model::BrushFace* targetFace = Model::hitToFace(hit);
@@ -89,6 +99,22 @@ namespace TrenchBroom {
             }
             document->deselectAll();
             document->select(source);
+        }
+
+        bool SetBrushFaceAttributesTool::canCopyAttributesFromSelection(const InputState& inputState) const {
+            if (!applies(inputState))
+                return false;
+
+            auto document = kdl::mem_lock(m_document);
+
+            const std::vector<Model::BrushFace*>& selectedFaces = document->selectedBrushFaces();
+            if (selectedFaces.size() != 1)
+                return false;
+
+            const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            if (!hit.isMatch())
+                return false;
+            
             return true;
         }
 
