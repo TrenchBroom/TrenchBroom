@@ -67,6 +67,30 @@ namespace TrenchBroom {
                 ftos(face->xScale(), FloatPrecision)   << " " <<
                 ftos(face->yScale(), FloatPrecision);
             }
+
+            void writeValveTextureInfo(std::ostream& stream, Model::BrushFace* face) {
+                const std::string& textureName = face->textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face->textureName();
+                const vm::vec3& xAxis = face->textureXAxis();
+                const vm::vec3& yAxis = face->textureYAxis();
+
+                stream.precision(6);
+                stream <<
+                textureName     << " " <<
+                "[ " <<
+                xAxis.x() << " " <<
+                xAxis.y() << " " <<
+                xAxis.z() << " " <<
+                face->xOffset()   <<
+                " ] [ " <<
+                yAxis.x() << " " <<
+                yAxis.y() << " " <<
+                yAxis.z() << " " <<
+                face->yOffset()   <<
+                " ] " <<
+                face->rotation() << " " <<
+                face->xScale()   << " " <<
+                face->yScale();
+            }
         };
 
         class Quake2StreamSerializer : public QuakeStreamSerializer {
@@ -132,30 +156,6 @@ namespace TrenchBroom {
                 stream << " ";
                 writeValveTextureInfo(stream, face);
                 stream << "\n";
-            }
-        private:
-            void writeValveTextureInfo(std::ostream& stream, Model::BrushFace* face) {
-                const std::string& textureName = face->textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face->textureName();
-                const vm::vec3& xAxis = face->textureXAxis();
-                const vm::vec3& yAxis = face->textureYAxis();
-
-                stream.precision(6);
-                stream <<
-                textureName     << " " <<
-                "[ " <<
-                xAxis.x() << " " <<
-                xAxis.y() << " " <<
-                xAxis.z() << " " <<
-                face->xOffset()   <<
-                " ] [ " <<
-                yAxis.x() << " " <<
-                yAxis.y() << " " <<
-                yAxis.z() << " " <<
-                face->yOffset()   <<
-                " ] " <<
-                face->rotation() << " " <<
-                face->xScale()   << " " <<
-                face->yScale();
             }
         };
 
