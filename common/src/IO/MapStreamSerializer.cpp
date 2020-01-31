@@ -116,6 +116,22 @@ namespace TrenchBroom {
             }
         };
 
+        class Quake2ValveStreamSerializer : public Quake2StreamSerializer {
+        public:
+            explicit Quake2ValveStreamSerializer(std::ostream& stream) :
+            Quake2StreamSerializer(stream) {}
+        private:
+            virtual void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {
+                writeFacePoints(stream, face);
+                stream << " ";
+                writeValveTextureInfo(stream, face);
+                // While it is possible to omit surface attributes, see MapFileSerializer for a description of why it's best to keep them.
+                stream << " ";
+                writeSurfaceAttributes(stream, face);
+                stream << "\n";
+            }
+        };
+
         class DaikatanaStreamSerializer : public Quake2StreamSerializer {
         public:
             explicit DaikatanaStreamSerializer(std::ostream& stream) :
@@ -181,6 +197,8 @@ namespace TrenchBroom {
                 case Model::MapFormat::Quake3:
                 case Model::MapFormat::Quake3_Legacy:
                     return std::make_unique<Quake2StreamSerializer>(stream);
+                case Model::MapFormat::Quake2_Valve:
+                    return std::make_unique<Quake2ValveStreamSerializer>(stream);
                 case Model::MapFormat::Daikatana:
                     return std::make_unique<DaikatanaStreamSerializer>(stream);
                 case Model::MapFormat::Valve:

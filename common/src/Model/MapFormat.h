@@ -38,6 +38,10 @@ namespace TrenchBroom {
              */
             Quake2,
             /**
+             * Quake 2 with Valve 220 format texturing, supported by https://github.com/qbism/q2tools-220
+             */
+            Quake2_Valve,
+            /**
              * Valve 220 map format.
              */
             Valve,

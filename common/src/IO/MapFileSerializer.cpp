@@ -143,6 +143,21 @@ namespace TrenchBroom {
             }
         };
 
+        class Quake2ValveFileSerializer : public Quake2FileSerializer {
+        public:
+            explicit Quake2ValveFileSerializer(FILE* stream) :
+            Quake2FileSerializer(stream) {}
+        private:
+            size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
+                writeFacePoints(stream, face);
+                writeValveTextureInfo(stream, face);
+                writeSurfaceAttributes(stream, face);
+
+                std::fprintf(stream, "\n");
+                return 1;
+            }
+        };
+
         class DaikatanaFileSerializer : public Quake2FileSerializer {
         private:
             std::string SurfaceColorFormat;
@@ -209,6 +224,8 @@ namespace TrenchBroom {
                 case Model::MapFormat::Quake3:
                 case Model::MapFormat::Quake3_Legacy:
                     return std::make_unique<Quake2FileSerializer>(stream);
+                case Model::MapFormat::Quake2_Valve:
+                    return std::make_unique<Quake2ValveFileSerializer>(stream);
                 case Model::MapFormat::Daikatana:
                     return std::make_unique<DaikatanaFileSerializer>(stream);
                 case Model::MapFormat::Valve:

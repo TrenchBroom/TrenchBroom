@@ -30,6 +30,8 @@ namespace TrenchBroom {
                 return MapFormat::Standard;
             } else if (formatName == "Quake2") {
                 return MapFormat::Quake2;
+            } else if (formatName == "Quake2 (Valve)") {
+                return MapFormat::Quake2_Valve;
             } else if (formatName == "Valve") {
                 return MapFormat::Valve;
             } else if (formatName == "Hexen2") {
@@ -51,6 +53,8 @@ namespace TrenchBroom {
                     return "Standard";
                 case MapFormat::Quake2:
                     return "Quake2";
+                case MapFormat::Quake2_Valve:
+                    return "Quake2 (Valve)";
                 case MapFormat::Valve:
                     return "Valve";
                 case MapFormat::Hexen2:

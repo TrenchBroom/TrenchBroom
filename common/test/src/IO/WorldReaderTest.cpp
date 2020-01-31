@@ -428,6 +428,34 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
         }
 
+        TEST(WorldReaderTest, parseQuake2ValveBrush) {
+            const std::string data(R"(
+{
+"classname" "worldspawn"
+"mapversion" "220"
+"_tb_textures" "textures/e1u2"
+// brush 0
+{
+( 208 190 80 ) ( 208 -62 80 ) ( 208 190 -176 ) e1u2/basic1_1 [ -0.625 1 0 34 ] [ 0 0 -1 0 ] 32.6509 1 1 0 1 0
+( 224 200 80 ) ( 208 190 80 ) ( 224 200 -176 ) e1u2/basic1_1 [ -1 0 0 32 ] [ 0 0 -1 0 ] 35.6251 1 1 0 1 0
+( 224 200 -176 ) ( 208 190 -176 ) ( 224 -52 -176 ) e1u2/basic1_1 [ -1 0 0 32 ] [ 0.625 -1 0 -4 ] 35.6251 1 1 0 1 0
+( 224 -52 80 ) ( 208 -62 80 ) ( 224 200 80 ) e1u2/basic1_1 [ 1 0 0 -32 ] [ 0.625 -1 0 -4 ] 324.375 1 1 0 1 0
+( 224 -52 -176 ) ( 208 -62 -176 ) ( 224 -52 80 ) e1u2/basic1_1 [ 1 0 0 -23.7303 ] [ 0 0 -1 0 ] 35.6251 1 1 0 1 0
+( 224 -52 80 ) ( 224 200 80 ) ( 224 -52 -176 ) e1u2/basic1_1 [ -0.625 1 0 44 ] [ 0 0 -1 0 ] 32.6509 1 1 0 1 0
+}
+})");
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data);
+
+            auto world = reader.read(Model::MapFormat::Quake2_Valve, worldBounds, status);
+
+            ASSERT_EQ(1u, world->childCount());
+            Model::Node* defaultLayer = world->children().front();
+            ASSERT_EQ(1u, defaultLayer->childCount());
+        }
+
         TEST(WorldReaderTest, parseDaikatanaBrush) {
             const std::string data(R"(
 {
