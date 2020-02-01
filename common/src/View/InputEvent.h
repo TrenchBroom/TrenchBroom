@@ -23,6 +23,7 @@
 #include <QKeyEvent>
 
 #include <chrono>
+#include <iosfwd>
 #include <memory>
 #include <vector>
 
@@ -106,6 +107,16 @@ namespace TrenchBroom {
              * @param processor the event processor
              */
             void processWith(InputEventProcessor& processor) const override;
+            
+            /**
+             * Indicates whether the given two key events are equal.
+             */
+            friend bool operator==(const KeyEvent& lhs, const KeyEvent& rhs);
+            
+            /**
+             * Prints a textual representation of the given event to the given output stream.
+             */
+            friend std::ostream& operator<<(std::ostream& out, const KeyEvent& event);
         };
 
         /**
@@ -114,6 +125,9 @@ namespace TrenchBroom {
          */
         class MouseEvent : public InputEvent {
         public:
+            // This 8.0f factor was just picked to roughly match wxWidgets TrenchBroom
+            static constexpr float ScrollFactor = 1.0f / 8.0f;
+            
             enum class Type {
                 /**
                  * A button was pressed.
@@ -193,6 +207,16 @@ namespace TrenchBroom {
              * @param processor the event processor
              */
             void processWith(InputEventProcessor& processor) const override;
+            
+            /**
+             * Indicates whether the given two mouse events are equal.
+             */
+            friend bool operator==(const MouseEvent& lhs, const MouseEvent& rhs);
+
+            /**
+             * Prints a textual representation of the given event to the given output stream.
+             */
+            friend std::ostream& operator<<(std::ostream& out, const MouseEvent& event);
         };
 
         /**
@@ -206,6 +230,16 @@ namespace TrenchBroom {
              * @param processor the event processor
              */
             void processWith(InputEventProcessor& processor) const override;
+            
+            /**
+             * Indicates whether the given two cancel events are equal.
+             */
+            friend bool operator==(const CancelEvent&, const CancelEvent&);
+            
+            /**
+             * Prints a textual representation of the given event to the given output stream.
+             */
+            friend std::ostream& operator<<(std::ostream& out, const CancelEvent& event);
         };
 
         /**
@@ -280,6 +314,10 @@ namespace TrenchBroom {
              * Used in implementing the macOS behaviour where Ctrl+Click is RMB.
              */
             bool m_nextMouseUpIsRMB;
+            /**
+             * Used to suppress a click event for the mouse up event that follows a double click.
+             */
+            bool m_nextMouseUpIsDblClick;
         public:
             /**
              * Creates a new event handler.
