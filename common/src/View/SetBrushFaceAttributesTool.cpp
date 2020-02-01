@@ -47,14 +47,14 @@ namespace TrenchBroom {
         }
 
         bool SetBrushFaceAttributesTool::doMouseClick(const InputState& inputState) {
-            return performCopy(inputState, false);
+            return copyAttributesFromSelection(inputState, false);
         }
 
         bool SetBrushFaceAttributesTool::doMouseDoubleClick(const InputState& inputState) {
-            return performCopy(inputState, true);
+            return copyAttributesFromSelection(inputState, true);
         }
 
-        bool SetBrushFaceAttributesTool::performCopy(const InputState& inputState, const bool applyToBrush) {
+        bool SetBrushFaceAttributesTool::copyAttributesFromSelection(const InputState& inputState, const bool applyToBrush) {
             if (!applies(inputState))
                 return false;
 
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             const Transaction transaction(document);
             document->deselectAll();
             document->select(targetList);
-            if (copyAttributes(inputState)) {
+            if (copyAllAttributes(inputState)) {
                 auto snapshot = source->takeTexCoordSystemSnapshot();
                 document->setFaceAttributes(source->attribs());
                 if (snapshot != nullptr) {
@@ -96,7 +96,7 @@ namespace TrenchBroom {
             return inputState.checkModifierKeys(MK_DontCare, MK_Yes, MK_DontCare);
         }
 
-        bool SetBrushFaceAttributesTool::copyAttributes(const InputState& inputState) const {
+        bool SetBrushFaceAttributesTool::copyAllAttributes(const InputState& inputState) const {
             return !inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
         }
 
