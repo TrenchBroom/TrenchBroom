@@ -115,6 +115,45 @@ R"(// entity 0
             ASSERT_EQ(actual, expected);
         }
 
+        TEST(NodeWriterTest, writeQuake2ValveMap) {
+            const vm::bbox3 worldBounds(8192.0);
+
+            Model::World map(Model::MapFormat::Quake2_Valve);
+            map.addOrUpdateAttribute("classname", "worldspawn");
+
+            Model::BrushBuilder builder(&map, worldBounds);
+            Model::Brush* brush1 = builder.createCube(64.0, "none");
+            for (auto* face : brush1->faces()) {
+                face->setSurfaceValue(32.0f);
+            }
+            map.defaultLayer()->addChild(brush1);
+
+            std::stringstream str;
+            NodeWriter writer(map, str);
+            writer.writeMap();
+
+            std::cout << str.str();
+
+            const std::string expected =
+R"(// entity 0
+{
+"classname" "worldspawn"
+// brush 0
+{
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 32
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 32
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none [ -1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1 0 0 32
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1 0 0 32
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none [ -1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 32
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 32
+}
+}
+)";
+
+            const std::string actual = str.str();
+            ASSERT_EQ(actual, expected);
+        }
+
         TEST(NodeWriterTest, writeWorldspawnWithBrushInDefaultLayer) {
             const vm::bbox3 worldBounds(8192.0);
 
