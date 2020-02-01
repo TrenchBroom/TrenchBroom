@@ -133,7 +133,7 @@ namespace TrenchBroom {
                 auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName);
                 world->defaultLayer()->addChild(brush);
 
-                if (format == MapFormat::Valve) {
+                if (format == MapFormat::Valve || format == MapFormat::Quake2_Valve) {
                     world->addOrUpdateAttribute(AttributeNames::ValveVersion, "220");
                 }
 

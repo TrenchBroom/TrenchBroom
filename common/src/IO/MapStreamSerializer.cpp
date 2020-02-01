@@ -67,6 +67,30 @@ namespace TrenchBroom {
                 ftos(face->xScale(), FloatPrecision)   << " " <<
                 ftos(face->yScale(), FloatPrecision);
             }
+
+            void writeValveTextureInfo(std::ostream& stream, Model::BrushFace* face) {
+                const std::string& textureName = face->textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face->textureName();
+                const vm::vec3& xAxis = face->textureXAxis();
+                const vm::vec3& yAxis = face->textureYAxis();
+
+                stream.precision(6);
+                stream <<
+                textureName     << " " <<
+                "[ " <<
+                xAxis.x() << " " <<
+                xAxis.y() << " " <<
+                xAxis.z() << " " <<
+                face->xOffset()   <<
+                " ] [ " <<
+                yAxis.x() << " " <<
+                yAxis.y() << " " <<
+                yAxis.z() << " " <<
+                face->yOffset()   <<
+                " ] " <<
+                face->rotation() << " " <<
+                face->xScale()   << " " <<
+                face->yScale();
+            }
         };
 
         class Quake2StreamSerializer : public QuakeStreamSerializer {
@@ -89,6 +113,22 @@ namespace TrenchBroom {
                 face->surfaceContents()  << " " <<
                 face->surfaceFlags()     << " " <<
                 ftos(face->surfaceValue(), FloatPrecision);
+            }
+        };
+
+        class Quake2ValveStreamSerializer : public Quake2StreamSerializer {
+        public:
+            explicit Quake2ValveStreamSerializer(std::ostream& stream) :
+            Quake2StreamSerializer(stream) {}
+        private:
+            virtual void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {
+                writeFacePoints(stream, face);
+                stream << " ";
+                writeValveTextureInfo(stream, face);
+                // While it is possible to omit surface attributes, see MapFileSerializer for a description of why it's best to keep them.
+                stream << " ";
+                writeSurfaceAttributes(stream, face);
+                stream << "\n";
             }
         };
 
@@ -133,30 +173,6 @@ namespace TrenchBroom {
                 writeValveTextureInfo(stream, face);
                 stream << "\n";
             }
-        private:
-            void writeValveTextureInfo(std::ostream& stream, Model::BrushFace* face) {
-                const std::string& textureName = face->textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face->textureName();
-                const vm::vec3& xAxis = face->textureXAxis();
-                const vm::vec3& yAxis = face->textureYAxis();
-
-                stream.precision(6);
-                stream <<
-                textureName     << " " <<
-                "[ " <<
-                xAxis.x() << " " <<
-                xAxis.y() << " " <<
-                xAxis.z() << " " <<
-                face->xOffset()   <<
-                " ] [ " <<
-                yAxis.x() << " " <<
-                yAxis.y() << " " <<
-                yAxis.z() << " " <<
-                face->yOffset()   <<
-                " ] " <<
-                face->rotation() << " " <<
-                face->xScale()   << " " <<
-                face->yScale();
-            }
         };
 
         class Hexen2StreamSerializer : public QuakeStreamSerializer {
@@ -181,6 +197,8 @@ namespace TrenchBroom {
                 case Model::MapFormat::Quake3:
                 case Model::MapFormat::Quake3_Legacy:
                     return std::make_unique<Quake2StreamSerializer>(stream);
+                case Model::MapFormat::Quake2_Valve:
+                    return std::make_unique<Quake2ValveStreamSerializer>(stream);
                 case Model::MapFormat::Daikatana:
                     return std::make_unique<DaikatanaStreamSerializer>(stream);
                 case Model::MapFormat::Valve:

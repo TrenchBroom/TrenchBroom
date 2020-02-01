@@ -104,6 +104,7 @@ namespace TrenchBroom {
             void parseFace(ParserStatus& status, bool primitive);
             void parseQuakeFace(ParserStatus& status);
             void parseQuake2Face(ParserStatus& status);
+            void parseQuake2ValveFace(ParserStatus& status);
             void parseHexen2Face(ParserStatus& status);
             void parseDaikatanaFace(ParserStatus& status);
             void parseValveFace(ParserStatus& status);
