@@ -33,12 +33,12 @@ namespace TrenchBroom {
         class CompilationContext {
         private:
             std::weak_ptr<MapDocument> m_document;
-            EL::VariableTable m_variables;
+            std::unique_ptr<EL::VariableStore> m_variables;
 
             TextOutputAdapter m_output;
             bool m_test;
         public:
-            CompilationContext(std::weak_ptr<MapDocument> document, const EL::VariableTable& variables, const TextOutputAdapter& output, bool test);
+            CompilationContext(std::weak_ptr<MapDocument> document, const EL::VariableStore& variables, const TextOutputAdapter& output, bool test);
 
             std::shared_ptr<MapDocument> document() const;
             bool test() const;

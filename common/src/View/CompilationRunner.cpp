@@ -130,6 +130,7 @@ namespace TrenchBroom {
         CompilationRunToolTaskRunner::CompilationRunToolTaskRunner(CompilationContext& context, const Model::CompilationRunTool& task) :
         CompilationTaskRunner(context),
         m_task(task.clone()),
+        m_process(nullptr),
         m_terminated(false) {}
 
         CompilationRunToolTaskRunner::~CompilationRunToolTaskRunner() = default;
@@ -140,10 +141,9 @@ namespace TrenchBroom {
 
         void CompilationRunToolTaskRunner::doTerminate() {
             if (m_process != nullptr) {
-                disconnect(m_process.get(), &QProcess::errorOccurred, this, &CompilationRunToolTaskRunner::processErrorOccurred);
-                disconnect(m_process.get(), QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &CompilationRunToolTaskRunner::processFinished);
+                disconnect(m_process, &QProcess::errorOccurred, this, &CompilationRunToolTaskRunner::processErrorOccurred);
+                disconnect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &CompilationRunToolTaskRunner::processFinished);
                 m_process->kill();
-                m_process.reset();
                 m_context << "\n\n#### Terminated\n";
             }
         }
@@ -151,20 +151,19 @@ namespace TrenchBroom {
         void CompilationRunToolTaskRunner::startProcess() {
             assert(m_process == nullptr);
 
+            emit start();
             try {
-                const auto toolPath = IO::Path(interpolate(m_task->toolSpec()));
-                const auto parameters = interpolate(m_task->parameterSpec());
-                const auto cmd = toolPath.asString() + " " + parameters;
                 const auto workDir = m_context.variableValue(CompilationVariableNames::WORK_DIR_PATH);
+                const auto cmd = this->cmd();
 
                 m_context << "#### Executing '" << cmd << "'\n";
 
                 if (!m_context.test()) {
-                    m_process = std::make_unique<QProcess>(this);
-                    connect(m_process.get(), &QProcess::errorOccurred, this, &CompilationRunToolTaskRunner::processErrorOccurred);
-                    connect(m_process.get(), QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &CompilationRunToolTaskRunner::processFinished);
-                    connect(m_process.get(), &QProcess::readyReadStandardError, this, &CompilationRunToolTaskRunner::processReadyReadStandardError);
-                    connect(m_process.get(), &QProcess::readyReadStandardOutput, this, &CompilationRunToolTaskRunner::processReadyReadStandardOutput);
+                    m_process = new QProcess(this);
+                    connect(m_process, &QProcess::errorOccurred, this, &CompilationRunToolTaskRunner::processErrorOccurred);
+                    connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &CompilationRunToolTaskRunner::processFinished);
+                    connect(m_process, &QProcess::readyReadStandardError, this, &CompilationRunToolTaskRunner::processReadyReadStandardError);
+                    connect(m_process, &QProcess::readyReadStandardOutput, this, &CompilationRunToolTaskRunner::processReadyReadStandardOutput);
 
                     m_process->setWorkingDirectory(QString::fromStdString(workDir));
                     m_process->start(QString::fromStdString(cmd));
@@ -179,21 +178,25 @@ namespace TrenchBroom {
             }
         }
 
-        void CompilationRunToolTaskRunner::processErrorOccurred(const QProcess::ProcessError processError) {
-            if (m_process != nullptr) {
-                m_process.reset();
+        std::string CompilationRunToolTaskRunner::cmd() {
+            const auto toolPath = IO::Path(interpolate(m_task->toolSpec()));
+            const auto parameters = interpolate(m_task->parameterSpec());
+            if (parameters.empty()) {
+                return toolPath.asString();
+            } else if (toolPath.isEmpty()) {
+                return "";
+            } else {
+                return toolPath.asString() + " " + parameters;
             }
-            m_context << "#### Error " << processError << " occurred when communicating with process\n\n";
+        }
 
+        void CompilationRunToolTaskRunner::processErrorOccurred(const QProcess::ProcessError processError) {
+            m_context << "#### Error " << processError << " occurred when communicating with process\n\n";
             emit error();
         }
 
         void CompilationRunToolTaskRunner::processFinished(const int exitCode, const QProcess::ExitStatus /* exitStatus */) {
-            if (m_process != nullptr) {
-                m_process.reset();
-            }
             m_context << "#### Finished with exit status " << exitCode << "\n\n";
-
             emit end();
         }
 
