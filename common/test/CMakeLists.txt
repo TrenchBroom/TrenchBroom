@@ -60,6 +60,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/View/ChangeBrushFaceAttributesTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/ClipToolControllerTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/CommandProcessorTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/View/CompilationRunToolTaskRunnerTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/GridTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/GroupNodesTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/InputEventTest.cpp"
