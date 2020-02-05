@@ -24,6 +24,11 @@ uniform sampler2D Texture;
 uniform bool ApplyTinting;
 uniform vec4 TintColor;
 uniform bool GrayScale;
+uniform bool ShowWorldExtents;
+uniform vec3 WorldExtents;
+uniform vec4 WorldExtentsTintColor;
+
+varying vec4 worldCoordinates;
 
 void main() {
     vec4 texel = texture2D(Texture, gl_TexCoord[0].st);
@@ -45,5 +50,15 @@ void main() {
     if (ApplyTinting) {
         gl_FragColor = vec4(gl_FragColor.rgb * TintColor.rgb * TintColor.a, gl_FragColor.a);
         gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
+    }
+
+    if (ShowWorldExtents) {
+        vec3 absCoords = abs(worldCoordinates.xyz);
+
+        bool outside = any(greaterThan(absCoords, WorldExtents));
+
+        if (outside) {
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, WorldExtentsTintColor.rgb, WorldExtentsTintColor.a);
+        }
     }
 }

@@ -21,8 +21,12 @@
 
 uniform bool ApplyTinting;
 uniform vec4 TintColor;
+uniform bool ShowWorldExtents;
+uniform vec3 WorldExtents;
+uniform vec4 WorldExtentsTintColor;
 
 varying vec4 vertexColor;
+varying vec4 modelCoordinates;
 varying vec3 modelNormal;
 varying vec3 viewVector;
 

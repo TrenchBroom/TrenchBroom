@@ -33,6 +33,9 @@ uniform float GridAlpha;
 uniform vec3 GridColor;
 uniform bool ShadeFaces;
 uniform bool ShowFog;
+uniform bool ShowWorldExtents;
+uniform vec3 WorldExtents;
+uniform vec4 WorldExtentsTintColor;
 
 varying vec4 modelCoordinates;
 varying vec3 modelNormal;
@@ -105,4 +108,14 @@ void main() {
         float gridValue = grid(coords, modelNormal.xyz, GridSize, minGridSize, 1.0);
         gl_FragColor.rgb = mix(gl_FragColor.rgb, GridColor, gridValue * GridAlpha);
 	}
+
+    if (ShowWorldExtents) {
+        vec3 absCoords = abs(modelCoordinates.xyz);
+
+        bool outside = any(greaterThan(absCoords, WorldExtents));
+
+        if (outside) {
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, WorldExtentsTintColor.rgb, WorldExtentsTintColor.a);
+        }
+    }
 }

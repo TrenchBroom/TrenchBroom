@@ -176,6 +176,9 @@ namespace TrenchBroom {
                 shader.set("ShowFog", showFog);
                 shader.set("Alpha", m_alpha);
                 shader.set("EnableMasked", false);
+                shader.set("ShowWorldExtents", true);
+                shader.set("WorldExtents", vm::vec3f(1024, 1024, 1024));
+                shader.set("WorldExtentsTintColor", vm::vec4f(1.0, 0.0, 0.0, 0.5));
 
                 RenderFunc func(shader, applyTexture, m_faceColor);
                 if (m_alpha < 1.0f) {

@@ -131,6 +131,9 @@ namespace TrenchBroom {
             shader.set("TintColor", m_tintColor);
             shader.set("GrayScale", false);
             shader.set("Texture", 0);
+            shader.set("ShowWorldExtents", true);
+            shader.set("WorldExtents", vm::vec3f(1024, 1024, 1024));
+            shader.set("WorldExtentsTintColor", vm::vec4f(1.0, 0.0, 0.0, 0.5));
 
             glAssert(glEnable(GL_TEXTURE_2D));
             glAssert(glActiveTexture(GL_TEXTURE0));
@@ -145,6 +148,8 @@ namespace TrenchBroom {
 
                 const auto transformation = entity->modelTransformation();
                 MultiplyModelMatrix multMatrix(renderContext.transformation(), vm::mat4x4f(transformation));
+
+                shader.set("ModelMatrix", vm::mat4x4f(transformation));
 
                 renderer->render();
             }
