@@ -37,6 +37,7 @@ namespace TrenchBroom {
 
         extern Preference<bool>  ShowAxes;
         extern Preference<bool>  ShowBounds;
+        extern Preference<Color> SoftMapBoundsColor;
         extern Preference<Color> BackgroundColor;
         extern Preference<float> AxisLength;
         extern Preference<Color> XAxisColor;

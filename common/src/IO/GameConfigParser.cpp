@@ -421,11 +421,13 @@ namespace TrenchBroom {
                 return nonstd::nullopt;
             }
 
-            if (!vm::can_parse<double, 3u>(value.asString())) {
+            const std::string boundsString = value.stringValue();
+
+            if (!vm::can_parse<double, 3u>(boundsString)) {
                 throw ParserException(value.line(), value.column(), "Can't parse soft map bounds '" + value.asString() + "'");
             }
 
-            const auto vec = vm::parse<double, 3u>(value.asString());
+            const auto vec = vm::parse<double, 3u>(boundsString);
             return { vm::bbox3(-vec, vec) };
         }
     }

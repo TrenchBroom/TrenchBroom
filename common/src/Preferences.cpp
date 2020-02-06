@@ -31,6 +31,7 @@ namespace TrenchBroom {
 
         Preference<bool>  ShowAxes(IO::Path("Renderer/Show axes"), true);
         Preference<bool>  ShowBounds(IO::Path("Renderer/Show bounds"), true);
+        Preference<Color> SoftMapBoundsColor(IO::Path("Renderer/Colors/Soft map bounds color"), Color(241, 125, 37));
         Preference<Color> BackgroundColor(IO::Path("Renderer/Colors/Background"), Color(38, 38, 38));
         Preference<float> AxisLength(IO::Path("Renderer/Axis length"), 128.0f);
         Preference<Color> XAxisColor(IO::Path("Renderer/Colors/X axis"), Color(0xFF, 0x3D, 0x00, 0.7f));

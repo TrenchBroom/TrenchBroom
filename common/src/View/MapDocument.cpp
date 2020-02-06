@@ -192,7 +192,9 @@ namespace TrenchBroom {
         }
 
         nonstd::optional<vm::bbox3> MapDocument::softWorldBounds() const {
-            ensure(m_game, "m_game is null");
+            if (!m_game) {
+                return nonstd::nullopt;
+            }
             return m_game->softMapBounds();
         }
 

@@ -873,6 +873,7 @@ namespace TrenchBroom {
             doRenderExtras(renderContext, renderBatch);
 
             renderCoordinateSystem(renderContext, renderBatch);
+            renderSoftMapBounds(renderContext, renderBatch);
             renderPointFile(renderContext, renderBatch);
             renderPortalFile(renderContext, renderBatch);
             renderCompass(renderBatch);
@@ -904,13 +905,18 @@ namespace TrenchBroom {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.renderCoordinateSystem(vm::bbox3f(worldBounds));
             }
+        }
 
+        void MapViewBase::renderSoftMapBounds(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (pref(Preferences::ShowBounds)) {
                 auto document = kdl::mem_lock(m_document);
-                const vm::bbox3& worldBounds = document->worldBounds();
+                const auto softWorldBounds = document->softWorldBounds();
 
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.renderCoordinateSystem(vm::bbox3f(worldBounds));
+                if (softWorldBounds) {
+                    Renderer::RenderService renderService(renderContext, renderBatch);
+                    renderService.setForegroundColor(pref(Preferences::SoftMapBoundsColor));
+                    renderService.renderBounds(vm::bbox3f(*softWorldBounds));
+                }
             }
         }
 
