@@ -17,6 +17,32 @@ target_include_directories(kdl INTERFACE
 
 target_link_libraries(kdl INTERFACE optlite)
 
+target_sources(kdl INTERFACE
+    "${KDL_INCLUDE_DIR}/kdl/binary_relation.h"
+    "${KDL_INCLUDE_DIR}/kdl/bitset.h"
+    "${KDL_INCLUDE_DIR}/kdl/collection_utils.h"
+    "${KDL_INCLUDE_DIR}/kdl/compact_trie_forward.h"
+    "${KDL_INCLUDE_DIR}/kdl/compact_trie.h"
+    "${KDL_INCLUDE_DIR}/kdl/enum_array.h"
+    "${KDL_INCLUDE_DIR}/kdl/intrusive_circular_list_forward.h"
+    "${KDL_INCLUDE_DIR}/kdl/intrusive_circular_list.h"
+    "${KDL_INCLUDE_DIR}/kdl/invoke.h"
+    "${KDL_INCLUDE_DIR}/kdl/map_utils.h"
+    "${KDL_INCLUDE_DIR}/kdl/memory_utils.h"
+    "${KDL_INCLUDE_DIR}/kdl/overload.h"
+    "${KDL_INCLUDE_DIR}/kdl/set_adapter.h"
+    "${KDL_INCLUDE_DIR}/kdl/set_temp.h"
+    "${KDL_INCLUDE_DIR}/kdl/skip_iterator.h"
+    "${KDL_INCLUDE_DIR}/kdl/string_compare_detail.h"
+    "${KDL_INCLUDE_DIR}/kdl/string_compare.h"
+    "${KDL_INCLUDE_DIR}/kdl/string_format.h"
+    "${KDL_INCLUDE_DIR}/kdl/string_utils.h"
+    "${KDL_INCLUDE_DIR}/kdl/transform_range.h"
+    "${KDL_INCLUDE_DIR}/kdl/vector_set_forward.h"
+    "${KDL_INCLUDE_DIR}/kdl/vector_set.h"
+    "${KDL_INCLUDE_DIR}/kdl/vector_utils.h"
+)
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -pedantic -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-exit-time-destructors)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
