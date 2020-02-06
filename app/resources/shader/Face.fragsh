@@ -33,9 +33,6 @@ uniform float GridAlpha;
 uniform vec3 GridColor;
 uniform bool ShadeFaces;
 uniform bool ShowFog;
-uniform bool ShowWorldExtents;
-uniform vec3 WorldExtents;
-uniform vec4 WorldExtentsTintColor;
 
 varying vec4 modelCoordinates;
 varying vec3 modelNormal;
@@ -43,6 +40,7 @@ varying vec4 faceColor;
 varying vec3 viewVector;
 
 float grid(vec3 coords, vec3 normal, float gridSize, float minGridSize, float lineWidthFactor);
+vec3 applyMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 
 void main() {
 	if (ApplyTexture)
@@ -109,13 +107,6 @@ void main() {
         gl_FragColor.rgb = mix(gl_FragColor.rgb, GridColor, gridValue * GridAlpha);
 	}
 
-    if (ShowWorldExtents) {
-        vec3 absCoords = abs(modelCoordinates.xyz);
-
-        bool outside = any(greaterThan(absCoords, WorldExtents));
-
-        if (outside) {
-            gl_FragColor.rgb = mix(gl_FragColor.rgb, WorldExtentsTintColor.rgb, WorldExtentsTintColor.a);
-        }
-    }
+    // Tint objects outside map bounds
+    gl_FragColor.rgb = applyMapBoundsTint(gl_FragColor.rgb, modelCoordinates.xyz);
 }

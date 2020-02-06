@@ -24,11 +24,10 @@ uniform sampler2D Texture;
 uniform bool ApplyTinting;
 uniform vec4 TintColor;
 uniform bool GrayScale;
-uniform bool ShowWorldExtents;
-uniform vec3 WorldExtents;
-uniform vec4 WorldExtentsTintColor;
 
 varying vec4 worldCoordinates;
+
+vec3 applyMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 
 void main() {
     vec4 texel = texture2D(Texture, gl_TexCoord[0].st);
@@ -52,13 +51,6 @@ void main() {
         gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
     }
 
-    if (ShowWorldExtents) {
-        vec3 absCoords = abs(worldCoordinates.xyz);
-
-        bool outside = any(greaterThan(absCoords, WorldExtents));
-
-        if (outside) {
-            gl_FragColor.rgb = mix(gl_FragColor.rgb, WorldExtentsTintColor.rgb, WorldExtentsTintColor.a);
-        }
-    }
+    // Tint objects outside map bounds
+    gl_FragColor.rgb = applyMapBoundsTint(gl_FragColor.rgb, worldCoordinates.xyz);
 }
