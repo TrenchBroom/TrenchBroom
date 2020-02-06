@@ -25,6 +25,10 @@
 #include "IO/EntityModelLoader.h"
 #include "Model/MapFormat.h"
 
+#include <nonstd/optional.hpp>
+
+#include <vecmath/forward.h>
+
 #include <memory>
 #include <map>
 #include <string>
@@ -71,6 +75,11 @@ namespace TrenchBroom {
             size_t maxPropertyLength() const;
 
             const std::vector<SmartTag>& smartTags() const;
+
+            /**
+             * An optional soft map bounds, returns nothing to indicate that the map is unlimited.
+             */
+            nonstd::optional<vm::bbox3> softMapBounds() const;
         public: // loading and writing map files
             std::unique_ptr<World> newMap(MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const;
             std::unique_ptr<World> loadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const;
@@ -112,6 +121,7 @@ namespace TrenchBroom {
 
             virtual CompilationConfig& doCompilationConfig() = 0;
             virtual size_t doMaxPropertyLength() const = 0;
+            virtual nonstd::optional<vm::bbox3> doSoftMapBounds() const = 0;
 
             virtual const std::vector<SmartTag>& doSmartTags() const = 0;
 

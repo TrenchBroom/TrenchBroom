@@ -191,6 +191,11 @@ namespace TrenchBroom {
             return m_worldBounds;
         }
 
+        nonstd::optional<vm::bbox3> MapDocument::softWorldBounds() const {
+            ensure(m_game, "m_game is null");
+            return m_game->softMapBounds();
+        }
+
         Model::World* MapDocument::world() const {
             return m_world.get();
         }

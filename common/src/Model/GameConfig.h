@@ -21,11 +21,16 @@
 #define TrenchBroom_GameConfig
 
 #include "Color.h"
+#include "FloatType.h"
 #include "IO/Path.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/CompilationConfig.h"
 #include "Model/GameEngineConfig.h"
 #include "Model/Tag.h"
+
+#include <vecmath/bbox.h>
+
+#include <nonstd/optional.hpp>
 
 #include <set>
 #include <string>
@@ -158,6 +163,7 @@ namespace TrenchBroom {
             CompilationConfig m_compilationConfig;
             GameEngineConfig m_gameEngineConfig;
             size_t m_maxPropertyLength;
+            nonstd::optional<vm::bbox3> m_softMapBounds;
         public:
             GameConfig();
             GameConfig(
@@ -170,7 +176,8 @@ namespace TrenchBroom {
                 TextureConfig textureConfig,
                 EntityConfig entityConfig,
                 FaceAttribsConfig faceAttribsConfig,
-                std::vector<SmartTag> smartTags);
+                std::vector<SmartTag> smartTags,
+                nonstd::optional<vm::bbox3> softMapBounds);
 
             const std::string& name() const;
             const IO::Path& path() const;
@@ -182,6 +189,7 @@ namespace TrenchBroom {
             const EntityConfig& entityConfig() const;
             const FaceAttribsConfig& faceAttribsConfig() const;
             const std::vector<SmartTag>& smartTags() const;
+            const nonstd::optional<vm::bbox3>& softMapBounds() const;
 
             CompilationConfig& compilationConfig();
             const CompilationConfig& compilationConfig() const;

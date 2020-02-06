@@ -65,6 +65,10 @@ namespace TrenchBroom {
             return doSmartTags();
         }
 
+        nonstd::optional<vm::bbox3> Game::softMapBounds() const {
+            return doSoftMapBounds();
+        }
+
         std::unique_ptr<World> Game::newMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
             return doNewMap(format, worldBounds, logger);
         }

@@ -25,6 +25,8 @@
 #include "Model/Game.h"
 #include "Model/GameFileSystem.h"
 
+#include <nonstd/optional.hpp>
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -57,6 +59,8 @@ namespace TrenchBroom {
             CompilationConfig& doCompilationConfig() override;
 
             size_t doMaxPropertyLength() const override;
+
+            nonstd::optional<vm::bbox3> doSoftMapBounds() const override;
 
             const std::vector<SmartTag>& doSmartTags() const override;
 

@@ -118,6 +118,10 @@ namespace TrenchBroom {
             return m_config.maxPropertyLength();
         }
 
+        nonstd::optional<vm::bbox3> GameImpl::doSoftMapBounds() const {
+            return m_config.softMapBounds();
+        }
+
         const std::vector<SmartTag>& GameImpl::doSmartTags() const {
             return m_config.smartTags();
         }

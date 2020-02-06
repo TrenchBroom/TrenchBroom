@@ -904,6 +904,14 @@ namespace TrenchBroom {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.renderCoordinateSystem(vm::bbox3f(worldBounds));
             }
+
+            if (pref(Preferences::ShowBounds)) {
+                auto document = kdl::mem_lock(m_document);
+                const vm::bbox3& worldBounds = document->worldBounds();
+
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.renderCoordinateSystem(vm::bbox3f(worldBounds));
+            }
         }
 
         void MapViewBase::renderPointFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

@@ -31,6 +31,8 @@
 #include <vecmath/bbox.h>
 #include <vecmath/util.h>
 
+#include <nonstd/optional.hpp>
+
 #include <map>
 #include <memory>
 #include <string>
@@ -176,7 +178,18 @@ namespace TrenchBroom {
             Logger& logger();
 
             std::shared_ptr<Model::Game> game() const override;
+            /**
+             * Hard limit on the map bounds; affects brush clipping algorithm, and objects going out of
+             * this bounding box will cause the map to fail to load.
+             * TODO: this should be removed in the long run, in favour
+             * of either no limit or a hardcoded large maximum (e.g. 10^6 units).
+             */
             const vm::bbox3& worldBounds() const;
+            /**
+             * "Soft" world bounds used to render guidelines for the mapper and generate Issues, but
+             * no other functional use inside TrenchBroom unlike `worldBounds()`.
+             */
+            nonstd::optional<vm::bbox3> softWorldBounds() const;
             Model::World* world() const;
 
             bool isGamePathPreference(const IO::Path& path) const;
