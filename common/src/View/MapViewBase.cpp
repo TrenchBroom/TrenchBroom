@@ -861,6 +861,7 @@ namespace TrenchBroom {
             renderContext.setShowFog(mapViewConfig.showFog());
             renderContext.setShowGrid(grid.visible());
             renderContext.setGridSize(grid.actualSize());
+            renderContext.setSoftMapBounds(document->softWorldBounds());
 
             setupGL(renderContext);
             setRenderOptions(renderContext);
@@ -908,16 +909,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::renderSoftMapBounds(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (pref(Preferences::ShowBounds)) {
-                auto document = kdl::mem_lock(m_document);
-                const auto softWorldBounds = document->softWorldBounds();
-
-                if (softWorldBounds) {
-                    Renderer::RenderService renderService(renderContext, renderBatch);
-                    renderService.setForegroundColor(pref(Preferences::SoftMapBoundsColor));
-                    renderService.renderBounds(vm::bbox3f(*softWorldBounds));
-                }
-            }
+            doRenderSoftWorldBounds(renderContext, renderBatch);
         }
 
         void MapViewBase::renderPointFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

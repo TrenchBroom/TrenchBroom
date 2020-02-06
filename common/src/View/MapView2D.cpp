@@ -350,6 +350,19 @@ namespace TrenchBroom {
 
         void MapView2D::doRenderExtras(Renderer::RenderContext&, Renderer::RenderBatch&) {}
 
+        void MapView2D::doRenderSoftWorldBounds(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            if (pref(Preferences::ShowBounds)) {
+                auto document = kdl::mem_lock(m_document);
+                const auto softWorldBounds = document->softWorldBounds();
+
+                if (softWorldBounds) {
+                    Renderer::RenderService renderService(renderContext, renderBatch);
+                    renderService.setForegroundColor(pref(Preferences::SoftMapBoundsColor));
+                    renderService.renderBounds(vm::bbox3f(*softWorldBounds));
+                }
+            }
+        }
+
         void MapView2D::doLinkCamera(CameraLinkHelper& helper) {
             helper.addCamera(m_camera.get());
         }

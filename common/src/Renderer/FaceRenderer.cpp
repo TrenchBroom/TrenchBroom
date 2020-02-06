@@ -158,6 +158,8 @@ namespace TrenchBroom {
                 const bool applyTexture = context.showTextures();
                 const bool shadeFaces = context.shadeFaces();
                 const bool showFog = context.showFog();
+                const nonstd::optional<vm::bbox3> softMapBounds = context.softMapBounds();
+                const vm::vec3f mapExtents = vm::vec3f(softMapBounds.value_or(vm::bbox3()).max);
 
                 glAssert(glEnable(GL_TEXTURE_2D));
                 glAssert(glActiveTexture(GL_TEXTURE0));
@@ -176,8 +178,8 @@ namespace TrenchBroom {
                 shader.set("ShowFog", showFog);
                 shader.set("Alpha", m_alpha);
                 shader.set("EnableMasked", false);
-                shader.set("ShowWorldExtents", prefs.get(Preferences::ShowBounds));
-                shader.set("WorldExtents", vm::vec3f(1024, 1024, 1024));
+                shader.set("ShowWorldExtents", softMapBounds.has_value() && prefs.get(Preferences::ShowBounds));
+                shader.set("WorldExtents", mapExtents);
                 shader.set("WorldExtentsTintColor", vm::vec4f(1.0, 0.0, 0.0, 0.5));
 
                 RenderFunc func(shader, applyTexture, m_faceColor);

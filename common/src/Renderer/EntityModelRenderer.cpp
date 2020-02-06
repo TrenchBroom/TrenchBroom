@@ -125,14 +125,17 @@ namespace TrenchBroom {
         void EntityModelRenderer::doRender(RenderContext& renderContext) {
             auto& prefs = PreferenceManager::instance();
 
+            const nonstd::optional<vm::bbox3> softMapBounds = renderContext.softMapBounds();
+            const vm::vec3f mapExtents = vm::vec3f(softMapBounds.value_or(vm::bbox3()).max);
+
             ActiveShader shader(renderContext.shaderManager(), Shaders::EntityModelShader);
             shader.set("Brightness", prefs.get(Preferences::Brightness));
             shader.set("ApplyTinting", m_applyTinting);
             shader.set("TintColor", m_tintColor);
             shader.set("GrayScale", false);
             shader.set("Texture", 0);
-            shader.set("ShowWorldExtents", true);
-            shader.set("WorldExtents", vm::vec3f(1024, 1024, 1024));
+            shader.set("ShowWorldExtents", softMapBounds.has_value() && prefs.get(Preferences::ShowBounds));
+            shader.set("WorldExtents", mapExtents);
             shader.set("WorldExtentsTintColor", vm::vec4f(1.0, 0.0, 0.0, 0.5));
 
             glAssert(glEnable(GL_TEXTURE_2D));

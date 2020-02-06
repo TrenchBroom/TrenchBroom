@@ -173,6 +173,14 @@ namespace TrenchBroom {
             m_gridSize = gridSize;
         }
 
+        const nonstd::optional<vm::bbox3>& RenderContext::softMapBounds() const {
+            return m_sofMapBounds;
+        }
+
+        void RenderContext::setSoftMapBounds(const nonstd::optional<vm::bbox3>& softMapBounds) {
+            m_sofMapBounds = softMapBounds;
+        }
+
         bool RenderContext::hideSelection() const {
             return m_hideSelection;
         }
