@@ -62,6 +62,8 @@
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
+#include <vecmath/vec_io.h>
+
 #include <string>
 #include <vector>
 
@@ -120,6 +122,20 @@ namespace TrenchBroom {
 
         nonstd::optional<vm::bbox3> GameImpl::doSoftMapBounds() const {
             return m_config.softMapBounds();
+        }
+
+        nonstd::optional<vm::bbox3> GameImpl::doExtractSoftMapBounds(const AttributableNode& node) const {
+            const std::string& mapValue = node.attribute(AttributeNames::SoftMaxMapSize);
+            if (mapValue.empty()) {
+                return doSoftMapBounds();
+            }
+
+            if (!vm::can_parse<double, 3u>(mapValue)) {
+                return doSoftMapBounds();
+            }
+
+            const auto vec = vm::parse<double, 3u>(mapValue);
+            return { vm::bbox3(-0.5 * vec, 0.5 * vec) };
         }
 
         const std::vector<SmartTag>& GameImpl::doSmartTags() const {

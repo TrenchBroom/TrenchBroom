@@ -195,7 +195,10 @@ namespace TrenchBroom {
             if (!m_game) {
                 return nonstd::nullopt;
             }
-            return m_game->softMapBounds();
+            if (!m_world) {
+                return nonstd::nullopt;
+            }
+            return m_game->extractSoftMapBounds(*m_world);
         }
 
         Model::World* MapDocument::world() const {

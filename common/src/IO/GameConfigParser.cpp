@@ -428,7 +428,7 @@ namespace TrenchBroom {
             }
 
             const auto vec = vm::parse<double, 3u>(boundsString);
-            return { vm::bbox3(-vec, vec) };
+            return { vm::bbox3(-0.5 * vec, 0.5 * vec) };
         }
     }
 }
