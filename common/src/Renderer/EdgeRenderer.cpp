@@ -19,6 +19,7 @@
 
 #include "EdgeRenderer.h"
 
+#include "PreferenceManager.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
@@ -65,12 +66,23 @@ namespace TrenchBroom {
             if (m_params.onTop)
                 glAssert(glDisable(GL_DEPTH_TEST))
 
-            if (m_params.useColor) {
-                ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPUniformCShader);
-                shader.set("Color", m_params.color);
-                doRenderVertices(renderContext);
-            } else {
-                ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
+            {
+                // TODO: factor out
+                const nonstd::optional<vm::bbox3> softMapBounds = renderContext.softMapBounds();
+                const vm::vec3f mapExtents = vm::vec3f(softMapBounds.value_or(vm::bbox3()).max);
+
+                PreferenceManager& prefs = PreferenceManager::instance();
+                ActiveShader shader(renderContext.shaderManager(), Shaders::BrushEdgeShader);
+                shader.set("ShowWorldExtents", softMapBounds.has_value() && prefs.get(Preferences::ShowBounds));
+                shader.set("WorldExtents", mapExtents);
+                shader.set("WorldExtentsTintColor", vm::vec4f(prefs.get(Preferences::SoftMapBoundsColor).r(),
+                                                              prefs.get(Preferences::SoftMapBoundsColor).g(),
+                                                              prefs.get(Preferences::SoftMapBoundsColor).b(),
+                                                              0.7f)); // NOTE: heavier tint since these are lines
+                if (m_params.useColor) {
+                    shader.set("UseUniformColor", true);
+                    shader.set("Color", m_params.color);
+                }
                 doRenderVertices(renderContext);
             }
 
