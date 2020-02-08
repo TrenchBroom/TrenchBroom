@@ -19,6 +19,7 @@
 
 #include "EdgeRenderer.h"
 
+#include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/PrimType.h"
