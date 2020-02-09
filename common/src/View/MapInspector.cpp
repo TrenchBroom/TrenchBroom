@@ -22,14 +22,23 @@
 #include "View/BorderLine.h"
 #include "View/CollapsibleTitledPanel.h"
 #include "View/LayerEditor.h"
+#include "View/MapDocument.h"
 #include "View/ModEditor.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 
+#include <kdl/memory_utils.h>
+
+#include <utility>
+
 #include <QVBoxLayout>
+#include <QCheckBox>
+#include <QLineEdit>
 
 namespace TrenchBroom {
     namespace View {
+        // MapInspector
+
         MapInspector::MapInspector(std::weak_ptr<MapDocument> document, QWidget* parent) :
         TabBookPage(parent) {
             createGui(document);
@@ -40,14 +49,15 @@ namespace TrenchBroom {
             sizer->setContentsMargins(0, 0, 0, 0);
             sizer->setSpacing(0);
 
-            sizer->addWidget(createLayerEditor(this, document), 1);
+            sizer->addWidget(createLayerEditor(document), 1);
             sizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
-            sizer->addWidget(createModEditor(this, document), 0);
+            sizer->addWidget(createMapProperties(document), 0);
+            sizer->addWidget(createModEditor(document), 0);
             setLayout(sizer);
         }
 
-        QWidget* MapInspector::createLayerEditor(QWidget* parent, std::weak_ptr<MapDocument> document) {
-            TitledPanel* titledPanel = new TitledPanel(tr("Layers"), parent);
+        QWidget* MapInspector::createLayerEditor(std::weak_ptr<MapDocument> document) {
+            TitledPanel* titledPanel = new TitledPanel(tr("Layers"));
             LayerEditor* layerEditor = new LayerEditor(document);
 
             auto* sizer = new QVBoxLayout();
@@ -58,8 +68,20 @@ namespace TrenchBroom {
             return titledPanel;
         }
 
-        QWidget* MapInspector::createModEditor(QWidget* parent, std::weak_ptr<MapDocument> document) {
-            CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(tr("Mods"), false, parent);
+        QWidget* MapInspector::createMapProperties(std::weak_ptr<MapDocument> document) {
+            CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(tr("Map Properties"), false);
+            auto* editor = new MapPropertiesEditor(document);
+
+            auto* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->addWidget(editor, 1);
+            titledPanel->getPanel()->setLayout(sizer);
+
+            return titledPanel;
+        }
+
+        QWidget* MapInspector::createModEditor(std::weak_ptr<MapDocument> document) {
+            CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(tr("Mods"), false);
             ModEditor* modEditor = new ModEditor(document);
 
             auto* sizer = new QVBoxLayout();
@@ -68,6 +90,60 @@ namespace TrenchBroom {
             titledPanel->getPanel()->setLayout(sizer);
 
             return titledPanel;
+        }
+
+        // MapPropertiesEditor
+
+        MapPropertiesEditor::MapPropertiesEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
+                QWidget(parent),
+                m_document(document) {
+            createGui();
+            bindObservers();
+        }
+
+        MapPropertiesEditor::~MapPropertiesEditor() {
+            unbindObservers();
+        }
+
+        void MapPropertiesEditor::createGui() {
+            auto* checkbox = new QCheckBox(tr("Map size:"));
+            auto* textEdit = new QLineEdit();
+
+            auto* row = new QHBoxLayout();
+            row->setContentsMargins(0, 0, 0, 0);
+            row->setSpacing(0);
+            row->addWidget(checkbox, 0);
+            row->addWidget(textEdit, 1);
+
+            setLayout(row);
+            
+            updateGui();
+        }
+
+        void MapPropertiesEditor::bindObservers() {
+            auto document = kdl::mem_lock(m_document);
+            document->documentWasNewedNotifier.addObserver(this, &MapPropertiesEditor::documentWasNewed);
+            document->documentWasLoadedNotifier.addObserver(this, &MapPropertiesEditor::documentWasLoaded);
+        }
+
+        void MapPropertiesEditor::unbindObservers() {
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
+                document->documentWasNewedNotifier.removeObserver(this, &MapPropertiesEditor::documentWasNewed);
+                document->documentWasLoadedNotifier.removeObserver(this, &MapPropertiesEditor::documentWasLoaded);
+            }
+        }
+
+        void MapPropertiesEditor::documentWasNewed(MapDocument*) {
+            updateGui();
+        }
+
+        void MapPropertiesEditor::documentWasLoaded(MapDocument*) {
+            updateGui();
+        }
+
+        void MapPropertiesEditor::updateGui() {
+            
         }
     }
 }

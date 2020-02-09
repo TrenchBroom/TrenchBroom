@@ -25,6 +25,8 @@
 #include <memory>
 
 class QWidget;
+class QCheckBox;
+class QLineEdit;
 
 namespace TrenchBroom {
     namespace View {
@@ -36,8 +38,30 @@ namespace TrenchBroom {
             explicit MapInspector(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
             void createGui(std::weak_ptr<MapDocument> document);
-            QWidget* createLayerEditor(QWidget* parent, std::weak_ptr<MapDocument> document);
-            QWidget* createModEditor(QWidget* parent, std::weak_ptr<MapDocument> document);
+            QWidget* createLayerEditor(std::weak_ptr<MapDocument> document);
+            QWidget* createMapProperties(std::weak_ptr<MapDocument> document);
+            QWidget* createModEditor(std::weak_ptr<MapDocument> document);
+        };
+
+        class MapPropertiesEditor : public QWidget {
+            Q_OBJECT
+        private:
+            std::weak_ptr<MapDocument> m_document;
+
+            QCheckBox* m_checkBox;
+            QLineEdit* m_sizeBox;
+        public:
+            explicit MapPropertiesEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            ~MapPropertiesEditor() override;
+        private:
+            void createGui();
+        private:
+            void bindObservers();
+            void unbindObservers();
+
+            void documentWasNewed(MapDocument* document);
+            void documentWasLoaded(MapDocument* document);
+            void updateGui();
         };
     }
 }
