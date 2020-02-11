@@ -19,6 +19,8 @@
 
 #include "MapInspector.h"
 
+#include "Model/EntityAttributes.h"
+#include "Model/World.h"
 #include "View/BorderLine.h"
 #include "View/CollapsibleTitledPanel.h"
 #include "View/LayerEditor.h"
@@ -29,8 +31,11 @@
 
 #include <kdl/memory_utils.h>
 
+#include <vecmath/vec_io.h>
+
 #include <utility>
 
+#include <QFormLayout>
 #include <QVBoxLayout>
 #include <QCheckBox>
 #include <QLineEdit>
@@ -52,6 +57,7 @@ namespace TrenchBroom {
             sizer->addWidget(createLayerEditor(document), 1);
             sizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
             sizer->addWidget(createMapProperties(document), 0);
+            sizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
             sizer->addWidget(createModEditor(document), 0);
             setLayout(sizer);
         }
@@ -95,8 +101,8 @@ namespace TrenchBroom {
         // MapPropertiesEditor
 
         MapPropertiesEditor::MapPropertiesEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
-                QWidget(parent),
-                m_document(document) {
+        QWidget(parent),
+        m_document(document) {
             createGui();
             bindObservers();
         }
@@ -105,18 +111,49 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
+        static nonstd::optional<vm::bbox3> parseBounds(const std::string& string) {
+            // FIXME: duplicated in GameConfigParser
+            if (!vm::can_parse<double, 3u>(string)) {
+                return nonstd::nullopt;
+            }
+
+            const auto vec = vm::parse<double, 3u>(string);
+            return { vm::bbox3(-0.5 * vec, 0.5 * vec) };
+        }
+
         void MapPropertiesEditor::createGui() {
-            auto* checkbox = new QCheckBox(tr("Map size:"));
-            auto* textEdit = new QLineEdit();
+            m_checkBox = new QCheckBox(tr("Map size:"));
+            m_sizeBox = new QLineEdit();
 
-            auto* row = new QHBoxLayout();
-            row->setContentsMargins(0, 0, 0, 0);
-            row->setSpacing(0);
-            row->addWidget(checkbox, 0);
-            row->addWidget(textEdit, 1);
+            QFormLayout* formLayout = new QFormLayout();
+            formLayout->setContentsMargins(0, 0, 0, 0);
+            formLayout->setSpacing(0);
+            formLayout->addRow(m_checkBox, m_sizeBox);
+            setLayout(formLayout);
 
-            setLayout(row);
-            
+            connect(m_checkBox, &QCheckBox::stateChanged, this, [this](int state) {
+                // This signal happens in response to user input only
+                auto document = kdl::mem_lock(m_document);
+                if (state == Qt::Unchecked) {
+                    document->setMapSoftBounds(nonstd::nullopt);
+                } else {
+                    document->setMapSoftBounds(parseBounds(m_sizeBox->text().toStdString()));
+                }
+            });
+
+            connect(m_checkBox, &QAbstractButton::toggled, this, [this](bool checked) {
+                // This signal happens in response to programmatic changes too
+                m_sizeBox->setEnabled(checked);
+            });
+
+            connect(m_sizeBox, &QLineEdit::editingFinished, this, [this]() {
+                // This signal happens in response to user input only
+                auto document = kdl::mem_lock(m_document);
+                if (document) {
+                    document->setMapSoftBounds(parseBounds(m_sizeBox->text().toStdString()));
+                }
+            });
+
             updateGui();
         }
 
@@ -142,8 +179,26 @@ namespace TrenchBroom {
             updateGui();
         }
 
+        /**
+         * Refresh the UI from the model
+         */
         void MapPropertiesEditor::updateGui() {
-            
+            // checkbox is checked iff Model::AttributeNames::SoftMaxMapSize key is set
+
+            auto document = kdl::mem_lock(m_document);
+            if (!document) {
+                m_checkBox->setChecked(false);
+                return;
+            }
+            Model::World* world = document->world();
+            if (!world) {
+                m_checkBox->setChecked(false);
+                return;
+            }
+
+            const bool hasBoundsSet = world->hasAttribute(Model::AttributeNames::SoftMaxMapSize);
+            m_checkBox->setChecked(hasBoundsSet);
+            m_sizeBox->setText(QString::fromStdString(world->attribute(Model::AttributeNames::SoftMaxMapSize)));            
         }
     }
 }

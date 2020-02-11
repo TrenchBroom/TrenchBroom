@@ -85,6 +85,7 @@
 #include "View/AddRemoveNodesCommand.h"
 #include "View/Actions.h"
 #include "View/ChangeBrushFaceAttributesCommand.h"
+#include "View/ChangeAttributesOfNodesCommand.h"
 #include "View/ChangeEntityAttributesCommand.h"
 #include "View/UpdateEntitySpawnflagCommand.h"
 #include "View/ConvertEntityColorCommand.h"
@@ -1937,6 +1938,27 @@ namespace TrenchBroom {
 
         std::string MapDocument::defaultMod() const {
             return m_game->defaultMod();
+        }
+
+        void MapDocument::setMapSoftBounds(const nonstd::optional<vm::bbox3>& size) {
+            if (size) {
+                std::stringstream sizeString;
+                sizeString << size->size();
+                executeAndStore(ChangeAttributesOfNodesCommand::set({world()}, Model::AttributeNames::SoftMaxMapSize, sizeString.str()));
+            } else {
+                executeAndStore(ChangeAttributesOfNodesCommand::remove({world()}, Model::AttributeNames::SoftMaxMapSize));
+            }
+        }
+
+        bool MapDocument::hasMapSoftBounds() const {
+            if (!m_world) {
+                return false;
+            }
+            return m_world->hasAttribute(Model::AttributeNames::SoftMaxMapSize);
+        }
+
+        nonstd::optional<vm::bbox3> MapDocument::mapOrGameSoftBounds() const {
+            return m_game->extractSoftMapBounds(*m_world);
         }
 
         void MapDocument::setIssueHidden(Model::Issue* issue, const bool hidden) {

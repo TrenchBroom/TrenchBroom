@@ -511,6 +511,10 @@ namespace TrenchBroom {
             std::vector<std::string> mods() const override;
             void setMods(const std::vector<std::string>& mods) override;
             std::string defaultMod() const;
+        public: // map soft bounds
+            void setMapSoftBounds(const nonstd::optional<vm::bbox3>& size);
+            bool hasMapSoftBounds() const;
+            nonstd::optional<vm::bbox3> mapOrGameSoftBounds() const;
         private: // issue management
             void registerIssueGenerators();
         public:
