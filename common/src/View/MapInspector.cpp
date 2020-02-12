@@ -131,19 +131,14 @@ namespace TrenchBroom {
             formLayout->addRow(m_checkBox, m_sizeBox);
             setLayout(formLayout);
 
-            connect(m_checkBox, &QCheckBox::stateChanged, this, [this](int state) {
+            connect(m_checkBox, &QAbstractButton::clicked, this, [this](const bool checked) {
                 // This signal happens in response to user input only
                 auto document = kdl::mem_lock(m_document);
-                if (state == Qt::Unchecked) {
-                    document->setMapSoftBounds(nonstd::nullopt);
+                if (checked) {
+                    document->setMapSoftBounds(parseBounds(m_sizeBox->text().toStdString()));                    
                 } else {
-                    document->setMapSoftBounds(parseBounds(m_sizeBox->text().toStdString()));
+                    document->setMapSoftBounds(nonstd::nullopt);
                 }
-            });
-
-            connect(m_checkBox, &QAbstractButton::toggled, this, [this](bool checked) {
-                // This signal happens in response to programmatic changes too
-                m_sizeBox->setEnabled(checked);
             });
 
             connect(m_sizeBox, &QLineEdit::editingFinished, this, [this]() {
@@ -161,6 +156,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &MapPropertiesEditor::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &MapPropertiesEditor::documentWasLoaded);
+            document->nodesDidChangeNotifier.addObserver(this, &MapPropertiesEditor::nodesDidChange);
         }
 
         void MapPropertiesEditor::unbindObservers() {
@@ -168,6 +164,7 @@ namespace TrenchBroom {
                 auto document = kdl::mem_lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &MapPropertiesEditor::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &MapPropertiesEditor::documentWasLoaded);
+                document->nodesDidChangeNotifier.removeObserver(this, &MapPropertiesEditor::nodesDidChange);
             }
         }
 
@@ -179,6 +176,20 @@ namespace TrenchBroom {
             updateGui();
         }
 
+        void MapPropertiesEditor::nodesDidChange(const std::vector<Model::Node*>& nodes) {
+            auto document = kdl::mem_lock(m_document);
+            if (!document) {
+                return;
+            }
+
+            for (Model::Node* node : nodes) {
+                if (node == document->world()) {
+                    updateGui();
+                    return;
+                }
+            }
+        }
+
         /**
          * Refresh the UI from the model
          */
@@ -186,19 +197,21 @@ namespace TrenchBroom {
             // checkbox is checked iff Model::AttributeNames::SoftMaxMapSize key is set
 
             auto document = kdl::mem_lock(m_document);
-            if (!document) {
-                m_checkBox->setChecked(false);
-                return;
-            }
-            Model::World* world = document->world();
-            if (!world) {
+            if (!document || !document->world()) {
+                m_sizeBox->setEnabled(false);
                 m_checkBox->setChecked(false);
                 return;
             }
 
+            Model::World* world = document->world();
             const bool hasBoundsSet = world->hasAttribute(Model::AttributeNames::SoftMaxMapSize);
+            const QString boundsQString = QString::fromStdString(world->attribute(Model::AttributeNames::SoftMaxMapSize));
+
+            qDebug() << "MapPropertiesEditor::updateGui: '" << boundsQString << "' (set: " << hasBoundsSet << ")";
+
             m_checkBox->setChecked(hasBoundsSet);
-            m_sizeBox->setText(QString::fromStdString(world->attribute(Model::AttributeNames::SoftMaxMapSize)));            
+            m_sizeBox->setEnabled(hasBoundsSet);
+            m_sizeBox->setText(boundsQString);            
         }
     }
 }

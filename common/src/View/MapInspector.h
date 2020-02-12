@@ -23,12 +23,17 @@
 #include "View/TabBook.h"
 
 #include <memory>
+#include <vector>
 
 class QWidget;
 class QCheckBox;
 class QLineEdit;
 
 namespace TrenchBroom {
+    namespace Model {
+        class Node;
+    }
+
     namespace View {
         class MapDocument;
 
@@ -61,6 +66,7 @@ namespace TrenchBroom {
 
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void updateGui();
         };
     }
