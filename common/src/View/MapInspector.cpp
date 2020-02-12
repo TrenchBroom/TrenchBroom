@@ -121,6 +121,16 @@ namespace TrenchBroom {
             return { vm::bbox3(-0.5 * vec, 0.5 * vec) };
         }
 
+        static QString formatBounds(const nonstd::optional<vm::bbox3>& bounds) {
+            if (!bounds.has_value()) {
+                return QString();
+            }
+
+            std::stringstream str;
+            str << bounds->size();
+            return QString::fromStdString(str.str());
+        }
+
         void MapPropertiesEditor::createGui() {
             m_checkBox = new QCheckBox(tr("Map size:"));
             m_sizeBox = new QLineEdit();
@@ -137,7 +147,7 @@ namespace TrenchBroom {
                 if (checked) {
                     document->setMapSoftBounds(parseBounds(m_sizeBox->text().toStdString()));                    
                 } else {
-                    document->setMapSoftBounds(nonstd::nullopt);
+                    document->unsetMapSoftBounds();
                 }
             });
 
@@ -197,17 +207,17 @@ namespace TrenchBroom {
             // checkbox is checked iff Model::AttributeNames::SoftMaxMapSize key is set
 
             auto document = kdl::mem_lock(m_document);
-            if (!document || !document->world()) {
+            if (!document) {
                 m_sizeBox->setEnabled(false);
                 m_checkBox->setChecked(false);
                 return;
             }
 
-            Model::World* world = document->world();
-            const bool hasBoundsSet = world->hasAttribute(Model::AttributeNames::SoftMaxMapSize);
-            const QString boundsQString = QString::fromStdString(world->attribute(Model::AttributeNames::SoftMaxMapSize));
+            const bool hasBoundsSet = document->hasMapSoftBounds();
+            const nonstd::optional<vm::bbox3> bounds = document->mapOrGameSoftBounds();
+            const QString boundsQString = formatBounds(bounds);
 
-            qDebug() << "MapPropertiesEditor::updateGui: '" << boundsQString << "' (set: " << hasBoundsSet << ")";
+            qDebug() << "MapPropertiesEditor::updateGui:" << boundsQString << "set:" << hasBoundsSet;
 
             m_checkBox->setChecked(hasBoundsSet);
             m_sizeBox->setEnabled(hasBoundsSet);

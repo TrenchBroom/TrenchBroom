@@ -1941,13 +1941,19 @@ namespace TrenchBroom {
         }
 
         void MapDocument::setMapSoftBounds(const nonstd::optional<vm::bbox3>& size) {
-            if (size) {
+            if (!size.has_value()) {
+                // nonstd::nullopt passed. Set the worldspawn key AttributeNames::SoftMaxMapSize 's value to the empty string
+                // to indicate that we are overriding the Game's bounds with unlimited.
+                executeAndStore(ChangeAttributesOfNodesCommand::set({world()}, Model::AttributeNames::SoftMaxMapSize, ""));                
+            } else {
                 std::stringstream sizeString;
                 sizeString << size->size();
                 executeAndStore(ChangeAttributesOfNodesCommand::set({world()}, Model::AttributeNames::SoftMaxMapSize, sizeString.str()));
-            } else {
-                executeAndStore(ChangeAttributesOfNodesCommand::remove({world()}, Model::AttributeNames::SoftMaxMapSize));
             }
+        }
+
+        void MapDocument::unsetMapSoftBounds() {
+            executeAndStore(ChangeAttributesOfNodesCommand::remove({world()}, Model::AttributeNames::SoftMaxMapSize));
         }
 
         bool MapDocument::hasMapSoftBounds() const {
@@ -1958,6 +1964,9 @@ namespace TrenchBroom {
         }
 
         nonstd::optional<vm::bbox3> MapDocument::mapOrGameSoftBounds() const {
+            if (!m_world) {
+                return nonstd::nullopt;
+            }
             return m_game->extractSoftMapBounds(*m_world);
         }
 

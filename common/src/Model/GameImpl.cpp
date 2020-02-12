@@ -125,13 +125,19 @@ namespace TrenchBroom {
         }
 
         nonstd::optional<vm::bbox3> GameImpl::doExtractSoftMapBounds(const AttributableNode& node) const {
+            if (!node.hasAttribute(AttributeNames::SoftMaxMapSize)) {
+                // Not set in map -> use Game value
+                return doSoftMapBounds();
+            }
             const std::string& mapValue = node.attribute(AttributeNames::SoftMaxMapSize);
             if (mapValue.empty()) {
-                return doSoftMapBounds();
+                // Set in map to empty string -> use unlimited bounds
+                return nonstd::nullopt;
             }
 
             if (!vm::can_parse<double, 3u>(mapValue)) {
-                return doSoftMapBounds();
+                // Can't parse -> use unlimited bounds
+                return nonstd::nullopt;
             }
 
             const auto vec = vm::parse<double, 3u>(mapValue);

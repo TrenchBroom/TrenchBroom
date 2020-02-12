@@ -512,7 +512,12 @@ namespace TrenchBroom {
             void setMods(const std::vector<std::string>& mods) override;
             std::string defaultMod() const;
         public: // map soft bounds
+            /**
+             * Passing nonstd::nullopt means to explicitly set the bounds to "unlimited".
+             * Call unsetMapSoftBounds() to clear the map's value and fall back to the Game's value.
+             */
             void setMapSoftBounds(const nonstd::optional<vm::bbox3>& size);
+            void unsetMapSoftBounds();
             bool hasMapSoftBounds() const;
             nonstd::optional<vm::bbox3> mapOrGameSoftBounds() const;
         private: // issue management
