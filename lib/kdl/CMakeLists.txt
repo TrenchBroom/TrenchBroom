@@ -16,6 +16,7 @@ target_include_directories(kdl INTERFACE
         $<INSTALL_INTERFACE:kdl/include/kdl>)
 
 target_link_libraries(kdl INTERFACE optlite)
+target_link_cpp17_libraries(kdl)
 
 target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/binary_relation.h"
@@ -24,6 +25,8 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/compact_trie_forward.h"
     "${KDL_INCLUDE_DIR}/kdl/compact_trie.h"
     "${KDL_INCLUDE_DIR}/kdl/enum_array.h"
+    "${KDL_INCLUDE_DIR}/kdl/result.h"
+    "${KDL_INCLUDE_DIR}/kdl/result_forward.h"
     "${KDL_INCLUDE_DIR}/kdl/intrusive_circular_list_forward.h"
     "${KDL_INCLUDE_DIR}/kdl/intrusive_circular_list.h"
     "${KDL_INCLUDE_DIR}/kdl/invoke.h"
@@ -43,6 +46,7 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/vector_utils.h"
 )
 
+target_compile_features(kdl INTERFACE cxx_std_17)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -pedantic -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-exit-time-destructors)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
