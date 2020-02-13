@@ -207,15 +207,10 @@ namespace kdl {
     void test_visit_success_with_opt_value() {
         auto result = ResultType::success();
         
-        ASSERT_TRUE(visit_result(overload{
+        ASSERT_TRUE(visit_result(overload {
+            []()            { return true; },
             [](const auto&) { return false; }
-        }, result, true));
-        
-        bool visited = false;
-        visit_result(overload {
-            [&](const auto&) { visited = true; }
-        }, result);
-        ASSERT_FALSE(visited);
+        }, result));
     }
 
     /**
@@ -227,18 +222,11 @@ namespace kdl {
         auto result = ResultType::success(std::forward<V>(v));
         
         ASSERT_TRUE(visit_result(overload {
+            []  ()              { return false; },
             [&] (const auto& x) { return x == v; },
             []  (const Error1&) { return false; },
             []  (const Error2&) { return false; }
-        }, result, false));
-        
-        bool visited = false;
-        visit_result(overload {
-            [&] (const auto&) { visited = true; },
-            []  (const Error1&) {},
-            []  (const Error2&) {}
-        }, result);
-        ASSERT_TRUE(visited);
+        }, result));
     }
 
     /**
@@ -250,13 +238,15 @@ namespace kdl {
         auto result = ResultType::success(std::forward<V>(v));
 
         ASSERT_TRUE(visit_result(overload {
+            []  ()         { return false; },
             [&] (auto&&)   { return true; },
             []  (Error1&&) { return false; },
             []  (Error2&&) { return false; }
-        }, std::move(result), false));
+        }, std::move(result)));
         
         typename ResultType::value_type y;
         visit_result(overload {
+            [] ()         {},
             [&] (auto&& x) { y = std::move(x); },
             []  (Error1&&) {},
             []  (Error2&&) {}
@@ -274,16 +264,10 @@ namespace kdl {
         auto result = ResultType::error(std::forward<E>(e));
         
         ASSERT_TRUE(visit_result(overload {
-            [&] (const E& x)    { return x == e; },
-            []  (const auto&) { return false; }
-        }, result, false));
-        
-        bool visited = false;
-        visit_result(overload {
-            [&] (const E&)    { visited = true; },
-            []  (const auto&) {}
-        }, result);
-        ASSERT_TRUE(visited);
+            []  ()            { return false; },
+            []  (const auto&) { return false; },
+            [&] (const E& x)  { return x == e; }
+        }, result));
     }
     
     /**
@@ -295,21 +279,16 @@ namespace kdl {
         auto result = ResultType::error(std::forward<E>(e));
 
         ASSERT_TRUE(visit_result(overload {
-            [&] (E&&)    { return true; },
-            []  (auto&&) { return false; }
-        }, std::move(result), false));
-        
-        bool visited = false;
-        visit_result(overload {
-            [&] (E&&)    { visited = true; },
-            []  (auto&&) {}
-        }, std::move(result));
-        ASSERT_TRUE(visited);
+            [] ()       { return false; },
+            []  (auto&&) { return false; },
+            [&] (E&&)    { return true; }
+        }, std::move(result)));
 
         E y;
         visit_result(overload {
-            [&] (E&& x)  { y = std::move(x); },
-            []  (auto&&) {}
+            []  ()       {},
+            []  (auto&&) {},
+            [&] (E&& x)  { y = std::move(x); }
         }, std::move(result));
         
         ASSERT_EQ(0u, y.copies);

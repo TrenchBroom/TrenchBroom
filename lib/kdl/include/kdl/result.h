@@ -387,96 +387,47 @@ namespace kdl {
         }
 
         /**
-         * Applies the given visitor to the given result.
-         *
-         * The visitor is only applied if the given result contains an error.
-         *
-         * The error contained in the given result is passed to the visitor as a const lvalue reference.
+         * Applies the given visitor to the given result result and returns the result returned by the visitor.
+         * If the given result is successful, then the visitor is called without any arguments.
+         * Otherwise, the error contained in the given result is passed to the visitor by const lvalue reference.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
          * @param result the result to visit
+         * @return the result of applying the given visitor
          */
         template <typename Visitor>
-        friend void visit_result(Visitor&& visitor, const result& result) {
-            if (result.m_error.has_value()) {
-                std::visit(
-                    std::forward<Visitor>(visitor),
-                    result.m_error.value());
-            }
-        }
-        
-        /**
-         * Applies the given visitor to the given result.
-         *
-         * The visitor is only applied if the given result contains an error.
-         *
-         * The reference or error contained in the given result is passed to the visitor as a rvalue reference.
-         *
-         * The given visitor can move the error out of the given result, so care must be taken not to use the
-         * result afterwards, as it will be in a moved-from state.
-         *
-         * @tparam Visitor the type of the visitor
-         * @param visitor the visitor to apply
-         * @param result the result to visit
-         */
-        template <typename Visitor>
-        friend void visit_result(Visitor&& visitor, result&& result) {
-            if (result.m_error.has_value()) {
-                std::visit(
-                    std::forward<Visitor>(visitor),
-                    std::move(result.m_error.value()));
-            }
-        }
-
-        /**
-         * Applies the given visitor to the given result and returns the result returned by the visitor, or the
-         * given default result if the result is successful.
-         *
-         * The visitor is only applied if the given result contains an error, in that case, the given default value is
-         * returned.
-         *
-         * The error contained in the given result is passed to the visitor as a const lvalue reference.
-         *
-         * @tparam Visitor the type of the visitor
-         * @param visitor the visitor to apply
-         * @param result the result to visit
-         */
-        template <typename Visitor, typename R>
-        friend R visit_result(Visitor&& visitor, const result& result, R&& defaultValue) {
+        friend auto visit_result(Visitor&& visitor, const result& result) {
             if (result.m_error.has_value()) {
                 return std::visit(
                     std::forward<Visitor>(visitor),
                     result.m_error.value());
             } else {
-                return defaultValue;
+                return visitor();
             }
         }
         
         /**
-         * Applies the given visitor to the given result and returns the result returned by the visitor, or the
-         * given default result if the result is successful.
+         * Applies the given visitor to the given result and returns the result returned by the visitor.
+         * If the given result is successful, then the visitor is called without any arguments.
+         * Otherwise, the error contained in the given result is passed to the visitor by rvalue reference.
          *
-         * The visitor is only applied if the given result contains an error, in that case, the given default value is
-         * returned.
-         *
-         * The error contained in the given result is passed to the visitor as a rvalue reference.
-         *
-         * The given visitor can move the error out of the given result, so care must be taken not to use the
-         * result afterwards, as it will be in a moved-from state.
+         * The given visitor can move the value or error out of the given result, so care must be taken not to
+         * use the result afterwards, as it will be in a moved-from state.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
          * @param result the result to visit
+         * @return the result of applying the given visitor
          */
-        template <typename Visitor, typename R>
-        friend R visit_result(Visitor&& visitor, result&& result, R&& defaultValue) {
+        template <typename Visitor>
+        friend auto visit_result(Visitor&& visitor, result&& result) {
             if (result.m_error.has_value()) {
                 return std::visit(
                     std::forward<Visitor>(visitor),
                     std::move(result.m_error.value()));
             } else {
-                return defaultValue;
+                return visitor();
             }
         }
 
@@ -569,96 +520,49 @@ namespace kdl {
         }
         
         /**
-         * Applies the given visitor to the given result.
-         *
-         * The visitor is only applied if the given result contains is not empty.
-         *
-         * The value or error contained in the given result is passed to the visitor by const lvalue reference.
+         * Applies the given visitor to the given result result and returns the result returned by the visitor.
+         * The value or error contained in the given result result is passed to the visitor by const lvalue reference.
+         * If the given result is successful but does not contain a value, the given visitor is called without any
+         * arguments.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
          * @param result the result to visit
+         * @return the result of applying the given visitor
          */
         template <typename Visitor>
-        friend void visit_result(Visitor&& visitor, const result& result) {
-            if (result.m_value.has_value()) {
-                std::visit(
-                    std::forward<Visitor>(visitor),
-                    result.m_value.value());
-            }
-        }
-        
-        /**
-         * Applies the given visitor to the given result.
-         *
-         * The visitor is only applied if the given result contains is not empty.
-         *
-         * The value or error contained in the given result is passed to the visitor by rvalue reference.
-         *
-         * The given visitor can move the value or error out of the given result, so care must be taken not to use
-         * the result afterwards, as it will be in a moved-from state.
-         *
-         * @tparam Visitor the type of the visitor
-         * @param visitor the visitor to apply
-         * @param result the result to visit
-         */
-        template <typename Visitor>
-        friend void visit_result(Visitor&& visitor, result&& result) {
-            if (result.m_value.has_value()) {
-                std::visit(
-                    std::forward<Visitor>(visitor),
-                    std::move(result.m_value.value()));
-            }
-        }
-
-        /**
-         * Applies the given visitor to the given result and returns the result returned by the visitor, or the
-         * given default result if the result is empty.
-         *
-         * The visitor is only applied if the given result contains is not empty, in that case, the given default value
-         * is returned.
-         *
-         * The value or error contained in the given result is passed to the visitor by const lvalue reference.
-         *
-         * @tparam Visitor the type of the visitor
-         * @param visitor the visitor to apply
-         * @param result the result to visit
-         */
-        template <typename Visitor, typename R>
-        friend R visit_result(Visitor&& visitor, const result& result, R&& defaultValue) {
+        friend auto visit_result(Visitor&& visitor, const result& result) {
             if (result.m_value.has_value()) {
                 return std::visit(
                     std::forward<Visitor>(visitor),
                     result.m_value.value());
             } else {
-                return defaultValue;
+                return visitor();
             }
         }
         
         /**
-         * Applies the given visitor to the given result and returns the result returned by the visitor, or the
-         * given default result if the result is empty.
-         *
-         * The visitor is only applied if the given result contains is not empty, in that case, the given default value
-         * is returned.
-         *
+         * Applies the given visitor to the given result and returns the result returned by the visitor.
          * The value or error contained in the given result is passed to the visitor by rvalue reference.
+         * If the given result is successful but does not contain a value, the given visitor is called without any
+         * arguments.
          *
-         * The given visitor can move the error out of the given result, so care must be taken not to use the
-         * result afterwards, as it will be in a moved-from state.
+         * The given visitor can move the value or error out of the given result, so care must be taken not to
+         * use the result afterwards, as it will be in a moved-from state.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
          * @param result the result to visit
+         * @return the result of applying the given visitor
          */
-        template <typename Visitor, typename R>
-        friend R visit_result(Visitor&& visitor, result&& result, R&& defaultValue) {
+        template <typename Visitor>
+        friend auto visit_result(Visitor&& visitor, result&& result) {
             if (result.m_value.has_value()) {
                 return std::visit(
                     std::forward<Visitor>(visitor),
                     std::move(result.m_value.value()));
             } else {
-                return defaultValue;
+                return visitor();
             }
         }
 
