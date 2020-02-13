@@ -95,6 +95,8 @@ namespace TrenchBroom {
             QCheckBox* m_showEdgesCheckBox;
 
             QButtonGroup* m_entityLinkRadioGroup;
+
+            QCheckBox* m_showSoftBoundsCheckBox;
         public:
             explicit ViewEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~ViewEditor() override;
