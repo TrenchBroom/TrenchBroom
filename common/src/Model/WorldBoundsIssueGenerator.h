@@ -29,15 +29,21 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class World;
+        class Game;
+        class Node;
+
         class WorldBoundsIssueGenerator : public IssueGenerator {
         private:
             class WorldBoundsIssue;
             class WorldBoundsIssueQuickFix;
         private:
-            const vm::bbox3 m_bounds;
+            std::weak_ptr<Game> m_game;
+            const World* m_world;
         public:
-            explicit WorldBoundsIssueGenerator(const vm::bbox3& bounds);
+            explicit WorldBoundsIssueGenerator(std::weak_ptr<Game> game, const World* world);
         private:
+            void generateInternal(Node* node, IssueList& issues) const;
             void doGenerate(Entity* brush, IssueList& issues) const override;
             void doGenerate(Brush* brush, IssueList& issues) const override;
         };
