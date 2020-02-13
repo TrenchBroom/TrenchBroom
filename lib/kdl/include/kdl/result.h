@@ -155,8 +155,8 @@ namespace kdl {
         friend auto map_result(F&& f, result&& result_) {
             using R = std::invoke_result_t<F, Value>;
             return visit_result(kdl::overload {
-                [&](value_type&& v) { return result<R, Errors...>(f(std::move(v))); },
-                [] (const auto& e)  { return result<R, Errors...>(e); }
+                [&](value_type&& v) { return result<R, Errors...>::success(f(std::move(v))); },
+                [] (const auto& e)  { return result<R, Errors...>::error(e); }
             }, std::move(result_));
         }
 
@@ -181,7 +181,7 @@ namespace kdl {
             return is_success();
         }
     };
-    
+
     /**
      * Wrapper class that can contain either a reference or one of several errors.
      *
@@ -594,6 +594,27 @@ namespace kdl {
             return is_success();
         }
     };
+
+    
+    template <typename Visitor, typename Value, typename... Errors>
+    auto visit_result(Visitor&& visitor, const result<Value, Errors...>& result) {
+        return visit_result(std::forward<Visitor>(visitor), result);
+    }
+
+    template <typename Visitor, typename Value, typename... Errors>
+    auto visit_result(Visitor&& visitor, result<Value, Errors...>&& result) {
+        return visit_result(std::forward<Visitor>(visitor), std::move(result));
+    }
+
+    template <typename F, typename Value, typename... Errors>
+    auto map_result(F&& f, const result<Value, Errors...>& result_) {
+        return map_result(std::forward<F>(f), result_);
+    }
+    
+    template <typename F, typename Value, typename... Errors>
+    auto map_result(F&& f, result<Value, Errors...>&& result_) {
+        return map_result(std::forward<F>(f), std::move(result_));
+    }
 }
 
 #endif /* result_h */

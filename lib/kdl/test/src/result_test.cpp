@@ -23,6 +23,17 @@
 #include <string>
 
 namespace kdl {
+    struct Error1 {};
+    struct Error2 {};
+    
+    inline bool operator==(const Error1&, const Error1&) {
+        return true;
+    }
+
+    inline bool operator==(const Error2&, const Error2&) {
+        return true;
+    }
+
     struct Counter {
         std::size_t copies = 0u;
         std::size_t moves = 0u;
@@ -50,17 +61,6 @@ namespace kdl {
         }
     };
         
-    struct Error1 {};
-    struct Error2 {};
-    
-    inline bool operator==(const Error1&, const Error1&) {
-        return true;
-    }
-
-    inline bool operator==(const Error2&, const Error2&) {
-        return true;
-    }
-    
     /**
      * Tests construction of a successful result.
      */
@@ -455,4 +455,83 @@ namespace kdl {
         test_visit_error_const_lvalue_ref_with_opt_value<result<opt<const int>, Error1, Error2>>(Error1{});
         test_visit_error_rvalue_ref_with_opt_value<result<opt<int>, Counter, Error2>>(Counter{});
     }
+}
+
+namespace something {
+    TEST(result_test, adl_friend_lookup) {
+        auto value_result = kdl::result<int, kdl::Error1, kdl::Error2>::success(1);
+
+        ASSERT_TRUE(kdl::visit_result(kdl::overload {
+            [&] (const int&)         { return true; },
+            []  (const kdl::Error1&) { return false; },
+            []  (const kdl::Error2&) { return false; }
+        }, value_result));
+        
+        ASSERT_TRUE(kdl::visit_result(kdl::overload {
+            [&] (int&&)         { return true; },
+            []  (kdl::Error1&&) { return false; },
+            []  (kdl::Error2&&) { return false; }
+        }, std::move(value_result)));
+        
+        ASSERT_TRUE(kdl::map_result(kdl::overload {
+            [&] (const int&) { return true; }
+        }, value_result));
+        
+        ASSERT_TRUE(kdl::map_result(kdl::overload {
+            [&] (int&&) { return true; }
+        }, std::move(value_result)));
+
+        int x = 1;
+        auto ref_result = kdl::result<int&, kdl::Error1, kdl::Error2>::success(x);
+
+        ASSERT_TRUE(kdl::visit_result(kdl::overload {
+            [&] (const int&)         { return true; },
+            []  (const kdl::Error1&) { return false; },
+            []  (const kdl::Error2&) { return false; }
+        }, ref_result));
+        
+        ASSERT_TRUE(kdl::visit_result(kdl::overload {
+            [&] (int&&)         { return true; },
+            []  (kdl::Error1&&) { return false; },
+            []  (kdl::Error2&&) { return false; }
+        }, std::move(ref_result)));
+        
+        ASSERT_TRUE(kdl::map_result(kdl::overload {
+            [&] (const int&) { return true; }
+        }, ref_result));
+        
+        ASSERT_TRUE(kdl::map_result(kdl::overload {
+            [&] (int&&) { return true; }
+        }, std::move(ref_result)));
+
+        auto void_result = kdl::result<void, kdl::Error1, kdl::Error2>::success();
+        ASSERT_TRUE(kdl::visit_result(kdl::overload {
+            [&] ()                   { return true; },
+            []  (const kdl::Error1&) { return false; },
+            []  (const kdl::Error2&) { return false; }
+        }, void_result));
+        
+        ASSERT_TRUE(kdl::visit_result(kdl::overload {
+            [&] ()              { return true; },
+            []  (kdl::Error1&&) { return false; },
+            []  (kdl::Error2&&) { return false; }
+        }, std::move(void_result)));
+
+        auto opt_result = kdl::result<kdl::opt<int>, kdl::Error1, kdl::Error2>::success();
+        ASSERT_TRUE(kdl::visit_result(kdl::overload {
+            [&] ()                   { return true; },
+            [&] (const int&)         { return true; },
+            []  (const kdl::Error1&) { return false; },
+            []  (const kdl::Error2&) { return false; }
+        }, opt_result));
+        
+        ASSERT_TRUE(kdl::visit_result(kdl::overload {
+            [&] ()              { return true; },
+            [&] (int&&)         { return true; },
+            []  (kdl::Error1&&) { return false; },
+            []  (kdl::Error2&&) { return false; }
+        }, std::move(opt_result)));
+    }
+    
+    
 }
