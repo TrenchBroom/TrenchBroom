@@ -111,7 +111,7 @@ namespace TrenchBroom {
         if (!in.isString()) {
             return false;
         }
-        nonstd::optional<QKeySequence> result =
+        std::optional<QKeySequence> result =
             View::keySequenceFromV1Settings(in.toString());
 
         if (!result.has_value()) {
@@ -580,7 +580,7 @@ namespace TrenchBroom {
                     if (matches(key, dynPref->pathPattern())) {
                         found = true;
 
-                        const nonstd::optional<QJsonValue> strMaybe = dynPref->migratePreferenceForThisType(v1, v2, val);
+                        const std::optional<QJsonValue> strMaybe = dynPref->migratePreferenceForThisType(v1, v2, val);
                         if (strMaybe.has_value()) {
                             result[key] = *strMaybe;
                         }

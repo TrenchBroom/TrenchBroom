@@ -25,7 +25,7 @@
 #include "Assets/AssetUtils.h"
 #include "IO/Path.h"
 
-#include <nonstd/optional.hpp>
+#include <optional>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -33,7 +33,7 @@ namespace TrenchBroom {
             TestLogger logger;
 
             const auto expected = ModelSpecification(IO::Path("test/test"), 1, 2);
-            nonstd::optional<ModelSpecification> actual;
+            std::optional<ModelSpecification> actual;
             
             // regular execution is fine
             ASSERT_NO_THROW(actual = safeGetModelSpecification(logger, "", [&]() {
