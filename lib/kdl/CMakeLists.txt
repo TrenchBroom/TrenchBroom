@@ -15,7 +15,7 @@ target_include_directories(kdl INTERFACE
         $<BUILD_INTERFACE:${KDL_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:kdl/include/kdl>)
 
-target_link_libraries(kdl INTERFACE optlite)
+target_link_libraries(kdl INTERFACE)
 target_link_cpp17_libraries(kdl)
 
 target_sources(kdl INTERFACE
