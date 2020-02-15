@@ -1068,6 +1068,7 @@ if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
     message(STATUS "Using precompiled headers")
     target_precompile_headers(common PUBLIC
             <algorithm>
+            <any>
             <array>
             <cassert>
             <cstddef>
@@ -1083,6 +1084,7 @@ if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
             <list>
             <map>
             <memory>
+            <optional>
             <ostream>
             <set>
             <string>
@@ -1090,6 +1092,7 @@ if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
             <unordered_map>
             <unordered_set>
             <utility>
+            <variant>
             <vector>
 
             <QApplication>
