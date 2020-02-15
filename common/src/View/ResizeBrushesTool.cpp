@@ -299,8 +299,16 @@ namespace TrenchBroom {
                 }
             } else {
                 if (document->resizeBrushes(dragFaceDescriptors(), faceDelta)) {
-                    m_totalDelta = m_totalDelta + faceDelta;
-                    m_dragOrigin = m_dragOrigin + faceDelta;
+                    bool ok = true;
+                    // see if we also need to move the inverted handles
+//                    if (!m_invertedDragHandles.empty()) {
+//                        ok = document->resizeBrushes(invertedDragFaceBrushes(), invertedDragFaceDescriptors(), faceDelta);
+//                    }
+
+                    if (ok) {
+                        m_totalDelta = m_totalDelta + faceDelta;
+                        m_dragOrigin = m_dragOrigin + faceDelta;
+                    }
                 }
             }
 
@@ -369,6 +377,7 @@ namespace TrenchBroom {
                 document->commitTransaction();
             }
             m_dragHandles.clear();
+            m_invertedDragHandles.clear();
             m_dragging = false;
         }
 
@@ -376,6 +385,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
             m_dragHandles.clear();
+            m_invertedDragHandles.clear();
             m_dragging = false;
         }
 
@@ -471,6 +481,13 @@ namespace TrenchBroom {
                 newNodes[brush->parent()].push_back(newBrush);
             }
 
+            // now that the new brushes are ready to insert (but not selected),
+            // resize the original brushes first
+            if (!document->resizeBrushes(dragFaceDescriptors(), delta)) {
+                kdl::col_delete_all(newBrushes);
+                return false;
+            }
+
             document->deselectAll();
             const auto addedNodes = document->addNodes(newNodes);
             document->select(addedNodes);
@@ -524,12 +541,14 @@ namespace TrenchBroom {
         void ResizeBrushesTool::nodesDidChange(const std::vector<Model::Node*>&) {
             if (!m_dragging) {
                 m_dragHandles.clear();
+                m_invertedDragHandles.clear();
             }
         }
 
         void ResizeBrushesTool::selectionDidChange(const Selection&) {
             if (!m_dragging) {
                 m_dragHandles.clear();
+                m_invertedDragHandles.clear();
             }
         }
     }
