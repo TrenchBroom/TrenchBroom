@@ -28,6 +28,7 @@
 class QWidget;
 class QCheckBox;
 class QLineEdit;
+class QRadioButton;
 
 namespace TrenchBroom {
     namespace Model {
@@ -48,12 +49,17 @@ namespace TrenchBroom {
             QWidget* createModEditor(std::weak_ptr<MapDocument> document);
         };
 
+        /**
+         * Currently just the soft bounds editor
+         */
         class MapPropertiesEditor : public QWidget {
             Q_OBJECT
         private:
             std::weak_ptr<MapDocument> m_document;
 
-            QCheckBox* m_checkBox;
+            QRadioButton* m_softBoundsDisabled;
+            QRadioButton* m_softBoundsFromGame;
+            QRadioButton* m_softBoundsFromMap;
             QLineEdit* m_sizeBox;
         public:
             explicit MapPropertiesEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);

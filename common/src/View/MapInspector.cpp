@@ -39,6 +39,8 @@
 #include <QVBoxLayout>
 #include <QCheckBox>
 #include <QLineEdit>
+#include <QButtonGroup>
+#include <QRadioButton>
 
 namespace TrenchBroom {
     namespace View {
@@ -132,23 +134,42 @@ namespace TrenchBroom {
         }
 
         void MapPropertiesEditor::createGui() {
-            m_checkBox = new QCheckBox(tr("Map size:"));
+            auto* group = new QButtonGroup();
+
+            m_softBoundsDisabled = new QRadioButton(tr("Soft bounds disabled"));
+            m_softBoundsFromGame = new QRadioButton(tr("Game default bounds"));
+            m_softBoundsFromMap = new QRadioButton(tr("Custom bounds:"));
+
             m_sizeBox = new QLineEdit();
 
             QFormLayout* formLayout = new QFormLayout();
             formLayout->setContentsMargins(0, 0, 0, 0);
             formLayout->setSpacing(0);
-            formLayout->addRow(m_checkBox, m_sizeBox);
+            formLayout->addRow(m_softBoundsDisabled);
+            formLayout->addRow(m_softBoundsFromGame);
+            formLayout->addRow(m_softBoundsFromMap, m_sizeBox);
             setLayout(formLayout);
 
-            connect(m_checkBox, &QAbstractButton::clicked, this, [this](const bool checked) {
+            connect(m_softBoundsDisabled, &QAbstractButton::clicked, this, [this](const bool checked) {
                 // This signal happens in response to user input only
                 auto document = kdl::mem_lock(m_document);
                 if (checked) {
-                    document->setMapSoftBounds(parseBounds(m_sizeBox->text().toStdString()));                    
-                } else {
+                    document->setMapSoftBounds(nonstd::nullopt);                    
+                }
+            });
+            connect(m_softBoundsFromGame, &QAbstractButton::clicked, this, [this](const bool checked) {
+                // This signal happens in response to user input only
+                auto document = kdl::mem_lock(m_document);
+                if (checked) {
                     document->unsetMapSoftBounds();
                 }
+            });
+            connect(m_softBoundsFromMap, &QAbstractButton::clicked, this, [this](const bool checked) {
+                // This signal happens in response to user input only
+                auto document = kdl::mem_lock(m_document);
+                // if (checked) {
+                //     document->setMapSoftBounds(parseBounds(m_sizeBox->text().toStdString()));                    
+                // }
             });
 
             connect(m_sizeBox, &QLineEdit::editingFinished, this, [this]() {
@@ -208,8 +229,6 @@ namespace TrenchBroom {
 
             auto document = kdl::mem_lock(m_document);
             if (!document) {
-                m_sizeBox->setEnabled(false);
-                m_checkBox->setChecked(false);
                 return;
             }
 
@@ -217,11 +236,20 @@ namespace TrenchBroom {
             const nonstd::optional<vm::bbox3> bounds = document->mapOrGameSoftBounds();
             const QString boundsQString = formatBounds(bounds);
 
+            if (hasBoundsSet && !bounds.has_value()) {
+                m_softBoundsDisabled->setChecked(true);
+                m_sizeBox->setEnabled(false);
+            } else if (hasBoundsSet && bounds.has_value()) {
+                m_softBoundsFromMap->setChecked(true);
+                m_sizeBox->setEnabled(true);
+                m_sizeBox->setText(boundsQString); 
+            } else {
+                m_softBoundsFromGame->setChecked(true);
+                m_sizeBox->setEnabled(false);
+            }
+ 
             qDebug() << "MapPropertiesEditor::updateGui:" << boundsQString << "set:" << hasBoundsSet;
-
-            m_checkBox->setChecked(hasBoundsSet);
-            m_sizeBox->setEnabled(hasBoundsSet);
-            m_sizeBox->setText(boundsQString);            
+                       
         }
     }
 }
