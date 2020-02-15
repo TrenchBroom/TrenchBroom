@@ -50,6 +50,7 @@
 #include <limits>
 #include <map>
 #include <vector>
+#include <cassert>
 
 namespace TrenchBroom {
     namespace View {
@@ -291,7 +292,7 @@ namespace TrenchBroom {
             }
 
             if (m_splitBrushes) {
-                if (splitBrushes(faceDelta)) {
+                if (splitBrushesInward(faceDelta)) {
                     m_totalDelta = m_totalDelta + faceDelta;
                     m_dragOrigin = m_dragOrigin + faceDelta;
                     m_splitBrushes = false;
@@ -429,6 +430,52 @@ namespace TrenchBroom {
             document->deselectAll();
             const auto addedNodes = document->addNodes(newNodes);
             document->select(addedNodes);
+            m_dragHandles = std::move(newDragHandles);
+
+            return true;
+        }
+
+        bool ResizeBrushesTool::splitBrushesInward(const vm::vec3& delta) {
+            auto document = kdl::mem_lock(m_document);
+            const vm::bbox3& worldBounds = document->worldBounds();
+            const bool lockTextures = pref(Preferences::TextureLock);
+
+            // The original brushes become the "unselected dragging brushes"
+            assert(m_invertedDragHandles.empty());
+
+            std::vector<Model::Brush*> newBrushes;
+            std::vector<FaceHandle> newDragHandles;
+            // This map is to handle the case when the brushes being
+            // extruded have different parents (e.g. different brush entities),
+            // so each newly created brush should be made a sibling of the brush it was cloned from.
+            std::map<Model::Node*, std::vector<Model::Node*>> newNodes;
+
+            for (auto* dragFace : dragFaces()) {
+                auto* brush = dragFace->brush();
+
+                auto* newBrush = brush->clone(worldBounds);
+                auto* newDragFace = findMatchingFace(newBrush, dragFace);
+
+                auto* clipFace = newDragFace->clone();
+                clipFace->invert();
+                clipFace->transform(vm::translation_matrix(delta), lockTextures);
+
+                if (!newBrush->clip(worldBounds, clipFace)) {
+                    delete clipFace;
+                    kdl::col_delete_all(newBrushes);
+                    return false;
+                }
+
+                newBrushes.push_back(newBrush);
+                newDragHandles.emplace_back(newBrush, clipFace->boundary().normal);
+                newNodes[brush->parent()].push_back(newBrush);
+            }
+
+            document->deselectAll();
+            const auto addedNodes = document->addNodes(newNodes);
+            document->select(addedNodes);
+            // back up the old drag handles
+            m_invertedDragHandles = m_dragHandles;
             m_dragHandles = std::move(newDragHandles);
 
             return true;

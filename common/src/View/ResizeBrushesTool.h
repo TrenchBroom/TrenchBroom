@@ -53,6 +53,9 @@ namespace TrenchBroom {
             static const Model::HitType::Type ResizeHit3D;
             static const Model::HitType::Type ResizeHit2D;
 
+            /**
+             * Brush and face normal pair.
+             */
             using FaceHandle = std::tuple<Model::Brush*, vm::vec3>;
 
             std::weak_ptr<MapDocument> m_document;
@@ -62,6 +65,13 @@ namespace TrenchBroom {
             bool m_splitBrushes;
             vm::vec3 m_totalDelta;
             bool m_dragging;
+
+            /**
+             * only non-empty when resizing the brushes inward.
+             * These are the unselected brushes we're still resizing
+             */
+            std::vector<FaceHandle> m_invertedDragHandles;
+
         public:
             explicit ResizeBrushesTool(std::weak_ptr<MapDocument> document);
             ~ResizeBrushesTool() override;
@@ -95,6 +105,7 @@ namespace TrenchBroom {
             void cancel();
         private:
             bool splitBrushes(const vm::vec3& delta);
+            bool splitBrushesInward(const vm::vec3& delta);
             Model::BrushFace* findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const;
             std::vector<vm::polygon3> dragFaceDescriptors() const;
         private:
