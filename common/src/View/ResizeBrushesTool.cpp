@@ -52,6 +52,8 @@
 #include <vector>
 #include <cassert>
 
+#include <QDebug>
+
 namespace TrenchBroom {
     namespace View {
         const Model::HitType::Type ResizeBrushesTool::ResizeHit2D = Model::HitType::freeType();
@@ -60,8 +62,9 @@ namespace TrenchBroom {
         ResizeBrushesTool::ResizeBrushesTool(std::weak_ptr<MapDocument> document) :
         Tool(true),
         m_document(std::move(document)),
-        m_splitBrushes(false),
-        m_dragging(false) {
+        m_splitBrushes(false),        
+        m_dragging(false),
+        m_extrudingInwards(false) {
             bindObservers();
         }
 
@@ -282,6 +285,7 @@ namespace TrenchBroom {
             m_dragOrigin = hit.hitPoint();
             m_totalDelta = vm::vec3::zero();
             m_splitBrushes = split;
+            m_extrudingInwards = false;
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Resize Brushes");
@@ -317,19 +321,44 @@ namespace TrenchBroom {
                     m_totalDelta = m_totalDelta + faceDelta;
                     m_dragOrigin = m_dragOrigin + faceDelta;
                     m_splitBrushes = false;
+                    m_extrudingInwards = true;
                 }
+            } else if (m_extrudingInwards) {
+                qDebug() << "extruding inwards";
+
+                document->startTransaction("Extrude inwards");
+
+                // resize the selected brushes
+                if (!document->resizeBrushes(dragFaceDescriptors(), faceDelta)) {
+                    document->cancelTransaction();
+                    return true;
+                }
+
+                // now select the deselected part
+                document->deselectAll();
+                for (Model::Brush* brush : invserseDragFaceBrushes()) {
+                    document->select(brush);                    
+                }
+                if (!document->resizeBrushes(inverseDragFaceDescriptors(), faceDelta)) {
+                    document->cancelTransaction();
+                    return true;
+                }
+
+                // reselect the original part
+                document->deselectAll();
+                for (const auto& handle : m_dragHandles) {
+                    Model::Brush* brush = std::get<0>(handle);
+                    document->select(brush);                    
+                }
+
+                document->commitTransaction();
+
+                m_totalDelta = m_totalDelta + faceDelta;
+                m_dragOrigin = m_dragOrigin + faceDelta;
             } else {
                 if (document->resizeBrushes(dragFaceDescriptors(), faceDelta)) {
-                    bool ok = true;
-                    // see if we also need to move the inverted handles
-                    if (!m_invertedDragHandles.empty()) {
-                        ok = document->resizeBrushes(invserseDragFaceBrushes(), inverseDragFaceDescriptors(), faceDelta);
-                    }
-
-                    if (ok) {
-                        m_totalDelta = m_totalDelta + faceDelta;
-                        m_dragOrigin = m_dragOrigin + faceDelta;
-                    }
+                    m_totalDelta = m_totalDelta + faceDelta;
+                    m_dragOrigin = m_dragOrigin + faceDelta;
                 }
             }
 

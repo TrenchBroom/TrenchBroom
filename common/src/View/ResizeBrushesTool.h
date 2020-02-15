@@ -72,6 +72,7 @@ namespace TrenchBroom {
              */
             std::vector<FaceHandle> m_invertedDragHandles;
 
+            bool m_extrudingInwards;
         public:
             explicit ResizeBrushesTool(std::weak_ptr<MapDocument> document);
             ~ResizeBrushesTool() override;
