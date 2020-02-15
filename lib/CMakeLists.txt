@@ -1,15 +1,3 @@
-if (APPLE)
-    message(STATUS "Using backported cxx17 headers for Apple")
-    add_subdirectory(cpp17)
-
-    macro(target_link_cpp17_libraries TARGET)
-        target_link_libraries(${TARGET} INTERFACE cpp17)
-    endmacro()
-else()
-    macro(target_link_cpp17_libraries TARGET)
-    endmacro()
-endif()
-
 add_subdirectory(freeimage)
 add_subdirectory(freetype)
 add_subdirectory(glew)
