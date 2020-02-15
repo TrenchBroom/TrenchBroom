@@ -36,13 +36,14 @@ namespace TrenchBroom {
         public:
             static const CommandType Type;
         private:
+            std::vector<Model::Brush*> m_brushes;
             std::vector<vm::polygon3> m_faces;
             std::vector<vm::polygon3> m_newFaces;
             vm::vec3 m_delta;
         public:
-            static std::unique_ptr<ResizeBrushesCommand> resize(const std::vector<vm::polygon3>& faces, const vm::vec3& delta);
+            static std::unique_ptr<ResizeBrushesCommand> resize(const std::vector<Model::Brush*>& brushes, const std::vector<vm::polygon3>& faces, const vm::vec3& delta);
 
-            ResizeBrushesCommand(const std::vector<vm::polygon3>& faces, const vm::vec3& delta);
+            ResizeBrushesCommand(const std::vector<Model::Brush*>& brushes, const std::vector<vm::polygon3>& faces, const vm::vec3& delta);
         private:
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
 

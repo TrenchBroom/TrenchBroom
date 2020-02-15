@@ -1318,9 +1318,14 @@ namespace TrenchBroom {
             return result->success();
         }
 
-        bool MapDocument::resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
-            const auto result = executeAndStore(ResizeBrushesCommand::resize(faces, delta));
+        bool MapDocument::resizeBrushes(const std::vector<Model::Brush*>& brushes, const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
+            const auto result = executeAndStore(ResizeBrushesCommand::resize(brushes, faces, delta));
             return result->success();
+        }
+
+        bool MapDocument::resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
+            const std::vector<Model::Brush*>& selectedBrushes = m_selectedNodes.brushes();
+            return resizeBrushes(selectedBrushes, faces, delta);
         }
 
         void MapDocument::setTexture(Assets::Texture* texture) {

@@ -663,10 +663,9 @@ namespace TrenchBroom {
             setEntityModels(nodes);
         }
 
-        std::vector<vm::polygon3> MapDocumentCommandFacade::performResizeBrushes(const std::vector<vm::polygon3>& polygons, const vm::vec3& delta) {
+        std::vector<vm::polygon3> MapDocumentCommandFacade::performResizeBrushes(const std::vector<Model::Brush*>& selectedBrushes, const std::vector<vm::polygon3>& polygons, const vm::vec3& delta) {
             std::vector<vm::polygon3> result;
 
-            const std::vector<Model::Brush*>& selectedBrushes = m_selectedNodes.brushes();
             std::vector<Model::Node*> changedNodes;
             std::vector<Model::BrushFace*> faces;
 

@@ -29,17 +29,18 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ResizeBrushesCommand::Type = Command::freeType();
 
-        std::unique_ptr<ResizeBrushesCommand> ResizeBrushesCommand::resize(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
-            return std::make_unique<ResizeBrushesCommand>(faces, delta);
+        std::unique_ptr<ResizeBrushesCommand> ResizeBrushesCommand::resize(const std::vector<Model::Brush*>& brushes, const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
+            return std::make_unique<ResizeBrushesCommand>(brushes, faces, delta);
         }
 
-        ResizeBrushesCommand::ResizeBrushesCommand(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) :
+        ResizeBrushesCommand::ResizeBrushesCommand(const std::vector<Model::Brush*>& brushes, const std::vector<vm::polygon3>& faces, const vm::vec3& delta) :
         SnapshotCommand(Type, "Resize Brushes"),
+        m_brushes(brushes),
         m_faces(faces),
         m_delta(delta) {}
 
         std::unique_ptr<CommandResult> ResizeBrushesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            m_newFaces = document->performResizeBrushes(m_faces, m_delta);
+            m_newFaces = document->performResizeBrushes(m_brushes, m_faces, m_delta);
             return std::make_unique<CommandResult>(!m_newFaces.empty());
         }
 
@@ -50,7 +51,7 @@ namespace TrenchBroom {
 
         bool ResizeBrushesCommand::doCollateWith(UndoableCommand* command) {
             ResizeBrushesCommand* other = static_cast<ResizeBrushesCommand*>(command);
-            if (other->m_faces == m_newFaces) {
+            if (other->m_faces == m_newFaces && other->m_brushes == m_brushes) {
                 m_newFaces = other->m_newFaces;
                 m_delta = m_delta + other->m_delta;
                 return true;
