@@ -180,6 +180,27 @@ namespace TrenchBroom {
             return result;
         }
 
+        std::vector<Model::BrushFace*> ResizeBrushesTool::invserseDragFaces() const {
+            std::vector<Model::BrushFace*> result;
+            for (const auto& handle : m_invertedDragHandles) {
+                const auto* brush = std::get<0>(handle);
+                const auto& normal = std::get<1>(handle);
+                auto* face = brush->findFace(normal);
+                assert(face != nullptr);
+                result.push_back(face);
+            }
+            return result;
+        }
+
+        std::vector<Model::Brush*> ResizeBrushesTool::invserseDragFaceBrushes() const {
+            std::vector<Model::Brush*> result;
+            for (const auto& handle : m_invertedDragHandles) {
+                auto* brush = std::get<0>(handle);
+                result.push_back(brush);
+            }
+            return result;
+        }
+
         void ResizeBrushesTool::updateDragFaces(const Model::PickResult& pickResult) {
             const auto& hit = pickResult.query().type(ResizeHit2D | ResizeHit3D).occluded().first();
             auto newDragHandles = getDragHandles(hit);
@@ -301,9 +322,9 @@ namespace TrenchBroom {
                 if (document->resizeBrushes(dragFaceDescriptors(), faceDelta)) {
                     bool ok = true;
                     // see if we also need to move the inverted handles
-//                    if (!m_invertedDragHandles.empty()) {
-//                        ok = document->resizeBrushes(invertedDragFaceBrushes(), invertedDragFaceDescriptors(), faceDelta);
-//                    }
+                    if (!m_invertedDragHandles.empty()) {
+                        ok = document->resizeBrushes(invserseDragFaceBrushes(), inverseDragFaceDescriptors(), faceDelta);
+                    }
 
                     if (ok) {
                         m_totalDelta = m_totalDelta + faceDelta;
@@ -508,9 +529,7 @@ namespace TrenchBroom {
             }
         }
 
-        std::vector<vm::polygon3> ResizeBrushesTool::dragFaceDescriptors() const {
-            const auto dragFaces = this->dragFaces();
-
+        static std::vector<vm::polygon3> faceDescriptors(const std::vector<Model::BrushFace*>& dragFaces) {
             std::vector<vm::polygon3> result;
             result.reserve(dragFaces.size());
             for (const auto* face : dragFaces) {
@@ -518,6 +537,14 @@ namespace TrenchBroom {
             }
 
             return result;
+        }
+
+        std::vector<vm::polygon3> ResizeBrushesTool::dragFaceDescriptors() const {
+            return faceDescriptors(this->dragFaces());
+        }
+
+        std::vector<vm::polygon3> ResizeBrushesTool::inverseDragFaceDescriptors() const {
+            return faceDescriptors(this->invserseDragFaces());
         }
 
         void ResizeBrushesTool::bindObservers() {

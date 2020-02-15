@@ -85,6 +85,8 @@ namespace TrenchBroom {
             Model::Hit pickProximateFace(Model::HitType::Type hitType, const vm::ray3& pickRay) const;
         public:
             bool hasDragFaces() const;
+            std::vector<Model::BrushFace*> invserseDragFaces() const;
+            std::vector<Model::Brush*> invserseDragFaceBrushes() const;
             std::vector<Model::BrushFace*> dragFaces() const;
             void updateDragFaces(const Model::PickResult& pickResult);
         private:
@@ -108,6 +110,7 @@ namespace TrenchBroom {
             bool splitBrushesInward(const vm::vec3& delta);
             Model::BrushFace* findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const;
             std::vector<vm::polygon3> dragFaceDescriptors() const;
+            std::vector<vm::polygon3> inverseDragFaceDescriptors() const;
         private:
             void bindObservers();
             void unbindObservers();

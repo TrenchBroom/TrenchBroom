@@ -686,7 +686,7 @@ namespace TrenchBroom {
 
             for (auto* face : faces) {
                 auto* brush = face->brush();
-                assert(brush->selected());
+                //assert(brush->selected());
                 brush->moveBoundary(m_worldBounds, face, delta, pref(Preferences::TextureLock));
                 result.push_back(face->polygon());
             }
