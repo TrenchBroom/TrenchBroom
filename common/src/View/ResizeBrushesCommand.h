@@ -31,10 +31,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Brush;
-    }
-
     namespace View {
         class ResizeBrushesCommand : public SnapshotCommand {
         public:
