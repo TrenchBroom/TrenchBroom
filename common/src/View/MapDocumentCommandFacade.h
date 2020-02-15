@@ -96,7 +96,7 @@ namespace TrenchBroom {
             EntityAttributeSnapshotMap performRenameAttribute(const std::string& oldName, const std::string& newName);
             void restoreAttributes(const EntityAttributeSnapshotMap& attributes);
         public: // brush resizing
-            std::vector<vm::polygon3> performResizeBrushes(const std::vector<Model::Brush*>& brushes, const std::vector<vm::polygon3>& polygons, const vm::vec3& delta);
+            std::vector<vm::polygon3> performResizeBrushes(const std::vector<vm::polygon3>& polygons, const vm::vec3& delta);
         public: // brush face attributes
             void performMoveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
             void performRotateTextures(float angle);

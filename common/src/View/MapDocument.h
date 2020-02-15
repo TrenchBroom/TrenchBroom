@@ -364,7 +364,6 @@ namespace TrenchBroom {
             bool convertEntityColorRange(const std::string& name, Assets::ColorRange::Type range) override;
             bool updateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag) override;
         public: // brush resizing, declared in MapFacade interface
-            bool resizeBrushes(const std::vector<Model::Brush*>& brushes, const std::vector<vm::polygon3>& faces, const vm::vec3& delta);
             bool resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) override;
         public: // modifying face attributes, declared in MapFacade interface
             void setTexture(Assets::Texture* texture) override;
