@@ -50,7 +50,6 @@
 #include <limits>
 #include <map>
 #include <vector>
-#include <cassert>
 
 namespace TrenchBroom {
     namespace View {
@@ -60,7 +59,7 @@ namespace TrenchBroom {
         ResizeBrushesTool::ResizeBrushesTool(std::weak_ptr<MapDocument> document) :
         Tool(true),
         m_document(std::move(document)),
-        m_splitBrushes(false),        
+        m_splitBrushes(false),
         m_dragging(false) {
             bindObservers();
         }
@@ -292,11 +291,7 @@ namespace TrenchBroom {
             }
 
             if (m_splitBrushes) {
-                if (splitBrushesOutward(faceDelta)) {
-                    m_totalDelta = m_totalDelta + faceDelta;
-                    m_dragOrigin = m_dragOrigin + faceDelta;
-                    m_splitBrushes = false;
-                } else if (splitBrushesInward(faceDelta)) {
+                if (splitBrushesOutward(faceDelta) || splitBrushesInward(faceDelta)) {
                     m_totalDelta = m_totalDelta + faceDelta;
                     m_dragOrigin = m_dragOrigin + faceDelta;
                     m_splitBrushes = false;
@@ -511,7 +506,7 @@ namespace TrenchBroom {
         }
 
         std::vector<vm::polygon3> ResizeBrushesTool::dragFaceDescriptors() const {
-            const std::vector<Model::BrushFace*> dragFaces = this->dragFaces();
+            const auto dragFaces = this->dragFaces();
 
             std::vector<vm::polygon3> result;
             result.reserve(dragFaces.size());
