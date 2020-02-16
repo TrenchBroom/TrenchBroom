@@ -499,7 +499,6 @@ namespace TrenchBroom {
                 }
             }
 
-            // The original brushes become the "unselected dragging brushes"
             assert(m_originalDragHandles.empty());
 
             std::vector<Model::Brush*> newBrushes;
@@ -530,17 +529,19 @@ namespace TrenchBroom {
                 newNodes[brush->parent()].push_back(newBrush);
             }
 
-            // now that the new brushes are ready to insert (but not selected),
-            // resize the original brushes first
+            // Now that the newly split off brushes are ready to insert (but not selected),
+            // resize the original brushes, which are still selected at this point.
             if (!document->resizeBrushes(dragFaceDescriptors(), delta)) {
                 kdl::col_delete_all(newBrushes);
                 return false;
             }
 
+            // Add the newly split off brushes and select them
             document->deselectAll();
             const auto addedNodes = document->addNodes(newNodes);
             document->select(addedNodes);
-            // back up the old drag handles
+            // Back up the drag handles of the original brushes so we can continue resizing
+            // them in `resize()`.
             m_originalDragHandles = m_dragHandles;
             m_dragHandles = std::move(newDragHandles);
 
