@@ -52,8 +52,6 @@
 #include <vector>
 #include <cassert>
 
-#include <QDebug>
-
 namespace TrenchBroom {
     namespace View {
         const Model::HitType::Type ResizeBrushesTool::ResizeHit2D = Model::HitType::freeType();
@@ -64,7 +62,7 @@ namespace TrenchBroom {
         m_document(std::move(document)),
         m_splitBrushes(false),        
         m_dragging(false),
-        m_extrudingInwards(false) {
+        m_splittingInward(false) {
             bindObservers();
         }
 
@@ -187,8 +185,8 @@ namespace TrenchBroom {
             return handlesToFaces(m_dragHandles);
         }
 
-        std::vector<Model::BrushFace*> ResizeBrushesTool::invserseDragFaces() const {
-            return handlesToFaces(m_invertedDragHandles);
+        std::vector<Model::BrushFace*> ResizeBrushesTool::originalDragFaces() const {
+            return handlesToFaces(m_originalDragHandles);
         }
 
         void ResizeBrushesTool::updateDragFaces(const Model::PickResult& pickResult) {
@@ -272,7 +270,7 @@ namespace TrenchBroom {
             m_dragOrigin = hit.hitPoint();
             m_totalDelta = vm::vec3::zero();
             m_splitBrushes = split;
-            m_extrudingInwards = false;
+            m_splittingInward = false;
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Resize Brushes");
@@ -312,31 +310,29 @@ namespace TrenchBroom {
                     m_totalDelta = m_totalDelta + faceDelta;
                     m_dragOrigin = m_dragOrigin + faceDelta;
                     m_splitBrushes = false;
-                    m_extrudingInwards = true;
+                    m_splittingInward = true;
                 }
-            } else if (m_extrudingInwards) {
-                qDebug() << "extruding inwards";
+            } else if (m_splittingInward) {
+                document->startTransaction("Split brushes inward");
 
-                document->startTransaction("Extrude inwards");
-
-                // resize the selected brushes
+                // Resize the selected brushes, which were split off in splitBrushesInward
                 if (!document->resizeBrushes(dragFaceDescriptors(), faceDelta)) {
                     document->cancelTransaction();
                     return true;
                 }
 
-                // now select the deselected part
+                // Switch the selection to the "original" brushes and resize them as well
                 document->deselectAll();
-                for (const auto& handle : m_invertedDragHandles) {
+                for (const auto& handle : m_originalDragHandles) {
                     Model::Brush* brush = std::get<0>(handle);
                     document->select(brush);                    
                 }
-                if (!document->resizeBrushes(inverseDragFaceDescriptors(), faceDelta)) {
+                if (!document->resizeBrushes(originalDragFaceDescriptors(), faceDelta)) {
                     document->cancelTransaction();
                     return true;
                 }
 
-                // reselect the original part
+                // Switch the selection back to the split off brushes
                 document->deselectAll();
                 for (const auto& handle : m_dragHandles) {
                     Model::Brush* brush = std::get<0>(handle);
@@ -348,7 +344,7 @@ namespace TrenchBroom {
                 m_totalDelta = m_totalDelta + faceDelta;
                 m_dragOrigin = m_dragOrigin + faceDelta;
             } else {
-                // the usual case
+                // Ordinary resizing case
                 if (document->resizeBrushes(dragFaceDescriptors(), faceDelta)) {
                     m_totalDelta = m_totalDelta + faceDelta;
                     m_dragOrigin = m_dragOrigin + faceDelta;
@@ -376,7 +372,7 @@ namespace TrenchBroom {
             m_dragOrigin = m_lastPoint = hit.hitPoint();
             m_totalDelta = vm::vec3::zero();
             m_splitBrushes = false;
-            m_extrudingInwards = false;
+            m_splittingInward = false;
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Move Faces");
@@ -421,7 +417,7 @@ namespace TrenchBroom {
                 document->commitTransaction();
             }
             m_dragHandles.clear();
-            m_invertedDragHandles.clear();
+            m_originalDragHandles.clear();
             m_dragging = false;
         }
 
@@ -429,7 +425,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
             m_dragHandles.clear();
-            m_invertedDragHandles.clear();
+            m_originalDragHandles.clear();
             m_dragging = false;
         }
 
@@ -498,13 +494,13 @@ namespace TrenchBroom {
             // "down" along its normal.
             for (const auto& handle : m_dragHandles) {
                 const auto& normal = std::get<1>(handle);
-                if (vm::dot(normal, delta) > FloatType(0)) {
+                if (vm::dot(normal, delta) > 0.0) {
                     return false;
                 }
             }
 
             // The original brushes become the "unselected dragging brushes"
-            assert(m_invertedDragHandles.empty());
+            assert(m_originalDragHandles.empty());
 
             std::vector<Model::Brush*> newBrushes;
             std::vector<FaceHandle> newDragHandles;
@@ -545,7 +541,7 @@ namespace TrenchBroom {
             const auto addedNodes = document->addNodes(newNodes);
             document->select(addedNodes);
             // back up the old drag handles
-            m_invertedDragHandles = m_dragHandles;
+            m_originalDragHandles = m_dragHandles;
             m_dragHandles = std::move(newDragHandles);
 
             return true;
@@ -575,8 +571,8 @@ namespace TrenchBroom {
             return faceDescriptors(this->dragFaces());
         }
 
-        std::vector<vm::polygon3> ResizeBrushesTool::inverseDragFaceDescriptors() const {
-            return faceDescriptors(this->invserseDragFaces());
+        std::vector<vm::polygon3> ResizeBrushesTool::originalDragFaceDescriptors() const {
+            return faceDescriptors(this->originalDragFaces());
         }
 
         void ResizeBrushesTool::bindObservers() {
@@ -600,14 +596,14 @@ namespace TrenchBroom {
         void ResizeBrushesTool::nodesDidChange(const std::vector<Model::Node*>&) {
             if (!m_dragging) {
                 m_dragHandles.clear();
-                m_invertedDragHandles.clear();
+                m_originalDragHandles.clear();
             }
         }
 
         void ResizeBrushesTool::selectionDidChange(const Selection&) {
             if (!m_dragging) {
                 m_dragHandles.clear();
-                m_invertedDragHandles.clear();
+                m_originalDragHandles.clear();
             }
         }
     }
