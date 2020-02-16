@@ -113,17 +113,17 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        static nonstd::optional<vm::bbox3> parseBounds(const std::string& string) {
+        static std::optional<vm::bbox3> parseBounds(const std::string& string) {
             // FIXME: duplicated in GameConfigParser
             if (!vm::can_parse<double, 3u>(string)) {
-                return nonstd::nullopt;
+                return std::nullopt;
             }
 
             const auto vec = vm::parse<double, 3u>(string);
             return { vm::bbox3(-0.5 * vec, 0.5 * vec) };
         }
 
-        static QString formatBounds(const nonstd::optional<vm::bbox3>& bounds) {
+        static QString formatBounds(const std::optional<vm::bbox3>& bounds) {
             if (!bounds.has_value()) {
                 return QString();
             }
@@ -154,7 +154,7 @@ namespace TrenchBroom {
                 // This signal happens in response to user input only
                 auto document = kdl::mem_lock(m_document);
                 if (checked) {
-                    document->setMapSoftBounds(nonstd::nullopt);                    
+                    document->setMapSoftBounds(std::nullopt);                    
                 }
             });
             connect(m_softBoundsFromGame, &QAbstractButton::clicked, this, [this](const bool checked) {
@@ -233,7 +233,7 @@ namespace TrenchBroom {
             }
 
             const bool hasBoundsSet = document->hasMapSoftBounds();
-            const nonstd::optional<vm::bbox3> bounds = document->mapOrGameSoftBounds();
+            const std::optional<vm::bbox3> bounds = document->mapOrGameSoftBounds();
             const QString boundsQString = formatBounds(bounds);
 
             if (hasBoundsSet && !bounds.has_value()) {

@@ -31,10 +31,9 @@
 #include <vecmath/bbox.h>
 #include <vecmath/util.h>
 
-#include <nonstd/optional.hpp>
-
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -189,7 +188,7 @@ namespace TrenchBroom {
              * "Soft" world bounds used to render guidelines for the mapper and generate Issues, but
              * no other functional use inside TrenchBroom unlike `worldBounds()`.
              */
-            nonstd::optional<vm::bbox3> softWorldBounds() const;
+            std::optional<vm::bbox3> softWorldBounds() const;
             Model::World* world() const;
 
             bool isGamePathPreference(const IO::Path& path) const;
@@ -513,13 +512,13 @@ namespace TrenchBroom {
             std::string defaultMod() const;
         public: // map soft bounds
             /**
-             * Passing nonstd::nullopt means to explicitly set the bounds to "unlimited".
+             * Passing std::nullopt means to explicitly set the bounds to "unlimited".
              * Call unsetMapSoftBounds() to clear the map's value and fall back to the Game's value.
              */
-            void setMapSoftBounds(const nonstd::optional<vm::bbox3>& size);
+            void setMapSoftBounds(const std::optional<vm::bbox3>& size);
             void unsetMapSoftBounds();
             bool hasMapSoftBounds() const;
-            nonstd::optional<vm::bbox3> mapOrGameSoftBounds() const;
+            std::optional<vm::bbox3> mapOrGameSoftBounds() const;
         private: // issue management
             void registerIssueGenerators();
         public:

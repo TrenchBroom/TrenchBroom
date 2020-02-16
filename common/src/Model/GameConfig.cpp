@@ -201,7 +201,7 @@ namespace TrenchBroom {
                                EntityConfig entityConfig,
                                FaceAttribsConfig faceAttribsConfig,
                                std::vector<SmartTag> smartTags,
-                               nonstd::optional<vm::bbox3> softMapBounds) :
+                               std::optional<vm::bbox3> softMapBounds) :
         m_name(std::move(name)),
         m_path(std::move(path)),
         m_icon(std::move(icon)),
@@ -258,7 +258,7 @@ namespace TrenchBroom {
             return m_smartTags;
         }
 
-        const nonstd::optional<vm::bbox3>& GameConfig::softMapBounds() const {
+        const std::optional<vm::bbox3>& GameConfig::softMapBounds() const {
             return m_softMapBounds;
         }
 

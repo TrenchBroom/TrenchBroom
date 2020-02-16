@@ -25,12 +25,11 @@
 #include "IO/EntityModelLoader.h"
 #include "Model/MapFormat.h"
 
-#include <nonstd/optional.hpp>
-
 #include <vecmath/forward.h>
 
 #include <memory>
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -79,8 +78,8 @@ namespace TrenchBroom {
             /**
              * An optional soft map bounds, returns nothing to indicate that the map is unlimited.
              */
-            nonstd::optional<vm::bbox3> softMapBounds() const;
-            nonstd::optional<vm::bbox3> extractSoftMapBounds(const AttributableNode& node) const;
+            std::optional<vm::bbox3> softMapBounds() const;
+            std::optional<vm::bbox3> extractSoftMapBounds(const AttributableNode& node) const;
         public: // loading and writing map files
             std::unique_ptr<World> newMap(MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const;
             std::unique_ptr<World> loadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const;
@@ -122,8 +121,8 @@ namespace TrenchBroom {
 
             virtual CompilationConfig& doCompilationConfig() = 0;
             virtual size_t doMaxPropertyLength() const = 0;
-            virtual nonstd::optional<vm::bbox3> doSoftMapBounds() const = 0;
-            virtual nonstd::optional<vm::bbox3> doExtractSoftMapBounds(const AttributableNode& node) const = 0;
+            virtual std::optional<vm::bbox3> doSoftMapBounds() const = 0;
+            virtual std::optional<vm::bbox3> doExtractSoftMapBounds(const AttributableNode& node) const = 0;
 
             virtual const std::vector<SmartTag>& doSmartTags() const = 0;
 

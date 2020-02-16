@@ -158,7 +158,7 @@ namespace TrenchBroom {
                 const bool applyTexture = context.showTextures();
                 const bool shadeFaces = context.shadeFaces();
                 const bool showFog = context.showFog();
-                const nonstd::optional<vm::bbox3> softMapBounds = context.softMapBounds();
+                const std::optional<vm::bbox3> softMapBounds = context.softMapBounds();
                 const vm::vec3f mapExtents = vm::vec3f(softMapBounds.value_or(vm::bbox3()).max);
 
                 glAssert(glEnable(GL_TEXTURE_2D));

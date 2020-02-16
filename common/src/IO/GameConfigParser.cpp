@@ -416,9 +416,9 @@ namespace TrenchBroom {
             return result;
         }
 
-        nonstd::optional<vm::bbox3> GameConfigParser::parseSoftMapBounds(const EL::Value& value) const {
+        std::optional<vm::bbox3> GameConfigParser::parseSoftMapBounds(const EL::Value& value) const {
             if (value.null()) {
-                return nonstd::nullopt;
+                return std::nullopt;
             }
 
             const std::string boundsString = value.stringValue();

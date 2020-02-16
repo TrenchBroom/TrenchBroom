@@ -64,7 +64,7 @@ namespace TrenchBroom {
             Model::FlagsConfig parseFlagsConfig(const EL::Value& values) const;
             Model::BrushFaceAttributes parseFaceAttribsDefaults(const EL::Value& value, const Model::FlagsConfig& surfaceFlags, const Model::FlagsConfig& contentFlags) const;
             std::vector<Model::SmartTag> parseTags(const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfigs) const;
-            nonstd::optional<vm::bbox3> parseSoftMapBounds(const EL::Value& value) const;
+            std::optional<vm::bbox3> parseSoftMapBounds(const EL::Value& value) const;
 
             void parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& results) const;
             void parseFaceTags(const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfig, std::vector<Model::SmartTag>& results) const;

@@ -23,9 +23,9 @@
 #include "FloatType.h"
 #include "Renderer/Transformation.h"
 
-#include <nonstd/optional.hpp>
-
 #include <vecmath/bbox.h>
+
+#include <optional>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             bool m_tintSelection;
 
             ShowSelectionGuide m_showSelectionGuide;
-            nonstd::optional<vm::bbox3> m_sofMapBounds;
+            std::optional<vm::bbox3> m_sofMapBounds;
         public:
             RenderContext(RenderMode renderMode, const Camera& camera, FontManager& fontManager, ShaderManager& shaderManager);
 
@@ -126,8 +126,8 @@ namespace TrenchBroom {
             bool showGrid() const;
             void setShowGrid(bool showGrid);
 
-            const nonstd::optional<vm::bbox3>& softMapBounds() const;
-            void setSoftMapBounds(const nonstd::optional<vm::bbox3>& softMapBounds);
+            const std::optional<vm::bbox3>& softMapBounds() const;
+            void setSoftMapBounds(const std::optional<vm::bbox3>& softMapBounds);
 
             FloatType gridSize() const;
             void setGridSize(FloatType gridSize);

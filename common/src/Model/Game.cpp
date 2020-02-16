@@ -65,11 +65,11 @@ namespace TrenchBroom {
             return doSmartTags();
         }
 
-        nonstd::optional<vm::bbox3> Game::softMapBounds() const {
+        std::optional<vm::bbox3> Game::softMapBounds() const {
             return doSoftMapBounds();
         }
 
-        nonstd::optional<vm::bbox3> Game::extractSoftMapBounds(const AttributableNode& node) const {
+        std::optional<vm::bbox3> Game::extractSoftMapBounds(const AttributableNode& node) const {
             return doExtractSoftMapBounds(node);
         }
 

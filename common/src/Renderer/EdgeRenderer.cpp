@@ -69,7 +69,7 @@ namespace TrenchBroom {
 
             {
                 // TODO: factor out
-                const nonstd::optional<vm::bbox3> softMapBounds = renderContext.softMapBounds();
+                const std::optional<vm::bbox3> softMapBounds = renderContext.softMapBounds();
                 const vm::vec3f mapExtents = vm::vec3f(softMapBounds.value_or(vm::bbox3()).max);
 
                 PreferenceManager& prefs = PreferenceManager::instance();

@@ -29,9 +29,8 @@
 
 #include <kdl/memory_utils.h>
 
-#include <nonstd/optional.hpp>
-
 #include <string>
+#include <optional>
 
 namespace TrenchBroom {
     namespace Model {
@@ -74,7 +73,7 @@ namespace TrenchBroom {
 
         void WorldBoundsIssueGenerator::generateInternal(Node* node, IssueList& issues) const {
             auto game = kdl::mem_lock(m_game);
-            const nonstd::optional<vm::bbox3> bounds = game->extractSoftMapBounds(*m_world);
+            const std::optional<vm::bbox3> bounds = game->extractSoftMapBounds(*m_world);
 
             if (!bounds.has_value()) {
                 return;
