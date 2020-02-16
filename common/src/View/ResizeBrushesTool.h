@@ -70,18 +70,6 @@ namespace TrenchBroom {
             bool m_splitBrushes;
             vm::vec3 m_totalDelta;
             bool m_dragging;
-            /**
-             * Used when m_splittingInward is true to track the faces of the original brushes
-             * that are being resized along the split plane.
-             */
-            std::vector<FaceHandle> m_originalDragHandles;
-            /**
-             * Special mode when you hold Ctrl+Shift and drag faces inward
-             * (opposite the face normals.) Creates new, selected brushes,
-             * and also shrinks the original (unselected) brushes, which are tracked using
-             * m_originalDragHandles. See: https://github.com/kduske/TrenchBroom/issues/3001
-             */
-            bool m_splittingInward;
         public:
             explicit ResizeBrushesTool(std::weak_ptr<MapDocument> document);
             ~ResizeBrushesTool() override;
@@ -96,10 +84,6 @@ namespace TrenchBroom {
             static std::vector<Model::BrushFace*> handlesToFaces(const std::vector<FaceHandle>& dragHandles);
         public:
             bool hasDragFaces() const;
-            /**
-             * Only used when m_splittingInward is true.
-             */
-            std::vector<Model::BrushFace*> originalDragFaces() const;
             std::vector<Model::BrushFace*> dragFaces() const;
             void updateDragFaces(const Model::PickResult& pickResult);
         private:
@@ -123,10 +107,6 @@ namespace TrenchBroom {
             bool splitBrushesInward(const vm::vec3& delta);
             Model::BrushFace* findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const;
             std::vector<vm::polygon3> dragFaceDescriptors() const;
-            /**
-             * Only used when m_splittingInward is true.
-             */
-            std::vector<vm::polygon3> originalDragFaceDescriptors() const;
         private:
             void bindObservers();
             void unbindObservers();
