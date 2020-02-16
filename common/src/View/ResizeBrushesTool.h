@@ -53,12 +53,20 @@ namespace TrenchBroom {
             static const Model::HitType::Type ResizeHit3D;
             static const Model::HitType::Type ResizeHit2D;
 
+            /**
+             * Brush and face normal pair.
+             */
             using FaceHandle = std::tuple<Model::Brush*, vm::vec3>;
 
             std::weak_ptr<MapDocument> m_document;
             std::vector<FaceHandle> m_dragHandles;
             vm::vec3 m_dragOrigin;
             vm::vec3 m_lastPoint;
+            /**
+             * This is temporarily set to true when a drag is started with Ctrl,
+             * to signal that new brushes need to be split off. After the split brushes have been
+             * created, it's set back to false, in `resize()`.
+             */
             bool m_splitBrushes;
             vm::vec3 m_totalDelta;
             bool m_dragging;
@@ -94,7 +102,8 @@ namespace TrenchBroom {
             void commit();
             void cancel();
         private:
-            bool splitBrushes(const vm::vec3& delta);
+            bool splitBrushesOutward(const vm::vec3& delta);
+            bool splitBrushesInward(const vm::vec3& delta);
             Model::BrushFace* findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const;
             std::vector<vm::polygon3> dragFaceDescriptors() const;
         private:

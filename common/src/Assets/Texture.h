@@ -50,7 +50,22 @@ namespace TrenchBroom {
         };
 
         struct TextureBlendFunc {
-            bool enable;
+            enum class Enable {
+                /**
+                 * Don't change GL_BLEND and don't change the blend function.
+                 */
+                UseDefault,
+                /**
+                 * Don't change GL_BLEND, but set the blend function.
+                 */
+                UseFactors,
+                /**
+                 * Set GL_BLEND to off.
+                 */
+                DisableBlend
+            };
+            
+            Enable enable;
             GLenum srcFactor;
             GLenum destFactor;
         };

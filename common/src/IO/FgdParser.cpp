@@ -580,7 +580,7 @@ namespace TrenchBroom {
             return "";
         }
 
-        nonstd::optional<std::string> FgdParser::parseDefaultStringValue(ParserStatus& status) {
+        std::optional<std::string> FgdParser::parseDefaultStringValue(ParserStatus& status) {
             auto token = m_tokenizer.peekToken();
             if (token.type() == FgdToken::Colon) {
                 m_tokenizer.nextToken();
@@ -594,10 +594,10 @@ namespace TrenchBroom {
                     return token.data();
                 }
             }
-            return nonstd::nullopt;
+            return std::nullopt;
         }
 
-        nonstd::optional<int> FgdParser::parseDefaultIntegerValue(ParserStatus& status) {
+        std::optional<int> FgdParser::parseDefaultIntegerValue(ParserStatus& status) {
             auto token = m_tokenizer.peekToken();
             if (token.type() == FgdToken::Colon) {
                 m_tokenizer.nextToken();
@@ -611,10 +611,10 @@ namespace TrenchBroom {
                     return static_cast<int>(token.toFloat<float>());
                 }
             }
-            return nonstd::nullopt;
+            return std::nullopt;
         }
 
-        nonstd::optional<float> FgdParser::parseDefaultFloatValue(ParserStatus& status) {
+        std::optional<float> FgdParser::parseDefaultFloatValue(ParserStatus& status) {
             auto token = m_tokenizer.peekToken();
             if (token.type() == FgdToken::Colon) {
                 m_tokenizer.nextToken();
@@ -628,10 +628,10 @@ namespace TrenchBroom {
                     return token.toFloat<float>();
                 }
             }
-            return nonstd::nullopt;
+            return std::nullopt;
         }
 
-        nonstd::optional<std::string> FgdParser::parseDefaultChoiceValue(ParserStatus& status) {
+        std::optional<std::string> FgdParser::parseDefaultChoiceValue(ParserStatus& status) {
             auto token = m_tokenizer.peekToken();
             if (token.type() == FgdToken::Colon) {
                 m_tokenizer.nextToken();
@@ -641,7 +641,7 @@ namespace TrenchBroom {
                     return token.data();
                 }
             }
-            return nonstd::nullopt;
+            return std::nullopt;
         }
 
         vm::vec3 FgdParser::parseVector(ParserStatus& status) {

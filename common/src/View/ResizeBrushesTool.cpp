@@ -291,12 +291,14 @@ namespace TrenchBroom {
             }
 
             if (m_splitBrushes) {
-                if (splitBrushes(faceDelta)) {
+                if (splitBrushesOutward(faceDelta) || splitBrushesInward(faceDelta)) {
                     m_totalDelta = m_totalDelta + faceDelta;
                     m_dragOrigin = m_dragOrigin + faceDelta;
                     m_splitBrushes = false;
                 }
             } else {
+                // This handles ordinary resizing, splitting outward, and splitting inward
+                // (in which case dragFaceDescriptors() is a list of polygons splitting the selected brushes)
                 if (document->resizeBrushes(dragFaceDescriptors(), faceDelta)) {
                     m_totalDelta = m_totalDelta + faceDelta;
                     m_dragOrigin = m_dragOrigin + faceDelta;
@@ -378,7 +380,7 @@ namespace TrenchBroom {
             m_dragging = false;
         }
 
-        bool ResizeBrushesTool::splitBrushes(const vm::vec3& delta) {
+        bool ResizeBrushesTool::splitBrushesOutward(const vm::vec3& delta) {
             auto document = kdl::mem_lock(m_document);
             const vm::bbox3& worldBounds = document->worldBounds();
             const bool lockTextures = pref(Preferences::TextureLock);
@@ -430,6 +432,65 @@ namespace TrenchBroom {
             const auto addedNodes = document->addNodes(newNodes);
             document->select(addedNodes);
             m_dragHandles = std::move(newDragHandles);
+
+            return true;
+        }
+
+        bool ResizeBrushesTool::splitBrushesInward(const vm::vec3& delta) {
+            auto document = kdl::mem_lock(m_document);
+            const vm::bbox3& worldBounds = document->worldBounds();
+            const bool lockTextures = pref(Preferences::TextureLock);
+
+            // First ensure that the drag can be applied at all. For this, check whether each drag handle is moved
+            // "down" along its normal.
+            for (const auto& handle : m_dragHandles) {
+                const auto& normal = std::get<1>(handle);
+                if (vm::dot(normal, delta) > 0.0) {
+                    return false;
+                }
+            }
+
+            const std::vector<FaceHandle> oldDragHandles = m_dragHandles;
+            std::vector<Model::Brush*> newBrushes;
+            std::vector<FaceHandle> newDragHandles;
+            // This map is to handle the case when the brushes being
+            // extruded have different parents (e.g. different brush entities),
+            // so each newly created brush should be made a sibling of the brush it was cloned from.
+            std::map<Model::Node*, std::vector<Model::Node*>> newNodes;
+
+            for (auto* dragFace : dragFaces()) {
+                auto* brush = dragFace->brush();
+
+                auto* newBrush = brush->clone(worldBounds);
+                auto* newDragFace = findMatchingFace(newBrush, dragFace);
+
+                auto* clipFace = newDragFace->clone();
+                clipFace->invert();
+                clipFace->transform(vm::translation_matrix(delta), lockTextures);
+
+                if (!newBrush->clip(worldBounds, clipFace)) {
+                    delete clipFace;
+                    kdl::col_delete_all(newBrushes);
+                    return false;
+                }
+
+                newBrushes.push_back(newBrush);
+                newDragHandles.emplace_back(newBrush, clipFace->boundary().normal);
+                newNodes[brush->parent()].push_back(newBrush);
+            }
+
+            // Now that the newly split off brushes are ready to insert (but not selected),
+            // resize the original brushes, which are still selected at this point.
+            if (!document->resizeBrushes(dragFaceDescriptors(), delta)) {
+                kdl::col_delete_all(newBrushes);
+                return false;
+            }
+
+            // Add the newly split off brushes and select them (keeping the original brushes selected).
+            const auto addedNodes = document->addNodes(newNodes);
+            document->select(addedNodes);
+
+            m_dragHandles = kdl::vec_concat(oldDragHandles, newDragHandles);
 
             return true;
         }

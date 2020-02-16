@@ -23,12 +23,11 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include <kdl/overload.h>
 
-#include <nonstd/variant.hpp>
-
 #include <array>
 #include <chrono>
 #include <list>
 #include <thread>
+#include <variant>
 
 #include <QtGlobal>
 #include <QKeyEvent>
@@ -126,7 +125,7 @@ namespace TrenchBroom {
         
         class TestEventProcessor : public InputEventProcessor {
         private:
-            using Event = nonstd::variant<KeyEvent, MouseEvent, CancelEvent>;
+            using Event = std::variant<KeyEvent, MouseEvent, CancelEvent>;
             std::list<Event> m_expectedEvents;
         public:
             template <typename... Args>
@@ -136,7 +135,7 @@ namespace TrenchBroom {
             
             void processEvent(const KeyEvent& act) override {
                 ASSERT_FALSE(m_expectedEvents.empty());
-                nonstd::visit(kdl::overload{
+                std::visit(kdl::overload{
                     [&](const KeyEvent& exp) { ASSERT_EQ(exp, act); },
                     [&](const auto&)       { ASSERT_TRUE(false); }
                 }, m_expectedEvents.front());
@@ -145,7 +144,7 @@ namespace TrenchBroom {
             
             void processEvent(const MouseEvent& act) override {
                 ASSERT_FALSE(m_expectedEvents.empty());
-                nonstd::visit(kdl::overload{
+                std::visit(kdl::overload{
                     [&](const MouseEvent& exp) { ASSERT_EQ(exp, act); },
                     [&](const auto&) { ASSERT_TRUE(false); }
                 }, m_expectedEvents.front());
@@ -154,7 +153,7 @@ namespace TrenchBroom {
             
             void processEvent(const CancelEvent& act) override {
                 ASSERT_FALSE(m_expectedEvents.empty());
-                nonstd::visit(kdl::overload{
+                std::visit(kdl::overload{
                     [&](const CancelEvent& exp) { ASSERT_EQ(exp, act); },
                     [&](const auto&)        { ASSERT_TRUE(false); }
                 }, m_expectedEvents.front());

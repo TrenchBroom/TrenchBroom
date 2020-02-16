@@ -22,7 +22,6 @@
 #include <QTextStream>
 #include <QString>
 
-#include <nonstd/optional.hpp>
 #include <kdl/vector_utils.h>
 #include <vecmath/bbox.h>
 
@@ -35,6 +34,7 @@
 #include "Model/TagMatcher.h"
 #include "View/Actions.h"
 
+#include <optional>
 #include <string>
 
 namespace TrenchBroom {
@@ -208,13 +208,13 @@ namespace TrenchBroom {
      * Helper template so we don't need to use out parameters in the tests
      */
     template <class Serializer, class PrimitiveType>
-    static nonstd::optional<PrimitiveType> maybeDeserialize(const QJsonValue& string) {
+    static std::optional<PrimitiveType> maybeDeserialize(const QJsonValue& string) {
         const Serializer s;
         PrimitiveType result;
         if (s.readFromJSON(string, &result)) {
             return { result };
         }
-        return nonstd::nullopt;
+        return std::nullopt;
     }
 
     template <class Serializer, class PrimitiveType>

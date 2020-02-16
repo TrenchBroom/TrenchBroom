@@ -22,13 +22,13 @@
 
 #include <QString>
 
-#include <nonstd/optional.hpp>
+#include <optional>
 
 class QKeySequence;
 
 namespace TrenchBroom {
     namespace View {
-        nonstd::optional<QKeySequence> keySequenceFromV1Settings(const QString& string);
+        std::optional<QKeySequence> keySequenceFromV1Settings(const QString& string);
         QString keySequenceToV1Settings(const QKeySequence& keySequence);
 
         int wxKeyToQt(int wxKey);

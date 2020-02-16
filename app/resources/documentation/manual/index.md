@@ -614,6 +614,10 @@ If you hold #key(308) when you start dragging, the brush will not be resized. In
 
 ![Splitting a brush in the 3D viewport](images/ResizeTool3DSplitMode.gif)
 
+When starting a drag with #key(308) you can also drag inward to split the original brush:
+
+![Splitting a brush inward in the 3D viewport](images/ResizeTool3DSplitInwardMode.gif)
+
 You can also resize several brushes at the same time by moving their faces using the resize tool, but only if these faces line up perfectly. As the following animation illustrates, it's not enough that the faces are parallel - they have to be identical.
 
 ![Resizing multiple brushes](images/ResizeTool3DMultipleBrushes.gif)
