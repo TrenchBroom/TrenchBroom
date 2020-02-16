@@ -15,8 +15,7 @@ target_include_directories(kdl INTERFACE
         $<BUILD_INTERFACE:${KDL_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:kdl/include/kdl>)
 
-target_link_libraries(kdl INTERFACE optlite)
-target_link_cpp17_libraries(kdl)
+target_link_libraries(kdl INTERFACE)
 
 target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/binary_relation.h"

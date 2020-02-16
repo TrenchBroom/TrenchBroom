@@ -26,7 +26,7 @@
 
 #include <vecmath/vec.h>
 
-#include <nonstd/any.hpp>
+#include <any>
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,7 +37,7 @@ namespace TrenchBroom {
             HitType::Type m_type;
             FloatType m_distance;
             vm::vec3 m_hitPoint;
-            nonstd::any m_target;
+            std::any m_target;
             FloatType m_error;
         public:
             template <typename T>
@@ -64,7 +64,7 @@ namespace TrenchBroom {
 
             template <typename T>
             T target() const {
-                return nonstd::any_cast<T>(m_target);
+                return std::any_cast<T>(m_target);
             }
         };
 

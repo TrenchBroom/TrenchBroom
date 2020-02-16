@@ -24,7 +24,7 @@
 #include "IO/Path.h"
 #include "View/KeyboardShortcut.h"
 
-#include <nonstd/optional.hpp>
+#include <optional>
 
 #include <QString>
 #include <QTextStream>
@@ -57,7 +57,7 @@ namespace TrenchBroom {
     };
 
     template <class T>
-    nonstd::optional<QJsonValue> migratePreference(const PrefSerializer& from, const PrefSerializer& to, const QJsonValue& input) {
+    std::optional<QJsonValue> migratePreference(const PrefSerializer& from, const PrefSerializer& to, const QJsonValue& input) {
         T result;
         if (!from.readFromJSON(input, &result)) {
             return {};
@@ -85,7 +85,7 @@ namespace TrenchBroom {
         virtual void resetToDefault() = 0;
         virtual bool valid() const = 0;
         virtual void setValid(bool _valid) = 0;
-        virtual nonstd::optional<QJsonValue> migratePreferenceForThisType(const PrefSerializer& from,
+        virtual std::optional<QJsonValue> migratePreferenceForThisType(const PrefSerializer& from,
             const PrefSerializer& to, const QJsonValue& input) const = 0;
         virtual bool loadFromJSON(const PrefSerializer& format, const QJsonValue& value) = 0;
         virtual QJsonValue writeToJSON(const PrefSerializer& format) const = 0;
@@ -96,7 +96,7 @@ namespace TrenchBroom {
     public:
         virtual ~DynamicPreferencePatternBase();
         virtual const IO::Path& pathPattern() const = 0;
-        virtual nonstd::optional<QJsonValue> migratePreferenceForThisType(const PrefSerializer& from, const PrefSerializer& to, const QJsonValue& input) const = 0;
+        virtual std::optional<QJsonValue> migratePreferenceForThisType(const PrefSerializer& from, const PrefSerializer& to, const QJsonValue& input) const = 0;
     };
 
     template <typename T>
@@ -111,7 +111,7 @@ namespace TrenchBroom {
             return m_pathPattern;
         }
 
-        nonstd::optional<QJsonValue> migratePreferenceForThisType(const PrefSerializer& from, const PrefSerializer& to, const QJsonValue& input) const override {
+        std::optional<QJsonValue> migratePreferenceForThisType(const PrefSerializer& from, const PrefSerializer& to, const QJsonValue& input) const override {
             return migratePreference<T>(from, to, input);
         }
     };
@@ -170,7 +170,7 @@ namespace TrenchBroom {
             return m_value;
         }
 
-        nonstd::optional<QJsonValue> migratePreferenceForThisType(const PrefSerializer& from, const PrefSerializer& to, const QJsonValue& input) const override {
+        std::optional<QJsonValue> migratePreferenceForThisType(const PrefSerializer& from, const PrefSerializer& to, const QJsonValue& input) const override {
             return migratePreference<T>(from, to, input);
         }
 
