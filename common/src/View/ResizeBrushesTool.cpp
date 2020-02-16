@@ -171,9 +171,9 @@ namespace TrenchBroom {
             return !m_dragHandles.empty();
         }
 
-        std::vector<Model::BrushFace*> ResizeBrushesTool::dragFaces() const {
+        std::vector<Model::BrushFace*> ResizeBrushesTool::handlesToFaces(const std::vector<FaceHandle>& dragHandles) {
             std::vector<Model::BrushFace*> result;
-            for (const auto& handle : m_dragHandles) {
+            for (const auto& handle : dragHandles) {
                 const auto* brush = std::get<0>(handle);
                 const auto& normal = std::get<1>(handle);
                 auto* face = brush->findFace(normal);
@@ -181,27 +181,14 @@ namespace TrenchBroom {
                 result.push_back(face);
             }
             return result;
+        }
+
+        std::vector<Model::BrushFace*> ResizeBrushesTool::dragFaces() const {
+            return handlesToFaces(m_dragHandles);
         }
 
         std::vector<Model::BrushFace*> ResizeBrushesTool::invserseDragFaces() const {
-            std::vector<Model::BrushFace*> result;
-            for (const auto& handle : m_invertedDragHandles) {
-                const auto* brush = std::get<0>(handle);
-                const auto& normal = std::get<1>(handle);
-                auto* face = brush->findFace(normal);
-                assert(face != nullptr);
-                result.push_back(face);
-            }
-            return result;
-        }
-
-        std::vector<Model::Brush*> ResizeBrushesTool::invserseDragFaceBrushes() const {
-            std::vector<Model::Brush*> result;
-            for (const auto& handle : m_invertedDragHandles) {
-                auto* brush = std::get<0>(handle);
-                result.push_back(brush);
-            }
-            return result;
+            return handlesToFaces(m_invertedDragHandles);
         }
 
         void ResizeBrushesTool::updateDragFaces(const Model::PickResult& pickResult) {
@@ -317,7 +304,11 @@ namespace TrenchBroom {
             }
 
             if (m_splitBrushes) {
-                if (splitBrushesInward(faceDelta)) {
+                if (splitBrushesOutward(faceDelta)) {
+                    m_totalDelta = m_totalDelta + faceDelta;
+                    m_dragOrigin = m_dragOrigin + faceDelta;
+                    m_splitBrushes = false;
+                } else if (splitBrushesInward(faceDelta)) {
                     m_totalDelta = m_totalDelta + faceDelta;
                     m_dragOrigin = m_dragOrigin + faceDelta;
                     m_splitBrushes = false;
@@ -336,7 +327,8 @@ namespace TrenchBroom {
 
                 // now select the deselected part
                 document->deselectAll();
-                for (Model::Brush* brush : invserseDragFaceBrushes()) {
+                for (const auto& handle : m_invertedDragHandles) {
+                    Model::Brush* brush = std::get<0>(handle);
                     document->select(brush);                    
                 }
                 if (!document->resizeBrushes(inverseDragFaceDescriptors(), faceDelta)) {
@@ -356,6 +348,7 @@ namespace TrenchBroom {
                 m_totalDelta = m_totalDelta + faceDelta;
                 m_dragOrigin = m_dragOrigin + faceDelta;
             } else {
+                // the usual case
                 if (document->resizeBrushes(dragFaceDescriptors(), faceDelta)) {
                     m_totalDelta = m_totalDelta + faceDelta;
                     m_dragOrigin = m_dragOrigin + faceDelta;
@@ -383,6 +376,7 @@ namespace TrenchBroom {
             m_dragOrigin = m_lastPoint = hit.hitPoint();
             m_totalDelta = vm::vec3::zero();
             m_splitBrushes = false;
+            m_extrudingInwards = false;
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Move Faces");
@@ -439,7 +433,7 @@ namespace TrenchBroom {
             m_dragging = false;
         }
 
-        bool ResizeBrushesTool::splitBrushes(const vm::vec3& delta) {
+        bool ResizeBrushesTool::splitBrushesOutward(const vm::vec3& delta) {
             auto document = kdl::mem_lock(m_document);
             const vm::bbox3& worldBounds = document->worldBounds();
             const bool lockTextures = pref(Preferences::TextureLock);
@@ -499,6 +493,15 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             const vm::bbox3& worldBounds = document->worldBounds();
             const bool lockTextures = pref(Preferences::TextureLock);
+
+            // First ensure that the drag can be applied at all. For this, check whether each drag handle is moved
+            // "down" along its normal.
+            for (const auto& handle : m_dragHandles) {
+                const auto& normal = std::get<1>(handle);
+                if (vm::dot(normal, delta) > FloatType(0)) {
+                    return false;
+                }
+            }
 
             // The original brushes become the "unselected dragging brushes"
             assert(m_invertedDragHandles.empty());

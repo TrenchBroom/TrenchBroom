@@ -62,16 +62,18 @@ namespace TrenchBroom {
             std::vector<FaceHandle> m_dragHandles;
             vm::vec3 m_dragOrigin;
             vm::vec3 m_lastPoint;
+            /**
+             * This is temporarily set to true when a drag is started with Ctrl,
+             * to signal that new brushes need to be split off.
+             */
             bool m_splitBrushes;
             vm::vec3 m_totalDelta;
             bool m_dragging;
-
             /**
              * only non-empty when resizing the brushes inward.
              * These are the unselected brushes we're still resizing
              */
             std::vector<FaceHandle> m_invertedDragHandles;
-
             bool m_extrudingInwards;
         public:
             explicit ResizeBrushesTool(std::weak_ptr<MapDocument> document);
@@ -84,10 +86,10 @@ namespace TrenchBroom {
         private:
             class PickProximateFace;
             Model::Hit pickProximateFace(Model::HitType::Type hitType, const vm::ray3& pickRay) const;
+            static std::vector<Model::BrushFace*> handlesToFaces(const std::vector<FaceHandle>& dragHandles);
         public:
             bool hasDragFaces() const;
             std::vector<Model::BrushFace*> invserseDragFaces() const;
-            std::vector<Model::Brush*> invserseDragFaceBrushes() const;
             std::vector<Model::BrushFace*> dragFaces() const;
             void updateDragFaces(const Model::PickResult& pickResult);
         private:
@@ -107,7 +109,7 @@ namespace TrenchBroom {
             void commit();
             void cancel();
         private:
-            bool splitBrushes(const vm::vec3& delta);
+            bool splitBrushesOutward(const vm::vec3& delta);
             bool splitBrushesInward(const vm::vec3& delta);
             Model::BrushFace* findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const;
             std::vector<vm::polygon3> dragFaceDescriptors() const;
