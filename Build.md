@@ -88,17 +88,7 @@ Then, execute this command to configure the project:
 cmake .. -G "Visual Studio 16 2019" -A Win32 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017"
 ```
 
-> **Notes**:
-> - Specifying `CMAKE_BUILD_TYPE` is required when running cmake; you can't change between `Release` and `Debug` from Visual Studio.
-> - Make sure to specify the correct Qt as `CMAKE_PREFIX_PATH` value.
-
-### Startup project with Visual Studio
-
-Open `TrenchBroom.sln` located into `build` directory.
-
-In the left sidebar, right-click on the header called `Solution 'TrenchBroom' (X of x projects)` and select the contextual option `Set Startup Project...`.
-
-A new window is opened. Set `TrenchBroom` as `Single startup project` and confirm clicking on `OK` button.
+> **Note**: Make sure to specify the correct Qt as `CMAKE_PREFIX_PATH` value.
 
 ### Build and debug TrenchBroom
 
@@ -114,7 +104,15 @@ In order to develop, debug and compile TrenchBroom, you need to install tools li
 
 #### Project dependencies
 
-Open a Terminal and execute this command to install required dependencies:
+TrenchBroom depends on:
+
+- g++ >= 7
+- Qt >= 5.9
+- FreeImage: libfreeimage-dev
+- OpenGL and GLU development headers (Mesa OpenGL development packages) freeglut3, freeglut3-dev, mesa-common-dev
+- X11 video mode extension library: libxxf86vm-dev
+
+If you have a debian-based distribution, open a Terminal and execute this command to install required dependencies:
 
 ```bash
 sudo apt-get install g++-7 qt5-default freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev libfreetype6-dev pandoc cmake p7zip-full ninja-build
