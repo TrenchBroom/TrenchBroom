@@ -72,9 +72,7 @@ Then, execute this command to configure the project:
 cmake .. -T v141 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017"
 ```
 
-> **Notes**:
-> - Specifying `CMAKE_BUILD_TYPE` is required when running cmake; you can't change between `Release` and `Debug` from Visual Studio.
-> - Make sure to specify the correct Qt as `CMAKE_PREFIX_PATH` value.
+> **Note**: Make sure to specify the correct Qt as `CMAKE_PREFIX_PATH` value.
 
 #### Visual Studio 2019
 

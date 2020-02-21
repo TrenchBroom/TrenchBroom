@@ -23,6 +23,9 @@ endif()
 # Enable the source_group command for creating IDE folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# Set TrenchBroom item as default single startup project (NOTE: CMake 3.6 and newer)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT TrenchBroom)
+
 # Using C and CXX because GLEW is C
 project(TrenchBroom C CXX)
 
