@@ -101,7 +101,7 @@ endif()
 set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}")
 get_build_platform(APP_PLATFORM_NAME)
 
-macro(configure_app_target APP_TARGET_NAME)
+macro(configure_app_target APP_TARGET_NAME SHOULD_BUILD_MANUAL)
     target_link_libraries(${APP_TARGET_NAME} common) # common already comes with all its dependencies, no need to repeat them here
     set_compiler_config(${APP_TARGET_NAME})
 
@@ -202,33 +202,35 @@ macro(configure_app_target APP_TARGET_NAME)
                 COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/stylesheets/"
                 COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/stylesheets" "${APP_RESOURCE_DEST_DIR}/stylesheets")
 
-        # Copy manual files to resource directory
-        add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/manual/"
-                COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/manual/images"
-                COMMAND ${CMAKE_COMMAND} -E copy "${INDEX_OUTPUT_PATH}" "${APP_RESOURCE_DEST_DIR}/manual/"
-                COMMAND ${CMAKE_COMMAND} -E copy "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}" "${APP_RESOURCE_DEST_DIR}/manual/")
-
-        foreach(MANUAL_FILE ${DOC_MANUAL_TARGET_FILES_ABSOLUTE})
+        if (${SHOULD_BUILD_MANUAL})
+            # Copy manual files to resource directory
             add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy ${MANUAL_FILE} "${APP_RESOURCE_DEST_DIR}/manual/")
-        endforeach(MANUAL_FILE)
+                    COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/manual/"
+                    COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/manual/images"
+                    COMMAND ${CMAKE_COMMAND} -E copy "${INDEX_OUTPUT_PATH}" "${APP_RESOURCE_DEST_DIR}/manual/"
+                    COMMAND ${CMAKE_COMMAND} -E copy "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}" "${APP_RESOURCE_DEST_DIR}/manual/")
 
-        foreach(MANUAL_IMAGE_FILE ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE})
-            add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy ${MANUAL_IMAGE_FILE} "${APP_RESOURCE_DEST_DIR}/manual/images/")
-        endforeach(MANUAL_IMAGE_FILE)
+            foreach(MANUAL_FILE ${DOC_MANUAL_TARGET_FILES_ABSOLUTE})
+                add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
+                        COMMAND ${CMAKE_COMMAND} -E copy ${MANUAL_FILE} "${APP_RESOURCE_DEST_DIR}/manual/")
+            endforeach(MANUAL_FILE)
+
+            foreach(MANUAL_IMAGE_FILE ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE})
+                add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
+                        COMMAND ${CMAKE_COMMAND} -E copy ${MANUAL_IMAGE_FILE} "${APP_RESOURCE_DEST_DIR}/manual/images/")
+            endforeach(MANUAL_IMAGE_FILE)
+        endif()
     endif()
 endmacro()
 
 # Create the executable target and link with libraries
 add_executable(TrenchBroom WIN32 MACOSX_BUNDLE)
 target_sources(TrenchBroom PRIVATE ${APP_SOURCE} ${INDEX_OUTPUT_PATH} ${DOC_MANUAL_TARGET_FILES_ABSOLUTE} ${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE} ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE})
-configure_app_target(TrenchBroom)
+configure_app_target(TrenchBroom YES)
 
 add_executable(TrenchBroom-nomanual WIN32 MACOSX_BUNDLE EXCLUDE_FROM_ALL)
 target_sources(TrenchBroom-nomanual PRIVATE ${APP_SOURCE})
-configure_app_target(TrenchBroom-nomanual)
+configure_app_target(TrenchBroom-nomanual NO)
 
 # Common CPack configuration
 set(APP_PACKAGE_FILE_NAME "TrenchBroom-${APP_PLATFORM_NAME}-${GIT_DESCRIBE}-${CMAKE_BUILD_TYPE}")
