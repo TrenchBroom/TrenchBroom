@@ -230,12 +230,6 @@ add_executable(TrenchBroom-nomanual WIN32 MACOSX_BUNDLE EXCLUDE_FROM_ALL)
 target_sources(TrenchBroom-nomanual PRIVATE ${APP_SOURCE})
 configure_app_target(TrenchBroom-nomanual)
 
-
-# Enable ASAN if possible and requested
-if(COMPILER_IS_GNU AND TB_ENABLE_ASAN)
-    target_link_libraries(TrenchBroom asan)
-endif()
-
 # Common CPack configuration
 set(APP_PACKAGE_FILE_NAME "TrenchBroom-${APP_PLATFORM_NAME}-${GIT_DESCRIBE}-${CMAKE_BUILD_TYPE}")
 set(APP_PACKAGE_DIR_NAME "$ENV{DROPBOX}/TrenchBroom/")
