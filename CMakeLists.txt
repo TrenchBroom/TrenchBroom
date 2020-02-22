@@ -56,6 +56,17 @@ if(COMPILER_IS_MSVC)
     # target_link_options(common INTERFACE "/STACK:${TB_STACK_SIZE}")
 endif()
 
+# Enable ASAN if possible and requested
+if(TB_ENABLE_ASAN)
+    message(STATUS "Enabling ASan")
+    if(COMPILER_IS_CLANG)
+        add_compile_options(-fsanitize=address)
+        add_link_options(-fsanitize=address)
+    else()
+        message(WARNING "TB isn't set up to enable ASan for compiler ${CMAKE_CXX_COMPILER_ID}")
+    endif()
+endif()
+
 include(cmake/Utils.cmake)
 
 # Find Git
