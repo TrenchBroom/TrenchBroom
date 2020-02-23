@@ -46,6 +46,8 @@
 #include "View/Selection.h"
 
 #include <kdl/map_utils.h>
+#include <kdl/overload.h>
+#include <kdl/result.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
@@ -824,7 +826,7 @@ namespace TrenchBroom {
             return newEdgePositions;
         }
 
-        std::vector<vm::polygon3> MapDocumentCommandFacade::performMoveFaces(const std::map<Model::Brush*, std::vector<vm::polygon3>>& faces, const vm::vec3& delta) {
+        kdl::result<std::vector<vm::polygon3>, GeometryException> MapDocumentCommandFacade::performMoveFaces(const std::map<Model::Brush*, std::vector<vm::polygon3>>& faces, const vm::vec3& delta) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);
 
@@ -835,14 +837,25 @@ namespace TrenchBroom {
             for (const auto& entry : faces) {
                 Model::Brush* brush = entry.first;
                 const std::vector<vm::polygon3>& oldPositions = entry.second;
-                const std::vector<vm::polygon3> newPositions = brush->moveFaces(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
-                kdl::vec_append(newFacePositions, newPositions);
+                
+                auto result = brush->moveFaces(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
+                if (result.is_success()) {
+                    kdl::vec_append(newFacePositions, kdl::get_value(result));
+                } else {
+                    return kdl::visit_error(kdl::overload{
+                        [](GeometryException&& e) {
+                            return kdl::result<std::vector<vm::polygon3>, GeometryException>::error(
+                                std::move(e));
+                        }
+                    }, std::move(result));
+                }
+                
             }
 
             invalidateSelectionBounds();
 
             kdl::vec_sort_and_remove_duplicates(newFacePositions);
-            return newFacePositions;
+            return kdl::result<std::vector<vm::polygon3>, GeometryException>::success(newFacePositions);
         }
 
         void MapDocumentCommandFacade::performAddVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices) {

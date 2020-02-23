@@ -184,7 +184,7 @@ namespace TrenchBroom {
 
             // face operations
             bool canMoveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) const;
-            std::vector<vm::polygon3> moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta, bool uvLock = false);
+            kdl::result<std::vector<vm::polygon3>, GeometryException> moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta, bool uvLock = false);
         private:
             struct CanMoveVerticesResult {
             public:

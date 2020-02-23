@@ -20,8 +20,11 @@
 #ifndef TrenchBroom_MapDocumentCommandFacade
 #define TrenchBroom_MapDocumentCommandFacade
 
+#include "Exceptions.h"
 #include "FloatType.h"
 #include "View/MapDocument.h"
+
+#include <kdl/result_forward.h>
 
 #include <vecmath/forward.h>
 
@@ -108,7 +111,7 @@ namespace TrenchBroom {
             bool performSnapVertices(FloatType snapTo);
             std::vector<vm::vec3> performMoveVertices(const std::map<Model::Brush*, std::vector<vm::vec3>>& vertices, const vm::vec3& delta);
             std::vector<vm::segment3> performMoveEdges(const std::map<Model::Brush*, std::vector<vm::segment3>>& edges, const vm::vec3& delta);
-            std::vector<vm::polygon3> performMoveFaces(const std::map<Model::Brush*, std::vector<vm::polygon3>>& faces, const vm::vec3& delta);
+            kdl::result<std::vector<vm::polygon3>, GeometryException> performMoveFaces(const std::map<Model::Brush*, std::vector<vm::polygon3>>& faces, const vm::vec3& delta);
             void performAddVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices);
             void performRemoveVertices(const std::map<Model::Brush*, std::vector<vm::vec3>>& vertices);
         public: // snapshots and restoration

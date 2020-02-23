@@ -136,6 +136,9 @@ namespace TrenchBroom {
 
                 takeSnapshot();
                 const auto success = doVertexOperation(document);
+                if (!success) {
+                    document->restoreSnapshot(m_snapshot.get());
+                }
                 return doCreateCommandResult(success);
             }
         }

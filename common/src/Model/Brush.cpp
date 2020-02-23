@@ -891,24 +891,32 @@ namespace TrenchBroom {
             return true;
         }
 
-        std::vector<vm::polygon3> Brush::moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta, const bool uvLock) {
+        kdl::result<std::vector<vm::polygon3>, GeometryException> Brush::moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta, const bool uvLock) {
             assert(canMoveFaces(worldBounds, facePositions, delta));
 
             std::vector<vm::vec3> vertexPositions;
             vm::polygon3::get_vertices(std::begin(facePositions), std::end(facePositions), std::back_inserter(vertexPositions));
-            doMoveVertices(worldBounds, vertexPositions, delta, uvLock);
+            
+            auto r = doMoveVertices(worldBounds, vertexPositions, delta, uvLock);
+            return kdl::visit_result(kdl::overload {
+                [&]() {
+                    std::vector<vm::polygon3> faces;
+                    faces.reserve(facePositions.size());
 
-            std::vector<vm::polygon3> result;
-            result.reserve(facePositions.size());
+                    for (const auto& facePosition : facePositions) {
+                        const auto* newFace = m_geometry->findClosestFace(facePosition.vertices() + delta, vm::C::almost_zero());
+                        if (newFace != nullptr) {
+                            faces.push_back(vm::polygon3(newFace->vertexPositions()));
+                        }
+                    }
 
-            for (const auto& facePosition : facePositions) {
-                const auto* newFace = m_geometry->findClosestFace(facePosition.vertices() + delta, vm::C::almost_zero());
-                if (newFace != nullptr) {
-                    result.push_back(vm::polygon3(newFace->vertexPositions()));
+                    return kdl::result<std::vector<vm::polygon3>, GeometryException>::success(std::move(faces));
+                },
+                [](GeometryException&& e) {
+                    return kdl::result<std::vector<vm::polygon3>, GeometryException>::error(std::move(e));
                 }
-            }
+            }, std::move(r));
 
-            return result;
         }
 
         Brush::CanMoveVerticesResult::CanMoveVerticesResult(const bool s, BrushGeometry&& g) :

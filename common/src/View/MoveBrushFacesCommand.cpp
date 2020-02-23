@@ -27,6 +27,8 @@
 #include "View/MapDocumentCommandFacade.h"
 #include "View/VertexHandleManager.h"
 
+#include <kdl/result.h>
+
 #include <vecmath/polygon.h>
 
 #include <vector>
@@ -64,8 +66,13 @@ namespace TrenchBroom {
         }
 
         bool MoveBrushFacesCommand::doVertexOperation(MapDocumentCommandFacade* document) {
-            m_newFacePositions = document->performMoveFaces(m_faces, m_delta);
-            return true;
+            auto result = document->performMoveFaces(m_faces, m_delta);
+            if (result.is_success()) {
+                m_newFacePositions = kdl::get_value(std::move(result));
+                return true;
+            } else {
+                return false;
+            }
         }
 
         bool MoveBrushFacesCommand::doCollateWith(UndoableCommand* command) {
