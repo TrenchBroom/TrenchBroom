@@ -60,6 +60,7 @@ namespace TrenchBroom {
             class MoveVerticesCallback;
             using RemoveVertexCallback = MoveVerticesCallback;
             class QueryCallback;
+            class CopyCallback;
         public:
             using VertexList = BrushVertexList;
             using EdgeList = BrushEdgeList;
@@ -75,6 +76,12 @@ namespace TrenchBroom {
             Brush();
             kdl::result<void, GeometryException> initialize(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);
         public:
+            Brush(const Brush& other);
+            Brush(Brush&& other) noexcept;
+            Brush& operator=(Brush other) noexcept;
+
+            friend void swap(Brush& lhs, Brush& rhs) noexcept;
+
             ~Brush() override;
         private:
             void cleanup();
@@ -345,8 +352,6 @@ namespace TrenchBroom {
         private:
             void doAcceptTagVisitor(TagVisitor& visitor) override;
             void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
-        private:
-            deleteCopyAndMove(Brush)
         };
     }
 }

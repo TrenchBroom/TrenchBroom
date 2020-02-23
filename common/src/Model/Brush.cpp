@@ -56,6 +56,7 @@
 #include <iterator>
 #include <set>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace TrenchBroom {
@@ -294,6 +295,23 @@ namespace TrenchBroom {
                 return face->payload()->boundary();
             }
         };
+        
+        class Brush::CopyCallback : public BrushGeometry::CopyCallback {
+        private:
+            const std::unordered_map<const BrushFace*, BrushFace*>& m_faceMap;
+        public:
+            CopyCallback(const std::unordered_map<const BrushFace*, BrushFace*>& faceMap) :
+            m_faceMap(faceMap) {}
+            
+            void faceWasCopied(const BrushFaceGeometry* original, BrushFaceGeometry* copy) {
+                auto it = m_faceMap.find(original->payload());
+                ensure(it != std::end(m_faceMap), "face payload not found");
+                
+                auto* face = it->second;
+                copy->setPayload(face);
+                face->setGeometry(copy);
+            }
+        };
 
         kdl::result<std::unique_ptr<Brush>, GeometryException> Brush::create(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) {
             auto brush = std::unique_ptr<Brush>(new Brush());
@@ -313,6 +331,45 @@ namespace TrenchBroom {
             return buildGeometry(worldBounds);
         }
 
+        Brush::Brush(const Brush& other) :
+        m_geometry(nullptr),
+        m_transparent(other.m_transparent),
+        m_brushRendererBrushCache(std::make_unique<Renderer::BrushRendererBrushCache>()) {
+            auto faceMap = std::unordered_map<const BrushFace*, BrushFace*>();
+            m_faces.reserve(other.m_faces.size());
+            for (const auto* face : other.m_faces) {
+                m_faces.push_back(face->clone());
+                faceMap.insert(std::make_pair(face, m_faces.back()));
+            }
+            
+            if (other.m_geometry != nullptr) {
+                CopyCallback callback(faceMap);
+                m_geometry = new BrushGeometry(*other.m_geometry, callback);
+            }
+        }
+
+        Brush::Brush(Brush&& other) noexcept :
+        m_faces(std::move(other.m_faces)),
+        m_geometry(other.m_geometry),
+        m_transparent(other.m_transparent),
+        m_brushRendererBrushCache(std::move(other.m_brushRendererBrushCache)) {
+            other.m_geometry = nullptr;
+        }
+
+        Brush& Brush::operator=(Brush other) noexcept {
+            using std::swap;
+            swap(*this, other);
+            return *this;
+        }
+
+        void swap(Brush& lhs, Brush& rhs) noexcept {
+            using std::swap;
+            swap(lhs.m_faces, rhs.m_faces);
+            swap(lhs.m_geometry, rhs.m_geometry);
+            swap(lhs.m_transparent, rhs.m_transparent);
+            swap(lhs.m_brushRendererBrushCache, rhs.m_brushRendererBrushCache);
+        }
+        
         Brush::~Brush() {
             cleanup();
         }
@@ -1316,14 +1373,14 @@ namespace TrenchBroom {
         }
 
         void Brush::deleteGeometry() {
-            assert(m_geometry != nullptr);
-
-            // clear brush face geometry
-            for (auto* brushFace : m_faces) {
-                brushFace->setGeometry(nullptr);
+            if (m_geometry != nullptr) {
+                // clear brush face geometry
+                for (auto* brushFace : m_faces) {
+                    brushFace->setGeometry(nullptr);
+                }
+                delete m_geometry;
+                m_geometry = nullptr;
             }
-            delete m_geometry;
-            m_geometry = nullptr;
         }
 
         bool Brush::checkGeometry() const {
@@ -1371,20 +1428,8 @@ namespace TrenchBroom {
             return logicalBounds();
         }
 
-        Node* Brush::doClone(const vm::bbox3& worldBounds) const {
-            std::vector<BrushFace*> faceClones;
-            faceClones.reserve(m_faces.size());
-
-            for (const auto* face : m_faces) {
-                faceClones.push_back(face->clone());
-            }
-
-            auto createResult = create(worldBounds, faceClones);
-            kdl::visit_error([](const GeometryException& e) { throw e; }, createResult);
-
-            auto brush = kdl::get_value(std::move(createResult));
-            cloneAttributes(brush.get());
-            return brush.release();
+        Node* Brush::doClone(const vm::bbox3& /* worldBounds */) const {
+            return new Brush(*this);
         }
 
         bool Brush::doCanAddChild(const Node* /* child */) const {
