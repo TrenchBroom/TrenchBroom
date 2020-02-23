@@ -71,6 +71,36 @@ namespace kdl {
         assert(!mem_expired(ptr));
         return ptr.lock();
     }
+    
+    /**
+     * Returns a unique pointer managing the object held by the given pointer, cast to the
+     * given type U.
+     *
+     * The returned pointer will take ownership of the object held by the given pointer.
+     *
+     * @tparam U the type argument of the returned pointer
+     * @tparam T the type argument of the given pointer
+     * @param pointer the pointer to cast
+     * @return a pointer managing the object held by the given pointer
+     */
+    template <typename U, typename T>
+    std::unique_ptr<U> mem_static_pointer_cast(std::unique_ptr<T>&& pointer) {
+        return std::unique_ptr<U>(static_cast<U*>(pointer.release()));
+    }
+    
+    /**
+     * Returns a shared pointer that shares ownership of the object held by the given pointer,
+     * cast to the given type U.
+     *
+     * @tparam U the type argument of the returned pointer
+     * @tparam T the type argument of the given pointer
+     * @param pointer the pointer to cast
+     * @return a pointer managing the object held by the given pointer
+     */
+    template <typename U, typename T>
+    std::shared_ptr<U> mem_static_pointer_cast(const std::shared_ptr<T>& pointer) {
+        return std::static_pointer_cast<U>(pointer);
+    }
 }
 
 #endif //KDL_MEMORY_UTILS_H
