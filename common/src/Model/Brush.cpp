@@ -1201,12 +1201,12 @@ namespace TrenchBroom {
             return subtract(factory, worldBounds, defaultTextureName, std::vector<Brush*>{subtrahend});
         }
 
-        void Brush::intersect(const vm::bbox3& worldBounds, const Brush* brush) {
+        kdl::result<void, GeometryException> Brush::intersect(const vm::bbox3& worldBounds, const Brush* brush) {
             for (const auto* face : brush->faces()) {
                 addFace(face->clone());
             }
 
-            rebuildGeometry(worldBounds);
+            return rebuildGeometry(worldBounds);
         }
 
         bool Brush::canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const {

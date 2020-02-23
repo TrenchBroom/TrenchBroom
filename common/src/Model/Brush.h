@@ -238,7 +238,7 @@ namespace TrenchBroom {
              */
             kdl::result<std::vector<Brush*>, GeometryException> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<Brush*>& subtrahends) const;
             kdl::result<std::vector<Brush*>, GeometryException> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, Brush* subtrahend) const;
-            void intersect(const vm::bbox3& worldBounds, const Brush* brush);
+            kdl::result<void, GeometryException> intersect(const vm::bbox3& worldBounds, const Brush* brush);
 
             // transformation
             bool canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const;

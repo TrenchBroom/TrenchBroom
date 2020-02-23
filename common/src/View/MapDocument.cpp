@@ -1237,16 +1237,18 @@ namespace TrenchBroom {
             if (brushes.size() < 2)
                 return false;
 
-            Model::Brush* result = brushes.front()->clone(m_worldBounds);
+            Model::Brush* intersection = brushes.front()->clone(m_worldBounds);
 
-            bool valid = true;
-            std::vector<Model::Brush*>::const_iterator it, end;
-            for (it = std::begin(brushes), end = std::end(brushes); it != end && valid; ++it) {
-                Model::Brush* brush = *it;
-                try {
-                    result->intersect(m_worldBounds, brush);
-                } catch (const GeometryException&) {
-                    valid = false;
+            for (auto* brush : brushes) {
+                auto result = intersection->intersect(m_worldBounds, brush);
+                if (result.is_error()) {
+                    kdl::visit_error(kdl::overload {
+                        [&](const GeometryException& e) {
+                            error() << "Could not intersect brushes: " << e.what();
+                        }
+                    }, result);
+                    delete intersection;
+                    return false;
                 }
             }
 
@@ -1254,15 +1256,9 @@ namespace TrenchBroom {
 
             Transaction transaction(this, "CSG Intersect");
             deselect(toRemove);
-
-            if (valid) {
-                addNode(result, currentParent());
-                removeNodes(toRemove);
-                select(result);
-            } else {
-                removeNodes(toRemove);
-                delete result;
-            }
+            addNode(intersection, currentParent());
+            removeNodes(toRemove);
+            select(intersection);
 
             return true;
         }
