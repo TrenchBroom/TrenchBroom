@@ -95,6 +95,11 @@ namespace kdl {
             []  (const Error1&) { return false; },
             []  (const Error2&) { return false; }
         }, result));
+        
+        ASSERT_THROW(visit_error(overload{
+            [](const Error1&) {},
+            [](const Error2&) {}
+        }, result), bad_result_access);
     }
     
     /**
@@ -110,6 +115,11 @@ namespace kdl {
             []  (Error2&&) { return false; }
         }, std::move(result)));
         
+        ASSERT_THROW(visit_error(overload{
+            [](Error1&&) {},
+            [](Error2&&) {}
+        }, std::move(result)), bad_result_access);
+
         typename ResultType::value_type y;
         visit_result(overload {
             [&] (auto&& x) { y = std::move(x); },
@@ -132,6 +142,11 @@ namespace kdl {
             [&] (const E& x)    { return x == e; },
             []  (const Error2&) { return false; }
         }, result));
+
+        ASSERT_TRUE(visit_error(overload {
+            [](const E&)    { return true; },
+            [](const auto&) { return false; }
+        }, result));
     }
     
     /**
@@ -147,6 +162,11 @@ namespace kdl {
             []  (Error2&&) { return false; }
         }, std::move(result)));
         
+        ASSERT_TRUE(visit_error(overload {
+            [](const E&)    { return true; },
+            [](const auto&) { return false; }
+        }, std::move(result)));
+
         E y;
         visit_result(overload {
             []  (auto&&)   {},
@@ -211,6 +231,11 @@ namespace kdl {
             []()            { return true; },
             [](const auto&) { return false; }
         }, result));
+
+        ASSERT_THROW(visit_error(overload{
+            [](const Error1&) {},
+            [](const Error2&) {}
+        }, result), bad_result_access);
     }
 
     /**
@@ -227,6 +252,11 @@ namespace kdl {
             []  (const Error1&) { return false; },
             []  (const Error2&) { return false; }
         }, result));
+        
+        ASSERT_THROW(visit_error(overload{
+            [](const Error1&) {},
+            [](const Error2&) {}
+        }, result), bad_result_access);
     }
 
     /**
@@ -244,6 +274,11 @@ namespace kdl {
             []  (Error2&&) { return false; }
         }, std::move(result)));
         
+        ASSERT_THROW(visit_error(overload{
+            [](Error1&&) {},
+            [](Error2&&) {}
+        }, std::move(result)), bad_result_access);
+
         typename ResultType::value_type y;
         visit_result(overload {
             [] ()         {},
@@ -268,6 +303,11 @@ namespace kdl {
             []  (const auto&) { return false; },
             [&] (const E& x)  { return x == e; }
         }, result));
+
+        ASSERT_TRUE(visit_error(overload {
+            [](const E&)    { return true; },
+            [](const auto&) { return false; }
+        }, result));
     }
     
     /**
@@ -279,9 +319,14 @@ namespace kdl {
         auto result = ResultType::error(std::forward<E>(e));
 
         ASSERT_TRUE(visit_result(overload {
-            [] ()       { return false; },
+            []  ()       { return false; },
             []  (auto&&) { return false; },
             [&] (E&&)    { return true; }
+        }, std::move(result)));
+        
+        ASSERT_TRUE(visit_error(overload {
+            [](E&&)    { return true; },
+            [](auto&&) { return false; }
         }, std::move(result)));
 
         E y;
@@ -328,7 +373,7 @@ namespace kdl {
         test_visit_error_const_lvalue_ref<result<const int, Error1, Error2>>(Error1{});
         test_visit_error_rvalue_ref<result<int, Counter, Error2>>(Counter{});
     }
-
+    
     TEST(result_test, map) {
         test_map_const_lvalue_ref<const result<int, Error1, Error2>, float>(1);
         test_map_const_lvalue_ref<result<int, Error1, Error2>, float>(1);
@@ -459,78 +504,124 @@ namespace kdl {
 
 namespace something {
     TEST(result_test, adl_friend_lookup) {
-        auto value_result = kdl::result<int, kdl::Error1, kdl::Error2>::success(1);
+        auto value_success = kdl::result<int, kdl::Error1, kdl::Error2>::success(1);
+        auto value_error   = kdl::result<int, kdl::Error1, kdl::Error2>::error(kdl::Error1{});
 
         ASSERT_TRUE(kdl::visit_result(kdl::overload {
             [&] (const int&)         { return true; },
             []  (const kdl::Error1&) { return false; },
             []  (const kdl::Error2&) { return false; }
-        }, value_result));
+        }, value_success));
         
         ASSERT_TRUE(kdl::visit_result(kdl::overload {
             [&] (int&&)         { return true; },
             []  (kdl::Error1&&) { return false; },
             []  (kdl::Error2&&) { return false; }
-        }, std::move(value_result)));
+        }, std::move(value_success)));
+        
+        ASSERT_TRUE(kdl::visit_error(kdl::overload {
+            []  (const kdl::Error1&) { return true; },
+            []  (const kdl::Error2&) { return false; }
+        }, value_error));
+        
+        ASSERT_TRUE(kdl::visit_error(kdl::overload {
+            []  (kdl::Error1&&) { return true; },
+            []  (kdl::Error2&&) { return false; }
+        }, std::move(value_error)));
         
         ASSERT_TRUE(kdl::map_result(kdl::overload {
             [&] (const int&) { return true; }
-        }, value_result));
+        }, value_success));
         
         ASSERT_TRUE(kdl::map_result(kdl::overload {
             [&] (int&&) { return true; }
-        }, std::move(value_result)));
+        }, std::move(value_success)));
 
         int x = 1;
-        auto ref_result = kdl::result<int&, kdl::Error1, kdl::Error2>::success(x);
+        auto ref_success = kdl::result<int&, kdl::Error1, kdl::Error2>::success(x);
+        auto ref_error   = kdl::result<int&, kdl::Error1, kdl::Error2>::error(kdl::Error1{});
 
         ASSERT_TRUE(kdl::visit_result(kdl::overload {
             [&] (const int&)         { return true; },
             []  (const kdl::Error1&) { return false; },
             []  (const kdl::Error2&) { return false; }
-        }, ref_result));
+        }, ref_success));
         
         ASSERT_TRUE(kdl::visit_result(kdl::overload {
             [&] (int&&)         { return true; },
             []  (kdl::Error1&&) { return false; },
             []  (kdl::Error2&&) { return false; }
-        }, std::move(ref_result)));
+        }, std::move(ref_success)));
+        
+        ASSERT_TRUE(kdl::visit_error(kdl::overload {
+            []  (const kdl::Error1&) { return true; },
+            []  (const kdl::Error2&) { return false; }
+        }, ref_error));
+        
+        ASSERT_TRUE(kdl::visit_error(kdl::overload {
+            []  (kdl::Error1&&) { return true; },
+            []  (kdl::Error2&&) { return false; }
+        }, std::move(ref_error)));
         
         ASSERT_TRUE(kdl::map_result(kdl::overload {
             [&] (const int&) { return true; }
-        }, ref_result));
+        }, ref_success));
         
         ASSERT_TRUE(kdl::map_result(kdl::overload {
             [&] (int&&) { return true; }
-        }, std::move(ref_result)));
+        }, std::move(ref_success)));
 
-        auto void_result = kdl::result<void, kdl::Error1, kdl::Error2>::success();
+        auto void_success = kdl::result<void, kdl::Error1, kdl::Error2>::success();
+        auto void_error   = kdl::result<void, kdl::Error1, kdl::Error2>::error(kdl::Error1{});
+        
         ASSERT_TRUE(kdl::visit_result(kdl::overload {
             [&] ()                   { return true; },
             []  (const kdl::Error1&) { return false; },
             []  (const kdl::Error2&) { return false; }
-        }, void_result));
+        }, void_success));
         
         ASSERT_TRUE(kdl::visit_result(kdl::overload {
             [&] ()              { return true; },
             []  (kdl::Error1&&) { return false; },
             []  (kdl::Error2&&) { return false; }
-        }, std::move(void_result)));
+        }, std::move(void_success)));
 
-        auto opt_result = kdl::result<kdl::opt<int>, kdl::Error1, kdl::Error2>::success();
+        ASSERT_TRUE(kdl::visit_error(kdl::overload {
+            []  (const kdl::Error1&) { return true; },
+            []  (const kdl::Error2&) { return false; }
+        }, void_error));
+        
+        ASSERT_TRUE(kdl::visit_error(kdl::overload {
+            []  (kdl::Error1&&) { return true; },
+            []  (kdl::Error2&&) { return false; }
+        }, std::move(void_error)));
+
+        auto opt_success = kdl::result<kdl::opt<int>, kdl::Error1, kdl::Error2>::success();
+        auto opt_error   = kdl::result<kdl::opt<int>, kdl::Error1, kdl::Error2>::error(kdl::Error1{});
+        
         ASSERT_TRUE(kdl::visit_result(kdl::overload {
             [&] ()                   { return true; },
             [&] (const int&)         { return true; },
             []  (const kdl::Error1&) { return false; },
             []  (const kdl::Error2&) { return false; }
-        }, opt_result));
+        }, opt_success));
         
         ASSERT_TRUE(kdl::visit_result(kdl::overload {
             [&] ()              { return true; },
             [&] (int&&)         { return true; },
             []  (kdl::Error1&&) { return false; },
             []  (kdl::Error2&&) { return false; }
-        }, std::move(opt_result)));
+        }, std::move(opt_success)));
+        
+        ASSERT_TRUE(kdl::visit_error(kdl::overload {
+            []  (const kdl::Error1&) { return true; },
+            []  (const kdl::Error2&) { return false; }
+        }, opt_error));
+        
+        ASSERT_TRUE(kdl::visit_error(kdl::overload {
+            []  (kdl::Error1&&) { return true; },
+            []  (kdl::Error2&&) { return false; }
+        }, std::move(opt_error)));
     }
     
     

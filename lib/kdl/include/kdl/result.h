@@ -21,11 +21,19 @@
 #include "kdl/overload.h"
 #include "kdl/result_forward.h"
 
+#include <exception>
 #include <functional> // for std::ref
 #include <optional>
 #include <variant>
 
 namespace kdl {
+    class bad_result_access : std::exception {
+    public:
+        const char* what() const noexcept override {
+            return "bad result access";
+        }
+    };
+    
     /**
      * Wrapper class that can contain either a value or one of several errors.
      *
@@ -111,6 +119,48 @@ namespace kdl {
                 std::move(result.m_value));
         }
         
+        /**
+         * Applies the given visitor to the error contained given result result and returns the result returned by the
+         * visitor, or throws an exception if the given result does not contain an error.
+         * The error contained in the given result result is passed to the visitor by const lvalue reference.
+         *
+         * @tparam Visitor the type of the visitor
+         * @param visitor the visitor to apply
+         * @param result the result to visit
+         * @return the result of applying the given visitor
+         * @throws bad_result_access if the given result does not contain an error
+         */
+        template <typename Visitor>
+        friend auto visit_error(Visitor&& visitor, const result& result) {
+            using E = std::tuple_element_t<0, std::tuple<Errors...>>;
+            using R = std::invoke_result_t<Visitor, E>;
+            return visit_result(kdl::overload {
+                visitor,
+                [](const value_type&) -> R { throw bad_result_access(); }
+            }, result);
+        }
+        
+        /**
+         * Applies the given visitor to the error contained given result result and returns the result returned by the
+         * visitor, or throws an exception if the given result does not contain an error.
+         * The error contained in the given result result is passed to the visitor by rvalue reference.
+         *
+         * @tparam Visitor the type of the visitor
+         * @param visitor the visitor to apply
+         * @param result the result to visit
+         * @return the result of applying the given visitor
+         * @throws bad_result_access if the given result does not contain an error
+         */
+        template <typename Visitor>
+        friend auto visit_error(Visitor&& visitor, result&& result) {
+            using E = std::tuple_element_t<0, std::tuple<Errors...>>;
+            using R = std::invoke_result_t<Visitor, E>;
+            return visit_result(kdl::overload {
+                visitor,
+                [](value_type&&) -> R { throw bad_result_access(); }
+            }, std::move(result));
+        }
+
         /**
          * Applies the given function to the given result and returns a new result with the result type of the
          * given function as its value type.
@@ -269,6 +319,48 @@ namespace kdl {
             }, std::move(result.m_value));
         }
         
+        /**
+         * Applies the given visitor to the error contained given result result and returns the result returned by the
+         * visitor, or throws an exception if the given result does not contain an error.
+         * The error contained in the given result result is passed to the visitor by const lvalue reference.
+         *
+         * @tparam Visitor the type of the visitor
+         * @param visitor the visitor to apply
+         * @param result the result to visit
+         * @return the result of applying the given visitor
+         * @throws bad_result_access if the given result does not contain an error
+         */
+        template <typename Visitor>
+        friend auto visit_error(Visitor&& visitor, const result& result) {
+            using E = std::tuple_element_t<0, std::tuple<Errors...>>;
+            using R = std::invoke_result_t<Visitor, E>;
+            return visit_result(kdl::overload {
+                visitor,
+                [](const value_type&) -> R { throw bad_result_access(); }
+            }, result);
+        }
+        
+        /**
+         * Applies the given visitor to the error contained given result result and returns the result returned by the
+         * visitor, or throws an exception if the given result does not contain an error.
+         * The error contained in the given result result is passed to the visitor by rvalue reference.
+         *
+         * @tparam Visitor the type of the visitor
+         * @param visitor the visitor to apply
+         * @param result the result to visit
+         * @return the result of applying the given visitor
+         * @throws bad_result_access if the given result does not contain an error
+         */
+        template <typename Visitor>
+        friend auto visit_error(Visitor&& visitor, result&& result) {
+            using E = std::tuple_element_t<0, std::tuple<Errors...>>;
+            using R = std::invoke_result_t<Visitor, E>;
+            return visit_result(kdl::overload {
+                visitor,
+                [](value_type&&) -> R { throw bad_result_access(); }
+            }, std::move(result));
+        }
+
         /**
          * Applies the given function to given result and returns a new result with the result type of
          * the given function as its value type.
@@ -430,6 +522,48 @@ namespace kdl {
                 return visitor();
             }
         }
+        
+        /**
+         * Applies the given visitor to the error contained given result result and returns the result returned by the
+         * visitor, or throws an exception if the given result does not contain an error.
+         * The error contained in the given result result is passed to the visitor by const lvalue reference.
+         *
+         * @tparam Visitor the type of the visitor
+         * @param visitor the visitor to apply
+         * @param result the result to visit
+         * @return the result of applying the given visitor
+         * @throws bad_result_access if the given result does not contain an error
+         */
+        template <typename Visitor>
+        friend auto visit_error(Visitor&& visitor, const result& result) {
+            using E = std::tuple_element_t<0, std::tuple<Errors...>>;
+            using R = std::invoke_result_t<Visitor, E>;
+            return visit_result(kdl::overload {
+                visitor,
+                []() -> R { throw bad_result_access(); }
+            }, result);
+        }
+        
+        /**
+         * Applies the given visitor to the error contained given result result and returns the result returned by the
+         * visitor, or throws an exception if the given result does not contain an error.
+         * The error contained in the given result result is passed to the visitor by rvalue reference.
+         *
+         * @tparam Visitor the type of the visitor
+         * @param visitor the visitor to apply
+         * @param result the result to visit
+         * @return the result of applying the given visitor
+         * @throws bad_result_access if the given result does not contain an error
+         */
+        template <typename Visitor>
+        friend auto visit_error(Visitor&& visitor, result&& result) {
+            using E = std::tuple_element_t<0, std::tuple<Errors...>>;
+            using R = std::invoke_result_t<Visitor, E>;
+            return visit_result(kdl::overload {
+                visitor,
+                []() -> R { throw bad_result_access(); }
+            }, std::move(result));
+        }
 
         /**
          * Indicates whether this result is empty.
@@ -565,6 +699,50 @@ namespace kdl {
                 return visitor();
             }
         }
+        
+        /**
+         * Applies the given visitor to the error contained given result result and returns the result returned by the
+         * visitor, or throws an exception if the given result does not contain an error.
+         * The error contained in the given result result is passed to the visitor by const lvalue reference.
+         *
+         * @tparam Visitor the type of the visitor
+         * @param visitor the visitor to apply
+         * @param result the result to visit
+         * @return the result of applying the given visitor
+         * @throws bad_result_access if the given result does not contain an error
+         */
+        template <typename Visitor>
+        friend auto visit_error(Visitor&& visitor, const result& result) {
+            using E = std::tuple_element_t<0, std::tuple<Errors...>>;
+            using R = std::invoke_result_t<Visitor, E>;
+            return visit_result(kdl::overload {
+                visitor,
+                [](const value_type&) -> R { throw bad_result_access(); },
+                []() -> R                  { throw bad_result_access(); }
+            }, result);
+        }
+        
+        /**
+         * Applies the given visitor to the error contained given result result and returns the result returned by the
+         * visitor, or throws an exception if the given result does not contain an error.
+         * The error contained in the given result result is passed to the visitor by rvalue reference.
+         *
+         * @tparam Visitor the type of the visitor
+         * @param visitor the visitor to apply
+         * @param result the result to visit
+         * @return the result of applying the given visitor
+         * @throws bad_result_access if the given result does not contain an error
+         */
+        template <typename Visitor>
+        friend auto visit_error(Visitor&& visitor, result&& result) {
+            using E = std::tuple_element_t<0, std::tuple<Errors...>>;
+            using R = std::invoke_result_t<Visitor, E>;
+            return visit_result(kdl::overload {
+                visitor,
+                [](value_type&&) -> R { throw bad_result_access(); },
+                []() -> R             { throw bad_result_access(); }
+            }, std::move(result));
+        }
 
         /**
          * Indicates whether the given result has a value.
@@ -595,7 +773,6 @@ namespace kdl {
         }
     };
 
-    
     template <typename Visitor, typename Value, typename... Errors>
     auto visit_result(Visitor&& visitor, const result<Value, Errors...>& result) {
         return visit_result(std::forward<Visitor>(visitor), result);
@@ -604,6 +781,16 @@ namespace kdl {
     template <typename Visitor, typename Value, typename... Errors>
     auto visit_result(Visitor&& visitor, result<Value, Errors...>&& result) {
         return visit_result(std::forward<Visitor>(visitor), std::move(result));
+    }
+
+    template <typename Visitor, typename Value, typename... Errors>
+    auto visit_error(Visitor&& visitor, const result<Value, Errors...>& result) {
+        return visit_error(std::forward<Visitor>(visitor), result);
+    }
+
+    template <typename Visitor, typename Value, typename... Errors>
+    auto visit_error(Visitor&& visitor, result<Value, Errors...>&& result) {
+        return visit_error(std::forward<Visitor>(visitor), std::move(result));
     }
 
     template <typename F, typename Value, typename... Errors>
