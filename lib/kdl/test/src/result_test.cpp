@@ -83,6 +83,32 @@ namespace kdl {
         ASSERT_EQ(result.is_success(), result);
     }
     
+    template <typename ResultType, typename V>
+    void test_get_success_const_lvalue_ref(V&& v) {
+        const auto copy = v;
+        auto result = ResultType::success(std::forward<V>(v));
+        ASSERT_EQ(copy, get_value(result));
+    }
+    
+    template <typename ResultType>
+    void test_get_success_with_opt_value() {
+        auto result = ResultType::success();
+        ASSERT_THROW(get_value(result), bad_result_access);
+    }
+    
+    template <typename ResultType, typename V>
+    void test_get_success_rvalue_ref(V&& v) {
+        auto result = ResultType::success(std::forward<V>(v));
+        auto y = get_value(std::move(result));
+        ASSERT_EQ(0u, y.copies);
+    }
+    
+    template <typename ResultType, typename E>
+    void test_get_error(E&& e) {
+        auto result = ResultType::error(std::forward<E>(e));
+        ASSERT_THROW(get_value(result), bad_result_access);
+    }
+    
     /**
      * Tests visiting a successful result and passing by const lvalue reference to the visitor.
      */
@@ -360,6 +386,20 @@ namespace kdl {
         test_construct_error<result<const int, Error1, Error2>>(Error2{});
     }
 
+    TEST(result_test, get_value) {
+        test_get_success_const_lvalue_ref<const result<int, Error1, Error2>>(1);
+        test_get_success_const_lvalue_ref<result<int, Error1, Error2>>(1);
+        test_get_success_const_lvalue_ref<const result<const int, Error1, Error2>>(1);
+        test_get_success_const_lvalue_ref<result<const int, Error1, Error2>>(1);
+        
+        test_get_success_rvalue_ref<result<Counter, Error1, Error2>>(Counter{});
+        
+        test_get_error<const result<int, Error1, Error2>>(Error1{});
+        test_get_error<result<int, Error1, Error2>>(Error1{});
+        test_get_error<const result<const int, Error1, Error2>>(Error1{});
+        test_get_error<result<const int, Error1, Error2>>(Error1{});
+    }
+    
     TEST(result_test, visit) {
         test_visit_success_const_lvalue_ref<const result<int, Error1, Error2>>(1);
         test_visit_success_const_lvalue_ref<result<int, Error1, Error2>>(1);
@@ -403,6 +443,23 @@ namespace kdl {
         test_construct_error<result<int&, Error1, Error2>>(Error2{});
         test_construct_error<const result<const int&, Error1, Error2>>(Error2{});
         test_construct_error<result<const int&, Error1, Error2>>(Error2{});
+    }
+    
+    TEST(reference_result_test, get_value) {
+        int x = 1;
+
+        test_get_success_const_lvalue_ref<const result<int&, Error1, Error2>>(x);
+        test_get_success_const_lvalue_ref<result<int&, Error1, Error2>>(x);
+        test_get_success_const_lvalue_ref<const result<const int&, Error1, Error2>>(x);
+        test_get_success_const_lvalue_ref<result<const int&, Error1, Error2>>(x);
+        
+        auto c = Counter{};
+        test_get_success_rvalue_ref<result<Counter&, Error1, Error2>>(c);
+
+        test_get_error<const result<int&, Error1, Error2>>(Error1{});
+        test_get_error<result<int&, Error1, Error2>>(Error1{});
+        test_get_error<const result<const int&, Error1, Error2>>(Error1{});
+        test_get_error<result<const int&, Error1, Error2>>(Error1{});
     }
     
     TEST(reference_result_test, visit) {
@@ -484,6 +541,23 @@ namespace kdl {
         test_construct_error<result<opt<const int>, Error1, Error2>>(Error2{});
     }
 
+    TEST(opt_result_test, get_value) {
+        test_get_success_with_opt_value<const result<opt<int>, Error1, Error2>>();
+        test_get_success_with_opt_value<result<opt<int>, Error1, Error2>>();
+
+        test_get_success_const_lvalue_ref<const result<opt<int>, Error1, Error2>>(1);
+        test_get_success_const_lvalue_ref<result<opt<int>, Error1, Error2>>(1);
+        test_get_success_const_lvalue_ref<const result<opt<const int>, Error1, Error2>>(1);
+        test_get_success_const_lvalue_ref<result<opt<const int>, Error1, Error2>>(1);
+        
+        test_get_success_rvalue_ref<result<opt<Counter>, Error1, Error2>>(Counter{});
+        
+        test_get_error<const result<opt<int>, Error1, Error2>>(Error1{});
+        test_get_error<result<opt<int>, Error1, Error2>>(Error1{});
+        test_get_error<const result<opt<const int>, Error1, Error2>>(Error1{});
+        test_get_error<result<opt<const int>, Error1, Error2>>(Error1{});
+    }
+
     TEST(opt_result_test, visit) {
         test_visit_success_with_opt_value<const result<opt<int>, Error1, Error2>>();
         test_visit_success_with_opt_value<result<opt<int>, Error1, Error2>>();
@@ -507,6 +581,9 @@ namespace something {
         auto value_success = kdl::result<int, kdl::Error1, kdl::Error2>::success(1);
         auto value_error   = kdl::result<int, kdl::Error1, kdl::Error2>::error(kdl::Error1{});
 
+        ASSERT_EQ(1, kdl::get_value(value_success));
+        ASSERT_EQ(1, kdl::get_value(std::move(value_success)));
+        
         ASSERT_TRUE(kdl::visit_result(kdl::overload {
             [&] (const int&)         { return true; },
             []  (const kdl::Error1&) { return false; },
@@ -596,9 +673,12 @@ namespace something {
             []  (kdl::Error2&&) { return false; }
         }, std::move(void_error)));
 
-        auto opt_success = kdl::result<kdl::opt<int>, kdl::Error1, kdl::Error2>::success();
+        auto opt_success = kdl::result<kdl::opt<int>, kdl::Error1, kdl::Error2>::success(1);
         auto opt_error   = kdl::result<kdl::opt<int>, kdl::Error1, kdl::Error2>::error(kdl::Error1{});
         
+        ASSERT_EQ(1, kdl::get_value(opt_success));
+        ASSERT_EQ(1, kdl::get_value(std::move(opt_success)));
+
         ASSERT_TRUE(kdl::visit_result(kdl::overload {
             [&] ()                   { return true; },
             [&] (const int&)         { return true; },

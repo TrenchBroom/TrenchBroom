@@ -83,7 +83,35 @@ namespace kdl {
         static result error(E&& e) {
             return result(variant_type(std::forward<E>(e)));
         }
+
+        /**
+         * Returns a const lvalue reference to the value stored in the given successful result.
+         *
+         * @param result the result
+         * @return a const lvalue reference the result's value
+         * @throws bad_result_access if the given result is not successful
+         */
+        friend auto get_value(const result& result) {
+            return visit_result(kdl::overload {
+                [](const value_type& v) -> const value_type& { return v; },
+                [](const auto&)         -> const value_type& { throw bad_result_access(); }
+            }, result);
+        }
         
+        /**
+         * Returns an rvalue reference to the value stored in the given successful result.
+         *
+         * @param result the result
+         * @return an rvalue reference to of the result's value
+         * @throws bad_result_access if the given result is not successful
+         */
+        friend auto get_value(result&& result) {
+            return visit_result(kdl::overload {
+                [](value_type&& v) -> value_type&& { return std::move(v); },
+                [](auto&&)         -> value_type&& { throw bad_result_access(); }
+            }, std::move(result));
+        }
+
         /**
          * Applies the given visitor to the given result result and returns the result returned by the visitor.
          * The value or error contained in the given result result is passed to the visitor by const lvalue reference.
@@ -277,6 +305,34 @@ namespace kdl {
         template <typename E, typename std::enable_if<std::disjunction_v<std::is_convertible<E, Errors>...>>::type* = nullptr>
         static result error(E&& e) {
             return result(variant_type(std::forward<E>(e)));
+        }
+        
+        /**
+         * Returns a const lvalue reference to the value stored in the given successful result.
+         *
+         * @param result the result
+         * @return a const lvalue reference the result's value
+         * @throws bad_result_access if the given result is not successful
+         */
+        friend auto get_value(const result& result) {
+            return visit_result(kdl::overload {
+                [](value_type& v) -> value_type& { return v; },
+                [](const auto&)   -> value_type& { throw bad_result_access(); }
+            }, result);
+        }
+        
+        /**
+         * Returns an rvalue reference to the value stored in the given successful result.
+         *
+         * @param result the result
+         * @return an rvalue reference to of the result's value
+         * @throws bad_result_access if the given result is not successful
+         */
+        friend auto get_value(result&& result) {
+            return visit_result(kdl::overload {
+                [](value_type&& v) -> value_type&& { return std::move(v); },
+                [](auto&&)         -> value_type&& { throw bad_result_access(); }
+            }, std::move(result));
         }
 
         /**
@@ -626,6 +682,35 @@ namespace kdl {
         }
 
         /**
+         * Returns a const lvalue reference to the value stored in the given successful result.
+         *
+         * @param result the result
+         * @return a const lvalue reference the result's value
+         * @throws bad_result_access if the given result is not successful or does not contain a value
+         */
+        friend auto get_value(const result& result) {
+            return visit_result(kdl::overload{
+                [](const value_type& v) -> const value_type& { return v; },
+                [](const auto&)         -> const value_type& { throw bad_result_access(); },
+                []()                    -> const value_type& { throw bad_result_access(); }
+            }, result);
+        }
+        
+        /**
+         * Returns an rvalue reference to the value stored in the given successful result.
+         *
+         * @param result the result
+         * @return an rvalue reference to of the result's value
+         * @throws bad_result_access if the given result is not successful
+         */
+        friend auto get_value(result&& result) {
+            return visit_result(kdl::overload{
+                [](value_type&& v) -> value_type&& { return std::move(v); },
+                [](auto&&)         -> value_type&& { throw bad_result_access(); },
+                []()               -> value_type&& { throw bad_result_access(); }
+            }, std::move(result));
+        }
+        /**
          * Creates a new successful result that wraps the given value.
          * If the value is passed by (const) lvalue reference, it is copied into this result, if it is passed by
          * rvalue reference, then it is moved into this result.
@@ -772,6 +857,16 @@ namespace kdl {
             return is_success();
         }
     };
+
+    template <typename Value, typename... Errors>
+    auto get_value(const result<Value, Errors...>& result) {
+        return get_value(result);
+    }
+
+    template <typename Value, typename... Errors>
+    auto get_value(result<Value, Errors...>&& result) {
+        return get_value(std::move(result));
+    }
 
     template <typename Visitor, typename Value, typename... Errors>
     auto visit_result(Visitor&& visitor, const result<Value, Errors...>& result) {
