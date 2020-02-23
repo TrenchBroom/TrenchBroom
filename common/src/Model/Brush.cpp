@@ -1166,13 +1166,13 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds);
         }
 
-        std::vector<Brush*> Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<Brush*>& subtrahends) const {
-            auto result = std::vector<BrushGeometry>{*m_geometry};
+        kdl::result<std::vector<Brush*>, GeometryException> Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<Brush*>& subtrahends) const {
+            auto subtractResults = std::vector<BrushGeometry>{*m_geometry};
 
             for (auto* subtrahend : subtrahends) {
                 auto nextResults = std::vector<BrushGeometry>();
 
-                for (const BrushGeometry& fragment : result) {
+                for (const BrushGeometry& fragment : subtractResults) {
                     auto subFragments = fragment.subtract(*subtrahend->m_geometry);
 
                     nextResults.reserve(nextResults.size() + subFragments.size());
@@ -1181,23 +1181,23 @@ namespace TrenchBroom {
                     }
                 }
 
-                result = std::move(nextResults);
+                subtractResults = std::move(nextResults);
             }
 
             std::vector<Brush*> brushes;
-            brushes.reserve(result.size());
+            brushes.reserve(subtractResults.size());
 
-            for (const auto& geometry : result) {
+            for (const auto& geometry : subtractResults) {
                 auto createResult = createBrush(factory, worldBounds, defaultTextureName, geometry, subtrahends);
                 if (createResult.is_success()) {
                     brushes.push_back(kdl::get_value(createResult));
                 }
             }
 
-            return brushes;
+            return kdl::result<std::vector<Brush*>, GeometryException>::success(std::move(brushes));
         }
 
-        std::vector<Brush*> Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, Brush* subtrahend) const {
+        kdl::result<std::vector<Brush*>, GeometryException> Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, Brush* subtrahend) const {
             return subtract(factory, worldBounds, defaultTextureName, std::vector<Brush*>{subtrahend});
         }
 

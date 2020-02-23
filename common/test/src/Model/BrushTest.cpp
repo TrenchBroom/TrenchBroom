@@ -2608,7 +2608,7 @@ namespace TrenchBroom {
             auto minuend = kdl::get_value(builder.createCuboid(vm::bbox3(vm::vec3(-32.0, -16.0, -32.0), vm::vec3(32.0, 16.0, 32.0)), minuendTexture));
             auto subtrahend = kdl::get_value(builder.createCuboid(vm::bbox3(vm::vec3(-16.0, -32.0, -64.0), vm::vec3(16.0, 32.0, 0.0)), subtrahendTexture));
 
-            const std::vector<Brush*> result = minuend->subtract(world, worldBounds, defaultTexture, subtrahend.get());
+            const std::vector<Brush*> result = kdl::get_value(minuend->subtract(world, worldBounds, defaultTexture, subtrahend.get()));
             ASSERT_EQ(3u, result.size());
 
             Brush* left = nullptr;
@@ -2692,7 +2692,7 @@ namespace TrenchBroom {
             auto brush1 = kdl::get_value(builder.createCuboid(brush1Bounds, "texture"));
             auto brush2 = kdl::get_value(builder.createCuboid(brush2Bounds, "texture"));
 
-            std::vector<Brush*> result = brush1->subtract(world, worldBounds, "texture", brush2.get());
+            std::vector<Brush*> result = kdl::get_value(brush1->subtract(world, worldBounds, "texture", brush2.get()));
             ASSERT_EQ(1u, result.size());
 
             Brush* subtraction = result.at(0);
@@ -2713,7 +2713,7 @@ namespace TrenchBroom {
             auto brush1 = kdl::get_value(builder.createCuboid(brush1Bounds, "texture"));
             auto brush2 = kdl::get_value(builder.createCuboid(brush2Bounds, "texture"));
 
-            std::vector<Brush*> result = brush1->subtract(world, worldBounds, "texture", brush2.get());
+            std::vector<Brush*> result = kdl::get_value(brush1->subtract(world, worldBounds, "texture", brush2.get()));
             ASSERT_EQ(0u, result.size());
 
             kdl::col_delete_all(result);
@@ -2788,7 +2788,7 @@ namespace TrenchBroom {
             Brush* minuend = static_cast<Brush*>(IO::NodeReader::read(minuendStr, world, worldBounds, status).front());
             Brush* subtrahend = static_cast<Brush*>(IO::NodeReader::read(subtrahendStr, world, worldBounds, status).front());
 
-            const std::vector<Brush*> result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
+            const std::vector<Brush*> result = kdl::get_value(minuend->subtract(world, worldBounds, "some_texture", subtrahend));
             ASSERT_FALSE(result.empty());
 
             delete minuend;
@@ -2822,7 +2822,7 @@ namespace TrenchBroom {
             const auto subtrahend = kdl::vec_element_cast<Brush*>(
                 IO::NodeReader::read(subtrahendStr.str(), world, worldBounds, status));
 
-            const auto result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
+            const auto result = kdl::get_value(minuend->subtract(world, worldBounds, "some_texture", subtrahend));
 
             delete minuend;
             kdl::col_delete_all(subtrahend);
@@ -2863,7 +2863,7 @@ namespace TrenchBroom {
             Brush* minuend = static_cast<Brush*>(IO::NodeReader::read(minuendStr, world, worldBounds, status).front());
             Brush* subtrahend = static_cast<Brush*>(IO::NodeReader::read(subtrahendStr, world, worldBounds, status).front());
 
-            const std::vector<Brush*> result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
+            const std::vector<Brush*> result = kdl::get_value(minuend->subtract(world, worldBounds, "some_texture", subtrahend));
             ASSERT_EQ(8u, result.size());
 
             delete minuend;

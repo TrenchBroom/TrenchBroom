@@ -236,8 +236,8 @@ namespace TrenchBroom {
              * @param subtrahends brushes to subtract from `this`. The passed-in brushes are not modified.
              * @return the subtraction result
              */
-            std::vector<Brush*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<Brush*>& subtrahends) const;
-            std::vector<Brush*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, Brush* subtrahend) const;
+            kdl::result<std::vector<Brush*>, GeometryException> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<Brush*>& subtrahends) const;
+            kdl::result<std::vector<Brush*>, GeometryException> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, Brush* subtrahend) const;
             void intersect(const vm::bbox3& worldBounds, const Brush* brush);
 
             // transformation

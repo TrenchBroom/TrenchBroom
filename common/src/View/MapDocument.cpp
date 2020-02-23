@@ -1205,12 +1205,23 @@ namespace TrenchBroom {
             }
 
             for (auto* minuend : minuends) {
-                const std::vector<Model::Brush*> result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahends);
-
-                if (!result.empty()) {
-                    kdl::vec_append(toAdd[minuend->parent()], result);
+                auto result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahends);
+                if (result.is_success()) {
+                    const auto brushes = kdl::get_value(std::move(result));
+                    if (!brushes.empty()) {
+                        kdl::vec_append(toAdd[minuend->parent()], brushes);
+                    }
+                    toRemove.push_back(minuend);
+                } else {
+                    kdl::visit_error(kdl::overload {
+                        [&](const GeometryException& e) {
+                            error() << "Could subtract brushes: " << e.what();
+                        }
+                    }, result);
+                    
+                    transaction.cancel();
+                    return false;
                 }
-                toRemove.push_back(minuend);
             }
 
             deselectAll();
@@ -1270,13 +1281,22 @@ namespace TrenchBroom {
                 Model::Brush* shrunken = brush->clone(m_worldBounds);
                 if (shrunken->expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)) {
                     // shrinking gave us a valid brush, so subtract it from `brush`
-                    const std::vector<Model::Brush*> fragments = brush->subtract(*m_world, m_worldBounds, currentTextureName(), shrunken);
+                    auto result = brush->subtract(*m_world, m_worldBounds, currentTextureName(), shrunken);
+                    if (result.is_success()) {
+                        kdl::vec_append(toAdd[brush->parent()], kdl::get_value(std::move(result)));
+                        toRemove.push_back(brush);
+                        delete shrunken;
+                    } else {
+                        kdl::visit_error([&](const GeometryException& e) {
+                            error() << "Could not hollow brushes: " << e.what();
+                        }, result);
+                        
+                        delete shrunken;
+                        kdl::map_clear_and_delete(toAdd);
+                        return false;
+                    }
 
-                    kdl::vec_append(toAdd[brush->parent()], fragments);
-                    toRemove.push_back(brush);
                 }
-
-                delete shrunken;
             }
 
             Transaction transaction(this, "CSG Hollow");
