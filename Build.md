@@ -31,10 +31,6 @@ You'll also need to install these dependencies using Visual Studio Installer (in
 
 - Workloads 
   - **Desktop development with C++**
-- Individual components
-  - **C++ Windows XP Support for VS 2017 (v141) tools**
-  - **MSVC v141 - VS 2017 C++ x64/x86 build tools (v14.16)**
-  - **Windows Universal CRT SDK**
   
 #### Visual Studio 2019
 
@@ -69,7 +65,7 @@ cd <path/to/TrenchBroom>/build
 Then, execute this command to configure the project:
 
 ```bash
-cmake .. -T v141 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017"
+cmake .. -T v141 -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017"
 ```
 
 > **Note**: Make sure to specify the correct Qt as `CMAKE_PREFIX_PATH` value.
@@ -85,7 +81,7 @@ cd <path/to/TrenchBroom>/build
 Then, execute this command to configure the project:
 
 ```bash
-cmake .. -G "Visual Studio 16 2019" -A Win32 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017"
+cmake .. -G "Visual Studio 16 2019" -A Win32 -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017"
 ```
 
 > **Note**: Make sure to specify the correct Qt as `CMAKE_PREFIX_PATH` value.
@@ -112,7 +108,7 @@ TrenchBroom depends on:
 - OpenGL and GLU development headers (Mesa OpenGL development packages) freeglut3, freeglut3-dev, mesa-common-dev
 - X11 video mode extension library: libxxf86vm-dev
 
-If you have a debian-based distribution, open a Terminal and execute this command to install required dependencies:
+If you have a debian-based distribution, open a command prompt and execute this command to install required dependencies:
 
 ```bash
 sudo apt-get install g++-7 qt5-default freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev libfreetype6-dev pandoc cmake p7zip-full ninja-build
@@ -122,7 +118,7 @@ sudo apt-get install g++-7 qt5-default freeglut3-dev libglew-dev mesa-common-dev
 
 Create a subdirectory in TrenchBroom directory called `build`.
 
-Open a Terminal and change directory to `build`:
+Open a command prompt and change directory to `build`:
 
 ```bash
 cd <path/to/TrenchBroom>/build
@@ -151,7 +147,7 @@ Download Xcode from the App Store.
 
 #### Project dependencies
 
-Open a Terminal and execute this command to install required dependencies:
+Open a command prompt and execute this command to install required dependencies:
 
 ```bash
 brew install cmake qt pandoc
@@ -162,7 +158,7 @@ Finally, build the project:
 ```bash
 mkdir build-xcode
 cd build-xcode
-cmake .. -GXcode -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$(brew --prefix qt)"
+cmake .. -GXcode -DCMAKE_PREFIX_PATH="$(brew --prefix qt)"
 open TrenchBroom.xcodeproj
 ```
 
@@ -172,7 +168,7 @@ open TrenchBroom.xcodeproj
 
 ## How to release
 
-Open a new prompt command.
+Open a new command prompt.
 
 Generate a changelog:
 
