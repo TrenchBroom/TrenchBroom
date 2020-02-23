@@ -35,6 +35,7 @@
 #include <QButtonGroup>
 #include <QColor>
 #include <QDebug>
+#include <QDialog>
 #include <QDir>
 #include <QFont>
 #include <QHeaderView>
@@ -405,6 +406,13 @@ namespace TrenchBroom {
             qDeleteAll(widget->findChildren<QWidget*>("", Qt::FindDirectChildrenOnly));
 
             delete widget->layout();
+        }
+
+        void showModelessDialog(QDialog* dialog) {
+            // https://doc.qt.io/qt-5/qdialog.html#code-examples
+            dialog->show();
+            dialog->raise();
+            dialog->activateWindow();
         }
     }
 }

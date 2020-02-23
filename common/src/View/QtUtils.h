@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_wxUtils
-#define TrenchBroom_wxUtils
+#ifndef TrenchBroom_QtUtils
+#define TrenchBroom_QtUtils
 
 #undef CursorShape
 
@@ -37,6 +37,7 @@ class QAbstractButton;
 class QButtonGroup;
 class QColor;
 class QCompleter;
+class QDialog;
 class QDialogButtonBox;
 class QFont;
 class QLayout;
@@ -191,7 +192,9 @@ namespace TrenchBroom {
 
         void autoResizeRows(QTableView* tableView);
         void deleteChildWidgetsAndLayout(QWidget* widget);
+
+        void showModelessDialog(QDialog* dialog);
     }
 }
 
-#endif /* defined(TrenchBroom_wxUtils) */
+#endif /* defined(TrenchBroom_QtUtils) */

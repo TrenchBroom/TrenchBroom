@@ -50,6 +50,7 @@ namespace TrenchBroom {
         m_closeButton(nullptr),
         m_currentRunLabel(nullptr),
         m_output(nullptr) {
+            setAttribute(Qt::WA_DeleteOnClose);
             createGui();
             setMinimumSize(600, 300);
             resize(800, 600);
