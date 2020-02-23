@@ -1033,7 +1033,7 @@ namespace TrenchBroom {
             return CanMoveVerticesResult::acceptVertexMove(std::move(result));
         }
 
-        void Brush::doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, const bool uvLock) {
+        kdl::result<void, GeometryException> Brush::doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, const bool uvLock) {
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!vertexPositions.empty(), "no vertex positions");
             assert(canMoveVertices(worldBounds, vertexPositions, delta));
@@ -1063,7 +1063,7 @@ namespace TrenchBroom {
             }
 
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry, vertexMapping);
-            doSetNewGeometry(worldBounds, matcher, newGeometry, uvLock);
+            return doSetNewGeometry(worldBounds, matcher, newGeometry, uvLock);
         }
 
         std::tuple<bool, vm::mat4x4> Brush::findTransformForUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right) {
@@ -1147,7 +1147,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Brush::doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, const bool uvLock) {
+        kdl::result<void, GeometryException> Brush::doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, const bool uvLock) {
             matcher.processRightFaces([&](BrushFaceGeometry* left, BrushFaceGeometry* right){
                 auto* leftFace = left->payload();
                 auto* rightFace = leftFace->clone();
@@ -1163,7 +1163,7 @@ namespace TrenchBroom {
             const NotifyNodeChange nodeChange(this);
             kdl::vec_clear_and_delete(m_faces);
             updateFacesFromGeometry(worldBounds, newGeometry);
-            rebuildGeometry(worldBounds);
+            return rebuildGeometry(worldBounds);
         }
 
         kdl::result<std::vector<Brush*>, GeometryException> Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<Brush*>& subtrahends) const {

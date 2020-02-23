@@ -198,7 +198,7 @@ namespace TrenchBroom {
             };
 
             CanMoveVerticesResult doCanMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, vm::vec3 delta, bool allowVertexRemoval) const;
-            void doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, bool lockTexture);
+            kdl::result<void, GeometryException> doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, bool lockTexture);
             /**
              * Tries to find 3 vertices in `left` and `right` that are related according to the PolyhedronMatcher, and
              * generates an affine transform for them which can then be used to implement UV lock.
@@ -227,7 +227,7 @@ namespace TrenchBroom {
              * @param right the face of the right polyhedron
              */
             void applyUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right);
-            void doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, bool uvLock = false);
+            kdl::result<void, GeometryException> doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, bool uvLock = false);
         public:
             // CSG operations
             /**
