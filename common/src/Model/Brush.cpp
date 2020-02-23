@@ -39,6 +39,7 @@
 #include "Model/World.h"
 #include "Renderer/BrushRendererBrushCache.h"
 
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/intersection.h>
@@ -585,12 +586,8 @@ namespace TrenchBroom {
             }
 
             // rebuild geometry
-            try {
-                rebuildGeometry(worldBounds);
-                return !m_faces.empty();
-            } catch (GeometryException&) {
-                return false;
-            }
+            auto result = rebuildGeometry(worldBounds);
+            return result.is_success() && !m_faces.empty();
         }
 
         size_t Brush::vertexCount() const {
@@ -1273,14 +1270,17 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds);
         }
 
-        void Brush::rebuildGeometry(const vm::bbox3& worldBounds) {
+        kdl::result<void, GeometryException> Brush::rebuildGeometry(const vm::bbox3& worldBounds) {
             const vm::bbox3 oldBounds = physicalBounds();
             deleteGeometry();
-            buildGeometry(worldBounds);
-            nodePhysicalBoundsDidChange(oldBounds);
+            auto result = buildGeometry(worldBounds);
+            if (result.is_success()) {
+                nodePhysicalBoundsDidChange(oldBounds);
+            }
+            return result;
         }
 
-        void Brush::buildGeometry(const vm::bbox3& worldBounds) {
+        kdl::result<void, GeometryException> Brush::buildGeometry(const vm::bbox3& worldBounds) {
             assert(m_geometry == nullptr);
 
             m_geometry = new BrushGeometry(worldBounds.expand(1.0));
@@ -1289,11 +1289,13 @@ namespace TrenchBroom {
             updateFacesFromGeometry(worldBounds, *m_geometry);
 
             if (addFacesToGeometry.brushEmpty()) {
-                throw GeometryException("Brush is empty");
+                return kdl::result<void, GeometryException>::error(GeometryException("Brush is empty"));
             } else  if (!addFacesToGeometry.brushValid()) {
-                throw GeometryException("Brush is invalid");
+                return kdl::result<void, GeometryException>::error(GeometryException("Brush is invalid"));
             } else if (!fullySpecified()) {
-                throw GeometryException("Brush is not fully specified");
+                return kdl::result<void, GeometryException>::error(GeometryException("Brush is not fully specified"));
+            } else {
+                return kdl::result<void, GeometryException>::success();
             }
         }
 

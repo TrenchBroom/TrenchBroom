@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_Brush
 #define TrenchBroom_Brush
 
+#include "Exceptions.h"
 #include "FloatType.h"
 #include "Macros.h"
 #include "Model/BrushGeometry.h"
@@ -27,6 +28,8 @@
 #include "Model/Node.h"
 #include "Model/Object.h"
 #include "Model/TagType.h"
+
+#include <kdl/result_forward.h>
 
 #include <vecmath/forward.h>
 
@@ -253,8 +256,8 @@ namespace TrenchBroom {
             void updateFacesFromGeometry(const vm::bbox3& worldBounds, const BrushGeometry& geometry);
             void updatePointsFromVertices(const vm::bbox3& worldBounds);
         private:
-            void rebuildGeometry(const vm::bbox3& worldBounds);
-            void buildGeometry(const vm::bbox3& worldBounds);
+            kdl::result<void, GeometryException> rebuildGeometry(const vm::bbox3& worldBounds);
+            kdl::result<void, GeometryException> buildGeometry(const vm::bbox3& worldBounds);
             void deleteGeometry();
             bool checkGeometry() const;
         public:
