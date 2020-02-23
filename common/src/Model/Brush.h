@@ -70,7 +70,11 @@ namespace TrenchBroom {
             mutable bool m_transparent;
             mutable std::unique_ptr<Renderer::BrushRendererBrushCache> m_brushRendererBrushCache; // unique_ptr for breaking header dependencies
         public:
-            Brush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);
+            static kdl::result<std::unique_ptr<Brush>, GeometryException> create(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);
+        private:
+            Brush();
+            kdl::result<void, GeometryException> initialize(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);
+        public:
             ~Brush() override;
         private:
             void cleanup();

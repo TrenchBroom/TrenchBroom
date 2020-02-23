@@ -37,6 +37,7 @@
 #include "Model/World.h"
 
 #include <kdl/collection_utils.h>
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/vec.h>
@@ -69,7 +70,7 @@ namespace TrenchBroom {
                                                       vm::vec3(1.0, 0.0, 0.0),
                                                       vm::vec3(0.0, 1.0, 0.0)));
 
-            ASSERT_THROW(Brush(worldBounds, faces), GeometryException);
+            ASSERT_TRUE(Brush::create(worldBounds, faces).is_error());
         }
 
         TEST(BrushTest, constructBrushWithFaces) {
@@ -103,13 +104,12 @@ namespace TrenchBroom {
             faces.push_back(top);
             faces.push_back(bottom);
 
-            Brush brush(worldBounds, faces);
-            assert(brush.fullySpecified());
+            auto brush = kdl::get_value(Brush::create(worldBounds, faces));
 
             // sort the faces by the weight of their plane normals like QBSP does
             Model::BrushFace::sortFaces(faces);
 
-            const std::vector<BrushFace*>& brushFaces = brush.faces();
+            const std::vector<BrushFace*>& brushFaces = brush->faces();
             ASSERT_EQ(6u, brushFaces.size());
             for (size_t i = 0; i < faces.size(); i++)
                 ASSERT_EQ(faces[i], brushFaces[i]);
@@ -145,10 +145,9 @@ namespace TrenchBroom {
             faces.push_back(BrushFace::createParaxial(vm::vec3(-217.0, 672.0, 160.0), vm::vec3(-161.0, 672.0, 160.0), vm::vec3(-161.0, 603.0, 160.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(-161.0, 603.0, 128.0), vm::vec3(-161.0, 672.0, 128.0), vm::vec3(-217.0, 672.0, 128.0)));
 
-            Brush brush(worldBounds, faces);
-            assert(brush.fullySpecified());
+            auto brush = kdl::get_value(Brush::create(worldBounds, faces));
 
-            const std::vector<BrushFace*>& brushFaces = brush.faces();
+            const std::vector<BrushFace*>& brushFaces = brush->faces();
             ASSERT_EQ(7u, brushFaces.size());
         }
 
@@ -180,10 +179,9 @@ namespace TrenchBroom {
             faces.push_back(BrushFace::createParaxial(vm::vec3(3360.0, 1152.0, 1344.0), vm::vec3(3232.0, 1152.0, 1340.0), vm::vec3(3296.0, 1344.0, 1342.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(3504.0, 1344.0, 1280.0), vm::vec3(3280.0, 1344.0, 1280.0), vm::vec3(3280.0, 1152.0, 1280.0)));
 
-            Brush brush(worldBounds, faces);
-            assert(brush.fullySpecified());
+            auto brush = kdl::get_value(Brush::create(worldBounds, faces));
 
-            const std::vector<BrushFace*>& brushFaces = brush.faces();
+            const std::vector<BrushFace*>& brushFaces = brush->faces();
             ASSERT_EQ(9u, brushFaces.size());
         }
 
@@ -209,10 +207,9 @@ namespace TrenchBroom {
             faces.push_back(BrushFace::createParaxial(vm::vec3(-64.0, -1088.0, 912.0), vm::vec3(-64.0, -848.0, 912.0), vm::vec3(-32.0, -848.0, 912.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(-64.0, -864.0, 896.0), vm::vec3(-32.0, -864.0, 896.0), vm::vec3(-32.0, -832.0, 896.0)));
 
-            Brush brush(worldBounds, faces);
-            assert(brush.fullySpecified());
+            auto brush = kdl::get_value(Brush::create(worldBounds, faces));
 
-            const std::vector<BrushFace*>& brushFaces = brush.faces();
+            const std::vector<BrushFace*>& brushFaces = brush->faces();
             ASSERT_EQ(6u, brushFaces.size());
         }
 
@@ -238,8 +235,9 @@ namespace TrenchBroom {
             faces.push_back(BrushFace::createParaxial(vm::vec3(-1268.0, 265.0, 2534.0), vm::vec3(-1280.0, 265.0, 2534.0), vm::vec3(-1280.0, 288.0, 2540.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(-1268.0, 265.0, 2534.0), vm::vec3(-1268.0, 272.0, 2524.0), vm::vec3(-1280.0, 265.0, 2534.0)));
 
-            Brush brush(worldBounds, faces);
-            const std::vector<BrushFace*>& brushFaces = brush.faces();
+            auto brush = kdl::get_value(Brush::create(worldBounds, faces));
+
+            const std::vector<BrushFace*>& brushFaces = brush->faces();
             ASSERT_EQ(6u, brushFaces.size());
         }
 
@@ -267,10 +265,9 @@ namespace TrenchBroom {
             faces.push_back(BrushFace::createParaxial(vm::vec3(1296.0, 1008.0, 1168.0), vm::vec3(1296.0, 896.0, 1056.0), vm::vec3(1280.0, 896.0, 1056.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(1280.0, 896.0, 896.0), vm::vec3(1280.0, 896.0, 1056.0), vm::vec3(1296.0, 896.0, 1056.0)));
 
-            Brush brush(worldBounds, faces);
-            assert(brush.fullySpecified());
+            auto brush = kdl::get_value(Brush::create(worldBounds, faces));
 
-            const std::vector<BrushFace*>& brushFaces = brush.faces();
+            const std::vector<BrushFace*>& brushFaces = brush->faces();
             ASSERT_EQ(6u, brushFaces.size());
         }
 
@@ -294,10 +291,9 @@ namespace TrenchBroom {
             faces.push_back(BrushFace::createParaxial(vm::vec3(-32.0, -32.0, -3840.0), vm::vec3(-32.0, -32.0, -3808.0), vm::vec3(-96.0, -32.0, -3824.0)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(-32.0, -32.0, -3840.0), vm::vec3(-96.0, -32.0, -3840.0), vm::vec3(-80.0, -80.0, -3840.0)));
 
-            Brush brush(worldBounds, faces);
-            assert(brush.fullySpecified());
+            auto brush = kdl::get_value(Brush::create(worldBounds, faces));
 
-            const std::vector<BrushFace*>& brushFaces = brush.faces();
+            const std::vector<BrushFace*>& brushFaces = brush->faces();
             ASSERT_EQ(5u, brushFaces.size());
         }
 
@@ -305,7 +301,7 @@ namespace TrenchBroom {
             /*
              See https://github.com/kduske/TrenchBroom/issues/1153
              The faces have been reordered according to Model::BrushFace::sortFaces and all non-interesting faces
-             have been removed from the brush.
+             have been removed from the brush->
 
              {
              ( 624 688 -456 ) ( 656 760 -480 ) ( 624 680 -480 ) face7 8 0 180 1 -1
@@ -331,10 +327,9 @@ namespace TrenchBroom {
             faces.push_back(BrushFace::createParaxial(vm::vec3(560.0, 728.0, -440.0), vm::vec3(624.0, 688.0, -456.0), vm::vec3(520.0, 672.0, -456.0), "face20"));
             faces.push_back(BrushFace::createParaxial(vm::vec3(600.0, 840.0, -480.0), vm::vec3(536.0, 792.0, -480.0), vm::vec3(636.0, 812.0, -480.0), "face22"));
 
-            Brush brush(worldBounds, faces);
-            assert(brush.fullySpecified());
+            auto brush = kdl::get_value(Brush::create(worldBounds, faces));
 
-            const std::vector<BrushFace*>& brushFaces = brush.faces();
+            const std::vector<BrushFace*>& brushFaces = brush->faces();
             ASSERT_EQ(8u, brushFaces.size());
         }
 
@@ -367,8 +362,7 @@ namespace TrenchBroom {
             faces.push_back(BrushFace::createParaxial(vm::vec3(-729.68857812925364, -1024, 1880.2734073044885), vm::vec3(-729.68857812925364, -640, 1880.2734073044885), vm::vec3(-910.70791411300991, -640, 2061.2927432882443)));
 
             const vm::bbox3 worldBounds(4096.0);
-            Brush brush(worldBounds, faces);
-            ASSERT_TRUE(brush.fullySpecified());
+            ASSERT_TRUE(Brush::create(worldBounds, faces).is_success());
         }
 
         TEST(BrushTest, buildBrushFail) {
@@ -581,10 +575,10 @@ namespace TrenchBroom {
             faces.push_back(top);
             faces.push_back(bottom);
 
-            Brush brush(worldBounds, faces);
+            auto brush = kdl::get_value(Brush::create(worldBounds, faces));
 
             PickResult hits1;
-            brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::pos_y()), hits1);
+            brush->pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::pos_y()), hits1);
             ASSERT_EQ(1u, hits1.size());
 
             Hit hit1 = hits1.all().front();
@@ -593,7 +587,7 @@ namespace TrenchBroom {
             ASSERT_EQ(front, face1);
 
             PickResult hits2;
-            brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::neg_y()), hits2);
+            brush->pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::neg_y()), hits2);
             ASSERT_TRUE(hits2.empty());
         }
 
@@ -628,15 +622,16 @@ namespace TrenchBroom {
             faces.push_back(top);
             faces.push_back(bottom);
 
-            Brush brush(worldBounds, faces);
-            ASSERT_FALSE(brush.descendantSelected());
+            auto brush = kdl::get_value(Brush::create(worldBounds, faces));
+
+            ASSERT_FALSE(brush->descendantSelected());
             left->select();
-            ASSERT_TRUE(brush.descendantSelected());
+            ASSERT_TRUE(brush->descendantSelected());
             right->select();
             left->deselect();
-            ASSERT_TRUE(brush.descendantSelected());
+            ASSERT_TRUE(brush->descendantSelected());
             right->deselect();
-            ASSERT_FALSE(brush.descendantSelected());
+            ASSERT_FALSE(brush->descendantSelected());
         }
 
         TEST(BrushTest, partialSelectionBeforeAdd) {
@@ -673,12 +668,13 @@ namespace TrenchBroom {
             left->select();
             right->select();
 
-            Brush brush(worldBounds, faces);
-            ASSERT_TRUE(brush.descendantSelected());
+            auto brush = kdl::get_value(Brush::create(worldBounds, faces));
+
+            ASSERT_TRUE(brush->descendantSelected());
             left->deselect();
-            ASSERT_TRUE(brush.descendantSelected());
+            ASSERT_TRUE(brush->descendantSelected());
             right->deselect();
-            ASSERT_FALSE(brush.descendantSelected());
+            ASSERT_FALSE(brush->descendantSelected());
         }
 
         struct MatchFace {
@@ -718,8 +714,8 @@ namespace TrenchBroom {
             }
         };
 
-        static void assertHasFace(const Brush& brush, const BrushFace& face) {
-            const std::vector<BrushFace*>& faces = brush.faces();
+        static void assertHasFace(const Brush* brush, const BrushFace& face) {
+            const std::vector<BrushFace*>& faces = brush->faces();
             const std::vector<BrushFace*>::const_iterator it = std::find_if(std::begin(faces), std::end(faces), MatchFace(face));
             ASSERT_TRUE(it != std::end(faces));
         }
@@ -755,15 +751,15 @@ namespace TrenchBroom {
             faces.push_back(top);
             faces.push_back(bottom);
 
-            Brush original(worldBounds, faces);
-            Brush* clone = original.clone(worldBounds);
+            auto original = kdl::get_value(Brush::create(worldBounds, faces));
+            Brush* clone = original->clone(worldBounds);
 
-            assertHasFace(*clone, *left);
-            assertHasFace(*clone, *right);
-            assertHasFace(*clone, *front);
-            assertHasFace(*clone, *back);
-            assertHasFace(*clone, *top);
-            assertHasFace(*clone, *bottom);
+            assertHasFace(clone, *left);
+            assertHasFace(clone, *right);
+            assertHasFace(clone, *front);
+            assertHasFace(clone, *back);
+            assertHasFace(clone, *top);
+            assertHasFace(clone, *bottom);
 
             delete clone;
         }
@@ -802,16 +798,17 @@ namespace TrenchBroom {
             faces.push_back(top);
             faces.push_back(bottom);
 
-            Brush brush(worldBounds, faces);
-            ASSERT_TRUE(brush.clip(worldBounds, clip));
+            auto brush = kdl::get_value(Brush::create(worldBounds, faces));
 
-            ASSERT_EQ(6u, brush.faces().size());
-            assertHasFace(brush, *left);
-            assertHasFace(brush, *clip);
-            assertHasFace(brush, *front);
-            assertHasFace(brush, *back);
-            assertHasFace(brush, *top);
-            assertHasFace(brush, *bottom);
+            ASSERT_TRUE(brush->clip(worldBounds, clip));
+
+            ASSERT_EQ(6u, brush->faces().size());
+            assertHasFace(brush.get(), *left);
+            assertHasFace(brush.get(), *clip);
+            assertHasFace(brush.get(), *front);
+            assertHasFace(brush.get(), *back);
+            assertHasFace(brush.get(), *top);
+            assertHasFace(brush.get(), *bottom);
         }
 
         TEST(BrushTest, moveBoundary) {
@@ -844,19 +841,20 @@ namespace TrenchBroom {
             faces.push_back(top);
             faces.push_back(bottom);
 
-            Brush brush(worldBounds, faces);
-            ASSERT_EQ(6u, brush.faces().size());
+            auto brush = kdl::get_value(Brush::create(worldBounds, faces));
 
-            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, +16.0)));
-            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, -16.0)));
-            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, +2.0)));
-            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, -6.0)));
-            ASSERT_TRUE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, +1.0)));
-            ASSERT_TRUE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, -5.0)));
+            ASSERT_EQ(6u, brush->faces().size());
 
-            brush.moveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, 1.0), false);
-            ASSERT_EQ(6u, brush.faces().size());
-            ASSERT_DOUBLE_EQ(7.0, brush.logicalBounds().size().z());
+            ASSERT_FALSE(brush->canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, +16.0)));
+            ASSERT_FALSE(brush->canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, -16.0)));
+            ASSERT_FALSE(brush->canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, +2.0)));
+            ASSERT_FALSE(brush->canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, -6.0)));
+            ASSERT_TRUE(brush->canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, +1.0)));
+            ASSERT_TRUE(brush->canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, -5.0)));
+
+            brush->moveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, 1.0), false);
+            ASSERT_EQ(6u, brush->faces().size());
+            ASSERT_DOUBLE_EQ(7.0, brush->logicalBounds().size().z());
         }
 
         TEST(BrushTest, moveVertex) {
@@ -864,7 +862,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
+            auto brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
 
             const vm::vec3 p1(-32.0, -32.0, -32.0);
             const vm::vec3 p2(-32.0, -32.0, +32.0);
@@ -899,7 +897,7 @@ namespace TrenchBroom {
             assertTexture("back", brush, p3, p4, p8, p7);
             assertTexture("top", brush, p2, p6, p8, p4);
             assertTexture("bottom", brush, p1, p3, p7, p5);
-
+            
             delete brush;
         }
 

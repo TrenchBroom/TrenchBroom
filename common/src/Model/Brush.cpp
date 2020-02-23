@@ -39,6 +39,7 @@
 #include "Model/World.h"
 #include "Renderer/BrushRendererBrushCache.h"
 
+#include <kdl/overload.h>
 #include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
@@ -294,17 +295,22 @@ namespace TrenchBroom {
             }
         };
 
-        Brush::Brush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) :
+        kdl::result<std::unique_ptr<Brush>, GeometryException> Brush::create(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) {
+            auto brush = std::unique_ptr<Brush>(new Brush());
+            auto result = brush->initialize(worldBounds, faces);
+            return kdl::map_result([&]() {
+                return std::move(brush);
+            }, std::move(result));
+        }
+
+        Brush::Brush() :
         m_geometry(nullptr),
         m_transparent(false),
-        m_brushRendererBrushCache(std::make_unique<Renderer::BrushRendererBrushCache>()) {
+        m_brushRendererBrushCache(std::make_unique<Renderer::BrushRendererBrushCache>()) {}
+        
+        kdl::result<void, GeometryException> Brush::initialize(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) {
             addFaces(faces);
-            try {
-                buildGeometry(worldBounds);
-            } catch (const GeometryException&) {
-                cleanup();
-                throw;
-            }
+            return buildGeometry(worldBounds);
         }
 
         Brush::~Brush() {
@@ -548,16 +554,16 @@ namespace TrenchBroom {
                 }
             }
 
-            try {
-                const auto testBrush = Brush(worldBounds, testFaces);
-                const auto inWorldBounds = worldBounds.contains(testBrush.logicalBounds());
-                const auto closed = testBrush.closed();
-                const auto allFaces = testBrush.faceCount() == testFaces.size();
-
-                return inWorldBounds && closed && allFaces;
-            } catch (const GeometryException&) {
-                return false;
-            }
+            const auto result = Brush::create(worldBounds, testFaces);
+            return kdl::visit_result(kdl::overload {
+                [&](const std::unique_ptr<Brush>& brush) {
+                    const auto inWorldBounds = worldBounds.contains(brush->logicalBounds());
+                    const auto closed = brush->closed();
+                    const auto allFaces = brush->faceCount() == testFaces.size();
+                    return inWorldBounds && closed && allFaces;
+                },
+                [](const GeometryException&) { return false; }
+            }, result);
         }
 
         void Brush::moveBoundary(const vm::bbox3& worldBounds, BrushFace* face, const vm::vec3& delta, const bool lockTexture) {
@@ -1363,9 +1369,12 @@ namespace TrenchBroom {
                 faceClones.push_back(face->clone());
             }
 
-            auto* brush = new Brush(worldBounds, faceClones);
-            cloneAttributes(brush);
-            return brush;
+            auto createResult = create(worldBounds, faceClones);
+            kdl::visit_error([](const GeometryException& e) { throw e; }, createResult);
+
+            auto brush = kdl::get_value(std::move(createResult));
+            cloneAttributes(brush.get());
+            return brush.release();
         }
 
         bool Brush::doCanAddChild(const Node* /* child */) const {

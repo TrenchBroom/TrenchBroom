@@ -28,6 +28,8 @@
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/World.h"
 
+#include <kdl/result.h>
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -66,7 +68,11 @@ namespace TrenchBroom {
 
         Brush* ModelFactoryImpl::doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
             assert(m_format != MapFormat::Unknown);
-            return new Brush(worldBounds, faces);
+
+            auto createResult = Brush::create(worldBounds, faces);
+            kdl::visit_error([](const GeometryException& e) { throw e; }, createResult);
+
+            return kdl::get_value(std::move(createResult)).release();
         }
 
         BrushFace* ModelFactoryImpl::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
