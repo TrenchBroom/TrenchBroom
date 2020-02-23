@@ -252,9 +252,8 @@ namespace TrenchBroom {
         private:
             void updateFacesFromGeometry(const vm::bbox3& worldBounds, const BrushGeometry& geometry);
             void updatePointsFromVertices(const vm::bbox3& worldBounds);
-        public: // brush geometry
-            void rebuildGeometry(const vm::bbox3& worldBounds);
         private:
+            void rebuildGeometry(const vm::bbox3& worldBounds);
             void buildGeometry(const vm::bbox3& worldBounds);
             void deleteGeometry();
             bool checkGeometry() const;

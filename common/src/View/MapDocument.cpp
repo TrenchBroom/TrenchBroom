@@ -1399,10 +1399,6 @@ namespace TrenchBroom {
             return result->success();
         }
 
-        void MapDocument::rebuildBrushGeometry(const std::vector<Model::Brush*>& brushes) {
-            performRebuildBrushGeometry(brushes);
-        }
-
         bool MapDocument::snapVertices(const FloatType snapTo) {
             assert(m_selectedNodes.hasOnlyBrushes());
             const auto result = executeAndStore(SnapBrushVerticesCommand::snap(snapTo));

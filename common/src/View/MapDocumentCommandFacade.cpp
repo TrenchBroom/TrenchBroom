@@ -878,19 +878,6 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
         }
 
-        void MapDocumentCommandFacade::performRebuildBrushGeometry(const std::vector<Model::Brush*>& brushes) {
-            const std::vector<Model::Node*> nodes = kdl::vec_element_cast<Model::Node*>(brushes);
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            for (Model::Brush* brush : brushes)
-                brush->rebuildGeometry(m_worldBounds);
-
-            invalidateSelectionBounds();
-        }
-
         void MapDocumentCommandFacade::restoreSnapshot(Model::Snapshot* snapshot) {
             if (!m_selectedNodes.empty()) {
                 const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
